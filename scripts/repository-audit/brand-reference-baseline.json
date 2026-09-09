@@ -89,8 +89,8 @@
     {
       "path": "README.md",
       "line": 11,
-      "column": 556,
-      "textSha256": "4352c45b41747ed72beae171c57664c66c5b1c5354fe31d1eef15f43ad45baff",
+      "column": 602,
+      "textSha256": "4cc2f6c295b9d2592d7c601a56e6ea43baafc3e02b1721a9eb73e465708c06f3",
       "category": "pre-rebrand-public-copy"
     },
     {
@@ -89795,7 +89795,7 @@
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
       "line": 11,
       "column": 244,
-      "textSha256": "f6e7092e9d41c8efa5ba0e3a34ead8db6402da79217bb520fc44b94ccac60a97",
+      "textSha256": "ad3b8f17c401b5ee4ff59862a49fa5e9370e56237dbc31286367b35f52c9f55e",
       "category": "historical"
     },
     {

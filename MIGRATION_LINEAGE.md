@@ -13,7 +13,7 @@ Source commit: `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`
 - Sole fresh root: `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`, with no parent.
 - Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged into `main` on `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`.
 - Merge parents: the fresh root and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained.
-- Current local branch: `codex/atmoshaper-docs-consolidation`, based on that merge. Phase 3 Tasks 1–4 are committed through `7daec8142d0353b33f5aaeabcccb7689f15c820b`; Task 5 completes the deterministic audit reconciliation and closeout evidence in the commit containing this receipt. Phase 3 is complete locally. The branch has not been pushed, no Phase 3 pull request has been opened, and Phase 4 has not started.
+- Current branch: `codex/atmoshaper-docs-consolidation`, based on that merge and published in [PR #2](https://github.com/dsbowersock/atmoshaper/pull/2). Phase 3 Tasks 1–4 are committed through `7daec8142d0353b33f5aaeabcccb7689f15c820b`; Task 5 completed the deterministic audit reconciliation and closeout evidence at `62fd42beae83ea90b02a2ea321f7993c4b3661d1`. Phase 3 is complete and under hosted review. Phase 4 has not started.
 
 The [architecture map](docs/architecture.md), [decision index](docs/decisions/README.md), [account-security owner](docs/wiki/account-security.md), and [Phase 3 plan](docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) route current work. [Project state](docs/project-state.md) owns status; dated bootstrap snapshots in the [project log](docs/project-log.md) remain historical evidence.
 
@@ -29,4 +29,4 @@ This repository migration does not change the legal operator, copyright owner, p
 
 This lineage record is not evidence of a production deployment, provider migration, DNS or domain cutover, database or payment change, public runtime rebrand, or legal cutover. None of those actions occurs as part of the fresh-history repository bootstrap.
 
-Dedicated old-origin recovery and parallel provider staging remain proposed future work. Phase 3 changed documentation and its deterministic documentation-occurrence audit baseline only; deployment and production/database/payment/email/media/legal changes retain their separate authorization gates. Publication of the local Phase 3 branch is the next separate gate.
+Dedicated old-origin recovery and parallel provider staging remain proposed future work. Phase 3 changed documentation and its deterministic documentation-occurrence audit baseline only; deployment and production/database/payment/email/media/legal changes retain their separate authorization gates. Hosted checks and review of PR #2 are the current gate.

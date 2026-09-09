@@ -19,9 +19,10 @@
 
 Tasks 1–4 are committed through `7daec8142d0353b33f5aaeabcccb7689f15c820b`.
 Task 5 completed the audit reconciliation, independent whole-branch reviews, complete
-local verification, and closeout records in the commit containing this checkpoint.
-Phase 3 is complete locally. The next action requires separate authorization: push
-the existing branch and open a Phase 3 pull request. Phase 4 has not started.
+local verification, and closeout records at
+`62fd42beae83ea90b02a2ea321f7993c4b3661d1`. The branch is published in
+[PR #2](https://github.com/dsbowersock/atmoshaper/pull/2). Hosted checks and review
+are the current action. Phase 4 has not started.
 
 ## Stop conditions
 
@@ -37,6 +38,6 @@ Stop and escalate if any task would:
 
 ## External actions
 
-The only external change at this checkpoint is the separately authorized merge of
-bootstrap PR #1. Phase 3 has not pushed a branch, opened a new pull request, deployed,
-or mutated any provider.
+External repository actions are the separately authorized merge of bootstrap PR #1,
+publication of `codex/atmoshaper-docs-consolidation`, and creation of PR #2. Phase 3
+has not deployed or mutated any provider.

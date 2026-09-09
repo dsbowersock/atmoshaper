@@ -1,6 +1,6 @@
 # Phase 3 process reflection
 
-Status: complete local closeout; publication remains separately authorized.
+Status: complete and published in PR #2; hosted review is active.
 
 - Exact file ownership keeps documentation consolidation reviewable across tasks.
 - Occurrence baselines require comparing identity and category separately; line
@@ -20,5 +20,5 @@ Status: complete local closeout; publication remains separately authorized.
 
 Final review lessons: synchronize every current-status owner together, then request a
 whole-branch re-review; otherwise individually correct documents can still disagree as
-a set. Residual limitation: the branch is complete only locally until publication is
-separately authorized, and hosted checks cannot cover an unpublished head.
+a set. Residual limitation: Phase 3 is not integrated until PR #2 passes hosted review
+and is separately authorized for merge.
