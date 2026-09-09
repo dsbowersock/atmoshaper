@@ -262,9 +262,11 @@ current, and no old plan becomes a competing authority.
    or current-authority consumer still depends on a candidate's fresh-repository path.
 3. Replace the audio wiki's links to superseded execution plans with a compact
    historical-source section linking the immutable MassageLab source commit. Resolve
-   current runtime wording against code: `/music` is current; metadata-only
-   hover/focus/pointer-down behavior must not be contradicted by speculative warming
-   prose. Treat old hosting/upload plans as dated receipts, not current operations.
+   current runtime wording against code: `/music` is current; station pointer hover may
+   request compressed sample payloads when `canPrewarmCompressedSamplePayloads()` permits
+   it under the browser's data-saving and connection conditions. Focus, play-button
+   pointer-down, and carousel centering remain metadata-only. Treat old hosting/upload
+   plans as dated receipts, not current operations.
 4. Replace the retained Chimer checklist's link to the omitted inspiration note with
    the exact immutable MassageLab source URL, while keeping the current checklist
    status unchanged.

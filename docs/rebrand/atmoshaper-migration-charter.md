@@ -24,7 +24,7 @@
 - Merge parents: historical source `fa78ca01a42179329cc223df77c76f308e76320b`, then reviewed PR #206 head `971c453ebb50127bb3ffd1d9f5e4f133dbf9df82`.
 - Merge/reviewed-tree identity: both commits resolve to tree `0370e1d2749f9644efdc3ccbcb832c8d7965ec0d`.
 - Local/tracked agreement at relock start: `git rev-parse HEAD` and `git rev-parse origin/main` each returned `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`.
-- Source checkout: `source workspace` on `codex/atmoshaper-phase2-relock`; Task 5 must export the immutable selected commit, never working-tree state.
+- Source checkout: `[redacted local checkout path]` on `codex/atmoshaper-phase2-relock`; Task 5 must export the immutable selected commit, never working-tree state.
 - Node version: `v24.15.0`
 - npm version: `11.12.1`
 - Git version: `git version 2.55.0.windows.3`
@@ -33,7 +33,7 @@
 
 ```text
 git rev-parse --show-toplevel
-source workspace
+[redacted local checkout path]
 
 git branch --show-current
 codex/atmoshaper-phase2-relock
@@ -55,7 +55,7 @@ git diff --cached --name-only
 (no output)
 
 git worktree list --porcelain
-worktree source workspace
+worktree [redacted local checkout path]
 HEAD e74045c2fc85c2cb4df176fdb1aff2137c4d9848
 branch refs/heads/codex/atmoshaper-phase2-relock
 ```
