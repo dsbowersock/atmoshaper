@@ -89969,8 +89969,15 @@
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
       "line": 42,
-      "column": 224,
-      "textSha256": "cb450ca735b166a3058e7aca38a1a93f8b7c9ec27beae315fcdc3b0b1ce827bd",
+      "column": 105,
+      "textSha256": "83fafaebb3a606a3056508fda0074926eb21c3d34fae7cfa24998f3284aa13ed",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
+      "line": 42,
+      "column": 247,
+      "textSha256": "83fafaebb3a606a3056508fda0074926eb21c3d34fae7cfa24998f3284aa13ed",
       "category": "historical"
     },
     {
@@ -90342,27 +90349,6 @@
       "line": 21,
       "column": 54,
       "textSha256": "6441a98782b1377d7bbd50b45a29f3e967351a322bd0f3b306beaf7774cfb090",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 27,
-      "column": 53,
-      "textSha256": "2cdecc0de04e272a2d5c0dcc90e1997f3a640861e8869fb72f4f999a958a292a",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 36,
-      "column": 33,
-      "textSha256": "f09ca0a81ef50bee99e46c056b830a956adb0839d91035add78f2d9967c44973",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 58,
-      "column": 42,
-      "textSha256": "e9092b984356a4dc055809633328a85a85c0ab03fb7955215c51f760523048ed",
       "category": "historical"
     },
     {
@@ -129175,14 +129161,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128470,
+      "line": 128456,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128470,
+      "line": 128456,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"

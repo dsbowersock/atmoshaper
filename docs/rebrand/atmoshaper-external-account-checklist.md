@@ -39,7 +39,7 @@ The [architecture map](../architecture.md), [decisions](../decisions/README.md),
 
 ## Historical GitHub repository snapshot — 2026-09-08
 
-The [original repository row at merged bootstrap](https://github.com/dsbowersock/atmoshaper/blob/f59e1b9371b06e7401740ae011f6dc911430a97c/docs/rebrand/atmoshaper-external-account-checklist.md) recorded public, non-archived MassageLab with default `main`, merged source PR #206, and passed exact merge-head gates. At that source snapshot, the destination was uncreated: Task 5 still required manifest/tracked/live source agreement and relock ancestry, and Task 9 still required destination absence/ownership and public-setting verification. Those were then-current gates, superseded for repository status by the 2026-09-09 row above; no fresh source-repository or unrelated provider check is implied.
+The [original repository row at the selected 2026-09-08 source snapshot](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/rebrand/atmoshaper-external-account-checklist.md) recorded public, non-archived MassageLab with default `main`, merged source PR #206, and passed exact merge-head gates. At that source snapshot, the destination was uncreated: Task 5 still required manifest/tracked/live source agreement and relock ancestry, and Task 9 still required destination absence/ownership and public-setting verification. Those were then-current gates, superseded for repository status by the 2026-09-09 row above; no fresh source-repository or unrelated provider check is implied.
 
 ## Readback and sequencing rules
 
