@@ -20,8 +20,9 @@ repository history, not a production deployment or domain cutover.
 
 ## Current owners
 
-Code links point to the working repository. The map was checked against the merged
-bootstrap tree; historical provider receipts in linked wikis remain dated evidence.
+Code links point to the working repository. The code links were checked against the
+merged bootstrap tree, while the Phase 3 documentation owners were checked on this
+branch; historical provider receipts in linked wikis remain dated evidence.
 
 | Boundary | Documentation owner | Code owner and responsibility |
 | --- | --- | --- |

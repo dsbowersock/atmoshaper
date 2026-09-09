@@ -37,7 +37,7 @@ Start with:
 
 The [migration charter](docs/rebrand/atmoshaper-migration-charter.md) and [Phase 3 plan](docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) govern current consolidation. The [export manifest](docs/rebrand/atmoshaper-export-manifest.json) and [Phase 1–2 plan](docs/superpowers/plans/2026-09-06-atmoshaper-repository-migration.md) retain the historical bootstrap contract. At the historical Task 5 snapshot, Phase 2 audits, verification, and publication were still pending; [the project log](docs/project-log.md) preserves those dated receipts.
 
-Runtime rebranding, old-origin recovery implementation, provider staging, deployment, and production/database/payment/email/media/legal changes remain future gated work. The current gate is hosted checks and review of PR #2; Phase 4 has not started.
+Runtime rebranding, old-origin recovery implementation, provider staging, deployment, and production/database/payment/email/media/legal changes remain future-gated work. The current gate is hosted checks and review of PR #2; Phase 4 has not started.
 
 ## Local Development
 

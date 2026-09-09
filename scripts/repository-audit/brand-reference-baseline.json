@@ -87357,7 +87357,7 @@
     },
     {
       "path": "docs/architecture.md",
-      "line": 45,
+      "line": 46,
       "column": 75,
       "textSha256": "baef7b0f8c23f29ebd2bb49f43bb8b8b4d6761f9f68d35266eed62da31f8dff9",
       "category": "historical"
@@ -89457,7 +89457,7 @@
     },
     {
       "path": "docs/decisions/0004-parallel-provider-staging-and-cutover.md",
-      "line": 61,
+      "line": 62,
       "column": 75,
       "textSha256": "9ce917943f27528704a9b28b6619e9ab02a4fe74e43a8708ddc635f52f03c238",
       "category": "historical"
@@ -90593,7 +90593,7 @@
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
       "line": 536,
       "column": 106,
-      "textSha256": "5e4e1a9923612d2910745dd390cd61f710ff6703e19e4fa37c4a098181c2108c",
+      "textSha256": "cd3d3e751e1499c9979780764eb55c6e4b4b06069f44c94f0cf92668b99c71bf",
       "category": "historical"
     },
     {
@@ -96487,7 +96487,7 @@
       "path": "docs/wiki/atmosphere-audio.md",
       "line": 11,
       "column": 1,
-      "textSha256": "a1cfe7bef448fca65e89c7a059e9e0843fffc46f8101a8f51459d766b0b5c5f7",
+      "textSha256": "fbe2a64ee0f400a80b3faa8ef7735ff3b4f96c93af606ddc5851f25e3e6ef169",
       "category": "historical"
     },
     {

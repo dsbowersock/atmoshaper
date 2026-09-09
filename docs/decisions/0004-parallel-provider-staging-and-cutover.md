@@ -51,9 +51,10 @@ ownership or configuration claims.
 ## Revisit trigger
 
 Revisit when Phase 7 staging is authorized, a provider cannot support parallel
-origins, or Phase 9/10 preparation begins. Acceptance needs redacted current readbacks
-of environment isolation and relevant auth, Calendar, payment, mail, media, telemetry
-and realtime behavior, plus local-data/PWA recovery and a rehearsed traffic reversal.
+origins, or Phase 9/10 preparation begins. Acceptance requires current readbacks with
+sensitive values redacted for environment isolation and relevant auth, Calendar,
+payment, mail, media, telemetry and realtime behavior, plus local-data/PWA recovery
+and a rehearsed traffic reversal.
 Production deployment and each provider/DNS mutation still require separate authority.
 
 ## Immutable source
