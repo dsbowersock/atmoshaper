@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "forbiddenTrackedPaths": [
+    ".env.local",
+    ".vercel/",
+    ".next/",
+    "node_modules/",
+    "output/",
+    "graphify-out/",
+    "test-results/"
+  ],
+  "textExtensions": [
+    ".cjs", ".css", ".html", ".js", ".json", ".jsx", ".md",
+    ".mjs", ".prisma", ".sql", ".toml", ".ts", ".tsx", ".txt",
+    ".yaml", ".yml"
+  ],
+  "legacyPattern": "massagelab|massage lab",
+  "compatibilityIdentifierPatterns": [
+    "massageLab[A-Z][A-Za-z0-9_]*",
+    "massageLab[0-9][A-Za-z0-9_]*",
+    "MassageLab[A-Z0-9][A-Za-z0-9_]*",
+    "massagelab[A-Z][A-Za-z0-9_]*"
+  ],
+  "allowedCategories": [
+    "compatibility",
+    "legal",
+    "historical",
+    "pre-rebrand-public-copy"
+  ],
+  "candidateRules": [
+    {
+      "category": "legal",
+      "pathPrefixes": [
+        "LICENSE",
+        "app/legal/",
+        "lib/legal-acceptance-gate.js",
+        "lib/legal-acceptance.js",
+        "lib/legal-documents.js",
+        "tests/legal-acceptance.test.mjs",
+        "tests/legal-documents.test.mjs"
+      ]
+    },
+    {
+      "category": "compatibility",
+      "pathPrefixes": [
+        "prisma/migrations/",
+        "lib/atmoshaper/",
+        "components/atmoshaper/",
+        "data/atmoshaper/",
+        "scripts/atmoshaper",
+        "tests/fixtures/atmoshaper/"
+      ],
+      "linePatterns": [
+        "MASSAGELAB_[A-Z0-9_]",
+        "massagelab[-_.:][A-Za-z0-9_]",
+        "x-massagelab(?:[-_.:][A-Za-z0-9_])?"
+      ]
+    },
+    {
+      "category": "historical",
+      "pathPrefixes": ["docs/", "MIGRATION_LINEAGE.md"]
+    }
+  ]
+}

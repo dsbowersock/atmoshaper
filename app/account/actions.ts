@@ -1,0 +1,404 @@
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
+import type { Prisma, StudentAccessStatus, VerificationSourceType, VerificationStatus } from "@prisma/client"
+import { getCurrentSession } from "@/auth"
+import { settleAccountAction } from "@/lib/account-action-outcome"
+import { clearAccountSurfaceDataCache } from "@/lib/account-surface-data"
+import { roleStatusForCredentialStatus, shouldUpdateCredentialRole } from "@/lib/credential-verification-roles"
+import { claimVerifiedCredential } from "@/lib/credential-claims"
+import {
+  acceptedDocumentIdsFromInput,
+  legalHeadersMetadata,
+  missingRequiredLegalDocuments,
+  recordLegalAcceptances,
+} from "@/lib/legal-acceptance"
+import { requiredLegalDocumentsForEvent } from "@/lib/legal-documents"
+import { getJurisdictionVerificationPlan } from "@/lib/license-verification"
+import { buildStudentAccessState } from "@/lib/membership"
+import {
+  OHIO_LICENSE_VERIFIER_NAME,
+  ohioExpirationDateToDate,
+  verifyOhioMassageLicense,
+} from "@/lib/ohio-license-verifier"
+import { prisma } from "@/lib/prisma"
+import type { AccountRole, CredentialKind } from "@/lib/domain-types"
+
+const PROFILE_SAVE_SUCCESS_PATH = "/account?tab=profile&profile=saved"
+const PROFILE_SAVE_FAILURE_PATH = "/account?tab=profile&profile=save-failed"
+const CREDENTIAL_SUBMISSION_SUCCESS_PATH = "/account?tab=credentials&credential=submitted"
+const CREDENTIAL_SUBMISSION_FAILURE_PATH = "/account?tab=credentials&credential=submit-failed"
+
+function formString(formData: FormData, key: string) {
+  const value = formData.get(key)
+  return typeof value === "string" ? value.trim() : ""
+}
+
+function formDate(formData: FormData, key: string) {
+  const value = formString(formData, key)
+  if (!value) {
+    return null
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export async function saveProfileAction(formData: FormData) {
+  const session = await getCurrentSession()
+
+  if (!session?.user?.id) {
+    redirect("/login")
+  }
+
+  const destination = await settleAccountAction({
+    operation: "profile-save",
+    run: async () => {
+      await prisma.userProfile.upsert({
+        where: { userId: session.user.id },
+        create: {
+          userId: session.user.id,
+          displayName: formString(formData, "display_name"),
+          therapistName: formString(formData, "therapist_name"),
+          therapistLocation: formString(formData, "therapist_location"),
+          licenseNumber: formString(formData, "license_number"),
+          licenseOrganization: formString(formData, "license_organization"),
+          npiNumber: formString(formData, "npi_number"),
+        },
+        update: {
+          displayName: formString(formData, "display_name"),
+          therapistName: formString(formData, "therapist_name"),
+          therapistLocation: formString(formData, "therapist_location"),
+          licenseNumber: formString(formData, "license_number"),
+          licenseOrganization: formString(formData, "license_organization"),
+          npiNumber: formString(formData, "npi_number"),
+        },
+      })
+    },
+    successPath: PROFILE_SAVE_SUCCESS_PATH,
+    failurePath: PROFILE_SAVE_FAILURE_PATH,
+  })
+
+  if (destination === PROFILE_SAVE_SUCCESS_PATH) {
+    refreshAccountSurface(session.user.id)
+  }
+
+  redirect(destination)
+}
+
+function credentialRole(kind: CredentialKind): AccountRole {
+  if (kind === "MASSAGE_LICENSE") return "LICENSED_THERAPIST"
+  if (kind === "STUDENT_ENROLLMENT") return "STUDENT"
+  if (kind === "INTERSTATE_MASSAGE_COMPACT") return "LICENSED_THERAPIST"
+  return "USER"
+}
+
+function credentialSource(kind: CredentialKind, jurisdictionCode: string): {
+  sourceType: VerificationSourceType
+  sourceUrl: string | null
+  verificationPayload: Prisma.InputJsonObject & {
+    supportStatus: string
+    message: string
+  }
+} {
+  if (kind === "MASSAGE_LICENSE") {
+    const plan = getJurisdictionVerificationPlan(jurisdictionCode)
+    return {
+      sourceType: plan.sourceType as VerificationSourceType,
+      sourceUrl: plan.sourceUrl,
+      verificationPayload: {
+        supportStatus: plan.supportStatus,
+        message: plan.message,
+      },
+    }
+  }
+
+  if (kind === "STUDENT_ENROLLMENT") {
+    return {
+      sourceType: "DOCUMENT_REVIEW",
+      sourceUrl: null,
+      verificationPayload: {
+        supportStatus: "MANUAL_REVIEW_REQUIRED",
+        message: "Student enrollment needs date-bounded evidence review before verified status is granted.",
+      },
+    }
+  }
+
+  return {
+    sourceType: "MANUAL_REVIEW",
+    sourceUrl: null,
+    verificationPayload: {
+      supportStatus: "MANUAL_REVIEW_REQUIRED",
+      message: "This credential needs review before verified status is granted.",
+    },
+  }
+}
+
+export async function requestCredentialVerificationAction(formData: FormData) {
+  const session = await getCurrentSession()
+
+  if (!session?.user?.id) {
+    redirect("/login")
+  }
+
+  const requiredDocuments = requiredLegalDocumentsForEvent("professional-activation")
+  const acceptedDocumentIds = acceptedDocumentIdsFromInput(
+    formString(formData, "therapistAgreementAccepted") === "true"
+      ? formData.getAll("acceptedLegalDocuments")
+      : [],
+  )
+  const missingLegalDocuments = missingRequiredLegalDocuments({ acceptedDocumentIds, documents: requiredDocuments })
+
+  if (missingLegalDocuments.length > 0) {
+    redirect("/account?tab=credentials&legal=therapist-agreement-required")
+  }
+
+  const destination = await settleAccountAction({
+    operation: "credential-submission",
+    run: () => submitCredentialVerificationOperation({
+      formData,
+      requiredDocuments,
+      userId: session.user.id,
+    }),
+    successPath: CREDENTIAL_SUBMISSION_SUCCESS_PATH,
+    failurePath: CREDENTIAL_SUBMISSION_FAILURE_PATH,
+  })
+
+  if (destination === CREDENTIAL_SUBMISSION_SUCCESS_PATH) {
+    refreshAccountSurface(session.user.id)
+  }
+
+  redirect(destination)
+}
+
+/** Cache refresh is best-effort after a durable commit and never changes its outcome. */
+function refreshAccountSurface(userId: string) {
+  try {
+    clearAccountSurfaceDataCache(userId)
+    revalidatePath("/account")
+  } catch {
+    // A committed submission remains successful if local cache invalidation fails.
+  }
+}
+
+/** Runs only after authentication and legal redirect checks so failures map safely. */
+async function submitCredentialVerificationOperation({
+  formData,
+  requiredDocuments,
+  userId,
+}: {
+  formData: FormData
+  requiredDocuments: ReturnType<typeof requiredLegalDocumentsForEvent>
+  userId: string
+}) {
+  const requestHeaders = await headers()
+
+  const rawKind = formString(formData, "credential_kind")
+  const kind: CredentialKind = rawKind === "STUDENT_ENROLLMENT" ? "STUDENT_ENROLLMENT" : "MASSAGE_LICENSE"
+  const role = credentialRole(kind)
+  const jurisdictionCode = formString(formData, "jurisdiction_code").toUpperCase() || null
+  const credentialNumber = formString(formData, "credential_number") || null
+  const issuingAuthority = formString(formData, "issuing_authority") || null
+  const evidenceDescription = formString(formData, "evidence_description") || null
+  const studentStartDate = formDate(formData, "student_start_date")
+  const legalFirstName = formString(formData, "legal_first_name")
+  const legalMiddleName = formString(formData, "legal_middle_name")
+  const legalLastName = formString(formData, "legal_last_name")
+  const source = credentialSource(kind, jurisdictionCode ?? "")
+  const isOhioMassageLicense = kind === "MASSAGE_LICENSE" && jurisdictionCode === "OH"
+  const ohioResult = isOhioMassageLicense
+    ? await verifyOhioMassageLicense({
+        licenseNumber: credentialNumber ?? "",
+        legalFirstName,
+        legalMiddleName,
+        legalLastName,
+      })
+    : null
+  let verificationStatus = (ohioResult?.status ?? "PENDING") as VerificationStatus
+  const checkedAt = ohioResult ? new Date(ohioResult.checkedAt) : null
+  const expiresAt = ohioExpirationDateToDate(ohioResult?.proof?.expirationDate ?? null)
+  const legalNameInput = {
+    firstName: legalFirstName || null,
+    middleName: legalMiddleName || null,
+    lastName: legalLastName || null,
+  }
+  let verificationPayload: Prisma.InputJsonObject = ohioResult
+    ? {
+        ...source.verificationPayload,
+        verifier: OHIO_LICENSE_VERIFIER_NAME,
+        reasonCode: ohioResult.reasonCode,
+        checkedAt: ohioResult.checkedAt,
+        legalNameInput,
+        match: ohioResult.match,
+        proof: ohioResult.proof,
+      }
+    : {
+        ...source.verificationPayload,
+        legalNameInput,
+      }
+
+  const verificationData = {
+    kind,
+    role,
+    status: verificationStatus,
+    jurisdictionCode,
+    credentialNumber,
+    issuingAuthority,
+    displayLabel: issuingAuthority || jurisdictionCode || kind,
+    sourceType: source.sourceType,
+    sourceUrl: source.sourceUrl,
+    evidenceDescription,
+    verificationPayload,
+    checkedAt,
+    verifiedAt: verificationStatus === "VERIFIED" ? checkedAt : null,
+    expiresAt,
+    rejectedAt: verificationStatus === "REJECTED" ? checkedAt : null,
+  }
+
+  await prisma.$transaction(async (transaction) => {
+    await recordLegalAcceptances({
+      prismaClient: transaction,
+      userId,
+      documents: requiredDocuments,
+      metadata: legalHeadersMetadata(requestHeaders),
+    })
+
+  const existingVerification = await transaction.credentialVerification.findFirst({
+    where: {
+      userId,
+      kind,
+      jurisdictionCode,
+      credentialNumber,
+    },
+  })
+
+  let verification = existingVerification
+    ? await transaction.credentialVerification.update({
+        where: { id: existingVerification.id },
+        data: verificationData,
+      })
+    : await transaction.credentialVerification.create({
+        data: {
+          userId,
+          ...verificationData,
+        },
+      })
+
+  if (verificationStatus === "VERIFIED" && jurisdictionCode && credentialNumber) {
+    const credentialClaim = await claimVerifiedCredential({
+      prismaClient: transaction,
+      userId,
+      kind,
+      jurisdictionCode,
+      credentialNumber,
+      credentialVerificationId: verification.id,
+      source: OHIO_LICENSE_VERIFIER_NAME,
+      expiresAt,
+    })
+
+    verificationPayload = {
+      ...verificationPayload,
+      credentialClaim: {
+        claimed: credentialClaim.claimed,
+        reasonCode: credentialClaim.reasonCode,
+        key: credentialClaim.key,
+        existingClaim: credentialClaim.existingClaim,
+      },
+      reasonCode: credentialClaim.claimed ? ohioResult?.reasonCode ?? "OHIO_VERIFIED" : credentialClaim.reasonCode,
+    }
+
+    if (!credentialClaim.claimed) {
+      verificationStatus = "PENDING"
+    }
+
+    verification = await transaction.credentialVerification.update({
+      where: { id: verification.id },
+      data: {
+        status: verificationStatus,
+        verificationPayload,
+        verifiedAt: verificationStatus === "VERIFIED" ? checkedAt : null,
+      },
+    })
+  }
+
+  const existingRole = await transaction.userRole.findUnique({
+    where: {
+      userId_role: {
+        userId,
+        role,
+      },
+    },
+  })
+
+  const roleStatus = roleStatusForCredentialStatus(verificationStatus) as VerificationStatus
+  const roleSource = ohioResult ? "ohio-elicense" : "credential-request"
+  const verificationReasonCode =
+    typeof verificationPayload.reasonCode === "string" ? verificationPayload.reasonCode : ohioResult?.reasonCode
+  const roleMetadata: Prisma.InputJsonObject = ohioResult
+    ? {
+        credentialVerificationId: verification.id,
+        jurisdictionCode,
+        verifier: OHIO_LICENSE_VERIFIER_NAME,
+        reasonCode: verificationReasonCode ?? ohioResult.reasonCode,
+      }
+    : {
+        credentialVerificationId: verification.id,
+      }
+
+  if (!existingRole) {
+    await transaction.userRole.create({
+      data: {
+        userId,
+        role,
+        status: roleStatus,
+        source: roleSource,
+        metadata: roleMetadata,
+        verifiedAt: roleStatus === "VERIFIED" ? checkedAt : null,
+        expiresAt: roleStatus === "VERIFIED" ? expiresAt : null,
+      },
+    })
+  } else if (shouldUpdateCredentialRole(existingRole.status, verificationStatus)) {
+    await transaction.userRole.update({
+      where: {
+        userId_role: {
+          userId,
+          role,
+        },
+      },
+      data: {
+        status: roleStatus,
+        source: roleSource,
+        metadata: roleMetadata,
+        verifiedAt: roleStatus === "VERIFIED" ? checkedAt : null,
+        expiresAt: roleStatus === "VERIFIED" ? expiresAt : null,
+      },
+    })
+  }
+
+  if (kind === "STUDENT_ENROLLMENT" && studentStartDate) {
+    const studentAccess = buildStudentAccessState({ studentStartDate })
+
+    if (studentAccess) {
+      await transaction.studentAccess.upsert({
+        where: { userId },
+        create: {
+          userId,
+          studentStartDate: studentAccess.studentStartDate,
+          studentAccessExpiresAt: studentAccess.studentAccessExpiresAt,
+          studentStatus: studentAccess.studentStatus as StudentAccessStatus,
+          eligibleForTherapistDiscount: studentAccess.eligibleForTherapistDiscount,
+        },
+        update: {
+          studentStartDate: studentAccess.studentStartDate,
+          studentAccessExpiresAt: studentAccess.studentAccessExpiresAt,
+          studentStatus: studentAccess.studentStatus as StudentAccessStatus,
+          eligibleForTherapistDiscount: studentAccess.eligibleForTherapistDiscount,
+        },
+      })
+    }
+  }
+
+  })
+}

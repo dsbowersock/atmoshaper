@@ -1,0 +1,390 @@
+import assert from "node:assert/strict"
+import { readFile } from "node:fs/promises"
+import { describe, it } from "node:test"
+import {
+  backgroundRegistry,
+  resolveBackgroundCommerceAccessSource,
+  resolveAccessibleBackgroundControls,
+} from "../components/backgrounds/backgroundRegistry.ts"
+import { sourceBetween } from "./helpers/source-structure.mjs"
+import {
+  backgroundCardCommerceState,
+  hasActivePermanentOwnership,
+} from "../lib/background-commerce-client.js"
+import { backgroundCarouselAccessLabel } from "../lib/background-carousel-access-label.js"
+
+const cardPath = new URL("../components/backgrounds/background-carousel-card.tsx", import.meta.url)
+const trayPath = new URL("../components/backgrounds/background-carousel-control-tray.tsx", import.meta.url)
+const accessLabelPath = new URL("../lib/background-carousel-access-label.js", import.meta.url)
+const carouselPath = new URL("../components/backgrounds/background-carousel.tsx", import.meta.url)
+const providerPath = new URL("../components/backgrounds/BackgroundCommerceProvider.tsx", import.meta.url)
+const accountPanelPath = new URL("../components/account/BackgroundCommercePanel.tsx", import.meta.url)
+const chimerPagePath = new URL("../app/chimer/page.tsx", import.meta.url)
+const selectorPath = new URL("../components/backgrounds/BackgroundSelector.tsx", import.meta.url)
+const setTimerPath = new URL("../app/chimer/set-timer.tsx", import.meta.url)
+const setTimerStylesPath = new URL("../app/chimer/set-timer.module.css", import.meta.url)
+
+function snapshot(overrides = {}) {
+  return {
+    creditBalance: 0,
+    ownedBackgroundIds: [],
+    ownerships: [],
+    cart: { items: [], reservedOrder: null, subtotalAmount: 0, currency: "usd", notices: [] },
+    recentOrders: [],
+    ...overrides,
+  }
+}
+
+describe("production background commerce states", () => {
+  it("maps every carousel access state to a concise visible label", () => {
+    const base = {
+      canSelect: false,
+      ownershipStatus: null,
+    }
+    for (const [state, expected] of [
+      ["free", "Free"],
+      ["owned", "Owned"],
+      ["owned-credit", "Owned"],
+      ["owned-purchase", "Owned"],
+      ["included-subscription", "Included with membership"],
+      ["included-admin", "Included with administrator access"],
+      ["locked-credit-available", "Locked · credit available"],
+      ["locked-no-credit", "Locked · no credit"],
+      ["unavailable", "Unavailable"],
+    ]) {
+      assert.equal(backgroundCarouselAccessLabel({ ...base, state }), expected)
+    }
+
+    assert.equal(backgroundCarouselAccessLabel({
+      ...base,
+      state: "unavailable",
+      ownershipStatus: "refund_pending",
+    }), "Refund pending")
+  })
+
+  it("uses an enabled premium registry card for authoritative ownership states", () => {
+    const background = backgroundRegistry.find((entry) => entry.enabled && entry.requiresSubscription)
+    assert.ok(background, "expected an enabled premium background")
+    const owned = backgroundCardCommerceState({
+      background,
+      access: { canUse: true, accessSource: "ownership" },
+      snapshot: snapshot({
+        ownedBackgroundIds: [background.id],
+        ownerships: [{
+          backgroundId: background.id,
+          source: "purchase",
+          status: "active",
+          acquiredAt: "2026-07-20T10:00:00.000Z",
+        }],
+      }),
+    })
+    assert.equal(owned.state, "owned-purchase")
+    assert.equal(owned.canSelect, true)
+    assert.equal(hasActivePermanentOwnership(owned), true)
+  })
+
+  it("keeps transient ownership selectable without claiming permanent acquisition", () => {
+    const background = backgroundRegistry.find((entry) => entry.enabled && entry.requiresSubscription)
+    assert.ok(background, "expected an enabled premium background")
+    const transient = backgroundCardCommerceState({
+      background,
+      access: { canUse: true, accessSource: "ownership" },
+      snapshot: snapshot(),
+    })
+
+    assert.equal(transient.state, "owned")
+    assert.equal(transient.canSelect, true)
+    assert.equal(transient.ownershipStatus, null)
+    assert.equal(transient.ownershipSource, null)
+    assert.equal(hasActivePermanentOwnership(transient), false)
+  })
+
+  it("renders ownership, inclusion, cart, reservation, and inactive-status labels", async () => {
+    const [cardSource, traySource, accessLabelSource] = await Promise.all([
+      readFile(cardPath, "utf8"),
+      readFile(trayPath, "utf8"),
+      readFile(accessLabelPath, "utf8"),
+    ])
+    for (const label of [
+      "Owned",
+      "Free",
+      "Locked · credit available",
+      "Locked · no credit",
+      "Included with membership",
+      "Refund pending",
+      "Dispute suspended",
+      "Retired",
+      "Unavailable",
+    ]) {
+      assert.match(accessLabelSource, new RegExp(label))
+    }
+    for (const label of [
+      "Purchased",
+      "Credit",
+      "In cart",
+      "Reserved",
+      "DollarSign",
+      "Crown",
+    ]) {
+      assert.match(traySource, new RegExp(label))
+    }
+    assert.match(traySource, /backgroundCarouselAccessLabel/)
+    assert.match(traySource, /data-background-carousel-controls/)
+    assert.match(traySource, /Open permanent ownership options for \$\{option\.label\}/)
+    assert.match(traySource, /commerceState\.showKeepPermanently\s*&&\s*onKeepPermanently/)
+    assert.match(traySource, /\$\{option\.label\} is permanently owned/)
+    assert.match(traySource, /permanentlyOwned\s*&&\s*sourceLabel/)
+    assert.doesNotMatch(traySource, /statusLabel\s*===\s*["']Owned["']\s*&&\s*sourceLabel/)
+    assert.doesNotMatch(cardSource, /commerceState|accessLabel|onLockedSelect|onKeepPermanently|data-background-carousel-controls/)
+  })
+
+  it("presents locked backgrounds as actionable Unlock controls", async () => {
+    const [cardSource, traySource] = await Promise.all([
+      readFile(cardPath, "utf8"),
+      readFile(trayPath, "utf8"),
+    ])
+    assert.match(traySource, /commerceState\.canSelect/)
+    assert.match(traySource, /onLockedSelect\?\.\(\s*\)/)
+    assert.match(traySource, /onSelect\(\s*\)/)
+    assert.match(traySource, /onClick=\{\s*onKeepPermanently\s*\}/)
+    assert.match(traySource, /hasActivePermanentOwnership\(\s*commerceState\s*\)/)
+    assert.match(traySource, /data-carousel-primary-state/)
+    assert.match(traySource, /\?\s*"Unlock"/)
+    assert.match(traySource, /variant=\{\s*locked\s*\?\s*"default"\s*:\s*"glow"\s*\}/)
+    assert.match(traySource, /Add this background now, then sign in or create an account at checkout\./)
+    assert.match(traySource, /aria-describedby=\{\s*locked\s*\?\s*acquisitionHintId\s*:\s*undefined\s*\}/)
+    assert.match(traySource, /<Lock\b[^>]*\baria-hidden="true"[^>]*\/>/)
+    assert.doesNotMatch(cardSource, /<Button|<Lock|<DollarSign|<Crown|data-carousel-primary-action/)
+  })
+
+  it("feeds the same provider snapshot through the shared carousel adapter", async () => {
+    const carousel = await readFile(carouselPath, "utf8")
+    const selector = await readFile(selectorPath, "utf8")
+    assert.match(carousel, /useBackgroundCommerce\(\)/)
+    assert.match(carousel, /backgroundCardCommerceState/)
+    assert.match(carousel, /resolveBackgroundCommerceAccessSource\(option, access\)/)
+    assert.match(selector, /useBackgroundCreditStatus/)
+    assert.match(selector, /setAcquisition/)
+    assert.match(selector, /<BackgroundAcquisitionDialog/)
+    assert.match(selector, /onAcquired/)
+    assert.match(selector, /resolveAccessibleBackgroundControls/)
+    assert.match(selector, /\{selectedControls \? \(/)
+  })
+
+  it("preserves authoritative temporary provenance through the carousel mapper", () => {
+    const background = backgroundRegistry.find((entry) => entry.enabled && entry.requiresSubscription)
+    assert.ok(background, "expected an enabled premium background")
+    const stateFor = (access) => {
+      const accessSource = resolveBackgroundCommerceAccessSource(background, access)
+      return backgroundCardCommerceState({
+        background,
+        access: { canUse: accessSource !== "locked", accessSource },
+        snapshot: snapshot(),
+      }).state
+    }
+
+    assert.equal(stateFor({
+      featureKeys: ["premium_backgrounds"],
+      premiumBackgroundAccessSource: "temporary",
+      ownedBackgroundIds: [],
+    }), "included-temporary")
+    assert.equal(stateFor({
+      featureKeys: ["premium_backgrounds"],
+      premiumBackgroundAccessSource: "subscription",
+      ownedBackgroundIds: [],
+    }), "included-subscription")
+    assert.equal(stateFor({
+      featureKeys: ["premium_backgrounds"],
+      premiumBackgroundAccessSource: "admin",
+      ownedBackgroundIds: [],
+    }), "included-admin")
+    assert.equal(stateFor({
+      featureKeys: ["premium_backgrounds"],
+      premiumBackgroundAccessSource: "temporary",
+      ownedBackgroundIds: [background.id],
+    }), "owned")
+    assert.equal(stateFor({
+      featureKeys: ["premium_backgrounds"],
+      ownedBackgroundIds: [],
+    }), "included-subscription", "legacy aggregate snapshots remain conservatively membership-backed")
+  })
+
+  it("renders selected setup controls only for an accessible background", () => {
+    const premiumBackground = backgroundRegistry.find(
+      (entry) => entry.enabled && entry.requiresSubscription,
+    )
+    assert.ok(premiumBackground, "expected an enabled premium background")
+    const renderControls = (option) => `controls:${option.id}`
+
+    assert.equal(resolveAccessibleBackgroundControls(
+      premiumBackground,
+      { featureKeys: [], ownedBackgroundIds: [] },
+      renderControls,
+    ), null)
+    assert.equal(resolveAccessibleBackgroundControls(
+      premiumBackground,
+      { featureKeys: ["premium_backgrounds"], ownedBackgroundIds: [] },
+      renderControls,
+    ), `controls:${premiumBackground.id}`)
+    assert.equal(resolveAccessibleBackgroundControls(
+      premiumBackground,
+      { featureKeys: [], ownedBackgroundIds: [premiumBackground.id] },
+      renderControls,
+    ), `controls:${premiumBackground.id}`)
+  })
+
+  it("routes setup background selection through the shared Visual snapshot commit", async () => {
+    const setup = await readFile(setTimerPath, "utf8")
+    assert.match(setup, /buildBackgroundVisualOpeningSnapshot/)
+    assert.match(setup, /buildBackgroundVisualPendingCommit/)
+    assert.match(setup, /targetBackgroundId:\s*nextBackgroundId/)
+    assert.match(setup, /targetAdapter:\s*backgroundPaletteRegistry\[nextBackgroundId\]/)
+    assert.match(setup, /onBackgroundVisualCommit\(\{/)
+    assert.match(setup, /onChange=\{handleBackgroundSelection\}/)
+  })
+
+  it("removes the redundant Chimer background step shell and empty controls card", async () => {
+    const setup = await readFile(setTimerPath, "utf8")
+    const styles = await readFile(setTimerStylesPath, "utf8")
+    const selector = await readFile(selectorPath, "utf8")
+    assert.match(setup, /activeStep === CHIMER_BACKGROUND_SETUP_STEP_INDEX \? styles\.backgroundStepContent/)
+    assert.match(styles, /\.backgroundStepContent\s*\{[\s\S]*?padding: 0;[\s\S]*?border: 0;[\s\S]*?background: transparent;/)
+    assert.doesNotMatch(selector, /\{renderSelectedControls\(selectedOption\)\}/)
+  })
+})
+
+describe("background acquisition and shared account cart", () => {
+  const acquisitionPath = new URL("../components/backgrounds/BackgroundAcquisitionDialog.tsx", import.meta.url)
+  const confirmationPath = new URL("../components/backgrounds/BackgroundCreditConfirmationDialog.tsx", import.meta.url)
+  const cartPath = new URL("../components/backgrounds/BackgroundCommerceCart.tsx", import.meta.url)
+  const triggerPath = new URL("../components/commerce/CommerceCartTrigger.tsx", import.meta.url)
+  const layoutPath = new URL("../components/layout-wrapper.tsx", import.meta.url)
+
+  it("defers owner commerce until intent and keeps one current-owner read", async () => {
+    const [provider, layout] = await Promise.all([
+      readFile(providerPath, "utf8"),
+      readFile(layoutPath, "utf8"),
+    ])
+    assert.match(provider, /ownerKey:\s*string \| null/)
+    assert.match(provider, /ensureSnapshot\(\): Promise<void>/)
+    assert.match(provider, /snapshotPromiseRef/)
+    assert.match(provider, /ownerGenerationRef/)
+    assert.match(provider, /activeOwnerKeyRef\.current !== ownerKey/)
+    assert.match(provider, /key=\{ownerKey \?\? "guest"\}/)
+    assert.match(
+      provider,
+      /useLayoutEffect\(\(\) => \{[\s\S]*activeOwnerKeyRef\.current = ownerKey[\s\S]*return \(\) => \{[\s\S]*ownerGenerationRef\.current \+= 1[\s\S]*controller\.abort\(\)/,
+    )
+    assert.doesNotMatch(provider, /Account state must load even when there is no guest intent/)
+    assert.match(provider, /pendingIds\.length > 0/)
+    assert.match(provider, /hydratedOwnerRef\.current !== ownerKey/)
+    assert.match(provider, /mutationStartedOwnerRef\.current !== ownerKey/)
+    assert.match(layout, /ownerKey=\{ownerKey\}/)
+    assert.doesNotMatch(layout, /enabled=\{Boolean\(user\)\}/)
+  })
+
+  it("hydrates only actual carousel, Chimer, return, or account-cart consumers", async () => {
+    const [carousel, chimer, panel, cart, trigger] = await Promise.all([
+      readFile(carouselPath, "utf8"),
+      readFile(chimerPagePath, "utf8"),
+      readFile(accountPanelPath, "utf8"),
+      readFile(cartPath, "utf8"),
+      readFile(triggerPath, "utf8"),
+    ])
+    assert.match(
+      carousel,
+      /const \{[^}]*\bensureSnapshot\b[^}]*\} = useBackgroundCommerce\(\)/,
+    )
+    assert.match(
+      carousel,
+      /useEffect\(\(\) => \{\s*void ensureSnapshot\(\)\s*\}, \[ensureSnapshot\]\)/,
+    )
+    assert.match(chimer, /ensureSnapshot:\s*ensureBackgroundCommerceSnapshot/)
+    assert.match(chimer, /void ensureBackgroundCommerceSnapshot\(\)/)
+    const openAccountCartHandler = sourceBetween(
+      panel.replace(/\r\n?/g, "\n"),
+      "  const openAccountCart = () => {",
+      "  }\n\n  return (",
+      "BackgroundCommercePanel openAccountCart handler",
+    )
+    assert.match(
+      openAccountCartHandler,
+      /\bensureSnapshot\(\)[\s\S]*\bopenCart\(\)/,
+    )
+    assert.doesNotMatch(cart, /ensureSnapshot/)
+    assert.doesNotMatch(trigger, /ensureSnapshot/)
+  })
+
+  it("offers exactly the approved locked-card actions and subscriber distinction", async () => {
+    const source = await readFile(acquisitionPath, "utf8")
+    for (const label of ["Use free credit", "Buy for $1", "Unlock all"]) {
+      assert.equal(source.split(label).length - 1, 1)
+    }
+    assert.match(source, /mode === "keep-permanently"/)
+    assert.match(source, /Keep \$\{background\.label\} permanently/)
+    assert.match(source, /even if you later cancel/)
+    assert.match(source, /Buy permanently for \$1/)
+    assert.match(source, /creditBalance === 0/)
+    assert.match(source, /\/account\?tab=membership/)
+    assert.match(source, /if \(open\) setErrorMessage\(""\)/)
+    assert.match(source, /\[background, open\]/)
+    assert.match(source, /if \(!open \|\| !owned \|\| !background\) return[\s\S]*setConfirmingCredit\(false\)/)
+  })
+
+  it("requires explicit permanent and non-swappable credit confirmation", async () => {
+    const source = await readFile(confirmationPath, "utf8")
+    assert.match(source, /permanently owned/i)
+    assert.match(source, /cannot be swapped/i)
+    assert.match(source, /type="checkbox"/)
+    assert.match(source, /disabled=\{!confirmed/)
+    assert.match(source, /idempotencyKey/)
+  })
+
+  it("renders persistent cart lines, notices, reservation controls, and tax wording", async () => {
+    const source = await readFile(cartPath, "utf8")
+    for (const label of [
+      "Review checkout",
+      "Applicable tax is calculated from your billing address at Stripe Checkout.",
+      "Purchased backgrounds stay available to your account permanently.",
+      "Remove",
+      "Return to checkout",
+      "Cancel reservation",
+    ]) {
+      assert.match(source, new RegExp(label))
+    }
+    assert.match(source, /cart\.notices/)
+    assert.match(source, /reservedOrder/)
+    assert.match(source, /state\.status === "mutating" \|\| state\.status === "redirecting"/)
+    assert.match(source, /await removeFromCart\(backgroundId\)/)
+    assert.match(source, /The item could not be removed\./)
+    assert.match(source, /buildBackgroundCartAuthReturnPath/)
+    assert.match(source, /useSearchParams/)
+    assert.match(source, /searchParams\.toString\(\)/)
+    assert.match(source, /encodeURIComponent\(authReturnPath\)/)
+    assert.match(source, /BACKGROUND_CART_AUTH_RETURN_PARAM/)
+    assert.match(source, /openCart\(\)/)
+    assert.match(source, /window\.history\.replaceState/)
+  })
+
+  it("shows one shared conditional trigger outside Calendar provider-sales surfaces", async () => {
+    const trigger = await readFile(triggerPath, "utf8")
+    const layout = await readFile(layoutPath, "utf8")
+    const running = await readFile(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
+    assert.match(trigger, /pathname === "\/calendar"/)
+    assert.match(trigger, /pathname\.startsWith\("\/calendar\/"\)/)
+    assert.match(trigger, /pathname === "\/book"/)
+    assert.match(trigger, /pathname\.startsWith\("\/book\/"\)/)
+    assert.match(trigger, /cart\?\.items\.length/)
+    assert.match(trigger, /cart\?\.reservedOrder/)
+    assert.match(trigger, /aria-label/)
+    assert.match(layout, /<BackgroundCommerceCart variant="dialog"/)
+    assert.equal((layout.match(/<BackgroundCommerceCart variant="dialog"/g) ?? []).length, 1)
+    assert.match(running, /onLockedSelect=/)
+    assert.match(running, /onKeepPermanently=/)
+    assert.match(running, /onLockedSelect=\{\(background\) => \{[\s\S]*triggerHapticFeedback\(hapticsEnabled\)[\s\S]*mode: "locked"/)
+    assert.match(running, /onKeepPermanently=\{\(background\) => \{[\s\S]*triggerHapticFeedback\(hapticsEnabled\)[\s\S]*mode: "keep-permanently"/)
+    assert.match(running, /<BackgroundAcquisitionDialog/)
+    assert.match(running, /backgroundAccess: BackgroundAccessSnapshot/)
+    assert.match(running, /<BackgroundCarousel[\s\S]*access=\{effectiveBackgroundAccess\}/)
+  })
+})

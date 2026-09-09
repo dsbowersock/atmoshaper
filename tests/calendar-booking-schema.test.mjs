@@ -1,0 +1,242 @@
+import assert from "node:assert/strict"
+import { readFileSync, existsSync } from "node:fs"
+import { describe, it } from "node:test"
+import { safePostLegalAcceptanceCallback } from "../lib/legal-acceptance-gate.js"
+
+const schema = readFileSync(new URL("../prisma/schema.prisma", import.meta.url), "utf8")
+const actions = readFileSync(new URL("../app/calendar/actions.ts", import.meta.url), "utf8")
+const bookingSettingsPage = readFileSync(new URL("../app/calendar/booking/page.tsx", import.meta.url), "utf8")
+const bookingPage = readFileSync(new URL("../app/book/[practiceSlug]/page.tsx", import.meta.url), "utf8")
+const publicBookingPage = readFileSync(new URL("../app/book/public-booking-page.tsx", import.meta.url), "utf8")
+const bookingPicker = readFileSync(new URL("../app/book/[practiceSlug]/booking-picker.tsx", import.meta.url), "utf8")
+const layoutWrapper = readFileSync(new URL("../components/layout-wrapper.tsx", import.meta.url), "utf8")
+const bookingPickerHelpers = readFileSync(new URL("../lib/public-booking-picker.js", import.meta.url), "utf8")
+const sequenceOptionsRoute = readFileSync(new URL("../app/api/book/[practiceSlug]/sequence-options/route.ts", import.meta.url), "utf8")
+const publicBookingSequences = readFileSync(new URL("../lib/public-booking-sequences.js", import.meta.url), "utf8")
+const calendarActionServiceCatalog = readFileSync(new URL("../app/calendar/actions/service-catalog.ts", import.meta.url), "utf8")
+const calendarActionPublicBooking = readFileSync(new URL("../app/calendar/actions/public-booking.ts", import.meta.url), "utf8")
+const loginForm = readFileSync(new URL("../app/login/login-form.tsx", import.meta.url), "utf8")
+const authEntryActions = readFileSync(new URL("../lib/auth-entry-actions.ts", import.meta.url), "utf8")
+const registerPage = readFileSync(new URL("../app/register/page.tsx", import.meta.url), "utf8")
+const authRoute = readFileSync(new URL("../app/api/auth/[...nextauth]/route.ts", import.meta.url), "utf8")
+const publicBookingLinkCard = readFileSync(new URL("../app/calendar/booking/public-booking-link-card.tsx", import.meta.url), "utf8")
+
+describe("calendar booking settings schema and route surface", () => {
+  it("defines policy, capacity, waitlist, pressure, and service role storage", () => {
+    assert.match(schema, /enum BookingApprovalMode/)
+    assert.match(schema, /enum BookingCapacityPeriod/)
+    assert.match(schema, /enum ServiceBookingRole/)
+    assert.match(schema, /enum BookingWaitlistStatus/)
+    assert.match(schema, /model BookingPolicy/)
+    assert.match(schema, /model ProviderBookingPolicy/)
+    assert.match(schema, /model ProviderBookingCapacityRule/)
+    assert.match(schema, /model BookingGroup/)
+    assert.match(schema, /model BookingWaitlistEntry/)
+    assert.match(schema, /bookingRole\s+ServiceBookingRole/)
+    assert.match(schema, /countsTowardMassageCapacity\s+Boolean/)
+    assert.match(schema, /requestedPressureLevel\s+Int\?/)
+    assert.match(schema, /publicLocationLabel\s+String\?/)
+    assert.match(schema, /publicLatitude\s+Float\?/)
+    assert.match(schema, /publicLongitude\s+Float\?/)
+    assert.match(schema, /publicBookingStateSlug\s+String\?/)
+    assert.match(schema, /publicBookingSlug\s+String\?/)
+    assert.match(schema, /@@unique\(\[publicBookingStateSlug,\s*publicBookingSlug\]\)/)
+    assert.match(schema, /userId\s+String\?/)
+    assert.match(schema, /user\s+User\?\s+@relation/)
+    assert.match(schema, /requireClientAccount\s+Boolean\s+@default\(false\)/)
+    assert.match(schema, /proximityRadiusMiles\s+Int\s+@default\(45\)/)
+  })
+
+  it("exposes booking settings, sequence request, waitlist, and conversion actions", () => {
+    assert.equal(existsSync(new URL("../app/calendar/booking/page.tsx", import.meta.url)), true)
+    assert.equal(existsSync(new URL("../lib/public-booking-url.js", import.meta.url)), true)
+    assert.equal(existsSync(new URL("../app/book/[practiceSlug]/[bookingSlug]/page.tsx", import.meta.url)), true)
+    assert.match(actions, /export async function saveBookingPolicyAction/)
+    assert.match(actions, /export async function saveProviderBookingPolicyAction/)
+    assert.match(actions, /export async function saveProviderCapacityRulesAction/)
+    assert.match(actions, /export async function requestBookingSequenceAction/)
+    assert.match(actions, /export async function joinBookingWaitlistAction/)
+    assert.match(actions, /export async function convertWaitlistEntryAction/)
+    assert.equal(existsSync(new URL("../app/api/book/[practiceSlug]/sequence-options/route.ts", import.meta.url)), true)
+  })
+
+  it("organizes booking settings into tabs and exposes public booking links", () => {
+    assert.match(bookingSettingsPage, /Tabs defaultValue="booking-rules"/)
+    assert.match(bookingSettingsPage, /TabsTrigger value="public-page"/)
+    assert.match(bookingSettingsPage, /TabsTrigger value="providers"/)
+    assert.match(bookingSettingsPage, /TabsTrigger value="capacity"/)
+    assert.match(bookingSettingsPage, /PublicBookingLinkCard/)
+    assert.match(bookingSettingsPage, /savePublicBookingUrlAction/)
+    assert.match(publicBookingLinkCard, /navigator\.clipboard\.writeText\(activeUrl\)/)
+    assert.match(publicBookingLinkCard, /navigator\.share/)
+    assert.match(publicBookingLinkCard, /console\.error\("Failed to copy public booking link"/)
+    assert.match(publicBookingLinkCard, /console\.error\("Failed to share public booking link"/)
+    assert.doesNotMatch(publicBookingLinkCard, /Failed to use copy fallback for public booking link share/)
+    assert.match(publicBookingLinkCard, /setMessage\(`Unable to copy link\./)
+    assert.match(publicBookingLinkCard, /setMessage\(`Unable to share link\./)
+  })
+
+  it("allows anonymous public booking while keeping account-required gates explicit", () => {
+    assert.doesNotMatch(publicBookingPage, /if \(!session\?\.user\?\.id\)/)
+    assert.match(publicBookingPage, /requireClientAccount/)
+    assert.match(publicBookingPage, /viewerUserId/)
+    assert.match(bookingPicker, /name="guestName"/)
+    assert.match(bookingPicker, /name="guestEmail"/)
+    assert.match(bookingPicker, /name="guestPhone"/)
+    assert.match(bookingPicker, /AccountBenefitsCard/)
+    assert.match(bookingPicker, /DialogTrigger asChild/)
+    assert.match(bookingPicker, /Sign in or create account/)
+    assert.match(bookingPicker, /\/login\?callbackUrl=/)
+    assert.match(bookingPicker, /\/register\?callbackUrl=/)
+    assert.match(bookingPicker, /Continue as guest/)
+    assert.match(publicBookingPage, /AccountRequiredCard bookingPath/)
+    assert.match(publicBookingPage, /primaryServices\.length > 0 && providerPreferences\.length === 0 && publiclyBookableProviders\.length > 0 && !viewerUserId/)
+    assert.match(publicBookingPage, /\/register\?callbackUrl=/)
+    assert.match(loginForm, /const requestedCallbackUrl = searchParams\.get\("callbackUrl"\)/)
+    assert.match(loginForm, /isRegistrationLegalAcceptancePath\(requestedCallbackUrl\)/)
+    assert.match(loginForm, /buildRegistrationLegalProviderRedirectPath\(requestedCallbackUrl\)/)
+    assert.match(loginForm, /safePostLegalAcceptanceCallback\(requestedCallbackUrl, "\/account"\)/)
+    for (const callback of ["/calendar/booking", "/book/ohio/example-practice?step=time"]) {
+      assert.equal(safePostLegalAcceptanceCallback(callback, "/account"), callback)
+    }
+    for (const unsafeCallback of [
+      "",
+      undefined,
+      null,
+      "https://evil.example/calendar",
+      " https://evil.example/calendar",
+      "\u0001/calendar/booking",
+      "HTTP://evil.example/calendar",
+      "javascript:alert(1)",
+      "JaVaScRiPt:alert(1)",
+      "//evil.example/calendar",
+      "///evil.example/calendar",
+      "/\\evil.example/calendar",
+      "\\/evil.example/calendar",
+      "/calendar\\booking",
+      "/calendar%5Cbooking",
+      "/calendar%5cbooking",
+      "/%5Cevil.example/calendar",
+      "/%5cevil.example/calendar",
+      "/calendar%00booking",
+      "/calendar%1Fbooking",
+      "/calendar%1fbooking",
+      "/calendar%7Fbooking",
+      "/calendar%7fbooking",
+      "/%00calendar/booking",
+      "/%1Fcalendar/booking",
+      "/%1fcalendar/booking",
+      "/%7Fcalendar/booking",
+      "/%7fcalendar/booking",
+      "/calendar%255cbooking",
+      "/calendar%2500booking",
+      "/calendar%251fbooking",
+      "/calendar%257fbooking",
+      "/api/calendar/sidebar-context",
+      "/legal/accept?callbackUrl=%2Fcalendar",
+    ]) {
+      assert.equal(
+        safePostLegalAcceptanceCallback(unsafeCallback, "/account"),
+        "/account",
+        `unsafe callback ${JSON.stringify(unsafeCallback)} must fall back to /account`,
+      )
+    }
+    assert.match(loginForm, /router\.push\(callbackUrl\)/)
+    assert.match(loginForm, /buildRegistrationLegalProviderRedirectPath/)
+    assert.match(loginForm, /const googleCallbackUrl = hasCallbackUrl \? callbackUrl : "\/onboarding"/)
+    assert.match(loginForm, /startGoogleAuthMethodIntent\(googleRedirectTo\)/)
+    assert.match(
+      authEntryActions,
+      /fetchImpl\("\/api\/auth\/google\/intent", \{[\s\S]*method: "POST"[\s\S]*body: JSON\.stringify\(\{ purpose: "SIGN_IN_OR_LINK", callbackUrl: googleRedirectTo \}\)/,
+    )
+    assert.match(authEntryActions, /!response\.ok \|\| !result\.ok \|\| !result\.callbackUrl/)
+    assert.match(authEntryActions, /signInImpl\("google", \{ redirectTo: result\.callbackUrl \}\)/)
+    assert.match(authRoute, /GOOGLE_SIGN_IN_PATH = "\/api\/auth\/signin\/google"/)
+    assert.match(authRoute, /buildRegistrationLegalProviderRedirectPath\(url\.searchParams\.get\("callbackUrl"\) \?\? "\/onboarding"\)/)
+    assert.match(authRoute, /buildRegistrationLegalProviderRedirectPath\(body\.get\("callbackUrl"\) \?\? "\/onboarding"\)/)
+    assert.match(registerPage, /callbackUrl/)
+  })
+
+  it("renders public booking as a wizard with weekly availability time selection", () => {
+    assert.match(bookingPicker, /BookingStep/)
+    assert.match(publicBookingPage, /Online booking with/)
+    assert.match(publicBookingPage, /items-end/)
+    assert.match(publicBookingPage, /text-right/)
+    assert.match(publicBookingPage, /order-2 hidden w-full min-\[760px\]:block min-\[900px\]:order-1/)
+    assert.match(publicBookingPage, /pt-2/)
+    assert.doesNotMatch(publicBookingPage, /Request an appointment/)
+    assert.doesNotMatch(publicBookingPage, /These requests store scheduling details/)
+    assert.doesNotMatch(publicBookingPage, /BookingRequestNotice/)
+    assert.doesNotMatch(publicBookingPage, /heroAside/)
+    assert.match(publicBookingPage, /id="public-booking-step-indicators"/)
+    assert.match(bookingPicker, /createPortal/)
+    assert.match(bookingPicker, /heroStepIndicatorTarget/)
+    assert.match(bookingPicker, /min-\[760px\]:hidden/)
+    assert.doesNotMatch(publicBookingPage, /Client booking/)
+    assert.doesNotMatch(bookingPicker, /bookingLabel="Client booking"/)
+    assert.match(bookingPicker, /Popover/)
+    assert.match(bookingPicker, /PopoverTrigger/)
+    assert.match(bookingPicker, /Calendar mode="single"/)
+    assert.match(bookingPicker, /aria-label="Choose availability date"/)
+    assert.match(bookingPicker, />Today<\/Button>/)
+    assert.match(bookingPicker, /goToToday/)
+    assert.match(bookingPicker, /Services/)
+    assert.match(bookingPicker, /Details/)
+    assert.match(bookingPicker, /Time/)
+    assert.match(bookingPicker, /WeeklyAvailabilityPicker/)
+    assert.match(bookingPicker, /Weekly availability/)
+    assert.match(bookingPicker, /selectedSequenceKey/)
+    assert.match(bookingPicker, /selectedWeekStartKey/)
+    assert.match(bookingPicker, /buildSequenceWeekGrid/)
+    assert.match(bookingPicker, /publicBookingDayViewCount/)
+    assert.match(bookingPicker, /visibleSequenceDays/)
+    assert.match(bookingPicker, /providerPreferenceModel/)
+    assert.match(bookingPicker, /day\.slots\.map/)
+    assert.match(bookingPicker, /aria-pressed=\{selected\}/)
+    assert.match(bookingPicker, /aria-pressed=\{requestedPressureLevel === level\}/)
+    assert.match(bookingPicker, /aria-pressed=\{provider\.id === preferredProviderId\}/)
+    assert.match(bookingPicker, /rounded-none border-x-0/)
+    assert.match(bookingPicker, /overflow-hidden border-y/)
+    assert.match(bookingPicker, /data-public-booking-day/)
+    assert.match(layoutWrapper, /isPublicBookingRoute/)
+    assert.match(layoutWrapper, /isCalendarOperatorRoute \|\| isPublicBookingRoute \? "max-w-none"/)
+    assert.match(bookingPickerHelpers, /shouldShowProviderPreference/)
+    assert.match(bookingPickerHelpers, /publicBookingDayViewCount/)
+    assert.match(bookingPickerHelpers, /visibleSequenceDays/)
+    assert.doesNotMatch(bookingPicker, /day\.bands\.map/)
+    assert.doesNotMatch(bookingPicker, /America\/New_York/)
+    assert.doesNotMatch(bookingPicker, /Your local time:/)
+    assert.doesNotMatch(bookingPickerHelpers, /buildAvailabilityBands/)
+    assert.doesNotMatch(bookingPicker, /sequenceOptions\.map\(\(option\)/)
+    assert.doesNotMatch(publicBookingPage, /href="\/calendar"/)
+  })
+
+  it("keeps public sequence loading anonymous-capable with account-aware cache keys", () => {
+    assert.doesNotMatch(sequenceOptionsRoute, /return NextResponse\.json\(\{ error: "Unauthorized" \}/)
+    assert.match(sequenceOptionsRoute, /viewerUserId/)
+    assert.match(sequenceOptionsRoute, /account-required/)
+    assert.match(publicBookingSequences, /viewerUserId/)
+    assert.match(publicBookingSequences, /allowGuestBooking/)
+    assert.match(publicBookingSequences, /requireClientAccount/)
+    assert.match(publicBookingSequences, /accountMode/)
+    assert.match(sequenceOptionsRoute, /console\.error\("Unable to load public booking sequence options"/)
+    assert.match(sequenceOptionsRoute, /error: "Unable to load booking options\."/)
+    assert.doesNotMatch(sequenceOptionsRoute, /error: message/)
+    assert.match(publicBookingPage, /console\.error\("Unable to load public booking page"/)
+    assert.match(publicBookingPage, /const fallbackLabel = therapist\.user\.name \?\? "Provider"/)
+    assert.match(publicBookingSequences, /const fallbackLabel = membership\.user\.name \?\? "Provider"/)
+    assert.doesNotMatch(publicBookingPage, /fallbackLabel = therapist\.user\.name \?\? therapist\.user\.email/)
+    assert.doesNotMatch(publicBookingSequences, /fallbackLabel = membership\.user\.name \?\? membership\.user\.email/)
+  })
+
+  it("loads public booking sequence options lazily instead of precomputing every group", () => {
+    assert.doesNotMatch(bookingPage, /buildSequentialBookingOptions/)
+    assert.doesNotMatch(bookingPage, /function addOnCombinations/)
+    assert.doesNotMatch(bookingPage, /sequenceGroups/)
+    assert.match(bookingPicker, /\/api\/book\/\$\{model\.practiceSlug\}\/sequence-options/)
+    assert.doesNotMatch(bookingPicker, /sequenceGroups/)
+    assert.match(publicBookingSequences, /createAsyncKeyedTtlCache/)
+    assert.match(calendarActionServiceCatalog, /MAX_PUBLIC_ADD_ONS/)
+    assert.match(calendarActionPublicBooking, /publicBookingSequenceOptions/)
+  })
+})

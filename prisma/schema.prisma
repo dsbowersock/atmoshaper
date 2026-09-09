@@ -1,0 +1,3315 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  STUDENT
+  LICENSED_THERAPIST
+  CLIENT
+  EDITOR
+  ANATOMY_ADMIN
+  ANATOMY_REVIEWER
+  ANATOMY_EDITOR
+  ADMIN
+}
+
+enum AdminActionOutcome {
+  SUCCEEDED
+  FAILED
+}
+
+enum AdminEmailIntentStatus {
+  PENDING
+  DELIVERED
+  FAILED
+}
+
+enum AdminBillingGoodwillStatus {
+  PREPARED
+  APPLIED
+  VERIFIED
+  FAILED_BEFORE_MUTATION
+  RECONCILIATION_REQUIRED
+}
+
+enum AuthAttemptPurpose {
+  LOGIN
+  REGISTER
+  PASSWORD_RESET
+  TWO_FACTOR
+  GOOGLE_INTENT
+}
+
+enum AuthAttemptScope {
+  ACCOUNT
+  NETWORK
+}
+
+enum OperationalRateLimitScope {
+  GLOBAL
+  NETWORK
+  ACCOUNT
+  RESOURCE
+}
+
+enum AuthMethodIntentPurpose {
+  SIGN_IN_OR_LINK
+  LINK_GOOGLE
+  ADD_PASSWORD
+  REMOVE_PASSWORD
+  ENROLL_TWO_FACTOR
+  DISABLE_TWO_FACTOR
+  REGENERATE_TWO_FACTOR_BACKUP_CODES
+}
+
+enum AuthMethodIntentStatus {
+  PENDING
+  PROVIDER_PROVEN
+  CONSUMED
+}
+
+enum AccountSecurityEmailKind {
+  GOOGLE_LINKED
+  GOOGLE_UNLINKED
+  PASSWORD_ENABLED
+  PASSWORD_CHANGED
+  PASSWORD_DISABLED
+  PASSWORD_RECOVERED
+}
+
+enum AccountSecurityEmailIntentStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  FAILED
+}
+
+enum AnatomyKind {
+  SYSTEM
+  ORGAN
+  TISSUE
+  BONE
+  MUSCLE
+  JOINT
+  NERVE
+  VESSEL
+  LIGAMENT
+  TENDON
+  CELL
+  OTHER
+}
+
+enum AnatomyDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum AnatomyStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AnatomyEntityType {
+  REGION
+  BLOOD_SUPPLY
+  BONE
+  BONE_LANDMARK
+  JOINT
+  JOINT_MOVEMENT
+  RANGE_OF_MOTION
+  MUSCLE
+  MUSCLE_ATTACHMENT
+  MUSCLE_ACTION
+  NERVE
+  MUSCLE_INNERVATION
+  LIGAMENT
+  ANATOMY_STRUCTURE
+  ANATOMY_CONCEPT
+  PAIN_MAP_REGION
+  CLIENT_TERM
+}
+
+enum PainMapLaterality {
+  LEFT
+  RIGHT
+  BILATERAL
+  MIDLINE
+  VARIABLE
+  UNSPECIFIED
+}
+
+enum PainMapSurface {
+  ANTERIOR
+  POSTERIOR
+  LATERAL
+  MEDIAL
+  SUPERIOR
+  INFERIOR
+  DEEP
+  VARIABLE
+  UNSPECIFIED
+}
+
+enum AnatomyRelativeDepth {
+  SUPERFICIAL
+  INTERMEDIATE
+  DEEP
+  VARIABLE
+}
+
+enum MuscleAttachmentType {
+  ORIGIN
+  INSERTION
+}
+
+enum MuscleActionRole {
+  PRIMARY
+  SECONDARY
+  STABILIZER
+}
+
+enum MuscleContractionType {
+  CONCENTRIC
+  ECCENTRIC
+  ISOMETRIC
+  REVERSE_ACTION
+}
+
+enum BloodSupplyKind {
+  ARTERY
+  VEIN
+}
+
+enum ClientTermConfidence {
+  DIRECT
+  LIKELY
+  BROAD
+}
+
+enum AnatomyEntityTermType {
+  PREFERRED
+  FORMAL
+  COMMON
+  CLINICAL
+  HISTORICAL
+  EPONYM
+  ABBREVIATION
+  ALTERNATE
+}
+
+enum AnatomySourceUsageScope {
+  OPEN_REUSE
+  INTERNAL_REFERENCE
+  COMMERCIAL_LICENSED
+  REVIEW_ONLY
+}
+
+enum AnatomyFactReviewStatus {
+  STARTER
+  NEEDS_REVIEW
+  REVIEWED
+}
+
+enum AnatomyMediaType {
+  IMAGE
+  DIAGRAM
+  MODEL_3D
+  EMBED
+  SOURCE_LINK
+}
+
+enum AnatomyMediaRole {
+  PRIMARY
+  REFERENCE
+  REGION_CONTEXT
+  GAME_PROMPT
+  CLIENT_EDUCATION
+}
+
+enum AnatomyMediaReviewStatus {
+  APPROVED
+  NEEDS_REVIEW
+  REJECTED
+}
+
+enum AnatomyMediaViewRequestStatus {
+  OPEN
+  IMPORTED
+  DISMISSED
+}
+
+enum ProgressStatus {
+  STARTED
+  PRACTICING
+  MASTERED
+  SKIPPED
+}
+
+enum CorrectionFlagStatus {
+  OPEN
+  RESOLVED
+  REJECTED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  EXPIRED
+  REJECTED
+  REVOKED
+}
+
+enum CredentialKind {
+  MASSAGE_LICENSE
+  STUDENT_ENROLLMENT
+  INTERSTATE_MASSAGE_COMPACT
+  MANUAL_REVIEW
+}
+
+enum VerificationSourceType {
+  SELF_ATTESTATION
+  STATE_LICENSE_LOOKUP
+  DOCUMENT_REVIEW
+  MANUAL_REVIEW
+  COMPACT_REGISTRY
+}
+
+enum JurisdictionSupportStatus {
+  ADAPTER_AVAILABLE
+  PUBLIC_LOOKUP_AVAILABLE
+  MANUAL_REVIEW_REQUIRED
+  PLANNED
+  UNSUPPORTED
+}
+
+enum TherapistClientStatus {
+  INVITED
+  ACTIVE
+  PAUSED
+  REVOKED
+}
+
+enum ClinicalArtifactKind {
+  SOAP_NOTE
+  INTAKE_FORM
+  PAIN_JOURNAL
+  SENSATION_JOURNAL
+  INCIDENT_JOURNAL
+  ROM_MEASUREMENT
+  MOVEMENT_SESSION
+}
+
+enum ClinicalArtifactStatus {
+  LOCAL_ONLY
+  DRAFT
+  FINALIZED
+  RELEASE_REQUESTED
+  RELEASED
+  ARCHIVED
+}
+
+enum PracticeRole {
+  OWNER
+  THERAPIST
+  STAFF
+}
+
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum AppointmentSource {
+  CLIENT_REQUEST
+  THERAPIST_CREATED
+}
+
+enum CalendarEventKind {
+  APPOINTMENT
+  PERSONAL
+  CLASS
+  REMINDER
+}
+
+enum CalendarEventStatus {
+  REQUESTED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+  ACTIVE
+}
+
+enum CalendarEventVisibility {
+  PRIVATE
+  PRACTICE
+  CLIENT_VISIBLE
+}
+
+enum CalendarClassEnrollmentStatus {
+  OPEN
+  CLOSED
+  WAITLIST
+  CANCELLED
+}
+
+enum CalendarNotificationChannel {
+  INTERNAL
+}
+
+enum CalendarNotificationStatus {
+  PENDING
+  CANCELLED
+  DELIVERED
+}
+
+enum CalendarAvailabilityOverrideKind {
+  OPEN
+  CLOSED
+  BLACKOUT
+  HOLIDAY
+}
+
+enum ExternalCalendarProvider {
+  GOOGLE
+}
+
+enum CalendarConnectionStatus {
+  ACTIVE
+  NEEDS_REAUTH
+  DISCONNECTED
+  ERROR
+}
+
+enum ExternalCalendarBusyStatus {
+  BUSY
+  FREE
+  CANCELLED
+}
+
+enum CalendarSyncRunDirection {
+  INBOUND
+  OUTBOUND
+  WEBHOOK_REFRESH
+}
+
+enum CalendarSyncRunStatus {
+  STARTED
+  SUCCEEDED
+  FAILED
+  PARTIAL
+}
+
+enum BookingApprovalMode {
+  MANUAL
+  AUTO_CONFIRM
+}
+
+enum BookingStaffVisibility {
+  PUBLIC_LABELS
+  HIDE_STAFF
+}
+
+enum BookingCapacityPeriod {
+  DAILY
+  WEEKLY
+}
+
+enum ServiceBookingRole {
+  PRIMARY
+  ADD_ON
+}
+
+enum BookingGroupStatus {
+  REQUESTED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum BookingWaitlistStatus {
+  OPEN
+  BOOKED
+  CANCELLED
+}
+
+enum MembershipLevel {
+  SUPPORTER
+  THERAPIST
+  PRACTICE
+}
+
+enum MembershipWebhookReceiptStatus {
+  RECEIVED
+  APPLIED
+  IGNORED
+}
+
+enum StudentAccessStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum CommerceOrderStatus {
+  PREPARING
+  AWAITING_PAYMENT
+  PAID
+  PAYMENT_FAILED
+  CANCELED
+  EXPIRED
+  REVIEW_REQUIRED
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+enum CommercePaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+enum CommerceFulfillmentStatus {
+  PENDING
+  PROCESSING
+  FULFILLED
+  FAILED
+  REVOKED
+}
+
+enum CommerceRefundStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+enum CommerceDisputeStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum BackgroundOwnershipSource {
+  PURCHASE
+  CREDIT_REDEMPTION
+}
+
+enum BackgroundOwnershipStatus {
+  ACTIVE
+  REFUND_PENDING
+  DISPUTE_SUSPENDED
+  REFUND_REVOKED
+  DISPUTE_REVOKED
+  RETIRED
+}
+
+enum BackgroundCreditEntryType {
+  INITIAL_GRANT
+  REDEMPTION
+  RETIREMENT_REPLACEMENT
+  ADMIN_CORRECTION
+}
+
+model User {
+  id                    String                   @id @default(cuid())
+  name                  String?
+  email                 String?                  @unique
+  emailVerified         DateTime?
+  image                 String?
+  authSessionVersion    Int                      @default(0)
+  accounts              Account[]
+  sessions              Session[]
+  roles                 UserRole[]
+  grantedRoles          UserRole[]                @relation("GrantedUserRoles")
+  profile               UserProfile?
+  preference            UserPreference?
+  passwordCredential    PasswordCredential?
+  authMethodIntents     AuthMethodIntent[]          @relation("AuthMethodIntentTarget")
+  accountSecurityEmailIntents AccountSecurityEmailIntent[] @relation("AccountSecurityEmailUser")
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens   PasswordResetToken[]
+  twoFactorSecret       TwoFactorSecret?
+  backupCodes           BackupCode[]
+  learningProgress      LearningProgress[]
+  achievements          Achievement[]
+  flashcardDecks        FlashcardDeck[]
+  flashcardStudySessions FlashcardStudySession[]
+  hostedAnatomimeGameSessions AnatomimeGameSession[] @relation("AnatomimeGameHost")
+  anatomimeGamePlayers  AnatomimeGamePlayer[]
+  anatomimeGameGuesses  AnatomimeGameGuess[]
+  anatomimeRoomPlayers  AnatomimeRoomPlayer[]   @relation("AnatomimeRoomPlayerUser")
+  anatomimeRoomGuesses  AnatomimeGameRunGuess[] @relation("AnatomimeGameRunGuessUser")
+  noteTemplates         NoteTemplate[]
+  formTemplates         FormTemplate[]
+  documentationPreference DocumentationPreference?
+  credentialVerifications CredentialVerification[] @relation("CredentialVerificationUser")
+  verifiedCredentialClaims VerifiedCredentialClaim[]
+  reviewedCredentialVerifications CredentialVerification[] @relation("CredentialVerificationReviewer")
+  therapistRelationships TherapistClientRelationship[] @relation("TherapistClientRelationships")
+  clientRelationships   TherapistClientRelationship[] @relation("ClientClientRelationships")
+  authoredClinicalArtifactManifests ClinicalArtifactManifest[] @relation("ClinicalArtifactAuthor")
+  subjectClinicalArtifactManifests ClinicalArtifactManifest[] @relation("ClinicalArtifactSubject")
+  therapistClinicalArtifactManifests ClinicalArtifactManifest[] @relation("ClinicalArtifactTherapist")
+  clinicalAuditLogs     ClinicalAccessAuditLog[]  @relation("ClinicalAuditActor")
+  clinicalAuditTargets  ClinicalAccessAuditLog[]  @relation("ClinicalAuditTarget")
+  correctionFlags       AnatomyCorrectionFlag[]  @relation("CorrectionFlagCreator")
+  reviewedFlags         AnatomyCorrectionFlag[]  @relation("CorrectionFlagReviewer")
+  createdAnatomyMediaViewRequests AnatomyMediaViewRequest[] @relation("AnatomyMediaViewRequestCreator")
+  resolvedAnatomyMediaViewRequests AnatomyMediaViewRequest[] @relation("AnatomyMediaViewRequestResolver")
+  createdTerms          AnatomyTerm[]            @relation("AnatomyTermCreator")
+  updatedTerms          AnatomyTerm[]            @relation("AnatomyTermUpdater")
+  auditLogs             AnatomyAuditLog[]         @relation("AnatomyAuditActor")
+  createdPractices      Practice[]               @relation("PracticeCreator")
+  practiceMemberships   PracticeMembership[]
+  practiceClients       PracticeClient[]
+  availabilityRules     TherapistAvailabilityRule[] @relation("AvailabilityTherapist")
+  availabilitySchedules CalendarAvailabilitySchedule[] @relation("AvailabilityScheduleTherapist")
+  availabilityOverrides CalendarAvailabilityOverride[] @relation("AvailabilityOverrideTherapist")
+  providerBookingPolicies ProviderBookingPolicy[] @relation("ProviderBookingPolicyProvider")
+  providerBookingCapacityRules ProviderBookingCapacityRule[] @relation("ProviderBookingCapacityRuleProvider")
+  ownedCalendarEvents   CalendarEvent[]          @relation("CalendarEventOwner")
+  createdCalendarEvents CalendarEvent[]          @relation("CalendarEventCreator")
+  calendarBlocks        CalendarBlock[]          @relation("CalendarBlockTherapist")
+  calendarConnections   CalendarConnection[]     @relation("CalendarConnectionUser")
+  externalCalendarBusyBlocks ExternalCalendarBusyBlock[] @relation("ExternalCalendarBusyBlockOwner")
+  appointmentsAsTherapist Appointment[]           @relation("AppointmentTherapist")
+  createdAppointments   Appointment[]            @relation("AppointmentCreator")
+  createdBookingGroups  BookingGroup[]           @relation("BookingGroupCreator")
+  createdBookingWaitlistEntries BookingWaitlistEntry[] @relation("BookingWaitlistCreator")
+  instructedCalendarClasses CalendarClass[]       @relation("CalendarClassInstructor")
+  calendarAuditLogs     CalendarAuditLog[]       @relation("CalendarAuditActor")
+  createdNotificationIntents CalendarNotificationIntent[] @relation("CalendarNotificationActor")
+  receivedNotificationIntents CalendarNotificationIntent[] @relation("CalendarNotificationRecipient")
+  stripeCustomer        StripeCustomer?
+  membershipSubscriptions MembershipSubscription[]
+  membershipWebhookReceipts MembershipWebhookReceipt[]
+  studentAccess         StudentAccess?
+  legalAcceptances      LegalAcceptance[]
+  commerceCart          CommerceCart?
+  commerceOrders        CommerceOrder[]
+  commerceEvents        CommerceEvent[]
+  commerceWebhookReceipts CommerceWebhookReceipt[]
+  backgroundCreditWallet BackgroundCreditWallet?
+  backgroundOwnerships  BackgroundOwnership[]
+  clientWellnessEntries ClientWellnessEntry[]
+  clientWellnessPreference ClientWellnessPreference?
+  clientWellnessVocabularySuggestions ClientWellnessVocabularySuggestion[]
+  adminActionsAsActor AdminAction[] @relation("AdminActionActor")
+  adminActionsAsTarget AdminAction[] @relation("AdminActionTarget")
+  accountActivities UserAccountActivity[]
+  adminEmailIntents AdminEmailIntent[]
+  temporaryFeatureGrants TemporaryFeatureGrant[] @relation("TemporaryFeatureGrantUser")
+  temporaryFeatureGrantsGranted TemporaryFeatureGrant[] @relation("TemporaryFeatureGrantGrantedBy")
+  temporaryFeatureGrantRevocations TemporaryFeatureGrantRevocation[] @relation("TemporaryFeatureGrantRevokedBy")
+  billingGoodwillOperationsAsActor AdminBillingGoodwillOperation[] @relation("BillingGoodwillActor")
+  billingGoodwillOperationsAsTarget AdminBillingGoodwillOperation[] @relation("BillingGoodwillTarget")
+}
+
+model AdminAction {
+  id             String             @id @default(cuid())
+  actorUserId    String
+  targetUserId   String
+  actionKind     String
+  reasonCode     String
+  internalNote   String?
+  idempotencyKey String             @unique
+  beforeState    Json               @default("{}")
+  afterState     Json               @default("{}")
+  outcome        AdminActionOutcome
+  failureCode    String?
+  occurredAt     DateTime           @default(now())
+  createdAt      DateTime           @default(now())
+  actor          User               @relation("AdminActionActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  target         User               @relation("AdminActionTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  activity       UserAccountActivity?
+  emailIntent    AdminEmailIntent?
+
+  @@index([targetUserId, occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@unique([id, targetUserId])
+}
+
+model UserAccountActivity {
+  id             String      @id @default(cuid())
+  userId         String
+  adminActionId  String      @unique
+  title          String
+  explanation    String
+  effectiveValue String?
+  occurredAt     DateTime    @default(now())
+  createdAt      DateTime    @default(now())
+  user           User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  adminAction    AdminAction @relation(fields: [adminActionId, userId], references: [id, targetUserId], onDelete: Restrict, map: "UserAccountActivity_adminAction_target_consistency_fkey")
+
+  @@index([userId, occurredAt])
+  @@unique([adminActionId, userId])
+}
+
+model AdminEmailIntent {
+  id             String                 @id @default(cuid())
+  userId         String
+  adminActionId  String                 @unique
+  kind           String
+  recipientEmail String?
+  subject        String
+  message        String
+  status         AdminEmailIntentStatus @default(PENDING)
+  attemptCount   Int                    @default(0)
+  lastAttemptAt  DateTime?
+  deliveredAt    DateTime?
+  failureCode    String?
+  deliveryClaimTokenHash String?
+  deliveryClaimExpiresAt DateTime?
+  deliveryClaimOperationKeyHash String? @unique
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  adminAction    AdminAction            @relation(fields: [adminActionId, userId], references: [id, targetUserId], onDelete: Restrict, map: "AdminEmailIntent_adminAction_target_consistency_fkey")
+  retryOperationKeys AdminEmailRetryOperationKey[]
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@unique([adminActionId, userId])
+}
+
+model AdminEmailRetryOperationKey {
+  id               String           @id @default(cuid())
+  emailIntentId    String
+  operationKeyHash String           @unique
+  createdAt        DateTime         @default(now())
+  emailIntent      AdminEmailIntent @relation(fields: [emailIntentId], references: [id], onDelete: Restrict)
+
+  @@index([emailIntentId, createdAt])
+}
+
+model AdminBillingGoodwillOperation {
+  id                         String                     @id @default(cuid())
+  actorUserId                String
+  targetUserId               String
+  idempotencyKey             String                     @unique
+  reasonCode                 String
+  internalNote               String?
+  amountCents                Int
+  currency                   String                     @default("usd")
+  stripeCustomerId           String
+  stripeSubscriptionId       String
+  stripeBalanceTransactionId String?                    @unique
+  startingBalanceCents       Int
+  endingBalanceCents         Int?
+  projectedNextInvoiceCents  Int?
+  status                     AdminBillingGoodwillStatus @default(PREPARED)
+  failureCode                String?
+  appliedAt                  DateTime?
+  verifiedAt                 DateTime?
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+  actor                      User                       @relation("BillingGoodwillActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  target                     User                       @relation("BillingGoodwillTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+
+  @@index([targetUserId, createdAt])
+  @@index([status, createdAt])
+}
+
+model TemporaryFeatureGrant {
+  id             String   @id @default(cuid())
+  userId         String
+  featureKey     String
+  startsAt       DateTime
+  expiresAt      DateTime
+  grantedById    String
+  reasonCode     String
+  internalNote   String?
+  idempotencyKey String   @unique
+  createdAt      DateTime @default(now())
+  user           User     @relation("TemporaryFeatureGrantUser", fields: [userId], references: [id], onDelete: Restrict)
+  grantedBy      User     @relation("TemporaryFeatureGrantGrantedBy", fields: [grantedById], references: [id], onDelete: Restrict)
+  revocation     TemporaryFeatureGrantRevocation?
+
+  @@index([userId, featureKey, startsAt, expiresAt])
+  @@index([expiresAt])
+}
+
+model TemporaryFeatureGrantRevocation {
+  id             String                @id @default(cuid())
+  grantId        String                @unique
+  revokedById    String
+  reasonCode     String
+  internalNote   String?
+  idempotencyKey String                @unique
+  revokedAt      DateTime              @default(now())
+  grant          TemporaryFeatureGrant @relation(fields: [grantId], references: [id], onDelete: Restrict)
+  revokedBy      User                  @relation("TemporaryFeatureGrantRevokedBy", fields: [revokedById], references: [id], onDelete: Restrict)
+}
+
+model LegalAcceptance {
+  id              String   @id @default(cuid())
+  userId          String
+  documentKey     String
+  documentVersion String
+  acceptedAt      DateTime @default(now())
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, documentKey, documentVersion])
+  @@index([userId, acceptedAt])
+  @@index([documentKey, documentVersion])
+}
+
+model CommerceCart {
+  id        String             @id @default(cuid())
+  userId    String             @unique
+  currency  String             @default("usd")
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CommerceCartItem[]
+}
+
+model CommerceCartItem {
+  id          String       @id @default(cuid())
+  cartId      String
+  productType String
+  productKey  String
+  quantity    Int          @default(1)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  cart        CommerceCart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productType, productKey])
+}
+
+model CommerceOrder {
+  id                      String                    @id @default(cuid())
+  publicId                String                    @unique @default(cuid())
+  userId                  String
+  status                  CommerceOrderStatus       @default(PREPARING)
+  fulfillmentStatus       CommerceFulfillmentStatus @default(PENDING)
+  currency                String                    @default("usd")
+  subtotalCents           Int
+  taxCents                Int
+  totalCents              Int
+  stripeCheckoutSessionId String?                   @unique
+  reservationExpiresAt    DateTime?
+  legalAcceptance         Json
+  purchaseCountry         String?
+  returnPath              String
+  failureCode             String?
+  fulfillmentStartedAt    DateTime?
+  fulfilledAt             DateTime?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  user                    User                      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items                   CommerceOrderItem[]
+  payments                CommercePayment[]
+  refunds                 CommerceRefund[]
+  events                  CommerceEvent[]
+  webhookReceipts         CommerceWebhookReceipt[]
+
+  @@index([userId, createdAt])
+  @@index([status, reservationExpiresAt])
+  @@unique([id, userId])
+  @@unique([userId], map: "CommerceOrder_one_active_per_user_key", where: raw("(status = ANY (ARRAY['PREPARING'::\"CommerceOrderStatus\", 'AWAITING_PAYMENT'::\"CommerceOrderStatus\"]))"))
+}
+
+model CommerceOrderItem {
+  id                 String                    @id @default(cuid())
+  orderId            String
+  userId             String
+  productType        String
+  productKey         String
+  displayName        String
+  unitPriceCents     Int
+  quantity           Int                       @default(1)
+  allocatedTaxCents  Int
+  lineTotalCents     Int
+  currency           String
+  fulfillmentAdapterVersion String
+  fulfillmentStatus CommerceFulfillmentStatus @default(PENDING)
+  fulfilledAt        DateTime?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  order              CommerceOrder             @relation(fields: [orderId, userId], references: [id, userId], onDelete: Restrict, map: "CommerceOrderItem_order_user_consistency_fkey")
+  refundItems        CommerceRefundItem[]
+  creditEntries      BackgroundCreditEntry[]
+  ownership          BackgroundOwnership?
+
+  @@unique([orderId, productType, productKey])
+  @@unique([id, orderId])
+  @@unique([id, userId])
+  @@unique([id, userId, productType, productKey])
+  @@index([productType, productKey])
+}
+
+model CommercePayment {
+  id                    String                @id @default(cuid())
+  orderId               String
+  status                CommercePaymentStatus @default(PENDING)
+  stripePaymentIntentId String                @unique
+  amountCents           Int
+  currency              String
+  failureCode           String?
+  paidAt                DateTime?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  order                 CommerceOrder         @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  refunds               CommerceRefund[]
+  disputes              CommerceDispute[]
+
+  @@unique([id, orderId])
+  @@index([orderId, status])
+}
+
+model CommerceRefund {
+  id             String               @id @default(cuid())
+  orderId        String
+  paymentId      String
+  stripeRefundId String               @unique
+  status         CommerceRefundStatus @default(PENDING)
+  amountCents    Int
+  currency       String
+  reasonCode     String?
+  failureCode    String?
+  processedAt    DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  order          CommerceOrder        @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  payment        CommercePayment      @relation(fields: [paymentId, orderId], references: [id, orderId], onDelete: Restrict, map: "CommerceRefund_payment_order_consistency_fkey")
+  items          CommerceRefundItem[]
+
+  @@unique([id, orderId])
+  @@index([orderId, status])
+  @@index([paymentId, status])
+}
+
+model CommerceRefundItem {
+  id          String            @id @default(cuid())
+  refundId    String
+  orderItemId String
+  orderId     String
+  quantity    Int               @default(1)
+  amountCents Int
+  createdAt   DateTime          @default(now())
+  refund      CommerceRefund    @relation(fields: [refundId, orderId], references: [id, orderId], onDelete: Restrict, map: "CommerceRefundItem_refund_order_consistency_fkey")
+  orderItem   CommerceOrderItem @relation(fields: [orderItemId, orderId], references: [id, orderId], onDelete: Restrict, map: "CommerceRefundItem_item_order_consistency_fkey")
+
+  @@unique([refundId, orderItemId])
+  @@index([orderItemId])
+}
+
+model CommerceDispute {
+  id              String                @id @default(cuid())
+  paymentId       String
+  stripeDisputeId String                @unique
+  status          CommerceDisputeStatus @default(OPEN)
+  amountCents     Int
+  currency        String
+  reasonCode      String?
+  openedAt        DateTime              @default(now())
+  closedAt        DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  payment         CommercePayment       @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  @@index([paymentId, status])
+}
+
+/// Append-only commerce audit events carry identifiers and transitions only; sensitive processor payloads stay out.
+model CommerceEvent {
+  id            String         @id @default(cuid())
+  userId        String
+  orderId       String?
+  eventType     String
+  source        String
+  actorType     String?
+  actorId       String?
+  reasonCode    String?
+  aggregateType String
+  aggregateId   String
+  fromState     String?
+  toState       String?
+  payload       Json           @default("{}")
+  createdAt     DateTime       @default(now())
+  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  order         CommerceOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([aggregateType, aggregateId, createdAt])
+  @@index([orderId, createdAt])
+}
+
+model CommerceWebhookReceipt {
+  id              String         @id @default(cuid())
+  userId          String?
+  orderId         String?
+  provider        String
+  providerEventId String
+  eventType       String
+  payloadHash     String
+  receivedAt      DateTime       @default(now())
+  processedAt     DateTime?
+  failureCode     String?
+  user            User?          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  order           CommerceOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, providerEventId])
+  @@index([userId, receivedAt])
+  @@index([orderId, receivedAt])
+}
+
+model BackgroundCreditWallet {
+  id        String                  @id @default(cuid())
+  userId    String                  @unique
+  balance   Int                     @default(0)
+  version   Int                     @default(0)
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+  user      User                    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  entries   BackgroundCreditEntry[]
+
+  @@unique([id, userId])
+}
+
+/// The immutable ledger entry records both its delta and the resulting wallet balance for reconciliation.
+model BackgroundCreditEntry {
+  id                String                 @id @default(cuid())
+  walletId          String
+  userId            String
+  type              BackgroundCreditEntryType
+  delta             Int
+  balanceAfter      Int
+  idempotencyKey    String                 @unique
+  sourceOrderItemId String?
+  redemptionBackgroundKey String           @default("")
+  reasonCode        String?
+  createdAt         DateTime               @default(now())
+  wallet            BackgroundCreditWallet @relation(fields: [walletId, userId], references: [id, userId], onDelete: Restrict, map: "BackgroundCreditEntry_wallet_user_consistency_fkey")
+  sourceOrderItem   CommerceOrderItem?      @relation(fields: [sourceOrderItemId, userId], references: [id, userId], onDelete: Restrict, map: "BackgroundCreditEntry_order_item_user_consistency_fkey")
+  ownership         BackgroundOwnership?
+
+  @@unique([id, userId, redemptionBackgroundKey])
+  @@index([walletId, createdAt])
+  @@index([sourceOrderItemId])
+}
+
+/// Ownership is never deleted; lifecycle status changes preserve the purchase/refund/dispute audit trail.
+model BackgroundOwnership {
+  id                  String                     @id @default(cuid())
+  userId              String
+  backgroundKey       String
+  source              BackgroundOwnershipSource
+  sourceProductType   String                     @default("background")
+  status              BackgroundOwnershipStatus @default(ACTIVE)
+  sourceOrderItemId   String?
+  sourceCreditEntryId String?
+  acquiredAt          DateTime                   @default(now())
+  statusChangedAt     DateTime                   @default(now())
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+  user                User                       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  sourceOrderItem     CommerceOrderItem?         @relation(fields: [sourceOrderItemId, userId, sourceProductType, backgroundKey], references: [id, userId, productType, productKey], onDelete: Restrict, map: "BackgroundOwnership_purchase_source_consistency_fkey")
+  sourceCreditEntry   BackgroundCreditEntry?     @relation(fields: [sourceCreditEntryId, userId, backgroundKey], references: [id, userId, redemptionBackgroundKey], onDelete: Restrict, map: "BackgroundOwnership_credit_source_consistency_fkey")
+
+  @@unique([sourceOrderItemId, userId, sourceProductType, backgroundKey])
+  @@unique([sourceCreditEntryId, userId, backgroundKey])
+  @@unique([userId, backgroundKey])
+  @@index([userId, status])
+  @@index([backgroundKey, status])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PasswordCredential {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailVerificationToken {
+  id          String    @id @default(cuid())
+  userId      String
+  email       String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+}
+
+model PasswordResetToken {
+  id          String    @id @default(cuid())
+  userId      String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TwoFactorSecret {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  encryptedSecret String
+  enabledAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BackupCode {
+  id        String    @id @default(cuid())
+  userId    String
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserRole {
+  id          String             @id @default(cuid())
+  userId      String
+  role        Role               @default(USER)
+  status      VerificationStatus @default(VERIFIED)
+  source      String             @default("system")
+  metadata    Json               @default("{}")
+  verifiedAt  DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  grantedById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grantedBy   User?              @relation("GrantedUserRoles", fields: [grantedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, role])
+  @@index([role, status])
+  @@index([userId, status])
+}
+
+model UserProfile {
+  userId              String   @id
+  displayName         String?
+  therapistName       String?
+  therapistLocation   String?
+  licenseNumber       String?
+  licenseOrganization String?
+  npiNumber           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CredentialVerification {
+  id                  String                 @id @default(cuid())
+  userId              String
+  kind                CredentialKind
+  role                Role?
+  status              VerificationStatus     @default(PENDING)
+  jurisdictionCode    String?
+  credentialNumber    String?
+  issuingAuthority    String?
+  displayLabel        String?
+  sourceType          VerificationSourceType @default(SELF_ATTESTATION)
+  sourceUrl           String?
+  evidenceDescription String?
+  verificationPayload Json                   @default("{}")
+  checkedAt           DateTime?
+  verifiedAt          DateTime?
+  expiresAt           DateTime?
+  rejectedAt          DateTime?
+  revokedAt           DateTime?
+  reviewedById        String?
+  reviewNote          String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  user                User                   @relation("CredentialVerificationUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer            User?                  @relation("CredentialVerificationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, kind, jurisdictionCode, credentialNumber])
+  @@index([userId, kind, status])
+  @@index([jurisdictionCode, status])
+  @@index([role, status])
+}
+
+model VerifiedCredentialClaim {
+  id                         String         @id @default(cuid())
+  userId                     String
+  kind                       CredentialKind
+  jurisdictionCode           String
+  normalizedCredentialNumber String
+  credentialVerificationId   String?
+  source                     String
+  claimedAt                  DateTime       @default(now())
+  expiresAt                  DateTime?
+  createdAt                  DateTime       @default(now())
+  updatedAt                  DateTime       @updatedAt
+  user                       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([kind, jurisdictionCode, normalizedCredentialNumber])
+  @@index([userId, kind])
+  @@index([credentialVerificationId])
+}
+
+model JurisdictionVerifier {
+  id              String                    @id @default(cuid())
+  jurisdictionCode String                   @unique
+  jurisdictionName String
+  countryCode     String                    @default("US")
+  massageBoardName String?
+  lookupUrl       String?
+  supportStatus   JurisdictionSupportStatus @default(MANUAL_REVIEW_REQUIRED)
+  compactEligible Boolean                   @default(false)
+  compactStatus   String?
+  notes           String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([countryCode, supportStatus])
+}
+
+model TherapistClientRelationship {
+  id            String                 @id @default(cuid())
+  therapistUserId String
+  clientUserId  String?
+  clientEmail   String?
+  status        TherapistClientStatus  @default(INVITED)
+  invitedAt     DateTime               @default(now())
+  acceptedAt    DateTime?
+  pausedAt      DateTime?
+  revokedAt     DateTime?
+  metadata      Json                   @default("{}")
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  therapist     User                   @relation("TherapistClientRelationships", fields: [therapistUserId], references: [id], onDelete: Cascade)
+  client        User?                  @relation("ClientClientRelationships", fields: [clientUserId], references: [id], onDelete: SetNull)
+  clinicalArtifactManifests ClinicalArtifactManifest[]
+
+  @@unique([therapistUserId, clientUserId])
+  @@index([therapistUserId, status])
+  @@index([clientUserId, status])
+  @@index([clientEmail])
+}
+
+model ClinicalArtifactManifest {
+  id             String                 @id @default(cuid())
+  kind           ClinicalArtifactKind
+  status         ClinicalArtifactStatus @default(LOCAL_ONLY)
+  schemaVersion  Int                    @default(1)
+  localDocumentId String
+  authorUserId   String?
+  subjectUserId  String?
+  therapistUserId String?
+  relationshipId String?
+  finalizedAt    DateTime?
+  releaseRequestedAt DateTime?
+  releasedAt     DateTime?
+  metadata       Json                   @default("{}")
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  author         User?                  @relation("ClinicalArtifactAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
+  subject        User?                  @relation("ClinicalArtifactSubject", fields: [subjectUserId], references: [id], onDelete: SetNull)
+  therapist      User?                  @relation("ClinicalArtifactTherapist", fields: [therapistUserId], references: [id], onDelete: SetNull)
+  relationship   TherapistClientRelationship? @relation(fields: [relationshipId], references: [id], onDelete: SetNull)
+  auditLogs      ClinicalAccessAuditLog[]
+
+  @@unique([localDocumentId])
+  @@index([authorUserId, kind])
+  @@index([subjectUserId, kind])
+  @@index([therapistUserId, status])
+  @@index([relationshipId, status])
+}
+
+model ClinicalAccessAuditLog {
+  id                 String   @id @default(cuid())
+  actorUserId        String?
+  targetUserId       String?
+  clinicalArtifactId String?
+  action             String
+  metadata           Json     @default("{}")
+  createdAt          DateTime @default(now())
+  actor              User?    @relation("ClinicalAuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  target             User?    @relation("ClinicalAuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+  clinicalArtifact   ClinicalArtifactManifest? @relation(fields: [clinicalArtifactId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([clinicalArtifactId, createdAt])
+  @@index([action, createdAt])
+}
+
+model UserPreference {
+  userId            String   @id
+  version           Int      @default(1)
+  appSettings       Json     @default("{}")
+  chimerSettings    Json     @default("{}")
+  anatomimeSettings Json     @default("{}")
+  notePreferences   Json     @default("{}")
+  calendarPreferences Json   @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ClientWellnessEntry {
+  id          String    @id @default(cuid())
+  userId      String
+  category    String
+  occurredAt  DateTime
+  timezone    String    @default("America/New_York")
+  summary     String?
+  intensity   Int?
+  regions     Json      @default("[]")
+  sensations  Json      @default("[]")
+  contexts    Json      @default("[]")
+  source      String    @default("manual")
+  metadata    Json      @default("{}")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@index([userId, category, occurredAt])
+  @@index([userId, deletedAt])
+}
+
+model ClientWellnessPreference {
+  userId    String   @id
+  version   Int      @default(1)
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ClientWellnessVocabularySuggestion {
+  id        String   @id @default(cuid())
+  userId    String
+  term      String
+  category  String
+  status    String   @default("PRIVATE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([category, status])
+}
+
+model DocumentationPreference {
+  userId      String   @id
+  version     Int      @default(1)
+  preferences Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NoteTemplate {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  kind      String
+  content   Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
+}
+
+model FormTemplate {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  kind      String
+  schema    Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
+}
+
+model LearningProgress {
+  id            String         @id @default(cuid())
+  userId        String
+  anatomyTermId String?
+  tool          String
+  status        ProgressStatus @default(STARTED)
+  score         Int?
+  metadata      Json           @default("{}")
+  lastSeenAt    DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anatomyTerm   AnatomyTerm?   @relation(fields: [anatomyTermId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, anatomyTermId, tool])
+  @@unique([userId, tool], where: { anatomyTermId: null }, map: "LearningProgress_userId_tool_null_anatomyTermId_key")
+  @@index([userId, tool])
+}
+
+model Achievement {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String
+  tool      String
+  metadata  Json     @default("{}")
+  earnedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key, tool])
+}
+
+model FlashcardDeck {
+  id              String                  @id @default(cuid())
+  slug            String                  @unique
+  ownerUserId     String?
+  title           String
+  description     String?
+  config          Json                    @default("{}")
+  visibility      String                  @default("PUBLIC")
+  promptCount     Int                     @default(0)
+  completionCount Int                     @default(0)
+  attemptCount    Int                     @default(0)
+  answeredCount   Int                     @default(0)
+  correctCount    Int                     @default(0)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  owner           User?                   @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+  studySessions   FlashcardStudySession[]
+
+  @@index([visibility, updatedAt])
+  @@index([ownerUserId, updatedAt])
+}
+
+model FlashcardStudySession {
+  id            String         @id @default(cuid())
+  userId        String
+  deckId        String?
+  deckConfig    Json           @default("{}")
+  promptIds     String[]       @default([])
+  status        String         @default("STARTED")
+  answeredCount Int            @default(0)
+  correctCount  Int            @default(0)
+  durationMs    Int?
+  startedAt     DateTime       @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deck          FlashcardDeck? @relation(fields: [deckId], references: [id], onDelete: SetNull)
+
+  @@index([userId, updatedAt])
+  @@index([deckId, updatedAt])
+  @@index([userId, status, durationMs])
+}
+
+model AnatomimeGameSession {
+  id              String                 @id @default(cuid())
+  code            String                 @unique
+  hostUserId      String?
+  status          String                 @default("LOBBY")
+  phase           String                 @default("LOBBY")
+  config          Json                   @default("{}")
+  deckCardIds     String[]               @default([])
+  activeCardIndex Int                    @default(0)
+  activeTeamOrder Int                    @default(0)
+  phaseEndsAt     DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  expiresAt       DateTime
+  metadata        Json                   @default("{}")
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  host            User?                  @relation("AnatomimeGameHost", fields: [hostUserId], references: [id], onDelete: SetNull)
+  teams           AnatomimeGameTeam[]
+  players         AnatomimeGamePlayer[]
+  guesses         AnatomimeGameGuess[]
+
+  @@index([status, expiresAt])
+  @@index([hostUserId, updatedAt])
+}
+
+model AnatomimeGameTeam {
+  id        String                 @id @default(cuid())
+  sessionId String
+  name      String
+  sortOrder Int
+  score     Int                    @default(0)
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  session   AnatomimeGameSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  players   AnatomimeGamePlayer[]
+  guesses   AnatomimeGameGuess[]
+
+  @@unique([sessionId, sortOrder])
+  @@index([sessionId])
+}
+
+model AnatomimeGamePlayer {
+  id             String                 @id @default(cuid())
+  sessionId      String
+  teamId         String?
+  userId         String?
+  displayName    String
+  guestTokenHash String?
+  role           String                 @default("PLAYER")
+  lastSeenAt     DateTime               @default(now())
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  session        AnatomimeGameSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  team           AnatomimeGameTeam?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  user           User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guesses        AnatomimeGameGuess[]
+
+  @@unique([sessionId, guestTokenHash])
+  @@unique([sessionId, userId, role])
+  @@index([sessionId, teamId])
+  @@index([userId, updatedAt])
+}
+
+model AnatomimeGameGuess {
+  id           String                @id @default(cuid())
+  sessionId    String
+  teamId       String
+  playerId     String?
+  userId       String?
+  cardId       String
+  answerMode   String
+  phase        String
+  correct      Boolean               @default(false)
+  scoreAwarded Int                   @default(0)
+  metadata     Json                  @default("{}")
+  submittedAt  DateTime              @default(now())
+  session      AnatomimeGameSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  team         AnatomimeGameTeam     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player       AnatomimeGamePlayer?  @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  user         User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId, cardId, submittedAt])
+  @@index([playerId, cardId])
+  @@index([userId, submittedAt])
+}
+
+model AnatomimeRoom {
+  id                       String                   @id @default(cuid())
+  code                     String                   @unique
+  status                   String                   @default("LOBBY")
+  hostPlayerId             String?
+  currentRunId             String?                  @unique
+  lastMeaningfulActivityAt DateTime                 @default(now())
+  hostLastActivityAt       DateTime                 @default(now())
+  endedAt                  DateTime?
+  reviewExpiresAt          DateTime?
+  expiresAt                DateTime
+  metadata                 Json                     @default("{}")
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  hostPlayer               AnatomimeRoomPlayer?     @relation("AnatomimeRoomHost", fields: [id, hostPlayerId], references: [roomId, id], onDelete: NoAction)
+  currentRun               AnatomimeGameRun?        @relation("AnatomimeRoomCurrentRun", fields: [id, currentRunId], references: [roomId, id], onDelete: NoAction)
+  teams                    AnatomimeRoomTeam[]
+  players                  AnatomimeRoomPlayer[]    @relation("AnatomimeRoomPlayers")
+  gameRuns                 AnatomimeGameRun[]       @relation("AnatomimeRoomGameRuns")
+  guesses                  AnatomimeGameRunGuess[]  @relation("AnatomimeRoomGuesses")
+  elections                AnatomimeHostElection[]
+
+  @@index([status, expiresAt])
+  @@index([lastMeaningfulActivityAt])
+  @@index([hostPlayerId])
+}
+
+model AnatomimeRoomTeam {
+  id        String                     @id @default(cuid())
+  roomId    String
+  name      String
+  sortOrder Int
+  createdAt DateTime                   @default(now())
+  updatedAt DateTime                   @updatedAt
+  room      AnatomimeRoom              @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  players   AnatomimeRoomPlayer[]
+  scores    AnatomimeGameRunTeamScore[]
+  guesses       AnatomimeGameRunGuess[] @relation("AnatomimeGuessingTeam")
+  activeGuesses AnatomimeGameRunGuess[] @relation("AnatomimeActiveTeam")
+
+  @@unique([roomId, id])
+  @@unique([roomId, sortOrder])
+  @@index([roomId])
+}
+
+model AnatomimeRoomPlayer {
+  id               String                         @id @default(cuid())
+  roomId           String
+  teamId           String?
+  userId           String?
+  displayName      String
+  guestTokenHash   String?
+  lastSeenAt       DateTime                       @default(now())
+  lastActionAt     DateTime                       @default(now())
+  createdAt        DateTime                       @default(now())
+  updatedAt        DateTime                       @updatedAt
+  room             AnatomimeRoom                  @relation("AnatomimeRoomPlayers", fields: [roomId], references: [id], onDelete: Cascade)
+  team             AnatomimeRoomTeam?             @relation(fields: [roomId, teamId], references: [roomId, id], onDelete: NoAction)
+  user             User?                          @relation("AnatomimeRoomPlayerUser", fields: [userId], references: [id], onDelete: SetNull)
+  hostForRooms     AnatomimeRoom[]                @relation("AnatomimeRoomHost")
+  guesses          AnatomimeGameRunGuess[]
+  ballots          AnatomimeHostElectionBallot[]
+  startedElections AnatomimeHostElection[]        @relation("AnatomimeHostElectionStarter")
+  wonElections     AnatomimeHostElection[]        @relation("AnatomimeHostElectionWinner")
+
+  @@unique([roomId, id])
+  @@unique([roomId, guestTokenHash])
+  @@unique([roomId, userId])
+  @@index([roomId, teamId])
+  @@index([userId, updatedAt])
+}
+
+model AnatomimeGameRun {
+  id              String                      @id @default(cuid())
+  roomId          String
+  status          String                      @default("LOBBY")
+  phase           String                      @default("LOBBY")
+  config          Json                        @default("{}")
+  deckCardIds     String[]                    @default([])
+  activeCardIndex Int                         @default(0)
+  activeTeamOrder Int                         @default(0)
+  termStartedAt   DateTime?
+  termEndsAt      DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  metadata        Json                        @default("{}")
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+  room            AnatomimeRoom               @relation("AnatomimeRoomGameRuns", fields: [roomId], references: [id], onDelete: Cascade)
+  currentForRooms AnatomimeRoom[]             @relation("AnatomimeRoomCurrentRun")
+  scores          AnatomimeGameRunTeamScore[]
+  guesses         AnatomimeGameRunGuess[]
+
+  @@unique([roomId, id])
+  @@index([roomId, status])
+  @@index([roomId, activeTeamOrder])
+}
+
+model AnatomimeGameRunTeamScore {
+  id        String            @id @default(cuid())
+  runId     String
+  roomId    String
+  teamId    String
+  score     Int               @default(0)
+  metadata  Json              @default("{}")
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  run       AnatomimeGameRun  @relation(fields: [roomId, runId], references: [roomId, id], onDelete: Cascade)
+  team      AnatomimeRoomTeam @relation(fields: [roomId, teamId], references: [roomId, id], onDelete: Cascade)
+
+  @@unique([runId, teamId])
+  @@index([roomId, teamId])
+}
+
+model AnatomimeGameRunGuess {
+  id              String               @id @default(cuid())
+  runId           String
+  roomId          String
+  teamId          String
+  playerId        String?
+  userId          String?
+  cardId          String
+  cardIndex       Int
+  activeTeamId    String
+  answerKind      String
+  correct         Boolean              @default(false)
+  scoreAwarded    Int                  @default(0)
+  progressAwarded Boolean              @default(false)
+  metadata        Json                 @default("{}")
+  submittedAt     DateTime             @default(now())
+  run             AnatomimeGameRun     @relation(fields: [roomId, runId], references: [roomId, id], onDelete: Cascade)
+  room            AnatomimeRoom        @relation("AnatomimeRoomGuesses", fields: [roomId], references: [id], onDelete: Cascade)
+  team            AnatomimeRoomTeam    @relation("AnatomimeGuessingTeam", fields: [roomId, teamId], references: [roomId, id], onDelete: Cascade)
+  activeTeam      AnatomimeRoomTeam    @relation("AnatomimeActiveTeam", fields: [roomId, activeTeamId], references: [roomId, id], onDelete: Cascade)
+  player          AnatomimeRoomPlayer? @relation(fields: [roomId, playerId], references: [roomId, id], onDelete: NoAction)
+  user            User?                @relation("AnatomimeGameRunGuessUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([runId, cardIndex, submittedAt])
+  @@index([runId, playerId, cardIndex])
+  @@index([roomId])
+  @@index([roomId, activeTeamId])
+  @@index([userId, submittedAt])
+}
+
+model AnatomimeHostElection {
+  id                   String                         @id @default(cuid())
+  roomId               String
+  status               String                         @default("OPEN")
+  startedByPlayerId    String?
+  winnerPlayerId       String?
+  candidatePlayerIds   String[]                       @default([])
+  activeVoterPlayerIds String[]                       @default([])
+  roundHistory         Json                           @default("[]")
+  startedAt            DateTime                       @default(now())
+  closesAt             DateTime
+  resolvedAt           DateTime?
+  createdAt            DateTime                       @default(now())
+  updatedAt            DateTime                       @updatedAt
+  room                 AnatomimeRoom                  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  startedByPlayer      AnatomimeRoomPlayer?           @relation("AnatomimeHostElectionStarter", fields: [roomId, startedByPlayerId], references: [roomId, id], onDelete: NoAction)
+  winnerPlayer         AnatomimeRoomPlayer?           @relation("AnatomimeHostElectionWinner", fields: [roomId, winnerPlayerId], references: [roomId, id], onDelete: NoAction)
+  ballots              AnatomimeHostElectionBallot[]
+
+  @@unique([roomId, id])
+  @@unique([roomId], where: { status: "OPEN" }, map: "AnatomimeHostElection_one_open_per_room_key")
+  @@index([roomId, status])
+  @@index([closesAt])
+}
+
+model AnatomimeHostElectionBallot {
+  id              String                @id @default(cuid())
+  electionId      String
+  roomId          String
+  voterPlayerId   String
+  rankedPlayerIds String[]              @default([])
+  submittedAt     DateTime              @default(now())
+  election        AnatomimeHostElection @relation(fields: [roomId, electionId], references: [roomId, id], onDelete: Cascade)
+  voter           AnatomimeRoomPlayer   @relation(fields: [roomId, voterPlayerId], references: [roomId, id], onDelete: Cascade)
+
+  @@unique([electionId, voterPlayerId])
+  @@index([roomId, voterPlayerId, submittedAt])
+}
+
+model AnatomyTerm {
+  id             String                 @id @default(cuid())
+  slug           String                 @unique
+  kind           AnatomyKind
+  preferredName  String
+  summary        String?
+  regions        String[]               @default([])
+  bodySystems    String[]               @default([])
+  difficulty     AnatomyDifficulty      @default(MEDIUM)
+  status         AnatomyStatus          @default(DRAFT)
+  createdById    String?
+  updatedById    String?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  aliases        AnatomyAlias[]
+  sourceRelationships AnatomyRelationship[] @relation("RelationshipSource")
+  targetRelationships AnatomyRelationship[] @relation("RelationshipTarget")
+  sourceRefs     AnatomySourceRef[]
+  learningProgress LearningProgress[]
+  correctionFlags AnatomyCorrectionFlag[]
+  createdBy      User?                  @relation("AnatomyTermCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy      User?                  @relation("AnatomyTermUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([kind, status])
+}
+
+model AnatomyAlias {
+  id        String      @id @default(cuid())
+  termId    String
+  alias     String
+  createdAt DateTime    @default(now())
+  term      AnatomyTerm @relation(fields: [termId], references: [id], onDelete: Cascade)
+
+  @@unique([termId, alias])
+}
+
+model AnatomyRelationship {
+  id               String      @id @default(cuid())
+  sourceTermId     String?
+  relationshipType String
+  targetTermId     String?
+  sourceEntityType AnatomyEntityType?
+  sourceEntitySlug String?
+  targetEntityType AnatomyEntityType?
+  targetEntitySlug String?
+  details          Json        @default("{}")
+  sourceId         String?
+  createdAt        DateTime    @default(now())
+  sourceTerm       AnatomyTerm? @relation("RelationshipSource", fields: [sourceTermId], references: [id], onDelete: Cascade)
+  targetTerm       AnatomyTerm? @relation("RelationshipTarget", fields: [targetTermId], references: [id], onDelete: Cascade)
+  source           AnatomySource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([sourceTermId, relationshipType, targetTermId])
+  @@unique([sourceEntityType, sourceEntitySlug, relationshipType, targetEntityType, targetEntitySlug])
+  @@index([sourceEntityType, sourceEntitySlug])
+  @@index([targetEntityType, targetEntitySlug])
+  @@index([sourceId])
+}
+
+model AnatomySource {
+  id          String                  @id @default(cuid())
+  slug        String                  @unique
+  label       String
+  url         String?
+  license     String?
+  licenseUrl  String?
+  usageScope  AnatomySourceUsageScope @default(REVIEW_ONLY)
+  accessedAt  DateTime?
+  notes       String?
+  attribution String
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  refs        AnatomySourceRef[]
+  anatomyRegions AnatomyRegion[]
+  bloodSupply BloodSupply[]
+  bones       Bone[]
+  boneLandmarks BoneLandmark[]
+  joints      Joint[]
+  jointMovements JointMovement[]
+  rangesOfMotion RangeOfMotion[]
+  muscles     Muscle[]
+  muscleAttachments MuscleAttachment[]
+  muscleActions MuscleAction[]
+  nerves      Nerve[]
+  muscleInnervations MuscleInnervation[]
+  ligaments   Ligament[]
+  structures  AnatomyStructure[]
+  concepts    AnatomyConcept[]
+  painMapRegions PainMapRegion[]
+  clientTerms ClientTerm[]
+  entityTerms AnatomyEntityTerm[]
+  relationships AnatomyRelationship[]
+  citations   AnatomyCitation[]
+  externalIdentifiers ExternalAnatomyIdentifier[]
+  mediaAssets AnatomyMediaAsset[]
+  spatialModels AnatomySpatialModel[]
+  spatialEntityMaps AnatomySpatialEntityMap[]
+  movementVisualizations AnatomyMovementVisualization[]
+}
+
+model AnatomyCitation {
+  id            String                  @id @default(cuid())
+  slug          String                  @unique
+  entityType    AnatomyEntityType
+  entitySlug    String
+  factType      String
+  factSlug      String?
+  sourceId      String
+  sourceLocator String?
+  citationNote  String?
+  reviewStatus  AnatomyFactReviewStatus @default(NEEDS_REVIEW)
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+  source        AnatomySource           @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([entityType, entitySlug, factType, factSlug, sourceId, sourceLocator])
+  @@index([entityType, entitySlug])
+  @@index([factType, factSlug])
+  @@index([sourceId])
+  @@index([reviewStatus])
+}
+
+model ExternalAnatomyIdentifier {
+  id         String            @id @default(cuid())
+  entityType AnatomyEntityType
+  entitySlug String
+  provider   String
+  identifier String
+  iri        String?
+  label      String?
+  sourceId   String
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  source     AnatomySource     @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([entityType, entitySlug, provider, identifier])
+  @@index([entityType, entitySlug])
+  @@index([provider, identifier])
+  @@index([sourceId])
+}
+
+model AnatomyMediaAsset {
+  id           String                  @id @default(cuid())
+  slug         String                  @unique
+  title        String
+  mediaType    AnatomyMediaType
+  description  String?
+  sourceId     String
+  sourceUrl    String
+  remoteUrl    String?
+  storagePath  String?
+  thumbnailUrl String?
+  license      String
+  licenseUrl   String
+  attribution  String
+  author       String?
+  usageScope   AnatomySourceUsageScope @default(REVIEW_ONLY)
+  reviewStatus AnatomyFactReviewStatus @default(NEEDS_REVIEW)
+  width        Int?
+  height       Int?
+  format       String?
+  metadata     Json?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  source       AnatomySource           @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  entityLinks  AnatomyMediaEntity[]
+  spatialModels AnatomySpatialModel[]
+
+  @@index([mediaType])
+  @@index([usageScope, reviewStatus])
+  @@index([sourceId])
+}
+
+model AnatomyMediaEntity {
+  id              String                   @id @default(cuid())
+  assetId         String
+  entityType      AnatomyEntityType
+  entitySlug      String
+  role            AnatomyMediaRole         @default(REFERENCE)
+  notes           String?
+  reviewStatus    AnatomyMediaReviewStatus @default(NEEDS_REVIEW)
+  reviewReason    String?
+  reviewNote      String?
+  displayPriority Int                      @default(100)
+  reviewedById    String?
+  reviewedAt      DateTime?
+  createdAt       DateTime                 @default(now())
+  asset           AnatomyMediaAsset        @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, entityType, entitySlug, role])
+  @@index([entityType, entitySlug])
+  @@index([reviewStatus, displayPriority])
+}
+
+model AnatomyMediaViewRequest {
+  id              String                         @id @default(cuid())
+  entityType      AnatomyEntityType
+  entitySlug      String
+  requestedView   String
+  reason          String
+  requestNote     String?
+  sourceUrl       String?
+  status          AnatomyMediaViewRequestStatus @default(OPEN)
+  importedAssetId String?
+  importedLinkId  String?
+  createdById     String?
+  resolvedById    String?
+  resolvedAt      DateTime?
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime                       @updatedAt
+  createdBy       User?                          @relation("AnatomyMediaViewRequestCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  resolvedBy      User?                          @relation("AnatomyMediaViewRequestResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entitySlug, status])
+  @@index([status, createdAt])
+  @@index([requestedView])
+  @@index([createdById])
+  @@index([resolvedById])
+}
+
+model AnatomySpatialModel {
+  id                       String                         @id @default(cuid())
+  slug                     String                         @unique
+  name                     String
+  description              String?
+  mediaAssetId             String?
+  sourceId                 String
+  coordinateSystem         String                         @default("right-handed-y-up")
+  unit                     String                         @default("meter")
+  forwardAxis              String                         @default("-Z")
+  upAxis                   String                         @default("Y")
+  scaleToMeters            Float                          @default(1)
+  defaultCamera            Json                           @default("{}")
+  interactionNotes         String?
+  usageScope               AnatomySourceUsageScope        @default(REVIEW_ONLY)
+  reviewStatus             AnatomyFactReviewStatus        @default(NEEDS_REVIEW)
+  metadata                 Json                           @default("{}")
+  createdAt                DateTime                       @default(now())
+  updatedAt                DateTime                       @updatedAt
+  mediaAsset               AnatomyMediaAsset?             @relation(fields: [mediaAssetId], references: [id], onDelete: SetNull)
+  source                   AnatomySource                  @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  entityMaps               AnatomySpatialEntityMap[]
+  movementVisualizations   AnatomyMovementVisualization[]
+
+  @@index([mediaAssetId])
+  @@index([sourceId])
+  @@index([usageScope, reviewStatus])
+}
+
+model AnatomySpatialEntityMap {
+  id                  String                  @id @default(cuid())
+  slug                String                  @unique
+  modelId             String
+  entityType          AnatomyEntityType
+  entitySlug          String
+  label               String?
+  mappingPrecision    String
+  meshName            String?
+  nodeName            String?
+  materialName        String?
+  bodyparts3dPartIds  String[]                @default([])
+  laterality          PainMapLaterality       @default(UNSPECIFIED)
+  surface             PainMapSurface          @default(UNSPECIFIED)
+  selectable          Boolean                 @default(true)
+  palpationTarget     Boolean                 @default(false)
+  painSelectionTarget Boolean                 @default(false)
+  notes               String?
+  metadata            Json                    @default("{}")
+  sourceId            String
+  reviewStatus        AnatomyFactReviewStatus @default(NEEDS_REVIEW)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  model               AnatomySpatialModel     @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  source              AnatomySource           @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([modelId])
+  @@index([modelId, entityType, entitySlug])
+  @@index([entityType, entitySlug])
+  @@index([sourceId])
+  @@index([selectable, palpationTarget, painSelectionTarget])
+  @@index([reviewStatus])
+}
+
+model AnatomyMovementVisualization {
+  id                String                  @id @default(cuid())
+  slug              String                  @unique
+  modelId           String
+  jointId           String
+  movementId        String
+  rangeOfMotionId   String?
+  primaryEntityType AnatomyEntityType?
+  primaryEntitySlug String?
+  motionAxis        Json                    @default("{}")
+  plane             String?
+  neutralPose       Json                    @default("{}")
+  startDegrees      Float?
+  endDegrees        Float?
+  notes             String?
+  metadata          Json                    @default("{}")
+  sourceId          String
+  reviewStatus      AnatomyFactReviewStatus @default(NEEDS_REVIEW)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  model             AnatomySpatialModel     @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  joint             Joint                   @relation(fields: [jointId], references: [id], onDelete: Restrict)
+  movement          JointMovement           @relation(fields: [movementId, jointId], references: [id, jointId], onDelete: Restrict)
+  rangeOfMotion     RangeOfMotion?          @relation(fields: [rangeOfMotionId, jointId, movementId], references: [id, jointId, movementId], onDelete: Restrict)
+  source            AnatomySource           @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([modelId])
+  @@index([jointId])
+  @@index([movementId])
+  @@index([rangeOfMotionId])
+  @@index([primaryEntityType, primaryEntitySlug])
+  @@index([sourceId])
+  @@index([reviewStatus])
+}
+
+model AnatomySourceRef {
+  id           String        @id @default(cuid())
+  termId       String
+  sourceId     String
+  citationNote String?
+  createdAt    DateTime      @default(now())
+  term         AnatomyTerm   @relation(fields: [termId], references: [id], onDelete: Cascade)
+  source       AnatomySource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([termId, sourceId])
+}
+
+model AnatomyCorrectionFlag {
+  id             String               @id @default(cuid())
+  termId         String?
+  createdById    String
+  issueType      String               @default("content")
+  message        String
+  status         CorrectionFlagStatus @default(OPEN)
+  resolutionNote String?
+  reviewedById   String?
+  reviewedAt     DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  term           AnatomyTerm?         @relation(fields: [termId], references: [id], onDelete: SetNull)
+  createdBy      User                 @relation("CorrectionFlagCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  reviewedBy     User?                @relation("CorrectionFlagReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+}
+
+model AnatomyAuditLog {
+  id          String   @id @default(cuid())
+  actorId     String?
+  action      String
+  tableName   String
+  recordId    String?
+  beforeValue Json?
+  afterValue  Json?
+  createdAt   DateTime @default(now())
+  actor       User?    @relation("AnatomyAuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+}
+
+model AnatomyRegion {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  description    String?
+  parentRegionId String?
+  sourceId       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  parentRegion   AnatomyRegion?  @relation("AnatomyRegionHierarchy", fields: [parentRegionId], references: [id], onDelete: SetNull)
+  childRegions   AnatomyRegion[] @relation("AnatomyRegionHierarchy")
+  source         AnatomySource   @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  bloodSupply    BloodSupply[]
+  bones          Bone[]
+  joints         Joint[]
+  muscles        Muscle[]
+  nerves         Nerve[]
+  ligaments      Ligament[]
+  structures     AnatomyStructure[]
+  painMapRegions PainMapRegion[]
+  clientTerms    ClientTerm[]
+
+  @@index([parentRegionId])
+  @@index([sourceId])
+}
+
+model BloodSupply {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  name        String
+  kind        BloodSupplyKind
+  regionId    String
+  description String?
+  sourceId    String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  region      AnatomyRegion   @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  source      AnatomySource   @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([kind])
+  @@index([regionId])
+  @@index([sourceId])
+}
+
+model Bone {
+  id          String             @id @default(cuid())
+  slug        String             @unique
+  name        String
+  formalName  String?
+  description String?
+  regionId    String
+  sourceId    String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  region      AnatomyRegion      @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  source      AnatomySource      @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  landmarks   BoneLandmark[]
+  attachments MuscleAttachment[]
+
+  @@index([regionId])
+  @@index([sourceId])
+}
+
+model BoneLandmark {
+  id          String             @id @default(cuid())
+  slug        String             @unique
+  name        String
+  boneId      String
+  description String?
+  sourceId    String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  bone        Bone               @relation(fields: [boneId], references: [id], onDelete: Cascade)
+  source      AnatomySource      @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  attachments MuscleAttachment[]
+
+  @@index([boneId])
+  @@index([sourceId])
+}
+
+model Joint {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  jointType      String
+  regionId       String
+  description    String?
+  sourceId       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  region         AnatomyRegion   @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  source         AnatomySource   @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  movements      JointMovement[]
+  rangesOfMotion RangeOfMotion[]
+  muscleActions  MuscleAction[]
+  ligaments      Ligament[]
+  clientTerms    ClientTerm[]
+  movementVisualizations AnatomyMovementVisualization[]
+
+  @@index([regionId])
+  @@index([sourceId])
+}
+
+model JointMovement {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  jointId        String
+  movementName   String
+  plane          String?
+  axis           String?
+  description    String?
+  sourceId       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  joint          Joint           @relation(fields: [jointId], references: [id], onDelete: Cascade)
+  source         AnatomySource   @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  rangesOfMotion RangeOfMotion[]
+  muscleActions  MuscleAction[]
+  movementVisualizations AnatomyMovementVisualization[]
+
+  @@unique([id, jointId])
+  @@index([jointId])
+  @@index([sourceId])
+}
+
+model RangeOfMotion {
+  id                  String        @id @default(cuid())
+  slug                String        @unique
+  jointId             String
+  movementId          String
+  typicalMinDegrees   Int?
+  typicalMaxDegrees   Int?
+  typicalMinValue     Float?
+  typicalMaxValue     Float?
+  measurementUnit     String        @default("degrees")
+  measurementPosition String
+  notes               String?
+  sourceId            String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  joint               Joint         @relation(fields: [jointId], references: [id], onDelete: Cascade)
+  movement            JointMovement @relation(fields: [movementId], references: [id], onDelete: Cascade)
+  source              AnatomySource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  movementVisualizations AnatomyMovementVisualization[]
+
+  @@unique([id, jointId, movementId])
+  @@unique([jointId, movementId, measurementPosition])
+  @@index([movementId])
+  @@index([sourceId])
+}
+
+model Muscle {
+  id               String               @id @default(cuid())
+  slug             String               @unique
+  name             String
+  formalName       String
+  alternateNames   String[]             @default([])
+  etymology        String?
+  languageOfOrigin String?
+  description      String?
+  regionId         String
+  relativeDepth    AnatomyRelativeDepth @default(VARIABLE)
+  depthNotes       String?
+  sourceId         String
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  region           AnatomyRegion        @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  source           AnatomySource        @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  attachments      MuscleAttachment[]
+  actions          MuscleAction[]
+  innervations     MuscleInnervation[]
+  clientTerms      ClientTerm[]
+
+  @@index([regionId])
+  @@index([relativeDepth])
+  @@index([sourceId])
+}
+
+model MuscleAttachment {
+  id          String               @id @default(cuid())
+  slug        String               @unique
+  muscleId    String
+  type        MuscleAttachmentType
+  boneId      String
+  landmarkId  String?
+  description String
+  sourceId    String
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  muscle      Muscle               @relation(fields: [muscleId], references: [id], onDelete: Cascade)
+  bone        Bone                 @relation(fields: [boneId], references: [id], onDelete: Restrict)
+  landmark    BoneLandmark?        @relation(fields: [landmarkId], references: [id], onDelete: SetNull)
+  source      AnatomySource        @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([muscleId, type])
+  @@index([boneId])
+  @@index([landmarkId])
+  @@index([sourceId])
+}
+
+model MuscleAction {
+  id              String                @id @default(cuid())
+  slug            String                @unique
+  muscleId        String
+  jointId         String
+  movementId      String
+  role            MuscleActionRole
+  contractionType MuscleContractionType
+  description     String
+  sourceId        String
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  muscle          Muscle                @relation(fields: [muscleId], references: [id], onDelete: Cascade)
+  joint           Joint                 @relation(fields: [jointId], references: [id], onDelete: Restrict)
+  movement        JointMovement         @relation(fields: [movementId], references: [id], onDelete: Restrict)
+  source          AnatomySource         @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([muscleId, jointId, movementId, role, contractionType])
+  @@index([jointId, movementId])
+  @@index([movementId, role])
+  @@index([sourceId])
+}
+
+model Nerve {
+  id           String               @id @default(cuid())
+  slug         String               @unique
+  name         String
+  nerveRoots   String[]             @default([])
+  regionId     String
+  description  String?
+  sourceId     String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  region       AnatomyRegion        @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  source       AnatomySource        @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  innervations MuscleInnervation[]
+
+  @@index([regionId])
+  @@index([sourceId])
+}
+
+model MuscleInnervation {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  muscleId    String
+  nerveId     String
+  description String?
+  sourceId    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  muscle      Muscle        @relation(fields: [muscleId], references: [id], onDelete: Cascade)
+  nerve       Nerve         @relation(fields: [nerveId], references: [id], onDelete: Restrict)
+  source      AnatomySource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([muscleId, nerveId])
+  @@index([nerveId])
+  @@index([sourceId])
+}
+
+model Ligament {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  regionId    String
+  jointId     String?
+  description String?
+  sourceId    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  region      AnatomyRegion @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  joint       Joint?        @relation(fields: [jointId], references: [id], onDelete: SetNull)
+  source      AnatomySource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([regionId])
+  @@index([jointId])
+  @@index([sourceId])
+}
+
+model AnatomyStructure {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  name          String
+  structureType String
+  regionId      String
+  description   String?
+  sourceId      String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  region        AnatomyRegion @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  source        AnatomySource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  clientTerms   ClientTerm[]
+
+  @@index([structureType])
+  @@index([regionId])
+  @@index([sourceId])
+}
+
+model AnatomyConcept {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  conceptType String
+  bodySystem  String?
+  description String?
+  sourceId    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  source      AnatomySource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([conceptType])
+  @@index([bodySystem])
+  @@index([sourceId])
+}
+
+model PainMapRegion {
+  id                       String        @id @default(cuid())
+  slug                     String        @unique
+  name                     String
+  regionId                 String
+  laterality               PainMapLaterality @default(UNSPECIFIED)
+  surface                  PainMapSurface    @default(UNSPECIFIED)
+  plainLanguageDescription String?
+  sourceId                 String
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  region                   AnatomyRegion @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  source                   AnatomySource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([regionId])
+  @@index([sourceId])
+}
+
+model ClientTerm {
+  id                       String               @id @default(cuid())
+  slug                     String               @unique
+  term                     String
+  plainLanguageDescription String
+  mappedRegionId           String?
+  mappedMuscleId           String?
+  mappedJointId            String?
+  mappedStructureId        String?
+  confidence               ClientTermConfidence
+  notes                    String?
+  sourceId                 String
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+  mappedRegion             AnatomyRegion?       @relation(fields: [mappedRegionId], references: [id], onDelete: SetNull)
+  mappedMuscle             Muscle?              @relation(fields: [mappedMuscleId], references: [id], onDelete: SetNull)
+  mappedJoint              Joint?               @relation(fields: [mappedJointId], references: [id], onDelete: SetNull)
+  mappedStructure          AnatomyStructure?     @relation(fields: [mappedStructureId], references: [id], onDelete: SetNull)
+  source                   AnatomySource        @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([term])
+  @@index([mappedRegionId])
+  @@index([mappedMuscleId])
+  @@index([mappedJointId])
+  @@index([mappedStructureId])
+  @@index([sourceId])
+}
+
+model AnatomyEntityTerm {
+  id                String                @id @default(cuid())
+  slug              String                @unique
+  anatomyEntityType AnatomyEntityType
+  anatomyEntitySlug String
+  term              String
+  termType          AnatomyEntityTermType
+  languageOfOrigin  String?
+  notes             String?
+  sourceId          String
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  source            AnatomySource         @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([anatomyEntityType, anatomyEntitySlug, term, termType])
+  @@index([anatomyEntityType, anatomyEntitySlug])
+  @@index([sourceId])
+}
+
+model AuthAttempt {
+  id           String             @id @default(cuid())
+  purpose      AuthAttemptPurpose
+  key          String
+  count        Int                @default(0)
+  windowStart  DateTime           @default(now())
+  blockedUntil DateTime?
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([purpose, key])
+}
+
+model AuthRateLimitBucket {
+  id           String             @id @default(cuid())
+  purpose      AuthAttemptPurpose
+  scope        AuthAttemptScope
+  keyHash      String
+  count        Int                @default(0)
+  windowStart  DateTime           @default(now())
+  blockedUntil DateTime?
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([purpose, scope, keyHash])
+  @@index([updatedAt])
+  @@index([blockedUntil])
+}
+
+model OperationalRateLimitBucket {
+  id           String                    @id @default(cuid())
+  policy       String
+  scope        OperationalRateLimitScope
+  keyHash      String
+  count        Int                       @default(0)
+  windowStart  DateTime                  @default(now())
+  blockedUntil DateTime?
+  updatedAt    DateTime                  @updatedAt
+
+  @@unique([policy, scope, keyHash])
+  @@index([updatedAt])
+  @@index([blockedUntil])
+}
+
+model AuthMethodIntent {
+  id                 String                  @id @default(cuid())
+  targetUserId       String?
+  purpose            AuthMethodIntentPurpose
+  status             AuthMethodIntentStatus  @default(PENDING)
+  provider           String                  @default("google")
+  browserBindingHash String                  @unique
+  providerAccountId  String?
+  providerEmailHash  String?
+  providerProvenAt   DateTime?
+  callbackPath       String?                 @db.VarChar(2048)
+  expiresAt          DateTime
+  consumedAt         DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  targetUser         User?                   @relation("AuthMethodIntentTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([targetUserId, purpose, status])
+  @@index([status, expiresAt])
+  @@index([provider, providerAccountId])
+}
+
+model AccountSecurityEmailIntent {
+  id              String                           @id @default(cuid())
+  userId          String
+  kind            AccountSecurityEmailKind
+  recipientEmail  String
+  subject         String
+  message         String
+  status          AccountSecurityEmailIntentStatus @default(PENDING)
+  idempotencyKey  String                           @unique
+  attemptCount    Int                              @default(0)
+  claimTokenHash  String?
+  claimExpiresAt  DateTime?
+  lastAttemptedAt DateTime?
+  deliveredAt     DateTime?
+  failureCode     String?
+  createdAt       DateTime                         @default(now())
+  updatedAt       DateTime                         @updatedAt
+  user            User                             @relation("AccountSecurityEmailUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, claimExpiresAt])
+  @@index([userId, createdAt])
+}
+
+model Practice {
+  id                String                     @id @default(cuid())
+  slug              String                     @unique
+  name              String
+  timezone          String                     @default("America/New_York")
+  publicLocationLabel String?
+  publicLatitude    Float?
+  publicLongitude   Float?
+  publicBookingStateSlug String?
+  publicBookingSlug String?
+  createdById       String?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  createdBy         User?                      @relation("PracticeCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  memberships       PracticeMembership[]
+  clients           PracticeClient[]
+  bookingPolicy     BookingPolicy?
+  providerBookingPolicies ProviderBookingPolicy[]
+  providerBookingCapacityRules ProviderBookingCapacityRule[]
+  serviceTypes      ServiceType[]
+  calendarResources CalendarResource[]
+  availabilityRules TherapistAvailabilityRule[]
+  availabilitySchedules CalendarAvailabilitySchedule[]
+  availabilityOverrides CalendarAvailabilityOverride[]
+  calendarEvents    CalendarEvent[]
+  calendarBlocks    CalendarBlock[]
+  appointments      Appointment[]
+  bookingGroups     BookingGroup[]
+  bookingWaitlistEntries BookingWaitlistEntry[]
+  calendarAuditLogs CalendarAuditLog[]
+
+  @@unique([publicBookingStateSlug, publicBookingSlug])
+}
+
+model PracticeMembership {
+  id         String       @id @default(cuid())
+  practiceId String
+  userId     String
+  role       PracticeRole @default(THERAPIST)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  practice   Practice     @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([practiceId, userId])
+  @@index([userId, role])
+}
+
+model PracticeClient {
+  id           String        @id @default(cuid())
+  practiceId   String
+  userId       String?
+  displayName  String?
+  email        String?
+  phone        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  practice     Practice      @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  bookingGroups BookingGroup[]
+  bookingWaitlistEntries BookingWaitlistEntry[]
+
+  @@unique([practiceId, userId])
+  @@index([userId])
+}
+
+model ServiceType {
+  id              String        @id @default(cuid())
+  practiceId      String
+  name            String
+  description     String?
+  category        String?
+  color           String?
+  durationMinutes Int
+  bufferMinutes   Int           @default(0)
+  clientVisible   Boolean       @default(true)
+  bookingRole     ServiceBookingRole @default(PRIMARY)
+  countsTowardMassageCapacity Boolean @default(true)
+  classEligible   Boolean       @default(false)
+  supplies        String?
+  prepNotes       String?
+  intakeRequirements String?
+  contraindicationNotice String?
+  modality        String?
+  bodyRegions     String[]       @default([])
+  eligibleProviderIds String[]    @default([])
+  documentationTemplateRefs Json  @default("[]")
+  intakeTemplateRefs Json         @default("[]")
+  contraindicationPrompts Json    @default("[]")
+  cancellationPolicy String?
+  noShowPolicy   String?
+  depositPolicy  String?
+  taxPolicy      String?
+  packagePolicy  String?
+  active          Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  practice        Practice      @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  appointments    Appointment[]
+  appointmentServiceItems AppointmentServiceItem[]
+  variants        ServiceVariant[]
+  classes         CalendarClass[]
+
+  @@index([practiceId, active])
+}
+
+model ServiceVariant {
+  id                  String        @id @default(cuid())
+  serviceTypeId       String
+  name                String
+  durationMinutes     Int
+  processingMinutes   Int           @default(0)
+  bufferBeforeMinutes Int           @default(0)
+  bufferAfterMinutes  Int           @default(0)
+  priceCents          Int?
+  currency            String        @default("USD")
+  active              Boolean       @default(true)
+  clientVisible       Boolean       @default(true)
+  sortOrder           Int           @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  serviceType         ServiceType   @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+  resourceRequirements ServiceVariantResource[]
+  appointments        Appointment[]
+  appointmentServiceItems AppointmentServiceItem[]
+  classes             CalendarClass[]
+
+  @@index([serviceTypeId, active])
+}
+
+model CalendarResource {
+  id                  String        @id @default(cuid())
+  practiceId          String
+  name                String
+  description         String?
+  active              Boolean       @default(true)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  practice            Practice      @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  variantRequirements ServiceVariantResource[]
+  bookings            CalendarResourceBooking[]
+
+  @@index([practiceId, active])
+}
+
+model ServiceVariantResource {
+  id               String           @id @default(cuid())
+  serviceVariantId String
+  resourceId       String
+  createdAt        DateTime         @default(now())
+  serviceVariant   ServiceVariant   @relation(fields: [serviceVariantId], references: [id], onDelete: Cascade)
+  resource         CalendarResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceVariantId, resourceId])
+  @@index([resourceId])
+}
+
+model TherapistAvailabilityRule {
+  id          String    @id @default(cuid())
+  practiceId  String
+  therapistId String
+  dayOfWeek   Int
+  startMinute Int
+  endMinute   Int
+  timezone    String    @default("America/New_York")
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  practice    Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  therapist   User      @relation("AvailabilityTherapist", fields: [therapistId], references: [id], onDelete: Cascade)
+
+  @@index([practiceId, therapistId, dayOfWeek])
+}
+
+model CalendarAvailabilitySchedule {
+  id            String       @id @default(cuid())
+  practiceId    String
+  therapistId   String
+  name          String
+  effectiveFrom DateTime?
+  effectiveTo   DateTime?
+  timezone      String       @default("America/New_York")
+  active        Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  practice      Practice     @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  therapist     User         @relation("AvailabilityScheduleTherapist", fields: [therapistId], references: [id], onDelete: Cascade)
+  intervals     CalendarAvailabilityScheduleInterval[]
+
+  @@index([practiceId, therapistId, active])
+  @@index([therapistId, effectiveFrom])
+}
+
+model CalendarAvailabilityScheduleInterval {
+  id          String                       @id @default(cuid())
+  scheduleId  String
+  dayOfWeek   Int
+  startMinute Int
+  endMinute   Int
+  active      Boolean                      @default(true)
+  createdAt   DateTime                     @default(now())
+  schedule    CalendarAvailabilitySchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId, dayOfWeek])
+}
+
+model CalendarAvailabilityOverride {
+  id          String                           @id @default(cuid())
+  practiceId  String
+  therapistId String
+  date        DateTime
+  kind        CalendarAvailabilityOverrideKind @default(OPEN)
+  reason      String?
+  timezone    String                           @default("America/New_York")
+  createdById String?
+  createdAt   DateTime                         @default(now())
+  updatedAt   DateTime                         @updatedAt
+  practice    Practice                         @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  therapist   User                             @relation("AvailabilityOverrideTherapist", fields: [therapistId], references: [id], onDelete: Cascade)
+  intervals   CalendarAvailabilityOverrideInterval[]
+
+  @@index([practiceId, therapistId, date])
+  @@index([therapistId, date])
+}
+
+model CalendarAvailabilityOverrideInterval {
+  id          String                       @id @default(cuid())
+  overrideId  String
+  startMinute Int
+  endMinute   Int
+  active      Boolean                      @default(true)
+  createdAt   DateTime                     @default(now())
+  override    CalendarAvailabilityOverride @relation(fields: [overrideId], references: [id], onDelete: Cascade)
+
+  @@index([overrideId])
+}
+
+model CalendarBlock {
+  id          String    @id @default(cuid())
+  eventId     String    @unique
+  practiceId  String
+  therapistId String
+  startsAt    DateTime
+  endsAt      DateTime
+  reason      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  event       CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  practice    Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  therapist   User      @relation("CalendarBlockTherapist", fields: [therapistId], references: [id], onDelete: Cascade)
+
+  @@index([practiceId, therapistId, startsAt])
+}
+
+model Appointment {
+  id               String            @id @default(cuid())
+  eventId          String            @unique
+  practiceId       String
+  therapistId      String
+  practiceClientId String
+  serviceTypeId    String
+  serviceVariantId String?
+  bookingGroupId   String?
+  bookingGroupOrder Int?
+  createdById      String?
+  startsAt         DateTime
+  endsAt           DateTime
+  status           AppointmentStatus @default(REQUESTED)
+  source           AppointmentSource @default(CLIENT_REQUEST)
+  requestedPressureLevel Int?
+  massageCapacityMinutes Int @default(0)
+  serviceName      String?
+  serviceVariantName String?
+  serviceCategory  String?
+  serviceColor     String?
+  serviceDurationMinutes Int?
+  serviceProcessingMinutes Int?
+  serviceBufferBeforeMinutes Int?
+  serviceBufferAfterMinutes Int?
+  servicePriceCents Int?
+  serviceCurrency  String?
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  event            CalendarEvent     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  practice         Practice          @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  therapist        User              @relation("AppointmentTherapist", fields: [therapistId], references: [id], onDelete: Cascade)
+  practiceClient   PracticeClient    @relation(fields: [practiceClientId], references: [id], onDelete: Cascade)
+  serviceType      ServiceType       @relation(fields: [serviceTypeId], references: [id], onDelete: Restrict)
+  serviceVariant   ServiceVariant?   @relation(fields: [serviceVariantId], references: [id], onDelete: SetNull)
+  bookingGroup     BookingGroup?      @relation(fields: [bookingGroupId], references: [id], onDelete: SetNull)
+  createdBy        User?             @relation("AppointmentCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  serviceItems     AppointmentServiceItem[]
+
+  @@index([practiceId, startsAt])
+  @@index([therapistId, startsAt])
+  @@index([practiceClientId, startsAt])
+  @@index([serviceVariantId])
+  @@index([bookingGroupId, bookingGroupOrder])
+}
+
+model AppointmentServiceItem {
+  id               String            @id @default(cuid())
+  appointmentId    String
+  serviceTypeId    String?
+  serviceVariantId String?
+  sortOrder        Int               @default(0)
+  requestedPressureLevel Int?
+  massageCapacityMinutes Int @default(0)
+  serviceName      String?
+  serviceVariantName String?
+  serviceCategory  String?
+  serviceColor     String?
+  serviceDurationMinutes Int?
+  serviceProcessingMinutes Int?
+  serviceBufferBeforeMinutes Int?
+  serviceBufferAfterMinutes Int?
+  servicePriceCents Int?
+  serviceCurrency  String?
+  createdAt        DateTime          @default(now())
+  appointment      Appointment       @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  serviceType      ServiceType?      @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
+  serviceVariant   ServiceVariant?   @relation(fields: [serviceVariantId], references: [id], onDelete: SetNull)
+
+  @@index([appointmentId, sortOrder])
+  @@index([serviceVariantId])
+}
+
+model BookingPolicy {
+  id                    String                @id @default(cuid())
+  practiceId            String                @unique
+  enabled               Boolean               @default(true)
+  approvalMode          BookingApprovalMode   @default(MANUAL)
+  minNoticeMinutes      Int                   @default(0)
+  maxAdvanceDays        Int                   @default(7)
+  dailyAppointmentLimit Int?
+  anyProviderEnabled    Boolean               @default(true)
+  teamSequencingEnabled Boolean               @default(true)
+  staffVisibility       BookingStaffVisibility @default(PUBLIC_LABELS)
+  dualTimezoneDisplay   Boolean               @default(true)
+  proximityNoticeEnabled Boolean              @default(false)
+  proximityRadiusMiles  Int                   @default(45)
+  requireClientAccount  Boolean               @default(false)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  practice              Practice              @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+}
+
+model ProviderBookingPolicy {
+  id                    String   @id @default(cuid())
+  practiceId            String
+  providerUserId        String
+  publiclyBookable      Boolean  @default(true)
+  displayLabel          String?
+  minRestMinutes        Int      @default(0)
+  dailyAppointmentLimit Int?
+  weeklyAppointmentLimit Int?
+  requireClientAccount  Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  practice              Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  provider              User     @relation("ProviderBookingPolicyProvider", fields: [providerUserId], references: [id], onDelete: Cascade)
+
+  @@unique([practiceId, providerUserId])
+  @@index([providerUserId])
+}
+
+model ProviderBookingCapacityRule {
+  id             String                @id @default(cuid())
+  practiceId     String
+  providerUserId String
+  period         BookingCapacityPeriod
+  dayOfWeek      Int?
+  pressureLevel  Int                   @default(0)
+  maxMinutes     Int
+  active         Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  practice       Practice              @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  provider       User                  @relation("ProviderBookingCapacityRuleProvider", fields: [providerUserId], references: [id], onDelete: Cascade)
+
+  @@index([practiceId, providerUserId, active])
+  @@index([providerUserId, period, dayOfWeek])
+}
+
+model BookingGroup {
+  id                     String             @id @default(cuid())
+  practiceId             String
+  practiceClientId       String
+  createdById            String?
+  requestedPressureLevel Int
+  status                 BookingGroupStatus @default(REQUESTED)
+  source                 AppointmentSource  @default(CLIENT_REQUEST)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  practice               Practice           @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  practiceClient         PracticeClient     @relation(fields: [practiceClientId], references: [id], onDelete: Cascade)
+  createdBy              User?              @relation("BookingGroupCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  appointments           Appointment[]
+  convertedWaitlistEntry BookingWaitlistEntry?
+
+  @@index([practiceId, status, createdAt])
+  @@index([practiceClientId, createdAt])
+}
+
+model BookingWaitlistEntry {
+  id                     String                @id @default(cuid())
+  practiceId             String
+  practiceClientId       String
+  createdById            String?
+  status                 BookingWaitlistStatus @default(OPEN)
+  requestedPressureLevel Int
+  primaryServiceVariantId String?
+  addOnServiceVariantIds String[]              @default([])
+  preferredProviderId    String?
+  preferredStartsAt      DateTime?
+  convertedBookingGroupId String?              @unique
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  practice               Practice              @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  practiceClient         PracticeClient        @relation(fields: [practiceClientId], references: [id], onDelete: Cascade)
+  createdBy              User?                 @relation("BookingWaitlistCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  convertedBookingGroup  BookingGroup?         @relation(fields: [convertedBookingGroupId], references: [id], onDelete: SetNull)
+
+  @@index([practiceId, status, createdAt])
+  @@index([practiceClientId, createdAt])
+}
+
+model CalendarEvent {
+  id                 String                  @id @default(cuid())
+  practiceId         String
+  ownerUserId        String?
+  createdById        String?
+  kind               CalendarEventKind
+  title              String
+  startsAt           DateTime
+  endsAt             DateTime
+  timezone           String                  @default("America/New_York")
+  visibility         CalendarEventVisibility @default(PRACTICE)
+  status             CalendarEventStatus     @default(ACTIVE)
+  blocksAvailability Boolean                 @default(true)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  practice           Practice                @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  owner              User?                   @relation("CalendarEventOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  createdBy          User?                   @relation("CalendarEventCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  appointment        Appointment?
+  personalBlock      CalendarBlock?
+  class              CalendarClass?
+  reminder           CalendarReminder?
+  resourceBookings   CalendarResourceBooking[]
+  auditLogs          CalendarAuditLog[]
+  notificationIntents CalendarNotificationIntent[]
+  externalCalendarLinks ExternalCalendarEventLink[]
+
+  @@index([practiceId, startsAt])
+  @@index([ownerUserId, startsAt])
+  @@index([kind, status])
+}
+
+model CalendarClass {
+  id               String                        @id @default(cuid())
+  eventId          String                        @unique
+  instructorId     String
+  serviceTypeId    String?
+  serviceVariantId String?
+  capacity         Int
+  enrollmentStatus CalendarClassEnrollmentStatus @default(OPEN)
+  roomResource     String?
+  clientVisible    Boolean                       @default(false)
+  serviceName      String?
+  serviceVariantName String?
+  serviceCategory  String?
+  serviceColor     String?
+  serviceDurationMinutes Int?
+  serviceProcessingMinutes Int?
+  serviceBufferBeforeMinutes Int?
+  serviceBufferAfterMinutes Int?
+  servicePriceCents Int?
+  serviceCurrency  String?
+  createdAt        DateTime                      @default(now())
+  updatedAt        DateTime                      @updatedAt
+  event            CalendarEvent                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  instructor       User                          @relation("CalendarClassInstructor", fields: [instructorId], references: [id], onDelete: Cascade)
+  serviceType      ServiceType?                  @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
+  serviceVariant   ServiceVariant?               @relation(fields: [serviceVariantId], references: [id], onDelete: SetNull)
+
+  @@index([instructorId])
+  @@index([enrollmentStatus])
+  @@index([serviceVariantId])
+}
+
+model CalendarResourceBooking {
+  id         String           @id @default(cuid())
+  eventId    String
+  resourceId String
+  startsAt   DateTime
+  endsAt     DateTime
+  createdAt  DateTime         @default(now())
+  event      CalendarEvent    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  resource   CalendarResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, resourceId])
+  @@index([resourceId, startsAt])
+}
+
+model CalendarReminder {
+  id          String        @id @default(cuid())
+  eventId     String        @unique
+  relatedKind String?
+  relatedId   String?
+  payload     Json          @default("{}")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  event       CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([relatedKind, relatedId])
+}
+
+model CalendarAuditLog {
+  id          String        @id @default(cuid())
+  practiceId  String
+  eventId     String?
+  actorUserId String?
+  action      String
+  metadata    Json          @default("{}")
+  createdAt   DateTime      @default(now())
+  practice    Practice      @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  event       CalendarEvent? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  actor       User?         @relation("CalendarAuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([practiceId, createdAt])
+  @@index([eventId, createdAt])
+  @@index([actorUserId, createdAt])
+}
+
+model CalendarNotificationIntent {
+  id              String                     @id @default(cuid())
+  eventId          String
+  actorUserId      String?
+  recipientUserId  String
+  action           String
+  channel          CalendarNotificationChannel @default(INTERNAL)
+  deliveryStatus   CalendarNotificationStatus  @default(PENDING)
+  payload          Json                       @default("{}")
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+  event            CalendarEvent              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  actor            User?                      @relation("CalendarNotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  recipient        User                       @relation("CalendarNotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, createdAt])
+  @@index([recipientUserId, deliveryStatus])
+  @@index([actorUserId, createdAt])
+}
+
+model CalendarConnection {
+  id                         String                   @id @default(cuid())
+  userId                     String
+  provider                   ExternalCalendarProvider
+  providerAccountId          String
+  accountEmail               String?
+  encryptedRefreshToken      String                   @db.Text
+  encryptedAccessToken       String?                  @db.Text
+  accessTokenExpiresAt       DateTime?
+  grantedScopes              String                   @default("")
+  status                     CalendarConnectionStatus @default(ACTIVE)
+  statusReason               String?
+  dedicatedCalendarId        String?
+  dedicatedCalendarSummary   String?
+  lastSyncedAt               DateTime?
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  user                       User                     @relation("CalendarConnectionUser", fields: [userId], references: [id], onDelete: Cascade)
+  sources                    ExternalCalendarSource[]
+  busyBlocks                 ExternalCalendarBusyBlock[]
+  eventLinks                 ExternalCalendarEventLink[]
+  syncRuns                   CalendarSyncRun[]
+
+  @@unique([userId, provider, providerAccountId])
+  @@unique([userId, provider], where: { status: "ACTIVE" }, map: "CalendarConnection_one_active_provider_key")
+  @@index([userId, status])
+  @@index([provider, status])
+}
+
+model ExternalCalendarSource {
+  id                       String             @id @default(cuid())
+  connectionId             String
+  providerCalendarId       String
+  label                    String?
+  timezone                 String?
+  selectedForBusySync      Boolean            @default(false)
+  syncToken                String?            @db.Text
+  lastFullSyncAt           DateTime?
+  lastIncrementalSyncAt    DateTime?
+  lastErrorCode            String?
+  lastErrorMessage         String?
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  connection               CalendarConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  busyBlocks               ExternalCalendarBusyBlock[]
+  syncRuns                 CalendarSyncRun[]
+
+  @@unique([connectionId, providerCalendarId])
+  @@index([connectionId, selectedForBusySync])
+}
+
+model ExternalCalendarBusyBlock {
+  id                  String                     @id @default(cuid())
+  connectionId        String
+  sourceId            String
+  ownerUserId         String
+  provider            ExternalCalendarProvider
+  providerCalendarId  String
+  providerEventId     String
+  providerEventEtag   String?
+  startsAt            DateTime
+  endsAt              DateTime
+  timezone            String?
+  allDay              Boolean                    @default(false)
+  transparency        String?
+  status              ExternalCalendarBusyStatus @default(BUSY)
+  cancelledAt         DateTime?
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+  connection          CalendarConnection         @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  source              ExternalCalendarSource     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  owner               User                       @relation("ExternalCalendarBusyBlockOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, providerEventId])
+  @@index([ownerUserId, startsAt, endsAt, status])
+  @@index([connectionId, updatedAt])
+}
+
+model ExternalCalendarEventLink {
+  id                  String                   @id @default(cuid())
+  connectionId        String
+  calendarEventId     String
+  provider            ExternalCalendarProvider
+  providerCalendarId  String
+  providerEventId     String?
+  providerEventEtag   String?
+  lastPushedAt        DateTime?
+  lastErrorCode       String?
+  lastErrorMessage    String?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  connection          CalendarConnection       @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  calendarEvent       CalendarEvent            @relation(fields: [calendarEventId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, calendarEventId])
+  @@unique([provider, providerCalendarId, providerEventId])
+  @@index([calendarEventId])
+}
+
+model CalendarSyncRun {
+  id                String                   @id @default(cuid())
+  connectionId      String
+  sourceId          String?
+  direction         CalendarSyncRunDirection
+  status            CalendarSyncRunStatus
+  startedAt         DateTime                 @default(now())
+  finishedAt        DateTime?
+  windowStart       DateTime?
+  windowEnd         DateTime?
+  itemsSeen         Int                      @default(0)
+  itemsChanged      Int                      @default(0)
+  errorCode         String?
+  errorMessage      String?
+  connection        CalendarConnection       @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  source            ExternalCalendarSource?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@index([connectionId, startedAt])
+  @@index([sourceId, startedAt])
+  @@index([status, startedAt])
+}
+
+model StripeCustomer {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  stripeCustomerId String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stripeCustomerId])
+}
+
+model MembershipSubscription {
+  id                       String          @id @default(cuid())
+  userId                   String
+  stripeSubscriptionId     String          @unique
+  stripeCustomerId         String
+  status                   String
+  membershipLevel          MembershipLevel
+  stripePriceId            String?
+  stripeProductId          String?
+  currentPeriodStart       DateTime?
+  currentPeriodEnd         DateTime?
+  cancelAtPeriodEnd        Boolean         @default(false)
+  canceledAt               DateTime?
+  couponId                 String?
+  metadata                 Json            @default("{}")
+  lastStripeEventId         String?
+  lastStripeEventCreatedAt  DateTime?
+  lastStripeAuthoritativeAt DateTime?
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([membershipLevel, status])
+  @@index([stripeCustomerId])
+}
+
+model MembershipWebhookReceipt {
+  id                     String                           @id @default(cuid())
+  userId                 String?
+  provider               String
+  providerEventId        String
+  eventType              String
+  providerEventCreatedAt DateTime
+  providerObjectId       String
+  stripeSubscriptionId   String?
+  status                 MembershipWebhookReceiptStatus @default(RECEIVED)
+  attemptCount           Int                              @default(0)
+  failureCode            String?
+  receivedAt             DateTime                         @default(now())
+  lastAttemptedAt        DateTime?
+  processedAt            DateTime?
+  user                   User?                            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, providerEventId])
+  @@index([status, receivedAt])
+  @@index([stripeSubscriptionId, providerEventCreatedAt])
+  @@index([userId, receivedAt])
+}
+
+model StudentAccess {
+  userId                         String              @id
+  studentStartDate               DateTime
+  studentAccessExpiresAt         DateTime
+  studentStatus                  StudentAccessStatus @default(ACTIVE)
+  eligibleForTherapistDiscount   Boolean             @default(true)
+  createdAt                      DateTime            @default(now())
+  updatedAt                      DateTime            @updatedAt
+  user                           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([studentStatus, studentAccessExpiresAt])
+}

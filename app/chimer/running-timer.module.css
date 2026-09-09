@@ -1,0 +1,2308 @@
+.container {
+  --chimer-top-control-space: calc(env(safe-area-inset-top, 0px) + 5.5rem);
+  --chimer-bottom-control-space: calc(env(safe-area-inset-bottom, 0px) + 7.5rem);
+  --chimer-timer-color: #ffffff;
+  --chimer-clock-color: #ffffff;
+  --chimer-display-font-family: "Digital", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --chimer-digit-stroke-width: 0px;
+  --chimer-digit-stroke-color: #050505;
+  --immersive-reserved-top: 0px;
+  --immersive-reserved-right: 0px;
+  --immersive-reserved-bottom: 0px;
+  --immersive-reserved-left: 0px;
+  --chimer-digit-glow:
+    0 0 0.035em color-mix(in srgb, currentColor 72%, transparent),
+    0 0 0.16em color-mix(in srgb, currentColor 38%, transparent),
+    0 0 0.38em color-mix(in srgb, currentColor 22%, transparent);
+
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background-color: #050505;
+  color: white;
+  transition: background-color 80ms ease, color 80ms ease;
+  overflow: hidden;
+  isolation: isolate;
+  perspective: 1200px;
+}
+
+.alerting {
+  background-color: #ffffff;
+  color: #050505;
+}
+
+.clockMode {
+  --chimer-bottom-control-space: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+}
+
+.clockMode .primaryDisplay {
+  --chimer-display-base-transform: translateY(-4dvh);
+
+  top: var(--immersive-reserved-top);
+  bottom: var(--immersive-reserved-bottom);
+}
+
+.primaryDisplay.timerModeClockPrimary {
+  top: var(--immersive-reserved-top);
+  bottom: var(--immersive-reserved-bottom);
+}
+
+.primaryDisplay.timerModeCompactTimer {
+  top: var(--immersive-reserved-top);
+  bottom: var(--immersive-reserved-bottom);
+}
+
+.runningBackground {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  pointer-events: none;
+}
+
+.runningLampFullscreenBackground {
+  --ml-lamp-beam-scale: 2.35;
+  --ml-lamp-glow-scale: 2.15;
+  --ml-lamp-render-max-beam-width: calc(100vw - 8rem);
+  --ml-lamp-render-max-glow-width: calc(100vw - 10rem);
+  --ml-lamp-render-max-core-glow-width: min(46vw, 820px);
+  --ml-lamp-line-y-override: calc(50% - clamp(7rem, 14dvh, 12rem));
+  --ml-lamp-beam-height: clamp(13rem, 28dvh, 24rem);
+  --ml-lamp-beam-blur: clamp(12px, 1.1vw, 22px);
+  --ml-lamp-wide-glow-offset: clamp(4.75rem, 9dvh, 8rem);
+  --ml-lamp-core-glow-offset: clamp(1.8rem, 4dvh, 4rem);
+  --ml-lamp-glow-height: clamp(9rem, 17dvh, 16rem);
+  --ml-lamp-core-glow-height: clamp(9rem, 15dvh, 13rem);
+  --ml-lamp-wide-glow-blur: clamp(54px, 5vw, 96px);
+  --ml-lamp-core-glow-blur: clamp(32px, 3.2vw, 64px);
+}
+
+.displayButton {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.displayButton:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.displayButton:focus-visible {
+  outline: none;
+  text-shadow: 0 0 0.45rem currentColor;
+}
+
+.primaryDisplay {
+  --chimer-display-base-transform: translateX(0);
+
+  position: fixed;
+  top: calc(var(--chimer-top-control-space) + var(--immersive-reserved-top));
+  right: var(--immersive-reserved-right);
+  bottom: calc(var(--chimer-bottom-control-space) + var(--immersive-reserved-bottom));
+  left: var(--immersive-reserved-left);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: calc(
+    100vw
+    - var(--immersive-reserved-left)
+    - var(--immersive-reserved-right)
+  );
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: var(--chimer-display-font-family);
+  font-size: var(--chimer-fit-font-size, var(--chimer-primary-font-size, 20vw));
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  transform: var(--chimer-display-base-transform);
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transition:
+    bottom 180ms ease,
+    color 150ms ease,
+    left 180ms ease,
+    max-width 180ms ease,
+    opacity 180ms ease,
+    right 180ms ease,
+    top 180ms ease,
+    transform 180ms ease,
+    width 180ms ease;
+  white-space: nowrap;
+  backface-visibility: hidden;
+  will-change: transform, top, left, font-size;
+}
+
+.primaryDisplay:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.primaryDisplay:not(:disabled):active {
+  transform: var(--chimer-display-base-transform) scale(0.99);
+}
+
+.secondaryDisplay {
+  --chimer-display-base-transform: translateX(-50%);
+
+  position: fixed;
+  top: 1.2rem;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: calc(100vw - 9rem);
+  overflow: hidden;
+  transform: var(--chimer-display-base-transform);
+  color: hsl(var(--brand-orange));
+  font-family: var(--chimer-display-font-family);
+  font-size: clamp(1.4rem, 6vw, 4rem);
+  line-height: 1;
+  letter-spacing: 0;
+  opacity: 0.84;
+  text-overflow: ellipsis;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transition:
+    bottom 180ms ease,
+    color 150ms ease,
+    font-size 180ms ease,
+    left 180ms ease,
+    max-width 180ms ease,
+    opacity 180ms ease,
+    top 180ms ease,
+    transform 180ms ease,
+    width 180ms ease;
+  white-space: nowrap;
+  backface-visibility: hidden;
+  will-change: transform, top, left, font-size;
+}
+
+.secondaryDisplay:hover {
+  opacity: 1;
+  filter: brightness(1.12);
+}
+
+.timerDisplay {
+  color: var(--chimer-timer-color);
+  font-family: var(--chimer-display-font-family);
+  text-shadow: var(--chimer-digit-glow);
+  -webkit-text-stroke: var(--chimer-digit-stroke-width) var(--chimer-digit-stroke-color);
+  paint-order: stroke fill;
+}
+
+.secondaryDisplay.timerDisplay {
+  font-size: clamp(1.15rem, 7vw, 3.25rem);
+}
+
+.primaryDisplay.currentTimeDisplay {
+  color: var(--chimer-clock-color);
+  font-size: var(--chimer-fit-font-size, var(--chimer-primary-font-size, 20vw));
+}
+
+.currentTimeDisplay {
+  color: var(--chimer-clock-color);
+  text-shadow: var(--chimer-digit-glow);
+  -webkit-text-stroke: var(--chimer-digit-stroke-width) var(--chimer-digit-stroke-color);
+  paint-order: stroke fill;
+}
+
+.timerDisplay .timeUnit,
+.timerDisplay .timerUnitLabel,
+.timerDisplay .colon,
+.currentTimeDisplay .timeUnit,
+.currentTimeDisplay .currentTimeDigit,
+.currentTimeDisplay .currentTimeMeridiem,
+.currentTimeDisplay .currentTimeInlineMeridiem,
+.currentTimeDisplay .colon {
+  text-shadow: var(--chimer-digit-glow);
+  -webkit-text-stroke: var(--chimer-digit-stroke-width) var(--chimer-digit-stroke-color);
+  paint-order: stroke fill;
+}
+
+.displayContent {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  max-width: none;
+  width: max-content;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* The measured runway keeps the dock below the projection without clipping the clock at the viewport top. */
+.primaryDisplayForwardGlowDockOpen .protectedDisplay {
+  box-sizing: content-box;
+  padding-bottom: var(--immersive-forward-glow-dock-runway, 3rem);
+}
+
+/* Let the floor projection cross the fitted display stage; the fullscreen root still clips at the viewport. */
+.primaryDisplayForwardGlowEnabled {
+  overflow: visible;
+}
+
+/* Stable, untransformed bounds used by the immersive safe-stage observer. */
+.protectedDisplay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: 100%;
+  line-height: 1;
+  transform: none;
+}
+
+.displayEffectBounds,
+.displayRotationLayer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: 100%;
+  line-height: 1;
+}
+
+.displayEffectBounds {
+  isolation: isolate;
+  perspective: 45rem;
+  transform-style: preserve-3d;
+}
+
+.displayRotationLayer {
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+@keyframes immersiveDisplayYaw {
+  0%,
+  100% {
+    transform: rotateY(var(--immersive-display-yaw-min, -10deg));
+  }
+
+  50% {
+    transform: rotateY(var(--immersive-display-yaw-max, 10deg));
+  }
+}
+
+.displayRotationEnabled {
+  animation: immersiveDisplayYaw var(--immersive-display-yaw-duration, 40s) ease-in-out infinite;
+  will-change: transform;
+}
+
+.forwardGlowProjection {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: none;
+  overflow: visible;
+  color: var(--immersive-forward-glow-color);
+  line-height: 1;
+  /* Keep the floor close to the glyphs while using a fixed camera depth so oversized clocks stay registered. */
+  transform:
+    translateX(-50%)
+    translateY(calc(var(--immersive-forward-glow-gap, 16px) - 0.25em))
+    translateZ(2rem)
+    rotateX(-90.1deg)
+    scaleY(var(--immersive-forward-glow-length, 1));
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  user-select: none;
+}
+
+.forwardGlowLayer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: none;
+  line-height: 1;
+}
+
+/* Expand the transparent paint surface so filtered light cannot clip at the glyph layer bounds. */
+.forwardGlowLayer::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400%;
+  height: 400%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.forwardGlowBloom {
+  opacity: var(--immersive-forward-glow-bloom-opacity, 0.5);
+  filter:
+    drop-shadow(0 0 var(--immersive-forward-glow-near-halo, 4px) var(--immersive-forward-glow-color))
+    drop-shadow(0 0 var(--immersive-forward-glow-far-halo, 10px) var(--immersive-forward-glow-color))
+    blur(var(--immersive-forward-glow-blur, 28px));
+}
+
+.forwardGlowReflection {
+  position: absolute;
+  inset: 0;
+  opacity: var(--immersive-forward-glow-reflection-opacity, 0.4);
+  filter:
+    drop-shadow(0 0 var(--immersive-forward-glow-near-halo, 4px) var(--immersive-forward-glow-color))
+    drop-shadow(0 0 var(--immersive-forward-glow-far-halo, 10px) var(--immersive-forward-glow-color))
+    blur(var(--immersive-forward-glow-reflection-blur, 3.36px));
+}
+
+/* Mask each glyph independently; masking the whole layer exposes its rectangular compositor edge. */
+.forwardGlowBloom > .timeUnit,
+.forwardGlowBloom > .colon,
+.forwardGlowBloom > .timerUnitLabel,
+.forwardGlowBloom .currentTimeDigit,
+.forwardGlowBloom .clockColon,
+.forwardGlowBloom .currentTimeMeridiem {
+  -webkit-mask-image: linear-gradient(to bottom, black, rgb(0 0 0 / 45%) 45%, transparent 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black, rgb(0 0 0 / 45%) 45%, transparent 82%, transparent 100%);
+}
+
+.forwardGlowReflection > .timeUnit,
+.forwardGlowReflection > .colon,
+.forwardGlowReflection > .timerUnitLabel,
+.forwardGlowReflection .currentTimeDigit,
+.forwardGlowReflection .clockColon,
+.forwardGlowReflection .currentTimeMeridiem {
+  -webkit-mask-image: linear-gradient(to top, black, rgb(0 0 0 / 10%) 60%, transparent);
+  mask-image: linear-gradient(to top, black, rgb(0 0 0 / 10%) 60%, transparent);
+}
+
+.swapToPrimary {
+  animation: chimerSwingDownForward 360ms cubic-bezier(0.2, 0.82, 0.2, 1) both;
+}
+
+.swapToSecondary {
+  animation: chimerSwingUpBack 360ms cubic-bezier(0.24, 0.72, 0.22, 1) both;
+}
+
+.currentTimeStack,
+.currentTimeInline {
+  display: inline-grid;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+}
+
+.currentTimeRow {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.currentTimeStack {
+  line-height: 1;
+}
+
+.currentTimeRow {
+  line-height: 1;
+}
+
+.currentTimeInline {
+  gap: 0;
+}
+
+.currentTimeValue {
+  display: block;
+}
+
+.currentTimeMeridiem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.035em;
+  margin-right: 0.035em;
+  font-family: var(--chimer-display-font-family);
+  font-size: 0.22em;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
+  transform: translateY(0.04em);
+}
+
+.currentTimeInlineMeridiem {
+  display: inline-block;
+  font-family: var(--chimer-display-font-family);
+  font-size: 0.3em;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.timeUnit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15em;
+}
+
+.currentTimeUnit {
+  display: inline-grid;
+  width: 1.08em;
+  grid-template-columns: repeat(2, 0.54em);
+  align-items: center;
+  gap: 0;
+  justify-content: center;
+  justify-items: center;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.currentTimeDigit {
+  display: inline-flex;
+  width: 0.54em;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  max-width: 0.54em;
+  overflow: visible;
+}
+
+.timerUnitLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.035em;
+  margin-right: 0.035em;
+  font-size: 0.22em;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.92;
+  transform: translateY(0.04em);
+}
+
+.colon {
+  display: inline-block;
+  width: 0.22em;
+  opacity: 0.82;
+}
+
+.clockColon {
+  width: 0.34em;
+}
+
+.meridiemColon {
+  position: relative;
+  display: inline-block;
+  width: 0.22em;
+}
+
+.reservedTimePart,
+.reservedInlinePart {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.control,
+.fontButton {
+  position: fixed;
+  z-index: 10003;
+  display: flex;
+  width: 3.5rem;
+  height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid hsl(var(--foreground) / 0.2);
+  border-radius: 999px;
+  background:
+    linear-gradient(145deg, hsl(var(--button-blue-start) / 0.22), hsl(var(--button-sunset-violet) / 0.1)),
+    hsl(var(--background) / 0.28);
+  color: hsl(215 100% 96%);
+  cursor: pointer;
+  padding: 0;
+  box-shadow:
+    inset 0 1px 0 hsl(var(--foreground) / 0.18),
+    inset 0 -1px 0 hsl(var(--button-blue-depth) / 0.16),
+    0 0.85rem 1.8rem hsl(var(--button-blue-depth) / 0.16);
+  text-shadow: none;
+  transform: none;
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, opacity 900ms ease, transform 150ms ease;
+  backdrop-filter: blur(16px) saturate(135%);
+}
+
+.control svg,
+.fontButton svg {
+  filter: drop-shadow(0 0 0.3rem hsl(var(--button-blue-start) / 0.16));
+}
+
+.chrome {
+  position: static;
+}
+
+.chrome > .control,
+.bottomButtonRow .control,
+.bottomButtonRow .fontButton {
+  transition: box-shadow 150ms ease, filter 150ms ease, opacity 900ms ease, transform 150ms ease;
+}
+
+.status {
+  transition: opacity 900ms ease;
+}
+
+.control:hover,
+.fontButton:hover {
+  border-color: hsl(var(--button-blue-start) / 0.38);
+  background:
+    linear-gradient(145deg, hsl(var(--button-blue-start) / 0.28), hsl(var(--button-sunset-violet) / 0.13)),
+    hsl(var(--background) / 0.32);
+  filter: none;
+}
+
+.control:active,
+.fontButton:active {
+  box-shadow:
+    inset 0 0.25rem 0.75rem hsl(var(--background) / 0.32),
+    inset 0 1px 0 hsl(var(--foreground) / 0.1),
+    0 0.55rem 1.2rem hsl(var(--button-blue-depth) / 0.14);
+  transform: scale(0.985);
+}
+
+.control:disabled,
+.fontButton:disabled {
+  cursor: default;
+  opacity: 0.42;
+}
+
+.control:disabled:hover,
+.fontButton:disabled:hover {
+  filter: none;
+}
+
+.chromeFaded > .control,
+.chromeFaded > [data-immersive-shell],
+.chromeFaded .bottomButtonRow .control,
+.chromeFaded .bottomButtonRow .fontButton {
+  opacity: 0.34;
+}
+
+.chromeHidden > .control,
+.chromeHidden > [data-immersive-shell],
+.chromeHidden .bottomButtonRow .control,
+.chromeHidden .bottomButtonRow .fontButton {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chrome > [data-immersive-shell] {
+  transition: opacity 900ms ease;
+}
+
+.chromeFaded > .control:focus-visible,
+.chromeFaded .bottomButtonRow .control:focus-visible,
+.chromeFaded .bottomButtonRow .fontButton:focus-visible,
+.chromeHidden > .control:focus-visible,
+.chromeHidden .bottomButtonRow .control:focus-visible,
+.chromeHidden .bottomButtonRow .fontButton:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.closeButton {
+  top: var(--chimer-top-control-offset, calc(env(safe-area-inset-top, 0px) + 1rem));
+  right: calc(env(safe-area-inset-right, 0px) + 1rem);
+}
+
+.fullscreenButton {
+  top: var(--chimer-top-control-offset, calc(env(safe-area-inset-top, 0px) + 1rem));
+  left: calc(env(safe-area-inset-left, 0px) + 1rem);
+}
+
+.immersiveToolbarControl {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.immersiveToolbarControlActive {
+  border-color: hsl(var(--button-blue-start) / 0.68);
+  background:
+    linear-gradient(145deg, hsl(var(--button-blue-start) / 0.5), hsl(var(--button-sunset-violet) / 0.28)),
+    hsl(var(--background) / 0.38);
+  box-shadow:
+    inset 0 1px 0 hsl(var(--foreground) / 0.24),
+    inset 0 -1px 0 hsl(var(--button-blue-depth) / 0.22),
+    0 0 1.2rem hsl(var(--button-blue-start) / 0.32);
+}
+
+.settingsTabContent {
+  display: grid;
+  min-height: 0;
+  gap: 0.62rem;
+  padding: 0.05rem 0.15rem 0.12rem 0;
+}
+
+.backgroundSettingsTabContent {
+  min-height: 0;
+  height: 100%;
+  touch-action: pan-y;
+}
+
+.backgroundSettingsTabContent > :global([data-background-carousel]) {
+  min-height: 0;
+  height: 100%;
+}
+
+.settingsSection {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.05rem;
+}
+
+.settingsSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.settingsPill {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: hsl(var(--button-orange-edge) / 0.18);
+  color: hsl(var(--button-orange-edge));
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.35rem 0.5rem;
+}
+
+.settingsLabelMuted {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.quickAdjustGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.quickAdjustGrid button {
+  min-height: 2.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.quickAdjustGrid button:hover {
+  background: hsl(var(--brand-orange));
+}
+
+.rangeContainer {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.rangeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.95rem;
+}
+
+.rangeValue {
+  color: hsl(var(--brand-orange));
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.customRangeInput {
+  width: 100%;
+}
+
+.customRangeInput:focus-visible {
+  outline: 2px solid hsl(var(--brand-orange));
+  outline-offset: 2px;
+}
+
+.backgroundSelectedCard {
+  display: grid;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.75rem;
+}
+
+.backgroundSelectedHeader {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.backgroundSelectedBody {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.backgroundCardPreview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 4.35rem;
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.65rem;
+  background: #111111;
+  overflow: hidden;
+}
+
+.backgroundCardLoader {
+  display: inline-flex;
+  margin: auto;
+  width: auto;
+  height: auto;
+}
+
+.backgroundCardMedia {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: transparent;
+}
+
+.backgroundSelectedText {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.backgroundSelectedName {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.93rem;
+  font-weight: 700;
+}
+
+.backgroundSelectedSummary {
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.tinyToggleButton {
+  min-height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 0.6rem;
+  width: fit-content;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tinyToggleButton:hover {
+  border-color: hsl(var(--brand-orange));
+  color: hsl(var(--brand-orange));
+}
+
+.backgroundCategoryRow {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-auto-columns: minmax(4.9rem, max-content);
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 0.22rem;
+  overflow-x: auto;
+  min-height: 2.7rem;
+  padding: 0.24rem;
+  border: 1px solid hsl(var(--foreground) / 0.1);
+  border-radius: 0.5625rem;
+  background: hsl(var(--background) / 0.68);
+  box-shadow:
+    inset 1.5px 1.5px 0 hsl(var(--background) / 0.32),
+    inset -1.5px -1.5px 0 hsl(var(--foreground) / 0.05),
+    inset 0 0 0 1px hsl(var(--background) / 0.12);
+  scrollbar-width: none;
+  backdrop-filter: blur(14px);
+  overscroll-behavior-inline: contain;
+  touch-action: pan-x;
+  scroll-snap-type: x proximity;
+}
+
+.backgroundCategoryRow::-webkit-scrollbar {
+  display: none;
+}
+
+.backgroundRadialCarousel {
+  display: grid;
+  gap: 0.55rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.05rem 0 0.2rem;
+  outline: none;
+  touch-action: pan-y;
+}
+
+.backgroundRadialCarousel:focus-visible {
+  border-radius: 0.85rem;
+  box-shadow: 0 0 0 2px hsl(var(--brand-orange) / 0.42);
+}
+
+.backgroundRadialStage {
+  position: relative;
+  height: clamp(17.75rem, 45dvh, 21.5rem);
+  overflow: hidden;
+  border-radius: 0.9rem;
+  perspective: 900px;
+  transform-style: preserve-3d;
+  isolation: isolate;
+}
+
+.backgroundRadialCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(11.35rem, 38vw, 14rem);
+  aspect-ratio: 5 / 7;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1rem;
+  background: #0b0b0b;
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 1rem 2rem rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transition:
+    opacity 220ms ease,
+    transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.backgroundRadialCard:hover,
+.backgroundRadialCard:focus-within {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.backgroundRadialCard:focus-within {
+  outline: 2px solid hsl(var(--brand-orange));
+  outline-offset: 3px;
+}
+
+.backgroundRadialCardActive {
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow:
+    0 1.15rem 2.3rem rgba(0, 0, 0, 0.42),
+    0 0 0 1px hsl(var(--brand-orange) / 0.28),
+    0 0 1.25rem hsl(var(--brand-orange-glow) / 0.16);
+}
+
+.backgroundRadialCard .backgroundCardPreview {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: inherit;
+}
+
+.backgroundRadialCardPreviewButton {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: inherit;
+}
+
+.backgroundRadialCardPreviewButton:focus-visible {
+  outline: none;
+}
+
+.backgroundRadialCardActions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+}
+
+.backgroundRadialCardAction,
+.backgroundRadialIconAction {
+  min-height: 1.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 48%),
+    rgba(0, 0, 0, 0.56);
+  color: white;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.26);
+}
+
+.backgroundRadialCardAction {
+  padding: 0 0.62rem;
+}
+
+.backgroundRadialCardActionSelected {
+  border-color: hsl(var(--brand-orange) / 0.66);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 48%),
+    hsl(var(--brand-orange) / 0.74);
+}
+
+.backgroundRadialIconAction {
+  display: inline-flex;
+  width: 1.82rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.backgroundRadialIconActionActive {
+  color: hsl(var(--brand-orange-soft));
+  border-color: hsl(var(--brand-orange) / 0.64);
+}
+
+.backgroundRadialIconActionActive svg {
+  fill: currentColor;
+}
+
+.backgroundRadialCardAction:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+}
+
+.backgroundRadialCardVeil {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 0.18rem;
+  padding: 3.1rem 0.85rem 0.85rem;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.34) 48%, transparent);
+  text-align: left;
+  opacity: 0;
+  transform: translateY(0.55rem);
+  transition:
+    opacity 180ms ease,
+    transform 220ms ease;
+}
+
+.backgroundRadialCardActive .backgroundRadialCardVeil {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.backgroundRadialCardCategory {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.backgroundRadialCardTitle {
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+.backgroundRadialCardBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.18rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.58rem;
+  font-weight: 750;
+}
+
+.backgroundRadialCardBadges span {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  padding: 0.12rem 0.32rem;
+}
+
+.backgroundRadialNavRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.backgroundCarouselNav {
+  position: static;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backgroundCarouselNav:disabled {
+  opacity: 0.42;
+}
+
+.backgroundCategoryButton {
+  position: relative;
+  z-index: 1;
+  min-height: 2.15rem;
+  min-width: 100%;
+  border: 1px solid transparent;
+  border-radius: 0.5625rem;
+  background: transparent;
+  box-shadow: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  text-shadow: none;
+  scroll-snap-align: start;
+}
+
+.backgroundCategoryButton:hover {
+  background: transparent;
+  box-shadow: none;
+  color: hsl(var(--muted-foreground));
+  filter: none;
+  transform: none;
+}
+
+.backgroundCategoryButtonActive {
+  border-color: transparent;
+  background:
+    var(--ml-button-light-gradient),
+    linear-gradient(122deg, hsl(var(--button-secondary-face)) 0 82%, hsl(var(--button-orange-depth)) 100%);
+  box-shadow:
+    inset 0 1px 0 hsl(var(--foreground) / 0.2),
+    inset 0 -2px 0 hsl(var(--button-orange-depth) / 0.56),
+    0 2px 0 hsl(var(--button-orange-depth) / 0.62),
+    0 5px 10px hsl(var(--button-orange-depth) / 0.16);
+  color: hsl(32 100% 96%);
+  text-shadow:
+    var(--ml-button-inset-shadow-x) -0.72px 0 hsl(var(--button-ink) / 0.54),
+    var(--ml-button-inset-highlight-x) 0.72px 0 hsl(var(--button-orange-start) / 0.22),
+    0 0 1px hsl(var(--button-orange-start) / 0.18);
+}
+
+.backgroundCategoryButtonActive:hover {
+  background:
+    var(--ml-button-light-gradient),
+    linear-gradient(122deg, hsl(var(--button-secondary-face)) 0 82%, hsl(var(--button-orange-depth)) 100%);
+  color: hsl(32 100% 96%);
+}
+
+.backgroundCardGrid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.backgroundCard {
+  display: grid;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.7rem;
+}
+
+.backgroundCardSelected {
+  border-color: hsl(var(--brand-orange));
+  box-shadow: 0 0 0 1px hsl(var(--brand-orange) / 0.4) inset, 0 0 0.85rem hsl(var(--brand-orange) / 0.2);
+}
+
+.backgroundCardLocked {
+  opacity: 0.62;
+}
+
+.backgroundCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.backgroundCardName {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.backgroundCardBadges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.backgroundBadge {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.18rem 0.42rem;
+}
+
+.backgroundBadgeSelected {
+  border-color: hsl(var(--brand-orange) / 0.62);
+  color: hsl(var(--brand-orange-soft));
+}
+
+.backgroundCardSummary {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.25;
+  min-height: 2.65em;
+}
+
+.backgroundCardCategory {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.backgroundCardProvider {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.7rem;
+}
+
+.backgroundCardActions {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.backgroundCardActions .inlineButton {
+  min-height: 2rem;
+  border-radius: 0.7rem;
+  justify-content: center;
+  font-size: 0.79rem;
+}
+
+.backgroundCardActions .inlineButton:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 48%),
+    rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.backgroundPrimaryAction {
+  background: rgba(234, 88, 12, 0.2);
+  border-color: rgba(234, 88, 12, 0.65);
+}
+
+.tactileButton {
+  transition:
+    transform 140ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease,
+    background-color 160ms ease;
+}
+
+.tactileButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.tactileButton:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tactileButton:focus-visible {
+  outline: 2px solid hsl(var(--brand-orange));
+  outline-offset: 2px;
+}
+
+.tactileButton:disabled {
+  transform: none;
+  filter: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.exactTimeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.numberField {
+  display: grid;
+  gap: 0.35rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.78rem;
+}
+
+.numberField input {
+  min-height: 2.45rem;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0 0.75rem;
+}
+
+.settingsEmptyState {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 0.85rem;
+}
+
+.immersiveSettingsTabContent {
+  gap: 0.4rem;
+  padding: 0;
+}
+
+.immersiveSettingsTabContent .settingsSection {
+  gap: 0.36rem;
+  padding-top: 0;
+}
+
+.immersiveSettingsTabContent .settingsSectionHeader {
+  gap: 0.5rem;
+  font-size: 0.84rem;
+}
+
+.immersiveSettingsTabContent .settingsPill {
+  padding: 0.28rem 0.42rem;
+}
+
+/* Clock/Visual docks use flat 44px rows; Background keeps its roomier cards. */
+.immersiveSettingsTabContent :global(.ml-toggle-control) {
+  min-height: 2.75rem;
+  gap: 0.55rem;
+  padding: 0.3rem 0.48rem;
+  border-color: transparent;
+  border-radius: 0.45rem;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Extend the compact switch's pointer area without enlarging its visual track. */
+.immersiveSettingsTabContent :global(.ml-switch)::after {
+  content: "";
+  position: absolute;
+  inset: -0.6rem -0.35rem;
+}
+
+.immersiveSettingsTabContent :global(.ml-range-control) {
+  gap: 0.25rem;
+}
+
+.immersiveSettingsTabContent :global(.ml-range-control-shell) {
+  --ml-range-control-thumb-height: 2.75rem;
+  --ml-range-control-track-height: 1.55rem;
+
+  height: 2.75rem;
+  min-height: 2.75rem;
+}
+
+.immersiveSettingsTabContent .clockCompactRow,
+.immersiveSettingsTabContent .clockControlGrid {
+  gap: 0.42rem;
+}
+
+.immersiveSettingsTabContent .clockCompactField {
+  grid-template-columns: max-content minmax(0, 1fr);
+  width: 100%;
+  gap: 1rem;
+  box-sizing: border-box;
+  height: 3.6875rem;
+  min-height: 3.6875rem;
+  padding: 0.4375rem;
+  border-radius: 0.68rem;
+}
+
+.immersiveSettingsTabContent .clockCompactField > span {
+  font-size: 0.84rem;
+  padding-left: 0.625rem;
+}
+
+.immersiveSettingsTabContent .clockCompactField select,
+.immersiveSettingsTabContent .formatOption,
+.immersiveSettingsTabContent .clockColorSwatchButton {
+  min-height: 2.75rem;
+}
+
+.immersiveSettingsTabContent .clockCompactField .formatToggle {
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+}
+
+.immersiveSettingsTabContent .clockCompactField select,
+.immersiveSettingsTabContent .clockCompactField .formatToggle {
+  width: 100%;
+}
+
+.immersiveSettingsTabContent .clockCompactField .clockColorSwatchButton {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.immersiveSettingsTabContent .colorRow {
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border-radius: 0.68rem;
+  box-shadow: none;
+}
+
+.immersiveSettingsTabContent .colorRow :global(.ml-color-picker-input) {
+  width: 2.25rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  border-radius: 0.62rem;
+}
+
+.immersiveSettingsTabContent .controlGroup {
+  border-radius: 0.68rem;
+}
+
+.immersiveSettingsTabContent .controlGroupBody {
+  gap: 0.42rem;
+  padding: 0 0.45rem 0.45rem;
+}
+
+.visualDraftSecondaryAction {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hideLegacyColorControls .colorRow {
+  display: none;
+}
+
+.hideLegacyPaletteMetadataControls .selectRow:has(select[aria-label*="color mode" i]),
+.hideLegacyPaletteMetadataControls .selectRow:has(select[aria-label*="palette mode" i]),
+.hideLegacyPaletteMetadataControls .selectRow:has(select[aria-label*="tint mode" i]),
+.hideLegacyPaletteMetadataControls .selectRow:has(select[aria-label*="color harmony" i]) {
+  display: none;
+}
+
+.immersiveVisualHeaderControls,
+.visualHeaderDraftActions {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.immersiveVisualHeaderControls {
+  width: 100%;
+  justify-content: space-evenly;
+  gap: 0.5rem;
+}
+
+.visualHeaderDraftActions {
+  flex: 0 0 auto;
+  gap: 0.3rem;
+}
+
+.visualHeaderDraftActions > button {
+  min-width: 2rem;
+  /* Compact header actions remain 32x32px, above WCAG's 24px target minimum. */
+  min-height: 2rem;
+  padding-inline: 0.55rem;
+}
+
+.visualDraftStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-height: 2rem;
+  padding-inline: 0.15rem;
+}
+
+.visualDraftStatus {
+  min-width: 0;
+  color: rgb(255 255 255 / 78%);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+:global([data-immersive-layout="side"]) .settingsTabContent,
+:global([data-immersive-layout="side"]) .immersiveSettingsTabContent {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+:global([data-immersive-layout="side"]) .clockCompactRow,
+:global([data-immersive-layout="side"]) .clockControlGrid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+:global([data-immersive-layout="side"]) .immersiveVisualHeaderControls {
+  justify-content: space-between;
+}
+
+:global([data-immersive-layout="side"]) .visualHeaderDraftButtonLabel {
+  display: none;
+}
+
+:global([data-immersive-layout="side"]) .immersiveClockHeaderControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 48rem) {
+  .immersiveVisualHeaderControls {
+    justify-content: space-between;
+  }
+
+  .visualHeaderDraftButtonLabel {
+    display: none;
+  }
+}
+
+.settingsNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  border: 1px solid hsl(var(--border) / 0.65);
+  border-radius: 0.75rem;
+  background: hsl(var(--muted) / 0.5);
+  padding: 0.65rem 0.75rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.musicDefaultActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.switchRow,
+.colorRow,
+.rangeRow,
+.selectRow,
+.formatRow {
+  display: flex;
+  min-height: 2.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.95rem;
+}
+
+.switchRow span,
+.colorRow span,
+.rangeRow span,
+.selectRow span,
+.formatRow span {
+  min-width: 0;
+}
+
+.formatToggle {
+  display: grid;
+  position: relative;
+  isolation: isolate;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 7.5rem;
+  gap: 0.22rem;
+  overflow: visible;
+  padding: 0.24rem;
+  border: 1px solid hsl(var(--foreground) / 0.1);
+  border-radius: 0.5625rem;
+  background: hsl(var(--background) / 0.68);
+  box-shadow:
+    inset 1.5px 1.5px 0 hsl(var(--background) / 0.32),
+    inset -1.5px -1.5px 0 hsl(var(--foreground) / 0.05),
+    inset 0 0 0 1px hsl(var(--background) / 0.12);
+}
+
+.formatOption {
+  position: relative;
+  z-index: 1;
+  min-height: 2.15rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.formatOption:hover {
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  filter: none;
+  transform: none;
+}
+
+.formatOptionActive {
+  background: transparent;
+  color: hsl(32 100% 96%);
+  box-shadow: none;
+  text-shadow:
+    var(--ml-button-inset-shadow-x) -0.72px 0 hsl(var(--button-ink) / 0.54),
+    var(--ml-button-inset-highlight-x) 0.72px 0 hsl(var(--button-orange-start) / 0.22),
+    0 0 1px hsl(var(--button-orange-start) / 0.18);
+}
+
+.switchRow input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: hsl(var(--brand-orange));
+}
+
+.colorSwatchPicker {
+  position: relative;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+.colorSwatchPicker .colorSwatchButton {
+  width: 3.05rem;
+  height: 3.05rem;
+  border: 0;
+  border-radius: 0.82rem;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.28),
+    0 1px 0 rgba(0, 0, 0, 0.52),
+    0 0.34rem 0.62rem rgba(0, 0, 0, 0.32);
+}
+
+.colorSwatchPicker .colorSwatchButton:hover:not(:disabled) {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.32),
+    0 1px 0 rgba(0, 0, 0, 0.56),
+    0 0.4rem 0.7rem rgba(0, 0, 0, 0.36);
+}
+
+.colorRow {
+  min-height: 4rem;
+  padding: 0.64rem 0.72rem 0.64rem 0.88rem;
+  border: 1px solid hsl(var(--foreground) / 0.12);
+  border-radius: 0.95rem;
+  background:
+    linear-gradient(90deg, hsl(var(--foreground) / 0.035), transparent 62%),
+    hsl(var(--background) / 0.62);
+  box-shadow:
+    inset 1px 1px 0 hsl(var(--foreground) / 0.055),
+    inset -1px -1px 2px hsl(var(--background) / 0.62),
+    0 0.5rem 0.9rem hsl(var(--background) / 0.24);
+}
+
+.colorRow:focus-within {
+  border-color: hsl(var(--button-secondary-face) / 0.34);
+  box-shadow:
+    inset 1px 1px 0 hsl(var(--foreground) / 0.06),
+    inset -1px -1px 2px hsl(var(--background) / 0.58),
+    0 0.5rem 0.95rem hsl(var(--background) / 0.28);
+}
+
+.clockCompactRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.clockCompactField {
+  display: grid;
+  grid-template-columns: max-content minmax(7.5rem, auto);
+  align-items: center;
+  justify-content: start;
+  gap: 1rem;
+  min-width: 0;
+  padding: 0.58rem 0.62rem 0.62rem;
+  border: 1px solid hsl(var(--foreground) / 0.11);
+  border-radius: 0.86rem;
+  background: hsl(var(--background) / 0.48);
+  box-shadow:
+    inset 1px 1px 0 hsl(var(--foreground) / 0.045),
+    inset -1px -1px 2px hsl(var(--background) / 0.56),
+    0 0.42rem 0.72rem hsl(var(--background) / 0.2);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.clockCompactField > span {
+  max-width: 3.5rem;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.clockCompactField select {
+  appearance: none;
+  width: min(8rem, 100%);
+  min-width: 0;
+  min-height: 2.48rem;
+  border: 1px solid hsl(var(--foreground) / 0.1);
+  border-bottom: 2px solid hsl(var(--background) / 0.54);
+  border-radius: 0.58rem;
+  background:
+    linear-gradient(45deg, transparent 50%, hsl(var(--foreground) / 0.78) 50%) calc(100% - 0.9rem) 50% / 0.38rem 0.38rem no-repeat,
+    linear-gradient(135deg, hsl(var(--foreground) / 0.78) 50%, transparent 50%) calc(100% - 0.64rem) 50% / 0.38rem 0.38rem no-repeat,
+    linear-gradient(90deg, hsl(var(--button-secondary-face) / 0.16), hsl(var(--background) / 0.76) 40%, hsl(var(--background) / 0.86));
+  box-shadow:
+    inset 2px 2px 4px hsl(var(--background) / 0.5),
+    inset -1px -1px 2px hsl(var(--foreground) / 0.055),
+    0 0.24rem 0.46rem hsl(var(--background) / 0.3);
+  color: hsl(var(--foreground));
+  font-size: 0.86rem;
+  font-weight: 800;
+  padding: 0.34rem 1.55rem 0.34rem 0.74rem;
+  text-shadow: 0 1px 1px hsl(var(--background) / 0.55);
+  justify-self: start;
+}
+
+.clockCompactField:focus-within {
+  border-color: hsl(var(--button-secondary-face) / 0.32);
+  box-shadow:
+    inset 1px 1px 0 hsl(var(--foreground) / 0.055),
+    inset -1px -1px 2px hsl(var(--background) / 0.54),
+    0 0.42rem 0.78rem hsl(var(--background) / 0.24);
+}
+
+.clockCompactField select:focus-visible {
+  outline: 2px solid hsl(var(--ring) / 0.48);
+  outline-offset: 3px;
+}
+
+.clockCompactField .formatToggle {
+  width: min(8.5rem, 100%);
+  justify-self: start;
+}
+
+.clockCompactField .colorSwatchPicker {
+  width: auto;
+  align-self: center;
+  justify-content: center;
+}
+
+.clockCompactField .clockColorSwatchButton {
+  width: 2.55rem;
+  height: 2.55rem;
+  min-height: 2.55rem;
+  border-radius: 0.7rem;
+}
+
+.rangeRow input[type="range"] {
+  width: min(9rem, 42vw);
+  height: 1.45rem;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: ew-resize;
+  accent-color: hsl(var(--brand-orange));
+}
+
+.rangeRow input[type="range"]:focus-visible {
+  outline: 2px solid hsl(var(--brand-orange) / 0.46);
+  outline-offset: 3px;
+}
+
+.rangeRow input[type="range"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.rangeRow input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.64rem;
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.05),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.36),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.rangeRow input[type="range"]::-webkit-slider-thumb {
+  width: 0.72rem;
+  height: 1.305rem;
+  margin-top: calc((0.64rem - 1.305rem) / 2);
+  appearance: none;
+  border: 0;
+  border-radius: 0.25rem;
+  background:
+    linear-gradient(90deg, hsl(0 0% 26%) 0 38%, hsl(0 0% 86%) 38% 58%, hsl(0 0% 28%) 58% 100%);
+  box-shadow:
+    inset 1px 0 0 hsl(var(--foreground) / 0.12),
+    inset -1px 0 0 hsl(var(--background) / 0.36),
+    0 6px 13px hsl(var(--background) / 0.48),
+    0 0 0 1px hsl(var(--foreground) / 0.1);
+}
+
+.rangeRow input[type="range"]::-moz-range-track {
+  height: 0.64rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.05),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.36),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.rangeRow input[type="range"]::-moz-range-progress {
+  height: 0.64rem;
+  border-radius: 0.45rem 0 0 0.45rem;
+  background: linear-gradient(90deg, hsl(var(--brand-orange) / 0.82), hsl(var(--brand-orange)));
+}
+
+.rangeRow input[type="range"]::-moz-range-thumb {
+  width: 0.72rem;
+  height: 1.305rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background:
+    linear-gradient(90deg, hsl(0 0% 26%) 0 38%, hsl(0 0% 86%) 38% 58%, hsl(0 0% 28%) 58% 100%);
+  box-shadow:
+    inset 1px 0 0 hsl(var(--foreground) / 0.12),
+    inset -1px 0 0 hsl(var(--background) / 0.36),
+    0 6px 13px hsl(var(--background) / 0.48),
+    0 0 0 1px hsl(var(--foreground) / 0.1);
+}
+
+.clockControlGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.65rem;
+}
+
+.controlGroup {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid hsl(var(--brand-orange) / 0.18);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.controlGroupToggle {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.controlGroupBody {
+  display: grid;
+  gap: 0.58rem;
+  padding: 0 0.58rem 0.58rem;
+}
+
+.locationGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.locationStatus {
+  margin: 0;
+  color: hsl(30 100% 82%);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.textField {
+  display: grid;
+  gap: 0.35rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.textField input {
+  min-height: 2.25rem;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0 0.65rem;
+}
+
+.textField input:focus {
+  border-color: hsl(var(--brand-orange));
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--brand-orange) / 0.24);
+}
+
+.inlineButton {
+  min-height: 2.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.inlineButton:hover {
+  border-color: hsl(var(--brand-orange));
+  background: hsl(var(--brand-orange));
+}
+
+.selectRow select {
+  min-width: 6rem;
+  min-height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 700;
+}
+
+.backgroundCardControls {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  gap: 0.7rem;
+  padding: 0;
+}
+
+.immersiveSelectedBackgroundControls {
+  gap: 0.25rem;
+}
+
+.immersiveLampColorControls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.immersiveSelectedBackgroundControls .colorRow {
+  min-height: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.25rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  box-shadow: none;
+}
+
+.immersiveSelectedBackgroundControls .colorRow > span {
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.immersiveSelectedBackgroundControls .colorSwatchPicker .colorSwatchButton,
+.immersiveSelectedBackgroundControls .colorRow button[aria-haspopup="dialog"] {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.immersiveHeaderSwitch {
+  position: relative;
+}
+
+.immersiveHeaderSwitch::after {
+  content: "";
+  position: absolute;
+  inset: -0.65rem -0.45rem;
+}
+
+.immersiveClockHeaderControls,
+.immersiveClockHeaderToggle {
+  display: flex;
+  align-items: center;
+}
+
+.immersiveClockHeaderControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: 0.25rem;
+  justify-items: center;
+}
+
+@media (min-width: 421px) {
+  /* Flatten the grouped controls so the panel header can space every action evenly. */
+  .immersiveClockHeaderControls {
+    display: contents;
+  }
+}
+
+.immersiveClockHeaderToggle {
+  gap: 0.45rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.immersiveHeaderColorControl {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.colorSwatchPicker .immersiveHeaderColorSwatchButton {
+  width: 2rem;
+  height: 2rem;
+}
+
+.backgroundCardControls .colorRow,
+.backgroundCardControls .rangeRow,
+.backgroundCardControls .selectRow {
+  min-height: 2rem;
+  font-size: 0.86rem;
+}
+
+.fontButton {
+  position: fixed;
+}
+
+.pauseButton {
+  border-color: hsl(var(--button-orange-start) / 0.42);
+  background:
+    linear-gradient(145deg, hsl(var(--button-orange-start) / 0.34), hsl(var(--button-orange-depth) / 0.16)),
+    hsl(var(--background) / 0.3);
+  box-shadow:
+    inset 0 1px 0 hsl(var(--foreground) / 0.18),
+    inset 0 -1px 0 hsl(var(--button-orange-depth) / 0.18),
+    0 0.85rem 1.8rem hsl(var(--button-orange-depth) / 0.18);
+}
+
+.pauseButton:hover {
+  border-color: hsl(var(--button-orange-start) / 0.42);
+  background:
+    linear-gradient(145deg, hsl(var(--button-orange-start) / 0.34), hsl(var(--button-orange-depth) / 0.16)),
+    hsl(var(--background) / 0.3);
+  filter: none;
+}
+
+.alerting .primaryDisplay,
+.alerting .secondaryDisplay,
+.alerting .status {
+  color: #050505;
+}
+
+.alerting .control,
+.alerting .fontButton {
+  border-color: hsl(var(--button-orange-start) / 0.42);
+  background:
+    linear-gradient(145deg, hsl(var(--button-orange-start) / 0.34), hsl(var(--button-orange-depth) / 0.16)),
+    hsl(var(--background) / 0.3);
+  box-shadow:
+    inset 0 1px 0 hsl(var(--foreground) / 0.18),
+    inset 0 -1px 0 hsl(var(--button-orange-depth) / 0.18),
+    0 0.85rem 1.8rem hsl(var(--button-orange-depth) / 0.18);
+  color: hsl(32 100% 96%);
+}
+
+.status {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(0.72rem, 1.4vw, 0.9rem);
+  letter-spacing: 0;
+  line-height: 1;
+  opacity: 1;
+  pointer-events: none;
+  text-align: center;
+}
+
+.chromeFaded .status,
+.chromeHidden .status {
+  opacity: 0.45;
+}
+
+.bottomControls {
+  position: fixed;
+  bottom: var(--chimer-bottom-control-offset, calc(env(safe-area-inset-bottom, 0px) + 1.25rem));
+  left: 50%;
+  z-index: 10003;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.bottomButtonRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.bottomButtonRow .control,
+.bottomButtonRow .fontButton {
+  position: relative;
+  inset: auto;
+  pointer-events: auto;
+}
+
+@keyframes chimerSwingUpBack {
+  0% {
+    transform: var(--chimer-display-base-transform) translateY(0) rotateX(0deg) scale(1);
+  }
+
+  45% {
+    transform: var(--chimer-display-base-transform) translateY(-2.8vh) rotateX(34deg) scale(0.82);
+  }
+
+  100% {
+    transform: var(--chimer-display-base-transform) translateY(0) rotateX(0deg) scale(1);
+  }
+}
+
+@keyframes chimerSwingDownForward {
+  0% {
+    transform: var(--chimer-display-base-transform) translateY(-8vh) rotateX(42deg) scale(0.74);
+    opacity: 0.72;
+  }
+
+  62% {
+    transform: var(--chimer-display-base-transform) translateY(1.4vh) rotateX(-8deg) scale(1.04);
+    opacity: 1;
+  }
+
+  100% {
+    transform: var(--chimer-display-base-transform) translateY(0) rotateX(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    --chimer-top-control-space: calc(env(safe-area-inset-top, 0px) + 5rem);
+    --chimer-bottom-control-space: calc(env(safe-area-inset-bottom, 0px) + 7rem);
+  }
+
+  .clockMode {
+    --chimer-bottom-control-space: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
+
+  .control,
+  .fontButton {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .secondaryDisplay {
+    max-width: calc(100vw - 8rem);
+  }
+
+  .backgroundCategoryRow {
+    min-height: 2.7rem;
+    padding: 0.28rem;
+  }
+
+  .backgroundCardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .switchRow,
+  .colorRow,
+  .formatRow {
+    font-size: 0.88rem;
+    gap: 0.75rem;
+  }
+
+  .clockCompactRow {
+    grid-template-columns: minmax(6.4rem, 1.05fr) minmax(6.5rem, 1fr);
+    gap: 0.45rem;
+  }
+
+  .clockCompactField {
+    padding: 0.48rem 0.5rem 0.52rem;
+    border-radius: 0.78rem;
+  }
+
+  .clockCompactField select {
+    min-height: 2.32rem;
+    padding-left: 0.62rem;
+  }
+
+  .clockCompactField .clockColorSwatchButton {
+    width: 2.35rem;
+    height: 2.35rem;
+    min-height: 2.35rem;
+  }
+
+}
+
+@media (max-width: 420px) {
+  .clockCompactRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .immersiveClockHeaderToggle {
+    gap: 0.3rem;
+    font-size: 0.72rem;
+  }
+
+  .immersiveClockHeaderToggle > span {
+    max-width: 3rem;
+    line-height: 1.1;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .immersiveVisualHeaderColorControl > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .container {
+    --chimer-top-control-space: calc(env(safe-area-inset-top, 0px) + 4.75rem);
+    --chimer-bottom-control-space: calc(env(safe-area-inset-bottom, 0px) + 6rem);
+  }
+
+  .clockMode {
+    --chimer-bottom-control-space: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+  }
+
+  .bottomControls {
+    bottom: var(--chimer-bottom-control-offset, calc(env(safe-area-inset-bottom, 0px) + 0.75rem));
+  }
+
+  .settingsTabContent {
+    gap: 0.65rem;
+  }
+
+  .quickAdjustGrid {
+    grid-template-columns: repeat(4, minmax(3rem, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chrome,
+  .control,
+  .fontButton,
+  .status,
+  .bottomButtonRow,
+  .primaryDisplay,
+  .secondaryDisplay,
+  .displayContent {
+    transition-duration: 0ms;
+  }
+
+  .swapToPrimary,
+  .swapToSecondary,
+  .displayRotationEnabled {
+    animation: none;
+  }
+
+  .tactileButton,
+  .backgroundCardActions .inlineButton,
+  .ctaRing {
+    transition-duration: 0ms;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .backgroundCardActions .inlineButton:focus-visible,
+  .backgroundCardActions .inlineButton:hover,
+  .backgroundCardActions .inlineButton:active,
+  .tactileButton:hover,
+  .tactileButton:active {
+    transform: none;
+  }
+}

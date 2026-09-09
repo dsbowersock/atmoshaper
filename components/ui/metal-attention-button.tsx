@@ -1,0 +1,409 @@
+"use client"
+
+import * as React from "react"
+import { MetalFx, type MetalFxPreset, type MetalFxTheme, type MetalFxVariant } from "metal-fx"
+
+import { Button, type ButtonProps } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+type MetalAttentionMode = "cycle" | "pulse" | "always" | "off"
+type MetalAttentionMotionState = "playing" | "settling" | "paused" | "off"
+
+type MetalReflectionTargets = ReadonlyArray<React.RefObject<HTMLElement | null>>
+
+interface MetalRingOptions {
+  /** MetalFx preset from the upstream package. */
+  metalPreset?: MetalFxPreset
+  /** MetalFx theme; defaults to the app's resolved light/dark class instead of the OS setting. */
+  metalTheme?: MetalFxTheme
+  /** MetalFx ring geometry. */
+  metalVariant?: MetalFxVariant
+  /** Effect opacity and glow strength. */
+  metalStrength?: number
+  metalRingCssPx?: number
+  metalScale?: number
+  metalShaderScale?: number
+  metalFullWidth?: boolean
+  disableMetalGlow?: boolean
+  /** Optional upstream MetalFx reflection targets for nearby elements. */
+  metalReflectionTargets?: MetalReflectionTargets
+}
+
+interface MetalAttentionOptions extends MetalRingOptions {
+  /** `cycle` keeps the ring visible while randomly alternating moving and paused states; `pulse` is a backwards-compatible alias. */
+  metalMode?: MetalAttentionMode
+  /** Deprecated pulse-era fallback; use `metalPauseMinDurationMs`/`metalPauseMaxDurationMs`. */
+  metalPulseIntervalMs?: number
+  /** Deprecated pulse-era fallback; use `metalPauseMinDurationMs`. */
+  metalPulseMinIntervalMs?: number
+  /** Deprecated pulse-era fallback; use `metalPauseMaxDurationMs`. */
+  metalPulseMaxIntervalMs?: number
+  /** Deprecated pulse-era fallback; use `metalPlayMinDurationMs`/`metalPlayMaxDurationMs`. */
+  metalPulseDurationMs?: number
+  /** Deprecated pulse-era fallback; use `metalSettleDurationMs`. */
+  metalFadeOutDurationMs?: number
+  /** Minimum milliseconds the ring animation plays before it starts settling. */
+  metalPlayMinDurationMs?: number
+  /** Maximum milliseconds the ring animation plays before it starts settling. */
+  metalPlayMaxDurationMs?: number
+  /** Minimum milliseconds the visible ring stays paused before motion resumes. */
+  metalPauseMinDurationMs?: number
+  /** Maximum milliseconds the visible ring stays paused before motion resumes. */
+  metalPauseMaxDurationMs?: number
+  /** Milliseconds used to visually settle the ring before freezing the animation. */
+  metalSettleDurationMs?: number
+  /** Visual strength of the visible paused ring; keeps the ring present without reading as active motion. */
+  metalPausedStrength?: number
+}
+
+export interface MetalRingProps extends MetalRingOptions {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+  metalPaused?: boolean
+  metalMotionState?: Exclude<MetalAttentionMotionState, "off"> | "static"
+  metalOpacity?: number
+  metalTransitionMs?: number
+}
+
+export interface MetalAttentionRingProps extends MetalAttentionOptions {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}
+
+export interface MetalAttentionButtonProps extends ButtonProps, MetalAttentionOptions {
+  metalFxClassName?: string
+  metalFxStyle?: React.CSSProperties
+}
+
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false)
+
+  React.useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const updatePreference = () => setPrefersReducedMotion(query.matches)
+
+    updatePreference()
+    query.addEventListener("change", updatePreference)
+
+    return () => query.removeEventListener("change", updatePreference)
+  }, [])
+
+  return prefersReducedMotion
+}
+
+/**
+ * Resolves MetalFx's theme from the app-controlled document class.
+ * `explicitTheme` bypasses the external-store subscription, while the
+ * server snapshot intentionally falls back to "dark" until the client can
+ * observe `document.documentElement.classList` changes through MutationObserver.
+ */
+function useResolvedAppMetalTheme(explicitTheme: MetalFxTheme | undefined) {
+  return React.useSyncExternalStore(
+    (callback) => {
+      if (typeof document === "undefined" || explicitTheme) {
+        return () => {}
+      }
+
+      const observer = new MutationObserver(callback)
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+
+      return () => observer.disconnect()
+    },
+    () => explicitTheme ?? (document.documentElement.classList.contains("dark") ? "dark" : "light"),
+    () => explicitTheme ?? "dark",
+  )
+}
+
+function randomDurationMs(minMs: number, maxMs: number) {
+  return Math.round(minMs + Math.random() * (maxMs - minMs))
+}
+
+function useMetalAttentionMotionState({
+  mode,
+  pauseMaxDurationMs,
+  pauseMinDurationMs,
+  playMaxDurationMs,
+  playMinDurationMs,
+  reducedMotion,
+  settleDurationMs,
+}: {
+  mode: MetalAttentionMode
+  pauseMaxDurationMs: number
+  pauseMinDurationMs: number
+  playMaxDurationMs: number
+  playMinDurationMs: number
+  reducedMotion: boolean
+  settleDurationMs: number
+}) {
+  const [motionState, setMotionState] = React.useState<MetalAttentionMotionState>("playing")
+
+  React.useEffect(() => {
+    if (mode === "off") {
+      setMotionState("off")
+      return
+    }
+
+    if (reducedMotion) {
+      setMotionState("paused")
+      return
+    }
+
+    if (mode === "always") {
+      setMotionState("playing")
+      return
+    }
+
+    const safePlayMinMs = Math.max(500, playMinDurationMs)
+    const safePlayMaxMs = Math.max(safePlayMinMs, playMaxDurationMs)
+    const safePauseMinMs = Math.max(500, pauseMinDurationMs)
+    const safePauseMaxMs = Math.max(safePauseMinMs, pauseMaxDurationMs)
+    const safeSettleMs = Math.max(0, settleDurationMs)
+    let timer: number | undefined
+
+    const startPlaying = () => {
+      setMotionState("playing")
+      timer = window.setTimeout(startSettling, randomDurationMs(safePlayMinMs, safePlayMaxMs))
+    }
+
+    const startSettling = () => {
+      setMotionState("settling")
+      timer = window.setTimeout(startPaused, safeSettleMs)
+    }
+
+    const startPaused = () => {
+      setMotionState("paused")
+      timer = window.setTimeout(startPlaying, randomDurationMs(safePauseMinMs, safePauseMaxMs))
+    }
+
+    startPlaying()
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [
+    mode,
+    pauseMaxDurationMs,
+    pauseMinDurationMs,
+    playMaxDurationMs,
+    playMinDurationMs,
+    reducedMotion,
+    settleDurationMs,
+  ])
+
+  return motionState
+}
+
+function clampMetalOpacity(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 1
+  }
+
+  return Math.min(1, Math.max(0, value))
+}
+
+/**
+ * Neutral MetalFx wrapper for applying the metal ring to any child component.
+ * Motion timing, button styling, and haptics are intentionally left to callers.
+ */
+export function MetalRing({
+  children,
+  className,
+  disableMetalGlow = false,
+  metalFullWidth = false,
+  metalMotionState = "static",
+  metalOpacity = 1,
+  metalPaused = false,
+  metalPreset = "chromatic",
+  metalReflectionTargets,
+  metalRingCssPx = 1,
+  metalScale,
+  metalShaderScale,
+  metalStrength = 0.6,
+  metalTheme,
+  metalTransitionMs = 150,
+  metalVariant = "button",
+  style,
+}: MetalRingProps) {
+  const resolvedTheme = useResolvedAppMetalTheme(metalTheme)
+  const ringStyle = {
+    ...style,
+    "--ml-metal-attention-opacity": clampMetalOpacity(metalOpacity),
+    "--ml-metal-attention-ring-size": `${metalRingCssPx}px`,
+    "--ml-metal-attention-transition-ms": `${metalTransitionMs}ms`,
+  } as React.CSSProperties
+
+  return (
+    <MetalFx
+      className={cn(
+        "ml-metal-attention-root",
+        metalMotionState !== "static" && `ml-metal-attention-root-${metalMotionState}`,
+        className,
+      )}
+      data-ml-metal-full-width={metalFullWidth ? "true" : undefined}
+      data-ml-metal-motion-state={metalMotionState !== "static" ? metalMotionState : undefined}
+      disableGlow={disableMetalGlow}
+      normalizeHostStyles={false}
+      paused={metalPaused}
+      preset={metalPreset}
+      reflectionTargets={metalReflectionTargets}
+      ringCssPx={metalRingCssPx}
+      scale={metalScale}
+      shaderScale={metalShaderScale}
+      strength={metalStrength}
+      style={ringStyle}
+      theme={resolvedTheme}
+      variant={metalVariant}
+    >
+      {children}
+    </MetalFx>
+  )
+}
+
+/**
+ * Reusable strategic attention ring for any already-rendered CTA/control.
+ * The ring stays visible while its motion randomly plays, settles, and pauses.
+ */
+export function MetalAttentionRing({
+  children,
+  className,
+  metalFadeOutDurationMs,
+  metalMode = "cycle",
+  metalPulseDurationMs,
+  metalPulseIntervalMs,
+  metalPulseMinIntervalMs,
+  metalPulseMaxIntervalMs,
+  metalPlayMinDurationMs,
+  metalPlayMaxDurationMs,
+  metalPauseMinDurationMs,
+  metalPauseMaxDurationMs,
+  metalSettleDurationMs,
+  metalPausedStrength = 0.72,
+  metalPreset = "chromatic",
+  metalReflectionTargets,
+  metalTheme,
+  metalVariant = "button",
+  metalStrength = 0.6,
+  metalRingCssPx = 1,
+  metalScale,
+  metalShaderScale,
+  metalFullWidth = false,
+  disableMetalGlow = false,
+  style,
+}: MetalAttentionRingProps) {
+  const reducedMotion = usePrefersReducedMotion()
+  const suppressMetalMotion = reducedMotion
+  const resolvedSettleDurationMs = metalSettleDurationMs ?? metalFadeOutDurationMs ?? 1800
+  const motionState = useMetalAttentionMotionState({
+    mode: metalMode,
+    pauseMaxDurationMs: metalPauseMaxDurationMs ?? metalPulseMaxIntervalMs ?? metalPulseIntervalMs ?? 20000,
+    pauseMinDurationMs: metalPauseMinDurationMs ?? metalPulseMinIntervalMs ?? metalPulseIntervalMs ?? 5000,
+    playMaxDurationMs: metalPlayMaxDurationMs ?? metalPulseDurationMs ?? 20000,
+    playMinDurationMs: metalPlayMinDurationMs ?? metalPulseDurationMs ?? 4000,
+    reducedMotion: suppressMetalMotion,
+    settleDurationMs: resolvedSettleDurationMs,
+  })
+  const ringVisualStrength = motionState === "playing"
+    ? 1
+    : Math.max(0.1, clampMetalOpacity(metalPausedStrength))
+
+  if (motionState === "off") {
+    return (
+      <span
+        className={cn("ml-metal-attention-root ml-metal-attention-root-idle", className)}
+        data-ml-metal-full-width={metalFullWidth ? "true" : undefined}
+        style={style}
+      >
+        {children}
+      </span>
+    )
+  }
+
+  return (
+    <MetalRing
+      className={className}
+      disableMetalGlow={disableMetalGlow}
+      metalFullWidth={metalFullWidth}
+      metalMotionState={motionState}
+      metalOpacity={ringVisualStrength}
+      metalPaused={motionState === "paused"}
+      metalPreset={metalPreset}
+      metalReflectionTargets={metalReflectionTargets}
+      metalRingCssPx={metalRingCssPx}
+      metalScale={metalScale}
+      metalShaderScale={metalShaderScale}
+      metalStrength={metalStrength}
+      metalTheme={metalTheme}
+      metalTransitionMs={resolvedSettleDurationMs}
+      metalVariant={metalVariant}
+      style={style}
+    >
+      {children}
+    </MetalRing>
+  )
+}
+
+/**
+ * Convenience CTA wrapper for the shared Button component.
+ */
+export function MetalAttentionButton({
+  className,
+  disableMetalGlow,
+  metalFullWidth,
+  metalFxClassName,
+  metalFxStyle,
+  metalFadeOutDurationMs,
+  metalMode,
+  metalPausedStrength,
+  metalPauseMaxDurationMs,
+  metalPauseMinDurationMs,
+  metalPlayMaxDurationMs,
+  metalPlayMinDurationMs,
+  metalPreset,
+  metalPulseDurationMs,
+  metalPulseIntervalMs,
+  metalPulseMaxIntervalMs,
+  metalPulseMinIntervalMs,
+  metalReflectionTargets,
+  metalRingCssPx,
+  metalScale,
+  metalShaderScale,
+  metalStrength,
+  metalSettleDurationMs,
+  metalTheme,
+  metalVariant,
+  variant = "attention",
+  ...buttonProps
+}: MetalAttentionButtonProps) {
+  return (
+    <MetalAttentionRing
+      className={metalFxClassName}
+      disableMetalGlow={disableMetalGlow}
+      metalFadeOutDurationMs={metalFadeOutDurationMs}
+      metalFullWidth={metalFullWidth}
+      metalMode={metalMode}
+      metalPausedStrength={metalPausedStrength}
+      metalPauseMaxDurationMs={metalPauseMaxDurationMs}
+      metalPauseMinDurationMs={metalPauseMinDurationMs}
+      metalPlayMaxDurationMs={metalPlayMaxDurationMs}
+      metalPlayMinDurationMs={metalPlayMinDurationMs}
+      metalPreset={metalPreset}
+      metalPulseDurationMs={metalPulseDurationMs}
+      metalPulseIntervalMs={metalPulseIntervalMs}
+      metalPulseMaxIntervalMs={metalPulseMaxIntervalMs}
+      metalPulseMinIntervalMs={metalPulseMinIntervalMs}
+      metalReflectionTargets={metalReflectionTargets}
+      metalRingCssPx={metalRingCssPx}
+      metalScale={metalScale}
+      metalShaderScale={metalShaderScale}
+      metalStrength={metalStrength}
+      metalSettleDurationMs={metalSettleDurationMs}
+      metalTheme={metalTheme}
+      metalVariant={metalVariant}
+      style={metalFxStyle}
+    >
+      <Button className={cn("ml-metal-attention-button", className)} variant={variant} {...buttonProps} />
+    </MetalAttentionRing>
+  )
+}

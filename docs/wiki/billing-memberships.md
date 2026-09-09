@@ -1,0 +1,468 @@
+# Billing And Memberships
+
+MassageLab uses feature-based access. Code should ask whether a user has a feature, not whether the user has a named plan.
+
+Do not write access checks like this:
+
+```ts
+if (user.plan === "Therapist") {
+  // ...
+}
+```
+
+Use feature checks instead:
+
+```ts
+if (features.includes("premium_backgrounds")) {
+  // ...
+}
+```
+
+## Current Access Model
+
+- Free access is the default when a user has no active paid subscription.
+- Free is not a Stripe product.
+- Student access is internal to MassageLab and is not a Stripe subscription.
+- A freshly verified full `ADMIN` database role grants the complete current
+  non-PHI feature set as an explicit administrative source. It does not create
+  a Stripe Customer or subscription, does not change `level` or `paidLevel`,
+  and never bypasses the separate cloud-storage or PHI compliance gates.
+- Public enrollment accepts only the six approved amount-specific Supporter
+  Prices: $1, $2, and $5 monthly, plus $10, $20, and $50 annually. Every one of
+  those Price IDs grants the same `SUPPORTER` membership and feature set.
+- The legacy Supporter monthly and yearly Price mappings are retained only to
+  reconcile pre-migration Supporter subscriptions and webhooks. They are
+  historical compatibility inputs, not public catalog choices, and must not
+  authorize new Checkout.
+- Legacy Therapist and Practice Price mappings are reconciled separately for
+  existing professional subscriptions so those subscribers do not silently
+  lose their respective memberships. Therapist and Practice must not be
+  offered to new subscribers before their differentiated professional features
+  are ready for beta.
+- Current Supporter benefits are feature-key driven: `premium_backgrounds`
+  grants premium-background access while membership is active. Chimer display
+  colors are available to everyone; each accessible free, subscription-backed,
+  or permanently owned background exposes its supported color controls.
+- Therapist note-taking tools use the `therapist_documentation_tools` feature key and are unlocked only by active Therapist or Practice memberships.
+- External provider calendar sync uses the `external_calendar_sync` feature key and is unlocked only by active Therapist or Practice memberships.
+- Stripe subscription records grant membership only when their Price ID matches
+  one of the six current Supporter mappings or an explicitly retained legacy
+  reconciliation mapping.
+- Student, donation, unknown, archived, or otherwise unmapped Stripe products and prices must not grant a paid membership.
+
+## One-Time Support
+
+The `/pricing` page offers fixed one-time support amounts through the legacy
+route `/api/billing/donation`.
+
+- Public UI and Checkout copy must say **One-time support**, not donation.
+- One-time support uses Stripe Checkout `mode=payment`, not subscription mode.
+- One-time support does not create a membership, unlock paid features, or
+  change entitlements.
+- Copy must state that the payment is not a charitable donation, is not
+  tax-deductible, and provides no goods, services, or membership benefits.
+- Checkout metadata uses `massagelab_project_support` so webhook reconciliation
+  can ignore it for membership grants.
+- The reviewed one-time-support tax code is `txcd_90000001`. Do not infer or
+  reuse the separate `txcd_10000000` Supporter/background classification.
+- Checkout enables exclusive Stripe Automatic Tax and requires a billing
+  address only when all five deployment gates are explicit:
+  `STRIPE_ONE_TIME_SUPPORT_AUTOMATIC_TAX_ENABLED=true`,
+  `STRIPE_ONE_TIME_SUPPORT_TAX_PRODUCT_CODE=txcd_90000001`,
+  `STRIPE_ONE_TIME_SUPPORT_TAX_PROVIDER_READY=true`,
+  `STRIPE_ONE_TIME_SUPPORT_TAX_REGISTRATIONS_READY=true`, and
+  `STRIPE_ONE_TIME_SUPPORT_TAX_CLASSIFICATION_CONFIRMED=true`.
+- Checkout creation is rejected unless every one of those five values is
+  present and exactly valid.
+- The live smoke must retrieve the resulting Session and line-item tax evidence
+  after deployment; the inline Checkout Product does not exist beforehand.
+
+## Student Access
+
+Student access lasts 18 months from the student's first day of class.
+
+Do not wire Student into Stripe Checkout. If a Student product or price exists in a Stripe test or live account, archive it or leave it disabled so it cannot be selected by the app.
+
+MassageLab stores:
+
+- `studentStartDate`
+- `studentAccessExpiresAt`
+- `studentStatus`
+- `eligibleForTherapistDiscount`
+
+Do not offer a Student-to-Therapist upgrade or coupon.
+
+## Coupons
+
+The legacy Student-to-Therapist and Early Access coupons were verified at zero
+redemptions and removed by the completed Supporter migration. They are not
+approved for recreation or new use.
+
+## Feature Keys
+
+Current:
+
+- `premium_backgrounds`
+- `calendar_basic_scheduling`
+- `calendar_full_scheduling`
+- `calendar_team_scheduling`
+- `external_calendar_sync`
+- `therapist_documentation_tools`
+
+Reserved for later:
+
+- `documentation_customization`
+- `anatomy_saved_progress`
+- `education_premium_content`
+- `practice_management`
+- `cloud_storage`
+- `phi_storage_tools`
+
+Cloud storage and PHI-related tools must remain behind the separate compliance gates documented in [privacy-and-phi.md](privacy-and-phi.md).
+
+Frontend copy may call the `PRACTICE` membership tier `Team/Practice` for clarity. Keep code checks feature-based instead of branching on the displayed plan label.
+
+Therapist documentation surfaces should remain visible in the app so users can see what is available, but creating or viewing SOAP, intake, journal, ROM, and similar therapist note-taking records requires the `therapist_documentation_tools` entitlement. Supporter and Student access do not unlock these tools.
+
+Membership messaging can explain that paid support helps fund future compliance-heavy documentation work, including voice notes, local transcription experiments, therapist-reviewed SOAP assistance, managed sync planning, BAAs, audit controls, and secure operating infrastructure. Keep that language separate from current benefits: memberships do not currently unlock hosted transcription, cloud SOAP drafting, HIPAA-ready sync, or any server-side PHI processing.
+
+Pricing and legal copy should also say that MassageLab does not sell user data and does not use advertising to fund the project. The current funding posture is memberships, optional one-time support, and product revenue.
+
+## Completed Supporter Catalog State
+
+Production now uses one **MassageLab Supporter Membership** with identical
+current benefits, including access to all premium backgrounds, at fixed support
+amounts:
+
+- monthly: $1, $2, or $5;
+- annual: $10, $20, or $50.
+
+The amount expresses how much the member wants to support development; it does
+not select a feature tier, tax treatment, or roadmap interest. Therapist and
+Practice enrollment remains unavailable until differentiated professional SaaS
+features are ready for beta. Roadmap interests are a separate editable
+multi-select preference. The Customer Portal remains configured to allow payment
+method and billing-address updates, invoices, cancellation, and switching among
+the approved Supporter amounts.
+
+MassageLab creates Portal sessions on demand through two explicit actions.
+**Change support amount or billing period** uses Stripe's focused
+`subscription_update` flow only for the account's persisted active or trialing
+subscription. **Manage billing account** opens the general Portal homepage for
+payment methods, billing address, invoices, and cancellation. After a focused
+change, Stripe returns the customer to the Portal homepage; both session types
+retain the Account membership surface as their app-return destination. Neither
+changes the configured Product/Price allowlist.
+
+All six current amount-specific Supporter Price IDs grant the same `SUPPORTER`
+membership and feature set. The legacy Supporter mapping remains a runtime
+input only for pre-migration Supporter reconciliation; it is not a public
+catalog choice and must not authorize new Checkout. Legacy Therapist and
+Practice mappings separately reconcile existing professional subscriptions
+until their controlled retirement gates pass.
+
+Do not remove the six legacy runtime Price mappings until subscriber inventory proves none remain and webhook reconciliation is final.
+
+New enrollment is serialized at Stripe, not only hidden in the UI. The server
+fully paginates a bounded customer Session inventory, recognizes only
+MassageLab-owned paid-membership Sessions, and reuses an open Session only when
+its explicit checkout-contract version, one configured current Price, expanded
+classified Product, Automatic Tax, and required billing-address fields all
+match. Purpose-less and contradictory open historical Sessions are expired with
+deterministic idempotency and re-retrieved as expired before current Checkout
+creation. Purpose-less completed Sessions still block when their subscription
+is relevant while webhook persistence catches up.
+
+Stripe represents the one user-facing membership as three Products, one per
+support amount, because Customer Portal permits only one Price per recurring
+interval on a Product. Each Product has one monthly and one annual Price, the
+same name, tax code, Supporter entitlement metadata, and amount-choice
+metadata. This is an operational representation, not three feature tiers.
+
+The completed migration created or verified these three Products and six
+exclusive recurring Prices, removed only the two independently verified
+zero-redemption legacy coupons, retired all six unapproved higher Prices
+($9/$90, $29/$279, and $79/$759) and the older approved-amount Price objects
+that cannot be reassigned from their legacy tier Products, and
+limited Customer Portal switching to those six Prices while preserving billing
+details, payment methods, invoices, and cancellation. Cross-Product amount
+changes keep the existing billing-cycle anchor, create no prorations, and are
+not scheduled for period end. The command inventories all
+relevant subscriptions before mutation. Test mode permits a concrete, reviewed
+test-subscription identifier only when it is the sole retained relevant
+subscription; `none` is permitted only after inventory proves zero relevant
+subscriptions. Live mode rejects every concrete subscription ID and requires
+an explicit `none` decision after the same empty-inventory proof before catalog
+mutation. Therapist and Practice Prices
+and Products are retired only after dependency verification.
+Their Product dependencies must retain their exact expected names; optional
+`app` and membership-level metadata may be absent but must not contradict the
+expected MassageLab identity.
+
+### Historical recovery mechanics (conditional reference only)
+
+Current Production verification must return `COMPLETED`. `PRE_MIGRATION`,
+`TRANSITIONAL`, and mixed states are fail-closed and do not authorize `apply`.
+The recovery fingerprints below are retained only as historical implementation
+reference. They may be used only under a separately reviewed,
+incident-specific conditional recovery plan with explicit authorization before
+mutation.
+
+The historical pre-Portal recovery fingerprint covered one narrowly
+recoverable interruption: the single legacy Supporter Product could already
+have the approved classification, all six approved-amount Prices could already
+carry managed metadata on that Product, and Portal switching could still be
+disabled. Legacy cleanup had to remain untouched. The recovery created
+replacement Prices under the $2/$20 and $5/$50 Products, transferred managed
+lookup keys according to the verified protocol, and installed the exact Portal
+topology. Wrong-owner Prices were retired only after the Portal reread gate
+succeeded.
+
+The migration implementation also retains one tightly fingerprinted apply-only
+recovery path: a `TRANSITIONAL` state is resumable only when the Portal already
+rereads as the exact completed three-Product topology, every target Product and
+Price is complete or safely repairable, coupon dependencies remain verified,
+and Price-before-Product cleanup order has not been violated. This historical
+fingerprint does not make `TRANSITIONAL` an accepted current verification
+state.
+
+The reviewed pre-migration Customer Portal could have subscription switching
+disabled and no Product allowlist. The completed recovery installed the exact
+three-Product/six-Price Supporter allowlist while preserving the existing
+billing-management features.
+
+Current operations are verify-only. Do not mutate live Products, Prices,
+coupons, subscriptions, Portal settings, or entitlements. If verification does
+not return `COMPLETED`, stop and create a separately reviewed conditional
+recovery plan before any apply. The reviewed
+[three-Product Portal follow-up](../superpowers/plans/2026-07-26-supporter-membership-three-product-portal-followup.md)
+is historical evidence, not a current runbook.
+
+### Supporter Recurring Tax Gate
+
+The deployable Checkout adapter now fails closed unless all of these
+non-secret deployment values are explicit:
+
+- `STRIPE_SUPPORTER_AUTOMATIC_TAX_ENABLED=true`;
+- `STRIPE_SUPPORTER_TAX_PRODUCT_CODE=txcd_10000000`;
+- `STRIPE_SUPPORTER_TAX_PROVIDER_READY=true`;
+- `STRIPE_SUPPORTER_TAX_REGISTRATIONS_READY=true`; and
+- `STRIPE_SUPPORTER_TAX_CLASSIFICATION_CONFIRMED=true`.
+
+In current Production, a new Supporter Checkout Session enables Stripe
+Automatic Tax, requires a billing address, and saves the entered address to the
+existing Stripe Customer. `--verify-stripe` requires every configured Supporter
+Price to use exclusive tax behavior, exact interval and `interval_count=1`, no
+trial, licensed usage, per-unit billing, no quantity transform, and no
+additional currencies, while its expanded Product must use `txcd_10000000`.
+
+The current `txcd_10000000` classification is confirmed for MassageLab's
+present electronically supplied Supporter access. Production authorization,
+Stripe Tax provider setup, the applicable Ohio registration, complete
+subscriber inventory, and read-only migration verification are complete. The
+three-Product catalog migration is `COMPLETED`, all recurring-tax runtime gates
+are enabled, and live readiness passes against Stripe and the pinned webhook
+endpoint. The controlled taxed subscription retry is complete. The remaining
+focused action is deployed and the controlled account has completed a
+user-reported $1-to-$2 monthly change with visible Account return and continuing
+Supporter access. Subscriber-specific amount, tax, anchor/proration, and
+webhook-persisted Price evidence still require bounded read-only verification.
+Any future material change to the paid app offering requires a new
+classification review. One-time support remains outside this classification
+and uses its own `txcd_90000001` fail-closed Automatic Tax contract.
+
+## Stripe Setup Checklist
+
+- Preserve the completed three-Product/six-Price catalog and keep new Therapist
+  and Practice enrollment unavailable.
+- Keep the exact six current Supporter Price mappings in Production. Legacy
+  mappings remain reconciliation-only inputs until the documented removal gate
+  is explicitly completed.
+- Keep Stripe Customer Portal enabled for switching only among the six current
+  Supporter Prices, subscription management, payment method and billing-address
+  updates, invoices, and cancellation.
+- Configure the pinned `/api/billing/webhook` endpoint as enabled on the
+  app's `2026-02-25.clover` Stripe API version with exactly the combined
+  membership and background-commerce event contract below.
+- Supply Stripe credentials through the approved local and Vercel
+  secret-management/deployment process, and keep the exact six non-secret
+  Supporter Price ID mappings configured in both environments.
+- Use the Stripe CLI in test mode to forward webhooks during local checkout testing.
+- Treat `npm run stripe:migrate-supporter-membership -- --mode=verify` as the
+  GET-only current authority and require `COMPLETED`. Do not run `apply`; any
+  other state requires a separately reviewed, incident-specific recovery plan
+  and explicit authorization.
+- Before public paid signup or after relevant billing configuration changes,
+  run
+  `npm run stripe:readiness -- --env-file=/secure/path/massagelab-production.env --live --verify-stripe`
+  and require complete Stripe, tax, and webhook readiness.
+- Both commands must pass without printing secrets or Stripe identifiers; their
+  operator output is limited to safe readiness messages and checklist codes.
+
+## Permanent Background Commerce
+
+Track 1A provides the server-owned commerce foundation for one-time permanent
+background access. It is separate from memberships and one-time support:
+
+- every verified account receives exactly two background credits once, through
+  one idempotent wallet/ledger grant;
+- a credit redemption or paid order creates permanent database ownership;
+- an active subscription can grant subscription access and does not block a
+  separate permanent purchase;
+- color controls follow the canonical selected-background access decision and
+  are not proof of permanent premium-background ownership; and
+- browser state, JWT claims, Checkout return URLs, and selected UI cards never
+  grant ownership. Signed-in surfaces read the no-store commerce snapshot, and
+  purchase returns wait for webhook-backed database ownership before showing
+  an acquisition as complete.
+
+### Purchase Surfaces And Guest Checkout
+
+Track 1B presents the same commerce state in the Clock, active Chimer, and Music
+visualizer Background picker. Locked cards offer `Use free credit`, `Buy for
+$1`, and `Unlock all`; subscribers select included backgrounds normally and
+can use `Keep permanently` as a separate action. The picker contains a compact
+cart, while Account/Billing contains the wallet, permanent portfolio, orders,
+reversals, and a privacy-safe support entry.
+
+A signed-out user may add current purchasable backgrounds to a guest intent
+cart. That cart stores only validated background product IDs in the current
+browser. It stores no account data, price authority, credit balance,
+reservation, payment, or ownership. The cart offers sign-in and account
+creation at checkout. After authentication, each remaining ID is revalidated
+and merged through the authenticated Track 1A cart API before purchase consent
+or Stripe Checkout can begin. Account carts persist across devices; a guest
+cart remains limited to its originating browser until that merge occurs.
+
+Background checkout does not ask whether the purchase is personal or business
+use. One purchase grants the purchaser a non-transferable right to personally
+use and display the background for personal activities and while providing
+services through the purchaser's own sole proprietorship or practice. Clients
+and staff may see the purchaser-operated display, but they receive no account
+access or separate license. Account sharing, staff/team operation through the
+purchaser's login, redistribution, resale, sublicensing, asset extraction or
+distribution, packaging into another product or service, and access for
+unrelated third parties are prohibited.
+
+The conditional global site-purchase cart trigger appears only while a guest
+or account cart has items, or while an account Checkout reservation is active.
+It opens the shared cart, stays absent from `/calendar` and nested Calendar
+routes, and remains semantically separate from provider services and sales.
+Only server-confirmed credit redemption or webhook fulfillment grants access.
+
+### Deployment And Backfill Order
+
+Keep purchasing disabled while deploying Track 1A:
+
+1. point `DATABASE_URL`, `DIRECT_URL`, and `DATABASE_URL_UNPOOLED` at the exact
+   intended database, with a direct non-pooler URL for migrations;
+2. run `npm run prisma:migrate:deploy`;
+3. set `BACKGROUND_CREDIT_BACKFILL_DATABASE_URL` to the same direct Neon branch
+   and run `npm run commerce:backfill-credits`;
+4. run the backfill again; the second pass must grant zero additional wallets;
+5. run `npm run commerce:reconcile` in its default read-only mode; and
+6. configure and pass Stripe readiness before setting
+   `BACKGROUND_COMMERCE_PURCHASING_ENABLED=true`.
+
+The migration never grants credits. Normal email-verification and account-state
+loading use the same provisioner for accounts verified after the backfill.
+
+### Fail-Closed Readiness Contract
+
+`npm run stripe:readiness` preserves the membership checks and additionally
+requires these explicit background-commerce values without printing secrets:
+
+- `BACKGROUND_COMMERCE_PRICE_CENTS=100` and
+  `BACKGROUND_COMMERCE_CURRENCY=usd`;
+- `BACKGROUND_COMMERCE_PURCHASE_COUNTRIES=US`;
+- `BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION=2026-07-digital-purchases-v2`;
+- `BACKGROUND_COMMERCE_WEBHOOK_READY=true` and
+  `BACKGROUND_COMMERCE_RECONCILIATION_READY=true`;
+- `BACKGROUND_COMMERCE_WEBHOOK_EVENTS` covering exactly the implementation's
+  Checkout, refund, and dispute contract below; and
+- `BACKGROUND_COMMERCE_TAX_MODE=stripe`;
+- `BACKGROUND_COMMERCE_TAX_PRODUCT_CODE=txcd_10000000`, the reviewed General
+  Electronically Supplied Services classification for permanent digital
+  backgrounds;
+- `BACKGROUND_COMMERCE_TAX_PROVIDER_READY=true` only after Stripe Tax has the
+  business origin/head-office configuration required for calculation; and
+- `BACKGROUND_COMMERCE_TAX_REGISTRATIONS_READY=true` only after the applicable
+  tax registrations, beginning with Ohio, are active in Stripe.
+
+Current checkout is U.S.-only and fixed at one U.S. dollar per background.
+Paid readiness fails closed when tax is disabled, the product tax code is
+missing, or provider/registration readiness has not been explicitly confirmed.
+Checkout uses exclusive automatic tax, requires a billing address, and saves
+the entered address to the existing Stripe Customer. A completed paid Session
+must report automatic-tax status `complete`, zero discounts and shipping, the
+configured tax code and exclusive behavior on every line, and internally
+consistent subtotal/tax/total amounts. The webhook transaction freezes
+processor tax into `CommerceOrder.taxCents`, `CommerceOrder.totalCents`,
+`CommerceOrderItem.allocatedTaxCents`, and each item total before payment and
+ownership fulfillment. Any mismatch moves the order to operator review without
+granting ownership.
+
+The readiness booleans are operator attestations, not proof of registration or
+taxability. One active Ohio state sales-tax registration was verified in Stripe
+on July 23, 2026, and the app pins `txcd_10000000`. Production purchasing was
+enabled only after the Stripe origin, registration, product classification,
+environment, exact webhook contract, migrations, idempotent credit backfill,
+and clean reconciliation passed, followed by taxed sandbox and controlled live
+Checkout/fulfillment smokes. The controlled live Silk purchase recorded a
+$1.00 subtotal, $0.07 of Stripe-calculated Ohio tax, a successful $1.07
+payment, processed completion webhook, active purchase ownership, and clean
+post-fulfillment reconciliation.
+
+The pinned `/api/billing/webhook` endpoint must subscribe to:
+
+- `checkout.session.completed`
+- `checkout.session.expired`
+- `checkout.session.async_payment_succeeded`
+- `checkout.session.async_payment_failed`
+- `refund.created`
+- `refund.updated`
+- `refund.failed`
+- `charge.dispute.created`
+- `charge.dispute.updated`
+- `charge.dispute.closed`
+
+The same endpoint must also subscribe to the membership contract:
+
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
+- `customer.subscription.paused`
+- `customer.subscription.resumed`
+
+Verify mode checks the pinned production URL rather than trusting the local
+readiness signal alone. It requires `status=enabled`, the exact app API version
+`2026-02-25.clover`, and equality with this combined 15-event set. Missing
+events, extra events, duplicates, and Stripe's `*` wildcard all fail readiness.
+`BACKGROUND_COMMERCE_WEBHOOK_EVENTS` remains the exact ten-event
+background-commerce subset because membership events are not deployment values
+for that commerce-only signal.
+
+### Refunds, Disputes, Retirement, And Reconciliation
+
+Permanent digital-background sales are final by default, subject to applicable
+law and a narrow operator exception for duplicate charges, non-delivery, or
+another documented correction. Full account admins may initiate only an exact
+selected order-item refund. Anatomy-only administration is not commerce
+authority. Refunds never rewrite credit ownership or silently issue a credit;
+the final-sale exception retains the order, payment, refund, ownership, and
+identifier-only audit history.
+
+Pending refunds suspend only the selected purchase ownership. Successful
+refunds revoke those exact items; failed refunds restore only otherwise-eligible
+items. An open dispute suspends purchase ownership from its payment, a won
+dispute restores eligible access, and a lost dispute revokes remaining purchase
+access. Retiring an actively owned paid background preserves ownership history
+and issues one idempotent replacement credit; unowned, free-conversion, and
+legal-refund cases receive no duplicate replacement.
+
+Run `npm run commerce:reconcile` without `--repair` for identifier-only,
+read-only drift reporting. Repair mode is limited to resuming the stable
+idempotency boundary for an unresolved pending refund; ownership and aggregate
+drift remain operator-review findings rather than heuristic repairs. Audit JSON
+must never contain raw Stripe objects, secrets, email addresses, IP addresses,
+user-agent strings, or card/payment-method data.

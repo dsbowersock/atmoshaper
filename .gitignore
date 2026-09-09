@@ -1,0 +1,83 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+/.playwright-mcp/
+/.playwright-cli/
+/test-results/
+/anatomy-table-top-scrollbar.png
+
+# generated local audio samples
+/public/audio/atmosphere/observable-streams-vsco-adaptation/samples/
+
+# generated local Chimer preview media; publish these to the public media bucket
+/public/chimer/background-previews/*.webm
+/public/chimer/background-previews/index.json
+
+# generated local adaptive-preview pilot media; keep its small text manifest
+/public/chimer/background-preview-pilot/**/*.webm
+/public/chimer/background-preview-pilot/**/*.mp4
+/public/chimer/background-preview-pilot/**/*.webp
+/public/chimer/background-preview-pilot/**/*.png
+/public/chimer/background-preview-pilot/**/*.rgb
+/public/chimer/background-preview-pilot/**/*.master.*
+/public/chimer/background-preview-pilot/validation.json
+/public/chimer/background-preview-pilot/**/validation.json
+
+# generated local full-catalog preview media; publication is a separate gate
+/public/chimer/background-preview-catalog/**/*.webm
+/public/chimer/background-preview-catalog/**/*.mp4
+/public/chimer/background-preview-catalog/**/*.webp
+/public/chimer/background-preview-catalog/**/*.png
+/public/chimer/background-preview-catalog/**/*.rgb
+/public/chimer/background-preview-catalog/**/*.master.*
+/public/chimer/background-preview-catalog/**/validation.json
+/public/chimer/background-preview-catalog/generation-state.json
+
+# local Codex workspace artifacts
+/.codex/
+/.codex-dev/
+/.codex-dev-server.*
+/.codex-remote-attachments/
+/.worktrees/
+/graphify-out/
+/output/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+tmp-next-dev*.log
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

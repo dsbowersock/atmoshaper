@@ -1,0 +1,108 @@
+import Link from "next/link"
+import { redirect } from "next/navigation"
+import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
+import { createCorrectionFlagAction } from "@/app/anatomy/corrections/actions"
+import { prisma } from "@/lib/prisma"
+import { AppInset, AppPageShell, AppSurface } from "@/components/ui/app-surface"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+
+export default async function AnatomyCorrectionsPage() {
+  const session = await getCurrentSession()
+
+  if (!session?.user?.id) {
+    redirect("/login")
+  }
+
+  const [terms, flags] = await Promise.all([
+    prisma.anatomyTerm.findMany({
+      where: { status: "PUBLISHED" },
+      select: { id: true, preferredName: true },
+      orderBy: { preferredName: "asc" },
+      take: 200,
+    }),
+    prisma.anatomyCorrectionFlag.findMany({
+      where: { createdById: session.user.id },
+      include: {
+        term: {
+          select: { preferredName: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }),
+  ])
+
+  return (
+    <CorrectionShell>
+      <AppSurface
+        title="Flag anatomy content"
+        description={
+          <>
+            Report incorrect or unclear anatomy content. Users can flag issues, but only editors/admins can change published content.
+          </>
+        }
+      >
+          <form action={createCorrectionFlagAction} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="term_id">Term</Label>
+              <select id="term_id" name="term_id" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                <option value="">General anatomy content issue</option>
+                {terms.map((term) => (
+                  <option key={term.id} value={term.id}>
+                    {term.preferredName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="issue_type">Issue type</Label>
+              <select id="issue_type" name="issue_type" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                <option value="content">Content</option>
+                <option value="definition">Definition</option>
+                <option value="relationship">Relationship</option>
+                <option value="source">Source</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="message">Issue</Label>
+              <Textarea id="message" name="message" rows={4} required />
+            </div>
+            <Button type="submit" className="bg-primary hover:bg-brand-orange-glow">
+              Submit flag
+            </Button>
+          </form>
+      </AppSurface>
+
+      <AppSurface title="Your flags" description="Track the correction flags you have submitted." contentClassName="gap-3">
+          {flags.length === 0 ? (
+            <p className="text-sm text-muted-foreground">You have not submitted any correction flags yet.</p>
+          ) : (
+            flags.map((flag) => (
+              <AppInset key={flag.id} className="p-4">
+                <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="font-medium">{flag.term?.preferredName ?? "General content issue"}</p>
+                  <span className="text-sm text-brand-orange">{flag.status}</span>
+                </div>
+                <p className="text-sm text-muted-foreground">{flag.issueType}: {flag.message}</p>
+                {flag.resolutionNote && <p className="mt-2 text-sm text-muted-foreground">Resolution: {flag.resolutionNote}</p>}
+              </AppInset>
+            ))
+          )}
+      </AppSurface>
+
+      <Button asChild variant="outline">
+        <Link href="/account">Back to account</Link>
+      </Button>
+    </CorrectionShell>
+  )
+}
+
+function CorrectionShell({ children }: { children: React.ReactNode }) {
+  return (
+    <AppPageShell title="Anatomy Corrections" width="standard">
+        {children}
+    </AppPageShell>
+  )
+}

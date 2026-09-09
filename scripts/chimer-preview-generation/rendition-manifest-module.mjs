@@ -1,0 +1,180 @@
+import { FULL_CATALOG_BACKGROUND_IDS } from "./preview-recipes.mjs"
+
+const ASPECT_ORDER = Object.freeze(["landscape", "square", "vertical"])
+const QUALITY_ORDER = Object.freeze(["low", "standard", "high"])
+const CODEC_ORDER = Object.freeze(["vp9", "h264"])
+
+function orderedRenditions(renditions) {
+  return [...renditions].sort((left, right) =>
+    ASPECT_ORDER.indexOf(left.aspect) - ASPECT_ORDER.indexOf(right.aspect)
+      || QUALITY_ORDER.indexOf(left.quality) - QUALITY_ORDER.indexOf(right.quality)
+      || CODEC_ORDER.indexOf(left.codec) - CODEC_ORDER.indexOf(right.codec))
+}
+
+function compactRendition(item) {
+  return {
+    aspect: item.aspect,
+    quality: item.quality,
+    codec: item.codec,
+    url: item.url,
+    mimeType: item.mimeType,
+    width: item.width,
+    height: item.height,
+    durationMs: item.durationMs,
+    fps: item.fps,
+    bytes: item.bytes,
+    sha256: item.sha256,
+  }
+}
+
+function compactPoster(item) {
+  return {
+    url: item.url,
+    width: item.width,
+    height: item.height,
+    bytes: item.bytes,
+    sha256: item.sha256,
+  }
+}
+
+/** Produces deterministic, schema-only entries from local validation objects. */
+export function normalizeRenditionManifestEntries(entries) {
+  return [...entries]
+    .sort((left, right) => left.backgroundId.localeCompare(right.backgroundId))
+    .map((entry) => ({
+      backgroundId: entry.backgroundId,
+      recipeRevision: entry.recipeRevision,
+      loopStrategy: entry.loopStrategy,
+      loopBoundaryMs: entry.loopBoundaryMs,
+      renditions: orderedRenditions(entry.renditions).map(compactRendition),
+      posters: Object.fromEntries(ASPECT_ORDER.map((aspect) => [aspect, compactPoster(entry.posters[aspect])])),
+    }))
+}
+
+export function serializeRenditionManifest(entries) {
+  return `${JSON.stringify({ schemaVersion: 2, entries: normalizeRenditionManifestEntries(entries) }, null, 2)}\n`
+}
+
+/** Validates catalog identity and poster shape before ordering can obscure bad input. */
+function assertCatalogEntryContracts(entries, order) {
+  const seenBackgroundIds = new Set()
+  for (const [entryIndex, entry] of entries.entries()) {
+    const backgroundId = entry?.backgroundId
+    if (typeof backgroundId !== "string" || !order.has(backgroundId)) {
+      throw new Error(`catalog entry ${entryIndex}: unknown backgroundId ${JSON.stringify(backgroundId)}`)
+    }
+    if (seenBackgroundIds.has(backgroundId)) {
+      throw new Error(`${backgroundId}: duplicate backgroundId in catalog manifest`)
+    }
+    seenBackgroundIds.add(backgroundId)
+
+    if (!Array.isArray(entry.renditions)) {
+      throw new Error(`${backgroundId}: renditions must be an array`)
+    }
+    if (!entry.posters || typeof entry.posters !== "object" || Array.isArray(entry.posters)) {
+      throw new Error(`${backgroundId}: posters must be a record with exactly landscape, square, and vertical`)
+    }
+    for (const aspect of ASPECT_ORDER) {
+      if (!Object.hasOwn(entry.posters, aspect) || !entry.posters[aspect]) {
+        throw new Error(`${backgroundId}: missing ${aspect} poster`)
+      }
+    }
+    const unexpectedAspect = Object.keys(entry.posters).find((aspect) => !ASPECT_ORDER.includes(aspect))
+    if (unexpectedAspect) {
+      throw new Error(`${backgroundId}: unexpected poster aspect ${unexpectedAspect}`)
+    }
+  }
+}
+
+/**
+ * Compacts and orders mixed animated/static catalog metadata without emitting
+ * thousands of generated TypeScript lines. The checked-in publication catalog
+ * fails closed unless every recipe has completed visual approval.
+ */
+export function normalizeCatalogRenditionManifestEntries(entries, { requireApproved = false } = {}) {
+  const order = new Map(FULL_CATALOG_BACKGROUND_IDS.map((id, index) => [id, index]))
+  const inputEntries = [...entries]
+  assertCatalogEntryContracts(inputEntries, order)
+  return inputEntries
+    .sort((left, right) => order.get(left.backgroundId) - order.get(right.backgroundId))
+    .map((entry) => {
+      if (requireApproved && entry.reviewStatus !== "approved") {
+        throw new Error(`${entry.backgroundId}: publication manifest requires an approved recipe`)
+      }
+      return {
+        backgroundId: entry.backgroundId,
+        recipeRevision: entry.recipeRevision,
+        mediaKind: entry.mediaKind,
+        reviewStatus: entry.reviewStatus,
+        batchSlug: entry.batchSlug,
+        loopStrategy: entry.loopStrategy,
+        loopBoundaryMs: entry.loopBoundaryMs,
+        renditions: orderedRenditions(entry.renditions).map(compactRendition),
+        posters: Object.fromEntries(ASPECT_ORDER.map((aspect) => [aspect, compactPoster(entry.posters[aspect])])),
+      }
+    })
+}
+
+export function serializeCatalogRenditionManifest(entries, {
+  catalogRevision = "catalog-approved-1",
+  requireApproved = true,
+} = {}) {
+  return `${JSON.stringify({
+    schemaVersion: 3,
+    catalogRevision,
+    entries: normalizeCatalogRenditionManifestEntries(entries, { requireApproved }),
+  }, null, 2)}\n`
+}
+
+/** Renders the checked-in typed sidecar without importing production v1 data. */
+export function renderRenditionManifestModule(entries) {
+  const record = Object.fromEntries(normalizeRenditionManifestEntries(entries).map((entry) => [entry.backgroundId, entry]))
+  return `/* Generated by scripts/chimer-preview-generation/render-pilot.mjs. */
+
+export type BackgroundPreviewAspect = "landscape" | "square" | "vertical"
+export type BackgroundPreviewQuality = "low" | "standard" | "high"
+export type BackgroundPreviewCodec = "vp9" | "h264"
+
+export type BackgroundPreviewRendition = {
+  aspect: BackgroundPreviewAspect
+  quality: BackgroundPreviewQuality
+  codec: BackgroundPreviewCodec
+  url: string
+  mimeType: string
+  width: number
+  height: number
+  durationMs: number
+  fps: number
+  bytes: number
+  sha256: string
+}
+
+export type BackgroundPreviewPoster = {
+  url: string
+  width: number
+  height: number
+  bytes: number
+  sha256: string
+}
+
+export type BackgroundPreviewRenditionEntry = {
+  backgroundId: string
+  recipeRevision: string
+  loopStrategy: "natural" | "crossfade"
+  loopBoundaryMs: number
+  renditions: readonly BackgroundPreviewRendition[]
+  posters: Record<BackgroundPreviewAspect, BackgroundPreviewPoster>
+}
+
+export const backgroundPreviewRenditionManifest: Readonly<Record<string, BackgroundPreviewRenditionEntry>> = Object.freeze(${JSON.stringify(record, null, 2)})
+
+/**
+ * Leaves absolute, protocol-relative, and root-relative URLs unchanged. Every
+ * other value is resolved below the fixed /chimer/background-preview-pilot/ base.
+ */
+export function resolvePreviewRenditionUrl(url: string): string {
+  if (/^(?:https?:)?\\/\\//.test(url) || url.startsWith("/")) return url
+  return \`/chimer/background-preview-pilot/\${url}\`
+}
+`
+}

@@ -1,0 +1,39 @@
+import type { Role } from "@prisma/client"
+import type { DefaultSession } from "next-auth"
+import type { AccountCapabilities, VerificationStatus } from "@/lib/domain-types"
+
+declare module "next-auth" {
+  interface Session {
+    lastPasswordAuthenticatedAt?: number
+    user: Omit<NonNullable<DefaultSession["user"]>, "emailVerified"> & {
+      id: string
+      role: Role
+      roles: Role[]
+      roleAssignments: Array<{ role: Role; status: VerificationStatus }>
+      capabilities: AccountCapabilities
+      featureKeys: string[]
+      emailVerified: boolean
+      twoFactorEnabled: boolean
+    }
+  }
+
+  interface User {
+    id: string
+    passwordAuthenticatedAt?: number
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string
+    authSessionVersion?: number
+    role?: Role
+    roles?: Role[]
+    roleAssignments?: Array<{ role: Role; status: VerificationStatus }>
+    capabilities?: AccountCapabilities
+    featureKeys?: string[]
+    emailVerified?: boolean
+    twoFactorEnabled?: boolean
+    lastPasswordAuthenticatedAt?: number
+  }
+}

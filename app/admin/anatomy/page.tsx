@@ -1,0 +1,2927 @@
+import Link from "next/link"
+import { requireAnatomyEditorUser } from "@/lib/anatomy-admin-access"
+import { SOURCE_USAGE_SCOPES } from "@/lib/anatomy-admin-source-input"
+import { prisma } from "@/lib/prisma"
+import {
+  ANATOMY_ADMIN_QUICK_QUERIES,
+  buildAnatomyEntityHref,
+  anatomyQueries,
+  normalizeAnatomySearchQuery,
+  parseAnatomyEntitySelection,
+  type AnatomyEntitySelection,
+  type AnatomyQuickQueryKey,
+  type AnatomySearchResult,
+} from "@/lib/anatomy-queries"
+import {
+  ANATOMY_MEDIA_REVIEW_REASONS,
+  ANATOMY_MEDIA_REVIEW_STATUSES,
+  ANATOMY_MEDIA_VIEW_REQUEST_REASONS,
+  ANATOMY_MEDIA_VIEW_REQUEST_STATUSES,
+  ANATOMY_MEDIA_VIEW_REQUEST_VIEWS,
+  anatomyMediaCoverageForLinks,
+  bodyParts3dComposerUrl,
+  normalizeBodyParts3dPartIds,
+  safeBodyParts3dRenderableImageUrl,
+} from "@/lib/anatomy-media-review"
+import {
+  createAnatomyAliasAction,
+  createAnatomyEntityRelationshipAction,
+  createAnatomyRelationshipAction,
+  createAnatomySourceAction,
+  createAnatomyTermAction,
+  createAnatomyMediaViewRequestAction,
+  importBodyParts3dMediaAction,
+  linkAnatomyMediaAssetAction,
+  updateAnatomyTermAction,
+  updateAnatomyMediaReviewAction,
+  updateAnatomyMediaViewRequestAction,
+  updateCorrectionFlagAction,
+} from "@/app/admin/anatomy/actions"
+import { AppPageShell, appInsetClassName, appSurfaceClassName } from "@/components/ui/app-surface"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { AnatomyBrowserStickyFrame } from "./anatomy-browser-sticky-frame"
+import { BodyParts3dImportFields } from "./bodyparts3d-import-fields"
+import {
+  getAnatomyBrowserDataForView,
+  getAnatomyFoundationCounts,
+  getAnatomyQuickResult,
+} from "./browser-data"
+import {
+  ADMIN_BROWSER_VIEWS,
+  BODY_SYSTEM_BROWSER_VIEWS,
+  DEFAULT_BROWSER_VIEW,
+  ENTITY_BROWSER_VIEWS,
+  TISSUE_TYPE_BROWSER_VIEWS,
+  bodySystemConfigForView,
+  browserViewFromParam,
+  entityKey,
+  isBodySystemBrowserView,
+  isTissueTypeBrowserView,
+  quickQueryFromParam,
+  tissueTypeConfigForView,
+  type AnatomyBrowserData,
+  type AnatomyBrowserView,
+  type AnatomyEntityDetailPayload,
+  type AnatomyFoundationCount,
+  type AnatomyQuickResult,
+  type BodySystemBrowserView,
+  type BrowserViewOption,
+  type TissueTypeBrowserView,
+} from "./browser-types"
+import { SyncedHorizontalScroll } from "./synced-horizontal-scroll"
+
+type AnatomyTermRow = {
+  id: string
+  slug: string
+  kind: string
+  preferredName: string
+  summary: string | null
+  regions: string[]
+  bodySystems: string[]
+  difficulty: string
+  status: string
+}
+
+type CorrectionFlagRow = {
+  id: string
+  issueType: string
+  message: string
+  status: string
+  resolutionNote: string | null
+  term: {
+    preferredName: string
+  } | null
+}
+
+const TERM_KINDS = ["SYSTEM", "ORGAN", "TISSUE", "BONE", "MUSCLE", "JOINT", "NERVE", "VESSEL", "LIGAMENT", "TENDON", "CELL", "OTHER"]
+const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"]
+const STATUSES = ["DRAFT", "REVIEW", "PUBLISHED", "ARCHIVED"]
+const FLAG_STATUSES = ["OPEN", "RESOLVED", "REJECTED"]
+const MEDIA_REVIEW_STATUSES = [...ANATOMY_MEDIA_REVIEW_STATUSES]
+const MEDIA_REVIEW_REASONS = [...ANATOMY_MEDIA_REVIEW_REASONS]
+const MEDIA_VIEW_REQUEST_VIEWS = [...ANATOMY_MEDIA_VIEW_REQUEST_VIEWS]
+const MEDIA_VIEW_REQUEST_REASONS = [...ANATOMY_MEDIA_VIEW_REQUEST_REASONS]
+const MEDIA_VIEW_REQUEST_STATUSES = [...ANATOMY_MEDIA_VIEW_REQUEST_STATUSES]
+const MEDIA_ROLES = ["PRIMARY", "REFERENCE", "REGION_CONTEXT", "GAME_PROMPT", "CLIENT_EDUCATION"]
+
+type AnatomyAdminPageProps = {
+  searchParams?: Promise<{
+    q?: string
+    quick?: string
+    view?: string
+    entityType?: string
+    entitySlug?: string
+  }>
+}
+
+type DataTableColumn<T> = {
+  header: string
+  className?: string
+  render: (row: T) => React.ReactNode
+}
+
+export default async function AnatomyAdminPage({ searchParams }: AnatomyAdminPageProps) {
+  await requireAnatomyEditorUser()
+
+  const params = await searchParams
+  const searchQuery = normalizeAnatomySearchQuery(params?.q ?? "")
+  const quickQueryKey = quickQueryFromParam(params?.quick)
+  const selectedView = browserViewFromParam(params?.view, quickQueryKey, searchQuery)
+  const selectedEntity = parseAnatomyEntitySelection(params?.entityType, params?.entitySlug)
+  const needsMaintenanceData = selectedView === "maintenance"
+
+  const [termRows, flagRows, foundationCounts, browserData, searchResults, quickResult, selectedEntityDetail] = await Promise.all([
+    needsMaintenanceData ? prisma.anatomyTerm.findMany({
+      select: {
+        id: true,
+        slug: true,
+        kind: true,
+        preferredName: true,
+        summary: true,
+        regions: true,
+        bodySystems: true,
+        difficulty: true,
+        status: true,
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 30,
+    }) : Promise.resolve([]),
+    needsMaintenanceData ? prisma.anatomyCorrectionFlag.findMany({
+      include: {
+        term: {
+          select: { preferredName: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }) : Promise.resolve([]),
+    needsMaintenanceData ? getAnatomyFoundationCounts() : Promise.resolve([]),
+    getAnatomyBrowserDataForView({ view: selectedView, selectedEntity }),
+    searchQuery ? anatomyQueries.searchAnatomyEntities(searchQuery, 18) : Promise.resolve([]),
+    getAnatomyQuickResult(quickQueryKey),
+    selectedEntity
+      ? anatomyQueries.getAnatomyEntityDetail(selectedEntity.entityType, selectedEntity.entitySlug).catch(() => null)
+      : Promise.resolve(null),
+  ])
+  const terms = termRows as AnatomyTermRow[]
+  const flags = flagRows as CorrectionFlagRow[]
+
+  return (
+    <AdminShell>
+      <AnatomyDatabaseBrowser
+        counts={foundationCounts}
+        searchQuery={searchQuery}
+        searchResults={searchResults}
+        quickResult={quickResult}
+        selectedQuickQueryKey={quickQueryKey}
+        selectedView={selectedView}
+        selectedEntity={selectedEntity}
+        selectedEntityDetail={selectedEntityDetail}
+        browserData={browserData}
+        terms={terms}
+        flags={flags}
+      />
+    </AdminShell>
+  )
+}
+
+function AnatomyDatabaseBrowser({
+  counts,
+  searchQuery,
+  searchResults,
+  quickResult,
+  selectedQuickQueryKey,
+  selectedView,
+  selectedEntity,
+  selectedEntityDetail,
+  browserData,
+  terms,
+  flags,
+}: {
+  counts: AnatomyFoundationCount[]
+  searchQuery: string
+  searchResults: AnatomySearchResult[]
+  quickResult: AnatomyQuickResult | null
+  selectedQuickQueryKey?: AnatomyQuickQueryKey
+  selectedView: AnatomyBrowserView
+  selectedEntity: AnatomyEntitySelection | null
+  selectedEntityDetail: AnatomyEntityDetailPayload
+  browserData: AnatomyBrowserData
+  terms: AnatomyTermRow[]
+  flags: CorrectionFlagRow[]
+}) {
+  return (
+    <Card className={appSurfaceClassName}>
+      <CardContent className="p-1 sm:p-6">
+        <AnatomyBrowserStickyFrame
+          toolbar={(
+            <>
+              <form action="/admin/anatomy" className="grid gap-2 sm:gap-3 md:grid-cols-[1fr_auto]">
+                <input type="hidden" name="view" value={selectedView === "maintenance" ? DEFAULT_BROWSER_VIEW : selectedView} />
+                <div className="space-y-2">
+                  <Label htmlFor="anatomy-search" data-anatomy-search-label>
+                    Search normalized anatomy
+                  </Label>
+                  <Input
+                    id="anatomy-search"
+                    name="q"
+                    defaultValue={searchQuery}
+                    placeholder="Search upper trap, shoulder blade, rotator cuff, base of skull..."
+                    data-anatomy-compact-control
+                    className="h-10 transition-[height]"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button type="submit" data-anatomy-compact-control className="h-10 w-full bg-primary transition-[height] hover:bg-brand-orange-glow md:w-auto">
+                    Search database
+                  </Button>
+                </div>
+              </form>
+
+              <div data-anatomy-view-tabs className="space-y-2">
+                <BrowserViewTabRow ariaLabel="General anatomy views" selectedView={selectedView} views={ENTITY_BROWSER_VIEWS} />
+                <BrowserViewTabRow ariaLabel="Body system views" selectedView={selectedView} views={BODY_SYSTEM_BROWSER_VIEWS} />
+                <BrowserViewTabRow ariaLabel="Tissue type views" selectedView={selectedView} views={TISSUE_TYPE_BROWSER_VIEWS} />
+                <BrowserViewTabRow ariaLabel="Anatomy editor views" selectedView={selectedView} views={ADMIN_BROWSER_VIEWS} />
+              </div>
+            </>
+          )}
+        >
+          {searchQuery ? <SearchResultsTable searchQuery={searchQuery} searchResults={searchResults} /> : null}
+          {selectedEntity ? (
+            <EntityDetailPanel
+              data={browserData}
+              selectedEntity={selectedEntity}
+              selectedEntityDetail={selectedEntityDetail}
+              selectedView={selectedView}
+              searchQuery={searchQuery}
+            />
+          ) : null}
+
+          {selectedView === "muscles" ? <MusclesTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "structures" ? <StructuresTables data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "concepts" ? <ConceptsTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "joints" ? <JointsTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "rom" ? <RangeOfMotionTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "ligaments" ? <LigamentsTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "nerves" ? <NervesTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "vessels" ? <VesselsTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "terms" ? <TermsTable data={browserData} searchQuery={searchQuery} /> : null}
+          {selectedView === "pain" ? <PainRegionsTable data={browserData} searchQuery={searchQuery} /> : null}
+          {isBodySystemBrowserView(selectedView) ? <BodySystemTables data={browserData} searchQuery={searchQuery} view={selectedView} /> : null}
+          {isTissueTypeBrowserView(selectedView) ? <TissueTypeTables data={browserData} searchQuery={searchQuery} view={selectedView} /> : null}
+          {selectedView === "sources" ? <SourcesTable data={browserData} /> : null}
+          {selectedView === "maintenance" ? <MaintenanceView counts={counts} terms={terms} flags={flags} /> : null}
+
+          {selectedView === "queries" ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {ANATOMY_ADMIN_QUICK_QUERIES.map((query) => (
+                  <Button key={query.key} asChild variant={selectedQuickQueryKey === query.key ? "default" : "outline"} size="sm">
+                    <Link href={`/admin/anatomy?view=queries&quick=${query.key}`}>{query.label}</Link>
+                  </Button>
+                ))}
+              </div>
+
+              <QuickResultPanel quickResult={quickResult} />
+            </div>
+          ) : null}
+        </AnatomyBrowserStickyFrame>
+      </CardContent>
+    </Card>
+  )
+}
+
+function QuickResultPanel({ quickResult }: { quickResult: AnatomyQuickResult | null }) {
+  if (!quickResult) {
+    return (
+      <div className={`${appInsetClassName} p-4`}>
+        <p className="text-sm text-muted-foreground">Choose a query to inspect a focused relationship result.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`${appInsetClassName} space-y-3 p-4`}>
+      <div>
+        <h3 className="font-semibold">{quickResult.title}</h3>
+        <p className="text-sm text-muted-foreground">{quickResult.description}</p>
+      </div>
+      {quickResult.rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No normalized anatomy rows matched this query.</p>
+      ) : (
+        <DataTable
+          rows={quickResult.rows}
+          rowKey={(row) => `${row.title}-${row.subtitle ?? row.meta ?? ""}`}
+          columns={[
+            {
+              header: "Result",
+              render: (row) => <NameCell title={row.title} subtitle={row.subtitle} meta={row.meta} />,
+            },
+            {
+              header: "Detail",
+              render: (row) => <span>{row.detail || "-"}</span>,
+            },
+          ]}
+        />
+      )}
+    </div>
+  )
+}
+
+function BrowserViewTabRow({ ariaLabel, selectedView, views }: { ariaLabel: string; selectedView: AnatomyBrowserView; views: BrowserViewOption[] }) {
+  return (
+    <div aria-label={ariaLabel} className="flex gap-2 overflow-x-auto pb-1">
+      {views.map((view) => (
+        <Button key={view.key} asChild variant={selectedView === view.key ? "default" : "outline"} size="sm" className="shrink-0">
+          <Link href={browserViewHref(view.key)}>{view.label}</Link>
+        </Button>
+      ))}
+    </div>
+  )
+}
+
+function SearchResultsTable({
+  searchQuery,
+  searchResults,
+}: {
+  searchQuery: string
+  searchResults: AnatomySearchResult[]
+}) {
+  return (
+    <div className={`${appInsetClassName} space-y-3 p-4`}>
+      <div>
+        <h3 className="font-semibold">Search results</h3>
+        <p className="text-sm text-muted-foreground">Matches for {searchQuery}.</p>
+      </div>
+      {searchResults.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No normalized anatomy results matched {searchQuery}.</p>
+      ) : (
+        <DataTable
+          rows={searchResults}
+          rowKey={(result) => `${result.entityType}-${result.slug}`}
+          columns={[
+            {
+              header: "Entity",
+              render: (result) => (
+                <NameCell
+                  title={result.label}
+                  subtitle={result.slug}
+                  meta={formatLabel(result.entityType)}
+                  href={entityHref(result.entityType, result.slug, viewForEntityType(result.entityType), searchQuery)}
+                />
+              ),
+            },
+            {
+              header: "Matched term",
+              render: (result) => result.matchedTerm ? `${result.matchedTerm}${result.termType ? ` (${formatLabel(result.termType)})` : ""}` : "-",
+            },
+            {
+              header: "Detail",
+              render: (result) => result.detail || "-",
+            },
+            {
+              header: "Source",
+              render: (result) => result.sourceLabel || "-",
+            },
+          ]}
+        />
+      )}
+    </div>
+  )
+}
+
+function MusclesTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <DataTable
+      rows={data.muscles}
+      rowKey={(muscle) => recordText(muscle, "slug")}
+      columns={[
+        {
+          header: "Muscle",
+          className: "min-w-[220px]",
+          render: (muscle) => (
+            <NameCell
+              title={recordText(muscle, "name")}
+              subtitle={recordText(muscle, "formalName")}
+              meta={`${formatLabel(recordText(muscle, "relativeDepth"))} / ${relationText(muscle, "region", "name")}`}
+              href={entityHref("MUSCLE", recordText(muscle, "slug"), "muscles", searchQuery)}
+            />
+          ),
+        },
+        {
+          header: "Terms",
+          render: (muscle) => (
+            <CompactList
+              items={[
+                ...recordStringArray(muscle, "alternateNames"),
+                ...entityTermLabels(data, "MUSCLE", recordText(muscle, "slug")),
+              ]}
+            />
+          ),
+        },
+        {
+          header: "Attachments",
+          className: "min-w-[260px]",
+          render: (muscle) => <CompactList items={attachmentLines(recordArray(muscle, "attachments"))} />,
+        },
+        {
+          header: "Innervation",
+          render: (muscle) => <CompactList items={recordArray(muscle, "innervations").map((row) => relationText(row, "nerve", "name"))} />,
+        },
+        {
+          header: "Actions",
+          className: "min-w-[240px]",
+          render: (muscle) => <CompactList items={actionLines(recordArray(muscle, "actions"))} />,
+        },
+        {
+          header: "Blood",
+          render: (muscle) => (
+            <CompactList
+              items={relationshipLabels(data, {
+                sourceType: "BLOOD_SUPPLY",
+                relationshipType: "supplies",
+                targetType: "MUSCLE",
+                targetSlug: recordText(muscle, "slug"),
+                returnSide: "source",
+              })}
+            />
+          ),
+        },
+        {
+          header: "Depth",
+          render: (muscle) => <CompactList items={depthRelationshipLabels(data, recordText(muscle, "slug"))} />,
+        },
+      ]}
+    />
+  )
+}
+
+function StructuresTables({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <div className="space-y-4">
+      <SectionPanel title="Anatomy structures">
+        <DataTable
+          rows={data.structures}
+          rowKey={(structure) => recordText(structure, "slug")}
+          columns={[
+            {
+              header: "Structure",
+              render: (structure) => (
+                <NameCell
+                  title={recordText(structure, "name")}
+                  subtitle={formatLabel(recordText(structure, "structureType"))}
+                  meta={relationText(structure, "region", "name")}
+                  href={entityHref("ANATOMY_STRUCTURE", recordText(structure, "slug"), "structures", searchQuery)}
+                />
+              ),
+            },
+            {
+              header: "Description",
+              render: (structure) => recordText(structure, "description") || "-",
+            },
+            {
+              header: "Relationships",
+              render: (structure) => (
+                <CompactList
+                  items={selectedEntityRelationships(data, {
+                    entityType: "ANATOMY_STRUCTURE",
+                    entitySlug: recordText(structure, "slug"),
+                  }).map((relationship) => `${formatLabel(relationship.relationshipType)} ${relationship.label}`)}
+                />
+              ),
+            },
+            {
+              header: "Source",
+              render: (structure) => relationText(structure, "source", "label") || "-",
+            },
+          ]}
+        />
+      </SectionPanel>
+
+      <SectionPanel title="Bones and landmarks">
+        <DataTable
+          rows={data.bones}
+          rowKey={(bone) => recordText(bone, "slug")}
+          columns={[
+            {
+              header: "Bone",
+              render: (bone) => (
+                <NameCell
+                  title={recordText(bone, "name")}
+                  subtitle={recordText(bone, "formalName")}
+                  meta={relationText(bone, "region", "name")}
+                  href={entityHref("BONE", recordText(bone, "slug"), "structures", searchQuery)}
+                />
+              ),
+            },
+            {
+              header: "Landmarks",
+              render: (bone) => <CompactList items={recordArray(bone, "landmarks").map((landmark) => recordText(landmark, "name"))} />,
+            },
+            {
+              header: "Attached muscles",
+              render: (bone) => <CompactList items={uniqueStrings(recordArray(bone, "attachments").map((row) => relationText(row, "muscle", "name")))} />,
+            },
+            {
+              header: "Source",
+              render: (bone) => relationText(bone, "source", "label") || "-",
+            },
+          ]}
+        />
+      </SectionPanel>
+    </div>
+  )
+}
+
+function ConceptsTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <SectionPanel title="Physiology and kinesiology concepts">
+      <DataTable
+        rows={data.concepts}
+        rowKey={(concept) => recordText(concept, "slug")}
+        columns={[
+          {
+            header: "Concept",
+            render: (concept) => (
+              <NameCell
+                title={recordText(concept, "name")}
+                subtitle={formatLabel(recordText(concept, "conceptType"))}
+                meta={formatLabel(recordText(concept, "bodySystem"))}
+                href={entityHref("ANATOMY_CONCEPT", recordText(concept, "slug"), "concepts", searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Terms",
+            render: (concept) => <CompactList items={entityTermLabels(data, "ANATOMY_CONCEPT", recordText(concept, "slug"))} />,
+          },
+          {
+            header: "Description",
+            className: "min-w-[360px]",
+            render: (concept) => recordText(concept, "description") || "-",
+          },
+          {
+            header: "Source",
+            render: (concept) => relationText(concept, "source", "label") || "-",
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function JointsTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <SectionPanel title="Joints and movements">
+      <DataTable
+        rows={data.joints}
+        rowKey={(joint) => recordText(joint, "slug")}
+        columns={[
+          {
+            header: "Joint",
+            render: (joint) => (
+              <NameCell
+                title={recordText(joint, "name")}
+                subtitle={recordText(joint, "jointType")}
+                meta={relationText(joint, "region", "name")}
+                href={entityHref("JOINT", recordText(joint, "slug"), "joints", searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Movements",
+            render: (joint) => <CompactList items={recordArray(joint, "movements").map((movement) => movementLine(movement))} />,
+          },
+          {
+            header: "ROM",
+            render: (joint) => <CompactList items={recordArray(joint, "rangesOfMotion").map((rom) => romLine(rom))} />,
+          },
+          {
+            header: "Ligaments",
+            render: (joint) => <CompactList items={recordArray(joint, "ligaments").map((ligament) => recordText(ligament, "name"))} />,
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function RangeOfMotionTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <SectionPanel title="Range of motion">
+      <DataTable
+        rows={data.rangesOfMotion}
+        rowKey={(rom) => recordText(rom, "slug")}
+        columns={[
+          {
+            header: "Movement",
+            render: (rom) => (
+              <NameCell
+                title={relationText(rom, "movement", "movementName") || recordText(rom, "slug")}
+                subtitle={relationText(rom, "joint", "name")}
+                meta={romLine(rom)}
+                href={entityHref("RANGE_OF_MOTION", recordText(rom, "slug"), "rom", searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Position",
+            className: "min-w-[280px]",
+            render: (rom) => recordText(rom, "measurementPosition") || "-",
+          },
+          {
+            header: "Notes",
+            className: "min-w-[280px]",
+            render: (rom) => recordText(rom, "notes") || "-",
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function LigamentsTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <SectionPanel title="Ligaments">
+      <DataTable
+        rows={data.ligaments}
+        rowKey={(ligament) => recordText(ligament, "slug")}
+        columns={[
+          {
+            header: "Ligament",
+            render: (ligament) => (
+              <NameCell
+                title={recordText(ligament, "name")}
+                subtitle={relationText(ligament, "joint", "name")}
+                meta={relationText(ligament, "region", "name")}
+                href={entityHref("LIGAMENT", recordText(ligament, "slug"), "ligaments", searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Description",
+            className: "min-w-[320px]",
+            render: (ligament) => recordText(ligament, "description") || "-",
+          },
+          {
+            header: "Source",
+            render: (ligament) => relationText(ligament, "source", "label") || "-",
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function NervesTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <div className="space-y-4">
+      <SectionPanel title="Nerves">
+        <DataTable
+          rows={data.nerves}
+          rowKey={(nerve) => recordText(nerve, "slug")}
+          columns={[
+            {
+              header: "Nerve",
+              render: (nerve) => (
+                <NameCell
+                  title={recordText(nerve, "name")}
+                  subtitle={recordStringArray(nerve, "nerveRoots").join(", ")}
+                  meta={relationText(nerve, "region", "name")}
+                  href={entityHref("NERVE", recordText(nerve, "slug"), "nerves", searchQuery)}
+                />
+              ),
+            },
+            {
+              header: "Innervates",
+              render: (nerve) => <CompactList items={recordArray(nerve, "innervations").map((row) => relationText(row, "muscle", "name"))} />,
+            },
+            {
+              header: "Relationships",
+              render: (nerve) => (
+                <CompactList
+                  items={[
+                    ...relationshipLabels(data, {
+                      sourceType: "NERVE",
+                      sourceSlug: recordText(nerve, "slug"),
+                      relationshipType: "includes_branch",
+                      targetType: "NERVE",
+                      returnSide: "target",
+                    }),
+                    ...relationshipLabels(data, {
+                      sourceType: "NERVE",
+                      sourceSlug: recordText(nerve, "slug"),
+                      relationshipType: "may_affect_region",
+                      targetType: "PAIN_MAP_REGION",
+                      returnSide: "target",
+                    }),
+                  ]}
+                />
+              ),
+            },
+          ]}
+        />
+      </SectionPanel>
+    </div>
+  )
+}
+
+function VesselsTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <div className="space-y-4">
+      <SectionPanel title="Vessels">
+        <DataTable
+          rows={data.bloodSupply}
+          rowKey={(vessel) => recordText(vessel, "slug")}
+          columns={[
+            {
+              header: "Vessel",
+              render: (vessel) => (
+                <NameCell
+                  title={recordText(vessel, "name")}
+                  subtitle={formatLabel(recordText(vessel, "kind"))}
+                  meta={relationText(vessel, "region", "name")}
+                  href={entityHref("BLOOD_SUPPLY", recordText(vessel, "slug"), "vessels", searchQuery)}
+                />
+              ),
+            },
+            {
+              header: "Supplies",
+              render: (vessel) => (
+                <CompactList
+                  items={relationshipLabels(data, {
+                    sourceType: "BLOOD_SUPPLY",
+                    sourceSlug: recordText(vessel, "slug"),
+                    relationshipType: "supplies",
+                    targetType: "MUSCLE",
+                    returnSide: "target",
+                  })}
+                />
+              ),
+            },
+          ]}
+        />
+      </SectionPanel>
+    </div>
+  )
+}
+
+function TermsTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <div className="space-y-4">
+      <SectionPanel title="Formal, common, and alternate terms">
+        <DataTable
+          rows={data.entityTerms}
+          rowKey={(term) => recordText(term, "slug")}
+          columns={[
+            {
+              header: "Term",
+              render: (term) => <NameCell title={recordText(term, "term")} subtitle={formatLabel(recordText(term, "termType"))} meta={recordText(term, "languageOfOrigin")} />,
+            },
+            {
+              header: "Entity",
+              render: (term) => entityLabel(data, recordText(term, "anatomyEntityType"), recordText(term, "anatomyEntitySlug")),
+            },
+            {
+              header: "Notes",
+              render: (term) => recordText(term, "notes") || "-",
+            },
+          ]}
+        />
+      </SectionPanel>
+
+      <SectionPanel title="Client language">
+        <DataTable
+          rows={data.clientTerms}
+          rowKey={(term) => recordText(term, "slug")}
+          columns={[
+            {
+              header: "Phrase",
+              render: (term) => (
+                <NameCell
+                  title={recordText(term, "term")}
+                  subtitle={formatLabel(recordText(term, "confidence"))}
+                  href={entityHref("CLIENT_TERM", recordText(term, "slug"), "terms", searchQuery)}
+                />
+              ),
+            },
+            {
+              header: "Maps to",
+              render: (term) => (
+                <CompactList
+                  items={[
+                    relationText(term, "mappedRegion", "name"),
+                    relationText(term, "mappedMuscle", "name"),
+                    relationText(term, "mappedJoint", "name"),
+                    relationText(term, "mappedStructure", "name"),
+                  ]}
+                />
+              ),
+            },
+            {
+              header: "Plain language",
+              render: (term) => recordText(term, "plainLanguageDescription"),
+            },
+          ]}
+        />
+      </SectionPanel>
+    </div>
+  )
+}
+
+function PainRegionsTable({ data, searchQuery }: { data: AnatomyBrowserData; searchQuery: string }) {
+  return (
+    <div className="space-y-4">
+      <SectionPanel title="Pain regions">
+        <DataTable
+          rows={data.painRegions}
+          rowKey={(region) => recordText(region, "slug")}
+          columns={[
+            {
+              header: "Pain region",
+              render: (region) => (
+                <NameCell
+                  title={recordText(region, "name")}
+                  subtitle={recordText(region, "plainLanguageDescription")}
+                  meta={relationText(region, "region", "name")}
+                  href={entityHref("PAIN_MAP_REGION", recordText(region, "slug"), "pain", searchQuery)}
+                />
+              ),
+            },
+            {
+              header: "Map metadata",
+              render: (region) => `${formatLabel(recordText(region, "laterality"))} / ${formatLabel(recordText(region, "surface"))}`,
+            },
+            {
+              header: "Overlaps",
+              render: (region) => (
+                <CompactList
+                  items={relationshipLabels(data, {
+                    sourceType: "PAIN_MAP_REGION",
+                    sourceSlug: recordText(region, "slug"),
+                    relationshipType: "overlaps_region",
+                    targetType: "REGION",
+                    returnSide: "target",
+                  })}
+                />
+              ),
+            },
+          ]}
+        />
+      </SectionPanel>
+    </div>
+  )
+}
+
+function BodySystemTables({ data, searchQuery, view }: { data: AnatomyBrowserData; searchQuery: string; view: BodySystemBrowserView }) {
+  const config = bodySystemConfigForView(view)
+  const entityKeys = bodySystemEntityKeys(data, config)
+  const systemConceptSlugs = new Set<string>(config.systemConceptSlugs)
+  const concepts = data.concepts.filter((concept) => {
+    const slug = recordText(concept, "slug")
+
+    return systemConceptSlugs.has(slug) || entityKeys.has(entityKey("ANATOMY_CONCEPT", slug))
+  })
+  const structures = bodySystemRows(data.structures, "ANATOMY_STRUCTURE", entityKeys)
+  const muscles = bodySystemRows(data.muscles, "MUSCLE", entityKeys)
+  const bones = bodySystemRows(data.bones, "BONE", entityKeys)
+  const joints = bodySystemRows(data.joints, "JOINT", entityKeys)
+  const ligaments = bodySystemRows(data.ligaments, "LIGAMENT", entityKeys)
+  const nerves = bodySystemRows(data.nerves, "NERVE", entityKeys)
+  const vessels = bodySystemRows(data.bloodSupply, "BLOOD_SUPPLY", entityKeys)
+  const hasRows = [concepts, structures, muscles, bones, joints, ligaments, nerves, vessels].some((rows) => rows.length > 0)
+
+  return (
+    <div className="space-y-4">
+      {concepts.length > 0 ? (
+        <SectionPanel title={`${config.label} concepts`}>
+          <DataTable
+            rows={concepts}
+            rowKey={(concept) => recordText(concept, "slug")}
+            columns={[
+              {
+                header: "Concept",
+                render: (concept) => (
+                  <NameCell
+                    title={recordText(concept, "name")}
+                    subtitle={formatLabel(recordText(concept, "conceptType"))}
+                    meta={formatLabel(recordText(concept, "bodySystem"))}
+                    href={entityHref("ANATOMY_CONCEPT", recordText(concept, "slug"), view, searchQuery)}
+                  />
+                ),
+              },
+              {
+                header: "Description",
+                className: "min-w-[320px]",
+                render: (concept) => recordText(concept, "description") || "-",
+              },
+            ]}
+          />
+        </SectionPanel>
+      ) : null}
+
+      {structures.length > 0 ? (
+        <SectionPanel title={`${config.label} structures`}>
+          <DataTable
+            rows={structures}
+            rowKey={(structure) => recordText(structure, "slug")}
+            columns={[
+              {
+                header: "Structure",
+                render: (structure) => (
+                  <NameCell
+                    title={recordText(structure, "name")}
+                    subtitle={formatLabel(recordText(structure, "structureType"))}
+                    meta={relationText(structure, "region", "name")}
+                    href={entityHref("ANATOMY_STRUCTURE", recordText(structure, "slug"), view, searchQuery)}
+                  />
+                ),
+              },
+              {
+                header: "Description",
+                className: "min-w-[320px]",
+                render: (structure) => recordText(structure, "description") || "-",
+              },
+            ]}
+          />
+        </SectionPanel>
+      ) : null}
+
+      {muscles.length > 0 ? <SystemMusclesSection data={data} rows={muscles} searchQuery={searchQuery} view={view} /> : null}
+      {bones.length > 0 ? <SystemBonesSection rows={bones} searchQuery={searchQuery} view={view} /> : null}
+      {joints.length > 0 ? <SystemJointsSection rows={joints} searchQuery={searchQuery} view={view} /> : null}
+      {ligaments.length > 0 ? <SystemLigamentsSection rows={ligaments} searchQuery={searchQuery} view={view} /> : null}
+      {nerves.length > 0 ? <SystemNervesSection rows={nerves} searchQuery={searchQuery} view={view} /> : null}
+      {vessels.length > 0 ? <SystemVesselsSection rows={vessels} searchQuery={searchQuery} view={view} /> : null}
+
+      {!hasRows ? (
+        <div className={`${appInsetClassName} p-4`}>
+          <p className="text-sm text-muted-foreground">No anatomy rows are assigned to this system yet.</p>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function TissueTypeTables({ data, searchQuery, view }: { data: AnatomyBrowserData; searchQuery: string; view: TissueTypeBrowserView }) {
+  const config = tissueTypeConfigForView(view)
+  const entityKeys = tissueTypeEntityKeys(data, config)
+  const tissueConceptSlugs = new Set<string>(config.tissueTypeConceptSlugs)
+  const concepts = data.concepts.filter((concept) => {
+    const slug = recordText(concept, "slug")
+
+    return tissueConceptSlugs.has(slug) || entityKeys.has(entityKey("ANATOMY_CONCEPT", slug))
+  })
+  const structures = bodySystemRows(data.structures, "ANATOMY_STRUCTURE", entityKeys)
+  const muscles = bodySystemRows(data.muscles, "MUSCLE", entityKeys)
+  const bones = bodySystemRows(data.bones, "BONE", entityKeys)
+  const joints = bodySystemRows(data.joints, "JOINT", entityKeys)
+  const ligaments = bodySystemRows(data.ligaments, "LIGAMENT", entityKeys)
+  const nerves = bodySystemRows(data.nerves, "NERVE", entityKeys)
+  const vessels = bodySystemRows(data.bloodSupply, "BLOOD_SUPPLY", entityKeys)
+  const hasRows = [concepts, structures, muscles, bones, joints, ligaments, nerves, vessels].some((rows) => rows.length > 0)
+
+  return (
+    <div className="space-y-4">
+      {concepts.length > 0 ? (
+        <SectionPanel title={`${config.label} concepts`}>
+          <DataTable
+            rows={concepts}
+            rowKey={(concept) => recordText(concept, "slug")}
+            columns={[
+              {
+                header: "Concept",
+                render: (concept) => (
+                  <NameCell
+                    title={recordText(concept, "name")}
+                    subtitle={formatLabel(recordText(concept, "conceptType"))}
+                    meta={formatLabel(recordText(concept, "bodySystem"))}
+                    href={entityHref("ANATOMY_CONCEPT", recordText(concept, "slug"), view, searchQuery)}
+                  />
+                ),
+              },
+              {
+                header: "Description",
+                className: "min-w-[320px]",
+                render: (concept) => recordText(concept, "description") || "-",
+              },
+            ]}
+          />
+        </SectionPanel>
+      ) : null}
+
+      {structures.length > 0 ? (
+        <SectionPanel title={`${config.label} structures`}>
+          <DataTable
+            rows={structures}
+            rowKey={(structure) => recordText(structure, "slug")}
+            columns={[
+              {
+                header: "Structure",
+                render: (structure) => (
+                  <NameCell
+                    title={recordText(structure, "name")}
+                    subtitle={formatLabel(recordText(structure, "structureType"))}
+                    meta={relationText(structure, "region", "name")}
+                    href={entityHref("ANATOMY_STRUCTURE", recordText(structure, "slug"), view, searchQuery)}
+                  />
+                ),
+              },
+              {
+                header: "Description",
+                className: "min-w-[320px]",
+                render: (structure) => recordText(structure, "description") || "-",
+              },
+            ]}
+          />
+        </SectionPanel>
+      ) : null}
+
+      {muscles.length > 0 ? <SystemMusclesSection data={data} rows={muscles} searchQuery={searchQuery} view={view} /> : null}
+      {bones.length > 0 ? <SystemBonesSection rows={bones} searchQuery={searchQuery} view={view} /> : null}
+      {joints.length > 0 ? <SystemJointsSection rows={joints} searchQuery={searchQuery} view={view} /> : null}
+      {ligaments.length > 0 ? <SystemLigamentsSection rows={ligaments} searchQuery={searchQuery} view={view} /> : null}
+      {nerves.length > 0 ? <SystemNervesSection rows={nerves} searchQuery={searchQuery} view={view} /> : null}
+      {vessels.length > 0 ? <SystemVesselsSection rows={vessels} searchQuery={searchQuery} view={view} /> : null}
+
+      {!hasRows ? (
+        <div className={`${appInsetClassName} p-4`}>
+          <p className="text-sm text-muted-foreground">No anatomy rows are assigned to this tissue type yet.</p>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function SystemMusclesSection({ data, rows, searchQuery, view }: { data: AnatomyBrowserData; rows: Record<string, unknown>[]; searchQuery: string; view: AnatomyBrowserView }) {
+  return (
+    <SectionPanel title="Muscles">
+      <DataTable
+        rows={rows}
+        rowKey={(muscle) => recordText(muscle, "slug")}
+        columns={[
+          {
+            header: "Muscle",
+            render: (muscle) => (
+              <NameCell
+                title={recordText(muscle, "name")}
+                subtitle={recordText(muscle, "formalName")}
+                meta={`${formatLabel(recordText(muscle, "relativeDepth"))} / ${relationText(muscle, "region", "name")}`}
+                href={entityHref("MUSCLE", recordText(muscle, "slug"), view, searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Terms",
+            render: (muscle) => (
+              <CompactList
+                items={[
+                  ...recordStringArray(muscle, "alternateNames"),
+                  ...entityTermLabels(data, "MUSCLE", recordText(muscle, "slug")),
+                ]}
+              />
+            ),
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function SystemBonesSection({ rows, searchQuery, view }: { rows: Record<string, unknown>[]; searchQuery: string; view: AnatomyBrowserView }) {
+  return (
+    <SectionPanel title="Bones">
+      <DataTable
+        rows={rows}
+        rowKey={(bone) => recordText(bone, "slug")}
+        columns={[
+          {
+            header: "Bone",
+            render: (bone) => (
+              <NameCell
+                title={recordText(bone, "name")}
+                subtitle={recordText(bone, "formalName")}
+                meta={relationText(bone, "region", "name")}
+                href={entityHref("BONE", recordText(bone, "slug"), view, searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Landmarks",
+            render: (bone) => <CompactList items={recordArray(bone, "landmarks").map((landmark) => recordText(landmark, "name"))} />,
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function SystemJointsSection({ rows, searchQuery, view }: { rows: Record<string, unknown>[]; searchQuery: string; view: AnatomyBrowserView }) {
+  return (
+    <SectionPanel title="Joints">
+      <DataTable
+        rows={rows}
+        rowKey={(joint) => recordText(joint, "slug")}
+        columns={[
+          {
+            header: "Joint",
+            render: (joint) => (
+              <NameCell
+                title={recordText(joint, "name")}
+                subtitle={recordText(joint, "jointType")}
+                meta={relationText(joint, "region", "name")}
+                href={entityHref("JOINT", recordText(joint, "slug"), view, searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Movements",
+            render: (joint) => <CompactList items={recordArray(joint, "movements").map((movement) => movementLine(movement))} />,
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function SystemLigamentsSection({ rows, searchQuery, view }: { rows: Record<string, unknown>[]; searchQuery: string; view: AnatomyBrowserView }) {
+  return (
+    <SectionPanel title="Ligaments">
+      <DataTable
+        rows={rows}
+        rowKey={(ligament) => recordText(ligament, "slug")}
+        columns={[
+          {
+            header: "Ligament",
+            render: (ligament) => (
+              <NameCell
+                title={recordText(ligament, "name")}
+                subtitle={relationText(ligament, "joint", "name")}
+                meta={relationText(ligament, "region", "name")}
+                href={entityHref("LIGAMENT", recordText(ligament, "slug"), view, searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Description",
+            className: "min-w-[320px]",
+            render: (ligament) => recordText(ligament, "description") || "-",
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function SystemNervesSection({ rows, searchQuery, view }: { rows: Record<string, unknown>[]; searchQuery: string; view: AnatomyBrowserView }) {
+  return (
+    <SectionPanel title="Nerves">
+      <DataTable
+        rows={rows}
+        rowKey={(nerve) => recordText(nerve, "slug")}
+        columns={[
+          {
+            header: "Nerve",
+            render: (nerve) => (
+              <NameCell
+                title={recordText(nerve, "name")}
+                subtitle={recordStringArray(nerve, "nerveRoots").join(", ")}
+                meta={relationText(nerve, "region", "name")}
+                href={entityHref("NERVE", recordText(nerve, "slug"), view, searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Innervates",
+            render: (nerve) => <CompactList items={recordArray(nerve, "innervations").map((row) => relationText(row, "muscle", "name"))} />,
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function SystemVesselsSection({ rows, searchQuery, view }: { rows: Record<string, unknown>[]; searchQuery: string; view: AnatomyBrowserView }) {
+  return (
+    <SectionPanel title="Vessels">
+      <DataTable
+        rows={rows}
+        rowKey={(vessel) => recordText(vessel, "slug")}
+        columns={[
+          {
+            header: "Vessel",
+            render: (vessel) => (
+              <NameCell
+                title={recordText(vessel, "name")}
+                subtitle={formatLabel(recordText(vessel, "kind"))}
+                meta={relationText(vessel, "region", "name")}
+                href={entityHref("BLOOD_SUPPLY", recordText(vessel, "slug"), view, searchQuery)}
+              />
+            ),
+          },
+          {
+            header: "Description",
+            className: "min-w-[320px]",
+            render: (vessel) => recordText(vessel, "description") || "-",
+          },
+        ]}
+      />
+    </SectionPanel>
+  )
+}
+
+function SourcesTable({ data }: { data: AnatomyBrowserData }) {
+  return (
+    <DataTable
+      rows={data.sources}
+      rowKey={(source) => recordText(source, "slug")}
+      columns={[
+        {
+          header: "Source",
+          render: (source) => <NameCell title={recordText(source, "label")} subtitle={recordText(source, "slug")} meta={`${recordText(source, "license") || "No license"} / ${formatLabel(recordText(source, "usageScope"))}`} />,
+        },
+        {
+          header: "License URL",
+          render: (source) => {
+            const url = recordText(source, "licenseUrl")
+
+            return url ? <Link href={url} className="text-primary underline-offset-4 hover:underline">{url}</Link> : "-"
+          },
+        },
+        {
+          header: "Attribution",
+          render: (source) => recordText(source, "attribution"),
+        },
+        {
+          header: "URL",
+          render: (source) => {
+            const url = recordText(source, "url")
+
+            return url ? <Link href={url} className="text-primary underline-offset-4 hover:underline">{url}</Link> : "-"
+          },
+        },
+      ]}
+    />
+  )
+}
+
+function MaintenanceView({ counts, terms, flags }: { counts: AnatomyFoundationCount[]; terms: AnatomyTermRow[]; flags: CorrectionFlagRow[] }) {
+  return (
+    <div className="space-y-4">
+      <SectionPanel title="Dataset summary">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {counts.map((count) => (
+            <div key={count.label} className={`${appInsetClassName} p-3`}>
+              <p className="text-[11px] font-medium uppercase tracking-normal text-muted-foreground">{count.label}</p>
+              <p className="mt-1 text-lg font-semibold">{count.value}</p>
+            </div>
+          ))}
+        </div>
+      </SectionPanel>
+
+      <SectionPanel title="Create anatomy term">
+        <form action={createAnatomyTermAction} className="grid gap-4 md:grid-cols-2">
+          <TextField id="preferred_name" label="Preferred name" required />
+          <TextField id="slug" label="Slug" placeholder="auto-generated if blank" />
+          <SelectField id="kind" label="Kind" values={TERM_KINDS} />
+          <SelectField id="difficulty" label="Difficulty" values={DIFFICULTIES} defaultValue="MEDIUM" />
+          <SelectField id="status" label="Status" values={STATUSES} defaultValue="DRAFT" />
+          <TextField id="body_systems" label="Body systems" placeholder="skeletal, muscular" />
+          <TextField id="regions" label="Regions" placeholder="upper-extremity, thorax" />
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="summary">Summary</Label>
+            <Textarea id="summary" name="summary" rows={3} />
+          </div>
+          <div className="md:col-span-2">
+            <Button type="submit" className="bg-primary hover:bg-brand-orange-glow">
+              Create term
+            </Button>
+          </div>
+        </form>
+      </SectionPanel>
+
+      <SectionPanel title="Aliases, relationships, and sources">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <form action={createAnatomyAliasAction} className={`${appInsetClassName} space-y-3 p-4`}>
+            <h3 className="font-semibold">Add alias</h3>
+            <TermSelect terms={terms} id="term_id" label="Term" />
+            <TextField id="alias" label="Alias" required />
+            <Button type="submit" variant="outline">Add alias</Button>
+          </form>
+
+          <form action={createAnatomyRelationshipAction} className={`${appInsetClassName} space-y-3 p-4`}>
+            <h3 className="font-semibold">Add relationship</h3>
+            <TermSelect terms={terms} id="source_term_id" label="Source term" />
+            <TextField id="relationship_type" label="Type" placeholder="part-of, innervates, attaches-to" required />
+            <TermSelect terms={terms} id="target_term_id" label="Target term" />
+            <Button type="submit" variant="outline">Add relationship</Button>
+          </form>
+
+          <form action={createAnatomySourceAction} className={`${appInsetClassName} space-y-3 p-4`}>
+            <h3 className="font-semibold">Add source</h3>
+            <TextField id="label" label="Label" required />
+            <TextField id="slug" label="Slug" />
+            <TextField id="url" label="URL" />
+            <TextField id="license" label="License" />
+            <TextField id="license_url" name="license_url" label="License URL" />
+            <SelectField id="usage_scope" name="usage_scope" label="Usage scope" values={SOURCE_USAGE_SCOPES} defaultValue="REVIEW_ONLY" />
+            <TextField id="accessed_at" name="accessed_at" label="Accessed date" placeholder="YYYY-MM-DD" />
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea id="notes" name="notes" rows={3} />
+            </div>
+            <TextField id="attribution" label="Attribution" required />
+            <Button type="submit" variant="outline">Add source</Button>
+          </form>
+        </div>
+      </SectionPanel>
+
+      <SectionPanel title="Recent terms">
+        {terms.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No database terms found yet. Run `npm run anatomy:seed` to import the local library.</p>
+        ) : (
+          <div className="space-y-3">
+            {terms.map((term) => (
+              <form key={term.id} action={updateAnatomyTermAction} className={`${appInsetClassName} p-4`}>
+                <input type="hidden" name="id" value={term.id} />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <TextField id={`name-${term.id}`} name="preferred_name" label={term.slug} defaultValue={term.preferredName} />
+                  <SelectField id={`difficulty-${term.id}`} name="difficulty" label="Difficulty" values={DIFFICULTIES} defaultValue={term.difficulty} />
+                  <SelectField id={`status-${term.id}`} name="status" label="Status" values={STATUSES} defaultValue={term.status} />
+                  <TextField id={`systems-${term.id}`} name="body_systems" label="Body systems" defaultValue={term.bodySystems.join(", ")} />
+                  <TextField id={`regions-${term.id}`} name="regions" label="Regions" defaultValue={term.regions.join(", ")} />
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor={`summary-${term.id}`}>Summary</Label>
+                    <Textarea id={`summary-${term.id}`} name="summary" defaultValue={term.summary ?? ""} rows={2} />
+                  </div>
+                </div>
+                <Button type="submit" variant="outline" className="mt-4">
+                  Save term
+                </Button>
+              </form>
+            ))}
+          </div>
+        )}
+      </SectionPanel>
+
+      <SectionPanel title="Correction flags">
+        {flags.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No correction flags yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {flags.map((flag) => (
+              <form key={flag.id} action={updateCorrectionFlagAction} className={`${appInsetClassName} p-4`}>
+                <input type="hidden" name="id" value={flag.id} />
+                <div className="mb-3">
+                  <p className="text-sm font-medium">{flag.term?.preferredName ?? "General content issue"}</p>
+                  <p className="text-sm text-muted-foreground">{flag.issueType}: {flag.message}</p>
+                </div>
+                <div className="grid gap-4 md:grid-cols-[220px_1fr_auto] md:items-end">
+                  <SelectField id={`flag-status-${flag.id}`} name="status" label="Status" values={FLAG_STATUSES} defaultValue={flag.status} />
+                  <TextField id={`flag-note-${flag.id}`} name="resolution_note" label="Resolution note" defaultValue={flag.resolutionNote ?? ""} />
+                  <Button type="submit" variant="outline">Update</Button>
+                </div>
+              </form>
+            ))}
+          </div>
+        )}
+      </SectionPanel>
+
+      <SectionPanel title="Seed import">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button asChild variant="outline">
+            <Link href="/anatomime">Open Anatomime</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/account">Back to account</Link>
+          </Button>
+        </div>
+      </SectionPanel>
+    </div>
+  )
+}
+
+function EntityDetailPanel({
+  data,
+  selectedEntity,
+  selectedEntityDetail,
+  selectedView,
+  searchQuery,
+}: {
+  data: AnatomyBrowserData
+  selectedEntity: AnatomyEntitySelection
+  selectedEntityDetail: AnatomyEntityDetailPayload
+  selectedView: AnatomyBrowserView
+  searchQuery: string
+}) {
+  const detail = selectedEntityDisplayDetail(data, selectedEntity, selectedEntityDetail)
+  const relatedRows = selectedEntityRelationships(data, selectedEntity, selectedEntityDetail)
+  const citationRows = selectedEntityCitations(data, selectedEntity, selectedEntityDetail)
+  const identifierRows = selectedEntityExternalIdentifiers(data, selectedEntity, selectedEntityDetail)
+  const mediaRows = selectedEntityMediaAssets(data, selectedEntity, selectedEntityDetail)
+  const mediaViewRequestRows = selectedEntityMediaViewRequests(data, selectedEntity, selectedEntityDetail)
+  const spatialMappingRows = selectedEntitySpatialMappings(data, selectedEntity, selectedEntityDetail)
+  const movementVisualizationRows = selectedEntityMovementVisualizations(data, selectedEntity, selectedEntityDetail)
+
+  if (!detail) {
+    return (
+      <section className={`${appInsetClassName} p-4`}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="font-semibold">Item not found</h3>
+            <p className="text-sm text-muted-foreground">{selectedEntity.entityType} / {selectedEntity.entitySlug}</p>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link href={browserViewHref(selectedView)}>Clear selection</Link>
+          </Button>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className={`${appInsetClassName} space-y-4 p-4`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-normal text-muted-foreground">{formatLabel(selectedEntity.entityType)}</p>
+          <h3 className="text-lg font-semibold">{detail.label}</h3>
+          {detail.subtitle ? <p className="text-sm text-muted-foreground">{detail.subtitle}</p> : null}
+        </div>
+        <Button asChild variant="outline" size="sm">
+          <Link href={browserViewHref(selectedView)}>Clear selection</Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <InfoBlock label="Slug" value={selectedEntity.entitySlug} />
+        <InfoBlock label="Region" value={detail.region || "-"} />
+        <InfoBlock label="Source" value={detail.source || "-"} />
+      </div>
+
+      {detail.description ? <p className="text-sm leading-6">{detail.description}</p> : null}
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        <div className={`${appInsetClassName} p-3`}>
+          <p className="mb-2 text-sm font-medium">Typed facts</p>
+          <CompactList items={detail.facts} empty="No typed facts surfaced for this item yet." />
+        </div>
+        <div className={`${appInsetClassName} p-3`}>
+          <p className="mb-2 text-sm font-medium">Terms</p>
+          <CompactList items={detail.terms} empty="No formal/common terms found yet." />
+        </div>
+      </div>
+
+      <MediaReviewPanel
+        data={data}
+        selectedEntity={selectedEntity}
+        entityLabel={detail.label}
+        mediaRows={mediaRows}
+        identifierRows={identifierRows}
+        mediaViewRequestRows={mediaViewRequestRows}
+      />
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        <div className={`${appInsetClassName} p-3`}>
+          <p className="mb-2 text-sm font-medium">Spatial mappings</p>
+          <CompactList
+            items={spatialMappingRows.map((map) => [
+              relationText(map, "model", "name") || recordText(map, "modelSlug"),
+              recordText(map, "label") || recordText(map, "slug"),
+              formatLabel(recordText(map, "mappingPrecision")),
+              formatLabel(recordText(map, "reviewStatus")),
+            ].filter(Boolean).join(" / "))}
+            empty="No spatial mappings found yet."
+          />
+        </div>
+        <div className={`${appInsetClassName} p-3`}>
+          <p className="mb-2 text-sm font-medium">Movement visualizations</p>
+          <CompactList
+            items={movementVisualizationRows.map((visualization) => [
+              relationText(visualization, "model", "name") || recordText(visualization, "modelSlug"),
+              relationText(visualization, "movement", "movementName") || recordText(visualization, "slug"),
+              recordText(visualization, "plane"),
+              formatLabel(recordText(visualization, "reviewStatus")),
+            ].filter(Boolean).join(" / "))}
+            empty="No movement visualization rows found yet."
+          />
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm font-medium">Relationships</p>
+        {relatedRows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No generic relationships found yet.</p>
+        ) : (
+          <DataTable
+            rows={relatedRows}
+            rowKey={(row) => `${row.direction}-${row.relationshipType}-${row.entityType}-${row.entitySlug}`}
+            columns={[
+              {
+                header: "Direction",
+                render: (row) => formatLabel(row.direction),
+              },
+              {
+                header: "Relationship",
+                render: (row) => formatLabel(row.relationshipType),
+              },
+              {
+                header: "Related item",
+                render: (row) => (
+                  <Link href={entityHref(row.entityType, row.entitySlug, viewForEntityType(row.entityType), searchQuery)} className="text-primary underline-offset-4 hover:underline">
+                    {row.label}
+                  </Link>
+                ),
+              },
+              {
+                header: "Source",
+                render: (row) => row.source || "-",
+              },
+            ]}
+          />
+        )}
+      </div>
+
+      <form action={createAnatomyEntityRelationshipAction} className="grid gap-3 rounded-md border border-border/80 bg-background/80 p-3 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end">
+        <input type="hidden" name="source_entity_type" value={selectedEntity.entityType} />
+        <input type="hidden" name="source_entity_slug" value={selectedEntity.entitySlug} />
+        <div className="space-y-2">
+          <Label htmlFor="relationship_type">Add relationship</Label>
+          <select id="relationship_type" name="relationship_type" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+            {["related_to", "belongs_to_system", "belongs_to_tissue_type", "subsystem_of", "deep_to", "superficial_to", "supplies", "includes_branch", "includes_structure", "may_affect_region", "overlaps_region"].map((value) => (
+              <option key={value} value={value}>{formatLabel(value)}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="target_entity">Target item</Label>
+          <select id="target_entity" name="target_entity" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+            {data.entityOptions
+              .filter((option) => option.entityType !== selectedEntity.entityType || option.entitySlug !== selectedEntity.entitySlug)
+              .map((option) => (
+                <option key={`${option.entityType}:${option.entitySlug}`} value={`${option.entityType}:${option.entitySlug}`}>
+                  {option.label} ({formatLabel(option.entityType)})
+                </option>
+              ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="source_id">Source</Label>
+          <select id="source_id" name="source_id" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+            <option value="">No source</option>
+            {data.sources.map((source) => (
+              <option key={recordText(source, "id")} value={recordText(source, "id")}>
+                {recordText(source, "label")}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Button type="submit" variant="outline">Add</Button>
+      </form>
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        <CollapsedEvidenceSection title="Citations" count={citationRows.length}>
+          <CitationList rows={citationRows} />
+        </CollapsedEvidenceSection>
+        <CollapsedEvidenceSection title="External IDs" count={identifierRows.length}>
+          <ExternalIdentifierList rows={identifierRows} />
+        </CollapsedEvidenceSection>
+      </div>
+    </section>
+  )
+}
+
+function MediaReviewPanel({
+  data,
+  selectedEntity,
+  entityLabel,
+  mediaRows,
+  identifierRows,
+  mediaViewRequestRows,
+}: {
+  data: AnatomyBrowserData
+  selectedEntity: AnatomyEntitySelection
+  entityLabel: string
+  mediaRows: Record<string, unknown>[]
+  identifierRows: Record<string, unknown>[]
+  mediaViewRequestRows: Record<string, unknown>[]
+}) {
+  const reviewRows = mediaReviewRows(mediaRows, selectedEntity)
+  const linkedRoleKeys = new Set(reviewRows.map((row) => mediaRoleKey(recordText(row.asset, "id"), recordText(row.link, "role"))))
+  const candidateRows = mediaCandidateRows(data, linkedRoleKeys)
+  const suggestedPartIds = suggestedBodyParts3dPartIds(mediaRows, identifierRows)
+  const coverageRows = anatomyMediaCoverageForLinks(reviewRows)
+
+  return (
+    <section className={`${appInsetClassName} space-y-4 p-3`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-medium">Media Review</p>
+          <p className="text-xs text-muted-foreground">Review images linked to {entityLabel} and pick better views when needed.</p>
+        </div>
+        <span className="w-fit rounded-md border border-border/80 px-2 py-1 text-xs text-muted-foreground">{reviewRows.length} linked</span>
+      </div>
+      <p className="rounded-md border border-border/80 bg-background/70 px-3 py-2 text-xs text-muted-foreground">
+        Replacement flow: mark a bad image as Needs Review or Rejected, then import a better BodyParts3D view or link an existing image below. The replacement appears in this review list after saving.
+      </p>
+      <MediaViewCoverageChips rows={coverageRows} />
+      <MediaViewRequestList rows={mediaViewRequestRows} />
+
+      {reviewRows.length === 0 ? (
+        <div className="rounded-md border border-dashed border-border/80 bg-background/70 p-4 text-sm text-muted-foreground">
+          No media assets are linked to this item yet.
+        </div>
+      ) : (
+        <div className="grid gap-3 xl:grid-cols-2">
+          {reviewRows.map(({ asset, link }) => {
+            const linkId = recordText(link, "id")
+            const previewUrl = mediaPreviewUrl(asset)
+            const bodyParts3dSourceUrl = mediaBodyParts3dSourceUrl(asset)
+            const bodyParts3dComposerHref = mediaBodyParts3dComposerUrl(asset)
+            const reviewStatus = recordText(link, "reviewStatus") || "APPROVED"
+            const reviewReason = recordText(link, "reviewReason")
+            const priority = recordNumber(link, "displayPriority", 100)
+
+            return (
+              <article key={`${recordText(asset, "id")}-${recordText(link, "role")}-${linkId || selectedEntity.entitySlug}`} className="overflow-hidden rounded-md border border-border/80 bg-background/70">
+                <div className="grid gap-3 p-3 md:grid-cols-[13rem_minmax(0,1fr)]">
+                  <div className="overflow-hidden rounded-md border border-border/80 bg-white">
+                    {previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- anatomy media is already reviewed remote/source content.
+                      <img src={previewUrl} alt={recordText(asset, "title") || "Anatomy media preview"} className="aspect-square h-full w-full object-contain p-2" referrerPolicy="no-referrer" loading="lazy" />
+                    ) : (
+                      <div className="grid aspect-square place-items-center p-3 text-center text-sm text-muted-foreground">No preview URL</div>
+                    )}
+                  </div>
+                  <div className="min-w-0 space-y-3">
+                    <div className="space-y-1">
+                      <h4 className="break-words text-sm font-semibold">{recordText(asset, "title") || recordText(asset, "slug")}</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {[formatLabel(recordText(asset, "mediaType")), formatLabel(recordText(asset, "usageScope")), sourceLabel(asset)].filter(Boolean).join(" / ")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {[`Role: ${formatLabel(recordText(link, "role") || "REFERENCE")}`, `Status: ${formatLabel(reviewStatus)}`, `Order: ${priority}`].join(" / ")}
+                      </p>
+                      {reviewReason ? <p className="text-xs text-muted-foreground">Reason: {formatLabel(reviewReason)}</p> : null}
+                      {mediaMetadataLine(asset) ? <p className="text-xs text-muted-foreground">{mediaMetadataLine(asset)}</p> : null}
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                        {bodyParts3dComposerHref ? <ExternalTextLink href={bodyParts3dComposerHref}>Open BodyParts3D composer</ExternalTextLink> : null}
+                        {bodyParts3dSourceUrl ? <ExternalTextLink href={bodyParts3dSourceUrl}>Open generated image</ExternalTextLink> : null}
+                        {previewUrl && previewUrl !== bodyParts3dSourceUrl ? <ExternalTextLink href={previewUrl}>{bodyParts3dSourceUrl ? "Open stored image" : "Open preview"}</ExternalTextLink> : null}
+                      </div>
+                    </div>
+
+                    {linkId ? (
+                      <form action={updateAnatomyMediaReviewAction} className="grid gap-3">
+                        <input type="hidden" name="id" value={linkId} />
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <div className="space-y-2">
+                            <Label htmlFor={`review-status-${linkId}`}>Review</Label>
+                            <select id={`review-status-${linkId}`} name="review_status" defaultValue={reviewStatus} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                              {MEDIA_REVIEW_STATUSES.map((status) => (
+                                <option key={status} value={status}>{formatLabel(status)}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`review-reason-${linkId}`}>Reason when flagged</Label>
+                            <select id={`review-reason-${linkId}`} name="review_reason" defaultValue={reviewReason} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                              <option value="">Only needed when flagged</option>
+                              {MEDIA_REVIEW_REASONS.map((reason) => (
+                                <option key={reason} value={reason}>{formatLabel(reason)}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <TextField
+                            id={`display-priority-${linkId}`}
+                            name="display_priority"
+                            label="Sort order"
+                            defaultValue={String(priority)}
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            max={999}
+                            hint="Lower numbers show earlier; 100 is the default."
+                          />
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor={`review-note-${linkId}`}>Review note</Label>
+                            <Textarea id={`review-note-${linkId}`} name="review_note" defaultValue={recordText(link, "reviewNote")} rows={2} />
+                            <p className="text-xs text-muted-foreground">For rejected or needs-review images, describe what better view you need.</p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`link-notes-${linkId}`}>Link note</Label>
+                            <Textarea id={`link-notes-${linkId}`} name="notes" defaultValue={recordText(link, "notes")} rows={2} />
+                            <p className="text-xs text-muted-foreground">Context for why this image belongs to this item.</p>
+                          </div>
+                        </div>
+                        <Button type="submit" size="sm" className="w-fit">Save Review</Button>
+                      </form>
+                    ) : (
+                      <p className="rounded-md border border-border/80 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                        This asset appears in the detail query but does not include a matching entity link.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
+
+      <div className="grid gap-3 xl:grid-cols-2">
+        <form action={linkAnatomyMediaAssetAction} className="space-y-3 rounded-md border border-border/80 bg-background/70 p-3">
+          <input type="hidden" name="entity_type" value={selectedEntity.entityType} />
+          <input type="hidden" name="entity_slug" value={selectedEntity.entitySlug} />
+          <div>
+            <p className="text-sm font-medium">Link Existing Image</p>
+            <p className="text-xs text-muted-foreground">Use when the right image is already in the database. Roles are not exclusive, so multiple images can share the same role.</p>
+          </div>
+          {candidateRows.length > 0 ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="candidate-asset-id">Image</Label>
+                <select id="candidate-asset-id" name="asset_id" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  {candidateRows.map((asset) => (
+                    <option key={recordText(asset, "id")} value={recordText(asset, "id")}>
+                      {recordText(asset, "title") || recordText(asset, "slug")} ({sourceLabel(asset) || formatLabel(recordText(asset, "usageScope"))})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <SelectField
+                  id="candidate-role"
+                  name="role"
+                  label="Role to add"
+                  values={MEDIA_ROLES}
+                  defaultValue="PRIMARY"
+                  hint="Link another image with the same role when both should be used."
+                />
+                <TextField
+                  id="candidate-display-priority"
+                  name="display_priority"
+                  label="Sort order"
+                  defaultValue="100"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={999}
+                  hint="Lower numbers show earlier; 100 is the default."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="candidate-notes">Note</Label>
+                <Textarea id="candidate-notes" name="notes" rows={2} placeholder="Why this existing image belongs to this item" />
+              </div>
+              <Button type="submit" size="sm">Link Existing Image</Button>
+            </>
+          ) : (
+            <p className="rounded-md border border-dashed border-border/80 p-3 text-sm text-muted-foreground">
+              No reviewed image candidates with an available role are in the current admin result window. Import a BodyParts3D view below when a better view is not already available.
+            </p>
+          )}
+        </form>
+
+        <form action={importBodyParts3dMediaAction} className="space-y-3 rounded-md border border-border/80 bg-background/70 p-3">
+          <input type="hidden" name="entity_type" value={selectedEntity.entityType} />
+          <input type="hidden" name="entity_slug" value={selectedEntity.entitySlug} />
+          <div>
+            <p className="text-sm font-medium">Import BodyParts3D View</p>
+            <p className="text-xs text-muted-foreground">Create a BodyParts3D still, upload it, and link it as Needs Review until you approve it.</p>
+          </div>
+          <BodyParts3dImportFields key={`${selectedEntity.entityType}:${selectedEntity.entitySlug}`} initialPartIds={suggestedPartIds.join(", ")} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <SelectField
+              id="bodyparts3d-role"
+              name="role"
+              label="Role to add"
+              values={MEDIA_ROLES}
+              defaultValue="PRIMARY"
+              hint="Roles are not exclusive; use the same image for multiple game or reference roles when needed."
+            />
+            <TextField
+              id="bodyparts3d-display-priority"
+              name="display_priority"
+              label="Sort order"
+              defaultValue="100"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={999}
+              hint="Lower numbers show earlier; 100 is the default."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bodyparts3d-notes">Note</Label>
+            <Textarea id="bodyparts3d-notes" name="notes" rows={2} placeholder="Why this generated BodyParts3D view is useful" />
+          </div>
+          <Button type="submit" size="sm">Import as Needs Review</Button>
+        </form>
+      </div>
+      <MediaViewRequestForm
+        selectedEntity={selectedEntity}
+        suggestedPartIds={suggestedPartIds}
+      />
+    </section>
+  )
+}
+
+function MediaViewCoverageChips({ rows }: { rows: ReturnType<typeof anatomyMediaCoverageForLinks> }) {
+  return (
+    <div className="rounded-md border border-border/80 bg-background/70 p-3">
+      <p className="mb-2 text-sm font-medium">View coverage</p>
+      <div className="flex flex-wrap gap-2">
+        {rows.map((row) => (
+          <span key={row.viewSlug} className={`rounded-md border px-2 py-1 text-xs ${mediaCoverageStatusClassName(row.status)}`}>
+            {row.title}: {formatLabel(row.status)}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function MediaViewRequestList({ rows }: { rows: Record<string, unknown>[] }) {
+  const openRows = rows.filter((row) => recordText(row, "status") === "OPEN")
+
+  return (
+    <div className="rounded-md border border-border/80 bg-background/70 p-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm font-medium">Open media view requests</p>
+        <span className="rounded-md border border-border/80 px-2 py-1 text-xs text-muted-foreground">{openRows.length} open</span>
+      </div>
+      {openRows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No desired-view notes have been created for this item yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {openRows.map((row) => (
+            <form key={recordText(row, "id")} action={updateAnatomyMediaViewRequestAction} className="grid gap-2 rounded-md border border-border/80 bg-muted/20 p-2 sm:grid-cols-[minmax(0,1fr)_10rem_auto] sm:items-end">
+              <input type="hidden" name="id" value={recordText(row, "id")} />
+              <div className="min-w-0 text-sm">
+                <p className="font-medium">{formatLabel(recordText(row, "requestedView"))} / {formatLabel(recordText(row, "reason"))}</p>
+                <p className="break-words text-xs text-muted-foreground">{recordText(row, "requestNote") || "No note supplied."}</p>
+                {recordText(row, "sourceUrl") ? <p className="break-all text-xs text-muted-foreground">{recordText(row, "sourceUrl")}</p> : null}
+              </div>
+              <SelectField id={`view-request-status-${recordText(row, "id")}`} name="status" label="Status" values={MEDIA_VIEW_REQUEST_STATUSES} defaultValue={recordText(row, "status") || "OPEN"} />
+              <Button type="submit" size="sm" variant="outline">Update</Button>
+            </form>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MediaViewRequestForm({
+  selectedEntity,
+  suggestedPartIds,
+}: {
+  selectedEntity: AnatomyEntitySelection
+  suggestedPartIds: string[]
+}) {
+  return (
+    <form action={createAnatomyMediaViewRequestAction} className="space-y-3 rounded-md border border-border/80 bg-background/70 p-3">
+      <input type="hidden" name="entity_type" value={selectedEntity.entityType} />
+      <input type="hidden" name="entity_slug" value={selectedEntity.entitySlug} />
+      <input type="hidden" name="part_ids" value={suggestedPartIds.join(", ")} />
+      <div>
+        <p className="text-sm font-medium">Request better view</p>
+        <p className="text-xs text-muted-foreground">Describe the view you want. A pasted BodyParts3D composer or image URL imports immediately as a needs-review candidate; otherwise it stays open for automation.</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <SelectField id="view-request-view" name="requested_view" label="View needed" values={MEDIA_VIEW_REQUEST_VIEWS} defaultValue="transverse" />
+        <SelectField id="view-request-reason" name="reason" label="Reason" values={MEDIA_VIEW_REQUEST_REASONS} defaultValue="missing_view" />
+        <SelectField id="view-request-role" name="role" label="Candidate role" values={MEDIA_ROLES} defaultValue="REFERENCE" />
+        <TextField
+          id="view-request-display-priority"
+          name="display_priority"
+          label="Sort order"
+          defaultValue="100"
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={999}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="view-request-note">Desired view note</Label>
+        <Textarea id="view-request-note" name="request_note" rows={3} placeholder="Example: wider lateral view with the whole foot visible and the target muscle not touching the image edge." />
+      </div>
+      <TextField
+        id="view-request-source-url"
+        name="source_url"
+        label="Optional BodyParts3D URL"
+        placeholder="Paste adjusted BodyParts3D composer/API URL when you already have the view"
+        hint={suggestedPartIds.length > 0 ? `Known BodyParts3D IDs for this item: ${suggestedPartIds.join(", ")}` : "Leave blank to create an open request for later import."}
+      />
+      <Button type="submit" size="sm">Save View Request</Button>
+    </form>
+  )
+}
+
+function mediaCoverageStatusClassName(status: string) {
+  switch (status) {
+    case "APPROVED":
+      return "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+    case "NEEDS_REVIEW":
+      return "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+    case "REJECTED":
+      return "border-destructive/40 bg-destructive/10 text-destructive"
+    default:
+      return "border-border/80 bg-muted/30 text-muted-foreground"
+  }
+}
+
+function InfoBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={`${appInsetClassName} p-3`}>
+      <p className="text-xs uppercase tracking-normal text-muted-foreground">{label}</p>
+      <p className="mt-1 break-words text-sm font-medium">{value}</p>
+    </div>
+  )
+}
+
+function SectionPanel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className={`${appInsetClassName} p-4`}>
+      <h3 className="mb-3 font-semibold">{title}</h3>
+      {children}
+    </section>
+  )
+}
+
+function DataTable<T>({
+  rows,
+  rowKey,
+  columns,
+}: {
+  rows: T[]
+  rowKey: (row: T) => string
+  columns: Array<DataTableColumn<T>>
+}) {
+  if (rows.length === 0) {
+    return <p className="text-sm text-muted-foreground">No records found.</p>
+  }
+
+  const tableMinWidth = Math.max(760, columns.length * 190)
+  const headerCells = columns.map((column) => (
+    <th key={column.header} data-anatomy-table-header-cell scope="col" className={`px-3 py-2 font-medium ${column.className ?? ""}`}>
+      <div
+        data-anatomy-resizable-column
+        className="min-w-[8rem] resize-x overflow-auto pr-4"
+        title="Drag the lower-right edge to resize this column"
+      >
+        {column.header}
+      </div>
+    </th>
+  ))
+
+  return (
+    <SyncedHorizontalScroll
+      minWidth={tableMinWidth}
+      stickyHeader={(
+        <table className="w-full border-collapse text-left text-sm">
+          <thead data-anatomy-table-header className="bg-muted text-xs uppercase tracking-normal text-muted-foreground">
+            <tr>{headerCells}</tr>
+          </thead>
+        </table>
+      )}
+    >
+      <table className="w-full border-collapse text-left text-sm">
+        <tbody>
+          {rows.map((row) => (
+            <tr key={rowKey(row)} className="border-t border-border/70">
+              {columns.map((column) => (
+                <td key={column.header} className={`align-top px-3 py-3 ${column.className ?? ""}`}>
+                  {column.render(row)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </SyncedHorizontalScroll>
+  )
+}
+
+function NameCell({
+  title,
+  subtitle,
+  meta,
+  href,
+}: {
+  title: string
+  subtitle?: string | null
+  meta?: string | null
+  href?: string
+}) {
+  const heading = href ? (
+    <Link href={href} className="text-primary underline-offset-4 hover:underline">
+      {title || "-"}
+    </Link>
+  ) : title || "-"
+
+  return (
+    <div className="min-w-0">
+      <p className="font-medium leading-5">{heading}</p>
+      {subtitle ? <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p> : null}
+      {meta ? <p className="mt-1 text-[11px] uppercase tracking-normal text-muted-foreground">{meta}</p> : null}
+    </div>
+  )
+}
+
+function CompactList({ items, empty = "-" }: { items: string[]; empty?: string }) {
+  const values = uniqueStrings(items.filter(Boolean))
+
+  if (values.length === 0) {
+    return <span className="text-muted-foreground">{empty}</span>
+  }
+
+  return <span>{values.join("; ")}</span>
+}
+
+function CollapsedEvidenceSection({
+  title,
+  count,
+  children,
+}: {
+  title: string
+  count: number
+  children: React.ReactNode
+}) {
+  return (
+    <details className={`${appInsetClassName} group overflow-hidden`}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+        <span>{title}</span>
+        <span className="rounded-md border border-border/80 px-2 py-1 text-xs text-muted-foreground">
+          {count}
+        </span>
+      </summary>
+      <div className="max-h-72 overflow-y-auto border-t border-border/80 p-3 pr-2">
+        {children}
+      </div>
+    </details>
+  )
+}
+
+function CitationList({ rows }: { rows: Record<string, unknown>[] }) {
+  if (rows.length === 0) {
+    return <span className="text-muted-foreground">No citations found yet.</span>
+  }
+
+  return (
+    <ul className="space-y-2 text-sm">
+      {rows.map((citation) => {
+        const href = citationHref(citation)
+        const sourceLabel = relationText(citation, "source", "label") || recordText(citation, "sourceRef")
+
+        return (
+          <li key={recordText(citation, "slug") || `${recordText(citation, "factType")}-${recordText(citation, "sourceLocator")}`}>
+            <p className="font-medium">
+              <ExternalTextLink href={href}>
+                {[formatLabel(recordText(citation, "factType")), sourceLabel].filter(Boolean).join(" / ")}
+              </ExternalTextLink>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {[recordText(citation, "sourceLocator"), formatLabel(recordText(citation, "reviewStatus"))].filter(Boolean).join(" / ")}
+            </p>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function ExternalIdentifierList({ rows }: { rows: Record<string, unknown>[] }) {
+  if (rows.length === 0) {
+    return <span className="text-muted-foreground">No external identifiers found yet.</span>
+  }
+
+  return (
+    <ul className="space-y-2 text-sm">
+      {rows.map((identifier) => {
+        const href = externalIdentifierHref(identifier)
+        const provider = recordText(identifier, "provider")
+        const identifierValue = recordText(identifier, "identifier")
+
+        return (
+          <li key={recordText(identifier, "id") || `${provider}-${identifierValue}`}>
+            <p className="font-medium">
+              <ExternalTextLink href={href}>
+                {[provider, identifierValue].filter(Boolean).join(" / ")}
+              </ExternalTextLink>
+            </p>
+            <p className="text-xs text-muted-foreground">{recordText(identifier, "label") || relationText(identifier, "source", "label") || "-"}</p>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function ExternalTextLink({ href, children }: { href: string; children: React.ReactNode }) {
+  if (!href) {
+    return <>{children}</>
+  }
+
+  return (
+    <a href={href} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline">
+      {children}
+    </a>
+  )
+}
+
+function browserViewHref(view: AnatomyBrowserView) {
+  return view === DEFAULT_BROWSER_VIEW ? "/admin/anatomy" : `/admin/anatomy?view=${view}`
+}
+
+function entityHref(entityType: string, entitySlug: string, view: AnatomyBrowserView, searchQuery = "") {
+  return buildAnatomyEntityHref({
+    entityType: entityType as AnatomyEntitySelection["entityType"],
+    entitySlug,
+    view,
+    q: searchQuery || undefined,
+  })
+}
+
+function viewForEntityType(entityType: string): AnatomyBrowserView {
+  switch (entityType) {
+    case "ANATOMY_CONCEPT":
+      return "concepts"
+    case "ANATOMY_STRUCTURE":
+    case "BONE":
+    case "BONE_LANDMARK":
+      return "structures"
+    case "JOINT":
+    case "JOINT_MOVEMENT":
+      return "joints"
+    case "RANGE_OF_MOTION":
+      return "rom"
+    case "LIGAMENT":
+      return "ligaments"
+    case "NERVE":
+      return "nerves"
+    case "BLOOD_SUPPLY":
+      return "vessels"
+    case "PAIN_MAP_REGION":
+      return "pain"
+    case "CLIENT_TERM":
+      return "terms"
+    case "MUSCLE":
+    default:
+      return DEFAULT_BROWSER_VIEW
+  }
+}
+
+/**
+ * Resolves browser row keys for a selected taxonomy bucket.
+ *
+ * bodySystemEntityKeys and tissueTypeEntityKeys pass their selected concept
+ * slugs plus the membership relationship they own. The returned Set contains
+ * entity keys that should remain in the current browser tab. Body-system tabs
+ * can also include direct concept-to-structure relationships so structure rows
+ * remain visible when connected through includes_structure instead of a
+ * membership row.
+ */
+function taxonomyEntityKeys(data: AnatomyBrowserData, conceptSlugs: readonly string[], membershipRelationshipType: "belongs_to_system" | "belongs_to_tissue_type", includeStructureRelationships = false) {
+  const targetSlugs = new Set<string>(conceptSlugs)
+  const keys = new Set<string>()
+
+  for (const relationship of data.systemRelationships) {
+    const relationshipType = recordText(relationship, "relationshipType")
+    const sourceType = recordText(relationship, "sourceEntityType")
+    const sourceSlug = recordText(relationship, "sourceEntitySlug")
+    const targetType = recordText(relationship, "targetEntityType")
+    const targetSlug = recordText(relationship, "targetEntitySlug")
+
+    if (relationshipType === membershipRelationshipType && targetType === "ANATOMY_CONCEPT" && targetSlugs.has(targetSlug)) {
+      keys.add(entityKey(sourceType, sourceSlug))
+    }
+
+    if (includeStructureRelationships && relationshipType === "includes_structure" && sourceType === "ANATOMY_CONCEPT" && targetSlugs.has(sourceSlug)) {
+      keys.add(entityKey(targetType, targetSlug))
+    }
+  }
+
+  return keys
+}
+
+function bodySystemEntityKeys(data: AnatomyBrowserData, config: ReturnType<typeof bodySystemConfigForView>) {
+  return taxonomyEntityKeys(data, config.systemConceptSlugs, "belongs_to_system", true)
+}
+
+function tissueTypeEntityKeys(data: AnatomyBrowserData, config: ReturnType<typeof tissueTypeConfigForView>) {
+  return taxonomyEntityKeys(data, config.tissueTypeConceptSlugs, "belongs_to_tissue_type")
+}
+
+function bodySystemRows(rows: Record<string, unknown>[], entityType: string, keys: Set<string>) {
+  return rows.filter((row) => keys.has(entityKey(entityType, recordText(row, "slug"))))
+}
+
+function formatLabel(value: string | null | undefined) {
+  return value ? value.toLowerCase().replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase()) : ""
+}
+
+function uniqueStrings(values: string[]) {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))]
+}
+
+function recordStringArray(row: unknown, key: string) {
+  return recordArray(row, key).map((value) => String(value)).filter(Boolean)
+}
+
+function attachmentLines(attachments: unknown[]) {
+  return attachments.map((attachment) => {
+    const type = formatLabel(recordText(attachment, "type"))
+    const bone = relationText(attachment, "bone", "name")
+    const landmark = relationText(attachment, "landmark", "name")
+
+    return [type, [bone, landmark].filter(Boolean).join(" - ")].filter(Boolean).join(": ")
+  })
+}
+
+function actionLines(actions: unknown[]) {
+  return actions.map((action) => {
+    const movement = relationText(action, "movement", "movementName")
+    const role = formatLabel(recordText(action, "role"))
+
+    return [movement, role].filter(Boolean).join(" / ")
+  })
+}
+
+function movementLine(movement: unknown) {
+  const name = recordText(movement, "movementName")
+  const plane = recordText(movement, "plane")
+  const axis = recordText(movement, "axis")
+
+  return [name, [plane, axis].filter(Boolean).join(" / ")].filter(Boolean).join(" - ")
+}
+
+function romUnitLabel(unit: string) {
+  switch (unit) {
+    case "centimeters":
+      return "cm"
+    case "millimeters":
+      return "mm"
+    case "degrees":
+      return "deg"
+    default:
+      return formatLabel(unit)
+  }
+}
+
+function romLine(rom: unknown) {
+  const movement = relationText(rom, "movement", "movementName")
+  const min = recordText(rom, "typicalMinValue") || recordText(rom, "typicalMinDegrees")
+  const max = recordText(rom, "typicalMaxValue") || recordText(rom, "typicalMaxDegrees")
+  const unit = recordText(rom, "measurementUnit") || "degrees"
+
+  return [movement, min && max ? `${min}-${max} ${romUnitLabel(unit)}` : ""].filter(Boolean).join(": ")
+}
+
+function entityTermLabels(data: AnatomyBrowserData, entityType: string, entitySlug: string) {
+  return data.entityTerms
+    .filter((term) => recordText(term, "anatomyEntityType") === entityType && recordText(term, "anatomyEntitySlug") === entitySlug)
+    .map((term) => `${recordText(term, "term")} (${formatLabel(recordText(term, "termType"))})`)
+}
+
+function entityLabel(data: AnatomyBrowserData, entityType: string, entitySlug: string) {
+  return data.entityNames[entityKey(entityType, entitySlug)] ?? entitySlug
+}
+
+function relationshipLabels(
+  data: AnatomyBrowserData,
+  filter: {
+    sourceType?: string
+    sourceSlug?: string
+    relationshipType: string
+    targetType?: string
+    targetSlug?: string
+    returnSide: "source" | "target"
+  },
+) {
+  return data.relationships
+    .filter((relationship) => {
+      if (filter.sourceType && recordText(relationship, "sourceEntityType") !== filter.sourceType) return false
+      if (filter.sourceSlug && recordText(relationship, "sourceEntitySlug") !== filter.sourceSlug) return false
+      if (filter.targetType && recordText(relationship, "targetEntityType") !== filter.targetType) return false
+      if (filter.targetSlug && recordText(relationship, "targetEntitySlug") !== filter.targetSlug) return false
+      return recordText(relationship, "relationshipType") === filter.relationshipType
+    })
+    .map((relationship) => {
+      const typeKey = filter.returnSide === "source" ? "sourceEntityType" : "targetEntityType"
+      const slugKey = filter.returnSide === "source" ? "sourceEntitySlug" : "targetEntitySlug"
+
+      return entityLabel(data, recordText(relationship, typeKey), recordText(relationship, slugKey))
+    })
+}
+
+function depthRelationshipLabels(data: AnatomyBrowserData, muscleSlug: string) {
+  return selectedEntityRelationships(data, { entityType: "MUSCLE", entitySlug: muscleSlug })
+    .filter((row) => row.relationshipType === "deep_to" || row.relationshipType === "superficial_to")
+    .map((row) => `${formatLabel(row.relationshipType)} ${row.label}`)
+}
+
+function selectedEntityDisplayDetail(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail: AnatomyEntityDetailPayload,
+) {
+  const row = authoritativeDetail?.entity ? asRecord(authoritativeDetail.entity) : selectedEntityRecord(data, selectedEntity)
+
+  if (!row || Object.keys(row).length === 0) {
+    return null
+  }
+
+  const description = recordText(row, "description") || recordText(row, "plainLanguageDescription")
+  const facts = selectedEntityFacts(data, selectedEntity, row, authoritativeDetail)
+
+  return {
+    label: entityDisplayLabel(data, selectedEntity, row),
+    subtitle: [
+      recordText(row, "formalName"),
+      recordText(row, "jointType"),
+      formatLabel(recordText(row, "structureType")),
+      formatLabel(recordText(row, "conceptType")),
+      formatLabel(recordText(row, "bodySystem")),
+      formatLabel(recordText(row, "relativeDepth")),
+      formatLabel(recordText(row, "kind")),
+      formatLabel(recordText(row, "confidence")),
+    ].filter(Boolean).join(" / "),
+    region: relationText(row, "region", "name") || relationText(row, "mappedRegion", "name"),
+    source: relationText(row, "source", "label"),
+    description,
+    terms: [
+      ...recordStringArray(row, "alternateNames"),
+      ...entityTermLabels(data, selectedEntity.entityType, selectedEntity.entitySlug),
+    ],
+    facts,
+  }
+}
+
+function selectedEntityRecord(data: AnatomyBrowserData, selectedEntity: AnatomyEntitySelection) {
+  switch (selectedEntity.entityType) {
+    case "REGION":
+      return data.regions.find((region) => recordText(region, "slug") === selectedEntity.entitySlug)
+    case "ANATOMY_CONCEPT":
+      return data.concepts.find((concept) => recordText(concept, "slug") === selectedEntity.entitySlug)
+    case "ANATOMY_STRUCTURE":
+      return data.structures.find((structure) => recordText(structure, "slug") === selectedEntity.entitySlug)
+    case "BONE":
+      return data.bones.find((bone) => recordText(bone, "slug") === selectedEntity.entitySlug)
+    case "BONE_LANDMARK":
+      return data.boneLandmarks.find((landmark) => recordText(landmark, "slug") === selectedEntity.entitySlug)
+    case "JOINT":
+      return data.joints.find((joint) => recordText(joint, "slug") === selectedEntity.entitySlug)
+    case "JOINT_MOVEMENT":
+      return data.jointMovements.find((movement) => recordText(movement, "slug") === selectedEntity.entitySlug)
+    case "RANGE_OF_MOTION":
+      return data.rangesOfMotion.find((rom) => recordText(rom, "slug") === selectedEntity.entitySlug)
+    case "MUSCLE":
+      return data.muscles.find((muscle) => recordText(muscle, "slug") === selectedEntity.entitySlug)
+    case "NERVE":
+      return data.nerves.find((nerve) => recordText(nerve, "slug") === selectedEntity.entitySlug)
+    case "LIGAMENT":
+      return data.ligaments.find((ligament) => recordText(ligament, "slug") === selectedEntity.entitySlug)
+    case "BLOOD_SUPPLY":
+      return data.bloodSupply.find((vessel) => recordText(vessel, "slug") === selectedEntity.entitySlug)
+    case "PAIN_MAP_REGION":
+      return data.painRegions.find((region) => recordText(region, "slug") === selectedEntity.entitySlug)
+    case "CLIENT_TERM":
+      return data.clientTerms.find((term) => recordText(term, "slug") === selectedEntity.entitySlug)
+    case "MUSCLE_ATTACHMENT":
+    case "MUSCLE_ACTION":
+    case "MUSCLE_INNERVATION":
+      return undefined
+  }
+}
+
+function entityDisplayLabel(data: AnatomyBrowserData, selectedEntity: AnatomyEntitySelection, row: Record<string, unknown>) {
+  return (
+    data.entityNames[entityKey(selectedEntity.entityType, selectedEntity.entitySlug)] ||
+    recordText(row, "name") ||
+    recordText(row, "movementName") ||
+    recordText(row, "term") ||
+    recordText(row, "title") ||
+    selectedEntity.entitySlug
+  )
+}
+
+function selectedEntityFacts(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  row: Record<string, unknown>,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  switch (selectedEntity.entityType) {
+    case "REGION":
+      return [
+        relationText(row, "parentRegion", "name") ? `Parent region: ${relationText(row, "parentRegion", "name")}` : "",
+        recordText(row, "bodySystem") ? `Body system: ${formatLabel(recordText(row, "bodySystem"))}` : "",
+      ].filter(Boolean)
+    case "MUSCLE":
+      return [
+        ...attachmentLines(recordArray(row, "attachments")),
+        ...recordArray(row, "innervations").map((innervation) => `Innervated by ${relationText(innervation, "nerve", "name")}`),
+        ...actionLines(recordArray(row, "actions")),
+        ...relationshipLabels(data, {
+          sourceType: "BLOOD_SUPPLY",
+          relationshipType: "supplies",
+          targetType: "MUSCLE",
+          targetSlug: selectedEntity.entitySlug,
+          returnSide: "source",
+        }).map((label) => `Supplied by ${label}`),
+        ...depthRelationshipLabels(data, selectedEntity.entitySlug),
+      ]
+    case "BONE":
+      return [
+        ...recordArray(row, "landmarks").map((landmark) => `Landmark: ${recordText(landmark, "name")}`),
+        ...uniqueStrings(recordArray(row, "attachments").map((attachment) => `Attachment: ${relationText(attachment, "muscle", "name")}`)),
+      ]
+    case "BONE_LANDMARK":
+      return [
+        relationText(row, "bone", "name") ? `Bone: ${relationText(row, "bone", "name")}` : "",
+      ].filter(Boolean)
+    case "JOINT":
+      return [
+        ...recordArray(row, "movements").map((movement) => `Movement: ${movementLine(movement)}`),
+        ...recordArray(row, "rangesOfMotion").map((rom) => `ROM: ${romLine(rom)}`),
+        ...recordArray(row, "ligaments").map((ligament) => `Ligament: ${recordText(ligament, "name")}`),
+      ]
+    case "JOINT_MOVEMENT":
+      return [
+        relationText(row, "joint", "name") ? `Joint: ${relationText(row, "joint", "name")}` : "",
+        recordText(row, "plane") ? `Plane: ${formatLabel(recordText(row, "plane"))}` : "",
+        recordText(row, "axis") ? `Axis: ${formatLabel(recordText(row, "axis"))}` : "",
+      ].filter(Boolean)
+    case "RANGE_OF_MOTION":
+      return [
+        relationText(row, "joint", "name") ? `Joint: ${relationText(row, "joint", "name")}` : "",
+        relationText(row, "movement", "movementName") ? `Movement: ${relationText(row, "movement", "movementName")}` : "",
+        romLine(row) ? `ROM: ${romLine(row)}` : "",
+      ].filter(Boolean)
+    case "NERVE":
+      return recordArray(row, "innervations").map((innervation) => `Innervates ${relationText(innervation, "muscle", "name")}`)
+    case "LIGAMENT":
+      return [
+        relationText(row, "joint", "name") ? `Joint: ${relationText(row, "joint", "name")}` : "",
+        relationText(row, "region", "name") ? `Region: ${relationText(row, "region", "name")}` : "",
+      ].filter(Boolean)
+    case "BLOOD_SUPPLY":
+      return relationshipLabels(data, {
+        sourceType: "BLOOD_SUPPLY",
+        sourceSlug: selectedEntity.entitySlug,
+        relationshipType: "supplies",
+        targetType: "MUSCLE",
+        returnSide: "target",
+      }).map((label) => `Supplies ${label}`)
+    case "ANATOMY_STRUCTURE":
+      return [
+        recordText(row, "structureType") ? `Type: ${formatLabel(recordText(row, "structureType"))}` : "",
+        ...selectedEntityRelationships(data, selectedEntity, authoritativeDetail).map((relationship) => `${formatLabel(relationship.relationshipType)} ${relationship.label}`),
+      ].filter(Boolean)
+    case "ANATOMY_CONCEPT":
+      return [
+        recordText(row, "conceptType") ? `Type: ${formatLabel(recordText(row, "conceptType"))}` : "",
+        recordText(row, "bodySystem") ? `Body system: ${formatLabel(recordText(row, "bodySystem"))}` : "",
+        ...selectedEntityRelationships(data, selectedEntity, authoritativeDetail).map((relationship) => `${formatLabel(relationship.relationshipType)} ${relationship.label}`),
+      ].filter(Boolean)
+    case "PAIN_MAP_REGION":
+      return [
+        recordText(row, "laterality") ? `Laterality: ${formatLabel(recordText(row, "laterality"))}` : "",
+        recordText(row, "surface") ? `Surface: ${formatLabel(recordText(row, "surface"))}` : "",
+        ...relationshipLabels(data, {
+          sourceType: "PAIN_MAP_REGION",
+          sourceSlug: selectedEntity.entitySlug,
+          relationshipType: "overlaps_region",
+          targetType: "REGION",
+          returnSide: "target",
+        }).map((label) => `Overlaps ${label}`),
+      ].filter(Boolean)
+    case "CLIENT_TERM":
+      return [
+        relationText(row, "mappedRegion", "name") ? `Region: ${relationText(row, "mappedRegion", "name")}` : "",
+        relationText(row, "mappedMuscle", "name") ? `Muscle: ${relationText(row, "mappedMuscle", "name")}` : "",
+        relationText(row, "mappedJoint", "name") ? `Joint: ${relationText(row, "mappedJoint", "name")}` : "",
+        relationText(row, "mappedStructure", "name") ? `Structure: ${relationText(row, "mappedStructure", "name")}` : "",
+      ].filter(Boolean)
+  }
+
+  return []
+}
+
+function selectedEntityRelationships(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  if (authoritativeDetail) {
+    return [
+      ...authoritativeDetail.relationships.outgoing.map((relationship) => relationshipRowFromDetail(data, relationship, "outgoing")),
+      ...authoritativeDetail.relationships.incoming.map((relationship) => relationshipRowFromDetail(data, relationship, "incoming")),
+    ]
+  }
+
+  return data.relationships
+    .flatMap((relationship) => {
+      const sourceMatches = recordText(relationship, "sourceEntityType") === selectedEntity.entityType && recordText(relationship, "sourceEntitySlug") === selectedEntity.entitySlug
+      const targetMatches = recordText(relationship, "targetEntityType") === selectedEntity.entityType && recordText(relationship, "targetEntitySlug") === selectedEntity.entitySlug
+
+      if (!sourceMatches && !targetMatches) {
+        return []
+      }
+
+      const entityType = sourceMatches ? recordText(relationship, "targetEntityType") : recordText(relationship, "sourceEntityType")
+      const entitySlug = sourceMatches ? recordText(relationship, "targetEntitySlug") : recordText(relationship, "sourceEntitySlug")
+
+      return [{
+        direction: sourceMatches ? "outgoing" : "incoming",
+        relationshipType: recordText(relationship, "relationshipType"),
+        entityType,
+        entitySlug,
+        label: entityLabel(data, entityType, entitySlug),
+        source: relationText(relationship, "source", "label"),
+      }]
+    })
+}
+
+function relationshipRowFromDetail(data: AnatomyBrowserData, relationship: unknown, direction: "outgoing" | "incoming") {
+  const entityType = direction === "outgoing" ? recordText(relationship, "targetEntityType") : recordText(relationship, "sourceEntityType")
+  const entitySlug = direction === "outgoing" ? recordText(relationship, "targetEntitySlug") : recordText(relationship, "sourceEntitySlug")
+
+  return {
+    direction,
+    relationshipType: recordText(relationship, "relationshipType"),
+    entityType,
+    entitySlug,
+    label: entityLabel(data, entityType, entitySlug),
+    source: relationText(relationship, "source", "label"),
+  }
+}
+
+function selectedEntityCitations(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  if (authoritativeDetail) {
+    return authoritativeDetail.citations as Record<string, unknown>[]
+  }
+
+  return data.citations.filter((citation) => (
+    recordText(citation, "entityType") === selectedEntity.entityType &&
+    recordText(citation, "entitySlug") === selectedEntity.entitySlug
+  ))
+}
+
+function selectedEntityExternalIdentifiers(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  if (authoritativeDetail) {
+    return authoritativeDetail.externalIdentifiers as Record<string, unknown>[]
+  }
+
+  return data.externalIdentifiers.filter((identifier) => (
+    recordText(identifier, "entityType") === selectedEntity.entityType &&
+    recordText(identifier, "entitySlug") === selectedEntity.entitySlug
+  ))
+}
+
+function selectedEntityMediaAssets(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  if (authoritativeDetail) {
+    return authoritativeDetail.mediaAssets as Record<string, unknown>[]
+  }
+
+  return data.mediaAssets.filter((asset) => (
+    recordArray(asset, "entityLinks").some((link) => (
+      recordText(link, "entityType") === selectedEntity.entityType &&
+      recordText(link, "entitySlug") === selectedEntity.entitySlug
+    ))
+  ))
+}
+
+function selectedEntityMediaViewRequests(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  if (authoritativeDetail) {
+    return authoritativeDetail.mediaViewRequests as Record<string, unknown>[]
+  }
+
+  return data.mediaViewRequests.filter((request) => (
+    recordText(request, "entityType") === selectedEntity.entityType &&
+    recordText(request, "entitySlug") === selectedEntity.entitySlug
+  ))
+}
+
+type MediaReviewRow = {
+  asset: Record<string, unknown>
+  link: Record<string, unknown>
+}
+
+function mediaReviewRows(mediaRows: Record<string, unknown>[], selectedEntity: AnatomyEntitySelection): MediaReviewRow[] {
+  return mediaRows.flatMap((asset) => (
+    recordArray(asset, "entityLinks")
+      .filter((link) => (
+        recordText(link, "entityType") === selectedEntity.entityType &&
+        recordText(link, "entitySlug") === selectedEntity.entitySlug
+      ))
+      .map((link) => ({ asset, link: asRecord(link) }))
+  ))
+}
+
+function mediaPreviewUrl(asset: Record<string, unknown>) {
+  if (!isImagePreviewAsset(asset)) return ""
+
+  return mediaBodyParts3dSourceUrl(asset) || recordText(asset, "remoteUrl") || recordText(asset, "thumbnailUrl")
+}
+
+function mediaBodyParts3dSourceUrl(asset: Record<string, unknown>) {
+  const metadata = recordObject(asset, "metadata")
+  const candidates = [
+    recordText(asset, "sourceUrl"),
+    recordText(metadata, "bodyparts3dSourceUrl"),
+    recordText(metadata, "sourceUrl"),
+    recordText(metadata, "sourceAssetUrl"),
+  ]
+
+  for (const candidate of candidates) {
+    const sourceUrl = safeBodyParts3dRenderableImageUrl(candidate)
+    if (sourceUrl) return sourceUrl
+  }
+
+  return ""
+}
+
+function isImagePreviewAsset(asset: Record<string, unknown>) {
+  const mediaType = recordText(asset, "mediaType")
+  return mediaType === "IMAGE" || mediaType === "DIAGRAM"
+}
+
+function mediaBodyParts3dComposerUrl(asset: Record<string, unknown>) {
+  const metadata = recordObject(asset, "metadata")
+  const partIds = normalizeBodyParts3dPartIds(recordStringArray(metadata, "bodyparts3dPartIds"))
+
+  if (partIds.length === 0) {
+    return ""
+  }
+
+  return bodyParts3dComposerUrl({
+    partIds,
+    treeName: recordText(metadata, "bodyparts3dTreeName") === "partof" ? "partof" : "isa",
+  })
+}
+
+function sourceLabel(asset: Record<string, unknown>) {
+  return relationText(asset, "source", "label") || relationText(asset, "source", "slug")
+}
+
+function mediaRoleKey(assetId: string, role: string) {
+  return `${assetId}:${(role || "REFERENCE").toUpperCase()}`
+}
+
+function hasAvailableMediaRole(asset: Record<string, unknown>, linkedRoleKeys: Set<string>) {
+  const id = recordText(asset, "id")
+  return Boolean(id) && MEDIA_ROLES.some((role) => !linkedRoleKeys.has(mediaRoleKey(id, role)))
+}
+
+function mediaCandidateRows(data: AnatomyBrowserData, linkedRoleKeys: Set<string>) {
+  return data.mediaAssets
+    .filter((asset) => {
+      const id = recordText(asset, "id")
+      if (!id || !hasAvailableMediaRole(asset, linkedRoleKeys)) return false
+      if (!["IMAGE", "DIAGRAM"].includes(recordText(asset, "mediaType"))) return false
+      if (!mediaPreviewUrl(asset)) return false
+
+      return recordText(asset, "usageScope") === "OPEN_REUSE" && recordText(asset, "reviewStatus") === "REVIEWED"
+    })
+    .slice(0, 160)
+}
+
+function mediaMetadataLine(asset: Record<string, unknown>) {
+  const metadata = recordObject(asset, "metadata")
+  const view = recordText(metadata, "bodyparts3dViewTitle") || formatLabel(recordText(metadata, "bodyparts3dView"))
+  const partIds = recordStringArray(metadata, "bodyparts3dPartIds")
+
+  return [
+    view ? `View: ${view}` : "",
+    partIds.length > 0 ? `Parts: ${partIds.join(", ")}` : "",
+  ].filter(Boolean).join(" / ")
+}
+
+function suggestedBodyParts3dPartIds(mediaRows: Record<string, unknown>[], identifierRows: Record<string, unknown>[]) {
+  const mediaPartIds = mediaRows.flatMap((asset) => recordStringArray(recordObject(asset, "metadata"), "bodyparts3dPartIds"))
+  const identifierPartIds = identifierRows
+    .filter((identifier) => recordText(identifier, "provider").toUpperCase() === "FMA")
+    .map((identifier) => recordText(identifier, "identifier"))
+
+  return normalizeBodyParts3dPartIds([...mediaPartIds, ...identifierPartIds])
+}
+
+function selectedEntitySpatialMappings(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  if (authoritativeDetail) {
+    return authoritativeDetail.spatialMappings as Record<string, unknown>[]
+  }
+
+  return data.spatialEntityMaps.filter((map) => (
+    recordText(map, "entityType") === selectedEntity.entityType &&
+    recordText(map, "entitySlug") === selectedEntity.entitySlug
+  ))
+}
+
+function selectedEntityMovementVisualizations(
+  data: AnatomyBrowserData,
+  selectedEntity: AnatomyEntitySelection,
+  authoritativeDetail?: AnatomyEntityDetailPayload,
+) {
+  if (authoritativeDetail) {
+    return authoritativeDetail.movementVisualizations as Record<string, unknown>[]
+  }
+
+  return data.movementVisualizations.filter((visualization) => {
+    const primaryMatches = (
+      recordText(visualization, "primaryEntityType") === selectedEntity.entityType &&
+      recordText(visualization, "primaryEntitySlug") === selectedEntity.entitySlug
+    )
+    const jointMatches = selectedEntity.entityType === "JOINT" && relationText(visualization, "joint", "slug") === selectedEntity.entitySlug
+    const movementMatches = selectedEntity.entityType === "JOINT_MOVEMENT" && relationText(visualization, "movement", "slug") === selectedEntity.entitySlug
+
+    return primaryMatches || jointMatches || movementMatches
+  })
+}
+
+function AdminShell({ children }: { children: React.ReactNode }) {
+  return (
+    <AppPageShell title="Anatomy Browser" className="p-0 sm:p-6 lg:p-8" contentClassName="gap-0 sm:gap-6">
+      {children}
+    </AppPageShell>
+  )
+}
+
+function TextField({
+  id,
+  name,
+  label,
+  defaultValue,
+  placeholder,
+  required,
+  type,
+  inputMode,
+  min,
+  max,
+  hint,
+}: {
+  id: string
+  name?: string
+  label: string
+  defaultValue?: string
+  placeholder?: string
+  required?: boolean
+  type?: React.HTMLInputTypeAttribute
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
+  min?: number
+  max?: number
+  hint?: string
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        name={name ?? id}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        required={required}
+        type={type}
+        inputMode={inputMode}
+        min={min}
+        max={max}
+      />
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+    </div>
+  )
+}
+
+function SelectField({
+  id,
+  name,
+  label,
+  values,
+  defaultValue,
+  hint,
+}: {
+  id: string
+  name?: string
+  label: string
+  values: string[]
+  defaultValue?: string
+  hint?: string
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <select
+        id={id}
+        name={name ?? id}
+        defaultValue={defaultValue ?? values[0]}
+        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+      >
+        {values.map((value) => (
+          <option key={value} value={value}>
+            {formatLabel(value)}
+          </option>
+        ))}
+      </select>
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+    </div>
+  )
+}
+
+function TermSelect({ terms, id, label }: { terms: AnatomyTermRow[]; id: string; label: string }) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <select id={id} name={id} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        {terms.map((term) => (
+          <option key={term.id} value={term.id}>
+            {term.preferredName}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {}
+}
+
+function recordText(row: unknown, key: string) {
+  const value = asRecord(row)[key]
+
+  if (value === null || value === undefined) {
+    return ""
+  }
+
+  return String(value)
+}
+
+function relationText(row: unknown, relationKey: string, valueKey: string) {
+  return recordText(asRecord(row)[relationKey], valueKey)
+}
+
+function recordNumber(row: unknown, key: string, fallback = 0) {
+  const parsed = Number(asRecord(row)[key])
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+function recordObject(row: unknown, key: string) {
+  const value = asRecord(row)[key]
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {}
+}
+
+function externalIdentifierHref(identifier: unknown) {
+  return normalizedExternalHref(recordText(identifier, "iri")) || normalizedExternalHref(recordText(identifier, "url")) || normalizedExternalHref(relationText(identifier, "source", "url"))
+}
+
+function citationHref(citation: unknown) {
+  return normalizedExternalHref(recordText(citation, "sourceLocator")) || normalizedExternalHref(relationText(citation, "source", "url"))
+}
+
+function normalizedExternalHref(value: string) {
+  if (!value) {
+    return ""
+  }
+
+  try {
+    const url = new URL(value)
+
+    return url.protocol === "http:" || url.protocol === "https:" ? value : ""
+  } catch {
+    return ""
+  }
+}
+
+function recordArray(row: unknown, key: string) {
+  const value = asRecord(row)[key]
+
+  return Array.isArray(value) ? value : []
+}
