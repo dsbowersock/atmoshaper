@@ -14,7 +14,7 @@ The semantic review covered 150 inherited records: 122 plans and 28 specificatio
 
 The [architecture map](../architecture.md), [decision index](../decisions/README.md), and [account-security owner](../wiki/account-security.md) now exist. ADR 0001 is Accepted; ADRs 0002–0004 remain Proposed. Historical ADR-candidate wording below describes the export boundary before these files existed.
 
-Runtime/public rebrand, dedicated old-origin recovery, provider staging, deployment, DNS/domain, production/database/payment/email/media, and legal changes remain future gated work. No unrelated provider observations were refreshed by this documentation synchronization. [Project state](../project-state.md) owns the current hosted-review gate.
+Runtime/public rebrand, dedicated old-origin recovery, provider staging, deployment, DNS/domain, production/database/payment/email/media, and legal changes remain future-gated work. No unrelated provider observations were refreshed by this documentation synchronization. [Project state](../project-state.md) owns the current hosted-review gate.
 
 ## Historical Source Tree Summary
 

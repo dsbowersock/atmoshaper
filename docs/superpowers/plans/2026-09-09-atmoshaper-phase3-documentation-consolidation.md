@@ -25,7 +25,7 @@ Phase 3 and Sections 17, 19, 21.7, and 21.8.
 
 ## Baseline lock
 
-- Repository: `C:/Users/derri/code/my_projects/atmoshaper`.
+- Repository: checkout root for `dsbowersock/atmoshaper`.
 - Branch: `codex/atmoshaper-docs-consolidation`.
 - Base: merged bootstrap commit `f59e1b9371b06e7401740ae011f6dc911430a97c`.
 - Bootstrap PR: `https://github.com/dsbowersock/atmoshaper/pull/1`, merged at
@@ -306,7 +306,7 @@ plus this operative plan remain.
 5. Update the GitHub/repository row in the external checklist using verified current
    facts. Leave other provider rows dated unless independently refreshed read-only.
 6. Reassert that runtime rebrand, old-origin recovery, provider staging, deployment,
-   production/database/payment/email/media/legal changes remain future gated work.
+   production/database/payment/email/media/legal changes remain future-gated work.
 7. State the next gate accurately: Phase 3 verification and review, not Phase 4.
 
 **Focused verification:**
@@ -500,8 +500,8 @@ parallel only when their ownership does not overlap a writer.
 
 ## Completion and publication boundary
 
-Phase 3 is locally complete only when all five tasks, whole-branch reviews, audits,
-and full verification pass on the final committed head. Pushing the existing local
-Phase 3 branch and opening a new pull request is a separate publication action; do
-not merge that future pull request without explicit authorization. Phase 4 does not
+Phase 3 became locally complete after all five tasks, whole-branch reviews, audits,
+and full verification passed on the then-final committed head. The branch was then
+pushed and PR #2 opened as the separately authorized publication action. PR #2
+remains unmerged; do not merge it without explicit authorization. Phase 4 does not
 begin in this plan.

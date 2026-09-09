@@ -2,7 +2,7 @@
 
 ## TaskStartSnapshot
 
-- Repository: `C:/Users/derri/code/my_projects/atmoshaper`
+- Repository: AtmoShaper repository root; local checkout path intentionally omitted
 - Branch: `codex/atmoshaper-docs-consolidation`
 - Base and starting `HEAD`: `f59e1b9371b06e7401740ae011f6dc911430a97c`
 - Tracked `origin/main`: `f59e1b9371b06e7401740ae011f6dc911430a97c`
