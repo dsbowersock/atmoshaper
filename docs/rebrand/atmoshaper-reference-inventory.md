@@ -617,3 +617,63 @@ git grep -n -I -F '.agents/refactor' $sourceSha -- app components lib hooks test
 Exclude the candidate's own path from reference counts; classify the remaining owner paths, not captured line contents. `git grep` exit 1 means no match and is not a tool failure. Do not read or print private environment files. Source tree inspection found 46 `prisma/migrations/*/migration.sql` files; this is a committed-file count, not a new database query.
 
 Task 2 checks JSON/Markdown equality, normalized sorted unique arrays, source-present omit/replace sets, source-absent/disjoint task add sets, overlay coverage, exact count equations, all 41 top-level partitions, direct retained dependencies and the omission proof. Source/destination install/build/browser/provider receipts remain Task 3/4/7 obligations.
+
+## Accepted Task 7 Destination Baseline — 2026-09-09
+
+### Fresh-root and inventory identity
+
+- Locked source: `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`.
+- Initial destination commit: `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`; tree `e9a97bbe519a1cc52c7225eb600fd5d2473f6ded`.
+- Fresh-history proof: one root; the parent record contains only that root SHA; post-commit status was clean.
+- Exact committed inventory before this Task 8 documentation branch: 1,908 paths, 46,865,680 blob bytes, aggregate SHA-256 `1d537a03b8a0294f1e68f56df718c29b5e5cf4bfedac01de7ae1cceb86aa3604`.
+- Difference contract: four omissions, 15 source-present replacements, one Task 5 source-absent addition, six Task 6 source-absent additions, and ten reviewed overlays.
+
+Seven retained source preview assets—six WebM renditions and their index—matched destination ignore rules and therefore required explicit force-staging. They remain source-owned blobs and do not change the 1,908-path equation or count as destination additions. This corrects the Task 5 staging procedure without changing its file-classification contract.
+
+### Audit implementation corrections
+
+Task 6 made classification occurrence-scoped: a compatibility-shaped identifier classifies its matched occurrence rather than every reference on the surrounding line. Candidate-baseline generation was also corrected to retain the established schema key order and end with exactly one newline. The focused audit suite passed 21/21.
+
+The accepted audit reported 26,350 active references: 22,905 compatibility, 1,451 historical, 42 legal, 1,952 pre-rebrand public copy, and zero missing or unclassified. Runtime surfaces do not import repository-audit tooling.
+
+The Task 7 candidate also aligned fresh-authority documentation tests and stabilized only the password endpoint's mocked response allowance at 1,500 ms; the profile and Google-intent timings were not changed. The plan's global staged whitespace command identified 24 inherited paths whose bytes match the locked source. Those preserved blobs were not rewritten; the scope-correct check for destination-authored changes passed.
+
+### Local, Browser QA, and visual verification
+
+| Check | Destination result |
+| --- | --- |
+| Dependency/schema | Installation, Prisma validation, and Prisma generation exited zero. Installation reported three inherited high-severity advisories; no automated fix was applied. |
+| TypeScript/lint | Both exited zero. |
+| Unit suite | 4,219 total; 4,216 passed; 3 skipped; 0 failed. |
+| Production build | Passed with 115 generated pages. |
+| Browser-QA build | Passed with 115 generated pages. |
+| Browser QA lane 1 | 137 passed; 7 skipped. |
+| Browser QA lane 2 | 184 passed; 34 skipped. |
+| Browser QA lane 3 | 160 passed; 34 skipped. |
+| Browser QA lane 4 | 149 passed; 51 skipped. |
+| Migration parity | Final fresh run passed 22/22 with no snapshot update; all 24 accepted PNGs remained byte-identical to the locked source. |
+
+The destination app-paths manifest contained 148 keys, matching the source count. `.next/server/app` measured 11,806,033 bytes and matched the source aggregate exactly. `.next/static` measured 19,074,513 bytes, 52 bytes above the source ledger's 19,074,461 bytes because fresh-build artifact identities differ. This receipt does not claim per-file bundle equality.
+
+The owned local server reproduced the four normative source outputs exactly:
+
+| Path | Status | Content type | Bytes | SHA-256 |
+| --- | ---: | --- | ---: | --- |
+| `/manifest.webmanifest` | 200 | `application/manifest+json` | 703 | `dc428665e722fbe81f1240ad2fd6f0a8256bbca812f8c96e1144af63c641c2ae` |
+| `/robots.txt` | 200 | `text/plain` | 554 | `df9d029b2e1ce198ce143f22574fd82f7667fa150e6715b7bc1d1fd5a9cd1413` |
+| `/sitemap.xml` | 200 | `application/xml` | 4290 | `5ba6ff754a94e3e2a16a39eb3439b7ce6f0cda31fc83bc97eca181d2d303ebae` |
+| `/sw.js` | 200 | `application/javascript` | 5037 | `c47bb1b21c79a76bde8385f3a3d9d0afa8aac8ccb813987a65518e65c0f0c247` |
+
+The dynamic root HTML returned HTTP 200 at 239,647 bytes; consistent with the source ledger's rule, its same-run hash is nonnormative and is not used as a parity key. The owned server was stopped and port 3010 had zero listeners.
+
+The first complete run reached all ordinary lanes but had one desktop Home readiness failure during parity. Independent comparison found the Home implementation and all accepted snapshots byte-identical to the locked source, with no candidate edit owning that route. The focused desktop row then passed 1/1, and a new complete disposable-project cycle passed 22/22. No application or snapshot change was made in response to the transient failure.
+
+### Disposable QA database receipt and future lifecycle
+
+The accepted cycle created a new independent empty QA project, passed the non-production identity and fingerprint gates, applied the repository's exact 46/46 committed migrations, and ran the authenticated browser rows. Read-only cleanup verification found every one of the 134 application tables empty. The project was deleted and verified absent; the one unrelated pre-existing project remained present. Failed or superseded cycle-owned projects were likewise deleted and proven absent. No production rows were supplied, copied, read, or altered, and no connection value, credential, fingerprint, project identifier, or row content is recorded.
+
+Ordinary authenticated private browser rows require this authorized empty QA target; they cannot reproduce the accepted source counts without it. Exact migration-parity execution also retains the repository-configured `workers=1`; an ad hoc concurrency override is not valid acceptance evidence. Future cycles must create a new independent empty project, pass identity and fingerprint gates, apply only committed migrations, run the required rows, prove all application tables empty, delete every cycle-owned project in outer cleanup, and prove post-delete absence.
+
+### Hosted and mutation boundary
+
+The local root had no Git remote before Task 9. Apart from the authorized disposable QA projects that were deleted and proved absent, no persistent destination deployment, environment, provider configuration, alias, domain, DNS, payment, email, media, production database, runtime rebrand, or legal setting was created or changed. Existing legal owners and stable compatibility identifiers remain unchanged. Task 9 is limited to repository publication and an unmerged bootstrap pull request; Phase 3 remains separately gated.

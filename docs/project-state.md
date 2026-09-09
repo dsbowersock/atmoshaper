@@ -1,10 +1,10 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-08
+Verified: 2026-09-09
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot
+## Historical Task 5 Snapshot — Superseded Below
 
 - Phase 1 passed. Its source-baseline, migration-parity, classification, and read-only external-boundary evidence are retained in the migration documents and the historical MassageLab repository.
 - Phase 2 is in progress at Task 5. The immutable source is `dsbowersock/massagelab` commit `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`; the reviewed relock commit is `f3b92a1afc44a5fdb2d56653bc82c8d0dc9a933e`.
@@ -42,3 +42,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 ## Inherited Verification Receipts
 
 The locked source records the exact 174/174 focused Anatomime matrix. Fresh exact-head full intercepted Anatomime Browser QA coverage reports 42/42 desktop/mobile cases ok in one post-fix run. These are inherited source receipts from `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`, not Task 7 candidate-run evidence.
+
+## Current Snapshot — Phase 2 Bootstrap Verification
+
+This is the current repository state. The earlier Task 5 snapshot is retained only as dated migration history.
+
+- Tasks 5–7 are complete. Fresh-root `main` is `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`: the repository has one root, that commit has no parent, and the worktree was clean after creation.
+- The initial commit contains the exact 1,908-path contract, 46,865,680 tracked blob bytes, tree `e9a97bbe519a1cc52c7225eb600fd5d2473f6ded`, and aggregate staged-tree SHA-256 `1d537a03b8a0294f1e68f56df718c29b5e5cf4bfedac01de7ae1cceb86aa3604`.
+- Repository inventory and legacy-brand audits passed. The final unit suite passed 4,216 of 4,219 tests with 3 intentional skips and no failures; typecheck and lint passed; both builds produced 115 pages.
+- The destination route manifest contained 148 keys, matching the source count; server-app bytes matched the source aggregate exactly. Static assets measured 52 bytes above the source aggregate because fresh-build artifact identities differ, so no per-file bundle equality is claimed. The web manifest, robots, sitemap, service worker, and all 24 accepted PNGs matched their source bytes and hashes.
+- All four Browser-QA lanes passed at their accepted counts, and the final fresh migration-parity lifecycle passed 22/22 without snapshot updates. A prior transient desktop Home readiness failure was followed by a focused 1/1 pass and a separate full 22/22 pass; no runtime or snapshot change was required.
+- The accepted empty QA project received exactly 46/46 committed migrations. All 134 application tables were empty after cleanup. Every cycle-owned temporary project was deleted and verified absent, the unrelated pre-existing project was preserved, and no production data was copied or altered.
+- Task 8 is active on `codex/bootstrap-atmoshaper`. After its four-document receipt passes review, Task 9 may publish `main` and this review branch and open an unmerged bootstrap pull request.
+- Stop before Phase 3. No deployment, provider/domain cutover, production database change, runtime rebrand, legal cutover, or bootstrap-PR merge is authorized.
