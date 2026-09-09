@@ -3,11 +3,20 @@
 ## Authority
 
 - Approved design: [AtmoShaper repository migration and modernization design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md) (approved design commit `14f60fc1bc63e12b65b28c353b83e5f159247645`).
-- Approved plan: [AtmoShaper repository migration Phase 1-2 implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md).
+- Approved bootstrap plan: [AtmoShaper repository migration Phase 1-2 implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md).
+- Active plan: [Phase 3 documentation consolidation](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), limited to documentation and deterministic documentation-occurrence audit-baseline reconciliation.
 - Superseded handoff: Derrick's 2026-09-06 AtmoShaper migration handoff supersedes the earlier Stage 1 handoff that kept this work inside `dsbowersock/massagelab`.
 - This charter governs source selection for Phases 1-2. The old repository remains the historical archive, evidence source, and rollback source unless separately authorized otherwise.
 
-## Source Lock
+## Current Status — Phase 3, 2026-09-09
+
+- Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. It joins sole fresh root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd` and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained.
+- Local `codex/atmoshaper-docs-consolidation` starts from that merge. Tasks 1–3 are committed (`99a1faa`, `7be78ff`, `49fba96`); Task 4 synchronizes authority, and Task 5 verification and whole-branch review is next. Phase 3 is not complete, no Phase 3 push or new PR is claimed, and Phase 4 has not started.
+- Current owners are the [architecture map](../architecture.md), [decisions](../decisions/README.md), and [account-security wiki](../wiki/account-security.md). ADR 0001 is Accepted; ADRs 0002–0004 remain Proposed.
+- Semantic review covered 150 inherited records. All 28 specifications and 106 plans remain (134 inherited records); the [cleanup register](atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09) records 16 exact evidence-backed plan omissions, current owners, immutable MassageLab originals, and rollback blobs. The new Phase 3 plan is additional: 107 plans and 28 specifications remain. This separate omission boundary does not rewrite the bootstrap manifest.
+- Runtime/public rebrand, dedicated old-origin recovery, provider staging, deployment, DNS/domain changes, production/database/payment/email/media actions, and legal cutover remain future gated work. Only verified GitHub repository facts are synchronized here; other provider evidence remains dated. The current gate is Phase 3 verification and review, not Phase 4 execution.
+
+## Source Lock (Historical Phase 2 Export Receipt)
 
 - Source repository: `https://github.com/dsbowersock/massagelab`
 - Exact selected `main` SHA: `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`
@@ -69,7 +78,9 @@ The original `fa78ca01a42179329cc223df77c76f308e76320b` Task 1 lock and its prep
 - Record exact lineage, verify source/destination parity, and retain MassageLab as the authoritative history and rollback repository.
 - Publish only after Phase 1 and destination verification gates pass; no tag, merge decision, deployment, or production/provider change is implied.
 
-### Explicit later-phase deferrals
+### Historical Phase 1–2 deferrals
+
+This list records the original bootstrap boundary. Phase 3 is now separately authorized under the active plan above; the remaining deferrals continue to apply.
 
 - Phase 3 documentation and historical-artifact consolidation.
 - Phase 4 evidence-backed dead-code, dependency, and asset cleanup.
@@ -88,7 +99,7 @@ The original `fa78ca01a42179329cc223df77c76f308e76320b` Task 1 lock and its prep
 - **Atmosphere public label versus internal `atmoshaper` identifiers:** the later public audio label is `Atmosphere` or `Atmosphere mixer`; existing internal `atmoshaper` modules, scripts, data, tests, storage, paths, and release identifiers remain private compatibility identifiers. Global replacement is prohibited.
 - **Disposable database parity:** the [external-account checklist](atmoshaper-external-account-checklist.md#disposable-database-parity-lifecycle) is the canonical policy owner; Task 7 of the [operative plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md#task-7-verify-and-create-the-fresh-local-atmoshaper-initial-commit) owns the executable lifecycle and redacted receipt. No other summary may weaken those gates.
 
-## Verification Ledger
+## Historical Bootstrap Verification Ledger
 
 | Gate | Source result | Destination result | Comparison | Evidence date |
 | --- | --- | --- | --- | --- |
@@ -100,7 +111,9 @@ The original `fa78ca01a42179329cc223df77c76f308e76320b` Task 1 lock and its prep
 | Task 8 receipt commit | Locked source and accepted Task 7 evidence unchanged | Four receipt documents committed as `953e04c680d497851cdb6b6533b92de8f9b1c4f2` on `codex/bootstrap-atmoshaper` | Documentation only; no runtime, provider, or production change | 2026-09-09 |
 | Task 9 publication and exact-head hosted CI | Historical source remains intact in its existing repository | Public `dsbowersock/atmoshaper`; default `main`; no tags; open/unmerged PR #1; hosted run `34325535135` passed at exact `23f5b8654a89c83de4ae3c6454996e9f7bc6b283` | Repository publication only; a later receipt head requires its own hosted pass | 2026-09-09 |
 
-## Current Status
+## Historical Pre-merge Status — Superseded by Current Phase 3 Status
+
+The following statements preserve the then-current publication boundary; they are not current instructions or current hosted-integration verification.
 
 - Current phase: Phase 1–2 bootstrap work through Task 9 is complete and published for review. Task 8 receipt commit `953e04c680d497851cdb6b6533b92de8f9b1c4f2` and test-only correction `23f5b8654a89c83de4ae3c6454996e9f7bc6b283` are on `codex/bootstrap-atmoshaper`; [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) remains open and unmerged against `main`.
 - Historical exact-`23f5` hosted evidence: run `34325535135` passed Code quality, Browser build, Browser QA lanes 1–4, and aggregate `qa` at exact `23f5b8654a89c83de4ae3c6454996e9f7bc6b283`. This evidence does not cover a later receipt-only head.
@@ -130,7 +143,9 @@ The first complete disposable-project run had one desktop Home readiness failure
 
 Two execution details are durable for future verification. Ordinary authenticated private rows require a newly created, authorized, empty QA database rather than an existing or production project. Exact migration-parity runs must retain the repository-configured single worker; overriding that ownership contract is not an accepted diagnostic or release path. Every future temporary project must be created empty, fingerprint-gated, migrated only from committed repository migrations, checked for zero retained application rows, deleted, and proven absent.
 
-## Task 9 Publication Receipt — 2026-09-09
+## Task 9 Publication Receipt — 2026-09-09 (Historical Pre-merge Snapshot)
+
+This receipt predates the separately authorized bootstrap merge and Phase 3 plan. Open/unmerged and future-Phase-3 wording below belongs to that historical snapshot.
 
 - Repository: [`https://github.com/dsbowersock/atmoshaper`](https://github.com/dsbowersock/atmoshaper), public, default branch `main`, no tags.
 - Initial `main`: sole root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`, tree `e9a97bbe519a1cc52c7225eb600fd5d2473f6ded`.

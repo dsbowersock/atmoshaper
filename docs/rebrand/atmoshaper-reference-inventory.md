@@ -2,9 +2,21 @@
 
 Source repository: `dsbowersock/massagelab`. Locked Phase 2 source: merged `main` `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`. Inventory date: 2026-09-08. Relock branch: `codex/atmoshaper-phase2-relock`.
 
-Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), and [rollback plan](atmoshaper-rollback-plan.md). This document remains the Task 2 classification contract and owns the accepted Task 3/4 source baseline, Task 7 destination baseline, and Task 9 publication receipts below. Earlier task snapshots are retained as explicitly historical evidence and are superseded for current status by the final publication receipt.
+Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [bootstrap plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), [active Phase 3 plan](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), and [rollback plan](atmoshaper-rollback-plan.md). This document retains the Task 2 classification contract and accepted Task 3/4 source, Task 7 destination, and Task 9 publication receipts. The current Phase 3 update below supersedes their timing and next-action statements; historical source/initial-tree counts and dated provider receipts are preserved.
 
-## Source Tree Summary
+## Current Phase 3 Update — 2026-09-09
+
+Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`, joining sole fresh root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd` and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained. Source remains `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`.
+
+Phase 3 is active on local `codex/atmoshaper-docs-consolidation`, based on that merge. Tasks 1–3 are committed (`99a1faa`, `7be78ff`, `49fba96`); Task 4 synchronizes authority, then Task 5 owns audit reconciliation, full verification, and whole-branch review. Phase 3 is not complete or pushed, no new Phase 3 PR is claimed, and Phase 4 has not started.
+
+The semantic review covered 150 inherited records: 122 plans and 28 specifications. All 28 specifications and 106 inherited plans remain (134 records). Exactly 16 superseded plans were omitted under the [Phase 3 cleanup receipts](atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09), with an exact path, replacement owner, immutable MassageLab source, and rollback blob for each. MassageLab retains every original. The additional Phase 3 plan gives 107 plans and 28 specifications; no uncertain or test-consumed record was omitted. This subsequent cleanup does not alter the initial 1,908-path bootstrap contract or its four export omissions.
+
+The [architecture map](../architecture.md), [decision index](../decisions/README.md), and [account-security owner](../wiki/account-security.md) now exist. ADR 0001 is Accepted; ADRs 0002–0004 remain Proposed. Historical ADR-candidate wording below describes the export boundary before these files existed.
+
+Runtime/public rebrand, dedicated old-origin recovery, provider staging, deployment, DNS/domain, production/database/payment/email/media, and legal changes remain future gated work. No unrelated provider observations were refreshed by this documentation synchronization. [Project state](../project-state.md) owns the current Phase 3 verification/review gate.
+
+## Historical Source Tree Summary
 
 `git rev-parse HEAD` and `git rev-parse origin/main` matched the charter before inspection. `git ls-tree -r --name-only` and `git ls-tree -r -l` at that exact SHA report **1,905 tracked files, 41,591,234 blob bytes, 41 top-level entries**. Bytes are summed uncompressed Git blob sizes, not working-tree allocation, Git history size or bundle size. No untracked/ignored workstation file is an export input.
 
@@ -70,7 +82,7 @@ Candidate groups were counted separately; these rows are subsets of the source s
 | `TODO.md` | 1 | 6846 | Keep: referenced by current authority and wiki. |
 | `docs/roadmap.md` | 1 | 13973 | Keep: authority/wiki plus direct calendar test read. |
 
-## Required Keep Set
+## Historical Bootstrap Required Keep Set
 
 Every source file outside `omitPaths` is retained; only `replacePaths` may change bytes. This includes all runtime, tests, CI, legal/acceptance code, entitlement keys, schema/migrations, fixtures, media, source attribution, secret-free examples, deployment/privacy/PWA/billing/security/release instructions and active agent instructions. No filename containing MassageLab is obsolete on that basis.
 
@@ -93,7 +105,7 @@ Reference proof at the locked SHA:
 | `.superpowers/sdd/final-fixes-report.md` | Source `docs/project-log.md` references the completed fix receipt. |
 | `docs/wiki/` current operational set | `docs/wiki/index.md`, source state/log and AGENTS form the read-first graph; preserve linked current operations and privacy boundaries. |
 
-## Evidence-Backed Omission Set
+## Historical Bootstrap Evidence-Backed Omission Set
 
 Only the following four source files are omitted from the new repository. They remain in the old repository at the locked commit. No omission executes during this relock.
 
@@ -106,7 +118,7 @@ Only the following four source files are omitted from the new repository. They r
 
 Historical source: [completed wrapper receipt](https://github.com/dsbowersock/massagelab/blob/fa78ca01a42179329cc223df77c76f308e76320b/.agents/refactor/2026-06-21-refactor-anatomime-session-wrapper.md). New documents refer to that historical location, not a broken destination-relative link.
 
-## Replacement and ADR Set
+## Historical Bootstrap Replacement and ADR Set
 
 Task 5 replaces `README.md`, `AGENTS.md`, `docs/project-state.md` and `docs/project-log.md` with concise destination authority. The new log begins at migration and links old history; it must not recast MassageLab events as AtmoShaper events. Existing licensing and operational safety rules survive. The merged source already contains the approved migration-parity package script and all reviewed Task 3/4A runtime, harness, fixture, and snapshot bytes; Task 5 must export them unchanged. Source-present `package.json` is nevertheless a declared non-overlay replacement because Task 6 adds exactly the `repository:inventory` and `brand:audit` command registrations there. No package identity, dependency or runtime change is authorized.
 
@@ -118,7 +130,7 @@ Task 3 also replaces source-present `next.config.mjs` narrowly for `ATMOSHAPER_M
 
 Phase 3 ADR candidates are fresh-root lineage, permanent old-history/rollback ownership, product/legal/private-identifier separation, old-origin recovery, and parallel provider staging. Their current owner is design sections 3, 7, 19 and 21.8. ADRs are **unresolved**, not accepted or source omissions. `docs/architecture.md` and `docs/decisions/` belong to Phase 3 consolidation and are deliberately not undeclared Task 5 additions.
 
-## Unresolved Set
+## Historical Bootstrap Unresolved Set
 
 All eight retained `.agents/refactor/` records, all five source `.superpowers/` records, the other 30 `docs/aegis/work/` records, and plans not independently proven historical-only stay in the destination. The two inspected lazy-runtime reports contain architectural/performance explanations; zero filename hits alone does not justify their removal. Source/current-document links may omit basenames, and generic names such as `index.md`, `10-intent.md` and `90-evidence.md` create false positive basename hits. Positive matches are conservative retention evidence; negative matches are only one part of omission proof.
 
@@ -521,7 +533,7 @@ This map owns one row per identity surface; detailed browser keys appear once in
 | Platform | MassageLab | AtmoShaper | Current route names, API shapes, CSS `ml-` classes and internal module names | `lib/seo.js`, `app/layout.tsx`, `components/sidebar/app-sidebar-client.tsx` | Public copy Phase 6; canonical host Phase 10 |
 | Audio mixer | AtmoShaper | Atmosphere / Atmosphere mixer | `atmoshaper` paths/types/scripts/catalogs/source IDs/releases; `lib/atmosphere/` runtime; existing storage schemas | `components/atmoshaper/`, `lib/atmoshaper/`, `data/atmoshaper/` | Label only Phase 6; internal identifiers retained |
 | Established features | Chimer, Anatomime, Calendar, Notes, Wellness | Same | Routes, feature keys, fixture/test names | `app/`, `lib/membership.js` | Retain |
-| Repository | dsbowersock/massagelab | dsbowersock/atmoshaper | Locked old SHA/history and provenance links | Charter, lineage, CI | Phase 2 after baseline |
+| Repository | dsbowersock/atmoshaper; bootstrap PR #1 merged | Same repository for future work | Locked MassageLab source/history and fresh-root provenance links | Charter, lineage, CI | Phase 2 complete; local Phase 3 active |
 | Legal/operator | Derrick Bowersock, doing business as Massage Lab | Unchanged until separate legal approval | `LICENSE`, `UNLICENSED`, document keys/versions/effective dates/acceptances/audit records | `LICENSE`, `lib/legal-documents.js`, `lib/legal-acceptance.js` | Separately approved legal transition only |
 | Access and data | Existing accounts and memberships | Same behavior | `premium_backgrounds`, other feature keys, Prisma tables/enums/migrations, durable audit/operation IDs | `lib/membership.js`, `prisma/schema.prisma`, `prisma/migrations/` | Dedicated future migration only |
 | Environment/deployment | MassageLab service | Separate AtmoShaper staging later | `MASSAGELAB_` variables, auth/security keys, source deployment rollback identity | `.env.example`, `next.config.mjs`, deployment wiki | Isolated Phase 7; authorized provider work Phase 9/10 |
@@ -532,7 +544,7 @@ This map owns one row per identity surface; detailed browser keys appear once in
 | Support/mail | Existing public support address and SMTP display identity | Undecided | Current support delivery and sender/authentication contracts | `lib/support-contact.js`, deployment wiki | Phase 9 approval; do not retire old support |
 | Local records, preferences and PWA | Existing origin-bound browser data/install | New installation with user-controlled recovery | All keys/formats/cache names in local-data register | Vault/storage/SW/manifest owners | Phase 8 proof, Phase 10 recovery gate |
 
-## Exact Destination Difference Contract
+## Historical Bootstrap Exact Destination Difference Contract
 
 The following JSON is the same ordered path contract as [the machine-readable manifest](atmoshaper-export-manifest.json). Paths are normalized files, not globs. Arrays are code-point sorted and duplicate-free. The relocked source contains 1,905 paths. Four source paths are omitted, 15 source-present paths are declared replacements, `MIGRATION_LINEAGE.md` is the only source-absent Task 5 addition, six Task 6 audit paths remain source-absent, and ten relock-branch documents are overlays.
 
@@ -598,7 +610,7 @@ The original historical artifact remains omitted. The three `docs/aegis/work/202
 
 ## Reproduction and Verification
 
-For any pre-export/current-lock decision, first run Task 5 Step 1 of the [operative plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md#task-5-export-into-a-fresh-local-atmoshaper-root-and-create-fresh-history); its clean committed-relock, manifest, tracked/live `main`, and ancestry gate is canonical. After that gate passes, reproduce this inventory from the old repository using only the manifest source, never the current overlay tree or the potentially stale local `main` branch pointer:
+For any pre-export/current-lock decision, first run Task 5 Step 1 of the [bootstrap plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md#task-5-materialize-the-classified-source-snapshot-in-a-fresh-sibling-repository); its clean committed-relock, manifest, tracked/live `main`, and ancestry gate is canonical. After that gate passes, reproduce this historical inventory from the old repository using only the manifest source, never the current overlay tree or the potentially stale local `main` branch pointer:
 
 ```powershell
 $manifest = Get-Content -LiteralPath 'docs/rebrand/atmoshaper-export-manifest.json' -Raw | ConvertFrom-Json
@@ -680,7 +692,9 @@ Ordinary authenticated private browser rows require this authorized empty QA tar
 
 At this Task 7 snapshot, the local root had no Git remote and Task 9 had not started. Apart from the authorized disposable QA projects that were deleted and proved absent, no persistent destination deployment, environment, provider configuration, alias, domain, DNS, payment, email, media, production database, runtime rebrand, or legal setting was created or changed. Existing legal owners and stable compatibility identifiers remained unchanged. The Task 9 receipt below supersedes this prepublication timing; Phase 3 remains separately gated.
 
-## Task 9 Publication and Phase 1–2 Completion Receipt — 2026-09-09
+## Task 9 Publication and Phase 1–2 Completion Receipt — 2026-09-09 (Historical Pre-merge Snapshot)
+
+This receipt preserves publication-time facts. Its open-PR, uncreated-Phase-3-branch, and no-cleanup statements are superseded by the current Phase 3 update above; its exact-head checks and provider observations remain dated evidence.
 
 ### Repository, commits, pull request, and hosted checks
 
