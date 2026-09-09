@@ -54,7 +54,7 @@ do not rewrite either history as a repair shortcut.
 ## Immutable source
 
 - [Migration design, selected architecture and alternatives](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md#3-selected-architecture-and-alternatives).
-- [Reviewed export manifest](https://github.com/dsbowersock/massagelab/blob/f3b92a1afc44a5fdb2d56653bc82c8d0dc9a933e/docs/rebrand/atmoshaper-export-manifest.json).
+- [Reviewed export manifest](https://github.com/dsbowersock/atmoshaper/blob/f59e1b9371b06e7401740ae011f6dc911430a97c/docs/rebrand/atmoshaper-export-manifest.json).
 - [Fresh-root lineage record](https://github.com/dsbowersock/atmoshaper/blob/7e89f7ba9508a1ad715c1824ea6099432e6a4ccd/MIGRATION_LINEAGE.md).
 - [Bootstrap merge and parents](https://github.com/dsbowersock/atmoshaper/commit/f59e1b9371b06e7401740ae011f6dc911430a97c).
 - [Destination verification receipt at merged bootstrap](https://github.com/dsbowersock/atmoshaper/blob/f59e1b9371b06e7401740ae011f6dc911430a97c/docs/rebrand/atmoshaper-migration-charter.md#task-7-destination-verification-receipt--2026-09-09-historical-prepublication-snapshot).

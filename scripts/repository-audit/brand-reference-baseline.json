@@ -89415,13 +89415,6 @@
     },
     {
       "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
-      "line": 57,
-      "column": 61,
-      "textSha256": "77e22725ca17dcc220162825016e0760d90f62442cc8725dee11db4231670978",
-      "category": "historical"
-    },
-    {
-      "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
       "line": 66,
       "column": 4,
       "textSha256": "b27b265782250518cbb4c249aa6b9b768d762ee256f423a0470be3b31e34ce2d",
@@ -129175,14 +129168,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128470,
+      "line": 128463,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128470,
+      "line": 128463,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"

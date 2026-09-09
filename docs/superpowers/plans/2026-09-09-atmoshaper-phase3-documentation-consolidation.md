@@ -393,8 +393,10 @@ npm run test
 if ($LASTEXITCODE -ne 0) { throw "Unit suite failed" }
 npm run build
 if ($LASTEXITCODE -ne 0) { throw "Production build failed" }
+git diff --cached --check
+if ($LASTEXITCODE -ne 0) { throw "Staged whitespace check failed" }
 git diff --check
-if ($LASTEXITCODE -ne 0) { throw "Whitespace check failed" }
+if ($LASTEXITCODE -ne 0) { throw "Unstaged whitespace check failed" }
 $allowedChangedPaths = @(
   'MIGRATION_LINEAGE.md',
   'README.md',
@@ -451,7 +453,7 @@ $observedPaths = @(
   $unstagedPaths
   $untrackedPaths
 ) | Where-Object { $_ } | Sort-Object -Unique
-$outsideAllowedPaths = @($observedPaths | Where-Object { $_ -notin $allowedChangedPaths })
+$outsideAllowedPaths = @($observedPaths | Where-Object { $_ -cnotin $allowedChangedPaths })
 if ($outsideAllowedPaths.Count -gt 0) {
   $outsideAllowedPaths
   throw 'Changed or untracked paths exceed the approved documentation/baseline set'
@@ -461,7 +463,8 @@ if ($outsideAllowedPaths.Count -gt 0) {
 After the final coordinator commit, rerun inventory and brand audits, assert empty
 missing/unclassified arrays, inspect
 `git diff --name-only f59e1b9371b06e7401740ae011f6dc911430a97c...HEAD`,
-and require clean `git status --short`.
+run `git diff --check f59e1b9371b06e7401740ae011f6dc911430a97c...HEAD`,
+and require both commands to succeed with clean `git status --short`.
 
 Verification-date note: `tests/family-friends-server-workload.test.mjs` currently
 caps the project-state `Verified:` date at 2026-09-09. This plan executes on that
