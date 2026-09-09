@@ -94707,7 +94707,14 @@
     },
     {
       "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
-      "line": 276,
+      "line": 258,
+      "column": 58,
+      "textSha256": "05925afce107ad90949f8a1546c7c7c22c1a29d420e412d6f0fba988b495c910",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 305,
       "column": 20,
       "textSha256": "eb8a4884b43245de86a29c9308cef8494f75f4778429931833afbee0df94faf8",
       "category": "historical"
@@ -129168,14 +129175,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128463,
+      "line": 128470,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128463,
+      "line": 128470,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"

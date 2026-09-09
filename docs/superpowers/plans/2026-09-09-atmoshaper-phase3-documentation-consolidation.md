@@ -233,19 +233,48 @@ current, and no old plan becomes a competing authority.
 $plans = @(Get-ChildItem docs/superpowers/plans -File -Filter *.md)
 $specs = @(Get-ChildItem docs/superpowers/specs -File -Filter *.md)
 if ($plans.Count -ne 107 -or $specs.Count -ne 28) { throw "Unexpected plan/spec count" }
-$omittedNames = @(
-  '2026-05-27-project-source-of-truth-consolidation',
-  '2026-05-28-intake-form-builder-local-documents-v1',
-  '2026-05-30-privacy-first-records-framework',
-  '2026-06-18-atmosphere',
-  '2026-06-19-atmosphere',
-  '2026-06-19-ci-build-cache',
-  'chimer-music-player-inspiration-note'
+$omittedPaths = @(
+  'docs/superpowers/plans/2026-05-27-project-source-of-truth-consolidation.md',
+  'docs/superpowers/plans/2026-05-28-intake-form-builder-local-documents-v1.md',
+  'docs/superpowers/plans/2026-05-30-privacy-first-records-framework.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-first-batch-hosting.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-hosted-opus-sidecars.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-second-batch-hosting.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-startup-performance.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-third-batch-listener-copy.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-web-audio-format-pilot.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-aac-mp3-sidecars.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-playback-performance.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-remaining-generators.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-rendered-piano-batch.md',
+  'docs/superpowers/plans/2026-06-19-ci-build-cache.md',
+  'docs/superpowers/plans/chimer-music-player-inspiration-note-2026-07-06.md'
 )
-foreach ($name in $omittedNames) { rg -n -F $name . --glob '!scripts/repository-audit/brand-reference-baseline.json' }
+foreach ($path in $omittedPaths) {
+  if (Test-Path -LiteralPath $path) { throw "Omitted plan still exists: $path" }
+}
+$verificationPlan = 'docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md'
+$immutableSourcePrefix = 'https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/'
+$rgPath = (Get-Command rg -CommandType Application -ErrorAction Stop).Source
+$staleMatches = @()
+foreach ($path in $omittedPaths) {
+  $matches = @(& $rgPath -n --hidden -F $path . --glob '!.git/**' --glob "!$verificationPlan" --glob '!scripts/repository-audit/brand-reference-baseline.json' --glob '!docs/rebrand/atmoshaper-cleanup-register.md')
+  $rgExitCode = $LASTEXITCODE
+  if ($rgExitCode -notin @(0, 1)) { throw "Reference scan failed for $path" }
+  foreach ($match in $matches) {
+    $withoutImmutableSource = $match.Replace("$immutableSourcePrefix$path", '')
+    if ($withoutImmutableSource -match [regex]::Escape($path)) { $staleMatches += $match }
+  }
+}
+if ($staleMatches.Count -gt 0) {
+  $staleMatches
+  throw 'Stale fresh-repository references to omitted plans remain'
+}
 node --test tests/repository-audit.test.mjs
 if ($LASTEXITCODE -ne 0) { throw "Repository-audit tests failed" }
 git diff --check
+if ($LASTEXITCODE -ne 0) { throw "Whitespace check failed" }
 ```
 
 **Acceptance:** Exactly 16 cleared duplicates are absent, every omission has a
@@ -283,10 +312,23 @@ plus this operative plan remain.
 **Focused verification:**
 
 ```powershell
-rg -n "Phase 2 is in progress at Task 5|PR #1 remains open|Stop before Phase 3|has not begun" README.md MIGRATION_LINEAGE.md docs/project-state.md docs/project-log.md docs/rebrand
-rg -n "f59e1b9371b06e7401740ae011f6dc911430a97c|Phase 3" README.md MIGRATION_LINEAGE.md docs/project-state.md docs/project-log.md docs/rebrand
+$projectStateCurrent = ((Get-Content docs/project-state.md -Raw -ErrorAction Stop) -split '(?m)^## Historical Task 5 Snapshot', 2)[0]
+$currentAuthority = [string]::Join("`n", @(
+  Get-Content README.md -Raw -ErrorAction Stop
+  Get-Content MIGRATION_LINEAGE.md -Raw -ErrorAction Stop
+  $projectStateCurrent
+))
+foreach ($staleStatus in @('Phase 2 is in progress at Task 5', 'PR #1 remains open', 'Stop before Phase 3')) {
+  if ($currentAuthority -match [regex]::Escape($staleStatus)) { throw "Stale current-authority status remains: $staleStatus" }
+}
+if ($currentAuthority -match '(?i)(Phase 3[^\r\n]*has not begun|has not begun[^\r\n]*Phase 3)') { throw 'Current authority still says Phase 3 has not begun' }
+foreach ($requiredStatus in @('f59e1b9371b06e7401740ae011f6dc911430a97c', 'Phase 3', 'PR #2', 'Phase 4 has not started')) {
+  if ($currentAuthority -notmatch [regex]::Escape($requiredStatus)) { throw "Required current status is missing: $requiredStatus" }
+}
 node --test tests/repository-audit.test.mjs
+if ($LASTEXITCODE -ne 0) { throw "Repository-audit tests failed" }
 git diff --check
+if ($LASTEXITCODE -ne 0) { throw "Whitespace check failed" }
 ```
 
 **Acceptance:** Current authority accurately reflects the merged bootstrap and active
@@ -347,9 +389,67 @@ npm run build
 if ($LASTEXITCODE -ne 0) { throw "Production build failed" }
 git diff --check
 if ($LASTEXITCODE -ne 0) { throw "Whitespace check failed" }
-git diff --name-only --cached
-git diff --name-only
-git status --short
+$allowedChangedPaths = @(
+  'MIGRATION_LINEAGE.md',
+  'README.md',
+  'docs/aegis/work/2026-09-09-atmoshaper-phase3-documentation-consolidation/10-intent.md',
+  'docs/aegis/work/2026-09-09-atmoshaper-phase3-documentation-consolidation/20-checkpoint.md',
+  'docs/aegis/work/2026-09-09-atmoshaper-phase3-documentation-consolidation/90-evidence.md',
+  'docs/aegis/work/2026-09-09-atmoshaper-phase3-documentation-consolidation/99-reflection.md',
+  'docs/architecture.md',
+  'docs/decisions/0001-fresh-root-lineage-and-history-ownership.md',
+  'docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md',
+  'docs/decisions/0003-origin-bound-local-data-and-pwa-recovery.md',
+  'docs/decisions/0004-parallel-provider-staging-and-cutover.md',
+  'docs/decisions/README.md',
+  'docs/project-log.md',
+  'docs/project-state.md',
+  'docs/rebrand/atmoshaper-cleanup-register.md',
+  'docs/rebrand/atmoshaper-external-account-checklist.md',
+  'docs/rebrand/atmoshaper-migration-charter.md',
+  'docs/rebrand/atmoshaper-reference-inventory.md',
+  'docs/superpowers/plans/2026-05-27-project-source-of-truth-consolidation.md',
+  'docs/superpowers/plans/2026-05-28-intake-form-builder-local-documents-v1.md',
+  'docs/superpowers/plans/2026-05-30-privacy-first-records-framework.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-first-batch-hosting.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-hosted-opus-sidecars.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-second-batch-hosting.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-startup-performance.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-third-batch-listener-copy.md',
+  'docs/superpowers/plans/2026-06-18-atmosphere-web-audio-format-pilot.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-aac-mp3-sidecars.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-playback-performance.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-remaining-generators.md',
+  'docs/superpowers/plans/2026-06-19-atmosphere-rendered-piano-batch.md',
+  'docs/superpowers/plans/2026-06-19-ci-build-cache.md',
+  'docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md',
+  'docs/superpowers/plans/chimer-music-player-inspiration-note-2026-07-06.md',
+  'docs/superpowers/plans/chimer-redesign-implementation-checklist-2026-07-06.md',
+  'docs/wiki/account-security.md',
+  'docs/wiki/atmosphere-audio.md',
+  'docs/wiki/index.md',
+  'scripts/repository-audit/brand-reference-baseline.json'
+)
+$baseToHeadPaths = @(git diff --name-only f59e1b9371b06e7401740ae011f6dc911430a97c...HEAD)
+if ($LASTEXITCODE -ne 0) { throw "Base-to-HEAD path check failed" }
+$stagedPaths = @(git diff --name-only --cached)
+if ($LASTEXITCODE -ne 0) { throw "Staged path check failed" }
+$unstagedPaths = @(git diff --name-only)
+if ($LASTEXITCODE -ne 0) { throw "Unstaged path check failed" }
+$untrackedPaths = @(git ls-files --others --exclude-standard)
+if ($LASTEXITCODE -ne 0) { throw "Untracked path check failed" }
+$observedPaths = @(
+  $baseToHeadPaths
+  $stagedPaths
+  $unstagedPaths
+  $untrackedPaths
+) | Where-Object { $_ } | Sort-Object -Unique
+$outsideAllowedPaths = @($observedPaths | Where-Object { $_ -notin $allowedChangedPaths })
+if ($outsideAllowedPaths.Count -gt 0) {
+  $outsideAllowedPaths
+  throw 'Changed or untracked paths exceed the approved documentation/baseline set'
+}
 ```
 
 After the final coordinator commit, rerun inventory and brand audits, assert empty
