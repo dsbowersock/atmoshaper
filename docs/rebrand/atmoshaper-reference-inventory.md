@@ -2,7 +2,7 @@
 
 Source repository: `dsbowersock/massagelab`. Locked Phase 2 source: merged `main` `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`. Inventory date: 2026-09-08. Relock branch: `codex/atmoshaper-phase2-relock`.
 
-Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), and [rollback plan](atmoshaper-rollback-plan.md). This document remains the Task 2 classification contract and now also owns the accepted Task 3/4 source-baseline receipts below. It is not a destination-parity receipt; Task 5 has not created a destination.
+Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), and [rollback plan](atmoshaper-rollback-plan.md). This document remains the Task 2 classification contract and owns the accepted Task 3/4 source baseline, Task 7 destination baseline, and Task 9 publication receipts below. Earlier task snapshots are retained as explicitly historical evidence and are superseded for current status by the final publication receipt.
 
 ## Source Tree Summary
 
@@ -508,7 +508,7 @@ These are the complete 24 accepted Windows PNGs after the reviewed Pricing-only 
 
 - GitHub read-only inspection confirmed `dsbowersock/massagelab` is public, its default branch is `main`, and it is not archived. PR #206 merged as `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`; its tree `0370e1d2749f9644efdc3ccbcb832c8d7965ec0d` exactly matches reviewed head `971c453ebb50127bb3ffd1d9f5e4f133dbf9df82`, and this exact merge is the selected source lock.
 - Vercel CLI `59.11.7` read-only inspection confirmed project `massagelab`, framework Next.js, Node.js 22.x, and production domains `massagelab.app` and `www.massagelab.app`. No project, deployment, alias, domain, or environment setting changed.
-- Neon evidence is limited to the authorization-bound temporary empty QA lifecycle described above and a read-only confirmation that production remained present. No production connection, row, schema, setting, or data was copied or changed.
+- Neon evidence is limited to the authorization-bound temporary empty QA lifecycle described above and a read-only confirmation that production remained present. No production connection, row, schema, setting, or data was copied or changed. This entire hosted-source subsection is a historical Task 4R snapshot; its forward-looking Task 5 sentence below is superseded by the Task 7 and Task 9 receipts at the end of this inventory and is not current status.
 
 The relocked exact difference contract is omit4/replace15/task5Add1/task6Add6/overlay10. With 1,905 locked source files, the computed Task 5 and final inventories remain 1,902 and 1,908 paths. MassageLab pull request [#206](https://github.com/dsbowersock/massagelab/pull/206) is merged; exact merge-head Code quality, Browser build, Browser QA lanes 1–4, aggregate `qa`, and CodeQL Actions/JavaScript/Python passed, and Vercel reported its automatic `main` deployment complete. The user authorized Phase 2 through Task 9 after this relock; Task 5 is the next gated action. Destination creation, deployment configuration, production or destination provider/DNS work, and production database mutation have not occurred in Task 4R. The disclosed temporary empty QA-project lifecycle is complete and does not broaden future authorization.
 
@@ -617,3 +617,89 @@ git grep -n -I -F '.agents/refactor' $sourceSha -- app components lib hooks test
 Exclude the candidate's own path from reference counts; classify the remaining owner paths, not captured line contents. `git grep` exit 1 means no match and is not a tool failure. Do not read or print private environment files. Source tree inspection found 46 `prisma/migrations/*/migration.sql` files; this is a committed-file count, not a new database query.
 
 Task 2 checks JSON/Markdown equality, normalized sorted unique arrays, source-present omit/replace sets, source-absent/disjoint task add sets, overlay coverage, exact count equations, all 41 top-level partitions, direct retained dependencies and the omission proof. Source/destination install/build/browser/provider receipts remain Task 3/4/7 obligations.
+
+The Task 4R paragraph above is a historical source-baseline boundary: its Task 5 next-action and uncreated-destination statements are superseded by the Task 7 and Task 9 receipts that follow. They are not current repository status.
+
+## Accepted Task 7 Destination Baseline — 2026-09-09 (Historical Prepublication Snapshot)
+
+### Fresh-root and inventory identity
+
+- Locked source: `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`.
+- Initial destination commit: `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`; tree `e9a97bbe519a1cc52c7225eb600fd5d2473f6ded`.
+- Fresh-history proof: one root; the parent record contains only that root SHA; post-commit status was clean.
+- Exact committed inventory before this Task 8 documentation branch: 1,908 paths, 46,865,680 blob bytes, aggregate SHA-256 `1d537a03b8a0294f1e68f56df718c29b5e5cf4bfedac01de7ae1cceb86aa3604`.
+- Difference contract: four omissions, 15 source-present replacements, one Task 5 source-absent addition, six Task 6 source-absent additions, and ten reviewed overlays.
+
+Seven retained source preview assets—six WebM renditions and their index—matched destination ignore rules and therefore required explicit force-staging. They remain source-owned blobs and do not change the 1,908-path equation or count as destination additions. This corrects the Task 5 staging procedure without changing its file-classification contract.
+
+### Audit implementation corrections
+
+Task 6 made classification occurrence-scoped: a compatibility-shaped identifier classifies its matched occurrence rather than every reference on the surrounding line. Candidate-baseline generation was also corrected to retain the established schema key order and end with exactly one newline. The focused audit suite passed 21/21.
+
+The accepted audit reported 26,350 active references: 22,905 compatibility, 1,451 historical, 42 legal, 1,952 pre-rebrand public copy, and zero missing or unclassified. Runtime surfaces do not import repository-audit tooling.
+
+The Task 7 candidate also aligned fresh-authority documentation tests and stabilized only the password endpoint's mocked response allowance at 1,500 ms; the profile and Google-intent timings were not changed. The plan's global staged whitespace command identified 24 inherited paths whose bytes match the locked source. Those preserved blobs were not rewritten; the scope-correct check for destination-authored changes passed.
+
+### Local, Browser QA, and visual verification
+
+| Check | Destination result |
+| --- | --- |
+| Dependency/schema | Installation, Prisma validation, and Prisma generation exited zero. Installation reported three inherited high-severity advisories; no automated fix was applied. |
+| TypeScript/lint | Both exited zero. |
+| Unit suite | 4,219 total; 4,216 passed; 3 skipped; 0 failed. |
+| Production build | Passed with 115 generated pages. |
+| Browser-QA build | Passed with 115 generated pages. |
+| Browser QA lane 1 | 137 passed; 7 skipped. |
+| Browser QA lane 2 | 184 passed; 34 skipped. |
+| Browser QA lane 3 | 160 passed; 34 skipped. |
+| Browser QA lane 4 | 149 passed; 51 skipped. |
+| Migration parity | Final fresh run passed 22/22 with no snapshot update; all 24 accepted PNGs remained byte-identical to the locked source. |
+
+The destination app-paths manifest contained 148 keys, matching the source count. `.next/server/app` measured 11,806,033 bytes and matched the source aggregate exactly. `.next/static` measured 19,074,513 bytes, 52 bytes above the source ledger's 19,074,461 bytes because fresh-build artifact identities differ. This receipt does not claim per-file bundle equality.
+
+The owned local server reproduced the four normative source outputs exactly:
+
+| Path | Status | Content type | Bytes | SHA-256 |
+| --- | ---: | --- | ---: | --- |
+| `/manifest.webmanifest` | 200 | `application/manifest+json` | 703 | `dc428665e722fbe81f1240ad2fd6f0a8256bbca812f8c96e1144af63c641c2ae` |
+| `/robots.txt` | 200 | `text/plain` | 554 | `df9d029b2e1ce198ce143f22574fd82f7667fa150e6715b7bc1d1fd5a9cd1413` |
+| `/sitemap.xml` | 200 | `application/xml` | 4290 | `5ba6ff754a94e3e2a16a39eb3439b7ce6f0cda31fc83bc97eca181d2d303ebae` |
+| `/sw.js` | 200 | `application/javascript` | 5037 | `c47bb1b21c79a76bde8385f3a3d9d0afa8aac8ccb813987a65518e65c0f0c247` |
+
+The dynamic root HTML returned HTTP 200 at 239,647 bytes; consistent with the source ledger's rule, its same-run hash is nonnormative and is not used as a parity key. The owned server was stopped and port 3010 had zero listeners.
+
+The first complete run reached all ordinary lanes but had one desktop Home readiness failure during parity. Independent comparison found the Home implementation and all accepted snapshots byte-identical to the locked source, with no candidate edit owning that route. The focused desktop row then passed 1/1, and a new complete disposable-project cycle passed 22/22. No application or snapshot change was made in response to the transient failure.
+
+### Disposable QA database receipt and future lifecycle
+
+The accepted cycle created a new independent empty QA project, passed the non-production identity and fingerprint gates, applied the repository's exact 46/46 committed migrations, and ran the authenticated browser rows. Read-only cleanup verification found every one of the 134 application tables empty. The project was deleted and verified absent; the one unrelated pre-existing project remained present. Failed or superseded cycle-owned projects were likewise deleted and proven absent. No production rows were supplied, copied, read, or altered, and no connection value, credential, fingerprint, project identifier, or row content is recorded.
+
+Ordinary authenticated private browser rows require this authorized empty QA target; they cannot reproduce the accepted source counts without it. Exact migration-parity execution also retains the repository-configured `workers=1`; an ad hoc concurrency override is not valid acceptance evidence. Future cycles must create a new independent empty project, pass identity and fingerprint gates, apply only committed migrations, run the required rows, prove all application tables empty, delete every cycle-owned project in outer cleanup, and prove post-delete absence.
+
+### Hosted and mutation boundary
+
+At this Task 7 snapshot, the local root had no Git remote and Task 9 had not started. Apart from the authorized disposable QA projects that were deleted and proved absent, no persistent destination deployment, environment, provider configuration, alias, domain, DNS, payment, email, media, production database, runtime rebrand, or legal setting was created or changed. Existing legal owners and stable compatibility identifiers remained unchanged. The Task 9 receipt below supersedes this prepublication timing; Phase 3 remains separately gated.
+
+## Task 9 Publication and Phase 1–2 Completion Receipt — 2026-09-09
+
+### Repository, commits, pull request, and hosted checks
+
+- Public repository: [`https://github.com/dsbowersock/atmoshaper`](https://github.com/dsbowersock/atmoshaper); visibility public; default branch `main`; no tags.
+- Initial `main`: sole root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`, tree `e9a97bbe519a1cc52c7225eb600fd5d2473f6ded`. Complete pre-bootstrap Git history remains intact in the historical source repository identified at the top of this inventory, at locked source `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`.
+- Task 8 receipt commit: `953e04c680d497851cdb6b6533b92de8f9b1c4f2`. Test-only correction commit: `23f5b8654a89c83de4ae3c6454996e9f7bc6b283`, which advanced the project-state verification-date upper bound to 2026-09-09 after the first hosted Code quality run exposed the stale 2026-09-08 ceiling.
+- [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) is open and unmerged from `codex/bootstrap-atmoshaper` into `main`.
+- At exact `23f5b8654a89c83de4ae3c6454996e9f7bc6b283`, the focused test passed 15/15 and the full local suite passed 4,216 with 3 skips and 0 failures. Hosted run `34325535135` passed Code quality in 4m11s, Browser build in 2m26s, Browser QA lanes 1–4 in 12m24s, 11m15s, 17m56s, and 12m59s, and aggregate `qa` in 3s.
+- CodeQL, Vercel, and CodeRabbit did not appear or run in the new repository and remain later setup findings, not passed checks. Codex GitHub review completed only on `953e04c680d497851cdb6b6533b92de8f9b1c4f2`. A later head, including the receipt-only documentation head produced from this correction, requires its own hosted pass and exact-head review assessment.
+
+### Completion-report cross-check
+
+- Copied/difference scope: the locked source contains 1,905 paths. The destination's initial 1,908 paths are explained by four exact omissions, 15 source-present replacements, one Task 5 source-absent addition, six Task 6 source-absent audit additions, and ten reviewed overlays. All other source blobs were retained; unresolved cleanup candidates remain in the destination rather than being silently omitted.
+- Verification and parity: source and destination install, Prisma, typecheck, lint, unit, production-build, Browser-QA-build, four ordinary Browser QA lanes, and migration-parity receipts are recorded above. Destination unit acceptance was 4,216 passed, 3 skipped, 0 failed; both builds produced 115 pages; parity passed 22/22 with all 24 PNGs byte-identical. The 148 route keys matched; server-app aggregate bytes matched; static aggregate bytes differed by 52 because fresh-build artifact identities differ, so per-file bundle equality is not claimed.
+- Metadata/PWA/storage/export/legal/compatibility: the web manifest, robots, sitemap, and service worker matched the source ledger. Origin-bound PWA installation and browser storage do not transfer automatically. User-controlled export formats, legal operator and accepted-document history, stable private identifiers, provider contracts, old-origin recovery, and local-first PHI boundaries remain unchanged and require their separately owned later gates.
+- External dependencies inventoried for later work include GitHub; Vercel; Namecheap/DNS and both current production hosts; Neon; Google OAuth/Auth.js callbacks and Google Calendar; Resend/SMTP, SPF/DKIM/DMARC, and support email/forwarding; Stripe business, Checkout, Portal, catalog, webhook, metadata, and idempotency surfaces; Cloudflare R2/media/CORS/cache; Sentry; search/sitemap; social identity; and PWA/app-store identity. Inventory is not authorization to configure or mutate any of them.
+- Highest-risk cleanup areas are retained compatibility wrappers/models, origin-bound browser data and caches, dependencies/patches, and assets/media/catalogs where deletion could break data, build, provenance, or recovery contracts. No cleanup is approved. The highest-value refactor candidate is a focused public-product-identity boundary that centralizes display identity while explicitly excluding legal and private compatibility identifiers; provider/trusted-origin, Stripe, Chimer, and music-provider work remains higher risk and separately gated.
+- External actions were creation of the public GitHub repository, publication of `main` and `codex/bootstrap-atmoshaper` (including the test-only correction), opening the unmerged bootstrap PR, the recorded hosted CI runs, and the Codex GitHub review on the earlier receipt head. This receipt correction added no PR comment or internal note. No tag, merge, deployment, provider configuration, DNS/domain, production database, email, payment, media, runtime rebrand, legal cutover, or Phase 3 action occurred.
+
+Every future Browser QA acceptance cycle must create a new independent empty QA project, pass the non-production identity and fingerprint gates, apply exactly the 46 committed migrations, prove all application tables empty after cleanup, delete every cycle-owned project, and prove post-delete absence. Production data must never be supplied, copied, read, or altered.
+
+Phase 1–2 bootstrap work is published for review and stops here. The recommended next branch is `codex/atmoshaper-docs-consolidation`, but Phase 3 planning and execution are future work requiring separate review and authorization; the branch has not been created and consolidation has not begun.
