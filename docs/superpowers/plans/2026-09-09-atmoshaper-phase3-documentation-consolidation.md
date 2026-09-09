@@ -375,8 +375,14 @@ Phase 3; dated provider evidence is not misrepresented as current verification.
 ```powershell
 npm run repository:inventory
 if ($LASTEXITCODE -ne 0) { throw "Repository inventory failed" }
-npm run brand:audit
+$brandOutput = & npm run --silent brand:audit
 if ($LASTEXITCODE -ne 0) { throw "Brand audit failed" }
+try { $brandReport = ($brandOutput -join "`n") | ConvertFrom-Json -ErrorAction Stop }
+catch { throw "Brand audit did not return valid JSON" }
+if (@($brandReport.missing).Count -ne 0 -or @($brandReport.unclassified).Count -ne 0) {
+  throw "Brand audit reported missing or unclassified references"
+}
+$brandReport | ConvertTo-Json -Depth 5
 node --test tests/repository-audit.test.mjs tests/auth-method-intent-proof.test.mjs tests/account-two-factor-management.test.mjs tests/auth-schema-migration.test.mjs tests/operational-rate-limit-schema.test.mjs tests/family-friends-server-workload.test.mjs tests/sitewide-control-rollout.test.mjs tests/calendar-creation-routes.test.mjs
 if ($LASTEXITCODE -ne 0) { throw "Focused tests failed" }
 npm run typecheck
