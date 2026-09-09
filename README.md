@@ -8,7 +8,7 @@ AtmoShaper is the repository and future platform identity. The runtime has **not
 
 The Phase 1–2 bootstrap is merged: [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged on 2026-09-09 at 09:36:44 UTC by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. The reviewed head was `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`; `codex/bootstrap-atmoshaper` is retained.
 
-Phase 3 documentation consolidation is active on the local `codex/atmoshaper-docs-consolidation` branch. Tasks 1–3 are committed; Task 4 synchronizes current authority, and Task 5 verification and review is next. Of 150 inherited design records reviewed, 134 remain and 16 exact superseded plans were omitted with [source and rollback receipts](docs/rebrand/atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09); MassageLab retains every original. The new Phase 3 plan is additional to those records. Phase 3 is not complete or published as a new pull request.
+Phase 3 documentation consolidation is complete locally on `codex/atmoshaper-docs-consolidation`. Tasks 1–4 are committed through `7daec8142d0353b33f5aaeabcccb7689f15c820b`; Task 5 reconciles the deterministic documentation audit baseline and records the final reviews and verification in the commit containing its closeout receipt. Of 150 inherited design records reviewed, 134 remain and 16 exact superseded plans were omitted with [source and rollback receipts](docs/rebrand/atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09); MassageLab retains every original. The new Phase 3 plan is additional to those records. The branch has not been pushed and no Phase 3 pull request has been opened.
 
 Full development history and historical evidence remain in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab). See [MIGRATION_LINEAGE.md](MIGRATION_LINEAGE.md) for the exact source and migration boundary.
 
@@ -37,7 +37,7 @@ Start with:
 
 The [migration charter](docs/rebrand/atmoshaper-migration-charter.md) and [Phase 3 plan](docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) govern current consolidation. The [export manifest](docs/rebrand/atmoshaper-export-manifest.json) and [Phase 1–2 plan](docs/superpowers/plans/2026-09-06-atmoshaper-repository-migration.md) retain the historical bootstrap contract. At the historical Task 5 snapshot, Phase 2 audits, verification, and publication were still pending; [the project log](docs/project-log.md) preserves those dated receipts.
 
-Runtime rebranding, old-origin recovery implementation, provider staging, deployment, and production/database/payment/email/media/legal changes remain future gated work. The next gate is Phase 3 verification and review; Phase 4 has not started.
+Runtime rebranding, old-origin recovery implementation, provider staging, deployment, and production/database/payment/email/media/legal changes remain future gated work. The next gate is separately authorized publication of the existing Phase 3 branch and a new pull request; Phase 4 has not started.
 
 ## Local Development
 

@@ -4,12 +4,12 @@ Verified: 2026-09-09
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 3 Documentation Consolidation
+## Current Snapshot — Phase 3 Complete Locally
 
 - Phase 1–2 bootstrap is merged. [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged into `main` at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. Its reviewed head was `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`; `codex/bootstrap-atmoshaper` remains retained.
 - The sole fresh root is `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`, exported from MassageLab source `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`. The initial 1,908-path contract and bootstrap checks below remain historical receipts, not fresh verification of this branch.
-- The approved [Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) is active locally on `codex/atmoshaper-docs-consolidation`, based on the bootstrap merge. Planning commit `7aedadb` precedes completed Task 1 `99a1faa` (architecture and decisions), Task 2 `7be78ff` (account security and navigation), and Task 3 `49fba96` (exact historical-plan omissions).
-- Task 4 is the current authority synchronization. Task 5 is next: reconcile the documentation audit baseline, obtain whole-branch reviews, and run the required full verification. Phase 3 is not complete. No Phase 3 push or new pull request has occurred, and Phase 4 has not started.
+- The approved [Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) is complete locally on `codex/atmoshaper-docs-consolidation`, based on the bootstrap merge. Planning commit `7aedadb` precedes completed Task 1 `99a1faa` (architecture and decisions), Task 2 `7be78ff` (account security and navigation), and Task 3 `49fba96` (exact historical-plan omissions).
+- Task 4 authority synchronization is complete at `7daec8142d0353b33f5aaeabcccb7689f15c820b`. Task 5 completes the deterministic documentation audit-baseline reconciliation, whole-branch reviews, full local suite, production build, and closeout evidence in the commit containing that receipt. Phase 3 is locally complete. No Phase 3 push or new pull request has occurred; publication requires separate authorization, and Phase 4 has not started.
 - The semantic review covered 150 inherited records: 28 specifications and 122 plans. All 28 specifications and 106 plans remain (134 inherited records); 16 exact superseded plans were omitted with current-owner, immutable-source, and rollback evidence in the [cleanup register](rebrand/atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09). MassageLab retains every original. Including the new Phase 3 plan, there are 107 plans and 28 specifications.
 - [Architecture](architecture.md) maps current owners; [ADR 0001](decisions/0001-fresh-root-lineage-and-history-ownership.md) is Accepted. The other three [decisions](decisions/README.md) remain Proposed: central public-brand ownership, dedicated old-origin recovery, and parallel provider staging are not implemented by Phase 3. [Account security](wiki/account-security.md) owns current identity and 2FA rules.
 - Runtime design/copy still presents MassageLab until the separately reviewed Phase 6 preview rebrand. Old-origin recovery implementation, provider staging, deployment, DNS/domain changes, production/database/payment/email/media changes, and legal cutover remain future gated work. Unrelated hosted-provider observations retain their recorded dates; this synchronization does not refresh them.
@@ -39,7 +39,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - [Export manifest](rebrand/atmoshaper-export-manifest.json) — exact path-difference contract.
 - [Migration charter](rebrand/atmoshaper-migration-charter.md) — authority, invariants, and external mutation boundary.
 - [Operative Phase 1–2 plan](superpowers/plans/2026-09-06-atmoshaper-repository-migration.md) — task sequence and acceptance gates.
-- [Operative Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) — active consolidation and verification gates.
+- [Completed local Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) — consolidation scope, verification, and publication boundary.
 - [Architecture](architecture.md), [decisions](decisions/README.md), and [account security](wiki/account-security.md) — current ownership and migration constraints.
 - [Project wiki](wiki/index.md) — stable operational documentation.
 

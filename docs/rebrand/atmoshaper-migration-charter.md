@@ -4,17 +4,17 @@
 
 - Approved design: [AtmoShaper repository migration and modernization design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md) (approved design commit `14f60fc1bc63e12b65b28c353b83e5f159247645`).
 - Approved bootstrap plan: [AtmoShaper repository migration Phase 1-2 implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md).
-- Active plan: [Phase 3 documentation consolidation](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), limited to documentation and deterministic documentation-occurrence audit-baseline reconciliation.
+- Completed local plan: [Phase 3 documentation consolidation](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), limited to documentation and deterministic documentation-occurrence audit-baseline reconciliation.
 - Superseded handoff: Derrick's 2026-09-06 AtmoShaper migration handoff supersedes the earlier Stage 1 handoff that kept this work inside `dsbowersock/massagelab`.
 - This charter governs source selection for Phases 1-2. The old repository remains the historical archive, evidence source, and rollback source unless separately authorized otherwise.
 
 ## Current Status — Phase 3, 2026-09-09
 
 - Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. It joins sole fresh root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd` and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained.
-- Local `codex/atmoshaper-docs-consolidation` starts from that merge. Tasks 1–3 are committed (`99a1faa`, `7be78ff`, `49fba96`); Task 4 synchronizes authority, and Task 5 verification and whole-branch review is next. Phase 3 is not complete, no Phase 3 push or new PR is claimed, and Phase 4 has not started.
+- Local `codex/atmoshaper-docs-consolidation` starts from that merge. Tasks 1–3 are committed (`99a1faa`, `7be78ff`, `49fba96`), Task 4 authority synchronization is complete at `7daec8142d0353b33f5aaeabcccb7689f15c820b`, and Task 5 completes the deterministic audit reconciliation and closeout evidence in the commit containing this receipt. Phase 3 is complete locally. The branch has not been pushed, no Phase 3 pull request has been opened, and Phase 4 has not started.
 - Current owners are the [architecture map](../architecture.md), [decisions](../decisions/README.md), and [account-security wiki](../wiki/account-security.md). ADR 0001 is Accepted; ADRs 0002–0004 remain Proposed.
 - Semantic review covered 150 inherited records. All 28 specifications and 106 plans remain (134 inherited records); the [cleanup register](atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09) records 16 exact evidence-backed plan omissions, current owners, immutable MassageLab originals, and rollback blobs. The new Phase 3 plan is additional: 107 plans and 28 specifications remain. This separate omission boundary does not rewrite the bootstrap manifest.
-- Runtime/public rebrand, dedicated old-origin recovery, provider staging, deployment, DNS/domain changes, production/database/payment/email/media actions, and legal cutover remain future gated work. Only verified GitHub repository facts are synchronized here; other provider evidence remains dated. The current gate is Phase 3 verification and review, not Phase 4 execution.
+- Runtime/public rebrand, dedicated old-origin recovery, provider staging, deployment, DNS/domain changes, production/database/payment/email/media actions, and legal cutover remain future gated work. Only verified GitHub repository facts are synchronized here; other provider evidence remains dated. The current gate is separately authorized Phase 3 branch publication, not Phase 4 execution.
 
 ## Source Lock (Historical Phase 2 Export Receipt)
 
