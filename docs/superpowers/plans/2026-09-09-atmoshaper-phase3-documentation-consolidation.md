@@ -150,9 +150,41 @@ Internal-consistency rulings:
 **Focused verification:**
 
 ```powershell
-rg -n "^Status:|^## (Context|Decision|Rationale|Compatibility boundary|Revisit trigger|Immutable source|Consequences)" docs/decisions
-rg -n "f59e1b9371b06e7401740ae011f6dc911430a97c|e74045c2fc85c2cb4df176fdb1aff2137c4d9848|7e89f7ba9508a1ad715c1824ea6099432e6a4ccd" docs/decisions docs/architecture.md
+$adrExpectations = @(
+  @{ Path = 'docs/decisions/0001-fresh-root-lineage-and-history-ownership.md'; Status = 'Accepted' }
+  @{ Path = 'docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md'; Status = 'Proposed' }
+  @{ Path = 'docs/decisions/0003-origin-bound-local-data-and-pwa-recovery.md'; Status = 'Proposed' }
+  @{ Path = 'docs/decisions/0004-parallel-provider-staging-and-cutover.md'; Status = 'Proposed' }
+)
+$requiredAdrHeadings = @(
+  'Context'
+  'Decision'
+  'Rationale'
+  'Compatibility boundary'
+  'Revisit trigger'
+  'Immutable source'
+  'Consequences'
+)
+foreach ($adr in $adrExpectations) {
+  if (-not (Test-Path -LiteralPath $adr.Path -PathType Leaf)) { throw "Missing ADR: $($adr.Path)" }
+  $statusMatches = @(rg -n --regexp ("^Status: " + [regex]::Escape($adr.Status) + '$') -- $adr.Path)
+  if ($LASTEXITCODE -ne 0 -or $statusMatches.Count -ne 1) { throw "ADR status check failed: $($adr.Path)" }
+  foreach ($heading in $requiredAdrHeadings) {
+    $headingMatches = @(rg -n --regexp ("^## " + [regex]::Escape($heading) + '$') -- $adr.Path)
+    if ($LASTEXITCODE -ne 0 -or $headingMatches.Count -ne 1) { throw "ADR heading check failed: $heading in $($adr.Path)" }
+  }
+}
+$lineageIds = @(
+  'f59e1b9371b06e7401740ae011f6dc911430a97c'
+  'e74045c2fc85c2cb4df176fdb1aff2137c4d9848'
+  '7e89f7ba9508a1ad715c1824ea6099432e6a4ccd'
+)
+foreach ($lineageId in $lineageIds) {
+  $lineageMatches = @(rg -n --fixed-strings $lineageId -- docs/decisions/0001-fresh-root-lineage-and-history-ownership.md)
+  if ($LASTEXITCODE -ne 0) { throw "Missing lineage ID: $lineageId" }
+}
 git diff --check
+if ($LASTEXITCODE -ne 0) { throw "Whitespace check failed" }
 ```
 
 **Acceptance:** One current architecture map exists; all ADRs contain the required
@@ -185,11 +217,28 @@ fields and correct status; no runtime file changes.
 **Focused verification:**
 
 ```powershell
-rg -n "ENROLL_TWO_FACTOR|DISABLE_TWO_FACTOR|REGENERATE_TWO_FACTOR_BACKUP_CODES" lib prisma tests docs/wiki/account-security.md
-rg -n "MassageLab Wiki|AtmoShaper Wiki|account-security|decisions|architecture" docs/wiki/index.md
+$intentPurposes = @(
+  'ENROLL_TWO_FACTOR'
+  'DISABLE_TWO_FACTOR'
+  'REGENERATE_TWO_FACTOR_BACKUP_CODES'
+)
+foreach ($purpose in $intentPurposes) {
+  $purposeMatches = @(rg -n --fixed-strings $purpose -- docs/wiki/account-security.md)
+  if ($LASTEXITCODE -ne 0) { throw "Missing account-security intent purpose: $purpose" }
+}
+$wikiPath = 'docs/wiki/index.md'
+if (-not (Test-Path -LiteralPath $wikiPath -PathType Leaf)) { throw "Missing wiki index: $wikiPath" }
+$staleHeadingMatches = @(rg -n --regexp '^# MassageLab Wiki$' -- $wikiPath)
+if ($LASTEXITCODE -eq 0) { throw 'Stale wiki heading remains: # MassageLab Wiki' }
+if ($LASTEXITCODE -ne 1) { throw 'Wiki stale-heading check failed' }
+foreach ($requiredWikiEntry in @('# AtmoShaper Wiki', 'account-security', 'decisions', 'architecture')) {
+  $wikiMatches = @(rg -n --fixed-strings $requiredWikiEntry -- $wikiPath)
+  if ($LASTEXITCODE -ne 0) { throw "Missing wiki navigation entry: $requiredWikiEntry" }
+}
 node --test tests/auth-method-intent-proof.test.mjs tests/account-two-factor-management.test.mjs tests/account-security-methods.test.mjs tests/auth-schema-migration.test.mjs
 if ($LASTEXITCODE -ne 0) { throw "Focused account-security tests failed" }
 git diff --check
+if ($LASTEXITCODE -ne 0) { throw "Whitespace check failed" }
 ```
 
 **Acceptance:** The security page agrees with current code/tests, wiki navigation is
@@ -447,12 +496,14 @@ $unstagedPaths = @(git diff --name-only)
 if ($LASTEXITCODE -ne 0) { throw "Unstaged path check failed" }
 $untrackedPaths = @(git ls-files --others --exclude-standard)
 if ($LASTEXITCODE -ne 0) { throw "Untracked path check failed" }
+$observedPathSet = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 $observedPaths = @(
-  $baseToHeadPaths
-  $stagedPaths
-  $unstagedPaths
-  $untrackedPaths
-) | Where-Object { $_ } | Sort-Object -Unique
+  $baseToHeadPaths + $stagedPaths + $unstagedPaths + $untrackedPaths |
+    Where-Object { $_ } |
+    ForEach-Object {
+      if ($observedPathSet.Add([string]$_)) { $_ }
+    }
+)
 $outsideAllowedPaths = @($observedPaths | Where-Object { $_ -cnotin $allowedChangedPaths })
 if ($outsideAllowedPaths.Count -gt 0) {
   $outsideAllowedPaths

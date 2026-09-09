@@ -94679,35 +94679,42 @@
     },
     {
       "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
-      "line": 189,
-      "column": 8,
-      "textSha256": "9e88f185da15f76b51396293689de20ae38f4db22c6baba2daeb3307596a6b69",
+      "line": 231,
+      "column": 45,
+      "textSha256": "a0bec8deee646a7e875dc2841063c955ccd9556e995d65c612493f305f879217",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
-      "line": 215,
+      "line": 232,
+      "column": 65,
+      "textSha256": "2c2fbb910fae348fbad1cf81600bfe471ff08199f5f09ae4c67fc8022057b871",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 264,
       "column": 52,
       "textSha256": "7349f75241fc0b154b62ca7b7444073e6d57aa9077b42bec5722e5609195c1df",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
-      "line": 220,
+      "line": 269,
       "column": 24,
       "textSha256": "d267ea4bd292234b1cf375746630925444248c5dd90eed507dae3cb3c831f391",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
-      "line": 258,
+      "line": 307,
       "column": 58,
       "textSha256": "05925afce107ad90949f8a1546c7c7c22c1a29d420e412d6f0fba988b495c910",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
-      "line": 305,
+      "line": 354,
       "column": 20,
       "textSha256": "eb8a4884b43245de86a29c9308cef8494f75f4778429931833afbee0df94faf8",
       "category": "historical"
@@ -129168,14 +129175,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128463,
+      "line": 128470,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128463,
+      "line": 128470,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
