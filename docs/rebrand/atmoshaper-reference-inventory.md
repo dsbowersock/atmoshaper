@@ -2,7 +2,7 @@
 
 Source repository: `dsbowersock/massagelab`. Locked Phase 2 source: merged `main` `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`. Inventory date: 2026-09-08. Relock branch: `codex/atmoshaper-phase2-relock`.
 
-Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), and [rollback plan](atmoshaper-rollback-plan.md). This document remains the Task 2 classification contract and now also owns the accepted Task 3/4 source-baseline receipts below. It is not a destination-parity receipt; Task 5 has not created a destination.
+Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), and [rollback plan](atmoshaper-rollback-plan.md). This document remains the Task 2 classification contract and owns the accepted Task 3/4 source baseline, Task 7 destination baseline, and Task 9 publication receipts below. Earlier task snapshots are retained as explicitly historical evidence and are superseded for current status by the final publication receipt.
 
 ## Source Tree Summary
 
@@ -508,7 +508,7 @@ These are the complete 24 accepted Windows PNGs after the reviewed Pricing-only 
 
 - GitHub read-only inspection confirmed `dsbowersock/massagelab` is public, its default branch is `main`, and it is not archived. PR #206 merged as `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`; its tree `0370e1d2749f9644efdc3ccbcb832c8d7965ec0d` exactly matches reviewed head `971c453ebb50127bb3ffd1d9f5e4f133dbf9df82`, and this exact merge is the selected source lock.
 - Vercel CLI `59.11.7` read-only inspection confirmed project `massagelab`, framework Next.js, Node.js 22.x, and production domains `massagelab.app` and `www.massagelab.app`. No project, deployment, alias, domain, or environment setting changed.
-- Neon evidence is limited to the authorization-bound temporary empty QA lifecycle described above and a read-only confirmation that production remained present. No production connection, row, schema, setting, or data was copied or changed.
+- Neon evidence is limited to the authorization-bound temporary empty QA lifecycle described above and a read-only confirmation that production remained present. No production connection, row, schema, setting, or data was copied or changed. This entire hosted-source subsection is a historical Task 4R snapshot; its forward-looking Task 5 sentence below is superseded by the Task 7 and Task 9 receipts at the end of this inventory and is not current status.
 
 The relocked exact difference contract is omit4/replace15/task5Add1/task6Add6/overlay10. With 1,905 locked source files, the computed Task 5 and final inventories remain 1,902 and 1,908 paths. MassageLab pull request [#206](https://github.com/dsbowersock/massagelab/pull/206) is merged; exact merge-head Code quality, Browser build, Browser QA lanes 1–4, aggregate `qa`, and CodeQL Actions/JavaScript/Python passed, and Vercel reported its automatic `main` deployment complete. The user authorized Phase 2 through Task 9 after this relock; Task 5 is the next gated action. Destination creation, deployment configuration, production or destination provider/DNS work, and production database mutation have not occurred in Task 4R. The disclosed temporary empty QA-project lifecycle is complete and does not broaden future authorization.
 
@@ -618,7 +618,9 @@ Exclude the candidate's own path from reference counts; classify the remaining o
 
 Task 2 checks JSON/Markdown equality, normalized sorted unique arrays, source-present omit/replace sets, source-absent/disjoint task add sets, overlay coverage, exact count equations, all 41 top-level partitions, direct retained dependencies and the omission proof. Source/destination install/build/browser/provider receipts remain Task 3/4/7 obligations.
 
-## Accepted Task 7 Destination Baseline — 2026-09-09
+The Task 4R paragraph above is a historical source-baseline boundary: its Task 5 next-action and uncreated-destination statements are superseded by the Task 7 and Task 9 receipts that follow. They are not current repository status.
+
+## Accepted Task 7 Destination Baseline — 2026-09-09 (Historical Prepublication Snapshot)
 
 ### Fresh-root and inventory identity
 
@@ -676,4 +678,28 @@ Ordinary authenticated private browser rows require this authorized empty QA tar
 
 ### Hosted and mutation boundary
 
-The local root had no Git remote before Task 9. Apart from the authorized disposable QA projects that were deleted and proved absent, no persistent destination deployment, environment, provider configuration, alias, domain, DNS, payment, email, media, production database, runtime rebrand, or legal setting was created or changed. Existing legal owners and stable compatibility identifiers remain unchanged. Task 9 is limited to repository publication and an unmerged bootstrap pull request; Phase 3 remains separately gated.
+At this Task 7 snapshot, the local root had no Git remote and Task 9 had not started. Apart from the authorized disposable QA projects that were deleted and proved absent, no persistent destination deployment, environment, provider configuration, alias, domain, DNS, payment, email, media, production database, runtime rebrand, or legal setting was created or changed. Existing legal owners and stable compatibility identifiers remained unchanged. The Task 9 receipt below supersedes this prepublication timing; Phase 3 remains separately gated.
+
+## Task 9 Publication and Phase 1–2 Completion Receipt — 2026-09-09
+
+### Repository, commits, pull request, and hosted checks
+
+- Public repository: [`https://github.com/dsbowersock/atmoshaper`](https://github.com/dsbowersock/atmoshaper); visibility public; default branch `main`; no tags.
+- Initial `main`: sole root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`, tree `e9a97bbe519a1cc52c7225eb600fd5d2473f6ded`. Complete pre-bootstrap Git history remains intact in the historical source repository identified at the top of this inventory, at locked source `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`.
+- Task 8 receipt commit: `953e04c680d497851cdb6b6533b92de8f9b1c4f2`. Test-only correction commit: `23f5b8654a89c83de4ae3c6454996e9f7bc6b283`, which advanced the project-state verification-date upper bound to 2026-09-09 after the first hosted Code quality run exposed the stale 2026-09-08 ceiling.
+- [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) is open and unmerged from `codex/bootstrap-atmoshaper` into `main`.
+- At exact `23f5b8654a89c83de4ae3c6454996e9f7bc6b283`, the focused test passed 15/15 and the full local suite passed 4,216 with 3 skips and 0 failures. Hosted run `34325535135` passed Code quality in 4m11s, Browser build in 2m26s, Browser QA lanes 1–4 in 12m24s, 11m15s, 17m56s, and 12m59s, and aggregate `qa` in 3s.
+- CodeQL, Vercel, and CodeRabbit did not appear or run in the new repository and remain later setup findings, not passed checks. Codex GitHub review completed only on `953e04c680d497851cdb6b6533b92de8f9b1c4f2`. A later head, including the receipt-only documentation head produced from this correction, requires its own hosted pass and exact-head review assessment.
+
+### Completion-report cross-check
+
+- Copied/difference scope: the locked source contains 1,905 paths. The destination's initial 1,908 paths are explained by four exact omissions, 15 source-present replacements, one Task 5 source-absent addition, six Task 6 source-absent audit additions, and ten reviewed overlays. All other source blobs were retained; unresolved cleanup candidates remain in the destination rather than being silently omitted.
+- Verification and parity: source and destination install, Prisma, typecheck, lint, unit, production-build, Browser-QA-build, four ordinary Browser QA lanes, and migration-parity receipts are recorded above. Destination unit acceptance was 4,216 passed, 3 skipped, 0 failed; both builds produced 115 pages; parity passed 22/22 with all 24 PNGs byte-identical. The 148 route keys matched; server-app aggregate bytes matched; static aggregate bytes differed by 52 because fresh-build artifact identities differ, so per-file bundle equality is not claimed.
+- Metadata/PWA/storage/export/legal/compatibility: the web manifest, robots, sitemap, and service worker matched the source ledger. Origin-bound PWA installation and browser storage do not transfer automatically. User-controlled export formats, legal operator and accepted-document history, stable private identifiers, provider contracts, old-origin recovery, and local-first PHI boundaries remain unchanged and require their separately owned later gates.
+- External dependencies inventoried for later work include GitHub; Vercel; Namecheap/DNS and both current production hosts; Neon; Google OAuth/Auth.js callbacks and Google Calendar; Resend/SMTP, SPF/DKIM/DMARC, and support email/forwarding; Stripe business, Checkout, Portal, catalog, webhook, metadata, and idempotency surfaces; Cloudflare R2/media/CORS/cache; Sentry; search/sitemap; social identity; and PWA/app-store identity. Inventory is not authorization to configure or mutate any of them.
+- Highest-risk cleanup areas are retained compatibility wrappers/models, origin-bound browser data and caches, dependencies/patches, and assets/media/catalogs where deletion could break data, build, provenance, or recovery contracts. No cleanup is approved. The highest-value refactor candidate is a focused public-product-identity boundary that centralizes display identity while explicitly excluding legal and private compatibility identifiers; provider/trusted-origin, Stripe, Chimer, and music-provider work remains higher risk and separately gated.
+- External actions were creation of the public GitHub repository, publication of `main` and `codex/bootstrap-atmoshaper` (including the test-only correction), opening the unmerged bootstrap PR, the recorded hosted CI runs, and the Codex GitHub review on the earlier receipt head. This receipt correction added no PR comment or internal note. No tag, merge, deployment, provider configuration, DNS/domain, production database, email, payment, media, runtime rebrand, legal cutover, or Phase 3 action occurred.
+
+Every future Browser QA acceptance cycle must create a new independent empty QA project, pass the non-production identity and fingerprint gates, apply exactly the 46 committed migrations, prove all application tables empty after cleanup, delete every cycle-owned project, and prove post-delete absence. Production data must never be supplied, copied, read, or altered.
+
+Phase 1–2 bootstrap work is published for review and stops here. The recommended next branch is `codex/atmoshaper-docs-consolidation`, but Phase 3 planning and execution are future work requiring separate review and authorization; the branch has not been created and consolidation has not begun.
