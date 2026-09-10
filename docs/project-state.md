@@ -1,15 +1,15 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-09
+Verified: 2026-09-10
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 3 Complete Locally
+## Current Snapshot — Phase 4 Audit-Only Work Started
 
 - Phase 1–2 bootstrap is merged. [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged into `main` at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. Its reviewed head was `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`; `codex/bootstrap-atmoshaper` remains retained.
 - The sole fresh root is `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`, exported from MassageLab source `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`. The initial 1,908-path contract and bootstrap checks below remain historical receipts, not fresh verification of this branch.
-- The approved [Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) is complete locally on `codex/atmoshaper-docs-consolidation`, based on the bootstrap merge. Planning commit `7aedadb` precedes completed Task 1 `99a1faa` (architecture and decisions), Task 2 `7be78ff` (account security and navigation), and Task 3 `49fba96` (exact historical-plan omissions).
-- Task 4 authority synchronization is complete at `7daec8142d0353b33f5aaeabcccb7689f15c820b`. Task 5 completed the deterministic documentation audit-baseline reconciliation, whole-branch reviews, full local suite, production build, and closeout evidence at `62fd42beae83ea90b02a2ea321f7993c4b3661d1`. Phase 3 is complete and published for review in [PR #2](https://github.com/dsbowersock/atmoshaper/pull/2). Hosted checks and review are active; Phase 4 has not started.
+- The approved [Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) is complete. [PR #2](https://github.com/dsbowersock/atmoshaper/pull/2) merged at `2026-09-10T00:57:48Z` as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; its reviewed head was `9d2a8eca057f33354f2cbb50263c8e4f365a00f1`, and `codex/atmoshaper-docs-consolidation` remains retained.
+- Phase 4 audit-only work is active on `codex/atmoshaper-dead-code-audit`, created from that exact merge. Planning commit `e27c1d0ce941fbf9610389b45b9a30c82caac873` records the approved [Phase 4 plan](superpowers/plans/2026-09-10-atmoshaper-phase4-audit-only.md). This branch may add deterministic read-only dead-code, dependency, asset, and environment audits and reconcile their evidence. No candidate has deletion approval; no candidate deletion, rename, upgrade, retirement, or runtime change is authorized. Phases 5–10 remain unstarted.
 - The semantic review covered 150 inherited records: 28 specifications and 122 plans. All 28 specifications and 106 plans remain (134 inherited records); 16 exact superseded plans were omitted with current-owner, immutable-source, and rollback evidence in the [cleanup register](rebrand/atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09). MassageLab retains every original. Including the new Phase 3 plan, there are 107 plans and 28 specifications.
 - [Architecture](architecture.md) maps current owners; [ADR 0001](decisions/0001-fresh-root-lineage-and-history-ownership.md) is Accepted. The other three [decisions](decisions/README.md) remain Proposed: central public-brand ownership, dedicated old-origin recovery, and parallel provider staging are not implemented by Phase 3. [Account security](wiki/account-security.md) owns current identity and 2FA rules.
 - Runtime design/copy still presents MassageLab until the separately reviewed Phase 6 preview rebrand. Old-origin recovery implementation, provider staging, deployment, DNS/domain changes, production/database/payment/email/media changes, and legal cutover remain future-gated work. Unrelated hosted-provider observations retain their recorded dates; this synchronization does not refresh them.
@@ -40,6 +40,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - [Migration charter](rebrand/atmoshaper-migration-charter.md) — authority, invariants, and external mutation boundary.
 - [Operative Phase 1–2 plan](superpowers/plans/2026-09-06-atmoshaper-repository-migration.md) — task sequence and acceptance gates.
 - [Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) — completed consolidation scope, verification, and publication boundary.
+- [Phase 4 audit-only plan](superpowers/plans/2026-09-10-atmoshaper-phase4-audit-only.md) — active deterministic evidence-collection scope and no-deletion boundary.
 - [Architecture](architecture.md), [decisions](decisions/README.md), and [account security](wiki/account-security.md) — current ownership and migration constraints.
 - [Project wiki](wiki/index.md) — stable operational documentation.
 
@@ -57,7 +58,7 @@ The locked source records the exact 174/174 focused Anatomime matrix. Fresh exac
 
 ## Historical Snapshot — Phase 1–2 Bootstrap Published for Review
 
-This is the 2026-09-09 pre-merge publication snapshot, superseded by the current Phase 3 snapshot above. Its open-PR, review-coverage, and stop-before-Phase-3 statements describe that earlier boundary only.
+This is the 2026-09-09 pre-merge publication snapshot, superseded by the current Phase 4 snapshot above. Its open-PR, review-coverage, and stop-before-Phase-3 statements describe that earlier boundary only.
 
 - Tasks 5–7 are complete. Fresh-root `main` is `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`: the repository has one root, that commit has no parent, and the worktree was clean after creation.
 - The initial commit contains the exact 1,908-path contract, 46,865,680 tracked blob bytes, tree `e9a97bbe519a1cc52c7225eb600fd5d2473f6ded`, and aggregate staged-tree SHA-256 `1d537a03b8a0294f1e68f56df718c29b5e5cf4bfedac01de7ae1cceb86aa3604`.
