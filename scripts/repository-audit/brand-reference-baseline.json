@@ -53,28 +53,28 @@
     },
     {
       "path": "MIGRATION_LINEAGE.md",
-      "line": 22,
+      "line": 23,
       "column": 66,
       "textSha256": "b86cb0f3993590d23ec5ec46b9dc7887992d72059a72af41774435df6e82e5c2",
       "category": "historical"
     },
     {
       "path": "MIGRATION_LINEAGE.md",
-      "line": 24,
+      "line": 25,
       "column": 427,
       "textSha256": "3b827cd7153a2e2374221a8e3955a2d77edb41f9d6219a474b8fb31bc5ef1a9c",
       "category": "historical"
     },
     {
       "path": "MIGRATION_LINEAGE.md",
-      "line": 24,
+      "line": 25,
       "column": 622,
       "textSha256": "3b827cd7153a2e2374221a8e3955a2d77edb41f9d6219a474b8fb31bc5ef1a9c",
       "category": "historical"
     },
     {
       "path": "MIGRATION_LINEAGE.md",
-      "line": 26,
+      "line": 27,
       "column": 221,
       "textSha256": "b321f0a6eceac0f4095f6e3e09c14472a67ce73fb505ba58d3fa3b5ad9c5840b",
       "category": "historical"
@@ -88,28 +88,21 @@
     },
     {
       "path": "README.md",
-      "line": 11,
-      "column": 602,
-      "textSha256": "4cc2f6c295b9d2592d7c601a56e6ea43baafc3e02b1721a9eb73e465708c06f3",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "README.md",
-      "line": 13,
+      "line": 15,
       "column": 74,
       "textSha256": "722a2e3ec82efcc41498d2b2ab648215d1353c6d9598246132caf00e6ad0ed0b",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "README.md",
-      "line": 13,
+      "line": 15,
       "column": 118,
       "textSha256": "722a2e3ec82efcc41498d2b2ab648215d1353c6d9598246132caf00e6ad0ed0b",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "README.md",
-      "line": 83,
+      "line": 85,
       "column": 60,
       "textSha256": "5dad3b9aa721c23094560a8d93f1b3a569ece07b7a7688163e1fb5412e54217b",
       "category": "pre-rebrand-public-copy"
@@ -89604,7 +89597,7 @@
     },
     {
       "path": "docs/project-state.md",
-      "line": 50,
+      "line": 51,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -129140,6 +129133,13 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
+      "line": 74318,
+      "column": 39,
+      "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
+      "category": "compatibility"
+    },
+    {
+      "path": "scripts/repository-audit/brand-reference-baseline.json",
       "line": 74325,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
@@ -129154,21 +129154,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 74339,
-      "column": 39,
-      "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
-      "category": "compatibility"
-    },
-    {
-      "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128456,
+      "line": 128449,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128456,
+      "line": 128449,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"

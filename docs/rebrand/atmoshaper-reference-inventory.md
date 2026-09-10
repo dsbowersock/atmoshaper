@@ -2,9 +2,9 @@
 
 Source repository: `dsbowersock/massagelab`. Locked Phase 2 source: merged `main` `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`. Inventory date: 2026-09-08. Relock branch: `codex/atmoshaper-phase2-relock`.
 
-Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [bootstrap plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), [Phase 3 plan](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), and [rollback plan](atmoshaper-rollback-plan.md). This document retains the Task 2 classification contract and accepted Task 3/4 source, Task 7 destination, and Task 9 publication receipts. The current Phase 3 update below supersedes their timing and next-action statements; historical source/initial-tree counts and dated provider receipts are preserved.
+Authority: [charter](atmoshaper-migration-charter.md), [approved design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md), [bootstrap plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md), [Phase 3 plan](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), [Phase 4 audit-only plan](../superpowers/plans/2026-09-10-atmoshaper-phase4-audit-only.md), and [rollback plan](atmoshaper-rollback-plan.md). This document retains the Task 2 classification contract and accepted Task 3/4 source, Task 7 destination, and Task 9 publication receipts. The Phase 4 update at the end supersedes their timing and next-action statements; historical source/initial-tree counts and dated provider receipts are preserved.
 
-## Current Phase 3 Update — 2026-09-09
+## Historical Phase 3 Update — 2026-09-09
 
 Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`, joining sole fresh root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd` and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained. Source remains `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`.
 
@@ -717,3 +717,18 @@ This receipt preserves publication-time facts. Its open-PR, uncreated-Phase-3-br
 Every future Browser QA acceptance cycle must create a new independent empty QA project, pass the non-production identity and fingerprint gates, apply exactly the 46 committed migrations, prove all application tables empty after cleanup, delete every cycle-owned project, and prove post-delete absence. Production data must never be supplied, copied, read, or altered.
 
 Phase 1–2 bootstrap work is published for review and stops here. The recommended next branch is `codex/atmoshaper-docs-consolidation`, but Phase 3 planning and execution are future work requiring separate review and authorization; the branch has not been created and consolidation has not begun.
+
+## Current Phase 4 Audit-Only Update — 2026-09-10
+
+PR #2 merged as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; the current branch began from that exact merge. Audit implementation reached `656394639464601c6e8b0833389c8272a95c2a95`, and Task 5 ran each report twice against that unchanged committed index.
+
+| Lane | Bounded result | Report SHA-256 | Status |
+| --- | --- | --- | --- |
+| Dead code | 29 zero-incoming static-reference candidates; 16 protected items; 186 uncertainty records | `76915575657c0c0687c653986a83cd0fb709f8b7b487690897f796e17a7d0e80` | `candidate`, `protected`, or `unresolved` |
+| Dependency | 8 declaration candidates; 141 referenced packages; 19 uncertainty records | `5514fcaafd38f8360d93a485ecadb0f3a5045cf3aaef6799450f34d846cd0a9c` | `candidate` or `unresolved` |
+| Asset | 73 tracked and protected assets; zero unreferenced candidates; 2,001 uncertainty records | `cf1a17d1f42f9c9ca53346437945f73c6aef9eba1a47da8205b4c809cc242725` | `protected` or `unresolved` |
+| Environment | 79 declared keys, 329 static reads, 234 missing-declaration findings, 44 unread-declaration candidates, and 13 computed-read uncertainties | `ed6a4009cd3e545504c4b4ff61a08543934f02a063f1bf5429aa7fe640dddc93` | `unresolved` |
+
+The [Phase 4 cleanup register](atmoshaper-cleanup-register.md#phase-4-audit-only-evidence--2026-09-10) records classification and scope totals plus the corroboration needed before any later bounded cleanup proposal. The [Aegis evidence](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md) records commands, report/evidence hashes, deterministic-repeat proof, inventory fixed-point proof, and brand-baseline reconciliation.
+
+Deletion authority is none. Every candidate remains in the repository. No report establishes runtime unreachability, safe dependency removal, asset ownership or provenance clearance, environment-key retirement, data/PWA compatibility, provider-object deletion, or rollback sufficiency by itself. Task 6 verification and review remain next; Phase 5 and every external mutation remain separately gated.

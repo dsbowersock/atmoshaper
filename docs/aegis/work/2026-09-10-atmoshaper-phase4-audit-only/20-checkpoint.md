@@ -17,7 +17,10 @@
 - No runtime, dependency-version, lockfile, asset, provider, database, production,
   domain, payment, email, media, compatibility, or legal change has occurred.
 
-## Current next action
+## Superseded Task 1 next-action snapshot
+
+The following action was current after Task 1 and is retained only as historical
+sequence evidence:
 
 Synchronize the current-authority documents, then implement and verify the four
 repository-owned audit lanes. Reconcile their reports into an evidence record and
@@ -44,3 +47,24 @@ Stop and escalate if any task would:
 The Phase 3 PR merge is prior authorized repository history. Phase 4 has performed
 no external action. Publication, review, merge, provider work, and all other
 external mutations remain separately gated.
+
+## 2026-09-10 — Task 5 audit reconciliation
+
+- Captured all four audit reports twice from clean committed index
+  `656394639464601c6e8b0833389c8272a95c2a95`; every pair was byte-identical and
+  every report stated `deletionAuthority: false`.
+- Recorded bounded classification, scope and uncertainty totals in the cleanup
+  register and detailed commands and hashes in `90-evidence.md`; large candidate
+  lists remain only in generated report output.
+- Reconciled the brand baseline without changing its schema or source. The only
+  category-count change is pre-rebrand public copy from 1,953 to 1,952; moved
+  historical occurrences retained their categories. The final audit reports zero
+  missing and zero unclassified references, and fresh generation is a byte match.
+- Preserved `package-lock.json` and every candidate. Candidate status remains
+  `unresolved`, `protected`, or `candidate`; deletion authority is none.
+
+## Current next action after Task 5 review
+
+Complete the independent Task 5 reviews and coordinator-owned commit, then run
+Task 6 full local verification and closeout. Stop before publication, candidate
+cleanup, external mutation, or Phase 5 work.
