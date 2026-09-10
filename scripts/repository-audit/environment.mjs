@@ -34,13 +34,14 @@ export function buildEnvironmentCandidateReport(index, policy) {
   const declaredNames = new Set(evidence.declarations.map((row) => row.name))
   const readNames = new Set(evidence.reads.map((row) => row.name))
   const uncertainNames = new Set(evidence.uncertainties.map((row) => row.name).filter(Boolean))
+  const hasNameUnboundedRead = evidence.uncertainties.some((row) => row.name == null)
   const staticReads = evidence.reads.map((row) => ({
     ...row,
     scope: scopeByPath.get(row.path) ?? "other",
   }))
   const declaredKeys = evidence.declarations.map((row) => ({ ...row }))
   const unreadDeclarationCandidates = declaredKeys
-    .filter((row) => !readNames.has(row.name) && !uncertainNames.has(row.name))
+    .filter((row) => !hasNameUnboundedRead && !readNames.has(row.name) && !uncertainNames.has(row.name))
     .map((row) => ({ ...row, reason: "no-static-read" }))
   const missingDeclarationFindings = staticReads
     .filter((row) => !declaredNames.has(row.name))

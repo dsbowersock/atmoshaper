@@ -159,16 +159,34 @@ lookalike candidate.
 Repair validation first confirmed all three targeted regression groups failed
 (0/3 passed), then passed them after implementation (3/3 passed); strict TDD
 remained off. The pre-publication combined focused audit suites passed 64/64.
-Hosted review then corrected environment evidence so assignment and delete
+Hosted review round 1 then corrected environment evidence so assignment and delete
 targets no longer count as reads; its focused slice passed 7/7, and the current
-combined focused audit suites pass 68/68. Current stage-0 semantic results are:
+combined focused audit suites passed 68/68. That round's stage-0 semantic results were:
 
-| Lane | Findings | Uncertainties | Current semantic note |
+| Lane | Findings | Uncertainties | Hosted-review round 1 note |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | 29 candidates, 21 protected, 836 referenced and 672 roots; unchanged. |
 | Dependency | 2,859 | 19 | Includes one additional literal-import owner from static `require.resolve()` use. |
 | Asset | 340 | 2,002 | 526 dynamic and 1,476 unresolved literals; no candidate is authorized for removal. |
 | Environment | 612 | 178 | 79 declared, 202 missing, 306 static-read and 25 unread findings; 9 computed-read and 169 unproven uncertainties. |
+
+Hosted review round 2 added config-alias, whole-object/computed environment, and
+browser-snapshot coverage. The current focused repository audit suites pass
+74/74, and the current stage-0 semantic results are:
+
+| Lane | Findings | Uncertainties | Current semantic note |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | Candidate authority is unchanged. |
+| Dependency | 2,859 | 19 | Candidate authority is unchanged. |
+| Asset | 388 | 2,003 | Browser snapshots are covered; no candidate is authorized for removal. |
+| Environment | 587 | 191 | Whole-object and computed environment access remain conservatively evidenced. |
+
+The current tracked inventory remains 1,921 files. The pre-document
+receipt-synchronization snapshot measured 47,216,441 Git blob bytes. Brand
+verification remains zero missing and zero unclassified. Exact final staged
+bytes and identity remain in the ignored SDD handoff and user-facing receipt
+rather than this self-referential versioned register, and every report keeps
+`deletionAuthority: false`.
 
 The earlier 59/59 staged capture, its hashes and the 4,249-test unit receipt are
 historical and superseded for current-tooling decisions. Against the

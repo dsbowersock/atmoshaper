@@ -110,12 +110,14 @@
     "prisma/migrations/",
     "public/",
     "scripts/repository-audit/",
+    "tests/browser/atmoshaper-repository-migration-parity.spec.ts-snapshots/",
     "tests/fixtures/",
     "types/"
   ],
   "assetRoots": [
     "app/",
     "public/",
+    "tests/browser/atmoshaper-repository-migration-parity.spec.ts-snapshots/",
     "tests/fixtures/"
   ],
   "assetExtensions": [

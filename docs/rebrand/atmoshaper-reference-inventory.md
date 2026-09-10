@@ -777,14 +777,24 @@ The subsequent pre-publication final repair cycle supersedes the 59/59 capture
 for current-tooling decisions. Repair validation first confirmed three failing
 regression cases and then 3/3 passing after their fixes; strict TDD remained off
 under the governing intent and plan. The combined focused suite passed 64/64.
-Hosted review then corrected environment evidence so assignment and delete
+Hosted review round 1 then corrected environment evidence so assignment and delete
 targets no longer count as reads; its focused slice passed 7/7, and the current combined
-focused audit suites pass 68/68. Current semantic totals are dead code 1,558
+focused audit suites passed 68/68. That round's semantic totals were dead code 1,558
 findings/186 uncertainties, dependency 2,859/19, asset
 340/2,002, and environment 612/178: 79 declared keys, 202 missing declarations,
 306 static reads and 25 unread findings; 9 computed reads and 169 unproven-alias
 uncertainties. Before publication, the full suite passed 4,259 tests with 3
 host-dependent skips and zero failures, and the 115-route production build passed.
+
+Hosted review round 2 added config-alias, whole-object/computed environment, and
+browser-snapshot coverage. The current focused repository audit suites pass
+74/74. Current semantic totals are dead code 1,558 findings/186 uncertainties,
+dependency 2,859/19, asset 388/2,003, and environment 587/191. The current tracked
+inventory remains 1,921 files; the pre-document receipt-synchronization snapshot
+measured 47,216,441 Git blob bytes. Brand verification remains zero missing and
+zero unclassified. Exact final staged bytes and identity remain only in the
+ignored SDD handoff and user-facing receipt. Every report retains
+`deletionAuthority: false`.
 
 The exact final-index readback, repeat independent specification and quality
 reviews, and coordinator-owned completion commit all completed before separate

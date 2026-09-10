@@ -270,21 +270,41 @@ Repair validation first confirmed all three targeted regression groups failed
 (0/3 passed), then passed them after the minimum implementation changes (3/3
 passed); strict TDD remained off. The pre-publication combined repository-audit
 and repository-cleanup-audit suites subsequently passed 64/64 with zero failures
-or skips. Hosted review then corrected environment evidence so assignment and
+or skips. Hosted review round 1 then corrected environment evidence so assignment and
 delete targets no longer count as reads; its focused slice passed 7/7, and the
-current combined focused audit suites pass 68/68. A fresh semantic evaluation
+combined focused audit suites passed 68/68. That round's semantic evaluation
 against one captured stage-0 source produced:
 
-| Lane | Findings | Uncertainties | Current bounded classification |
+| Lane | Findings | Uncertainties | Hosted-review round 1 classification |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | 29 candidates, 21 protected, 836 referenced and 672 roots; unchanged from the historical staged capture. |
 | Dependency | 2,859 | 19 | One additional literal-import owner records the repository's static `require.resolve()` usage; candidate authority is unchanged. |
 | Asset | 340 | 2,002 | 526 dynamic and 1,476 unresolved literals; single-digit metadata parity is enforced and no asset deletion is authorized. |
 | Environment | 612 | 178 | 79 declared, 202 missing, 306 static-read and 25 unread findings; 9 computed-read and 169 unproven uncertainties. |
 
-These are semantic counts from the final staged repair, not embedded final-index
-hashes. The earlier 59/59 capture and its report hashes remain historical and
-superseded. Against the pre-publication final staged repair, the complete suite
+Hosted review round 2 added config-alias, whole-object/computed environment, and
+browser-snapshot coverage. The current focused repository audit suites pass
+74/74. Exact current semantic evaluation against the captured stage-0 source
+produced:
+
+| Lane | Findings | Uncertainties | Current bounded classification |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | Candidate authority is unchanged. |
+| Dependency | 2,859 | 19 | Candidate authority is unchanged. |
+| Asset | 388 | 2,003 | Browser snapshots are covered and no asset deletion is authorized. |
+| Environment | 587 | 191 | Whole-object and computed environment access remain conservatively evidenced. |
+
+The current tracked inventory remains 1,921 files. The pre-document
+receipt-synchronization snapshot measured 47,216,441 Git blob bytes. Brand
+verification remains zero missing and zero unclassified. Every report keeps
+`deletionAuthority: false`; exact final staged bytes and identity remain only in
+the ignored SDD handoff and user-facing receipt rather than this self-referential
+versioned evidence.
+
+Both hosted-review tables contain semantic counts, not embedded final-index
+hashes. The earlier 59/59, 64/64, and 68/68 captures and their report hashes
+remain historical and superseded for current-tooling decisions. Against the
+pre-publication final staged repair, the complete suite
 passed 4,259 tests with 3 host-dependent skips and zero failures, and the
 115-route production build passed. At that snapshot, the coordinator still had
 to perform the receipt-synchronized exact-index readback, retain its hashes only

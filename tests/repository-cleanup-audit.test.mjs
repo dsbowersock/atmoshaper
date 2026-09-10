@@ -659,6 +659,31 @@ test("environment evidence excludes assignment and delete targets from static re
   assert.equal(evidence.uncertainties.length, 0)
 })
 
+test("environment evidence records whole-object consumption as name-unbounded uncertainty", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "POSSIBLY_CONSUMED=\n")
+  writeFixture(root, "lib/environment-whole-object.ts", [
+    "const env = process.env",
+    "const spreadDirect = { ...process.env }",
+    "const spreadAlias = { ...env }",
+    "const keys = Object.keys(process.env)",
+    "const entries = Object.entries(env)",
+    "function inspect(environment) { return Object.values(environment) }",
+    "void spreadDirect; void spreadAlias; void keys; void entries; void inspect",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const computed = evidence.uncertainties.filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ")
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(computed.map((row) => row.kind).sort(), [
+    "object-entries", "object-keys", "object-spread", "object-spread",
+  ])
+  assert.deepEqual(unproven.map((row) => row.kind), ["object-values"])
+  assert.ok(evidence.uncertainties.every((row) => row.name == null))
+})
+
 test("asset report records Git identities, exact owners by scope, and conservative candidates", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -816,7 +841,7 @@ test("asset report preserves basename ambiguity, dynamic construction, and expli
   ])
 })
 
-test("environment report separates overlap, missing names, unread names, scopes, and computed reads", (t) => {
+test("environment report avoids unread claims when a computed read has no provable name", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
   const secretValues = ["super-private-one", "super-private-two", "super-private-three"]
@@ -876,13 +901,23 @@ test("environment report separates overlap, missing names, unread names, scopes,
       TOOLING: "tool",
     },
   )
-  assert.deepEqual(report.unreadDeclarationCandidates.map((row) => row.name), ["UNREAD"])
+  assert.deepEqual(report.unreadDeclarationCandidates, [])
   assert.deepEqual(report.missingDeclarationFindings.map((row) => row.name), ["MISSING_FROM_EXAMPLE"])
   assert.equal(report.uncertainties.computedReads.length, 1)
   assert.equal(report.uncertainties.computedReads[0].scope, "runtime")
   const index = buildTrackedTextIndex(root, policy)
   assert.equal(buildAuditEnvelope("environment", index, candidateBody(report)).deletionAuthority, false)
   assertPrivateSerialization(report, root, [...secretValues, "getName()"])
+})
+
+test("environment report retains unread candidates when every access is name-bounded", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "READ=\nUNREAD=\n")
+  writeFixture(root, "lib/environment.ts", "const value = process.env.READ\nvoid value\n")
+
+  const report = buildEnvironmentCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.unreadDeclarationCandidates.map((row) => row.name), ["UNREAD"])
 })
 
 test("asset and environment CLIs are byte-deterministic and never gain deletion authority", (t) => {
@@ -1170,6 +1205,100 @@ test("only policy-protected test fixtures turn unresolved literals into named un
   }
 })
 
+test("module evidence records tracked Next configuration alias targets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/enabled.ts", "export const enabled = true\n")
+  writeFixture(root, "lib/disabled.ts", "export const disabled = true\n")
+  writeFixture(root, "lib/shim.js", "export const shim = true\n")
+  writeFixture(root, "lib/unused.ts", "export const unused = true\n")
+  writeFixture(root, "lib/not-framework-config.ts", [
+    "const resolveAlias = { unrelated: './disabled.ts' }",
+    "void resolveAlias",
+    "",
+  ].join("\n"))
+  writeFixture(root, "next.config.mjs", [
+    "import { dirname, resolve } from 'node:path'",
+    "import { fileURLToPath } from 'node:url'",
+    "const root = dirname(fileURLToPath(import.meta.url))",
+    "let mutableRoot = dirname(fileURLToPath(import.meta.url))",
+    "mutableRoot = '/outside-the-repository'",
+    "const selected = enabled ? './lib/enabled.ts' : './lib/disabled.ts'",
+    "const nextConfig = {",
+    "  turbopack: { resolveAlias: { feature: selected, shim: './lib/shim.js' } },",
+    "  webpack(config) { config.resolve.alias.feature = resolve(root, selected); return config },",
+    "  unsupported(config) { config.resolve.alias.unused = selectDifferentModule('./lib/unused.ts'); return config },",
+    "  mutable(config) { config.resolve.alias.mutable = resolve(mutableRoot, './lib/unused.ts'); return config },",
+    "  shadowResolver(config, resolve) { config.resolve.alias.shadowResolver = resolve(root, './lib/unused.ts'); return config },",
+    "  shadowRoot(config, root) { config.resolve.alias.shadowRoot = resolve(root, './lib/unused.ts'); return config },",
+    "  shadowDirname(config, dirname) { config.resolve.alias.shadowDirname = resolve(dirname(fileURLToPath(import.meta.url)), './lib/unused.ts'); return config },",
+    "  shadowFileUrl(config, fileURLToPath) { config.resolve.alias.shadowFileUrl = resolve(dirname(fileURLToPath(import.meta.url)), './lib/unused.ts'); return config },",
+    "  shadowSelected(config, selected) { config.resolve.alias.shadowSelected = resolve(root, selected); return config },",
+    "  nestedVarResolver(config) { if (enabled) { var resolve = selectDifferentModule } config.resolve.alias.nestedVarResolver = resolve(root, './lib/unused.ts'); return config },",
+    "  nestedVarRoot(config) { if (enabled) { var root = '/outside-the-repository' } config.resolve.alias.nestedVarRoot = resolve(root, './lib/unused.ts'); return config },",
+    "  switchResolver(config, mode) { switch (mode) { case 'shadow': const resolve = selectDifferentModule; break; default: config.resolve.alias.switchResolver = resolve(root, './lib/unused.ts') } return config },",
+    "  switchRoot(config, mode) { switch (mode) { case 'shadow': const root = '/outside-the-repository'; break; default: config.resolve.alias.switchRoot = resolve(root, './lib/unused.ts') } return config },",
+    "}",
+    "export default nextConfig",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(
+    [...new Set(evidence.references
+      .filter((row) => row.kind === "framework-config-alias")
+      .map((row) => row.targetPath))].sort(),
+    ["lib/disabled.ts", "lib/enabled.ts", "lib/shim.js"],
+  )
+  assert.equal(evidence.references.some((row) => row.fromPath === "lib/not-framework-config.ts"), false)
+  assert.equal(evidence.references.some((row) => row.targetPath === "lib/unused.ts"), false)
+  assert.ok(evidence.uncertainties.some((row) => (
+    row.path === "next.config.mjs" && row.kind === "framework-config-alias"
+  )))
+  assert.equal(
+    evidence.references.filter((row) => row.kind === "framework-config-alias").length,
+    5,
+  )
+  assert.equal(
+    evidence.uncertainties.filter((row) => row.kind === "framework-config-alias").length,
+    11,
+  )
+})
+
+test("node:path configuration aliases use filesystem semantics", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/bare-relative.ts", "export const bareRelative = true\n")
+  writeFixture(root, "lib/alias-only.ts", "export const aliasOnly = true\n")
+  writeFixture(root, "next.config.mjs", [
+    "import { dirname, resolve } from 'node:path'",
+    "import { fileURLToPath } from 'node:url'",
+    "const root = dirname(fileURLToPath(import.meta.url))",
+    "export default {",
+    "  webpack(config) {",
+    "    config.resolve.alias.bareRelative = resolve(root, 'lib/bare-relative.ts')",
+    "    config.resolve.alias.aliasOnly = resolve(root, '@/lib/alias-only.ts')",
+    "    return config",
+    "  },",
+    "}",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "framework-config-alias")
+      .map((row) => row.targetPath),
+    ["lib/bare-relative.ts"],
+  )
+  assert.equal(
+    evidence.uncertainties.filter((row) => row.kind === "framework-config-alias").length,
+    0,
+  )
+})
+
 test("environment evidence tracks proven aliases and preserves unproven aliases as uncertainty", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -1342,6 +1471,36 @@ test("real environment evidence reads STRIPE_SECRET_KEY through a proven default
   assert.ok(evidence.reads.some((row) => row.name === "STRIPE_SECRET_KEY" && row.path === "lib/stripe-billing.js"))
   const report = buildEnvironmentCandidateReport(index, policy)
   assert.equal(report.unreadDeclarationCandidates.some((row) => row.name === "STRIPE_SECRET_KEY"), false)
+})
+
+test("real asset evidence inventories and protects every tracked Browser-QA PNG snapshot", () => {
+  const index = buildTrackedTextIndex(repositoryRoot, policy)
+  const report = buildAssetCandidateReport(index, policy)
+  const snapshots = report.trackedAssets.filter((row) => (
+    /^tests\/browser\/[^/]+-snapshots\/[^/]+\.png$/.test(row.path)
+  ))
+  assert.equal(snapshots.length, 24)
+  const snapshotPaths = new Set(snapshots.map((row) => row.path))
+  assert.equal(report.protectedAssets.filter((row) => snapshotPaths.has(row.path)).length, 24)
+  assert.equal(report.unreferencedCandidates.some((row) => snapshotPaths.has(row.path)), false)
+})
+
+test("asset CLI applies Browser-QA snapshot protection from a staged fixture policy", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const snapshotPath = "tests/browser/atmoshaper-repository-migration-parity.spec.ts-snapshots/home.png"
+  writeFixture(root, snapshotPath, "snapshot-bytes")
+
+  const result = runAuditCli(assetCliPath, root)
+  assert.equal(result.status, 0)
+  assert.equal(result.stderr, "")
+  const report = JSON.parse(result.stdout)
+  assert.ok(report.findings.some((row) => (
+    row.findingKind === "trackedAssets" && row.path === snapshotPath
+  )))
+  assert.ok(report.findings.some((row) => (
+    row.findingKind === "protectedAssets" && row.path === snapshotPath
+  )))
 })
 
 test("audit envelope keeps inventory identity while findings change", (t) => {

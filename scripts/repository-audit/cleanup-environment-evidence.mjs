@@ -70,6 +70,19 @@ function collectEnvironmentRows(record, text) {
     ...sourceLocation(sourceFile, node), kind, expressionSha256: sha256(node.getText(sourceFile)),
   })
 
+  /** Record a whole-object read without pretending that any individual key is known. */
+  const addWholeObjectUncertainty = (node, status, kind) => {
+    if (status === "proven") addComputedUncertainty(node, kind)
+    else if (status === "unknown") addAliasUncertainty(node, null, kind)
+  }
+
+  const wholeObjectMethod = (node) => (
+    ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression) &&
+    node.expression.text === "Object" && ["entries", "keys", "values"].includes(node.name.text)
+      ? node.name.text
+      : null
+  )
+
   const recordObjectBinding = (pattern, status, kind) => {
     if (!["proven", "unknown"].includes(status)) return
     for (const element of pattern.elements) {
@@ -171,6 +184,15 @@ function collectEnvironmentRows(record, text) {
       visit(node.right, scope)
       assignName(node.left.text, node.right, scope)
       return
+    }
+    if (ts.isSpreadAssignment(node) || ts.isSpreadElement(node)) {
+      addWholeObjectUncertainty(node.expression, aliasStatus(node.expression, scope), "object-spread")
+    } else if (ts.isCallExpression(node)) {
+      const method = wholeObjectMethod(node.expression)
+      const argument = node.arguments[0]
+      if (method && argument) {
+        addWholeObjectUncertainty(argument, aliasStatus(argument, scope), `object-${method}`)
+      }
     }
     if (ts.isPropertyAccessExpression(node) && hasReadSemantics(node)) {
       const status = isProcessEnv(node.expression) ? "proven" : (
