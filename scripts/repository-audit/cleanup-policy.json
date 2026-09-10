@@ -37,6 +37,7 @@
       "lib/",
       "middleware.ts",
       "public/",
+      "proxy.ts",
       "types/"
     ],
     "tool": [
@@ -62,18 +63,25 @@
       "app/"
     ],
     "fileBasenames": [
+      "apple-icon",
       "default",
       "error",
+      "forbidden",
       "global-error",
+      "global-not-found",
+      "icon",
       "layout",
       "loading",
       "manifest",
       "not-found",
+      "opengraph-image",
       "page",
       "robots",
       "route",
       "sitemap",
-      "template"
+      "template",
+      "twitter-image",
+      "unauthorized"
     ]
   },
   "topLevelConfigRoots": [
@@ -86,6 +94,7 @@
     "playwright.config.ts",
     "postcss.config.mjs",
     "prisma.config.ts",
+    "proxy.ts",
     "tailwind.config.ts"
   ],
   "packageScriptCliOwnership": {
@@ -98,6 +107,7 @@
   },
   "protectedPathPrefixes": [
     "prisma/migrations/",
+    "public/",
     "scripts/repository-audit/",
     "tests/fixtures/",
     "types/"

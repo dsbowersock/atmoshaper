@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { execFileSync } from "node:child_process"
+import { execFileSync, spawnSync } from "node:child_process"
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
@@ -16,10 +16,14 @@ import {
   loadCleanupPolicy,
   validateCleanupPolicy,
 } from "../scripts/repository-audit/cleanup-core.mjs"
-import { normalizeRepoPath } from "../scripts/repository-audit/core.mjs"
+import { buildDeadCodeCandidateReport } from "../scripts/repository-audit/dead-code.mjs"
+import { buildDependencyCandidateReport } from "../scripts/repository-audit/dependency.mjs"
+import { normalizeRepoPath, stableJson } from "../scripts/repository-audit/core.mjs"
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const policyPath = resolve(repositoryRoot, "scripts/repository-audit/cleanup-policy.json")
+const deadCodeCliPath = resolve(repositoryRoot, "scripts/repository-audit/dead-code.mjs")
+const dependencyCliPath = resolve(repositoryRoot, "scripts/repository-audit/dependency.mjs")
 const policy = loadCleanupPolicy(policyPath)
 
 function createFixtureRepository(t) {
@@ -53,6 +57,27 @@ function writePackage(root, value = {}) {
 }
 
 const clonePolicy = () => structuredClone(policy)
+
+function runAuditCli(cliPath, root, selectedPolicyPath = policyPath) {
+  return spawnSync(process.execPath, [
+    cliPath,
+    "--root",
+    root,
+    "--policy",
+    selectedPolicyPath,
+  ], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+    windowsHide: true,
+  })
+}
+
+function exactFailureEnvelope(code) {
+  return `${JSON.stringify(stableJson({
+    schemaVersion: 1,
+    error: { code },
+  }), null, 2)}\n`
+}
 
 function assertPrivateSerialization(value, root, forbidden) {
   const serialized = JSON.stringify(value)
@@ -138,18 +163,29 @@ test("module evidence resolves aliases, relative extensions, indexes, and export
   writeFixture(root, "lib/relative.tsx", "export const relative = true\n")
   writeFixture(root, "lib/folder/index.ts", "export const nested = true\n")
   writeFixture(root, "lib/barrel.ts", "export { alias } from \"./alias\"\n")
+  writeFixture(root, "lib/sentry.options.ts", "export const sentryOptions = true\n")
+  writeFixture(root, "lib/sentry.server.config.ts", "export const sentryServerConfig = true\n")
   writeFixture(root, "app/page.tsx", [
     "import { alias } from \"@/lib/alias\"",
     "import { relative } from \"../lib/relative\"",
+    "import { sentryOptions } from \"@/lib/sentry.options\"",
+    "import { sentryServerConfig } from \"../lib/sentry.server.config\"",
     "const nested = require(\"../lib/folder\")",
-    "void alias; void relative; void nested",
+    "void alias; void relative; void sentryOptions; void sentryServerConfig; void nested",
     "",
   ].join("\n"))
 
   const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
   assert.deepEqual(
     evidence.references.filter((row) => row.targetKind === "tracked-module").map((row) => row.targetPath).sort(),
-    ["lib/alias.ts", "lib/alias.ts", "lib/folder/index.ts", "lib/relative.tsx"],
+    [
+      "lib/alias.ts",
+      "lib/alias.ts",
+      "lib/folder/index.ts",
+      "lib/relative.tsx",
+      "lib/sentry.options.ts",
+      "lib/sentry.server.config.ts",
+    ],
   )
   assert.equal(evidence.errors.length, 0)
   assert.ok(evidence.roots.some((row) => row.path === "app/page.tsx" && row.reason === "framework-root"))
@@ -186,6 +222,241 @@ test("dependency evidence assigns package subpaths and script CLIs to owning pac
   assert.ok(evidence.references.some((row) => row.packageName === "next" && row.scriptName === "dev"))
   assert.ok(evidence.references.some((row) => row.packageName === "eslint" && row.scriptName === "check"))
   assert.equal(evidence.references.some((row) => row.packageName === "@scope/pkg/subpath"), false)
+})
+
+test("dependency evidence captures TypeScript and JSDoc import types without duplicating runtime imports", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, {
+    dependencies: {
+      "jsdoc-pkg": "1.0.0",
+      "runtime-pkg": "1.0.0",
+      "type-pkg": "1.0.0",
+    },
+  })
+  writeFixture(root, "lib/type-owner.ts", [
+    "type First = import(\"type-pkg/subpath\").First",
+    "type Second = typeof import(\"type-pkg/subpath\")",
+    "export type Combined = First & Second",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/jsdoc-owner.js", [
+    "/** @type {import(\"jsdoc-pkg/subpath\").Thing} */",
+    "export const jsdocOwner = null",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/runtime-owner.ts", [
+    "export const runtimeOwner = import(\"runtime-pkg/subpath\")",
+    "",
+  ].join("\n"))
+
+  const evidence = buildDependencyEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.equal(
+    evidence.references.filter((row) => row.packageName === "type-pkg" && row.kind === "import-type").length,
+    2,
+  )
+  assert.equal(
+    evidence.references.filter((row) => row.packageName === "jsdoc-pkg" && row.kind === "import-type").length,
+    1,
+  )
+  assert.equal(
+    evidence.references.filter((row) => row.packageName === "runtime-pkg" && row.kind === "dynamic-import").length,
+    1,
+  )
+  assert.equal(evidence.references.filter((row) => row.packageName === "runtime-pkg").length, 1)
+})
+
+test("dead-code report separates candidates from roots, protections, and uncertainty", (t) => {
+  const root = createFixtureRepository(t)
+  const dynamicExpression = "selectRuntimeModule()"
+  writePackage(root, { scripts: { owned: "node scripts/owned.mjs" } })
+  writeFixture(root, "app/page.tsx", [
+    "import { used } from \"@/lib/used\"",
+    "const selected = import(" + dynamicExpression + ")",
+    "void used; void selected",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/not-found.tsx", "export default function NotFound() { return null }\n")
+  for (const basename of [
+    "apple-icon",
+    "forbidden",
+    "global-not-found",
+    "icon",
+    "opengraph-image",
+    "twitter-image",
+    "unauthorized",
+  ]) {
+    writeFixture(root, "app/" + basename + ".tsx", "export default function ConventionFixture() { return null }\n")
+  }
+  for (const basename of ["apple-icon9", "icon0", "opengraph-image3", "twitter-image7"]) {
+    writeFixture(root, "app/" + basename + ".tsx", "export default function NumberedConvention() { return null }\n")
+  }
+  for (const basename of ["apple-icon-1", "icon10", "iconography", "twitter-image-final"]) {
+    writeFixture(root, "app/" + basename + ".tsx", "export const lookalike = true\n")
+  }
+  writeFixture(root, "proxy.ts", "export function proxy() {}\n")
+  writeFixture(root, "lib/used.ts", "export const used = true\n")
+  writeFixture(root, "lib/unused.ts", "export const unused = true\n")
+  writeFixture(root, "scripts/owned.mjs", "export const owned = true\n")
+  writeFixture(root, "scripts/manual-unused.mjs", "export const manual = true\n")
+  writeFixture(root, "scripts/repository-audit/protected.mjs", "export const protectedValue = true\n")
+  writeFixture(root, "types/generated.d.ts", "export interface GeneratedFixture { value: string }\n")
+  writeFixture(root, "public/service-worker.js", "self.addEventListener(\"install\", () => {})\n")
+
+  const report = buildDeadCodeCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.ok(report.roots.some((row) => row.path === "app/not-found.tsx" && row.reason === "framework-root"))
+  for (const basename of [
+    "apple-icon",
+    "forbidden",
+    "global-not-found",
+    "icon",
+    "opengraph-image",
+    "twitter-image",
+    "unauthorized",
+  ]) {
+    assert.ok(report.roots.some((row) => row.path === "app/" + basename + ".tsx" && row.reason === "framework-root"))
+  }
+  for (const basename of ["apple-icon9", "icon0", "opengraph-image3", "twitter-image7"]) {
+    assert.ok(report.roots.some((row) => row.path === "app/" + basename + ".tsx" && row.reason === "framework-root"))
+  }
+  for (const basename of ["apple-icon-1", "icon10", "iconography", "twitter-image-final"]) {
+    assert.ok(report.unreferencedCandidates.some((row) => row.path === "app/" + basename + ".tsx"))
+  }
+  assert.ok(report.roots.some((row) => row.path === "proxy.ts" && row.reason === "top-level-config"))
+  assert.ok(report.roots.some((row) => row.path === "scripts/owned.mjs" && row.reason === "package-script:owned"))
+  assert.ok(report.referencedModules.some((row) => row.path === "lib/used.ts"))
+  assert.ok(report.unreferencedCandidates.some((row) => row.path === "lib/unused.ts"))
+  assert.equal(report.unreferencedCandidates.some((row) => row.path === "types/generated.d.ts"), false)
+  assert.equal(report.unreferencedCandidates.some((row) => row.path === "public/service-worker.js"), false)
+  assert.ok(report.protectedItems.some((row) => row.path === "types/generated.d.ts"))
+  assert.ok(report.protectedItems.some((row) => row.path === "public/service-worker.js"))
+  assert.ok(report.uncertainties.nonliteralImports.some((row) => row.kind === "dynamic-import"))
+  assert.ok(report.uncertainties.frameworkConventions.some((row) => row.path === "app/page.tsx"))
+  assert.ok(report.uncertainties.manualScripts.some((row) => row.path === "scripts/manual-unused.mjs"))
+  assert.ok(report.uncertainties.generatedInputs.some((row) => row.path === "types/generated.d.ts"))
+  assertPrivateSerialization(report, root, [dynamicExpression])
+})
+
+test("dependency report preserves import, CLI, patch, built-in, and usage-scope evidence", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, {
+    scripts: {
+      dev: "next dev",
+      check: "eslint .",
+      falseMention: "next build --output scripts/not-entry.ts",
+      tool: "node --require ./scripts/preload.mjs --experimental-strip-types scripts/tool.ts --output scripts/not-entry.ts",
+    },
+    dependencies: {
+      "@scope/pkg": "1.0.0",
+      "build-config-only": "1.0.0",
+      "metal-fx": "1.0.4",
+      next: "1.0.0",
+      "runtime-config": "1.0.0",
+      "types-only": "1.0.0",
+      unused: "1.0.0",
+    },
+    devDependencies: {
+      "@types/ambient": "1.0.0",
+      eslint: "1.0.0",
+      "tool-only": "1.0.0",
+    },
+  })
+  writeFixture(root, "app/page.tsx", [
+    "import path from \"node:path\"",
+    "import value from \"@scope/pkg/subpath\"",
+    "import type { TypeFixture } from \"types-only/subpath\"",
+    "const dynamicPackage = import(selectDependency())",
+    "void path; void value",
+    "const typed: TypeFixture | null = null",
+    "void typed; void dynamicPackage",
+    "",
+  ].join("\n"))
+  writeFixture(root, "auth.ts", "import runtimeConfig from \"runtime-config\"\nvoid runtimeConfig\n")
+  writeFixture(root, "next.config.mjs", "import config from \"build-config-only\"\nvoid config\nexport default {}\n")
+  writeFixture(root, "scripts/tool.ts", "import tool from \"tool-only\"\nvoid tool\n")
+  writeFixture(root, "scripts/preload.mjs", "export const preload = true\n")
+  writeFixture(root, "scripts/not-entry.ts", "export const notAnEntrypoint = true\n")
+  writeFixture(root, "patches/metal-fx+1.0.4.patch", "fixture patch body\n")
+
+  const report = buildDependencyCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.ok(report.literalImportOwners.some((row) => (
+    row.packageName === "@scope/pkg" && row.ownerScope === "runtime"
+  )))
+  assert.ok(report.literalImportOwners.some((row) => row.packageName === "types-only"))
+  assert.equal(report.literalImportOwners.some((row) => row.packageName === "@scope/pkg/subpath"), false)
+  assert.ok(report.builtinImportOwners.some((row) => row.ownerPath === "app/page.tsx"))
+  assert.ok(report.packageScriptCliOwners.some((row) => row.packageName === "next" && row.scriptName === "dev"))
+  assert.ok(report.packageScriptCliOwners.some((row) => row.packageName === "eslint" && row.scriptName === "check"))
+  assert.ok(report.nodeScriptOwners.some((row) => row.path === "scripts/tool.ts" && row.scriptName === "tool"))
+  assert.ok(report.nodeScriptOwners.some((row) => row.path === "scripts/preload.mjs" && row.scriptName === "tool"))
+  assert.equal(report.nodeScriptOwners.some((row) => row.path === "scripts/not-entry.ts"), false)
+  assert.ok(report.patchOwners.some((row) => row.packageName === "metal-fx" && row.declared))
+  assert.ok(report.referencedPackages.some((row) => (
+    row.name === "build-config-only" && row.scopes.includes("framework-build")
+  )))
+  assert.ok(report.referencedPackages.some((row) => (
+    row.name === "runtime-config" && row.scopes.includes("runtime")
+  )))
+  assert.ok(report.uncertainties.dynamicImports.some((row) => row.kind === "dynamic-import"))
+  assert.ok(report.uncertainties.implicitTypeCompilerPackages.some((row) => row.name === "@types/ambient"))
+  assert.ok(report.uncertainties.buildOnlyReferences.some((row) => row.name === "build-config-only"))
+  assert.ok(report.uncertainties.toolingOnlyReferences.some((row) => row.name === "tool-only"))
+  assert.ok(report.unreferencedCandidates.some((row) => row.name === "unused"))
+  assert.equal(report.unreferencedCandidates.some((row) => row.name === "@types/ambient"), false)
+  assert.equal(report.unreferencedCandidates.some((row) => row.name === "metal-fx"), false)
+  assertPrivateSerialization(report, root, ["selectDependency()"])
+})
+
+test("audit CLIs are byte-stable and return zero when they find candidates", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { unused: "1.0.0" } })
+  writeFixture(root, "app/page.tsx", [
+    "import \"@/lib/not-present\"",
+    "export default function Page() { return null }",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/unused.ts", "export const unused = true\n")
+
+  for (const [cliPath, kind] of [
+    [deadCodeCliPath, "dead-code"],
+    [dependencyCliPath, "dependency"],
+  ]) {
+    const first = runAuditCli(cliPath, root)
+    const second = runAuditCli(cliPath, root)
+    assert.equal(first.status, 0)
+    assert.equal(first.stderr, "")
+    assert.equal(first.stdout, second.stdout)
+    const envelope = JSON.parse(first.stdout)
+    assert.equal(envelope.kind, kind)
+    assert.equal(envelope.deletionAuthority, false)
+    assert.ok(envelope.evidence.unreferencedCandidates.length > 0)
+    assert.ok(envelope.evidence.uncertainties.unresolvedLiterals.length > 0)
+  }
+})
+
+test("audit CLIs use exact sanitized failures for malformed policy and import evidence", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/page.tsx", "import {\n")
+  const malformedPolicyPath = resolve(root, "malformed-policy.json")
+  const malformedPolicySecret = "malformed-policy-private-fixture"
+  writeFileSync(malformedPolicyPath, JSON.stringify({ unexpected: malformedPolicySecret }))
+
+  for (const [cliPath, code] of [
+    [deadCodeCliPath, "DEAD_CODE_AUDIT_FAILED"],
+    [dependencyCliPath, "DEPENDENCY_AUDIT_FAILED"],
+  ]) {
+    const policyFailure = runAuditCli(cliPath, root, malformedPolicyPath)
+    assert.equal(policyFailure.status, 1)
+    assert.equal(policyFailure.stdout, "")
+    assert.equal(policyFailure.stderr, exactFailureEnvelope(code))
+    assertPrivateSerialization(policyFailure.stderr, root, [malformedPolicySecret])
+
+    const evidenceFailure = runAuditCli(cliPath, root)
+    assert.equal(evidenceFailure.status, 1)
+    assert.equal(evidenceFailure.stdout, "")
+    assert.equal(evidenceFailure.stderr, exactFailureEnvelope(code))
+    assertPrivateSerialization(evidenceFailure.stderr, root, ["import {"])
+  }
 })
 
 test("asset evidence normalizes public URLs and relative paths without literal output", (t) => {
@@ -348,4 +619,10 @@ test("audit envelope hash changes with evidence but deletion authority never doe
 
 test("checked-in cleanup policy remains parseable JSON", () => {
   assert.deepEqual(JSON.parse(readFileSync(policyPath, "utf8")), policy)
+})
+
+test("package exposes the exact dead-code and dependency audit commands", () => {
+  const packageJson = JSON.parse(readFileSync(resolve(repositoryRoot, "package.json"), "utf8"))
+  assert.equal(packageJson.scripts["dead-code:audit"], "node scripts/repository-audit/dead-code.mjs")
+  assert.equal(packageJson.scripts["dependency:audit"], "node scripts/repository-audit/dependency.mjs")
 })

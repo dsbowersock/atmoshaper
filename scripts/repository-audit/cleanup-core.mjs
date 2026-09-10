@@ -289,7 +289,8 @@ function moduleCandidatePaths(fromPath, specifier, policy) {
   if (base === ".." || base.startsWith("../") || base.startsWith("/")) return []
   const candidates = [base]
   const extension = extname(base).toLowerCase()
-  if (!extension) {
+  const hasSupportedExtension = policy.sourceExtensions.includes(extension) || [".css", ".json"].includes(extension)
+  if (!hasSupportedExtension) {
     for (const supported of policy.sourceExtensions) candidates.push(`${base}${supported}`)
     candidates.push(`${base}.json`, `${base}.css`)
     for (const supported of policy.sourceExtensions) candidates.push(`${base}/index${supported}`)
@@ -360,7 +361,11 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
   }
 
   const visit = (node) => {
-    if (ts.isImportDeclaration(node) && node.moduleSpecifier) {
+    if (ts.isImportTypeNode(node)) {
+      const argument = ts.isLiteralTypeNode(node.argument) ? node.argument.literal : node.argument
+      if (isLiteralNode(argument)) recordLiteral(argument, "import-type", argument.text)
+      else recordUncertainty(argument, "import-type")
+    } else if (ts.isImportDeclaration(node) && node.moduleSpecifier) {
       if (isLiteralNode(node.moduleSpecifier)) recordLiteral(node.moduleSpecifier, "import", node.moduleSpecifier.text)
       else recordUncertainty(node.moduleSpecifier, "import")
     } else if (ts.isExportDeclaration(node) && node.moduleSpecifier) {
@@ -378,6 +383,7 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
         else recordUncertainty(argument ?? node, kind)
       }
     }
+    for (const jsDoc of node.jsDoc ?? []) visit(jsDoc)
     ts.forEachChild(node, visit)
   }
   visit(sourceFile)
@@ -407,6 +413,71 @@ function parsePackage(index) {
   }
 }
 
+const NODE_CODE_OPTIONS = new Set(["-e", "--eval", "-p", "--print"])
+const NODE_MODULE_OPTIONS = new Set(["--experimental-loader", "--import", "--loader", "-r", "--require"])
+const NODE_OPTIONS_WITH_VALUES = new Set([
+  "-C",
+  "--conditions",
+  "--cpu-prof-dir",
+  "--diagnostic-dir",
+  "--env-file",
+  "--env-file-if-exists",
+  "--heap-prof-dir",
+  "--import",
+  "--inspect-port",
+  "--loader",
+  "--experimental-loader",
+  "--openssl-config",
+  "-r",
+  "--require",
+  "--test-reporter",
+  "--test-reporter-destination",
+  "--title",
+])
+
+function shellTokens(segment) {
+  return (segment.match(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|[^\s]+/g) ?? []).map((token) => (
+    (token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))
+      ? token.slice(1, -1)
+      : token
+  ))
+}
+
+function nodeExecutedEntrypoints(command, sourcePathSet) {
+  const entrypoints = []
+  for (const segment of command.split(/&&|\|\||[;|]/)) {
+    const tokens = shellTokens(segment)
+    while (tokens[0] && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[0])) tokens.shift()
+    if (!["node", "node.exe"].includes(tokens[0]?.toLowerCase())) continue
+    let cursor = 1
+    for (; cursor < tokens.length; cursor += 1) {
+      const token = tokens[cursor]
+      const option = token.split("=", 1)[0]
+      if (token === "--") {
+        cursor += 1
+        break
+      }
+      if (NODE_CODE_OPTIONS.has(option)) {
+        cursor = tokens.length
+        break
+      }
+      if (NODE_OPTIONS_WITH_VALUES.has(option)) {
+        const equalsIndex = token.indexOf("=")
+        const value = equalsIndex >= 0 ? token.slice(equalsIndex + 1) : tokens[cursor + 1]
+        if (equalsIndex < 0) cursor += 1
+        const modulePath = normalizeRepoPath(value ?? "")
+        if (NODE_MODULE_OPTIONS.has(option) && sourcePathSet.has(modulePath)) entrypoints.push(modulePath)
+        continue
+      }
+      if (token.startsWith("-")) continue
+      break
+    }
+    const candidate = normalizeRepoPath(tokens[cursor] ?? "")
+    if (sourcePathSet.has(candidate)) entrypoints.push(candidate)
+  }
+  return entrypoints
+}
+
 function packageScriptEntrypoints(index, policy) {
   const packageJson = parsePackage(index)
   const scripts = packageJson.scripts && typeof packageJson.scripts === "object" ? packageJson.scripts : {}
@@ -414,12 +485,12 @@ function packageScriptEntrypoints(index, policy) {
   const sourcePaths = index.records
     .filter((record) => sourceExtensions.has(record.extension))
     .map((record) => record.path)
+  const sourcePathSet = new Set(sourcePaths)
   const roots = []
   for (const [scriptName, command] of Object.entries(scripts)) {
     if (typeof command !== "string") continue
-    const normalizedCommand = normalizeRepoPath(command)
-    for (const path of sourcePaths) {
-      if (normalizedCommand.includes(path)) roots.push({ path, reason: `package-script:${scriptName}` })
+    for (const path of nodeExecutedEntrypoints(command, sourcePathSet)) {
+      roots.push({ path, reason: "package-script:" + scriptName })
     }
   }
   return roots
@@ -428,7 +499,8 @@ function packageScriptEntrypoints(index, policy) {
 function frameworkRoot(path, policy) {
   if (!policy.frameworkRoots.directoryPrefixes.some((prefix) => path.startsWith(prefix))) return false
   const basename = posix.basename(path, extname(path))
-  return policy.frameworkRoots.fileBasenames.includes(basename)
+  const numberedMetadata = /^(?:apple-icon|icon|opengraph-image|twitter-image)[0-9]$/.test(basename)
+  return policy.frameworkRoots.fileBasenames.includes(basename) || numberedMetadata
 }
 
 /** Build the static module graph, explicit roots, parse errors, and dynamic uncertainty sites. */
@@ -451,12 +523,12 @@ export function buildModuleEvidence(index, policy) {
   }
 
   const roots = []
-  for (const module of modules) {
-    if (frameworkRoot(module.path, policy)) roots.push({ path: module.path, reason: "framework-root" })
-    if (policy.topLevelConfigRoots.includes(module.path)) roots.push({ path: module.path, reason: "top-level-config" })
-    if (module.scope === "test") roots.push({ path: module.path, reason: "test-root" })
-    if (policy.protectedPathPrefixes.some((prefix) => module.path.startsWith(prefix))) {
-      roots.push({ path: module.path, reason: "protected-path" })
+  for (const moduleEntry of modules) {
+    if (frameworkRoot(moduleEntry.path, policy)) roots.push({ path: moduleEntry.path, reason: "framework-root" })
+    if (policy.topLevelConfigRoots.includes(moduleEntry.path)) roots.push({ path: moduleEntry.path, reason: "top-level-config" })
+    if (moduleEntry.scope === "test") roots.push({ path: moduleEntry.path, reason: "test-root" })
+    if (policy.protectedPathPrefixes.some((prefix) => moduleEntry.path.startsWith(prefix))) {
+      roots.push({ path: moduleEntry.path, reason: "protected-path" })
     }
   }
   roots.push(...packageScriptEntrypoints(index, policy))
