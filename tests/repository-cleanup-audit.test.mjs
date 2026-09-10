@@ -16,14 +16,18 @@ import {
   loadCleanupPolicy,
   validateCleanupPolicy,
 } from "../scripts/repository-audit/cleanup-core.mjs"
+import { buildAssetCandidateReport } from "../scripts/repository-audit/asset.mjs"
 import { buildDeadCodeCandidateReport } from "../scripts/repository-audit/dead-code.mjs"
 import { buildDependencyCandidateReport } from "../scripts/repository-audit/dependency.mjs"
+import { buildEnvironmentCandidateReport } from "../scripts/repository-audit/environment.mjs"
 import { normalizeRepoPath, stableJson } from "../scripts/repository-audit/core.mjs"
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const policyPath = resolve(repositoryRoot, "scripts/repository-audit/cleanup-policy.json")
 const deadCodeCliPath = resolve(repositoryRoot, "scripts/repository-audit/dead-code.mjs")
 const dependencyCliPath = resolve(repositoryRoot, "scripts/repository-audit/dependency.mjs")
+const assetCliPath = resolve(repositoryRoot, "scripts/repository-audit/asset.mjs")
+const environmentCliPath = resolve(repositoryRoot, "scripts/repository-audit/environment.mjs")
 const policy = loadCleanupPolicy(policyPath)
 
 function createFixtureRepository(t) {
@@ -520,6 +524,309 @@ test("environment evidence records static names and computed uncertainty without
   assertPrivateSerialization(evidence, root, [secretValue, "getName()"])
 })
 
+test("asset report records Git identities, exact owners by scope, and conservative candidates", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "public/icons/direct.svg", "<svg>direct</svg>\n")
+  writeFixture(root, "public/icons/css.png", "css-bytes")
+  writeFixture(root, "public/icons/markdown.webp", "markdown-bytes")
+  writeFixture(root, "public/icons/json.jpg", "json-bytes")
+  writeFixture(root, "app/unreferenced.png", "candidate-bytes")
+  writeFixture(root, "app/page.tsx", "const asset = \"/icons/direct.svg\"\nvoid asset\n")
+  writeFixture(root, "app/styles.css", ".hero { background: url('/icons/css.png'); }\n")
+  writeFixture(root, "docs/assets.md", "![fixture](/icons/markdown.webp)\n")
+  writeFixture(root, "data/assets.json", "{\"image\":\"/icons/json.jpg\"}\n")
+  writeFixture(root, "scripts/asset-tool.mjs", "const icon = '/icons/direct.svg'\nvoid icon\n")
+  writeFixture(root, "tests/asset-owner.test.ts", "const icon = '/icons/direct.svg'\nvoid icon\n")
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.equal(report.trackedAssets.length, 5)
+  assert.ok(report.trackedAssets.every((asset) => /^[a-f0-9]{40,64}$/.test(asset.oid)))
+  assert.ok(report.trackedAssets.every((asset) => Number.isInteger(asset.bytes) && asset.bytes > 0))
+  assert.deepEqual(
+    report.referenceOwners.map((row) => [row.fromPath, row.ownerScope, row.targetPath]),
+    [
+      ["app/page.tsx", "runtime", "public/icons/direct.svg"],
+      ["app/styles.css", "runtime", "public/icons/css.png"],
+      ["data/assets.json", "runtime", "public/icons/json.jpg"],
+      ["docs/assets.md", "doc", "public/icons/markdown.webp"],
+      ["scripts/asset-tool.mjs", "tool", "public/icons/direct.svg"],
+      ["tests/asset-owner.test.ts", "test", "public/icons/direct.svg"],
+    ],
+  )
+  assert.deepEqual(report.unreferencedCandidates.map((row) => row.path), ["app/unreferenced.png"])
+  assert.equal(report.unreferencedCandidates[0].reason, "no-exact-static-reference")
+  assert.equal(buildAuditEnvelope("asset", report).deletionAuthority, false)
+})
+
+test("asset identities and bytes come from the staged Git blob", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const stagedContent = "staged-asset-bytes"
+  const assetPath = writeFixture(root, "app/staged.png", stagedContent)
+  writeFileSync(assetPath, "modified-worktree-content-that-must-not-affect-the-report")
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const asset = report.trackedAssets.find((row) => row.path === "app/staged.png")
+  const stagedOid = execFileSync("git", ["rev-parse", ":app/staged.png"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim()
+  assert.equal(asset.oid, stagedOid)
+  assert.equal(asset.bytes, Buffer.byteLength(stagedContent))
+})
+
+test("asset report normalizes dot segments and keeps non-inventory literals out of exact owners", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "public/icons/direct.svg", "<svg/>\n")
+  writeFixture(root, "public/direct.svg", "<svg>reentry-target</svg>\n")
+  writeFixture(root, "docs/outside.svg", "<svg>outside</svg>\n")
+  const escapedRootLiteral = "/icons/../../public/direct.svg"
+  const escapedRepositoryLiteral = "public/icons/../../public/direct.svg"
+  writeFixture(root, "app/page.tsx", [
+    "const normalizedRoot = '/icons/nested/../direct.svg'",
+    "const normalizedRepository = 'public/icons/nested/../direct.svg'",
+    "const missing = '/icons/missing.svg'",
+    "const outsideInventory = '../docs/outside.svg'",
+    `const escapedRoot = '${escapedRootLiteral}'`,
+    `const escapedRepository = '${escapedRepositoryLiteral}'`,
+    "void normalizedRoot; void normalizedRepository; void missing; void outsideInventory",
+    "void escapedRoot; void escapedRepository",
+    "",
+  ].join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.map((row) => row.targetPath), [
+    "public/icons/direct.svg",
+    "public/icons/direct.svg",
+  ])
+  assert.equal(report.referenceOwners.some((row) => row.targetPath === "public/direct.svg"), false)
+  assert.deepEqual(
+    report.uncertainties.unresolvedLiteralAssets.map((row) => row.code).sort(),
+    [
+      "OUT_OF_INVENTORY_LITERAL_ASSET",
+      "UNRESOLVED_LITERAL_ASSET",
+      "UNRESOLVED_LITERAL_ASSET",
+      "UNRESOLVED_LITERAL_ASSET",
+    ],
+  )
+  assert.ok(report.uncertainties.unresolvedLiteralAssets.every((row) => row.targetPath === undefined))
+  assertPrivateSerialization(report, root, [escapedRootLiteral, escapedRepositoryLiteral])
+})
+
+test("asset report preserves basename ambiguity, dynamic construction, and explicit protected paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "public/first/icon.svg", "<svg>one</svg>\n")
+  writeFixture(root, "public/second/icon.svg", "<svg>two</svg>\n")
+  writeFixture(root, "public/catalog/generated.json", "{}\n")
+  writeFixture(root, "public/provenance/licensed.mp3", "licensed-media")
+  writeFixture(root, "public/manifest.json", "{}\n")
+  writeFixture(root, "public/pwa/service-worker-icon.png", "pwa-icon")
+  writeFixture(root, "public/compatibility/legacy-path.webp", "compatibility-asset")
+  writeFixture(root, "tests/fixtures/parity/snapshot.png", "snapshot")
+  writeFixture(root, "app/icon.png", "framework-icon")
+  writeFixture(root, "app/favicon.ico", "framework-favicon")
+  const basenameLiteral = "icon.svg"
+  const templateSecret = "private-template-fragment"
+  const concatenationSecret = "private-concatenation-fragment"
+  writeFixture(root, "app/page.tsx", [
+    `const ambiguous = \"${basenameLiteral}\"`,
+    `const dynamic = \`/public/${templateSecret}/\${name}.svg\``,
+    `const concatenated = \"/${concatenationSecret}/\" + name + \".png\"`,
+    "const fullyInterpolated = `/icons/${name}.${format}`",
+    "void ambiguous; void dynamic; void concatenated; void fullyInterpolated",
+    "",
+  ].join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.equal(report.basenameOnlySignals.length, 1)
+  assert.deepEqual(report.basenameOnlySignals[0].candidateTargetPaths, [
+    "public/first/icon.svg",
+    "public/second/icon.svg",
+  ])
+  assert.equal(report.basenameOnlySignals[0].ownerScope, "runtime")
+  assert.deepEqual(
+    report.uncertainties.dynamicAssetExpressions.map((row) => row.kind).sort(),
+    ["concatenation", "template", "template"],
+  )
+  assert.deepEqual(report.unreferencedCandidates, [])
+  assert.ok(report.protectedAssets.some((asset) => (
+    asset.path === "app/icon.png" && asset.reasons.includes("framework-convention")
+  )))
+  assert.ok(report.protectedAssets.some((asset) => (
+    asset.path === "app/favicon.ico" && asset.reasons.includes("framework-convention")
+  )))
+  for (const path of [
+    "public/catalog/generated.json",
+    "public/provenance/licensed.mp3",
+    "public/manifest.json",
+    "public/pwa/service-worker-icon.png",
+    "public/compatibility/legacy-path.webp",
+    "tests/fixtures/parity/snapshot.png",
+  ]) {
+    assert.ok(report.protectedAssets.some((asset) => asset.path === path))
+  }
+  assertPrivateSerialization(report, root, [
+    templateSecret,
+    concatenationSecret,
+  ])
+})
+
+test("environment report separates overlap, missing names, unread names, scopes, and computed reads", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const secretValues = ["super-private-one", "super-private-two", "super-private-three"]
+  writeFixture(root, ".env.example", [
+    `SHARED=${secretValues[0]}`,
+    `BRACKET=${secretValues[1]}`,
+    "DESTRUCTURED=placeholder",
+    "COMPUTED_LITERAL=placeholder",
+    "TEST_ONLY=placeholder",
+    "TOOLING=placeholder",
+    `UNREAD=${secretValues[2]}`,
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/environment-tool.mjs", "const tool = process.env.TOOLING\nvoid tool\n")
+  writeFixture(root, "tests/environment-owner.test.ts", "const value = process.env.TEST_ONLY\nvoid value\n")
+  writeFixture(root, "lib/environment.ts", [
+    "const direct = process.env.SHARED",
+    "const bracket = process.env['BRACKET']",
+    "const { DESTRUCTURED, ['COMPUTED_LITERAL']: computedLiteral } = process.env",
+    "const missing = process.env.MISSING_FROM_EXAMPLE",
+    "const computed = process.env[getName()]",
+    "void direct; void bracket; void DESTRUCTURED; void computedLiteral; void missing; void computed",
+    "",
+  ].join("\n"))
+
+  const report = buildEnvironmentCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.declaredKeys.map((row) => row.name), [
+    "BRACKET",
+    "COMPUTED_LITERAL",
+    "DESTRUCTURED",
+    "SHARED",
+    "TEST_ONLY",
+    "TOOLING",
+    "UNREAD",
+  ])
+  assert.deepEqual(
+    report.staticReads.map((row) => row.name).sort(),
+    [
+      "BRACKET",
+      "COMPUTED_LITERAL",
+      "DESTRUCTURED",
+      "MISSING_FROM_EXAMPLE",
+      "SHARED",
+      "TEST_ONLY",
+      "TOOLING",
+    ],
+  )
+  assert.deepEqual(
+    Object.fromEntries(report.staticReads.map((row) => [row.name, row.scope])),
+    {
+      BRACKET: "runtime",
+      COMPUTED_LITERAL: "runtime",
+      DESTRUCTURED: "runtime",
+      MISSING_FROM_EXAMPLE: "runtime",
+      SHARED: "runtime",
+      TEST_ONLY: "test",
+      TOOLING: "tool",
+    },
+  )
+  assert.deepEqual(report.unreadDeclarationCandidates.map((row) => row.name), ["UNREAD"])
+  assert.deepEqual(report.missingDeclarationFindings.map((row) => row.name), ["MISSING_FROM_EXAMPLE"])
+  assert.equal(report.uncertainties.computedReads.length, 1)
+  assert.equal(report.uncertainties.computedReads[0].scope, "runtime")
+  assert.equal(buildAuditEnvelope("environment", report).deletionAuthority, false)
+  assertPrivateSerialization(report, root, [...secretValues, "getName()"])
+})
+
+test("asset and environment CLIs are byte-deterministic and never gain deletion authority", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "PUBLIC_KEY=private-placeholder\nUNREAD=private-unread\n")
+  writeFixture(root, "public/icon.svg", "<svg/>\n")
+  writeFixture(root, "app/page.tsx", [
+    "const icon = '/icon.svg'",
+    "const key = process.env.PUBLIC_KEY",
+    "void icon; void key",
+    "",
+  ].join("\n"))
+
+  for (const cliPath of [assetCliPath, environmentCliPath]) {
+    const first = runAuditCli(cliPath, root)
+    const second = runAuditCli(cliPath, root)
+    assert.equal(first.status, 0)
+    assert.equal(first.stderr, "")
+    assert.equal(first.stdout, second.stdout)
+    const report = JSON.parse(first.stdout)
+    assert.equal(report.deletionAuthority, false)
+    assert.match(report.evidenceSha256, /^[a-f0-9]{64}$/)
+    assertPrivateSerialization(first.stdout, root, ["private-placeholder", "private-unread"])
+  }
+})
+
+test("asset and environment CLIs use exact sanitized failures", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/page.tsx", "import {\n")
+  const malformedPolicyPath = resolve(root, "malformed-cleanup-policy.json")
+  const malformedPolicySecret = "private-malformed-policy-sentinel"
+  writeFileSync(malformedPolicyPath, JSON.stringify({ unexpected: malformedPolicySecret }))
+
+  for (const [cliPath, code] of [
+    [assetCliPath, "ASSET_AUDIT_FAILED"],
+    [environmentCliPath, "ENVIRONMENT_AUDIT_FAILED"],
+  ]) {
+    const policyFailure = runAuditCli(cliPath, root, malformedPolicyPath)
+    assert.equal(policyFailure.status, 1)
+    assert.equal(policyFailure.stdout, "")
+    assert.equal(policyFailure.stderr, exactFailureEnvelope(code))
+    assertPrivateSerialization(policyFailure.stderr, root, [malformedPolicySecret])
+
+    const evidenceFailure = runAuditCli(cliPath, root)
+    assert.equal(evidenceFailure.status, 1)
+    assert.equal(evidenceFailure.stdout, "")
+    assert.equal(evidenceFailure.stderr, exactFailureEnvelope(code))
+    assertPrivateSerialization(evidenceFailure.stderr, root, ["import {"])
+  }
+})
+
+test("private environment paths cannot affect asset or environment CLI output", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".gitignore", ".env.local\n")
+  writeFixture(root, ".env.example", "PUBLIC_KEY=placeholder\n")
+  writeFixture(root, "app/page.tsx", "const key = process.env.PUBLIC_KEY\nvoid key\n")
+
+  const before = [runAuditCli(assetCliPath, root), runAuditCli(environmentCliPath, root)]
+  const privateValue = "untracked-private-cli-sentinel"
+  writeFixture(root, ".env.local", `PRIVATE=${privateValue}\n`, { tracked: false })
+  const after = [runAuditCli(assetCliPath, root), runAuditCli(environmentCliPath, root)]
+  for (let index = 0; index < before.length; index += 1) {
+    assert.equal(before[index].status, 0)
+    assert.equal(after[index].status, 0)
+    assert.equal(after[index].stdout, before[index].stdout)
+    assertPrivateSerialization(after[index].stdout, root, [privateValue, ".env.local"])
+  }
+
+  const trackedRoot = createFixtureRepository(t)
+  writePackage(trackedRoot)
+  const trackedPrivate = "tracked-private-cli-sentinel"
+  writeFixture(trackedRoot, ".env.local", `PRIVATE=${trackedPrivate}\n`, { force: true })
+  for (const [cliPath, code] of [
+    [assetCliPath, "ASSET_AUDIT_FAILED"],
+    [environmentCliPath, "ENVIRONMENT_AUDIT_FAILED"],
+  ]) {
+    const result = runAuditCli(cliPath, trackedRoot)
+    assert.equal(result.status, 1)
+    assert.equal(result.stdout, "")
+    assert.equal(result.stderr, exactFailureEnvelope(code))
+    assertPrivateSerialization(result.stderr, trackedRoot, [trackedPrivate, ".env.local"])
+  }
+})
+
 test("ignored untracked private files never enter the index or evidence", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -621,8 +928,10 @@ test("checked-in cleanup policy remains parseable JSON", () => {
   assert.deepEqual(JSON.parse(readFileSync(policyPath, "utf8")), policy)
 })
 
-test("package exposes the exact dead-code and dependency audit commands", () => {
+test("package exposes the exact cleanup audit commands", () => {
   const packageJson = JSON.parse(readFileSync(resolve(repositoryRoot, "package.json"), "utf8"))
   assert.equal(packageJson.scripts["dead-code:audit"], "node scripts/repository-audit/dead-code.mjs")
   assert.equal(packageJson.scripts["dependency:audit"], "node scripts/repository-audit/dependency.mjs")
+  assert.equal(packageJson.scripts["asset:audit"], "node scripts/repository-audit/asset.mjs")
+  assert.equal(packageJson.scripts["env:audit"], "node scripts/repository-audit/environment.mjs")
 })

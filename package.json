@@ -19,6 +19,8 @@
     "brand:audit": "node scripts/repository-audit/brand.mjs",
     "dead-code:audit": "node scripts/repository-audit/dead-code.mjs",
     "dependency:audit": "node scripts/repository-audit/dependency.mjs",
+    "asset:audit": "node scripts/repository-audit/asset.mjs",
+    "env:audit": "node scripts/repository-audit/environment.mjs",
     "test:dependency-security": "node --test tests/dependency-security.test.mjs",
     "test:browser": "playwright test",
     "test:browser:migration-parity": "node scripts/run-migration-parity-browser-qa.mjs",
