@@ -210,20 +210,36 @@ cleanup-audit tests. Its now-historical stage-0 semantic results were:
 | Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
 | Environment | 587 | 250 | 77 computed and 173 unproven-alias uncertainties; zero unread-declaration candidates. |
 
-Hosted review round 5 recognizes runtime named `env` imports from the exact
-`node:process` and `process` modules and preserves their evidence through
+Hosted review round 5 recognized runtime named `env` imports from the exact
+`node:process` and `process` modules and preserved their evidence through
 lexical loop/catch shadowing and function-scoped `var` behavior, including
-assignment-free redeclarations. It also repairs the two historical receipt
-anchors in the reference inventory. The current focused repository audit suites
-pass 86/86: 21 repository-audit tests and 65 cleanup-audit tests. Current
-stage-0 semantic results are:
+assignment-free redeclarations. It also repaired the two historical receipt
+anchors in the reference inventory. That round's focused repository audit suites
+passed 86/86: 21 repository-audit tests and 65 cleanup-audit tests. Its now-historical
+stage-0 semantic results were:
 
-| Lane | Findings | Uncertainties | Current round-5 semantic note |
+| Lane | Findings | Uncertainties | Round-5 semantic note |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates. |
 | Dependency | 2,861 | 19 | Two configuration owners and 6 candidates. |
 | Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
 | Environment | 587 | 252 | 79 computed and 173 unproven-alias uncertainties; zero unread-declaration candidates. |
+
+Hosted review round 6 records nested object destructuring defaults sourced
+from proven environment objects. The current focused repository audit suites
+pass 87/87: 21 repository-audit tests and 66 cleanup-audit tests. Current
+semantic results are:
+
+| Lane | Findings | Uncertainties | Current round-6 semantic note |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates. |
+| Dependency | 2,861 | 19 | Two configuration owners and 6 candidates. |
+| Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
+| Environment | 587 | 252 | 79 computed and 173 unproven-alias uncertainties; zero unread-declaration candidates. |
+
+At the verified round-6 staged code snapshot, the full suite passed 4,282
+tests with 3 host-dependent skips and zero failures; typecheck and lint
+passed.
 
 The current tracked inventory remains 1,921 files. Brand verification remains
 zero missing and zero unclassified. Exact current staged bytes and identity

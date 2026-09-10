@@ -2002,6 +2002,29 @@ test("environment evidence recursively binds destructured default-parameter alia
   assertPrivateSerialization(evidence, root, [directExpression, nestedExpression])
 })
 
+test("environment evidence records nested object patterns defaulted to process env", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const computedExpression = "nestedEnvironmentName()"
+  writeFixture(root, "lib/nested-environment-defaults.ts", [
+    `const { options: { STATIC, [${computedExpression}]: computed } = process.env } = input`,
+    "function readParameter({ options: { PARAMETER } = process.env } = {}) { return PARAMETER }",
+    "void STATIC; void computed; void readParameter",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => [row.name, row.kind, row.line]), [
+    ["STATIC", "destructure", 1],
+    ["PARAMETER", "parameter-destructure", 2],
+  ])
+  assert.deepEqual(
+    evidence.uncertainties.map((row) => [row.code, row.kind, row.line]),
+    [["COMPUTED_ENVIRONMENT_READ", "destructure", 1]],
+  )
+  assertPrivateSerialization(evidence, root, [computedExpression])
+})
+
 test("environment alias scopes honor parameter defaults and ordinary shadowing", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)

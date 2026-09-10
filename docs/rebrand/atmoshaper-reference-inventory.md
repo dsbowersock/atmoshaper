@@ -814,18 +814,34 @@ configuration owners and 6 candidates; asset 390/11,384 with 97 tracked assets,
 10,855 unresolved rows; and environment 587/250 with 77 computed and 173
 unproven-alias uncertainties and zero unread-declaration candidates.
 
-Hosted review round 5 recognizes runtime named `env` imports from the exact
-`node:process` and `process` modules and preserves their evidence through
+Hosted review round 5 recognized runtime named `env` imports from the exact
+`node:process` and `process` modules and preserved their evidence through
 lexical loop/catch shadowing and function-scoped `var` behavior, including
-assignment-free redeclarations. It also repairs the two historical receipt
-anchors above. The current focused repository audit suites pass 86/86: 21
-repository-audit tests and 65 cleanup-audit tests. Current semantic totals are
+assignment-free redeclarations. It also repaired the two historical receipt
+anchors above. That round's focused repository audit suites passed 86/86: 21
+repository-audit tests and 65 cleanup-audit tests. Its now-historical semantic totals were
 dead code 1,558/186 with 842 referenced modules and 23 candidates; dependency
 2,861/19 with 2 configuration owners and 6 candidates; asset 390/11,384 with 97
 tracked assets, 97 protected items, 177 exact owners, zero candidates, 529
 dynamic rows and 10,855 unresolved rows; and environment 587/252 with 79
 computed and 173 unproven-alias uncertainties and zero unread-declaration
-candidates. The current tracked inventory remains 1,921 files.
+candidates.
+
+Hosted review round 6 records nested object destructuring defaults sourced
+from proven environment objects. The current focused repository audit suites
+pass 87/87: 21 repository-audit tests and 66 cleanup-audit tests. Current
+semantic results are dead code 1,558/186 with 842 referenced modules and 23
+candidates; dependency 2,861/19 with 2 configuration owners and 6 candidates;
+asset 390/11,384 with 97 tracked assets, 97 protected items, 177 exact owners,
+zero candidates, 529 dynamic rows and 10,855 unresolved rows; and environment
+587/252 with 79 computed and 173 unproven-alias uncertainties and zero
+unread-declaration candidates.
+
+At the verified round-6 staged code snapshot, the full suite passed 4,282
+tests with 3 host-dependent skips and zero failures; typecheck and lint
+passed.
+
+The current tracked inventory remains 1,921 files.
 Brand verification remains zero missing and zero unclassified. Exact current
 staged bytes and identity remain only in the ignored SDD handoff and user-facing
 receipt. Every report retains `deletionAuthority: false`.

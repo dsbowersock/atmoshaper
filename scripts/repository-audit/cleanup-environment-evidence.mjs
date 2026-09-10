@@ -263,7 +263,7 @@ function collectEnvironmentRows(record, text) {
     )
   }
 
-  const bindObjectElementInitializers = (pattern, scope, initializerScope = scope) => {
+  const bindObjectElementInitializers = (pattern, scope, initializerScope, kind) => {
     for (const element of pattern.elements) {
       if (element.initializer) {
         visit(element.initializer, initializerScope)
@@ -272,7 +272,8 @@ function collectEnvironmentRows(record, text) {
         }
       }
       if (ts.isObjectBindingPattern(element.name)) {
-        bindObjectElementInitializers(element.name, scope, initializerScope)
+        recordObjectBinding(element.name, aliasStatus(element.initializer, initializerScope), kind)
+        bindObjectElementInitializers(element.name, scope, initializerScope, kind)
       }
     }
   }
@@ -287,7 +288,9 @@ function collectEnvironmentRows(record, text) {
         if (ts.isIdentifier(parameter.name)) bindName(parameter.name.text, parameter.initializer, functionScope)
         else if (ts.isObjectBindingPattern(parameter.name)) {
           recordObjectBinding(parameter.name, status, "parameter-destructure")
-          bindObjectElementInitializers(parameter.name, functionScope)
+          bindObjectElementInitializers(
+            parameter.name, functionScope, functionScope, "parameter-destructure",
+          )
         }
       }
       if (node.body) visit(node.body, functionScope)
@@ -337,7 +340,7 @@ function collectEnvironmentRows(record, text) {
       if (ts.isIdentifier(node.name)) bindName(node.name.text, node.initializer, declarationScope, scope)
       else if (ts.isObjectBindingPattern(node.name)) {
         recordObjectBinding(node.name, status, "destructure")
-        bindObjectElementInitializers(node.name, declarationScope, scope)
+        bindObjectElementInitializers(node.name, declarationScope, scope, "destructure")
       }
       return
     }
