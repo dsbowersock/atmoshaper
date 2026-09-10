@@ -36,10 +36,24 @@ function lookupAlias(scope, name) {
   return null
 }
 
+function isTransparentExpression(node) {
+  return (
+    ts.isParenthesizedExpression(node) || ts.isAsExpression(node) ||
+    ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node)
+  )
+}
+
+function unwrapTransparentExpression(node) {
+  let value = node
+  while (value && isTransparentExpression(value)) value = value.expression
+  return value
+}
+
 function aliasStatus(node, scope) {
-  if (!node) return null
-  if (isProcessEnv(node)) return "proven"
-  if (ts.isIdentifier(node)) return lookupAlias(scope, node.text)
+  const value = unwrapTransparentExpression(node)
+  if (!value) return null
+  if (isProcessEnv(value)) return "proven"
+  if (ts.isIdentifier(value)) return lookupAlias(scope, value.text)
   return null
 }
 
@@ -82,6 +96,95 @@ function collectEnvironmentRows(record, text) {
       ? node.name.text
       : null
   )
+
+  /** Leave established exact/whole-object handlers and alias setup as the sole owner of those nodes. */
+  const isHandledEnvironmentValue = (node) => {
+    let value = node
+    let parent = value.parent
+    while (parent && isTransparentExpression(parent) && parent.expression === value) {
+      value = parent
+      parent = value.parent
+    }
+    if (!parent) return true
+    if (ts.isVoidExpression(parent) || ts.isTypeOfExpression(parent)) return true
+    if (ts.isPropertyAccessExpression(parent) && parent.name === value) return true
+    if (
+      (ts.isPropertyAccessExpression(parent) || ts.isElementAccessExpression(parent)) &&
+      parent.expression === value
+    ) return true
+    if (
+      (ts.isSpreadAssignment(parent) || ts.isSpreadElement(parent)) &&
+      parent.expression === value
+    ) return true
+    if (
+      ts.isCallExpression(parent) && parent.arguments[0] === value &&
+      wholeObjectMethod(parent.expression)
+    ) return true
+    if (
+      (ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isBindingElement(parent)) &&
+      parent.initializer === value &&
+      (ts.isBindingElement(parent) || ts.isIdentifier(parent.name) || ts.isObjectBindingPattern(parent.name))
+    ) return true
+    if (
+      ts.isBinaryExpression(parent) &&
+      ((parent.left === value && ts.isAssignmentOperator(parent.operatorToken.kind)) || (
+        parent.right === value && parent.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+        ts.isIdentifier(parent.left)
+      ))
+    ) return true
+    return ts.isDeleteExpression(parent) && parent.expression === value
+  }
+
+  /** Detect only value flows that can expose the complete environment object to another owner. */
+  const isEnvironmentValueEscape = (node, scope) => {
+    if (isHandledEnvironmentValue(node)) return false
+    let value = node
+    let parent = value.parent
+    const logicalOperators = new Set([
+      ts.SyntaxKind.AmpersandAmpersandToken,
+      ts.SyntaxKind.BarBarToken,
+      ts.SyntaxKind.QuestionQuestionToken,
+    ])
+    while (
+      (ts.isParenthesizedExpression(parent) || ts.isAsExpression(parent) ||
+        ts.isTypeAssertionExpression(parent) || ts.isNonNullExpression(parent)) &&
+      parent.expression === value ||
+      ts.isConditionalExpression(parent) && parent.condition !== value ||
+      ts.isBinaryExpression(parent) && logicalOperators.has(parent.operatorToken.kind)
+    ) {
+      value = parent
+      parent = value.parent
+    }
+    if (!parent) return false
+    if (ts.isPropertyAssignment(parent) && parent.initializer === value) return true
+    if (ts.isShorthandPropertyAssignment(parent) && parent.name === value) return true
+    if (
+      (ts.isSpreadAssignment(parent) || ts.isSpreadElement(parent)) &&
+      parent.expression === value
+    ) return aliasStatus(value, scope) === null
+    if (ts.isCallExpression(parent) && parent.arguments.includes(value)) {
+      return !(
+        parent.arguments[0] === value && wholeObjectMethod(parent.expression) &&
+        aliasStatus(value, scope) !== null
+      )
+    }
+    if (ts.isNewExpression(parent) && parent.arguments?.includes(value)) return true
+    if (ts.isArrayLiteralExpression(parent) && parent.elements.includes(value)) return true
+    if (
+      (ts.isReturnStatement(parent) || ts.isThrowStatement(parent) || ts.isYieldExpression(parent) ||
+        ts.isExportAssignment(parent) || ts.isJsxExpression(parent)) &&
+      parent.expression === value
+    ) return true
+    if (ts.isArrowFunction(parent) && parent.body === value) return true
+    if (
+      ts.isBinaryExpression(parent) && parent.right === value &&
+      ts.isAssignmentOperator(parent.operatorToken.kind)
+    ) return !ts.isIdentifier(parent.left) || aliasStatus(value, scope) === null
+    return (
+      (ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isBindingElement(parent)) &&
+      parent.initializer === value && value !== node
+    )
+  }
 
   const recordObjectBinding = (pattern, status, kind) => {
     if (!["proven", "unknown"].includes(status)) return
@@ -185,6 +288,12 @@ function collectEnvironmentRows(record, text) {
       assignName(node.left.text, node.right, scope)
       return
     }
+    if (
+      !isTransparentExpression(node) && aliasStatus(node, scope) === "proven" &&
+      isEnvironmentValueEscape(node, scope)
+    ) {
+      addComputedUncertainty(node, "whole-object-value")
+    }
     if (ts.isSpreadAssignment(node) || ts.isSpreadElement(node)) {
       addWholeObjectUncertainty(node.expression, aliasStatus(node.expression, scope), "object-spread")
     } else if (ts.isCallExpression(node)) {
@@ -195,15 +304,11 @@ function collectEnvironmentRows(record, text) {
       }
     }
     if (ts.isPropertyAccessExpression(node) && hasReadSemantics(node)) {
-      const status = isProcessEnv(node.expression) ? "proven" : (
-        ts.isIdentifier(node.expression) ? lookupAlias(scope, node.expression.text) : null
-      )
+      const status = aliasStatus(node.expression, scope)
       if (status === "proven") addRead(node.name, node.name.text, "property-access")
       else if (status === "unknown") addAliasUncertainty(node.name, node.name.text, "property-access")
     } else if (ts.isElementAccessExpression(node) && hasReadSemantics(node)) {
-      const status = isProcessEnv(node.expression) ? "proven" : (
-        ts.isIdentifier(node.expression) ? lookupAlias(scope, node.expression.text) : null
-      )
+      const status = aliasStatus(node.expression, scope)
       if (status === "proven" || status === "unknown") {
         if (node.argumentExpression && isLiteralNode(node.argumentExpression)) {
           if (status === "proven") addRead(node.argumentExpression, node.argumentExpression.text, "element-access")

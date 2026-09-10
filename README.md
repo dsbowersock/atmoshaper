@@ -10,7 +10,7 @@ The Phase 1–2 bootstrap is merged: [PR #1](https://github.com/dsbowersock/atmo
 
 Phase 3 documentation consolidation is complete. [PR #2](https://github.com/dsbowersock/atmoshaper/pull/2) merged at `2026-09-10T00:57:48Z` as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; its reviewed head was `9d2a8eca057f33354f2cbb50263c8e4f365a00f1`, and `codex/atmoshaper-docs-consolidation` remains retained. Of 150 inherited design records reviewed, 134 remain and 16 exact superseded plans were omitted with [source and rollback receipts](docs/rebrand/atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09). The new Phase 3 plan is additional to those records.
 
-Phase 4 audit-only work is active on `codex/atmoshaper-dead-code-audit`, created from the exact PR #2 merge. Planning commit `e27c1d0ce941fbf9610389b45b9a30c82caac873` defines deterministic read-only dead-code, dependency, asset, and environment audits. Findings are evidence, not deletion authority: no candidate has approval for deletion, rename, upgrade, retirement, or runtime modification. Phases 5–10 remain unstarted.
+Phase 4 audit-only tooling is locally verified on `codex/atmoshaper-dead-code-audit`, created from the exact PR #2 merge, and [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3) is published for hosted review. Planning commit `e27c1d0ce941fbf9610389b45b9a30c82caac873` defines deterministic read-only dead-code, dependency, asset, and environment audits. The current gate is resolving hosted feedback and completing final checks and review before any separately authorized merge. Findings are evidence, not deletion authority: no candidate has approval for deletion, rename, upgrade, retirement, or runtime modification. Phases 5–10 remain unstarted.
 
 Full development history and historical evidence remain in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab). See [MIGRATION_LINEAGE.md](MIGRATION_LINEAGE.md) for the exact source and migration boundary.
 
@@ -39,7 +39,7 @@ Start with:
 
 The [migration charter](docs/rebrand/atmoshaper-migration-charter.md) and [Phase 4 audit-only plan](docs/superpowers/plans/2026-09-10-atmoshaper-phase4-audit-only.md) govern the current evidence-collection branch. The [Phase 3 plan](docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), [export manifest](docs/rebrand/atmoshaper-export-manifest.json), and [Phase 1–2 plan](docs/superpowers/plans/2026-09-06-atmoshaper-repository-migration.md) retain the completed consolidation and historical bootstrap contracts. At the historical Task 5 snapshot, Phase 2 audits, verification, and publication were still pending; [the project log](docs/project-log.md) preserves those dated receipts.
 
-Runtime rebranding, old-origin recovery implementation, provider staging, deployment, and production/database/payment/email/media/legal changes remain future-gated work. The current gate is local implementation and verification of Phase 4 audit tooling. Candidate deletion and Phases 5–10 remain separately gated.
+Runtime rebranding, old-origin recovery implementation, provider staging, deployment, and production/database/payment/email/media/legal changes remain future-gated work. Phase 4's current gate is resolution of hosted feedback plus exact-head final checks and review before any separately authorized merge. Candidate deletion and Phases 5–10 remain separately gated.
 
 ## Local Development
 

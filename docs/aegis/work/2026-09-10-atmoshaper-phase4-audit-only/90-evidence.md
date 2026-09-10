@@ -299,15 +299,28 @@ Round 2's historical pre-document receipt-synchronization snapshot measured
 Hosted review round 3 added separately labeled exact declaration-companion/type
 evidence, two exact configuration/manifest dependency owners, and owner-relative
 bare asset paths that become exact only when tracked and in inventory and
-otherwise remain hash-only uncertainty. The current focused repository audit
-suites pass 80/80, with current semantic results:
+otherwise remain hash-only uncertainty. That round's focused repository audit
+suites passed 80/80, with these now-historical semantic results:
 
-| Lane | Findings | Uncertainties | Current bounded classification |
+| Lane | Findings | Uncertainties | Round-3 bounded classification |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates; declaration/type evidence preserves implementation edges. |
 | Dependency | 2,861 | 19 | Two configuration owners and 6 candidates; no runtime import is inferred. |
 | Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
 | Environment | 587 | 191 | Unchanged from hosted review round 2. |
+
+Hosted review round 4 moved exact configuration ownership into the validated
+stage-0 policy and conservatively covered direct, aliased, wrapped, logical and
+conditional whole-environment forwarding without changing asset semantics. The
+current focused repository audit suites pass 83/83: 21 repository-audit tests
+and 62 cleanup-audit tests. Current semantic results are:
+
+| Lane | Findings | Uncertainties | Current round-4 bounded classification |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates. |
+| Dependency | 2,861 | 19 | Two configuration owners and 6 candidates. |
+| Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
+| Environment | 587 | 250 | 77 computed and 173 unproven-alias uncertainties; zero unread-declaration candidates. |
 
 The current tracked inventory remains 1,921 files. Brand verification remains
 zero missing and zero unclassified. Every report keeps
@@ -328,5 +341,7 @@ completed before separate publication authorization opened
 [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3).
 
 Deletion authority remains **none**. Every candidate stays `candidate`,
-`protected` or `unresolved`; no deletion, rename, upgrade, retirement, provider
-mutation, push, PR, merge or Phase 5 action occurred.
+`protected` or `unresolved`. Separate publication authorization pushed the
+branch and opened [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3);
+no candidate deletion, rename, upgrade, retirement, provider mutation, merge
+or Phase 5 action occurred.

@@ -796,12 +796,24 @@ blob bytes.
 Hosted review round 3 added separately labeled exact declaration-companion/type
 evidence, two exact configuration/manifest dependency owners, and owner-relative
 bare asset paths that become exact only when tracked and in inventory and
-otherwise remain hash-only uncertainty. The current focused repository audit
-suites pass 80/80. Current semantic totals are dead code 1,558/186 with 842
+otherwise remain hash-only uncertainty. That round's focused repository audit
+suites passed 80/80. Its now-historical semantic totals were dead code 1,558/186 with 842
 referenced modules and 23 candidates; dependency 2,861/19 with 2 configuration
 owners and 6 candidates; asset 390/11,384 with 97 tracked assets, 97 protected
 items, 177 exact owners, zero candidates, 529 dynamic rows and 10,855 unresolved
-rows; and environment 587/191. The current tracked inventory remains 1,921 files.
+rows; and environment 587/191.
+
+Hosted review round 4 moved exact configuration ownership into the validated
+stage-0 policy and conservatively covered direct, aliased, wrapped, logical and
+conditional whole-environment forwarding without changing asset semantics. The
+current focused repository audit suites pass 83/83: 21 repository-audit tests
+and 62 cleanup-audit tests. Current semantic totals are dead code 1,558/186 with
+842 referenced modules and 23 candidates; dependency 2,861/19 with 2
+configuration owners and 6 candidates; asset 390/11,384 with 97 tracked assets,
+97 protected items, 177 exact owners, zero candidates, 529 dynamic rows and
+10,855 unresolved rows; and environment 587/250 with 77 computed and 173
+unproven-alias uncertainties and zero unread-declaration candidates. The current
+tracked inventory remains 1,921 files.
 Brand verification remains zero missing and zero unclassified. Exact current
 staged bytes and identity remain only in the ignored SDD handoff and user-facing
 receipt. Every report retains `deletionAuthority: false`.

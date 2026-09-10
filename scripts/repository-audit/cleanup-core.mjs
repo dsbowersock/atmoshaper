@@ -10,13 +10,16 @@ import {
 } from "./core.mjs"
 
 const POLICY_FIELDS = [
-  "assetExtensions", "assetRoots", "environmentDeclarationPaths", "forbiddenTrackedPaths",
-  "frameworkRoots", "ignoredPathPrefixes", "packageScriptCliOwnership",
+  "assetExtensions", "assetRoots", "configurationManifestOwnership",
+  "environmentDeclarationPaths", "forbiddenTrackedPaths", "frameworkRoots",
+  "ignoredPathPrefixes", "packageScriptCliOwnership",
   "protectedPathPrefixes", "schemaVersion", "scopes", "sourceExtensions",
   "textExtensions", "topLevelConfigRoots",
 ]
 const SCOPE_NAMES = ["runtime", "tool", "test", "doc"]
 const FRAMEWORK_FIELDS = ["directoryPrefixes", "fileBasenames"]
+const CONFIGURATION_OWNERSHIP_FIELDS = ["kind", "manifestIdentity", "ownerPath", "packageName"]
+const MANIFEST_IDENTITY_FIELDS = ["property", "value"]
 const INDEX_READ_MAX_BUFFER = 128 * 1024 * 1024
 const indexInternals = new WeakMap()
 
@@ -95,6 +98,34 @@ export function validateCleanupPolicy(policy) {
   assertUniqueStrings(policy.frameworkRoots.directoryPrefixes, "CLEANUP_POLICY_INVALID", { prefix: true })
   assertUniqueStrings(policy.frameworkRoots.fileBasenames, "CLEANUP_POLICY_INVALID", { basename: true })
   assertUniqueStrings(policy.topLevelConfigRoots, "CLEANUP_POLICY_INVALID")
+  if (!Array.isArray(policy.configurationManifestOwnership) || policy.configurationManifestOwnership.length === 0) {
+    throw auditError("CLEANUP_POLICY_INVALID")
+  }
+  const configurationOwnerKeys = new Set()
+  for (const rule of policy.configurationManifestOwnership) {
+    assertExactFields(rule, CONFIGURATION_OWNERSHIP_FIELDS, "CLEANUP_POLICY_INVALID")
+    if (
+      typeof rule.packageName !== "string" ||
+      !/^(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+$/.test(rule.packageName) ||
+      !isNormalizedPolicyPath(rule.ownerPath)
+    ) throw auditError("CLEANUP_POLICY_INVALID")
+    const ownerKey = `${rule.packageName}\0${rule.ownerPath}`
+    if (configurationOwnerKeys.has(ownerKey)) throw auditError("CLEANUP_POLICY_INVALID")
+    configurationOwnerKeys.add(ownerKey)
+    if (rule.kind === "configuration-file") {
+      if (rule.manifestIdentity !== null) throw auditError("CLEANUP_POLICY_INVALID")
+      continue
+    }
+    if (rule.kind !== "configuration-manifest" || extname(rule.ownerPath).toLowerCase() !== ".json") {
+      throw auditError("CLEANUP_POLICY_INVALID")
+    }
+    assertExactFields(rule.manifestIdentity, MANIFEST_IDENTITY_FIELDS, "CLEANUP_POLICY_INVALID")
+    if (
+      typeof rule.manifestIdentity.property !== "string" ||
+      !/^[A-Za-z_$][A-Za-z0-9_$-]*$/.test(rule.manifestIdentity.property) ||
+      typeof rule.manifestIdentity.value !== "string" || rule.manifestIdentity.value.length === 0
+    ) throw auditError("CLEANUP_POLICY_INVALID")
+  }
   assertUniqueStrings(policy.protectedPathPrefixes, "CLEANUP_POLICY_INVALID", { prefix: true })
   assertUniqueStrings(policy.assetRoots, "CLEANUP_POLICY_INVALID", { prefix: true })
   assertUniqueStrings(policy.assetExtensions, "CLEANUP_POLICY_INVALID", { extension: true })

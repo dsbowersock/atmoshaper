@@ -63,6 +63,23 @@ function writePackage(root, value = {}) {
 }
 
 const clonePolicy = () => structuredClone(policy)
+const expectedConfigurationManifestOwnership = [
+  {
+    packageName: "postcss",
+    ownerPath: "postcss.config.mjs",
+    kind: "configuration-file",
+    manifestIdentity: null,
+  },
+  {
+    packageName: "shadcn",
+    ownerPath: "components.json",
+    kind: "configuration-manifest",
+    manifestIdentity: {
+      property: "$schema",
+      value: "https://ui.shadcn.com/schema.json",
+    },
+  },
+]
 
 function runAuditCli(cliPath, root, selectedPolicyPath = policyPath) {
   const effectivePolicyPath = selectedPolicyPath === policyPath && root !== repositoryRoot
@@ -107,6 +124,10 @@ test("private serialization checks raw string inputs before JSON escaping", () =
 test("schema-v1 policy names every required scope and rejects policy drift", () => {
   assert.equal(validateCleanupPolicy(clonePolicy()).schemaVersion, 1)
   assert.deepEqual(Object.keys(policy.scopes).sort(), ["doc", "runtime", "test", "tool"])
+  assert.deepEqual(policy.configurationManifestOwnership, expectedConfigurationManifestOwnership)
+
+  const postcssRule = expectedConfigurationManifestOwnership[0]
+  const shadcnRule = expectedConfigurationManifestOwnership[1]
 
   const cases = [
     { ...clonePolicy(), unexpected: true },
@@ -119,6 +140,33 @@ test("schema-v1 policy names every required scope and rejects policy drift", () 
         ...clonePolicy().scopes,
         tool: [...clonePolicy().scopes.tool, clonePolicy().scopes.runtime[0]],
       },
+    },
+    { ...clonePolicy(), configurationManifestOwnership: [] },
+    {
+      ...clonePolicy(),
+      configurationManifestOwnership: [{ ...postcssRule, unexpected: true }],
+    },
+    {
+      ...clonePolicy(),
+      configurationManifestOwnership: [{ ...postcssRule, ownerPath: "config\\postcss.config.mjs" }],
+    },
+    {
+      ...clonePolicy(),
+      configurationManifestOwnership: [postcssRule, { ...postcssRule }],
+    },
+    {
+      ...clonePolicy(),
+      configurationManifestOwnership: [{
+        ...postcssRule,
+        manifestIdentity: { property: "$schema", value: "https://example.test/schema.json" },
+      }],
+    },
+    {
+      ...clonePolicy(),
+      configurationManifestOwnership: [{
+        ...shadcnRule,
+        manifestIdentity: { property: "*", value: shadcnRule.manifestIdentity.value },
+      }],
     },
   ]
   for (const candidate of cases) {
@@ -671,6 +719,58 @@ test("dependency evidence records only validated configuration manifest owners",
   }
 })
 
+test("dependency CLI uses generic configuration ownership from the tracked stage-0 policy", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { devDependencies: { postcss: "1.0.0" } })
+  const ownerPath = ["config/postcss-owner", "json"].join(".")
+  writeFixture(root, ownerPath, `${JSON.stringify({ tool: "postcss" })}\n`)
+  const stagedPolicy = clonePolicy()
+  stagedPolicy.configurationManifestOwnership = [{
+    packageName: "postcss",
+    ownerPath,
+    kind: "configuration-manifest",
+    manifestIdentity: { property: "tool", value: "postcss" },
+  }]
+  const fixturePolicyRepoPath = ["scripts/repository-audit/cleanup-policy", "json"].join(".")
+  const fixturePolicyPath = writeFixture(
+    root,
+    fixturePolicyRepoPath,
+    `${JSON.stringify(stagedPolicy, null, 2)}\n`,
+  )
+
+  const first = runAuditCli(dependencyCliPath, root, fixturePolicyPath)
+  const unstagedSentinel = "unstaged-configuration-owner"
+  const unstagedOwnerPath = [unstagedSentinel, "json"].join(".")
+  writeFileSync(fixturePolicyPath, JSON.stringify({
+    ...stagedPolicy,
+    configurationManifestOwnership: [{
+      packageName: "postcss",
+      ownerPath: unstagedOwnerPath,
+      kind: "configuration-file",
+      manifestIdentity: null,
+    }],
+  }))
+  const second = runAuditCli(dependencyCliPath, root, fixturePolicyPath)
+
+  assert.equal(first.status, 0)
+  assert.equal(first.stderr, "")
+  assert.equal(second.status, 0)
+  assert.equal(second.stderr, "")
+  assert.equal(second.stdout, first.stdout)
+  const report = JSON.parse(second.stdout)
+  assert.deepEqual(
+    report.findings.filter((row) => row.findingKind === "configurationManifestOwners"),
+    [{
+      findingKind: "configurationManifestOwners",
+      kind: "configuration-manifest",
+      ownerPath,
+      packageName: "postcss",
+      usageScope: "configuration",
+    }],
+  )
+  assertPrivateSerialization(second.stdout, root, [unstagedSentinel])
+})
+
 test("dead-code report separates candidates from roots, protections, and uncertainty", (t) => {
   const root = createFixtureRepository(t)
   const dynamicExpression = "selectRuntimeModule()"
@@ -975,8 +1075,10 @@ test("environment evidence records whole-object consumption as name-unbounded un
     "const spreadAlias = { ...env }",
     "const keys = Object.keys(process.env)",
     "const entries = Object.entries(env)",
+    "const wrappedSpread = { ...(process.env) }",
+    "const wrappedKeys = Object.keys((process.env))",
     "function inspect(environment) { return Object.values(environment) }",
-    "void spreadDirect; void spreadAlias; void keys; void entries; void inspect",
+    "void spreadDirect; void spreadAlias; void keys; void entries; void wrappedSpread; void wrappedKeys; void inspect",
     "",
   ].join("\n"))
 
@@ -984,10 +1086,82 @@ test("environment evidence records whole-object consumption as name-unbounded un
   const computed = evidence.uncertainties.filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ")
   const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
   assert.deepEqual(computed.map((row) => row.kind).sort(), [
-    "object-entries", "object-keys", "object-spread", "object-spread",
+    "object-entries", "object-keys", "object-keys", "object-spread", "object-spread", "object-spread",
   ])
   assert.deepEqual(unproven.map((row) => row.kind), ["object-values"])
   assert.ok(evidence.uncertainties.every((row) => row.name == null))
+})
+
+test("environment evidence records direct and proven-alias value-position escapes once", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "NAMED=\n")
+  writeFixture(root, "lib/environment-forwarding.ts", [
+    "const env = process.env",
+    "const forwarded = env",
+    "const directProperty = { environment: process.env }",
+    "const aliasProperty = { env }",
+    "consume(process.env)",
+    "consume(env)",
+    "function returnDirect() { return process.env }",
+    "function returnAlias() { return env }",
+    "const directArray = [process.env]",
+    "const aliasArray = [env]",
+    "const directOr = { environment: process.env || fallback }",
+    "const aliasOr = { environment: env || fallback }",
+    "consume(process.env ?? fallback)",
+    "consume(env ?? fallback)",
+    "const spread = { ...process.env }",
+    "const keys = Object.keys(env)",
+    "const { NAMED } = env",
+    "const named = env.NAMED",
+    "const computed = env[getEnvironmentName()]",
+    "env.ASSIGN_ONLY = 'fixture'",
+    "delete env.DELETE_ONLY",
+    "function shadow(env) { return env }",
+    "void forwarded; void directProperty; void aliasProperty; void returnDirect; void returnAlias",
+    "void directArray; void aliasArray; void directOr; void aliasOr; void spread; void keys",
+    "void NAMED; void named; void computed; void shadow",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const computed = evidence.uncertainties.filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ")
+  const wholeObjectValues = computed.filter((row) => row.kind === "whole-object-value")
+  assert.deepEqual(wholeObjectValues.map((row) => row.line), [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+  assert.deepEqual(
+    computed.filter((row) => row.kind !== "whole-object-value").map((row) => row.kind).sort(),
+    ["element-access", "object-keys", "object-spread"],
+  )
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["NAMED", "NAMED"])
+  assert.equal(evidence.uncertainties.some((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS"), false)
+  assert.ok(evidence.uncertainties.every((row) => row.name == null))
+  assertPrivateSerialization(evidence, root, ["getEnvironmentName()"])
+})
+
+test("environment evidence conservatively records compound values deferred from whole-object handlers", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-compound-forwarding.ts", [
+    "const logicalKeys = Object.keys(process.env || {})",
+    "const logicalSpread = { ...(process.env || {}) }",
+    "let forwarded",
+    "forwarded = process.env || {}; consume(forwarded)",
+    "const conditionalKeys = Object.keys(enabled ? process.env : {})",
+    "void logicalKeys; void logicalSpread; void conditionalKeys",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const computed = evidence.uncertainties.filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ")
+  assert.deepEqual(computed.map((row) => [row.kind, row.line]), [
+    ["whole-object-value", 1],
+    ["whole-object-value", 2],
+    ["whole-object-value", 4],
+    ["whole-object-value", 5],
+  ])
+  assert.equal(evidence.reads.length, 0)
+  assert.equal(evidence.errors.length, 0)
 })
 
 test("asset report records Git identities, exact owners by scope, and conservative candidates", (t) => {
@@ -1736,7 +1910,10 @@ test("environment alias reassignment updates proven and unknown state", (t) => {
     "const uncertain = env.AFTER_UNKNOWN_REASSIGNMENT",
     "env = process.env",
     "const restored = env.AFTER_PROVEN_REASSIGNMENT",
-    "void before; void uncertain; void restored",
+    "let forwarded",
+    "forwarded = (process.env)",
+    "consume(forwarded)",
+    "void before; void uncertain; void restored; void forwarded",
     "",
   ].join("\n"))
 
@@ -1744,9 +1921,12 @@ test("environment alias reassignment updates proven and unknown state", (t) => {
   assert.deepEqual(evidence.reads.map((row) => row.name), [
     "BEFORE_REASSIGNMENT", "AFTER_PROVEN_REASSIGNMENT",
   ])
-  assert.equal(evidence.uncertainties.length, 1)
+  assert.equal(evidence.uncertainties.length, 2)
   assert.equal(evidence.uncertainties[0].code, "UNPROVEN_ENVIRONMENT_ALIAS")
   assert.equal(evidence.uncertainties[0].name, "AFTER_UNKNOWN_REASSIGNMENT")
+  assert.equal(evidence.uncertainties[1].code, "COMPUTED_ENVIRONMENT_READ")
+  assert.equal(evidence.uncertainties[1].kind, "whole-object-value")
+  assert.equal(evidence.uncertainties[1].line, 9)
   assertPrivateSerialization(evidence, root, [reassignmentExpression])
 })
 
@@ -1836,6 +2016,11 @@ test("real environment evidence reads STRIPE_SECRET_KEY through a proven default
   const index = buildTrackedTextIndex(repositoryRoot, policy)
   const evidence = buildEnvironmentEvidence(index, policy)
   assert.ok(evidence.reads.some((row) => row.name === "STRIPE_SECRET_KEY" && row.path === "lib/stripe-billing.js"))
+  assert.ok(evidence.uncertainties.some((row) => (
+    row.code === "COMPUTED_ENVIRONMENT_READ" &&
+    row.kind === "whole-object-value" &&
+    row.path === "scripts/stripe-supporter-membership-migration.mjs"
+  )))
   const report = buildEnvironmentCandidateReport(index, policy)
   assert.equal(report.unreadDeclarationCandidates.some((row) => row.name === "STRIPE_SECRET_KEY"), false)
 })

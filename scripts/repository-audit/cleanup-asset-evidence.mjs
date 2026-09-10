@@ -120,8 +120,6 @@ function assetTarget(fromPath, literal, assetExtensions) {
     const publicPath = normalizeContainedAssetPath(withoutSuffix.slice("public/".length))
     if (publicPath === null) return { invalid: true }
     target = `public/${publicPath}`
-  } else if (withoutSuffix.startsWith("./") || withoutSuffix.startsWith("../")) {
-    target = posix.normalize(posix.join(posix.dirname(fromPath), withoutSuffix))
   } else if (withoutSuffix.includes("/")) {
     target = posix.normalize(posix.join(posix.dirname(fromPath), withoutSuffix))
   } else return null

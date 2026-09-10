@@ -98,6 +98,23 @@
     "proxy.ts",
     "tailwind.config.ts"
   ],
+  "configurationManifestOwnership": [
+    {
+      "packageName": "postcss",
+      "ownerPath": "postcss.config.mjs",
+      "kind": "configuration-file",
+      "manifestIdentity": null
+    },
+    {
+      "packageName": "shadcn",
+      "ownerPath": "components.json",
+      "kind": "configuration-manifest",
+      "manifestIdentity": {
+        "property": "$schema",
+        "value": "https://ui.shadcn.com/schema.json"
+      }
+    }
+  ],
   "packageScriptCliOwnership": {
     "eslint": "eslint",
     "next": "next",

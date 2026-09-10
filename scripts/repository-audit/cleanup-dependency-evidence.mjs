@@ -7,28 +7,37 @@ import { buildModuleEvidence, parsePackage } from "./cleanup-module-evidence.mjs
 import { stableJson } from "./core.mjs"
 
 const DEPENDENCY_SECTIONS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"]
-const SHADCN_SCHEMA = "https://ui.shadcn.com/schema.json"
-
 /** Record only exact tracked configuration conventions with validated manifest identity. */
-function configurationManifestOwners(index, declarations) {
+function configurationManifestOwners(index, declarations, policy) {
   const declaredNames = new Set(declarations.map((row) => row.name))
   const { textByPath, trackedPathSet } = requireTrackedTextIndex(index)
   const owners = []
-  if (declaredNames.has("postcss") && trackedPathSet.has("postcss.config.mjs")) {
-    owners.push({ packageName: "postcss", ownerPath: "postcss.config.mjs", kind: "configuration-file" })
-  }
-  const componentsText = textByPath.get("components.json")
-  if (declaredNames.has("shadcn") && componentsText !== undefined) {
+  for (const rule of policy.configurationManifestOwnership) {
+    if (!declaredNames.has(rule.packageName) || !trackedPathSet.has(rule.ownerPath)) continue
+    if (rule.manifestIdentity === null) {
+      owners.push({ packageName: rule.packageName, ownerPath: rule.ownerPath, kind: rule.kind })
+      continue
+    }
+    const manifestText = textByPath.get(rule.ownerPath)
+    if (manifestText === undefined) continue
     try {
-      const manifest = JSON.parse(componentsText)
-      if (manifest && !Array.isArray(manifest) && manifest.$schema === SHADCN_SCHEMA) {
-        owners.push({ packageName: "shadcn", ownerPath: "components.json", kind: "configuration-manifest" })
+      const manifest = JSON.parse(manifestText)
+      if (
+        manifest && typeof manifest === "object" && !Array.isArray(manifest) &&
+        Object.hasOwn(manifest, rule.manifestIdentity.property) &&
+        manifest[rule.manifestIdentity.property] === rule.manifestIdentity.value
+      ) {
+        owners.push({ packageName: rule.packageName, ownerPath: rule.ownerPath, kind: rule.kind })
       }
     } catch {
       // Invalid or unrelated JSON cannot prove package ownership.
     }
   }
-  return owners
+  return owners.sort((left, right) => (
+    compareText(left.packageName, right.packageName) ||
+    compareText(left.ownerPath, right.ownerPath) ||
+    compareText(left.kind, right.kind)
+  ))
 }
 
 /** Build package declaration and usage evidence, folding package subpaths to their owner. */
@@ -70,7 +79,7 @@ export function buildDependencyEvidence(index, policy) {
   ))
   return stableJson({
     schemaVersion: 1, declarations, references,
-    configurationManifestOwners: configurationManifestOwners(index, declarations),
+    configurationManifestOwners: configurationManifestOwners(index, declarations, policy),
     uncertainties: moduleEvidence.uncertainties, errors: moduleEvidence.errors,
   })
 }
