@@ -53,14 +53,28 @@
     },
     {
       "path": "MIGRATION_LINEAGE.md",
-      "line": 11,
+      "line": 22,
       "column": 66,
       "textSha256": "b86cb0f3993590d23ec5ec46b9dc7887992d72059a72af41774435df6e82e5c2",
       "category": "historical"
     },
     {
       "path": "MIGRATION_LINEAGE.md",
-      "line": 13,
+      "line": 24,
+      "column": 427,
+      "textSha256": "3b827cd7153a2e2374221a8e3955a2d77edb41f9d6219a474b8fb31bc5ef1a9c",
+      "category": "historical"
+    },
+    {
+      "path": "MIGRATION_LINEAGE.md",
+      "line": 24,
+      "column": 622,
+      "textSha256": "3b827cd7153a2e2374221a8e3955a2d77edb41f9d6219a474b8fb31bc5ef1a9c",
+      "category": "historical"
+    },
+    {
+      "path": "MIGRATION_LINEAGE.md",
+      "line": 26,
       "column": 221,
       "textSha256": "b321f0a6eceac0f4095f6e3e09c14472a67ce73fb505ba58d3fa3b5ad9c5840b",
       "category": "historical"
@@ -75,20 +89,27 @@
     {
       "path": "README.md",
       "line": 11,
+      "column": 602,
+      "textSha256": "4cc2f6c295b9d2592d7c601a56e6ea43baafc3e02b1721a9eb73e465708c06f3",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "README.md",
+      "line": 13,
       "column": 74,
       "textSha256": "722a2e3ec82efcc41498d2b2ab648215d1353c6d9598246132caf00e6ad0ed0b",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "README.md",
-      "line": 11,
+      "line": 13,
       "column": 118,
       "textSha256": "722a2e3ec82efcc41498d2b2ab648215d1353c6d9598246132caf00e6ad0ed0b",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "README.md",
-      "line": 78,
+      "line": 83,
       "column": 60,
       "textSha256": "5dad3b9aa721c23094560a8d93f1b3a569ece07b7a7688163e1fb5412e54217b",
       "category": "pre-rebrand-public-copy"
@@ -87202,6 +87223,13 @@
       "category": "historical"
     },
     {
+      "path": "docs/aegis/work/2026-09-09-atmoshaper-phase3-documentation-consolidation/10-intent.md",
+      "line": 49,
+      "column": 58,
+      "textSha256": "70fb6885c2b0e4ecc6b794b878e9db1d4304b2c07aaa833e496a29713fef24e5",
+      "category": "historical"
+    },
+    {
       "path": "docs/alpha-qa.md",
       "line": 1,
       "column": 3,
@@ -87311,6 +87339,27 @@
       "line": 26,
       "column": 90,
       "textSha256": "393b8c7fff9f9bfe39acefadf9a09b09bd7dae7b5c7d9987d212c68289c93ef3",
+      "category": "historical"
+    },
+    {
+      "path": "docs/architecture.md",
+      "line": 11,
+      "column": 24,
+      "textSha256": "c5db5a91be1da0074f0277bfef6e777390a060e5165c9171cd6ea52e52895965",
+      "category": "historical"
+    },
+    {
+      "path": "docs/architecture.md",
+      "line": 12,
+      "column": 77,
+      "textSha256": "9e61eae4b33b083762eb6179bd7618043e2dea8fb142004c7d1ce9afbd0f50c4",
+      "category": "historical"
+    },
+    {
+      "path": "docs/architecture.md",
+      "line": 46,
+      "column": 75,
+      "textSha256": "baef7b0f8c23f29ebd2bb49f43bb8b8b4d6761f9f68d35266eed62da31f8dff9",
       "category": "historical"
     },
     {
@@ -89330,6 +89379,104 @@
       "category": "historical"
     },
     {
+      "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
+      "line": 13,
+      "column": 35,
+      "textSha256": "0633586a84192a483b3cda94ca9e4c50eaab36fb270662931bbdf6306edcae0c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
+      "line": 18,
+      "column": 34,
+      "textSha256": "05bdac176c118222ede96f685b184ff6dc64c72ed1be55dbb9b0cc0c82358190",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
+      "line": 35,
+      "column": 4,
+      "textSha256": "81d43544ce5303d96e43f665c3dc877e01dd949bf35f8f22569cf3e725f42c4a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
+      "line": 43,
+      "column": 66,
+      "textSha256": "f8bec5662e78c547754ae47ea28ba5fd4ec3df0a517995e384ffcdda5de4691e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
+      "line": 56,
+      "column": 93,
+      "textSha256": "6e6eba57ea037198e2b9980e63896549f936ed687a30568ad06ac0a24df5d0a9",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0001-fresh-root-lineage-and-history-ownership.md",
+      "line": 66,
+      "column": 4,
+      "textSha256": "b27b265782250518cbb4c249aa6b9b768d762ee256f423a0470be3b31e34ce2d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md",
+      "line": 8,
+      "column": 16,
+      "textSha256": "5364e2ec4ad82f214ee469d1febdaca9820528fbce3a9f5c3d7dc35cf0f51510",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md",
+      "line": 40,
+      "column": 34,
+      "textSha256": "0728faba2570cae8972d1230a6c6dc4a473830d3fbd865a229369357724c8e23",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md",
+      "line": 57,
+      "column": 87,
+      "textSha256": "4641ab30f6bbb5249478bc1e3d053c5dfe35ef1c629acbef1156821320e259a0",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0003-origin-bound-local-data-and-pwa-recovery.md",
+      "line": 61,
+      "column": 80,
+      "textSha256": "d07ca13f18faf3cb313908ab4ad1342d5f54792c8fb85c9f088cc2dc8bff37f6",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/0004-parallel-provider-staging-and-cutover.md",
+      "line": 62,
+      "column": 75,
+      "textSha256": "9ce917943f27528704a9b28b6619e9ab02a4fe74e43a8708ddc635f52f03c238",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/README.md",
+      "line": 14,
+      "column": 134,
+      "textSha256": "ff1b450b1be0ed27bc58486cbe506fc394f21a65904cfd1092f6ecdc190c5322",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/README.md",
+      "line": 22,
+      "column": 22,
+      "textSha256": "5ab64ff21698767672b389a5973f6b3709cb69d57411bc110395ee32408a0c5d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/decisions/README.md",
+      "line": 23,
+      "column": 77,
+      "textSha256": "e03a3d0bd19fc2db816b1b1e29992063dcbdc433406d5cf4533462e9a6a8e3ce",
+      "category": "historical"
+    },
+    {
       "path": "docs/project-log.md",
       "line": 3,
       "column": 211,
@@ -89386,45 +89533,199 @@
       "category": "historical"
     },
     {
+      "path": "docs/project-log.md",
+      "line": 47,
+      "column": 363,
+      "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-log.md",
+      "line": 51,
+      "column": 244,
+      "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
+      "category": "historical"
+    },
+    {
       "path": "docs/project-state.md",
-      "line": 9,
+      "line": 10,
+      "column": 84,
+      "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-state.md",
+      "line": 13,
+      "column": 365,
+      "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-state.md",
+      "line": 15,
+      "column": 38,
+      "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-state.md",
+      "line": 19,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 10,
+      "line": 20,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 13,
+      "line": 23,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 14,
+      "line": 24,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 14,
+      "line": 24,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 38,
+      "line": 50,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 65,
+      "column": 93,
+      "textSha256": "33252652c130009e93519cb2b2d2e7b4ecffb66cd0b200f76e06e5b0a702cf34",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 73,
+      "column": 326,
+      "textSha256": "ed6b145356e815213932f3d36588f2f0af28cb5a1f7816df666f7a7768e6d319",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 74,
+      "column": 419,
+      "textSha256": "da6b4859aa950cfd6c2968393aa8cc2f11ab26610c952e59ee43e1f35487d046",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 75,
+      "column": 432,
+      "textSha256": "c2710cb9077fc1c49a6f4e3bc58117dcc80a388be57446ab06ad7aad8053697d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 76,
+      "column": 373,
+      "textSha256": "2a8e26db8f03af388acc8adf9ef14cec4ed743899c06ffaa74b5dcad9db01a9c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 77,
+      "column": 444,
+      "textSha256": "91dcbe1143d8eebcf3d1e8b03297e7e37a89dc569d2993ccf7563910fa494039",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 78,
+      "column": 402,
+      "textSha256": "e5403e2c302fdde4d055a7e3b0f4d1b3ba4ca32da819ea725ca7bd9b23c03db7",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 79,
+      "column": 366,
+      "textSha256": "62c4fad9fed2648f545c37a013fd49b4148135ad04dc53b2c49b4a22218f45cc",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 80,
+      "column": 371,
+      "textSha256": "6a01d105bac17f4a096247d4451525f0f9cf222418fef8ca8b2dd70d2b2f3353",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 81,
+      "column": 398,
+      "textSha256": "314f992b65b3522d26f818f9ec2111b65ff75b3dace7920e5918efd54a4020bd",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 82,
+      "column": 386,
+      "textSha256": "7351b7b381515f711f77c730a9c9b82489bbdd4ca0e1f57b74541dab81bc6d3f",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 83,
+      "column": 390,
+      "textSha256": "ed3e566f21a984671d91e5d3047dd4c962f9d1cc7b5d1bf472a65286d12b4720",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 84,
+      "column": 423,
+      "textSha256": "cb5fb9126dfa813a12dc27b096943562066d86ac42f474207c1cdb6214fccfc9",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 85,
+      "column": 414,
+      "textSha256": "5f2d44e9ffc8a9d920d05014f64dfe924a88cc2ac1f0599341ef326c11553225",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 86,
+      "column": 399,
+      "textSha256": "1305e89284f5ceb0e5ce04496acedbf5ca503f416a0b2b1795f65e04a430d74b",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 87,
+      "column": 312,
+      "textSha256": "fd71bd499ed96479290419c3d3ad4812e3bb82e621fb2eff31dae64f8d8cca22",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-cleanup-register.md",
+      "line": 88,
+      "column": 360,
+      "textSha256": "78be65f4d2aec121c47f45031d725b243384ff1a28a1755068186a35ead17349",
       "category": "historical"
     },
     {
@@ -89485,184 +89786,198 @@
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 9,
-      "column": 130,
-      "textSha256": "24fce50799433665e4ee59e8ce443db6210caac51ad068592054a31d1736ad2c",
+      "line": 11,
+      "column": 244,
+      "textSha256": "ad3b8f17c401b5ee4ff59862a49fa5e9370e56237dbc31286367b35f52c9f55e",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 11,
+      "line": 13,
       "column": 136,
       "textSha256": "74c2f298173dc8feb58cc300facace9f8f632d3867ac7286ff436a9eae09530d",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 11,
+      "line": 13,
       "column": 202,
       "textSha256": "74c2f298173dc8feb58cc300facace9f8f632d3867ac7286ff436a9eae09530d",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 11,
+      "line": 13,
       "column": 227,
       "textSha256": "74c2f298173dc8feb58cc300facace9f8f632d3867ac7286ff436a9eae09530d",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 17,
+      "line": 19,
       "column": 174,
       "textSha256": "c4c93befb6414e4f5b3e676a36a67f80ad8d85d65d69f5e0cef6fe921ac25292",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 17,
+      "line": 19,
       "column": 461,
       "textSha256": "c4c93befb6414e4f5b3e676a36a67f80ad8d85d65d69f5e0cef6fe921ac25292",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 18,
+      "line": 20,
       "column": 133,
       "textSha256": "e9eda24c8754194399bae060a56ae11c9217741c5a2b08cda54a070c92bfcb53",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 18,
+      "line": 20,
       "column": 154,
       "textSha256": "e9eda24c8754194399bae060a56ae11c9217741c5a2b08cda54a070c92bfcb53",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 22,
+      "line": 24,
       "column": 74,
       "textSha256": "f458d36c08d9357668f7e3a2559208f81ac73e0dd1750b29aea8f473f7f61560",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 23,
+      "line": 25,
       "column": 101,
       "textSha256": "172eaeee3afe93ec41a9f92dccfc2eb4e84a59f86c4bd8d5826c3ab7d34be0c2",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 24,
+      "line": 26,
       "column": 79,
       "textSha256": "11bc865348de29a524485d9cd2fc06511bd5c0e3f7b1364a8fc0845044794ca7",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 27,
+      "line": 29,
       "column": 122,
       "textSha256": "48ed3e900b24f3ad857099acce3cabef88ea7b9aadd4ed628f9e2503eb485dae",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 28,
+      "line": 30,
       "column": 125,
       "textSha256": "b3ac66a0986a58f0358b492cebc59ea94b3a370ccad94af70a84f815f9a74e79",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 28,
+      "line": 30,
       "column": 294,
       "textSha256": "b3ac66a0986a58f0358b492cebc59ea94b3a370ccad94af70a84f815f9a74e79",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 28,
+      "line": 30,
       "column": 316,
       "textSha256": "b3ac66a0986a58f0358b492cebc59ea94b3a370ccad94af70a84f815f9a74e79",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 28,
+      "line": 30,
       "column": 347,
       "textSha256": "b3ac66a0986a58f0358b492cebc59ea94b3a370ccad94af70a84f815f9a74e79",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 29,
+      "line": 31,
       "column": 267,
       "textSha256": "588ac1c0b9b61fc67694da39c2aee7da468178a0d9b703b676441fa93c93fa01",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 29,
+      "line": 31,
       "column": 291,
       "textSha256": "588ac1c0b9b61fc67694da39c2aee7da468178a0d9b703b676441fa93c93fa01",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 29,
+      "line": 31,
       "column": 326,
       "textSha256": "588ac1c0b9b61fc67694da39c2aee7da468178a0d9b703b676441fa93c93fa01",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 29,
+      "line": 31,
       "column": 368,
       "textSha256": "588ac1c0b9b61fc67694da39c2aee7da468178a0d9b703b676441fa93c93fa01",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 30,
+      "line": 32,
       "column": 142,
       "textSha256": "51dd6fbbb0f13d3f05e1bf754f9b1c42d91e6d19588d36af88b38afb131c7892",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 30,
+      "line": 32,
       "column": 192,
       "textSha256": "51dd6fbbb0f13d3f05e1bf754f9b1c42d91e6d19588d36af88b38afb131c7892",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 30,
+      "line": 32,
       "column": 233,
       "textSha256": "51dd6fbbb0f13d3f05e1bf754f9b1c42d91e6d19588d36af88b38afb131c7892",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 31,
+      "line": 33,
       "column": 52,
       "textSha256": "42501a3eb4989d68b3cbdaa145798bdcaba7daee55f1da88329669c8a6850e5d",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 34,
+      "line": 36,
       "column": 101,
       "textSha256": "4d54bc65bb6ec6d03ac102e4605856e2d2f7ab2ae8c3728ec02fad73fb067e5a",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 36,
+      "line": 38,
       "column": 127,
       "textSha256": "a839c131c82f4c1a98a339a4e1dd94df4549dce00e049fbb948e1b5cec0a1b3b",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
+      "line": 42,
+      "column": 105,
+      "textSha256": "83fafaebb3a606a3056508fda0074926eb21c3d34fae7cfa24998f3284aa13ed",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
+      "line": 42,
+      "column": 247,
+      "textSha256": "83fafaebb3a606a3056508fda0074926eb21c3d34fae7cfa24998f3284aa13ed",
       "category": "historical"
     },
     {
@@ -90017,56 +90332,42 @@
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 7,
+      "line": 8,
       "column": 152,
       "textSha256": "4b22e5d5bfc7d8a4fe1f191cbf8e731fff5c480ddad522bc79f4ce24b665d4b6",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 12,
+      "line": 16,
+      "column": 292,
+      "textSha256": "9bdbfe9245e0e4de50097b8bb8c28a139a03bf9800f9aebc0821ef955ce5ffff",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-migration-charter.md",
+      "line": 21,
       "column": 54,
       "textSha256": "6441a98782b1377d7bbd50b45a29f3e967351a322bd0f3b306beaf7774cfb090",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 18,
-      "column": 53,
-      "textSha256": "2cdecc0de04e272a2d5c0dcc90e1997f3a640861e8869fb72f4f999a958a292a",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 27,
-      "column": 33,
-      "textSha256": "f09ca0a81ef50bee99e46c056b830a956adb0839d91035add78f2d9967c44973",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 49,
-      "column": 42,
-      "textSha256": "e9092b984356a4dc055809633328a85a85c0ab03fb7955215c51f760523048ed",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 68,
+      "line": 77,
       "column": 107,
       "textSha256": "e84bbb54057a055be80fa32027d108a13ff77b175bed37663876d326b4ee11aa",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 69,
+      "line": 78,
       "column": 70,
       "textSha256": "61677f1175e867e02faaa2af63f783970ac0f3f8a7b052ccf0edf80bf77e15ab",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 87,
+      "line": 98,
       "column": 67,
       "textSha256": "f69fc5dda6f2a91f0d3eef138ce7dfb27af51518660c63588d8dbe249bbbd760",
       "category": "historical"
@@ -90080,245 +90381,259 @@
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 28,
+      "line": 13,
+      "column": 357,
+      "textSha256": "e6947c51fb87cd4d38ab95f07a3f3e8894f3be6aef62670825b78969e6a61e6f",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-reference-inventory.md",
+      "line": 13,
+      "column": 404,
+      "textSha256": "e6947c51fb87cd4d38ab95f07a3f3e8894f3be6aef62670825b78969e6a61e6f",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-reference-inventory.md",
+      "line": 40,
       "column": 90,
       "textSha256": "85a149db9e3d2fa46f02897fe33bef0c9ca7f6a32fb558f61e37855f836d8d96",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 64,
+      "line": 76,
       "column": 128,
       "textSha256": "6aaf4024b9684f68fa383d0986a0071e17741a97c4d7741e12f22944b1ef259c",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 75,
+      "line": 87,
       "column": 362,
       "textSha256": "6b1fed18ca257ae20a0b481e1cc3f2e512391a2acb05f4f857db991ea54fe52f",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 103,
+      "line": 115,
       "column": 3,
       "textSha256": "213b3091c10d943a54defbbf74ae0a860394def969379b7a2b3e255d97318e8a",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 103,
+      "line": 115,
       "column": 182,
       "textSha256": "213b3091c10d943a54defbbf74ae0a860394def969379b7a2b3e255d97318e8a",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 103,
+      "line": 115,
       "column": 350,
       "textSha256": "213b3091c10d943a54defbbf74ae0a860394def969379b7a2b3e255d97318e8a",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 104,
+      "line": 116,
       "column": 3,
       "textSha256": "a36917ba1d79c4a1972dda7ad1f0f9c8a0fb1cc18de221474a8bd5b02650150c",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 104,
+      "line": 116,
       "column": 215,
       "textSha256": "a36917ba1d79c4a1972dda7ad1f0f9c8a0fb1cc18de221474a8bd5b02650150c",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 104,
+      "line": 116,
       "column": 356,
       "textSha256": "a36917ba1d79c4a1972dda7ad1f0f9c8a0fb1cc18de221474a8bd5b02650150c",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 105,
+      "line": 117,
       "column": 3,
       "textSha256": "9c9f609a65fcb918da4c1fdb416c2f4bd8a41ba62cf4ac47010fa97e92783da2",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 105,
+      "line": 117,
       "column": 403,
       "textSha256": "9c9f609a65fcb918da4c1fdb416c2f4bd8a41ba62cf4ac47010fa97e92783da2",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 107,
+      "line": 119,
       "column": 79,
       "textSha256": "cbb558abc7ac40f3b2270b4a3c7969cb41069d479776a561cb3614aeda132293",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 111,
+      "line": 123,
       "column": 203,
       "textSha256": "8c25244903fcaee8786fd4a990d233574ea25bba23621b07b0e30614cf52f0ab",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 170,
+      "line": 182,
       "column": 32,
       "textSha256": "c6b16edce2eda787ed18a0466af59da2a45669f803768fe550f641f01297f34c",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 196,
+      "line": 208,
       "column": 414,
       "textSha256": "abca738e480d4601db19749716b9c88c4286d08fb698c9ea1290c1baea62c433",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 262,
+      "line": 274,
       "column": 510,
       "textSha256": "bbf461e8b154a0c817c84d1d9e90c4f266c5dae430a688855dfe2d0e400295be",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 266,
+      "line": 278,
       "column": 112,
       "textSha256": "1160a90119ff23e6910981f19c577b44c12400882d7d60d048ca2e3a091f225d",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 272,
+      "line": 284,
       "column": 20,
       "textSha256": "3bae078daf81297a50bc1bd8668e658c4c52c5fb3aeea15f35266fe56d8e3a0f",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 509,
+      "line": 521,
       "column": 54,
       "textSha256": "f5837e3964d80e04e5c9d10d2c1908631bafff536fdfb95e3bba5366344c5db9",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 510,
+      "line": 522,
       "column": 64,
       "textSha256": "faf3708a2949ff40545a6b75c16a8c03acb3efeda5d68048b6036e7ce7e091cc",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 510,
+      "line": 522,
       "column": 134,
       "textSha256": "faf3708a2949ff40545a6b75c16a8c03acb3efeda5d68048b6036e7ce7e091cc",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 510,
+      "line": 522,
       "column": 159,
       "textSha256": "faf3708a2949ff40545a6b75c16a8c03acb3efeda5d68048b6036e7ce7e091cc",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 513,
+      "line": 525,
       "column": 194,
       "textSha256": "874f277540f06abdc922133de67e25c21e218a4edf318577910c5c291a7223c5",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 513,
+      "line": 525,
       "column": 256,
       "textSha256": "874f277540f06abdc922133de67e25c21e218a4edf318577910c5c291a7223c5",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 521,
+      "line": 533,
       "column": 14,
       "textSha256": "a7a26f41e8ce52c94271d07ed3440dd13179559f7dc4c39236a769f620f3efcf",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 524,
-      "column": 28,
-      "textSha256": "8c6cae7f7602ea51d6bc7ed24659323a4edc3e6f4978ac2ce348ea66074c9b8f",
+      "line": 536,
+      "column": 106,
+      "textSha256": "cd3d3e751e1499c9979780764eb55c6e4b4b06069f44c94f0cf92668b99c71bf",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 525,
+      "line": 537,
       "column": 57,
       "textSha256": "e9161b6628cd29299f7a782398a754183076db1c422ec5cfe9790d513b701f7d",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 527,
+      "line": 539,
       "column": 28,
       "textSha256": "bfcf5a2a6d73abc17d28e7d3fa813cf5cce4480d672464522eea053b48a383a0",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 527,
+      "line": 539,
       "column": 86,
       "textSha256": "bfcf5a2a6d73abc17d28e7d3fa813cf5cce4480d672464522eea053b48a383a0",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 529,
+      "line": 541,
       "column": 21,
       "textSha256": "5613e484b2c4d2682a4f3ace7ed9e19cbdf6734d0d93cd335cb7757f03ab282b",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 529,
+      "line": 541,
       "column": 81,
       "textSha256": "5613e484b2c4d2682a4f3ace7ed9e19cbdf6734d0d93cd335cb7757f03ab282b",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 530,
+      "line": 542,
       "column": 14,
       "textSha256": "8ba042c2945d3ea188ec58ed009761475a6649a8f33baeea65e41dfb25c203f9",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 543,
+      "line": 555,
       "column": 182,
       "textSha256": "816d28317de82831f48b737332c0c48486054ae75792f5cee5ea6016e0b6deee",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 543,
+      "line": 555,
       "column": 260,
       "textSha256": "816d28317de82831f48b737332c0c48486054ae75792f5cee5ea6016e0b6deee",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-reference-inventory.md",
-      "line": 548,
+      "line": 560,
       "column": 36,
       "textSha256": "fe7b2cfb1a8d36b4165533174a049f5da48dca52bf036197642b8096f6389309",
       "category": "historical"
@@ -90538,48 +90853,6 @@
       "line": 734,
       "column": 141,
       "textSha256": "a1974506b334148f2adb8c8419e50b9d79732e4ecf556332e0050067f8386de6",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-27-project-source-of-truth-consolidation.md",
-      "line": 5,
-      "column": 61,
-      "textSha256": "47f749c885fe062246295dc15ac7127cc078edfd9cf13c5bb670c8d2d8e3680f",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-30-privacy-first-records-framework.md",
-      "line": 10,
-      "column": 44,
-      "textSha256": "15eafbfa92da20a1c82f072ec7ec06c5a943b1ef1bf6a177d45259f336ebb3bc",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-30-privacy-first-records-framework.md",
-      "line": 11,
-      "column": 57,
-      "textSha256": "cc7aa54f32b1f19c2fed64ff0fffa33259056602a63625dc3a1aed7e8b7040d0",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-30-privacy-first-records-framework.md",
-      "line": 11,
-      "column": 82,
-      "textSha256": "cc7aa54f32b1f19c2fed64ff0fffa33259056602a63625dc3a1aed7e8b7040d0",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-30-privacy-first-records-framework.md",
-      "line": 11,
-      "column": 116,
-      "textSha256": "cc7aa54f32b1f19c2fed64ff0fffa33259056602a63625dc3a1aed7e8b7040d0",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-30-privacy-first-records-framework.md",
-      "line": 11,
-      "column": 155,
-      "textSha256": "cc7aa54f32b1f19c2fed64ff0fffa33259056602a63625dc3a1aed7e8b7040d0",
       "category": "historical"
     },
     {
@@ -91157,27 +91430,6 @@
       "category": "historical"
     },
     {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-first-batch-hosting.md",
-      "line": 9,
-      "column": 44,
-      "textSha256": "ca2078483b83527a173f82c18f73566a01449e4170ea901936ee68d9569d76cb",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-first-batch-hosting.md",
-      "line": 9,
-      "column": 176,
-      "textSha256": "ca2078483b83527a173f82c18f73566a01449e4170ea901936ee68d9569d76cb",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-first-batch-hosting.md",
-      "line": 22,
-      "column": 112,
-      "textSha256": "eb848d208181f7dfc1ddf460a8a2a6bcf82f8df160457e84128e1f337663e461",
-      "category": "historical"
-    },
-    {
       "path": "docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-adapter.md",
       "line": 5,
       "column": 103,
@@ -91196,62 +91448,6 @@
       "line": 21,
       "column": 15,
       "textSha256": "d9010c7c87954b444440993775ef56889b911a38cd0150b925f7da56c79d04b0",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md",
-      "line": 5,
-      "column": 83,
-      "textSha256": "efcb40669d5b603ad202719429e7b483bdaaa6456a7e41a1b84a646dc6caa227",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md",
-      "line": 5,
-      "column": 406,
-      "textSha256": "efcb40669d5b603ad202719429e7b483bdaaa6456a7e41a1b84a646dc6caa227",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md",
-      "line": 23,
-      "column": 34,
-      "textSha256": "d21bbc96de0ad835a87a463e859a254e1bc4901160182a85169f132c27e5e92c",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md",
-      "line": 99,
-      "column": 125,
-      "textSha256": "a838b317285effc2c4f988f71345d12f18d13fc4ac496d357e38ef74aa5b76e4",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md",
-      "line": 107,
-      "column": 15,
-      "textSha256": "a50bbde71276a83a0764516631eb95ac34834fe25873d8287d87f5c18223179c",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-generative-fm-sample-coverage.md",
-      "line": 107,
-      "column": 45,
-      "textSha256": "a50bbde71276a83a0764516631eb95ac34834fe25873d8287d87f5c18223179c",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-hosted-opus-sidecars.md",
-      "line": 57,
-      "column": 136,
-      "textSha256": "08e774ba1d7f579593fb23ca7ff5435a0d1ff5dc238a9b59eca785231974f986",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-hosted-opus-sidecars.md",
-      "line": 58,
-      "column": 126,
-      "textSha256": "7d7c6d0a57109e5fb8eea1206fe77fee4a46dd1a985776a81801db552ae6c4a5",
       "category": "historical"
     },
     {
@@ -91360,125 +91556,6 @@
       "category": "historical"
     },
     {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-second-batch-hosting.md",
-      "line": 9,
-      "column": 152,
-      "textSha256": "26845582b1066fed4a2ed14ba7a55d99e6d0c5af50e0d0c2956d4c0b1684cfc4",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-second-batch-hosting.md",
-      "line": 23,
-      "column": 112,
-      "textSha256": "426bcd1a54c33dd45c9e39d0bc6b51600f1592dcc3a5394a6ef3dd7d891fb940",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-second-batch-hosting.md",
-      "line": 40,
-      "column": 122,
-      "textSha256": "f2ac0443553eda758919696326cd2b46b52e640b9aa3d5ea2d77d6a96f61f2f4",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-second-batch-hosting.md",
-      "line": 41,
-      "column": 112,
-      "textSha256": "426bcd1a54c33dd45c9e39d0bc6b51600f1592dcc3a5394a6ef3dd7d891fb940",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-startup-performance.md",
-      "line": 34,
-      "column": 22,
-      "textSha256": "4c28e124c85bd333623afc6dc4689379cb56321ac9387e47157c381ca61e5f3b",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-startup-performance.md",
-      "line": 37,
-      "column": 23,
-      "textSha256": "643e85be6342fd05691452b86ea4bb6743bec4c14236348cbbb811393b49d986",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-third-batch-listener-copy.md",
-      "line": 22,
-      "column": 112,
-      "textSha256": "f6c8d8fc19468880a8c01fa07373144deb20973dac3b8f4bba7e992aadc56f02",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-third-batch-listener-copy.md",
-      "line": 40,
-      "column": 122,
-      "textSha256": "4f91c4d5eade3a16fe272eea4553d8d0884f5baf3042fd36e54eb9065101a2d9",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-third-batch-listener-copy.md",
-      "line": 41,
-      "column": 112,
-      "textSha256": "f6c8d8fc19468880a8c01fa07373144deb20973dac3b8f4bba7e992aadc56f02",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-web-audio-format-pilot.md",
-      "line": 48,
-      "column": 39,
-      "textSha256": "c79c8df2d8b11803476ec7bbf2e8f8f776391ea3cb41465ecb25c48fc33b1c14",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-web-audio-format-pilot.md",
-      "line": 49,
-      "column": 35,
-      "textSha256": "c97fee6974f7a7da1e75d51dd4e1b277efa38a6d8db0ab91ffbf96e1cb3ff298",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-web-audio-format-pilot.md",
-      "line": 63,
-      "column": 125,
-      "textSha256": "a40d2f6d924e991b211ef6feeb4f9f2f5efda45b84216843c1b7acff88b0695a",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-18-atmosphere-web-audio-format-pilot.md",
-      "line": 64,
-      "column": 115,
-      "textSha256": "cb2e6c1a68b655d34862ecc3c83ced89a772ce0c0ba638f823d6573b223d58ee",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-aac-mp3-sidecars.md",
-      "line": 49,
-      "column": 125,
-      "textSha256": "e87398add748d0cd1e7081146d55503acb8823d902e302749aa421e401191d70",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-aac-mp3-sidecars.md",
-      "line": 50,
-      "column": 125,
-      "textSha256": "571cf338e9982cfa01200536368727e0e5784e8cc8a30c4d3cff292297584a60",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-aac-mp3-sidecars.md",
-      "line": 56,
-      "column": 136,
-      "textSha256": "b821827dbf0f42412f76cd29b745c532a5520159f038a004b10a433263ae0a20",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-aac-mp3-sidecars.md",
-      "line": 57,
-      "column": 136,
-      "textSha256": "4e92d3676614450f28fb22c72328e7d2d55bcf2a768de1907162cc0cf429766a",
-      "category": "historical"
-    },
-    {
       "path": "docs/superpowers/plans/2026-06-19-atmosphere-performance-audio-qa.md",
       "line": 13,
       "column": 3,
@@ -91497,55 +91574,6 @@
       "line": 19,
       "column": 42,
       "textSha256": "20f63686716580b38a03cbc5ba49e3cc6ae291714a5016c0108cbed3dc26ecb7",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-remaining-generators.md",
-      "line": 5,
-      "column": 79,
-      "textSha256": "38f112a4f550e7fb77cd399c6c69ceeacfcc73230116dcb1b15b2e1fd3c75ecf",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-remaining-generators.md",
-      "line": 5,
-      "column": 159,
-      "textSha256": "38f112a4f550e7fb77cd399c6c69ceeacfcc73230116dcb1b15b2e1fd3c75ecf",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-rendered-piano-batch.md",
-      "line": 16,
-      "column": 43,
-      "textSha256": "2680df2e88fb9b2d2ae12bd41496e7357231b99e2145f0fa5d690d5356476e98",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-rendered-piano-batch.md",
-      "line": 83,
-      "column": 180,
-      "textSha256": "3f768b151d75f532c88f913d0ce7e191d78389c85d7c56b11aaeada439a026f4",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-rendered-piano-batch.md",
-      "line": 84,
-      "column": 170,
-      "textSha256": "f461edaa7be288b68aa299a1c2a0456ff6773e7b98359118dbaa254354ec4303",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-rendered-piano-batch.md",
-      "line": 85,
-      "column": 190,
-      "textSha256": "3af4ac0f6dc33447d4712db0534669f8dbc1a5876a1475606a47d6ee9cfd203e",
-      "category": "historical"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-06-19-atmosphere-rendered-piano-batch.md",
-      "line": 86,
-      "column": 180,
-      "textSha256": "04f36f50f7ee6beddd0141262ff599899c5ad9259d5a491da9b0554390dceaf1",
       "category": "historical"
     },
     {
@@ -94601,6 +94629,83 @@
       "category": "historical"
     },
     {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 14,
+      "column": 69,
+      "textSha256": "90dc4eab6e2fdfe83982dd1c90525183ea2e84948fdf70a7533a25957b1dbacf",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 33,
+      "column": 45,
+      "textSha256": "4206f2da5759f259c187709575bb39304dff05125cdc5294d4ee11c572b753a7",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 47,
+      "column": 28,
+      "textSha256": "2f5df5cce612b9974f9a23019079d4e7e27cdff4dc3d864973b28eb6d3a10180",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 47,
+      "column": 51,
+      "textSha256": "2f5df5cce612b9974f9a23019079d4e7e27cdff4dc3d864973b28eb6d3a10180",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 142,
+      "column": 45,
+      "textSha256": "ba536000bedc861130ba28d598995b740c1439a8244eef288d45a1885337a200",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 231,
+      "column": 45,
+      "textSha256": "a0bec8deee646a7e875dc2841063c955ccd9556e995d65c612493f305f879217",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 232,
+      "column": 65,
+      "textSha256": "2c2fbb910fae348fbad1cf81600bfe471ff08199f5f09ae4c67fc8022057b871",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 264,
+      "column": 52,
+      "textSha256": "7349f75241fc0b154b62ca7b7444073e6d57aa9077b42bec5722e5609195c1df",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 271,
+      "column": 24,
+      "textSha256": "d267ea4bd292234b1cf375746630925444248c5dd90eed507dae3cb3c831f391",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 309,
+      "column": 58,
+      "textSha256": "05925afce107ad90949f8a1546c7c7c22c1a29d420e412d6f0fba988b495c910",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md",
+      "line": 356,
+      "column": 20,
+      "textSha256": "eb8a4884b43245de86a29c9308cef8494f75f4778429931833afbee0df94faf8",
+      "category": "historical"
+    },
+    {
       "path": "docs/superpowers/plans/chimer-background-preview-media-workflow.md",
       "line": 24,
       "column": 163,
@@ -94640,6 +94745,13 @@
       "line": 12,
       "column": 13,
       "textSha256": "b145ac5f13ab3ce2207a5e6159cd63f23f256ef4b0a4e90ee2cc2c9b3e8fcb0e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/chimer-redesign-implementation-checklist-2026-07-06.md",
+      "line": 82,
+      "column": 93,
+      "textSha256": "68ad0a6560898fc13bc4da78ab37d986f76a91ae5f31e87c6472a51dd2e51929",
       "category": "historical"
     },
     {
@@ -96316,6 +96428,27 @@
       "category": "historical"
     },
     {
+      "path": "docs/wiki/account-security.md",
+      "line": 186,
+      "column": 15,
+      "textSha256": "fdcec670911fc6d2bf08729a2ab01e09c369c61d8480b7b0a85a5c84dc9dd47e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/account-security.md",
+      "line": 187,
+      "column": 50,
+      "textSha256": "5219c2a07bbe8154845c10a85ad8486469b8d3f702b9b3fbd2acf6da2ab554b6",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/account-security.md",
+      "line": 188,
+      "column": 52,
+      "textSha256": "5c8a3517745d0bf94996328c0e072efa18d8c5bb5d88016c1381fcab1095b299",
+      "category": "historical"
+    },
+    {
       "path": "docs/wiki/admin-user-operations.md",
       "line": 3,
       "column": 63,
@@ -96340,7 +96473,7 @@
       "path": "docs/wiki/atmosphere-audio.md",
       "line": 11,
       "column": 1,
-      "textSha256": "7ba72f314e66c380b6b738abf3ada2c09d56d637b94c47a61b7eb59d4b28b315",
+      "textSha256": "fbe2a64ee0f400a80b3faa8ef7735ff3b4f96c93af606ddc5851f25e3e6ef169",
       "category": "historical"
     },
     {
@@ -96422,196 +96555,287 @@
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
+      "line": 405,
+      "column": 62,
+      "textSha256": "79efb426e153cbac911fdbede1a6f1b5b5e3c4e07616d2f9f29bd407c5631593",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
       "line": 407,
+      "column": 76,
+      "textSha256": "9024aa801fe7bbfef69097a68af37308d64659416d8b592af14c8e6d4bf73278",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 407,
+      "column": 252,
+      "textSha256": "9024aa801fe7bbfef69097a68af37308d64659416d8b592af14c8e6d4bf73278",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 407,
+      "column": 443,
+      "textSha256": "9024aa801fe7bbfef69097a68af37308d64659416d8b592af14c8e6d4bf73278",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 407,
+      "column": 642,
+      "textSha256": "9024aa801fe7bbfef69097a68af37308d64659416d8b592af14c8e6d4bf73278",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 407,
+      "column": 829,
+      "textSha256": "9024aa801fe7bbfef69097a68af37308d64659416d8b592af14c8e6d4bf73278",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 407,
+      "column": 1024,
+      "textSha256": "9024aa801fe7bbfef69097a68af37308d64659416d8b592af14c8e6d4bf73278",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 409,
+      "column": 76,
+      "textSha256": "45b1a3b75a0ae3e58ae1ab1173ff80798146627b805c94de2a1adf8c50686697",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 409,
+      "column": 257,
+      "textSha256": "45b1a3b75a0ae3e58ae1ab1173ff80798146627b805c94de2a1adf8c50686697",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 409,
+      "column": 440,
+      "textSha256": "45b1a3b75a0ae3e58ae1ab1173ff80798146627b805c94de2a1adf8c50686697",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 409,
+      "column": 620,
+      "textSha256": "45b1a3b75a0ae3e58ae1ab1173ff80798146627b805c94de2a1adf8c50686697",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 409,
+      "column": 798,
+      "textSha256": "45b1a3b75a0ae3e58ae1ab1173ff80798146627b805c94de2a1adf8c50686697",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 411,
+      "column": 55,
+      "textSha256": "a20314c60a13de47503bc5b504a11aea23b5a551771817aa8b3e912f8a21a1ce",
+      "category": "historical"
+    },
+    {
+      "path": "docs/wiki/atmosphere-audio.md",
+      "line": 417,
       "column": 73,
       "textSha256": "e2b9c7447c5bc77710f34b3c1a8b97647497d451bc13f9bbdd9482bec625fa83",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 407,
+      "line": 417,
       "column": 111,
       "textSha256": "e2b9c7447c5bc77710f34b3c1a8b97647497d451bc13f9bbdd9482bec625fa83",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 407,
+      "line": 417,
       "column": 176,
       "textSha256": "e2b9c7447c5bc77710f34b3c1a8b97647497d451bc13f9bbdd9482bec625fa83",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 413,
+      "line": 423,
       "column": 4,
       "textSha256": "0ce95a82e6586e3adc98d85193d09f2ec2b074299167850d901e70c599bebfdd",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 414,
+      "line": 424,
       "column": 4,
       "textSha256": "77ff479bbad42cf12864eb89559ab1a07b99f2e4eb163abbf4c91aaa5428bb21",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 415,
+      "line": 425,
       "column": 4,
       "textSha256": "b59a8dedbdf8a3f5e8445e1a8995a06b1d50ed5ee91d5e6127d59b9fe5b36dc0",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 426,
+      "line": 436,
       "column": 112,
       "textSha256": "f7b7d3fcc36ac5d0a6f6a858c6e8a0142d26c0fdd87739e5a43c77583bb2655a",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 432,
+      "line": 442,
       "column": 131,
       "textSha256": "67df0b621ff35a0254e68ae67c4a5e55ba06ac2f7ec98ba53e1ecbb18e6844f1",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 438,
+      "line": 448,
       "column": 122,
       "textSha256": "cd415eba3b9dd7888cd83685430194911879cad08fd05dd27bedd3cc0bfcc7a7",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 439,
+      "line": 449,
       "column": 112,
       "textSha256": "591d54223a142d3e07a0595a8140a7c1789c939ac8743e13f476b777c1d19d96",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 440,
+      "line": 450,
       "column": 125,
       "textSha256": "e87398add748d0cd1e7081146d55503acb8823d902e302749aa421e401191d70",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 441,
+      "line": 451,
       "column": 125,
       "textSha256": "571cf338e9982cfa01200536368727e0e5784e8cc8a30c4d3cff292297584a60",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 447,
+      "line": 457,
       "column": 133,
       "textSha256": "0d642028442517f1d4ad0c3f0171bd22793289e26b3e5a4b8f271e9d1cd5564e",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 448,
+      "line": 458,
       "column": 123,
       "textSha256": "37adc80b7c12a50ab08f2526bffcdeab70098ee40a3a574982e9f7c9ce937ac5",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 449,
+      "line": 459,
       "column": 136,
       "textSha256": "b821827dbf0f42412f76cd29b745c532a5520159f038a004b10a433263ae0a20",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 450,
+      "line": 460,
       "column": 136,
       "textSha256": "4e92d3676614450f28fb22c72328e7d2d55bcf2a768de1907162cc0cf429766a",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 460,
+      "line": 470,
       "column": 25,
       "textSha256": "1aa9eda1a2f4dcfe79d1017bcdafb82d091fdd1b6b9c3326d1b64d8315c60703",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 464,
+      "line": 474,
       "column": 50,
       "textSha256": "0126c8c39a0e5e4a72ca3bc5e9ec933e1ef29bb4e4a70033276a27a36479e978",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 464,
+      "line": 474,
       "column": 116,
       "textSha256": "0126c8c39a0e5e4a72ca3bc5e9ec933e1ef29bb4e4a70033276a27a36479e978",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 464,
+      "line": 474,
       "column": 165,
       "textSha256": "0126c8c39a0e5e4a72ca3bc5e9ec933e1ef29bb4e4a70033276a27a36479e978",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 466,
+      "line": 476,
       "column": 77,
       "textSha256": "1f7ca050cb92bb7f20aeb9afeca22c5f5fec4e643dcc029575789de8f2bd3993",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 468,
+      "line": 478,
       "column": 18,
       "textSha256": "089047fac9027840c0aeca87674e2abe883e9c38495f71fa40a5dc5fc02287c2",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 469,
+      "line": 479,
       "column": 18,
       "textSha256": "b0811b82349699981b36d92e1fe3d7f8706a467e76330f1bf11a2136b34a6317",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 480,
+      "line": 490,
       "column": 198,
       "textSha256": "bd5e809d742aebcd45a9f36c1dc5c5889334ff4a3dfdcc243168198570ac5351",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 572,
-      "column": 89,
-      "textSha256": "06e1729c50884a30ab24f49102298663cb3e4fbbe23edf252e57dfa20b592db9",
+      "line": 582,
+      "column": 113,
+      "textSha256": "b0bf9f6bed51d47167c6e15a057f9ff08d30fe936f5b7105709bc2f0d28f8d54",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 576,
+      "line": 586,
       "column": 24,
       "textSha256": "95668c1b0e05a46675387260754574cf5715b3780f0edb83871e6f0f7bb1f886",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 576,
+      "line": 586,
       "column": 440,
       "textSha256": "95668c1b0e05a46675387260754574cf5715b3780f0edb83871e6f0f7bb1f886",
       "category": "historical"
     },
     {
       "path": "docs/wiki/atmosphere-audio.md",
-      "line": 596,
+      "line": 601,
       "column": 105,
       "textSha256": "e42c8c1000bca057f3ff0f479d56bcd3ced0eb9d8b478b1e1ed9eacef69a180c",
       "category": "historical"
@@ -97048,13 +97272,6 @@
       "line": 515,
       "column": 2,
       "textSha256": "2c59fd1d3eaed43ce39b84ab468878c3e14dbb861ffc8df108c5522d2979f063",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/index.md",
-      "line": 1,
-      "column": 3,
-      "textSha256": "74dc257147b1817e8ec36df91874c40034ada7ae61848188a6848e78e0f43889",
       "category": "historical"
     },
     {
@@ -128923,35 +129140,35 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 74304,
+      "line": 74325,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 74311,
+      "line": 74332,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 74318,
+      "line": 74339,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128239,
+      "line": 128456,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128239,
+      "line": 128456,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"

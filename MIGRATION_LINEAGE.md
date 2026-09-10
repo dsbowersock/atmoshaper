@@ -8,10 +8,25 @@ AtmoShaper continues the MassageLab software project from an exact, behavior-pre
 
 Source commit: `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`
 
+## Verified repository lineage — 2026-09-09
+
+- Sole fresh root: `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd`, with no parent.
+- Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged into `main` on `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`.
+- Merge parents: the fresh root and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained.
+- Current branch: `codex/atmoshaper-docs-consolidation`, based on that merge and published in [PR #2](https://github.com/dsbowersock/atmoshaper/pull/2). Phase 3 Tasks 1–4 are committed through `7daec8142d0353b33f5aaeabcccb7689f15c820b`; Task 5 completed the deterministic audit reconciliation and closeout evidence at `62fd42beae83ea90b02a2ea321f7993c4b3661d1`. Phase 3 is complete and under hosted review. Phase 4 has not started.
+
+The [architecture map](docs/architecture.md), [decision index](docs/decisions/README.md), [account-security owner](docs/wiki/account-security.md), and [Phase 3 plan](docs/superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) route current work. [Project state](docs/project-state.md) owns status; dated bootstrap snapshots in the [project log](docs/project-log.md) remain historical evidence.
+
+## Historical export and subsequent consolidation
+
 This repository intentionally begins with fresh Git history. The MassageLab repository remains the complete owner of earlier commits, pull requests, plans, reports, audits, blame, historical evidence, and rollback history. The initial AtmoShaper tree was exported from the immutable locked source commit, with only the evidence-backed omissions and reviewed document overlays declared by the migration manifest.
+
+The manifest's four omissions and 1,908-path initial tree describe the bootstrap only. Phase 3 separately reviewed 150 inherited design records: all 28 specifications and 106 plans remain (134 inherited records), while 16 exact superseded plans were omitted under the [cleanup register](docs/rebrand/atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09). Each omission links its current owner, immutable MassageLab original, and exact rollback blob. The new Phase 3 plan is additional, giving 107 plans and 28 specifications. This does not alter the original export contract or remove anything from MassageLab.
 
 The bootstrap scope preserves the source application's behavior, design, routes, data contracts, privacy boundaries, compatibility identifiers, and provider-call boundaries. The runtime continues to present the existing MassageLab design and copy until the separately reviewed Phase 6 preview rebrand.
 
 This repository migration does not change the legal operator, copyright owner, proprietary license, accepted legal documents, legal versions or effective dates, or historical acceptance records. Those remain governed by [LICENSE](LICENSE) and the existing legal identity unless a later legal transition is separately reviewed and approved.
 
 This lineage record is not evidence of a production deployment, provider migration, DNS or domain cutover, database or payment change, public runtime rebrand, or legal cutover. None of those actions occurs as part of the fresh-history repository bootstrap.
+
+Dedicated old-origin recovery and parallel provider staging remain proposed future work. Phase 3 changed documentation and its deterministic documentation-occurrence audit baseline only; deployment and production/database/payment/email/media/legal changes retain their separate authorization gates. Hosted checks and review of PR #2 are the current gate.

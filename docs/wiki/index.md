@@ -1,4 +1,4 @@
-# MassageLab Wiki
+# AtmoShaper Wiki
 
 This directory is the repo-backed project wiki. Keep operational, implementation, and release documentation here so the README can stay public-facing.
 
@@ -6,6 +6,9 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 - [Project state](../project-state.md)
 - [Project log](../project-log.md)
+- [Architecture](../architecture.md)
+- [Architecture decisions](../decisions/README.md)
+- [Migration lineage](../../MIGRATION_LINEAGE.md)
 - [Local development](local-development.md)
 - [CI and PR checks](ci-pr-checks.md)
 - [Privacy and PHI posture](privacy-and-phi.md)
@@ -16,6 +19,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 - [Atmosphere audio](atmosphere-audio.md)
 - [Calendar creation flows](calendar-creation-flows.md)
 - [Billing and memberships](billing-memberships.md)
+- [Account security](account-security.md)
 - [Admin user operations](admin-user-operations.md)
 - [Deployment and environment](deployment.md)
 - [Release checklist](release-checklist.md)

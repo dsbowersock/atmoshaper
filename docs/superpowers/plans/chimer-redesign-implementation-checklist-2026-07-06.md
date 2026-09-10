@@ -79,7 +79,7 @@
 - [x] Add motion/loader improvements.
 - [ ] Verify Chimer still starts and runs without setup. *(Pending: manual run-through on desktop + mobile after this batch)*
 - [x] Document music player inspiration only (componentry reference) without implementation.
-  - [Music player future note](chimer-music-player-inspiration-note-2026-07-06.md)
+  - [Music player future note (immutable historical source)](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/superpowers/plans/chimer-music-player-inspiration-note-2026-07-06.md)
 - [ ] Update plan/docs only for deferred items if code paths are incomplete.
 
 ## Notes
