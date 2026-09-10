@@ -1,11 +1,35 @@
 import {
   compareText,
+  requireTrackedTextIndex,
   validateCleanupPolicy,
 } from "./cleanup-core.mjs"
 import { buildModuleEvidence, parsePackage } from "./cleanup-module-evidence.mjs"
 import { stableJson } from "./core.mjs"
 
 const DEPENDENCY_SECTIONS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"]
+const SHADCN_SCHEMA = "https://ui.shadcn.com/schema.json"
+
+/** Record only exact tracked configuration conventions with validated manifest identity. */
+function configurationManifestOwners(index, declarations) {
+  const declaredNames = new Set(declarations.map((row) => row.name))
+  const { textByPath, trackedPathSet } = requireTrackedTextIndex(index)
+  const owners = []
+  if (declaredNames.has("postcss") && trackedPathSet.has("postcss.config.mjs")) {
+    owners.push({ packageName: "postcss", ownerPath: "postcss.config.mjs", kind: "configuration-file" })
+  }
+  const componentsText = textByPath.get("components.json")
+  if (declaredNames.has("shadcn") && componentsText !== undefined) {
+    try {
+      const manifest = JSON.parse(componentsText)
+      if (manifest && !Array.isArray(manifest) && manifest.$schema === SHADCN_SCHEMA) {
+        owners.push({ packageName: "shadcn", ownerPath: "components.json", kind: "configuration-manifest" })
+      }
+    } catch {
+      // Invalid or unrelated JSON cannot prove package ownership.
+    }
+  }
+  return owners
+}
 
 /** Build package declaration and usage evidence, folding package subpaths to their owner. */
 export function buildDependencyEvidence(index, policy) {
@@ -46,6 +70,7 @@ export function buildDependencyEvidence(index, policy) {
   ))
   return stableJson({
     schemaVersion: 1, declarations, references,
+    configurationManifestOwners: configurationManifestOwners(index, declarations),
     uncertainties: moduleEvidence.uncertainties, errors: moduleEvidence.errors,
   })
 }

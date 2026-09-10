@@ -787,14 +787,24 @@ uncertainties. Before publication, the full suite passed 4,259 tests with 3
 host-dependent skips and zero failures, and the 115-route production build passed.
 
 Hosted review round 2 added config-alias, whole-object/computed environment, and
-browser-snapshot coverage. The current focused repository audit suites pass
-74/74. Current semantic totals are dead code 1,558 findings/186 uncertainties,
-dependency 2,859/19, asset 388/2,003, and environment 587/191. The current tracked
-inventory remains 1,921 files; the pre-document receipt-synchronization snapshot
-measured 47,216,441 Git blob bytes. Brand verification remains zero missing and
-zero unclassified. Exact final staged bytes and identity remain only in the
-ignored SDD handoff and user-facing receipt. Every report retains
-`deletionAuthority: false`.
+browser-snapshot coverage. Its focused repository audit suites passed 74/74.
+Its historical semantic totals were dead code 1,558 findings/186 uncertainties,
+dependency 2,859/19, asset 388/2,003, and environment 587/191. Round 2's
+historical pre-document receipt-synchronization snapshot measured 47,216,441 Git
+blob bytes.
+
+Hosted review round 3 added separately labeled exact declaration-companion/type
+evidence, two exact configuration/manifest dependency owners, and owner-relative
+bare asset paths that become exact only when tracked and in inventory and
+otherwise remain hash-only uncertainty. The current focused repository audit
+suites pass 80/80. Current semantic totals are dead code 1,558/186 with 842
+referenced modules and 23 candidates; dependency 2,861/19 with 2 configuration
+owners and 6 candidates; asset 390/11,384 with 97 tracked assets, 97 protected
+items, 177 exact owners, zero candidates, 529 dynamic rows and 10,855 unresolved
+rows; and environment 587/191. The current tracked inventory remains 1,921 files.
+Brand verification remains zero missing and zero unclassified. Exact current
+staged bytes and identity remain only in the ignored SDD handoff and user-facing
+receipt. Every report retains `deletionAuthority: false`.
 
 The exact final-index readback, repeat independent specification and quality
 reviews, and coordinator-owned completion commit all completed before separate

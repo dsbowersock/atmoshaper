@@ -17,6 +17,7 @@ import { normalizeRepoPath, stableJson } from "./core.mjs"
 
 const BUILTIN_MODULES = new Set(builtinModules.map((name) => name.replace(/^node:/, "")))
 const PACKAGE_SEGMENT = /^[A-Za-z0-9._~-]+$/
+const TYPE_RESOLUTION_EXTENSIONS = [".ts", ".tsx", ".d.ts", ".js", ".jsx"]
 
 function packageOwner(specifier) {
   const unprefixed = specifier.replace(/^node:/, "")
@@ -48,18 +49,47 @@ function moduleCandidatePaths(fromPath, specifier, policy) {
     candidates.push(`${base}.json`, `${base}.css`)
     for (const supported of policy.sourceExtensions) candidates.push(`${base}/index${supported}`)
     candidates.push(`${base}/index.json`, `${base}/index.css`)
+    candidates.push(`${base}.d.ts`, `${base}/index.d.ts`)
   } else if ([".js", ".jsx", ".mjs", ".cjs"].includes(extension)) {
     const stem = base.slice(0, -extension.length)
     for (const supported of [".ts", ".tsx"]) candidates.push(`${stem}${supported}`)
+    if ([".js", ".jsx"].includes(extension)) candidates.push(`${stem}.d.ts`)
   }
   return [...new Set(candidates)]
 }
 
-function resolveModuleReference(fromPath, specifier, trackedPathSet, policy) {
+/** Resolve a supported TypeScript target independently of the runtime implementation. */
+function typeTargetPath(fromPath, specifier, trackedPathSet, policy) {
+  const [base] = moduleCandidatePaths(fromPath, specifier, policy)
+  if (!base) return undefined
+  const extension = extname(base).toLowerCase()
+  if (extension && ![".js", ".jsx"].includes(extension)) return undefined
+  const stem = extension ? base.slice(0, -extension.length) : base
+  const extensions = extension === ".jsx" ? [".tsx", ".ts", ".d.ts", ".jsx"] : TYPE_RESOLUTION_EXTENSIONS
+  const candidates = extensions.map((candidateExtension) => `${stem}${candidateExtension}`)
+  if (!extension) candidates.push(...extensions.map((candidateExtension) => `${stem}/index${candidateExtension}`))
+  return candidates.find((path) => trackedPathSet.has(path)) ?? null
+}
+
+function resolveModuleReference(fromPath, specifier, trackedPathSet, policy, resolveTypeDeclaration = false) {
   const candidates = moduleCandidatePaths(fromPath, specifier, policy)
   if (candidates.length > 0) {
     const path = candidates.find((candidate) => trackedPathSet.has(candidate))
-    return path ? { targetKind: "tracked-module", targetPath: path } : { targetKind: "unresolved" }
+    if (!path) return { targetKind: "unresolved" }
+    const extension = extname(path).toLowerCase()
+    const pairedDeclarationPath = [".js", ".jsx"].includes(extension)
+      ? `${path.slice(0, -extension.length)}.d.ts`
+      : null
+    const independentTypeTargetPath = resolveTypeDeclaration
+      ? typeTargetPath(fromPath, specifier, trackedPathSet, policy) : undefined
+    const declarationTargetPath = independentTypeTargetPath !== undefined
+      ? (independentTypeTargetPath?.endsWith(".d.ts") ? independentTypeTargetPath : null)
+      : (pairedDeclarationPath && trackedPathSet.has(pairedDeclarationPath) ? pairedDeclarationPath : null)
+    return {
+      targetKind: "tracked-module",
+      targetPath: path,
+      ...(declarationTargetPath && declarationTargetPath !== path ? { declarationTargetPath } : {}),
+    }
   }
   if (
     specifier.startsWith("/") || specifier === "@" || specifier.startsWith("@/") ||
@@ -82,6 +112,10 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
   const pathResolveNames = new Set()
   const pathDirnameNames = new Set()
   const fileUrlToPathNames = new Set()
+  const hasTypeOnlySpecifier = (clause) => Boolean(
+    clause && (ts.isNamedImports(clause) || ts.isNamedExports(clause)) &&
+    clause.elements.some((element) => element.isTypeOnly),
+  )
 
   for (const statement of sourceFile.statements) {
     if (ts.isImportDeclaration(statement) && isLiteralNode(statement.moduleSpecifier)) {
@@ -253,6 +287,23 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
     const segments = accessSegments(node)
     return segments.some((segment, index) => segment === "resolve" && segments[index + 1] === "alias")
   }
+  /** Retain the implementation edge and add an independently labeled tracked type companion. */
+  const recordResolvedReference = (node, kind, literal, resolution, companionSourceKind = kind) => {
+    const { declarationTargetPath, ...implementationResolution } = resolution
+    const location = sourceLocation(sourceFile, node)
+    const literalSha256 = sha256(literal)
+    const row = {
+      fromPath: record.path, ...location, kind, literalSha256, ...implementationResolution,
+    }
+    references.push(row)
+    if (declarationTargetPath) {
+      references.push({
+        fromPath: record.path, ...location, kind: "declaration-companion", sourceKind: companionSourceKind,
+        literalSha256, targetKind: "tracked-module", targetPath: declarationTargetPath,
+      })
+    }
+    return row
+  }
   /** Capture only configuration alias values that resolve to exact tracked modules. */
   const recordConfigAlias = (expression) => {
     const resolutionResult = configAliasResolution(expression)
@@ -267,23 +318,18 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
     for (const { node, literal, moduleSpecifier = literal } of resolutionResult.literals) {
       const resolution = resolveModuleReference(record.path, moduleSpecifier, trackedPathSet, policy)
       if (resolution.targetKind !== "tracked-module") continue
-      references.push({
-        fromPath: record.path, ...sourceLocation(sourceFile, node), kind: "framework-config-alias",
-        literalSha256: sha256(literal), ...resolution,
-      })
+      recordResolvedReference(node, "framework-config-alias", literal, resolution)
     }
   }
-  const recordLiteral = (node, kind, literal) => {
-    const location = sourceLocation(sourceFile, node)
-    const resolution = resolveModuleReference(record.path, literal, trackedPathSet, policy)
-    const row = {
-      fromPath: record.path, ...location, kind, literalSha256: sha256(literal), ...resolution,
-    }
-    references.push(row)
+  const recordLiteral = (node, kind, literal, declarationSourceKind = null) => {
+    const resolution = resolveModuleReference(
+      record.path, literal, trackedPathSet, policy, declarationSourceKind !== null,
+    )
+    const row = recordResolvedReference(node, kind, literal, resolution, declarationSourceKind ?? kind)
     if (resolution.targetKind === "unresolved") {
       errors.push({
         code: "UNRESOLVED_LITERAL_MODULE", fromPath: record.path,
-        ...location, literalSha256: row.literalSha256,
+        line: row.line, column: row.column, literalSha256: row.literalSha256,
       })
     }
   }
@@ -296,13 +342,19 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
   const visit = (node) => {
     if (ts.isImportTypeNode(node)) {
       const argument = ts.isLiteralTypeNode(node.argument) ? node.argument.literal : node.argument
-      if (isLiteralNode(argument)) recordLiteral(argument, "import-type", argument.text)
+      if (isLiteralNode(argument)) recordLiteral(argument, "import-type", argument.text, "import-type")
       else recordUncertainty(argument, "import-type")
     } else if (ts.isImportDeclaration(node) && node.moduleSpecifier) {
-      if (isLiteralNode(node.moduleSpecifier)) recordLiteral(node.moduleSpecifier, "import", node.moduleSpecifier.text)
+      if (isLiteralNode(node.moduleSpecifier)) recordLiteral(
+        node.moduleSpecifier, "import", node.moduleSpecifier.text,
+        node.importClause?.isTypeOnly || hasTypeOnlySpecifier(node.importClause?.namedBindings) ? "import-type" : null,
+      )
       else recordUncertainty(node.moduleSpecifier, "import")
     } else if (ts.isExportDeclaration(node) && node.moduleSpecifier) {
-      if (isLiteralNode(node.moduleSpecifier)) recordLiteral(node.moduleSpecifier, "export-from", node.moduleSpecifier.text)
+      if (isLiteralNode(node.moduleSpecifier)) recordLiteral(
+        node.moduleSpecifier, "export-from", node.moduleSpecifier.text,
+        node.isTypeOnly || hasTypeOnlySpecifier(node.exportClause) ? "export-type" : null,
+      )
       else recordUncertainty(node.moduleSpecifier, "export-from")
     } else if (isResolveAliasProperty(node)) {
       recordConfigAlias(node.initializer)

@@ -171,21 +171,36 @@ combined focused audit suites passed 68/68. That round's stage-0 semantic result
 | Environment | 612 | 178 | 79 declared, 202 missing, 306 static-read and 25 unread findings; 9 computed-read and 169 unproven uncertainties. |
 
 Hosted review round 2 added config-alias, whole-object/computed environment, and
-browser-snapshot coverage. The current focused repository audit suites pass
-74/74, and the current stage-0 semantic results are:
+browser-snapshot coverage. Its focused repository audit suites passed 74/74,
+and its historical stage-0 semantic results were:
 
-| Lane | Findings | Uncertainties | Current semantic note |
+| Lane | Findings | Uncertainties | Hosted-review round 2 note |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | Candidate authority is unchanged. |
 | Dependency | 2,859 | 19 | Candidate authority is unchanged. |
 | Asset | 388 | 2,003 | Browser snapshots are covered; no candidate is authorized for removal. |
 | Environment | 587 | 191 | Whole-object and computed environment access remain conservatively evidenced. |
 
-The current tracked inventory remains 1,921 files. The pre-document
-receipt-synchronization snapshot measured 47,216,441 Git blob bytes. Brand
-verification remains zero missing and zero unclassified. Exact final staged
-bytes and identity remain in the ignored SDD handoff and user-facing receipt
-rather than this self-referential versioned register, and every report keeps
+Round 2's historical pre-document receipt-synchronization snapshot measured
+47,216,441 Git blob bytes.
+
+Hosted review round 3 added separately labeled exact declaration-companion/type
+evidence, two exact configuration/manifest dependency owners, and owner-relative
+bare asset paths that become exact only when tracked and in inventory and
+otherwise remain hash-only uncertainty. The current focused repository audit
+suites pass 80/80, and the current stage-0 semantic results are:
+
+| Lane | Findings | Uncertainties | Current semantic note |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates; implementation and declaration/type evidence remain distinct. |
+| Dependency | 2,861 | 19 | Two configuration owners and 6 candidates; no runtime import is inferred. |
+| Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
+| Environment | 587 | 191 | Unchanged from hosted review round 2. |
+
+The current tracked inventory remains 1,921 files. Brand verification remains
+zero missing and zero unclassified. Exact current staged bytes and identity
+remain in the ignored SDD handoff and user-facing receipt rather than this
+self-referential versioned register, and every report keeps
 `deletionAuthority: false`.
 
 The earlier 59/59 staged capture, its hashes and the 4,249-test unit receipt are

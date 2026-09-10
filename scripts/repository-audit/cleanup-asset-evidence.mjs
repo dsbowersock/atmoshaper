@@ -122,6 +122,8 @@ function assetTarget(fromPath, literal, assetExtensions) {
     target = `public/${publicPath}`
   } else if (withoutSuffix.startsWith("./") || withoutSuffix.startsWith("../")) {
     target = posix.normalize(posix.join(posix.dirname(fromPath), withoutSuffix))
+  } else if (withoutSuffix.includes("/")) {
+    target = posix.normalize(posix.join(posix.dirname(fromPath), withoutSuffix))
   } else return null
   if (target === ".." || target.startsWith("../") || target.startsWith("/")) return { invalid: true }
   return { targetPath: target }

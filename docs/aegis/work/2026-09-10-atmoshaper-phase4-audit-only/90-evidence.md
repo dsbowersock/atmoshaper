@@ -283,25 +283,39 @@ against one captured stage-0 source produced:
 | Environment | 612 | 178 | 79 declared, 202 missing, 306 static-read and 25 unread findings; 9 computed-read and 169 unproven uncertainties. |
 
 Hosted review round 2 added config-alias, whole-object/computed environment, and
-browser-snapshot coverage. The current focused repository audit suites pass
-74/74. Exact current semantic evaluation against the captured stage-0 source
-produced:
+browser-snapshot coverage. Its focused repository audit suites passed 74/74.
+Its historical semantic evaluation against the captured stage-0 source was:
 
-| Lane | Findings | Uncertainties | Current bounded classification |
+| Lane | Findings | Uncertainties | Hosted-review round 2 classification |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | Candidate authority is unchanged. |
 | Dependency | 2,859 | 19 | Candidate authority is unchanged. |
 | Asset | 388 | 2,003 | Browser snapshots are covered and no asset deletion is authorized. |
 | Environment | 587 | 191 | Whole-object and computed environment access remain conservatively evidenced. |
 
-The current tracked inventory remains 1,921 files. The pre-document
-receipt-synchronization snapshot measured 47,216,441 Git blob bytes. Brand
-verification remains zero missing and zero unclassified. Every report keeps
-`deletionAuthority: false`; exact final staged bytes and identity remain only in
-the ignored SDD handoff and user-facing receipt rather than this self-referential
-versioned evidence.
+Round 2's historical pre-document receipt-synchronization snapshot measured
+47,216,441 Git blob bytes.
 
-Both hosted-review tables contain semantic counts, not embedded final-index
+Hosted review round 3 added separately labeled exact declaration-companion/type
+evidence, two exact configuration/manifest dependency owners, and owner-relative
+bare asset paths that become exact only when tracked and in inventory and
+otherwise remain hash-only uncertainty. The current focused repository audit
+suites pass 80/80, with current semantic results:
+
+| Lane | Findings | Uncertainties | Current bounded classification |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates; declaration/type evidence preserves implementation edges. |
+| Dependency | 2,861 | 19 | Two configuration owners and 6 candidates; no runtime import is inferred. |
+| Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
+| Environment | 587 | 191 | Unchanged from hosted review round 2. |
+
+The current tracked inventory remains 1,921 files. Brand verification remains
+zero missing and zero unclassified. Every report keeps
+`deletionAuthority: false`; exact current staged bytes and identity remain only
+in the ignored SDD handoff and user-facing receipt rather than this
+self-referential versioned evidence.
+
+The hosted-review tables contain semantic counts, not embedded final-index
 hashes. The earlier 59/59, 64/64, and 68/68 captures and their report hashes
 remain historical and superseded for current-tooling decisions. Against the
 pre-publication final staged repair, the complete suite

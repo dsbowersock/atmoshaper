@@ -291,6 +291,253 @@ test("module evidence resolves aliases, relative extensions, indexes, and export
   assert.ok(evidence.roots.some((row) => row.path === "app/page.tsx" && row.reason === "framework-root"))
 })
 
+test("module evidence preserves JavaScript edges and records exact declaration companions", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of [
+    "lib/extensionless.js",
+    "lib/explicit.js",
+    "lib/indexed/index.js",
+  ]) writeFixture(root, path, "export default true\n")
+  for (const path of [
+    "lib/extensionless.d.ts",
+    "lib/explicit.d.ts",
+    "lib/indexed/index.d.ts",
+    "lib/only-extensionless.d.ts",
+    "lib/only-explicit.d.ts",
+    "lib/only-indexed/index.d.ts",
+    "lib/unrelated.d.ts",
+  ]) writeFixture(root, path, "declare const value: true\nexport default value\n")
+  writeFixture(root, "lib/untracked.js", "export default true\n")
+  writeFixture(root, "lib/untracked.d.ts", "declare const value: true\nexport default value\n", { tracked: false })
+  writeFixture(root, "app/page.tsx", [
+    "import extensionless from '../lib/extensionless'",
+    "import explicit from '../lib/explicit.js'",
+    "import indexed from '../lib/indexed'",
+    "import untracked from '../lib/untracked.js'",
+    "import onlyExtensionless from '../lib/only-extensionless'",
+    "import onlyExplicit from '../lib/only-explicit.js'",
+    "import onlyIndexed from '../lib/only-indexed'",
+    "void extensionless; void explicit; void indexed; void untracked",
+    "void onlyExtensionless; void onlyExplicit; void onlyIndexed",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildModuleEvidence(index, policy)
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "import" && row.targetKind === "tracked-module")
+      .map((row) => row.targetPath),
+    [
+      "lib/extensionless.js",
+      "lib/explicit.js",
+      "lib/indexed/index.js",
+      "lib/untracked.js",
+      "lib/only-extensionless.d.ts",
+      "lib/only-explicit.d.ts",
+      "lib/only-indexed/index.d.ts",
+    ],
+  )
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "declaration-companion")
+      .map((row) => row.targetPath),
+    [
+      "lib/extensionless.d.ts",
+      "lib/explicit.d.ts",
+      "lib/indexed/index.d.ts",
+    ],
+  )
+  assert.equal(evidence.references.some((row) => row.targetPath === "lib/unrelated.d.ts"), false)
+  assert.equal(evidence.references.some((row) => row.targetPath === "lib/untracked.d.ts"), false)
+  assert.equal(evidence.errors.length, 0)
+
+  const report = buildDeadCodeCandidateReport(index, policy)
+  for (const path of [
+    "lib/extensionless.d.ts",
+    "lib/explicit.d.ts",
+    "lib/indexed/index.d.ts",
+    "lib/only-extensionless.d.ts",
+    "lib/only-explicit.d.ts",
+    "lib/only-indexed/index.d.ts",
+  ]) {
+    assert.ok(report.referencedModules.some((row) => row.path === path))
+    assert.equal(report.unreferencedCandidates.some((row) => row.path === path), false)
+  }
+
+  const unresolvedRoot = createFixtureRepository(t)
+  writePackage(unresolvedRoot)
+  writeFixture(unresolvedRoot, "lib/unrelated.d.ts", "declare const unrelated: true\nexport default unrelated\n")
+  writeFixture(unresolvedRoot, "lib/only-esm.d.ts", "declare const value: true\nexport default value\n")
+  writeFixture(unresolvedRoot, "lib/only-common.d.ts", "declare const value: true\nexport default value\n")
+  writeFixture(
+    unresolvedRoot,
+    "lib/untracked-only.d.ts",
+    "declare const value: true\nexport default value\n",
+    { tracked: false },
+  )
+  writeFixture(unresolvedRoot, "app/page.tsx", [
+    "import unrelated from '../lib/not-related'",
+    "import untrackedOnly from '../lib/untracked-only'",
+    "import onlyEsm from '../lib/only-esm.mjs'",
+    "import onlyCommon from '../lib/only-common.cjs'",
+    "void unrelated; void untrackedOnly; void onlyEsm; void onlyCommon",
+    "",
+  ].join("\n"))
+  const unresolvedEvidence = buildModuleEvidence(buildTrackedTextIndex(unresolvedRoot, policy), policy)
+  assert.equal(unresolvedEvidence.references.some((row) => row.targetKind === "tracked-module"), false)
+  assert.equal(unresolvedEvidence.errors.filter((row) => row.code === "UNRESOLVED_LITERAL_MODULE").length, 4)
+
+  const realReport = buildDeadCodeCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  for (const path of [
+    "lib/account-surface-data.d.ts",
+    "lib/background-preview-runtime.d.ts",
+    "lib/public-booking-picker.d.ts",
+    "lib/public-booking-sequences.d.ts",
+  ]) {
+    assert.ok(realReport.referencedModules.some((row) => row.path === path))
+    assert.equal(realReport.unreferencedCandidates.some((row) => row.path === path), false)
+  }
+})
+
+test("module evidence separates extensionless type declarations from runtime implementations", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/model.d.ts", "export interface Model { id: string }\n")
+  writeFixture(root, "lib/model/index.js", "export const model = true\n")
+  writeFixture(root, "lib/runtime-model.d.ts", "export interface RuntimeModel { id: string }\n")
+  writeFixture(root, "lib/runtime-model/index.js", "export const runtimeModel = true\n")
+  writeFixture(root, "app/type-user.ts", [
+    "import type { Model } from '../lib/model'",
+    "export type ModelId = Model['id']",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/runtime-user.ts", [
+    "import { runtimeModel } from '../lib/runtime-model'",
+    "void runtimeModel",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildModuleEvidence(index, policy)
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "import" && row.targetKind === "tracked-module")
+      .map((row) => [row.fromPath, row.targetPath]),
+    [
+      ["app/runtime-user.ts", "lib/runtime-model/index.js"],
+      ["app/type-user.ts", "lib/model/index.js"],
+    ],
+  )
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "declaration-companion")
+      .map((row) => [row.fromPath, row.sourceKind, row.targetPath]),
+    [["app/type-user.ts", "import-type", "lib/model.d.ts"]],
+  )
+  assert.equal(evidence.errors.length, 0)
+
+  const report = buildDeadCodeCandidateReport(index, policy)
+  assert.ok(report.referencedModules.some((row) => row.path === "lib/model.d.ts"))
+  assert.ok(report.unreferencedCandidates.some((row) => row.path === "lib/runtime-model.d.ts"))
+})
+
+test("module evidence follows TypeScript precedence and recognizes inline type specifiers", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/preferred.ts", "export interface Preferred { id: string }\n")
+  writeFixture(root, "lib/preferred.d.ts", "export interface Preferred { legacy: true }\n")
+  writeFixture(root, "lib/preferred/index.js", "export const preferred = true\n")
+  writeFixture(root, "lib/inline-import.d.ts", "export interface InlineImport { id: string }\n")
+  writeFixture(root, "lib/inline-import/index.js", "export const inlineImport = true\n")
+  writeFixture(root, "lib/inline-export.d.ts", "export interface InlineExport { id: string }\n")
+  writeFixture(root, "lib/inline-export/index.js", "export const inlineExport = true\n")
+  writeFixture(root, "app/type-user.ts", [
+    "import type { Preferred } from '../lib/preferred'",
+    "import { type InlineImport } from '../lib/inline-import'",
+    "export { type InlineExport } from '../lib/inline-export'",
+    "export type PreferredId = Preferred['id']",
+    "export type InlineImportId = InlineImport['id']",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildModuleEvidence(index, policy)
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind !== "declaration-companion" && row.targetKind === "tracked-module")
+      .map((row) => [row.kind, row.targetPath]),
+    [
+      ["import", "lib/preferred.ts"],
+      ["import", "lib/inline-import/index.js"],
+      ["export-from", "lib/inline-export/index.js"],
+    ],
+  )
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "declaration-companion")
+      .map((row) => [row.sourceKind, row.targetPath]),
+    [
+      ["import-type", "lib/inline-import.d.ts"],
+      ["export-type", "lib/inline-export.d.ts"],
+    ],
+  )
+  assert.equal(evidence.errors.length, 0)
+
+  const report = buildDeadCodeCandidateReport(index, policy)
+  assert.ok(report.unreferencedCandidates.some((row) => row.path === "lib/preferred.d.ts"))
+  for (const path of ["lib/inline-import.d.ts", "lib/inline-export.d.ts"]) {
+    assert.ok(report.referencedModules.some((row) => row.path === path))
+  }
+})
+
+test("module evidence applies TypeScript precedence to explicit JavaScript type imports", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/model.js", "export const model = true\n")
+  writeFixture(root, "lib/model.ts", "export interface Model { id: string }\n")
+  writeFixture(root, "lib/model.d.ts", "export interface Model { legacy: true }\n")
+  writeFixture(root, "lib/view.jsx", "export const view = true\n")
+  writeFixture(root, "lib/view.tsx", "export interface View { id: string }\n")
+  writeFixture(root, "lib/view.d.ts", "export interface View { legacy: true }\n")
+  writeFixture(root, "lib/paired.js", "export const paired = true\n")
+  writeFixture(root, "lib/paired.d.ts", "export interface Paired { id: string }\n")
+  writeFixture(root, "lib/only.d.ts", "export interface Only { id: string }\n")
+  writeFixture(root, "app/type-user.ts", [
+    "import type { Model } from '../lib/model.js'",
+    "import type { View } from '../lib/view.jsx'",
+    "import type { Paired } from '../lib/paired.js'",
+    "import type { Only } from '../lib/only.js'",
+    "export type Values = Model | View | Paired | Only",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildModuleEvidence(index, policy)
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "import" && row.targetKind === "tracked-module")
+      .map((row) => row.targetPath),
+    ["lib/model.js", "lib/view.jsx", "lib/paired.js", "lib/only.d.ts"],
+  )
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "declaration-companion")
+      .map((row) => [row.sourceKind, row.targetPath]),
+    [["import-type", "lib/paired.d.ts"]],
+  )
+  assert.equal(evidence.errors.length, 0)
+
+  const report = buildDeadCodeCandidateReport(index, policy)
+  for (const path of ["lib/model.d.ts", "lib/view.d.ts"]) {
+    assert.ok(report.unreferencedCandidates.some((row) => row.path === path))
+  }
+  for (const path of ["lib/paired.d.ts", "lib/only.d.ts"]) {
+    assert.ok(report.referencedModules.some((row) => row.path === path))
+  }
+})
+
 test("unresolved literal modules are errors while dynamic expressions stay uncertainty", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -363,6 +610,65 @@ test("dependency evidence captures TypeScript and JSDoc import types without dup
     1,
   )
   assert.equal(evidence.references.filter((row) => row.packageName === "runtime-pkg").length, 1)
+})
+
+test("dependency evidence records only validated configuration manifest owners", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, {
+    devDependencies: {
+      "mention-only": "1.0.0",
+      postcss: "1.0.0",
+      shadcn: "1.0.0",
+    },
+  })
+  writeFixture(root, "postcss.config.mjs", "export default { plugins: { tailwindcss: {} } }\n")
+  writeFixture(root, "components.json", `${JSON.stringify({
+    $schema: "https://ui.shadcn.com/schema.json",
+    aliases: { ui: "@/components/ui" },
+  })}\n`)
+  writeFixture(root, "tests/dependency-security.test.mjs", [
+    "const arbitraryText = 'mention-only postcss shadcn'",
+    "void arbitraryText",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildDependencyEvidence(index, policy)
+  assert.deepEqual(evidence.configurationManifestOwners, [
+    { kind: "configuration-file", ownerPath: "postcss.config.mjs", packageName: "postcss" },
+    { kind: "configuration-manifest", ownerPath: "components.json", packageName: "shadcn" },
+  ])
+
+  const report = buildDependencyCandidateReport(index, policy)
+  assert.deepEqual(report.configurationManifestOwners, [
+    { kind: "configuration-file", ownerPath: "postcss.config.mjs", packageName: "postcss", usageScope: "configuration" },
+    { kind: "configuration-manifest", ownerPath: "components.json", packageName: "shadcn", usageScope: "configuration" },
+  ])
+  assert.equal(report.literalImportOwners.some((row) => ["postcss", "shadcn"].includes(row.packageName)), false)
+  for (const name of ["postcss", "shadcn"]) {
+    assert.ok(report.referencedPackages.some((row) => (
+      row.name === name && row.scopes.includes("configuration")
+    )))
+    assert.equal(report.unreferencedCandidates.some((row) => row.name === name), false)
+  }
+  assert.ok(report.unreferencedCandidates.some((row) => row.name === "mention-only"))
+
+  const unrelatedRoot = createFixtureRepository(t)
+  writePackage(unrelatedRoot, { devDependencies: { shadcn: "1.0.0" } })
+  writeFixture(unrelatedRoot, "components.json", `${JSON.stringify({
+    $schema: "https://example.test/not-shadcn.json",
+    note: "shadcn",
+  })}\n`)
+  writeFixture(unrelatedRoot, "tests/manifest.test.mjs", "const mention = 'shadcn'\nvoid mention\n")
+  const unrelatedReport = buildDependencyCandidateReport(buildTrackedTextIndex(unrelatedRoot, policy), policy)
+  assert.deepEqual(unrelatedReport.configurationManifestOwners, [])
+  assert.ok(unrelatedReport.unreferencedCandidates.some((row) => row.name === "shadcn"))
+
+  const realReport = buildDependencyCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  for (const name of ["postcss", "shadcn"]) {
+    assert.ok(realReport.configurationManifestOwners.some((row) => row.packageName === name))
+    assert.equal(realReport.unreferencedCandidates.some((row) => row.name === name), false)
+  }
 })
 
 test("dead-code report separates candidates from roots, protections, and uncertainty", (t) => {
@@ -774,6 +1080,67 @@ test("asset report normalizes dot segments and keeps non-inventory literals out 
   )
   assert.ok(report.uncertainties.unresolvedLiteralAssets.every((row) => row.targetPath === undefined))
   assertPrivateSerialization(report, root, [escapedRootLiteral, escapedRepositoryLiteral])
+})
+
+test("asset report resolves bare slash-relative paths only to tracked inventory assets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".gitignore", "public/catalog/ignored/\n")
+  writeFixture(root, "public/catalog/media/tracked.mp3", "tracked-media")
+  writeFixture(root, "data/media/outside.mp3", "tracked-outside-inventory")
+  writeFixture(root, "public/catalog/ignored/hidden.mp3", "ignored-media", { tracked: false })
+  const literals = {
+    exact: "media/tracked.mp3",
+    missing: "media/missing.mp3",
+    ignored: "ignored/hidden.mp3",
+    escaped: "../../../private/escaped.mp3",
+    scheme: "https://assets.example.test/remote.mp3",
+    outside: "media/outside.mp3",
+  }
+  writeFixture(root, "public/catalog/index.json", `${JSON.stringify([
+    literals.exact,
+    literals.missing,
+    literals.ignored,
+    literals.escaped,
+    literals.scheme,
+  ])}\n`)
+  writeFixture(root, "data/index.json", `${JSON.stringify([literals.outside])}\n`)
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    report.referenceOwners.map((row) => [row.fromPath, row.targetPath]),
+    [["public/catalog/index.json", "public/catalog/media/tracked.mp3"]],
+  )
+  assert.equal(report.referenceOwners.some((row) => row.fromPath === "data/index.json"), false)
+  assert.deepEqual(
+    report.uncertainties.unresolvedLiteralAssets.map((row) => row.code).sort(),
+    [
+      "OUT_OF_INVENTORY_LITERAL_ASSET",
+      "UNRESOLVED_LITERAL_ASSET",
+      "UNRESOLVED_LITERAL_ASSET",
+      "UNRESOLVED_LITERAL_ASSET",
+    ],
+  )
+  assert.ok(report.uncertainties.unresolvedLiteralAssets.every((row) => (
+    row.targetPath === undefined && /^[a-f0-9]{64}$/.test(row.literalSha256)
+  )))
+  assertPrivateSerialization(report, root, [
+    literals.missing,
+    literals.ignored,
+    literals.escaped,
+    literals.scheme,
+    literals.outside,
+  ])
+
+  const realReport = buildAssetCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  const pilotRows = realReport.uncertainties.unresolvedLiteralAssets.filter((row) => (
+    row.fromPath === "public/chimer/background-preview-pilot/index.json"
+  ))
+  assert.equal(pilotRows.length, 168)
+  assert.ok(pilotRows.every((row) => row.targetPath === undefined))
+  assert.equal(realReport.referenceOwners.some((row) => (
+    row.fromPath === "public/chimer/background-preview-pilot/index.json"
+  )), false)
 })
 
 test("asset report preserves basename ambiguity, dynamic construction, and explicit protected paths", (t) => {

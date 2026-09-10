@@ -77,6 +77,10 @@ export function buildDependencyCandidateReport(index, policy) {
       scriptName: row.scriptName,
       usageScope: "tooling",
     }))
+  const configurationManifestOwners = dependencyEvidence.configurationManifestOwners.map((row) => ({
+    ...row,
+    usageScope: "configuration",
+  }))
   const nodeScriptOwners = moduleEvidence.roots
     .filter((row) => row.reason.startsWith("package-script:"))
     .map((row) => ({
@@ -93,6 +97,7 @@ export function buildDependencyCandidateReport(index, policy) {
   const packageReferences = [
     ...literalImportOwners.map((row) => ({ packageName: row.packageName, usageScope: row.ownerScope })),
     ...packageScriptCliOwners,
+    ...configurationManifestOwners,
     ...patchOwners,
   ]
   const referencedPackages = packageScopeRows(packageReferences)
@@ -146,6 +151,7 @@ export function buildDependencyCandidateReport(index, policy) {
     literalImportOwners,
     builtinImportOwners,
     packageScriptCliOwners,
+    configurationManifestOwners,
     nodeScriptOwners,
     patchOwners,
     referencedPackages,
