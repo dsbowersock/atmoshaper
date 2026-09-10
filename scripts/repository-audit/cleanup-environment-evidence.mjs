@@ -25,8 +25,32 @@ function isProcessEnv(node) {
   )
 }
 
-function childScope(parent) {
-  return { bindings: new Map(), parent }
+/** Return local names for runtime named `env` imports from Node's process module. */
+function processEnvironmentImportNames(sourceFile) {
+  const names = []
+  for (const statement of sourceFile.statements) {
+    if (
+      !ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) ||
+      !["node:process", "process"].includes(statement.moduleSpecifier.text)
+    ) continue
+    const clause = statement.importClause
+    if (!clause || clause.isTypeOnly || !clause.namedBindings || !ts.isNamedImports(clause.namedBindings)) continue
+    for (const specifier of clause.namedBindings.elements) {
+      const importedName = specifier.propertyName ?? specifier.name
+      if (!specifier.isTypeOnly && importedName.text === "env") names.push(specifier.name.text)
+    }
+  }
+  return names
+}
+
+function childScope(parent, ownsVarBindings = false) {
+  return { bindings: new Map(), ownsVarBindings, parent }
+}
+
+function varBindingScope(scope) {
+  let owner = scope
+  while (owner.parent && !owner.ownsVarBindings) owner = owner.parent
+  return owner
 }
 
 function lookupAlias(scope, name) {
@@ -209,19 +233,20 @@ function collectEnvironmentRows(record, text) {
     }
   }
 
-  const bindName = (name, initializer, scope) => {
-    const status = aliasStatus(initializer, scope)
+  const bindName = (name, initializer, scope, initializerScope = scope) => {
+    const status = aliasStatus(initializer, initializerScope)
     scope.bindings.set(name, status ?? (isEnvironmentAliasName(name) ? "unknown" : NON_ALIAS))
   }
 
-  const declareBindingName = (name, scope) => {
+  const declareBindingName = (name, scope, preserveExisting = false) => {
     if (ts.isIdentifier(name)) {
+      if (preserveExisting && scope.bindings.has(name.text)) return
       scope.bindings.set(name.text, isEnvironmentAliasName(name.text) ? "unknown" : NON_ALIAS)
       return
     }
     if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
       for (const element of name.elements) {
-        if (ts.isBindingElement(element)) declareBindingName(element.name, scope)
+        if (ts.isBindingElement(element)) declareBindingName(element.name, scope, preserveExisting)
       }
     }
   }
@@ -238,19 +263,23 @@ function collectEnvironmentRows(record, text) {
     )
   }
 
-  const bindObjectElementInitializers = (pattern, scope) => {
+  const bindObjectElementInitializers = (pattern, scope, initializerScope = scope) => {
     for (const element of pattern.elements) {
       if (element.initializer) {
-        visit(element.initializer, scope)
-        if (ts.isIdentifier(element.name)) bindName(element.name.text, element.initializer, scope)
+        visit(element.initializer, initializerScope)
+        if (ts.isIdentifier(element.name)) {
+          bindName(element.name.text, element.initializer, scope, initializerScope)
+        }
       }
-      if (ts.isObjectBindingPattern(element.name)) bindObjectElementInitializers(element.name, scope)
+      if (ts.isObjectBindingPattern(element.name)) {
+        bindObjectElementInitializers(element.name, scope, initializerScope)
+      }
     }
   }
 
   const visit = (node, scope) => {
     if (ts.isFunctionLike(node)) {
-      const functionScope = childScope(scope)
+      const functionScope = childScope(scope, true)
       for (const parameter of node.parameters) declareBindingName(parameter.name, functionScope)
       for (const parameter of node.parameters) {
         if (parameter.initializer) visit(parameter.initializer, functionScope)
@@ -264,19 +293,51 @@ function collectEnvironmentRows(record, text) {
       if (node.body) visit(node.body, functionScope)
       return
     }
+    if (ts.isForStatement(node) || ts.isForInStatement(node) || ts.isForOfStatement(node)) {
+      const initializer = node.initializer
+      const loopScope = initializer && ts.isVariableDeclarationList(initializer) &&
+        (initializer.flags & ts.NodeFlags.BlockScoped)
+        ? childScope(scope)
+        : scope
+      if (initializer) visit(initializer, loopScope)
+      if (ts.isForStatement(node)) {
+        if (node.condition) visit(node.condition, loopScope)
+        if (node.incrementor) visit(node.incrementor, loopScope)
+      } else {
+        visit(node.expression, loopScope)
+      }
+      visit(node.statement, loopScope)
+      return
+    }
+    if (ts.isCatchClause(node)) {
+      const catchScope = childScope(scope)
+      if (node.variableDeclaration) visit(node.variableDeclaration, catchScope)
+      visit(node.block, catchScope)
+      return
+    }
     if (ts.isBlock(node) || ts.isSourceFile(node)) {
       const blockScope = ts.isSourceFile(node) ? scope : childScope(scope)
       for (const statement of node.statements) visit(statement, blockScope)
       return
     }
     if (ts.isVariableDeclaration(node)) {
-      declareBindingName(node.name, scope)
+      const declarationList = ts.isVariableDeclarationList(node.parent) ? node.parent : null
+      const isVarDeclaration = declarationList && !(declarationList.flags & ts.NodeFlags.BlockScoped)
+      const isIterationAssignment = declarationList && (
+        ts.isForInStatement(declarationList.parent) || ts.isForOfStatement(declarationList.parent)
+      ) && declarationList.parent.initializer === declarationList
+      const declarationScope = isVarDeclaration
+        ? varBindingScope(scope)
+        : scope
+      const hasAssignment = Boolean(node.initializer) || isIterationAssignment
+      declareBindingName(node.name, declarationScope, isVarDeclaration && !hasAssignment)
+      if (!hasAssignment) return
       if (node.initializer) visit(node.initializer, scope)
       const status = aliasStatus(node.initializer, scope)
-      if (ts.isIdentifier(node.name)) bindName(node.name.text, node.initializer, scope)
+      if (ts.isIdentifier(node.name)) bindName(node.name.text, node.initializer, declarationScope, scope)
       else if (ts.isObjectBindingPattern(node.name)) {
         recordObjectBinding(node.name, status, "destructure")
-        bindObjectElementInitializers(node.name, scope)
+        bindObjectElementInitializers(node.name, declarationScope, scope)
       }
       return
     }
@@ -319,7 +380,9 @@ function collectEnvironmentRows(record, text) {
     }
     ts.forEachChild(node, (child) => visit(child, scope))
   }
-  visit(sourceFile, childScope(null))
+  const sourceScope = childScope(null, true)
+  for (const name of processEnvironmentImportNames(sourceFile)) sourceScope.bindings.set(name, "proven")
+  visit(sourceFile, sourceScope)
   const errors = sourceFile.parseDiagnostics.length > 0
     ? [{ code: "SOURCE_PARSE_DIAGNOSTIC", path: record.path, count: sourceFile.parseDiagnostics.length }]
     : []

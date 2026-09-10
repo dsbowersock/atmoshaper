@@ -200,15 +200,30 @@ suites passed 80/80, and its now-historical stage-0 semantic results were:
 Hosted review round 4 moved exact configuration ownership into the validated
 stage-0 policy and conservatively covered direct, aliased, wrapped, logical and
 conditional whole-environment forwarding without changing asset semantics. The
-current focused repository audit suites pass 83/83: 21 repository-audit tests
-and 62 cleanup-audit tests. Current stage-0 semantic results are:
+focused repository audit suites passed 83/83: 21 repository-audit tests and 62
+cleanup-audit tests. Its now-historical stage-0 semantic results were:
 
-| Lane | Findings | Uncertainties | Current round-4 semantic note |
+| Lane | Findings | Uncertainties | Round-4 semantic note |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates. |
 | Dependency | 2,861 | 19 | Two configuration owners and 6 candidates. |
 | Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
 | Environment | 587 | 250 | 77 computed and 173 unproven-alias uncertainties; zero unread-declaration candidates. |
+
+Hosted review round 5 recognizes runtime named `env` imports from the exact
+`node:process` and `process` modules and preserves their evidence through
+lexical loop/catch shadowing and function-scoped `var` behavior, including
+assignment-free redeclarations. It also repairs the two historical receipt
+anchors in the reference inventory. The current focused repository audit suites
+pass 86/86: 21 repository-audit tests and 65 cleanup-audit tests. Current
+stage-0 semantic results are:
+
+| Lane | Findings | Uncertainties | Current round-5 semantic note |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates. |
+| Dependency | 2,861 | 19 | Two configuration owners and 6 candidates. |
+| Asset | 390 | 11,384 | 97 tracked assets, 97 protected items, 177 exact owners and zero candidates; 529 dynamic and 10,855 unresolved rows. |
+| Environment | 587 | 252 | 79 computed and 173 unproven-alias uncertainties; zero unread-declaration candidates. |
 
 The current tracked inventory remains 1,921 files. Brand verification remains
 zero missing and zero unclassified. Exact current staged bytes and identity
@@ -228,6 +243,8 @@ ignored SDD handoff and user-facing completion receipt. Those independent
 whole-branch reviews, the final-index readback and the coordinator-owned commit
 subsequently completed before separate publication authorization opened
 [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3).
+PR #3 remains in hosted review; resolving hosted feedback and final
+checks/review precede any separately authorized merge.
 
 Deletion authority is **none**. All entries retain their existing `candidate`,
 `protected` or `unresolved` status. No candidate deletion, rename, upgrade,

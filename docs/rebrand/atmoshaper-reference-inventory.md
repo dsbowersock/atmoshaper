@@ -758,8 +758,8 @@ unresolved literal-module errors. Proven environment aliases produce 369 static
 reads, while 169 unproven aliases remain explicit uncertainties rather than
 removal evidence. The focused staged suite passed 59/59.
 
-The [cleanup register](atmoshaper-cleanup-register.md#final-review-repair-receipt--first-fully-staged-repair-capture)
-and [Aegis evidence](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md#final-review-repair-receipt--first-fully-staged-repair-capture)
+The [cleanup register](atmoshaper-cleanup-register.md#historical-final-review-repair-receipt--first-staged-capture-superseded)
+and [Aegis evidence](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md#historical-final-review-repair-receipt--first-staged-capture-superseded)
 record the first staged capture's hashes, counts and validation receipts. Brand verification remains
 at zero missing and zero unclassified occurrences with the same category totals
 and 5,984,749-byte fixed point. All candidates and later corroboration requirements
@@ -806,14 +806,26 @@ rows; and environment 587/191.
 Hosted review round 4 moved exact configuration ownership into the validated
 stage-0 policy and conservatively covered direct, aliased, wrapped, logical and
 conditional whole-environment forwarding without changing asset semantics. The
-current focused repository audit suites pass 83/83: 21 repository-audit tests
-and 62 cleanup-audit tests. Current semantic totals are dead code 1,558/186 with
+focused repository audit suites passed 83/83: 21 repository-audit tests and 62
+cleanup-audit tests. Its now-historical semantic totals were dead code 1,558/186 with
 842 referenced modules and 23 candidates; dependency 2,861/19 with 2
 configuration owners and 6 candidates; asset 390/11,384 with 97 tracked assets,
 97 protected items, 177 exact owners, zero candidates, 529 dynamic rows and
 10,855 unresolved rows; and environment 587/250 with 77 computed and 173
-unproven-alias uncertainties and zero unread-declaration candidates. The current
-tracked inventory remains 1,921 files.
+unproven-alias uncertainties and zero unread-declaration candidates.
+
+Hosted review round 5 recognizes runtime named `env` imports from the exact
+`node:process` and `process` modules and preserves their evidence through
+lexical loop/catch shadowing and function-scoped `var` behavior, including
+assignment-free redeclarations. It also repairs the two historical receipt
+anchors above. The current focused repository audit suites pass 86/86: 21
+repository-audit tests and 65 cleanup-audit tests. Current semantic totals are
+dead code 1,558/186 with 842 referenced modules and 23 candidates; dependency
+2,861/19 with 2 configuration owners and 6 candidates; asset 390/11,384 with 97
+tracked assets, 97 protected items, 177 exact owners, zero candidates, 529
+dynamic rows and 10,855 unresolved rows; and environment 587/252 with 79
+computed and 173 unproven-alias uncertainties and zero unread-declaration
+candidates. The current tracked inventory remains 1,921 files.
 Brand verification remains zero missing and zero unclassified. Exact current
 staged bytes and identity remain only in the ignored SDD handoff and user-facing
 receipt. Every report retains `deletionAuthority: false`.
@@ -821,6 +833,8 @@ receipt. Every report retains `deletionAuthority: false`.
 The exact final-index readback, repeat independent specification and quality
 reviews, and coordinator-owned completion commit all completed before separate
 publication authorization opened [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3).
+PR #3 remains in hosted review; resolving hosted feedback and final
+checks/review precede any separately authorized merge.
 Historical report hashes above remain attached only to the exact captures that
 produced them; current self-hashed index identities remain outside this versioned
 inventory. Every candidate remains retained and `deletionAuthority` remains false.

@@ -1021,6 +1021,126 @@ test("environment evidence records static names and computed uncertainty without
   assertPrivateSerialization(evidence, root, [secretValue, "getName()"])
 })
 
+test("environment evidence hoists runtime process env named imports with lexical semantics", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const computedExpression = "privateEnvironmentName()"
+  writeFixture(root, "lib/imported-environment.ts", [
+    "const beforeImport = nodeEnvironment.BEFORE_IMPORT",
+    "import { env as nodeEnvironment } from 'node:process'",
+    "import { env } from 'process'",
+    "import type { env as TypeEnvironment } from 'node:process'",
+    "import { type env as SpecifierTypeEnvironment } from 'process'",
+    "import { env as unrelatedValue } from 'node:process/promises'",
+    "export { env as exportedEnvironment } from 'node:process'",
+    "const named = nodeEnvironment.NAMED",
+    "const bracket = env['BRACKET']",
+    `const computed = nodeEnvironment[${computedExpression}]`,
+    "consume(nodeEnvironment)",
+    "forward(env)",
+    "const propagatedEnvironment = nodeEnvironment",
+    "const propagated = propagatedEnvironment.PROPAGATED",
+    "function shadow(nodeEnvironment) { return nodeEnvironment.SHADOWED }",
+    "let reassignedEnvironment = env",
+    "reassignedEnvironment = getInjectedEnvironment()",
+    "const afterReassignment = reassignedEnvironment.AFTER_REASSIGNMENT",
+    "nodeEnvironment.WRITE_ONLY = 'fixture'",
+    "delete env.DELETE_ONLY",
+    "nodeEnvironment.COMPOUND_READ += 'fixture'",
+    "const typeClause = TypeEnvironment.TYPE_CLAUSE",
+    "const typeSpecifier = SpecifierTypeEnvironment.TYPE_SPECIFIER",
+    "const unrelated = unrelatedValue.UNRELATED",
+    "void beforeImport; void named; void bracket; void computed; void propagated",
+    "void afterReassignment; void typeClause; void typeSpecifier; void unrelated; void shadow",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "BEFORE_IMPORT", "NAMED", "BRACKET", "PROPAGATED", "COMPOUND_READ",
+  ])
+  const computed = evidence.uncertainties.filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ")
+  assert.deepEqual(computed.map((row) => [row.kind, row.line]), [
+    ["element-access", 10],
+    ["whole-object-value", 11],
+    ["whole-object-value", 12],
+  ])
+  assert.equal(computed[0].name, undefined)
+  assert.match(computed[0].expressionSha256, /^[a-f0-9]{64}$/)
+  assert.deepEqual(
+    evidence.uncertainties
+      .filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+      .map((row) => row.name),
+    ["AFTER_REASSIGNMENT"],
+  )
+  assert.equal(evidence.errors.length, 0)
+  assertPrivateSerialization(evidence, root, [computedExpression, "getInjectedEnvironment()"])
+})
+
+test("environment import aliases survive lexical loop and catch shadowing", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/imported-environment-scopes.ts", [
+    "import { env as forEnvironment, env as forOfEnvironment, env as forInEnvironment, env as catchEnvironment } from 'node:process'",
+    "for (let forEnvironment = {}; keepGoing(); advance()) { void forEnvironment.INSIDE_FOR }",
+    "const afterFor = forEnvironment.AFTER_FOR",
+    "for (const forOfEnvironment of environments) { void forOfEnvironment.INSIDE_FOR_OF }",
+    "const afterForOf = forOfEnvironment.AFTER_FOR_OF",
+    "for (const forInEnvironment in environments) { void forInEnvironment.INSIDE_FOR_IN }",
+    "const afterForIn = forInEnvironment.AFTER_FOR_IN",
+    "try { riskyOperation() } catch (catchEnvironment) { void catchEnvironment.INSIDE_CATCH }",
+    "const afterCatch = catchEnvironment.AFTER_CATCH",
+    "function varLoop() {",
+    "  var localEnvironment = forEnvironment",
+    "  for (var localEnvironment = {}; keepGoing(); advance()) { void localEnvironment.INSIDE_VAR }",
+    "  return localEnvironment.AFTER_VAR",
+    "}",
+    "function nestedVarLoop() {",
+    "  var localEnvironment = forEnvironment",
+    "  for (let outer = 0; outer < 1; outer += 1) {",
+    "    if (keepGoing()) {",
+    "      for (let inner = 0; inner < 1; inner += 1) { var localEnvironment = {} }",
+    "    }",
+    "  }",
+    "  return localEnvironment.AFTER_NESTED_VAR",
+    "}",
+    "void afterFor; void afterForOf; void afterForIn; void afterCatch; void varLoop; void nestedVarLoop",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "AFTER_FOR", "AFTER_FOR_OF", "AFTER_FOR_IN", "AFTER_CATCH",
+  ])
+  assert.equal(evidence.uncertainties.length, 0)
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("environment aliases survive uninitialized var redeclarations", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/imported-environment-var-redeclaration.ts", [
+    "import { env as config } from 'node:process'",
+    "function readEnvironment() {",
+    "  var value = config",
+    "  { var value }",
+    "  consume(value)",
+    "  const named = value.KEY",
+    "  void named",
+    "}",
+    "void readEnvironment",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => [row.name, row.line]), [["KEY", 6]])
+  assert.deepEqual(
+    evidence.uncertainties.map((row) => [row.code, row.kind, row.line]),
+    [["COMPUTED_ENVIRONMENT_READ", "whole-object-value", 5]],
+  )
+  assert.equal(evidence.errors.length, 0)
+})
+
 test("environment evidence excludes assignment and delete targets from static reads", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -2021,6 +2141,15 @@ test("real environment evidence reads STRIPE_SECRET_KEY through a proven default
     row.kind === "whole-object-value" &&
     row.path === "scripts/stripe-supporter-membership-migration.mjs"
   )))
+  assert.deepEqual(
+    evidence.uncertainties
+      .filter((row) => (
+        row.code === "COMPUTED_ENVIRONMENT_READ" &&
+        row.path === "app/api/billing/webhook/route.ts"
+      ))
+      .map((row) => [row.kind, row.line]),
+    [["whole-object-value", 117], ["whole-object-value", 126]],
+  )
   const report = buildEnvironmentCandidateReport(index, policy)
   assert.equal(report.unreadDeclarationCandidates.some((row) => row.name === "STRIPE_SECRET_KEY"), false)
 })
