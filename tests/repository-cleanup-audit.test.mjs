@@ -89,12 +89,20 @@ function exactFailureEnvelope(code) {
 }
 
 function assertPrivateSerialization(value, root, forbidden) {
-  const serialized = JSON.stringify(value)
+  const serialized = typeof value === "string" ? value : JSON.stringify(value)
   assert.equal(serialized.includes(root), false)
   for (const text of forbidden) assert.equal(serialized.includes(text), false)
   assert.equal(serialized.includes("Error:"), false)
   assert.equal(serialized.includes(" at "), false)
 }
+
+test("private serialization checks raw string inputs before JSON escaping", () => {
+  const root = "C:\\private-audit-root"
+  assert.throws(
+    () => assertPrivateSerialization(`failure:${root}`, root, []),
+    (error) => error.code === "ERR_ASSERTION",
+  )
+})
 
 test("schema-v1 policy names every required scope and rejects policy drift", () => {
   assert.equal(validateCleanupPolicy(clonePolicy()).schemaVersion, 1)
@@ -150,6 +158,24 @@ test("tracked text and exact report envelopes are deterministic", (t) => {
     assert.equal(first.deletionAuthority, false)
     assert.match(first.inventorySha256, /^[a-f0-9]{64}$/)
   }
+})
+
+test("index metadata and blob reads share the same bounded output limit", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/page.tsx", "export default function Page() { return null }\n")
+  const readOptions = []
+  const observingExec = (file, args, options) => {
+    if (args[0] === "cat-file") readOptions.push([args[1], options.maxBuffer])
+    return execFileSync(file, args, options)
+  }
+
+  buildTrackedTextIndex(root, policy, observingExec)
+
+  assert.deepEqual(readOptions, [
+    ["--batch-check=%(objectname) %(objecttype) %(objectsize)", 128 * 1024 * 1024],
+    ["--batch", 128 * 1024 * 1024],
+  ])
 })
 
 test("module evidence uses index blobs rather than modified worktree bytes", (t) => {
@@ -589,6 +615,50 @@ test("environment evidence records static names and computed uncertainty without
   assertPrivateSerialization(evidence, root, [secretValue, "getName()"])
 })
 
+test("environment evidence excludes assignment and delete targets from static reads", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", [
+    "DIRECT_ASSIGN=",
+    "DIRECT_DELETE=",
+    "DIRECT_ELEMENT_ASSIGN=",
+    "DIRECT_ELEMENT_DELETE=",
+    "ALIAS_ASSIGN=",
+    "ALIAS_DELETE=",
+    "ALIAS_ELEMENT_ASSIGN=",
+    "ALIAS_ELEMENT_DELETE=",
+    "COMPOUND_READ=",
+    "LOGICAL_READ=",
+    "DIRECT_READ=",
+    "ALIAS_READ=",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/environment-writes.ts", [
+    "process.env.DIRECT_ASSIGN = 'fixture'",
+    "delete process.env.DIRECT_DELETE",
+    "process.env['DIRECT_ELEMENT_ASSIGN'] = 'fixture'",
+    "delete process.env['DIRECT_ELEMENT_DELETE']",
+    "process.env[computedWriteName()] = 'fixture'",
+    "const env = process.env",
+    "env.ALIAS_ASSIGN = 'fixture'",
+    "delete env.ALIAS_DELETE",
+    "env['ALIAS_ELEMENT_ASSIGN'] = 'fixture'",
+    "delete env['ALIAS_ELEMENT_DELETE']",
+    "process.env.COMPOUND_READ += 'fixture'",
+    "env.LOGICAL_READ ||= 'fixture'",
+    "const directRead = process.env.DIRECT_READ",
+    "const aliasRead = env.ALIAS_READ",
+    "void directRead; void aliasRead",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name).sort(), [
+    "ALIAS_READ", "COMPOUND_READ", "DIRECT_READ", "LOGICAL_READ",
+  ])
+  assert.equal(evidence.uncertainties.length, 0)
+})
+
 test("asset report records Git identities, exact owners by scope, and conservative candidates", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -965,6 +1035,42 @@ test("tracked private paths fail before blob contents can enter failures", (t) =
   })
   assert.equal(catFileCalled, false)
   assertPrivateSerialization(failure, root, [privateValue, ".env.local"])
+})
+
+test("bootstrap-private tracked paths fail before policy, metadata, or evidence blob reads", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const fixturePolicyPath = writeFixture(
+    root,
+    "scripts/repository-audit/cleanup-policy.json",
+    `${JSON.stringify(policy, null, 2)}\n`,
+  )
+  const privatePath = "config/credentials.production.json"
+  const privateValue = "bootstrap-private-fixture-value"
+  writeFixture(root, privatePath, `${privateValue}\n`)
+
+  const assertRejectedBeforeCatFile = (action) => {
+    let catFileCalled = false
+    const observingExec = (file, args, options) => {
+      if (args[0] === "cat-file") catFileCalled = true
+      return execFileSync(file, args, options)
+    }
+    let failure
+    try {
+      action(observingExec)
+    } catch (error) {
+      failure = { code: error.code, message: error.message }
+    }
+    assert.deepEqual(failure, {
+      code: "CLEANUP_FORBIDDEN_OR_INVALID_INDEX",
+      message: "CLEANUP_FORBIDDEN_OR_INVALID_INDEX",
+    })
+    assert.equal(catFileCalled, false)
+    assertPrivateSerialization(failure, root, [privatePath, privateValue])
+  }
+
+  assertRejectedBeforeCatFile((observingExec) => loadCleanupContext(root, fixturePolicyPath, observingExec))
+  assertRejectedBeforeCatFile((observingExec) => buildTrackedTextIndex(root, policy, observingExec))
 })
 
 test("policy loading uses the tracked stage-0 blob and ignores unstaged policy edits", (t) => {

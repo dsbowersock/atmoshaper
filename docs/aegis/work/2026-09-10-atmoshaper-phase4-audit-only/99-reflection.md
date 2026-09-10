@@ -1,8 +1,10 @@
 # Phase 4 audit-only process reflection
 
-Status: final repair cycle passes 64/64 focused checks; staging, a fresh full
-suite and 115-route build, exact final-index readback, repeat independent
-whole-branch reviews and coordinator commit remain.
+Status: the final repair cycle, fresh full suite, 115-route build, exact
+final-index readback, repeat independent whole-branch reviews, and coordinator
+commit are complete. The branch is published in
+[PR #3](https://github.com/dsbowersock/atmoshaper/pull/3) for hosted checks and
+review; candidate cleanup and Phase 5 remain closed.
 
 - One shared stage-0 evidence engine kept all candidate reports deterministic and
   prevented ignored or unstaged workstation state from becoming evidence.
@@ -18,9 +20,9 @@ whole-branch reviews and coordinator commit remain.
 - Inventory describes the index, not nearby worktree state. The first fully
   staged repair readback therefore anchors all four reports to one verified
   pre-receipt-synchronization identity. A versioned receipt cannot also embed the
-  stable hash of an index containing its own updated blob; the final-index hashes
-  belong in the ignored SDD handoff and user-facing completion receipt after one
-  exact coordinator readback.
+  stable hash of an index containing its own updated blob; the pre-publication
+  final-index hashes were retained in the ignored SDD handoff and user-facing
+  completion receipt after the exact coordinator readback.
 - Git-ignored SDD helpers still participate in `eslint .`; task-local CommonJS
   utilities need their lint boundary declared even though they never enter a commit.
 - Large deterministic reports should stay ephemeral. Persist hashes, counts,
@@ -28,8 +30,8 @@ whole-branch reviews and coordinator commit remain.
 
 The repair track corrected scanner classification and evidence quality with shared
 rules and fixtures. The retirement track remains closed: every candidate is retained,
-and no deletion, rename, upgrade, provider action, publication, or Phase 5 work is
-authorized by this branch.
+and no deletion, rename, upgrade, provider action, or Phase 5 work is authorized by
+this branch. Publication occurred only under separate user authorization.
 
 The final-review repair added two governance lessons. A policy that defines
 privacy boundaries must itself enter through a small pre-policy trust boundary,

@@ -156,26 +156,32 @@ module/asset parity with the installed Next 16.2.12 zero-or-one-digit metadata
 convention. Thus `icon9` is protected metadata while `icon10` remains a
 lookalike candidate.
 
-Strict TDD failed the three targeted regression groups before implementation
-(0/3) and passed them afterward (3/3). The combined focused audit suites passed
-64/64. Current stage-0 semantic results are:
+Repair validation first confirmed all three targeted regression groups failed
+(0/3 passed), then passed them after implementation (3/3 passed); strict TDD
+remained off. The pre-publication combined focused audit suites passed 64/64.
+Hosted review then corrected environment evidence so assignment and delete
+targets no longer count as reads; its focused slice passed 7/7, and the current
+combined focused audit suites pass 68/68. Current stage-0 semantic results are:
 
 | Lane | Findings | Uncertainties | Current semantic note |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | 29 candidates, 21 protected, 836 referenced and 672 roots; unchanged. |
 | Dependency | 2,859 | 19 | Includes one additional literal-import owner from static `require.resolve()` use. |
 | Asset | 340 | 2,002 | 526 dynamic and 1,476 unresolved literals; no candidate is authorized for removal. |
-| Environment | 753 | 192 | 79 declared, 262 missing, 387 static-read and 25 unread findings; 18 computed-read and 174 unproven uncertainties. |
+| Environment | 612 | 178 | 79 declared, 202 missing, 306 static-read and 25 unread findings; 9 computed-read and 169 unproven uncertainties. |
 
 The earlier 59/59 staged capture, its hashes and the 4,249-test unit receipt are
-historical and superseded for current-tooling decisions. Against this final
-staged repair, the complete suite passed 4,259 tests with 3 host-dependent skips
-and zero failures, and the 115-route production build passed. The coordinator
-must run one receipt-synchronized exact-index readback.
+historical and superseded for current-tooling decisions. Against the
+pre-publication final staged repair, the complete suite passed 4,259 tests with
+3 host-dependent skips and zero failures, and the 115-route production build
+passed. At that snapshot, the coordinator still had to run one
+receipt-synchronized exact-index readback.
 Because a versioned receipt cannot safely embed the hash of an index containing
 its own updated blob, final inventory and report hashes belong only in the
-ignored SDD handoff and user-facing completion receipt. Repeat independent
-whole-branch reviews and the coordinator-owned commit then remain.
+ignored SDD handoff and user-facing completion receipt. Those independent
+whole-branch reviews, the final-index readback and the coordinator-owned commit
+subsequently completed before separate publication authorization opened
+[PR #3](https://github.com/dsbowersock/atmoshaper/pull/3).
 
 Deletion authority is **none**. All entries retain their existing `candidate`,
 `protected` or `unresolved` status. No candidate deletion, rename, upgrade,

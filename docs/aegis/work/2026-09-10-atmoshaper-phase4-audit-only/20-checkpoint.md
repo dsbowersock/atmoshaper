@@ -114,7 +114,7 @@ cleanup, merge, external mutation, or Phase 5 work.
   change the index, so the recorded hashes are not an immutable final-candidate
   identity. No candidate or external state changed.
 
-## 2026-09-10 — Final repair-cycle checkpoint
+## Historical 2026-09-10 pre-publication final repair-cycle checkpoint
 
 - Sanitized malformed and path-like module specifiers into hash-only unresolved
   evidence; no source literal or workstation path enters a report or failure.
@@ -127,15 +127,21 @@ cleanup, merge, external mutation, or Phase 5 work.
 - Recorded literal `require.resolve()` package and module ownership, including
   the repository's current Playwright CLI resolution, with hash-only uncertainty
   for nonliteral arguments.
-- Strict TDD recorded 0/3 RED and 3/3 GREEN. The combined focused audit suite
-  passed 64/64. Post-fix semantic evaluation against the captured stage-0 source
-  reports dead code 1,558 findings/186 uncertainties, dependency 2,859/19, asset
-  340/2,002, and environment 753/192.
+- Repair validation first confirmed all three new regression cases failed (0/3
+  passed), then confirmed all three passed after the fixes (3/3 passed). Strict
+  TDD remained off under the governing intent and plan. The combined focused
+  audit suite passed 64/64. Post-fix semantic evaluation against the captured
+  stage-0 source reports dead code 1,558 findings/186 uncertainties, dependency
+  2,859/19, asset 340/2,002, and environment 753/192.
 - The earlier 59/59 capture and 4,249-test full-suite receipt are historical.
   Against the final staged repair, the full suite passed 4,259 tests with 3
   host-dependent skips and zero failures, and the 115-route build passed.
 
-## Current next action after final repair cycle
+## Superseded next action after final repair cycle
+
+The following sequence was current before the final local completion commit and
+is retained as historical checkpoint evidence. The canonical current status is
+in `docs/project-state.md`.
 
 Run one exact final-index readback after this receipt synchronization.
 Retain its inventory and report hashes in the ignored SDD handoff and user-facing

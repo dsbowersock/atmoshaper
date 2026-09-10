@@ -47,6 +47,11 @@ function isEnvironmentAliasName(name) {
   return /^(?:env|environment)$/i.test(name)
 }
 
+/** Omit write-only targets while retaining compound accesses that also read the prior value. */
+function hasReadSemantics(node) {
+  return !ts.isWriteOnlyAccess(node) && !ts.isDeleteTarget(node)
+}
+
 const NON_ALIAS = "non-alias"
 
 function collectEnvironmentRows(record, text) {
@@ -167,13 +172,13 @@ function collectEnvironmentRows(record, text) {
       assignName(node.left.text, node.right, scope)
       return
     }
-    if (ts.isPropertyAccessExpression(node)) {
+    if (ts.isPropertyAccessExpression(node) && hasReadSemantics(node)) {
       const status = isProcessEnv(node.expression) ? "proven" : (
         ts.isIdentifier(node.expression) ? lookupAlias(scope, node.expression.text) : null
       )
       if (status === "proven") addRead(node.name, node.name.text, "property-access")
       else if (status === "unknown") addAliasUncertainty(node.name, node.name.text, "property-access")
-    } else if (ts.isElementAccessExpression(node)) {
+    } else if (ts.isElementAccessExpression(node) && hasReadSemantics(node)) {
       const status = isProcessEnv(node.expression) ? "proven" : (
         ts.isIdentifier(node.expression) ? lookupAlias(scope, node.expression.text) : null
       )

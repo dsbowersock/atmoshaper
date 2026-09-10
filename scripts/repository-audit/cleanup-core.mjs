@@ -17,6 +17,7 @@ const POLICY_FIELDS = [
 ]
 const SCOPE_NAMES = ["runtime", "tool", "test", "doc"]
 const FRAMEWORK_FIELDS = ["directoryPrefixes", "fileBasenames"]
+const INDEX_READ_MAX_BUFFER = 128 * 1024 * 1024
 const indexInternals = new WeakMap()
 
 export const compareText = (left, right) => left < right ? -1 : left > right ? 1 : 0
@@ -144,7 +145,7 @@ function readIndexBlobs(root, entries, execFile) {
     output = execFile("git", ["cat-file", "--batch"], {
       cwd: root,
       input: `${entries.map((entry) => entry.oid).join("\n")}\n`,
-      maxBuffer: 128 * 1024 * 1024,
+      maxBuffer: INDEX_READ_MAX_BUFFER,
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
     })
@@ -180,6 +181,7 @@ function readIndexMetadata(root, entries, execFile) {
       cwd: root,
       encoding: "utf8",
       input: `${entries.map((entry) => entry.oid).join("\n")}\n`,
+      maxBuffer: INDEX_READ_MAX_BUFFER,
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
     })
@@ -207,6 +209,12 @@ function isBootstrapPrivatePath(path) {
   )
 }
 
+function assertBootstrapPrivatePathsAbsent(entries) {
+  if (entries.some((entry) => isBootstrapPrivatePath(entry.path))) {
+    throw auditError("CLEANUP_FORBIDDEN_OR_INVALID_INDEX")
+  }
+}
+
 function resolvePolicyIndexPath(root, policyPath) {
   const absoluteRoot = resolve(root)
   const absolutePolicy = resolve(policyPath)
@@ -231,6 +239,7 @@ export function loadCleanupContext(root, policyPath, execFile = execFileSync) {
   }
   const policyEntry = entries.find((entry) => entry.path === policyIndexPath)
   if (!policyEntry) throw auditError("CLEANUP_POLICY_PATH_UNTRACKED")
+  assertBootstrapPrivatePathsAbsent(entries)
   try {
     const policy = validateCleanupPolicy(JSON.parse(readIndexBlobs(root, [policyEntry], execFile)[0]))
     return { entries, policy, policyIndexPath }
@@ -250,6 +259,7 @@ export function buildTrackedTextIndex(root, policy, execFile = execFileSync, cap
   let entries
   try {
     entries = capturedEntries ?? listTrackedIndexEntries(root, execFile)
+    assertBootstrapPrivatePathsAbsent(entries)
     assertPrivatePathsAbsent(entries.map((entry) => entry.path), policy.forbiddenTrackedPaths)
   } catch (error) {
     if (error?.code === "CLEANUP_POLICY_INVALID") throw error

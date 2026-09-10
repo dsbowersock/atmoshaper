@@ -718,9 +718,9 @@ Every future Browser QA acceptance cycle must create a new independent empty QA 
 
 Phase 1–2 bootstrap work is published for review and stops here. The recommended next branch is `codex/atmoshaper-docs-consolidation`, but Phase 3 planning and execution are future work requiring separate review and authorization; the branch has not been created and consolidation has not begun.
 
-## Current Phase 4 Audit-Only Update — 2026-09-10
+## Historical Phase 4 Task 5 Audit Capture — 2026-09-10
 
-PR #2 merged as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; the current branch began from that exact merge. Audit implementation reached `656394639464601c6e8b0833389c8272a95c2a95`, and Task 5 ran each report twice against that unchanged committed index.
+PR #2 merged as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; the Phase 4 branch began from that exact merge. Audit implementation reached `656394639464601c6e8b0833389c8272a95c2a95`, and Task 5 ran each report twice against that unchanged committed index. The table below is the bounded Task 5 capture and is superseded by the later repair-cycle summary.
 
 | Lane | Bounded result | Report SHA-256 | Status |
 | --- | --- | --- | --- |
@@ -731,9 +731,9 @@ PR #2 merged as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; the current branch b
 
 The [Phase 4 cleanup register](atmoshaper-cleanup-register.md#phase-4-audit-only-evidence--2026-09-10) records classification and scope totals plus the corroboration needed before any later bounded cleanup proposal. The [Aegis evidence](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md) records commands, report/evidence hashes, deterministic-repeat proof, inventory fixed-point proof, and brand-baseline reconciliation.
 
-Deletion authority is none. Every candidate remains in the repository. No report establishes runtime unreachability, safe dependency removal, asset ownership or provenance clearance, environment-key retirement, data/PWA compatibility, provider-object deletion, or rollback sufficiency by itself. Task 6 verification and review remain next; Phase 5 and every external mutation remain separately gated.
+Deletion authority is none. Every candidate remains in the repository. No report establishes runtime unreachability, safe dependency removal, asset ownership or provenance clearance, environment-key retirement, data/PWA compatibility, provider-object deletion, or rollback sufficiency by itself. At this historical capture, Task 6 verification and review remained next; Phase 5 and every external mutation remained separately gated.
 
-### Current final-review repair — first fully staged repair capture
+### Historical final-review repair — first fully staged 59/59 capture
 
 The preceding Task 5 table is a historical capture whose old envelope and hashes
 are superseded for current tooling. Before receipt-only documentation
@@ -768,5 +768,27 @@ final commit-candidate identity because the synchronized versioned receipts
 change their own index. Final receipt-document staging and one exact final-index
 readback remain; the resulting hashes will be retained in the ignored SDD
 handoff and user-facing completion receipt rather than embedded back into the
-self-hashed index. Repeat independent whole-branch reviews and the
-coordinator-owned commit then remain; none is claimed complete here.
+self-hashed index. At this historical capture, repeat independent whole-branch
+reviews and the coordinator-owned commit still remained.
+
+### Current Phase 4 closeout
+
+The subsequent pre-publication final repair cycle supersedes the 59/59 capture
+for current-tooling decisions. Repair validation first confirmed three failing
+regression cases and then 3/3 passing after their fixes; strict TDD remained off
+under the governing intent and plan. The combined focused suite passed 64/64.
+Hosted review then corrected environment evidence so assignment and delete
+targets no longer count as reads; its focused slice passed 7/7, and the current combined
+focused audit suites pass 68/68. Current semantic totals are dead code 1,558
+findings/186 uncertainties, dependency 2,859/19, asset
+340/2,002, and environment 612/178: 79 declared keys, 202 missing declarations,
+306 static reads and 25 unread findings; 9 computed reads and 169 unproven-alias
+uncertainties. Before publication, the full suite passed 4,259 tests with 3
+host-dependent skips and zero failures, and the 115-route production build passed.
+
+The exact final-index readback, repeat independent specification and quality
+reviews, and coordinator-owned completion commit all completed before separate
+publication authorization opened [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3).
+Historical report hashes above remain attached only to the exact captures that
+produced them; current self-hashed index identities remain outside this versioned
+inventory. Every candidate remains retained and `deletionAuthority` remains false.
