@@ -1,12 +1,14 @@
-import { dirname, extname, posix, resolve } from "node:path"
+import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 import {
-  buildAssetEvidence,
   buildAuditEnvelope,
   buildTrackedTextIndex,
-  loadCleanupPolicy,
+  candidateBody,
+  isFrameworkConventionPath,
+  loadCleanupContext,
 } from "./cleanup-core.mjs"
+import { buildAssetEvidence } from "./cleanup-asset-evidence.mjs"
 import { stableJson } from "./core.mjs"
 
 const compareText = (left, right) => left < right ? -1 : left > right ? 1 : 0
@@ -30,9 +32,7 @@ function pathMatches(path, candidate) {
 }
 
 function frameworkProtectionReason(path, policy) {
-  if (!policy.frameworkRoots.directoryPrefixes.some((prefix) => path.startsWith(prefix))) return null
-  const basename = posix.basename(path, extname(path))
-  return policy.frameworkRoots.fileBasenames.includes(basename) ? "framework-convention" : null
+  return isFrameworkConventionPath(path, policy) ? "framework-convention" : null
 }
 
 function protectionReasons(path, policy) {
@@ -125,9 +125,9 @@ function parseOptions(argv, defaults) {
 }
 
 export function runAssetAudit({ root, policyPath }) {
-  const policy = loadCleanupPolicy(policyPath)
-  const index = buildTrackedTextIndex(root, policy)
-  return buildAuditEnvelope("asset", buildAssetCandidateReport(index, policy))
+  const { entries, policy } = loadCleanupContext(root, policyPath)
+  const index = buildTrackedTextIndex(root, policy, undefined, entries)
+  return buildAuditEnvelope("asset", index, candidateBody(buildAssetCandidateReport(index, policy)))
 }
 
 function writeFailure() {

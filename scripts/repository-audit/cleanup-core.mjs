@@ -1,43 +1,36 @@
 import { execFileSync } from "node:child_process"
 import { createHash } from "node:crypto"
-import { builtinModules } from "node:module"
-import { extname, posix } from "node:path"
-
-import ts from "typescript"
+import { extname, isAbsolute, posix, relative, resolve, sep } from "node:path"
 
 import {
   assertPrivatePathsAbsent,
   listTrackedIndexEntries,
-  loadJson,
   normalizeRepoPath,
   stableJson,
 } from "./core.mjs"
 
 const POLICY_FIELDS = [
-  "assetExtensions",
-  "assetRoots",
-  "environmentDeclarationPaths",
-  "forbiddenTrackedPaths",
-  "frameworkRoots",
-  "ignoredPathPrefixes",
-  "packageScriptCliOwnership",
-  "protectedPathPrefixes",
-  "schemaVersion",
-  "scopes",
-  "sourceExtensions",
-  "textExtensions",
-  "topLevelConfigRoots",
+  "assetExtensions", "assetRoots", "environmentDeclarationPaths", "forbiddenTrackedPaths",
+  "frameworkRoots", "ignoredPathPrefixes", "packageScriptCliOwnership",
+  "protectedPathPrefixes", "schemaVersion", "scopes", "sourceExtensions",
+  "textExtensions", "topLevelConfigRoots",
 ]
 const SCOPE_NAMES = ["runtime", "tool", "test", "doc"]
 const FRAMEWORK_FIELDS = ["directoryPrefixes", "fileBasenames"]
-const DEPENDENCY_SECTIONS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"]
-const BUILTIN_MODULES = new Set(builtinModules.map((name) => name.replace(/^node:/, "")))
 const indexInternals = new WeakMap()
 
-const compareText = (left, right) => left < right ? -1 : left > right ? 1 : 0
-const sha256 = (value) => createHash("sha256").update(value).digest("hex")
+export const compareText = (left, right) => left < right ? -1 : left > right ? 1 : 0
+export const sha256 = (value) => createHash("sha256").update(value).digest("hex")
 
-function auditError(code) {
+/** Match exact and numbered Next metadata owners under policy-approved app roots. */
+export function isFrameworkConventionPath(path, policy) {
+  if (!policy.frameworkRoots.directoryPrefixes.some((prefix) => path.startsWith(prefix))) return false
+  const basename = posix.basename(path, extname(path))
+  const numberedMetadata = /^(?:apple-icon|icon|opengraph-image|twitter-image)[0-9]$/.test(basename)
+  return policy.frameworkRoots.fileBasenames.includes(basename) || numberedMetadata
+}
+
+export function auditError(code) {
   const error = new Error(code)
   error.code = code
   return error
@@ -84,7 +77,6 @@ export function validateCleanupPolicy(policy) {
   if (policy.sourceExtensions.some((extension) => !policy.textExtensions.includes(extension))) {
     throw auditError("CLEANUP_POLICY_INVALID")
   }
-
   assertExactFields(policy.scopes, SCOPE_NAMES, "CLEANUP_POLICY_INVALID")
   const seenScopeRoots = new Set()
   for (const scope of SCOPE_NAMES) {
@@ -98,7 +90,6 @@ export function validateCleanupPolicy(policy) {
       seenScopeRoots.add(root)
     }
   }
-
   assertExactFields(policy.frameworkRoots, FRAMEWORK_FIELDS, "CLEANUP_POLICY_INVALID")
   assertUniqueStrings(policy.frameworkRoots.directoryPrefixes, "CLEANUP_POLICY_INVALID", { prefix: true })
   assertUniqueStrings(policy.frameworkRoots.fileBasenames, "CLEANUP_POLICY_INVALID", { basename: true })
@@ -108,7 +99,6 @@ export function validateCleanupPolicy(policy) {
   assertUniqueStrings(policy.assetExtensions, "CLEANUP_POLICY_INVALID", { extension: true })
   assertUniqueStrings(policy.environmentDeclarationPaths, "CLEANUP_POLICY_INVALID")
   assertUniqueStrings(policy.ignoredPathPrefixes, "CLEANUP_POLICY_INVALID", { prefix: true })
-
   if (!Array.isArray(policy.forbiddenTrackedPaths) || policy.forbiddenTrackedPaths.length === 0) {
     throw auditError("CLEANUP_POLICY_INVALID")
   }
@@ -119,19 +109,15 @@ export function validateCleanupPolicy(policy) {
     }
     forbiddenSeen.add(path)
   }
-
   if (
-    !policy.packageScriptCliOwnership ||
-    typeof policy.packageScriptCliOwnership !== "object" ||
-    Array.isArray(policy.packageScriptCliOwnership) ||
-    Object.keys(policy.packageScriptCliOwnership).length === 0
+    !policy.packageScriptCliOwnership || typeof policy.packageScriptCliOwnership !== "object" ||
+    Array.isArray(policy.packageScriptCliOwnership) || Object.keys(policy.packageScriptCliOwnership).length === 0
   ) {
     throw auditError("CLEANUP_POLICY_INVALID")
   }
   for (const [cli, packageName] of Object.entries(policy.packageScriptCliOwnership)) {
     if (
-      !/^[a-z0-9][a-z0-9-]*$/.test(cli) ||
-      typeof packageName !== "string" ||
+      !/^[a-z0-9][a-z0-9-]*$/.test(cli) || typeof packageName !== "string" ||
       !/^(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+$/.test(packageName)
     ) {
       throw auditError("CLEANUP_POLICY_INVALID")
@@ -140,20 +126,11 @@ export function validateCleanupPolicy(policy) {
   return policy
 }
 
-/** Load and validate a cleanup policy while keeping parse and filesystem details private. */
-export function loadCleanupPolicy(path) {
-  try {
-    return validateCleanupPolicy(loadJson(path))
-  } catch {
-    throw auditError("CLEANUP_POLICY_INVALID")
-  }
-}
-
-function pathMatches(path, candidate) {
+export function pathMatches(path, candidate) {
   return candidate.endsWith("/") ? path.startsWith(candidate) : path === candidate
 }
 
-function classifyScope(path, policy) {
+export function classifyScope(path, policy) {
   for (const scope of SCOPE_NAMES) {
     if (policy.scopes[scope].some((root) => pathMatches(path, root))) return scope
   }
@@ -199,17 +176,13 @@ function readIndexMetadata(root, entries, execFile) {
   if (entries.length === 0) return []
   let output
   try {
-    output = execFile(
-      "git",
-      ["cat-file", "--batch-check=%(objectname) %(objecttype) %(objectsize)"],
-      {
-        cwd: root,
-        encoding: "utf8",
-        input: `${entries.map((entry) => entry.oid).join("\n")}\n`,
-        stdio: ["pipe", "pipe", "pipe"],
-        windowsHide: true,
-      },
-    )
+    output = execFile("git", ["cat-file", "--batch-check=%(objectname) %(objecttype) %(objectsize)"], {
+      cwd: root,
+      encoding: "utf8",
+      input: `${entries.map((entry) => entry.oid).join("\n")}\n`,
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true,
+    })
   } catch {
     throw auditError("CLEANUP_INDEX_READ_FAILED")
   }
@@ -218,41 +191,81 @@ function readIndexMetadata(root, entries, execFile) {
   return rows.map((row, index) => {
     const match = /^([a-f0-9]+) blob (\d+)$/.exec(row)
     const bytes = Number(match?.[2])
-    if (
-      !match ||
-      match[1] !== entries[index].oid ||
-      !Number.isSafeInteger(bytes) ||
-      bytes < 0
-    ) {
+    if (!match || match[1] !== entries[index].oid || !Number.isSafeInteger(bytes) || bytes < 0) {
       throw auditError("CLEANUP_INDEX_READ_FAILED")
     }
     return { ...entries[index], bytes }
   })
 }
 
-/**
- * Build a metadata-only index backed by canonical stage-0 blob text. Blob contents
- * remain in a private WeakMap so serializing the returned index cannot disclose them.
- */
-export function buildTrackedTextIndex(root, policy, execFile = execFileSync) {
-  validateCleanupPolicy(policy)
+function isBootstrapPrivatePath(path) {
+  const lower = path.toLowerCase()
+  const basename = lower.split("/").at(-1)
+  return (
+    (basename.startsWith(".env") && basename !== ".env.example") || lower.startsWith(".secrets/") ||
+    lower.startsWith("secrets/") || /(?:^|\/)(?:credentials|secrets?)(?:\.[^/]*)?\.json$/.test(lower)
+  )
+}
+
+function resolvePolicyIndexPath(root, policyPath) {
+  const absoluteRoot = resolve(root)
+  const absolutePolicy = resolve(policyPath)
+  const relativePath = relative(absoluteRoot, absolutePolicy)
+  if (!relativePath || isAbsolute(relativePath) || relativePath === ".." || relativePath.startsWith(`..${sep}`)) {
+    throw auditError("CLEANUP_POLICY_PATH_INVALID")
+  }
+  const normalizedPath = normalizeRepoPath(relativePath)
+  if (!isNormalizedPolicyPath(normalizedPath)) throw auditError("CLEANUP_POLICY_PATH_INVALID")
+  return normalizedPath
+}
+
+/** Load the policy only from its validated, tracked stage-0 Git index blob. */
+export function loadCleanupContext(root, policyPath, execFile = execFileSync) {
+  const policyIndexPath = resolvePolicyIndexPath(root, policyPath)
+  if (isBootstrapPrivatePath(policyIndexPath)) throw auditError("CLEANUP_POLICY_PATH_PRIVATE")
   let entries
   try {
     entries = listTrackedIndexEntries(root, execFile)
+  } catch {
+    throw auditError("CLEANUP_FORBIDDEN_OR_INVALID_INDEX")
+  }
+  const policyEntry = entries.find((entry) => entry.path === policyIndexPath)
+  if (!policyEntry) throw auditError("CLEANUP_POLICY_PATH_UNTRACKED")
+  try {
+    const policy = validateCleanupPolicy(JSON.parse(readIndexBlobs(root, [policyEntry], execFile)[0]))
+    return { entries, policy, policyIndexPath }
+  } catch (error) {
+    if (error?.code === "CLEANUP_INDEX_READ_FAILED") throw error
+    throw auditError("CLEANUP_POLICY_INVALID")
+  }
+}
+
+export function loadCleanupPolicy(root, policyPath, execFile = execFileSync) {
+  return loadCleanupContext(root, policyPath, execFile).policy
+}
+
+/** Build metadata and canonical text solely from the captured stage-0 entry set. */
+export function buildTrackedTextIndex(root, policy, execFile = execFileSync, capturedEntries) {
+  validateCleanupPolicy(policy)
+  let entries
+  try {
+    entries = capturedEntries ?? listTrackedIndexEntries(root, execFile)
     assertPrivatePathsAbsent(entries.map((entry) => entry.path), policy.forbiddenTrackedPaths)
   } catch (error) {
     if (error?.code === "CLEANUP_POLICY_INVALID") throw error
     throw auditError("CLEANUP_FORBIDDEN_OR_INVALID_INDEX")
   }
-
-  const evidenceEntries = entries.filter((entry) => (
+  const allMetadata = readIndexMetadata(root, entries, execFile)
+  const inventorySha256 = sha256(allMetadata.map((entry) => (
+    `${entry.path}\0${entry.oid}\0${entry.bytes}\n`
+  )).join(""))
+  const evidenceMetadata = allMetadata.filter((entry) => (
     !policy.ignoredPathPrefixes.some((prefix) => entry.path.startsWith(prefix))
   ))
-  const evidenceMetadata = readIndexMetadata(root, evidenceEntries, execFile)
   const metadataByPath = new Map(evidenceMetadata.map((entry) => [entry.path, entry]))
   const declarationPaths = new Set(policy.environmentDeclarationPaths)
   const textExtensions = new Set(policy.textExtensions)
-  const textEntries = evidenceEntries.filter((entry) => (
+  const textEntries = evidenceMetadata.filter((entry) => (
     textExtensions.has(extname(entry.path).toLowerCase()) || declarationPaths.has(entry.path)
   ))
   const texts = readIndexBlobs(root, textEntries, execFile)
@@ -261,730 +274,91 @@ export function buildTrackedTextIndex(root, policy, execFile = execFileSync) {
     const text = texts[index]
     textByPath.set(entry.path, text)
     return {
-      path: entry.path,
-      mode: entry.mode,
-      oid: entry.oid,
+      path: entry.path, mode: entry.mode, oid: entry.oid,
       bytes: metadataByPath.get(entry.path).bytes,
       extension: extname(entry.path).toLowerCase(),
-      scope: classifyScope(entry.path, policy),
-      textSha256: sha256(text),
+      scope: classifyScope(entry.path, policy), textSha256: sha256(text),
     }
   })
   const index = stableJson({
     schemaVersion: 1,
+    inventorySha256,
     records,
-    trackedPaths: evidenceEntries.map((entry) => entry.path),
+    trackedPaths: evidenceMetadata.map((entry) => entry.path),
   })
   indexInternals.set(index, {
-    metadataByPath,
-    textByPath,
-    trackedPathSet: new Set(index.trackedPaths),
+    metadataByPath, textByPath, trackedPathSet: new Set(index.trackedPaths),
   })
   return index
 }
 
-function requireIndex(index) {
+export function requireTrackedTextIndex(index) {
   const internals = indexInternals.get(index)
-  if (!internals || index?.schemaVersion !== 1 || !Array.isArray(index.records)) {
+  if (
+    !internals || index?.schemaVersion !== 1 ||
+    !/^[a-f0-9]{64}$/.test(index?.inventorySha256 ?? "") || !Array.isArray(index.records)
+  ) {
     throw auditError("CLEANUP_INDEX_INVALID")
   }
   return internals
 }
 
-function scriptKind(path) {
-  const extension = extname(path).toLowerCase()
-  if (extension === ".tsx") return ts.ScriptKind.TSX
-  if (extension === ".jsx") return ts.ScriptKind.JSX
-  if (extension === ".js" || extension === ".mjs" || extension === ".cjs") return ts.ScriptKind.JS
-  return ts.ScriptKind.TS
-}
-
-function sourceLocation(sourceFile, node) {
-  const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile))
-  return { line: position.line + 1, column: position.character + 1 }
-}
-
-function isLiteralNode(node) {
-  return ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)
-}
-
-function packageOwner(specifier) {
-  const unprefixed = specifier.replace(/^node:/, "")
-  if (specifier.startsWith("node:") || BUILTIN_MODULES.has(unprefixed)) return null
-  const parts = specifier.split("/")
-  return specifier.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0]
-}
-
-function moduleCandidatePaths(fromPath, specifier, policy) {
-  let base
-  if (specifier.startsWith("@/")) {
-    base = specifier.slice(2)
-  } else if (specifier.startsWith("./") || specifier.startsWith("../")) {
-    base = posix.normalize(posix.join(posix.dirname(fromPath), specifier))
-  } else {
-    return []
-  }
-  if (base === ".." || base.startsWith("../") || base.startsWith("/")) return []
-  const candidates = [base]
-  const extension = extname(base).toLowerCase()
-  const hasSupportedExtension = policy.sourceExtensions.includes(extension) || [".css", ".json"].includes(extension)
-  if (!hasSupportedExtension) {
-    for (const supported of policy.sourceExtensions) candidates.push(`${base}${supported}`)
-    candidates.push(`${base}.json`, `${base}.css`)
-    for (const supported of policy.sourceExtensions) candidates.push(`${base}/index${supported}`)
-    candidates.push(`${base}/index.json`, `${base}/index.css`)
-  } else if ([".js", ".jsx", ".mjs", ".cjs"].includes(extension)) {
-    const stem = base.slice(0, -extension.length)
-    for (const supported of [".ts", ".tsx"]) candidates.push(`${stem}${supported}`)
-  }
-  return [...new Set(candidates)]
-}
-
-function resolveModuleReference(fromPath, specifier, trackedPathSet, policy) {
-  const candidates = moduleCandidatePaths(fromPath, specifier, policy)
-  if (candidates.length > 0) {
-    const path = candidates.find((candidate) => trackedPathSet.has(candidate))
-    return path ? { targetKind: "tracked-module", targetPath: path } : { targetKind: "unresolved" }
-  }
-  if (specifier.startsWith("/") || specifier === "@" || specifier.startsWith("@/") || specifier === "." || specifier === "..") {
-    return { targetKind: "unresolved" }
-  }
-  const dependency = packageOwner(specifier)
-  return dependency ? { dependency, targetKind: "package" } : { targetKind: "builtin" }
-}
-
-function collectSourceModuleRows(record, text, trackedPathSet, policy) {
-  const sourceFile = ts.createSourceFile(
-    record.path,
-    text,
-    ts.ScriptTarget.Latest,
-    true,
-    scriptKind(record.path),
-  )
-  const references = []
-  const uncertainties = []
-  const errors = sourceFile.parseDiagnostics.length > 0
-    ? [{ code: "SOURCE_PARSE_DIAGNOSTIC", path: record.path, count: sourceFile.parseDiagnostics.length }]
-    : []
-
-  const recordLiteral = (node, kind, literal) => {
-    const location = sourceLocation(sourceFile, node)
-    const resolution = resolveModuleReference(record.path, literal, trackedPathSet, policy)
-    const row = {
-      fromPath: record.path,
-      ...location,
-      kind,
-      literalSha256: sha256(literal),
-      ...resolution,
-    }
-    references.push(row)
-    if (resolution.targetKind === "unresolved") {
-      errors.push({
-        code: "UNRESOLVED_LITERAL_MODULE",
-        fromPath: record.path,
-        ...location,
-        literalSha256: row.literalSha256,
-      })
-    }
-  }
-  const recordUncertainty = (node, kind) => {
-    const location = sourceLocation(sourceFile, node)
-    uncertainties.push({
-      code: "NONLITERAL_MODULE_EXPRESSION",
-      path: record.path,
-      ...location,
-      kind,
-      expressionSha256: sha256(node.getText(sourceFile)),
-    })
-  }
-
-  const visit = (node) => {
-    if (ts.isImportTypeNode(node)) {
-      const argument = ts.isLiteralTypeNode(node.argument) ? node.argument.literal : node.argument
-      if (isLiteralNode(argument)) recordLiteral(argument, "import-type", argument.text)
-      else recordUncertainty(argument, "import-type")
-    } else if (ts.isImportDeclaration(node) && node.moduleSpecifier) {
-      if (isLiteralNode(node.moduleSpecifier)) recordLiteral(node.moduleSpecifier, "import", node.moduleSpecifier.text)
-      else recordUncertainty(node.moduleSpecifier, "import")
-    } else if (ts.isExportDeclaration(node) && node.moduleSpecifier) {
-      if (isLiteralNode(node.moduleSpecifier)) recordLiteral(node.moduleSpecifier, "export-from", node.moduleSpecifier.text)
-      else recordUncertainty(node.moduleSpecifier, "export-from")
-    } else if (ts.isCallExpression(node)) {
-      const kind = node.expression.kind === ts.SyntaxKind.ImportKeyword
-        ? "dynamic-import"
-        : ts.isIdentifier(node.expression) && node.expression.text === "require"
-          ? "require"
-          : null
-      if (kind) {
-        const argument = node.arguments[0]
-        if (argument && isLiteralNode(argument)) recordLiteral(argument, kind, argument.text)
-        else recordUncertainty(argument ?? node, kind)
-      }
-    }
-    for (const jsDoc of node.jsDoc ?? []) visit(jsDoc)
-    ts.forEachChild(node, visit)
-  }
-  visit(sourceFile)
-  return { references, uncertainties, errors }
-}
-
-function compareLocation(left, right) {
-  return (
-    compareText(left.path ?? left.fromPath ?? "", right.path ?? right.fromPath ?? "") ||
-    (left.line ?? 0) - (right.line ?? 0) ||
-    (left.column ?? 0) - (right.column ?? 0) ||
-    compareText(left.kind ?? left.code ?? "", right.kind ?? right.code ?? "") ||
-    compareText(left.literalSha256 ?? left.expressionSha256 ?? "", right.literalSha256 ?? right.expressionSha256 ?? "")
-  )
-}
-
-function parsePackage(index) {
-  const { textByPath } = requireIndex(index)
-  const text = textByPath.get("package.json")
-  if (text === undefined) throw auditError("CLEANUP_PACKAGE_MISSING")
-  try {
-    const value = JSON.parse(text)
-    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error()
-    return value
-  } catch {
-    throw auditError("CLEANUP_PACKAGE_INVALID")
-  }
-}
-
-const NODE_CODE_OPTIONS = new Set(["-e", "--eval", "-p", "--print"])
-const NODE_MODULE_OPTIONS = new Set(["--experimental-loader", "--import", "--loader", "-r", "--require"])
-const NODE_OPTIONS_WITH_VALUES = new Set([
-  "-C",
-  "--conditions",
-  "--cpu-prof-dir",
-  "--diagnostic-dir",
-  "--env-file",
-  "--env-file-if-exists",
-  "--heap-prof-dir",
-  "--import",
-  "--inspect-port",
-  "--loader",
-  "--experimental-loader",
-  "--openssl-config",
-  "-r",
-  "--require",
-  "--test-reporter",
-  "--test-reporter-destination",
-  "--title",
-])
-
-function shellTokens(segment) {
-  return (segment.match(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|[^\s]+/g) ?? []).map((token) => (
-    (token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))
-      ? token.slice(1, -1)
-      : token
+function taggedRows(category, rows, tagName) {
+  if (!Array.isArray(rows)) throw auditError("CLEANUP_REPORT_BODY_INVALID")
+  return rows.map((row) => (
+    row && typeof row === "object" && !Array.isArray(row)
+      ? { [tagName]: category, ...row }
+      : { [tagName]: category, value: row }
   ))
 }
 
-function nodeExecutedEntrypoints(command, sourcePathSet) {
-  const entrypoints = []
-  for (const segment of command.split(/&&|\|\||[;|]/)) {
-    const tokens = shellTokens(segment)
-    while (tokens[0] && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[0])) tokens.shift()
-    if (!["node", "node.exe"].includes(tokens[0]?.toLowerCase())) continue
-    let cursor = 1
-    for (; cursor < tokens.length; cursor += 1) {
-      const token = tokens[cursor]
-      const option = token.split("=", 1)[0]
-      if (token === "--") {
-        cursor += 1
-        break
-      }
-      if (NODE_CODE_OPTIONS.has(option)) {
-        cursor = tokens.length
-        break
-      }
-      if (NODE_OPTIONS_WITH_VALUES.has(option)) {
-        const equalsIndex = token.indexOf("=")
-        const value = equalsIndex >= 0 ? token.slice(equalsIndex + 1) : tokens[cursor + 1]
-        if (equalsIndex < 0) cursor += 1
-        const modulePath = normalizeRepoPath(value ?? "")
-        if (NODE_MODULE_OPTIONS.has(option) && sourcePathSet.has(modulePath)) entrypoints.push(modulePath)
-        continue
-      }
-      if (token.startsWith("-")) continue
-      break
-    }
-    const candidate = normalizeRepoPath(tokens[cursor] ?? "")
-    if (sourcePathSet.has(candidate)) entrypoints.push(candidate)
+/** Flatten a candidate classification into the shared findings/uncertainties body. */
+export function candidateBody(candidate) {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+    throw auditError("CLEANUP_REPORT_BODY_INVALID")
   }
-  return entrypoints
-}
-
-function packageScriptEntrypoints(index, policy) {
-  const packageJson = parsePackage(index)
-  const scripts = packageJson.scripts && typeof packageJson.scripts === "object" ? packageJson.scripts : {}
-  const sourceExtensions = new Set(policy.sourceExtensions)
-  const sourcePaths = index.records
-    .filter((record) => sourceExtensions.has(record.extension))
-    .map((record) => record.path)
-  const sourcePathSet = new Set(sourcePaths)
-  const roots = []
-  for (const [scriptName, command] of Object.entries(scripts)) {
-    if (typeof command !== "string") continue
-    for (const path of nodeExecutedEntrypoints(command, sourcePathSet)) {
-      roots.push({ path, reason: "package-script:" + scriptName })
-    }
-  }
-  return roots
-}
-
-function frameworkRoot(path, policy) {
-  if (!policy.frameworkRoots.directoryPrefixes.some((prefix) => path.startsWith(prefix))) return false
-  const basename = posix.basename(path, extname(path))
-  const numberedMetadata = /^(?:apple-icon|icon|opengraph-image|twitter-image)[0-9]$/.test(basename)
-  return policy.frameworkRoots.fileBasenames.includes(basename) || numberedMetadata
-}
-
-/** Build the static module graph, explicit roots, parse errors, and dynamic uncertainty sites. */
-export function buildModuleEvidence(index, policy) {
-  validateCleanupPolicy(policy)
-  const { textByPath, trackedPathSet } = requireIndex(index)
-  const sourceExtensions = new Set(policy.sourceExtensions)
-  const modules = index.records
-    .filter((record) => sourceExtensions.has(record.extension))
-    .map((record) => ({ path: record.path, scope: record.scope, textSha256: record.textSha256 }))
-  const references = []
+  const findings = []
   const uncertainties = []
-  const errors = []
-  for (const record of index.records) {
-    if (!sourceExtensions.has(record.extension)) continue
-    const rows = collectSourceModuleRows(record, textByPath.get(record.path), trackedPathSet, policy)
-    references.push(...rows.references)
-    uncertainties.push(...rows.uncertainties)
-    errors.push(...rows.errors)
+  const findingCounts = {}
+  const uncertaintyCounts = {}
+  for (const [category, rows] of Object.entries(candidate)) {
+    if (category === "schemaVersion" || category === "uncertainties") continue
+    findingCounts[category] = rows.length
+    findings.push(...taggedRows(category, rows, "findingKind"))
   }
-
-  const roots = []
-  for (const moduleEntry of modules) {
-    if (frameworkRoot(moduleEntry.path, policy)) roots.push({ path: moduleEntry.path, reason: "framework-root" })
-    if (policy.topLevelConfigRoots.includes(moduleEntry.path)) roots.push({ path: moduleEntry.path, reason: "top-level-config" })
-    if (moduleEntry.scope === "test") roots.push({ path: moduleEntry.path, reason: "test-root" })
-    if (policy.protectedPathPrefixes.some((prefix) => moduleEntry.path.startsWith(prefix))) {
-      roots.push({ path: moduleEntry.path, reason: "protected-path" })
-    }
+  if (!candidate.uncertainties || typeof candidate.uncertainties !== "object" || Array.isArray(candidate.uncertainties)) {
+    throw auditError("CLEANUP_REPORT_BODY_INVALID")
   }
-  roots.push(...packageScriptEntrypoints(index, policy))
-  const uniqueRoots = [...new Map(
-    roots
-      .sort((left, right) => compareText(left.path, right.path) || compareText(left.reason, right.reason))
-      .map((row) => [`${row.path}\0${row.reason}`, row]),
-  ).values()]
-  return stableJson({
-    schemaVersion: 1,
-    modules,
-    roots: uniqueRoots,
-    references: references.sort(compareLocation),
-    uncertainties: uncertainties.sort(compareLocation),
-    errors: errors.sort(compareLocation),
-  })
-}
-
-/** Build package declaration and usage evidence, folding package subpaths to their owner. */
-export function buildDependencyEvidence(index, policy) {
-  validateCleanupPolicy(policy)
-  const packageJson = parsePackage(index)
-  const declarations = []
-  for (const section of DEPENDENCY_SECTIONS) {
-    const values = packageJson[section]
-    if (!values || typeof values !== "object" || Array.isArray(values)) continue
-    for (const name of Object.keys(values).sort(compareText)) declarations.push({ name, section })
-  }
-
-  const moduleEvidence = buildModuleEvidence(index, policy)
-  const references = moduleEvidence.references
-    .filter((row) => row.targetKind === "package")
-    .map((row) => ({
-      packageName: row.dependency,
-      fromPath: row.fromPath,
-      line: row.line,
-      column: row.column,
-      kind: row.kind,
-      literalSha256: row.literalSha256,
-    }))
-  const scripts = packageJson.scripts && typeof packageJson.scripts === "object" ? packageJson.scripts : {}
-  for (const [scriptName, command] of Object.entries(scripts)) {
-    if (typeof command !== "string") continue
-    const ownedPackages = new Set()
-    for (const segment of command.split(/&&|\|\||[;|]/)) {
-      const tokens = segment.trim().split(/\s+/).filter(Boolean)
-      while (tokens[0] && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[0])) tokens.shift()
-      const cli = ["npx", "pnpm", "yarn"].includes(tokens[0]) ? tokens[1] : tokens[0]
-      const packageName = policy.packageScriptCliOwnership[cli]
-      if (packageName) ownedPackages.add(packageName)
-    }
-    for (const packageName of ownedPackages) {
-      references.push({ packageName, scriptName, kind: "package-script-cli" })
-    }
-  }
-  references.sort((left, right) => (
-    compareText(left.packageName, right.packageName) ||
-    compareText(left.fromPath ?? "package.json", right.fromPath ?? "package.json") ||
-    (left.line ?? 0) - (right.line ?? 0) ||
-    (left.column ?? 0) - (right.column ?? 0) ||
-    compareText(left.scriptName ?? "", right.scriptName ?? "")
-  ))
-  return stableJson({
-    schemaVersion: 1,
-    declarations,
-    references,
-    uncertainties: moduleEvidence.uncertainties,
-    errors: moduleEvidence.errors,
-  })
-}
-
-function couldConstructAsset(expressionText, assetExtensions) {
-  const lower = expressionText.toLowerCase()
-  return (
-    [...assetExtensions].some((extension) => lower.includes(extension)) ||
-    /["'`](?:\.{1,2}\/|\/|public\/)/.test(expressionText)
-  )
-}
-
-function collectTextLiterals(record, text, assetExtensions) {
-  if ([".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"].includes(record.extension)) {
-    const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
-    const literals = []
-    const uncertainties = []
-    const visit = (node) => {
-      if (isLiteralNode(node)) literals.push({ value: node.text, ...sourceLocation(sourceFile, node) })
-      const isOutermostConcatenation = (
-        ts.isBinaryExpression(node) &&
-        node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
-        !(
-          ts.isBinaryExpression(node.parent) &&
-          node.parent.operatorToken.kind === ts.SyntaxKind.PlusToken
-        )
-      )
-      if (
-        (ts.isTemplateExpression(node) || isOutermostConcatenation) &&
-        couldConstructAsset(node.getText(sourceFile), assetExtensions)
-      ) {
-        uncertainties.push({
-          code: "DYNAMIC_ASSET_EXPRESSION",
-          path: record.path,
-          ...sourceLocation(sourceFile, node),
-          kind: ts.isTemplateExpression(node) ? "template" : "concatenation",
-          expressionSha256: sha256(node.getText(sourceFile)),
-        })
-      }
-      ts.forEachChild(node, visit)
-    }
-    visit(sourceFile)
-    const errors = sourceFile.parseDiagnostics.length > 0
-      ? [{ code: "SOURCE_PARSE_DIAGNOSTIC", path: record.path, count: sourceFile.parseDiagnostics.length }]
-      : []
-    return { literals, uncertainties, errors }
-  }
-  const literals = []
-  const seen = new Set()
-  const lineStarts = [0]
-  for (let index = text.indexOf("\n"); index >= 0; index = text.indexOf("\n", index + 1)) {
-    lineStarts.push(index + 1)
-  }
-  const sourceLocationAt = (offset) => {
-    let low = 0
-    let high = lineStarts.length
-    while (low + 1 < high) {
-      const middle = Math.floor((low + high) / 2)
-      if (lineStarts[middle] <= offset) low = middle
-      else high = middle
-    }
-    return { line: low + 1, column: offset - lineStarts[low] + 1 }
-  }
-  const addLiteral = (value, offset) => {
-    const trimmed = value.trim()
-    const start = offset + Math.max(0, value.indexOf(trimmed))
-    const key = `${start}\0${trimmed}`
-    if (!trimmed || seen.has(key)) return
-    seen.add(key)
-    literals.push({
-      value: trimmed,
-      ...sourceLocationAt(start),
-    })
-  }
-  const scan = (matcher) => {
-    for (let match = matcher.exec(text); match; match = matcher.exec(text)) {
-      const value = match.slice(1).find((candidate) => candidate !== undefined)
-      if (value !== undefined) addLiteral(value, match.index + Math.max(0, match[0].indexOf(value)))
-      if (match[0].length === 0) matcher.lastIndex += 1
-    }
-  }
-
-  scan(/(?:url\(\s*)?["']([^"'\r\n)]+)["']\s*\)?|url\(\s*([^)'"\s][^)]*)\s*\)/g)
-  if (record.extension === ".md") {
-    scan(/!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))/g)
-  }
-  if (record.extension === ".html") {
-    scan(/(?:src|href|poster)\s*=\s*([^\s"'=<>`]+)/gi)
-  }
-  if (record.extension === ".yaml" || record.extension === ".yml") {
-    scan(/^[ \t]*[^#\r\n:]+:[ \t]*([^\s#]+)[ \t]*(?:#.*)?$/gm)
-  }
-  return { literals, uncertainties: [], errors: [] }
-}
-
-function normalizeContainedAssetPath(value) {
-  const segments = []
-  for (const segment of value.split("/")) {
-    if (!segment || segment === ".") continue
-    if (segment === "..") {
-      if (segments.length === 0) return null
-      segments.pop()
-      continue
-    }
-    segments.push(segment)
-  }
-  return segments.join("/")
-}
-
-function assetTarget(fromPath, literal, assetExtensions) {
-  if (/^(?:[a-z][a-z0-9+.-]*:|#|\\\\)/i.test(literal)) return null
-  const withoutSuffix = literal.split(/[?#]/, 1)[0].replaceAll("\\", "/")
-  if (!assetExtensions.has(extname(withoutSuffix).toLowerCase())) return null
-  let target
-  if (withoutSuffix.startsWith("/")) {
-    const publicPath = normalizeContainedAssetPath(withoutSuffix.slice(1))
-    if (publicPath === null) return { invalid: true }
-    target = `public/${publicPath}`
-  } else if (withoutSuffix.startsWith("public/")) {
-    const publicPath = normalizeContainedAssetPath(withoutSuffix.slice("public/".length))
-    if (publicPath === null) return { invalid: true }
-    target = `public/${publicPath}`
-  } else if (withoutSuffix.startsWith("./") || withoutSuffix.startsWith("../")) {
-    target = posix.normalize(posix.join(posix.dirname(fromPath), withoutSuffix))
-  } else {
-    return null
-  }
-  if (
-    target === ".." ||
-    target.startsWith("../") ||
-    target.startsWith("/")
-  ) {
-    return { invalid: true }
-  }
-  return { targetPath: target }
-}
-
-function assetBasename(literal, assetExtensions) {
-  if (/^(?:[a-z][a-z0-9+.-]*:|#|\\)/i.test(literal)) return null
-  const withoutSuffix = literal.split(/[?#]/, 1)[0].replaceAll("\\", "/")
-  if (!assetExtensions.has(extname(withoutSuffix).toLowerCase())) return null
-  if (withoutSuffix.includes("/") || withoutSuffix === "." || withoutSuffix === "..") return null
-  return withoutSuffix
-}
-
-/** Build tracked-asset and literal-reference evidence without retaining literal contents. */
-export function buildAssetEvidence(index, policy) {
-  validateCleanupPolicy(policy)
-  const { metadataByPath, textByPath, trackedPathSet } = requireIndex(index)
-  const assetExtensions = new Set(policy.assetExtensions)
-  const assets = index.trackedPaths
-    .filter((path) => (
-      policy.assetRoots.some((root) => path.startsWith(root)) &&
-      assetExtensions.has(extname(path).toLowerCase())
-    ))
-    .map((path) => {
-      const metadata = metadataByPath.get(path)
-      if (!metadata) throw auditError("CLEANUP_INDEX_INVALID")
-      return {
-        path,
-        mode: metadata.mode,
-        oid: metadata.oid,
-        bytes: metadata.bytes,
-        scope: classifyScope(path, policy),
-      }
-    })
-  const assetPathsByBasename = new Map()
-  for (const asset of assets) {
-    const basename = posix.basename(asset.path)
-    const paths = assetPathsByBasename.get(basename) ?? []
-    paths.push(asset.path)
-    assetPathsByBasename.set(basename, paths)
-  }
-  const references = []
-  const basenameSignals = []
-  const uncertainties = []
-  const errors = []
-  for (const record of index.records) {
-    const rows = collectTextLiterals(record, textByPath.get(record.path), assetExtensions)
-    uncertainties.push(...rows.uncertainties)
-    errors.push(...rows.errors)
-    for (const literal of rows.literals) {
-      const resolution = assetTarget(record.path, literal.value, assetExtensions)
-      if (resolution?.invalid) {
-        errors.push({
-          code: "UNRESOLVED_LITERAL_ASSET",
-          fromPath: record.path,
-          line: literal.line,
-          column: literal.column,
-          literalSha256: sha256(literal.value),
-        })
-        continue
-      }
-      if (!resolution) {
-        const basename = assetBasename(literal.value, assetExtensions)
-        const candidateTargetPaths = basename ? assetPathsByBasename.get(basename) ?? [] : []
-        if (candidateTargetPaths.length > 0) {
-          basenameSignals.push({
-            fromPath: record.path,
-            line: literal.line,
-            column: literal.column,
-            literalSha256: sha256(literal.value),
-            candidateTargetPaths,
-          })
-        }
-        continue
-      }
-      const { targetPath } = resolution
-      const row = {
-        fromPath: record.path,
-        line: literal.line,
-        column: literal.column,
-        literalSha256: sha256(literal.value),
-        targetPath,
-      }
-      references.push(row)
-      if (!trackedPathSet.has(targetPath)) {
-        errors.push({
-          code: "UNRESOLVED_LITERAL_ASSET",
-          fromPath: row.fromPath,
-          line: row.line,
-          column: row.column,
-          literalSha256: row.literalSha256,
-        })
-      }
-    }
+  for (const [category, rows] of Object.entries(candidate.uncertainties)) {
+    uncertaintyCounts[category] = rows.length
+    uncertainties.push(...taggedRows(category, rows, "uncertaintyKind"))
   }
   return stableJson({
-    schemaVersion: 1,
-    assets,
-    basenameSignals: basenameSignals.sort(compareLocation),
-    references: references.sort(compareLocation),
-    uncertainties: uncertainties.sort(compareLocation),
-    errors: errors.sort(compareLocation),
+    summary: {
+      findingCount: findings.length,
+      findingCounts,
+      uncertaintyCount: uncertainties.length,
+      uncertaintyCounts,
+    },
+    findings,
+    uncertainties,
   })
 }
 
-function isProcessEnv(node) {
-  return (
-    ts.isPropertyAccessExpression(node) &&
-    ts.isIdentifier(node.expression) &&
-    node.expression.text === "process" &&
-    node.name.text === "env"
-  )
-}
-
-function collectEnvironmentRows(record, text) {
-  const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
-  const reads = []
-  const uncertainties = []
-  const addRead = (node, name, kind) => reads.push({
-    name,
-    path: record.path,
-    ...sourceLocation(sourceFile, node),
-    kind,
-  })
-  const addUncertainty = (node, kind) => uncertainties.push({
-    code: "COMPUTED_ENVIRONMENT_READ",
-    path: record.path,
-    ...sourceLocation(sourceFile, node),
-    kind,
-    expressionSha256: sha256(node.getText(sourceFile)),
-  })
-  const visit = (node) => {
-    if (ts.isPropertyAccessExpression(node) && isProcessEnv(node.expression)) {
-      addRead(node.name, node.name.text, "property-access")
-    } else if (ts.isElementAccessExpression(node) && isProcessEnv(node.expression)) {
-      if (node.argumentExpression && isLiteralNode(node.argumentExpression)) {
-        addRead(node.argumentExpression, node.argumentExpression.text, "element-access")
-      } else {
-        addUncertainty(node.argumentExpression ?? node, "element-access")
-      }
-    } else if (
-      ts.isVariableDeclaration(node) &&
-      ts.isObjectBindingPattern(node.name) &&
-      node.initializer &&
-      isProcessEnv(node.initializer)
-    ) {
-      for (const element of node.name.elements) {
-        if (element.dotDotDotToken) {
-          addUncertainty(element, "destructure-rest")
-          continue
-        }
-        const propertyName = element.propertyName ?? element.name
-        if (ts.isIdentifier(propertyName) || isLiteralNode(propertyName)) {
-          addRead(propertyName, propertyName.text, "destructure")
-        } else if (
-          ts.isComputedPropertyName(propertyName) &&
-          isLiteralNode(propertyName.expression)
-        ) {
-          addRead(propertyName.expression, propertyName.expression.text, "destructure")
-        } else {
-          addUncertainty(propertyName, "destructure")
-        }
-      }
-    }
-    ts.forEachChild(node, visit)
-  }
-  visit(sourceFile)
-  const errors = sourceFile.parseDiagnostics.length > 0
-    ? [{ code: "SOURCE_PARSE_DIAGNOSTIC", path: record.path, count: sourceFile.parseDiagnostics.length }]
-    : []
-  return { reads, uncertainties, errors }
-}
-
-/** Extract static environment-variable names and metadata without reading process.env. */
-export function buildEnvironmentEvidence(index, policy) {
-  validateCleanupPolicy(policy)
-  const { textByPath } = requireIndex(index)
-  const sourceExtensions = new Set(policy.sourceExtensions)
-  const reads = []
-  const uncertainties = []
-  const errors = []
-  for (const record of index.records) {
-    if (!sourceExtensions.has(record.extension)) continue
-    const rows = collectEnvironmentRows(record, textByPath.get(record.path))
-    reads.push(...rows.reads)
-    uncertainties.push(...rows.uncertainties)
-    errors.push(...rows.errors)
-  }
-
-  const declarations = []
-  for (const path of policy.environmentDeclarationPaths) {
-    const text = textByPath.get(path)
-    if (text === undefined) continue
-    const lines = text.split(/\r?\n/)
-    for (let index = 0; index < lines.length; index += 1) {
-      const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(lines[index])
-      if (match) declarations.push({ name: match[1], path, line: index + 1, column: lines[index].indexOf(match[1]) + 1 })
-    }
-  }
-  return stableJson({
-    schemaVersion: 1,
-    declarations: declarations.sort(compareLocation),
-    reads: reads.sort(compareLocation),
-    uncertainties: uncertainties.sort(compareLocation),
-    errors: errors.sort(compareLocation),
-  })
-}
-
-/** Wrap canonical evidence in the shared non-authoritative deterministic report shape. */
-export function buildAuditEnvelope(kind, evidence) {
-  if (typeof kind !== "string" || !/^[a-z][a-z0-9-]*$/.test(kind)) {
+/** Wrap findings in the exact shared, non-authoritative deterministic contract. */
+export function buildAuditEnvelope(auditKind, index, { summary, findings, uncertainties }) {
+  if (typeof auditKind !== "string" || !/^[a-z][a-z0-9-]*$/.test(auditKind)) {
     throw auditError("CLEANUP_AUDIT_KIND_INVALID")
   }
-  const canonicalEvidence = stableJson(evidence)
+  requireTrackedTextIndex(index)
+  if (!summary || typeof summary !== "object" || Array.isArray(summary)) {
+    throw auditError("CLEANUP_AUDIT_SUMMARY_INVALID")
+  }
+  if (!Array.isArray(findings) || !Array.isArray(uncertainties)) {
+    throw auditError("CLEANUP_AUDIT_ROWS_INVALID")
+  }
   return stableJson({
-    schemaVersion: 1,
-    kind,
-    deletionAuthority: false,
-    evidenceSha256: sha256(JSON.stringify(canonicalEvidence)),
-    evidence: canonicalEvidence,
+    schemaVersion: 1, auditKind, deletionAuthority: false,
+    inventorySha256: index.inventorySha256, summary, findings, uncertainties,
   })
 }

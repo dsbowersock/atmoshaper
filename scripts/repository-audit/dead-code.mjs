@@ -3,10 +3,11 @@ import { fileURLToPath } from "node:url"
 
 import {
   buildAuditEnvelope,
-  buildModuleEvidence,
   buildTrackedTextIndex,
-  loadCleanupPolicy,
+  candidateBody,
+  loadCleanupContext,
 } from "./cleanup-core.mjs"
+import { buildModuleEvidence } from "./cleanup-module-evidence.mjs"
 import { stableJson } from "./core.mjs"
 
 function pathMatchesPrefix(path, prefixes) {
@@ -23,12 +24,7 @@ function isGeneratedInput(path) {
 }
 
 function partitionEvidenceErrors(errors) {
-  const unresolvedLiterals = []
-  for (const error of errors) {
-    if (error.code === "UNRESOLVED_LITERAL_MODULE") unresolvedLiterals.push(error)
-    else throw new Error("DEAD_CODE_EVIDENCE_INVALID")
-  }
-  return unresolvedLiterals
+  if (errors.length > 0) throw new Error("DEAD_CODE_EVIDENCE_INVALID")
 }
 
 /**
@@ -38,7 +34,7 @@ function partitionEvidenceErrors(errors) {
  */
 export function buildDeadCodeCandidateReport(index, policy) {
   const evidence = buildModuleEvidence(index, policy)
-  const unresolvedLiterals = partitionEvidenceErrors(evidence.errors)
+  partitionEvidenceErrors(evidence.errors)
   const rootPaths = new Set(evidence.roots.map((row) => row.path))
   const incomingCounts = new Map()
   for (const reference of evidence.references) {
@@ -76,6 +72,12 @@ export function buildDeadCodeCandidateReport(index, policy) {
   const frameworkConventions = evidence.roots
     .filter((row) => row.reason === "framework-root")
     .map((row) => ({ path: row.path, reason: "framework-convention" }))
+  const expectedFixtureLiterals = evidence.uncertainties.filter((row) => (
+    row.code === "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"
+  ))
+  const nonliteralImports = evidence.uncertainties.filter((row) => (
+    row.code !== "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"
+  ))
 
   return stableJson({
     schemaVersion: 1,
@@ -84,11 +86,11 @@ export function buildDeadCodeCandidateReport(index, policy) {
     unreferencedCandidates,
     protectedItems,
     uncertainties: {
-      nonliteralImports: evidence.uncertainties,
+      nonliteralImports,
       frameworkConventions,
       manualScripts,
       generatedInputs,
-      unresolvedLiterals,
+      expectedFixtureLiterals,
     },
   })
 }
@@ -107,9 +109,9 @@ function parseOptions(argv, defaults) {
 }
 
 export function runDeadCodeAudit({ root, policyPath }) {
-  const policy = loadCleanupPolicy(policyPath)
-  const index = buildTrackedTextIndex(root, policy)
-  return buildAuditEnvelope("dead-code", buildDeadCodeCandidateReport(index, policy))
+  const { entries, policy } = loadCleanupContext(root, policyPath)
+  const index = buildTrackedTextIndex(root, policy, undefined, entries)
+  return buildAuditEnvelope("dead-code", index, candidateBody(buildDeadCodeCandidateReport(index, policy)))
 }
 
 function writeFailure() {

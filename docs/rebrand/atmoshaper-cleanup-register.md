@@ -116,3 +116,67 @@ Deletion authority: **none**. No row may advance to `remove after proof` on this
 - The inventory command `npm run --silent repository:inventory` was run twice and matched byte for byte: 1,914 tracked files, 47,112,296 Git blob bytes, report SHA-256 `27f6251e4e13aea58fb7bf4794ba7e5533467d40c40bd8346473992148459e9e`, and inventory SHA-256 `594628be03cd63d56b2fdb014a72d0820f024d8c6053d1ac67b01f46941142cd`.
 - Earlier authority-document edits moved eight classified legacy-reference occurrences and removed one pre-rebrand public-copy occurrence. The candidate baseline kept schema version 1 and the same source commit; compatibility stayed 22,905, historical stayed 1,481, legal stayed 42, and pre-rebrand public copy changed from 1,953 to 1,952. After its self-reference fixed-point pass, the tracked baseline is byte-identical to a fresh `npm run --silent brand:audit -- --print-candidate-baseline` result at 5,984,749 bytes and SHA-256 `774ad9f3179213d25b2e0e5be463343e42bd49084fd16430673e1651e133e261`. `npm run --silent brand:audit` reports zero missing and zero unclassified references.
 - `package-lock.json` remains the exact committed blob `0ca896d3ca82547cdc383100ba8986d92b30ec77`; no dependency version, candidate, runtime path, asset, environment key, provider object, or external state changed during this reconciliation.
+
+### Historical final-review repair receipt — first staged capture, superseded
+
+The Task 5 table above is an immutable historical capture. Its `kind`,
+`evidenceSha256`, and nested `evidence` report contract is superseded for current
+tooling by the exact top-level `auditKind`, `deletionAuthority`, `findings`,
+`inventorySha256`, `schemaVersion`, `summary`, and `uncertainties` contract.
+Before receipt-only documentation synchronization, the first fully staged repair
+capture contained 1,921 files and 47,170,491 Git blob bytes. All four repaired
+reports shared inventory SHA-256
+`4d826fc678cbb9303eb43805ece57978f1910d958b69cd65038c037f4a8bf827`
+and each passed two byte-identical silent executions with empty standard error:
+
+| Lane | Current report SHA-256 and bytes | Current bounded classification |
+| --- | --- | --- |
+| Dead code | `ac5f292e82da5134f29b0c0c24e01cfdcaaa06f62625c62f8aafc71bb083da6c`; 273,359 bytes | 1,558 findings: 29 candidates, 21 protected, 836 referenced and 672 roots. The 186 uncertainties include one named protected negative fixture; unresolved literal-module errors are zero. |
+| Dependency | `8c0ad3e2d171a549cea55d89548175d654b0b41e4d913ea7448fb714ad45c884`; 842,988 bytes | 2,858 findings; 19 uncertainties include the same named protected fixture. Unresolved literal-module errors are zero. |
+| Asset | `d3b0fe054db44c73f7b42f84ea0d0a38270228c7a01677411e3cfddd4f92f7f4`; 752,047 bytes | 340 findings and 2,002 uncertainties: 526 dynamic expressions and 1,476 unresolved literals. No asset candidate is authorized for removal. |
+| Environment | `b1b7db47add403da40156606065fd0bacb185d2bcc3cc5dbf0bd13a7948207db`; 251,117 bytes | 719 findings and 186 uncertainties. The previously false unread Stripe key is a proven static read. |
+
+The focused suite for that staged capture passed 59/59. Brand audit remains zero missing and zero
+unclassified with the same category totals, and the tracked 5,984,749-byte fixed
+point remains stable. Candidate states and later corroboration requirements are
+unchanged. These hashes describe the first staged capture, not an immutable final
+commit candidate. After the synchronized receipt documents are staged, the
+coordinator will run one exact final-index readback and retain its hashes in the
+ignored SDD handoff and user-facing completion receipt rather than embed them
+back into this self-hashed index. Repeat independent whole-branch reviews and the
+coordinator-owned commit then remain; none is claimed complete here.
+
+### Final repair-cycle receipt — staged local gate complete
+
+The current bounded scanner repair adds hash-only sanitization for malformed or
+path-like module specifiers; destructured default-parameter environment aliases;
+explicit lexical shadowing and reassignment invalidation; static literal
+`require.resolve()` ownership with hash-only nonliteral uncertainty; and shared
+module/asset parity with the installed Next 16.2.12 zero-or-one-digit metadata
+convention. Thus `icon9` is protected metadata while `icon10` remains a
+lookalike candidate.
+
+Strict TDD failed the three targeted regression groups before implementation
+(0/3) and passed them afterward (3/3). The combined focused audit suites passed
+64/64. Current stage-0 semantic results are:
+
+| Lane | Findings | Uncertainties | Current semantic note |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | 29 candidates, 21 protected, 836 referenced and 672 roots; unchanged. |
+| Dependency | 2,859 | 19 | Includes one additional literal-import owner from static `require.resolve()` use. |
+| Asset | 340 | 2,002 | 526 dynamic and 1,476 unresolved literals; no candidate is authorized for removal. |
+| Environment | 753 | 192 | 79 declared, 262 missing, 387 static-read and 25 unread findings; 18 computed-read and 174 unproven uncertainties. |
+
+The earlier 59/59 staged capture, its hashes and the 4,249-test unit receipt are
+historical and superseded for current-tooling decisions. Against this final
+staged repair, the complete suite passed 4,259 tests with 3 host-dependent skips
+and zero failures, and the 115-route production build passed. The coordinator
+must run one receipt-synchronized exact-index readback.
+Because a versioned receipt cannot safely embed the hash of an index containing
+its own updated blob, final inventory and report hashes belong only in the
+ignored SDD handoff and user-facing completion receipt. Repeat independent
+whole-branch reviews and the coordinator-owned commit then remain.
+
+Deletion authority is **none**. All entries retain their existing `candidate`,
+`protected` or `unresolved` status. No candidate deletion, rename, upgrade,
+retirement, provider mutation or other external action occurred.

@@ -3,22 +3,18 @@ import { fileURLToPath } from "node:url"
 
 import {
   buildAuditEnvelope,
-  buildDependencyEvidence,
-  buildModuleEvidence,
   buildTrackedTextIndex,
-  loadCleanupPolicy,
+  candidateBody,
+  loadCleanupContext,
 } from "./cleanup-core.mjs"
+import { buildDependencyEvidence } from "./cleanup-dependency-evidence.mjs"
+import { buildModuleEvidence } from "./cleanup-module-evidence.mjs"
 import { stableJson } from "./core.mjs"
 
 const compareText = (left, right) => left < right ? -1 : left > right ? 1 : 0
 
 function partitionEvidenceErrors(errors) {
-  const unresolvedLiterals = []
-  for (const error of errors) {
-    if (error.code === "UNRESOLVED_LITERAL_MODULE") unresolvedLiterals.push(error)
-    else throw new Error("DEPENDENCY_EVIDENCE_INVALID")
-  }
-  return unresolvedLiterals
+  if (errors.length > 0) throw new Error("DEPENDENCY_EVIDENCE_INVALID")
 }
 
 function usageScope(path, moduleScope, policy) {
@@ -60,7 +56,7 @@ function packageScopeRows(references) {
 export function buildDependencyCandidateReport(index, policy) {
   const dependencyEvidence = buildDependencyEvidence(index, policy)
   const moduleEvidence = buildModuleEvidence(index, policy)
-  const unresolvedLiterals = partitionEvidenceErrors(dependencyEvidence.errors)
+  partitionEvidenceErrors(dependencyEvidence.errors)
   const moduleScopeByPath = new Map(moduleEvidence.modules.map((row) => [row.path, row.scope]))
 
   const literalImportOwners = dependencyEvidence.references
@@ -135,7 +131,10 @@ export function buildDependencyCandidateReport(index, policy) {
   ))
   const dynamicImports = dependencyEvidence.uncertainties.filter((row) => row.kind === "dynamic-import")
   const nonliteralModuleExpressions = dependencyEvidence.uncertainties.filter((row) => (
-    row.kind !== "dynamic-import"
+    row.kind !== "dynamic-import" && row.code !== "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"
+  ))
+  const expectedFixtureLiterals = dependencyEvidence.uncertainties.filter((row) => (
+    row.code === "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"
   ))
 
   return stableJson({
@@ -155,7 +154,7 @@ export function buildDependencyCandidateReport(index, policy) {
       dynamicImports,
       implicitTypeCompilerPackages,
       nonliteralModuleExpressions,
-      unresolvedLiterals,
+      expectedFixtureLiterals,
       buildOnlyReferences,
       toolingOnlyReferences,
     },
@@ -176,9 +175,9 @@ function parseOptions(argv, defaults) {
 }
 
 export function runDependencyAudit({ root, policyPath }) {
-  const policy = loadCleanupPolicy(policyPath)
-  const index = buildTrackedTextIndex(root, policy)
-  return buildAuditEnvelope("dependency", buildDependencyCandidateReport(index, policy))
+  const { entries, policy } = loadCleanupContext(root, policyPath)
+  const index = buildTrackedTextIndex(root, policy, undefined, entries)
+  return buildAuditEnvelope("dependency", index, candidateBody(buildDependencyCandidateReport(index, policy)))
 }
 
 function writeFailure() {

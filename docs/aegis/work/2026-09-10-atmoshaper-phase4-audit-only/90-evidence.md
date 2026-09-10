@@ -96,3 +96,198 @@ domain, payment, email, media, legal or external state changed.
 Task 6 full local verification and broad review are the next internal gates after
 Task 5 reviews and commit. Publication and every Phase 5 action remain separately
 authorized boundaries.
+
+## Historical Task 6 initial pre-review local verification receipt
+
+This initial pre-review receipt is retained as chronological evidence. Its
+staging and next-action language describes that earlier checkpoint and is
+superseded by the authoritative final-review repair receipt below.
+
+The verification sequence began at clean committed head
+`a3b21624cb1891cfbc423aa43a482dffd023d3d7`. These measurements describe that
+committed index plus the separately identified test-only freshness repair; the
+coordinator must repeat index-sensitive checks after staging this receipt.
+
+- `node --test tests/repository-audit.test.mjs tests/repository-cleanup-audit.test.mjs`
+  passed 51/51 with zero skipped or failed.
+- `npm run repository:inventory` exited zero with 1,915 tracked files,
+  47,128,976 Git blob bytes, inventory SHA-256
+  `4696fea80b57a9ee066d3e209335261ae1f91d3a1ced3218d3f70b428854f596`,
+  and zero forbidden tracked paths.
+- `npm run brand:audit` exited zero with zero missing and zero unclassified
+  occurrences; category totals remain compatibility 22,905, historical 1,481,
+  legal 42, and pre-rebrand public copy 1,952.
+- `npm run dead-code:audit`, `npm run dependency:audit`, `npm run asset:audit`,
+  and `npm run env:audit` each exited zero twice. Each pair had byte-identical
+  standard output and empty standard error. Their non-silent byte counts were
+  221,970, 756,326, 700,053, and 158,707 respectively.
+- Against this final Task 5 committed index, the silent dead-code, dependency,
+  asset, and environment reports measured 221,887, 756,241, 699,978, and 158,628
+  bytes. Their report SHA-256 values were respectively
+  `76915575657c0c0687c653986a83cd0fb709f8b7b487690897f796e17a7d0e80`,
+  `5514fcaafd38f8360d93a485ecadb0f3a5045cf3aaef6799450f34d846cd0a9c`,
+  `2efcc473d416b26427b91fd8708ed66b35b0e22a549d57992b4451e7ec277aea`,
+  and `ed6a4009cd3e545504c4b4ff61a08543934f02a063f1bf5429aa7fe640dddc93`.
+  The asset report differs from the earlier clean-index Task 5 hash after the
+  subsequently committed evidence documentation entered the index; its counts
+  remain 73 tracked and protected assets, 175 exact owners, zero
+  candidates, 19 basename signals, and 2,001 uncertainties. The other report
+  counts and evidence hashes remain as recorded above. This does not rewrite or
+  invalidate the earlier immutable Task 5 capture.
+- `npm run prisma:validate` reported the schema valid. `npm run prisma:generate`
+  generated Prisma Client 7.9.1 without a tracked change. `npm run typecheck`
+  exited zero. The first lint run found three `no-require-imports` errors only in
+  two ignored task-local CommonJS verification helpers. Narrow file-level disables
+  kept those scratch helpers lintable; the full rerun exited zero with only the
+  inherited Babel large-file informational note for `app/chimer/running-timer.tsx`.
+- The first `npm run test` run exposed the intended documentation-freshness guard:
+  4,249 tests, 4,245 passed, 1 failed, and 3 skipped because the test ceiling still
+  ended at 2026-09-09 while project-state evidence was verified on 2026-09-10.
+  Coordinator-authorized fix round 1 changed only that ceiling. The focused file
+  passed 15/15, and the complete rerun passed 4,246 with 3 skipped and zero failed.
+- `npm run build` exited zero with Next.js 16.2.12. Compilation took 30.4 seconds,
+  the post-compile hook 2.8 seconds, TypeScript 73 seconds, and static generation
+  completed 115/115 pages. The emitted route table was recorded without claiming
+  a bundle-size or performance improvement.
+
+## Delta and closeout boundary
+
+- The Phase 3 merge base contains 1,904 tracked files and 46,967,363 Git blob
+  bytes. Task 5 head contains 1,915 files and 47,128,976 bytes: eleven added files
+  and 161,613 additional bytes, all explained by the Phase 4 plan/evidence,
+  cleanup policy and static audit tooling, focused tests, four package scripts,
+  and deterministic brand-baseline reconciliation.
+- `package.json` changes only by adding the exact `dead-code:audit`,
+  `dependency:audit`, `asset:audit`, and `env:audit` scripts. Dependency fields,
+  versions, overrides, patches, and `package-lock.json` are unchanged.
+- `git diff --check`, worktree and index lockfile diffs, and a six-path
+  final-newline/trailing-whitespace check all exited cleanly. The lockfile blob
+  remains `0ca896d3ca82547cdc383100ba8986d92b30ec77`. The 21-path complete branch
+  delta is limited to the approved plan, audit policy/tooling, focused tests,
+  package scripts, deterministic baseline, and evidence documentation.
+- The Task 6 test edit is a same-length, test-only date ceiling aligned to verified
+  evidence. No runtime behavior changed. The six-path worktree candidate contains
+  1,916 versioned files and 47,139,794 bytes when the five modified files and one
+  new reflection are measured against the Task 5 tree. The paths await coordinator
+  staging, so the staged inventory and all index-sensitive hashes require
+  coordinator readback before commit.
+- Task clean: **no at implementer handoff** — the six Task 6 paths are intentionally
+  left unstaged for coordinator review. Repository clean: **no for the same bounded
+  reason**; `git status --short` reports exactly five modified files and the new
+  reflection, with no unrelated tracked change. Retained resources are the
+  branch itself, the prior Phase 3 review branch, and the task-local ignored SDD
+  workspace. No QA project or other provider resource exists for this task.
+- The installed Aegis package exposed no workspace-helper executable, so structural
+  bundle/check commands were unavailable. The work record was reviewed directly;
+  this limitation does not substitute for evidence sufficiency.
+
+Deletion authority remains **none**. Browser QA, a temporary QA project, push, PR,
+merge, deployment, candidate retirement, and Phase 5 work were not performed and
+remain separate authorization boundaries.
+
+## Historical final-review repair receipt — first staged capture, superseded
+
+Independent review found five valid defects in the audit implementation. The
+bounded repair preserves the Task 6 work and addresses each finding without
+changing a candidate, runtime path, dependency, lockfile, asset, schema,
+migration, snapshot or provider:
+
+- Policy selection now resolves under the audit root, rejects private, untracked
+  and out-of-root paths before content access, reads the tracked stage-0 blob and
+  passes one captured entry set into the report inventory. An unstaged policy
+  edit is proven unable to change output.
+- Every lane exposes exactly `schemaVersion`, `auditKind`, hard-coded
+  `deletionAuthority: false`, `inventorySha256`, `summary`, `findings` and
+  `uncertainties`. The earlier Task 5 and first Task 6 `kind`, `evidenceSha256`
+  and nested `evidence` captures above remain historical receipts, explicitly
+  superseded for current tooling.
+- An unresolved literal module is a named negative-fixture uncertainty only when
+  its path is both in test scope and under a policy-owned protected prefix.
+  Active code and unprotected tests fail closed. The staged repository has zero
+  unresolved literal-module errors.
+- The 937-nonblank-line shared module is split into cohesive source, module,
+  dependency, asset, environment and index/privacy/envelope owners. The largest
+  audit source is 335 nonblank lines; every source is at most 500, every CLI is
+  at most 188 and no source mixes two evidence or candidate report builders.
+- Direct and default-parameter environment aliases produce proven reads.
+  Unproven aliases remain named uncertainties rather than unread declarations;
+  the prior false unread Stripe key is a proven static read.
+
+Before receipt-only documentation synchronization, the first fully staged repair
+capture contained 1,921 files and 47,170,491 Git blob bytes, had no forbidden
+tracked path, and had inventory SHA-256
+`4d826fc678cbb9303eb43805ece57978f1910d958b69cd65038c037f4a8bf827`.
+Its focused staged suite passed 59/59. Each silent CLI passed twice with
+byte-identical standard output, empty standard error, the exact seven-field
+contract and that same inventory identity:
+
+| Lane | Report SHA-256 | Bytes | Findings | Uncertainties |
+| --- | --- | ---: | ---: | ---: |
+| Dead code | `ac5f292e82da5134f29b0c0c24e01cfdcaaa06f62625c62f8aafc71bb083da6c` | 273,359 | 1,558: 29 candidates, 21 protected, 836 referenced and 672 roots | 186 |
+| Dependency | `8c0ad3e2d171a549cea55d89548175d654b0b41e4d913ea7448fb714ad45c884` | 842,988 | 2,858 | 19 |
+| Asset | `d3b0fe054db44c73f7b42f84ea0d0a38270228c7a01677411e3cfddd4f92f7f4` | 752,047 | 340 | 2,002: 526 dynamic and 1,476 unresolved literals |
+| Environment | `b1b7db47add403da40156606065fd0bacb185d2bcc3cc5dbf0bd13a7948207db` | 251,117 | 719 | 186 |
+
+Brand audit remains at zero missing and zero unclassified occurrences, with
+compatibility 22,905, historical 1,481, legal 42 and pre-rebrand public copy
+1,952. The tracked fixed point remains 5,984,749 bytes. Earlier local Prisma,
+typecheck, lint, full-unit and 115-page production-build results remain valid
+supporting receipts; the staged focused and index-sensitive gates above are the
+first fully staged repair readback.
+
+Those inventory and report hashes describe that first capture, not an immutable
+final commit candidate. This versioned receipt cannot embed the hash of an index
+that includes its own updated blob. After the synchronized final receipt
+documents are staged, the coordinator must run one exact final-index readback;
+its inventory and report hashes will be retained in the ignored SDD handoff and
+user-facing completion receipt rather than embedded back into the self-hashed
+index.
+
+Deletion authority remains **none**. Every candidate is retained with status
+`candidate`, `protected` or `unresolved`. This 59/59 capture remains historical
+evidence and is superseded for current-tooling decisions by the repair cycle
+below.
+
+## Final repair-cycle receipt — staged local gate complete
+
+The final quality-review cycle adds five bounded scanner corrections without
+changing dependencies, runtime behavior, candidates or external state:
+
+- Malformed or path-like module specifiers now fail closed through hash-only
+  sanitized evidence; a Windows absolute-path sentinel proves that neither the
+  literal nor the workstation root is serialized.
+- Destructured environment aliases in default parameters are recognized, while
+  explicit lexical non-alias bindings, correct parameter-initializer scope and
+  assignment invalidation prevent outer aliases from leaking through shadows or
+  reassignment.
+- Module and asset audits share the installed Next 16.2.12 metadata convention:
+  zero or one numeric suffix is protected, so `icon9` is framework metadata and
+  `icon10` remains a lookalike candidate.
+- Static literal `require.resolve()` calls contribute package ownership; a
+  nonliteral argument remains a hash-only uncertainty.
+
+Strict TDD first failed all three targeted regression groups (0/3), then passed
+the same three groups after the minimum implementation changes (3/3). The
+combined repository-audit and repository-cleanup-audit suites subsequently
+passed 64/64 with zero failures or skips. A semantic evaluation against one
+captured stage-0 source produced:
+
+| Lane | Findings | Uncertainties | Current bounded classification |
+| --- | ---: | ---: | --- |
+| Dead code | 1,558 | 186 | 29 candidates, 21 protected, 836 referenced and 672 roots; unchanged from the historical staged capture. |
+| Dependency | 2,859 | 19 | One additional literal-import owner records the repository's static `require.resolve()` usage; candidate authority is unchanged. |
+| Asset | 340 | 2,002 | 526 dynamic and 1,476 unresolved literals; single-digit metadata parity is enforced and no asset deletion is authorized. |
+| Environment | 753 | 192 | 79 declared, 262 missing, 387 static-read and 25 unread findings; 18 computed-read and 174 unproven uncertainties. |
+
+These are semantic counts from the final staged repair, not embedded final-index
+hashes. The earlier 59/59 capture and its report hashes remain historical and
+superseded. Against this final staged repair, the complete suite passed 4,259
+tests with 3 host-dependent skips and zero failures, and the 115-route production
+build passed. The coordinator must perform the receipt-synchronized exact-index
+readback, retain its hashes only in the ignored SDD handoff and user-facing
+completion receipt, repeat independent whole-branch reviews, and then create the
+coordinator-owned commit.
+
+Deletion authority remains **none**. Every candidate stays `candidate`,
+`protected` or `unresolved`; no deletion, rename, upgrade, retirement, provider
+mutation, push, PR, merge or Phase 5 action occurred.

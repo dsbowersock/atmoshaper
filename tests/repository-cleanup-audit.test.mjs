@@ -1,21 +1,23 @@
 import assert from "node:assert/strict"
 import { execFileSync, spawnSync } from "node:child_process"
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
 import test from "node:test"
 import { fileURLToPath } from "node:url"
 
 import {
-  buildAssetEvidence,
   buildAuditEnvelope,
-  buildDependencyEvidence,
-  buildEnvironmentEvidence,
-  buildModuleEvidence,
   buildTrackedTextIndex,
+  candidateBody,
+  loadCleanupContext,
   loadCleanupPolicy,
   validateCleanupPolicy,
 } from "../scripts/repository-audit/cleanup-core.mjs"
+import { buildAssetEvidence } from "../scripts/repository-audit/cleanup-asset-evidence.mjs"
+import { buildDependencyEvidence } from "../scripts/repository-audit/cleanup-dependency-evidence.mjs"
+import { buildEnvironmentEvidence } from "../scripts/repository-audit/cleanup-environment-evidence.mjs"
+import { buildModuleEvidence } from "../scripts/repository-audit/cleanup-module-evidence.mjs"
 import { buildAssetCandidateReport } from "../scripts/repository-audit/asset.mjs"
 import { buildDeadCodeCandidateReport } from "../scripts/repository-audit/dead-code.mjs"
 import { buildDependencyCandidateReport } from "../scripts/repository-audit/dependency.mjs"
@@ -28,7 +30,7 @@ const deadCodeCliPath = resolve(repositoryRoot, "scripts/repository-audit/dead-c
 const dependencyCliPath = resolve(repositoryRoot, "scripts/repository-audit/dependency.mjs")
 const assetCliPath = resolve(repositoryRoot, "scripts/repository-audit/asset.mjs")
 const environmentCliPath = resolve(repositoryRoot, "scripts/repository-audit/environment.mjs")
-const policy = loadCleanupPolicy(policyPath)
+const policy = loadCleanupPolicy(repositoryRoot, policyPath)
 
 function createFixtureRepository(t) {
   const root = mkdtempSync(join(tmpdir(), "atmoshaper-cleanup-audit-"))
@@ -63,12 +65,15 @@ function writePackage(root, value = {}) {
 const clonePolicy = () => structuredClone(policy)
 
 function runAuditCli(cliPath, root, selectedPolicyPath = policyPath) {
+  const effectivePolicyPath = selectedPolicyPath === policyPath && root !== repositoryRoot
+    ? writeFixture(root, "scripts/repository-audit/cleanup-policy.json", `${JSON.stringify(policy, null, 2)}\n`)
+    : selectedPolicyPath
   return spawnSync(process.execPath, [
     cliPath,
     "--root",
     root,
     "--policy",
-    selectedPolicyPath,
+    effectivePolicyPath,
   ], {
     cwd: repositoryRoot,
     encoding: "utf8",
@@ -121,7 +126,7 @@ test("Windows separators normalize to canonical repository paths", () => {
   assert.equal(normalizeRepoPath("./lib/example.ts"), "lib/example.ts")
 })
 
-test("tracked text and all evidence envelopes are deterministic", (t) => {
+test("tracked text and exact report envelopes are deterministic", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root, { scripts: { dev: "next dev" }, dependencies: { next: "1.0.0" } })
   writeFixture(root, "app/page.tsx", "export default function Page() { return null }\n")
@@ -132,17 +137,18 @@ test("tracked text and all evidence envelopes are deterministic", (t) => {
   assert.equal(JSON.stringify(firstIndex), JSON.stringify(secondIndex))
   assert.equal(JSON.stringify(firstIndex).includes("export default"), false)
 
-  for (const [kind, builder] of [
-    ["module", buildModuleEvidence],
-    ["dependency", buildDependencyEvidence],
-    ["asset", buildAssetEvidence],
-    ["environment", buildEnvironmentEvidence],
-  ]) {
-    const first = buildAuditEnvelope(kind, builder(firstIndex, policy))
-    const second = buildAuditEnvelope(kind, builder(secondIndex, policy))
+  const body = candidateBody({ schemaVersion: 1, candidates: [{ path: "app/page.tsx" }], uncertainties: { dynamic: [] } })
+  for (const kind of ["dead-code", "dependency", "asset", "environment"]) {
+    const first = buildAuditEnvelope(kind, firstIndex, body)
+    const second = buildAuditEnvelope(kind, secondIndex, body)
     assert.deepEqual(first, second)
+    assert.deepEqual(Object.keys(first).sort(), [
+      "auditKind", "deletionAuthority", "findings", "inventorySha256",
+      "schemaVersion", "summary", "uncertainties",
+    ])
+    assert.equal(first.auditKind, kind)
     assert.equal(first.deletionAuthority, false)
-    assert.match(first.evidenceSha256, /^[a-f0-9]{64}$/)
+    assert.match(first.inventorySha256, /^[a-f0-9]{64}$/)
   }
 })
 
@@ -158,6 +164,70 @@ test("module evidence uses index blobs rather than modified worktree bytes", (t)
   assert.equal(evidence.references[0].targetKind, "tracked-module")
   assert.equal(evidence.references[0].targetPath, "lib/staged.ts")
   assert.equal(evidence.uncertainties.length, 0)
+})
+
+test("module evidence rejects path-like and malformed package specifiers without literal disclosure", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const windowsAbsolute = "C:\\Users\\private-audit-sentinel\\module.js"
+  const malformedScoped = "@private-audit-sentinel"
+  const malformedSubpath = "package//private-audit-sentinel"
+  writeFixture(root, "app/page.ts", [
+    `import ${JSON.stringify(windowsAbsolute)}`,
+    `import ${JSON.stringify(malformedScoped)}`,
+    `import ${JSON.stringify(malformedSubpath)}`,
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.references.map((row) => row.targetKind), [
+    "unresolved", "unresolved", "unresolved",
+  ])
+  assert.deepEqual(evidence.errors.map((row) => row.code), [
+    "UNRESOLVED_LITERAL_MODULE", "UNRESOLVED_LITERAL_MODULE", "UNRESOLVED_LITERAL_MODULE",
+  ])
+  assertPrivateSerialization(evidence, root, [windowsAbsolute, malformedScoped, malformedSubpath])
+
+  const result = runAuditCli(deadCodeCliPath, root)
+  assert.equal(result.status, 1)
+  assert.equal(result.stdout, "")
+  assert.equal(result.stderr, exactFailureEnvelope("DEAD_CODE_AUDIT_FAILED"))
+  assertPrivateSerialization(result.stderr, root, [windowsAbsolute, malformedScoped, malformedSubpath])
+})
+
+test("module evidence records require.resolve ownership and hashes nonliteral arguments", (t) => {
+  const root = createFixtureRepository(t)
+  const dynamicExpression = "selectPrivatePackage()"
+  writePackage(root, { dependencies: { "@scope/pkg": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/runner.mjs", [
+    "const packageCli = require.resolve('@scope/pkg/cli')",
+    "const localTool = require.resolve('../lib/tool')",
+    `const selected = require.resolve(${dynamicExpression})`,
+    "void packageCli; void localTool; void selected",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildModuleEvidence(index, policy)
+  const references = evidence.references.filter((row) => row.kind === "require-resolve")
+  assert.deepEqual(references.map((row) => [row.targetKind, row.dependency ?? row.targetPath]), [
+    ["package", "@scope/pkg"],
+    ["tracked-module", "lib/tool.ts"],
+  ])
+  const uncertainty = evidence.uncertainties.find((row) => row.kind === "require-resolve")
+  assert.equal(uncertainty?.code, "NONLITERAL_MODULE_EXPRESSION")
+  const dependencyEvidence = buildDependencyEvidence(index, policy)
+  assert.ok(dependencyEvidence.references.some((row) => (
+    row.packageName === "@scope/pkg" && row.kind === "require-resolve"
+  )))
+  assertPrivateSerialization(evidence, root, [dynamicExpression])
+
+  const realEvidence = buildDependencyEvidence(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  assert.ok(realEvidence.references.some((row) => (
+    row.fromPath === "scripts/run-migration-parity-browser-qa.mjs" &&
+    row.packageName === "@playwright/test" && row.kind === "require-resolve"
+  )))
 })
 
 test("module evidence resolves aliases, relative extensions, indexes, and export-from", (t) => {
@@ -294,7 +364,7 @@ test("dead-code report separates candidates from roots, protections, and uncerta
   for (const basename of ["apple-icon9", "icon0", "opengraph-image3", "twitter-image7"]) {
     writeFixture(root, "app/" + basename + ".tsx", "export default function NumberedConvention() { return null }\n")
   }
-  for (const basename of ["apple-icon-1", "icon10", "iconography", "twitter-image-final"]) {
+  for (const basename of ["apple-icon-1", "icon10", "iconography", "twitter-image27", "twitter-image-final"]) {
     writeFixture(root, "app/" + basename + ".tsx", "export const lookalike = true\n")
   }
   writeFixture(root, "proxy.ts", "export function proxy() {}\n")
@@ -322,7 +392,7 @@ test("dead-code report separates candidates from roots, protections, and uncerta
   for (const basename of ["apple-icon9", "icon0", "opengraph-image3", "twitter-image7"]) {
     assert.ok(report.roots.some((row) => row.path === "app/" + basename + ".tsx" && row.reason === "framework-root"))
   }
-  for (const basename of ["apple-icon-1", "icon10", "iconography", "twitter-image-final"]) {
+  for (const basename of ["apple-icon-1", "icon10", "iconography", "twitter-image27", "twitter-image-final"]) {
     assert.ok(report.unreferencedCandidates.some((row) => row.path === "app/" + basename + ".tsx"))
   }
   assert.ok(report.roots.some((row) => row.path === "proxy.ts" && row.reason === "top-level-config"))
@@ -413,11 +483,7 @@ test("dependency report preserves import, CLI, patch, built-in, and usage-scope 
 test("audit CLIs are byte-stable and return zero when they find candidates", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root, { dependencies: { unused: "1.0.0" } })
-  writeFixture(root, "app/page.tsx", [
-    "import \"@/lib/not-present\"",
-    "export default function Page() { return null }",
-    "",
-  ].join("\n"))
+  writeFixture(root, "app/page.tsx", "export default function Page() { return null }\n")
   writeFixture(root, "lib/unused.ts", "export const unused = true\n")
 
   for (const [cliPath, kind] of [
@@ -430,10 +496,9 @@ test("audit CLIs are byte-stable and return zero when they find candidates", (t)
     assert.equal(first.stderr, "")
     assert.equal(first.stdout, second.stdout)
     const envelope = JSON.parse(first.stdout)
-    assert.equal(envelope.kind, kind)
+    assert.equal(envelope.auditKind, kind)
     assert.equal(envelope.deletionAuthority, false)
-    assert.ok(envelope.evidence.unreferencedCandidates.length > 0)
-    assert.ok(envelope.evidence.uncertainties.unresolvedLiterals.length > 0)
+    assert.ok(envelope.findings.some((row) => row.findingKind === "unreferencedCandidates"))
   }
 })
 
@@ -556,7 +621,8 @@ test("asset report records Git identities, exact owners by scope, and conservati
   )
   assert.deepEqual(report.unreferencedCandidates.map((row) => row.path), ["app/unreferenced.png"])
   assert.equal(report.unreferencedCandidates[0].reason, "no-exact-static-reference")
-  assert.equal(buildAuditEnvelope("asset", report).deletionAuthority, false)
+  const index = buildTrackedTextIndex(root, policy)
+  assert.equal(buildAuditEnvelope("asset", index, candidateBody(report)).deletionAuthority, false)
 })
 
 test("asset identities and bytes come from the staged Git blob", (t) => {
@@ -627,6 +693,8 @@ test("asset report preserves basename ambiguity, dynamic construction, and expli
   writeFixture(root, "public/compatibility/legacy-path.webp", "compatibility-asset")
   writeFixture(root, "tests/fixtures/parity/snapshot.png", "snapshot")
   writeFixture(root, "app/icon.png", "framework-icon")
+  writeFixture(root, "app/icon9.png", "single-digit-framework-icon")
+  writeFixture(root, "app/icon10.png", "multi-digit-framework-icon")
   writeFixture(root, "app/favicon.ico", "framework-favicon")
   const basenameLiteral = "icon.svg"
   const templateSecret = "private-template-fragment"
@@ -651,10 +719,14 @@ test("asset report preserves basename ambiguity, dynamic construction, and expli
     report.uncertainties.dynamicAssetExpressions.map((row) => row.kind).sort(),
     ["concatenation", "template", "template"],
   )
-  assert.deepEqual(report.unreferencedCandidates, [])
+  assert.deepEqual(report.unreferencedCandidates.map((row) => row.path), ["app/icon10.png"])
   assert.ok(report.protectedAssets.some((asset) => (
     asset.path === "app/icon.png" && asset.reasons.includes("framework-convention")
   )))
+  assert.ok(report.protectedAssets.some((asset) => (
+    asset.path === "app/icon9.png" && asset.reasons.includes("framework-convention")
+  )))
+  assert.equal(report.protectedAssets.some((asset) => asset.path === "app/icon10.png"), false)
   assert.ok(report.protectedAssets.some((asset) => (
     asset.path === "app/favicon.ico" && asset.reasons.includes("framework-convention")
   )))
@@ -738,7 +810,8 @@ test("environment report separates overlap, missing names, unread names, scopes,
   assert.deepEqual(report.missingDeclarationFindings.map((row) => row.name), ["MISSING_FROM_EXAMPLE"])
   assert.equal(report.uncertainties.computedReads.length, 1)
   assert.equal(report.uncertainties.computedReads[0].scope, "runtime")
-  assert.equal(buildAuditEnvelope("environment", report).deletionAuthority, false)
+  const index = buildTrackedTextIndex(root, policy)
+  assert.equal(buildAuditEnvelope("environment", index, candidateBody(report)).deletionAuthority, false)
   assertPrivateSerialization(report, root, [...secretValues, "getName()"])
 })
 
@@ -762,7 +835,7 @@ test("asset and environment CLIs are byte-deterministic and never gain deletion 
     assert.equal(first.stdout, second.stdout)
     const report = JSON.parse(first.stdout)
     assert.equal(report.deletionAuthority, false)
-    assert.match(report.evidenceSha256, /^[a-f0-9]{64}$/)
+    assert.match(report.inventorySha256, /^[a-f0-9]{64}$/)
     assertPrivateSerialization(first.stdout, root, ["private-placeholder", "private-unread"])
   }
 })
@@ -836,7 +909,9 @@ test("ignored untracked private files never enter the index or evidence", (t) =>
   writeFixture(root, ".env.local", `PRIVATE=${privateValue}\n`, { tracked: false })
 
   const index = buildTrackedTextIndex(root, policy)
-  const envelope = buildAuditEnvelope("environment", buildEnvironmentEvidence(index, policy))
+  const envelope = buildAuditEnvelope("environment", index, candidateBody(
+    buildEnvironmentCandidateReport(index, policy),
+  ))
   assert.equal(index.trackedPaths.includes(".env.local"), false)
   assertPrivateSerialization({ index, envelope }, root, [privateValue, ".env.local"])
 })
@@ -855,7 +930,9 @@ test("ignored tracked paths are excluded before any blob read", (t) => {
   }).trim()
   let ignoredBlobRequested = false
   const observingExec = (file, args, options) => {
-    if (args[0] === "cat-file" && String(options.input).includes(ignoredOid)) ignoredBlobRequested = true
+    if (args[0] === "cat-file" && args[1] === "--batch" && String(options.input).includes(ignoredOid)) {
+      ignoredBlobRequested = true
+    }
     return execFileSync(file, args, options)
   }
 
@@ -890,9 +967,248 @@ test("tracked private paths fail before blob contents can enter failures", (t) =
   assertPrivateSerialization(failure, root, [privateValue, ".env.local"])
 })
 
+test("policy loading uses the tracked stage-0 blob and ignores unstaged policy edits", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/page.tsx", "export default function Page() { return null }\n")
+  const fixturePolicyPath = writeFixture(
+    root,
+    "scripts/repository-audit/cleanup-policy.json",
+    `${JSON.stringify(policy, null, 2)}\n`,
+  )
+
+  const first = runAuditCli(deadCodeCliPath, root, fixturePolicyPath)
+  const privateWorktreeValue = "unstaged-policy-value-that-must-not-be-read"
+  writeFileSync(fixturePolicyPath, JSON.stringify({ unexpected: privateWorktreeValue }))
+  const second = runAuditCli(deadCodeCliPath, root, fixturePolicyPath)
+
+  assert.equal(first.status, 0)
+  assert.equal(second.status, 0)
+  assert.equal(second.stderr, "")
+  assert.equal(second.stdout, first.stdout)
+  assert.equal(loadCleanupContext(root, fixturePolicyPath).policy.schemaVersion, 1)
+  assertPrivateSerialization(second.stdout, root, [privateWorktreeValue])
+})
+
+test("policy loading rejects private, untracked, and out-of-root paths before blob content reads", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateSentinel = "private-policy-content-sentinel"
+  const privatePolicyPath = writeFixture(root, ".env.policy", privateSentinel, { force: true })
+  const untrackedSentinel = "untracked-policy-content-sentinel"
+  const untrackedPolicyPath = writeFixture(
+    root, "untracked-policy.json", untrackedSentinel, { tracked: false },
+  )
+  const outsideRoot = mkdtempSync(join(tmpdir(), "atmoshaper-policy-outside-"))
+  t.after(() => rmSync(outsideRoot, { recursive: true, force: true }))
+  const outsidePolicyPath = resolve(outsideRoot, "outside-policy.json")
+  const outsideSentinel = "outside-policy-content-sentinel"
+  writeFileSync(outsidePolicyPath, outsideSentinel)
+
+  for (const [selectedPolicyPath, expectedCode] of [
+    [privatePolicyPath, "CLEANUP_POLICY_PATH_PRIVATE"],
+    [untrackedPolicyPath, "CLEANUP_POLICY_PATH_UNTRACKED"],
+    [outsidePolicyPath, "CLEANUP_POLICY_PATH_INVALID"],
+  ]) {
+    let contentRead = false
+    const observingExec = (file, args, options) => {
+      if (args[0] === "cat-file" && args[1] === "--batch") contentRead = true
+      return execFileSync(file, args, options)
+    }
+    assert.throws(
+      () => loadCleanupContext(root, selectedPolicyPath, observingExec),
+      (error) => error.code === expectedCode && error.message === expectedCode,
+    )
+    assert.equal(contentRead, false)
+    const result = runAuditCli(deadCodeCliPath, root, selectedPolicyPath)
+    assert.equal(result.status, 1)
+    assert.equal(result.stdout, "")
+    assert.equal(result.stderr, exactFailureEnvelope("DEAD_CODE_AUDIT_FAILED"))
+    assertPrivateSerialization(result.stderr, root, [privateSentinel, untrackedSentinel, outsideSentinel])
+  }
+})
+
+test("tracked malformed policy fails with the exact sanitized CLI envelope", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateSentinel = "tracked-malformed-policy-sentinel"
+  const malformedPolicyPath = writeFixture(
+    root, "scripts/repository-audit/cleanup-policy.json", JSON.stringify({ unexpected: privateSentinel }),
+  )
+  const result = runAuditCli(deadCodeCliPath, root, malformedPolicyPath)
+  assert.equal(result.status, 1)
+  assert.equal(result.stdout, "")
+  assert.equal(result.stderr, exactFailureEnvelope("DEAD_CODE_AUDIT_FAILED"))
+  assertPrivateSerialization(result.stderr, root, [privateSentinel])
+})
+
+test("only policy-protected test fixtures turn unresolved literals into named uncertainty", (t) => {
+  const protectedRoot = createFixtureRepository(t)
+  writePackage(protectedRoot)
+  writeFixture(protectedRoot, "tests/fixtures/negative.ts", "import '../missing-fixture-module'\n")
+  const protectedEvidence = buildModuleEvidence(buildTrackedTextIndex(protectedRoot, policy), policy)
+  assert.deepEqual(protectedEvidence.errors, [])
+  assert.equal(protectedEvidence.uncertainties.length, 1)
+  assert.equal(protectedEvidence.uncertainties[0].code, "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE")
+
+  for (const path of ["tests/unprotected.test.ts", "app/active.ts"]) {
+    const activeRoot = createFixtureRepository(t)
+    writePackage(activeRoot)
+    writeFixture(activeRoot, path, "import './missing-active-module'\n")
+    const evidence = buildModuleEvidence(buildTrackedTextIndex(activeRoot, policy), policy)
+    assert.equal(evidence.errors.length, 1)
+    assert.equal(evidence.errors[0].code, "UNRESOLVED_LITERAL_MODULE")
+    const result = runAuditCli(deadCodeCliPath, activeRoot)
+    assert.equal(result.status, 1)
+    assert.equal(result.stderr, exactFailureEnvelope("DEAD_CODE_AUDIT_FAILED"))
+  }
+})
+
+test("environment evidence tracks proven aliases and preserves unproven aliases as uncertainty", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "DIRECT_ALIAS=\nDEFAULT_ALIAS=\nUNPROVEN_ALIAS=\n")
+  writeFixture(root, "lib/environment-aliases.ts", [
+    "const directEnv = process.env",
+    "const direct = directEnv.DIRECT_ALIAS",
+    "function fromDefault(env = process.env) { return env.DEFAULT_ALIAS }",
+    "function fromInjection(env) { return env.UNPROVEN_ALIAS }",
+    "void direct; void fromDefault; void fromInjection",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildEnvironmentEvidence(index, policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["DIRECT_ALIAS", "DEFAULT_ALIAS"])
+  const uncertainty = evidence.uncertainties.find((row) => row.name === "UNPROVEN_ALIAS")
+  assert.equal(uncertainty?.code, "UNPROVEN_ENVIRONMENT_ALIAS")
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.equal(report.unreadDeclarationCandidates.some((row) => row.name === "UNPROVEN_ALIAS"), false)
+  assert.equal(report.uncertainties.unprovenAliases[0].name, "UNPROVEN_ALIAS")
+})
+
+test("environment evidence recursively binds destructured default-parameter aliases", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const directExpression = "membershipEnvironmentName()"
+  const nestedExpression = "nestedEnvironmentName()"
+  writeFixture(root, "lib/membership.js", [
+    `function readMembership({ env = process.env } = {}) { return env[${directExpression}] }`,
+    `function readNested({ options: { environment = process.env } = {} } = {}) { return environment[${nestedExpression}] }`,
+    "void readMembership; void readNested",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const computed = evidence.uncertainties.filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ")
+  assert.equal(computed.length, 2)
+  assert.ok(computed.every((row) => row.kind === "element-access"))
+  assert.equal(evidence.uncertainties.some((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS"), false)
+  assertPrivateSerialization(evidence, root, [directExpression, nestedExpression])
+})
+
+test("environment alias scopes honor parameter defaults and ordinary shadowing", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-scope.js", [
+    "const captured = process.env",
+    "function fromDefaults(local = process.env, forwarded = local) { return forwarded.PARAMETER_DEFAULT }",
+    "function parameterShadow(captured) { return captured.PARAMETER_SHADOW }",
+    "function variableShadow() { const captured = {}; return captured.VARIABLE_SHADOW }",
+    "void captured; void fromDefaults; void parameterShadow; void variableShadow",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["PARAMETER_DEFAULT"])
+  assert.equal(evidence.uncertainties.length, 0)
+})
+
+test("environment alias reassignment updates proven and unknown state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const reassignmentExpression = "getInjectedEnvironment()"
+  writeFixture(root, "lib/environment-reassignment.js", [
+    "let env = process.env",
+    "const before = env.BEFORE_REASSIGNMENT",
+    `env = ${reassignmentExpression}`,
+    "const uncertain = env.AFTER_UNKNOWN_REASSIGNMENT",
+    "env = process.env",
+    "const restored = env.AFTER_PROVEN_REASSIGNMENT",
+    "void before; void uncertain; void restored",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "BEFORE_REASSIGNMENT", "AFTER_PROVEN_REASSIGNMENT",
+  ])
+  assert.equal(evidence.uncertainties.length, 1)
+  assert.equal(evidence.uncertainties[0].code, "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.equal(evidence.uncertainties[0].name, "AFTER_UNKNOWN_REASSIGNMENT")
+  assertPrivateSerialization(evidence, root, [reassignmentExpression])
+})
+
+test("all four CLIs share the exact contract and one stage-0 inventory identity", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "PUBLIC_KEY=\n")
+  writeFixture(root, "public/icon.svg", "<svg/>\n")
+  writeFixture(root, "app/page.tsx", [
+    "const icon = '/icon.svg'",
+    "const key = process.env.PUBLIC_KEY",
+    "export default function Page() { return icon + key }",
+    "",
+  ].join("\n"))
+  const expectedKeys = [
+    "auditKind", "deletionAuthority", "findings", "inventorySha256",
+    "schemaVersion", "summary", "uncertainties",
+  ]
+  const hashes = new Set()
+  for (const [cliPath, auditKind] of [
+    [deadCodeCliPath, "dead-code"],
+    [dependencyCliPath, "dependency"],
+    [assetCliPath, "asset"],
+    [environmentCliPath, "environment"],
+  ]) {
+    const first = runAuditCli(cliPath, root)
+    const second = runAuditCli(cliPath, root)
+    assert.equal(first.status, 0)
+    assert.equal(first.stderr, "")
+    assert.equal(first.stdout, second.stdout)
+    const report = JSON.parse(first.stdout)
+    assert.deepEqual(Object.keys(report).sort(), expectedKeys)
+    assert.equal(report.auditKind, auditKind)
+    assert.equal(report.deletionAuthority, false)
+    assert.match(report.inventorySha256, /^[a-f0-9]{64}$/)
+    assert.ok(Array.isArray(report.findings))
+    assert.ok(Array.isArray(report.uncertainties))
+    hashes.add(report.inventorySha256)
+  }
+  assert.equal(hashes.size, 1)
+})
+
+test("repository-audit sources stay bounded and contain at most one evidence or candidate report builder", () => {
+  const auditSourceRoot = resolve(repositoryRoot, "scripts/repository-audit")
+  const sourcePaths = readdirSync(auditSourceRoot)
+    .filter((path) => path.endsWith(".mjs"))
+    .map((path) => resolve(auditSourceRoot, path))
+  for (const path of sourcePaths) {
+    const source = readFileSync(path, "utf8")
+    const nonblankLineCount = source.split(/\r?\n/).filter((line) => line.trim()).length
+    assert.ok(nonblankLineCount <= 500, `${path} has ${nonblankLineCount} nonblank lines`)
+    const reportBuilders = source.match(/export function build[A-Za-z]+(?:Evidence|CandidateReport)\b/g) ?? []
+    assert.ok(reportBuilders.length <= 1, `${path} mixes ${reportBuilders.length} report builders`)
+  }
+  for (const path of [deadCodeCliPath, dependencyCliPath, assetCliPath, environmentCliPath]) {
+    const nonblankLineCount = readFileSync(path, "utf8").split(/\r?\n/).filter((line) => line.trim()).length
+    assert.ok(nonblankLineCount <= 250, `${path} is not a thin CLI`)
+  }
+})
+
 test("real runtime prefixes do not import the repository-audit implementation", () => {
   const index = buildTrackedTextIndex(repositoryRoot, policy)
   const evidence = buildModuleEvidence(index, policy)
+  assert.deepEqual(evidence.errors, [])
   const runtimePrefixes = ["app/", "components/", "hooks/", "lib/", "prisma/", "public/"]
   const violations = evidence.references.filter((row) => (
     runtimePrefixes.some((prefix) => row.fromPath.startsWith(prefix)) &&
@@ -914,12 +1230,30 @@ test("real runtime prefixes do not import the repository-audit implementation", 
   }
 })
 
-test("audit envelope hash changes with evidence but deletion authority never does", () => {
-  const first = buildAuditEnvelope("module", { rows: [{ path: "a.ts" }] })
-  const reordered = buildAuditEnvelope("module", { rows: [{ path: "a.ts" }] })
-  const changed = buildAuditEnvelope("module", { rows: [{ path: "b.ts" }] })
+test("real environment evidence reads STRIPE_SECRET_KEY through a proven default alias", () => {
+  const index = buildTrackedTextIndex(repositoryRoot, policy)
+  const evidence = buildEnvironmentEvidence(index, policy)
+  assert.ok(evidence.reads.some((row) => row.name === "STRIPE_SECRET_KEY" && row.path === "lib/stripe-billing.js"))
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.equal(report.unreadDeclarationCandidates.some((row) => row.name === "STRIPE_SECRET_KEY"), false)
+})
+
+test("audit envelope keeps inventory identity while findings change", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAuditEnvelope("module", index, {
+    summary: { count: 1 }, findings: [{ path: "a.ts" }], uncertainties: [],
+  })
+  const reordered = buildAuditEnvelope("module", index, {
+    summary: { count: 1 }, findings: [{ path: "a.ts" }], uncertainties: [],
+  })
+  const changed = buildAuditEnvelope("module", index, {
+    summary: { count: 1 }, findings: [{ path: "b.ts" }], uncertainties: [],
+  })
   assert.deepEqual(first, reordered)
-  assert.notEqual(first.evidenceSha256, changed.evidenceSha256)
+  assert.notDeepEqual(first.findings, changed.findings)
+  assert.equal(first.inventorySha256, changed.inventorySha256)
   assert.equal(first.deletionAuthority, false)
   assert.equal(changed.deletionAuthority, false)
 })

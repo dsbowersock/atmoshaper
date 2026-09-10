@@ -3,10 +3,11 @@ import { fileURLToPath } from "node:url"
 
 import {
   buildAuditEnvelope,
-  buildEnvironmentEvidence,
   buildTrackedTextIndex,
-  loadCleanupPolicy,
+  candidateBody,
+  loadCleanupContext,
 } from "./cleanup-core.mjs"
+import { buildEnvironmentEvidence } from "./cleanup-environment-evidence.mjs"
 import { stableJson } from "./core.mjs"
 
 const compareText = (left, right) => left < right ? -1 : left > right ? 1 : 0
@@ -32,21 +33,30 @@ export function buildEnvironmentCandidateReport(index, policy) {
   const scopeByPath = new Map(index.records.map((record) => [record.path, record.scope]))
   const declaredNames = new Set(evidence.declarations.map((row) => row.name))
   const readNames = new Set(evidence.reads.map((row) => row.name))
+  const uncertainNames = new Set(evidence.uncertainties.map((row) => row.name).filter(Boolean))
   const staticReads = evidence.reads.map((row) => ({
     ...row,
     scope: scopeByPath.get(row.path) ?? "other",
   }))
   const declaredKeys = evidence.declarations.map((row) => ({ ...row }))
   const unreadDeclarationCandidates = declaredKeys
-    .filter((row) => !readNames.has(row.name))
+    .filter((row) => !readNames.has(row.name) && !uncertainNames.has(row.name))
     .map((row) => ({ ...row, reason: "no-static-read" }))
   const missingDeclarationFindings = staticReads
     .filter((row) => !declaredNames.has(row.name))
     .map((row) => ({ ...row, reason: "static-read-absent-from-tracked-example" }))
-  const computedReads = evidence.uncertainties.map((row) => ({
+  const computedReads = evidence.uncertainties
+    .filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ")
+    .map((row) => ({
+      ...row,
+      scope: scopeByPath.get(row.path) ?? "other",
+    }))
+  const unprovenAliases = evidence.uncertainties
+    .filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+    .map((row) => ({
     ...row,
     scope: scopeByPath.get(row.path) ?? "other",
-  }))
+    }))
 
   return stableJson({
     schemaVersion: 1,
@@ -56,6 +66,7 @@ export function buildEnvironmentCandidateReport(index, policy) {
     missingDeclarationFindings: missingDeclarationFindings.sort(compareLocation),
     uncertainties: {
       computedReads: computedReads.sort(compareLocation),
+      unprovenAliases: unprovenAliases.sort(compareLocation),
     },
   })
 }
@@ -76,9 +87,9 @@ function parseOptions(argv, defaults) {
 }
 
 export function runEnvironmentAudit({ root, policyPath }) {
-  const policy = loadCleanupPolicy(policyPath)
-  const index = buildTrackedTextIndex(root, policy)
-  return buildAuditEnvelope("environment", buildEnvironmentCandidateReport(index, policy))
+  const { entries, policy } = loadCleanupContext(root, policyPath)
+  const index = buildTrackedTextIndex(root, policy, undefined, entries)
+  return buildAuditEnvelope("environment", index, candidateBody(buildEnvironmentCandidateReport(index, policy)))
 }
 
 function writeFailure() {

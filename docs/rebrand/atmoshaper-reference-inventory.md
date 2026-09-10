@@ -732,3 +732,41 @@ PR #2 merged as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; the current branch b
 The [Phase 4 cleanup register](atmoshaper-cleanup-register.md#phase-4-audit-only-evidence--2026-09-10) records classification and scope totals plus the corroboration needed before any later bounded cleanup proposal. The [Aegis evidence](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md) records commands, report/evidence hashes, deterministic-repeat proof, inventory fixed-point proof, and brand-baseline reconciliation.
 
 Deletion authority is none. Every candidate remains in the repository. No report establishes runtime unreachability, safe dependency removal, asset ownership or provenance clearance, environment-key retirement, data/PWA compatibility, provider-object deletion, or rollback sufficiency by itself. Task 6 verification and review remain next; Phase 5 and every external mutation remain separately gated.
+
+### Current final-review repair — first fully staged repair capture
+
+The preceding Task 5 table is a historical capture whose old envelope and hashes
+are superseded for current tooling. Before receipt-only documentation
+synchronization, the first fully staged repair capture contained 1,921 files and
+47,170,491 Git blob bytes. Its repaired CLIs share the exact seven-field report
+contract and inventory SHA-256
+`4d826fc678cbb9303eb43805ece57978f1910d958b69cd65038c037f4a8bf827`.
+Each silent CLI passed twice with byte-identical output and empty standard error.
+The first-capture report SHA-256 values are dead code
+`ac5f292e82da5134f29b0c0c24e01cfdcaaa06f62625c62f8aafc71bb083da6c`,
+dependency `8c0ad3e2d171a549cea55d89548175d654b0b41e4d913ea7448fb714ad45c884`,
+asset `d3b0fe054db44c73f7b42f84ea0d0a38270228c7a01677411e3cfddd4f92f7f4`,
+and environment `b1b7db47add403da40156606065fd0bacb185d2bcc3cc5dbf0bd13a7948207db`.
+
+Bounded counts remain 29 dead-code candidates, 8 dependency candidates, zero
+asset candidates and 25 unread environment candidates. The added audit modules
+raise staged graph totals to 21 protected modules, 836 referenced modules and
+672 roots. The asset lane records 2,002 uncertainties: 526 dynamic and 1,476
+unresolved literals. One intentionally broken module under both protected-prefix
+and test-fixture policy is a named uncertainty; the staged repository has zero
+unresolved literal-module errors. Proven environment aliases produce 369 static
+reads, while 169 unproven aliases remain explicit uncertainties rather than
+removal evidence. The focused staged suite passed 59/59.
+
+The [cleanup register](atmoshaper-cleanup-register.md#final-review-repair-receipt--first-fully-staged-repair-capture)
+and [Aegis evidence](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md#final-review-repair-receipt--first-fully-staged-repair-capture)
+record the first staged capture's hashes, counts and validation receipts. Brand verification remains
+at zero missing and zero unclassified occurrences with the same category totals
+and 5,984,749-byte fixed point. All candidates and later corroboration requirements
+remain unchanged. Deletion authority is none. These hashes are not an immutable
+final commit-candidate identity because the synchronized versioned receipts
+change their own index. Final receipt-document staging and one exact final-index
+readback remain; the resulting hashes will be retained in the ignored SDD
+handoff and user-facing completion receipt rather than embedded back into the
+self-hashed index. Repeat independent whole-branch reviews and the
+coordinator-owned commit then remain; none is claimed complete here.
