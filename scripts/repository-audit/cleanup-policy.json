@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "sourceExtensions": [
+    ".cjs",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".ts",
+    ".tsx"
+  ],
+  "textExtensions": [
+    ".cjs",
+    ".css",
+    ".html",
+    ".js",
+    ".json",
+    ".jsx",
+    ".md",
+    ".mjs",
+    ".prisma",
+    ".sql",
+    ".toml",
+    ".ts",
+    ".tsx",
+    ".txt",
+    ".yaml",
+    ".yml"
+  ],
+  "scopes": {
+    "runtime": [
+      "app/",
+      "auth.ts",
+      "components/",
+      "data/",
+      "hooks/",
+      "instrumentation.ts",
+      "lib/",
+      "middleware.ts",
+      "public/",
+      "types/"
+    ],
+    "tool": [
+      "prisma/",
+      "scripts/"
+    ],
+    "test": [
+      "playwright.config.ts",
+      "tests/"
+    ],
+    "doc": [
+      ".agents/",
+      "AGENTS.md",
+      "docs/",
+      "LICENSE",
+      "MIGRATION_LINEAGE.md",
+      "README.md",
+      "TODO.md"
+    ]
+  },
+  "frameworkRoots": {
+    "directoryPrefixes": [
+      "app/"
+    ],
+    "fileBasenames": [
+      "default",
+      "error",
+      "global-error",
+      "layout",
+      "loading",
+      "manifest",
+      "not-found",
+      "page",
+      "robots",
+      "route",
+      "sitemap",
+      "template"
+    ]
+  },
+  "topLevelConfigRoots": [
+    "auth.ts",
+    "eslint.config.mjs",
+    "instrumentation-client.ts",
+    "instrumentation.ts",
+    "middleware.ts",
+    "next.config.mjs",
+    "playwright.config.ts",
+    "postcss.config.mjs",
+    "prisma.config.ts",
+    "tailwind.config.ts"
+  ],
+  "packageScriptCliOwnership": {
+    "eslint": "eslint",
+    "next": "next",
+    "patch-package": "patch-package",
+    "playwright": "@playwright/test",
+    "prisma": "prisma",
+    "tsc": "typescript"
+  },
+  "protectedPathPrefixes": [
+    "prisma/migrations/",
+    "scripts/repository-audit/",
+    "tests/fixtures/",
+    "types/"
+  ],
+  "assetRoots": [
+    "app/",
+    "public/",
+    "tests/fixtures/"
+  ],
+  "assetExtensions": [
+    ".avif",
+    ".gif",
+    ".ico",
+    ".jpeg",
+    ".jpg",
+    ".json",
+    ".mp3",
+    ".mp4",
+    ".ogg",
+    ".png",
+    ".svg",
+    ".wav",
+    ".webm",
+    ".webp",
+    ".woff",
+    ".woff2"
+  ],
+  "environmentDeclarationPaths": [
+    ".env.example"
+  ],
+  "ignoredPathPrefixes": [
+    ".next/",
+    ".superpowers/sdd/",
+    ".vercel/",
+    "graphify-out/",
+    "node_modules/",
+    "output/",
+    "test-results/"
+  ],
+  "forbiddenTrackedPaths": [
+    ".env",
+    ".env.development.local",
+    ".env.local",
+    ".env.production.local",
+    ".env.test.local",
+    ".next/",
+    ".vercel/",
+    "graphify-out/",
+    "node_modules/",
+    "output/",
+    "test-results/"
+  ]
+}
