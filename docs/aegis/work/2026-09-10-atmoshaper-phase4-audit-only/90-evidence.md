@@ -373,15 +373,15 @@ ESLint warnings; and the production build passed with 115 routes. The build's
 Babel deoptimization note was informational, not a lint warning. Earlier
 round-6 results remain historical supporting evidence.
 
-Hosted review round 8 adds `data/` to the asset inventory and explicitly
-protects it as a conservative retained catalog/provenance boundary. Duplicate
-dependency declarations now preserve all exact string versions across
+Hosted review round 8 added `data/` to the asset inventory and explicitly
+protected it as a conservative retained catalog/provenance boundary. Duplicate
+dependency declarations preserved all exact string versions across
 declaration sections for runtime metadata matching, without claiming an
-executable import. The current focused repository audit suites pass 91/91: 21
-repository-audit tests and 70 cleanup-audit tests. Current semantic results
-are:
+executable import. That round's focused repository audit suites passed 91/91: 21
+repository-audit tests and 70 cleanup-audit tests. Its now-historical semantic
+results were:
 
-| Lane | Findings | Uncertainties | Current round-8 bounded classification |
+| Lane | Findings | Uncertainties | Historical round-8 bounded classification |
 | --- | ---: | ---: | --- |
 | Dead code | 1,558 | 186 | 842 referenced modules and 23 candidates. |
 | Dependency | 2,863 | 19 | Two configuration owners, 1 runtime-package-metadata owner, 144 referenced packages and 5 candidates; metadata does not prove an import. |
@@ -394,6 +394,26 @@ passed with no ESLint warnings; and the production build passed with 115
 routes. The Babel deoptimization note was informational, not a lint warning.
 All four audit CLIs ran twice with byte-identical output, zero stderr and
 `deletionAuthority: false`.
+
+Hosted review round 9 makes global and exact imported process-object
+recognition scope-aware. Lexical/TDZ, `var`, function, class, catch, loop,
+module and static-block shadows no longer imply environment ownership.
+Parameter defaults are evaluated separately from body bindings, and
+namespace `ImportEquals` declarations shadow outer process objects. The
+import classifier is consolidated; the environment analyzer contains 482
+nonblank lines. These repairs change no real-repository audit counts.
+The current focused repository audit suites pass 95/95: 21 repository-audit
+tests and 74 cleanup-audit tests. Current semantic results remain dead code
+1,558 findings/186 uncertainties; dependency 2,863/19; asset 561/11,302;
+and environment 587/252: 306 static reads, 79 declared names, 202 missing
+declarations, zero unread-declaration candidates, 79 computed uncertainties
+and 173 unproven-alias uncertainties.
+
+At the verified round-9 staged code snapshot, the full suite recorded 4,293
+tests: 4,290 passed, 3 host-dependent skips and zero failures. Typecheck
+passed; lint passed with no ESLint warnings; and the production build passed
+with 115 routes. Rounds 7 and 8 remain historical supporting evidence.
+Every report retains `deletionAuthority: false`.
 
 The current tracked inventory remains 1,921 files. Brand verification remains
 zero missing and zero unclassified. Every report keeps

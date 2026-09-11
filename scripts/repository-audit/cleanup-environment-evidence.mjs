@@ -18,29 +18,40 @@ function compareLocation(left, right) {
   )
 }
 
-function isProcessEnv(node) {
-  return (
-    ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression) &&
-    node.expression.text === "process" && node.name.text === "env"
-  )
+const NON_ALIAS = "non-alias"
+const PROCESS_OBJECT = "process-object"
+
+function isProcessEnv(node, scope) {
+  if (!ts.isPropertyAccessExpression(node) || !ts.isIdentifier(node.expression) || node.name.text !== "env") return false
+  const status = lookupAlias(scope, node.expression.text)
+  return status === PROCESS_OBJECT || (node.expression.text === "process" && status === null)
 }
 
-/** Return local names for runtime named `env` imports from Node's process module. */
-function processEnvironmentImportNames(sourceFile) {
-  const names = []
+/** Classify exact Node environment/process imports and imports that shadow the implicit global. */
+function processImportBindings(sourceFile) {
+  const bindings = new Map()
   for (const statement of sourceFile.statements) {
-    if (
-      !ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) ||
-      !["node:process", "process"].includes(statement.moduleSpecifier.text)
-    ) continue
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue
     const clause = statement.importClause
-    if (!clause || clause.isTypeOnly || !clause.namedBindings || !ts.isNamedImports(clause.namedBindings)) continue
-    for (const specifier of clause.namedBindings.elements) {
-      const importedName = specifier.propertyName ?? specifier.name
-      if (!specifier.isTypeOnly && importedName.text === "env") names.push(specifier.name.text)
+    if (!clause) continue
+    const exactModule = ["node:process", "process"].includes(statement.moduleSpecifier.text)
+    const exactRuntimeModule = exactModule && !clause.isTypeOnly
+    if (clause.name && (exactRuntimeModule || clause.name.text === "process")) {
+      bindings.set(clause.name.text, exactRuntimeModule ? PROCESS_OBJECT : NON_ALIAS)
+    }
+    const named = clause.namedBindings
+    if (named && ts.isNamespaceImport(named) && (exactRuntimeModule || named.name.text === "process")) {
+      bindings.set(named.name.text, exactRuntimeModule ? PROCESS_OBJECT : NON_ALIAS)
+    } else if (named && ts.isNamedImports(named)) {
+      for (const specifier of named.elements) {
+        const imported = specifier.propertyName ?? specifier.name
+        if (exactRuntimeModule && !specifier.isTypeOnly && ["default", "env"].includes(imported.text)) {
+          bindings.set(specifier.name.text, imported.text === "env" ? "proven" : PROCESS_OBJECT)
+        } else if (specifier.name.text === "process") bindings.set("process", NON_ALIAS)
+      }
     }
   }
-  return names
+  return bindings
 }
 
 function childScope(parent, ownsVarBindings = false) {
@@ -76,8 +87,11 @@ function unwrapTransparentExpression(node) {
 function aliasStatus(node, scope) {
   const value = unwrapTransparentExpression(node)
   if (!value) return null
-  if (isProcessEnv(value)) return "proven"
-  if (ts.isIdentifier(value)) return lookupAlias(scope, value.text)
+  if (isProcessEnv(value, scope)) return "proven"
+  if (ts.isIdentifier(value)) {
+    const status = lookupAlias(scope, value.text)
+    return status === PROCESS_OBJECT ? null : status
+  }
   return null
 }
 
@@ -89,8 +103,6 @@ function isEnvironmentAliasName(name) {
 function hasReadSemantics(node) {
   return !ts.isWriteOnlyAccess(node) && !ts.isDeleteTarget(node)
 }
-
-const NON_ALIAS = "non-alias"
 
 function collectEnvironmentRows(record, text) {
   const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
@@ -251,6 +263,46 @@ function collectEnvironmentRows(record, text) {
     }
   }
 
+  const shadowProcessObject = (name, scope) => {
+    if (ts.isIdentifier(name)) {
+      const status = lookupAlias(scope, name.text)
+      if (status === PROCESS_OBJECT || (name.text === "process" && status === null)) {
+        scope.bindings.set(name.text, NON_ALIAS)
+      }
+    } else if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
+      for (const element of name.elements) {
+        if (ts.isBindingElement(element)) shadowProcessObject(element.name, scope)
+      }
+    }
+  }
+
+  /** Predeclare process-object shadows so TDZ/hoisting cannot expose an outer binding. */
+  const predeclareDirectProcessObjectShadows = (statements, scope) => {
+    for (const statement of statements) {
+      if (ts.isImportEqualsDeclaration(statement)) shadowProcessObject(statement.name, scope)
+      else if (ts.isVariableStatement(statement) && statement.declarationList.flags & ts.NodeFlags.BlockScoped) {
+        for (const declaration of statement.declarationList.declarations) shadowProcessObject(declaration.name, scope)
+      } else if (
+        (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) ||
+          ts.isEnumDeclaration(statement) || ts.isModuleDeclaration(statement)) &&
+        statement.name && ts.isIdentifier(statement.name)
+      ) shadowProcessObject(statement.name, scope)
+    }
+  }
+
+  const predeclareVarProcessObjectShadows = (container, scope) => {
+    const scan = (node) => {
+      if (node !== container && (ts.isFunctionLike(node) ||
+        ts.isClassStaticBlockDeclaration(node) || ts.isModuleBlock(node))) return
+      if (
+        ts.isVariableDeclaration(node) && ts.isVariableDeclarationList(node.parent) &&
+        !(node.parent.flags & ts.NodeFlags.BlockScoped)
+      ) shadowProcessObject(node.name, scope)
+      ts.forEachChild(node, scan)
+    }
+    scan(container)
+  }
+
   const assignName = (name, initializer, scope) => {
     let owner = scope
     while (owner && !owner.bindings.has(name)) owner = owner.parent
@@ -280,19 +332,23 @@ function collectEnvironmentRows(record, text) {
 
   const visit = (node, scope) => {
     if (ts.isFunctionLike(node)) {
-      const functionScope = childScope(scope, true)
-      for (const parameter of node.parameters) declareBindingName(parameter.name, functionScope)
+      const parameterScope = childScope(scope)
+      if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) && node.name) declareBindingName(node.name, parameterScope)
+      for (const parameter of node.parameters) declareBindingName(parameter.name, parameterScope)
       for (const parameter of node.parameters) {
-        if (parameter.initializer) visit(parameter.initializer, functionScope)
-        const status = aliasStatus(parameter.initializer, functionScope)
-        if (ts.isIdentifier(parameter.name)) bindName(parameter.name.text, parameter.initializer, functionScope)
+        if (parameter.initializer) visit(parameter.initializer, parameterScope)
+        const status = aliasStatus(parameter.initializer, parameterScope)
+        if (ts.isIdentifier(parameter.name)) bindName(parameter.name.text, parameter.initializer, parameterScope)
         else if (ts.isObjectBindingPattern(parameter.name)) {
           recordObjectBinding(parameter.name, status, "parameter-destructure")
           bindObjectElementInitializers(
-            parameter.name, functionScope, functionScope, "parameter-destructure",
+            parameter.name, parameterScope, parameterScope, "parameter-destructure",
           )
         }
       }
+      const functionScope = childScope(parameterScope, true)
+      for (const [name, status] of parameterScope.bindings) functionScope.bindings.set(name, status)
+      if (node.body) predeclareVarProcessObjectShadows(node.body, functionScope)
       if (node.body) visit(node.body, functionScope)
       return
     }
@@ -302,6 +358,7 @@ function collectEnvironmentRows(record, text) {
         (initializer.flags & ts.NodeFlags.BlockScoped)
         ? childScope(scope)
         : scope
+      if (loopScope !== scope) for (const declaration of initializer.declarations) declareBindingName(declaration.name, loopScope)
       if (initializer) visit(initializer, loopScope)
       if (ts.isForStatement(node)) {
         if (node.condition) visit(node.condition, loopScope)
@@ -318,8 +375,34 @@ function collectEnvironmentRows(record, text) {
       visit(node.block, catchScope)
       return
     }
+    if (ts.isClassStaticBlockDeclaration(node)) {
+      const staticScope = childScope(scope, true)
+      predeclareVarProcessObjectShadows(node.body, staticScope)
+      visit(node.body, staticScope)
+      return
+    }
+    if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
+      const classScope = childScope(scope)
+      if (node.name) declareBindingName(node.name, classScope)
+      ts.forEachChild(node, (child) => visit(child, classScope))
+      return
+    }
+    if (ts.isModuleBlock(node)) {
+      const moduleScope = childScope(scope, true)
+      predeclareVarProcessObjectShadows(node, moduleScope)
+      predeclareDirectProcessObjectShadows(node.statements, moduleScope)
+      for (const statement of node.statements) visit(statement, moduleScope)
+      return
+    }
+    if (ts.isCaseBlock(node)) {
+      const caseScope = childScope(scope)
+      predeclareDirectProcessObjectShadows(node.clauses.flatMap((clause) => clause.statements), caseScope)
+      for (const clause of node.clauses) visit(clause, caseScope)
+      return
+    }
     if (ts.isBlock(node) || ts.isSourceFile(node)) {
       const blockScope = ts.isSourceFile(node) ? scope : childScope(scope)
+      predeclareDirectProcessObjectShadows(node.statements, blockScope)
       for (const statement of node.statements) visit(statement, blockScope)
       return
     }
@@ -384,7 +467,8 @@ function collectEnvironmentRows(record, text) {
     ts.forEachChild(node, (child) => visit(child, scope))
   }
   const sourceScope = childScope(null, true)
-  for (const name of processEnvironmentImportNames(sourceFile)) sourceScope.bindings.set(name, "proven")
+  for (const [name, status] of processImportBindings(sourceFile)) sourceScope.bindings.set(name, status)
+  predeclareVarProcessObjectShadows(sourceFile, sourceScope)
   visit(sourceFile, sourceScope)
   const errors = sourceFile.parseDiagnostics.length > 0
     ? [{ code: "SOURCE_PARSE_DIAGNOSTIC", path: record.path, count: sourceFile.parseDiagnostics.length }]

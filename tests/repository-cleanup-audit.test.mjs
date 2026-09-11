@@ -2174,6 +2174,158 @@ test("environment alias scopes honor parameter defaults and ordinary shadowing",
   assert.equal(evidence.uncertainties.length, 0)
 })
 
+test("environment process object recognition honors lexical shadows and exact Node imports", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-process-scope.js", [
+    "import nodeProcess from 'node:process'",
+    "import * as portableProcess from 'process'",
+    "const globalRead = process.env.GLOBAL_PROCESS",
+    "const defaultRead = nodeProcess.env.DEFAULT_PROCESS",
+    "const namespaceRead = portableProcess.env.NAMESPACE_PROCESS",
+    "consume(nodeProcess); consume(portableProcess)",
+    "function parameterShadow(process) { return process.env.PARAMETER_SHADOW }",
+    "function localShadow() { const process = {}; return process.env.LOCAL_SHADOW }",
+    "function lexicalTdzShadow() { const value = process.env.LEXICAL_TDZ_SHADOW; const process = {}; return value }",
+    "function letTdzShadow() { const value = process.env.LET_TDZ_SHADOW; let process; return value }",
+    "function varHoistShadow() { const value = process.env.VAR_HOIST_SHADOW; var process; return value }",
+    "function functionHoistShadow() { const value = process.env.FUNCTION_HOIST_SHADOW; function process() {}; return value }",
+    "function classTdzShadow() { const value = process.env.CLASS_TDZ_SHADOW; class process {}; return value }",
+    "try { throw new Error('fixture') } catch (process) { process.env.CATCH_SHADOW }",
+    "void globalRead; void defaultRead; void namespaceRead",
+    "void parameterShadow; void localShadow; void lexicalTdzShadow; void letTdzShadow; void varHoistShadow",
+    "void functionHoistShadow; void classTdzShadow",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/unrelated-process-import.js", [
+    "import process from './fake-process.js'",
+    "const value = process.env.UNRELATED_IMPORT_SHADOW",
+    "void value",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/type-process-import.ts", [
+    "import type process from 'node:process'",
+    "const value = process.env.TYPE_ONLY_IMPORT_SHADOW",
+    "void value",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "GLOBAL_PROCESS",
+    "DEFAULT_PROCESS",
+    "NAMESPACE_PROCESS",
+  ])
+  assert.equal(evidence.uncertainties.length, 0)
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("environment process objects distinguish method names from function bindings and body scope", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-process-functions.js", [
+    "import nodeProcess from 'node:process'",
+    "const object = { nodeProcess() { return nodeProcess.env.METHOD_PROPERTY_GLOBAL } }",
+    "class Reader { get nodeProcess() { return nodeProcess.env.ACCESSOR_PROPERTY_GLOBAL } }",
+    "const namedExpression = function nodeProcess(value = nodeProcess.env.NAMED_EXPRESSION_SHADOW) { return nodeProcess.env.NAMED_EXPRESSION_BODY_SHADOW }",
+    "function wrapper() { function nodeProcess(value = nodeProcess.env.NAMED_DECLARATION_SHADOW) { return nodeProcess.env.NAMED_DECLARATION_BODY_SHADOW }; return nodeProcess }",
+    "function bodyVar(value = process.env.PARAMETER_DEFAULT_BEFORE_VAR) { var process; return process.env.BODY_VAR_SHADOW ?? value }",
+    "function bodyFunction(value = process.env.PARAMETER_DEFAULT_BEFORE_FUNCTION) { function process() {}; return process.env.BODY_FUNCTION_SHADOW ?? value }",
+    "void object; void Reader; void namedExpression; void wrapper; void bodyVar; void bodyFunction",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "METHOD_PROPERTY_GLOBAL",
+    "ACCESSOR_PROPERTY_GLOBAL",
+    "PARAMETER_DEFAULT_BEFORE_VAR",
+    "PARAMETER_DEFAULT_BEFORE_FUNCTION",
+  ])
+  assert.equal(evidence.uncertainties.length, 0)
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("environment process object aliases honor later shadows and whole loop declarations", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-process-aliases.js", [
+    "import nodeProcess from 'node:process'",
+    "import { default as namedProcess } from 'process'",
+    "const importedControl = nodeProcess.env.IMPORTED_CONTROL",
+    "const namedDefaultControl = namedProcess.env.NAMED_DEFAULT_CONTROL",
+    "function constShadow() { const value = nodeProcess.env.CONST_ALIAS_SHADOW; const nodeProcess = {}; return value }",
+    "function letShadow() { const value = nodeProcess.env.LET_ALIAS_SHADOW; let nodeProcess; return value }",
+    "function varShadow() { const value = nodeProcess.env.VAR_ALIAS_SHADOW; var nodeProcess; return value }",
+    "function functionShadow() { const value = nodeProcess.env.FUNCTION_ALIAS_SHADOW; function nodeProcess() {}; return value }",
+    "function classShadow() { const value = nodeProcess.env.CLASS_ALIAS_SHADOW; class nodeProcess {}; return value }",
+    "for (let value = nodeProcess.env.LOOP_DECLARATION_SHADOW, nodeProcess = {}; false; ) { void value; void nodeProcess }",
+    "const afterLoopControl = nodeProcess.env.AFTER_LOOP_CONTROL",
+    "void importedControl; void namedDefaultControl; void afterLoopControl",
+    "void constShadow; void letShadow; void varShadow; void functionShadow; void classShadow",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/environment-process-named-default.js", [
+    "import { default as process } from 'node:process'",
+    "const namedDefaultLocalProcess = process.env.NAMED_DEFAULT_LOCAL_PROCESS",
+    "consume(process)",
+    "void namedDefaultLocalProcess",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/environment-process-named-default-type.ts", [
+    "import type { default as process } from 'node:process'",
+    "const value = process.env.TYPE_NAMED_DEFAULT_SHADOW",
+    "void value",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/environment-process-named-default-unrelated.js", [
+    "import { default as process } from './fake-process.js'",
+    "const value = process.env.UNRELATED_NAMED_DEFAULT_SHADOW",
+    "void value",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "IMPORTED_CONTROL",
+    "NAMED_DEFAULT_CONTROL",
+    "AFTER_LOOP_CONTROL",
+    "NAMED_DEFAULT_LOCAL_PROCESS",
+  ])
+  assert.equal(evidence.uncertainties.length, 0)
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("environment namespace import-equals declarations shadow outer process objects", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-process-namespace.ts", [
+    "import nodeProcess from 'node:process'",
+    "namespace Controls {",
+    "  export const global = process.env.NAMESPACE_GLOBAL_CONTROL",
+    "  export const imported = nodeProcess.env.NAMESPACE_OUTER_ALIAS_CONTROL",
+    "}",
+    "namespace Shadow {",
+    "  const before = nodeProcess.env.NAMESPACE_IMPORT_EQUALS_BEFORE_SHADOW",
+    "  import nodeProcess = Runtime.nodeProcess",
+    "  const after = nodeProcess.env.NAMESPACE_IMPORT_EQUALS_AFTER_SHADOW",
+    "  void before; void after; void nodeProcess",
+    "}",
+    "const outer = nodeProcess.env.OUTER_ALIAS_CONTROL",
+    "void outer; void Controls; void Shadow",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "NAMESPACE_GLOBAL_CONTROL",
+    "NAMESPACE_OUTER_ALIAS_CONTROL",
+    "OUTER_ALIAS_CONTROL",
+  ])
+  assert.equal(evidence.uncertainties.length, 0)
+  assert.equal(evidence.errors.length, 0)
+})
+
 test("environment alias reassignment updates proven and unknown state", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
