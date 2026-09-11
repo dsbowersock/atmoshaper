@@ -508,7 +508,7 @@ At that snapshot, latest-head hosted checks and reviews remained pending before 
 authorized merge of PR #3. No deletion, merge, provider mutation or Phase 5
 action occurred; `deletionAuthority` remains false.
 
-Hosted review round 13 repairs one validated latest-head Codex finding at
+Hosted review round 13 repaired one validated latest-head Codex finding at
 `3a10a1b`: nested exact plain or dotted singular/plural credential/secret
 directory segments could bypass the fail-before-read guard. Those directory
 segments are now rejected before metadata or blob reads, while lookalike names
@@ -521,7 +521,7 @@ slice passed 3/3. The authoritative staged repository audit suites passed
 host-dependent skips and zero failures. Typecheck and lint passed; the Babel
 deoptimization note was informational.
 
-Current staged semantic results are dead code 1,558 findings/209
+Its now-historical semantic results were dead code 1,558 findings/209
 uncertainties, including 22 `stylesheetUsage` and 2 `manualScripts`
 uncertainties; dependency 2,863/19; asset 561/11,308; and environment
 587/252. All four audits ran twice with byte-identical output, exit 0 and
@@ -536,9 +536,44 @@ after these versioned receipts are staged; current final-index bytes and
 hashes remain outside these self-referential documents. Round-12 results
 remain historical supporting evidence.
 
-Latest-head hosted checks and reviews remain pending before any separately
+At that snapshot, latest-head hosted checks and reviews remained pending before any separately
 authorized merge of PR #3. No deletion, merge, provider mutation or Phase 5
 action occurred; `deletionAuthority` remains false.
+
+Hosted review round 14 repairs one validated latest-head Codex finding on
+`9e5cb0c`: bounded compound credential-artifact basenames
+`client_secret_<identifier>` and exact `service-account-key` were reaching
+metadata or blob reads. They are now rejected before policy, metadata or
+evidence reads. Case and nesting variants were tested; benign lookalikes
+remain allowed.
+
+Strict TDD validation recorded RED with 0 of 1 targeted test passing, then
+GREEN 1/1. The relevant privacy/CSS/source-cap slice passed 11/11, and the
+authoritative staged focused repository audit suites passed 101/101.
+The full suite exited 0 with 4,299 tests: 4,296 passed, 3 host-dependent
+skips and zero failures. Typecheck and lint passed; the Babel deoptimization
+note was informational.
+
+Current staged semantic results are dead code 1,558 findings/209
+uncertainties, including 22 `stylesheetUsage` and 2 `manualScripts`
+uncertainties; dependency 2,863/19; asset 561/11,312 with 529 dynamic and
+10,783 unresolved uncertainties; and environment 587/252. All four audits
+ran twice with byte-identical output, exit 0 and empty stderr; every report
+retained `deletionAuthority: false`. Brand verification remained at zero
+missing and zero unclassified references.
+
+The historical pre-document-synchronization staged inventory contained
+1,921 files and 47,391,330 Git blob bytes, with inventory SHA-256
+`76816a9001dd302d4765da3dc868da9d9eb9636ee3809c71814659c3d2f6c046`
+and zero forbidden tracked paths. This capture does not identify the index
+after these versioned receipts are staged; exact final-index bytes and
+hashes remain outside these self-referential tracked documents. Round-13
+results remain historical supporting evidence.
+
+Latest-head hosted checks and CodeRabbit/Codex reviews remain pending
+before any separately authorized merge of PR #3. No deletion, merge,
+provider mutation or Phase 5 action occurred; `deletionAuthority` remains
+false.
 
 The current tracked inventory remains 1,921 files. Brand verification remains
 zero missing and zero unclassified. Every report keeps

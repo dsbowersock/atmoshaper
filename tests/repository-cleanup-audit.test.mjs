@@ -2008,6 +2008,10 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
     "config/credentials.production.yaml",
     "config/credentials.toml",
     "config/credential.txt",
+    "config/oauth/client_secret_123.apps.googleusercontent.com.json",
+    "Config/OAuth/CLIENT_SECRET_Tenant-A.YAML",
+    "config/cloud/service-account-key",
+    "Config/Cloud/SERVICE-ACCOUNT-KEY.toml",
     "config/credentials/token.ts",
     "config/.credentials/provider.json",
     "config/credential/token.ts",
@@ -2041,6 +2045,10 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
   writeFixture(allowedRoot, "config/credentials-guide.md", "public guidance\n")
   writeFixture(allowedRoot, "config/credentials-guide/token.ts", "export const publicFixture = true\n")
   writeFixture(allowedRoot, "config/.credentials-cache/provider.json", "{}\n")
+  writeFixture(allowedRoot, "config/oauth/client_secretary.json", "{}\n")
+  writeFixture(allowedRoot, "config/oauth/client_secret_.json", "{}\n")
+  writeFixture(allowedRoot, "config/cloud/service-account-keyring.json", "{}\n")
+  writeFixture(allowedRoot, "config/cloud/service-account-key-guide.md", "public guidance\n")
   assert.doesNotThrow(() => buildTrackedTextIndex(allowedRoot, policy))
 })
 

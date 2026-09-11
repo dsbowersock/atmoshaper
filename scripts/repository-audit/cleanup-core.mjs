@@ -250,10 +250,12 @@ function isBootstrapPrivatePath(path) {
   const segments = lower.split("/")
   const basename = segments.at(-1)
   const directories = segments.slice(0, -1)
+  const compoundArtifact = /^\.?(?:client_secret_[a-z0-9][a-z0-9_-]*|service-account-key)(?:\.|$)/
   return (
     (basename.startsWith(".env") && basename !== ".env.example") ||
     directories.some((segment) => /^\.?(?:credentials?|secrets?)$/.test(segment)) ||
-    /^\.?(?:credentials?|secrets?)(?:\.|$)/.test(basename)
+    /^\.?(?:credentials?|secrets?)(?:\.|$)/.test(basename) ||
+    compoundArtifact.test(basename)
   )
 }
 
