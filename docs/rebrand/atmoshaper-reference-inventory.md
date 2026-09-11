@@ -841,13 +841,12 @@ At the verified round-6 staged code snapshot, the full suite passed 4,282
 tests with 3 host-dependent skips and zero failures; typecheck and lint
 passed.
 
-Hosted review round 7 records exact tracked runtime package metadata
+Hosted review round 7 recorded exact tracked runtime package metadata
 ownership, keeping `@generative-music/pieces-alex-bainter` out of unreferenced
-candidates without claiming an executable import. The generic parser requires
-exact declared package names and versions and conservatively handles lexical
-shadows, duplicate or overridden properties, and spreads. The current focused
-repository audit suites pass 88/88: 21 repository-audit tests and 67
-cleanup-audit tests. Current semantic results are dead code 1,558/186 with 842
+candidates without claiming an executable import. The generic parser required
+exact declared package names and versions and conservatively handled lexical
+shadows, duplicate or overridden properties, and spreads. That round's focused repository audit suites passed 88/88: 21 repository-audit tests and 67
+cleanup-audit tests. Its now-historical semantic results were dead code 1,558/186 with 842
 referenced modules and 23 candidates; dependency 2,863/19 with 2 configuration
 owners, 1 runtime-package-metadata owner, 144 referenced packages and 5
 candidates; asset 390/11,384 with 97 tracked assets, 97 protected items, 177
@@ -860,6 +859,27 @@ host-dependent skips and zero failures; typecheck passed; lint passed with no
 ESLint warnings; and the production build passed with 115 routes. The build's
 Babel deoptimization note was informational, not a lint warning. Earlier
 round-6 results remain historical supporting evidence.
+
+Hosted review round 8 adds `data/` to the asset inventory and explicitly
+protects it as a conservative retained catalog/provenance boundary. Duplicate
+dependency declarations now preserve all exact string versions across
+declaration sections for runtime metadata matching, without claiming an
+executable import. The current focused repository audit suites pass 91/91: 21
+repository-audit tests and 70 cleanup-audit tests. Current semantic results
+are dead code 1,558/186 with 842 referenced modules and 23 candidates;
+dependency 2,863/19 with 2 configuration owners, 1 runtime-package-metadata
+owner, 144 referenced packages and 5 candidates; asset 561/11,302 with 137
+tracked assets, 137 protected items, 262 reference owners, 25 basename
+signals, zero candidates, 529 dynamic rows and 10,773 unresolved rows; and
+environment 587/252 with 79 computed and 173 unproven-alias uncertainties and
+zero unread-declaration candidates.
+
+At the verified round-8 staged snapshot, the full suite recorded 4,289 tests:
+4,286 passed, 3 host-dependent skips and zero failures. Typecheck passed; lint
+passed with no ESLint warnings; and the production build passed with 115
+routes. The Babel deoptimization note was informational, not a lint warning.
+All four audit CLIs ran twice with byte-identical output, zero stderr and
+`deletionAuthority: false`.
 
 The current tracked inventory remains 1,921 files.
 Brand verification remains zero missing and zero unclassified. Exact current

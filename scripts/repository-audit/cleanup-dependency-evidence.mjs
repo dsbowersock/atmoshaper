@@ -171,9 +171,14 @@ function exactString(node, constants) {
 function runtimePackageMetadataOwners(index, declarations, packageJson, policy) {
   const { textByPath } = requireTrackedTextIndex(index)
   const sourceExtensions = new Set(policy.sourceExtensions)
-  const declaredVersions = new Map(declarations.map((row) => [
-    row.name, typeof packageJson[row.section]?.[row.name] === "string" ? packageJson[row.section][row.name] : null,
-  ]))
+  const declaredVersions = new Map()
+  for (const row of declarations) {
+    const version = packageJson[row.section]?.[row.name]
+    if (typeof version !== "string") continue
+    const versions = declaredVersions.get(row.name) ?? new Set()
+    versions.add(version)
+    declaredVersions.set(row.name, versions)
+  }
   const owners = []
   for (const record of index.records) {
     if (record.scope !== "runtime" || !sourceExtensions.has(record.extension)) continue
@@ -194,10 +199,9 @@ function runtimePackageMetadataOwners(index, declarations, packageJson, policy) 
         const packageVersion = packageVersionProperty
           ? exactString(packageVersionProperty.initializer, constants)
           : null
-        const declaredVersion = declaredVersions.get(packageName)
+        const packageVersions = declaredVersions.get(packageName)
         if (
-          packageName && typeof packageVersion === "string" && typeof declaredVersion === "string" &&
-          packageVersion === declaredVersion
+          packageName && typeof packageVersion === "string" && packageVersions?.has(packageVersion)
         ) {
           owners.push({
             packageName, ownerPath: record.path,

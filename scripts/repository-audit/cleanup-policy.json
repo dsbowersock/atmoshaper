@@ -124,6 +124,7 @@
     "tsc": "typescript"
   },
   "protectedPathPrefixes": [
+    "data/",
     "prisma/migrations/",
     "public/",
     "scripts/repository-audit/",
@@ -133,6 +134,7 @@
   ],
   "assetRoots": [
     "app/",
+    "data/",
     "public/",
     "tests/browser/atmoshaper-repository-migration-parity.spec.ts-snapshots/",
     "tests/fixtures/"

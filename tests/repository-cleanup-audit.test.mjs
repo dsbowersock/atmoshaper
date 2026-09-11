@@ -830,6 +830,27 @@ test("dependency evidence records exact tracked runtime package metadata", (t) =
   )), false)
 })
 
+test("dependency metadata accepts any exact string version declared across sections", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, {
+    dependencies: { "catalog-package": "1.2.3", "unmatched-package": "2.0.0" },
+    devDependencies: { "catalog-package": "9.9.9", "unmatched-package": "8.0.0" },
+  })
+  writeFixture(root, "lib/runtime-catalog.js", [
+    "export const catalog = { runtime: { packageName: 'catalog-package', packageVersion: '1.2.3' } }",
+    "export const unmatched = { runtime: { packageName: 'unmatched-package', packageVersion: '0.0.0' } }",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildDependencyEvidence(index, policy)
+  assert.deepEqual(evidence.runtimePackageMetadataOwners.map((row) => row.packageName), ["catalog-package"])
+
+  const report = buildDependencyCandidateReport(index, policy)
+  assert.equal(report.unreferencedCandidates.some((row) => row.name === "catalog-package"), false)
+  assert.ok(report.unreferencedCandidates.some((row) => row.name === "unmatched-package"))
+})
+
 test("dependency CLI uses generic configuration ownership from the tracked stage-0 policy", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root, { devDependencies: { postcss: "1.0.0" } })
@@ -1411,7 +1432,7 @@ test("asset report records Git identities, exact owners by scope, and conservati
   writeFixture(root, "tests/asset-owner.test.ts", "const icon = '/icons/direct.svg'\nvoid icon\n")
 
   const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
-  assert.equal(report.trackedAssets.length, 5)
+  assert.equal(report.trackedAssets.length, 6)
   assert.ok(report.trackedAssets.every((asset) => /^[a-f0-9]{40,64}$/.test(asset.oid)))
   assert.ok(report.trackedAssets.every((asset) => Number.isInteger(asset.bytes) && asset.bytes > 0))
   assert.deepEqual(
@@ -1514,13 +1535,14 @@ test("asset report resolves bare slash-relative paths only to tracked inventory 
   const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
   assert.deepEqual(
     report.referenceOwners.map((row) => [row.fromPath, row.targetPath]),
-    [["public/catalog/index.json", "public/catalog/media/tracked.mp3"]],
+    [
+      ["data/index.json", "data/media/outside.mp3"],
+      ["public/catalog/index.json", "public/catalog/media/tracked.mp3"],
+    ],
   )
-  assert.equal(report.referenceOwners.some((row) => row.fromPath === "data/index.json"), false)
   assert.deepEqual(
     report.uncertainties.unresolvedLiteralAssets.map((row) => row.code).sort(),
     [
-      "OUT_OF_INVENTORY_LITERAL_ASSET",
       "UNRESOLVED_LITERAL_ASSET",
       "UNRESOLVED_LITERAL_ASSET",
       "UNRESOLVED_LITERAL_ASSET",
@@ -1534,7 +1556,6 @@ test("asset report resolves bare slash-relative paths only to tracked inventory 
     literals.ignored,
     literals.escaped,
     literals.scheme,
-    literals.outside,
   ])
 
   const realReport = buildAssetCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
@@ -2316,6 +2337,61 @@ test("asset CLI applies Browser-QA snapshot protection from a staged fixture pol
   assert.ok(report.findings.some((row) => (
     row.findingKind === "protectedAssets" && row.path === snapshotPath
   )))
+})
+
+test("asset CLI applies staged data-catalog inventory and protection policy", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const catalogPath = "data/atmoshaper/retained-catalog.json"
+  const catalogAbsolutePath = writeFixture(root, catalogPath, "{}\n")
+  const fixturePolicy = clonePolicy()
+  fixturePolicy.assetRoots = [...new Set([...fixturePolicy.assetRoots, "data/"])].sort()
+  fixturePolicy.protectedPathPrefixes = [
+    ...new Set([...fixturePolicy.protectedPathPrefixes, "data/"]),
+  ].sort()
+  const fixturePolicyPath = writeFixture(
+    root,
+    "scripts/repository-audit/cleanup-policy.json",
+    `${JSON.stringify(fixturePolicy, null, 2)}\n`,
+  )
+  const privatePolicySentinel = "unstaged-private-data-policy"
+  const privateCatalogSentinel = "unstaged-private-data-catalog"
+  writeFileSync(fixturePolicyPath, `{"private":"${privatePolicySentinel}"}\n`)
+  writeFileSync(catalogAbsolutePath, `{"private":"${privateCatalogSentinel}"}\n`)
+
+  const result = runAuditCli(assetCliPath, root, fixturePolicyPath)
+  assert.equal(result.status, 0)
+  assert.equal(result.stderr, "")
+  const report = JSON.parse(result.stdout)
+  assert.ok(report.findings.some((row) => (
+    row.findingKind === "trackedAssets" && row.path === catalogPath
+  )))
+  assert.ok(report.findings.some((row) => (
+    row.findingKind === "protectedAssets" && row.path === catalogPath &&
+    row.reasons.includes("policy-prefix:data/")
+  )))
+  assert.equal(report.findings.some((row) => (
+    row.findingKind === "unreferencedCandidates" && row.path === catalogPath
+  )), false)
+  assert.equal(report.deletionAuthority, false)
+  assertPrivateSerialization(result.stdout, root, [privatePolicySentinel, privateCatalogSentinel])
+})
+
+test("real retained data catalogs are tracked, protected, and never candidates", () => {
+  assert.ok(policy.assetRoots.includes("data/"))
+  assert.ok(policy.protectedPathPrefixes.includes("data/"))
+  const index = buildTrackedTextIndex(repositoryRoot, policy)
+  const dataPaths = index.trackedPaths.filter((path) => path.startsWith("data/") && path.endsWith(".json"))
+  assert.equal(dataPaths.length, 40)
+  const report = buildAssetCandidateReport(index, policy)
+  const trackedPaths = new Set(report.trackedAssets.map((row) => row.path))
+  const protectedPaths = new Set(report.protectedAssets.map((row) => row.path))
+  const candidatePaths = new Set(report.unreferencedCandidates.map((row) => row.path))
+  for (const path of dataPaths) {
+    assert.ok(trackedPaths.has(path), `${path} is absent from tracked assets`)
+    assert.ok(protectedPaths.has(path), `${path} is absent from protected assets`)
+    assert.equal(candidatePaths.has(path), false, `${path} became a candidate`)
+  }
 })
 
 test("audit envelope keeps inventory identity while findings change", (t) => {
