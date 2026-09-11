@@ -1,11 +1,13 @@
-import { dirname, resolve } from "node:path"
+import { dirname, extname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 import {
   buildAuditEnvelope,
   buildTrackedTextIndex,
   candidateBody,
+  classifyScope,
   loadCleanupContext,
+  selectTrackedMetadata,
 } from "./cleanup-core.mjs"
 import { buildModuleEvidence } from "./cleanup-module-evidence.mjs"
 import { stableJson } from "./core.mjs"
@@ -81,6 +83,14 @@ export function buildDeadCodeCandidateReport(index, policy) {
   const nonliteralImports = evidence.uncertainties.filter((row) => (
     !["NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE", "OPAQUE_MANUAL_TOOL_SOURCE"].includes(row.code)
   ))
+  // File presence/imports cannot prove selector or token liveness. Inventory only
+  // tracked identity here; CSS text remains available to the separate asset lane.
+  const stylesheetPaths = index.trackedPaths.filter((path) => policy.stylesheetExtensions.includes(extname(path).toLowerCase()))
+  const stylesheetUsage = selectTrackedMetadata(index, stylesheetPaths).tracked.map((row) => ({
+    ...row,
+    scope: classifyScope(row.path, policy),
+    reason: "stylesheet-selector-and-design-token-usage-unresolved",
+  }))
 
   return stableJson({
     schemaVersion: 1,
@@ -94,6 +104,7 @@ export function buildDeadCodeCandidateReport(index, policy) {
       manualScripts,
       generatedInputs,
       expectedFixtureLiterals,
+      stylesheetUsage,
     },
   })
 }

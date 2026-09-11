@@ -986,6 +986,77 @@ test("dead-code report separates candidates from roots, protections, and uncerta
   assertPrivateSerialization(report, root, [dynamicExpression])
 })
 
+test("stylesheet policy explicitly owns text-only extensions and rejects invalid coverage", () => {
+  assert.deepEqual(realPolicy.stylesheetExtensions, [".css"])
+  for (const stylesheetExtensions of [[], [".css", ".css"], [".CSS"], [".scss"], [".ts"]]) {
+    assert.throws(() => validateCleanupPolicy({ ...clonePolicy(), stylesheetExtensions }), /CLEANUP_POLICY_INVALID/)
+  }
+  const missing = clonePolicy()
+  delete missing.stylesheetExtensions
+  assert.throws(() => validateCleanupPolicy(missing), /CLEANUP_POLICY_INVALID/)
+})
+
+test("stylesheet usage remains metadata-only uncertainty regardless of imports or apparent ownership", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "public/icon.svg", "<svg/>\n")
+  writeFixture(root, "app/page.tsx", "import './imported.css'; export default function Page() { return null }\n")
+  writeFixture(root, "tests/style.test.mjs", "import { readFileSync } from 'node:fs'; readFileSync(new URL('../components/test-owned.css', import.meta.url), 'utf8')\n")
+  const stylesheetScopes = [
+    ["app/imported.css", "runtime"],
+    ["app/orphan.css", "runtime"],
+    ["components/orphan.css", "runtime"],
+    ["components/test-owned.css", "runtime"],
+    ["styles/orphan.css", "other"],
+    ["tests/fixture.css", "test"],
+  ]
+  const css = ":root { --private-fixture-token: red; } .fixture:hover { background: url('/icon.svg'); }\n"
+  for (const [path] of stylesheetScopes) writeFixture(root, path, css)
+  writeFixture(root, "app/untracked.css", css, { tracked: false })
+  writeFileSync(resolve(root, "app/imported.css"), "UNSTAGED_STYLESHEET_SENTINEL")
+  const index = buildTrackedTextIndex(root, policy)
+  const report = buildDeadCodeCandidateReport(index, policy)
+  const expected = stylesheetScopes.map(([path, scope]) => {
+    const { bytes, oid } = index.records.find((row) => row.path === path)
+    assert.equal(bytes, Buffer.byteLength(css))
+    return { path, scope, bytes, oid, reason: "stylesheet-selector-and-design-token-usage-unresolved" }
+  })
+  assert.deepEqual(report.uncertainties.stylesheetUsage ?? [], expected)
+  assert.deepEqual(report, buildDeadCodeCandidateReport(index, policy))
+  const envelope = buildAuditEnvelope("dead-code", index, candidateBody(report))
+  assert.equal(envelope.deletionAuthority, false)
+  assert.equal(envelope.findings.some((row) => row.path?.endsWith(".css")), false)
+  assert.equal(envelope.uncertainties.filter((row) => row.path?.endsWith(".css")).length, stylesheetScopes.length)
+  const modules = buildModuleEvidence(index, policy)
+  assert.deepEqual(modules.errors, [])
+  assert.equal(modules.modules.some((row) => row.path.endsWith(".css")), false)
+  assert.ok(modules.references.some((row) => row.fromPath === "app/page.tsx" && row.targetPath === "app/imported.css"))
+  const assets = buildAssetCandidateReport(index, policy)
+  assert.ok(assets.referenceOwners.some((row) => row.fromPath === "app/imported.css" && row.targetPath === "public/icon.svg"))
+  const dependencies = buildDependencyCandidateReport(index, policy)
+  assert.equal(dependencies.uncertainties.nonliteralModuleExpressions.some((row) => row.path.endsWith(".css")), false)
+  assertPrivateSerialization(envelope, root, ["UNSTAGED_STYLESHEET_SENTINEL", "private-fixture-token", css])
+})
+
+test("stylesheet coverage inventories all 22 tracked repository CSS files exactly once", () => {
+  const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
+  const paths = index.trackedPaths.filter((path) => path.toLowerCase().endsWith(".css"))
+  assert.equal(paths.length, 22)
+  const report = buildDeadCodeCandidateReport(index, realPolicy)
+  const rows = report.uncertainties.stylesheetUsage ?? []
+  assert.deepEqual(rows.map((row) => row.path), paths)
+  assert.equal(new Set(rows.map((row) => row.path)).size, paths.length)
+  assert.ok(rows.some((row) => row.path === "app/globals.css"))
+  assert.ok(rows.some((row) => row.path === "components/backgrounds/BackgroundHost.module.css"))
+  for (const row of rows) {
+    const record = index.records.find((entry) => entry.path === row.path)
+    assert.equal(row.bytes, record.bytes)
+    assert.equal(row.oid, record.oid)
+    assert.equal(row.scope, record.scope)
+    assert.deepEqual(Object.keys(row).sort(), ["bytes", "oid", "path", "reason", "scope"])
+  }
+})
+
 test("policy-owned manual tools stay opaque across content audits and appear once as dead-code uncertainty", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root, { dependencies: { "opaque-package": "1.0.0" } })
@@ -1934,6 +2005,9 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
 
   for (const privatePath of [
     "config/credentials.production.json",
+    "config/credentials.production.yaml",
+    "config/credentials.toml",
+    "config/credential.txt",
     "config/.secrets/token.txt",
     "config/secrets/token.txt",
   ]) {
@@ -1958,6 +2032,7 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
   const allowedRoot = createFixtureRepository(t)
   writePackage(allowedRoot)
   writeFixture(allowedRoot, "config/secrets-manager/public.txt", "public fixture\n")
+  writeFixture(allowedRoot, "config/credentials-guide.md", "public guidance\n")
   assert.doesNotThrow(() => buildTrackedTextIndex(allowedRoot, policy))
 })
 

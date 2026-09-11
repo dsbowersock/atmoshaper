@@ -442,16 +442,16 @@ checks/review precede any separately authorized merge. No cleanup deletion,
 provider mutation or Phase 5 action occurred; `deletionAuthority` remains
 false.
 
-Hosted review round 11 records the staged CodeRabbit/Codex privacy and
-opaque-tool hardening. Nested `.secrets/` and `secrets/` directories are
+Hosted review round 11 recorded the staged CodeRabbit/Codex privacy and
+opaque-tool hardening. Nested `.secrets/` and `secrets/` directories were
 rejected at any depth before policy, metadata or evidence blob reads. The
-tracked Python adapter is represented exactly once as an opaque manual-tool
+tracked Python adapter was represented exactly once as an opaque manual-tool
 uncertainty without parsing its content; this does not claim a static import
 or authorize removal.
 
-The current focused repository audit suites pass 98/98. The full suite
+That round's focused repository audit suites passed 98/98. The full suite
 recorded 4,296 tests: 4,293 passed, 3 host-dependent skips and zero failures.
-Typecheck and lint passed. Current semantic results are dead code 1,558
+Typecheck and lint passed. Its now-historical semantic results were dead code 1,558
 findings/187 uncertainties, including 2 manual-script uncertainties;
 dependency 2,863/19; asset 561/11,303; and environment 587/252. All four
 audits ran twice with byte-identical output, exit 0 and empty stderr;
@@ -467,9 +467,46 @@ of the index after these versioned receipts are staged. Current final-index
 bytes and hashes remain outside these self-referential versioned documents.
 Round-10 results remain historical supporting evidence.
 
-Latest-head hosted review and final checks/review remain pending before any
+At that snapshot, latest-head hosted review and final checks/review were pending before any
 separately authorized merge of PR #3. No cleanup deletion, provider mutation
 or Phase 5 action occurred; `deletionAuthority` remains false.
+
+Hosted review round 12 repairs two validated latest-head Codex findings:
+tracked credential/secret basename files could bypass privacy protection
+under non-JSON extensions, and 22 CSS files were absent from cleanup
+candidate/uncertainty coverage. Exact or dotted `credential`, `credentials`,
+`secret` and `secrets` basenames are now rejected independently of extension
+before blob reads, while lookalike names remain allowed. Policy-owned `.css`
+files each appear exactly once as metadata-only `stylesheetUsage`
+uncertainties, without JS/TS parsing or dependency evidence; existing imports
+and CSS asset-reference evidence remain preserved.
+
+TDD credential validation recorded RED with 0 of 1 targeted test passing,
+then GREEN 2/2. All 3 newly added CSS regression tests failed at RED for the
+expected missing coverage before implementation; the CSS GREEN slice passed
+11/11. The authoritative staged focused repository audit suites passed
+101/101. The full suite exited 0 with 4,299 tests: 4,296 passed, 3
+host-dependent skips and zero failures. Typecheck and lint passed; the Babel
+deoptimization note was informational.
+
+Current staged semantic results are dead code 1,558 findings/209
+uncertainties, including 22 `stylesheetUsage` and 2 `manualScripts`
+uncertainties; dependency 2,863/19; asset 561/11,305; and environment
+587/252. All four audits ran twice with byte-identical output, exit 0 and
+empty stderr; every report retained `deletionAuthority: false`. Brand
+verification remained at zero missing and zero unclassified references.
+
+The historical pre-document-synchronization staged inventory contained
+1,921 files and 47,369,668 Git blob bytes, with inventory SHA-256
+`88baaae9e2ebd36cc66e06965ab3dee426a3c1bcaf1b3eaa110a1d8bd7c0d12a`
+and zero forbidden tracked paths. This capture does not identify the index
+after these versioned receipts are staged; current final-index bytes and
+hashes remain outside these self-referential documents. Round-11 results
+remain historical supporting evidence.
+
+Latest-head hosted checks and reviews remain pending before any separately
+authorized merge of PR #3. No deletion, merge, provider mutation or Phase 5
+action occurred; `deletionAuthority` remains false.
 
 The current tracked inventory remains 1,921 files. Brand verification remains
 zero missing and zero unclassified. Every report keeps

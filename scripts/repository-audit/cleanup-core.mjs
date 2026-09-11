@@ -14,7 +14,7 @@ const POLICY_FIELDS = [
   "environmentDeclarationPaths", "forbiddenTrackedPaths", "frameworkRoots",
   "ignoredPathPrefixes", "manualToolSources", "packageScriptCliOwnership",
   "protectedPathPrefixes", "schemaVersion", "scopes", "sourceExtensions",
-  "textExtensions", "topLevelConfigRoots",
+  "stylesheetExtensions", "textExtensions", "topLevelConfigRoots",
 ]
 const SCOPE_NAMES = ["runtime", "tool", "test", "doc"]
 const FRAMEWORK_FIELDS = ["directoryPrefixes", "fileBasenames"]
@@ -81,6 +81,11 @@ export function validateCleanupPolicy(policy) {
   if (policy.sourceExtensions.some((extension) => !policy.textExtensions.includes(extension))) {
     throw auditError("CLEANUP_POLICY_INVALID")
   }
+  assertUniqueStrings(policy.stylesheetExtensions, "CLEANUP_POLICY_INVALID", { extension: true })
+  // Stylesheets retain text asset references but must never enter the JS/TS parser.
+  if (policy.stylesheetExtensions.some((extension) => (
+    !policy.textExtensions.includes(extension) || policy.sourceExtensions.includes(extension)
+  ))) throw auditError("CLEANUP_POLICY_INVALID")
   assertExactFields(policy.scopes, SCOPE_NAMES, "CLEANUP_POLICY_INVALID")
   const seenScopeRoots = new Set()
   for (const scope of SCOPE_NAMES) {
@@ -248,7 +253,7 @@ function isBootstrapPrivatePath(path) {
   return (
     (basename.startsWith(".env") && basename !== ".env.example") ||
     directories.some((segment) => segment === ".secrets" || segment === "secrets") ||
-    /(?:^|\/)(?:credentials|secrets?)(?:\.[^/]*)?\.json$/.test(lower)
+    /^\.?(?:credentials?|secrets?)(?:\.|$)/.test(basename)
   )
 }
 
