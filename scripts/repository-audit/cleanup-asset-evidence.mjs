@@ -117,6 +117,30 @@ function htmlCommentEnd(text, start) {
   return standard < bang ? standard + 2 : bang + 3
 }
 
+/** Preserve candidate URL offsets while following srcset's whitespace/comma token boundaries. */
+function htmlSrcsetCandidates(value) {
+  const isSpace = (character) => /[\t\n\f\r ]/.test(character)
+  const rows = []
+  let cursor = 0
+  while (cursor < value.length) {
+    while (cursor < value.length && (isSpace(value[cursor]) || value[cursor] === ",")) cursor += 1
+    const valueOffset = cursor
+    while (cursor < value.length && !isSpace(value[cursor])) cursor += 1
+    let valueEnd = cursor
+    while (valueEnd > valueOffset && value[valueEnd - 1] === ",") valueEnd -= 1
+    if (valueEnd > valueOffset) rows.push({ value: value.slice(valueOffset, valueEnd), valueOffset })
+    if (valueEnd < cursor) continue
+    let parentheses = 0
+    while (cursor < value.length) {
+      const character = value[cursor++]
+      if (character === "(") parentheses += 1
+      else if (character === ")" && parentheses > 0) parentheses -= 1
+      else if (character === "," && parentheses === 0) break
+    }
+  }
+  return rows
+}
+
 /** Yield only tokenizer-visible start tags, skipping comments and raw-text element bodies. */
 function htmlStartTags(text) {
   const rawTextNames = new Set(["script", "style", "textarea", "title", "xmp", "iframe", "noembed", "noframes"])
@@ -191,7 +215,9 @@ function htmlUrlAttributes(tagText) {
     }
     const duplicate = seen.has(name)
     seen.add(name)
-    if (!duplicate && ["src", "href", "poster"].includes(name) && value) rows.push({ value, valueOffset })
+    if (["src", "href", "poster", "srcset"].includes(name) && value) {
+      rows.push({ duplicate, name, value, valueOffset })
+    }
   }
   return rows
 }
@@ -265,14 +291,29 @@ function collectTextLiterals(record, text, assetExtensions) {
   if (record.extension === ".md") {
     scan(/(?<!\\)!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))(?:\s+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^\r\n)]*\)))?\s*\)/g, markdownDestinationText(text), true)
   }
+  let legacyText = text
   if (record.extension === ".html") {
+    const masked = text.split("")
     for (const tag of htmlStartTags(text)) {
       for (const attribute of htmlUrlAttributes(tag.text)) {
-        addLiteral(attribute.value, tag.start + attribute.valueOffset, true)
+        if (attribute.name === "srcset") {
+          const start = tag.start + attribute.valueOffset
+          for (let index = start; index < start + attribute.value.length; index += 1) {
+            if (!["\r", "\n"].includes(masked[index])) masked[index] = " "
+          }
+        }
+        if (attribute.duplicate) continue
+        const candidates = attribute.name === "srcset"
+          ? htmlSrcsetCandidates(attribute.value)
+          : [{ value: attribute.value, valueOffset: 0 }]
+        for (const candidate of candidates) {
+          addLiteral(candidate.value, tag.start + attribute.valueOffset + candidate.valueOffset, true)
+        }
       }
     }
+    legacyText = masked.join("")
   }
-  scan(/(?:url\(\s*)?["']([^"'\r\n)]+)["']\s*\)?|url\(\s*([^)\'"\s][^)]*)\s*\)/g)
+  scan(/(?:url\(\s*)?["']([^"'\r\n)]+)["']\s*\)?|url\(\s*([^)\'"\s][^)]*)\s*\)/g, legacyText)
   if (record.extension === ".md") scan(/!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))/g)
   if ([".yaml", ".yml"].includes(record.extension)) scan(/^[ \t]*[^#\r\n:]+:[ \t]*([^\s#]+)[ \t]*(?:#.*)?$/gm)
   return { literals, uncertainties: [], errors: [] }
@@ -291,7 +332,7 @@ function normalizeContainedAssetPath(value) {
 }
 
 function assetTarget(fromPath, literal, assetExtensions, ownerRelativeUrl = false) {
-  if (/^(?:[a-z][a-z0-9+.-]*:|#|\\\\)/i.test(literal)) return null
+  if (/^(?:[a-z][a-z0-9+.-]*:|#|\/\/|\\\\)/i.test(literal)) return null
   const withoutSuffix = literal.split(/[?#]/, 1)[0].replaceAll("\\", "/")
   if (!assetExtensions.has(extname(withoutSuffix).toLowerCase())) return null
   let target

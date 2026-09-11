@@ -2860,6 +2860,102 @@ test("asset evidence resolves slashless HTML attributes only from live start tag
   assertPrivateSerialization(cliFirst.stdout, root, [privateSuffix, "private-html-owner"])
 })
 
+test("asset evidence rejects protocol-relative URLs without weakening root-relative ownership", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "public/cdn.example/match.png", "remote-shaped")
+  writeFixture(root, "public/icons/local.png", "local")
+  const privateRemote = "//cdn.example/match.png?private-protocol-relative=1"
+  for (const [path, contents] of [
+    ["app/config.yaml", `remote: ${privateRemote}\nlocal: /icons/local.png\n`],
+    ["app/data.json", `${JSON.stringify({ remote: privateRemote, local: "/icons/local.png" })}\n`],
+    ["app/page.ts", `const remote = '${privateRemote}'; const local = '/icons/local.png'\n`],
+    ["app/panel.html", `<img src=${privateRemote}><img src=/icons/local.png>\n`],
+    ["app/readme.md", `![remote](${privateRemote}) ![local](/icons/local.png)\n`],
+    ["app/styles.css", `.remote{background:url(${privateRemote})}.local{background:url(/icons/local.png)}\n`],
+  ]) writeFixture(root, path, contents)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetEvidence(index, policy)
+  const second = buildAssetEvidence(index, policy)
+  assert.deepEqual(first, second)
+  assert.equal(first.references.length, 6)
+  assert.ok(first.references.every((row) => row.targetPath === "public/icons/local.png"))
+  assert.equal(first.references.some((row) => row.targetPath === "public/cdn.example/match.png"), false)
+  assert.deepEqual(first.errors, [])
+  assert.equal(first.basenameSignals.length, 0)
+  assertPrivateSerialization(first, root, ["private-protocol-relative"])
+})
+
+test("asset evidence parses live srcset candidates with exact offsets and conservative URL boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of ["small.png", "large.png", "wide.png", "single.png", "first.png", "second.png"]) {
+    writeFixture(root, `app/panel/${path}`, path)
+  }
+  const privateSuffix = "?private-srcset-owner=1#fragment"
+  const lines = [
+    `<img srcset="small.png${privateSuffix} 1x, large.png 2x">`,
+    "<source srcset='wide.png 320w, large.png 640w'>",
+    "<img srcset=single.png>",
+    "<img srcset=\"data:image/png;base64,AAAA 1x, https://cdn.example/remote.png 2x, small.png 3x\">",
+    "<img srcset=\"first.png 1x\" srcset=\"second.png 2x\">",
+    "<img srcset\u00a0=\"second.png 1x\">",
+    "<!-- <img srcset=\"second.png 1x\"> -->",
+    "<script>const ignored = '<img srcset=\"second.png 1x\">'</script>",
+    "<img srcset=\"missing.png 1x\">",
+    "<plaintext><img srcset=\"second.png 1x\"></plaintext><img srcset=\"second.png 2x\">",
+  ]
+  writeFixture(root, "app/panel/srcset.html", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  const expected = [
+    [1, "small.png", "app/panel/small.png"],
+    [1, "large.png", "app/panel/large.png"],
+    [2, "wide.png", "app/panel/wide.png"],
+    [2, "large.png", "app/panel/large.png"],
+    [3, "single.png", "app/panel/single.png"],
+    [4, "small.png", "app/panel/small.png"],
+    [5, "first.png", "app/panel/first.png"],
+  ]
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), expected.map(
+    ([line, value, targetPath]) => [line, lines[line - 1].indexOf(value) + 1, targetPath],
+  ))
+  assert.equal(first.referenceOwners.some((row) => row.targetPath === "app/panel/second.png"), false)
+  assert.deepEqual(
+    first.uncertainties.unresolvedLiteralAssets.map((row) => [row.line, row.column]),
+    [[9, lines[8].indexOf("missing.png") + 1]],
+  )
+  assertPrivateSerialization(first, root, [privateSuffix, "private-srcset-owner"])
+
+  const cliFirst = runAuditCli(assetCliPath, root)
+  const cliSecond = runAuditCli(assetCliPath, root)
+  assert.equal(cliFirst.status, 0)
+  assert.equal(cliFirst.stderr, "")
+  assert.equal(cliFirst.stdout, cliSecond.stdout)
+  const envelope = JSON.parse(cliFirst.stdout)
+  assert.equal(envelope.deletionAuthority, false)
+  assert.equal(envelope.findings.filter((row) => row.findingKind === "referenceOwners").length, 7)
+  assertPrivateSerialization(cliFirst.stdout, root, [privateSuffix, "private-srcset-owner"])
+})
+
+test("asset evidence does not rescan structured srcset values as legacy quoted literals", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/images/a.png", "a")
+  writeFixture(root, "app/panel/b.png", "b")
+  writeFixture(root, "app/panel/srcset.html", '<img srcset="images/a.png 1x, b.png">\n')
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.map((row) => row.targetPath), [
+    "app/panel/images/a.png", "app/panel/b.png",
+  ])
+  assert.deepEqual(report.uncertainties.unresolvedLiteralAssets, [])
+})
+
 test("asset evidence parses MTS and CTS literals and hashes dynamic expressions", (t) => {
   const root = createFixtureRepository(t)
   const modulePolicy = {
@@ -4613,6 +4709,160 @@ test("environment CommonJS process bindings record exact reads without false unr
   assert.deepEqual(report.uncertainties.unprovenAliases, [])
   assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
   assertPrivateSerialization(report, root, ["privateComputedKey", "require('node:process')"])
+})
+
+test("environment CommonJS process destructuring proves only exact static env bindings", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", [
+    "SHORTHAND=", "RENAMED=", "LITERAL=", "ALIAS_BEFORE=", "OUTER_AFTER_SHADOW=", "COMPUTED_NAME_READ=", "DEFAULT_READ=", "",
+  ].join("\n"))
+  const privateComputedName = "privateProcessProperty"
+  writeFixture(root, "lib/commonjs-process-destructure.cjs", [
+    "const { env } = require('node:process'); void env.SHORTHAND",
+    "const { env: renamed } = require('process'); void renamed.RENAMED",
+    "let processAlias = require('node:process')",
+    "const { 'env': literal } = processAlias; void literal.LITERAL",
+    "const { env: aliasEnvironment } = processAlias; void aliasEnvironment.ALIAS_BEFORE",
+    "function shadow(processAlias) { const { env: inner } = processAlias; void inner.INNER_SHADOW }",
+    "void aliasEnvironment.OUTER_AFTER_SHADOW",
+    "processAlias = {}; const { env: invalidated } = processAlias; void invalidated.AFTER_INVALIDATION",
+    "function laterAlias() { const { env: early } = laterProcess; const laterProcess = require('process'); void early.LATER_ALIAS }",
+    "function loaderParameter(require) { const { env: local } = require('process'); void local.PARAMETER_LOADER }",
+    "function laterLoader() { const { env: local } = require('process'); const require = fake; void local.LATER_LOADER }",
+    "function changedLoader() { require = fake; const { env: local } = require('process'); void local.CHANGED_LOADER }",
+    "function wrongModule() { const { env } = require('node:process/promises'); void env.WRONG_MODULE }",
+    "function optionalLoader() { const { env } = require?.('process'); void env.OPTIONAL_LOADER }",
+    "function nonliteralLoader() { const { env } = require(moduleName); void env.NONLITERAL_LOADER }",
+    "const { ENV: wrongCase } = require('process'); void wrongCase.WRONG_CASE",
+    "const { stdout: nonEnvironment } = require('process'); void nonEnvironment.NON_ENV",
+    "const { env: defaulted = process.env.DEFAULT_READ } = require('process'); void defaulted.DEFAULT_TARGET",
+    `const { [${privateComputedName} = process.env.COMPUTED_NAME_READ]: computed } = require('process'); void computed.COMPUTED_TARGET`,
+    "const { ...rest } = require('process'); void rest.REST_TARGET",
+    "void shadow; void laterAlias; void loaderParameter; void laterLoader; void changedLoader",
+    "void wrongModule; void optionalLoader; void nonliteralLoader",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.staticReads.map((row) => row.name), [
+    "ALIAS_BEFORE", "COMPUTED_NAME_READ", "DEFAULT_READ", "LITERAL", "OUTER_AFTER_SHADOW", "RENAMED", "SHORTHAND",
+  ])
+  assert.deepEqual(first.unreadDeclarationCandidates, [])
+  assert.deepEqual(first.uncertainties.unprovenAliases.map((row) => [row.name, row.kind]), [
+    ["COMPUTED_TARGET", "property-access"],
+    ["DEFAULT_TARGET", "property-access"],
+    ["NONLITERAL_LOADER", "property-access"],
+    ["OPTIONAL_LOADER", "property-access"],
+    ["REST_TARGET", "property-access"],
+    ["WRONG_MODULE", "property-access"],
+  ])
+  assertPrivateSerialization(first, root, [privateComputedName, "require('node:process')"])
+})
+
+test("environment process-object destructuring supports nested declarations assignments and implicit process", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", [
+    "ASSIGNED=", "COMPUTED=", "DEFAULT_EVALUATION=", "GLOBAL=", "NESTED=", "",
+  ].join("\n"))
+  const privateDynamicName = "privateDynamicProcessProperty"
+  writeFixture(root, "lib/process-object-patterns.cjs", [
+    "const { env: { NESTED } } = require('process'); void NESTED",
+    "const { env: globalEnv } = process; void globalEnv.GLOBAL",
+    "let assigned; ({ env: assigned } = require('node:process')); void assigned.ASSIGNED",
+    "const { ['env']: computedEnv } = require('process'); void computedEnv.COMPUTED",
+    "function shadowed(process) { const { env: local } = process; void local.SHADOWED_PROCESS }",
+    "let defaulted; ({ env: defaulted = process.env.DEFAULT_EVALUATION } = require('process')); void defaulted.DEFAULT_TARGET",
+    `let dynamic; ({ [${privateDynamicName}]: dynamic } = require('process')); void dynamic.DYNAMIC_TARGET`,
+    "let rest; ({ ...rest } = require('process')); void rest.REST_TARGET",
+    "let wrong; ({ env: wrong } = require('node:process/promises')); void wrong.WRONG_MODULE",
+    "let optional; ({ env: optional } = require?.('process')); void optional.OPTIONAL_LOADER",
+    "void shadowed",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.staticReads.map((row) => row.name), [
+    "ASSIGNED", "COMPUTED", "DEFAULT_EVALUATION", "GLOBAL", "NESTED",
+  ])
+  assert.deepEqual(first.unreadDeclarationCandidates, [])
+  assert.deepEqual(first.uncertainties.unprovenAliases.map((row) => row.name), [
+    null, "DEFAULT_TARGET", "DYNAMIC_TARGET", "REST_TARGET",
+  ])
+  assertPrivateSerialization(first, root, [privateDynamicName, "require('node:process')"])
+})
+
+test("environment implicit process ownership is invalidated by source-order writes and updates", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", [
+    "BEFORE_ASSIGNMENT=", "BEFORE_COMPOUND=", "BEFORE_LOGICAL=", "BEFORE_POSTFIX=", "BEFORE_PREFIX=",
+    "EXPLICIT_IMPORT=", "EXPLICIT_REQUIRE=", "UNMUTATED=", "",
+  ].join("\n"))
+  writeFixture(root, "lib/implicit-process-order.ts", [
+    "import importedProcess from 'node:process'",
+    "function simple() { const { env: before } = process; void before.BEFORE_ASSIGNMENT; process = {}; const { env: after } = process; void after.AFTER_ASSIGNMENT }",
+    "function compound() { const { env: before } = process; void before.BEFORE_COMPOUND; process += other; const { env: after } = process; void after.AFTER_COMPOUND }",
+    "function logical() { const { env: before } = process; void before.BEFORE_LOGICAL; process ||= other; const { env: after } = process; void after.AFTER_LOGICAL }",
+    "function prefix() { const { env: before } = process; void before.BEFORE_PREFIX; ++process; const { env: after } = process; void after.AFTER_PREFIX }",
+    "function postfix() { const { env: before } = process; void before.BEFORE_POSTFIX; process--; const { env: after } = process; void after.AFTER_POSTFIX }",
+    "function untouched() { const { env: current } = process; void current.UNMUTATED }",
+    "function shadowed(process) { process = other; const { env: local } = process; void local.SHADOWED }",
+    "const requiredProcess = require('process'); const { env: required } = requiredProcess; void required.EXPLICIT_REQUIRE",
+    "const { env: imported } = importedProcess; void imported.EXPLICIT_IMPORT",
+    "void simple; void compound; void logical; void prefix; void postfix; void untouched; void shadowed",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.staticReads.map((row) => row.name), [
+    "BEFORE_ASSIGNMENT", "BEFORE_COMPOUND", "BEFORE_LOGICAL", "BEFORE_POSTFIX", "BEFORE_PREFIX",
+    "EXPLICIT_IMPORT", "EXPLICIT_REQUIRE", "UNMUTATED",
+  ])
+  assert.deepEqual(first.unreadDeclarationCandidates, [])
+  assert.equal(first.staticReads.some((row) => row.name.startsWith("AFTER_") || row.name === "SHADOWED"), false)
+})
+
+test("environment class static blocks propagate only unbound implicit process mutation", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "AFTER_FUNCTION=\nAFTER_SHADOW=\n")
+  writeFixture(root, "lib/static-mutation.ts", [
+    "class Mutator { static { process = {} } }",
+    "const { env: afterStatic } = process; void afterStatic.AFTER_STATIC",
+    "void Mutator",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/function-control.ts", [
+    "function deferred() { class Mutator { static { process = {} } } void Mutator }",
+    "const { env: afterFunction } = process; void afterFunction.AFTER_FUNCTION",
+    "void deferred",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/shadow-control.ts", [
+    "class Local { static { let process = {}; process = other; const { env: local } = process; void local.SHADOWED_STATIC } }",
+    "const { env: afterShadow } = process; void afterShadow.AFTER_SHADOW",
+    "void Local",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.staticReads.map((row) => row.name), ["AFTER_FUNCTION", "AFTER_SHADOW"])
+  assert.deepEqual(first.unreadDeclarationCandidates, [])
+  assert.equal(first.staticReads.some((row) => ["AFTER_STATIC", "SHADOWED_STATIC"].includes(row.name)), false)
 })
 
 test("environment CommonJS process recognition excludes shadowed and nonliteral loaders", (t) => {

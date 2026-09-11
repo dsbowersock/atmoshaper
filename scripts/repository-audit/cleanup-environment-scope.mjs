@@ -87,14 +87,28 @@ export function unwrapTransparentExpression(node) {
   return value
 }
 
-/** Only direct variable initializers through the unshadowed CommonJS loader prove process ownership. */
-export function isProcessRequire(node, scope) {
-  if (!node || !ts.isVariableDeclaration(node.parent) || !ts.isIdentifier(node.parent.name)) return false
+function isProcessRequireCall(node, scope) {
   const value = unwrapTransparentExpression(node)
   return ts.isCallExpression(value) && !value.questionDotToken && ts.isIdentifier(value.expression) &&
     value.expression.text === "require" && [null, COMMONJS_LOADER].includes(lookupAlias(scope, "require")) &&
     value.arguments.length === 1 && ts.isStringLiteral(value.arguments[0]) &&
     ["process", "node:process"].includes(value.arguments[0].text)
+}
+
+/** Recognize an exact require call or a binding already proven to be the Node process object. */
+export function isProcessObjectSource(node, scope) {
+  const value = unwrapTransparentExpression(node)
+  return Boolean(value) && (
+    isProcessRequireCall(value, scope) || ts.isIdentifier(value) && (
+      lookupAlias(scope, value.text) === PROCESS_OBJECT || value.text === "process" && lookupAlias(scope, value.text) === null
+    )
+  )
+}
+
+/** Only direct identifier variable initializers through the unshadowed loader prove process ownership. */
+export function isProcessRequire(node, scope) {
+  return Boolean(node && ts.isVariableDeclaration(node.parent) && ts.isIdentifier(node.parent.name) &&
+    isProcessRequireCall(node, scope))
 }
 
 export function isEnvironmentAliasName(name) {

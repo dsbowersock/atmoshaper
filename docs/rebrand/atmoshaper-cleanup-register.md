@@ -755,3 +755,52 @@ These values become historical when the documents are staged; the immutable
 successor-attestation contract remains authoritative. Latest-head hosted checks
 and reviews remain pending, merge remains separately authorized, and no
 candidate deletion, provider action or Phase 5 work occurred.
+
+
+Hosted review round 20 is now historical supporting evidence, and hosted review
+round 21 is the current Phase 4 receipt. Three latest-head findings were
+validated and repaired: protocol-relative `//` asset references are external
+before root-relative handling; live HTML `srcset` values are parsed
+conservatively into candidate URLs with exact original offsets and are excluded
+from the legacy literal rescan; and CommonJS plus implicit process-object
+destructuring proves only exact, static, case-sensitive `env` bindings,
+including nested and assignment patterns, while preserving source-order
+mutation and shadow boundaries, including immediately executed class static
+propagation.
+
+Independent stage-1 specification review returned SPEC PASS. Three bounded
+quality rounds repaired false legacy `srcset` rescanning,
+process-destructuring declaration and assignment coverage, and implicit-process
+invalidation including class-static propagation. Their RED receipts were 0/2,
+0/1 and 0/1, and final code re-review returned PASS. Initial hosted regressions
+recorded RED 0/3 and GREEN 3/3. The final cleanup suite passed 161/161,
+repository audit passed 21/21 and the combined focused run passed 182/182. The
+full suite recorded 4,380 total, 4,377 passed, 3 host-dependent skips and zero
+failures; typecheck passed, lint passed with only the informational Babel
+large-file note, and diff checks passed. Source caps were asset evidence 414,
+module evidence 426, module resolution 105, module loaders 475, environment
+evidence 499, environment patterns 73 and environment scope 144 nonblank lines.
+
+The pre-document staged audits each ran twice with exit 0, empty standard error,
+byte-identical output, shared inventory and `deletionAuthority: false`: dead
+code 1,570/211
+(`f6072362bf363c8093c059bc2e545bf0e12f54b2bc99f779b142d4b70e669674`),
+dependency 2,868/21
+(`a54ce7616a9271e804439a5026d4c834847ad7018b899e5ac43d5d9f3e2750d3`),
+asset 557/11,432
+(`3012b71b2790b9885fc8cf6ce27bf6b988ddb8b2d670b9648803c62f9e3e15ab`)
+and environment 587/252
+(`797f978ee56db6be1174bcac7d739bddd93d866d6b059b8568aab82c430fa5ba`).
+The inventory contained 1,926 files and 47,683,828 Git blob bytes, inventory
+SHA-256
+`1860b5f32a83af6b433baf4b85937c363e216c7a910ce6615398663edf4f7fb8`,
+CRLF serialized-output SHA-256
+`56ee8ed16eb397e994e957c9c4aa386b0d40c4ae7794e49ae496d24b2c569865`
+and zero forbidden paths. Brand verification remained zero missing and zero
+unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These pre-document values become historical once the tracked documents are
+staged; the exact final staged snapshot remains pending in the ignored SDD
+receipt. Latest-head hosted checks and reviews remain pending. Merge remains
+separately authorized, and no candidate deletion, provider action or Phase 5
+work occurred.

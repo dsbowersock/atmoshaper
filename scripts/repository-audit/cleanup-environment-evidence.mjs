@@ -1,17 +1,12 @@
 import ts from "typescript"
 import {
-  COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessRequire,
+  COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessObjectSource, isProcessRequire,
   isProcessImportEquals, isTransparentExpression, lookupAlias, processImportBindings, unwrapTransparentExpression, varBindingScope,
 } from "./cleanup-environment-scope.mjs"
 
-import {
-  compareText,
-  requireTrackedTextIndex,
-  sha256,
-  validateCleanupPolicy,
-} from "./cleanup-core.mjs"
+import { compareText, requireTrackedTextIndex, sha256, validateCleanupPolicy } from "./cleanup-core.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
-import { isHandledObjectAssignment, logicalAssignmentKind, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
+import { isHandledObjectAssignment, logicalAssignmentKind, processEnvironmentAssignmentStatus, processEnvironmentBindingStatus, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
 import { stableJson } from "./core.mjs"
 
 function compareLocation(left, right) {
@@ -168,9 +163,8 @@ function collectEnvironmentRows(record, text) {
     )
   }
 
-  const recordObjectBinding = (pattern, status, kind) => {
+  const recordObjectBinding = (pattern, status, kind) =>
     recordEnvironmentPattern(pattern, status, kind, { addRead, addComputedUncertainty, addAliasUncertainty })
-  }
 
   const bindName = (name, initializer, scope, initializerScope = scope) => {
     const status = isProcessRequire(initializer, initializerScope) ? PROCESS_OBJECT : aliasStatus(initializer, initializerScope)
@@ -250,6 +244,7 @@ function collectEnvironmentRows(record, text) {
     while (owner && !owner.bindings.has(name)) owner = owner.parent
     if (name === "require" && owner?.bindings.get(name) === COMMONJS_LOADER) owner = varBindingScope(scope)
     if (!owner && name === "require") varBindingScope(scope).bindings.set(name, NON_ALIAS)
+    if (!owner && name === "process") varBindingScope(scope).bindings.set(name, NON_ALIAS)
     if (!owner) return
     let status = statusSnapshot === undefined ? aliasStatus(initializer, scope) : statusSnapshot
     if (conditionalKind && ["proven", "unknown"].includes(status)) {
@@ -270,15 +265,19 @@ function collectEnvironmentRows(record, text) {
     if (ts.isIdentifier(value)) assignName(value.text, initializer, scope, conditionalKind, statusSnapshot)
     else if (ts.isObjectLiteralExpression(value)) {
       // Snapshot RHS provenance before computed keys/defaults or target writes can change aliases.
-      if (isHandledObjectAssignment(value)) recordObjectBinding(value, aliasStatus(initializer, scope), "assignment-destructure")
+      const processObjectSource = isProcessObjectSource(initializer, scope)
+      if (!processObjectSource && isHandledObjectAssignment(value)) recordObjectBinding(value, aliasStatus(initializer, scope), "assignment-destructure")
       for (const property of value.properties) {
-        if (ts.isSpreadAssignment(property)) visitAssignmentTarget(property.expression, scope)
+        const processStatus = processObjectSource ? processEnvironmentAssignmentStatus(property) : undefined
+        if (ts.isSpreadAssignment(property)) visitAssignmentTarget(property.expression, scope, undefined, null, processStatus)
         else if (ts.isShorthandPropertyAssignment(property)) {
           if (property.objectAssignmentInitializer) visit(property.objectAssignmentInitializer, scope)
-          assignName(property.name.text, property.objectAssignmentInitializer, scope, "assignment-default")
+          assignName(property.name.text, property.objectAssignmentInitializer, scope, "assignment-default", processStatus)
         } else if (ts.isPropertyAssignment(property)) {
           if (ts.isComputedPropertyName(property.name)) visit(property.name.expression, scope)
-          visitAssignmentTarget(property.initializer, scope)
+          const target = unwrapTransparentExpression(property.initializer)
+          if (processStatus && ts.isObjectLiteralExpression(target)) recordObjectBinding(target, processStatus, "assignment-destructure")
+          visitAssignmentTarget(property.initializer, scope, undefined, null, processStatus)
         }
       }
     } else if (ts.isArrayLiteralExpression(value)) {
@@ -286,20 +285,21 @@ function collectEnvironmentRows(record, text) {
     } else if (ts.isSpreadElement(value)) visitAssignmentTarget(value.expression, scope)
     else if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
       visit(value.right, scope)
-      visitAssignmentTarget(value.left, scope, value.right, "assignment-default")
+      visitAssignmentTarget(value.left, scope, value.right, "assignment-default", statusSnapshot)
     } else visit(value, scope)
   }
 
-  const bindObjectElementInitializers = (pattern, scope, initializerScope, kind) => {
+  const bindObjectElementInitializers = (pattern, scope, initializerScope, kind, processObjectSource = false) => {
     for (const element of pattern.elements) {
+      if (element.propertyName && ts.isComputedPropertyName(element.propertyName)) visit(element.propertyName.expression, initializerScope)
       if (element.initializer) {
         visit(element.initializer, initializerScope)
-        if (ts.isIdentifier(element.name)) {
-          bindName(element.name.text, element.initializer, scope, initializerScope)
-        }
       }
+      const processStatus = processObjectSource ? processEnvironmentBindingStatus(element) : null
+      if (processStatus && ts.isIdentifier(element.name)) scope.bindings.set(element.name.text, processStatus)
+      else if (element.initializer && ts.isIdentifier(element.name)) bindName(element.name.text, element.initializer, scope, initializerScope)
       if (ts.isObjectBindingPattern(element.name)) {
-        recordObjectBinding(element.name, aliasStatus(element.initializer, initializerScope), kind)
+        recordObjectBinding(element.name, processStatus ?? aliasStatus(element.initializer, initializerScope), kind)
         bindObjectElementInitializers(element.name, scope, initializerScope, kind)
       }
     }
@@ -363,7 +363,9 @@ function collectEnvironmentRows(record, text) {
     if (ts.isClassStaticBlockDeclaration(node)) {
       const staticScope = childScope(scope, true)
       predeclareVarEnvironmentShadows(node.body, staticScope)
+      const hadProcessBinding = staticScope.bindings.has("process")
       visit(node.body, staticScope)
+      if (!hadProcessBinding && staticScope.bindings.get("process") === NON_ALIAS) varBindingScope(scope).bindings.set("process", NON_ALIAS)
       return
     }
     if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
@@ -411,12 +413,13 @@ function collectEnvironmentRows(record, text) {
       const hasAssignment = Boolean(node.initializer) || isIterationAssignment
       declareBindingName(node.name, declarationScope, isVarDeclaration && !hasAssignment)
       if (!hasAssignment) return
+      const processObjectSource = ts.isObjectBindingPattern(node.name) && isProcessObjectSource(node.initializer, scope)
       if (node.initializer) visit(node.initializer, scope)
       const status = aliasStatus(node.initializer, scope)
       if (ts.isIdentifier(node.name)) bindName(node.name.text, node.initializer, declarationScope, scope)
       else if (ts.isObjectBindingPattern(node.name)) {
         recordObjectBinding(node.name, status, "destructure")
-        bindObjectElementInitializers(node.name, declarationScope, scope, "destructure")
+        bindObjectElementInitializers(node.name, declarationScope, scope, "destructure", processObjectSource)
       }
       return
     }

@@ -44,3 +44,38 @@ export function recordEnvironmentPattern(pattern, status, kind, { addRead, addCo
     else addAliasUncertainty(nameNode, null, kind)
   }
 }
+
+function staticPropertyName(name) {
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name)) return name.text
+  return ts.isComputedPropertyName(name) && isLiteralNode(name.expression) ? name.expression.text : null
+}
+
+function processEnvironmentStatus(name, target, ambiguous = false) {
+  if (ambiguous) return "unknown"
+  const propertyName = staticPropertyName(name)
+  if (propertyName === null) return "unknown"
+  if (propertyName !== "env") return null
+  const value = unwrapTransparentExpression(target)
+  return value && ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ? "unknown"
+    : "proven"
+}
+
+/** Classify the environment target selected from a proven process-object binding pattern. */
+export function processEnvironmentBindingStatus(element) {
+  if (!ts.isBindingElement(element)) return null
+  return processEnvironmentStatus(
+    element.propertyName ?? element.name, element.name,
+    Boolean(element.dotDotDotToken || element.initializer),
+  )
+}
+
+/** Classify the environment target selected from a proven process-object assignment pattern. */
+export function processEnvironmentAssignmentStatus(property) {
+  if (ts.isSpreadAssignment(property)) return "unknown"
+  if (ts.isShorthandPropertyAssignment(property)) {
+    return processEnvironmentStatus(property.name, property.name, Boolean(property.objectAssignmentInitializer))
+  }
+  if (ts.isPropertyAssignment(property)) return processEnvironmentStatus(property.name, property.initializer)
+  return null
+}
