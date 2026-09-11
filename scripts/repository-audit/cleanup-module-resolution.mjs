@@ -78,21 +78,26 @@ function declarationForImplementation(path) {
 
 const isDeclarationPath = (path) => path.endsWith(".d.ts") || path.endsWith(".d.mts") || path.endsWith(".d.cts")
 
-/** Resolve runtime ownership first, then attach a compatible TypeScript declaration target when proven. */
+/** Resolve runtime ownership first, then attach a distinct TypeScript source or declaration target when proven. */
 export function resolveModuleReference(fromPath, specifier, trackedPathSet, policy, resolveTypeDeclaration = false) {
   const candidates = moduleCandidatePaths(fromPath, specifier, policy)
   if (candidates.length > 0) {
     const path = candidates.find((candidate) => trackedPathSet.has(candidate))
     if (!path) return { targetKind: "unresolved" }
     const pairedDeclarationPath = declarationForImplementation(path)
-    const independentTypeTargetPath = resolveTypeDeclaration
+    const base = referenceBase(fromPath, specifier)
+    const explicitTypeFamily = base && EXPLICIT_TYPE_FAMILIES.has(extname(base).toLowerCase())
+    const independentTypeTargetPath = resolveTypeDeclaration || explicitTypeFamily
       ? typeTargetPath(fromPath, specifier, trackedPathSet) : undefined
     const declarationTargetPath = independentTypeTargetPath !== undefined
       ? (independentTypeTargetPath && isDeclarationPath(independentTypeTargetPath) ? independentTypeTargetPath : null)
       : (pairedDeclarationPath && trackedPathSet.has(pairedDeclarationPath) ? pairedDeclarationPath : null)
+    const typescriptTargetPath = independentTypeTargetPath && !isDeclarationPath(independentTypeTargetPath) &&
+      independentTypeTargetPath !== path ? independentTypeTargetPath : null
     return {
       targetKind: "tracked-module", targetPath: path,
       ...(declarationTargetPath && declarationTargetPath !== path ? { declarationTargetPath } : {}),
+      ...(typescriptTargetPath ? { typescriptTargetPath } : {}),
     }
   }
   if (specifier.startsWith("/") || specifier === "@" || specifier.startsWith("@/") || specifier === "." || specifier === "..") {

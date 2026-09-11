@@ -205,9 +205,9 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
     const segments = accessSegments(node)
     return segments.some((segment, index) => segment === "resolve" && segments[index + 1] === "alias")
   }
-  /** Retain the implementation edge and add an independently labeled tracked type companion. */
+  /** Retain runtime ownership and label the independently selected tracked TypeScript companion. */
   const recordResolvedReference = (node, kind, literal, resolution, companionSourceKind = kind) => {
-    const { declarationTargetPath, ...implementationResolution } = resolution
+    const { declarationTargetPath, typescriptTargetPath, ...implementationResolution } = resolution
     const location = sourceLocation(sourceFile, node)
     const literalSha256 = sha256(literal)
     const row = {
@@ -218,6 +218,13 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
       references.push({
         fromPath: record.path, ...location, kind: "declaration-companion", sourceKind: companionSourceKind, literalSha256,
         targetKind: "tracked-module", targetPath: declarationTargetPath,
+      })
+    }
+    if (typescriptTargetPath) {
+      references.push({
+        fromPath: record.path, ...location, kind: "typescript-substitution",
+        sourceKind: companionSourceKind, literalSha256,
+        targetKind: "tracked-module", targetPath: typescriptTargetPath,
       })
     }
     return row

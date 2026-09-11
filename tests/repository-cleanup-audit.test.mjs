@@ -1657,6 +1657,134 @@ test("module evidence applies NodeNext CJS and ESM substitution families without
   assert.equal(evidence.errors.filter((row) => row.code === "UNRESOLVED_LITERAL_MODULE").length, 2)
 })
 
+test("module evidence preserves explicit runtime edges and records TypeScript source substitutions", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const pairs = [
+    ["js-pair.js", "js-pair.ts"],
+    ["jsx-pair.jsx", "jsx-pair.tsx"],
+    ["esm-pair.mjs", "esm-pair.mts"],
+    ["cjs-pair.cjs", "cjs-pair.cts"],
+  ]
+  for (const [runtimePath, sourcePath] of pairs) {
+    writeFixture(root, `lib/${runtimePath}`, "export const value = true\n")
+    writeFixture(root, `lib/${sourcePath}`, "export const value = true\n")
+  }
+  for (const runtimePath of ["runtime.js", "runtime.jsx", "runtime.mjs", "runtime.cjs"]) {
+    writeFixture(root, `lib/${runtimePath}`, "export const value = true\n")
+  }
+  const specifiers = [
+    "../lib/js-pair.js", "../lib/jsx-pair.jsx", "../lib/esm-pair.mjs", "../lib/cjs-pair.cjs",
+    "../lib/runtime.js", "../lib/runtime.jsx", "../lib/runtime.mjs", "../lib/runtime.cjs",
+  ]
+  writeFixture(root, "app/page.tsx", `${specifiers.map((specifier, index) => (
+    `import { value as value${index} } from '${specifier}'`
+  )).join("\n")}\n${specifiers.map((_, index) => `void value${index}`).join("; ")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildModuleEvidence(index, policy)
+  const second = buildModuleEvidence(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.fromPath === "app/page.tsx")
+      .map((row) => [row.line, row.kind, row.targetPath]),
+    [
+      [1, "import", "lib/js-pair.js"],
+      [1, "typescript-substitution", "lib/js-pair.ts"],
+      [2, "import", "lib/jsx-pair.jsx"],
+      [2, "typescript-substitution", "lib/jsx-pair.tsx"],
+      [3, "import", "lib/esm-pair.mjs"],
+      [3, "typescript-substitution", "lib/esm-pair.mts"],
+      [4, "import", "lib/cjs-pair.cjs"],
+      [4, "typescript-substitution", "lib/cjs-pair.cts"],
+      [5, "import", "lib/runtime.js"],
+      [6, "import", "lib/runtime.jsx"],
+      [7, "import", "lib/runtime.mjs"],
+      [8, "import", "lib/runtime.cjs"],
+    ],
+  )
+  const report = buildDeadCodeCandidateReport(index, policy)
+  for (const [runtimePath, sourcePath] of pairs) {
+    for (const path of [`lib/${runtimePath}`, `lib/${sourcePath}`]) {
+      assert.ok(report.referencedModules.some((row) => row.path === path))
+      assert.equal(report.unreferencedCandidates.some((row) => row.path === path), false)
+    }
+  }
+  assert.equal(JSON.stringify(first).includes("../lib/js-pair.js"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("TypeScript substitutions honor declaration precedence type syntax and module families", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const files = [
+    "precedence.js", "precedence.ts", "precedence.d.ts",
+    "declared.js", "declared.d.ts",
+    "precedence-jsx.jsx", "precedence-jsx.tsx", "precedence-jsx.d.ts",
+    "declared-jsx.jsx", "declared-jsx.d.ts",
+    "precedence-esm.mjs", "precedence-esm.mts", "precedence-esm.d.mts",
+    "declared-esm.mjs", "declared-esm.d.mts",
+    "precedence-cjs.cjs", "precedence-cjs.cts", "precedence-cjs.d.cts",
+    "declared-cjs.cjs", "declared-cjs.d.cts",
+    "wrong-esm.mjs", "wrong-esm.ts", "wrong-cjs.cjs", "wrong-cjs.tsx",
+  ]
+  for (const path of files) writeFixture(root, `lib/${path}`, "export interface Value { id: string }\n")
+  const specifiers = [
+    "../lib/precedence.js", "../lib/declared.js",
+    "../lib/precedence-jsx.jsx", "../lib/declared-jsx.jsx",
+    "../lib/precedence-esm.mjs", "../lib/declared-esm.mjs",
+    "../lib/precedence-cjs.cjs", "../lib/declared-cjs.cjs",
+  ]
+  writeFixture(root, "app/type-user.ts", [
+    ...specifiers.map((specifier, index) => `import type { Value as Value${index} } from '${specifier}'`),
+    "import { Value as WrongEsm } from '../lib/wrong-esm.mjs'",
+    "import { Value as WrongCjs } from '../lib/wrong-cjs.cjs'",
+    `export type Values = ${specifiers.map((_, index) => `Value${index}`).join(" | ")} | WrongEsm | WrongCjs`,
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildModuleEvidence(index, policy)
+  const second = buildModuleEvidence(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "typescript-substitution")
+      .map((row) => [row.sourceKind, row.targetPath]),
+    [
+      ["import-type", "lib/precedence.ts"],
+      ["import-type", "lib/precedence-jsx.tsx"],
+      ["import-type", "lib/precedence-esm.mts"],
+      ["import-type", "lib/precedence-cjs.cts"],
+    ],
+  )
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "declaration-companion")
+      .map((row) => [row.sourceKind, row.targetPath]),
+    [
+      ["import-type", "lib/declared.d.ts"],
+      ["import-type", "lib/declared-jsx.d.ts"],
+      ["import-type", "lib/declared-esm.d.mts"],
+      ["import-type", "lib/declared-cjs.d.cts"],
+    ],
+  )
+  const wrongFamilyPaths = ["lib/wrong-esm.ts", "lib/wrong-cjs.tsx"]
+  assert.equal(first.references.some((row) => wrongFamilyPaths.includes(row.targetPath)), false)
+  const report = buildDeadCodeCandidateReport(index, policy)
+  for (const path of [
+    "lib/precedence.ts", "lib/precedence-jsx.tsx", "lib/precedence-esm.mts", "lib/precedence-cjs.cts",
+    "lib/declared.d.ts", "lib/declared-jsx.d.ts", "lib/declared-esm.d.mts", "lib/declared-cjs.d.cts",
+  ]) {
+    assert.ok(report.referencedModules.some((row) => row.path === path))
+    assert.equal(report.unreferencedCandidates.some((row) => row.path === path), false)
+  }
+  for (const path of [
+    "lib/precedence.d.ts", "lib/precedence-jsx.d.ts", "lib/precedence-esm.d.mts",
+    "lib/precedence-cjs.d.cts", ...wrongFamilyPaths,
+  ]) assert.ok(report.unreferencedCandidates.some((row) => row.path === path))
+  assert.equal(JSON.stringify(first).includes("../lib/precedence.js"), false)
+  assert.equal(first.errors.length, 0)
+})
+
 test("unresolved literal modules are errors while dynamic expressions stay uncertainty", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -2286,6 +2414,267 @@ test("asset evidence normalizes public URLs and relative paths without literal o
   assert.deepEqual(evidence.references.map((row) => row.targetPath), ["public/icons/example.svg", "app/local.png"])
   assert.equal(evidence.errors.length, 0)
   assertPrivateSerialization(evidence, root, [publicLiteral, relativeLiteral])
+})
+
+test("asset owner-relative URLs select exact CSS and Markdown siblings through builders and CLI", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/logo.png", "sibling")
+  writeFixture(root, "public/elsewhere/logo.png", "duplicate-basename")
+  const literal = "logo.png?private-owner-query=1#fragment"
+  writeFixture(root, "app/panel/theme.css", [
+    `a { background: url("${literal}") }`,
+    `b { background: URL('${literal}') }`,
+    `c { background: url(${literal}) }`,
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/panel/guide.md", [
+    `![image](${literal})`,
+    `[link](<${literal}>)`,
+    "",
+  ].join("\n"))
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.map((row) => [row.fromPath, row.line, row.targetPath]), [
+    ["app/panel/guide.md", 1, "app/panel/logo.png"],
+    ["app/panel/guide.md", 2, "app/panel/logo.png"],
+    ["app/panel/theme.css", 1, "app/panel/logo.png"],
+    ["app/panel/theme.css", 2, "app/panel/logo.png"],
+    ["app/panel/theme.css", 3, "app/panel/logo.png"],
+  ])
+  assert.equal(report.basenameOnlySignals.length, 0)
+  assert.equal(report.unreferencedCandidates.length, 0)
+  assertPrivateSerialization(report, root, [literal, "private-owner-query"])
+  const first = runAuditCli(assetCliPath, root)
+  // Both owner and target working-tree drift must remain outside the stage-0 report.
+  writeFixture(root, "app/panel/theme.css", "a { background: url(drift.png) }", { tracked: false })
+  writeFixture(root, "app/panel/logo.png", "unstaged-target-drift", { tracked: false })
+  const second = runAuditCli(assetCliPath, root)
+  assert.equal(first.status, 0)
+  assert.equal(second.status, 0)
+  assert.equal(first.stderr, "")
+  assert.equal(second.stderr, "")
+  assert.equal(first.stdout, second.stdout)
+  const envelope = JSON.parse(first.stdout)
+  assert.equal(envelope.deletionAuthority, false)
+  assert.equal(envelope.findings.filter((row) => row.findingKind === "referenceOwners").length, 5)
+  assertPrivateSerialization(first.stdout, root, [literal, "private-owner-query", "unstaged-target-drift", "drift.png"])
+})
+
+test("asset owner-relative URLs retain sanitized missing ignored and out-of-inventory evidence", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/untracked.png", "untracked", { tracked: false })
+  writeFixture(root, ".gitignore", "app/panel/ignored.png\n")
+  writeFixture(root, "app/panel/ignored.png", "ignored", { tracked: false })
+  writeFixture(root, "docs/outside.png", "tracked-outside-inventory")
+  writeFixture(root, "app/panel/theme.css", [
+    'a { background: url("missing.png?private-url=1") }',
+    'b { background: url("untracked.png?private-url=2") }',
+    'c { background: url("ignored.png?private-url=3") }',
+    'd { background: url("../../../escape.png?private-url=4") }',
+    'e { background: url("https://example.test/remote.png?private-url=5") }',
+    'f { background: url("#fragment.png") }',
+    "",
+  ].join("\n"))
+  writeFixture(root, "docs/guide.md", "![outside](outside.png?private-url=6)\n")
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.equal(first.referenceOwners.length, 0)
+  assert.equal(first.basenameOnlySignals.length, 0)
+  assert.deepEqual(first.uncertainties.unresolvedLiteralAssets.map((row) => [row.fromPath, row.line, row.code]), [
+    ["app/panel/theme.css", 1, "UNRESOLVED_LITERAL_ASSET"],
+    ["app/panel/theme.css", 2, "UNRESOLVED_LITERAL_ASSET"],
+    ["app/panel/theme.css", 3, "UNRESOLVED_LITERAL_ASSET"],
+    ["app/panel/theme.css", 4, "UNRESOLVED_LITERAL_ASSET"],
+    ["docs/guide.md", 1, "OUT_OF_INVENTORY_LITERAL_ASSET"],
+  ])
+  assert.ok(first.uncertainties.unresolvedLiteralAssets.every((row) => (
+    row.targetPath === undefined && /^[a-f0-9]{64}$/.test(row.literalSha256)
+  )))
+  assertPrivateSerialization(first, root, ["private-url", "missing.png", "untracked.png", "ignored.png", "escape.png"])
+})
+
+test("asset owner-relative URLs do not promote arbitrary strings prose or code examples", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/logo.png", "sibling")
+  writeFixture(root, "public/elsewhere/logo.png", "duplicate")
+  writeFixture(root, "app/panel/render.js", 'const name = "logo.png"\n')
+  writeFixture(root, "app/panel/data.json", '{"name":"logo.png"}\n')
+  writeFixture(root, "app/panel/theme.css", [
+    'a { content: "logo.png" }',
+    "b { content: 'url(logo.png)' }",
+    "/* background: url(logo.png) */",
+    "/* unclosed comment: url(logo.png)",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/panel/guide.md", [
+    'The filename is "logo.png".',
+    '`![example](logo.png)`',
+    '```md',
+    '![example](logo.png)',
+    '```',
+    '![unclosed](logo.png',
+    '<!-- unclosed comment: ![example](logo.png)',
+    "",
+  ].join("\n"))
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.equal(report.referenceOwners.length, 0)
+  assert.deepEqual(report.unreferencedCandidates.map((row) => row.path), ["app/panel/data.json", "app/panel/logo.png"])
+  assert.ok(report.basenameOnlySignals.some((row) => row.fromPath === "app/panel/render.js"))
+  assert.ok(report.basenameOnlySignals.some((row) => row.fromPath === "app/panel/data.json"))
+  assert.ok(report.basenameOnlySignals.every((row) => row.candidateTargetPaths.length === 2))
+})
+
+test("asset owner-relative URLs keep slash-containing masked examples non-proven", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/logo.png", "sibling")
+  writeFixture(root, "app/panel/images/logo.png", "nested-sibling")
+  const dot = "./logo.png?private-context-query=1#fragment"
+  const nested = "images/logo.png?private-context-query=2#fragment"
+  writeFixture(root, "app/panel/theme.css", [
+    `a { content: "${dot}" }`,
+    `b { content: 'url(${nested})' }`,
+    `/* example: url("${nested}") */`,
+    `c { background: url("${dot}") }`,
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/panel/guide.md", [
+    `The example filename is "${dot}".`,
+    `\`![example](${dot})\``,
+    "```md",
+    `![example](${nested})`,
+    "```",
+    `<!-- ![example](${nested}) -->`,
+    `![actual](${nested})`,
+    "",
+  ].join("\n"))
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.fromPath, row.line, row.targetPath]), [
+    ["app/panel/guide.md", 7, "app/panel/images/logo.png"],
+    ["app/panel/theme.css", 4, "app/panel/logo.png"],
+  ])
+  assert.ok(first.uncertainties.unresolvedLiteralAssets.length >= 6)
+  assert.ok(first.uncertainties.unresolvedLiteralAssets.every((row) => (
+    row.targetPath === undefined && /^[a-f0-9]{64}$/.test(row.literalSha256)
+  )))
+  assertPrivateSerialization(first, root, [dot, nested, "private-context-query"])
+})
+
+test("asset URL contexts mask Markdown fences inside blockquote and list containers", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/logo.png", "sibling")
+  const destination = "./logo.png?private-container-query=1#fragment"
+  const example = `![example](${destination})`
+  const fixtures = [
+    ["> ~~~md", `> ${example}`, "> ~~~", example],
+    ["> ```md", `> ${example}`, "> ```", example],
+    ["- ~~~md", `  ${example}`, "  ~~~", `  ${example}`],
+    ["1. ```md", `   ${example}`, "   ```", example],
+    ["> - ~~~md", `>   ${example}`, ">   ~~~", `>   ${example}`],
+    ["- > ```md", `  > ${example}`, "  > ```", example],
+    ["- item", "  ~~~md", `  ${example}`, "  ~~~", `  ${example}`],
+    ["> ~~~md", `> ${example}`, example],
+    ["- ~~~md", `  ${example}`, example],
+    ["- ", "  ~~~md", `  ${example}`, example],
+  ]
+  for (const [index, lines] of fixtures.entries()) {
+    writeFixture(root, `app/panel/container-${index}.md`, `${lines.join("\n")}\n`)
+  }
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.map((row) => [row.fromPath, row.line]), fixtures.map((lines, index) => (
+    [`app/panel/container-${index}.md`, lines.length]
+  )))
+  assert.ok(report.referenceOwners.every((row) => row.targetPath === "app/panel/logo.png"))
+  assertPrivateSerialization(report, root, [destination, "private-container-query"])
+  const first = runAuditCli(assetCliPath, root)
+  const second = runAuditCli(assetCliPath, root)
+  assert.equal(first.status, 0)
+  assert.equal(second.status, 0)
+  assert.equal(first.stderr, "")
+  assert.equal(second.stderr, "")
+  assert.equal(first.stdout, second.stdout)
+  assert.equal(JSON.parse(first.stdout).findings.filter((row) => row.findingKind === "referenceOwners").length, fixtures.length)
+  assertPrivateSerialization(first.stdout, root, [destination, "private-container-query"])
+})
+
+test("asset URL contexts keep escaped CSS newline continuations inside quoted strings", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/logo.png", "sibling")
+  const destination = "./logo.png?private-continuation-query=1#fragment"
+  for (const [index, newline] of ["\n", "\r\n", "\r", "\f"].entries()) {
+    writeFixture(root, `app/panel/continued-${index}.css`, [
+      `a { content: "prefix\\${newline}url(${destination})" }`,
+      `b { content: 'prefix\\${newline}url(${destination})' }`,
+      `c { background: url("${destination}") }`,
+      "",
+    ].join("\n"))
+  }
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.equal(report.referenceOwners.length, 4)
+  assert.ok(report.referenceOwners.every((row) => row.targetPath === "app/panel/logo.png"))
+  assertPrivateSerialization(report, root, [destination, "private-continuation-query"])
+  const first = runAuditCli(assetCliPath, root)
+  const second = runAuditCli(assetCliPath, root)
+  assert.equal(first.status, 0)
+  assert.equal(second.status, 0)
+  assert.equal(first.stderr, "")
+  assert.equal(second.stderr, "")
+  assert.equal(first.stdout, second.stdout)
+  assert.equal(JSON.parse(first.stdout).findings.filter((row) => row.findingKind === "referenceOwners").length, 4)
+  assertPrivateSerialization(first.stdout, root, [destination, "private-continuation-query"])
+})
+
+test("asset URL contexts mask unterminated CSS quotes through EOF without hiding closed-string successors", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/logo.png", "sibling")
+  const destination = "logo.png?private-eof-query=1#fragment"
+  for (const [index, quote] of ['"', "'"].entries()) {
+    for (const [endingIndex, ending] of ["", "\n", "\\"].entries()) {
+      writeFixture(root, `app/panel/unclosed-${index}-${endingIndex}.css`, `a { content: ${quote}prefix url(${destination})${ending}`)
+    }
+    writeFixture(root, `app/panel/closed-${index}.css`, [
+      `a { content: ${quote}prefix\\\nurl(${destination})${quote} }`,
+      `b { background: url(${destination}) }`,
+      "",
+    ].join("\n"))
+  }
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.fromPath, row.line]), [
+    ["app/panel/closed-0.css", 3],
+    ["app/panel/closed-1.css", 3],
+  ])
+  assertPrivateSerialization(first, root, [destination, "private-eof-query"])
+})
+
+test("asset URL contexts treat excessive Markdown list padding as indented code", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/logo.png", "sibling")
+  const destination = "logo.png?private-padding-query=1#fragment"
+  const fixtures = [
+    ["-", 1], ["-", 4], ["-", 5], ["-", 6],
+    ["1.", 1], ["1.", 4], ["1.", 5], ["10)", 5],
+  ]
+  for (const [index, [marker, padding]] of fixtures.entries()) {
+    writeFixture(root, `app/panel/padding-${index}.md`, `${marker}${" ".repeat(padding)}![example](${destination})\n`)
+  }
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => row.fromPath), [
+    "app/panel/padding-0.md", "app/panel/padding-1.md", "app/panel/padding-4.md", "app/panel/padding-5.md",
+  ])
+  assertPrivateSerialization(first, root, [destination, "private-padding-query"])
 })
 
 test("asset evidence recognizes Markdown destinations and unquoted HTML and YAML values", (t) => {

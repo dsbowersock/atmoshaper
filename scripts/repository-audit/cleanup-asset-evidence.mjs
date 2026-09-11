@@ -30,6 +30,53 @@ function couldConstructAsset(expressionText, assetExtensions) {
   )
 }
 
+/** Mask Markdown examples without moving source offsets; only destinations outside them gain URL proof. */
+function markdownDestinationText(text) {
+  const blank = (value) => value.replace(/[^\r\n]/g, " ")
+  let fence = null
+  const containers = []
+  const withoutBlocks = text.replace(/[^\n]*\n|[^\n]+$/g, (line) => {
+    if (!line.trim()) return line
+    // Container indentation is semantic, but only the original line is returned or masked, preserving offsets.
+    let column = 0
+    const expanded = line.replace(/[^\t]|\t/g, (character) => {
+      const width = character === "\t" ? 4 - column % 4 : 1
+      column += width
+      return character === "\t" ? " ".repeat(width) : character
+    })
+    const prefix = () => new RegExp(`^${containers.join("")}`)
+    while (containers.length && !prefix().test(expanded)) {
+      containers.pop()
+      // Fenced blocks cannot lazily continue after their enclosing list/blockquote ends.
+      fence = null
+    }
+    let body = expanded.replace(prefix(), "")
+    if (!fence) {
+      for (;;) {
+        const quote = body.match(/^ {0,3}> ?/)
+        // Five or more spaces leave four code-indentation spaces after the marker's single padding space.
+        const list = body.match(/^ {0,3}(?:[-+*]|\d{1,9}[.)])(?: {1,4}(?=\S)| (?= {4})| *(?=\r?\n?$))/)
+        const container = quote ?? list
+        if (!container) break
+        const width = list && !body.slice(list[0].length).trim() ? list[0].trimEnd().length + 1 : container[0].length
+        containers.push(quote ? " {0,3}> ?" : ` {${width}}`)
+        body = body.slice(container[0].length)
+      }
+    }
+    const marker = body.match(/^ {0,3}(`{3,}|~{3,})([^\r\n]*)/)
+    if (fence) {
+      if (marker && marker[1][0] === fence[0] && marker[1].length >= fence.length && !marker[2].trim()) fence = null
+      return blank(line)
+    }
+    if (marker && (marker[1][0] === "~" || !marker[2].includes("`"))) {
+      fence = marker[1]
+      return blank(line)
+    }
+    return /^ {4}/.test(body) ? blank(line) : line
+  })
+  return withoutBlocks.replace(/<!--[\s\S]*?(?:-->|$)|(?<!`)(`+)[\s\S]*?\1(?!`)/g, blank)
+}
+
 function collectTextLiterals(record, text, assetExtensions) {
   if ([".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"].includes(record.extension)) {
     const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
@@ -60,7 +107,7 @@ function collectTextLiterals(record, text, assetExtensions) {
     return { literals, uncertainties, errors }
   }
   const literals = []
-  const seen = new Set()
+  const seen = new Map()
   const lineStarts = [0]
   for (let index = text.indexOf("\n"); index >= 0; index = text.indexOf("\n", index + 1)) lineStarts.push(index + 1)
   const sourceLocationAt = (offset) => {
@@ -73,20 +120,31 @@ function collectTextLiterals(record, text, assetExtensions) {
     }
     return { line: low + 1, column: offset - lineStarts[low] + 1 }
   }
-  const addLiteral = (value, offset) => {
+  const addLiteral = (value, offset, ownerRelativeUrl) => {
     const trimmed = value.trim()
     const start = offset + Math.max(0, value.indexOf(trimmed))
     const key = `${start}\0${trimmed}`
-    if (!trimmed || seen.has(key)) return
-    seen.add(key)
-    literals.push({ value: trimmed, ...sourceLocationAt(start) })
+    if (!trimmed) return
+    const prior = seen.get(key)
+    if (prior) { prior.ownerRelativeUrl ||= ownerRelativeUrl; return }
+    const literal = { value: trimmed, ownerRelativeUrl, ...sourceLocationAt(start) }
+    seen.set(key, literal)
+    literals.push(literal)
   }
-  const scan = (matcher) => {
-    for (let match = matcher.exec(text); match; match = matcher.exec(text)) {
+  const scan = (matcher, sourceText = text, ownerRelativeUrl = false) => {
+    for (let match = matcher.exec(sourceText); match; match = matcher.exec(sourceText)) {
       const value = match.slice(1).find((candidate) => candidate !== undefined)
-      if (value !== undefined) addLiteral(value, match.index + Math.max(0, match[0].indexOf(value)))
+      if (value !== undefined) addLiteral(value, match.index + Math.max(0, match[0].indexOf(value)), ownerRelativeUrl)
       if (match[0].length === 0) matcher.lastIndex += 1
     }
+  }
+  // Consume comments and non-URL strings as whole tokens so their url(...) examples cannot prove ownership.
+  // An unterminated quote (including a trailing escape) remains opaque through EOF.
+  if (record.extension === ".css") {
+    scan(/\/\*[\s\S]*?(?:\*\/|$)|"(?:\\(?:[\s\S]|$)|[^"\\])*(?:"|$)|'(?:\\(?:[\s\S]|$)|[^'\\])*(?:'|$)|(?<![\w-])url\(\s*(?:"([^"\\\r\n]*)"|'([^'\\\r\n]*)'|([^\s"'()\\]+))\s*\)/gi, text, true)
+  }
+  if (record.extension === ".md") {
+    scan(/(?<!\\)!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))(?:\s+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^\r\n)]*\)))?\s*\)/g, markdownDestinationText(text), true)
   }
   scan(/(?:url\(\s*)?["']([^"'\r\n)]+)["']\s*\)?|url\(\s*([^)\'"\s][^)]*)\s*\)/g)
   if (record.extension === ".md") scan(/!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))/g)
@@ -107,7 +165,7 @@ function normalizeContainedAssetPath(value) {
   return segments.join("/")
 }
 
-function assetTarget(fromPath, literal, assetExtensions) {
+function assetTarget(fromPath, literal, assetExtensions, ownerRelativeUrl = false) {
   if (/^(?:[a-z][a-z0-9+.-]*:|#|\\\\)/i.test(literal)) return null
   const withoutSuffix = literal.split(/[?#]/, 1)[0].replaceAll("\\", "/")
   if (!assetExtensions.has(extname(withoutSuffix).toLowerCase())) return null
@@ -120,7 +178,7 @@ function assetTarget(fromPath, literal, assetExtensions) {
     const publicPath = normalizeContainedAssetPath(withoutSuffix.slice("public/".length))
     if (publicPath === null) return { invalid: true }
     target = `public/${publicPath}`
-  } else if (withoutSuffix.includes("/")) {
+  } else if (withoutSuffix.includes("/") || ownerRelativeUrl) {
     target = posix.normalize(posix.join(posix.dirname(fromPath), withoutSuffix))
   } else return null
   if (target === ".." || target.startsWith("../") || target.startsWith("/")) return { invalid: true }
@@ -163,8 +221,10 @@ export function buildAssetEvidence(index, policy) {
     uncertainties.push(...rows.uncertainties)
     errors.push(...rows.errors)
     for (const literal of rows.literals) {
-      const resolution = assetTarget(record.path, literal.value, assetExtensions)
-      if (resolution?.invalid) {
+      const resolution = assetTarget(record.path, literal.value, assetExtensions, literal.ownerRelativeUrl)
+      // Legacy scans retain examples as evidence, but a slash alone cannot prove CSS/Markdown URL context.
+      const unprovenUrlContext = [".css", ".md"].includes(record.extension) && !literal.ownerRelativeUrl
+      if (resolution?.invalid || (resolution && unprovenUrlContext)) {
         errors.push({
           code: "UNRESOLVED_LITERAL_ASSET", fromPath: record.path, line: literal.line,
           column: literal.column, literalSha256: sha256(literal.value),

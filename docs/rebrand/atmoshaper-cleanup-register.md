@@ -664,8 +664,52 @@ and zero forbidden paths. Brand verification remained zero missing and zero
 unclassified with output SHA-256
 `50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
 
-These pre-document hashes and identities become historical once the versioned
-receipts are staged; exact final identity remains only in the ignored SDD
-receipt. Latest-head hosted checks and reviews remain pending. Merge remains
-separately authorized. No candidate deletion, provider action or Phase 5 work
-occurred.
+These pre-document hashes and identities became historical when the versioned
+receipts were staged.
+
+Hosted review round 19 records three validated latest-head findings and
+repairs. Bare owner-relative asset URLs now resolve as exact evidence only in
+parsed CSS `url(...)` tokens and Markdown link or image destinations. Masked
+comments, fenced or inline code, ordinary prose and quoted content remain
+hash-only uncertainty. Strict TDD covered both context repairs and the follow-up
+masked slash-path regression. Independent final code review fixed and covered
+blockquote/list tilde fences, CSS escaped-newline and unclosed quoted strings,
+and CommonMark 5+ list-padding code boundaries. Explicit
+`.js`, `.jsx`, `.mjs` and `.cjs` imports
+preserve runtime ownership and separately record family-matched TypeScript
+substitution ownership for `.ts`, `.tsx`, `.mts` and `.cts`; declarations remain
+separately labeled declaration-companion evidence. The
+[tracked Round 18 successor attestation](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/round-18-final-receipt.md)
+records immutable subject commit `f10773c7c94c9db9e4059a82dd45c5195fb83dc9`,
+tree `78b1b769413053bfb798038e31a6b4a21e8a52b9`, inventory identity and CRLF
+report hashes without self-attesting the later tree. Independent staged review
+passed.
+
+The exact staged focused repository-audit suite passed 172/172. The full suite
+recorded 4,370 total, 4,367 passed, 3 host-dependent skips and zero failures.
+Typecheck, lint, documentation-state and working/staged diff checks passed.
+Source caps were asset evidence 253, module evidence 426, module resolution 101,
+module loader 475, environment analyzer 496, environment-pattern helper 42 and
+environment scope 132 nonblank lines.
+
+Current pre-document audits ran twice with byte-identical output and exit 0;
+every report retained `deletionAuthority: false`: dead code 1,570/211
+(`30ada36f1077ae197445417025da82cab1c3da73c452d66c3ceae1586509a5b0`),
+dependency 2,868/21
+(`66403e4cde209e2cc387fa23f58639fc4de287b66f88b862b81f62287fd849e1`),
+asset 557/11,358
+(`c4887ec9041c400a01201edca6368c27cdada07ec23808ee7e17faf45f6eeee6`),
+and environment 587/252
+(`770bc579411453dda8a9df864492ff9d69cc1c724244cf442b8d802e01079313`).
+The current pre-document inventory contained 1,926 files and 47,629,855 Git
+blob bytes, inventory SHA-256
+`55e5b16dc1055d424f305b9a5eebad8c72e157be236b6dc2ec1f9d5aae4a151d`,
+output SHA-256
+`7b5f8db5051ab55762f054e07f7e7e61f0d580e6a6305ae95969b29d0d6a5fe1`
+and zero forbidden paths. Brand verification remained zero missing/zero
+unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+This identity becomes historical when the synchronized documents are staged;
+the successor-attestation contract governs immutable subjects. Latest-head
+hosted checks and reviews remain pending. Merge remains separately authorized.
+No candidate deletion, provider action or Phase 5 work occurred.
