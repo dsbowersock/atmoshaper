@@ -1499,13 +1499,17 @@ test("module evidence separates extensionless type declarations from runtime imp
     evidence.references
       .filter((row) => row.kind === "declaration-companion")
       .map((row) => [row.fromPath, row.sourceKind, row.targetPath]),
-    [["app/type-user.ts", "import-type", "lib/model.d.ts"]],
+    [
+      ["app/runtime-user.ts", "import", "lib/runtime-model.d.ts"],
+      ["app/type-user.ts", "import-type", "lib/model.d.ts"],
+    ],
   )
   assert.equal(evidence.errors.length, 0)
 
   const report = buildDeadCodeCandidateReport(index, policy)
   assert.ok(report.referencedModules.some((row) => row.path === "lib/model.d.ts"))
-  assert.ok(report.unreferencedCandidates.some((row) => row.path === "lib/runtime-model.d.ts"))
+  assert.ok(report.referencedModules.some((row) => row.path === "lib/runtime-model.d.ts"))
+  assert.equal(report.unreferencedCandidates.some((row) => row.path === "lib/runtime-model.d.ts"), false)
 })
 
 test("module evidence follows TypeScript precedence and recognizes inline type specifiers", (t) => {
@@ -1711,6 +1715,65 @@ test("module evidence preserves explicit runtime edges and records TypeScript so
     }
   }
   assert.equal(JSON.stringify(first).includes("../lib/js-pair.js"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("module evidence preserves extensionless runtime edges and records bundler TypeScript substitutions", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of [
+    "direct.js", "direct.ts",
+    "exported.js", "exported.ts",
+    "dynamic.js", "dynamic.ts",
+    "required.js", "required.ts",
+    "dotted.test.js", "dotted.test.ts",
+  ]) writeFixture(root, `lib/${path}`, "export const value = true\n")
+  writeFixture(root, "lib/indexed/index.js", "export const indexed = true\n")
+  writeFixture(root, "lib/indexed/index.ts", "export const indexed = true\n")
+  writeFixture(root, "lib/runtime-only.js", "export const runtimeOnly = true\n")
+  writeFixture(root, "app/page.tsx", [
+    "import { value as direct } from '../lib/direct'",
+    "export { value as exported } from '../lib/exported'",
+    "const dynamic = import('../lib/dynamic')",
+    "import Required = require('../lib/required')",
+    "import { indexed } from '../lib/indexed'",
+    "import { runtimeOnly } from '../lib/runtime-only'",
+    "import { value as dotted } from '../lib/dotted.test'",
+    "void direct; void dynamic; void Required; void indexed; void runtimeOnly; void dotted",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildModuleEvidence(index, policy)
+  const second = buildModuleEvidence(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.fromPath === "app/page.tsx")
+      .map((row) => [row.line, row.kind, row.targetPath]),
+    [
+      [1, "import", "lib/direct.js"],
+      [1, "typescript-substitution", "lib/direct.ts"],
+      [2, "export-from", "lib/exported.js"],
+      [2, "typescript-substitution", "lib/exported.ts"],
+      [3, "dynamic-import", "lib/dynamic.js"],
+      [3, "typescript-substitution", "lib/dynamic.ts"],
+      [4, "import-equals", "lib/required.js"],
+      [4, "typescript-substitution", "lib/required.ts"],
+      [5, "import", "lib/indexed/index.js"],
+      [5, "typescript-substitution", "lib/indexed/index.ts"],
+      [6, "import", "lib/runtime-only.js"],
+      [7, "import", "lib/dotted.test.js"],
+      [7, "typescript-substitution", "lib/dotted.test.ts"],
+    ],
+  )
+  const report = buildDeadCodeCandidateReport(index, policy)
+  for (const path of [
+    "lib/direct.ts", "lib/exported.ts", "lib/dynamic.ts", "lib/required.ts", "lib/indexed/index.ts", "lib/dotted.test.ts",
+  ]) {
+    assert.ok(report.referencedModules.some((row) => row.path === path))
+    assert.equal(report.unreferencedCandidates.some((row) => row.path === path), false)
+  }
+  assert.equal(JSON.stringify(first).includes("../lib/direct"), false)
   assert.equal(first.errors.length, 0)
 })
 
@@ -2694,6 +2757,146 @@ test("asset evidence recognizes Markdown destinations and unquoted HTML and YAML
   assert.ok(evidence.references.every((row) => row.targetPath === "public/icons/example.svg"))
   assert.equal(evidence.errors.length, 0)
   assertPrivateSerialization(evidence, root, [markdownLiteral, htmlLiteral, yamlLiteral])
+})
+
+test("asset evidence resolves slashless HTML attributes only from live start tags", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of [
+    "quoted.png", "single.png", "plain.png", "upper.png", "control.png",
+    "duplicate-first.png", "duplicate-second.png", "raw-control.png",
+  ]) {
+    writeFixture(root, `app/panel/${path}`, path)
+  }
+  const privateSuffix = "?private-html-owner=1#fragment"
+  writeFixture(root, "app/panel/assets.html", [
+    `<img src="quoted.png${privateSuffix}">`,
+    `<a href='single.png${privateSuffix}'>link</a>`,
+    `<video poster=plain.png${privateSuffix}></video>`,
+    `<IMG SRC=upper.png${privateSuffix}>`,
+    `<!-- <img src="control.png${privateSuffix}"> -->`,
+    `<script>const example = '<img src="control.png${privateSuffix}">'</script>`,
+    `<style>.example { content: '<img src=control.png${privateSuffix}>' }</style>`,
+    `<textarea><img src=control.png${privateSuffix}></textarea>`,
+    `<title><img src=control.png${privateSuffix}></title>`,
+    `<xmp><img src=control.png${privateSuffix}></xmp>`,
+    `<iframe><img src=control.png${privateSuffix}></iframe>`,
+    `<noembed><img src=control.png${privateSuffix}></noembed>`,
+    `<noframes><img src=control.png${privateSuffix}></noframes>`,
+    `<!bogus <img src="control.png${privateSuffix}">>`,
+    `<?bogus <img src=control.png${privateSuffix}>>`,
+    `<img data-src="control.png${privateSuffix}" aria-href=control.png${privateSuffix} data-x=abc/src=control.png${privateSuffix} data-y="ignore src=control.png${privateSuffix}">`,
+    `<img src="control.png${privateSuffix}">`,
+    `<img SRC=duplicate-first.png${privateSuffix} src=duplicate-second.png${privateSuffix}>`,
+    `<img src\u00a0=duplicate-second.png${privateSuffix}>`,
+    `<plaintext><img src=control.png${privateSuffix}></plaintext><img src=control.png${privateSuffix}>`,
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/panel/raw.html", [
+    `<script>const ignored = 'raw-control.png${privateSuffix}'</script\u00a0>`,
+    `<img src=raw-control.png${privateSuffix}>`,
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/panel/quoted-tag.html", [
+    `<div title="<script>">`,
+    `<img src=raw-control.png${privateSuffix}>`,
+    `</script>">`,
+    `<div data-x=broken"value>`,
+    `<img src=control.png${privateSuffix}>`,
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/panel/comments.html", [
+    `<!bogus "fake>" <img src=control.png${privateSuffix}>`,
+    `<!--><img src=control.png${privateSuffix}>`,
+    `<!---><img src=control.png${privateSuffix}>`,
+    `<!--ignored--!><img src=control.png${privateSuffix}>`,
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/panel/raw-closes.html", [
+    `<script>ignored</script data-x=ignored><img src=control.png${privateSuffix}>`,
+    `<style>ignored</style/><img poster=control.png${privateSuffix}>`,
+    "",
+  ].join("\n"))
+
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.targetPath]), [
+    [1, "app/panel/quoted.png"],
+    [2, "app/panel/single.png"],
+    [3, "app/panel/plain.png"],
+    [4, "app/panel/upper.png"],
+    [17, "app/panel/control.png"],
+    [18, "app/panel/duplicate-first.png"],
+    [1, "app/panel/control.png"],
+    [2, "app/panel/control.png"],
+    [3, "app/panel/control.png"],
+    [4, "app/panel/control.png"],
+    [2, "app/panel/raw-control.png"],
+    [5, "app/panel/control.png"],
+    [1, "app/panel/control.png"],
+    [2, "app/panel/control.png"],
+  ])
+  assert.ok(first.basenameOnlySignals.length >= 2)
+  assert.ok(first.basenameOnlySignals.every((row) => (
+    ["app/panel/assets.html", "app/panel/quoted-tag.html", "app/panel/raw.html", "app/panel/raw-closes.html"].includes(row.fromPath) &&
+    /^[a-f0-9]{64}$/.test(row.literalSha256)
+  )))
+  assert.deepEqual(first.unreferencedCandidates.map((row) => row.path), [
+    "app/panel/duplicate-second.png",
+  ])
+  assertPrivateSerialization(first, root, [privateSuffix, "private-html-owner"])
+
+  const cliFirst = runAuditCli(assetCliPath, root)
+  const cliSecond = runAuditCli(assetCliPath, root)
+  assert.equal(cliFirst.status, 0)
+  assert.equal(cliSecond.status, 0)
+  assert.equal(cliFirst.stderr, "")
+  assert.equal(cliSecond.stderr, "")
+  assert.equal(cliFirst.stdout, cliSecond.stdout)
+  const envelope = JSON.parse(cliFirst.stdout)
+  assert.equal(envelope.deletionAuthority, false)
+  assert.equal(envelope.findings.filter((row) => row.findingKind === "referenceOwners").length, 14)
+  assertPrivateSerialization(cliFirst.stdout, root, [privateSuffix, "private-html-owner"])
+})
+
+test("asset evidence parses MTS and CTS literals and hashes dynamic expressions", (t) => {
+  const root = createFixtureRepository(t)
+  const modulePolicy = {
+    ...clonePolicy(),
+    sourceExtensions: [...new Set([...policy.sourceExtensions, ".cts", ".mts"])].sort(),
+    textExtensions: [...new Set([...policy.textExtensions, ".cts", ".mts"])].sort(),
+  }
+  writePackage(root)
+  writeFixture(root, "app/direct.png", "direct")
+  writeFixture(root, "app/comment.png", "comment")
+  for (const extension of ["mts", "cts"]) {
+    writeFixture(root, `app/assets.${extension}`, [
+      "// const ignored = './comment.png'",
+      "const direct = './direct.png'",
+      "const templated = `./${privateAssetName}.png`",
+      "const concatenated = './' + privateAssetName + '.png'",
+      "void direct; void templated; void concatenated",
+      "",
+    ].join("\n"))
+  }
+
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, modulePolicy), modulePolicy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, modulePolicy), modulePolicy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.fromPath, row.line, row.targetPath]), [
+    ["app/assets.cts", 2, "app/direct.png"],
+    ["app/assets.mts", 2, "app/direct.png"],
+  ])
+  assert.equal(first.referenceOwners.some((row) => row.targetPath === "app/comment.png"), false)
+  assert.deepEqual(first.uncertainties.dynamicAssetExpressions.map((row) => [row.path, row.line, row.kind]), [
+    ["app/assets.cts", 3, "template"],
+    ["app/assets.cts", 4, "concatenation"],
+    ["app/assets.mts", 3, "template"],
+    ["app/assets.mts", 4, "concatenation"],
+  ])
+  assert.ok(first.uncertainties.dynamicAssetExpressions.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assertPrivateSerialization(first, root, ["privateAssetName"])
 })
 
 test("environment evidence records static names and computed uncertainty without values", (t) => {

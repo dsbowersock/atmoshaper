@@ -77,8 +77,127 @@ function markdownDestinationText(text) {
   return withoutBlocks.replace(/<!--[\s\S]*?(?:-->|$)|(?<!`)(`+)[\s\S]*?\1(?!`)/g, blank)
 }
 
+function htmlTagEnd(text, start) {
+  let quote = null
+  let beforeValue = false
+  let unquotedValue = false
+  for (let cursor = start + 1; cursor < text.length; cursor += 1) {
+    const character = text[cursor]
+    if (quote) {
+      if (character === quote) quote = null
+      continue
+    }
+    if (unquotedValue) {
+      if (character === ">") return cursor
+      if (/[\t\n\f\r ]/.test(character)) unquotedValue = false
+      continue
+    }
+    if (beforeValue) {
+      if (/[\t\n\f\r ]/.test(character)) continue
+      beforeValue = false
+      if (["\"", "'"].includes(character)) quote = character
+      else if (character === ">") return cursor
+      else unquotedValue = true
+      continue
+    }
+    if (character === "=") beforeValue = true
+    else if (character === ">") return cursor
+  }
+  return null
+}
+
+function htmlCommentEnd(text, start) {
+  const contentStart = start + 4
+  if (text[contentStart] === ">") return contentStart
+  if (text[contentStart] === "-" && text[contentStart + 1] === ">") return contentStart + 1
+  const standard = text.indexOf("-->", contentStart)
+  const bang = text.indexOf("--!>", contentStart)
+  if (standard < 0) return bang < 0 ? null : bang + 3
+  if (bang < 0) return standard + 2
+  return standard < bang ? standard + 2 : bang + 3
+}
+
+/** Yield only tokenizer-visible start tags, skipping comments and raw-text element bodies. */
+function htmlStartTags(text) {
+  const rawTextNames = new Set(["script", "style", "textarea", "title", "xmp", "iframe", "noembed", "noframes"])
+  const tags = []
+  let cursor = 0
+  while (cursor < text.length) {
+    const start = text.indexOf("<", cursor)
+    if (start < 0) break
+    if (text.startsWith("<!--", start)) {
+      const end = htmlCommentEnd(text, start)
+      if (end === null) break
+      cursor = end + 1
+      continue
+    }
+    if (text[start + 1] === "!" || text[start + 1] === "?") {
+      const end = text.indexOf(">", start + 2)
+      if (end < 0) break
+      cursor = end + 1
+      continue
+    }
+    const opening = text.slice(start + 1).match(/^([A-Za-z][A-Za-z0-9:-]*)(?=[\t\n\f\r \/>])/)
+    if (!opening) { cursor = start + 1; continue }
+    const end = htmlTagEnd(text, start)
+    if (end === null) break
+    const name = opening[1].toLowerCase()
+    tags.push({ start, text: text.slice(start, end + 1) })
+    cursor = end + 1
+    if (name === "plaintext") break
+    if (rawTextNames.has(name)) {
+      const closing = new RegExp(`</${name}(?=[\\t\\n\\f\\r />])`, "ig")
+      closing.lastIndex = cursor
+      const match = closing.exec(text)
+      if (!match) break
+      const closingEnd = htmlTagEnd(text, match.index)
+      if (closingEnd === null) break
+      cursor = closingEnd + 1
+    }
+  }
+  return tags
+}
+
+/** Read first-occurrence HTML attributes without mistaking text inside another attribute value for markup. */
+function htmlUrlAttributes(tagText) {
+  const isSpace = (character) => /[\t\n\f\r ]/.test(character)
+  const rows = []
+  const seen = new Set()
+  let cursor = 1
+  while (cursor < tagText.length && !isSpace(tagText[cursor]) && !["/", ">"].includes(tagText[cursor])) cursor += 1
+  while (cursor < tagText.length) {
+    while (cursor < tagText.length && isSpace(tagText[cursor])) cursor += 1
+    if (["/", ">"].includes(tagText[cursor])) { cursor += 1; continue }
+    const nameStart = cursor
+    while (cursor < tagText.length && !/[\t\n\f\r \/>=]/.test(tagText[cursor])) cursor += 1
+    if (cursor === nameStart) { cursor += 1; continue }
+    const name = tagText.slice(nameStart, cursor).toLowerCase()
+    while (cursor < tagText.length && isSpace(tagText[cursor])) cursor += 1
+    let value
+    let valueOffset
+    if (tagText[cursor] === "=") {
+      cursor += 1
+      while (cursor < tagText.length && isSpace(tagText[cursor])) cursor += 1
+      const quote = ["\"", "'"].includes(tagText[cursor]) ? tagText[cursor++] : null
+      valueOffset = cursor
+      if (quote) {
+        while (cursor < tagText.length && tagText[cursor] !== quote) cursor += 1
+        value = tagText.slice(valueOffset, cursor)
+        if (tagText[cursor] === quote) cursor += 1
+      } else {
+        while (cursor < tagText.length && !isSpace(tagText[cursor]) && tagText[cursor] !== ">") cursor += 1
+        value = tagText.slice(valueOffset, cursor)
+      }
+    }
+    const duplicate = seen.has(name)
+    seen.add(name)
+    if (!duplicate && ["src", "href", "poster"].includes(name) && value) rows.push({ value, valueOffset })
+  }
+  return rows
+}
+
 function collectTextLiterals(record, text, assetExtensions) {
-  if ([".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"].includes(record.extension)) {
+  if ([".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".mts", ".cts"].includes(record.extension)) {
     const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
     const literals = []
     const uncertainties = []
@@ -146,9 +265,15 @@ function collectTextLiterals(record, text, assetExtensions) {
   if (record.extension === ".md") {
     scan(/(?<!\\)!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))(?:\s+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^\r\n)]*\)))?\s*\)/g, markdownDestinationText(text), true)
   }
+  if (record.extension === ".html") {
+    for (const tag of htmlStartTags(text)) {
+      for (const attribute of htmlUrlAttributes(tag.text)) {
+        addLiteral(attribute.value, tag.start + attribute.valueOffset, true)
+      }
+    }
+  }
   scan(/(?:url\(\s*)?["']([^"'\r\n)]+)["']\s*\)?|url\(\s*([^)\'"\s][^)]*)\s*\)/g)
   if (record.extension === ".md") scan(/!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))/g)
-  if (record.extension === ".html") scan(/(?:src|href|poster)\s*=\s*([^\s"'=<>`]+)/gi)
   if ([".yaml", ".yml"].includes(record.extension)) scan(/^[ \t]*[^#\r\n:]+:[ \t]*([^\s#]+)[ \t]*(?:#.*)?$/gm)
   return { literals, uncertainties: [], errors: [] }
 }
@@ -222,8 +347,8 @@ export function buildAssetEvidence(index, policy) {
     errors.push(...rows.errors)
     for (const literal of rows.literals) {
       const resolution = assetTarget(record.path, literal.value, assetExtensions, literal.ownerRelativeUrl)
-      // Legacy scans retain examples as evidence, but a slash alone cannot prove CSS/Markdown URL context.
-      const unprovenUrlContext = [".css", ".md"].includes(record.extension) && !literal.ownerRelativeUrl
+      // Legacy scans retain examples as evidence, but a slash alone cannot prove a structured URL context.
+      const unprovenUrlContext = [".css", ".html", ".md"].includes(record.extension) && !literal.ownerRelativeUrl
       if (resolution?.invalid || (resolution && unprovenUrlContext)) {
         errors.push({
           code: "UNRESOLVED_LITERAL_ASSET", fromPath: record.path, line: literal.line,

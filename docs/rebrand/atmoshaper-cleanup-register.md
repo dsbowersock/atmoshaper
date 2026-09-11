@@ -713,3 +713,45 @@ This identity becomes historical when the synchronized documents are staged;
 the successor-attestation contract governs immutable subjects. Latest-head
 hosted checks and reviews remain pending. Merge remains separately authorized.
 No candidate deletion, provider action or Phase 5 work occurred.
+Hosted review round 20 records six validated latest-head findings and repairs.
+Extensionless bundler resolution now records separate TypeScript companion
+ownership, including dotted basenames; `.mts` and `.cts` asset sources use the
+TypeScript AST; and slashless quoted or unquoted HTML `src`, `href` and `poster`
+values become exact owner-relative evidence only in live start tags recognized
+by conservative stateful data/raw-text/comment tokenization. The tracked Round
+18 successor receipt now rejects standard error, validates every trusted JSON
+field's existence and type before use, and removes only its bounded temporary
+checkout without masking an original error. Independent adversarial follow-ups
+covered case-insensitive duplicates, ASCII/NBSP boundaries, PLAINTEXT through
+EOF, bogus and abrupt comments, quoted pseudo-tags, and raw end tags with
+attributes or slashes.
+
+The cleanup-audit suite passed 154/154, repository-audit passed 21/21, and the
+combined focused run passed 175/175. The full suite recorded 4,373 total, 4,370
+passed, 3 host-dependent skips and zero failures; typecheck and lint passed,
+with lint's Babel note informational. Nonblank source caps were asset evidence
+374, module evidence 426, module resolution 105, module loader 475, environment
+analyzer 496, environment-pattern helper 42 and environment scope 132.
+
+The exact pre-document staged receipt ran twice with exit 0, empty standard
+error, byte-identical output, shared inventory and `deletionAuthority: false`:
+dead code 1,570/211
+(`76b5c57f679d3199c3bd356c39a95a2e798121cab94343278da7158cea8dc334`),
+dependency 2,868/21
+(`e78383f48cae71f4a183afab5eda173a19ab7de96cc64b7a82a4f9732fc16c1c`),
+asset 557/11,408
+(`580499e903b1725957f4982250521e1996f2a99c6f48c893c2220a99c633081e`),
+and environment 587/252
+(`55b5ff8b7480080551c471e503101a681e7f22769cfc5c18ccab485068f49362`).
+The pre-document inventory contained 1,926 files, 47,651,052 Git blob bytes,
+inventory SHA-256
+`026219ea7eb8890b1215ed5558540fdfe3fb6b1e56eba8d0f0676ff312f5d091`,
+serialized-output SHA-256
+`37764bb4f3947d438a004e7b9b0be4e1aa8ede7ffcd8ff16f0f790b917e4658a`
+and zero forbidden paths. Brand remained zero missing/zero unclassified with
+output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These values become historical when the documents are staged; the immutable
+successor-attestation contract remains authoritative. Latest-head hosted checks
+and reviews remain pending, merge remains separately authorized, and no
+candidate deletion, provider action or Phase 5 work occurred.

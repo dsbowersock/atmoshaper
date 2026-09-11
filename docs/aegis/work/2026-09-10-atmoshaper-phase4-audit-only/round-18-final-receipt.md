@@ -38,24 +38,43 @@ Run the following in PowerShell 7. It checks out the immutable subject, installs
 the locked dependencies without lifecycle scripts, preserves every stdout line
 boundary while serializing it as UTF-8 without a BOM and CRLF line endings, and
 compares the resulting values with this attestation. Native-command failures
-stop the comparison.
+stop the comparison. Audit commands must also produce empty stderr, required
+audit contract properties must exist with their exact JSON types, and cleanup
+removes the bounded temporary checkout without replacing an earlier failure.
 
 ```powershell
 $ErrorActionPreference = 'Stop'
 $subject = 'f10773c7c94c9db9e4059a82dd45c5195fb83dc9'
 $subjectTree = '78b1b769413053bfb798038e31a6b4a21e8a52b9'
 $runId = [guid]::NewGuid().ToString('N')
-$checkout = Join-Path ([IO.Path]::GetTempPath()) "atmoshaper-round-18-$runId"
+$checkoutName = "atmoshaper-round-18-$runId"
+$tempRoot = [IO.Path]::GetFullPath(
+  (Resolve-Path -LiteralPath ([IO.Path]::GetTempPath()) -ErrorAction Stop).Path
+).TrimEnd(
+  [IO.Path]::DirectorySeparatorChar,
+  [IO.Path]::AltDirectorySeparatorChar
+)
+$checkout = [IO.Path]::GetFullPath((Join-Path $tempRoot $checkoutName))
+$checkoutPrefix = $tempRoot + [IO.Path]::DirectorySeparatorChar
+if (
+  -not $checkout.StartsWith($checkoutPrefix, [StringComparison]::OrdinalIgnoreCase) -or
+  [IO.Path]::GetFileName($checkout) -cne $checkoutName
+) {
+  throw 'Refusing unsafe temporary checkout path'
+}
 $captureDirectory = Join-Path $checkout '.round-18-receipt-output'
+$locationPushed = $false
+$runError = $null
 
-git clone https://github.com/dsbowersock/atmoshaper.git $checkout
-if ($LASTEXITCODE -ne 0) { throw 'git clone failed' }
-git -C $checkout checkout --detach $subject
-if ($LASTEXITCODE -ne 0) { throw 'git checkout failed' }
-New-Item -ItemType Directory -Force -Path $captureDirectory | Out-Null
-
-Push-Location $checkout
 try {
+  git clone https://github.com/dsbowersock/atmoshaper.git $checkout
+  if ($LASTEXITCODE -ne 0) { throw 'git clone failed' }
+  git -C $checkout checkout --detach $subject
+  if ($LASTEXITCODE -ne 0) { throw 'git checkout failed' }
+  New-Item -ItemType Directory -Force -Path $captureDirectory | Out-Null
+
+  Push-Location $checkout
+  $locationPushed = $true
   npm ci --ignore-scripts
   if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
 
@@ -65,8 +84,12 @@ try {
       [Parameter(Mandatory)] [string] $OutputName
     )
 
-    $lines = @(& npm run --silent $ScriptName)
-    if ($LASTEXITCODE -ne 0) { throw "$ScriptName failed" }
+    $stderrPath = Join-Path $captureDirectory "$OutputName.stderr"
+    $lines = @(& npm run --silent $ScriptName 2> $stderrPath)
+    $exitCode = $LASTEXITCODE
+    $stderrLength = (Get-Item -LiteralPath $stderrPath).Length
+    if ($exitCode -ne 0) { throw "$ScriptName failed" }
+    if ($stderrLength -ne 0) { throw "$ScriptName wrote to stderr" }
     $serialized = ($lines -join "`r`n") + "`r`n"
     $outputPath = Join-Path $captureDirectory $OutputName
     [IO.File]::WriteAllText($outputPath, $serialized, [Text.UTF8Encoding]::new($false))
@@ -76,6 +99,25 @@ try {
     }
   }
 
+  function Get-RequiredJsonProperty {
+    param(
+      [Parameter(Mandatory)] [psobject] $InputObject,
+      [Parameter(Mandatory)] [string] $PropertyName,
+      [Parameter(Mandatory)] [type] $ExpectedType,
+      [Parameter(Mandatory)] [string] $Context
+    )
+
+    $property = $InputObject.PSObject.Properties[$PropertyName]
+    if ($null -eq $property) {
+      throw "$Context is missing required property $PropertyName"
+    }
+    $value = $property.Value
+    if ($null -eq $value -or $value.GetType() -ne $ExpectedType) {
+      throw "$Context property $PropertyName has the wrong JSON type"
+    }
+    $value
+  }
+
   $inventory = Invoke-CrlfCapture 'repository:inventory' 'inventory.json'
   $dead = Invoke-CrlfCapture 'dead-code:audit' 'dead-code.json'
   $dependency = Invoke-CrlfCapture 'dependency:audit' 'dependency.json'
@@ -83,40 +125,67 @@ try {
   $environment = Invoke-CrlfCapture 'env:audit' 'environment.json'
   $brand = Invoke-CrlfCapture 'brand:audit' 'brand.json'
 
+  $trackedFileCount = Get-RequiredJsonProperty $inventory.Json 'trackedFileCount' ([long]) 'inventory'
+  $totalTrackedBytes = Get-RequiredJsonProperty $inventory.Json 'totalTrackedBytes' ([long]) 'inventory'
+  $inventorySha256 = Get-RequiredJsonProperty $inventory.Json 'inventorySha256' ([string]) 'inventory'
+  $forbiddenTrackedPaths = Get-RequiredJsonProperty $inventory.Json 'forbiddenTrackedPaths' ([object[]]) 'inventory'
+  $deadSummary = Get-RequiredJsonProperty $dead.Json 'summary' ([System.Management.Automation.PSCustomObject]) 'dead-code audit'
+  $deadInventorySha256 = Get-RequiredJsonProperty $dead.Json 'inventorySha256' ([string]) 'dead-code audit'
+  $deadDeletionAuthority = Get-RequiredJsonProperty $dead.Json 'deletionAuthority' ([bool]) 'dead-code audit'
+  $deadFindingCount = Get-RequiredJsonProperty $deadSummary 'findingCount' ([long]) 'dead-code audit summary'
+  $deadUncertaintyCount = Get-RequiredJsonProperty $deadSummary 'uncertaintyCount' ([long]) 'dead-code audit summary'
+  $dependencySummary = Get-RequiredJsonProperty $dependency.Json 'summary' ([System.Management.Automation.PSCustomObject]) 'dependency audit'
+  $dependencyInventorySha256 = Get-RequiredJsonProperty $dependency.Json 'inventorySha256' ([string]) 'dependency audit'
+  $dependencyDeletionAuthority = Get-RequiredJsonProperty $dependency.Json 'deletionAuthority' ([bool]) 'dependency audit'
+  $dependencyFindingCount = Get-RequiredJsonProperty $dependencySummary 'findingCount' ([long]) 'dependency audit summary'
+  $dependencyUncertaintyCount = Get-RequiredJsonProperty $dependencySummary 'uncertaintyCount' ([long]) 'dependency audit summary'
+  $assetSummary = Get-RequiredJsonProperty $asset.Json 'summary' ([System.Management.Automation.PSCustomObject]) 'asset audit'
+  $assetInventorySha256 = Get-RequiredJsonProperty $asset.Json 'inventorySha256' ([string]) 'asset audit'
+  $assetDeletionAuthority = Get-RequiredJsonProperty $asset.Json 'deletionAuthority' ([bool]) 'asset audit'
+  $assetFindingCount = Get-RequiredJsonProperty $assetSummary 'findingCount' ([long]) 'asset audit summary'
+  $assetUncertaintyCount = Get-RequiredJsonProperty $assetSummary 'uncertaintyCount' ([long]) 'asset audit summary'
+  $environmentSummary = Get-RequiredJsonProperty $environment.Json 'summary' ([System.Management.Automation.PSCustomObject]) 'environment audit'
+  $environmentInventorySha256 = Get-RequiredJsonProperty $environment.Json 'inventorySha256' ([string]) 'environment audit'
+  $environmentDeletionAuthority = Get-RequiredJsonProperty $environment.Json 'deletionAuthority' ([bool]) 'environment audit'
+  $environmentFindingCount = Get-RequiredJsonProperty $environmentSummary 'findingCount' ([long]) 'environment audit summary'
+  $environmentUncertaintyCount = Get-RequiredJsonProperty $environmentSummary 'uncertaintyCount' ([long]) 'environment audit summary'
+  $brandMissing = Get-RequiredJsonProperty $brand.Json 'missing' ([object[]]) 'brand audit'
+  $brandUnclassified = Get-RequiredJsonProperty $brand.Json 'unclassified' ([object[]]) 'brand audit'
+
   $auditInventoryHashes = @(
-    $dead.Json.inventorySha256
-    $dependency.Json.inventorySha256
-    $asset.Json.inventorySha256
-    $environment.Json.inventorySha256
+    $deadInventorySha256
+    $dependencyInventorySha256
+    $assetInventorySha256
+    $environmentInventorySha256
   ) | Sort-Object -Unique
 
   $actual = [ordered]@{
     SubjectCommit = (git rev-parse HEAD).Trim()
     SubjectTree = (git rev-parse 'HEAD^{tree}').Trim()
-    TrackedFileCount = [int] $inventory.Json.trackedFileCount
-    TotalTrackedBytes = [int64] $inventory.Json.totalTrackedBytes
-    InventorySha256 = [string] $inventory.Json.inventorySha256
+    TrackedFileCount = $trackedFileCount
+    TotalTrackedBytes = $totalTrackedBytes
+    InventorySha256 = $inventorySha256
     InventoryOutputSha256 = $inventory.OutputSha256
-    ForbiddenTrackedPathCount = @($inventory.Json.forbiddenTrackedPaths).Count
+    ForbiddenTrackedPathCount = $forbiddenTrackedPaths.Count
     AuditInventorySha256 = if ($auditInventoryHashes.Count -eq 1) { $auditInventoryHashes[0] } else { $auditInventoryHashes -join ',' }
-    DeadFindingCount = [int] $dead.Json.summary.findingCount
-    DeadUncertaintyCount = [int] $dead.Json.summary.uncertaintyCount
+    DeadFindingCount = $deadFindingCount
+    DeadUncertaintyCount = $deadUncertaintyCount
     DeadOutputSha256 = $dead.OutputSha256
-    DeadDeletionAuthority = [bool] $dead.Json.deletionAuthority
-    DependencyFindingCount = [int] $dependency.Json.summary.findingCount
-    DependencyUncertaintyCount = [int] $dependency.Json.summary.uncertaintyCount
+    DeadDeletionAuthority = $deadDeletionAuthority
+    DependencyFindingCount = $dependencyFindingCount
+    DependencyUncertaintyCount = $dependencyUncertaintyCount
     DependencyOutputSha256 = $dependency.OutputSha256
-    DependencyDeletionAuthority = [bool] $dependency.Json.deletionAuthority
-    AssetFindingCount = [int] $asset.Json.summary.findingCount
-    AssetUncertaintyCount = [int] $asset.Json.summary.uncertaintyCount
+    DependencyDeletionAuthority = $dependencyDeletionAuthority
+    AssetFindingCount = $assetFindingCount
+    AssetUncertaintyCount = $assetUncertaintyCount
     AssetOutputSha256 = $asset.OutputSha256
-    AssetDeletionAuthority = [bool] $asset.Json.deletionAuthority
-    EnvironmentFindingCount = [int] $environment.Json.summary.findingCount
-    EnvironmentUncertaintyCount = [int] $environment.Json.summary.uncertaintyCount
+    AssetDeletionAuthority = $assetDeletionAuthority
+    EnvironmentFindingCount = $environmentFindingCount
+    EnvironmentUncertaintyCount = $environmentUncertaintyCount
     EnvironmentOutputSha256 = $environment.OutputSha256
-    EnvironmentDeletionAuthority = [bool] $environment.Json.deletionAuthority
-    BrandMissingCount = @($brand.Json.missing).Count
-    BrandUnclassifiedCount = @($brand.Json.unclassified).Count
+    EnvironmentDeletionAuthority = $environmentDeletionAuthority
+    BrandMissingCount = $brandMissing.Count
+    BrandUnclassifiedCount = $brandUnclassified.Count
     BrandOutputSha256 = $brand.OutputSha256
   }
 
@@ -157,9 +226,54 @@ try {
     throw 'Round 18 successor attestation mismatch'
   }
   $actual | Format-List
+} catch {
+  $runError = $_
 } finally {
-  Pop-Location
+  $cleanupErrors = [Collections.Generic.List[object]]::new()
+  if ($locationPushed) {
+    try {
+      Pop-Location
+      $locationPushed = $false
+    } catch {
+      [void] $cleanupErrors.Add($_)
+    }
+  }
+  try {
+    $checkoutExists = Test-Path -LiteralPath $checkout -ErrorAction Stop
+    if ($checkoutExists) {
+      if (-not (Test-Path -LiteralPath $checkout -PathType Container -ErrorAction Stop)) {
+        throw 'Refusing non-directory temporary checkout removal'
+      }
+      $resolvedCheckout = [IO.Path]::GetFullPath(
+        (Resolve-Path -LiteralPath $checkout -ErrorAction Stop).Path
+      )
+      if (
+        -not $resolvedCheckout.StartsWith(
+          $checkoutPrefix,
+          [StringComparison]::OrdinalIgnoreCase
+        ) -or
+        [IO.Path]::GetFileName($resolvedCheckout) -cne $checkoutName
+      ) {
+        throw 'Refusing unsafe temporary checkout removal'
+      }
+      Remove-Item -LiteralPath $resolvedCheckout -Recurse -Force -ErrorAction Stop
+    }
+  } catch {
+    [void] $cleanupErrors.Add($_)
+  }
+  if ($cleanupErrors.Count -gt 0) {
+    if ($null -eq $runError) {
+      $runError = $cleanupErrors[0]
+    } else {
+      foreach ($cleanupError in $cleanupErrors) {
+        $cleanupMessage =
+          "Temporary checkout cleanup also failed: $($cleanupError.Exception.Message)"
+        Write-Warning -Message $cleanupMessage -WarningAction Continue
+      }
+    }
+  }
 }
+if ($null -ne $runError) { throw $runError }
 ```
 
 ## Self-reference boundary

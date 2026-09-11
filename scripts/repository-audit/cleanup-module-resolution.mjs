@@ -55,16 +55,17 @@ function moduleCandidatePaths(fromPath, specifier, policy) {
   return [...new Set(candidates)]
 }
 
-function typeTargetPath(fromPath, specifier, trackedPathSet) {
+function typeTargetPath(fromPath, specifier, trackedPathSet, policy) {
   const base = referenceBase(fromPath, specifier)
   if (!base) return undefined
   const extension = extname(base).toLowerCase()
   const family = EXPLICIT_TYPE_FAMILIES.get(extension)
-  if (extension && !family) return undefined
-  const stem = extension ? base.slice(0, -extension.length) : base
+  const hasExplicitExtension = policy.sourceExtensions.includes(extension) || [".css", ".json"].includes(extension)
+  if (hasExplicitExtension && !family) return undefined
+  const stem = family ? base.slice(0, -extension.length) : base
   const extensions = family ?? TYPE_RESOLUTION_EXTENSIONS
   const candidates = extensions.map((candidateExtension) => `${stem}${candidateExtension}`)
-  if (!extension) candidates.push(...extensions.map((candidateExtension) => `${stem}/index${candidateExtension}`))
+  if (!family) candidates.push(...extensions.map((candidateExtension) => `${stem}/index${candidateExtension}`))
   return candidates.find((path) => trackedPathSet.has(path)) ?? null
 }
 
@@ -86,9 +87,12 @@ export function resolveModuleReference(fromPath, specifier, trackedPathSet, poli
     if (!path) return { targetKind: "unresolved" }
     const pairedDeclarationPath = declarationForImplementation(path)
     const base = referenceBase(fromPath, specifier)
-    const explicitTypeFamily = base && EXPLICIT_TYPE_FAMILIES.has(extname(base).toLowerCase())
-    const independentTypeTargetPath = resolveTypeDeclaration || explicitTypeFamily
-      ? typeTargetPath(fromPath, specifier, trackedPathSet) : undefined
+    const baseExtension = base ? extname(base).toLowerCase() : ""
+    const explicitTypeFamily = EXPLICIT_TYPE_FAMILIES.has(baseExtension)
+    const implicitTypeFamily = base && !policy.sourceExtensions.includes(baseExtension) &&
+      ![".css", ".json"].includes(baseExtension)
+    const independentTypeTargetPath = resolveTypeDeclaration || explicitTypeFamily || implicitTypeFamily
+      ? typeTargetPath(fromPath, specifier, trackedPathSet, policy) : undefined
     const declarationTargetPath = independentTypeTargetPath !== undefined
       ? (independentTypeTargetPath && isDeclarationPath(independentTypeTargetPath) ? independentTypeTargetPath : null)
       : (pairedDeclarationPath && trackedPathSet.has(pairedDeclarationPath) ? pairedDeclarationPath : null)
