@@ -1,6 +1,7 @@
 import ts from "typescript"
 import {
-  COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessObjectSource, isProcessRequire,
+  COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessEnvironment,
+  isProcessObjectAlias, isProcessObjectSource, isProcessObjectVariableInitializer,
   isProcessImportEquals, isTransparentExpression, lookupAlias, processImportBindings, unwrapTransparentExpression, varBindingScope,
 } from "./cleanup-environment-scope.mjs"
 
@@ -19,17 +20,10 @@ function compareLocation(left, right) {
 }
 
 
-function isProcessEnv(node, scope) {
-  if (!ts.isPropertyAccessExpression(node) || !ts.isIdentifier(node.expression) || node.name.text !== "env") return false
-  const status = lookupAlias(scope, node.expression.text)
-  return status === PROCESS_OBJECT || (node.expression.text === "process" && status === null)
-}
-
-
 function aliasStatus(node, scope) {
   const value = unwrapTransparentExpression(node)
   if (!value) return null
-  if (isProcessEnv(value, scope)) return "proven"
+  if (isProcessEnvironment(value, scope)) return "proven"
   if (ts.isIdentifier(value)) {
     const status = lookupAlias(scope, value.text)
     return [PROCESS_OBJECT, COMMONJS_LOADER].includes(status) ? null : status
@@ -167,7 +161,7 @@ function collectEnvironmentRows(record, text) {
     recordEnvironmentPattern(pattern, status, kind, { addRead, addComputedUncertainty, addAliasUncertainty })
 
   const bindName = (name, initializer, scope, initializerScope = scope) => {
-    const status = isProcessRequire(initializer, initializerScope) ? PROCESS_OBJECT : aliasStatus(initializer, initializerScope)
+    const status = isProcessObjectVariableInitializer(initializer, initializerScope) ? PROCESS_OBJECT : aliasStatus(initializer, initializerScope)
     scope.bindings.set(name, status ?? (isEnvironmentAliasName(name) ? "unknown" : NON_ALIAS))
   }
 
@@ -246,7 +240,9 @@ function collectEnvironmentRows(record, text) {
     if (!owner && name === "require") varBindingScope(scope).bindings.set(name, NON_ALIAS)
     if (!owner && name === "process") varBindingScope(scope).bindings.set(name, NON_ALIAS)
     if (!owner) return
-    let status = statusSnapshot === undefined ? aliasStatus(initializer, scope) : statusSnapshot
+    let status = statusSnapshot === undefined
+      ? isProcessObjectAlias(initializer, scope) ? PROCESS_OBJECT : aliasStatus(initializer, scope)
+      : statusSnapshot
     if (conditionalKind && ["proven", "unknown"].includes(status)) {
       // A conditional write is only one possible value: preserve its flow without proving the target.
       addWholeObjectUncertainty(initializer, status, conditionalKind)
@@ -317,13 +313,14 @@ function collectEnvironmentRows(record, text) {
       if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) && node.name) declareBindingName(node.name, parameterScope)
       for (const parameter of node.parameters) declareBindingName(parameter.name, parameterScope)
       for (const parameter of node.parameters) {
+        const processObjectSource = ts.isObjectBindingPattern(parameter.name) && isProcessObjectSource(parameter.initializer, parameterScope)
         if (parameter.initializer) visit(parameter.initializer, parameterScope)
         const status = aliasStatus(parameter.initializer, parameterScope)
         if (ts.isIdentifier(parameter.name)) bindName(parameter.name.text, parameter.initializer, parameterScope)
         else if (ts.isObjectBindingPattern(parameter.name)) {
           recordObjectBinding(parameter.name, status, "parameter-destructure")
           bindObjectElementInitializers(
-            parameter.name, parameterScope, parameterScope, "parameter-destructure",
+            parameter.name, parameterScope, parameterScope, "parameter-destructure", processObjectSource,
           )
         }
       }

@@ -955,3 +955,55 @@ staged; the exact final staged snapshot remains pending in the ignored SDD
 receipt. Latest-head hosted checks and reviews remain pending. Merge remains
 separately authorized, and no candidate deletion, provider action or Phase 5
 work occurred.
+
+## Hosted review round 22 HTML-reference and process-provenance evidence
+
+Hosted review round 21 is now historical supporting evidence. Hosted review
+round 22 is the current Phase 4 receipt. Six valid latest-head findings were
+repaired: aliases of proven process objects retain process provenance; exact
+static `process['env']` and ``process[`env`]`` access is recognized; HTML
+character references are decoded before asset resolution while evidence keeps
+the original raw source offsets; every exact top-level Sentry and
+instrumentation entrypoint is runtime-scoped; every parsed `src`, `href`,
+`poster` and `srcset` value, including duplicates, is masked from legacy scans
+while first-occurrence ownership is preserved; and parameter destructuring
+defaults sourced from `process` or a proven process alias propagate exact
+process provenance.
+
+Review-driven hardening added complete WHATWG named-reference and C1 numeric
+decoding, fail-conservative handling for unknown references, preservation of
+non-ASCII whitespace, and deterministic verification of the generated
+CPython 3.14.7 `html.entities.html5` snapshot. Code specification and quality
+reviews returned PASS.
+
+The cleanup suite passed 169/169, the repository-audit suite passed 21/21 and
+the combined focused run passed 190/190. The full suite recorded 4,388 total,
+4,385 passed, 3 host-dependent skips and zero failures. Typecheck passed;
+lint passed with only the informational Babel greater-than-500-KB note.
+Nonblank source caps were asset evidence 436, HTML URL decoder 59, snapshot
+refresh verifier 34, environment evidence 498 and environment scope 157.
+
+The pre-document staged audits each ran twice with exit 0, empty standard
+error, byte-identical output, shared inventory and `deletionAuthority: false`:
+dead code 1,575/211
+(`cdd19f6df0eb0b72d07b42945fca148f2d9af1b3f7b0ecd03551dd06d9d41bf8`),
+dependency 2,872/21
+(`039c715e5db07b08ff958b0322de6032be6a3e0a88599f65e369567df1d7538b`),
+asset 557/11,455
+(`c90eab097560c71b8e92ab970e9e20ee4dcec1cb1e1e8b0160f3cc08e16ff2f8`)
+and environment 587/252
+(`fb59f6fc055bd143b2cbff8f57b882078bb9c6fb0842d3a5848de3ae1a2c4829`).
+
+That pre-document inventory contained 1,929 files and 47,760,923 Git blob
+bytes, inventory SHA-256
+`84208d00fae6678e4148c3c4fc3a6889921a85c99125f60299b3eff74b16f7a2`,
+serialized-output SHA-256
+`517e85744eac31373ce529ada76032284d983da6cd9a13efa7ac46b433c3dadf`
+and zero forbidden paths. Brand verification remained zero missing and zero
+unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These pre-document values become historical once the tracked documents are
+staged; the exact final staged snapshot remains pending in the ignored SDD
+receipt. Latest-head PR checks and reviews remain pending. Merge remains
+separately authorized. No candidate deletion, provider mutation, merge or
+Phase 5 action occurred.

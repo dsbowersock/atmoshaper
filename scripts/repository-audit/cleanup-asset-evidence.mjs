@@ -10,6 +10,7 @@ import {
   sha256,
   validateCleanupPolicy,
 } from "./cleanup-core.mjs"
+import { decodeHtmlUrl } from "./cleanup-html-url.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
 import { stableJson } from "./core.mjs"
 
@@ -128,7 +129,7 @@ function htmlSrcsetCandidates(value) {
     while (cursor < value.length && !isSpace(value[cursor])) cursor += 1
     let valueEnd = cursor
     while (valueEnd > valueOffset && value[valueEnd - 1] === ",") valueEnd -= 1
-    if (valueEnd > valueOffset) rows.push({ value: value.slice(valueOffset, valueEnd), valueOffset })
+    if (valueEnd > valueOffset) rows.push({ value: value.slice(valueOffset, valueEnd), valueOffset, valueEnd })
     if (valueEnd < cursor) continue
     let parentheses = 0
     while (cursor < value.length) {
@@ -139,6 +140,14 @@ function htmlSrcsetCandidates(value) {
     }
   }
   return rows
+}
+
+function trimHtmlAsciiWhitespace(value) {
+  let start = 0
+  let end = value.length
+  while (start < end && /[\t\n\f\r ]/.test(value[start])) start += 1
+  while (end > start && /[\t\n\f\r ]/.test(value[end - 1])) end -= 1
+  return { start, value: value.slice(start, end) }
 }
 
 /** Yield only tokenizer-visible start tags, skipping comments and raw-text element bodies. */
@@ -265,14 +274,17 @@ function collectTextLiterals(record, text, assetExtensions) {
     }
     return { line: low + 1, column: offset - lineStarts[low] + 1 }
   }
-  const addLiteral = (value, offset, ownerRelativeUrl) => {
-    const trimmed = value.trim()
-    const start = offset + Math.max(0, value.indexOf(trimmed))
+  const addLiteral = (value, offset, ownerRelativeUrl, ambiguous = false, htmlWhitespace = false) => {
+    const normalized = htmlWhitespace
+      ? trimHtmlAsciiWhitespace(value)
+      : { start: Math.max(0, value.indexOf(value.trim())), value: value.trim() }
+    const trimmed = normalized.value
+    const start = offset + normalized.start
     const key = `${start}\0${trimmed}`
     if (!trimmed) return
     const prior = seen.get(key)
-    if (prior) { prior.ownerRelativeUrl ||= ownerRelativeUrl; return }
-    const literal = { value: trimmed, ownerRelativeUrl, ...sourceLocationAt(start) }
+    if (prior) { prior.ownerRelativeUrl ||= ownerRelativeUrl; prior.ambiguous ||= ambiguous; return }
+    const literal = { value: trimmed, ownerRelativeUrl, ambiguous, ...sourceLocationAt(start) }
     seen.set(key, literal)
     literals.push(literal)
   }
@@ -296,18 +308,22 @@ function collectTextLiterals(record, text, assetExtensions) {
     const masked = text.split("")
     for (const tag of htmlStartTags(text)) {
       for (const attribute of htmlUrlAttributes(tag.text)) {
-        if (attribute.name === "srcset") {
-          const start = tag.start + attribute.valueOffset
-          for (let index = start; index < start + attribute.value.length; index += 1) {
-            if (!["\r", "\n"].includes(masked[index])) masked[index] = " "
-          }
+        const start = tag.start + attribute.valueOffset
+        for (let index = start; index < start + attribute.value.length; index += 1) {
+          if (!["\r", "\n"].includes(masked[index])) masked[index] = " "
         }
         if (attribute.duplicate) continue
+        const decoded = decodeHtmlUrl(attribute.value)
         const candidates = attribute.name === "srcset"
-          ? htmlSrcsetCandidates(attribute.value)
-          : [{ value: attribute.value, valueOffset: 0 }]
+          ? htmlSrcsetCandidates(decoded.value)
+          : [{ value: decoded.value, valueOffset: 0, valueEnd: decoded.value.length }]
         for (const candidate of candidates) {
-          addLiteral(candidate.value, tag.start + attribute.valueOffset + candidate.valueOffset, true)
+          const normalized = trimHtmlAsciiWhitespace(candidate.value)
+          const trimmed = normalized.value
+          const decodedStart = candidate.valueOffset + normalized.start
+          const rawOffset = decoded.rawOffsets[decodedStart] ?? decodedStart
+          const ambiguous = decoded.ambiguous.slice(decodedStart, decodedStart + trimmed.length).some(Boolean)
+          addLiteral(trimmed, start + rawOffset, true, ambiguous, true)
         }
       }
     }
@@ -387,6 +403,13 @@ export function buildAssetEvidence(index, policy) {
     uncertainties.push(...rows.uncertainties)
     errors.push(...rows.errors)
     for (const literal of rows.literals) {
+      if (literal.ambiguous) {
+        errors.push({
+          code: "UNRESOLVED_LITERAL_ASSET", fromPath: record.path, line: literal.line,
+          column: literal.column, literalSha256: sha256(literal.value),
+        })
+        continue
+      }
       const resolution = assetTarget(record.path, literal.value, assetExtensions, literal.ownerRelativeUrl)
       // Legacy scans retain examples as evidence, but a slash alone cannot prove a structured URL context.
       const unprovenUrlContext = [".css", ".html", ".md"].includes(record.extension) && !literal.ownerRelativeUrl

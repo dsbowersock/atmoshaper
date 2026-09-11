@@ -89,26 +89,41 @@ export function unwrapTransparentExpression(node) {
 
 function isProcessRequireCall(node, scope) {
   const value = unwrapTransparentExpression(node)
-  return ts.isCallExpression(value) && !value.questionDotToken && ts.isIdentifier(value.expression) &&
+  return Boolean(value && ts.isCallExpression(value) && !value.questionDotToken && ts.isIdentifier(value.expression) &&
     value.expression.text === "require" && [null, COMMONJS_LOADER].includes(lookupAlias(scope, "require")) &&
     value.arguments.length === 1 && ts.isStringLiteral(value.arguments[0]) &&
-    ["process", "node:process"].includes(value.arguments[0].text)
+    ["process", "node:process"].includes(value.arguments[0].text))
+}
+
+/** Recognize an implicit global or lexical binding already proven to be the Node process object. */
+export function isProcessObjectAlias(node, scope) {
+  const value = unwrapTransparentExpression(node)
+  return Boolean(value && ts.isIdentifier(value) && (
+    lookupAlias(scope, value.text) === PROCESS_OBJECT || value.text === "process" && lookupAlias(scope, value.text) === null
+  ))
 }
 
 /** Recognize an exact require call or a binding already proven to be the Node process object. */
 export function isProcessObjectSource(node, scope) {
+  return isProcessRequireCall(node, scope) || isProcessObjectAlias(node, scope)
+}
+
+/** Recognize exact dot/bracket selection of env from a proven, non-optional process object. */
+export function isProcessEnvironment(node, scope) {
   const value = unwrapTransparentExpression(node)
-  return Boolean(value) && (
-    isProcessRequireCall(value, scope) || ts.isIdentifier(value) && (
-      lookupAlias(scope, value.text) === PROCESS_OBJECT || value.text === "process" && lookupAlias(scope, value.text) === null
-    )
+  if (!value || value.questionDotToken || !isProcessObjectAlias(value.expression, scope)) return false
+  return (
+    ts.isPropertyAccessExpression(value) && value.name.text === "env" ||
+    ts.isElementAccessExpression(value) && value.argumentExpression &&
+      (ts.isStringLiteral(value.argumentExpression) || ts.isNoSubstitutionTemplateLiteral(value.argumentExpression)) &&
+      value.argumentExpression.text === "env"
   )
 }
 
-/** Only direct identifier variable initializers through the unshadowed loader prove process ownership. */
-export function isProcessRequire(node, scope) {
+/** Only direct identifier variable initializers establish reusable process-object provenance. */
+export function isProcessObjectVariableInitializer(node, scope) {
   return Boolean(node && ts.isVariableDeclaration(node.parent) && ts.isIdentifier(node.parent.name) &&
-    isProcessRequireCall(node, scope))
+    isProcessObjectSource(node, scope))
 }
 
 export function isEnvironmentAliasName(name) {

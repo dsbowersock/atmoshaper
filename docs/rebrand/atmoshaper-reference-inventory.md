@@ -1391,3 +1391,50 @@ staged; the exact final staged snapshot remains pending in the ignored SDD
 receipt. Latest-head hosted checks and reviews remain pending. Merge remains
 separately authorized, and no candidate deletion, provider action or Phase 5
 work occurred.
+
+## Hosted review round 22 evidence boundary
+
+Hosted review round 21 is now historical supporting evidence; hosted review
+round 22 is the current Phase 4 receipt. Six valid latest-head findings were
+repaired: proven process-object aliases remain proven; exact static bracket
+access to `env` is recognized; HTML references decode before asset resolution
+while retaining raw source offsets; all exact top-level Sentry and
+instrumentation entrypoints are runtime-scoped; every parsed primary or
+duplicate HTML URL attribute is masked from legacy scans while first-occurrence
+ownership remains authoritative; and process-sourced parameter destructuring
+defaults propagate provenance. Review hardening added complete WHATWG named
+and C1 decoding, fail-conservative unknown-reference handling, preservation of
+non-ASCII whitespace, and deterministic verification of the CPython 3.14.7
+`html.entities.html5` snapshot. Code specification and quality reviews
+returned PASS.
+
+Cleanup passed 169/169, repository audit 21/21 and combined focused audit
+190/190. The full suite recorded 4,388 total, 4,385 passed, 3 host-dependent
+skips and zero failures. Typecheck passed; lint passed with only the
+informational Babel greater-than-500-KB note. Nonblank caps were asset 436,
+decoder 59, refresh verifier 34, environment evidence 498 and environment
+scope 157.
+
+Pre-document staged audits ran twice with exit 0, empty standard error,
+byte-identical output, shared inventory and `deletionAuthority: false`: dead
+code 1,575/211
+(`cdd19f6df0eb0b72d07b42945fca148f2d9af1b3f7b0ecd03551dd06d9d41bf8`),
+dependency 2,872/21
+(`039c715e5db07b08ff958b0322de6032be6a3e0a88599f65e369567df1d7538b`),
+asset 557/11,455
+(`c90eab097560c71b8e92ab970e9e20ee4dcec1cb1e1e8b0160f3cc08e16ff2f8`)
+and environment 587/252
+(`fb59f6fc055bd143b2cbff8f57b882078bb9c6fb0842d3a5848de3ae1a2c4829`).
+The inventory contained 1,929 files and 47,760,923 Git blob bytes, inventory
+SHA-256
+`84208d00fae6678e4148c3c4fc3a6889921a85c99125f60299b3eff74b16f7a2`,
+serialized-output SHA-256
+`517e85744eac31373ce529ada76032284d983da6cd9a13efa7ac46b433c3dadf`
+and zero forbidden paths. Brand verification remained zero missing and zero
+unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These pre-document values become historical after tracked-document staging;
+the exact final staged snapshot remains pending in the ignored SDD receipt.
+Latest-head PR checks and reviews remain pending. Merge remains separately
+authorized. No candidate deletion, provider mutation, merge or Phase 5 action
+occurred.

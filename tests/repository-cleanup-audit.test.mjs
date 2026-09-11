@@ -30,7 +30,9 @@ const deadCodeCliPath = resolve(repositoryRoot, "scripts/repository-audit/dead-c
 const dependencyCliPath = resolve(repositoryRoot, "scripts/repository-audit/dependency.mjs")
 const assetCliPath = resolve(repositoryRoot, "scripts/repository-audit/asset.mjs")
 const environmentCliPath = resolve(repositoryRoot, "scripts/repository-audit/environment.mjs")
+const htmlReferencesToolPath = resolve(repositoryRoot, "scripts/repository-audit/refresh-html-named-references.mjs")
 const realPolicy = loadCleanupPolicy(repositoryRoot, policyPath)
+const workingPolicy = JSON.parse(readFileSync(policyPath, "utf8"))
 const policy = { ...structuredClone(realPolicy), manualToolSources: [] }
 
 function createFixtureRepository(t) {
@@ -125,6 +127,10 @@ test("private serialization checks raw string inputs before JSON escaping", () =
 test("schema-v1 policy names every required scope and rejects policy drift", () => {
   assert.equal(validateCleanupPolicy(clonePolicy()).schemaVersion, 1)
   assert.deepEqual(Object.keys(policy.scopes).sort(), ["doc", "runtime", "test", "tool"])
+  assert.ok([
+    "instrumentation-client.ts", "instrumentation.ts", "sentry.edge.config.ts",
+    "sentry.options.ts", "sentry.server.config.ts",
+  ].every((path) => workingPolicy.scopes.runtime.includes(path)))
   assert.deepEqual(policy.configurationManifestOwnership, expectedConfigurationManifestOwnership)
   assert.deepEqual(realPolicy.manualToolSources, ["scripts/atmoshaper-ripx-demucs-adapter.py"])
 
@@ -187,6 +193,19 @@ test("schema-v1 policy names every required scope and rejects policy drift", () 
       (error) => error.code === "CLEANUP_POLICY_INVALID" && error.message === "CLEANUP_POLICY_INVALID",
     )
   }
+})
+
+test("proposed runtime scope policy survives captured staged-policy loading", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const fixturePolicyPath = writeFixture(
+    root, "scripts/repository-audit/cleanup-policy.json", `${JSON.stringify(workingPolicy, null, 2)}\n`,
+  )
+  const captured = loadCleanupPolicy(root, fixturePolicyPath)
+  assert.ok([
+    "instrumentation-client.ts", "instrumentation.ts", "sentry.edge.config.ts",
+    "sentry.options.ts", "sentry.server.config.ts",
+  ].every((path) => captured.scopes.runtime.includes(path)))
 })
 
 test("Windows separators normalize to canonical repository paths", () => {
@@ -2956,6 +2975,124 @@ test("asset evidence does not rescan structured srcset values as legacy quoted l
   assert.deepEqual(report.uncertainties.unresolvedLiteralAssets, [])
 })
 
+test("asset evidence decodes exact HTML URL references without losing original offsets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of ["a&b.png", "numeric.png", "nested/slash.png", "src&set.png", "named/slash.png", "upper&case.png", "€.png", "\u0080.png", "unsafe&q;.png", "unsafe&1;.png"]) {
+    writeFixture(root, `app/panel/${path}`, path)
+  }
+  writeFixture(root, "app/panel/unsafe&unknown;.png", "must-not-own")
+  const privateSuffix = "?private-html-reference=1"
+  const lines = [
+    `<img src="a&amp;b.png${privateSuffix}">`,
+    "<img src=numeric&#46;png>",
+    "<img src=nested&#x2f;slash.png>",
+    "<img srcset=src&amp;set.png>",
+    "<img src=&#128;.png>",
+    "<img src=&#x80;.png>",
+    "<img srcset=\"named&sol;slash.png 1x, upper&AMP;case.png 2x\">",
+    "<img src=unsafe&unknown;.png?private-ambiguous=1>",
+    "<img src=unsafe&q;.png?private-short-reference=1>",
+    "<img src=unsafe&1;.png?private-digit-reference=1>",
+  ]
+  writeFixture(root, "app/panel/entities.html", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), [
+    [1, lines[0].indexOf("a&amp;") + 1, "app/panel/a&b.png"],
+    [2, lines[1].indexOf("numeric") + 1, "app/panel/numeric.png"],
+    [3, lines[2].indexOf("nested") + 1, "app/panel/nested/slash.png"],
+    [4, lines[3].indexOf("src&amp;") + 1, "app/panel/src&set.png"],
+    [5, lines[4].indexOf("&#128;") + 1, "app/panel/€.png"],
+    [6, lines[5].indexOf("&#x80;") + 1, "app/panel/€.png"],
+    [7, lines[6].indexOf("named&sol;") + 1, "app/panel/named/slash.png"],
+    [7, lines[6].indexOf("upper&AMP;") + 1, "app/panel/upper&case.png"],
+  ])
+  assert.equal(first.referenceOwners.some((row) => row.targetPath === "app/panel/\u0080.png"), false)
+  assert.equal(first.referenceOwners.some((row) => row.targetPath.includes("unknown")), false)
+  assert.deepEqual(first.uncertainties.unresolvedLiteralAssets.map((row) => [row.line, row.column]), [
+    [8, lines[7].indexOf("unsafe") + 1],
+    [9, lines[8].indexOf("unsafe") + 1],
+    [10, lines[9].indexOf("unsafe") + 1],
+  ])
+  assertPrivateSerialization(first, root, [
+    privateSuffix, "private-html-reference", "private-ambiguous",
+    "private-short-reference", "private-digit-reference",
+  ])
+})
+
+test("structured HTML URLs preserve decoded non-ASCII whitespace conservatively", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/foo.png", "must-not-own")
+  const lines = [
+    '<img src="&nbsp;foo.png?private-named-nbsp=1">',
+    '<img src="&#160;foo.png?private-numeric-nbsp=1">',
+    '<img srcset="&ensp;foo.png?private-ensp=1 1x, &#160;foo.png?private-srcset-nbsp=1 2x">',
+  ]
+  writeFixture(root, "app/panel/entity-whitespace.html", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.equal(first.referenceOwners.some((row) => row.targetPath === "app/panel/foo.png"), false)
+  assert.deepEqual(first.uncertainties.unresolvedLiteralAssets.map((row) => [row.line, row.column]), [
+    [1, lines[0].indexOf("&nbsp;") + 1],
+    [2, lines[1].indexOf("&#160;") + 1],
+    [3, lines[2].indexOf("&ensp;") + 1],
+    [3, lines[2].indexOf("&#160;") + 1],
+  ])
+  assertPrivateSerialization(first, root, [
+    "private-named-nbsp", "private-numeric-nbsp", "private-ensp", "private-srcset-nbsp",
+  ])
+})
+
+test("HTML named-reference snapshot is reproducible and retains decoding invariants", () => {
+  const verification = spawnSync(process.execPath, [htmlReferencesToolPath, "--verify"], {
+    cwd: repositoryRoot, encoding: "utf8",
+  })
+  assert.equal(verification.status, 0, verification.stderr)
+  assert.equal(verification.stderr, "")
+  assert.deepEqual(JSON.parse(verification.stdout), {
+    entries: 2231,
+    sha256: "99f7de5d06ab0bd778237f75a419bff42822336ed0fe41253e7942bc99ca7db5",
+    snapshot: "CPython-v3.14.7-html.entities.html5",
+    upstream: "https://html.spec.whatwg.org/entities.json",
+  })
+  const references = JSON.parse(readFileSync(resolve(repositoryRoot, "scripts/repository-audit/cleanup-html-named-references.json"), "utf8"))
+  assert.equal(references.amp, "&")
+  assert.equal(references["amp;"], "&")
+  assert.equal(references["AMP;"], "&")
+  assert.equal(references["NotEqualTilde;"], "≂̸")
+})
+
+test("asset evidence masks every duplicate structured HTML URL value from legacy scanning", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of ["first.png", "nested/duplicate.png", "duplicate.png"]) {
+    writeFixture(root, `app/panel/${path}`, path)
+  }
+  const lines = [
+    '<img src="first.png" src="nested/duplicate.png">',
+    '<video poster="first.png" poster="duplicate.png"></video>',
+    '<a href="first.png" href="nested/duplicate.png">link</a>',
+    '<img srcset="first.png 1x" srcset="nested/duplicate.png 2x">',
+  ]
+  writeFixture(root, "app/panel/duplicates.html", `${lines.join("\n")}\n`)
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.map((row) => row.targetPath), [
+    "app/panel/first.png", "app/panel/first.png", "app/panel/first.png", "app/panel/first.png",
+  ])
+  assert.equal(report.referenceOwners.some((row) => row.targetPath.includes("duplicate")), false)
+  assert.equal(report.basenameOnlySignals.some((row) => row.candidateTargetPaths.some((path) => path.includes("duplicate"))), false)
+  assert.deepEqual(report.uncertainties.unresolvedLiteralAssets, [])
+})
+
 test("asset evidence parses MTS and CTS literals and hashes dynamic expressions", (t) => {
   const root = createFixtureRepository(t)
   const modulePolicy = {
@@ -4799,6 +4936,68 @@ test("environment process-object destructuring supports nested declarations assi
   assertPrivateSerialization(first, root, [privateDynamicName, "require('node:process')"])
 })
 
+test("environment process-object aliases and static env brackets preserve exact provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", [
+    "ASSIGNED_ALIAS=", "BRACKET=", "CHAINED=", "IMPLICIT=", "IMPORTED=", "NESTED_ALIAS=", "REQUIRED=", "TEMPLATE=", "",
+  ].join("\n"))
+  const privateDynamicName = "privateProcessEnvironmentKey"
+  writeFixture(root, "lib/process-object-aliases.ts", [
+    "import importedProcess from 'node:process'",
+    "const implicitProcess = process",
+    "const chainedProcess = implicitProcess",
+    "const importedAlias = importedProcess",
+    "const requiredProcess = require('process')",
+    "const requiredAlias = requiredProcess",
+    "let assignedProcess; assignedProcess = requiredAlias",
+    "const { env: implicitEnv } = implicitProcess; void implicitEnv.IMPLICIT",
+    "const { env: { NESTED_ALIAS } } = chainedProcess; void NESTED_ALIAS",
+    "void importedAlias.env.IMPORTED",
+    "void requiredAlias['env'].REQUIRED",
+    "void assignedProcess[`env`].ASSIGNED_ALIAS",
+    "void process['env'].BRACKET",
+    "void process[`env`].TEMPLATE",
+    `void process[${privateDynamicName}].DYNAMIC`,
+    "void process['ENV'].WRONG_CASE",
+    "void process?.['env'].OPTIONAL",
+    "function shadowed(process) { const alias = process; void alias.env.SHADOWED }",
+    "function laterShadow() { const alias = process; const process = fake; void alias.env.LATER_SHADOW }",
+    "assignedProcess = {}; void assignedProcess.env.AFTER_ASSIGNMENT",
+    "void shadowed; void laterShadow",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.staticReads.map((row) => row.name), [
+    "ASSIGNED_ALIAS", "BRACKET", "IMPLICIT", "IMPORTED", "NESTED_ALIAS", "REQUIRED", "TEMPLATE",
+  ])
+  assert.equal(first.staticReads.some((row) => ["AFTER_ASSIGNMENT", "DYNAMIC", "LATER_SHADOW", "OPTIONAL", "SHADOWED", "WRONG_CASE"].includes(row.name)), false)
+  assertPrivateSerialization(first, root, [privateDynamicName, "require('process')"])
+})
+
+test("environment parameter destructuring defaults inherit exact process-object provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "ALIAS_PARAMETER=\nPARAMETER=\n")
+  writeFixture(root, "lib/process-parameter-patterns.ts", [
+    "const runtimeProcess = process",
+    "function read({ env: { PARAMETER } } = process) { void PARAMETER }",
+    "function readAlias({ env: aliasEnvironment } = runtimeProcess) { void aliasEnvironment.ALIAS_PARAMETER }",
+    "function shadowed({ env: { SHADOWED } } = process, process = fake) { void SHADOWED; void process }",
+    "void read; void readAlias; void shadowed",
+    "",
+  ].join("\n"))
+
+  const report = buildEnvironmentCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.staticReads.map((row) => row.name), ["ALIAS_PARAMETER", "PARAMETER"])
+  assert.equal(report.staticReads.some((row) => row.name === "SHADOWED"), false)
+  assert.deepEqual(report.unreadDeclarationCandidates, [])
+})
+
 test("environment implicit process ownership is invalidated by source-order writes and updates", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -5274,6 +5473,32 @@ test("real runtime prefixes do not import the repository-audit implementation", 
       row.path === declarationPath && row.reason === "protected-path"
     )))
   }
+})
+
+test("real Sentry and instrumentation entrypoints retain runtime-scoped evidence", () => {
+  const index = buildTrackedTextIndex(repositoryRoot, workingPolicy)
+  const entrypoints = [
+    "instrumentation-client.ts", "instrumentation.ts", "sentry.edge.config.ts",
+    "sentry.options.ts", "sentry.server.config.ts",
+  ]
+  const moduleEvidence = buildModuleEvidence(index, workingPolicy)
+  assert.deepEqual(
+    moduleEvidence.modules.filter((row) => entrypoints.includes(row.path)).map((row) => [row.path, row.scope]),
+    entrypoints.map((path) => [path, "runtime"]),
+  )
+
+  const dependencyReport = buildDependencyCandidateReport(index, workingPolicy)
+  const entrypointDependencyOwners = dependencyReport.literalImportOwners.filter((row) => entrypoints.includes(row.ownerPath))
+  assert.ok(entrypoints.every((path) => entrypointDependencyOwners.some((row) => row.ownerPath === path)))
+  assert.ok(entrypointDependencyOwners.every((row) => row.ownerScope === "runtime"))
+
+  const environmentReport = buildEnvironmentCandidateReport(index, workingPolicy)
+  const entrypointEnvironmentReads = environmentReport.staticReads.filter((row) => entrypoints.includes(row.path))
+  assert.ok(entrypointEnvironmentReads.some((row) => row.path === "instrumentation.ts" && row.name === "NEXT_RUNTIME"))
+  assert.ok(entrypointEnvironmentReads.some((row) => (
+    row.path === "sentry.options.ts" && row.name === "NEXT_PUBLIC_SENTRY_DSN"
+  )))
+  assert.ok(entrypointEnvironmentReads.every((row) => row.scope === "runtime"))
 })
 
 test("real environment evidence reads STRIPE_SECRET_KEY through a proven default alias", () => {
