@@ -554,7 +554,7 @@ The full suite exited 0 with 4,299 tests: 4,296 passed, 3 host-dependent
 skips and zero failures. Typecheck and lint passed; the Babel deoptimization
 note was informational.
 
-Current staged semantic results are dead code 1,558 findings/209
+Its now-historical semantic results were dead code 1,558 findings/209
 uncertainties, including 22 `stylesheetUsage` and 2 `manualScripts`
 uncertainties; dependency 2,863/19; asset 561/11,312 with 529 dynamic and
 10,783 unresolved uncertainties; and environment 587/252. All four audits
@@ -575,7 +575,48 @@ before any separately authorized merge of PR #3. No deletion, merge,
 provider mutation or Phase 5 action occurred; `deletionAuthority` remains
 false.
 
-The current tracked inventory remains 1,921 files. Brand verification remains
+Hosted review round 15 records two validated latest-head Codex findings on
+`9946a24`: generic `client-secret.json`, `client_secret.json` and
+`service-account.json` artifacts bypassed the fail-before-read guard, and
+direct CommonJS `const process = require("node:process")` / `require("process")`
+bindings were not recognized, causing false unread environment declarations.
+The bounded credential matcher now recognizes exact optionally dot-prefixed
+`client[-_]secret` and `service[-_]account` stems only at dot or end
+boundaries, while preserving the earlier `client_secret_<identifier>` and
+`service-account-key` forms and benign guide/manager lookalikes.
+
+The CommonJS process-binding scope model recognizes those exact direct
+requires and models `require`/`process` shadowing, assignment and update
+invalidation, loop evaluation order, merged enum members, and sloppy `.cjs`
+Annex-B block-function boundaries. Cross-file/global bindings and separately
+merged namespace enums remain explicitly unmodeled. The current real tracked
+source search found no CommonJS process require outside audit fixtures.
+
+On the staged code, the focused repository-audit tests passed 119/119, the
+full suite recorded 4,317 tests with 4,314 passed, 3 host-dependent skips and
+zero failures, and typecheck and lint passed. The pre-document deterministic
+audits ran twice with byte-identical output, exit 0 and empty stderr; every
+report retained `deletionAuthority: false`: dead code 1,561 findings/209
+uncertainties, dependency 2,864/19, asset 561/11,314, and environment 587/252.
+Brand verification reported zero missing and zero unclassified references.
+
+The pre-document staged inventory contained 1,922 files and 47,432,255 Git
+blob bytes, with inventory SHA-256
+`9ceea8c33aee9a51559efc389c9834e31fbecb4f40ee5154ae7d738b5638d6d0`
+and zero forbidden tracked paths. Repeat output SHA-256 values were dead code
+`a6357175f60ce4bba5fbcde50a93e262ebb5744c89c409b2b844cf78f68047a5`,
+dependency `f068dd6f6f219f9a0d5abbf4462752373cbca7bee02c9d9bd8756e142ec49a47`,
+asset `ad1f0bfacd3cdab11ba39986af151d760b9e750b48b94345f53c718ecf3a2051`,
+environment `c1dc9e91f3861926328721bd6e98d269c7eceb29f9970a09b18d047e31bd4acf`,
+inventory `82d2afaf5b953d9e2c2a83acd01d819ce2ea7a3d38c1c4bc293e8e86f0cafb4a`,
+and brand `50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These are pre-document receipts, not the identity or output hashes of the
+self-referential final index after these versioned documents are staged.
+Round-14 results remain historical supporting evidence. Hosted checks and
+reviews remain pending, and merge remains separately authorized. No deletion,
+merge, provider action or Phase 5 work occurred.
+
+The current tracked inventory remains 1,922 files. Brand verification remains
 zero missing and zero unclassified. Every report keeps
 `deletionAuthority: false`; exact current staged bytes and identity remain only
 in the ignored SDD handoff and user-facing receipt rather than this

@@ -1,4 +1,8 @@
 import ts from "typescript"
+import {
+  COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessRequire,
+  isTransparentExpression, lookupAlias, processImportBindings, unwrapTransparentExpression, varBindingScope,
+} from "./cleanup-environment-scope.mjs"
 
 import {
   compareText,
@@ -18,8 +22,6 @@ function compareLocation(left, right) {
   )
 }
 
-const NON_ALIAS = "non-alias"
-const PROCESS_OBJECT = "process-object"
 
 function isProcessEnv(node, scope) {
   if (!ts.isPropertyAccessExpression(node) || !ts.isIdentifier(node.expression) || node.name.text !== "env") return false
@@ -27,69 +29,6 @@ function isProcessEnv(node, scope) {
   return status === PROCESS_OBJECT || (node.expression.text === "process" && status === null)
 }
 
-/** Classify exact Node environment/process imports and imports that shadow the implicit global. */
-function processImportBindings(sourceFile) {
-  const bindings = new Map()
-  for (const statement of sourceFile.statements) {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue
-    const clause = statement.importClause
-    if (!clause) continue
-    const exactModule = ["node:process", "process"].includes(statement.moduleSpecifier.text)
-    const exactRuntimeModule = exactModule && !clause.isTypeOnly
-    if (clause.name && (exactRuntimeModule || clause.name.text === "process" || isEnvironmentAliasName(clause.name.text))) {
-      const status = !clause.isTypeOnly && isEnvironmentAliasName(clause.name.text) ? "unknown" : NON_ALIAS
-      bindings.set(clause.name.text, exactRuntimeModule ? PROCESS_OBJECT : status)
-    }
-    const named = clause.namedBindings
-    if (named && ts.isNamespaceImport(named) && (
-      exactRuntimeModule || named.name.text === "process" || isEnvironmentAliasName(named.name.text)
-    )) {
-      const status = !clause.isTypeOnly && isEnvironmentAliasName(named.name.text) ? "unknown" : NON_ALIAS
-      bindings.set(named.name.text, exactRuntimeModule ? PROCESS_OBJECT : status)
-    } else if (named && ts.isNamedImports(named)) {
-      for (const specifier of named.elements) {
-        const imported = specifier.propertyName ?? specifier.name
-        if (exactRuntimeModule && !specifier.isTypeOnly && ["default", "env"].includes(imported.text)) {
-          bindings.set(specifier.name.text, imported.text === "env" ? "proven" : PROCESS_OBJECT)
-        } else if (specifier.name.text === "process" || isEnvironmentAliasName(specifier.name.text)) {
-          const isRuntimeAlias = !clause.isTypeOnly && !specifier.isTypeOnly && isEnvironmentAliasName(specifier.name.text)
-          bindings.set(specifier.name.text, isRuntimeAlias ? "unknown" : NON_ALIAS)
-        }
-      }
-    }
-  }
-  return bindings
-}
-
-function childScope(parent, ownsVarBindings = false) {
-  return { bindings: new Map(), ownsVarBindings, parent }
-}
-
-function varBindingScope(scope) {
-  let owner = scope
-  while (owner.parent && !owner.ownsVarBindings) owner = owner.parent
-  return owner
-}
-
-function lookupAlias(scope, name) {
-  for (let current = scope; current; current = current.parent) {
-    if (current.bindings.has(name)) return current.bindings.get(name)
-  }
-  return null
-}
-
-function isTransparentExpression(node) {
-  return (
-    ts.isParenthesizedExpression(node) || ts.isAsExpression(node) ||
-    ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node)
-  )
-}
-
-function unwrapTransparentExpression(node) {
-  let value = node
-  while (value && isTransparentExpression(value)) value = value.expression
-  return value
-}
 
 function aliasStatus(node, scope) {
   const value = unwrapTransparentExpression(node)
@@ -97,14 +36,11 @@ function aliasStatus(node, scope) {
   if (isProcessEnv(value, scope)) return "proven"
   if (ts.isIdentifier(value)) {
     const status = lookupAlias(scope, value.text)
-    return status === PROCESS_OBJECT ? null : status
+    return [PROCESS_OBJECT, COMMONJS_LOADER].includes(status) ? null : status
   }
   return null
 }
 
-function isEnvironmentAliasName(name) {
-  return /^(?:env|environment)$/i.test(name)
-}
 
 /** Omit write-only targets while retaining compound accesses that also read the prior value. */
 function hasReadSemantics(node) {
@@ -115,6 +51,7 @@ function collectEnvironmentRows(record, text) {
   const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
   const reads = []
   const uncertainties = []
+  const annexBDeclarations = new Set()
   const addRead = (node, name, kind) => reads.push({
     name, path: record.path, ...sourceLocation(sourceFile, node), kind,
   })
@@ -253,7 +190,7 @@ function collectEnvironmentRows(record, text) {
   }
 
   const bindName = (name, initializer, scope, initializerScope = scope) => {
-    const status = aliasStatus(initializer, initializerScope)
+    const status = isProcessRequire(initializer, initializerScope) ? PROCESS_OBJECT : aliasStatus(initializer, initializerScope)
     scope.bindings.set(name, status ?? (isEnvironmentAliasName(name) ? "unknown" : NON_ALIAS))
   }
 
@@ -270,16 +207,19 @@ function collectEnvironmentRows(record, text) {
     }
   }
 
-  const shadowEnvironmentBinding = (name, scope) => {
+  const shadowEnvironmentBinding = (name, scope, preserveLoader = false) => {
     if (ts.isIdentifier(name)) {
-      if (scope.bindings.has(name.text)) return
+      if (scope.bindings.has(name.text)) {
+        if (!preserveLoader && scope.bindings.get(name.text) === COMMONJS_LOADER) scope.bindings.set(name.text, NON_ALIAS)
+        return
+      }
       const status = lookupAlias(scope.parent, name.text)
-      if ([PROCESS_OBJECT, "proven", "unknown"].includes(status) || (name.text === "process" && status === null)) {
+      if ([PROCESS_OBJECT, COMMONJS_LOADER, "proven", "unknown"].includes(status) || (["process", "require"].includes(name.text) && status === null)) {
         scope.bindings.set(name.text, NON_ALIAS)
       }
     } else if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
       for (const element of name.elements) {
-        if (ts.isBindingElement(element)) shadowEnvironmentBinding(element.name, scope)
+        if (ts.isBindingElement(element)) shadowEnvironmentBinding(element.name, scope, preserveLoader)
       }
     }
   }
@@ -287,6 +227,11 @@ function collectEnvironmentRows(record, text) {
   /** Predeclare tracked environment shadows so TDZ/hoisting cannot expose an outer binding. */
   const predeclareDirectEnvironmentShadows = (statements, scope) => {
     for (const statement of statements) {
+      // Same-scope enum declarations merge; every member shadows throughout every initializer.
+      if (ts.isEnumDeclaration(statement)) {
+        const members = scope.enumMembers.get(statement.name.text) ?? []
+        scope.enumMembers.set(statement.name.text, [...members, ...statement.members])
+      }
       if (ts.isImportEqualsDeclaration(statement)) shadowEnvironmentBinding(statement.name, scope)
       else if (ts.isVariableStatement(statement) && statement.declarationList.flags & ts.NodeFlags.BlockScoped) {
         for (const declaration of statement.declarationList.declarations) shadowEnvironmentBinding(declaration.name, scope)
@@ -299,13 +244,19 @@ function collectEnvironmentRows(record, text) {
   }
 
   const predeclareVarEnvironmentShadows = (container, scope) => {
+    if (record.extension === ".cjs" && !scope.strict) {
+      for (const declaration of annexBFunctionDeclarations(container)) {
+        annexBDeclarations.add(declaration)
+        shadowEnvironmentBinding(declaration.name, scope, true)
+      }
+    }
     const scan = (node) => {
       if (node !== container && (ts.isFunctionLike(node) ||
         ts.isClassStaticBlockDeclaration(node) || ts.isModuleBlock(node))) return
       if (
         ts.isVariableDeclaration(node) && ts.isVariableDeclarationList(node.parent) &&
         !(node.parent.flags & ts.NodeFlags.BlockScoped)
-      ) shadowEnvironmentBinding(node.name, scope)
+      ) shadowEnvironmentBinding(node.name, scope, true)
       ts.forEachChild(node, scan)
     }
     scan(container)
@@ -314,6 +265,8 @@ function collectEnvironmentRows(record, text) {
   const assignName = (name, initializer, scope) => {
     let owner = scope
     while (owner && !owner.bindings.has(name)) owner = owner.parent
+    if (name === "require" && owner?.bindings.get(name) === COMMONJS_LOADER) owner = varBindingScope(scope)
+    if (!owner && name === "require") varBindingScope(scope).bindings.set(name, NON_ALIAS)
     if (!owner) return
     const status = aliasStatus(initializer, scope)
     const prior = owner.bindings.get(name)
@@ -321,6 +274,30 @@ function collectEnvironmentRows(record, text) {
       name,
       status ?? (isEnvironmentAliasName(name) || ["proven", "unknown"].includes(prior) ? "unknown" : NON_ALIAS),
     )
+  }
+
+  /** Walk assignment targets in evaluation order; computed keys/defaults remain real reads. */
+  const visitAssignmentTarget = (target, scope, initializer) => {
+    const value = unwrapTransparentExpression(target)
+    if (ts.isIdentifier(value)) assignName(value.text, initializer, scope)
+    else if (ts.isObjectLiteralExpression(value)) {
+      for (const property of value.properties) {
+        if (ts.isSpreadAssignment(property)) visitAssignmentTarget(property.expression, scope)
+        else if (ts.isShorthandPropertyAssignment(property)) {
+          if (property.objectAssignmentInitializer) visit(property.objectAssignmentInitializer, scope)
+          assignName(property.name.text, undefined, scope)
+        } else if (ts.isPropertyAssignment(property)) {
+          if (ts.isComputedPropertyName(property.name)) visit(property.name.expression, scope)
+          visitAssignmentTarget(property.initializer, scope)
+        }
+      }
+    } else if (ts.isArrayLiteralExpression(value)) {
+      for (const element of value.elements) if (!ts.isOmittedExpression(element)) visitAssignmentTarget(element, scope)
+    } else if (ts.isSpreadElement(value)) visitAssignmentTarget(value.expression, scope)
+    else if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      visit(value.right, scope)
+      visitAssignmentTarget(value.left, scope)
+    } else visit(value, scope)
   }
 
   const bindObjectElementInitializers = (pattern, scope, initializerScope, kind) => {
@@ -340,7 +317,8 @@ function collectEnvironmentRows(record, text) {
 
   const visit = (node, scope) => {
     if (ts.isFunctionLike(node)) {
-      const parameterScope = childScope(scope)
+      if (annexBDeclarations.has(node)) assignName(node.name.text, undefined, varBindingScope(scope))
+      const parameterScope = childScope(scope, false, scope.strict || hasStrictDirective(node.body))
       if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) && node.name) declareBindingName(node.name, parameterScope)
       for (const parameter of node.parameters) declareBindingName(parameter.name, parameterScope)
       for (const parameter of node.parameters) {
@@ -367,14 +345,18 @@ function collectEnvironmentRows(record, text) {
         ? childScope(scope)
         : scope
       if (loopScope !== scope) for (const declaration of initializer.declarations) declareBindingName(declaration.name, loopScope)
-      if (initializer) visit(initializer, loopScope)
+      // Preserve lexical TDZ, iterable-before-rebinding, and first-body-before-increment effects.
       if (ts.isForStatement(node)) {
+        if (initializer) visit(initializer, loopScope)
         if (node.condition) visit(node.condition, loopScope)
+        visit(node.statement, loopScope)
         if (node.incrementor) visit(node.incrementor, loopScope)
       } else {
         visit(node.expression, loopScope)
+        if (ts.isVariableDeclarationList(initializer)) visit(initializer, loopScope)
+        else visitAssignmentTarget(initializer, loopScope)
+        visit(node.statement, loopScope)
       }
-      visit(node.statement, loopScope)
       return
     }
     if (ts.isCatchClause(node)) {
@@ -390,9 +372,17 @@ function collectEnvironmentRows(record, text) {
       return
     }
     if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
-      const classScope = childScope(scope)
+      const classScope = childScope(scope, false, true)
       if (node.name) declareBindingName(node.name, classScope)
       ts.forEachChild(node, (child) => visit(child, classScope))
+      return
+    }
+    if (ts.isEnumDeclaration(node)) {
+      const enumScope = childScope(scope)
+      for (const member of scope.enumMembers.get(node.name.text) ?? node.members) {
+        if (ts.isIdentifier(member.name) || isLiteralNode(member.name)) enumScope.bindings.set(member.name.text, NON_ALIAS)
+      }
+      for (const member of node.members) if (member.initializer) visit(member.initializer, enumScope)
       return
     }
     if (ts.isModuleBlock(node)) {
@@ -436,11 +426,20 @@ function collectEnvironmentRows(record, text) {
       return
     }
     if (
-      ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-      ts.isIdentifier(node.left)
+      ts.isBinaryExpression(node) && ts.isAssignmentOperator(node.operatorToken.kind)
     ) {
+      const target = unwrapTransparentExpression(node.left)
+      const memberTarget = ts.isPropertyAccessExpression(target) || ts.isElementAccessExpression(target)
+      if (memberTarget) visit(node.left, scope)
       visit(node.right, scope)
-      assignName(node.left.text, node.right, scope)
+      if (!memberTarget) visitAssignmentTarget(node.left, scope, node.operatorToken.kind === ts.SyntaxKind.EqualsToken ? node.right : undefined)
+      return
+    }
+    if (
+      (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) &&
+      [ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(node.operator)
+    ) {
+      visitAssignmentTarget(node.operand, scope)
       return
     }
     if (
@@ -474,7 +473,8 @@ function collectEnvironmentRows(record, text) {
     }
     ts.forEachChild(node, (child) => visit(child, scope))
   }
-  const sourceScope = childScope(null, true)
+  const sourceScope = childScope(null, true, hasStrictDirective(sourceFile))
+  if (record.extension === ".cjs") sourceScope.bindings.set("require", COMMONJS_LOADER)
   for (const [name, status] of processImportBindings(sourceFile)) sourceScope.bindings.set(name, status)
   predeclareVarEnvironmentShadows(sourceFile, sourceScope)
   visit(sourceFile, sourceScope)

@@ -2010,8 +2010,12 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
     "config/credential.txt",
     "config/oauth/client_secret_123.apps.googleusercontent.com.json",
     "Config/OAuth/CLIENT_SECRET_Tenant-A.YAML",
+    "config/oauth/client-secret.json",
+    "Config/OAuth/.CLIENT_SECRET.YAML",
     "config/cloud/service-account-key",
     "Config/Cloud/SERVICE-ACCOUNT-KEY.toml",
+    "config/cloud/service-account",
+    "Config/Cloud/.SERVICE_ACCOUNT.toml",
     "config/credentials/token.ts",
     "config/.credentials/provider.json",
     "config/credential/token.ts",
@@ -2047,8 +2051,10 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
   writeFixture(allowedRoot, "config/.credentials-cache/provider.json", "{}\n")
   writeFixture(allowedRoot, "config/oauth/client_secretary.json", "{}\n")
   writeFixture(allowedRoot, "config/oauth/client_secret_.json", "{}\n")
+  writeFixture(allowedRoot, "config/oauth/client-secret-guide.md", "public guidance\n")
   writeFixture(allowedRoot, "config/cloud/service-account-keyring.json", "{}\n")
   writeFixture(allowedRoot, "config/cloud/service-account-key-guide.md", "public guidance\n")
+  writeFixture(allowedRoot, "config/cloud/service-account-manager.json", "{}\n")
   assert.doesNotThrow(() => buildTrackedTextIndex(allowedRoot, policy))
 })
 
@@ -2323,6 +2329,377 @@ test("environment alias scopes honor parameter defaults and ordinary shadowing",
   const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
   assert.deepEqual(evidence.reads.map((row) => row.name), ["PARAMETER_DEFAULT"])
   assert.equal(evidence.uncertainties.length, 0)
+})
+
+test("environment CommonJS loader provenance honors enum member scope", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/commonjs-enum.ts", [
+    "const control = require('process'); void control.env.OUTER_CONTROL",
+    "enum Earlier { require = 0, value = (() => { const proc = require('process'); return proc.env.ENUM_SHADOW })() }",
+    "enum Later { value = (() => { const proc = require('process'); return proc.env.ENUM_LATER_SHADOW })(), require = 0 }",
+    "enum Literal { 'require' = 0, value = (() => { const proc = require('process'); return proc.env.ENUM_LITERAL_SHADOW })() }",
+    "enum Ordinary { value = (() => { const proc = require('process'); return proc.env.ENUM_CONTROL })() }",
+    "enum Merged { require = 0 }",
+    "enum Merged { value = (() => { const proc = require('process'); return proc.env.MERGED_ENUM_SHADOW })() }",
+    "enum MergedLater { value = (() => { const proc = require('process'); return proc.env.MERGED_LATER_SHADOW })() }",
+    "enum MergedLater { require = 0 }",
+    "function localEnum() { enum Merged { value = (() => { const proc = require('process'); return proc.env.SEPARATE_ENUM_CONTROL })() } }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["OUTER_CONTROL", "ENUM_CONTROL", "SEPARATE_ENUM_CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment CommonJS direct variable initializers allow transparent wrappers", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/commonjs-wrapped-initializers.ts", [
+    "const paren = (require('process')); void paren.env.PAREN_CONTROL",
+    "const cast = require('node:process') as unknown; void cast.env.CAST_CONTROL",
+    "const assertion = <any>require('process'); void assertion.env.ASSERTION_CONTROL",
+    "const nonnull = require('process')!; void nonnull.env.NONNULL_CONTROL",
+    "const nested = ((require('process') as any)!); void nested.env.NESTED_CONTROL",
+    "function shadow(require) { const proc = ((require('process'))!); return proc.env.WRAPPED_LOADER_SHADOW }",
+    "function defaults(proc = (require('process'))) { return proc.env.PARAMETER_NOT_OWNED }",
+    "let assigned; assigned = (require('process')); void assigned.env.ASSIGNMENT_NOT_OWNED",
+    "const { proc = (require('process')) } = value; void proc.env.DESTRUCTURED_DEFAULT_NOT_OWNED",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "PAREN_CONTROL", "CAST_CONTROL", "ASSERTION_CONTROL", "NONNULL_CONTROL", "NESTED_CONTROL",
+  ])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+for (const [kind, mutations] of Object.entries({
+  destructuring: [
+    ["({ value: TARGET } = source)", []],
+    ["[TARGET] = source", []],
+    ["({ TARGET } = source)", []],
+    ["[...TARGET] = source", []],
+    ["({ [process.env.COMPUTED_KEY]: TARGET = process.env.DEFAULT_VALUE } = source)", ["COMPUTED_KEY", "DEFAULT_VALUE"]],
+    ["[TARGET] = [process.env.RIGHT_HAND_READ]", ["RIGHT_HAND_READ"]],
+  ],
+  wrapped: [["(TARGET) = source", []], ["(TARGET as any) = source", []], ["TARGET! = source", []]],
+  update: [["TARGET++", []], ["++TARGET", []], ["TARGET--", []], ["--TARGET", []]],
+})) {
+  test(`environment CommonJS provenance is invalidated by ${kind} targets`, (t) => {
+    const root = createFixtureRepository(t)
+    writePackage(root)
+    for (const target of ["require", "proc"]) {
+      for (const [index, [mutation, preservedReads]] of mutations.entries()) {
+        writeFixture(root, `lib/${target}-${index}.ts`, [
+          "let proc = require('process'); void proc.env.BEFORE_CONTROL;",
+          mutation.replaceAll("TARGET", target),
+          "void proc.env.PROCESS_AFTER",
+          "const next = require('node:process'); void next.env.LOADER_AFTER",
+          "",
+        ].join("\n"))
+        const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+        const rows = evidence.reads.filter((row) => row.path === `lib/${target}-${index}.ts`)
+        assert.deepEqual(evidence.errors, [])
+        assert.deepEqual(rows.map((row) => row.name).sort(), [
+          "BEFORE_CONTROL", target === "require" ? "PROCESS_AFTER" : "LOADER_AFTER", ...preservedReads,
+        ].sort(), `${target}: ${mutation}`)
+      }
+    }
+  })
+}
+
+for (const [kind, targets] of Object.entries({ identifier: ["TARGET"], destructuring: ["[TARGET]", "{ value: TARGET }"] })) {
+  test(`environment CommonJS provenance is invalidated by ${kind} iteration assignments`, (t) => {
+    const root = createFixtureRepository(t)
+    writePackage(root)
+    let index = 0
+    for (const target of ["require", "proc"]) {
+      for (const pattern of targets) {
+        for (const operator of ["in", "of"]) {
+          const path = `lib/iteration-${index++}.ts`
+          writeFixture(root, path, [
+            "let proc = require('process'); void proc.env.BEFORE_CONTROL;",
+            `for (${pattern.replaceAll("TARGET", target)} ${operator} [proc.env.ITERABLE_READ]) {`,
+            "  void proc.env.PROCESS_IN_BODY; const next = require('node:process'); void next.env.LOADER_IN_BODY",
+            "}",
+            "void proc.env.PROCESS_AFTER; const after = require('process'); void after.env.LOADER_AFTER",
+            "",
+          ].join("\n"))
+          const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+          assert.deepEqual(evidence.errors, [])
+          assert.deepEqual(evidence.reads.filter((row) => row.path === path).map((row) => row.name).sort(), [
+            "BEFORE_CONTROL", "ITERABLE_READ",
+            ...(target === "require" ? ["PROCESS_IN_BODY", "PROCESS_AFTER"] : ["LOADER_IN_BODY", "LOADER_AFTER"]),
+          ].sort(), `${target}: ${pattern} ${operator}`)
+        }
+      }
+    }
+  })
+}
+
+test("environment iteration declarations read iterables before var rebinding but retain lexical TDZ", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const operator of ["in", "of"]) {
+    writeFixture(root, `lib/var-iteration-${operator}.ts`, [
+      "var proc = require('process');",
+      `for (var proc ${operator} [proc.env.ITERABLE_REAL]) { void proc.env.REBOUND_BODY }`,
+      "void proc.env.REBOUND_AFTER",
+      "",
+    ].join("\n"))
+    for (const declaration of ["let", "const"]) {
+      writeFixture(root, `lib/${declaration}-iteration-${operator}.ts`, [
+        "const proc = require('process');",
+        `for (${declaration} proc ${operator} [proc.env.LEXICAL_TDZ]) { void proc.env.LEXICAL_BODY }`,
+        "void proc.env.OUTER_AFTER",
+        "",
+      ].join("\n"))
+    }
+  }
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name).sort(), [
+    "ITERABLE_REAL", "ITERABLE_REAL", "OUTER_AFTER", "OUTER_AFTER", "OUTER_AFTER", "OUTER_AFTER",
+  ])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment classic loops visit the first body before incrementor mutations", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/classic-loop-order.ts", [
+    "let proc = require('process');",
+    "for (; proc.env.CONDITION_REAL; proc = {}) { void proc.env.FIRST_BODY_REAL }",
+    "void proc.env.AFTER_INCREMENTOR",
+    "function loader() { for (let n = 0; n < 1; require = fake) { const p = require('process'); void p.env.BODY_LOADER_REAL } }",
+    "let other = require('process');",
+    "for (let n = 0; n < 1; void other.env.NOT_REAL_AFTER_BODY) { other = {} }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["CONDITION_REAL", "FIRST_BODY_REAL", "BODY_LOADER_REAL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment CommonJS loader shadows include sloppy CJS Annex-B block functions", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/annex-b-loader.cjs", [
+    "function shadowed() { { function require() {} } const proc = require('process'); void proc.env.SLOPPY_BLOCK_SHADOW }",
+    "function before() { const proc = require('process'); void proc.env.SLOPPY_HOIST_SHADOW; if (condition) { function require() {} } }",
+    "function nested() { { { function require() {} } } const proc = require('process'); void proc.env.NESTED_BLOCK_SHADOW }",
+    "function escaped() { 'use\\x20strict'; { function require() {} } const proc = require('process'); void proc.env.ESCAPED_DIRECTIVE_SHADOW }",
+    "function late() { perform(); 'use strict'; { function require() {} } const proc = require('process'); void proc.env.LATE_DIRECTIVE_SHADOW }",
+    "function unrelated() { { function ordinary() {} } const proc = require('process'); void proc.env.UNRELATED_CONTROL }",
+    "function outer() { function inner() { { function require() {} } } const proc = require('process'); void proc.env.OUTER_CONTROL }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["UNRELATED_CONTROL", "OUTER_CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment CommonJS loader block functions stay lexical in strict scopes", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/strict-source.cjs", [
+    "'use strict';",
+    "function explicit() { { function require() {} } const proc = require('process'); void proc.env.SOURCE_STRICT_CONTROL }",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/strict-function.cjs", [
+    "function explicit() { 'use strict'; { function require() {} } const proc = require('process'); void proc.env.FUNCTION_STRICT_CONTROL }",
+    "function inherited() { 'use strict'; return function inner() { { function require() {} } const proc = require('process'); return proc.env.INHERITED_STRICT_CONTROL } }",
+    "class StrictClass { method() { { function require() {} } const proc = require('process'); return proc.env.CLASS_STRICT_CONTROL } }",
+    "function block() { 'use strict'; { const proc = require('process'); void proc.env.STRICT_BLOCK_SHADOW; function require() {} } }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name).sort(), [
+    "CLASS_STRICT_CONTROL", "FUNCTION_STRICT_CONTROL", "INHERITED_STRICT_CONTROL", "SOURCE_STRICT_CONTROL",
+  ])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment sloppy CJS block functions invalidate proven bindings when executed", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/annex-b-execution.cjs", [
+    "function executed() { var proc = require('process'); void proc.env.BEFORE_CONTROL; { function proc() {} } void proc.env.AFTER_BLOCK_FUNCTION }",
+    "function strict() { 'use strict'; var proc = require('process'); { function proc() {} } void proc.env.STRICT_AFTER_CONTROL }",
+    "function ordinary() { var proc = require('process'); function proc() {} void proc.env.ORDINARY_DECLARATION_CONTROL }",
+    "function simpleCatch() { var proc = require('process'); try { throw 0 } catch (proc) { { function proc() {} } } void proc.env.SIMPLE_CATCH_INVALIDATED }",
+    "class StrictClass { method() { var proc = require('process'); { function proc() {} } void proc.env.CLASS_AFTER_CONTROL } }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["BEFORE_CONTROL", "STRICT_AFTER_CONTROL", "ORDINARY_DECLARATION_CONTROL", "CLASS_AFTER_CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment Annex-B hoisting respects intervening lexical declaration barriers", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/annex-b-barriers.cjs", [
+    "function letBarrier() { { let require; { function require() {} } } const proc = require('process'); void proc.env.LET_BARRIER_CONTROL }",
+    "function constBarrier() { { const require = fake; { function require() {} } } const proc = require('process'); void proc.env.CONST_BARRIER_CONTROL }",
+    "function classBarrier() { { class require {} { function require() {} } } const proc = require('process'); void proc.env.CLASS_BARRIER_CONTROL }",
+    "function patternBarrier() { { let { require } = object; { function require() {} } } const proc = require('process'); void proc.env.PATTERN_BARRIER_CONTROL }",
+    "function loopBarrier() { for (let require of loaders) { { function require() {} } } const proc = require('process'); void proc.env.LOOP_BARRIER_CONTROL }",
+    "function catchBarrier() { try { throw {} } catch ({ require }) { { function require() {} } } const proc = require('process'); void proc.env.CATCH_BARRIER_CONTROL }",
+    "function asyncLexical() { { async function require() {} } const proc = require('process'); void proc.env.ASYNC_LEXICAL_CONTROL }",
+    "function generatorLexical() { { function* require() {} } const proc = require('process'); void proc.env.GENERATOR_LEXICAL_CONTROL }",
+    "function noBarrier() { { function require() {} } const proc = require('process'); void proc.env.NO_BARRIER_SHADOW }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "LET_BARRIER_CONTROL", "CONST_BARRIER_CONTROL", "CLASS_BARRIER_CONTROL", "PATTERN_BARRIER_CONTROL", "LOOP_BARRIER_CONTROL", "CATCH_BARRIER_CONTROL", "ASYNC_LEXICAL_CONTROL", "GENERATOR_LEXICAL_CONTROL",
+  ])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment CJS wrapper loader survives assignment-free source var redeclarations", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/wrapper-var.cjs", [
+    "const before = require('process'); void before.env.BEFORE_VAR_CONTROL;",
+    "var require;",
+    "const after = require('process'); void after.env.AFTER_VAR_CONTROL;",
+    "function writer() { require = fake; const proc = require('process'); void proc.env.NESTED_WRITE_SHADOW }",
+    "const outer = require('process'); void outer.env.OUTER_WRAPPER_CONTROL;",
+    "require = fake; const changed = require('process'); void changed.env.AFTER_WRITE_SHADOW;",
+    "function nested() { const proc = require('process'); void proc.env.NESTED_VAR_SHADOW; var require }",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/wrapper-var-strict.cjs", "'use strict'; var require; const proc = require('process'); void proc.env.STRICT_VAR_CONTROL\n")
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name).sort(), ["AFTER_VAR_CONTROL", "BEFORE_VAR_CONTROL", "OUTER_WRAPPER_CONTROL", "STRICT_VAR_CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment CJS wrapper loader remains proven until an Annex-B source assignment executes", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/wrapper-block.cjs", [
+    "const before = require('process'); void before.env.BEFORE_BLOCK_CONTROL;",
+    "{ function require() {} }",
+    "const after = require('process'); void after.env.AFTER_BLOCK_SHADOW;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/wrapper-direct.cjs", [
+    "const before = require('process'); void before.env.DIRECT_FUNCTION_SHADOW;",
+    "function require() {}",
+    "function nested() { const proc = require('process'); void proc.env.NESTED_DIRECT_SHADOW; function require() {} }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["BEFORE_BLOCK_CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment CommonJS process bindings record exact reads without false unread candidates", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "NODE_KEY=\nPORTABLE_KEY=\nALIASED_KEY=\n")
+  writeFixture(root, "lib/commonjs-process.cjs", [
+    "const process = require('node:process')",
+    "const nodeProcess = require('process')",
+    "void process.env.NODE_KEY; void nodeProcess.env['PORTABLE_KEY']",
+    "const environment = nodeProcess.env; void environment.ALIASED_KEY",
+    "const env = require('node:process'); void env.env.PROCESS_NAMED_ENV",
+    "const arbitrary = require('node:process'); consume(arbitrary)",
+    "void process.env[privateComputedKey]; consume(nodeProcess.env)",
+    "void (process.env.WRITE_ONLY = 'fixture'); delete nodeProcess.env.DELETE_ONLY",
+    "process.env.UPDATED_PROPERTY++; void process.env.AFTER_PROPERTY_UPDATE",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(report.staticReads.map((row) => row.name).sort(), [
+    "AFTER_PROPERTY_UPDATE", "ALIASED_KEY", "NODE_KEY", "PORTABLE_KEY", "PROCESS_NAMED_ENV", "UPDATED_PROPERTY",
+  ])
+  assert.deepEqual(report.unreadDeclarationCandidates, [])
+  assert.equal(report.uncertainties.computedReads.length, 2)
+  assert.deepEqual(report.uncertainties.unprovenAliases, [])
+  assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+  assertPrivateSerialization(report, root, ["privateComputedKey", "require('node:process')"])
+})
+
+test("environment CommonJS process recognition excludes shadowed and nonliteral loaders", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const call = "const proc = require('node:process'); void proc.env.SHADOWED"
+  writeFixture(root, "lib/commonjs-loader-shadows.ts", [
+    "const control = require('node:process'); void control.env.CONTROL",
+    `function parameter(require) { ${call} }`,
+    `function destructured({ require }) { ${call} }`,
+    `function named() { const fn = function require() { ${call} }; void fn }`,
+    `function lexical() { ${call}; const require = fake }`,
+    `function hoisted() { ${call}; var require }`,
+    `function declared() { ${call}; function require() {} }`,
+    `function klass() { ${call}; class require {} }`,
+    `try {} catch (require) { ${call} }`,
+    `for (let require of loaders) { ${call} }`,
+    `for (let proc = require('node:process'), require = fake; false;) { void proc.env.SHADOWED }`,
+    `switch (mode) { case 0: ${call}; break; default: const require = fake }`,
+    `namespace Scope { ${call}; var require }`,
+    `class Container { static { ${call}; var require } }`,
+    `const Named = class require { static { ${call} } }`,
+    `namespace Imported { ${call}; import require = Runtime.loader }`,
+    "const other = require('node:process/promises'); void other.env.UNRELATED",
+    "const dynamic = require(moduleName); void dynamic.env.DYNAMIC",
+    "const member = loader.require('node:process'); void member.env.MEMBER",
+    "const extra = require('node:process', extraArgument); void extra.env.EXTRA",
+    "const optional = require?.('node:process'); void optional.env.OPTIONAL",
+    "",
+  ].join("\n"))
+  for (const [index, statement] of [
+    "import require from './loader'", "import * as require from './loader'",
+    "import { loader as require } from './loader'", "import type require from './loader'",
+  ].entries()) {
+    writeFixture(root, `lib/loader-import-${index}.ts`, `${call}; ${statement}\n`)
+  }
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment CommonJS process bindings retain lexical initialization and reassignment boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/commonjs-binding-boundaries.cjs", [
+    "const proc = require('node:process'); void proc.env.OUTER",
+    "function parameter(proc) { return proc.env.SHADOWED }",
+    "function lexical() { void proc.env.BEFORE; const proc = require('process'); void proc.env.AFTER }",
+    "function hoisted() { void proc.env.BEFORE; var proc = require('process'); var proc; void proc.env.VAR_AFTER }",
+    "function defaults(proc = require('node:process')) { return proc.env.PARAMETER_DEFAULT_NOT_OWNED }",
+    "function bodyDefault(value = (() => { const p = require('process'); return p.env.DEFAULT_CONTROL })()) { var require; return value }",
+    "try {} catch (proc) { void proc.env.CATCH_SHADOW }",
+    "for (const proc of objects) { void proc.env.LOOP_SHADOW }",
+    "class Container { static { void proc.env.STATIC_SHADOW; var proc } }",
+    "let mutable = require('process'); mutable = {}; void mutable.env.AFTER_REASSIGNMENT",
+    "let compound = require('process'); compound += other; void compound.env.AFTER_COMPOUND_ASSIGNMENT",
+    "function compoundLoader() { require ||= fake; const process = require('process'); return process.env.COMPOUND_LOADER }",
+    "function changedLoader() { require = fake; const process = require('process'); return process.env.CHANGED_LOADER }",
+    "function changedLoaderBlock() { { require = fake }; const process = require('process'); return process.env.CHANGED_LOADER_BLOCK }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["OUTER", "AFTER", "VAR_AFTER", "DEFAULT_CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
 })
 
 test("environment process object recognition honors lexical shadows and exact Node imports", (t) => {
