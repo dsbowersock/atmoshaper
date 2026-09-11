@@ -746,3 +746,58 @@ Four hosted threads remain until the fix is pushed. The latest CodeRabbit
 review completed with these two comments; latest-head re-review and checks
 remain pending. Merge remains separately authorized, and no candidate deletion,
 provider action or Phase 5 work occurred.
+
+Hosted review round 18 records three validated latest-head findings on remote
+`01ae7fb`: loader ownership was inferred from bare `require` or `createRequire`
+spelling despite lexical shadows; NodeNext explicit `.cjs` and `.mjs`
+resolution crossed extension families; and logical `&&=`, `||=` and `??=`
+assignments dropped conditional environment provenance. Loader evidence now
+requires scope-aware ownership, proves only exact `createRequire(import.meta.url)`
+construction, retains hash-only uncertainty for unproven loaders, and covers
+mutation and `.resolve` mutation. NodeNext substitution stays within the
+`.cts`/`.d.cts` CommonJS or `.mts`/`.d.mts` ESM family without `.ts`/`.tsx`
+cross-family fallback. Logical assignments snapshot right-hand provenance after
+left-hand evaluation: proven or unknown environment sources emit one hash-only
+unbounded operator-specific uncertainty and downgrade simple identifier targets
+to unknown; member targets retain uncertainty without local alias rebinding,
+while unconditional `=` and assignment-default behavior remain unchanged.
+
+Exhaustive independent staged review found and fixed adjacent scope and
+evaluation-order gaps across parameter, switch, enum, loop, pattern, catch,
+class, decorator, Annex-B, `with`, optional-call and mutation boundaries,
+including `.resolve` mutation behavior. Final independent review passed with 53
+accumulated reproductions and 16/16 targeted checks. The earlier 145/145
+focused repository-audit result predates these follow-ups and is historical.
+The final loader slice passed 28/28 and the environment slice passed 60/60; the
+authoritative exact-staged focused repository-audit suite passed 162/162 after
+documentation synchronization.
+The full suite recorded 4,360 total, 4,357 passed, 3 host-dependent skips and
+zero failures. Typecheck, lint and diff checks passed. Source caps were
+environment analyzer 496, environment-pattern helper 42, environment scope 132,
+module evidence 419, module loader 475 and module resolution 96 nonblank lines.
+
+Pre-document audits ran twice with byte-identical output and exit 0; every
+report retained `deletionAuthority: false`: dead code 1,570
+findings/211 uncertainties with output SHA-256
+`a035d78474f9fcb3ee465cf8e4f289a2112ef2cadcb4d86410faa8503a593cd4`;
+dependency 2,868/21 with
+`0e2c9ef622745d67b746e8f72ffecf74a48139095db67ddaf67a04f5e6ebeece`;
+asset 561/11,314 with
+`452217301e254a1ef5ec74abb4021eaddf1c01ade1c382e1ac3619acabdc1a00`;
+and environment 587/252 with
+`f87cac8099ec64eb613b6215202c5e461476f83164d452baa6fab4624851b91e`.
+
+The pre-document inventory contained 1,925 files and 47,569,581 Git blob bytes,
+inventory SHA-256
+`c835271d633b07c09a58d6280cf1bfc520864674c7e34a2464f16f68db4d6619`,
+output SHA-256
+`623f1bc01f36f8fab7f8db1e50b7448995323ef30dab6247a4130df2dfae684e`
+and zero forbidden paths. Brand verification was zero missing and zero
+unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These pre-document hashes and identities become historical once these versioned
+receipts are staged; exact final identity remains only in the ignored SDD
+receipt.
+
+Latest-head hosted checks and reviews remain pending. Merge remains separately
+authorized, and no candidate deletion, provider action or Phase 5 work occurred.

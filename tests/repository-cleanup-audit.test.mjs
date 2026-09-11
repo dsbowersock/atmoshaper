@@ -287,9 +287,11 @@ test("module evidence records require.resolve ownership and hashes nonliteral ar
   writePackage(root, { dependencies: { "@scope/pkg": "1.0.0" } })
   writeFixture(root, "lib/tool.ts", "export const tool = true\n")
   writeFixture(root, "scripts/runner.mjs", [
-    "const packageCli = require.resolve('@scope/pkg/cli')",
-    "const localTool = require.resolve('../lib/tool')",
-    `const selected = require.resolve(${dynamicExpression})`,
+    "import { createRequire as makeRequire } from 'node:module'",
+    "const loader = makeRequire(import.meta.url)",
+    "const packageCli = loader.resolve('@scope/pkg/cli')",
+    "const localTool = loader.resolve('../lib/tool')",
+    `const selected = loader.resolve(${dynamicExpression})`,
     "void packageCli; void localTool; void selected",
     "",
   ].join("\n"))
@@ -316,6 +318,918 @@ test("module evidence records require.resolve ownership and hashes nonliteral ar
   )))
 })
 
+test("module evidence rejects shadowed loaders but preserves CJS and createRequire provenance", (t) => {
+  const root = createFixtureRepository(t)
+  const modulePolicy = {
+    ...clonePolicy(),
+    sourceExtensions: [...new Set([...policy.sourceExtensions, ".cts", ".mts"])].sort(),
+    textExtensions: [...new Set([...policy.textExtensions, ".cts", ".mts"])].sort(),
+  }
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  const calls = [
+    "require('../lib/tool')",
+    "require.resolve('fixture-package')",
+  ]
+  writeFixture(root, "tests/shadowed-loaders.ts", [
+    `function parameter(require) { ${calls.join("; ")} }`,
+    `function functionShadow() { ${calls.join("; ")}; function require() {} }`,
+    `function lexicalTdz() { ${calls.join("; ")}; let require }`,
+    `function constantShadow() { const require = fake; ${calls.join("; ")} }`,
+    `function variableShadow() { ${calls.join("; ")}; var require = fake }`,
+    `{ const require = fake; ${calls.join("; ")} }`,
+    `try {} catch (require) { ${calls.join("; ")} }`,
+    `for (const require of loaders) { ${calls.join("; ")} }`,
+    `class Example { method(require) { ${calls.join("; ")} } static { const require = fake; ${calls.join("; ")} } }`,
+    `namespace Box { const require = fake; ${calls.join("; ")} }`,
+    `(function (require) { ${calls.join("; ")} })(fake)`,
+    "void parameter; void functionShadow; void lexicalTdz; void constantShadow; void variableShadow; void Example; void Box",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/cjs-control.cjs", [
+    "const direct = require('../lib/tool')",
+    "const packagePath = require.resolve('fixture-package')",
+    "var require",
+    "void direct; void packagePath",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/cjs-shadow.cjs", [
+    "require('../lib/tool')",
+    "require.resolve('fixture-package')",
+    "function require() {}",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/create-require.mjs", [
+    "import { createRequire as makeRequire } from 'node:module'",
+    "const loader = makeRequire(import.meta.url)",
+    "const direct = loader('../lib/tool')",
+    "const packagePath = loader.resolve('fixture-package')",
+    "void direct; void packagePath",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/create-require-arrow.mjs", [
+    "import { createRequire } from 'node:module'",
+    "const loader = createRequire(import.meta.url)",
+    "const load = () => loader('../lib/tool')",
+    "const locate = () => loader.resolve('fixture-package')",
+    "void load; void locate",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/cts-control.cts", [
+    "const direct = require('../lib/tool')",
+    "const packagePath = require.resolve('fixture-package')",
+    "void direct; void packagePath",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, modulePolicy), modulePolicy)
+  const exactLoaderRows = evidence.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+  assert.deepEqual(exactLoaderRows.map((row) => [row.fromPath, row.kind, row.targetKind]), [
+    ["scripts/cjs-control.cjs", "require", "tracked-module"],
+    ["scripts/cjs-control.cjs", "require-resolve", "package"],
+    ["scripts/create-require-arrow.mjs", "require", "tracked-module"],
+    ["scripts/create-require-arrow.mjs", "require-resolve", "package"],
+    ["scripts/create-require.mjs", "require", "tracked-module"],
+    ["scripts/create-require.mjs", "require-resolve", "package"],
+    ["scripts/cts-control.cts", "require", "tracked-module"],
+    ["scripts/cts-control.cts", "require-resolve", "package"],
+  ])
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.equal(unproven.length, 26)
+  assert.ok(unproven.every((row) => ["require", "require-resolve"].includes(row.kind)))
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("fixture-package"), false)
+  assert.equal(evidence.errors.length, 0)
+
+  const deadReport = buildDeadCodeCandidateReport(buildTrackedTextIndex(root, modulePolicy), modulePolicy)
+  assert.equal(deadReport.referencedModules.find((row) => row.path === "lib/tool.ts")?.incomingReferenceCount, 4)
+  const dependencyReport = buildDependencyCandidateReport(buildTrackedTextIndex(root, modulePolicy), modulePolicy)
+  assert.equal(dependencyReport.literalImportOwners.filter((row) => row.packageName === "fixture-package").length, 4)
+})
+
+test("module loader provenance respects mutation, CJS Annex-B, class, and createRequire boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/mutated-loader.mjs", [
+    "import { createRequire as makeRequire } from 'module'",
+    "let loader = makeRequire(import.meta.url)",
+    "loader('../lib/tool')",
+    "loader.resolve('fixture-package')",
+    "loader = fake",
+    "loader('../lib/tool')",
+    "loader.resolve('fixture-package')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/unsupported-loader.mjs", [
+    "import { createRequire as makeRequire } from 'node:module'",
+    "const loader = makeRequire(runtimeUrl)",
+    "loader('../lib/tool')",
+    "loader.resolve('fixture-package')",
+    "function shadow(makeRequire) {",
+    "  const nested = makeRequire(import.meta.url)",
+    "  nested('../lib/tool')",
+    "  nested.resolve('fixture-package')",
+    "}",
+    "void shadow",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/cjs-annex.cjs", [
+    "{ function require() {} }",
+    "require('../lib/tool')",
+    "require.resolve('fixture-package')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/cjs-class.cjs", [
+    "const Named = class require {",
+    "  method() { require('../lib/tool'); require.resolve('fixture-package') }",
+    "}",
+    "class Ordinary { require() { require('../lib/tool'); require.resolve('fixture-package') } }",
+    "void Named; void Ordinary",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const loaderReferences = evidence.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+  assert.deepEqual(loaderReferences.map((row) => [row.fromPath, row.line, row.kind]), [
+    ["scripts/cjs-class.cjs", 4, "require"],
+    ["scripts/cjs-class.cjs", 4, "require-resolve"],
+    ["scripts/mutated-loader.mjs", 3, "require"],
+    ["scripts/mutated-loader.mjs", 4, "require-resolve"],
+  ])
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.equal(unproven.length, 10)
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("runtimeUrl"), false)
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("module loader scope predeclares parameters switch cases and enum members", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/scope-boundaries.cts", [
+    "function parameterShadow(value = require('../lib/tool'), require) { void value; void require }",
+    "function parameterControl(value = require('../lib/tool'), other) { void value; void other }",
+    "switch (mode) { case 0: require('../lib/tool'); break; case 1: const require = fake; void require }",
+    "switch (otherMode) { case 0: require('../lib/tool'); break; default: void 0 }",
+    "enum Shadowed { before = require('../lib/tool'), require = 1 }",
+    "enum Control { before = require('../lib/tool'), ordinary = 1 }",
+    "void parameterShadow; void parameterControl; void Shadowed; void Control",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const exact = evidence.references.filter((row) => row.kind === "require")
+  assert.deepEqual(exact.map((row) => row.line), [2, 4, 6])
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [1, 3, 5])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("module loader for-in and for-of evaluate iterables before invalidating iteration targets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of ["lib/items.ts", "lib/tool.ts"]) writeFixture(root, path, "export default true\n")
+  writeFixture(root, "scripts/iteration.mjs", [
+    "import { createRequire } from 'node:module'",
+    "let loader = createRequire(import.meta.url)",
+    "for (loader of loader('../lib/items')) { loader('../lib/tool') }",
+    "let second = createRequire(import.meta.url)",
+    "for (second in second('../lib/items')) { second('../lib/tool') }",
+    "const outer = createRequire(import.meta.url)",
+    "for (const outer of outer('../lib/items')) { outer('../lib/tool') }",
+    "for (const item of outer('../lib/items')) { void item }",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const exact = evidence.references.filter((row) => row.kind === "require")
+  assert.deepEqual(exact.map((row) => [row.line, row.targetPath]), [
+    [3, "lib/items.ts"],
+    [5, "lib/items.ts"],
+    [8, "lib/items.ts"],
+  ])
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [3, 5, 7, 7])
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("module loader invalidation follows wrapped recursive assignment and update targets only", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/targets.mts", [
+    "import { createRequire } from 'node:module'",
+    "let direct = createRequire(import.meta.url)",
+    "!direct; typeof direct; +direct; direct('../lib/tool');",
+    "(direct as any) = fake; direct('../lib/tool')",
+    "let objectTarget = createRequire(import.meta.url);",
+    "({ nested: { objectTarget } } = value); objectTarget('../lib/tool')",
+    "let arrayTarget = createRequire(import.meta.url);",
+    "[arrayTarget] = value; arrayTarget('../lib/tool')",
+    "let updated = createRequire(import.meta.url);",
+    "++(updated as any); updated('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "require").map((row) => row.line),
+    [3],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [4, 6, 8, 10])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("../lib/tool"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("module loader provenance propagates only through direct identifier bindings", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/bindings.mjs", [
+    "import { createRequire } from 'node:module'",
+    "const loader = createRequire(import.meta.url)",
+    "const alias = loader; alias('../lib/tool')",
+    "const { require } = loader; require('../lib/tool')",
+    "const { nested: objectAlias } = loader; objectAlias('../lib/tool')",
+    "const [arrayAlias] = loader; arrayAlias('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require").map((row) => row.line),
+    [3],
+  )
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [4])
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("module loader assignment evaluates sources before recursive spread targets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/assignment-order.mts", [
+    "import { createRequire } from 'node:module'",
+    "let loader = createRequire(import.meta.url);",
+    "(({ [loader.resolve('fixture-package')]: loader = loader('../lib/tool') } as any) = loader('../lib/tool'));",
+    "loader('../lib/tool')",
+    "let spread = createRequire(import.meta.url);",
+    "[...(spread as any)] = values;",
+    "spread('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "require").map((row) => row.line),
+    [3, 3],
+  )
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "require-resolve").map((row) => row.line),
+    [3],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [4, 7])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("../lib/tool"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("module loader traverses evaluated binding defaults and computed names without provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/binding-evaluation.mts", [
+    "import { createRequire } from 'node:module'",
+    "const loader = createRequire(import.meta.url)",
+    "const { [loader.resolve('fixture-package')]: variable = loader('../lib/tool') } = source",
+    "function parameter({ [loader.resolve('fixture-package')]: value = loader('../lib/tool') } = source) { void value }",
+    "for (const { [loader.resolve('fixture-package')]: item = loader('../lib/tool') } of values) { void item }",
+    "class Example {",
+    "  [loader.resolve('fixture-package')] = loader('../lib/tool');",
+    "  [loader.resolve('fixture-package')]({ [loader.resolve('fixture-package')]: method = loader('../lib/tool') } = source) { void method }",
+    "}",
+    "void variable; void parameter; void Example",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require").map((row) => row.line),
+    [3, 4, 5, 7, 8],
+  )
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require-resolve").map((row) => row.line),
+    [3, 4, 5, 7, 8, 8],
+  )
+  assert.equal(evidence.uncertainties.some((row) => row.code === "UNPROVEN_MODULE_LOADER"), false)
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("named class expressions shadow loader aliases while evaluating heritage", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/base.ts", "export default class Base {}\n")
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/class-heritage.mjs", [
+    "import { createRequire } from 'node:module'",
+    "const loader = createRequire(import.meta.url)",
+    "const Named = class loader extends loader('../lib/base') { method() { loader('../lib/tool') } }",
+    "class Ordinary extends loader('../lib/base') { method() { loader('../lib/tool') } }",
+    "void Named; void Ordinary",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require").map((row) => [row.line, row.targetPath]),
+    [[4, "lib/base.ts"], [4, "lib/tool.ts"]],
+  )
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [3, 3])
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("sloppy CJS Annex-B block functions invalidate loaders when executed", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/annex-order.cjs", [
+    "var loader = require",
+    "loader('../lib/tool')",
+    "if (enabled) { function loader() {} }",
+    "loader('../lib/tool')",
+    "var guarded = require",
+    "{ let guarded; { function guarded() {} } }",
+    "guarded('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require").map((row) => row.line),
+    [2, 7],
+  )
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [4])
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("destructuring patterns invalidate earlier loader targets before later defaults", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  const cases = [
+    ["scripts/assignment-order.cjs", "({ require, x = require('../lib/tool') } = other)\n"],
+    ["scripts/declaration-order.cjs", "var { require, x = require('../lib/tool') } = other\n"],
+    ["scripts/for-order.cjs", "for ({ require, x = require('../lib/tool') } of things) {}\n"],
+  ]
+  const controls = [
+    ["scripts/assignment-control.cjs", "({ x = require('../lib/tool'), require } = other)\n"],
+    ["scripts/declaration-control.cjs", "var { x = require('../lib/tool'), require } = other\n"],
+    ["scripts/for-control.cjs", "for ({ x = require('../lib/tool'), require } of things) {}\n"],
+  ]
+  for (const [path, source] of [...cases, ...controls]) writeFixture(root, path, source)
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "require").map((row) => row.fromPath),
+    controls.map(([path]) => path).sort(),
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.path), cases.map(([path]) => path).sort())
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("../lib/tool"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("catch binding patterns evaluate computed keys and defaults in catch scope", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/catch-patterns.cjs", [
+    "try {} catch ({ x = require('../lib/tool') }) {}",
+    "try {} catch ({ [require.resolve('fixture-package')]: y = require('../lib/tool') }) {}",
+    "try {} catch ({ require, z = require('../lib/tool') }) {}",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require").map((row) => row.line),
+    [1, 2],
+  )
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require-resolve").map((row) => row.line),
+    [2],
+  )
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [3])
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("member assignment defaults evaluate target references before defaults", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/member-default.cjs", [
+    "([holder[require('../lib/tool')] = (require = other)] = values)",
+    "require('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/member-control.cjs", [
+    "([holder[(require = other)] = require('../lib/tool')] = values)",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require").map((row) => [row.fromPath, row.line]),
+    [["scripts/member-default.cjs", 1]],
+  )
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line]), [
+    ["scripts/member-control.cjs", 1],
+    ["scripts/member-default.cjs", 2],
+  ])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("plain var loop targets invalidate loaders after iterable evaluation", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of ["lib/items.ts", "lib/tool.ts"]) writeFixture(root, path, "export default true\n")
+  writeFixture(root, "scripts/plain-loop-targets.mjs", [
+    "import { createRequire } from 'node:module'",
+    "var loader = createRequire(import.meta.url)",
+    "for (var loader of loader('../lib/items')) { loader('../lib/tool') }",
+    "var resolver = createRequire(import.meta.url)",
+    "for (var resolver in resolver('../lib/items')) { resolver('../lib/tool') }",
+    "const lexical = createRequire(import.meta.url)",
+    "for (let lexical of lexical('../lib/items')) { lexical('../lib/tool') }",
+    "const stable = createRequire(import.meta.url)",
+    "for (var item of stable('../lib/items')) { stable('../lib/tool') }",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/redeclaration-control.cjs", [
+    "var loader = require",
+    "var loader = loader",
+    "loader('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "require").map((row) => [row.line, row.targetPath]),
+    [
+      [3, "lib/items.ts"], [5, "lib/items.ts"], [9, "lib/items.ts"], [9, "lib/tool.ts"],
+      [3, "lib/tool.ts"],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.line), [3, 5, 7, 7])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("../lib/tool"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("loader evidence evaluates class method and parameter decorators in lexical order", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/base.ts", "export default class Base {}\n")
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/decorator-coverage.cts", [
+    "@decorate(require('../lib/tool'))",
+    "class Example {",
+    "  @decorate(require('../lib/tool'))",
+    "  method(@decorate(require('../lib/tool')) value = require('../lib/tool')) {}",
+    "}",
+    "void Example",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/decorator-scope.cts", [
+    "class Example {",
+    "  @decorate(require('../lib/tool'))",
+    "  method(@decorate(require('../lib/tool')) require) {}",
+    "}",
+    "const Named = class require {",
+    "  @decorate(require('../lib/tool'))",
+    "  method(@decorate(require('../lib/tool')) value) {}",
+    "}",
+    "void Example; void Named",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/decorator-order.cts", [
+    "@(decorate(require('../lib/tool')), require = other, decorate)",
+    "class Example extends require('../lib/base') {}",
+    "void Example",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references.filter((row) => row.kind === "require").map((row) => [row.fromPath, row.line]),
+    [
+      ["scripts/decorator-coverage.cts", 1],
+      ["scripts/decorator-coverage.cts", 3],
+      ["scripts/decorator-coverage.cts", 4],
+      ["scripts/decorator-coverage.cts", 4],
+      ["scripts/decorator-order.cts", 1],
+      ["scripts/decorator-scope.cts", 2],
+      ["scripts/decorator-scope.cts", 3],
+    ],
+  )
+  const unproven = evidence.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line]), [
+    ["scripts/decorator-order.cts", 2],
+    ["scripts/decorator-scope.cts", 6],
+    ["scripts/decorator-scope.cts", 7],
+  ])
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("sloppy with bodies downgrade visible loaders without mutating outer scope", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/with-loader.cjs", [
+    "with (require('../lib/tool')) { require('../lib/tool'); require.resolve('fixture-package') }",
+    "require('../lib/tool')",
+    "const loader = require",
+    "with (scope) { loader('../lib/tool'); loader.resolve('fixture-package') }",
+    "loader('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+      .map((row) => [row.line, row.kind]),
+    [[1, "require"], [2, "require"], [5, "require"]],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.line, row.kind]), [
+    [1, "require"], [1, "require-resolve"], [4, "require"], [4, "require-resolve"],
+  ])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(first.errors.length, 0)
+})
+
+test("optional loader calls preserve exact and shadowed classifications", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/optional-loader.cjs", [
+    "require?.('../lib/tool')",
+    "require.resolve?.('fixture-package')",
+    "require?.resolve('../lib/tool')",
+    "const loader = require",
+    "loader?.('../lib/tool')",
+    "loader.resolve?.('fixture-package')",
+    "loader?.resolve('../lib/tool')",
+    "function shadow(require) { require?.('../lib/tool'); require.resolve?.('fixture-package'); require?.resolve('../lib/tool') }",
+    "void shadow",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+      .map((row) => [row.line, row.kind]),
+    [
+      [1, "require"], [2, "require-resolve"], [3, "require-resolve"],
+      [5, "require"], [6, "require-resolve"], [7, "require-resolve"],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => row.kind), ["require", "require-resolve", "require-resolve"])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("fixture-package"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("sloppy with writes downgrade reachable outer loaders but respect lexical shields", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/with-direct-write.cjs", [
+    "with (require('../lib/tool')) { require = other }",
+    "require('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/with-alias-write.cjs", [
+    "const loader = require",
+    "with (scope) { (loader) = other }",
+    "loader('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/with-lexical-control.cjs", [
+    "const loader = require",
+    "with (scope) { let require; require = other; let loader; loader = other }",
+    "require('../lib/tool'); loader('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => row.kind === "require").map((row) => [row.fromPath, row.line]),
+    [
+      ["scripts/with-direct-write.cjs", 1],
+      ["scripts/with-lexical-control.cjs", 3],
+      ["scripts/with-lexical-control.cjs", 3],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line]), [
+    ["scripts/with-alias-write.cjs", 3],
+    ["scripts/with-direct-write.cjs", 2],
+  ])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("../lib/tool"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("resolve mutations downgrade later resolution without invalidating plain loader calls", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/resolve-assignment.cts", [
+    "require.resolve('fixture-package');",
+    "((require as any).resolve) = other",
+    "require.resolve?.('fixture-package')",
+    "require('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/resolve-update.cts", [
+    "const loader = require",
+    "loader.resolve('fixture-package')",
+    "++((loader as any).resolve)",
+    "loader.resolve?.('fixture-package')",
+    "require.resolve('fixture-package')",
+    "loader('../lib/tool'); require('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/resolve-delete.cts", [
+    "const loader = require",
+    "delete (loader as any)?.resolve",
+    "loader.resolve?.('fixture-package')",
+    "loader('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/resolve-shadow.cjs", [
+    "function shadow(loader) { loader.resolve = other; loader.resolve('fixture-package') }",
+    "require.resolve('fixture-package')",
+    "void shadow",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+      .map((row) => [row.fromPath, row.line, row.kind]),
+    [
+      ["scripts/resolve-assignment.cts", 1, "require-resolve"],
+      ["scripts/resolve-assignment.cts", 4, "require"],
+      ["scripts/resolve-delete.cts", 4, "require"],
+      ["scripts/resolve-shadow.cjs", 2, "require-resolve"],
+      ["scripts/resolve-update.cts", 2, "require-resolve"],
+      ["scripts/resolve-update.cts", 6, "require"],
+      ["scripts/resolve-update.cts", 6, "require"],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line, row.kind]), [
+    ["scripts/resolve-assignment.cts", 3, "require-resolve"],
+    ["scripts/resolve-delete.cts", 3, "require-resolve"],
+    ["scripts/resolve-update.cts", 4, "require-resolve"],
+    ["scripts/resolve-update.cts", 5, "require-resolve"],
+  ])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("fixture-package"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("resolve writes through sloppy with scopes downgrade reachable method provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/with-resolve-direct.cjs", [
+    "with (scope) { require.resolve = other }",
+    "require.resolve?.('fixture-package')",
+    "require('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/with-resolve-delete.cjs", [
+    "with (scope) { delete require.resolve }",
+    "require.resolve?.('fixture-package')",
+    "require('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/with-resolve-alias.cjs", [
+    "const loader = require",
+    "with (scope) { loader.resolve = other }",
+    "loader.resolve?.('fixture-package')",
+    "loader('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/with-resolve-lexical.cjs", [
+    "const loader = require",
+    "with (scope) { let loader; loader.resolve = other; let require; delete require.resolve }",
+    "loader.resolve('fixture-package')",
+    "require.resolve('fixture-package')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+      .map((row) => [row.fromPath, row.line, row.kind]),
+    [
+      ["scripts/with-resolve-alias.cjs", 4, "require"],
+      ["scripts/with-resolve-delete.cjs", 3, "require"],
+      ["scripts/with-resolve-direct.cjs", 3, "require"],
+      ["scripts/with-resolve-lexical.cjs", 3, "require-resolve"],
+      ["scripts/with-resolve-lexical.cjs", 4, "require-resolve"],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line]), [
+    ["scripts/with-resolve-alias.cjs", 3],
+    ["scripts/with-resolve-delete.cjs", 2],
+    ["scripts/with-resolve-direct.cjs", 2],
+  ])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(first.errors.length, 0)
+})
+
+test("resolve mutation captures receiver provenance before evaluating its right side", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/resolve-receiver-order.cjs", [
+    "require.resolve('fixture-package');",
+    "const saved = require",
+    "require.resolve = (require = other)",
+    "saved.resolve?.('fixture-package')",
+    "saved('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/resolve-alias-order.cjs", [
+    "const saved = require",
+    "let alias = require",
+    "alias.resolve = (alias = other)",
+    "saved.resolve?.('fixture-package')",
+    "saved('../lib/tool')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+      .map((row) => [row.fromPath, row.line, row.kind]),
+    [
+      ["scripts/resolve-alias-order.cjs", 5, "require"],
+      ["scripts/resolve-receiver-order.cjs", 1, "require-resolve"],
+      ["scripts/resolve-receiver-order.cjs", 5, "require"],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line]), [
+    ["scripts/resolve-alias-order.cjs", 4],
+    ["scripts/resolve-receiver-order.cjs", 4],
+  ])
+  assert.equal(JSON.stringify(unproven).includes("fixture-package"), false)
+  assert.equal(first.errors.length, 0)
+})
+
+test("no-substitution template resolve targets downgrade method provenance only", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/template-resolve.cjs", [
+    "const loader = require",
+    "loader[`resolve`] = other",
+    "loader.resolve?.('fixture-package')",
+    "loader('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/template-resolve-direct.cjs", [
+    "delete require[`resolve`]",
+    "require.resolve?.('fixture-package')",
+    "require('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/template-resolve-dynamic.cjs", [
+    "require[`res${suffix}`] = other",
+    "require.resolve('fixture-package')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+      .map((row) => [row.fromPath, row.line, row.kind]),
+    [
+      ["scripts/template-resolve-direct.cjs", 3, "require"],
+      ["scripts/template-resolve-dynamic.cjs", 2, "require-resolve"],
+      ["scripts/template-resolve.cjs", 4, "require"],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line]), [
+    ["scripts/template-resolve-direct.cjs", 2],
+    ["scripts/template-resolve.cjs", 3],
+  ])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(first.errors.length, 0)
+})
+
+test("possible loader receivers conservatively downgrade shared resolve provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  writeFixture(root, "scripts/possible-resolve-assignment.cjs", [
+    "const saved = require",
+    "require = require",
+    "require.resolve = other",
+    "saved.resolve?.('fixture-package')",
+    "saved('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/possible-resolve-delete.cjs", [
+    "const saved = require",
+    "require ||= other",
+    "delete require.resolve",
+    "saved.resolve('fixture-package')",
+    "saved('../lib/tool')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/resolve-property-control.cjs", [
+    "const saved = require",
+    "require.cache = other",
+    "saved.resolve('fixture-package')",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/resolve-unknown-control.cjs", [
+    "const saved = require",
+    "const unknown = other",
+    "unknown.resolve = other",
+    "saved.resolve?.('fixture-package')",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(
+    first.references.filter((row) => ["require", "require-resolve"].includes(row.kind))
+      .map((row) => [row.fromPath, row.line, row.kind]),
+    [
+      ["scripts/possible-resolve-assignment.cjs", 5, "require"],
+      ["scripts/possible-resolve-delete.cjs", 5, "require"],
+      ["scripts/resolve-property-control.cjs", 3, "require-resolve"],
+      ["scripts/resolve-unknown-control.cjs", 4, "require-resolve"],
+    ],
+  )
+  const unproven = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(unproven.map((row) => [row.path, row.line]), [
+    ["scripts/possible-resolve-assignment.cjs", 4],
+    ["scripts/possible-resolve-delete.cjs", 4],
+  ])
+  assert.ok(unproven.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(unproven).includes("fixture-package"), false)
+  assert.equal(first.errors.length, 0)
+})
+
 test("module evidence resolves aliases, relative extensions, indexes, and export-from", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -330,7 +1244,7 @@ test("module evidence resolves aliases, relative extensions, indexes, and export
     "import { relative } from \"../lib/relative\"",
     "import { sentryOptions } from \"@/lib/sentry.options\"",
     "import { sentryServerConfig } from \"../lib/sentry.server.config\"",
-    "const nested = require(\"../lib/folder\")",
+    "import { nested } from \"../lib/folder\"",
     "void alias; void relative; void sentryOptions; void sentryServerConfig; void nested",
     "",
   ].join("\n"))
@@ -687,6 +1601,60 @@ test("module evidence applies TypeScript precedence to explicit JavaScript type 
   for (const path of ["lib/paired.d.ts", "lib/only.d.ts"]) {
     assert.ok(report.referencedModules.some((row) => row.path === path))
   }
+})
+
+test("module evidence applies NodeNext CJS and ESM substitution families without cross-family TypeScript edges", (t) => {
+  const root = createFixtureRepository(t)
+  const modulePolicy = {
+    ...clonePolicy(),
+    sourceExtensions: [...new Set([...policy.sourceExtensions, ".cts", ".mts"])].sort(),
+    textExtensions: [...new Set([...policy.textExtensions, ".cts", ".mts"])].sort(),
+  }
+  writePackage(root)
+  writeFixture(root, "lib/runtime-esm.mjs", "export const runtimeEsm = true\n")
+  writeFixture(root, "lib/runtime-esm.d.mts", "export declare const runtimeEsm: true\n")
+  writeFixture(root, "lib/runtime-cjs.cjs", "exports.runtimeCjs = true\n")
+  writeFixture(root, "lib/runtime-cjs.d.cts", "export declare const runtimeCjs: true\n")
+  writeFixture(root, "lib/source-esm.mts", "export const sourceEsm = true\n")
+  writeFixture(root, "lib/source-cjs.cts", "export const sourceCjs = true\n")
+  writeFixture(root, "lib/wrong-esm.ts", "export const wrongEsm = true\n")
+  writeFixture(root, "lib/wrong-common.tsx", "export const wrongCommon = true\n")
+  writeFixture(root, "app/node-next.ts", [
+    "import type { runtimeEsm } from '../lib/runtime-esm.mjs'",
+    "import type { runtimeCjs } from '../lib/runtime-cjs.cjs'",
+    "import { sourceEsm } from '../lib/source-esm.mjs'",
+    "import { sourceCjs } from '../lib/source-cjs.cjs'",
+    "import { wrongEsm } from '../lib/wrong-esm.mjs'",
+    "import { wrongCommon } from '../lib/wrong-common.cjs'",
+    "void sourceEsm; void sourceCjs; void wrongEsm; void wrongCommon",
+    "export type Runtime = typeof runtimeEsm | typeof runtimeCjs",
+    "",
+  ].join("\n"))
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, modulePolicy), modulePolicy)
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "import" && row.targetKind === "tracked-module")
+      .map((row) => row.targetPath),
+    [
+      "lib/runtime-esm.mjs",
+      "lib/runtime-cjs.cjs",
+      "lib/source-esm.mts",
+      "lib/source-cjs.cts",
+    ],
+  )
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "declaration-companion")
+      .map((row) => [row.sourceKind, row.targetPath]),
+    [
+      ["import-type", "lib/runtime-esm.d.mts"],
+      ["import-type", "lib/runtime-cjs.d.cts"],
+    ],
+  )
+  assert.equal(evidence.references.some((row) => row.targetPath === "lib/wrong-esm.ts"), false)
+  assert.equal(evidence.references.some((row) => row.targetPath === "lib/wrong-common.tsx"), false)
+  assert.equal(evidence.errors.filter((row) => row.code === "UNRESOLVED_LITERAL_MODULE").length, 2)
 })
 
 test("unresolved literal modules are errors while dynamic expressions stay uncertainty", (t) => {
@@ -2496,6 +3464,80 @@ test("environment assignment defaults preserve unknown sources shadows and mutat
   assert.equal(evidence.uncertainties.filter((row) => row.kind === "assignment-default" && row.name == null).length, 2)
   assert.equal(JSON.stringify(evidence), JSON.stringify(buildEnvironmentEvidence(index, policy)))
   assertPrivateSerialization(evidence, root, ["require('process')"])
+})
+
+for (const [operator, uncertaintyKind] of [
+  ["&&=", "logical-and-assignment"],
+  ["||=", "logical-or-assignment"],
+  ["??=", "logical-nullish-assignment"],
+]) {
+  test(`environment ${operator} assignments preserve conditional environment provenance`, (t) => {
+    const root = createFixtureRepository(t)
+    writePackage(root)
+    writeFixture(root, ".env.example", [
+      "EXACT", "DIRECT", "UNKNOWN", "PRIOR_PROVEN", "PRIOR_UNKNOWN", "DEFAULT_CONTROL", "DEFAULT_ALIAS", "UNUSED",
+    ].map((name) => `${name}=\n`).join(""))
+    writeFixture(root, "lib/logical-assignment.ts", [
+      "let extracted, direct = {}, env, maybe = {}, priorProven = process.env, priorUnknown = env, defaulted",
+      "({ EXACT: extracted } = process.env)",
+      `direct ${operator} (process.env satisfies NodeJS.ProcessEnv); void direct.DIRECT`,
+      `maybe ${operator} env; void maybe.UNKNOWN`,
+      `priorProven ${operator} {}; void priorProven.PRIOR_PROVEN`,
+      `priorUnknown ${operator} {}; void priorUnknown.PRIOR_UNKNOWN`,
+      "({ DEFAULT_CONTROL: defaulted = process.env } = process.env); void defaulted.DEFAULT_ALIAS",
+      "",
+    ].join("\n"))
+    const index = buildTrackedTextIndex(root, policy)
+    const report = buildEnvironmentCandidateReport(index, policy)
+    assert.deepEqual(report.staticReads.map((row) => row.name), ["DEFAULT_CONTROL", "EXACT"])
+    assert.deepEqual(report.uncertainties.unprovenAliases.filter((row) => row.name).map((row) => row.name), [
+      "DEFAULT_ALIAS", "DIRECT", "PRIOR_PROVEN", "PRIOR_UNKNOWN", "UNKNOWN",
+    ])
+    assert.equal(report.uncertainties.computedReads.filter((row) => row.kind === uncertaintyKind).length, 1)
+    assert.equal(report.uncertainties.unprovenAliases.filter((row) => row.kind === uncertaintyKind && row.name == null).length, 1)
+    assert.ok([...report.uncertainties.computedReads, ...report.uncertainties.unprovenAliases]
+      .filter((row) => row.kind === uncertaintyKind)
+      .every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+    assert.equal(report.uncertainties.computedReads.filter((row) => row.kind === "assignment-default").length, 1)
+    assert.deepEqual(report.unreadDeclarationCandidates, [])
+    assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+    assertPrivateSerialization(report, root, ["NodeJS.ProcessEnv", "process.env satisfies", `${operator} env`])
+  })
+}
+
+test("environment logical assignments retain member escapes and respect later invalidation and shadows", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/logical-assignment-boundaries.ts", [
+    "let env, reassigned = {}, updated = {}, holder = {}, switched = process.env",
+    "reassigned ||= process.env; reassigned = {}; void reassigned.AFTER_REASSIGNMENT",
+    "updated &&= process.env; updated++; void updated.AFTER_UPDATE",
+    "holder.settings ||= process.env",
+    "holder.other ??= env",
+    "holder[env = process.env] ||= env",
+    "holder[switched = {}] &&= switched",
+    "function shadow(process) { let local = {}; local ||= process.env; void local.SHADOWED_PROCESS }",
+    "function lexical() { let local = {}; local ??= env; const env = {}; void local.TDZ_SHADOWED }",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildEnvironmentEvidence(index, policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads, [])
+  assert.deepEqual(evidence.uncertainties.map((row) => [row.code, row.name ?? null, row.kind, row.line]), [
+    ["COMPUTED_ENVIRONMENT_READ", null, "logical-or-assignment", 2],
+    ["UNPROVEN_ENVIRONMENT_ALIAS", "AFTER_REASSIGNMENT", "property-access", 2],
+    ["COMPUTED_ENVIRONMENT_READ", null, "logical-and-assignment", 3],
+    ["UNPROVEN_ENVIRONMENT_ALIAS", "AFTER_UPDATE", "property-access", 3],
+    ["COMPUTED_ENVIRONMENT_READ", null, "logical-or-assignment", 4],
+    ["UNPROVEN_ENVIRONMENT_ALIAS", null, "logical-nullish-assignment", 5],
+    ["COMPUTED_ENVIRONMENT_READ", null, "logical-or-assignment", 6],
+    ["UNPROVEN_ENVIRONMENT_ALIAS", null, "logical-and-assignment", 7],
+  ])
+  assert.ok(evidence.uncertainties.filter((row) => row.kind.startsWith("logical-"))
+    .every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(evidence), JSON.stringify(buildEnvironmentEvidence(index, policy)))
+  assertPrivateSerialization(evidence, root, ["process.env", "holder.settings", "holder.other"])
 })
 
 test("environment assignment patterns record only exact source-object keys", (t) => {

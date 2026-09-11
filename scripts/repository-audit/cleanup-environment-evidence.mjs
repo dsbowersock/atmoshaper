@@ -11,7 +11,7 @@ import {
   validateCleanupPolicy,
 } from "./cleanup-core.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
-import { isHandledObjectAssignment, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
+import { isHandledObjectAssignment, logicalAssignmentKind, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
 import { stableJson } from "./core.mjs"
 
 function compareLocation(left, right) {
@@ -109,8 +109,11 @@ function collectEnvironmentRows(record, text) {
     if (
       ts.isBinaryExpression(parent) &&
       ((parent.left === value && ts.isAssignmentOperator(parent.operatorToken.kind)) || (
-        parent.right === value && parent.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-        (ts.isIdentifier(parent.left) || isHandledObjectAssignment(parent.left))
+        parent.right === value && (
+          logicalAssignmentKind(parent.operatorToken.kind) ||
+          parent.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+          (ts.isIdentifier(parent.left) || isHandledObjectAssignment(parent.left))
+        )
       ))
     ) return true
     return ts.isDeleteExpression(parent) && parent.expression === value
@@ -242,16 +245,16 @@ function collectEnvironmentRows(record, text) {
     scan(container)
   }
 
-  const assignName = (name, initializer, scope, conditional = false) => {
+  const assignName = (name, initializer, scope, conditionalKind = null, statusSnapshot) => {
     let owner = scope
     while (owner && !owner.bindings.has(name)) owner = owner.parent
     if (name === "require" && owner?.bindings.get(name) === COMMONJS_LOADER) owner = varBindingScope(scope)
     if (!owner && name === "require") varBindingScope(scope).bindings.set(name, NON_ALIAS)
     if (!owner) return
-    let status = aliasStatus(initializer, scope)
-    if (conditional && ["proven", "unknown"].includes(status)) {
-      // A default is only one possible value: preserve its environment flow without proving the target.
-      addWholeObjectUncertainty(initializer, status, "assignment-default")
+    let status = statusSnapshot === undefined ? aliasStatus(initializer, scope) : statusSnapshot
+    if (conditionalKind && ["proven", "unknown"].includes(status)) {
+      // A conditional write is only one possible value: preserve its flow without proving the target.
+      addWholeObjectUncertainty(initializer, status, conditionalKind)
       status = "unknown"
     }
     const prior = owner.bindings.get(name)
@@ -262,9 +265,9 @@ function collectEnvironmentRows(record, text) {
   }
 
   /** Walk assignment targets in evaluation order; computed keys/defaults remain real reads. */
-  const visitAssignmentTarget = (target, scope, initializer, conditional = false) => {
+  const visitAssignmentTarget = (target, scope, initializer, conditionalKind = null, statusSnapshot) => {
     const value = unwrapTransparentExpression(target)
-    if (ts.isIdentifier(value)) assignName(value.text, initializer, scope, conditional)
+    if (ts.isIdentifier(value)) assignName(value.text, initializer, scope, conditionalKind, statusSnapshot)
     else if (ts.isObjectLiteralExpression(value)) {
       // Snapshot RHS provenance before computed keys/defaults or target writes can change aliases.
       if (isHandledObjectAssignment(value)) recordObjectBinding(value, aliasStatus(initializer, scope), "assignment-destructure")
@@ -272,7 +275,7 @@ function collectEnvironmentRows(record, text) {
         if (ts.isSpreadAssignment(property)) visitAssignmentTarget(property.expression, scope)
         else if (ts.isShorthandPropertyAssignment(property)) {
           if (property.objectAssignmentInitializer) visit(property.objectAssignmentInitializer, scope)
-          assignName(property.name.text, property.objectAssignmentInitializer, scope, true)
+          assignName(property.name.text, property.objectAssignmentInitializer, scope, "assignment-default")
         } else if (ts.isPropertyAssignment(property)) {
           if (ts.isComputedPropertyName(property.name)) visit(property.name.expression, scope)
           visitAssignmentTarget(property.initializer, scope)
@@ -283,7 +286,7 @@ function collectEnvironmentRows(record, text) {
     } else if (ts.isSpreadElement(value)) visitAssignmentTarget(value.expression, scope)
     else if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
       visit(value.right, scope)
-      visitAssignmentTarget(value.left, scope, value.right, true)
+      visitAssignmentTarget(value.left, scope, value.right, "assignment-default")
     } else visit(value, scope)
   }
 
@@ -420,11 +423,18 @@ function collectEnvironmentRows(record, text) {
     if (
       ts.isBinaryExpression(node) && ts.isAssignmentOperator(node.operatorToken.kind)
     ) {
+      const logicalKind = logicalAssignmentKind(node.operatorToken.kind)
       const target = unwrapTransparentExpression(node.left)
       const memberTarget = ts.isPropertyAccessExpression(target) || ts.isElementAccessExpression(target)
       if (memberTarget) visit(node.left, scope)
+      const statusSnapshot = logicalKind ? aliasStatus(node.right, scope) : undefined
       visit(node.right, scope)
-      if (!memberTarget) visitAssignmentTarget(node.left, scope, node.operatorToken.kind === ts.SyntaxKind.EqualsToken ? node.right : undefined)
+      if (logicalKind && memberTarget) addWholeObjectUncertainty(node.right, statusSnapshot, logicalKind)
+      if (!memberTarget) visitAssignmentTarget(
+        node.left, scope,
+        node.operatorToken.kind === ts.SyntaxKind.EqualsToken || logicalKind ? node.right : undefined,
+        logicalKind, statusSnapshot,
+      )
       return
     }
     if (

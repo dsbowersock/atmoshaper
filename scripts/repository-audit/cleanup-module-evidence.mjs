@@ -1,5 +1,4 @@
-import { builtinModules } from "node:module"
-import { extname, posix } from "node:path"
+import { posix } from "node:path"
 
 import ts from "typescript"
 
@@ -14,95 +13,13 @@ import {
   validateCleanupPolicy,
 } from "./cleanup-core.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
+import { moduleLoaderCalls } from "./cleanup-module-loaders.mjs"
+import { resolveModuleReference } from "./cleanup-module-resolution.mjs"
 import { normalizeRepoPath, stableJson } from "./core.mjs"
-
-const BUILTIN_MODULES = new Set(builtinModules.map((name) => name.replace(/^node:/, "")))
-const PACKAGE_SEGMENT = /^[A-Za-z0-9._~-]+$/
-const TYPE_RESOLUTION_EXTENSIONS = [".ts", ".tsx", ".d.ts", ".js", ".jsx"]
-
-function packageOwner(specifier) {
-  const unprefixed = specifier.replace(/^node:/, "")
-  if (BUILTIN_MODULES.has(unprefixed)) return null
-  if (specifier.startsWith("node:")) return undefined
-  const parts = specifier.split("/")
-  if (parts.some((part) => !part || part === "." || part === "..")) return undefined
-  if (specifier.startsWith("@")) {
-    if (parts.length < 2 || !PACKAGE_SEGMENT.test(parts[0].slice(1)) || !parts.slice(1).every((part) => PACKAGE_SEGMENT.test(part))) {
-      return undefined
-    }
-    return parts.slice(0, 2).join("/")
-  }
-  return parts.every((part) => PACKAGE_SEGMENT.test(part)) ? parts[0] : undefined
-}
-
-function moduleCandidatePaths(fromPath, specifier, policy) {
-  let base
-  if (specifier.startsWith("@/")) base = specifier.slice(2)
-  else if (specifier.startsWith("./") || specifier.startsWith("../")) {
-    base = posix.normalize(posix.join(posix.dirname(fromPath), specifier))
-  } else return []
-  if (base === ".." || base.startsWith("../") || base.startsWith("/")) return []
-  const candidates = [base]
-  const extension = extname(base).toLowerCase()
-  const hasSupportedExtension = policy.sourceExtensions.includes(extension) || [".css", ".json"].includes(extension)
-  if (!hasSupportedExtension) {
-    for (const supported of policy.sourceExtensions) candidates.push(`${base}${supported}`)
-    candidates.push(`${base}.json`, `${base}.css`)
-    for (const supported of policy.sourceExtensions) candidates.push(`${base}/index${supported}`)
-    candidates.push(`${base}/index.json`, `${base}/index.css`)
-    candidates.push(`${base}.d.ts`, `${base}/index.d.ts`)
-  } else if ([".js", ".jsx", ".mjs", ".cjs"].includes(extension)) {
-    const stem = base.slice(0, -extension.length)
-    for (const supported of [".ts", ".tsx"]) candidates.push(`${stem}${supported}`)
-    if ([".js", ".jsx"].includes(extension)) candidates.push(`${stem}.d.ts`)
-  }
-  return [...new Set(candidates)]
-}
-
-/** Resolve a supported TypeScript target independently of the runtime implementation. */
-function typeTargetPath(fromPath, specifier, trackedPathSet, policy) {
-  const [base] = moduleCandidatePaths(fromPath, specifier, policy)
-  if (!base) return undefined
-  const extension = extname(base).toLowerCase()
-  if (extension && ![".js", ".jsx"].includes(extension)) return undefined
-  const stem = extension ? base.slice(0, -extension.length) : base
-  const extensions = extension === ".jsx" ? [".tsx", ".ts", ".d.ts", ".jsx"] : TYPE_RESOLUTION_EXTENSIONS
-  const candidates = extensions.map((candidateExtension) => `${stem}${candidateExtension}`)
-  if (!extension) candidates.push(...extensions.map((candidateExtension) => `${stem}/index${candidateExtension}`))
-  return candidates.find((path) => trackedPathSet.has(path)) ?? null
-}
-
-function resolveModuleReference(fromPath, specifier, trackedPathSet, policy, resolveTypeDeclaration = false) {
-  const candidates = moduleCandidatePaths(fromPath, specifier, policy)
-  if (candidates.length > 0) {
-    const path = candidates.find((candidate) => trackedPathSet.has(candidate))
-    if (!path) return { targetKind: "unresolved" }
-    const extension = extname(path).toLowerCase()
-    const pairedDeclarationPath = [".js", ".jsx"].includes(extension)
-      ? `${path.slice(0, -extension.length)}.d.ts`
-      : null
-    const independentTypeTargetPath = resolveTypeDeclaration
-      ? typeTargetPath(fromPath, specifier, trackedPathSet, policy) : undefined
-    const declarationTargetPath = independentTypeTargetPath !== undefined
-      ? (independentTypeTargetPath?.endsWith(".d.ts") ? independentTypeTargetPath : null)
-      : (pairedDeclarationPath && trackedPathSet.has(pairedDeclarationPath) ? pairedDeclarationPath : null)
-    return {
-      targetKind: "tracked-module",
-      targetPath: path,
-      ...(declarationTargetPath && declarationTargetPath !== path ? { declarationTargetPath } : {}),
-    }
-  }
-  if (
-    specifier.startsWith("/") || specifier === "@" || specifier.startsWith("@/") ||
-    specifier === "." || specifier === ".."
-  ) return { targetKind: "unresolved" }
-  const dependency = packageOwner(specifier)
-  if (dependency) return { dependency, targetKind: "package" }
-  return dependency === null ? { targetKind: "builtin" } : { targetKind: "unresolved" }
-}
 
 function collectSourceModuleRows(record, text, trackedPathSet, policy) {
   const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
+  const loaderCalls = moduleLoaderCalls(sourceFile, record.path)
   const isFrameworkConfig = policy.topLevelConfigRoots.includes(record.path)
   const references = []
   const uncertainties = []
@@ -365,16 +282,13 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
     ) {
       recordConfigAlias(node.right)
     } else if (ts.isCallExpression(node)) {
-      const kind = node.expression.kind === ts.SyntaxKind.ImportKeyword
-        ? "dynamic-import"
-        : ts.isIdentifier(node.expression) && node.expression.text === "require"
-          ? "require"
-          : ts.isPropertyAccessExpression(node.expression) &&
-              ts.isIdentifier(node.expression.expression) &&
-              node.expression.expression.text === "require" && node.expression.name.text === "resolve"
-            ? "require-resolve"
-            : null
-      if (kind) {
+      const loaderCall = loaderCalls.get(node)
+      const kind = node.expression.kind === ts.SyntaxKind.ImportKeyword ? "dynamic-import" : loaderCall?.kind
+      if (loaderCall && !loaderCall.proven) {
+        uncertainties.push({ code: "UNPROVEN_MODULE_LOADER", path: record.path,
+          ...sourceLocation(sourceFile, node), kind, expressionSha256: sha256(node.getText(sourceFile)),
+        })
+      } else if (kind) {
         const argument = node.arguments[0]
         if (argument && isLiteralNode(argument)) recordLiteral(argument, kind, argument.text)
         else recordUncertainty(argument ?? node, kind)

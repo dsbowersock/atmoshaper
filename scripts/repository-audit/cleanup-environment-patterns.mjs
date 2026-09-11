@@ -2,6 +2,15 @@ import ts from "typescript"
 import { isLiteralNode } from "./cleanup-source.mjs"
 import { unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
 
+const LOGICAL_ASSIGNMENT_KINDS = new Map([
+  [ts.SyntaxKind.AmpersandAmpersandEqualsToken, "logical-and-assignment"],
+  [ts.SyntaxKind.BarBarEqualsToken, "logical-or-assignment"],
+  [ts.SyntaxKind.QuestionQuestionEqualsToken, "logical-nullish-assignment"],
+])
+
+/** Keep short-circuit assignment operators distinct in conservative evidence. */
+export const logicalAssignmentKind = (operatorKind) => LOGICAL_ASSIGNMENT_KINDS.get(operatorKind) ?? null
+
 /** Only complete object assignment patterns replace the generic whole-object escape signal. */
 export function isHandledObjectAssignment(node) {
   const pattern = unwrapTransparentExpression(node)
