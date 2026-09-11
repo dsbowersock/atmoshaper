@@ -1,7 +1,7 @@
 import ts from "typescript"
 import {
   COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessRequire,
-  isTransparentExpression, lookupAlias, processImportBindings, unwrapTransparentExpression, varBindingScope,
+  isProcessImportEquals, isTransparentExpression, lookupAlias, processImportBindings, unwrapTransparentExpression, varBindingScope,
 } from "./cleanup-environment-scope.mjs"
 
 import {
@@ -316,6 +316,11 @@ function collectEnvironmentRows(record, text) {
   }
 
   const visit = (node, scope) => {
+    if (ts.isImportEqualsDeclaration(node)) {
+      // Bind at the declaration, retaining predeclaration shadows and normal later invalidation.
+      if (isProcessImportEquals(node)) scope.bindings.set(node.name.text, PROCESS_OBJECT)
+      return
+    }
     if (ts.isFunctionLike(node)) {
       if (annexBDeclarations.has(node)) assignName(node.name.text, undefined, varBindingScope(scope))
       const parameterScope = childScope(scope, false, scope.strict || hasStrictDirective(node.body))

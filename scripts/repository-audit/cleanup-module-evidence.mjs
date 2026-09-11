@@ -299,8 +299,8 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
     references.push(row)
     if (declarationTargetPath) {
       references.push({
-        fromPath: record.path, ...location, kind: "declaration-companion", sourceKind: companionSourceKind,
-        literalSha256, targetKind: "tracked-module", targetPath: declarationTargetPath,
+        fromPath: record.path, ...location, kind: "declaration-companion", sourceKind: companionSourceKind, literalSha256,
+        targetKind: "tracked-module", targetPath: declarationTargetPath,
       })
     }
     return row
@@ -309,8 +309,7 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
   const recordConfigAlias = (expression) => {
     const resolutionResult = configAliasResolution(expression)
     if (!resolutionResult.supported) {
-      uncertainties.push({
-        code: "NONLITERAL_MODULE_EXPRESSION", path: record.path,
+      uncertainties.push({ code: "NONLITERAL_MODULE_EXPRESSION", path: record.path,
         ...sourceLocation(sourceFile, expression), kind: "framework-config-alias",
         expressionSha256: sha256(expression.getText(sourceFile)),
       })
@@ -323,20 +322,17 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
     }
   }
   const recordLiteral = (node, kind, literal, declarationSourceKind = null) => {
-    const resolution = resolveModuleReference(
-      record.path, literal, trackedPathSet, policy, declarationSourceKind !== null,
-    )
+    const resolution = resolveModuleReference(record.path, literal, trackedPathSet, policy, declarationSourceKind !== null)
     const row = recordResolvedReference(node, kind, literal, resolution, declarationSourceKind ?? kind)
     if (resolution.targetKind === "unresolved") {
       errors.push({
-        code: "UNRESOLVED_LITERAL_MODULE", fromPath: record.path,
-        line: row.line, column: row.column, literalSha256: row.literalSha256,
+        code: "UNRESOLVED_LITERAL_MODULE", fromPath: record.path, line: row.line,
+        column: row.column, literalSha256: row.literalSha256,
       })
     }
   }
   const recordUncertainty = (node, kind) => {
-    uncertainties.push({
-      code: "NONLITERAL_MODULE_EXPRESSION", path: record.path,
+    uncertainties.push({ code: "NONLITERAL_MODULE_EXPRESSION", path: record.path,
       ...sourceLocation(sourceFile, node), kind, expressionSha256: sha256(node.getText(sourceFile)),
     })
   }
@@ -345,6 +341,10 @@ function collectSourceModuleRows(record, text, trackedPathSet, policy) {
       const argument = ts.isLiteralTypeNode(node.argument) ? node.argument.literal : node.argument
       if (isLiteralNode(argument)) recordLiteral(argument, "import-type", argument.text, "import-type")
       else recordUncertainty(argument, "import-type")
+    } else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
+      const argument = node.moduleReference.expression // require() is not a CallExpression in this syntax.
+      if (argument && isLiteralNode(argument)) recordLiteral(argument, "import-equals", argument.text, node.isTypeOnly ? "import-type" : null)
+      else recordUncertainty(argument ?? node, "import-equals")
     } else if (ts.isImportDeclaration(node) && node.moduleSpecifier) {
       if (isLiteralNode(node.moduleSpecifier)) recordLiteral(
         node.moduleSpecifier, "import", node.moduleSpecifier.text,

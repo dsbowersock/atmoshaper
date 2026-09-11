@@ -4,6 +4,14 @@ export const NON_ALIAS = "non-alias"
 export const PROCESS_OBJECT = "process-object"
 export const COMMONJS_LOADER = "commonjs-wrapper-loader"
 
+/** Only source-level external import-equals emits a binding; namespace forms are unsupported by TS. */
+export function isProcessImportEquals(node) {
+  return ts.isImportEqualsDeclaration(node) && ts.isSourceFile(node.parent) && !node.isTypeOnly &&
+    ts.isExternalModuleReference(node.moduleReference) &&
+    node.moduleReference.expression && ts.isStringLiteral(node.moduleReference.expression) &&
+    ["process", "node:process"].includes(node.moduleReference.expression.text)
+}
+
 /** Classify exact Node environment/process imports and imports that shadow the implicit global. */
 export function processImportBindings(sourceFile) {
   const bindings = new Map()

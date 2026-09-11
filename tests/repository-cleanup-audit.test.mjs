@@ -351,6 +351,97 @@ test("module evidence resolves aliases, relative extensions, indexes, and export
   assert.ok(evidence.roots.some((row) => row.path === "app/page.tsx" && row.reason === "framework-root"))
 })
 
+test("public audit CLIs record import-equals local, package, and type ownership", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/service.ts", "export default 'service'\n")
+  writeFixture(root, "lib/model.d.ts", "export interface Model { id: string }\n")
+  writeFixture(root, "lib/model/index.js", "export const model = true\n")
+  writeFixture(root, "tests/import-equals.ts", [
+    "import service = require('../lib/service')",
+    "import packageService = require('fixture-package')",
+    "import type Model = require('../lib/model')",
+    "void service; void packageService",
+    "export type ModelId = Model['id']",
+    "",
+  ].join("\n"))
+
+  const deadResult = runAuditCli(deadCodeCliPath, root)
+  assert.equal(deadResult.status, 0)
+  assert.equal(deadResult.stderr, "")
+  const deadReport = JSON.parse(deadResult.stdout)
+  const referencedPaths = deadReport.findings
+    .filter((row) => row.findingKind === "referencedModules")
+    .map((row) => row.path)
+  for (const path of ["lib/model.d.ts", "lib/model/index.js", "lib/service.ts"]) {
+    assert.ok(referencedPaths.includes(path), `${path} should have incoming ownership`)
+    assert.equal(deadReport.findings.some((row) => (
+      row.findingKind === "unreferencedCandidates" && row.path === path
+    )), false)
+  }
+
+  const dependencyResult = runAuditCli(dependencyCliPath, root)
+  assert.equal(dependencyResult.status, 0)
+  assert.equal(dependencyResult.stderr, "")
+  const dependencyReport = JSON.parse(dependencyResult.stdout)
+  assert.ok(dependencyReport.findings.some((row) => (
+    row.findingKind === "literalImportOwners" && row.packageName === "fixture-package" &&
+    row.kind === "import-equals" && row.ownerPath === "tests/import-equals.ts"
+  )))
+  assert.ok(dependencyReport.findings.some((row) => (
+    row.findingKind === "referencedPackages" && row.name === "fixture-package"
+  )))
+  assert.equal(dependencyReport.findings.some((row) => (
+    row.findingKind === "unreferencedCandidates" && row.name === "fixture-package"
+  )), false)
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.references
+      .filter((row) => row.kind === "import-equals")
+      .map((row) => [row.targetKind, row.targetPath ?? row.dependency]),
+    [
+      ["tracked-module", "lib/service.ts"],
+      ["package", "fixture-package"],
+      ["tracked-module", "lib/model/index.js"],
+    ],
+  )
+  assert.ok(evidence.references.some((row) => (
+    row.kind === "declaration-companion" && row.sourceKind === "import-type" &&
+    row.targetPath === "lib/model.d.ts"
+  )))
+})
+
+test("import-equals ignores internal aliases and hashes nonliteral external references", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "tests/import-equals-boundaries.ts", [
+    "import Internal = Runtime.Service",
+    "import Dynamic = require(moduleName)",
+    "void Internal; void Dynamic",
+    "",
+  ].join("\n"))
+
+  const result = runAuditCli(deadCodeCliPath, root)
+  assert.equal(result.status, 0)
+  assert.equal(result.stderr, "")
+  const report = JSON.parse(result.stdout)
+  const uncertainties = report.uncertainties.filter((row) => (
+    row.uncertaintyKind === "nonliteralImports" && row.kind === "import-equals"
+  ))
+  assert.equal(uncertainties.length, 1)
+  assert.equal(uncertainties[0].code, "NONLITERAL_MODULE_EXPRESSION")
+  assert.match(uncertainties[0].expressionSha256, /^[a-f0-9]{64}$/)
+  assert.equal(report.findings.some((row) => row.findingKind === "literalImportOwners"), false)
+  assert.equal(JSON.stringify(report).includes("Runtime.Service"), false)
+  assert.equal(JSON.stringify(report).includes("moduleName"), false)
+
+  const evidence = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.equal(evidence.references.some((row) => row.kind === "import-equals"), false)
+  assert.equal(evidence.uncertainties.filter((row) => row.kind === "import-equals").length, 1)
+  assert.equal(evidence.errors.length, 0)
+})
+
 test("module evidence preserves JavaScript edges and records exact declaration companions", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -2605,6 +2696,67 @@ test("environment CJS wrapper loader remains proven until an Annex-B source assi
   const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
   assert.deepEqual(evidence.errors, [])
   assert.deepEqual(evidence.reads.map((row) => row.name), ["BEFORE_BLOCK_CONTROL"])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("environment process import-equals records exact runtime aliases at declaration order", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "NODE_KEY=\nPORTABLE_KEY=\nALIASED_KEY=\n")
+  writeFixture(root, "lib/process-import-equals.ts", [
+    "void process.env.BEFORE_DECLARATION; import process = require('node:process')",
+    "import portable = require('process')",
+    "void process.env.NODE_KEY; void portable.env['PORTABLE_KEY']",
+    "const environment = portable.env; void environment.ALIASED_KEY",
+    "import env = require('node:process'); void env.env.NAMED_ENV",
+    "consume(portable); void process.env[privateComputedKey]; consume(portable.env)",
+    "void (process.env.WRITE_ONLY = 'fixture'); delete portable.env.DELETE_ONLY",
+    "portable.env.UPDATED_PROPERTY++; void portable.env.AFTER_PROPERTY_UPDATE",
+    "function loaderShadow(require, process) { return portable.env.IMPORTED_ALIAS_CONTROL }",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(report.staticReads.map((row) => row.name).sort(), [
+    "AFTER_PROPERTY_UPDATE", "ALIASED_KEY", "IMPORTED_ALIAS_CONTROL", "NAMED_ENV", "NODE_KEY",
+    "PORTABLE_KEY", "UPDATED_PROPERTY",
+  ])
+  assert.deepEqual(report.unreadDeclarationCandidates, [])
+  assert.equal(report.uncertainties.computedReads.length, 2)
+  assert.deepEqual(report.uncertainties.unprovenAliases, [])
+  assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+  assertPrivateSerialization(report, root, ["privateComputedKey", "require('node:process')"])
+})
+
+test("environment process import-equals preserves shadows exclusions and invalidation", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/process-import-equals-boundaries.ts", [
+    "import proc = require('process'); void proc.env.CONTROL",
+    "namespace Inner { void proc.env.BEFORE; import proc = require('node:process'); void proc.env.UNSUPPORTED_NAMESPACE }",
+    "namespace Other { void proc.env.BEFORE_OTHER; import proc = require('./other'); void proc.env.OTHER }",
+    "namespace Internal { void proc.env.BEFORE_INTERNAL; import proc = Runtime.process; void proc.env.INTERNAL }",
+    "namespace Types { void proc.env.BEFORE_TYPE; import type proc = require('process'); void proc.env.TYPE_ONLY }",
+    "function parameter(proc) { return proc.env.PARAMETER }",
+    "function lexical() { void proc.env.TDZ; const proc = {}; void proc.env.LOCAL }",
+    "function hoisted() { void proc.env.HOISTED; var proc }",
+    "function declared() { void proc.env.FUNCTION; function proc() {} }",
+    "try {} catch (proc) { void proc.env.CATCH }",
+    "for (const proc of objects) { void proc.env.LOOP }",
+    "class Container { static { void proc.env.STATIC; var proc } }",
+    "import assigned = require('process'); assigned = {}; void assigned.env.ASSIGNED",
+    "import updated = require('process'); updated++; void updated.env.UPDATED",
+    "import destructured = require('process'); ({ destructured } = other); void destructured.env.DESTRUCTURED",
+    "import wrapped = require('process'); (wrapped as any) = {}; void wrapped.env.WRAPPED",
+    "import unrelated = require('./other'); void unrelated.env.UNRELATED_EXTERNAL",
+    "import type typed = require('process'); void typed.env.TYPE_ONLY_EXTERNAL",
+    "namespace ProcessShadow { void process.env.BEFORE_LOCAL; import process = Runtime.process; void process.env.LOCAL_PROCESS }",
+    "void proc.env.AFTER_CONTROL",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["CONTROL", "AFTER_CONTROL"])
   assert.deepEqual(evidence.uncertainties, [])
 })
 

@@ -641,3 +641,51 @@ it remains in hosted review, and resolving hosted feedback plus final
 checks/review precede any separately authorized merge. No candidate deletion,
 rename, upgrade, retirement, provider mutation, merge or Phase 5 action
 occurred.
+
+Hosted review round 16 records two validated latest-head Codex findings on
+`012945b`: TypeScript external import-equals module references were absent from
+module/dependency evidence, and exact non-type source-level
+`import <alias> = require("process"|"node:process")` declarations were not
+proven for environment reads. The module repair emits separately labeled
+`import-equals` literal/static evidence, preserves type-only declaration
+resolution, ignores internal aliases, and retains syntactically possible
+nonliteral external references only as hash-only uncertainty.
+
+Environment evidence now proves process import-equals only for valid
+source-level non-type declarations, with source-order, lexical-shadowing and
+assignment/update-invalidation behavior preserved. Unrelated, internal,
+type-only and nested-invalid forms remain excluded. Independent review caught
+and repaired the TS1147 namespace false-positive. Current tracked source has no
+import-equals `require(...)` syntax, so real semantic totals did not move.
+
+Staged validation passed the module import-equals slice 3/3; environment strict
+RED 0/2 then GREEN 2/2; namespace correction RED 1/2 then GREEN 2/2; combined
+slice 52/52; focused repository audits 123/123; and the full suite with 4,321
+total, 4,318 passed, 3 host-dependent skips and zero failures. Typecheck, lint
+and diff checks passed. Source caps were module 500, environment 499 and scope
+131 nonblank lines.
+
+Pre-document audits ran twice with byte-identical output, exit 0 and empty
+stderr; every report retained `deletionAuthority: false`: dead code 1,561
+findings/209 uncertainties with output SHA-256
+`eb107cba04779167de1d5dd51d4853ec29f6dc7d033c2092df8a589c0db7de5d`;
+dependency 2,864/19 with
+`5a4bd9558096d5591631de4b08420265c7944bcf9f57a99da01ea485ca1e7987`;
+asset 561/11,314 with
+`7602647f66d3fcd49fe5e1c644ec257d3b1348b7d07f10ce0400c9ffa502bd92`;
+and environment 587/252 with
+`10eb84399aa88deedeae437526ae04151aa23a5a4d808dc0c5142f7606d0b19b`.
+
+The pre-document inventory contained 1,922 files and 47,454,881 Git blob
+bytes, with inventory SHA-256
+`6f8dc45abda5436f0cb257583800959b55772f2ce35ffa38009b8534debb0541`,
+zero forbidden paths, and output SHA-256
+`b1fdcd9c5ab13ee2b2a1c4285d440bfbb0b5635a2e77c6c16d8b1933382ac6d3`.
+Brand verification was zero missing and zero unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These are pre-document receipts; final self-referential index bytes and identity
+remain only in the ignored SDD handoff and user-facing receipt.
+
+Round-15 results above are historical supporting evidence. Hosted checks and
+reviews remain pending, merge remains separately authorized, and no candidate
+deletion, provider mutation or Phase 5 work occurred.
