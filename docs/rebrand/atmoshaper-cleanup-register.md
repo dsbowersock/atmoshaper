@@ -565,3 +565,54 @@ Round-15 results are now historical. Exact final staged bytes and identity remai
 only in the ignored SDD/user-facing receipt. Hosted reviews/checks remain
 pending and merge remains separately authorized. No candidate deletion,
 provider action or Phase 5 work occurred.
+
+Hosted review round 17 records two validated CodeRabbit findings on remote head
+`012945b`: `SatisfiesExpression` wrappers dropped proven environment/CommonJS
+flows, and destructuring assignments sourced from proven environment objects
+did not record exact extracted top-level keys, falling back to overbroad
+whole-object uncertainty. Shared `satisfies` transparency now covers aliases,
+direct reads, CommonJS recognition and escape traversal while preserving shadow
+and mutation boundaries. A focused environment-pattern helper records
+shorthand, renamed and literal-computed top-level keys, keeps nested patterns
+top-level-only for their source object, recognizes separately sourced nested
+defaults, and preserves hash-only dynamic/rest/unproven-alias uncertainty,
+evaluated expressions, ordering, target invalidation, privacy, determinism and
+duplicate suppression. Independent final review also found and repaired a
+conditional destructuring-default provenance gap: simple assignment defaults
+sourced from proven or unknown environment objects now emit one hash-only
+unbounded `assignment-default` uncertainty and keep the target unknown,
+preserving shorthand and renamed cases, outer exact-key extraction, subsequent
+reads, shadows and invalidation without plaintext or duplicate rows.
+
+Strict TDD recorded `satisfies` RED 0/3 then GREEN 3/3 and assignment RED 0/3
+then GREEN 3/3. Conditional assignment defaults recorded RED 0/5 then GREEN
+5/5, and the combined assignment tests passed 8/8. The broad slice passed
+58/58, final independent review passed, focused repository-audit tests passed
+134/134, and the full suite recorded 4,332 total, 4,329 passed, 3
+host-dependent skips and zero failures. Typecheck, lint, documentation-state and
+diff checks passed. Source caps were environment analyzer 486,
+environment-pattern helper 35, environment scope 132 and module evidence 500
+nonblank lines.
+
+Pre-document audits ran twice byte-identically with exit 0, empty stderr and
+`deletionAuthority: false`: dead code 1,564/209
+(`001c36b186d4021429bb94cb960b387d66cdc94b8757d14052d19147df8b3d5d`),
+dependency 2,865/19
+(`87da875dc4bc725aca133f89517ca63361fd32f8b1bc057c5f72cd330a34b7c0`),
+asset 561/11,314
+(`24ada69ed439ed7d3b1bf324d6145e73a73227f6df5e3abf7917f35510013202`),
+and environment 587/252
+(`5e39857febefb3ba62bdd4ca03f879f8d055093e14e978193cdf42b3595cc026`).
+The pre-document-amendment inventory contained 1,923 files, 47,493,216 Git blob bytes,
+inventory SHA-256
+`c3e05e17b166e8a8e8c69bf57321d27ea99c05a489a5a561bbb730bbfd31aafd`,
+zero forbidden paths and output SHA-256
+`61060d4d4f24138872daf9dc42935c83afa349bfbd6a0ff72e79dce80046653f`.
+Brand remained zero missing/zero unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+
+Round-16 results are now historical; exact final staged bytes and identity remain
+only in the ignored SDD/user-facing receipt. Four hosted threads remain until
+push. The latest CodeRabbit review completed with these two comments;
+latest-head re-review and checks remain pending. Merge remains separately
+authorized. No candidate deletion, provider action or Phase 5 work occurred.

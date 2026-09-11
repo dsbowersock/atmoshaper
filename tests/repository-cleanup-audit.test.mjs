@@ -2444,6 +2444,199 @@ test("environment CommonJS loader provenance honors enum member scope", (t) => {
   assert.deepEqual(evidence.uncertainties, [])
 })
 
+for (const source of ["proven", "unknown"]) {
+  for (const form of ["shorthand", "renamed"]) {
+    test(`environment assignment defaults preserve conditional aliases from ${source} ${form} patterns`, (t) => {
+      const root = createFixtureRepository(t)
+      writePackage(root)
+      writeFixture(root, ".env.example", "CONFIG=\nsettings=\nLATER=\nUNUSED=\n")
+      const pattern = form === "shorthand" ? "settings = process.env" : "CONFIG: settings = process.env"
+      writeFixture(root, "lib/conditional-default.ts", [
+        source === "proven" ? "const source = process.env" : "let env; const source = env",
+        "let settings",
+        `({ ${pattern} } = source); void settings.LATER; consume(settings)`,
+        "",
+      ].join("\n"))
+      const index = buildTrackedTextIndex(root, policy)
+      const report = buildEnvironmentCandidateReport(index, policy)
+      const key = form === "shorthand" ? "settings" : "CONFIG"
+      assert.deepEqual(report.staticReads.map((row) => row.name), source === "proven" ? [key] : [])
+      assert.ok(report.uncertainties.unprovenAliases.some((row) => row.name === "LATER"))
+      assert.ok(report.uncertainties.computedReads.some((row) => row.kind === "assignment-default"))
+      assert.deepEqual(report.unreadDeclarationCandidates, [])
+      assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+      assertPrivateSerialization(report, root, ["process.env", "consume(settings)"])
+    })
+  }
+}
+
+test("environment assignment defaults preserve unknown sources shadows and mutation boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/conditional-default-boundaries.ts", [
+    "let env, settings, renamed",
+    "({ settings = env, CONFIG: renamed = env } = value)",
+    "void settings.UNKNOWN_FALLBACK; void renamed.RENAMED_UNKNOWN_FALLBACK",
+    "settings = {}; void settings.AFTER_REASSIGNMENT",
+    "renamed++; void renamed.AFTER_UPDATE",
+    "function shadow(process) { let local; ({ CONFIG: local = process.env } = value); void local.SHADOWED }",
+    "function lexical() { let local; ({ CONFIG: local = env } = value); const env = {}; void local.TDZ_SHADOWED }",
+    "let loader; ({ CONFIG: loader = require('process') } = value); void loader.env.NOT_DIRECT_INITIALIZER",
+    "let target = require('process'); ({ CONFIG: target = {} } = value); void target.env.INVALIDATED_PROCESS",
+    "let literal; ({ CONFIG: literal = process.env.REAL_DEFAULT_READ } = value); void literal.NOT_ENV_OBJECT",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildEnvironmentEvidence(index, policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["REAL_DEFAULT_READ"])
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.name).map((row) => row.name), [
+    "UNKNOWN_FALLBACK", "RENAMED_UNKNOWN_FALLBACK", "AFTER_REASSIGNMENT", "AFTER_UPDATE",
+  ])
+  assert.equal(evidence.uncertainties.filter((row) => row.kind === "assignment-default" && row.name == null).length, 2)
+  assert.equal(JSON.stringify(evidence), JSON.stringify(buildEnvironmentEvidence(index, policy)))
+  assertPrivateSerialization(evidence, root, ["require('process')"])
+})
+
+test("environment assignment patterns record only exact source-object keys", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const names = ["DIRECT", "RENAMED", "LITERAL", "CONFIG", "NESTED_DEFAULT", "DEFAULTED", "FALLBACK"]
+  writeFixture(root, ".env.example", [...names, "UNUSED", "NOT_ENV_KEY"].map((name) => `${name}=\n`).join(""))
+  writeFixture(root, "lib/assignment-keys.ts", [
+    "let DIRECT, local, nested, NESTED_DEFAULT, DEFAULTED",
+    "({ DIRECT, RENAMED: local, ['LITERAL']: local } = process.env)",
+    "({ CONFIG: { NOT_ENV_KEY: nested } } = process.env)",
+    "({ config: { NESTED_DEFAULT } = process.env } = value)",
+    "({ DEFAULTED = process.env.FALLBACK } = (process.env satisfies NodeJS.ProcessEnv))",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(report.staticReads.map((row) => row.name).sort(), names.sort())
+  assert.deepEqual(report.unreadDeclarationCandidates.map((row) => row.name), ["NOT_ENV_KEY", "UNUSED"])
+  assert.deepEqual(report.uncertainties, { computedReads: [], unprovenAliases: [] })
+  assert.deepEqual(buildEnvironmentEvidence(index, policy).errors, [])
+  assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+})
+
+test("environment assignment patterns retain dynamic rest and unproven uncertainty", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "MAYBE=\nUNUSED=\n")
+  writeFixture(root, "lib/assignment-uncertainty.ts", [
+    "let local, rest, env",
+    "({ [privateKey]: local, ...rest } = process.env)",
+    "({ MAYBE: local, [privateOtherKey]: local, ...rest } = env)",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(report.staticReads, [])
+  assert.deepEqual(report.unreadDeclarationCandidates, [])
+  assert.equal(report.uncertainties.computedReads.length, 2)
+  assert.deepEqual(report.uncertainties.unprovenAliases.map((row) => row.name).sort(), [null, null, "MAYBE"].sort())
+  assert.ok([...report.uncertainties.computedReads, ...report.uncertainties.unprovenAliases]
+    .every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+  assertPrivateSerialization(report, root, ["privateKey", "privateOtherKey"])
+})
+
+test("environment assignment patterns preserve evaluated reads source snapshots and invalidation", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/assignment-order.ts", [
+    "let environment = process.env, local",
+    "({ FIRST: environment, SECOND: local } = environment); void environment.AFTER_ASSIGNMENT",
+    "({ [process.env.SELECTOR]: local = process.env.FALLBACK } = process.env)",
+    "let proc = require('process'); ({ PROC: proc } = process.env); void proc.env.INVALIDATED",
+    "function shadow(process) { let LOCAL; ({ LOCAL } = process.env) }",
+    "function aliasShadow() { let local; ({ HIDDEN: local } = environment); const environment = {} }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["FIRST", "SECOND", "SELECTOR", "FALLBACK", "PROC"])
+  assert.deepEqual(evidence.uncertainties.map((row) => [row.code, row.name ?? null]), [
+    ["UNPROVEN_ENVIRONMENT_ALIAS", "AFTER_ASSIGNMENT"], ["COMPUTED_ENVIRONMENT_READ", null],
+  ])
+})
+
+test("environment satisfies wrappers preserve exact alias and CommonJS reads", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const names = ["ALIASED_KEY", "DIRECT_KEY", "NESTED_KEY", "NODE_KEY", "PORTABLE_KEY"]
+  writeFixture(root, ".env.example", names.map((name) => `${name}=\n`).join(""))
+  writeFixture(root, "lib/satisfies-reads.ts", [
+    "const settings = process.env satisfies NodeJS.ProcessEnv; void settings.ALIASED_KEY",
+    "void (process.env satisfies NodeJS.ProcessEnv).DIRECT_KEY",
+    "const nested = ((<any>(process.env satisfies NodeJS.ProcessEnv))! as any); void nested.NESTED_KEY",
+    "const portable = require('process') satisfies typeof process; void portable.env.PORTABLE_KEY",
+    "const nodeProcess = ((require('node:process') as any)! satisfies typeof process); void nodeProcess.env.NODE_KEY",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(report.staticReads.map((row) => row.name).sort(), names)
+  assert.deepEqual(report.unreadDeclarationCandidates, [])
+  assert.deepEqual(report.uncertainties.computedReads, [])
+  assert.deepEqual(report.uncertainties.unprovenAliases, [])
+  assert.deepEqual(buildEnvironmentEvidence(index, policy).errors, [])
+  assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+  assertPrivateSerialization(report, root, ["NodeJS.ProcessEnv", "require('process')"])
+})
+
+test("environment satisfies wrappers preserve whole-object escape uncertainty without duplicates", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/satisfies-escapes.ts", [
+    "consume(process.env satisfies NodeJS.ProcessEnv)",
+    "const forwarded = (enabled ? process.env : {}) satisfies NodeJS.ProcessEnv",
+    "consume((process.env || {}) satisfies NodeJS.ProcessEnv)",
+    "Object.keys(process.env satisfies NodeJS.ProcessEnv)",
+    "const spread = { ...(process.env satisfies NodeJS.ProcessEnv) }",
+    "void (process.env satisfies NodeJS.ProcessEnv)[privateComputedKey]",
+    "",
+  ].join("\n"))
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildEnvironmentEvidence(index, policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads, [])
+  assert.equal(evidence.uncertainties.length, 6)
+  assert.deepEqual(evidence.uncertainties.map((row) => row.line), [1, 2, 3, 4, 5, 6])
+  assert.ok(evidence.uncertainties.every((row) => row.code === "COMPUTED_ENVIRONMENT_READ"))
+  const report = buildEnvironmentCandidateReport(index, policy)
+  assert.equal(JSON.stringify(report), JSON.stringify(buildEnvironmentCandidateReport(index, policy)))
+  assertPrivateSerialization(report, root, ["privateComputedKey", "NodeJS.ProcessEnv"])
+})
+
+test("environment satisfies wrappers retain shadow and mutation boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/satisfies-boundaries.ts", [
+    "let settings = process.env satisfies NodeJS.ProcessEnv; void settings.BEFORE_CONTROL",
+    "settings = {}; void settings.AFTER_ASSIGNMENT",
+    "let proc = require('process') satisfies typeof process; void proc.env.PROCESS_CONTROL",
+    "proc++; void proc.env.AFTER_UPDATE",
+    "let overwritten = require('node:process') satisfies typeof process; overwritten = {}; void overwritten.env.AFTER_OVERWRITE",
+    "function local(process) { const settings = process.env satisfies any; return settings.SHADOWED_PROCESS }",
+    "function loader(require) { const proc = require('process') satisfies any; return proc.env.SHADOWED_LOADER }",
+    "function lexical() { const proc = require('process') satisfies any; void proc.env.TDZ_LOADER; const require = fake }",
+    "let stable = process.env satisfies any; function inner() { void stable.TDZ_ALIAS; const stable = {} }",
+    "void (stable.WRITE_ONLY = 'fixture'); delete stable.DELETE_ONLY; stable.UPDATED_PROPERTY++",
+    "void stable.AFTER_CONTROL",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "BEFORE_CONTROL", "PROCESS_CONTROL", "UPDATED_PROPERTY", "AFTER_CONTROL",
+  ])
+  assert.deepEqual(evidence.uncertainties.map((row) => [row.code, row.name]), [
+    ["UNPROVEN_ENVIRONMENT_ALIAS", "AFTER_ASSIGNMENT"],
+  ])
+})
+
 test("environment CommonJS direct variable initializers allow transparent wrappers", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)

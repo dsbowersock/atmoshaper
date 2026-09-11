@@ -73,10 +73,11 @@ export function lookupAlias(scope, name) {
   return null
 }
 
+/** Type-only wrappers preserve the runtime value used for provenance and escape analysis. */
 export function isTransparentExpression(node) {
   return (
     ts.isParenthesizedExpression(node) || ts.isAsExpression(node) ||
-    ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node)
+    ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node) || ts.isSatisfiesExpression(node)
   )
 }
 

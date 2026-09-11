@@ -11,6 +11,7 @@ import {
   validateCleanupPolicy,
 } from "./cleanup-core.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
+import { isHandledObjectAssignment, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
 import { stableJson } from "./core.mjs"
 
 function compareLocation(left, right) {
@@ -109,7 +110,7 @@ function collectEnvironmentRows(record, text) {
       ts.isBinaryExpression(parent) &&
       ((parent.left === value && ts.isAssignmentOperator(parent.operatorToken.kind)) || (
         parent.right === value && parent.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-        ts.isIdentifier(parent.left)
+        (ts.isIdentifier(parent.left) || isHandledObjectAssignment(parent.left))
       ))
     ) return true
     return ts.isDeleteExpression(parent) && parent.expression === value
@@ -126,9 +127,7 @@ function collectEnvironmentRows(record, text) {
       ts.SyntaxKind.QuestionQuestionToken,
     ])
     while (
-      (ts.isParenthesizedExpression(parent) || ts.isAsExpression(parent) ||
-        ts.isTypeAssertionExpression(parent) || ts.isNonNullExpression(parent)) &&
-      parent.expression === value ||
+      isTransparentExpression(parent) && parent.expression === value ||
       ts.isConditionalExpression(parent) && parent.condition !== value ||
       ts.isBinaryExpression(parent) && logicalOperators.has(parent.operatorToken.kind)
     ) {
@@ -167,26 +166,7 @@ function collectEnvironmentRows(record, text) {
   }
 
   const recordObjectBinding = (pattern, status, kind) => {
-    if (!["proven", "unknown"].includes(status)) return
-    for (const element of pattern.elements) {
-      if (element.dotDotDotToken) {
-        if (status === "proven") addComputedUncertainty(element, `${kind}-rest`)
-        else addAliasUncertainty(element, null, `${kind}-rest`)
-        continue
-      }
-      const propertyName = element.propertyName ?? element.name
-      const literalName = ts.isIdentifier(propertyName) || isLiteralNode(propertyName)
-        ? propertyName.text
-        : ts.isComputedPropertyName(propertyName) && isLiteralNode(propertyName.expression)
-          ? propertyName.expression.text
-          : null
-      const nameNode = ts.isComputedPropertyName(propertyName) ? propertyName.expression : propertyName
-      if (literalName !== null) {
-        if (status === "proven") addRead(nameNode, literalName, kind)
-        else addAliasUncertainty(nameNode, literalName, kind)
-      } else if (status === "proven") addComputedUncertainty(nameNode, kind)
-      else addAliasUncertainty(nameNode, null, kind)
-    }
+    recordEnvironmentPattern(pattern, status, kind, { addRead, addComputedUncertainty, addAliasUncertainty })
   }
 
   const bindName = (name, initializer, scope, initializerScope = scope) => {
@@ -262,13 +242,18 @@ function collectEnvironmentRows(record, text) {
     scan(container)
   }
 
-  const assignName = (name, initializer, scope) => {
+  const assignName = (name, initializer, scope, conditional = false) => {
     let owner = scope
     while (owner && !owner.bindings.has(name)) owner = owner.parent
     if (name === "require" && owner?.bindings.get(name) === COMMONJS_LOADER) owner = varBindingScope(scope)
     if (!owner && name === "require") varBindingScope(scope).bindings.set(name, NON_ALIAS)
     if (!owner) return
-    const status = aliasStatus(initializer, scope)
+    let status = aliasStatus(initializer, scope)
+    if (conditional && ["proven", "unknown"].includes(status)) {
+      // A default is only one possible value: preserve its environment flow without proving the target.
+      addWholeObjectUncertainty(initializer, status, "assignment-default")
+      status = "unknown"
+    }
     const prior = owner.bindings.get(name)
     owner.bindings.set(
       name,
@@ -277,15 +262,17 @@ function collectEnvironmentRows(record, text) {
   }
 
   /** Walk assignment targets in evaluation order; computed keys/defaults remain real reads. */
-  const visitAssignmentTarget = (target, scope, initializer) => {
+  const visitAssignmentTarget = (target, scope, initializer, conditional = false) => {
     const value = unwrapTransparentExpression(target)
-    if (ts.isIdentifier(value)) assignName(value.text, initializer, scope)
+    if (ts.isIdentifier(value)) assignName(value.text, initializer, scope, conditional)
     else if (ts.isObjectLiteralExpression(value)) {
+      // Snapshot RHS provenance before computed keys/defaults or target writes can change aliases.
+      if (isHandledObjectAssignment(value)) recordObjectBinding(value, aliasStatus(initializer, scope), "assignment-destructure")
       for (const property of value.properties) {
         if (ts.isSpreadAssignment(property)) visitAssignmentTarget(property.expression, scope)
         else if (ts.isShorthandPropertyAssignment(property)) {
           if (property.objectAssignmentInitializer) visit(property.objectAssignmentInitializer, scope)
-          assignName(property.name.text, undefined, scope)
+          assignName(property.name.text, property.objectAssignmentInitializer, scope, true)
         } else if (ts.isPropertyAssignment(property)) {
           if (ts.isComputedPropertyName(property.name)) visit(property.name.expression, scope)
           visitAssignmentTarget(property.initializer, scope)
@@ -296,7 +283,7 @@ function collectEnvironmentRows(record, text) {
     } else if (ts.isSpreadElement(value)) visitAssignmentTarget(value.expression, scope)
     else if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
       visit(value.right, scope)
-      visitAssignmentTarget(value.left, scope)
+      visitAssignmentTarget(value.left, scope, value.right, true)
     } else visit(value, scope)
   }
 
