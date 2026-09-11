@@ -2008,6 +2008,12 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
     "config/credentials.production.yaml",
     "config/credentials.toml",
     "config/credential.txt",
+    "config/credentials/token.ts",
+    "config/.credentials/provider.json",
+    "config/credential/token.ts",
+    "config/.credential/provider.json",
+    "config/secret/token.ts",
+    "config/.secret/token.ts",
     "config/.secrets/token.txt",
     "config/secrets/token.txt",
   ]) {
@@ -2033,6 +2039,8 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
   writePackage(allowedRoot)
   writeFixture(allowedRoot, "config/secrets-manager/public.txt", "public fixture\n")
   writeFixture(allowedRoot, "config/credentials-guide.md", "public guidance\n")
+  writeFixture(allowedRoot, "config/credentials-guide/token.ts", "export const publicFixture = true\n")
+  writeFixture(allowedRoot, "config/.credentials-cache/provider.json", "{}\n")
   assert.doesNotThrow(() => buildTrackedTextIndex(allowedRoot, policy))
 })
 

@@ -252,7 +252,7 @@ function isBootstrapPrivatePath(path) {
   const directories = segments.slice(0, -1)
   return (
     (basename.startsWith(".env") && basename !== ".env.example") ||
-    directories.some((segment) => segment === ".secrets" || segment === "secrets") ||
+    directories.some((segment) => /^\.?(?:credentials?|secrets?)$/.test(segment)) ||
     /^\.?(?:credentials?|secrets?)(?:\.|$)/.test(basename)
   )
 }
