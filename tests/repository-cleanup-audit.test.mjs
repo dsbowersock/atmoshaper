@@ -30,7 +30,8 @@ const deadCodeCliPath = resolve(repositoryRoot, "scripts/repository-audit/dead-c
 const dependencyCliPath = resolve(repositoryRoot, "scripts/repository-audit/dependency.mjs")
 const assetCliPath = resolve(repositoryRoot, "scripts/repository-audit/asset.mjs")
 const environmentCliPath = resolve(repositoryRoot, "scripts/repository-audit/environment.mjs")
-const policy = loadCleanupPolicy(repositoryRoot, policyPath)
+const realPolicy = loadCleanupPolicy(repositoryRoot, policyPath)
+const policy = { ...structuredClone(realPolicy), manualToolSources: [] }
 
 function createFixtureRepository(t) {
   const root = mkdtempSync(join(tmpdir(), "atmoshaper-cleanup-audit-"))
@@ -62,7 +63,7 @@ function writePackage(root, value = {}) {
   }, null, 2)}\n`)
 }
 
-const clonePolicy = () => structuredClone(policy)
+const clonePolicy = () => ({ ...structuredClone(policy), manualToolSources: [] })
 const expectedConfigurationManifestOwnership = [
   {
     packageName: "postcss",
@@ -83,7 +84,7 @@ const expectedConfigurationManifestOwnership = [
 
 function runAuditCli(cliPath, root, selectedPolicyPath = policyPath) {
   const effectivePolicyPath = selectedPolicyPath === policyPath && root !== repositoryRoot
-    ? writeFixture(root, "scripts/repository-audit/cleanup-policy.json", `${JSON.stringify(policy, null, 2)}\n`)
+    ? writeFixture(root, "scripts/repository-audit/cleanup-policy.json", `${JSON.stringify(clonePolicy(), null, 2)}\n`)
     : selectedPolicyPath
   return spawnSync(process.execPath, [
     cliPath,
@@ -125,6 +126,7 @@ test("schema-v1 policy names every required scope and rejects policy drift", () 
   assert.equal(validateCleanupPolicy(clonePolicy()).schemaVersion, 1)
   assert.deepEqual(Object.keys(policy.scopes).sort(), ["doc", "runtime", "test", "tool"])
   assert.deepEqual(policy.configurationManifestOwnership, expectedConfigurationManifestOwnership)
+  assert.deepEqual(realPolicy.manualToolSources, ["scripts/atmoshaper-ripx-demucs-adapter.py"])
 
   const postcssRule = expectedConfigurationManifestOwnership[0]
   const shadcnRule = expectedConfigurationManifestOwnership[1]
@@ -133,6 +135,16 @@ test("schema-v1 policy names every required scope and rejects policy drift", () 
     { ...clonePolicy(), unexpected: true },
     { ...clonePolicy(), assetRoots: ["public\\"] },
     { ...clonePolicy(), sourceExtensions: [".js", ".js"] },
+    { ...clonePolicy(), manualToolSources: ["scripts\\adapter.py"] },
+    { ...clonePolicy(), manualToolSources: ["scripts/adapter.py", "scripts/adapter.py"] },
+    { ...clonePolicy(), manualToolSources: ["lib/adapter.py"] },
+    { ...clonePolicy(), manualToolSources: ["scripts/adapter.js"] },
+    { ...clonePolicy(), manualToolSources: ["scripts/adapter.txt"] },
+    {
+      ...clonePolicy(),
+      manualToolSources: ["scripts/adapter.env"],
+      environmentDeclarationPaths: [".env.example", "scripts/adapter.env"],
+    },
     { ...clonePolicy(), scopes: { ...clonePolicy().scopes, runtime: [] } },
     {
       ...clonePolicy(),
@@ -297,7 +309,7 @@ test("module evidence records require.resolve ownership and hashes nonliteral ar
   )))
   assertPrivateSerialization(evidence, root, [dynamicExpression])
 
-  const realEvidence = buildDependencyEvidence(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  const realEvidence = buildDependencyEvidence(buildTrackedTextIndex(repositoryRoot, realPolicy), realPolicy)
   assert.ok(realEvidence.references.some((row) => (
     row.fromPath === "scripts/run-migration-parity-browser-qa.mjs" &&
     row.packageName === "@playwright/test" && row.kind === "require-resolve"
@@ -437,7 +449,7 @@ test("module evidence preserves JavaScript edges and records exact declaration c
   assert.equal(unresolvedEvidence.references.some((row) => row.targetKind === "tracked-module"), false)
   assert.equal(unresolvedEvidence.errors.filter((row) => row.code === "UNRESOLVED_LITERAL_MODULE").length, 4)
 
-  const realReport = buildDeadCodeCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  const realReport = buildDeadCodeCandidateReport(buildTrackedTextIndex(repositoryRoot, realPolicy), realPolicy)
   for (const path of [
     "lib/account-surface-data.d.ts",
     "lib/background-preview-runtime.d.ts",
@@ -712,7 +724,7 @@ test("dependency evidence records only validated configuration manifest owners",
   assert.deepEqual(unrelatedReport.configurationManifestOwners, [])
   assert.ok(unrelatedReport.unreferencedCandidates.some((row) => row.name === "shadcn"))
 
-  const realReport = buildDependencyCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  const realReport = buildDependencyCandidateReport(buildTrackedTextIndex(repositoryRoot, realPolicy), realPolicy)
   for (const name of ["postcss", "shadcn"]) {
     assert.ok(realReport.configurationManifestOwners.some((row) => row.packageName === name))
     assert.equal(realReport.unreferencedCandidates.some((row) => row.name === name), false)
@@ -819,7 +831,7 @@ test("dependency evidence records exact tracked runtime package metadata", (t) =
   }
   assertPrivateSerialization(report, root, [unstagedSentinel])
 
-  const realReport = buildDependencyCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  const realReport = buildDependencyCandidateReport(buildTrackedTextIndex(repositoryRoot, realPolicy), realPolicy)
   assert.ok(realReport.runtimePackageMetadataOwners.some((row) => (
     row.packageName === "@generative-music/pieces-alex-bainter" &&
     row.ownerPath === "lib/atmosphere/generative-fm-catalog.js" &&
@@ -972,6 +984,40 @@ test("dead-code report separates candidates from roots, protections, and uncerta
   assert.ok(report.uncertainties.manualScripts.some((row) => row.path === "scripts/manual-unused.mjs"))
   assert.ok(report.uncertainties.generatedInputs.some((row) => row.path === "types/generated.d.ts"))
   assertPrivateSerialization(report, root, [dynamicExpression])
+})
+
+test("policy-owned manual tools stay opaque across content audits and appear once as dead-code uncertainty", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "opaque-package": "1.0.0" } })
+  writeFixture(root, ".env.example", "OPAQUE_KEY=\n")
+  writeFixture(root, "public/icon.svg", "<svg/>\n")
+  writeFixture(root, "scripts/manual-adapter.py", [
+    "# import opaque-package",
+    "# process.env.OPAQUE_KEY",
+    "# '../public/icon.svg'",
+    "not valid TypeScript syntax: def main():",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/unrelated.py", "def unrelated():\n    pass\n")
+  const fixturePolicy = { ...clonePolicy(), manualToolSources: ["scripts/manual-adapter.py"] }
+  const index = buildTrackedTextIndex(root, fixturePolicy)
+
+  const deadCode = buildDeadCodeCandidateReport(index, fixturePolicy)
+  assert.deepEqual(deadCode.uncertainties.manualScripts, [{
+    path: "scripts/manual-adapter.py",
+    reason: "opaque-manual-tool-source",
+  }])
+  assert.equal(deadCode.roots.some((row) => row.path.endsWith(".py")), false)
+  assert.equal(deadCode.unreferencedCandidates.some((row) => row.path.endsWith(".py")), false)
+  assert.equal(buildAssetCandidateReport(index, fixturePolicy).referenceOwners.some((row) => row.ownerPath.endsWith(".py")), false)
+  const dependency = buildDependencyCandidateReport(index, fixturePolicy)
+  assert.equal(dependency.literalImportOwners.some((row) => row.ownerPath.endsWith(".py")), false)
+  assert.equal(dependency.uncertainties.nonliteralModuleExpressions.some((row) => row.path.endsWith(".py")), false)
+  assert.equal(buildEnvironmentCandidateReport(index, fixturePolicy).staticReads.some((row) => row.path.endsWith(".py")), false)
+
+  const missingPolicy = { ...clonePolicy(), manualToolSources: ["scripts/missing-adapter.py"] }
+  assert.ok(buildModuleEvidence(index, missingPolicy).errors.some((row) => row.code === "MANUAL_TOOL_SOURCE_MISSING"))
+  assert.throws(() => buildDeadCodeCandidateReport(index, missingPolicy), /DEAD_CODE_EVIDENCE_INVALID/)
 })
 
 test("dependency report preserves import, CLI, patch, built-in, and usage-scope evidence", (t) => {
@@ -1558,7 +1604,7 @@ test("asset report resolves bare slash-relative paths only to tracked inventory 
     literals.scheme,
   ])
 
-  const realReport = buildAssetCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  const realReport = buildAssetCandidateReport(buildTrackedTextIndex(repositoryRoot, realPolicy), realPolicy)
   const pilotRows = realReport.uncertainties.unresolvedLiteralAssets.filter((row) => (
     row.fromPath === "public/chimer/background-preview-pilot/index.json"
   ))
@@ -1866,17 +1912,6 @@ test("tracked private paths fail before blob contents can enter failures", (t) =
 })
 
 test("bootstrap-private tracked paths fail before policy, metadata, or evidence blob reads", (t) => {
-  const root = createFixtureRepository(t)
-  writePackage(root)
-  const fixturePolicyPath = writeFixture(
-    root,
-    "scripts/repository-audit/cleanup-policy.json",
-    `${JSON.stringify(policy, null, 2)}\n`,
-  )
-  const privatePath = "config/credentials.production.json"
-  const privateValue = "bootstrap-private-fixture-value"
-  writeFixture(root, privatePath, `${privateValue}\n`)
-
   const assertRejectedBeforeCatFile = (action) => {
     let catFileCalled = false
     const observingExec = (file, args, options) => {
@@ -1894,11 +1929,36 @@ test("bootstrap-private tracked paths fail before policy, metadata, or evidence 
       message: "CLEANUP_FORBIDDEN_OR_INVALID_INDEX",
     })
     assert.equal(catFileCalled, false)
-    assertPrivateSerialization(failure, root, [privatePath, privateValue])
+    return failure
   }
 
-  assertRejectedBeforeCatFile((observingExec) => loadCleanupContext(root, fixturePolicyPath, observingExec))
-  assertRejectedBeforeCatFile((observingExec) => buildTrackedTextIndex(root, policy, observingExec))
+  for (const privatePath of [
+    "config/credentials.production.json",
+    "config/.secrets/token.txt",
+    "config/secrets/token.txt",
+  ]) {
+    const root = createFixtureRepository(t)
+    writePackage(root)
+    const fixturePolicyPath = writeFixture(
+      root,
+      "scripts/repository-audit/cleanup-policy.json",
+      `${JSON.stringify(policy, null, 2)}\n`,
+    )
+    const privateValue = "bootstrap-private-fixture-value"
+    writeFixture(root, privatePath, `${privateValue}\n`)
+    for (const action of [
+      (observingExec) => loadCleanupContext(root, fixturePolicyPath, observingExec),
+      (observingExec) => buildTrackedTextIndex(root, policy, observingExec),
+    ]) {
+      const failure = assertRejectedBeforeCatFile(action)
+      assertPrivateSerialization(failure, root, [privatePath, privateValue])
+    }
+  }
+
+  const allowedRoot = createFixtureRepository(t)
+  writePackage(allowedRoot)
+  writeFixture(allowedRoot, "config/secrets-manager/public.txt", "public fixture\n")
+  assert.doesNotThrow(() => buildTrackedTextIndex(allowedRoot, policy))
 })
 
 test("policy loading uses the tracked stage-0 blob and ignores unstaged policy edits", (t) => {
@@ -2486,8 +2546,8 @@ test("repository-audit sources stay bounded and contain at most one evidence or 
 })
 
 test("real runtime prefixes do not import the repository-audit implementation", () => {
-  const index = buildTrackedTextIndex(repositoryRoot, policy)
-  const evidence = buildModuleEvidence(index, policy)
+  const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
+  const evidence = buildModuleEvidence(index, realPolicy)
   assert.deepEqual(evidence.errors, [])
   const runtimePrefixes = ["app/", "components/", "hooks/", "lib/", "prisma/", "public/"]
   const violations = evidence.references.filter((row) => (
@@ -2499,6 +2559,15 @@ test("real runtime prefixes do not import the repository-audit implementation", 
   assert.ok(evidence.roots.some((row) => (
     row.path === "instrumentation-client.ts" && row.reason === "top-level-config"
   )))
+  const adapterPath = "scripts/atmoshaper-ripx-demucs-adapter.py"
+  assert.equal(evidence.modules.some((row) => row.path === adapterPath), false)
+  assert.ok(evidence.uncertainties.some((row) => row.path === adapterPath && row.code === "OPAQUE_MANUAL_TOOL_SOURCE"))
+  const deadCodeReport = buildDeadCodeCandidateReport(index, realPolicy)
+  assert.equal(deadCodeReport.unreferencedCandidates.some((row) => row.path === adapterPath), false)
+  assert.deepEqual(deadCodeReport.uncertainties.manualScripts.filter((row) => row.path === adapterPath), [{
+    path: adapterPath,
+    reason: "opaque-manual-tool-source",
+  }])
   for (const declarationPath of [
     "types/generative-music.d.ts",
     "types/next-auth.d.ts",
@@ -2511,8 +2580,8 @@ test("real runtime prefixes do not import the repository-audit implementation", 
 })
 
 test("real environment evidence reads STRIPE_SECRET_KEY through a proven default alias", () => {
-  const index = buildTrackedTextIndex(repositoryRoot, policy)
-  const evidence = buildEnvironmentEvidence(index, policy)
+  const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
+  const evidence = buildEnvironmentEvidence(index, realPolicy)
   assert.ok(evidence.reads.some((row) => row.name === "STRIPE_SECRET_KEY" && row.path === "lib/stripe-billing.js"))
   assert.ok(evidence.uncertainties.some((row) => (
     row.code === "COMPUTED_ENVIRONMENT_READ" &&
@@ -2528,13 +2597,13 @@ test("real environment evidence reads STRIPE_SECRET_KEY through a proven default
       .map((row) => [row.kind, row.line]),
     [["whole-object-value", 117], ["whole-object-value", 126]],
   )
-  const report = buildEnvironmentCandidateReport(index, policy)
+  const report = buildEnvironmentCandidateReport(index, realPolicy)
   assert.equal(report.unreadDeclarationCandidates.some((row) => row.name === "STRIPE_SECRET_KEY"), false)
 })
 
 test("real asset evidence inventories and protects every tracked Browser-QA PNG snapshot", () => {
-  const index = buildTrackedTextIndex(repositoryRoot, policy)
-  const report = buildAssetCandidateReport(index, policy)
+  const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
+  const report = buildAssetCandidateReport(index, realPolicy)
   const snapshots = report.trackedAssets.filter((row) => (
     /^tests\/browser\/[^/]+-snapshots\/[^/]+\.png$/.test(row.path)
   ))
@@ -2601,12 +2670,12 @@ test("asset CLI applies staged data-catalog inventory and protection policy", (t
 })
 
 test("real retained data catalogs are tracked, protected, and never candidates", () => {
-  assert.ok(policy.assetRoots.includes("data/"))
-  assert.ok(policy.protectedPathPrefixes.includes("data/"))
-  const index = buildTrackedTextIndex(repositoryRoot, policy)
+  assert.ok(realPolicy.assetRoots.includes("data/"))
+  assert.ok(realPolicy.protectedPathPrefixes.includes("data/"))
+  const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
   const dataPaths = index.trackedPaths.filter((path) => path.startsWith("data/") && path.endsWith(".json"))
   assert.equal(dataPaths.length, 40)
-  const report = buildAssetCandidateReport(index, policy)
+  const report = buildAssetCandidateReport(index, realPolicy)
   const trackedPaths = new Set(report.trackedAssets.map((row) => row.path))
   const protectedPaths = new Set(report.protectedAssets.map((row) => row.path))
   const candidatePaths = new Set(report.unreferencedCandidates.map((row) => row.path))
@@ -2638,7 +2707,7 @@ test("audit envelope keeps inventory identity while findings change", (t) => {
 })
 
 test("checked-in cleanup policy remains parseable JSON", () => {
-  assert.deepEqual(JSON.parse(readFileSync(policyPath, "utf8")), policy)
+  assert.deepEqual(JSON.parse(readFileSync(policyPath, "utf8")), realPolicy)
 })
 
 test("package exposes the exact cleanup audit commands", () => {

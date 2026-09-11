@@ -141,7 +141,8 @@ export function buildDependencyCandidateReport(index, policy) {
   ))
   const dynamicImports = dependencyEvidence.uncertainties.filter((row) => row.kind === "dynamic-import")
   const nonliteralModuleExpressions = dependencyEvidence.uncertainties.filter((row) => (
-    row.kind !== "dynamic-import" && row.code !== "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"
+    row.kind !== "dynamic-import" &&
+    !["NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE", "OPAQUE_MANUAL_TOOL_SOURCE"].includes(row.code)
   ))
   const expectedFixtureLiterals = dependencyEvidence.uncertainties.filter((row) => (
     row.code === "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"

@@ -63,9 +63,12 @@ export function buildDeadCodeCandidateReport(index, policy) {
     }))
 
   const candidatePaths = new Set(unreferencedCandidates.map((row) => row.path))
-  const manualScripts = evidence.modules
-    .filter((module) => module.scope === "tool" && candidatePaths.has(module.path))
-    .map((module) => ({ path: module.path, reason: "manual-tool-entrypoint-possible" }))
+  const manualScripts = [
+    ...evidence.modules.filter((module) => module.scope === "tool" && candidatePaths.has(module.path))
+      .map((module) => ({ path: module.path, reason: "manual-tool-entrypoint-possible" })),
+    ...evidence.uncertainties.filter((row) => row.code === "OPAQUE_MANUAL_TOOL_SOURCE")
+      .map((row) => ({ path: row.path, reason: "opaque-manual-tool-source" })),
+  ]
   const generatedInputs = evidence.modules
     .filter((module) => isGeneratedInput(module.path))
     .map((module) => ({ path: module.path, reason: "generated-or-declaration-input" }))
@@ -76,7 +79,7 @@ export function buildDeadCodeCandidateReport(index, policy) {
     row.code === "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"
   ))
   const nonliteralImports = evidence.uncertainties.filter((row) => (
-    row.code !== "NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE"
+    !["NEGATIVE_FIXTURE_UNRESOLVED_LITERAL_MODULE", "OPAQUE_MANUAL_TOOL_SOURCE"].includes(row.code)
   ))
 
   return stableJson({

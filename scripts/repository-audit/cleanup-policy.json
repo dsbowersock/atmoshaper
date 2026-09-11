@@ -169,6 +169,9 @@
     "output/",
     "test-results/"
   ],
+  "manualToolSources": [
+    "scripts/atmoshaper-ripx-demucs-adapter.py"
+  ],
   "forbiddenTrackedPaths": [
     ".env",
     ".env.development.local",

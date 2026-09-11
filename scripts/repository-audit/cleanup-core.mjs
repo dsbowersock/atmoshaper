@@ -12,7 +12,7 @@ import {
 const POLICY_FIELDS = [
   "assetExtensions", "assetRoots", "configurationManifestOwnership",
   "environmentDeclarationPaths", "forbiddenTrackedPaths", "frameworkRoots",
-  "ignoredPathPrefixes", "packageScriptCliOwnership",
+  "ignoredPathPrefixes", "manualToolSources", "packageScriptCliOwnership",
   "protectedPathPrefixes", "schemaVersion", "scopes", "sourceExtensions",
   "textExtensions", "topLevelConfigRoots",
 ]
@@ -59,7 +59,7 @@ function isNormalizedPolicyPath(value, { prefix = false } = {}) {
 }
 
 function assertUniqueStrings(values, code, options = {}) {
-  if (!Array.isArray(values) || values.length === 0) throw auditError(code)
+  if (!Array.isArray(values) || (!options.allowEmpty && values.length === 0)) throw auditError(code)
   const seen = new Set()
   for (const value of values) {
     const valid = options.extension
@@ -131,6 +131,15 @@ export function validateCleanupPolicy(policy) {
   assertUniqueStrings(policy.assetExtensions, "CLEANUP_POLICY_INVALID", { extension: true })
   assertUniqueStrings(policy.environmentDeclarationPaths, "CLEANUP_POLICY_INVALID")
   assertUniqueStrings(policy.ignoredPathPrefixes, "CLEANUP_POLICY_INVALID", { prefix: true })
+  assertUniqueStrings(policy.manualToolSources, "CLEANUP_POLICY_INVALID", { allowEmpty: true })
+  if (policy.manualToolSources.some((path) => {
+    const extension = extname(path).toLowerCase()
+    return !policy.scopes.tool.some((root) => pathMatches(path, root)) ||
+      policy.sourceExtensions.includes(extension) || policy.textExtensions.includes(extension) ||
+      policy.environmentDeclarationPaths.includes(path)
+  })) {
+    throw auditError("CLEANUP_POLICY_INVALID")
+  }
   if (!Array.isArray(policy.forbiddenTrackedPaths) || policy.forbiddenTrackedPaths.length === 0) {
     throw auditError("CLEANUP_POLICY_INVALID")
   }
@@ -233,10 +242,13 @@ function readIndexMetadata(root, entries, execFile) {
 
 function isBootstrapPrivatePath(path) {
   const lower = path.toLowerCase()
-  const basename = lower.split("/").at(-1)
+  const segments = lower.split("/")
+  const basename = segments.at(-1)
+  const directories = segments.slice(0, -1)
   return (
-    (basename.startsWith(".env") && basename !== ".env.example") || lower.startsWith(".secrets/") ||
-    lower.startsWith("secrets/") || /(?:^|\/)(?:credentials|secrets?)(?:\.[^/]*)?\.json$/.test(lower)
+    (basename.startsWith(".env") && basename !== ".env.example") ||
+    directories.some((segment) => segment === ".secrets" || segment === "secrets") ||
+    /(?:^|\/)(?:credentials|secrets?)(?:\.[^/]*)?\.json$/.test(lower)
   )
 }
 
@@ -342,6 +354,19 @@ export function requireTrackedTextIndex(index) {
     throw auditError("CLEANUP_INDEX_INVALID")
   }
   return internals
+}
+
+/** Select exact tracked metadata without opening or parsing the corresponding blobs. */
+export function selectTrackedMetadata(index, paths) {
+  const { metadataByPath } = requireTrackedTextIndex(index)
+  const tracked = []
+  const missing = []
+  for (const path of paths) {
+    const entry = metadataByPath.get(path)
+    if (entry) tracked.push({ path, bytes: entry.bytes, oid: entry.oid })
+    else missing.push(path)
+  }
+  return { tracked, missing }
 }
 
 function taggedRows(category, rows, tagName) {

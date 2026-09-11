@@ -901,32 +901,61 @@ passed; lint passed with no ESLint warnings; and the production build passed
 with 115 routes. Rounds 7 and 8 remain historical supporting evidence.
 Every report retains `deletionAuthority: false`.
 
-Hosted review round 10 repairs two validated latest-head findings: outer
+Hosted review round 10 repaired two validated latest-head findings: outer
 proven/unknown environment aliases leaking across inner declarations, and
 non-Node runtime imports locally named `env` or `environment` disappearing
-from the evidence. Inner declarations now shadow outer aliases without
+from the evidence. Inner declarations shadowed outer aliases without
 discarding existing same-scope bindings on assignment-free `var`
 redeclarations. Non-Node wrapper imports remain unproven-alias uncertainty,
 not exact environment ownership; exact Node imports and type-only exclusions
 remain distinct. The regression repair followed TDD RED/GREEN validation.
-The environment analyzer contains 490 nonblank lines.
+The environment analyzer contained 490 nonblank lines.
 
-The current focused repository audit suites pass 97/97: 21 repository-audit
+That round's focused repository audit suites passed 97/97: 21 repository-audit
 tests and 76 cleanup-audit tests. At the verified round-10 code snapshot, the
 full suite recorded 4,295 tests: 4,292 passed, 3 host-dependent skips and zero
 failures. Typecheck and lint passed; the Babel deoptimization note was
 informational, not an ESLint warning. The exact environment audit ran twice
 with byte-identical output, zero stderr and `deletionAuthority: false`.
-Its current totals remain unchanged at 587 findings/252 uncertainties:
+Its now-historical totals remained unchanged at 587 findings/252 uncertainties:
 306 static reads, 79 declared names, 202 missing declarations, zero
 unread-declaration candidates, 79 computed uncertainties and 173
 unproven-alias uncertainties. Round-9 verification remains historical
 supporting evidence, including its production-build receipt.
 
-Latest-head hosted review is pending; resolving hosted feedback and final
+At that snapshot, latest-head hosted review was pending; resolving hosted feedback and final
 checks/review precede any separately authorized merge. No cleanup deletion,
 provider mutation or Phase 5 action occurred; `deletionAuthority` remains
 false.
+
+Hosted review round 11 records the staged CodeRabbit/Codex privacy and
+opaque-tool hardening. Nested `.secrets/` and `secrets/` directories are
+rejected at any depth before policy, metadata or evidence blob reads. The
+tracked Python adapter is represented exactly once as an opaque manual-tool
+uncertainty without parsing its content; this does not claim a static import
+or authorize removal.
+
+The current focused repository audit suites pass 98/98. The full suite
+recorded 4,296 tests: 4,293 passed, 3 host-dependent skips and zero failures.
+Typecheck and lint passed. Current semantic results are dead code 1,558
+findings/187 uncertainties, including 2 manual-script uncertainties;
+dependency 2,863/19; asset 561/11,303; and environment 587/252. All four
+audits ran twice with byte-identical output, exit 0 and empty stderr;
+every report retained `deletionAuthority: false`. Brand verification reported
+zero missing and zero unclassified references, and the inventory reported
+zero forbidden tracked paths.
+
+The exact staged capture before this round's documentation synchronization
+contained 1,921 files and 47,355,254 Git blob bytes, with inventory SHA-256
+`bb8b8c792c03a60bd5531e69e4f6c81d95781851b751c8b9a5824700036ded92`.
+This is a historical pre-document-synchronization capture, not the identity
+of the index after these versioned receipts are staged. Current final-index
+bytes and hashes remain outside these self-referential versioned documents.
+Round-10 results remain historical supporting evidence.
+
+Latest-head hosted review and final checks/review remain pending before any
+separately authorized merge of PR #3. No cleanup deletion, provider mutation
+or Phase 5 action occurred; `deletionAuthority` remains false.
 
 The current tracked inventory remains 1,921 files.
 Brand verification remains zero missing and zero unclassified. Exact current

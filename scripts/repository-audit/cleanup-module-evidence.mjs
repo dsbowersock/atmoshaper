@@ -9,6 +9,7 @@ import {
   isFrameworkConventionPath,
   pathMatches,
   requireTrackedTextIndex,
+  selectTrackedMetadata,
   sha256,
   validateCleanupPolicy,
 } from "./cleanup-core.mjs"
@@ -478,12 +479,12 @@ export function buildModuleEvidence(index, policy) {
   validateCleanupPolicy(policy)
   const { textByPath, trackedPathSet } = requireTrackedTextIndex(index)
   const sourceExtensions = new Set(policy.sourceExtensions)
-  const modules = index.records
-    .filter((record) => sourceExtensions.has(record.extension))
+  const modules = index.records.filter((record) => sourceExtensions.has(record.extension))
     .map((record) => ({ path: record.path, scope: record.scope, textSha256: record.textSha256 }))
-  const references = []
-  const uncertainties = []
-  const errors = []
+  const references = [], uncertainties = [], errors = []
+  const manualTools = selectTrackedMetadata(index, policy.manualToolSources)
+  uncertainties.push(...manualTools.tracked.map((row) => ({ ...row, code: "OPAQUE_MANUAL_TOOL_SOURCE" })))
+  errors.push(...manualTools.missing.map((path) => ({ path, code: "MANUAL_TOOL_SOURCE_MISSING" })))
   for (const record of index.records) {
     if (!sourceExtensions.has(record.extension)) continue
     const rows = collectSourceModuleRows(record, textByPath.get(record.path), trackedPathSet, policy)
