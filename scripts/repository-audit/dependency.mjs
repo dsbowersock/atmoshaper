@@ -81,6 +81,10 @@ export function buildDependencyCandidateReport(index, policy) {
     ...row,
     usageScope: "configuration",
   }))
+  const runtimePackageMetadataOwners = dependencyEvidence.runtimePackageMetadataOwners.map((row) => ({
+    ...row,
+    usageScope: "runtime",
+  }))
   const nodeScriptOwners = moduleEvidence.roots
     .filter((row) => row.reason.startsWith("package-script:"))
     .map((row) => ({
@@ -98,6 +102,7 @@ export function buildDependencyCandidateReport(index, policy) {
     ...literalImportOwners.map((row) => ({ packageName: row.packageName, usageScope: row.ownerScope })),
     ...packageScriptCliOwners,
     ...configurationManifestOwners,
+    ...runtimePackageMetadataOwners,
     ...patchOwners,
   ]
   const referencedPackages = packageScopeRows(packageReferences)
@@ -152,6 +157,7 @@ export function buildDependencyCandidateReport(index, policy) {
     builtinImportOwners,
     packageScriptCliOwners,
     configurationManifestOwners,
+    runtimePackageMetadataOwners,
     nodeScriptOwners,
     patchOwners,
     referencedPackages,

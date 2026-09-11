@@ -719,6 +719,117 @@ test("dependency evidence records only validated configuration manifest owners",
   }
 })
 
+test("dependency evidence records exact tracked runtime package metadata", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, {
+    dependencies: {
+      "catalog-package": "1.2.3",
+      "mismatched-package": "2.0.0",
+      "mention-only": "1.0.0",
+      "non-string-version": null,
+      "test-only-metadata": "3.0.0",
+      "duplicate-name": "4.0.0",
+      "duplicate-version": "5.0.0",
+      "spread-override": "6.0.0",
+    },
+  })
+  const catalogPath = writeFixture(root, "lib/runtime-catalog.js", [
+    "const PACKAGE_NAME = 'catalog-package'",
+    "const PACKAGE_VERSION = '1.2.3'",
+    "const MISMATCHED_VERSION = '1.0.0'",
+    "export const catalog = [{ runtime: { packageName: PACKAGE_NAME, packageVersion: PACKAGE_VERSION } }]",
+    "export const mismatch = { runtime: { packageName: 'mismatched-package', packageVersion: MISMATCHED_VERSION } }",
+    "export function shadow(PACKAGE_NAME) { return { runtime: { packageName: PACKAGE_NAME, packageVersion: PACKAGE_VERSION } } }",
+    "export const namedClassShadow = class PACKAGE_NAME { metadata = { runtime: { packageName: PACKAGE_NAME, packageVersion: PACKAGE_VERSION } } }",
+    "export function classDeclarationShadow() { class PACKAGE_NAME { metadata = { runtime: { packageName: PACKAGE_NAME, packageVersion: PACKAGE_VERSION } } } return PACKAGE_NAME }",
+    "export const duplicateRuntime = { runtime: { packageName: 'catalog-package', packageVersion: '1.2.3' }, runtime: null }",
+    "export const spreadRuntime = { runtime: { packageName: 'catalog-package', packageVersion: '1.2.3' }, ...{ runtime: null } }",
+    "export const duplicateName = { runtime: { packageName: 'duplicate-name', packageName: 'mention-only', packageVersion: '4.0.0' } }",
+    "export const duplicateVersion = { runtime: { packageName: 'duplicate-version', packageVersion: '5.0.0', packageVersion: '0.0.0' } }",
+    "const spreadOverride = { packageName: 'mention-only' }",
+    "export const spreadMetadata = { runtime: { packageName: 'spread-override', packageVersion: '6.0.0', ...spreadOverride } }",
+    "export const missingVersion = { runtime: { packageName: 'non-string-version' } }",
+    "const arbitraryMention = 'mention-only'",
+    "void arbitraryMention",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/scoped-runtime-catalog.ts", [
+    "const PKG = 'catalog-package'",
+    "const VERSION = '1.2.3'",
+    "class StaticScope { static { if (true) { var PKG = 'mention-only' } const metadata = { runtime: { packageName: PKG, packageVersion: VERSION } }; void metadata } }",
+    "namespace CatalogNamespace { const PKG = 'mention-only'; export const metadata = { runtime: { packageName: PKG, packageVersion: VERSION } } }",
+    "namespace NestedNamespace { export namespace PKG { export const marker = true }; export const metadata = { runtime: { packageName: PKG, packageVersion: VERSION } } }",
+    "{ enum PKG { Other }; const metadata = { runtime: { packageName: PKG, packageVersion: VERSION } }; void metadata }",
+    "void StaticScope",
+    "",
+  ].join("\n"))
+  writeFixture(root, "tests/runtime-catalog.test.js", [
+    "const testOnly = { runtime: { packageName: 'test-only-metadata', packageVersion: '3.0.0' } }",
+    "void testOnly",
+    "",
+  ].join("\n"))
+  const unstagedSentinel = "unstaged-runtime-package-metadata"
+  writeFileSync(catalogPath, [
+    `const privateValue = '${unstagedSentinel}'`,
+    "export const catalog = { runtime: { packageName: 'mention-only', packageVersion: '1.0.0' } }",
+    "void privateValue",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const evidence = buildDependencyEvidence(index, policy)
+  const evidenceOwners = evidence.runtimePackageMetadataOwners ?? []
+  assert.deepEqual(evidenceOwners.map((row) => ({
+    kind: row.kind, line: row.line, ownerPath: row.ownerPath, packageName: row.packageName,
+  })), [{
+    kind: "runtime-package-metadata",
+    line: 4,
+    ownerPath: "lib/runtime-catalog.js",
+    packageName: "catalog-package",
+  }])
+  assert.ok(Number.isInteger(evidenceOwners[0].column))
+  assert.match(evidenceOwners[0].literalSha256, /^[a-f0-9]{64}$/)
+
+  const report = buildDependencyCandidateReport(index, policy)
+  const reportOwners = report.runtimePackageMetadataOwners
+  assert.deepEqual(
+    reportOwners.map((row) => ({
+      kind: row.kind, line: row.line, ownerPath: row.ownerPath,
+      packageName: row.packageName, usageScope: row.usageScope,
+    })),
+    [{
+    kind: "runtime-package-metadata",
+    line: 4,
+    ownerPath: "lib/runtime-catalog.js",
+    packageName: "catalog-package",
+    usageScope: "runtime",
+    }],
+  )
+  assert.ok(Number.isInteger(reportOwners[0].column))
+  assert.match(reportOwners[0].literalSha256, /^[a-f0-9]{64}$/)
+  assert.ok(report.referencedPackages.some((row) => (
+    row.name === "catalog-package" && row.scopes.includes("runtime")
+  )))
+  assert.equal(report.unreferencedCandidates.some((row) => row.name === "catalog-package"), false)
+  for (const name of [
+    "duplicate-name", "duplicate-version", "mention-only", "mismatched-package", "non-string-version",
+    "spread-override", "test-only-metadata",
+  ]) {
+    assert.ok(report.unreferencedCandidates.some((row) => row.name === name))
+  }
+  assertPrivateSerialization(report, root, [unstagedSentinel])
+
+  const realReport = buildDependencyCandidateReport(buildTrackedTextIndex(repositoryRoot, policy), policy)
+  assert.ok(realReport.runtimePackageMetadataOwners.some((row) => (
+    row.packageName === "@generative-music/pieces-alex-bainter" &&
+    row.ownerPath === "lib/atmosphere/generative-fm-catalog.js" &&
+    row.usageScope === "runtime"
+  )))
+  assert.equal(realReport.unreferencedCandidates.some((row) => (
+    row.name === "@generative-music/pieces-alex-bainter"
+  )), false)
+})
+
 test("dependency CLI uses generic configuration ownership from the tracked stage-0 policy", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root, { devDependencies: { postcss: "1.0.0" } })

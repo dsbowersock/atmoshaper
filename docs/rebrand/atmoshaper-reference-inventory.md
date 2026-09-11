@@ -827,10 +827,10 @@ dynamic rows and 10,855 unresolved rows; and environment 587/252 with 79
 computed and 173 unproven-alias uncertainties and zero unread-declaration
 candidates.
 
-Hosted review round 6 records nested object destructuring defaults sourced
-from proven environment objects. The current focused repository audit suites
-pass 87/87: 21 repository-audit tests and 66 cleanup-audit tests. Current
-semantic results are dead code 1,558/186 with 842 referenced modules and 23
+Hosted review round 6 recorded nested object destructuring defaults sourced
+from proven environment objects. That round's focused repository audit suites
+passed 87/87: 21 repository-audit tests and 66 cleanup-audit tests. Its now-historical
+semantic results were dead code 1,558/186 with 842 referenced modules and 23
 candidates; dependency 2,861/19 with 2 configuration owners and 6 candidates;
 asset 390/11,384 with 97 tracked assets, 97 protected items, 177 exact owners,
 zero candidates, 529 dynamic rows and 10,855 unresolved rows; and environment
@@ -840,6 +840,26 @@ unread-declaration candidates.
 At the verified round-6 staged code snapshot, the full suite passed 4,282
 tests with 3 host-dependent skips and zero failures; typecheck and lint
 passed.
+
+Hosted review round 7 records exact tracked runtime package metadata
+ownership, keeping `@generative-music/pieces-alex-bainter` out of unreferenced
+candidates without claiming an executable import. The generic parser requires
+exact declared package names and versions and conservatively handles lexical
+shadows, duplicate or overridden properties, and spreads. The current focused
+repository audit suites pass 88/88: 21 repository-audit tests and 67
+cleanup-audit tests. Current semantic results are dead code 1,558/186 with 842
+referenced modules and 23 candidates; dependency 2,863/19 with 2 configuration
+owners, 1 runtime-package-metadata owner, 144 referenced packages and 5
+candidates; asset 390/11,384 with 97 tracked assets, 97 protected items, 177
+exact owners, zero candidates, 529 dynamic rows and 10,855 unresolved rows;
+and environment 587/252 with 79 computed and 173 unproven-alias uncertainties
+and zero unread-declaration candidates.
+
+Round-7 verification passed: the full suite recorded 4,283 passed, 3
+host-dependent skips and zero failures; typecheck passed; lint passed with no
+ESLint warnings; and the production build passed with 115 routes. The build's
+Babel deoptimization note was informational, not a lint warning. Earlier
+round-6 results remain historical supporting evidence.
 
 The current tracked inventory remains 1,921 files.
 Brand verification remains zero missing and zero unclassified. Exact current
