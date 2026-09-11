@@ -36,18 +36,25 @@ function processImportBindings(sourceFile) {
     if (!clause) continue
     const exactModule = ["node:process", "process"].includes(statement.moduleSpecifier.text)
     const exactRuntimeModule = exactModule && !clause.isTypeOnly
-    if (clause.name && (exactRuntimeModule || clause.name.text === "process")) {
-      bindings.set(clause.name.text, exactRuntimeModule ? PROCESS_OBJECT : NON_ALIAS)
+    if (clause.name && (exactRuntimeModule || clause.name.text === "process" || isEnvironmentAliasName(clause.name.text))) {
+      const status = !clause.isTypeOnly && isEnvironmentAliasName(clause.name.text) ? "unknown" : NON_ALIAS
+      bindings.set(clause.name.text, exactRuntimeModule ? PROCESS_OBJECT : status)
     }
     const named = clause.namedBindings
-    if (named && ts.isNamespaceImport(named) && (exactRuntimeModule || named.name.text === "process")) {
-      bindings.set(named.name.text, exactRuntimeModule ? PROCESS_OBJECT : NON_ALIAS)
+    if (named && ts.isNamespaceImport(named) && (
+      exactRuntimeModule || named.name.text === "process" || isEnvironmentAliasName(named.name.text)
+    )) {
+      const status = !clause.isTypeOnly && isEnvironmentAliasName(named.name.text) ? "unknown" : NON_ALIAS
+      bindings.set(named.name.text, exactRuntimeModule ? PROCESS_OBJECT : status)
     } else if (named && ts.isNamedImports(named)) {
       for (const specifier of named.elements) {
         const imported = specifier.propertyName ?? specifier.name
         if (exactRuntimeModule && !specifier.isTypeOnly && ["default", "env"].includes(imported.text)) {
           bindings.set(specifier.name.text, imported.text === "env" ? "proven" : PROCESS_OBJECT)
-        } else if (specifier.name.text === "process") bindings.set("process", NON_ALIAS)
+        } else if (specifier.name.text === "process" || isEnvironmentAliasName(specifier.name.text)) {
+          const isRuntimeAlias = !clause.isTypeOnly && !specifier.isTypeOnly && isEnvironmentAliasName(specifier.name.text)
+          bindings.set(specifier.name.text, isRuntimeAlias ? "unknown" : NON_ALIAS)
+        }
       }
     }
   }
@@ -263,41 +270,42 @@ function collectEnvironmentRows(record, text) {
     }
   }
 
-  const shadowProcessObject = (name, scope) => {
+  const shadowEnvironmentBinding = (name, scope) => {
     if (ts.isIdentifier(name)) {
-      const status = lookupAlias(scope, name.text)
-      if (status === PROCESS_OBJECT || (name.text === "process" && status === null)) {
+      if (scope.bindings.has(name.text)) return
+      const status = lookupAlias(scope.parent, name.text)
+      if ([PROCESS_OBJECT, "proven", "unknown"].includes(status) || (name.text === "process" && status === null)) {
         scope.bindings.set(name.text, NON_ALIAS)
       }
     } else if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
       for (const element of name.elements) {
-        if (ts.isBindingElement(element)) shadowProcessObject(element.name, scope)
+        if (ts.isBindingElement(element)) shadowEnvironmentBinding(element.name, scope)
       }
     }
   }
 
-  /** Predeclare process-object shadows so TDZ/hoisting cannot expose an outer binding. */
-  const predeclareDirectProcessObjectShadows = (statements, scope) => {
+  /** Predeclare tracked environment shadows so TDZ/hoisting cannot expose an outer binding. */
+  const predeclareDirectEnvironmentShadows = (statements, scope) => {
     for (const statement of statements) {
-      if (ts.isImportEqualsDeclaration(statement)) shadowProcessObject(statement.name, scope)
+      if (ts.isImportEqualsDeclaration(statement)) shadowEnvironmentBinding(statement.name, scope)
       else if (ts.isVariableStatement(statement) && statement.declarationList.flags & ts.NodeFlags.BlockScoped) {
-        for (const declaration of statement.declarationList.declarations) shadowProcessObject(declaration.name, scope)
+        for (const declaration of statement.declarationList.declarations) shadowEnvironmentBinding(declaration.name, scope)
       } else if (
         (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) ||
           ts.isEnumDeclaration(statement) || ts.isModuleDeclaration(statement)) &&
         statement.name && ts.isIdentifier(statement.name)
-      ) shadowProcessObject(statement.name, scope)
+      ) shadowEnvironmentBinding(statement.name, scope)
     }
   }
 
-  const predeclareVarProcessObjectShadows = (container, scope) => {
+  const predeclareVarEnvironmentShadows = (container, scope) => {
     const scan = (node) => {
       if (node !== container && (ts.isFunctionLike(node) ||
         ts.isClassStaticBlockDeclaration(node) || ts.isModuleBlock(node))) return
       if (
         ts.isVariableDeclaration(node) && ts.isVariableDeclarationList(node.parent) &&
         !(node.parent.flags & ts.NodeFlags.BlockScoped)
-      ) shadowProcessObject(node.name, scope)
+      ) shadowEnvironmentBinding(node.name, scope)
       ts.forEachChild(node, scan)
     }
     scan(container)
@@ -348,7 +356,7 @@ function collectEnvironmentRows(record, text) {
       }
       const functionScope = childScope(parameterScope, true)
       for (const [name, status] of parameterScope.bindings) functionScope.bindings.set(name, status)
-      if (node.body) predeclareVarProcessObjectShadows(node.body, functionScope)
+      if (node.body) predeclareVarEnvironmentShadows(node.body, functionScope)
       if (node.body) visit(node.body, functionScope)
       return
     }
@@ -377,7 +385,7 @@ function collectEnvironmentRows(record, text) {
     }
     if (ts.isClassStaticBlockDeclaration(node)) {
       const staticScope = childScope(scope, true)
-      predeclareVarProcessObjectShadows(node.body, staticScope)
+      predeclareVarEnvironmentShadows(node.body, staticScope)
       visit(node.body, staticScope)
       return
     }
@@ -389,20 +397,20 @@ function collectEnvironmentRows(record, text) {
     }
     if (ts.isModuleBlock(node)) {
       const moduleScope = childScope(scope, true)
-      predeclareVarProcessObjectShadows(node, moduleScope)
-      predeclareDirectProcessObjectShadows(node.statements, moduleScope)
+      predeclareVarEnvironmentShadows(node, moduleScope)
+      predeclareDirectEnvironmentShadows(node.statements, moduleScope)
       for (const statement of node.statements) visit(statement, moduleScope)
       return
     }
     if (ts.isCaseBlock(node)) {
       const caseScope = childScope(scope)
-      predeclareDirectProcessObjectShadows(node.clauses.flatMap((clause) => clause.statements), caseScope)
+      predeclareDirectEnvironmentShadows(node.clauses.flatMap((clause) => clause.statements), caseScope)
       for (const clause of node.clauses) visit(clause, caseScope)
       return
     }
     if (ts.isBlock(node) || ts.isSourceFile(node)) {
       const blockScope = ts.isSourceFile(node) ? scope : childScope(scope)
-      predeclareDirectProcessObjectShadows(node.statements, blockScope)
+      predeclareDirectEnvironmentShadows(node.statements, blockScope)
       for (const statement of node.statements) visit(statement, blockScope)
       return
     }
@@ -468,7 +476,7 @@ function collectEnvironmentRows(record, text) {
   }
   const sourceScope = childScope(null, true)
   for (const [name, status] of processImportBindings(sourceFile)) sourceScope.bindings.set(name, status)
-  predeclareVarProcessObjectShadows(sourceFile, sourceScope)
+  predeclareVarEnvironmentShadows(sourceFile, sourceScope)
   visit(sourceFile, sourceScope)
   const errors = sourceFile.parseDiagnostics.length > 0
     ? [{ code: "SOURCE_PARSE_DIAGNOSTIC", path: record.path, count: sourceFile.parseDiagnostics.length }]

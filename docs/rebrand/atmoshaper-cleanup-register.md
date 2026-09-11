@@ -283,15 +283,15 @@ routes. The Babel deoptimization note was informational, not a lint warning.
 All four audit CLIs ran twice with byte-identical output, zero stderr and
 `deletionAuthority: false`.
 
-Hosted review round 9 makes global and exact imported process-object
+Hosted review round 9 made global and exact imported process-object
 recognition scope-aware. Lexical/TDZ, `var`, function, class, catch, loop,
 module and static-block shadows no longer imply environment ownership.
-Parameter defaults are evaluated separately from body bindings, and
-namespace `ImportEquals` declarations shadow outer process objects. The
-import classifier is consolidated; the environment analyzer contains 482
-nonblank lines. These repairs change no real-repository audit counts.
-The current focused repository audit suites pass 95/95: 21 repository-audit
-tests and 74 cleanup-audit tests. Current semantic results remain dead code
+Parameter defaults were evaluated separately from body bindings, and
+namespace `ImportEquals` declarations shadowed outer process objects. The
+import classifier was consolidated; the environment analyzer contained 482
+nonblank lines. These repairs changed no real-repository audit counts.
+That round's focused repository audit suites passed 95/95: 21 repository-audit
+tests and 74 cleanup-audit tests. Its now-historical semantic results were dead code
 1,558 findings/186 uncertainties; dependency 2,863/19; asset 561/11,302;
 and environment 587/252: 306 static reads, 79 declared names, 202 missing
 declarations, zero unread-declaration candidates, 79 computed uncertainties
@@ -302,6 +302,33 @@ tests: 4,290 passed, 3 host-dependent skips and zero failures. Typecheck
 passed; lint passed with no ESLint warnings; and the production build passed
 with 115 routes. Rounds 7 and 8 remain historical supporting evidence.
 Every report retains `deletionAuthority: false`.
+
+Hosted review round 10 repairs two validated latest-head findings: outer
+proven/unknown environment aliases leaking across inner declarations, and
+non-Node runtime imports locally named `env` or `environment` disappearing
+from the evidence. Inner declarations now shadow outer aliases without
+discarding existing same-scope bindings on assignment-free `var`
+redeclarations. Non-Node wrapper imports remain unproven-alias uncertainty,
+not exact environment ownership; exact Node imports and type-only exclusions
+remain distinct. The regression repair followed TDD RED/GREEN validation.
+The environment analyzer contains 490 nonblank lines.
+
+The current focused repository audit suites pass 97/97: 21 repository-audit
+tests and 76 cleanup-audit tests. At the verified round-10 code snapshot, the
+full suite recorded 4,295 tests: 4,292 passed, 3 host-dependent skips and zero
+failures. Typecheck and lint passed; the Babel deoptimization note was
+informational, not an ESLint warning. The exact environment audit ran twice
+with byte-identical output, zero stderr and `deletionAuthority: false`.
+Its current totals remain unchanged at 587 findings/252 uncertainties:
+306 static reads, 79 declared names, 202 missing declarations, zero
+unread-declaration candidates, 79 computed uncertainties and 173
+unproven-alias uncertainties. Round-9 verification remains historical
+supporting evidence, including its production-build receipt.
+
+Latest-head hosted review is pending; resolving hosted feedback and final
+checks/review precede any separately authorized merge. No cleanup deletion,
+provider mutation or Phase 5 action occurred; `deletionAuthority` remains
+false.
 
 The current tracked inventory remains 1,921 files. Brand verification remains
 zero missing and zero unclassified. Exact current staged bytes and identity

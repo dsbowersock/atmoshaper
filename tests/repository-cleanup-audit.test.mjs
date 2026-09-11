@@ -2326,6 +2326,77 @@ test("environment namespace import-equals declarations shadow outer process obje
   assert.equal(evidence.errors.length, 0)
 })
 
+test("environment alias predeclaration hides inherited proven and unknown aliases", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-alias-predeclaration.js", [
+    "import { env } from 'node:process'",
+    "const environment = getEnvironment()",
+    "const provenControl = env.PROVEN_CONTROL",
+    "const unknownControl = environment.UNKNOWN_CONTROL",
+    "function letShadow() { const value = env.LET_SHADOW; let env; return value }",
+    "function constShadow() { const value = environment.CONST_SHADOW; const environment = {}; return value }",
+    "function varShadow() { const value = env.VAR_SHADOW; var env; return value }",
+    "function functionShadow() { const value = environment.FUNCTION_SHADOW; function environment() {}; return value }",
+    "function classShadow() { const value = env.CLASS_SHADOW; class env {}; return value }",
+    "void provenControl; void unknownControl; void letShadow; void constShadow",
+    "void varShadow; void functionShadow; void classShadow",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["PROVEN_CONTROL"])
+  assert.deepEqual(
+    evidence.uncertainties.map((row) => [row.code, row.name, row.kind]),
+    [["UNPROVEN_ENVIRONMENT_ALIAS", "UNKNOWN_CONTROL", "property-access"]],
+  )
+  assert.equal(evidence.errors.length, 0)
+})
+
+test("environment-shaped runtime imports from other modules remain uncertain", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const computedExpression = "getImportedName()"
+  writeFixture(root, "lib/non-node-environment-imports.js", [
+    "import environment from './external-environment.js'",
+    "import { settings as env, env as config } from './external-settings.js'",
+    "const named = env.NAMED_UNKNOWN",
+    "const defaulted = environment.DEFAULT_UNKNOWN",
+    "const bracket = env['BRACKET_UNKNOWN']",
+    `const computed = environment[${computedExpression}]`,
+    "const unrelated = config.UNRELATED_LOCAL_NAME",
+    "void named; void defaulted; void bracket; void computed; void unrelated",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/non-node-environment-namespace.js", [
+    "import * as env from './external-namespace.js'",
+    "const namespace = env.NAMESPACE_UNKNOWN",
+    "void namespace",
+    "",
+  ].join("\n"))
+  writeFixture(root, "lib/non-node-environment-type.ts", [
+    "import type { Settings as env } from './external-types.js'",
+    "const typeOnly = env.TYPE_ONLY_SHADOW",
+    "void typeOnly",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(
+    evidence.uncertainties.map((row) => [row.code, row.name, row.kind]),
+    [
+      ["UNPROVEN_ENVIRONMENT_ALIAS", "NAMED_UNKNOWN", "property-access"],
+      ["UNPROVEN_ENVIRONMENT_ALIAS", "DEFAULT_UNKNOWN", "property-access"],
+      ["UNPROVEN_ENVIRONMENT_ALIAS", "BRACKET_UNKNOWN", "element-access"],
+      ["UNPROVEN_ENVIRONMENT_ALIAS", null, "element-access"],
+      ["UNPROVEN_ENVIRONMENT_ALIAS", "NAMESPACE_UNKNOWN", "property-access"],
+    ],
+  )
+  assert.equal(evidence.reads.length, 0)
+  assert.equal(evidence.errors.length, 0)
+  assertPrivateSerialization(evidence, root, [computedExpression])
+})
+
 test("environment alias reassignment updates proven and unknown state", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
