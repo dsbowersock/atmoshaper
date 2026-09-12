@@ -1,13 +1,13 @@
 import ts from "typescript"
 import {
   COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessEnvironment,
-  isProcessObjectAlias, isProcessObjectSource,
+  isPossibleProcessEnvironment, isProcessObjectAlias, isProcessObjectSource,
   isProcessImportEquals, isTransparentExpression, lookupAlias, processImportBindings, unwrapTransparentExpression, varBindingScope,
 } from "./cleanup-environment-scope.mjs"
 
 import { compareText, requireTrackedTextIndex, sha256, validateCleanupPolicy } from "./cleanup-core.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
-import { bindEnvironmentPatternDefaults, contributesToExpressionResult, isHandledObjectAssignment, logicalAssignmentKind, processEnvironmentAssignmentStatus, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
+import { bindEnvironmentPatternDefaults, contributesToExpressionResult, environmentResultOperands, hasReadSemantics, isHandledObjectAssignment, joinEnvironmentResultStatuses, logicalAssignmentKind, processEnvironmentAssignmentStatus, recordEnvironmentInKey, recordEnvironmentPattern, visitConditionalEnvironmentResult, visitLogicalEnvironmentResult, wholeObjectMethod } from "./cleanup-environment-patterns.mjs"
 import { stableJson } from "./core.mjs"
 
 function compareLocation(left, right) {
@@ -23,7 +23,7 @@ function compareLocation(left, right) {
 function aliasStatus(node, scope) {
   const value = unwrapTransparentExpression(node)
   if (!value) return null
-  if (isProcessEnvironment(value, scope)) return "proven"
+  if (isProcessEnvironment(value, scope)) return "proven"; if (isPossibleProcessEnvironment(value, scope)) return "unknown"
   if (ts.isIdentifier(value)) {
     const status = lookupAlias(scope, value.text)
     return [PROCESS_OBJECT, COMMONJS_LOADER].includes(status) ? null : status
@@ -31,18 +31,11 @@ function aliasStatus(node, scope) {
   return null
 }
 
-
-/** Omit write-only targets while retaining compound accesses that also read the prior value. */
-function hasReadSemantics(node) {
-  return !ts.isWriteOnlyAccess(node) && !ts.isDeleteTarget(node)
-}
-
 function collectEnvironmentRows(record, text) {
   const sourceFile = ts.createSourceFile(record.path, text, ts.ScriptTarget.Latest, true, scriptKind(record.path))
-  const reads = []
-  const uncertainties = []
+  const reads = [], uncertainties = []
   const annexBDeclarations = new Set()
-  let forInExpression = null, forInStatus = null
+  let forInExpression = null, forInStatus = null, inExpression = null, inOperands = null, inStatuses = null
   const addRead = (node, name, kind) => reads.push({
     name, path: record.path, ...sourceLocation(sourceFile, node), kind,
   })
@@ -61,15 +54,9 @@ function collectEnvironmentRows(record, text) {
     else if (status === "unknown") addAliasUncertainty(node, null, kind)
   }
 
-  const wholeObjectMethod = (node) => (
-    ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression) &&
-    node.expression.text === "Object" && ["entries", "keys", "values"].includes(node.name.text)
-      ? node.name.text
-      : null
-  )
-
   /** Leave established exact/whole-object handlers and alias setup as the sole owner of those nodes. */
   const isHandledEnvironmentValue = (node) => {
+    if (inExpression && contributesToExpressionResult(node, inExpression)) return true
     let value = node
     let parent = value.parent
     while (parent && isTransparentExpression(parent) && parent.expression === value) {
@@ -77,6 +64,7 @@ function collectEnvironmentRows(record, text) {
       parent = value.parent
     }
     if (!parent) return true
+    if (ts.isBinaryExpression(parent) && parent.operatorToken.kind === ts.SyntaxKind.InKeyword && parent.right === value) return true
     if (ts.isVoidExpression(parent) || ts.isTypeOfExpression(parent)) return true
     if (ts.isPropertyAccessExpression(parent) && parent.name === value) return true
     if (
@@ -291,6 +279,7 @@ function collectEnvironmentRows(record, text) {
   )
 
   const visit = (node, scope) => {
+    if (inOperands?.has(node)) inStatuses.push(aliasStatus(node, scope))
     const resultStatus = forInExpression && contributesToExpressionResult(node, forInExpression)
       ? aliasStatus(node, scope) : null
     if (resultStatus === "proven" || resultStatus === "unknown" && forInStatus === null) forInStatus = resultStatus
@@ -299,6 +288,8 @@ function collectEnvironmentRows(record, text) {
       if (isProcessImportEquals(node)) scope.bindings.set(node.name.text, PROCESS_OBJECT)
       return
     }
+    if (inOperands && ts.isConditionalExpression(node)) { visitConditionalEnvironmentResult(node, scope, visit); return }
+    if (inOperands && ts.isBinaryExpression(node) && [ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(node.operatorToken.kind)) { visitLogicalEnvironmentResult(node, scope, visit); return }
     if (ts.isFunctionLike(node)) {
       if (annexBDeclarations.has(node)) assignName(node.name.text, undefined, varBindingScope(scope))
       const parameterScope = childScope(scope, false, scope.strict || hasStrictDirective(node.body))
@@ -437,6 +428,12 @@ function collectEnvironmentRows(record, text) {
         logicalKind, statusSnapshot,
       )
       return
+    }
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.InKeyword) {
+      const outerIn = inExpression, outerOperands = inOperands, outerStatuses = inStatuses; inExpression = node.left; inOperands = new Set(); inStatuses = []; visit(node.left, scope)
+      inExpression = node.right; inOperands = new Set(environmentResultOperands(node.right)); inStatuses = []; visit(node.right, scope); const status = joinEnvironmentResultStatuses(inStatuses)
+      inExpression = outerIn; inOperands = outerOperands; inStatuses = outerStatuses
+      if (status) recordEnvironmentInKey(node.left, status, { addRead, addComputedUncertainty, addAliasUncertainty }); return
     }
     if (
       (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) &&

@@ -20,7 +20,7 @@ function isGeneratedInput(path) {
   return (
     /\.d\.(?:ts|mts|cts)$/.test(path) ||
     path.startsWith("prisma/migrations/") ||
-    path.includes("/generated/") ||
+    /(?:^|\/)generated\//.test(path) ||
     /(?:^|\/)generated\.[^.]+$/.test(path)
   )
 }

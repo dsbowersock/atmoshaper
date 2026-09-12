@@ -2,6 +2,7 @@ import ts from "typescript"
 
 export const NON_ALIAS = "non-alias"
 export const PROCESS_OBJECT = "process-object"
+export const POSSIBLE_PROCESS_OBJECT = "possible-process-object"
 export const COMMONJS_LOADER = "commonjs-wrapper-loader"
 
 /** Only source-level external import-equals emits a binding; namespace forms are unsupported by TS. */
@@ -118,6 +119,16 @@ export function isProcessEnvironment(node, scope) {
       (ts.isStringLiteral(value.argumentExpression) || ts.isNoSubstitutionTemplateLiteral(value.argumentExpression)) &&
       value.argumentExpression.text === "env"
   )
+}
+
+/** A branch-joined process object cannot prove a key, but must not disappear from evidence. */
+export function isPossibleProcessEnvironment(node, scope) {
+  const value = unwrapTransparentExpression(node)
+  if (!value || value.questionDotToken) return false
+  const base = ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value) ? unwrapTransparentExpression(value.expression) : null
+  const envName = ts.isPropertyAccessExpression(value) ? value.name.text : ts.isElementAccessExpression(value) && value.argumentExpression &&
+    (ts.isStringLiteral(value.argumentExpression) || ts.isNoSubstitutionTemplateLiteral(value.argumentExpression)) ? value.argumentExpression.text : null
+  return Boolean(base && ts.isIdentifier(base) && envName === "env" && lookupAlias(scope, base.text) === POSSIBLE_PROCESS_OBJECT)
 }
 
 export function isEnvironmentAliasName(name) {

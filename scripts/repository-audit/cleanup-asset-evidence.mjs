@@ -12,6 +12,7 @@ import {
 } from "./cleanup-core.mjs"
 import { cssUrlTokens } from "./cleanup-css-url.mjs"
 import { decodeHtmlUrl } from "./cleanup-html-url.mjs"
+import { markdownReferenceDefinitions } from "./cleanup-markdown-url.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
 import { stableJson } from "./core.mjs"
 
@@ -303,14 +304,18 @@ function collectTextLiterals(record, text, assetExtensions) {
     const masked = text.split("")
     for (const token of cssUrlTokens(text)) {
       addLiteral(token.value, token.offset, true, token.ambiguous, false, true)
-      for (let index = token.offset; index < token.end; index += 1) {
+      for (let index = token.maskStart; index < token.recoveryEnd; index += 1) {
         if (!["\r", "\n"].includes(masked[index])) masked[index] = " "
       }
     }
     legacyText = masked.join("")
   }
   if (record.extension === ".md") {
-    scan(/(?<!\\)!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))(?:\s+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^\r\n)]*\)))?\s*\)/g, markdownDestinationText(text), true)
+    const markdownText = markdownDestinationText(text)
+    scan(/(?<!\\)!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))(?:\s+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^\r\n)]*\)))?\s*\)/g, markdownText, true)
+    for (const destination of markdownReferenceDefinitions(markdownText)) {
+      addLiteral(destination.value, destination.offset, true, destination.ambiguous, false, true)
+    }
   }
   if (record.extension === ".html") {
     const masked = text.split("")

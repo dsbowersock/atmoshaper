@@ -3,15 +3,14 @@ import { extname } from "node:path"
 import ts from "typescript"
 
 import { annexBFunctionDeclarations } from "./cleanup-environment-scope.mjs"
+import { isMaybeExecutedAssignment, isMaybeExecutedWithinIteration } from "./cleanup-module-loader-control.mjs"
 
-const PROVEN_LOADER = "proven-loader"
-const CREATE_REQUIRE_FACTORY = "create-require-factory"
-const POSSIBLE_LOADER = "possible-loader"
-const UNPROVEN = "unproven"
+const PROVEN_LOADER = "proven-loader", CREATE_REQUIRE_FACTORY = "create-require-factory"
+const POSSIBLE_LOADER = "possible-loader", UNPROVEN = "unproven", IMMUTABLE_DECLARATION = ts.NodeFlags.Const | (ts.NodeFlags.Using ?? 0) | (ts.NodeFlags.AwaitUsing ?? 0)
 
 const childScope = (parent, ownsVarBindings = false, strict = parent?.strict ?? false) => ({
-  bindings: new Map(), enumMembers: new Map(), outerWriteNames: null, shadowBindings: new Set(),
-  parent, ownsVarBindings, strict,
+  bindings: new Map(), bindingRules: new Map(), enumMembers: new Map(), outerWriteNames: null, shadowBindings: new Set(),
+  parent, ownsVarBindings, strict, functionDepth: parent?.functionDepth ?? 0,
 })
 
 function lookup(scope, name) {
@@ -63,9 +62,11 @@ function predeclareLexical(container, scope) {
       const members = scope.enumMembers.get(statement.name.text) ?? []
       scope.enumMembers.set(statement.name.text, [...members, ...statement.members])
     }
-    if (ts.isVariableStatement(statement) && statement.declarationList.flags & ts.NodeFlags.BlockScoped) {
+    if (ts.isVariableStatement(statement) && statement.declarationList.flags & (ts.NodeFlags.BlockScoped | (ts.NodeFlags.Using ?? 0) | (ts.NodeFlags.AwaitUsing ?? 0))) {
       for (const declaration of statement.declarationList.declarations) {
-        addBindingNames(declaration.name, (name) => shadowName(scope, name))
+        addBindingNames(declaration.name, (name) => {
+          shadowName(scope, name); scope.bindingRules.set(name, { initialized: false, writable: !(statement.declarationList.flags & IMMUTABLE_DECLARATION) })
+        })
       }
     } else if (
       (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) ||
@@ -73,7 +74,7 @@ function predeclareLexical(container, scope) {
     ) {
       addBindingNames(statement.name, (name) => shadowName(scope, name))
     } else if (ts.isImportEqualsDeclaration(statement)) {
-      shadowName(scope, statement.name.text)
+      shadowName(scope, statement.name.text); scope.bindingRules.set(statement.name.text, { initialized: true, writable: false })
     }
   }
 }
@@ -107,9 +108,9 @@ function predeclareImports(sourceFile, scope, factoryNames) {
     if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue
     const clause = statement.importClause
     if (!clause) continue
-    if (clause.name) scope.bindings.set(clause.name.text, UNPROVEN)
+    if (clause.name) { scope.bindings.set(clause.name.text, UNPROVEN); scope.bindingRules.set(clause.name.text, { initialized: true, writable: false }) }
     const named = clause.namedBindings
-    if (named && ts.isNamespaceImport(named)) scope.bindings.set(named.name.text, UNPROVEN)
+    if (named && ts.isNamespaceImport(named)) { scope.bindings.set(named.name.text, UNPROVEN); scope.bindingRules.set(named.name.text, { initialized: true, writable: false }) }
     if (!named || !ts.isNamedImports(named)) continue
     const exactModule = ["module", "node:module"].includes(statement.moduleSpecifier.text)
     for (const element of named.elements) {
@@ -117,6 +118,7 @@ function predeclareImports(sourceFile, scope, factoryNames) {
       const status = exactModule && !clause.isTypeOnly && !element.isTypeOnly && imported === "createRequire"
         ? CREATE_REQUIRE_FACTORY : UNPROVEN
       scope.bindings.set(element.name.text, status)
+      scope.bindingRules.set(element.name.text, { initialized: true, writable: false })
       if (status === CREATE_REQUIRE_FACTORY) factoryNames.add(element.name.text)
     }
   }
@@ -173,6 +175,21 @@ function invalidateName(scope, name) {
     if (current.outerWriteNames?.has(name)) invalidateName(current.parent, name)
     return
   }
+}
+
+function bindAssignedLoader(scope, name, status, assignment) {
+  if (![PROVEN_LOADER, POSSIBLE_LOADER].includes(status)) return false
+  for (let current = scope; current; current = current.parent) {
+    if (!current.bindings.has(name)) continue
+    const rule = current.bindingRules.get(name)
+    const exactRegion = current.functionDepth === scope.functionDepth && !(rule?.iterationLocal ? isMaybeExecutedWithinIteration(assignment) : isMaybeExecutedAssignment(assignment))
+    const eligible = !rule || rule.initialized && rule.writable
+    const prior = current.bindings.get(name)
+    const joined = prior === PROVEN_LOADER && status === PROVEN_LOADER ? PROVEN_LOADER : POSSIBLE_LOADER
+    current.bindings.set(name, eligible ? exactRegion ? status : joined : POSSIBLE_LOADER); current.shadowBindings.delete(name)
+    return true
+  }
+  return false
 }
 
 function resolveTargetName(node) {
@@ -331,7 +348,7 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
       }
     }
     if (node.name && ts.isComputedPropertyName(node.name)) visit(node.name.expression, outerScope)
-    const parameterScope = childScope(outerScope)
+    const parameterScope = childScope(outerScope); parameterScope.functionDepth += 1
     if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) && node.name) {
       shadowName(parameterScope, node.name.text)
     }
@@ -434,10 +451,12 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
     }
     if (ts.isForStatement(node) || ts.isForInStatement(node) || ts.isForOfStatement(node)) {
       const initializer = node.initializer
-      const lexical = initializer && ts.isVariableDeclarationList(initializer) && initializer.flags & ts.NodeFlags.BlockScoped
+      const lexical = initializer && ts.isVariableDeclarationList(initializer) && initializer.flags & (ts.NodeFlags.BlockScoped | (ts.NodeFlags.Using ?? 0) | (ts.NodeFlags.AwaitUsing ?? 0))
       const loopScope = lexical ? childScope(scope) : scope
       if (lexical) for (const declaration of initializer.declarations) {
-        addBindingNames(declaration.name, (name) => shadowName(loopScope, name))
+        addBindingNames(declaration.name, (name) => {
+          shadowName(loopScope, name); loopScope.bindingRules.set(name, { initialized: false, iterationLocal: true, writable: !(initializer.flags & IMMUTABLE_DECLARATION) })
+        })
       }
       if (ts.isForStatement(node)) {
         if (initializer) visit(initializer, loopScope)
@@ -446,7 +465,7 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
         visit(node.expression, loopScope)
         if (initializer && ts.isVariableDeclarationList(initializer)) {
           for (const declaration of initializer.declarations) {
-            visitBindingPattern(declaration.name, loopScope)
+            visitBindingPattern(declaration.name, loopScope); addBindingNames(declaration.name, (name) => { const rule = loopScope.bindingRules.get(name); if (rule) rule.initialized = true })
           }
         } else {
           visitAssignmentPattern(initializer, loopScope)
@@ -461,6 +480,10 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
       if (node.initializer && !ts.isIdentifier(node.name)) visitBindingPattern(node.name, scope)
       const declarationList = ts.isVariableDeclarationList(node.parent) ? node.parent : null
       const targetScope = declarationList && !(declarationList.flags & ts.NodeFlags.BlockScoped) ? varScope(scope) : scope
+      addBindingNames(node.name, (name) => {
+        const rule = targetScope.bindingRules.get(name)
+        if (rule) rule.initialized = true
+      })
       if (node.initializer) {
         const status = ts.isIdentifier(node.name) ? initializerStatus(node.initializer, scope, factoryNames) : UNPROVEN
         addBindingNames(node.name, (name) => {
@@ -476,7 +499,9 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
       } else {
         const resolveMutation = isResolveMutationTarget(node.left, scope)
         visit(node.left, scope); visit(node.right, scope)
-        invalidateTarget(node.left, scope)
+        const assigned = node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isIdentifier(node.left) &&
+          bindAssignedLoader(scope, node.left.text, initializerStatus(node.right, scope, factoryNames), node)
+        if (!assigned) invalidateTarget(node.left, scope)
         downgradeResolveTarget(node.left, scope, resolveMutation)
       }
       return

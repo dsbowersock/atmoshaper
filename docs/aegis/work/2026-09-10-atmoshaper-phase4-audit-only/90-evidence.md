@@ -1008,6 +1008,55 @@ receipt. Latest-head PR checks and reviews remain pending. Merge remains
 separately authorized. No candidate deletion, provider mutation, merge or
 Phase 5 action occurred.
 
+## Hosted review round 24
+
+Hosted review round 23 is now historical supporting evidence; hosted review
+round 24 is the current Phase 4 audit-only receipt. Five validated hosted
+findings were repaired: plain identifier assignment preserves scope-safe
+`createRequire(import.meta.url)` loader provenance while binding legality and
+maybe-executed regions remain conservative; the environment `in` operator
+records exact static keys only for proven environment results and hash-only
+uncertainty for dynamic or joined provenance; semantic CommonMark link-reference
+definitions provide owner-relative asset evidence with exact raw offsets and
+block/container boundaries; malformed CSS `url(...)` recovery masks the full
+consumed construct without hiding adjacent valid URLs; and `generated/` is
+recognized as a generated path segment at repository root or deeper. Successive
+review hardening covered loader execution-region joins and binding legality,
+evaluation-time environment joins, CommonMark labels, references, titles,
+containers, lazy continuations and HTML blocks, and CSS recovery boundaries.
+Quality review ultimately returned PASS, including 34 focused round-24 checks.
+
+The full suite recorded 4,434 tests: 4,431 passed, 3 host-dependent skips and
+zero failures. Typecheck, lint and the production build passed. Lint emitted
+only the informational Babel greater-than-500-KB note. The build skipped the
+production migration gate outside Vercel Production, generated 115 static
+pages, and retained the existing Anatomime poll-shedder initialization notice.
+
+The pre-document staged receipt ran each command twice with exit 0, empty
+standard error and byte-identical output. Every cleanup report shared the same
+inventory and retained `deletionAuthority: false`: dead code 1,584 findings/211
+uncertainties (CRLF output SHA-256
+`b65ebdc62722c5b15c4fa48e49f9e9e50189f027f333e1ad1aaa9980764895b3`),
+dependency 2,873/21
+(`75e280f7a660eb2dbbeca004e75a4f0e1a767307dd7e8035391bf0b7fa0dcbee`),
+asset 557/11,630
+(`10ac976ea6b661b0784bde6c5466f56cc6b1f6952b0fb21693ad3ba5504af1b1`),
+and environment 587/252
+(`a1479454e1d7a56218cbd5cb72f173b2fd45a0b3d0026a95448a580b827b43ed`).
+The inventory contained 1,932 tracked files and 47,888,742 Git blob bytes,
+inventory SHA-256
+`467f98da77b03130be36c7e9203940dcc75bc4ed8b8e2c4aad8035aedee02076`,
+CRLF serialized-output SHA-256
+`189751af76d128a4b07faf215c8a5d795810d3b1c737e4215e3d26e6bb68bf17`,
+and zero forbidden paths. Brand verification remained zero missing and zero
+unclassified with output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These values become historical after the tracked receipt documents are staged;
+the exact final staged identity remains pending in the ignored SDD handoff.
+Round 24 has not yet been pushed. Latest-head hosted checks and reviews remain
+pending, and merge remains separately authorized. No candidate deletion,
+provider mutation, merge or Phase 5 action occurred.
+
 ## Hosted review round 23 CSS, generated-input and environment evidence
 
 Hosted review round 22 is now historical supporting evidence; hosted review

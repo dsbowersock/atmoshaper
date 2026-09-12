@@ -98,14 +98,51 @@ function skipOpaqueString(text, start) {
   return text.length
 }
 
-function skipToUrlEnd(text, start) {
+function skipComment(text, start) {
+  const end = text.indexOf("*/", start + 2)
+  return end < 0 ? text.length : end + 2
+}
+
+/** Bad URL remnants stop only at an unescaped close; comments are absent from the token stream. */
+function skipBadUrlRemnants(text, start) {
   let cursor = start
-  while (cursor < text.length && text[cursor] !== ")") {
-    if (["\"", "'"].includes(text[cursor])) cursor = skipOpaqueString(text, cursor)
-    else if (text[cursor] === "\\") cursor = consumeEscape(text, cursor, false).next
+  while (cursor < text.length) {
+    if (text[cursor] === ")") return cursor + 1
+    if (text[cursor] === "\\") cursor = consumeEscape(text, cursor, false).next
     else cursor += 1
   }
-  return Math.min(text.length, cursor + 1)
+  return cursor
+}
+
+function skipRecoveryString(text, start) {
+  const quote = text[start]
+  for (let cursor = start + 1; cursor < text.length;) {
+    if (text[cursor] === quote) return cursor + 1
+    if (["\n", "\r", "\f"].includes(text[cursor])) return cursor
+    if (text[cursor] === "\\") cursor = consumeEscape(text, cursor, true).next
+    else cursor += 1
+  }
+  return text.length
+}
+
+/** Recover quoted function syntax through nested component values without consuming a successor token. */
+function skipFunctionEnd(text, start) {
+  const closers = new Map([["(", ")"], ["[", "]"], ["{", "}"]])
+  const stack = [")"]
+  let cursor = start
+  while (cursor < text.length) {
+    if (text.startsWith("/*", cursor)) { cursor = skipComment(text, cursor); continue }
+    if (["\"", "'"].includes(text[cursor])) { cursor = skipRecoveryString(text, cursor); continue }
+    if (text[cursor] === "\\") { cursor = consumeEscape(text, cursor, false).next; continue }
+    if (closers.has(text[cursor])) stack.push(closers.get(text[cursor]))
+    else if (text[cursor] === stack.at(-1)) {
+      stack.pop(); cursor += 1
+      if (stack.length === 0) return cursor
+      continue
+    }
+    cursor += 1
+  }
+  return cursor
 }
 
 function cssUrlToken(text, openParen) {
@@ -143,6 +180,10 @@ function cssUrlToken(text, openParen) {
     const character = text[cursor]
     if (character === "\\") {
       const escape = consumeEscape(text, cursor, Boolean(quote))
+      if (!quote && !escape.valid) {
+        ambiguous = true
+        return finish(cursor, skipBadUrlRemnants(text, escape.next))
+      }
       append(escape.replacement, cursor)
       ambiguous ||= !escape.valid
       cursor = escape.next
@@ -155,7 +196,7 @@ function cssUrlToken(text, openParen) {
         while (isCssWhitespace(text[cursor])) cursor += 1
         if (text[cursor] !== ")") {
           ambiguous = true
-          return finish(end, skipToUrlEnd(text, cursor))
+          return finish(end, skipFunctionEnd(text, cursor))
         }
         cursor += 1
       }
@@ -166,11 +207,16 @@ function cssUrlToken(text, openParen) {
       while (isCssWhitespace(text[cursor])) cursor += 1
       if (text[cursor] === ")") return finish(end, cursor + 1)
       ambiguous = true
-      return finish(end, skipToUrlEnd(text, cursor))
+      return finish(end, skipBadUrlRemnants(text, cursor))
     }
-    if (!quote && ["\"", "'", "("].includes(character)) ambiguous = true
-    if (quote && ["\n", "\r", "\f"].includes(character)) ambiguous = true
-    if (text.startsWith("/*", cursor)) ambiguous = true
+    if (!quote && ["\"", "'", "("].includes(character)) {
+      ambiguous = true
+      return finish(cursor, skipBadUrlRemnants(text, cursor))
+    }
+    if (quote && ["\n", "\r", "\f"].includes(character)) {
+      ambiguous = true
+      return finish(cursor, skipFunctionEnd(text, cursor))
+    }
     const decodedCharacter = cssInputCharacter(text, cursor)
     append(decodedCharacter, cursor)
     cursor += decodedCharacter.length
@@ -208,7 +254,7 @@ export function cssUrlTokens(text) {
       const identifier = cssIdentifier(text, cursor)
       if (identifier.valid && identifier.decoded.toLowerCase() === "url" && text[identifier.next] === "(") {
         const token = cssUrlToken(text, identifier.next)
-        rows.push({ value: token.value, offset: token.offset, end: token.end, ambiguous: token.ambiguous })
+        rows.push({ value: token.value, offset: token.offset, end: token.end, maskStart: cursor, recoveryEnd: token.resume, ambiguous: token.ambiguous })
         cursor = token.resume
         continue
       }

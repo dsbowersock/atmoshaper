@@ -6010,3 +6010,872 @@ test("package exposes the exact cleanup audit commands", () => {
   assert.equal(packageJson.scripts["asset:audit"], "node scripts/repository-audit/asset.mjs")
   assert.equal(packageJson.scripts["env:audit"], "node scripts/repository-audit/environment.mjs")
 })
+
+test("round 24 loader evidence preserves plain-assignment provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/assigned-loader.mjs", [
+    "import { createRequire } from 'node:module'",
+    "let loader",
+    "loader = createRequire(import.meta.url)",
+    "loader('../lib/service')",
+    "let alias",
+    "alias = loader",
+    "alias('../lib/service')",
+    "loader = other",
+    "loader('../lib/service')",
+    "function shadow(createRequire) { let local; local = createRequire(import.meta.url); local('../lib/service') }",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.references.filter((row) => row.kind === "require").map((row) => [row.line, row.targetPath]), [
+    [4, "lib/service.ts"],
+    [7, "lib/service.ts"],
+  ])
+  assert.equal(first.references.some((row) => row.line === 9), false)
+  assert.equal(first.references.some((row) => row.line === 10), false)
+  assert.deepEqual(first.errors, [])
+})
+
+test("round 24 environment evidence classifies static and computed in-operator keys", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateDynamic = "selectPrivateEnvironmentKey()"
+  writeFixture(root, "app/environment-in.ts", [
+    "const environment = process.env;",
+    "'STATIC_KEY' in process.env;",
+    "`TEMPLATE_KEY` in environment;",
+    `${privateDynamic} in process.env;`,
+    "let env;",
+    "'UNKNOWN_KEY' in env;",
+    "'BEFORE_REASSIGN' in environment;",
+    "environment = {};",
+    "'AFTER_REASSIGN' in environment;",
+    "function shadow(process) { 'SHADOWED_KEY' in process.env; }",
+    "function tdz() { 'TDZ_KEY' in process.env; const process = globalThis.process; }",
+    "function ordinary(value) { 'id' in value; }",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentEvidence(index, policy)
+  const second = buildEnvironmentEvidence(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.filter((row) => row.kind === "in-operator").map((row) => row.name), [
+    "STATIC_KEY", "TEMPLATE_KEY", "BEFORE_REASSIGN",
+  ])
+  const computed = first.uncertainties.filter((row) => row.code === "COMPUTED_ENVIRONMENT_READ" && row.kind === "in-operator")
+  assert.equal(computed.length, 1)
+  assert.match(computed[0].expressionSha256, /^[a-f0-9]{64}$/)
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS" && row.kind === "in-operator").map((row) => row.name), ["UNKNOWN_KEY", "AFTER_REASSIGN"])
+  assert.equal(first.reads.some((row) => ["AFTER_REASSIGN", "SHADOWED_KEY", "TDZ_KEY"].includes(row.name)), false)
+  assertPrivateSerialization(first, root, [privateDynamic])
+})
+
+test("round 24 Markdown reference definitions retain semantic destinations and raw offsets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of [
+    "hero.png", "angle.png", "nested(foo).png", "multi.png", "quoted.png", "listed.png",
+    "paren).png", "first.png", "second.png", "blocked.png", "broken.png",
+  ]) writeFixture(root, `app/panel/images/${name}`, name)
+  const suffix = "?private-reference-definition=1#fragment"
+  const lines = [
+    `[Hero]: images/hero.png${suffix} "title"`,
+    `[Angle]: <images/angle.png${suffix}>`,
+    `[Nested]: images/nested(foo).png${suffix}`,
+    "[Multi]:",
+    `  images/multi.png${suffix}`,
+    "  'multiline title'",
+    `> [Quoted]: images/quoted.png${suffix}`,
+    `- [Listed]: images/listed.png${suffix}`,
+    String.raw`[Escaped]: images/paren\).png${suffix}`,
+    `[Dupe Label]: images/first.png${suffix}`,
+    `[ dupe   label ]: images/second.png${suffix}`,
+    "paragraph interruption",
+    `[Blocked]: images/blocked.png${suffix}`,
+    "",
+    "```md",
+    `[Code]: images/blocked.png${suffix}`,
+    "```",
+    `    [Indented]: images/blocked.png${suffix}`,
+    `[Broken]: images/broken(foo.png${suffix}`,
+    "",
+  ]
+  writeFixture(root, "app/panel/references.md", lines.join("\n"))
+
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  const owners = first.referenceOwners.filter((row) => row.fromPath === "app/panel/references.md")
+  const expected = [
+    [1, "images/hero.png", "app/panel/images/hero.png"],
+    [2, "images/angle.png", "app/panel/images/angle.png"],
+    [3, "images/nested(foo).png", "app/panel/images/nested(foo).png"],
+    [5, "images/multi.png", "app/panel/images/multi.png"],
+    [7, "images/quoted.png", "app/panel/images/quoted.png"],
+    [8, "images/listed.png", "app/panel/images/listed.png"],
+    [9, String.raw`images/paren\).png`, "app/panel/images/paren).png"],
+    [10, "images/first.png", "app/panel/images/first.png"],
+  ]
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), expected.map(([line, raw, target]) => [
+    line, lines[line - 1].indexOf(raw) + 1, target,
+  ]))
+  assert.equal(owners.some((row) => ["app/panel/images/second.png", "app/panel/images/blocked.png", "app/panel/images/broken.png"].includes(row.targetPath)), false)
+  assertPrivateSerialization(first, root, [suffix, "private-reference-definition"])
+})
+
+test("round 24 CSS malformed url recovery masks the consumed construct", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/adjacent.png", "adjacent")
+  for (const name of [
+    "noise-string.png", "noise-nested.png", "noise-comment.png",
+    "noise-escaped.png", "noise-unquoted.png", "noise-eof.png",
+  ]) writeFixture(root, `app/panel/${name}`, name)
+  const lines = [
+    `a { background: url("missing.png" "noise-string.png?private-recovery=1") url(adjacent.png) }`,
+    `b { background: url("missing.png" calc("noise-nested.png?private-recovery=2")) url(adjacent.png) }`,
+    `c { background: url("missing.png" /* ) */ "noise-comment.png?private-recovery=3") url(adjacent.png) }`,
+    String.raw`d { background: url("missing.png" junk\) "noise-escaped.png?private-recovery=4") url(adjacent.png) }`,
+    `e { background: url(missing.png"noise-unquoted.png?private-recovery=5") url(adjacent.png) }`,
+    `f { background: url("missing.png" "noise-eof.png?private-recovery=6"`,
+  ]
+  writeFixture(root, "app/panel/recovery.css", lines.join("\n"))
+
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.filter((row) => row.fromPath === "app/panel/recovery.css").map((row) => [row.line, row.column, row.targetPath]), [1, 2, 3, 4, 5].map((line) => [
+    line, lines[line - 1].indexOf("adjacent.png") + 1, "app/panel/adjacent.png",
+  ]))
+  const unresolved = first.uncertainties.unresolvedLiteralAssets.filter((row) => row.fromPath === "app/panel/recovery.css")
+  assert.deepEqual(unresolved.map((row) => [row.line, row.column]), lines.map((line, index) => [
+    index + 1, line.indexOf("missing.png") + 1,
+  ]))
+  assert.ok(unresolved.every((row) => /^[a-f0-9]{64}$/.test(row.literalSha256)))
+  assert.equal(first.basenameOnlySignals.filter((row) => row.fromPath === "app/panel/recovery.css").length, 0)
+  assertPrivateSerialization(first, root, ["private-recovery"])
+})
+
+test("round 24 generated-input uncertainty recognizes root and nested path segments", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of [
+    "generated.js", "generated/client.js", "lib/generated/client.js", "regenerated/client.js",
+    "lib/generatedness/client.js", "generated-client.js", "lib/generated-client.js",
+  ]) writeFixture(root, path, "export const fixture = true\n")
+
+  const report = buildDeadCodeCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.uncertainties.generatedInputs.map((row) => row.path), [
+    "generated.js", "generated/client.js", "lib/generated/client.js",
+  ])
+  assert.ok(report.uncertainties.generatedInputs.every((row) => row.reason === "generated-or-declaration-input"))
+})
+
+test("round 24 loader assignment promotion respects execution regions", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let conditional;",
+    "if (flag) { conditional = createRequire(import.meta.url); }",
+    "conditional('../lib/service');",
+    "let unbraced;",
+    "if (flag) unbraced = createRequire(import.meta.url);",
+    "unbraced('../lib/service');",
+    "let looped;",
+    "while (flag) { looped = createRequire(import.meta.url); }",
+    "looped('../lib/service');",
+    "let nested;",
+    "function initialize() { nested = createRequire(import.meta.url); }",
+    "nested('../lib/service');",
+    "let repeated = createRequire(import.meta.url);",
+    "repeated = createRequire(import.meta.url);",
+    "repeated('../lib/service');",
+    "let priorPossible;",
+    "if (flag) priorPossible = createRequire(import.meta.url);",
+    "priorPossible = createRequire(import.meta.url);",
+    "priorPossible('../lib/service');",
+    "function local() { let loader; loader = createRequire(import.meta.url); loader('../lib/service'); }",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-regions.mjs", lines.join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.references.filter((row) => row.kind === "require").map((row) => row.line), [16, 20, 21])
+  assert.ok(first.uncertainties.every((row) => !row.expressionSha256 || /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 24 Markdown definitions follow paragraph and container block boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["heading.png", "rule.png", "quote.png", "list.png", "multi.png", "blocked.png"]) {
+    writeFixture(root, `app/panel/images/${name}`, name)
+  }
+  const lines = [
+    "# Heading",
+    "[Heading]: images/heading.png",
+    "---",
+    "[Rule]: images/rule.png",
+    "ordinary paragraph",
+    "> [Quote]: images/quote.png",
+    "another paragraph",
+    "- [List]: images/list.png",
+    "> [Multi]:",
+    ">   images/multi.png",
+    ">   \"title\"",
+    "ordinary paragraph control",
+    "[Blocked]: images/blocked.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/block-definitions.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const owners = report.referenceOwners.filter((row) => row.fromPath === "app/panel/block-definitions.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [2, lines[1].indexOf("images/") + 1, "app/panel/images/heading.png"],
+    [4, lines[3].indexOf("images/") + 1, "app/panel/images/rule.png"],
+    [6, lines[5].indexOf("images/") + 1, "app/panel/images/quote.png"],
+    [8, lines[7].indexOf("images/") + 1, "app/panel/images/list.png"],
+    [10, lines[9].indexOf("images/") + 1, "app/panel/images/multi.png"],
+  ])
+  assert.equal(owners.some((row) => row.targetPath === "app/panel/images/blocked.png"), false)
+})
+
+test("round 24 loader assignments join maybe-executed provenance conservatively", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let braced; if (flag) { braced = createRequire(import.meta.url); } braced('../lib/service');",
+    "let unbraced; if (flag) unbraced = createRequire(import.meta.url); unbraced('../lib/service');",
+    "let looped; for (const item of items) { looped = createRequire(import.meta.url); } looped('../lib/service');",
+    "let nested; function initialize() { nested = createRequire(import.meta.url); } nested('../lib/service');",
+    "let caught; try { operation(); } catch { caught = createRequire(import.meta.url); } caught('../lib/service');",
+    "let instance; class Holder { field = (instance = createRequire(import.meta.url)); } instance('../lib/service');",
+    "let repeated = createRequire(import.meta.url); repeated = createRequire(import.meta.url); repeated('../lib/service');",
+    "let overwritten; if (flag) overwritten = createRequire(import.meta.url); overwritten = createRequire(import.meta.url); overwritten('../lib/service');",
+    "function local() { let loader; loader = createRequire(import.meta.url); loader('../lib/service'); }",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-joins.mjs", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [8, 9, 10])
+  const uncertain = report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => row.line), [2, 3, 4, 5, 6, 7])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 24 Markdown definitions follow Setext list label and Unicode rules", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["setext.png", "ordered.png", "multi-label.png", "sharp.png", "duplicate.png"]) {
+    writeFixture(root, `app/panel/images/${name}`, name)
+  }
+  const lines = [
+    "Setext heading",
+    "===============",
+    "[Setext]: images/setext.png",
+    "ordinary paragraph",
+    "2. [Ordered]: images/ordered.png",
+    "",
+    "[Multi",
+    " line]: images/multi-label.png",
+    "[Straße]: images/sharp.png",
+    "[STRASSE]: images/duplicate.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/commonmark-definitions.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const owners = report.referenceOwners.filter((row) => row.fromPath === "app/panel/commonmark-definitions.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [3, lines[2].indexOf("images/") + 1, "app/panel/images/setext.png"],
+    [8, lines[7].indexOf("images/") + 1, "app/panel/images/multi-label.png"],
+    [9, lines[8].indexOf("images/") + 1, "app/panel/images/sharp.png"],
+  ])
+  assert.equal(owners.some((row) => ["app/panel/images/ordered.png", "app/panel/images/duplicate.png"].includes(row.targetPath)), false)
+})
+
+test("round 24 loader joins optionally evaluated assignment contexts", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let callArgument; receiver?.(callArgument = createRequire(import.meta.url)); callArgument('../lib/service');",
+    "let elementKey; receiver?.[elementKey = createRequire(import.meta.url)]; elementKey('../lib/service');",
+    "let bindingDefault; const { value = (bindingDefault = createRequire(import.meta.url)) } = source; bindingDefault('../lib/service');",
+    "let assignmentDefault; ({ value = (assignmentDefault = createRequire(import.meta.url)) } = source); assignmentDefault('../lib/service');",
+    "let andWrite; flag &&= (andWrite = createRequire(import.meta.url)); andWrite('../lib/service');",
+    "let orWrite; flag ||= (orWrite = createRequire(import.meta.url)); orWrite('../lib/service');",
+    "let nullishWrite; flag ??= (nullishWrite = createRequire(import.meta.url)); nullishWrite('../lib/service');",
+    "let direct; direct = createRequire(import.meta.url); direct('../lib/service');",
+    "",
+  ]
+  writeFixture(root, "scripts/optional-loader-joins.mjs", lines.join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.references.filter((row) => row.kind === "require").map((row) => row.line), [9])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => row.line), [2, 3, 4, 5, 6, 7, 8])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 24 Markdown definitions preserve list items and complete labels", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["second.png", "continued.png", "whitespace.png"]) {
+    writeFixture(root, `app/panel/images/${name}`, name)
+  }
+  const lines = [
+    "1. ordinary list paragraph",
+    "2. [Second]: images/second.png",
+    "",
+    "> [Continued",
+    "> label",
+    "> tail]: images/continued.png",
+    "[   ]: images/whitespace.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/continued-definitions.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const owners = report.referenceOwners.filter((row) => row.fromPath === "app/panel/continued-definitions.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [2, lines[1].indexOf("images/") + 1, "app/panel/images/second.png"],
+    [6, lines[5].indexOf("images/") + 1, "app/panel/images/continued.png"],
+  ])
+  assert.equal(owners.some((row) => row.targetPath === "app/panel/images/whitespace.png"), false)
+})
+
+test("round 24 loader joins optional chains and renamed assignment defaults", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let methodArgument; receiver?.method(methodArgument = createRequire(import.meta.url)); methodArgument('../lib/service');",
+    "let elementMethod; receiver?.[method](elementMethod = createRequire(import.meta.url)); elementMethod('../lib/service');",
+    "let renamed; ({ value: target = (renamed = createRequire(import.meta.url)) } = source); renamed('../lib/service');",
+    "let arrayDefault; [target = (arrayDefault = createRequire(import.meta.url))] = source; arrayDefault('../lib/service');",
+    "let direct; direct = createRequire(import.meta.url); direct('../lib/service');",
+    "",
+  ]
+  writeFixture(root, "scripts/optional-chain-loader-joins.mjs", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [6])
+  const uncertain = report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => row.line), [2, 3, 4, 5])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 24 Markdown definitions decode entities and multiline titles exactly", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["a&b.png", "numeric.png", "nbsp.png", "title.png", "leading.png"]) {
+    writeFixture(root, `app/panel/images/${name}`, name)
+  }
+  const nbsp = "\u00a0"
+  const suffix = "?private-markdown-entity=1"
+  const lines = [
+    `[Named]: images/a&amp;b.png${suffix}`,
+    `[Numeric]: images&#x2f;numeric.png${suffix}`,
+    `[${nbsp}]: images/nbsp.png${suffix}`,
+    `[Title]: images/title.png${suffix} \"first line`,
+    `second line\"`,
+    "ordinary paragraph",
+    `01. [Leading]: images/leading.png${suffix}`,
+    "",
+  ]
+  writeFixture(root, "app/panel/entity-definitions.md", lines.join("\n"))
+
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  const owners = first.referenceOwners.filter((row) => row.fromPath === "app/panel/entity-definitions.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [1, lines[0].indexOf("images/") + 1, "app/panel/images/a&b.png"],
+    [2, lines[1].indexOf("images") + 1, "app/panel/images/numeric.png"],
+    [3, lines[2].indexOf("images/") + 1, "app/panel/images/nbsp.png"],
+    [4, lines[3].indexOf("images/") + 1, "app/panel/images/title.png"],
+    [7, lines[6].indexOf("images/") + 1, "app/panel/images/leading.png"],
+  ])
+  assertPrivateSerialization(first, root, [suffix, "private-markdown-entity"])
+})
+
+test("round 24 loader joins nested assignment-pattern defaults", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let nestedArray; [[target = (nestedArray = createRequire(import.meta.url))]] = source; nestedArray('../lib/service');",
+    "let objectInArray; [{ value: target = (objectInArray = createRequire(import.meta.url)) }] = source; objectInArray('../lib/service');",
+    "let direct; direct = createRequire(import.meta.url); direct('../lib/service');",
+    "",
+  ]
+  writeFixture(root, "scripts/nested-loader-defaults.mjs", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [4])
+  const uncertain = report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => row.line), [2, 3])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 24 Markdown labels decode entities and require real Setext context", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["first.png", "duplicate.png", "orphan.png", "closed.png"]) {
+    writeFixture(root, `app/panel/images/${name}`, name)
+  }
+  const lines = [
+    "[A&amp;B]: images/first.png",
+    "[A&B]: images/duplicate.png",
+    "",
+    "===",
+    "[Orphan]: images/orphan.png",
+    "",
+    "Setext paragraph",
+    "===",
+    "[Closed]: images/closed.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/label-entities.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const owners = report.referenceOwners.filter((row) => row.fromPath === "app/panel/label-entities.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [1, lines[0].indexOf("images/") + 1, "app/panel/images/first.png"],
+    [9, lines[8].indexOf("images/") + 1, "app/panel/images/closed.png"],
+  ])
+  assert.equal(owners.some((row) => ["app/panel/images/duplicate.png", "app/panel/images/orphan.png"].includes(row.targetPath)), false)
+})
+
+test("round 24 loader assignment promotion respects binding state and try execution", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "lib/imported.js", "export default null\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "import imported from '../lib/imported.js';",
+    "let tried; try { mightThrow(); tried = createRequire(import.meta.url); } catch {} tried('../lib/service');",
+    "beforeLet = createRequire(import.meta.url); let beforeLet; beforeLet('../lib/service');",
+    "const fixed = createRequire(import.meta.url); fixed = createRequire(import.meta.url); fixed('../lib/service');",
+    "imported = createRequire(import.meta.url); imported('../lib/service');",
+    "let branch = createRequire(import.meta.url); if (flag) branch = createRequire(import.meta.url); branch('../lib/service');",
+    "let validLet; validLet = createRequire(import.meta.url); validLet('../lib/service');",
+    "var validVar; validVar = createRequire(import.meta.url); validVar('../lib/service');",
+    "function local(parameter) { parameter = createRequire(import.meta.url); parameter('../lib/service'); }",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-binding-state.mjs", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [7, 8, 9, 10])
+  const uncertain = report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => row.line), [3, 4, 5, 6])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 24 environment in-operator follows expression result provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateKey = "selectPrivateKey()"
+  const lines = [
+    "let environment = process.env;",
+    "'ASSIGN' in (environment = process.env);",
+    "'COMMA' in (sideEffect(), process.env);",
+    "'ALL' in (flag ? process.env : environment);",
+    "'LOGICAL' in (process.env || environment);",
+    "('PAREN') in process.env;",
+    "123 in process.env;",
+    "'MIXED' in (flag ? process.env : {});",
+    `${privateKey} in (flag ? process.env : {});`,
+    "((environment = {}), 'LEFT_MUTATION') in environment;",
+    "'RHS_MUTATION' in (environment = flag ? process.env : {});",
+    "",
+  ]
+  writeFixture(root, "app/environment-in-results.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.filter((row) => row.kind === "in-operator").map((row) => row.name), [
+    "ASSIGN", "COMMA", "ALL", "LOGICAL", "PAREN", "123",
+  ])
+  const computed = first.uncertainties.filter((row) => row.kind === "in-operator" && row.code === "COMPUTED_ENVIRONMENT_READ")
+  assert.deepEqual(computed.map((row) => row.line), [8, 9, 11])
+  assert.ok(computed.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assert.deepEqual(first.uncertainties.filter((row) => row.kind === "in-operator" && row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["LEFT_MUTATION"])
+  assertPrivateSerialization(first, root, [privateKey])
+})
+
+test("round 24 Markdown definitions enforce ASCII block and title grammar", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["unicode-indent.png", "unicode-trailing.png", "nested-title.png", "raw-html.png", "after-empty.png", "tab-list.png"]) {
+    writeFixture(root, `app/panel/images/${name}`, name)
+  }
+  const nbsp = "\u00a0"
+  const lines = [
+    `${nbsp}[Indent]: images/unicode-indent.png`,
+    `[Trailing]: images/unicode-trailing.png${nbsp}\"title\"`,
+    `[Nested]: images/nested-title.png (outer(inner)`,
+    "<script>",
+    "",
+    "[Raw]: images/raw-html.png",
+    "</script>",
+    "[Empty]: <>",
+    "[After]: images/after-empty.png",
+    "- [Tab]:",
+    "\timages/tab-list.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/markdown-quality.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const owners = report.referenceOwners.filter((row) => row.fromPath === "app/panel/markdown-quality.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [9, lines[8].indexOf("images/") + 1, "app/panel/images/after-empty.png"],
+    [11, lines[10].indexOf("images/") + 1, "app/panel/images/tab-list.png"],
+  ])
+})
+
+test("round 24 CSS recovery preserves adjacent URLs across comments and bad strings", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/adjacent.png", "adjacent")
+  const lines = [
+    "a { background: url(missing.png/*) url(adjacent.png) }",
+    "b { background: url(\"missing.png\" \"unterminated",
+    ") url(adjacent.png) }",
+    "c { background: url(\"missing.png\" \"continued\\",
+    "string\") url(adjacent.png) }",
+  ]
+  writeFixture(root, "app/panel/css-quality.css", lines.join("\n"))
+
+  const first = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const second = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.filter((row) => row.fromPath === "app/panel/css-quality.css").map((row) => [row.line, row.column]), [
+    [1, lines[0].indexOf("adjacent.png") + 1],
+    [3, lines[2].indexOf("adjacent.png") + 1],
+    [5, lines[4].indexOf("adjacent.png") + 1],
+  ])
+})
+
+test("round 24 loader assignment legality includes loop declarations and import-equals", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "lib/other.ts", "export const other = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "import imported = require('../lib/other');",
+    "imported = createRequire(import.meta.url); imported('../lib/service');",
+    "for (const fixed = other; fixed = createRequire(import.meta.url);) { fixed('../lib/service'); break; }",
+    "for (let mutable = other; mutable = createRequire(import.meta.url);) { mutable('../lib/service'); break; }",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-legality.ts", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [5])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [3, 4])
+})
+
+test("round 24 environment in-operator snapshots mutually exclusive branch provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let environment = {};",
+    "'LEFT_MUTATES' in (flag ? (environment = process.env) : environment);",
+    "environment = {};",
+    "'RIGHT_MUTATES' in (flag ? environment : (environment = process.env));",
+    "environment = process.env;",
+    "'ALL_PROVEN' in (flag ? process.env : environment);",
+    "",
+  ]
+  writeFixture(root, "app/environment-in-branches.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.filter((row) => row.kind === "in-operator").map((row) => row.name), ["ALL_PROVEN"])
+  const uncertain = first.uncertainties.filter((row) => row.kind === "in-operator" && row.code === "COMPUTED_ENVIRONMENT_READ")
+  assert.deepEqual(uncertain.map((row) => row.line), [2, 4])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 24 Markdown definitions track HTML blocks list continuity and optional titles", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["same-line.png", "malformed.png", "processing.png", "listed.png", "destination.png"]) {
+    writeFixture(root, `app/panel/images/${name}`, name)
+  }
+  const lines = [
+    "<script></script>",
+    "[Same]: images/same-line.png",
+    "<script>",
+    "</scriptx>",
+    "[Malformed]: images/malformed.png",
+    "</script>",
+    "<?processing",
+    "",
+    "[Processing]: images/processing.png",
+    "?>",
+    "- list item",
+    "",
+    "  [Listed]: images/listed.png",
+    "[Destination]: images/destination.png",
+    "(invalid(nested)",
+    "",
+  ]
+  writeFixture(root, "app/panel/markdown-block-quality.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const owners = report.referenceOwners.filter((row) => row.fromPath === "app/panel/markdown-block-quality.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [2, lines[1].indexOf("images/") + 1, "app/panel/images/same-line.png"],
+    [13, lines[12].indexOf("images/") + 1, "app/panel/images/listed.png"],
+    [14, lines[13].indexOf("images/") + 1, "app/panel/images/destination.png"],
+  ])
+})
+
+test("round 24 loader loop assignments distinguish iteration-local and escaping state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "for (let loader of items) { loader = createRequire(import.meta.url); loader('../lib/service'); }",
+    "let outer; for (outer of items) { outer = createRequire(import.meta.url); outer('../lib/service'); } outer('../lib/service');",
+    "using resource = other; resource = createRequire(import.meta.url); resource('../lib/service');",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-loop-state.ts", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [2])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [3, 3, 4])
+})
+
+test("round 24 environment in-operator captures operands at evaluation time", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let environment = {};",
+    "'LOGICAL' in ((environment = process.env) && environment);",
+    "environment = {};",
+    "'CONDITIONAL' in ((environment = process.env) ? environment : process.env);",
+    "environment = {};",
+    "'MIXED' in (flag ? (environment = process.env) : environment);",
+    "",
+  ]
+  writeFixture(root, "app/environment-in-evaluation.ts", lines.join("\n"))
+
+  const report = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.reads.filter((row) => row.kind === "in-operator").map((row) => row.name), ["LOGICAL", "CONDITIONAL"])
+  assert.deepEqual(report.uncertainties.filter((row) => row.kind === "in-operator" && row.code === "COMPUTED_ENVIRONMENT_READ").map((row) => row.line), [6])
+})
+
+test("round 24 Markdown containers retain lists and bound raw HTML state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["spaced.png", "tabbed.png", "after-quote.png"]) writeFixture(root, `app/panel/images/${name}`, name)
+  const lines = [
+    "- item",
+    "",
+    "    [Spaced]: images/spaced.png",
+    "- item",
+    "",
+    "\t[Tabbed]: images/tabbed.png",
+    "> <script>",
+    "[After]: images/after-quote.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/markdown-container-state.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.filter((row) => row.fromPath === "app/panel/markdown-container-state.md").map((row) => [row.line, row.column, row.targetPath]), [
+    [3, lines[2].indexOf("images/") + 1, "app/panel/images/spaced.png"],
+    [6, lines[5].indexOf("images/") + 1, "app/panel/images/tabbed.png"],
+    [8, lines[7].indexOf("images/") + 1, "app/panel/images/after-quote.png"],
+  ])
+})
+
+test("round 24 loop-local loaders still join conditional assignments", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "for (let direct of items) { direct = createRequire(import.meta.url); direct('../lib/service'); }",
+    "for (let conditional of items) { if (flag) conditional = createRequire(import.meta.url); conditional('../lib/service'); }",
+    "for (let logical of items) { flag && (logical = createRequire(import.meta.url)); logical('../lib/service'); }",
+    "for (let optional of items) { receiver?.(optional = createRequire(import.meta.url)); optional('../lib/service'); }",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-loop-conditions.mjs", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [2])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [3, 4, 5])
+})
+
+test("round 24 environment result branches merge continuing alias state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let environment = {};",
+    "'BRANCH' in (flag ? (environment = process.env) : (environment = process.env));",
+    "'AFTER_BRANCH' in environment;",
+    "environment = {};",
+    "'LOGICAL' in (flag && (environment = process.env));",
+    "'AFTER_LOGICAL' in environment;",
+    "",
+  ]
+  writeFixture(root, "app/environment-in-continuation.ts", lines.join("\n"))
+
+  const report = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.reads.filter((row) => row.kind === "in-operator").map((row) => row.name), ["BRANCH", "AFTER_BRANCH"])
+  assert.deepEqual(report.uncertainties.filter((row) => row.kind === "in-operator" && row.code === "COMPUTED_ENVIRONMENT_READ").map((row) => row.line), [5])
+  assert.deepEqual(report.uncertainties.filter((row) => row.kind === "in-operator" && row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["AFTER_LOGICAL"])
+})
+
+test("round 24 Markdown list definitions follow lazy and visual indentation rules", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["lazy.png", "tabs.png", "paragraph.png"]) writeFixture(root, `app/panel/images/${name}`, name)
+  const lines = [
+    "- [Lazy]:",
+    "images/lazy.png",
+    "-\t\t[Tabs]:",
+    "   images/tabs.png",
+    "paragraph",
+    "2. not a list",
+    "    [Paragraph]: images/paragraph.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/markdown-list-rules.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  const owners = report.referenceOwners.filter((row) => row.fromPath === "app/panel/markdown-list-rules.md")
+  assert.deepEqual(owners.map((row) => [row.line, row.column, row.targetPath]), [
+    [2, lines[1].indexOf("images/") + 1, "app/panel/images/lazy.png"],
+  ])
+})
+
+test("round 24 environment preserves possible process objects after joins", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let runtimeProcess = process;",
+    "'MIXED' in (flag ? (runtimeProcess = process) : (runtimeProcess = {}));",
+    "runtimeProcess.env.AFTER_MIXED;",
+    "",
+  ]
+  writeFixture(root, "app/environment-possible-process.ts", lines.join("\n"))
+
+  const report = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.equal(report.reads.some((row) => row.name === "AFTER_MIXED"), false)
+  const uncertain = report.uncertainties.filter((row) => row.name === "AFTER_MIXED")
+  assert.equal(uncertain.length, 1)
+  assert.equal(uncertain[0].code, "UNPROVEN_ENVIRONMENT_ALIAS")
+})
+
+test("round 24 Markdown lazy definitions respect quote and paragraph ownership", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["quoted-lazy.png", "paragraph-list.png"]) writeFixture(root, `app/panel/images/${name}`, name)
+  const lines = [
+    "> [Quoted]:",
+    "images/quoted-lazy.png",
+    "- item",
+    "  [Blocked]:",
+    "images/paragraph-list.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/markdown-lazy-ownership.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.filter((row) => row.fromPath === "app/panel/markdown-lazy-ownership.md").map((row) => [row.line, row.column, row.targetPath]), [
+    [2, 1, "app/panel/images/quoted-lazy.png"],
+  ])
+})
+
+test("round 24 in-operator joins discarded conditional and logical side effects", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let environment = process.env;",
+    "'CONDITION' in ((flag ? (environment = {}) : (environment = process.env)), process.env);",
+    "environment.AFTER_CONDITION;",
+    "let runtimeProcess = process;",
+    "'LOGICAL' in ((flag && (runtimeProcess = {})), process.env);",
+    "runtimeProcess.env.AFTER_LOGICAL;",
+    "",
+  ]
+  writeFixture(root, "app/environment-in-discarded.ts", lines.join("\n"))
+
+  const report = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.reads.filter((row) => row.kind === "in-operator").map((row) => row.name), ["CONDITION", "LOGICAL"])
+  assert.deepEqual(report.uncertainties.filter((row) => ["AFTER_CONDITION", "AFTER_LOGICAL"].includes(row.name)).map((row) => row.name), ["AFTER_CONDITION", "AFTER_LOGICAL"])
+})
+
+test("round 24 Markdown lazy continuation rejects incompatible container stacks", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["nested.png", "quote.png", "list.png"]) writeFixture(root, `app/panel/images/${name}`, name)
+  const lines = [
+    "> - [Nested]:",
+    "> > images/nested.png",
+    "",
+    "> [Quote]:",
+    "images/quote.png",
+    "- [List]:",
+    "images/list.png",
+    "",
+  ]
+  writeFixture(root, "app/panel/markdown-lazy-containers.md", lines.join("\n"))
+
+  const report = buildAssetCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.referenceOwners.filter((row) => row.fromPath === "app/panel/markdown-lazy-containers.md").map((row) => row.targetPath), [
+    "app/panel/images/quote.png", "app/panel/images/list.png",
+  ])
+})
+
+test("round 24 in-operator joins conditional and logical left-side mutations", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let environment = process.env;",
+    "((flag ? (environment = {}) : (environment = process.env)), 'CONDITIONAL_LEFT') in environment;",
+    "let runtimeProcess = process;",
+    "((flag && (runtimeProcess = {})), 'LOGICAL_LEFT') in runtimeProcess.env;",
+    "",
+  ]
+  writeFixture(root, "app/environment-in-left-effects.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.equal(first.reads.some((row) => ["CONDITIONAL_LEFT", "LOGICAL_LEFT"].includes(row.name)), false)
+  assert.deepEqual(first.uncertainties.filter((row) => row.kind === "in-operator").map((row) => row.name), ["CONDITIONAL_LEFT", "LOGICAL_LEFT"])
+})
