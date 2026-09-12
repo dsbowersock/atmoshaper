@@ -120,12 +120,6 @@ export function isProcessEnvironment(node, scope) {
   )
 }
 
-/** Only direct identifier variable initializers establish reusable process-object provenance. */
-export function isProcessObjectVariableInitializer(node, scope) {
-  return Boolean(node && ts.isVariableDeclaration(node.parent) && ts.isIdentifier(node.parent.name) &&
-    isProcessObjectSource(node, scope))
-}
-
 export function isEnvironmentAliasName(name) {
   return /^(?:env|environment)$/i.test(name)
 }

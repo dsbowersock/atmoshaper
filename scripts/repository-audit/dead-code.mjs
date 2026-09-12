@@ -18,7 +18,7 @@ function pathMatchesPrefix(path, prefixes) {
 
 function isGeneratedInput(path) {
   return (
-    path.endsWith(".d.ts") ||
+    /\.d\.(?:ts|mts|cts)$/.test(path) ||
     path.startsWith("prisma/migrations/") ||
     path.includes("/generated/") ||
     /(?:^|\/)generated\.[^.]+$/.test(path)

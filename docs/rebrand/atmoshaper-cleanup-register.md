@@ -851,3 +851,51 @@ staged; the exact final staged snapshot remains pending in the ignored SDD
 receipt. Latest-head PR checks and reviews remain pending. Merge remains
 separately authorized. No candidate deletion, provider mutation, merge or
 Phase 5 action occurred.
+
+### Hosted review round 23
+
+Hosted review round 22 is now historical supporting evidence; hosted review
+round 23 is the current Phase 4 receipt. Five valid latest-head findings were
+repaired: exact `.d.ts`, `.d.mts` and `.d.cts` files classify as generated/type
+input uncertainty without widening to ordinary or lookalike sources; CSS
+`url(...)` evidence is escape-aware and retains exact raw offsets; a proven
+environment object on a `for...in` right-hand side records one unbounded
+whole-environment uncertainty; defaulted process-object aliases in identifier
+and binding-element patterns inherit provenance while retaining TDZ, shadow and
+invalidation boundaries; and round 22 has its own project-log heading.
+
+Independent hardening covered complete CSS identifiers and non-ASCII prefixes,
+at-keyword/hash-token and dimension-token boundaries, raw NUL replacement, URL
+whitespace and raw offsets; array/catch defaults; and conditional, logical,
+assignment, logical-assignment and comma-expression `for...in` result
+provenance. Stage 1 ultimately returned SPEC PASS and iterative quality review
+ultimately returned QUALITY PASS. Cleanup passed 182/182, repository audit
+passed 21/21 and the combined focused run passed 203/203. The full suite
+recorded 4,401 total, 4,398 passed, 3 host-dependent skips and zero failures.
+Typecheck passed; lint passed with only the informational Babel greater-than-
+500-KB note; and diff/source-cap checks passed. Nonblank caps were CSS helper
+211, asset evidence 444, environment evidence 499, environment patterns 111,
+environment scope 152 and dead code 139.
+
+Pre-document staged audits ran twice with exit 0, empty standard error,
+byte-identical output, shared inventory and `deletionAuthority: false`: dead
+code 1,578/211
+(`6c3fb5ce9ffb974d7903bbc0b463e5ffba45a6b36be28891fea908b91b4b9269`),
+dependency 2,872/21
+(`a5f2a2dc8089984b8186d25fbea5f7e80eec9027ac3cd0645db56fa7cd99463d`),
+asset 557/11,510
+(`e90d29669bb91913b77a1a422376f1f2416b7ff5e0f7f355ca6cdca306f821ad`)
+and environment 587/252
+(`d7f8e34534a05bc096c263768821b1ede2de9c4d565c706b93a5bed7a70ec775`).
+Inventory contained 1,930 files, 47,805,304 Git blob bytes, inventory SHA-256
+`fb2258c19f5c8fe2649e5368db1b029e85e7dfe0e4a139e3ea520c61b42783ba`,
+CRLF output SHA-256
+`3d9a205a6ede27c170f94f5c154bdb064ba835515c8d1510a602ceafccffa56a`
+and zero forbidden paths. Brand remained zero missing/zero unclassified with
+output SHA-256
+`50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
+These pre-document values become historical once the tracked documents are
+staged; the exact final staged snapshot remains pending in the ignored SDD
+receipt. Latest-head PR checks and reviews remain pending. Merge remains
+separately authorized. No candidate deletion, provider mutation, merge or
+Phase 5 action occurred.

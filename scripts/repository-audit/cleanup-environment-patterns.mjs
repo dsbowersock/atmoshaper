@@ -1,6 +1,6 @@
 import ts from "typescript"
 import { isLiteralNode } from "./cleanup-source.mjs"
-import { unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
+import { isProcessObjectSource, unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
 
 const LOGICAL_ASSIGNMENT_KINDS = new Map([
   [ts.SyntaxKind.AmpersandAmpersandEqualsToken, "logical-and-assignment"],
@@ -10,6 +10,24 @@ const LOGICAL_ASSIGNMENT_KINDS = new Map([
 
 /** Keep short-circuit assignment operators distinct in conservative evidence. */
 export const logicalAssignmentKind = (operatorKind) => LOGICAL_ASSIGNMENT_KINDS.get(operatorKind) ?? null
+
+/** True when a nested value can become the enclosing expression's result without a value conversion. */
+export function contributesToExpressionResult(node, root) {
+  let value = node
+  while (value !== root) {
+    const parent = value.parent
+    if (!parent) return false
+    if (unwrapTransparentExpression(parent) === value) value = parent
+    else if (ts.isConditionalExpression(parent) && parent.condition !== value) value = parent
+    else if (ts.isBinaryExpression(parent) && (
+      [ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(parent.operatorToken.kind) ||
+      parent.operatorToken.kind === ts.SyntaxKind.CommaToken && parent.right === value ||
+      parent.right === value && (parent.operatorToken.kind === ts.SyntaxKind.EqualsToken || logicalAssignmentKind(parent.operatorToken.kind))
+    )) value = parent
+    else return false
+  }
+  return true
+}
 
 /** Only complete object assignment patterns replace the generic whole-object escape signal. */
 export function isHandledObjectAssignment(node) {
@@ -78,4 +96,26 @@ export function processEnvironmentAssignmentStatus(property) {
   }
   if (ts.isPropertyAssignment(property)) return processEnvironmentStatus(property.name, property.initializer)
   return null
+}
+
+/** Evaluate binding-element defaults in source order and retain only supported provenance. */
+export function bindEnvironmentPatternDefaults(pattern, context, processObjectSource = false) {
+  const { aliasStatus, bindName, initializerScope, kind, recordObjectBinding, scope, visit } = context
+  for (const element of pattern.elements) {
+    if (!ts.isBindingElement(element)) continue
+    if (ts.isObjectBindingPattern(pattern) && element.propertyName && ts.isComputedPropertyName(element.propertyName)) visit(element.propertyName.expression, initializerScope)
+    if (element.initializer) visit(element.initializer, initializerScope)
+    const processStatus = processObjectSource && ts.isObjectBindingPattern(pattern)
+      ? processEnvironmentBindingStatus(element) : null
+    if (processStatus && ts.isIdentifier(element.name)) scope.bindings.set(element.name.text, processStatus)
+    else if (element.initializer && ts.isIdentifier(element.name)) bindName(element.name.text, element.initializer, scope, initializerScope)
+    if (ts.isObjectBindingPattern(element.name) || ts.isArrayBindingPattern(element.name)) {
+      if (ts.isObjectBindingPattern(element.name)) {
+        recordObjectBinding(element.name, processStatus ?? aliasStatus(element.initializer, initializerScope), kind)
+      }
+      bindEnvironmentPatternDefaults(
+        element.name, context, isProcessObjectSource(element.initializer, initializerScope),
+      )
+    }
+  }
 }

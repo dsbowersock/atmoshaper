@@ -1,13 +1,13 @@
 import ts from "typescript"
 import {
   COMMONJS_LOADER, NON_ALIAS, PROCESS_OBJECT, annexBFunctionDeclarations, childScope, hasStrictDirective, isEnvironmentAliasName, isProcessEnvironment,
-  isProcessObjectAlias, isProcessObjectSource, isProcessObjectVariableInitializer,
+  isProcessObjectAlias, isProcessObjectSource,
   isProcessImportEquals, isTransparentExpression, lookupAlias, processImportBindings, unwrapTransparentExpression, varBindingScope,
 } from "./cleanup-environment-scope.mjs"
 
 import { compareText, requireTrackedTextIndex, sha256, validateCleanupPolicy } from "./cleanup-core.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
-import { isHandledObjectAssignment, logicalAssignmentKind, processEnvironmentAssignmentStatus, processEnvironmentBindingStatus, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
+import { bindEnvironmentPatternDefaults, contributesToExpressionResult, isHandledObjectAssignment, logicalAssignmentKind, processEnvironmentAssignmentStatus, recordEnvironmentPattern } from "./cleanup-environment-patterns.mjs"
 import { stableJson } from "./core.mjs"
 
 function compareLocation(left, right) {
@@ -42,6 +42,7 @@ function collectEnvironmentRows(record, text) {
   const reads = []
   const uncertainties = []
   const annexBDeclarations = new Set()
+  let forInExpression = null, forInStatus = null
   const addRead = (node, name, kind) => reads.push({
     name, path: record.path, ...sourceLocation(sourceFile, node), kind,
   })
@@ -161,7 +162,7 @@ function collectEnvironmentRows(record, text) {
     recordEnvironmentPattern(pattern, status, kind, { addRead, addComputedUncertainty, addAliasUncertainty })
 
   const bindName = (name, initializer, scope, initializerScope = scope) => {
-    const status = isProcessObjectVariableInitializer(initializer, initializerScope) ? PROCESS_OBJECT : aliasStatus(initializer, initializerScope)
+    const status = isProcessObjectSource(initializer, initializerScope) ? PROCESS_OBJECT : aliasStatus(initializer, initializerScope)
     scope.bindings.set(name, status ?? (isEnvironmentAliasName(name) ? "unknown" : NON_ALIAS))
   }
 
@@ -285,23 +286,14 @@ function collectEnvironmentRows(record, text) {
     } else visit(value, scope)
   }
 
-  const bindObjectElementInitializers = (pattern, scope, initializerScope, kind, processObjectSource = false) => {
-    for (const element of pattern.elements) {
-      if (element.propertyName && ts.isComputedPropertyName(element.propertyName)) visit(element.propertyName.expression, initializerScope)
-      if (element.initializer) {
-        visit(element.initializer, initializerScope)
-      }
-      const processStatus = processObjectSource ? processEnvironmentBindingStatus(element) : null
-      if (processStatus && ts.isIdentifier(element.name)) scope.bindings.set(element.name.text, processStatus)
-      else if (element.initializer && ts.isIdentifier(element.name)) bindName(element.name.text, element.initializer, scope, initializerScope)
-      if (ts.isObjectBindingPattern(element.name)) {
-        recordObjectBinding(element.name, processStatus ?? aliasStatus(element.initializer, initializerScope), kind)
-        bindObjectElementInitializers(element.name, scope, initializerScope, kind)
-      }
-    }
-  }
+  const bindPatternElementInitializers = (pattern, scope, initializerScope, kind, processObjectSource = false) => bindEnvironmentPatternDefaults(
+    pattern, { aliasStatus, bindName, initializerScope, kind, recordObjectBinding, scope, visit }, processObjectSource,
+  )
 
   const visit = (node, scope) => {
+    const resultStatus = forInExpression && contributesToExpressionResult(node, forInExpression)
+      ? aliasStatus(node, scope) : null
+    if (resultStatus === "proven" || resultStatus === "unknown" && forInStatus === null) forInStatus = resultStatus
     if (ts.isImportEqualsDeclaration(node)) {
       // Bind at the declaration, retaining predeclaration shadows and normal later invalidation.
       if (isProcessImportEquals(node)) scope.bindings.set(node.name.text, PROCESS_OBJECT)
@@ -317,9 +309,9 @@ function collectEnvironmentRows(record, text) {
         if (parameter.initializer) visit(parameter.initializer, parameterScope)
         const status = aliasStatus(parameter.initializer, parameterScope)
         if (ts.isIdentifier(parameter.name)) bindName(parameter.name.text, parameter.initializer, parameterScope)
-        else if (ts.isObjectBindingPattern(parameter.name)) {
-          recordObjectBinding(parameter.name, status, "parameter-destructure")
-          bindObjectElementInitializers(
+        else if (ts.isObjectBindingPattern(parameter.name) || ts.isArrayBindingPattern(parameter.name)) {
+          if (ts.isObjectBindingPattern(parameter.name)) recordObjectBinding(parameter.name, status, "parameter-destructure")
+          bindPatternElementInitializers(
             parameter.name, parameterScope, parameterScope, "parameter-destructure", processObjectSource,
           )
         }
@@ -344,7 +336,15 @@ function collectEnvironmentRows(record, text) {
         visit(node.statement, loopScope)
         if (node.incrementor) visit(node.incrementor, loopScope)
       } else {
+        const outerForIn = forInExpression
+        const outerForInStatus = forInStatus
+        if (ts.isForInStatement(node)) { forInExpression = node.expression; forInStatus = null }
         visit(node.expression, loopScope)
+        if (ts.isForInStatement(node)) {
+          addWholeObjectUncertainty(node.expression, forInStatus, "whole-object-value")
+          forInExpression = outerForIn
+          forInStatus = outerForInStatus
+        }
         if (ts.isVariableDeclarationList(initializer)) visit(initializer, loopScope)
         else visitAssignmentTarget(initializer, loopScope)
         visit(node.statement, loopScope)
@@ -407,23 +407,24 @@ function collectEnvironmentRows(record, text) {
       const declarationScope = isVarDeclaration
         ? varBindingScope(scope)
         : scope
+      const bindingPattern = ts.isObjectBindingPattern(node.name) || ts.isArrayBindingPattern(node.name)
       const hasAssignment = Boolean(node.initializer) || isIterationAssignment
       declareBindingName(node.name, declarationScope, isVarDeclaration && !hasAssignment)
-      if (!hasAssignment) return
+      if (!hasAssignment && !bindingPattern) return
       const processObjectSource = ts.isObjectBindingPattern(node.name) && isProcessObjectSource(node.initializer, scope)
       if (node.initializer) visit(node.initializer, scope)
       const status = aliasStatus(node.initializer, scope)
       if (ts.isIdentifier(node.name)) bindName(node.name.text, node.initializer, declarationScope, scope)
-      else if (ts.isObjectBindingPattern(node.name)) {
-        recordObjectBinding(node.name, status, "destructure")
-        bindObjectElementInitializers(node.name, declarationScope, scope, "destructure", processObjectSource)
+      else if (bindingPattern) {
+        if (ts.isObjectBindingPattern(node.name)) recordObjectBinding(node.name, status, "destructure")
+        bindPatternElementInitializers(node.name, declarationScope, scope, "destructure", processObjectSource)
       }
       return
     }
-    if (
-      ts.isBinaryExpression(node) && ts.isAssignmentOperator(node.operatorToken.kind)
-    ) {
+    if (ts.isBinaryExpression(node) && ts.isAssignmentOperator(node.operatorToken.kind)) {
       const logicalKind = logicalAssignmentKind(node.operatorToken.kind)
+      const leftResultStatus = logicalKind && forInExpression && contributesToExpressionResult(node, forInExpression) ? aliasStatus(node.left, scope) : null
+      if (leftResultStatus === "proven" || leftResultStatus === "unknown" && forInStatus === null) forInStatus = leftResultStatus
       const target = unwrapTransparentExpression(node.left)
       const memberTarget = ts.isPropertyAccessExpression(target) || ts.isElementAccessExpression(target)
       if (memberTarget) visit(node.left, scope)

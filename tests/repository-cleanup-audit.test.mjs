@@ -2255,6 +2255,21 @@ test("dead-code report separates candidates from roots, protections, and uncerta
   assertPrivateSerialization(report, root, [dynamicExpression])
 })
 
+test("dead-code generated inputs recognize only exact declaration suffix families", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of [
+    "types/exact.d.ts", "types/exact.d.mts", "types/exact.d.cts",
+    "types/ordinary.ts", "types/ordinary.mts", "types/ordinary.cts", "types/lookalike.d.tsx",
+  ]) writeFixture(root, path, "export type Fixture = true\n")
+
+  const report = buildDeadCodeCandidateReport(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.uncertainties.generatedInputs.map((row) => row.path), [
+    "types/exact.d.cts", "types/exact.d.mts", "types/exact.d.ts",
+  ])
+  assert.ok(report.uncertainties.generatedInputs.every((row) => row.reason === "generated-or-declaration-input"))
+})
+
 test("stylesheet policy explicitly owns text-only extensions and rejects invalid coverage", () => {
   assert.deepEqual(realPolicy.stylesheetExtensions, [".css"])
   for (const stylesheetExtensions of [[], [".css", ".css"], [".CSS"], [".scss"], [".ts"]]) {
@@ -2540,6 +2555,218 @@ test("asset owner-relative URLs select exact CSS and Markdown siblings through b
   assert.equal(envelope.deletionAuthority, false)
   assert.equal(envelope.findings.filter((row) => row.findingKind === "referenceOwners").length, 5)
   assertPrivateSerialization(first.stdout, root, [literal, "private-owner-query", "unstaged-target-drift", "drift.png"])
+})
+
+test("CSS URL evidence decodes exact escapes with original raw offsets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const path of ["image.png", "icon.png", "six-hex.png", "simple name.png", "nested/logo.png", "linewrap.png", "bad�.png"]) {
+    writeFixture(root, `app/panel/${path}`, path)
+  }
+  const privateSuffix = "?private-css-escape=1"
+  const lines = [
+    String.raw`a { background: url("im\61 ge.png${privateSuffix}") }`,
+    String.raw`b { background: url(ic\6f n.png${privateSuffix}) }`,
+    String.raw`c { background: url("six\00002dhex.png${privateSuffix}") }`,
+    String.raw`d { background: url(simple\ name.png${privateSuffix}) }`,
+    String.raw`e { background: url(nested\/logo.png${privateSuffix}) }`,
+    `f { background: url("line\\\nwrap.png${privateSuffix}") }`,
+    String.raw`g { background: url("bad\110000.png${privateSuffix}") }`,
+  ]
+  writeFixture(root, "app/panel/escaped.css", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), [
+    [1, lines[0].indexOf("im") + 1, "app/panel/image.png"],
+    [2, lines[1].indexOf("ic") + 1, "app/panel/icon.png"],
+    [3, lines[2].indexOf("six") + 1, "app/panel/six-hex.png"],
+    [4, lines[3].indexOf("simple") + 1, "app/panel/simple name.png"],
+    [5, lines[4].indexOf("nested") + 1, "app/panel/nested/logo.png"],
+    [6, lines[5].indexOf("line") + 1, "app/panel/linewrap.png"],
+    [8, lines[6].indexOf("bad") + 1, "app/panel/bad�.png"],
+  ])
+  assert.deepEqual(first.uncertainties.unresolvedLiteralAssets, [])
+  assertPrivateSerialization(first, root, [privateSuffix, "private-css-escape"])
+})
+
+test("CSS URL function tokens decode complete identifiers without suffix false positives", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["escaped-middle.png", "escaped-prefix.png", "nonascii.png", "prefixed.png"]) {
+    writeFixture(root, `app/panel/${name}`, name)
+  }
+  const lines = [
+    String.raw`a { background: u\72 l("escaped-middle.png?private-css-ident=1") }`,
+    String.raw`b { background: \75rl("escaped-prefix.png?private-css-ident=2") }`,
+    `c { background: éurl("nonascii.png?private-css-ident=3") }`,
+    String.raw`d { background: x\75rl("prefixed.png?private-css-ident=4") }`,
+  ]
+  writeFixture(root, "app/panel/functions.css", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), [
+    [1, lines[0].indexOf("escaped-middle") + 1, "app/panel/escaped-middle.png"],
+    [2, lines[1].indexOf("escaped-prefix") + 1, "app/panel/escaped-prefix.png"],
+  ])
+  assert.deepEqual(first.unreferencedCandidates.map((row) => row.path), [
+    "app/panel/nonascii.png", "app/panel/prefixed.png",
+  ])
+  assertPrivateSerialization(first, root, ["private-css-ident"])
+})
+
+test("CSS URL function tokens exclude at-keyword and hash name suffixes", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["at.png", "at-escaped.png", "hash.png", "hash-escaped.png", "at-control.png", "hash-control.png"]) {
+    writeFixture(root, `app/panel/${name}`, name)
+  }
+  const lines = [
+    `a { background: @url("at.png?private-css-prefix=1") }`,
+    String.raw`b { background: @\75rl("at-escaped.png?private-css-prefix=2") }`,
+    `c { background: #url("hash.png?private-css-prefix=3") }`,
+    String.raw`d { background: #u\72 l("hash-escaped.png?private-css-prefix=4") }`,
+    `e { background: @ url("at-control.png?private-css-prefix=5") }`,
+    `f { background: # url("hash-control.png?private-css-prefix=6") }`,
+  ]
+  writeFixture(root, "app/panel/prefixes.css", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), [
+    [5, lines[4].indexOf("at-control") + 1, "app/panel/at-control.png"],
+    [6, lines[5].indexOf("hash-control") + 1, "app/panel/hash-control.png"],
+  ])
+  assertPrivateSerialization(first, root, ["private-css-prefix"])
+})
+
+test("CSS URL function tokens exclude dimension-unit suffixes after complete numbers", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["integer.png", "positive.png", "fraction.png", "negative.png", "exponent.png", "control.png"]) {
+    writeFixture(root, `app/panel/${name}`, name)
+  }
+  const lines = [
+    String.raw`a { background: 1\61 url("integer.png?private-css-number=1") }`,
+    String.raw`b { background: +1\61 url("positive.png?private-css-number=2") }`,
+    String.raw`c { background: .1\61 url("fraction.png?private-css-number=3") }`,
+    String.raw`d { background: -1\61 url("negative.png?private-css-number=4") }`,
+    String.raw`e { background: 1e2\61 url("exponent.png?private-css-number=5") }`,
+    `f { background: 1 url("control.png?private-css-number=6") }`,
+  ]
+  writeFixture(root, "app/panel/numbers.css", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), [
+    [6, lines[5].indexOf("control") + 1, "app/panel/control.png"],
+  ])
+  assertPrivateSerialization(first, root, ["private-css-number"])
+})
+
+test("CSS URL preprocessing trims only decoded ASCII and C0 edges with raw offsets", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["raw.png", "escaped.png", "internal name.png"]) {
+    writeFixture(root, `app/panel/${name}`, name)
+  }
+  const nbsp = "\u00a0"
+  const lines = [
+    `a { background: url(" \t./raw.png \t") }`,
+    String.raw`b { background: url("\20 ./escaped.png\9 ") }`,
+    `c { background: url("./internal name.png") }`,
+    String.raw`d { background: url("./internal\20 name.png") }`,
+    `e { background: url("${nbsp}./raw.png?private-css-nbsp=1") }`,
+    String.raw`f { background: url("\a0 ./raw.png?private-css-nbsp=2") }`,
+  ]
+  writeFixture(root, "app/panel/whitespace.css", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), [
+    [1, lines[0].indexOf("./raw") + 1, "app/panel/raw.png"],
+    [2, lines[1].indexOf("./escaped") + 1, "app/panel/escaped.png"],
+    [3, lines[2].indexOf("./internal") + 1, "app/panel/internal name.png"],
+    [4, lines[3].indexOf("./internal") + 1, "app/panel/internal name.png"],
+  ])
+  assert.deepEqual(first.uncertainties.unresolvedLiteralAssets.map((row) => row.line), [5, 6])
+  assert.ok(first.uncertainties.unresolvedLiteralAssets.every((row) => /^[a-f0-9]{64}$/.test(row.literalSha256)))
+  assertPrivateSerialization(first, root, ["private-css-nbsp", `${nbsp}./raw.png`])
+})
+
+test("CSS URL preprocessing replaces raw NUL and removes internal URL tabs and newlines", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const name of ["image.png", "bad�.png", "function-replacement.png"]) {
+    writeFixture(root, `app/panel/${name}`, name)
+  }
+  const lines = [
+    `a { background: url("im\tage.png?private-css-preprocess=1") }`,
+    String.raw`b { background: url("\69m\9 age.png?private-css-preprocess=2") }`,
+    String.raw`c { background: url("\69m\a age.png?private-css-preprocess=3") }`,
+    `d { background: url("bad\0.png?private-css-preprocess=4") }`,
+    `e { background: u\0rl("function-replacement.png?private-css-preprocess=5") }`,
+  ]
+  writeFixture(root, "app/panel/preprocessing.css", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners.map((row) => [row.line, row.column, row.targetPath]), [
+    [1, lines[0].indexOf("im") + 1, "app/panel/image.png"],
+    [2, lines[1].indexOf("\\69m") + 1, "app/panel/image.png"],
+    [3, lines[2].indexOf("\\69m") + 1, "app/panel/image.png"],
+    [4, lines[3].indexOf("bad") + 1, "app/panel/bad�.png"],
+  ])
+  assert.ok(first.unreferencedCandidates.some((row) => row.path === "app/panel/function-replacement.png"))
+  assertPrivateSerialization(first, root, ["private-css-preprocess"])
+})
+
+test("CSS URL evidence keeps malformed escaped and external values conservative", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/panel/linewrap.png", "must-not-own")
+  writeFixture(root, "app/panel/missing-asset.png", "untracked", { tracked: false })
+  const lines = [
+    `a { background: url(line\\\nwrap.png?private-unquoted-continuation=1) }`,
+    String.raw`b { background: url("missing\2d asset.png?private-missing-escape=1") }`,
+    String.raw`c { background: url("https\3a //example.test/private-external.png") }`,
+    String.raw`d { background: url("data\3a image/png;base64,private-data") }`,
+    String.raw`e { content: "url(im\61 ge.png?private-string=1)" }`,
+    String.raw`/* url(im\61 ge.png?private-comment=1) */`,
+  ]
+  writeFixture(root, "app/panel/conservative.css", `${lines.join("\n")}\n`)
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildAssetCandidateReport(index, policy)
+  const second = buildAssetCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.referenceOwners, [])
+  assert.deepEqual(first.uncertainties.unresolvedLiteralAssets.map((row) => [row.line, row.column]), [
+    [1, lines[0].indexOf("line") + 1],
+    [3, lines[1].indexOf("missing") + 1],
+    [6, lines[4].indexOf("im") + 1],
+    [7, lines[5].indexOf("im") + 1],
+  ])
+  assert.ok(first.uncertainties.unresolvedLiteralAssets.every((row) => (
+    row.targetPath === undefined && /^[a-f0-9]{64}$/.test(row.literalSha256)
+  )))
+  assertPrivateSerialization(first, root, [
+    "private-unquoted-continuation", "private-missing-escape", "private-external", "private-data",
+    "private-string", "private-comment", "missing-asset.png",
+  ])
 })
 
 test("asset owner-relative URLs retain sanitized missing ignored and out-of-inventory evidence", (t) => {
@@ -4504,7 +4731,7 @@ test("environment satisfies wrappers retain shadow and mutation boundaries", (t)
   ])
 })
 
-test("environment CommonJS direct variable initializers allow transparent wrappers", (t) => {
+test("environment CommonJS process-object initializers and defaults allow transparent wrappers", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
   writeFixture(root, "lib/commonjs-wrapped-initializers.ts", [
@@ -4523,6 +4750,7 @@ test("environment CommonJS direct variable initializers allow transparent wrappe
   assert.deepEqual(evidence.errors, [])
   assert.deepEqual(evidence.reads.map((row) => row.name), [
     "PAREN_CONTROL", "CAST_CONTROL", "ASSERTION_CONTROL", "NONNULL_CONTROL", "NESTED_CONTROL",
+    "PARAMETER_NOT_OWNED", "DESTRUCTURED_DEFAULT_NOT_OWNED",
   ])
   assert.deepEqual(evidence.uncertainties, [])
 })
@@ -4998,6 +5226,147 @@ test("environment parameter destructuring defaults inherit exact process-object 
   assert.deepEqual(report.unreadDeclarationCandidates, [])
 })
 
+test("environment array and catch binding defaults preserve process-object provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const names = ["ARRAY_PARAMETER", "ARRAY_VARIABLE", "ARRAY_ITERATION", "NESTED_ARRAY", "CATCH_DEFAULT", "ORDERED_FIRST", "ORDERED_SECOND"]
+  writeFixture(root, ".env.example", names.map((name) => `${name}=\n`).join(""))
+  writeFixture(root, "lib/process-array-defaults.ts", [
+    "function parameter([proc = process] = []) { void proc.env.ARRAY_PARAMETER }",
+    "const [variable = process] = []; void variable.env.ARRAY_VARIABLE",
+    "const [[nested = process] = []] = []; void nested.env.NESTED_ARRAY",
+    "for (const [iteration = process] of rows) { void iteration.env.ARRAY_ITERATION }",
+    "try {} catch ([caught = process]) { void caught.env.CATCH_DEFAULT }",
+    "function ordered([first = process, second = first] = []) { void first.env.ORDERED_FIRST; void second.env.ORDERED_SECOND }",
+    "function shadow(process) { const [local = process] = []; void local.env.SHADOWED_PROCESS }",
+    "function tdz([local = process, process = fake] = []) { void local.env.TDZ_PROCESS }",
+    "try {} catch ([process, local = process]) { void local.env.CATCH_SHADOW }",
+    "void parameter; void ordered; void shadow; void tdz",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.staticReads.map((row) => row.name), names.sort())
+  assert.equal(first.staticReads.some((row) => ["SHADOWED_PROCESS", "TDZ_PROCESS", "CATCH_SHADOW"].includes(row.name)), false)
+  assert.deepEqual(first.unreadDeclarationCandidates, [])
+})
+
+test("environment for-in enumeration records one unbounded read per proven source", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-for-in.ts", [
+    "for (const key in process.env) { void key }",
+    "const environment = process.env; for (const aliasKey in environment) { void aliasKey }",
+    "function shadowed(process) { for (const key in process.env) { void key } }",
+    "function invalidated() { process = fake; for (const key in process.env) { void key } }",
+    "void shadowed; void invalidated",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.uncertainties.computedReads.map((row) => [row.kind, row.line]), [
+    ["whole-object-value", 1], ["whole-object-value", 2],
+  ])
+  assert.deepEqual(first.uncertainties.unprovenAliases, [])
+  assert.deepEqual(first.staticReads, [])
+})
+
+test("environment for-in enumeration recognizes compound result provenance once", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-for-in-compound.ts", [
+    "for (const key in (enabled ? process.env : {})) { void key }",
+    "for (const key in (process.env || {})) { void key }",
+    "let assigned; for (const key in (assigned = process.env)) { void key }",
+    "for (const key in (enabled ? process.env : process.env)) { void key }",
+    "function shadow(process) { for (const key in (enabled ? process.env : {})) { void key } }",
+    "function mutated() { process = fake; for (const key in (process.env || {})) { void key } }",
+    "function ordered() { for (const key in ((process = fake) || process.env)) { void key } }",
+    "void shadow; void mutated; void ordered",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.uncertainties.computedReads.map((row) => [row.kind, row.line]), [
+    ["whole-object-value", 1], ["whole-object-value", 2], ["whole-object-value", 3], ["whole-object-value", 4],
+  ])
+  assert.deepEqual(first.uncertainties.unprovenAliases, [])
+  assert.deepEqual(first.staticReads, [])
+})
+
+test("environment for-in result provenance follows logical-assignment left and comma right values", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/environment-for-in-results.ts", [
+    "let left = process.env; for (const key in (left ||= {})) { void key }",
+    "let assigned; for (const key in (assigned = other, process.env)) { void key }",
+    "for (const key in (process.env, {})) { void key }",
+    "let both = process.env; for (const key in (both ||= process.env)) { void key }",
+    "function shadow(process) { let local = process.env; for (const key in (local ||= {})) { void key } }",
+    "function mutated() { let local = process.env; local = {}; for (const key in (local ||= {})) { void key } }",
+    "function ordered() { let local = process.env; for (const key in ((local = {}), local)) { void key } }",
+    "void shadow; void mutated; void ordered",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.uncertainties.computedReads.filter((row) => row.kind === "whole-object-value").map((row) => row.line), [1, 2, 4])
+  assert.equal(first.uncertainties.computedReads.filter((row) => row.kind === "whole-object-value" && row.line === 4).length, 1)
+  assert.deepEqual(first.uncertainties.unprovenAliases.map((row) => [row.kind, row.line]), [
+    ["whole-object-value", 6], ["whole-object-value", 7],
+  ])
+  assertPrivateSerialization(first, root, ["process.env", "assigned = other"])
+})
+
+test("environment identifier and binding-element defaults preserve process-object provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", [
+    "BEFORE_MUTATION=", "BINDING_DEFAULT=", "CHAINED_DEFAULT=", "IMPORTED_DEFAULT=",
+    "PARAMETER_DEFAULT=", "REQUIRED_DEFAULT=", "VARIABLE_DEFAULT=", "",
+  ].join("\n"))
+  writeFixture(root, "lib/process-object-defaults.ts", [
+    "import runtimeProcess from 'node:process'",
+    "const requiredProcess = require('process')",
+    "function direct(proc = process) { void proc.env.PARAMETER_DEFAULT }",
+    "function imported(proc = runtimeProcess) { void proc.env.IMPORTED_DEFAULT }",
+    "function required(proc = requiredProcess) { void proc.env.REQUIRED_DEFAULT }",
+    "function chained(proc = process, next = proc) { void next.env.CHAINED_DEFAULT }",
+    "function binding({ proc = process } = {}) { void proc.env.BINDING_DEFAULT }",
+    "const { local: variable = process } = {}; void variable.env.VARIABLE_DEFAULT",
+    "function laterShadow(proc = process, process = fake) { void proc.env.LATER_SHADOW }",
+    "function directShadow(process, proc = process) { void proc.env.DIRECT_SHADOW }",
+    "function invalidated(proc = process) { void proc.env.BEFORE_MUTATION; proc = fake; void proc.env.AFTER_MUTATION }",
+    "function optional(proc = require?.('process')) { void proc.env.OPTIONAL }",
+    "void direct; void imported; void required; void chained; void binding; void laterShadow; void directShadow; void invalidated; void optional",
+    "",
+  ].join("\n"))
+
+  const index = buildTrackedTextIndex(root, policy)
+  const first = buildEnvironmentCandidateReport(index, policy)
+  const second = buildEnvironmentCandidateReport(index, policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.staticReads.map((row) => row.name), [
+    "BEFORE_MUTATION", "BINDING_DEFAULT", "CHAINED_DEFAULT", "IMPORTED_DEFAULT",
+    "PARAMETER_DEFAULT", "REQUIRED_DEFAULT", "VARIABLE_DEFAULT",
+  ])
+  assert.equal(first.staticReads.some((row) => ["AFTER_MUTATION", "DIRECT_SHADOW", "LATER_SHADOW", "OPTIONAL"].includes(row.name)), false)
+  assert.deepEqual(first.unreadDeclarationCandidates, [])
+  assertPrivateSerialization(first, root, ["require('process')"])
+})
+
 test("environment implicit process ownership is invalidated by source-order writes and updates", (t) => {
   const root = createFixtureRepository(t)
   writePackage(root)
@@ -5126,7 +5495,9 @@ test("environment CommonJS process bindings retain lexical initialization and re
   ].join("\n"))
   const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
   assert.deepEqual(evidence.errors, [])
-  assert.deepEqual(evidence.reads.map((row) => row.name), ["OUTER", "AFTER", "VAR_AFTER", "DEFAULT_CONTROL"])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "OUTER", "AFTER", "VAR_AFTER", "PARAMETER_DEFAULT_NOT_OWNED", "DEFAULT_CONTROL",
+  ])
   assert.deepEqual(evidence.uncertainties, [])
 })
 

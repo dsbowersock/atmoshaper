@@ -10,6 +10,7 @@ import {
   sha256,
   validateCleanupPolicy,
 } from "./cleanup-core.mjs"
+import { cssUrlTokens } from "./cleanup-css-url.mjs"
 import { decodeHtmlUrl } from "./cleanup-html-url.mjs"
 import { isLiteralNode, scriptKind, sourceLocation } from "./cleanup-source.mjs"
 import { stableJson } from "./core.mjs"
@@ -274,8 +275,10 @@ function collectTextLiterals(record, text, assetExtensions) {
     }
     return { line: low + 1, column: offset - lineStarts[low] + 1 }
   }
-  const addLiteral = (value, offset, ownerRelativeUrl, ambiguous = false, htmlWhitespace = false) => {
-    const normalized = htmlWhitespace
+  const addLiteral = (value, offset, ownerRelativeUrl, ambiguous = false, htmlWhitespace = false, preserveWhitespace = false) => {
+    const normalized = preserveWhitespace
+      ? { start: 0, value }
+      : htmlWhitespace
       ? trimHtmlAsciiWhitespace(value)
       : { start: Math.max(0, value.indexOf(value.trim())), value: value.trim() }
     const trimmed = normalized.value
@@ -295,15 +298,20 @@ function collectTextLiterals(record, text, assetExtensions) {
       if (match[0].length === 0) matcher.lastIndex += 1
     }
   }
-  // Consume comments and non-URL strings as whole tokens so their url(...) examples cannot prove ownership.
-  // An unterminated quote (including a trailing escape) remains opaque through EOF.
+  let legacyText = text
   if (record.extension === ".css") {
-    scan(/\/\*[\s\S]*?(?:\*\/|$)|"(?:\\(?:[\s\S]|$)|[^"\\])*(?:"|$)|'(?:\\(?:[\s\S]|$)|[^'\\])*(?:'|$)|(?<![\w-])url\(\s*(?:"([^"\\\r\n]*)"|'([^'\\\r\n]*)'|([^\s"'()\\]+))\s*\)/gi, text, true)
+    const masked = text.split("")
+    for (const token of cssUrlTokens(text)) {
+      addLiteral(token.value, token.offset, true, token.ambiguous, false, true)
+      for (let index = token.offset; index < token.end; index += 1) {
+        if (!["\r", "\n"].includes(masked[index])) masked[index] = " "
+      }
+    }
+    legacyText = masked.join("")
   }
   if (record.extension === ".md") {
     scan(/(?<!\\)!?\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|([^\s)]+))(?:\s+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^\r\n)]*\)))?\s*\)/g, markdownDestinationText(text), true)
   }
-  let legacyText = text
   if (record.extension === ".html") {
     const masked = text.split("")
     for (const tag of htmlStartTags(text)) {
