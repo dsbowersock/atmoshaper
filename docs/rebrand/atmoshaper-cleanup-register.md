@@ -852,6 +852,56 @@ receipt. Latest-head PR checks and reviews remain pending. Merge remains
 separately authorized. No candidate deletion, provider mutation, merge or
 Phase 5 action occurred.
 
+### Hosted review round 25
+
+Hosted review round 24 is historical supporting evidence and its `889ab55`
+head is already pushed. Round 25 is the current staged, pre-push Phase 4
+audit-only cleanup receipt. Four valid hosted findings were repaired:
+conditional and loop environment assignments join every normal-reaching path;
+deferred function-body alias writes are analyzed without mutating their
+declaration-time outer state; branch joins retain possible CommonJS-loader
+provenance; and loop assignment/incrementor proof includes every reaching
+`continue` path. Independent specification and quality review returned PASS.
+
+Two findings were rejected without behavior changes. Markdown destinations in
+inline or fenced code intentionally remain hash-only uncertainty, not false
+exact ownership. CSS bad-URL recovery already follows CSS Syntax 4.3.15:
+comments are not special, and the first unescaped `)` ends the bad-URL remnants.
+
+The accumulated focused Round 25 suite passed 46/46. The full suite recorded
+4,480 total, 4,477 passed, 3 host-dependent skips and zero failures. Typecheck,
+lint and the 115-route production build passed. The Babel greater-than-500-KB
+and existing Anatomime poll-shedder notices were informational. Diff/source
+checks passed, with a maximum maintained source size of 499 nonblank lines.
+
+Pre-document staged commands ran twice with exit 0, empty stderr,
+byte-identical output, shared inventory SHA-256
+`e5228c0739194704755eabbce0896b0c6dd490c5421c64827e6ad9aff492436a`
+and `deletionAuthority: false`. Results were dead code 1,608/211 (raw
+`f15f7817bb2a2eed9fcd8af86cfea6853bdc40691dace3c2a1a71739353425f9`,
+CRLF `e12412da7923f04f772ce28bdc622e3a87a9cc257d5d8078b55f8e0ed3f5808c`),
+dependency 2,879/21 (raw
+`ca5113c8ab5f8dc8b4cc6955f4660378f78f89acf4e505841e10b38fd08140d4`,
+CRLF `6c6d5d7d4f5b70cfbdc1be2d526921b4b56a49e6a0fe868ea66de0f6679c1176`),
+asset 557/11,630 (raw
+`e5b1c9293a0eff98647bde6b111af82332a034abad2194e5797cd355b6dfbae0`,
+CRLF `e9f5046ba4a65fe271e31621e25e3604fd3cc1c8aca5b40d4b87c3e900067b52`),
+and environment 587/252 (raw
+`8a57296a932ac5066605b77b404c9a9c530dec1951d58e41ced946b138c7f0d3`,
+CRLF `2f7ab1fd70ca723b8ffa328fdc7c7ec0c6359d5fabe15d89da58c8e4364d0196`).
+
+Inventory was 1,940 files/48,002,713 bytes with raw output SHA-256
+`f808ed400b25234f19c32bec5fa967a2ac741ee258df741b9b5589a41b0c5d07`,
+CRLF `1e71bdb69781109c5e33420f550575994d42a5b6e3feb7e3b334fe1e5eeb5763`
+and zero forbidden paths. Brand was zero missing/zero unclassified (raw
+`fd1b776fe062af1215ef24b18f14fab558f9c13265f4f1d78aa483d74d361c84`,
+CRLF `50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`).
+These pre-document values become historical after staging; final exact identity
+remains in the ignored SDD handoff. Round 25 is staged for verification but not
+committed or pushed. Hosted follow-up is pending; merge remains separately
+authorized. No candidate deletion, provider mutation, merge or Phase 5 action
+occurred.
+
 ### Hosted review round 24
 
 Hosted review round 23 is now historical supporting evidence; round 24 is the
@@ -886,8 +936,8 @@ and zero forbidden paths. Brand remained zero missing/zero unclassified with
 output SHA-256
 `50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`.
 These values become historical after document staging; exact final staged
-identity remains pending in the ignored SDD handoff. Round 24 has not yet been
-pushed. Latest-head hosted checks/reviews remain pending; merge remains
+identity remains pending in the ignored SDD handoff. Round 24 head `889ab55`
+is already pushed. Later hosted follow-up is recorded in round 25; merge remains
 separately authorized. No candidate deletion, provider mutation, merge or
 Phase 5 action occurred.
 

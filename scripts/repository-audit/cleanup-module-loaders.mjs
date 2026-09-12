@@ -3,7 +3,11 @@ import { extname } from "node:path"
 import ts from "typescript"
 
 import { annexBFunctionDeclarations } from "./cleanup-environment-scope.mjs"
-import { isMaybeExecutedAssignment, isMaybeExecutedWithinIteration } from "./cleanup-module-loader-control.mjs"
+import {
+  createModuleLoaderControl, hasStrictDirective, isMaybeExecutedWithinIteration,
+} from "./cleanup-module-loader-control.mjs"
+import { classifyModuleLoaderCall, logicalAssignmentLoaderStatus, moduleLoaderValueStatus } from "./cleanup-module-loader-status.mjs"
+import { createOrderedArgumentFlow, moduleReferenceKind, visitModuleCall } from "./cleanup-module-call-flow.mjs"
 
 const PROVEN_LOADER = "proven-loader", CREATE_REQUIRE_FACTORY = "create-require-factory"
 const POSSIBLE_LOADER = "possible-loader", UNPROVEN = "unproven", IMMUTABLE_DECLARATION = ts.NodeFlags.Const | (ts.NodeFlags.Using ?? 0) | (ts.NodeFlags.AwaitUsing ?? 0)
@@ -33,15 +37,6 @@ function addBindingNames(pattern, callback) {
       if (ts.isBindingElement(element)) addBindingNames(element.name, callback)
     }
   }
-}
-
-function hasStrictDirective(node) {
-  if (ts.isSourceFile(node) && ts.isExternalModule(node)) return true
-  for (const statement of node.statements ?? []) {
-    if (!ts.isExpressionStatement(statement) || !ts.isStringLiteral(statement.expression)) break
-    if (["'use strict'", "\"use strict\""].includes(statement.expression.getText())) return true
-  }
-  return false
 }
 
 function directStatements(container) {
@@ -124,47 +119,8 @@ function predeclareImports(sourceFile, scope, factoryNames) {
   }
 }
 
-function isImportMetaUrl(node) {
-  return ts.isPropertyAccessExpression(node) && node.name.text === "url" &&
-    ts.isMetaProperty(node.expression) && node.expression.keywordToken === ts.SyntaxKind.ImportKeyword &&
-    node.expression.name.text === "meta"
-}
-
 function initializerStatus(node, scope, factoryNames) {
-  if (!node) return UNPROVEN
-  if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isTypeAssertionExpression(node) ||
-    ts.isNonNullExpression(node) || ts.isSatisfiesExpression(node)) return initializerStatus(node.expression, scope, factoryNames)
-  if (ts.isIdentifier(node)) {
-    const status = lookup(scope, node.text)
-    return [PROVEN_LOADER, POSSIBLE_LOADER].includes(status) ? status : UNPROVEN
-  }
-  if (
-    ts.isCallExpression(node) && !node.questionDotToken && ts.isIdentifier(node.expression) &&
-    factoryNames.has(node.expression.text)
-  ) return lookup(scope, node.expression.text) === CREATE_REQUIRE_FACTORY && node.arguments.length === 1 &&
-      isImportMetaUrl(node.arguments[0]) ? PROVEN_LOADER : POSSIBLE_LOADER
-  return UNPROVEN
-}
-
-function loaderCall(node, scope, resolveCapabilityDowngraded) {
-  if (!ts.isCallExpression(node)) return null
-  if (ts.isIdentifier(node.expression)) {
-    const status = lookup(scope, node.expression.text)
-    if (status === PROVEN_LOADER) return { kind: "require", proven: true }
-    if (status === POSSIBLE_LOADER) return { kind: "require", proven: false }
-    if (node.expression.text === "require") return { kind: "require", proven: false }
-  }
-  if (
-    ts.isPropertyAccessExpression(node.expression) &&
-    node.expression.name.text === "resolve" && ts.isIdentifier(node.expression.expression)
-  ) {
-    const base = node.expression.expression
-    const status = lookup(scope, base.text)
-    if (status === PROVEN_LOADER) return { kind: "require-resolve", proven: !resolveCapabilityDowngraded }
-    if (status === POSSIBLE_LOADER) return { kind: "require-resolve", proven: false }
-    if (base.text === "require") return { kind: "require-resolve", proven: false }
-  }
-  return null
+  return moduleLoaderValueStatus(node, scope, lookup, factoryNames)
 }
 
 function invalidateName(scope, name) {
@@ -182,7 +138,7 @@ function bindAssignedLoader(scope, name, status, assignment) {
   for (let current = scope; current; current = current.parent) {
     if (!current.bindings.has(name)) continue
     const rule = current.bindingRules.get(name)
-    const exactRegion = current.functionDepth === scope.functionDepth && !(rule?.iterationLocal ? isMaybeExecutedWithinIteration(assignment) : isMaybeExecutedAssignment(assignment))
+    const exactRegion = current.functionDepth === scope.functionDepth && !isMaybeExecutedWithinIteration(assignment)
     const eligible = !rule || rule.initialized && rule.writable
     const prior = current.bindings.get(name)
     const joined = prior === PROVEN_LOADER && status === PROVEN_LOADER ? PROVEN_LOADER : POSSIBLE_LOADER
@@ -348,30 +304,50 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
       }
     }
     if (node.name && ts.isComputedPropertyName(node.name)) visit(node.name.expression, outerScope)
-    const parameterScope = childScope(outerScope); parameterScope.functionDepth += 1
-    if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) && node.name) {
-      shadowName(parameterScope, node.name.text)
-    }
-    for (const parameter of node.parameters) {
-      addBindingNames(parameter.name, (name) => shadowName(parameterScope, name))
-    }
-    for (const parameter of node.parameters) {
-      if (parameter.initializer) visit(parameter.initializer, parameterScope)
-      visitBindingPattern(parameter.name, parameterScope)
-    }
-    if (!node.body) return
-    const bodyScope = childScope(parameterScope, true, parameterScope.strict || hasStrictDirective(node.body))
-    predeclareLexical(node.body, bodyScope)
-    predeclareVarBindings(node.body, bodyScope, annexBDeclarations)
-    if (ts.isBlock(node.body)) visitContainer(node.body, bodyScope)
-    else visit(node.body, bodyScope)
+    return control.visitFunctionRegion(() => {
+      const parameterScope = childScope(outerScope); parameterScope.functionDepth += 1
+      if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) && node.name) {
+        shadowName(parameterScope, node.name.text)
+      }
+      for (const parameter of node.parameters) addBindingNames(parameter.name, (name) => shadowName(parameterScope, name))
+      for (const parameter of node.parameters) {
+        if (parameter.initializer) visit(parameter.initializer, parameterScope)
+        visitBindingPattern(parameter.name, parameterScope)
+      }
+      if (!node.body) return
+      const bodyScope = childScope(parameterScope, true, parameterScope.strict || hasStrictDirective(node.body))
+      predeclareLexical(node.body, bodyScope)
+      predeclareVarBindings(node.body, bodyScope, annexBDeclarations)
+      if (ts.isBlock(node.body)) visitContainer(node.body, bodyScope)
+      else visit(node.body, bodyScope)
+    })
   }
 
   const visitContainer = (container, scope) => {
-    for (const statement of directStatements(container)) visit(statement, scope)
+    for (const statement of directStatements(container)) if (visit(statement, scope) === false) return false
+    return true
   }
 
+  let control, argumentFlow
   const visit = (node, scope) => {
+    const argumentResult = argumentFlow?.intercept(node, scope)
+    if (argumentResult !== null && argumentResult !== undefined) return argumentResult
+    const abrupt = control?.visitAbrupt(node, scope)
+    if (abrupt !== null && abrupt !== undefined) return abrupt
+    if (ts.isIfStatement(node)) return control.visitIf(node, scope)
+    if (ts.isLabeledStatement(node)) return control.visitLabeled(node, scope, visit)
+    if (ts.isTryStatement(node)) return control.visitTry(node, scope)
+    if (ts.isSwitchStatement(node)) {
+      const caseScope = childScope(scope)
+      predeclareLexical(node.caseBlock, caseScope)
+      return control.visitSwitch(node, scope, caseScope)
+    }
+    if (ts.isConditionalExpression(node)) return control.visitConditional(node, scope)
+    if (ts.isBinaryExpression(node) && [
+      ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken,
+    ].includes(node.operatorToken.kind)) return control.visitLogical(
+      node, scope, initializerStatus(node.left, scope, factoryNames),
+    )
     if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
       for (const decorator of ts.canHaveDecorators(node) ? ts.getDecorators(node) ?? [] : []) {
         visit(decorator.expression, scope)
@@ -412,7 +388,7 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
     }
     if (ts.isBlock(node) && !ts.isFunctionLike(node.parent) && !ts.isCatchClause(node.parent)) {
       const blockScope = childScope(scope)
-      predeclareLexical(node, blockScope); visitContainer(node, blockScope); return
+      predeclareLexical(node, blockScope); return visitContainer(node, blockScope)
     }
     if (ts.isCaseBlock(node)) {
       const caseScope = childScope(scope)
@@ -449,7 +425,7 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
       }
       return
     }
-    if (ts.isForStatement(node) || ts.isForInStatement(node) || ts.isForOfStatement(node)) {
+    if (ts.isForStatement(node) || ts.isForInStatement(node) || ts.isForOfStatement(node) || ts.isWhileStatement(node) || ts.isDoStatement(node)) {
       const initializer = node.initializer
       const lexical = initializer && ts.isVariableDeclarationList(initializer) && initializer.flags & (ts.NodeFlags.BlockScoped | (ts.NodeFlags.Using ?? 0) | (ts.NodeFlags.AwaitUsing ?? 0))
       const loopScope = lexical ? childScope(scope) : scope
@@ -458,22 +434,19 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
           shadowName(loopScope, name); loopScope.bindingRules.set(name, { initialized: false, iterationLocal: true, writable: !(initializer.flags & IMMUTABLE_DECLARATION) })
         })
       }
-      if (ts.isForStatement(node)) {
-        if (initializer) visit(initializer, loopScope)
-        if (node.condition) visit(node.condition, loopScope)
-      } else {
-        visit(node.expression, loopScope)
-        if (initializer && ts.isVariableDeclarationList(initializer)) {
-          for (const declaration of initializer.declarations) {
-            visitBindingPattern(declaration.name, loopScope); addBindingNames(declaration.name, (name) => { const rule = loopScope.bindingRules.get(name); if (rule) rule.initialized = true })
-          }
-        } else {
-          visitAssignmentPattern(initializer, loopScope)
-        }
-      }
-      visit(node.statement, loopScope)
-      if (ts.isForStatement(node) && node.incrementor) visit(node.incrementor, loopScope)
-      return
+      return control.visitLoop(node, loopScope, () => {
+        if (ts.isForStatement(node)) {
+          if (initializer) visit(initializer, loopScope)
+          if (node.condition) visit(node.condition, loopScope)
+        } else if (ts.isForInStatement(node) || ts.isForOfStatement(node)) {
+          visit(node.expression, loopScope)
+          if (initializer && ts.isVariableDeclarationList(initializer)) {
+            for (const declaration of initializer.declarations) {
+              visitBindingPattern(declaration.name, loopScope); addBindingNames(declaration.name, (name) => { const rule = loopScope.bindingRules.get(name); if (rule) rule.initialized = true })
+            }
+          } else visitAssignmentPattern(initializer, loopScope)
+        } else if (ts.isWhileStatement(node)) visit(node.expression, loopScope)
+      })
     }
     if (ts.isVariableDeclaration(node)) {
       if (node.initializer) visit(node.initializer, scope)
@@ -497,10 +470,23 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
         visit(node.right, scope)
         visitAssignmentPattern(node.left, scope)
       } else {
+        if ([ts.SyntaxKind.AmpersandAmpersandEqualsToken, ts.SyntaxKind.BarBarEqualsToken,
+          ts.SyntaxKind.QuestionQuestionEqualsToken].includes(node.operatorToken.kind)) {
+          const prior = initializerStatus(node.left, scope, factoryNames)
+          return control.visitLogicalAssignment(node, scope, prior, () => {
+            if (visit(node.right, scope) === false) return false
+            const right = initializerStatus(node.right, scope, factoryNames)
+            if (ts.isIdentifier(node.left)) bindAssignedLoader(
+              scope, node.left.text, logicalAssignmentLoaderStatus(prior, right, node.operatorToken.kind), node,
+            )
+            else invalidateTarget(node.left, scope)
+          })
+        }
         const resolveMutation = isResolveMutationTarget(node.left, scope)
         visit(node.left, scope); visit(node.right, scope)
-        const assigned = node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isIdentifier(node.left) &&
-          bindAssignedLoader(scope, node.left.text, initializerStatus(node.right, scope, factoryNames), node)
+        const assigned = ts.isIdentifier(node.left) && bindAssignedLoader(
+          scope, node.left.text, initializerStatus(node, scope, factoryNames), node,
+        )
         if (!assigned) invalidateTarget(node.left, scope)
         downgradeResolveTarget(node.left, scope, resolveMutation)
       }
@@ -509,7 +495,7 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
     if ((ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) &&
       [ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(node.operator)) {
       const resolveMutation = isResolveMutationTarget(node.operand, scope)
-      ts.forEachChild(node, (child) => visit(child, scope))
+      ts.forEachChild(node, (child) => { visit(child, scope) })
       invalidateTarget(node.operand, scope)
       downgradeResolveTarget(node.operand, scope, resolveMutation)
       return
@@ -520,11 +506,19 @@ export function moduleLoaderCalls(sourceFile, sourcePath) {
       downgradeResolveTarget(node.expression, scope, resolveMutation)
       return
     }
-    const classification = loaderCall(node, scope, resolveCapabilityDowngraded)
-    if (classification) calls.set(node, classification)
-    ts.forEachChild(node, (child) => visit(child, scope))
+    if (ts.isCallExpression(node)) return visitModuleCall(node, scope, {
+      captureThrow: control.capturePotentialThrow,
+      classify: () => classifyModuleLoaderCall(node, scope, lookup, factoryNames, resolveCapabilityDowngraded),
+      record: (classification) => {
+        const prior = calls.get(node); calls.set(node, prior ? { ...classification, proven: prior.proven && classification.proven } : classification)
+      },
+      referenceKind: (name) => moduleReferenceKind(scope, name), visit, visitArgument: argumentFlow.visitArgument,
+    })
+    return argumentFlow.visitChildren(node, scope)
   }
 
+  control = createModuleLoaderControl(visit)
+  argumentFlow = createOrderedArgumentFlow({ captureThrow: control.capturePotentialThrow, isNullishMemberReceiver: (scope, node) => ts.isIdentifier(node) && node.text === "undefined" && lookup(scope, node.text) === null, isSafeMemberReceiver: (scope, node) => [PROVEN_LOADER, CREATE_REQUIRE_FACTORY].includes(initializerStatus(node, scope, factoryNames)), referenceKind: moduleReferenceKind, visit, visitOptional: control.visitOptional })
   visitContainer(sourceFile, root)
   return calls
 }

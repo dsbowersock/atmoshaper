@@ -1,6 +1,6 @@
 import ts from "typescript"
 import { isLiteralNode } from "./cleanup-source.mjs"
-import { NON_ALIAS, POSSIBLE_PROCESS_OBJECT, PROCESS_OBJECT, isProcessObjectSource, unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
+import { POSSIBLE_PROCESS_OBJECT, isProcessObjectSource, unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
 
 const LOGICAL_ASSIGNMENT_KINDS = new Map([
   [ts.SyntaxKind.AmpersandAmpersandEqualsToken, "logical-and-assignment"],
@@ -51,37 +51,6 @@ export function joinEnvironmentResultStatuses(statuses) {
   if (statuses.every((status) => status === "proven")) return "proven"
   if (statuses.every((status) => status === "unknown")) return "unknown"
   return statuses.some((status) => ["proven", "unknown"].includes(status)) ? "possible" : null
-}
-
-const snapshotScopes = (scope) => {
-  const rows = []; for (let current = scope; current; current = current.parent) rows.push([current, new Map(current.bindings)])
-  return rows
-}
-const restoreScopes = (rows) => { for (const [scope, bindings] of rows) scope.bindings = new Map(bindings) }
-const mergedBinding = (left, right) => left === right ? left : [left, right].some((value) => ["proven", "unknown"].includes(value)) ? "unknown" :
-  [left, right].some((value) => [PROCESS_OBJECT, POSSIBLE_PROCESS_OBJECT].includes(value)) ? POSSIBLE_PROCESS_OBJECT : NON_ALIAS
-const mergeScopes = (left, right) => {
-  for (let index = 0; index < left.length; index += 1) {
-    const [scope, leftBindings] = left[index], rightBindings = right[index][1]
-    scope.bindings = new Map([...new Set([...leftBindings.keys(), ...rightBindings.keys()])].map((name) => [name, mergedBinding(leftBindings.get(name), rightBindings.get(name))]))
-  }
-}
-
-/** Evaluate mutually exclusive result branches from the same incoming lexical state. */
-export function visitConditionalEnvironmentResult(node, scope, visit) {
-  visit(node.condition, scope)
-  const initial = snapshotScopes(scope)
-  visit(node.whenTrue, scope)
-  const whenTrue = snapshotScopes(scope); restoreScopes(initial)
-  visit(node.whenFalse, scope)
-  mergeScopes(whenTrue, snapshotScopes(scope))
-}
-
-
-/** A logical RHS is conditional; merge its effects with the state after the always-evaluated left side. */
-export function visitLogicalEnvironmentResult(node, scope, visit) {
-  visit(node.left, scope); const withoutRight = snapshotScopes(scope)
-  visit(node.right, scope); mergeScopes(withoutRight, snapshotScopes(scope))
 }
 
 /** True when a nested value can become the enclosing expression's result without a value conversion. */
@@ -153,21 +122,21 @@ function processEnvironmentStatus(name, target, ambiguous = false) {
 }
 
 /** Classify the environment target selected from a proven process-object binding pattern. */
-export function processEnvironmentBindingStatus(element) {
+export function processEnvironmentBindingStatus(element, ambiguous = false) {
   if (!ts.isBindingElement(element)) return null
   return processEnvironmentStatus(
     element.propertyName ?? element.name, element.name,
-    Boolean(element.dotDotDotToken || element.initializer),
+    ambiguous || Boolean(element.dotDotDotToken || element.initializer),
   )
 }
 
 /** Classify the environment target selected from a proven process-object assignment pattern. */
-export function processEnvironmentAssignmentStatus(property) {
+export function processEnvironmentAssignmentStatus(property, ambiguous = false) {
   if (ts.isSpreadAssignment(property)) return "unknown"
   if (ts.isShorthandPropertyAssignment(property)) {
-    return processEnvironmentStatus(property.name, property.name, Boolean(property.objectAssignmentInitializer))
+    return processEnvironmentStatus(property.name, property.name, ambiguous || Boolean(property.objectAssignmentInitializer))
   }
-  if (ts.isPropertyAssignment(property)) return processEnvironmentStatus(property.name, property.initializer)
+  if (ts.isPropertyAssignment(property)) return processEnvironmentStatus(property.name, property.initializer, ambiguous)
   return null
 }
 
@@ -179,7 +148,7 @@ export function bindEnvironmentPatternDefaults(pattern, context, processObjectSo
     if (ts.isObjectBindingPattern(pattern) && element.propertyName && ts.isComputedPropertyName(element.propertyName)) visit(element.propertyName.expression, initializerScope)
     if (element.initializer) visit(element.initializer, initializerScope)
     const processStatus = processObjectSource && ts.isObjectBindingPattern(pattern)
-      ? processEnvironmentBindingStatus(element) : null
+      ? processEnvironmentBindingStatus(element, processObjectSource === POSSIBLE_PROCESS_OBJECT) : null
     if (processStatus && ts.isIdentifier(element.name)) scope.bindings.set(element.name.text, processStatus)
     else if (element.initializer && ts.isIdentifier(element.name)) bindName(element.name.text, element.initializer, scope, initializerScope)
     if (ts.isObjectBindingPattern(element.name) || ts.isArrayBindingPattern(element.name)) {

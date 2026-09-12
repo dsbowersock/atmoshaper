@@ -3472,7 +3472,10 @@ test("environment import aliases survive lexical loop and catch shadowing", (t) 
   assert.deepEqual(evidence.reads.map((row) => row.name), [
     "AFTER_FOR", "AFTER_FOR_OF", "AFTER_FOR_IN", "AFTER_CATCH",
   ])
-  assert.equal(evidence.uncertainties.length, 0)
+  // The nested var write is conditional on both loops and the if branch, so both values reach the return.
+  assert.deepEqual(evidence.uncertainties.map((row) => [row.code, row.name]), [
+    ["UNPROVEN_ENVIRONMENT_ALIAS", "AFTER_NESTED_VAR"],
+  ])
   assert.equal(evidence.errors.length, 0)
 })
 
@@ -4541,9 +4544,13 @@ for (const [operator, uncertaintyKind] of [
     ].join("\n"))
     const index = buildTrackedTextIndex(root, policy)
     const report = buildEnvironmentCandidateReport(index, policy)
-    assert.deepEqual(report.staticReads.map((row) => row.name), ["DEFAULT_CONTROL", "EXACT"])
+    // A proven environment object is truthy/non-nullish, so ||= and ??= skip their RHS.
+    const shortCircuitsProven = operator !== "&&="
+    assert.deepEqual(report.staticReads.map((row) => row.name), [
+      "DEFAULT_CONTROL", "EXACT", ...(shortCircuitsProven ? ["PRIOR_PROVEN"] : []),
+    ])
     assert.deepEqual(report.uncertainties.unprovenAliases.filter((row) => row.name).map((row) => row.name), [
-      "DEFAULT_ALIAS", "DIRECT", "PRIOR_PROVEN", "PRIOR_UNKNOWN", "UNKNOWN",
+      "DEFAULT_ALIAS", "DIRECT", ...(!shortCircuitsProven ? ["PRIOR_PROVEN"] : []), "PRIOR_UNKNOWN", "UNKNOWN",
     ])
     assert.equal(report.uncertainties.computedReads.filter((row) => row.kind === uncertaintyKind).length, 1)
     assert.equal(report.uncertainties.unprovenAliases.filter((row) => row.kind === uncertaintyKind && row.name == null).length, 1)
@@ -4843,7 +4850,11 @@ test("environment iteration declarations read iterables before var rebinding but
   assert.deepEqual(evidence.reads.map((row) => row.name).sort(), [
     "ITERABLE_REAL", "ITERABLE_REAL", "OUTER_AFTER", "OUTER_AFTER", "OUTER_AFTER", "OUTER_AFTER",
   ])
-  assert.deepEqual(evidence.uncertainties, [])
+  // A for-in/of body may not execute, so the original process object and rebound iteration value both reach here.
+  assert.deepEqual(evidence.uncertainties.map((row) => [row.path, row.name]), [
+    ["lib/var-iteration-in.ts", "REBOUND_AFTER"],
+    ["lib/var-iteration-of.ts", "REBOUND_AFTER"],
+  ])
 })
 
 test("environment classic loops visit the first body before incrementor mutations", (t) => {
@@ -4861,7 +4872,10 @@ test("environment classic loops visit the first body before incrementor mutation
   const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
   assert.deepEqual(evidence.errors, [])
   assert.deepEqual(evidence.reads.map((row) => row.name), ["CONDITION_REAL", "FIRST_BODY_REAL", "BODY_LOADER_REAL"])
-  assert.deepEqual(evidence.uncertainties, [])
+  // The loop can exit before or after its incrementor invalidates the process object.
+  assert.deepEqual(evidence.uncertainties.map((row) => [row.code, row.name]), [
+    ["UNPROVEN_ENVIRONMENT_ALIAS", "AFTER_INCREMENTOR"],
+  ])
 })
 
 test("environment CommonJS loader shadows include sloppy CJS Annex-B block functions", (t) => {
@@ -5394,11 +5408,11 @@ test("environment implicit process ownership is invalidated by source-order writ
   const second = buildEnvironmentCandidateReport(index, policy)
   assert.deepEqual(first, second)
   assert.deepEqual(first.staticReads.map((row) => row.name), [
-    "BEFORE_ASSIGNMENT", "BEFORE_COMPOUND", "BEFORE_LOGICAL", "BEFORE_POSTFIX", "BEFORE_PREFIX",
+    "AFTER_LOGICAL", "BEFORE_ASSIGNMENT", "BEFORE_COMPOUND", "BEFORE_LOGICAL", "BEFORE_POSTFIX", "BEFORE_PREFIX",
     "EXPLICIT_IMPORT", "EXPLICIT_REQUIRE", "UNMUTATED",
   ])
   assert.deepEqual(first.unreadDeclarationCandidates, [])
-  assert.equal(first.staticReads.some((row) => row.name.startsWith("AFTER_") || row.name === "SHADOWED"), false)
+  assert.equal(first.staticReads.some((row) => row.name !== "AFTER_LOGICAL" && row.name.startsWith("AFTER_") || row.name === "SHADOWED"), false)
 })
 
 test("environment class static blocks propagate only unbound implicit process mutation", (t) => {
@@ -5496,7 +5510,7 @@ test("environment CommonJS process bindings retain lexical initialization and re
   const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
   assert.deepEqual(evidence.errors, [])
   assert.deepEqual(evidence.reads.map((row) => row.name), [
-    "OUTER", "AFTER", "VAR_AFTER", "PARAMETER_DEFAULT_NOT_OWNED", "DEFAULT_CONTROL",
+    "OUTER", "AFTER", "VAR_AFTER", "PARAMETER_DEFAULT_NOT_OWNED", "DEFAULT_CONTROL", "COMPOUND_LOADER",
   ])
   assert.deepEqual(evidence.uncertainties, [])
 })
@@ -6009,6 +6023,411 @@ test("package exposes the exact cleanup audit commands", () => {
   assert.equal(packageJson.scripts["dependency:audit"], "node scripts/repository-audit/dependency.mjs")
   assert.equal(packageJson.scripts["asset:audit"], "node scripts/repository-audit/asset.mjs")
   assert.equal(packageJson.scripts["env:audit"], "node scripts/repository-audit/environment.mjs")
+})
+
+test("round 25 environment assignments join normal branch and loop paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let oneBranch = {}; if (flag) oneBranch = process.env; oneBranch.ONE_BRANCH;",
+    "let both = {}; if (flag) both = process.env; else both = process.env; both.BOTH_PROVEN;",
+    "let conditional = {}; flag ? conditional = process.env : sideEffect(); conditional.CONDITIONAL_BRANCH;",
+    "let conditionalBoth = {}; flag ? conditionalBoth = process.env : conditionalBoth = process.env; conditionalBoth.CONDITIONAL_BOTH;",
+    "let whileAlias = {}; while (flag) { whileAlias = process.env; } whileAlias.ZERO_WHILE;",
+    "let forAlias = {}; for (; flag;) { forAlias = process.env; } forAlias.ZERO_FOR;",
+    "let doAlias = {}; do { doAlias = process.env; } while (flag); doAlias.DO_PROVEN;",
+    "let broken = {}; do { if (flag) break; broken = process.env; } while (false); broken.BREAK_PATH;",
+    "let continued = {}; do { if (flag) continue; continued = process.env; } while (false); continued.CONTINUE_PATH;",
+    "let straight = {}; straight = process.env; straight.STRAIGHT_PROVEN;",
+    "",
+  ]
+  writeFixture(root, "app/environment-flow-joins.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["BOTH_PROVEN", "CONDITIONAL_BOTH", "DO_PROVEN", "STRAIGHT_PROVEN"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), [
+    "ONE_BRANCH", "CONDITIONAL_BRANCH", "ZERO_WHILE", "ZERO_FOR", "BREAK_PATH", "CONTINUE_PATH",
+  ])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 deferred functions isolate writes while immediate invocations preserve flow", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let environment = process.env;",
+    "function declared() { environment.INSIDE_DECLARATION; environment = {}; }",
+    "environment.AFTER_DECLARATION;",
+    "const expression = function () { environment.INSIDE_EXPRESSION; environment = {}; };",
+    "const arrow = () => { environment.INSIDE_ARROW; environment = {}; };",
+    "environment.AFTER_DEFERRED;",
+    "let immediate = {}; (() => { immediate = process.env; })(); immediate.IMMEDIATE;",
+    "(function () { environment = {}; })(); environment.AFTER_IIFE_INVALIDATION;",
+    "let optional = {}; (function () { optional = process.env; })?.(); optional.OPTIONAL_INVOCATION;",
+    "let conditionalImmediate = {}; (flag ? (() => { conditionalImmediate = process.env; }) : (() => { conditionalImmediate = process.env; }))(); conditionalImmediate.CONDITIONAL_IMMEDIATE;",
+    "let conditionalMixed = {}; (flag ? (() => { conditionalMixed = process.env; }) : (() => {}))(); conditionalMixed.CONDITIONAL_MIXED;",
+    "void declared; void expression; void arrow;",
+    "",
+  ]
+  writeFixture(root, "app/environment-function-flow.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "INSIDE_DECLARATION", "AFTER_DECLARATION", "INSIDE_EXPRESSION", "INSIDE_ARROW",
+    "AFTER_DEFERRED", "IMMEDIATE", "OPTIONAL_INVOCATION", "CONDITIONAL_IMMEDIATE",
+  ])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), [
+    "AFTER_IIFE_INVALIDATION", "CONDITIONAL_MIXED",
+  ])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 possible CommonJS loaders retain conservative process provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateExpression = "selectPrivateCommonJsKey()"
+  const lines = [
+    "const exact = flag ? require : require; exact('process').env.EXACT;",
+    "const invalid = flag ? other : other; invalid('process').env.INVALID;",
+    "const mixed = flag ? require : other; mixed('node:process').env.MIXED;",
+    "const logical = require || other; logical('process').env.LOGICAL;",
+    "const { env: maybeEnvironment } = mixed('process'); maybeEnvironment.MAYBE_DESTRUCTURED;",
+    `mixed('process').env[${privateExpression}];`,
+    "function shadow(require) { const local = flag ? require : other; local('process').env.SHADOWED; }",
+    "",
+  ]
+  writeFixture(root, "scripts/environment-commonjs-flow.cjs", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["EXACT", "LOGICAL"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["MIXED", "MAYBE_DESTRUCTURED", null])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assertPrivateSerialization(first, root, [privateExpression])
+})
+
+test("round 25 for-loop incrementors join every reaching continue edge", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let before = flag ? process.env : {}; for (let i = 0; i < 1; (before.BEFORE_CONTINUE, i++)) { continue; }",
+    "let after = {}; for (let i = 0; i < 1; (after.AFTER_CONTINUE, i++)) { after = process.env; continue; }",
+    "let conditional = {}; for (let i = 0; i < 1; (conditional.CONDITIONAL_CONTINUE, i++)) { if (flag) continue; conditional = process.env; }",
+    "let nested = {}; outer: for (let i = 0; i < 1; (nested.NESTED_CONTINUE, i++)) { for (;;) { continue outer; } nested = process.env; }",
+    "let labeled = {}; outerTwo: for (let i = 0; i < 1; (labeled.LABELED_CONTINUE, i++)) { labeled = process.env; continue outerTwo; }",
+    "let broken = {}; for (let i = 0; i < 1; (broken.BREAK_SKIPS_INCREMENT, i++)) { break; }",
+    "function returned() { let value = {}; for (let i = 0; i < 1; (value.RETURN_SKIPS_INCREMENT, i++)) { return; } }",
+    "function thrown() { let value = {}; for (let i = 0; i < 1; (value.THROW_SKIPS_INCREMENT, i++)) { throw failure; } }",
+    "",
+  ]
+  writeFixture(root, "app/environment-for-continue.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["AFTER_CONTINUE", "LABELED_CONTINUE"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["BEFORE_CONTINUE", "CONDITIONAL_CONTINUE"])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 module-loader incrementors join every reaching continue edge", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let maybe; for (let i = 0; i < 1; (maybe('../lib/service'), i++)) { if (flag) continue; maybe = createRequire(import.meta.url); }",
+    "let exact; for (let i = 0; i < 1; (exact('../lib/service'), i++)) { exact = createRequire(import.meta.url); if (flag) continue; }",
+    "let labeled; outer: for (let i = 0; i < 1; (labeled('../lib/service'), i++)) { for (;;) { continue outer; } labeled = createRequire(import.meta.url); }",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-continue.mjs", lines.join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.references.filter((row) => row.kind === "require").map((row) => row.line), [3])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => row.line), [2])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 immediate function callees preserve transparent comma call and apply flow", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let comma = {}; (sideEffect(), (() => { comma = process.env; }))(); comma.COMMA;",
+    "let called = {}; (function () { called = process.env; }).call(null); called.CALL;",
+    "let applied = {}; (() => { applied = process.env; }).apply(null, []); applied.APPLY;",
+    "let invalidated = process.env; (function () { invalidated = {}; }).call(null); invalidated.INVALIDATED;",
+    "let optional = {}; (function () { optional = process.env; }).call?.(null); optional.OPTIONAL_CALL;",
+    "let conditional = {}; (flag ? function () { conditional = process.env; } : function () { conditional = process.env; }).apply(null, []); conditional.CONDITIONAL;",
+    "let mixed = {}; (flag ? function () { mixed = process.env; } : function () {}).call(null); mixed.MIXED;",
+    "",
+  ]
+  writeFixture(root, "app/environment-iife-callees.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["COMMA", "CALL", "APPLY", "OPTIONAL_CALL", "CONDITIONAL"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["INVALIDATED", "MIXED"])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 logical assignments retain possible CommonJS loader provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateKey = "selectPrivateLogicalLoaderKey()"
+  const lines = [
+    "let both = require; both &&= require; both('process').env.BOTH_PROVEN;",
+    "let possible = flag ? require : other; possible ||= require; possible('process').env.POSSIBLE;",
+    "let nonloader = other; nonloader ||= require; nonloader('process').env.NONLOADER_OR;",
+    "let andLoader = other; andLoader &&= require; andLoader('process').env.NONLOADER_AND;",
+    "let nullish = require; nullish ??= other; nullish('process').env.NULLISH_PROVEN;",
+    `possible('process').env[${privateKey}];`,
+    "",
+  ]
+  writeFixture(root, "scripts/environment-logical-loader.cjs", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["BOTH_PROVEN", "NULLISH_PROVEN"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["POSSIBLE", "NONLOADER_OR", "NONLOADER_AND", null])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assertPrivateSerialization(first, root, [privateKey])
+})
+
+test("round 25 abrupt flow distinguishes switch labels and try paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let labeled = {}; block: { labeled = process.env; break block; } labeled.LABELED_BLOCK;",
+    "let switched = {}; do { switched = process.env; switch (flag) { case 1: break; default: sideEffect(); } } while (false); switched.SWITCH_BREAK;",
+    "let tried = {}; try { mightThrow(); tried = process.env; } catch {} tried.TRY_UNCERTAIN;",
+    "let caught = {}; try { if (flag) throw failure; caught = process.env; } catch { caught = process.env; } caught.CATCH_PROVEN;",
+    "let finalized = {}; try { mightThrow(); } catch {} finally { finalized = process.env; } finalized.FINALLY_PROVEN;",
+    "",
+  ]
+  writeFixture(root, "app/environment-abrupt-flow.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["LABELED_BLOCK", "SWITCH_BREAK", "CATCH_PROVEN", "FINALLY_PROVEN"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["TRY_UNCERTAIN"])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 module-loader incrementors exclude abrupt and infinite body paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "function returned() { let loader; for (; flag; loader('../lib/service')) { loader = createRequire(import.meta.url); return; } }",
+    "function thrown() { let loader; for (; flag; loader('../lib/service')) { loader = createRequire(import.meta.url); throw failure; } }",
+    "let blocked; outer: for (; flag; blocked('../lib/service')) { for (;;) {} blocked = createRequire(import.meta.url); }",
+    "let resumed; outerTwo: for (; flag; resumed('../lib/service')) { resumed = createRequire(import.meta.url); for (;;) { continue outerTwo; } }",
+    "let broken; for (; flag; broken('../lib/service')) { for (;;) { break; } broken = createRequire(import.meta.url); }",
+    "void returned; void thrown;",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-completions.mjs", lines.join("\n"))
+
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [5, 6])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [])
+})
+
+test("round 25 partial immediate callees join executed and skipped paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let direct = {}; (flag ? (() => { direct = process.env; }) : null)(); direct.DIRECT_NORMAL;",
+    "let optional = {}; (flag ? (() => { optional = process.env; }) : null)?.(); optional.OPTIONAL_PARTIAL;",
+    "let logical = {}; (flag && (() => { logical = process.env; }))?.(); logical.LOGICAL_PARTIAL;",
+    "let comma = {}; ((comma = process.env), (() => {}))(); comma.COMMA_ONCE;",
+    "let optionalCall = {}; (flag ? (() => { optionalCall = process.env; }) : null)?.call(null); optionalCall.OPTIONAL_CALL_PARTIAL;",
+    "",
+  ]
+  writeFixture(root, "app/environment-partial-iife.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["DIRECT_NORMAL", "COMMA_ONCE"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["OPTIONAL_PARTIAL", "LOGICAL_PARTIAL", "OPTIONAL_CALL_PARTIAL"])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 logical assignment expressions preserve loader result provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateKey = "selectPrivateAssignmentResultKey()"
+  const lines = [
+    "let exact = require; (exact ||= other)('process').env.EXACT_RESULT;",
+    "let possible = flag ? require : other; (possible ||= require)('process').env.POSSIBLE_RESULT;",
+    "let andResult = flag ? require : other; (andResult &&= require)('process').env.AND_RESULT;",
+    "let destructured = flag ? require : other; const { env } = (destructured ??= require)('process'); env.DESTRUCTURED_RESULT;",
+    `(possible ||= require)('process').env[${privateKey}];`,
+    "",
+  ]
+  writeFixture(root, "scripts/environment-loader-results.cjs", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["EXACT_RESULT"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["POSSIBLE_RESULT", "AND_RESULT", "DESTRUCTURED_RESULT", null])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assertPrivateSerialization(first, root, [privateKey])
+})
+
+test("round 25 try completion states reach catch and finally precisely", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let beforeThrow = {}; try { beforeThrow = process.env; throw failure; } catch {} beforeThrow.BEFORE_THROW;",
+    "let conditionalThrow = {}; try { if (flag) throw failure; conditionalThrow = process.env; } catch {} conditionalThrow.CONDITIONAL_THROW;",
+    "function returning() { let beforeReturn = {}; try { beforeReturn = process.env; return; } finally { beforeReturn.FINALLY_BEFORE_RETURN; } }",
+    "let catchExact = {}; try { if (flag) throw failure; catchExact = process.env; } catch { catchExact = process.env; } catchExact.CATCH_EXACT;",
+    "void returning;",
+    "",
+  ]
+  writeFixture(root, "app/environment-try-completions.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["BEFORE_THROW", "FINALLY_BEFORE_RETURN", "CATCH_EXACT"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["CONDITIONAL_THROW"])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 module-loader while and do completions gate outer incrementors", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let blocked; for (; flag; blocked('../lib/service')) { while (true) {} blocked = createRequire(import.meta.url); }",
+    "let doBlocked; for (; flag; doBlocked('../lib/service')) { do {} while (true); doBlocked = createRequire(import.meta.url); }",
+    "let resumed; outer: for (; flag; resumed('../lib/service')) { resumed = createRequire(import.meta.url); while (true) { continue outer; } }",
+    "let broken; for (; flag; broken('../lib/service')) { while (true) { break; } broken = createRequire(import.meta.url); }",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-while-completions.mjs", lines.join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [4, 5])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER"), [])
+})
+
+test("round 25 module assignment expressions expose operator-aware loader results", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  const lines = [
+    "import { createRequire } from 'node:module';",
+    "let assigned; (assigned = createRequire(import.meta.url))('../lib/service');",
+    "let captured; const saved = (captured = createRequire(import.meta.url)); saved('../lib/service');",
+    "let exact = createRequire(import.meta.url); (exact ||= other)('../lib/service');",
+    "let possible = other; (possible ||= createRequire(import.meta.url))('../lib/service');",
+    "let andExact = createRequire(import.meta.url); (andExact &&= createRequire(import.meta.url))('../lib/service');",
+    "let nullishExact = createRequire(import.meta.url); (nullishExact ??= other)('../lib/service');",
+    "let logicalExact = createRequire(import.meta.url); (logicalExact || other)('../lib/service');",
+    "let logicalAnd = createRequire(import.meta.url); (logicalAnd && createRequire(import.meta.url))('../lib/service');",
+    "let logicalPossible = other; (logicalPossible || createRequire(import.meta.url))('../lib/service');",
+    "",
+  ]
+  writeFixture(root, "scripts/loader-assignment-results.mjs", lines.join("\n"))
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.references.filter((row) => row.kind === "require").map((row) => row.line), [2, 3, 4, 6, 7, 8, 9])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => row.line), [5, 10])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 immediate callee alternatives keep independent entry states", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let one = {}; (flag ? ((one = process.env), (() => {})) : (() => {}))(); one.ONE_BRANCH;",
+    "let both = {}; (flag ? ((both = process.env), (() => {})) : ((both = process.env), (() => {})))(); both.BOTH_BRANCHES;",
+    "let optional = {}; (flag ? ((optional = process.env), (() => {})) : null)?.(); optional.OPTIONAL_BRANCH;",
+    "let direct = {}; (flag ? ((direct = process.env), (() => {})) : null)(); direct.DIRECT_NORMAL;",
+    "let logical = {}; (flag && ((logical = process.env), (() => {})))?.(); logical.LOGICAL_BRANCH;",
+    "",
+  ]
+  writeFixture(root, "app/environment-iife-entries.ts", lines.join("\n"))
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["BOTH_BRANCHES", "DIRECT_NORMAL"])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), [
+    "ONE_BRANCH", "OPTIONAL_BRANCH", "LOGICAL_BRANCH",
+  ])
+})
+
+test("round 25 logical assignments evaluate only reachable environment RHS paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let skipOr = process.env; skipOr ||= process.env.SKIPPED_OR; skipOr.OR_STAYS_PROVEN;",
+    "let skipNullish = process.env; skipNullish ??= process.env.SKIPPED_NULLISH; skipNullish.NULLISH_STAYS_PROVEN;",
+    "let executeAnd = process.env; executeAnd &&= {}; executeAnd.AND_INVALIDATED;",
+    "let possible = flag ? process.env : {}; possible ||= process.env; possible.POSSIBLE_OR;",
+    "let nonalias = {}; nonalias &&= process.env; nonalias.NONALIAS_AND;",
+    "",
+  ]
+  writeFixture(root, "app/environment-logical-execution.ts", lines.join("\n"))
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["OR_STAYS_PROVEN", "NULLISH_STAYS_PROVEN"])
+  assert.equal(first.reads.some((row) => ["SKIPPED_OR", "SKIPPED_NULLISH"].includes(row.name)), false)
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), [
+    "AND_INVALIDATED", "POSSIBLE_OR", "NONALIAS_AND",
+  ])
+})
+
+test("round 25 nested finally routes labeled abrupt completions with state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "let nested = {}; try { try { nested = process.env; throw failure; } finally { nested.FINALLY_INNER; } } catch {} nested.AFTER_NESTED;",
+    "let labeled = {}; outer: { try { labeled = process.env; break outer; } finally { labeled.FINALLY_LABEL; } } labeled.AFTER_LABEL;",
+    "function continuing() { let value = {}; outer: for (;;) { try { value = process.env; continue outer; } finally { value.FINALLY_CONTINUE; } } }",
+    "let overridden = process.env; try { try { throw failure; } finally { overridden = {}; throw replacement; } } catch {} overridden.AFTER_OVERRIDE;",
+    "void continuing;",
+    "",
+  ]
+  writeFixture(root, "app/environment-nested-completions.ts", lines.join("\n"))
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "FINALLY_INNER", "AFTER_NESTED", "FINALLY_LABEL", "AFTER_LABEL", "FINALLY_CONTINUE",
+  ])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["AFTER_OVERRIDE"])
 })
 
 test("round 24 loader evidence preserves plain-assignment provenance", (t) => {
@@ -6672,8 +7091,9 @@ test("round 24 loader loop assignments distinguish iteration-local and escaping 
   writeFixture(root, "scripts/loader-loop-state.ts", lines.join("\n"))
 
   const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
-  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [2])
-  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [3, 3, 4])
+  // A call after the assignment in the same iteration is exact; the post-loop path remains possible.
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [2, 3])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [3, 4])
 })
 
 test("round 24 environment in-operator captures operands at evaluation time", (t) => {
@@ -6878,4 +7298,451 @@ test("round 24 in-operator joins conditional and logical left-side mutations", (
   assert.deepEqual(first, second)
   assert.equal(first.reads.some((row) => ["CONDITIONAL_LEFT", "LOGICAL_LEFT"].includes(row.name)), false)
   assert.deepEqual(first.uncertainties.filter((row) => row.kind === "in-operator").map((row) => row.name), ["CONDITIONAL_LEFT", "LOGICAL_LEFT"])
+})
+
+test("round 25 finally evidence joins completion states before classifying reads", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-finally-outcomes.ts", [
+    "function mixed(flag) { let environment = process.env; try { if (flag) throw failure; environment = {}; } finally { void environment.FINALLY_JOIN; } }",
+    "function exact(flag) { let environment = {}; try { if (flag) throw failure; environment = process.env; } catch { environment = process.env; } finally { void environment.FINALLY_EXACT; } }",
+    "let isolated = {}; try { function deferred() { mightThrow(); return; } isolated = process.env; void deferred; } catch {} isolated.DEFERRED_ISOLATION;",
+    "void mixed; void exact;",
+    "",
+  ].join("\n"))
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["FINALLY_EXACT", "DEFERRED_ISOLATION"])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["FINALLY_JOIN"])
+})
+
+test("round 25 logical expression results retain operator-aware environment values", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-logical-results.ts", [
+    "const environment = process.env;",
+    "const orResult = environment || {}; orResult.OR_RESULT;",
+    "const nullishResult = environment ?? {}; nullishResult.NULLISH_RESULT;",
+    "const andResult = environment && {}; andResult.AND_RESULT;",
+    "const maybe = flag ? environment : {}; const joined = maybe || environment; joined.JOINED_RESULT;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["OR_RESULT", "NULLISH_RESULT"])
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["JOINED_RESULT"])
+})
+
+test("round 25 module flow routes switch labels infinite loops and finally joins", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/module-flow-matrix.mjs", [
+    "import { createRequire } from 'node:module';",
+    "const source = createRequire(import.meta.url);",
+    "let switched; switch (flag) { case 0: switched = createRequire(import.meta.url); break; default: switched = createRequire(import.meta.url); break; } switched('../lib/service');",
+    "let labeled; block: { labeled = createRequire(import.meta.url); break block; } labeled('../lib/service');",
+    "let mixed = createRequire(import.meta.url); try { if (flag) throw failure; mixed = other; } finally { mixed('../lib/service'); }",
+    "let before; try { before = source; mightThrow(); } catch {} before('../lib/service');",
+    "let after; try { mightThrow(); after = source; } catch {} after('../lib/service');",
+    "let isolated; try { function deferred() { mightThrow(); return; } isolated = source; void deferred; } catch {} isolated('../lib/service');",
+    "let unreachable; while (true) {} unreachable('../lib/service');",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [3, 4, 6, 8])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [5, 7])
+})
+
+test("round 25 immediate callee flow separates skipped noncallable and executed paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-callee-matrix.ts", [
+    "let optional = {}; (flag ? (optional = process.env, () => {}) : null)?.(); optional.OPTIONAL_JOIN;",
+    "let abrupt = {}; (flag ? (abrupt = process.env, () => {}) : 0)(); abrupt.NONCALLABLE_DROPPED;",
+    "let sideEffect = {}; (sideEffect = process.env, () => {})(); sideEffect.CALLEE_EFFECT;",
+    "let assigned = {}, fn; (fn = () => { assigned = process.env; })(); assigned.ASSIGN_CALLEE;",
+    "let logical = {}, maybe; (maybe ||= () => { logical = process.env; })(); logical.LOGICAL_CALLEE;",
+    "let unknown = {}; receiver?.(unknown = process.env); unknown.OPTIONAL_UNKNOWN;",
+    "let argument = {}; (null)?.(argument = process.env); argument.SKIPPED_ARGUMENT;",
+    "let returned = {}; (() => { returned = process.env; return; })(); returned.AFTER_RETURN;",
+    "let thrown = {}; (() => { thrown = process.env; throw failure; })(); thrown.AFTER_THROW;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["NONCALLABLE_DROPPED", "CALLEE_EFFECT", "ASSIGN_CALLEE", "AFTER_RETURN"])
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["OPTIONAL_JOIN", "LOGICAL_CALLEE", "OPTIONAL_UNKNOWN"])
+})
+
+test("round 25 immediate call throws retain callee argument and body state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-call-throws.ts", [
+    "let argument = {}; try { (0)(argument = process.env); } catch {} argument.NONCALLABLE_ARGUMENT;",
+    "let callee = {}; try { (flag ? (callee = process.env, 0) : (callee = process.env, false))(); } catch {} callee.NONCALLABLE_CALLEE;",
+    "let body = {}; try { (() => { body = process.env; throw failure; })(); } catch {} body.IIFE_BODY_THROW;",
+    "let deferred = {}; function later() { deferred = process.env; throw failure; } deferred.DEFERRED_ISOLATED; void later;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "NONCALLABLE_ARGUMENT", "NONCALLABLE_CALLEE", "IIFE_BODY_THROW",
+  ])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "DEFERRED_ISOLATED"), false)
+})
+
+test("round 25 logical environment assignment samples RHS provenance after effects", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-logical-rhs-order.ts", [
+    "let cleared = process.env; cleared &&= (cleared = {}, cleared); cleared.CLEARED_BY_RHS;",
+    "let established = process.env; established &&= (established = {}, established = process.env, established); established.ESTABLISHED_BY_RHS;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["ESTABLISHED_BY_RHS"])
+  assert.deepEqual(evidence.uncertainties.filter((row) =>
+    row.code === "UNPROVEN_ENVIRONMENT_ALIAS" && row.name !== null).map((row) => row.name), ["CLEARED_BY_RHS"])
+})
+
+test("round 25 module logical assignment samples RHS independently of inner target writes", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/module-logical-rhs-order.mjs", [
+    "import { createRequire } from 'node:module';",
+    "const source = createRequire(import.meta.url);",
+    "let loader = source; (loader &&= (loader = other, source))('../lib/service');",
+    "let skipped = source; (skipped ||= (skipped = other, source))('../lib/service');",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [3, 4])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER"), [])
+})
+
+test("round 25 generic member-call throws preserve pre-argument state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-call-timing.ts", [
+    "let early = {}; try { null.method(early = process.env); } catch {} early.MEMBER_EARLY;",
+    "let direct = {}; try { (0)(direct = process.env); } catch {} direct.DIRECT_AFTER_ARGUMENT;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["DIRECT_AFTER_ARGUMENT"])
+  assert.deepEqual(evidence.uncertainties.filter((row) =>
+    row.code === "UNPROVEN_ENVIRONMENT_ALIAS" && row.name !== null).map((row) => row.name), ["MEMBER_EARLY"])
+})
+
+test("round 25 call and apply retain receiver property-access timing", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-wrapper-call-timing.ts", [
+    "const fn = () => {};",
+    "let called = {}; try { (flag ? fn : null).call(null, called = process.env); } catch {} called.CALL_ARGUMENT;",
+    "let applied = {}; try { (flag ? fn : null).apply(null, (applied = process.env, [])); } catch {} applied.APPLY_ARGUMENT;",
+    "let exact = {}; fn.call(null, exact = process.env); exact.EXACT_CALL_ARGUMENT;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["EXACT_CALL_ARGUMENT"])
+  assert.deepEqual(evidence.uncertainties.filter((row) =>
+    row.code === "UNPROVEN_ENVIRONMENT_ALIAS" && row.name !== null).map((row) => row.name), ["CALL_ARGUMENT", "APPLY_ARGUMENT"])
+})
+
+test("round 25 generic calls preserve TDZ callee entry-state failures", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-generic-call-entry.ts", [
+    "let tdzValue = {}; try { later(tdzValue = process.env); let later = () => {}; } catch {} tdzValue.TDZ_CALLEE;",
+    "let direct = {}; try { (0)(direct = process.env); } catch {} direct.DIRECT_NONCALLABLE;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["DIRECT_NONCALLABLE"])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "TDZ_CALLEE"), false)
+})
+
+test("round 25 generic calls preserve undeclared callee entry-state failures", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-missing-callee.ts",
+    "let value = {}; try { missing(value = process.env); } catch {} value.MISSING_CALLEE;\n")
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.deepEqual(evidence.uncertainties.filter((row) =>
+    row.code === "UNPROVEN_ENVIRONMENT_ALIAS" && row.name !== null).map((row) => row.name), ["MISSING_CALLEE"])
+})
+
+test("round 25 consecutive labels share the same loop target", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/labeled-loader.mjs", [
+    "import { createRequire } from 'node:module';",
+    "let loader; outer: inner: for (; flag; loader('../lib/service')) { loader = createRequire(import.meta.url); continue outer; }",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [2])
+})
+
+test("round 25 immediate callees keep branch bodies correlated", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-callee-correlation.ts", [
+    "let value = {}; (flag ? (value = process.env, () => {}) : (() => { value = process.env; }))(); value.CORRELATED;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["CORRELATED"])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "CORRELATED"), false)
+})
+
+test("round 25 abrupt call arguments stop later argument evaluation", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-abrupt-arguments.ts", [
+    "const fn = () => {}; let value = {}; try { fn((() => { throw failure; })(), value = process.env); } catch {} value.AFTER_ARGUMENT_THROW;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "AFTER_ARGUMENT_THROW"), false)
+})
+
+test("round 25 optional undefined respects global parameter and TDZ bindings", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-optional-undefined.ts", [
+    "let globalValue = {}; undefined?.(globalValue = process.env); globalValue.GLOBAL_SKIPPED;",
+    "let tdzValue = {}; try { undefined?.(tdzValue = process.env); let undefined; } catch {} tdzValue.TDZ_SKIPPED;",
+    "function parameter(undefined) { let value = {}; undefined?.(value = process.env); value.PARAMETER_POSSIBLE; }",
+    "void parameter;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.deepEqual(evidence.uncertainties.filter((row) =>
+    row.code === "UNPROVEN_ENVIRONMENT_ALIAS" && row.name !== null).map((row) => row.name), ["PARAMETER_POSSIBLE"])
+})
+
+test("round 25 implicit process survives a missing branch binding", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-implicit-process-join.ts", [
+    "if (flag) process = {}; const { env: config } = process; config.AFTER_PROCESS_BRANCH;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.deepEqual(evidence.uncertainties.filter((row) =>
+    row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["AFTER_PROCESS_BRANCH"])
+})
+
+test("round 25 generic call checkpoints preserve initialized parameter arguments", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-parameter-call.ts", [
+    "function invoke(callback) { let value = {}; try { callback(value = process.env); } catch {} value.INITIALIZED_PARAMETER; }",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["INITIALIZED_PARAMETER"])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "INITIALIZED_PARAMETER"), false)
+})
+
+test("round 25 finally executes each incoming completion before joining", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-finally-paths.ts", [
+    "let source = {}; try { if (flag) { source = process.env; throw failure; } source = process.env; } finally { source.FINALLY_PER_PATH; }",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["FINALLY_PER_PATH"])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "FINALLY_PER_PATH"), false)
+})
+
+test("round 25 module generic calls retain post-argument loader state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/module-generic-call.mjs", [
+    "import { createRequire } from 'node:module';",
+    "const exact = createRequire(import.meta.url);",
+    "function invoke(unknown) { let loader; try { unknown(loader = exact); } catch {} loader('../lib/service'); }",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [3])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER"), [])
+})
+
+test("round 25 module generic calls do not invent successful-argument throws", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/module-generic-argument.mjs", [
+    "import { createRequire } from 'node:module';",
+    "const exact = createRequire(import.meta.url);",
+    "function invoke(unknown) { let loader; try { unknown(0, loader = exact); } catch {} loader('../lib/service'); }",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [3])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER"), [])
+})
+
+test("round 25 environment generic calls do not invent successful-argument throws", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-generic-argument.ts", [
+    "function invoke(unknown) { let value = {}; try { unknown(0, value = process.env); } catch {} value.AFTER_ARGUMENTS; }",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["AFTER_ARGUMENTS"])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "AFTER_ARGUMENTS"), false)
+})
+
+test("round 25 nested TDZ arguments stop later module arguments", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/module-nested-argument.mjs", [
+    "import { createRequire } from 'node:module';",
+    "const exact = createRequire(import.meta.url);",
+    "function invoke(unknown) { let loader; try { unknown((later, 0), loader = exact); let later; } catch {} loader('../lib/service'); }",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require"), [])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER"), [])
+})
+
+test("round 25 nested TDZ arguments stop later environment arguments", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-nested-argument.ts", [
+    "function invoke(unknown) { let value = {}; try { unknown((later, 0), value = process.env); let later; } catch {} value.AFTER_TDZ; }",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "AFTER_TDZ"), false)
+})
+
+test("round 25 immediate calls stop after nested TDZ arguments", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-immediate-nested-argument.ts", [
+    "let value = {}; try { (() => {})((later, 0), value = process.env); } catch {} value.AFTER_IMMEDIATE_TDZ; let later;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "AFTER_IMMEDIATE_TDZ"), false)
+})
+
+test("round 25 nested argument failures route module state at the detected expression", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/module-nested-failures.mjs", [
+    "import { createRequire } from 'node:module';",
+    "const exact = createRequire(import.meta.url);",
+    "function invoke(unknown, holder) {",
+    "  let missingLoader; try { unknown((missing, 0), missingLoader = exact); } catch {} missingLoader('../lib/service');",
+    "  let memberLoader; try { unknown((holder.value, 0), memberLoader = exact); } catch {} memberLoader('../lib/service');",
+    "  let kept = exact; try { unknown((later, 0), kept = other); let later; } catch {} kept('../lib/service');",
+    "}",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [6])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [4, 5])
+})
+
+test("round 25 nested argument failures route environment state at the detected expression", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-nested-failures.ts", [
+    "function invoke(unknown, holder) {",
+    "  let missingValue = {}; try { unknown((missing, 0), missingValue = process.env); } catch {} missingValue.MISSING_PATH;",
+    "  let memberValue = {}; try { unknown((holder.value, 0), memberValue = process.env); } catch {} memberValue.MEMBER_PATH;",
+    "  let kept = process.env; try { unknown((later, 0), kept = {}); let later; } catch {} kept.KEPT_PATH;",
+    "}",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["KEPT_PATH"])
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["MISSING_PATH", "MEMBER_PATH"])
+})
+
+test("round 25 optional member arguments join environment evaluation paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-optional-member-arguments.ts", [
+    "function invoke(unknown, holder) {",
+    "  let skipped = {}; try { unknown(undefined?.[skipped = process.env]); } catch {} skipped.SKIPPED_KEY;",
+    "  let possible = {}; try { unknown(holder?.value, possible = process.env); } catch {} possible.POSSIBLE_LOOKUP;",
+    "  let nullish = {}; try { unknown(null?.value, nullish = process.env); } catch {} nullish.NULLISH_SAFE;",
+    "  let ordinary = {}; try { unknown(({ value: 1 })?.value, ordinary = process.env); } catch {} ordinary.ORDINARY_SAFE;",
+    "  let method = {}; try { unknown(({ safe() {} })?.safe, method = process.env); } catch {} method.METHOD_SAFE;",
+    "  let getter = {}; try { unknown(({ get dangerous() { throw failure; } })?.dangerous, getter = process.env); } catch {} getter.GETTER_LOOKUP;",
+    "}",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["NULLISH_SAFE", "ORDINARY_SAFE", "METHOD_SAFE"])
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["POSSIBLE_LOOKUP", "GETTER_LOOKUP"])
+})
+
+test("round 25 optional member arguments join module evaluation paths", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/module-optional-member-arguments.mjs", [
+    "import { createRequire } from 'node:module';",
+    "const exact = createRequire(import.meta.url);",
+    "function invoke(unknown, holder) {",
+    "  let skipped; try { unknown(undefined?.[skipped = exact]); } catch {} skipped('../lib/service');",
+    "  let possible; try { unknown(holder?.value, possible = exact); } catch {} possible('../lib/service');",
+    "  let nullish; try { unknown(null?.value, nullish = exact); } catch {} nullish('../lib/service');",
+    "  let ordinary; try { unknown(({ value: 1 })?.value, ordinary = exact); } catch {} ordinary('../lib/service');",
+    "  let method; try { unknown(({ safe() {} })?.safe, method = exact); } catch {} method('../lib/service');",
+    "  let getter; try { unknown(({ get dangerous() { throw failure; } })?.dangerous, getter = exact); } catch {} getter('../lib/service');",
+    "}",
+    "void invoke;",
+    "",
+  ].join("\n"))
+  const report = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(report.references.filter((row) => row.kind === "require").map((row) => row.line), [6, 7, 8])
+  assert.deepEqual(report.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER").map((row) => row.line), [5, 9])
+})
+
+test("round 25 immediate callee prerequisites stop after abrupt completion", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-abrupt-callees.ts", [
+    "let comma = {}; try { ((() => { throw failure; })(), (comma = process.env, () => {}))(); } catch {} comma.COMMA_ABORTED;",
+    "let conditional = {}; try { ((() => { throw failure; })() ? (conditional = process.env, () => {}) : (() => {}))(); } catch {} conditional.CONDITION_ABORTED;",
+       "let logical = {}; try { ((() => { throw failure; })() && (logical = process.env, () => {}))?.(); } catch {} logical.LOGICAL_ABORTED;",
+    "",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.equal(evidence.uncertainties.some((row) =>
+    ["COMMA_ABORTED", "CONDITION_ABORTED", "LOGICAL_ABORTED"].includes(row.name)), false)
 })

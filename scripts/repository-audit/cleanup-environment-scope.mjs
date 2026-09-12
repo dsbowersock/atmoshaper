@@ -4,6 +4,8 @@ export const NON_ALIAS = "non-alias"
 export const PROCESS_OBJECT = "process-object"
 export const POSSIBLE_PROCESS_OBJECT = "possible-process-object"
 export const COMMONJS_LOADER = "commonjs-wrapper-loader"
+export const POSSIBLE_COMMONJS_LOADER = "possible-commonjs-loader"
+export const TDZ_BINDING = "uninitialized-lexical-binding"
 
 /** Only source-level external import-equals emits a binding; namespace forms are unsupported by TS. */
 export function isProcessImportEquals(node) {
@@ -51,6 +53,39 @@ export function childScope(parent, ownsVarBindings = false, strict = parent?.str
   return { bindings: new Map(), enumMembers: new Map(), ownsVarBindings, parent, strict }
 }
 
+export function declareEnvironmentBindingName(name, scope, preserveExisting = false) {
+  if (ts.isIdentifier(name)) {
+    if (!preserveExisting || !scope.bindings.has(name.text)) {
+      scope.bindings.set(name.text, isEnvironmentAliasName(name.text) ? "unknown" : NON_ALIAS)
+    }
+  } else if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
+    for (const element of name.elements) if (ts.isBindingElement(element)) {
+      declareEnvironmentBindingName(element.name, scope, preserveExisting)
+    }
+  }
+}
+
+export function predeclareEnvironmentBindingName(name, scope, status, replace = false) {
+  if (ts.isIdentifier(name)) {
+    if (replace || !scope.bindings.has(name.text)) scope.bindings.set(name.text, status)
+  } else if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
+    for (const element of name.elements) if (ts.isBindingElement(element)) {
+      predeclareEnvironmentBindingName(element.name, scope, status, replace)
+    }
+  }
+}
+
+export function predeclareOrdinaryImports(sourceFile, scope) {
+  for (const statement of sourceFile.statements) if (ts.isImportDeclaration(statement) && statement.importClause) {
+    const clause = statement.importClause
+    if (clause.name) declareEnvironmentBindingName(clause.name, scope, true)
+    if (clause.namedBindings) {
+      if (ts.isNamespaceImport(clause.namedBindings)) declareEnvironmentBindingName(clause.namedBindings.name, scope, true)
+      else for (const specifier of clause.namedBindings.elements) declareEnvironmentBindingName(specifier.name, scope, true)
+    }
+  }
+}
+
 /** Only exact directive-prologue literals enable strict mode; escaped lookalikes do not. */
 export function hasStrictDirective(node) {
   if (node && ts.isSourceFile(node) && ts.isExternalModule(node)) return true
@@ -88,12 +123,38 @@ export function unwrapTransparentExpression(node) {
   return value
 }
 
-function isProcessRequireCall(node, scope) {
+const joinLoaderStatus = (left, right) => left === right ? left :
+  [left, right].some((status) => [COMMONJS_LOADER, POSSIBLE_COMMONJS_LOADER].includes(status))
+    ? POSSIBLE_COMMONJS_LOADER : NON_ALIAS
+
+function loaderExpressionStatus(node, scope) {
   const value = unwrapTransparentExpression(node)
-  return Boolean(value && ts.isCallExpression(value) && !value.questionDotToken && ts.isIdentifier(value.expression) &&
-    value.expression.text === "require" && [null, COMMONJS_LOADER].includes(lookupAlias(scope, "require")) &&
+  if (!value) return NON_ALIAS
+  if (ts.isIdentifier(value)) return value.text === "require" && lookupAlias(scope, value.text) === null
+    ? COMMONJS_LOADER : lookupAlias(scope, value.text) ?? NON_ALIAS
+  if (ts.isConditionalExpression(value)) return joinLoaderStatus(
+    loaderExpressionStatus(value.whenTrue, scope), loaderExpressionStatus(value.whenFalse, scope),
+  )
+  if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.CommaToken) {
+    return loaderExpressionStatus(value.right, scope)
+  }
+  if (ts.isBinaryExpression(value) && ts.isAssignmentOperator(value.operatorToken.kind)) {
+    const left = loaderExpressionStatus(value.left, scope)
+    const right = loaderExpressionStatus(value.right, scope)
+    if ([ts.SyntaxKind.BarBarEqualsToken, ts.SyntaxKind.QuestionQuestionEqualsToken].includes(value.operatorToken.kind) && left === COMMONJS_LOADER) return left
+    return value.operatorToken.kind === ts.SyntaxKind.EqualsToken ? right : joinLoaderStatus(left, right)
+  }
+  return NON_ALIAS
+}
+
+function processRequireCallStatus(node, scope) {
+  const value = unwrapTransparentExpression(node)
+  if (!(value && ts.isCallExpression(value) && !value.questionDotToken &&
     value.arguments.length === 1 && ts.isStringLiteral(value.arguments[0]) &&
-    ["process", "node:process"].includes(value.arguments[0].text))
+    ["process", "node:process"].includes(value.arguments[0].text))) return null
+  const loader = loaderExpressionStatus(value.expression, scope)
+  if (loader === COMMONJS_LOADER) return PROCESS_OBJECT
+  return loader === POSSIBLE_COMMONJS_LOADER ? POSSIBLE_PROCESS_OBJECT : null
 }
 
 /** Recognize an implicit global or lexical binding already proven to be the Node process object. */
@@ -106,13 +167,23 @@ export function isProcessObjectAlias(node, scope) {
 
 /** Recognize an exact require call or a binding already proven to be the Node process object. */
 export function isProcessObjectSource(node, scope) {
-  return isProcessRequireCall(node, scope) || isProcessObjectAlias(node, scope)
+  return processObjectSourceStatus(node, scope) === PROCESS_OBJECT
+}
+
+/** Preserve uncertainty when a joined CommonJS loader may produce the process object. */
+export function processObjectSourceStatus(node, scope) {
+  if (isProcessObjectAlias(node, scope)) return PROCESS_OBJECT
+  const value = unwrapTransparentExpression(node)
+  if (value && ts.isIdentifier(value) && lookupAlias(scope, value.text) === POSSIBLE_PROCESS_OBJECT) {
+    return POSSIBLE_PROCESS_OBJECT
+  }
+  return processRequireCallStatus(node, scope)
 }
 
 /** Recognize exact dot/bracket selection of env from a proven, non-optional process object. */
 export function isProcessEnvironment(node, scope) {
   const value = unwrapTransparentExpression(node)
-  if (!value || value.questionDotToken || !isProcessObjectAlias(value.expression, scope)) return false
+  if (!value || value.questionDotToken || processObjectSourceStatus(value.expression, scope) !== PROCESS_OBJECT) return false
   return (
     ts.isPropertyAccessExpression(value) && value.name.text === "env" ||
     ts.isElementAccessExpression(value) && value.argumentExpression &&
@@ -128,7 +199,9 @@ export function isPossibleProcessEnvironment(node, scope) {
   const base = ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value) ? unwrapTransparentExpression(value.expression) : null
   const envName = ts.isPropertyAccessExpression(value) ? value.name.text : ts.isElementAccessExpression(value) && value.argumentExpression &&
     (ts.isStringLiteral(value.argumentExpression) || ts.isNoSubstitutionTemplateLiteral(value.argumentExpression)) ? value.argumentExpression.text : null
-  return Boolean(base && ts.isIdentifier(base) && envName === "env" && lookupAlias(scope, base.text) === POSSIBLE_PROCESS_OBJECT)
+  if (!base || envName !== "env") return false
+  if (ts.isIdentifier(base)) return lookupAlias(scope, base.text) === POSSIBLE_PROCESS_OBJECT
+  return processObjectSourceStatus(base, scope) === POSSIBLE_PROCESS_OBJECT
 }
 
 export function isEnvironmentAliasName(name) {
