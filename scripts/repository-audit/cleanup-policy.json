@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "stylesheetExtensions": [
+    ".css"
+  ],
+  "sourceExtensions": [
+    ".cjs",
+    ".cts",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".mts",
+    ".ts",
+    ".tsx"
+  ],
+  "textExtensions": [
+    ".cjs",
+    ".css",
+    ".cts",
+    ".html",
+    ".js",
+    ".json",
+    ".jsx",
+    ".md",
+    ".mjs",
+    ".mts",
+    ".prisma",
+    ".sql",
+    ".toml",
+    ".ts",
+    ".tsx",
+    ".txt",
+    ".yaml",
+    ".yml"
+  ],
+  "scopes": {
+    "runtime": [
+      "app/",
+      "auth.ts",
+      "components/",
+      "data/",
+      "hooks/",
+      "instrumentation-client.ts",
+      "instrumentation.ts",
+      "lib/",
+      "middleware.ts",
+      "public/",
+      "proxy.ts",
+      "sentry.edge.config.ts",
+      "sentry.options.ts",
+      "sentry.server.config.ts",
+      "types/"
+    ],
+    "tool": [
+      "prisma/",
+      "scripts/"
+    ],
+    "test": [
+      "playwright.config.ts",
+      "tests/"
+    ],
+    "doc": [
+      ".agents/",
+      "AGENTS.md",
+      "docs/",
+      "LICENSE",
+      "MIGRATION_LINEAGE.md",
+      "README.md",
+      "TODO.md"
+    ]
+  },
+  "frameworkRoots": {
+    "directoryPrefixes": [
+      "app/"
+    ],
+    "fileBasenames": [
+      "apple-icon",
+      "default",
+      "error",
+      "favicon",
+      "forbidden",
+      "global-error",
+      "global-not-found",
+      "icon",
+      "layout",
+      "loading",
+      "manifest",
+      "not-found",
+      "opengraph-image",
+      "page",
+      "robots",
+      "route",
+      "sitemap",
+      "template",
+      "twitter-image",
+      "unauthorized"
+    ]
+  },
+  "topLevelConfigRoots": [
+    "auth.ts",
+    "eslint.config.mjs",
+    "instrumentation-client.ts",
+    "instrumentation.ts",
+    "middleware.ts",
+    "next.config.mjs",
+    "playwright.config.ts",
+    "postcss.config.mjs",
+    "prisma.config.ts",
+    "proxy.ts",
+    "tailwind.config.ts"
+  ],
+  "configurationManifestOwnership": [
+    {
+      "packageName": "postcss",
+      "ownerPath": "postcss.config.mjs",
+      "kind": "configuration-file",
+      "manifestIdentity": null
+    },
+    {
+      "packageName": "shadcn",
+      "ownerPath": "components.json",
+      "kind": "configuration-manifest",
+      "manifestIdentity": {
+        "property": "$schema",
+        "value": "https://ui.shadcn.com/schema.json"
+      }
+    }
+  ],
+  "packageScriptCliOwnership": {
+    "eslint": "eslint",
+    "next": "next",
+    "patch-package": "patch-package",
+    "playwright": "@playwright/test",
+    "prisma": "prisma",
+    "tsc": "typescript"
+  },
+  "protectedPathPrefixes": [
+    "data/",
+    "prisma/migrations/",
+    "public/",
+    "scripts/repository-audit/",
+    "tests/browser/atmoshaper-repository-migration-parity.spec.ts-snapshots/",
+    "tests/fixtures/",
+    "types/"
+  ],
+  "assetRoots": [
+    "app/",
+    "data/",
+    "public/",
+    "tests/browser/atmoshaper-repository-migration-parity.spec.ts-snapshots/",
+    "tests/fixtures/"
+  ],
+  "assetExtensions": [
+    ".avif",
+    ".gif",
+    ".ico",
+    ".jpeg",
+    ".jpg",
+    ".json",
+    ".mp3",
+    ".mp4",
+    ".ogg",
+    ".png",
+    ".svg",
+    ".wav",
+    ".webm",
+    ".webp",
+    ".woff",
+    ".woff2"
+  ],
+  "environmentDeclarationPaths": [
+    ".env.example"
+  ],
+  "ignoredPathPrefixes": [
+    ".next/",
+    ".superpowers/sdd/",
+    ".vercel/",
+    "graphify-out/",
+    "node_modules/",
+    "output/",
+    "test-results/"
+  ],
+  "manualToolSources": [
+    "scripts/atmoshaper-ripx-demucs-adapter.py"
+  ],
+  "forbiddenTrackedPaths": [
+    ".env",
+    ".env.development.local",
+    ".env.local",
+    ".env.production.local",
+    ".env.test.local",
+    ".next/",
+    ".vercel/",
+    "graphify-out/",
+    "node_modules/",
+    "output/",
+    "test-results/"
+  ]
+}
