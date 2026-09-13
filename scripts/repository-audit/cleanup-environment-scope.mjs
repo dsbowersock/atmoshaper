@@ -5,6 +5,8 @@ export const PROCESS_OBJECT = "process-object"
 export const POSSIBLE_PROCESS_OBJECT = "possible-process-object"
 export const COMMONJS_LOADER = "commonjs-wrapper-loader"
 export const POSSIBLE_COMMONJS_LOADER = "possible-commonjs-loader"
+// A cross-family join can be an environment, process, loader, or containing aggregate; never exact.
+export const MIXED_SOURCE_PROVENANCE = "mixed-environment-source"
 export const TDZ_BINDING = "uninitialized-lexical-binding"
 
 /** Only source-level external import-equals emits a binding; namespace forms are unsupported by TS. */
@@ -50,7 +52,7 @@ export function processImportBindings(sourceFile) {
 }
 
 export function childScope(parent, ownsVarBindings = false, strict = parent?.strict ?? false) {
-  return { bindings: new Map(), enumMembers: new Map(), ownsVarBindings, parent, strict }
+  return { bindings: new Map(), callables: new Map(), enumMembers: new Map(), ownsVarBindings, parent, strict }
 }
 
 export function declareEnvironmentBindingName(name, scope, preserveExisting = false) {
@@ -130,8 +132,11 @@ const joinLoaderStatus = (left, right) => left === right ? left :
 function loaderExpressionStatus(node, scope) {
   const value = unwrapTransparentExpression(node)
   if (!value) return NON_ALIAS
-  if (ts.isIdentifier(value)) return value.text === "require" && lookupAlias(scope, value.text) === null
-    ? COMMONJS_LOADER : lookupAlias(scope, value.text) ?? NON_ALIAS
+  if (ts.isIdentifier(value)) {
+    const status = lookupAlias(scope, value.text)
+    return value.text === "require" && status === null ? COMMONJS_LOADER :
+      status === MIXED_SOURCE_PROVENANCE ? POSSIBLE_COMMONJS_LOADER : status ?? NON_ALIAS
+  }
   if (ts.isConditionalExpression(value)) return joinLoaderStatus(
     loaderExpressionStatus(value.whenTrue, scope), loaderExpressionStatus(value.whenFalse, scope),
   )
@@ -174,7 +179,7 @@ export function isProcessObjectSource(node, scope) {
 export function processObjectSourceStatus(node, scope) {
   if (isProcessObjectAlias(node, scope)) return PROCESS_OBJECT
   const value = unwrapTransparentExpression(node)
-  if (value && ts.isIdentifier(value) && lookupAlias(scope, value.text) === POSSIBLE_PROCESS_OBJECT) {
+  if (value && ts.isIdentifier(value) && [POSSIBLE_PROCESS_OBJECT, MIXED_SOURCE_PROVENANCE].includes(lookupAlias(scope, value.text))) {
     return POSSIBLE_PROCESS_OBJECT
   }
   return processRequireCallStatus(node, scope)
@@ -200,7 +205,6 @@ export function isPossibleProcessEnvironment(node, scope) {
   const envName = ts.isPropertyAccessExpression(value) ? value.name.text : ts.isElementAccessExpression(value) && value.argumentExpression &&
     (ts.isStringLiteral(value.argumentExpression) || ts.isNoSubstitutionTemplateLiteral(value.argumentExpression)) ? value.argumentExpression.text : null
   if (!base || envName !== "env") return false
-  if (ts.isIdentifier(base)) return lookupAlias(scope, base.text) === POSSIBLE_PROCESS_OBJECT
   return processObjectSourceStatus(base, scope) === POSSIBLE_PROCESS_OBJECT
 }
 

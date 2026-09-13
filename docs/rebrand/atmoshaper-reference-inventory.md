@@ -1439,7 +1439,108 @@ Latest-head PR checks and reviews remain pending. Merge remains separately
 authorized. No candidate deletion, provider mutation, merge or Phase 5 action
 occurred.
 
-## Hosted review round 25 evidence boundary
+## Hosted review round 26 accepted integrated-fix evidence boundary
+
+Integrated review initially returned CHANGES REQUIRED for compound-assignment
+callable/provenance promotion, sloppy CommonJS Annex-B block-function ownership,
+getter-before-setter destructuring evidence, and five documentation/index-status
+contradictions. All four findings are addressed; re-review returned SPEC PASS /
+QUALITY APPROVED with 58/58 focused checks.
+
+Only plain `=` preserves RHS callable/provenance; all 12 arithmetic/bitwise
+compounds avoid false exact evidence while logical assignments remain supported.
+Sloppy `.cjs` Annex-B outer callable binding is retained, with strict `.cjs` and
+`.mjs` block scope preserved. A getter is retained through its paired setter;
+later data/getter definitions still replace it in source order. Full cleanup
+passed 324/324; the source-cap maximum is 480 nonblank lines. Environment
+evidence remains 559 findings/5,751 uncertainties with `deletionAuthority: false`.
+The 291 confirmed static reads are not interchangeable with uncertainties; the
+documented bounded-analysis limits remain applicable.
+
+The final suite initially failed only on the stale project-state date ceiling.
+The one-line test-only change in `tests/family-friends-server-workload.test.mjs`
+advanced `2026-09-11` to `2026-09-12`; focused 1/1 and file 15/15 checks passed,
+with independent PASS review. The authoritative final `npm run test` exited 0
+with 4,543 total, 4,540 passed, 3 expected skips, zero failures, 365 suites and
+785,574.5335 ms; no OOM occurred. Typecheck, lint and build passed on the same
+production code before the one-line test-date edit; the build generated 115
+static pages with only standard informational notes.
+
+These five documentation records are included in the proposed commit. Commit,
+push and latest-head hosted review remain pending; pushed PR head remains
+`9c6550f`. Existing audit hashes are historical because code/test/docs changed
+after those receipts. The final post-fix staged audit identity awaits the
+coordinator rerun and will be recorded only in the ignored SDD/current handoff.
+No candidate deletion, provider mutation, product-runtime change or Phase 5
+action occurred; merge remains separately authorized.
+
+## Hosted review round 26 evidence before integrated fixes (historical)
+
+The following preserves the earlier checkpoint; its test totals, index status
+and audit hashes are historical, not the current integrated-fix receipt above.
+
+Round 26 is the current accepted-local Phase 4 audit-only boundary. The
+environment analyzer now respects class-static-block `var` ownership, compacts
+wide completion sets so recursive finally replay completes without OOM,
+preserves mixed process/CommonJS-loader and mixed whole-environment value
+provenance, and prevents exhausted deferred invocations from leaking scope
+effects. These repairs remain conservative evidence collection. No candidate
+was removed and no provider state changed; `deletionAuthority` remains false.
+
+Current-code validation passed 4,540 tests with 4,537 passing, 3 expected skips,
+zero failures, 554,265.5792 ms and no OOM. Typecheck, lint and the build passed;
+the build generated 115 static pages. Its Babel greater-than-500-KB and
+Anatomime poll-shedder messages were informational.
+
+The accepted PRE-DOCUMENT staged-index receipt ran all six commands twice with
+exit 0, empty stderr, valid byte-identical JSON and identical raw/CRLF hashes.
+Inventory was 1,947 files/48,145,340 bytes, zero forbidden paths, identity
+`06d007d1caeee21ab8b7ed9b7a4d6fe9c41f5e6fa0a274587675d607f92019a3`, stdout 1,627 bytes and SHA-256
+`de29376b2ca6352baae3a19733e9f9d84c12d3c2daf10039f2dddb2707b14391`. Brand was 189 bytes with SHA-256
+`fd1b776fe062af1215ef24b18f14fab558f9c13265f4f1d78aa483d74d361c84`, zero missing/unclassified and totals
+22,905 compatibility, 1,481 historical, 42 legal and 1,952 pre-rebrand public
+copy.
+
+Cleanup receipts were: dead code 292,753 bytes, SHA-256
+`86cb4b040755dfc70b15c90958b94903827f37f27f723d2059294810deaf8a5a`, 1,629 findings
+(45 protected, 865 referenced, 696 roots, 23 candidates) and 211 uncertainties
+(1 expected fixture, 171 framework, 7 generated, 2 manual, 8 nonliteral import,
+22 stylesheet); dependency 852,950 bytes, SHA-256
+`6a0ac92a3ab4679f19fcfd6392169de69840fff76b8510cff0fc47e4169ba01c`, 2,886 findings (1,343 built-in owners,
+2 configuration owners, 133 dependencies, 17 dev dependencies, 0 optional,
+0 peer, 1,153 literal owners, 74 node-script owners, 13 package-script CLI
+owners, 1 patch owner, 144 referenced packages, 1 runtime-metadata owner,
+5 candidates) and 21 uncertainties (4 build-only, 6 dynamic, 1 expected
+fixture, 6 implicit compiler, 2 nonliteral, 2 tooling); asset 3,789,218 bytes,
+SHA-256 `2e2d4e1670f24c6cad1399f72fe0a97c8e3ba5b19f7cce202d92b868f4ca4402`, 557 findings
+(25 basename, 137 protected, 258 owners, 137 tracked, 0 candidates) and 11,630
+uncertainties (607 dynamic, 11,023 unresolved); environment 2,282,003 bytes,
+SHA-256 `b1017d716e8be2161559f3eb287b1cd4e02e868c05443fba0988c47c570e433c`, 559 findings
+(79 declared, 189 missing, 291 confirmed static reads, 0 unread). Its separate
+5,751 uncertainties are not confirmed reads: 94 computed accesses and 5,657
+unproven aliases. The latter comprise 3,608 call-expansion-budget receipts,
+2,017 property accesses, 17 element accesses and 15 spreads, split runtime
+2,852, tests 2,118 and tools 687. All uncertainty coordinates were distinct.
+
+The receipt is intentionally precision-limited: analysis permits 128 expansions
+per outer invocation and 64 nested levels. Environment-only compaction above
+32 outcomes joins matching completion kinds and target identities without
+opting the module-loader router in. Exhausted immediate calls conservatively
+widen reachable bindings; exhausted deferred inspection is scope-isolated.
+All 15 formerly exact sites are accounted for by seven site-specific
+uncertainties and eight sites inside containing budget receipts. Independent
+120/130/200-uncalled-arrow probes retained the exact read without ordinary-
+object uncertainty, with 0/3/73 budget receipts. This is conservative bounded
+evidence, not exhaustive coverage or deletion authority.
+
+Tracked documentation changes the staged inventory and report bytes, so this is
+explicitly a historical PRE-DOCUMENT receipt. Final post-document identities
+are reserved for the ignored SDD/current handoff. Round 26 code is accepted
+locally; documentation is updated and staged. Coordinator code fixes, final
+verification, commit, push and latest-head hosted review remain pending. Pushed PR head
+remains `9c6550f`.
+
+## Hosted review round 25 evidence boundary (historical)
 
 Hosted review round 24 is historical supporting evidence and its `889ab55`
 head is already pushed. Round 25 is the current staged, pre-push Phase 4

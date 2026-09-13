@@ -1,6 +1,8 @@
 import ts from "typescript"
 import { isLiteralNode } from "./cleanup-source.mjs"
 import { POSSIBLE_PROCESS_OBJECT, isProcessObjectSource, unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
+import { mergeScopeSnapshots, snapshotScopes } from "./cleanup-environment-flow.mjs"
+import { callableExpressionState, mergeCallableStates } from "./cleanup-environment-callables.mjs"
 
 const LOGICAL_ASSIGNMENT_KINDS = new Map([
   [ts.SyntaxKind.AmpersandAmpersandEqualsToken, "logical-and-assignment"],
@@ -110,54 +112,88 @@ function staticPropertyName(name) {
   return ts.isComputedPropertyName(name) && isLiteralNode(name.expression) ? name.expression.text : null
 }
 
-function processEnvironmentStatus(name, target, ambiguous = false) {
-  if (ambiguous) return "unknown"
+function processEnvironmentStatus(name, target, ambiguous = false, defaultStatus) {
   const propertyName = staticPropertyName(name)
-  if (propertyName === null) return "unknown"
-  if (propertyName !== "env") return null
-  const value = unwrapTransparentExpression(target)
-  return value && ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.EqualsToken
-    ? "unknown"
-    : "proven"
+  let status = propertyName === null ? "unknown" : propertyName === "env"
+    ? ambiguous ? "unknown" : "proven" : null
+  if (defaultStatus !== undefined && status !== defaultStatus) status = "unknown"
+  return status
 }
 
 /** Classify the environment target selected from a proven process-object binding pattern. */
-export function processEnvironmentBindingStatus(element, ambiguous = false) {
+export function processEnvironmentBindingStatus(element, ambiguous = false, defaultStatus) {
   if (!ts.isBindingElement(element)) return null
+  if (element.dotDotDotToken) return "unknown"
   return processEnvironmentStatus(
-    element.propertyName ?? element.name, element.name,
-    ambiguous || Boolean(element.dotDotDotToken || element.initializer),
+    element.propertyName ?? element.name, element.name, ambiguous, defaultStatus,
   )
 }
 
 /** Classify the environment target selected from a proven process-object assignment pattern. */
-export function processEnvironmentAssignmentStatus(property, ambiguous = false) {
+export function processEnvironmentAssignmentStatus(property, ambiguous = false, statusForDefault = () => null) {
   if (ts.isSpreadAssignment(property)) return "unknown"
   if (ts.isShorthandPropertyAssignment(property)) {
-    return processEnvironmentStatus(property.name, property.name, ambiguous || Boolean(property.objectAssignmentInitializer))
+    return processEnvironmentStatus(
+      property.name, property.name, ambiguous,
+      property.objectAssignmentInitializer ? statusForDefault(property.objectAssignmentInitializer) : undefined,
+    )
   }
-  if (ts.isPropertyAssignment(property)) return processEnvironmentStatus(property.name, property.initializer, ambiguous)
+  if (ts.isPropertyAssignment(property)) {
+    const target = unwrapTransparentExpression(property.initializer)
+    const fallback = target && ts.isBinaryExpression(target) && target.operatorToken.kind === ts.SyntaxKind.EqualsToken
+      ? target.right : null
+    return processEnvironmentStatus(
+      property.name, property.initializer, ambiguous, fallback ? statusForDefault(fallback) : undefined,
+    )
+  }
   return null
 }
 
 /** Evaluate binding-element defaults in source order and retain only supported provenance. */
 export function bindEnvironmentPatternDefaults(pattern, context, processObjectSource = false) {
-  const { aliasStatus, bindName, initializerScope, kind, recordObjectBinding, scope, visit } = context
+  const { aliasStatus, bindName, declareBindingName, initializerScope, input, kind, recordObjectBinding, scope, visit } = context
+  if (input && !input.complete(pattern)) return false
   for (const element of pattern.elements) {
     if (!ts.isBindingElement(element)) continue
-    if (ts.isObjectBindingPattern(pattern) && element.propertyName && ts.isComputedPropertyName(element.propertyName)) visit(element.propertyName.expression, initializerScope)
-    if (element.initializer) visit(element.initializer, initializerScope)
+    if (ts.isObjectBindingPattern(pattern) && element.propertyName && ts.isComputedPropertyName(element.propertyName) &&
+      visit(element.propertyName.expression, initializerScope) === false) return false
+    const selected = input?.select(pattern, element)
+    if (selected === false) return false
+    const initializer = selected?.defaults === "never" ? undefined : element.initializer
+    const skippedDefault = initializer && selected?.defaults === "possible" ? snapshotScopes(scope) : null
+    if (initializer) {
+      const normal = visit(initializer, initializerScope) !== false
+      if (skippedDefault) mergeScopeSnapshots([skippedDefault, ...(normal ? [snapshotScopes(scope)] : [])])
+      else if (!normal) return false
+    }
+    const boundSource = selected?.defaults === "never" ? selected.source : initializer
     const processStatus = processObjectSource && ts.isObjectBindingPattern(pattern)
-      ? processEnvironmentBindingStatus(element, processObjectSource === POSSIBLE_PROCESS_OBJECT) : null
+      ? processEnvironmentBindingStatus(
+        element, processObjectSource === POSSIBLE_PROCESS_OBJECT,
+        initializer ? aliasStatus(initializer, initializerScope) : undefined,
+      ) : null
     if (processStatus && ts.isIdentifier(element.name)) scope.bindings.set(element.name.text, processStatus)
-    else if (element.initializer && ts.isIdentifier(element.name)) bindName(element.name.text, element.initializer, scope, initializerScope)
+    else if ((boundSource || selected?.captured) && ts.isIdentifier(element.name)) {
+      const status = skippedDefault && aliasStatus(boundSource, initializerScope) ? "unknown" :
+        selected?.defaults === "never" && selected.captured ? selected.captured.environment : undefined
+      bindName(element.name.text, boundSource, scope, initializerScope, status)
+    }
+    else if (ts.isIdentifier(element.name)) declareBindingName(element.name, scope)
+    if (ts.isIdentifier(element.name)) {
+      const callable = selected?.defaults === "never" && selected.captured
+        ? selected.captured.callable : callableExpressionState(boundSource, initializerScope)
+      scope.callables.set(element.name.text, skippedDefault
+        ? mergeCallableStates(selected?.captured?.callable, callable) : callable)
+    }
     if (ts.isObjectBindingPattern(element.name) || ts.isArrayBindingPattern(element.name)) {
       if (ts.isObjectBindingPattern(element.name)) {
-        recordObjectBinding(element.name, processStatus ?? aliasStatus(element.initializer, initializerScope), kind)
+        recordObjectBinding(element.name, processStatus ?? aliasStatus(boundSource, initializerScope), kind)
       }
-      bindEnvironmentPatternDefaults(
-        element.name, context, isProcessObjectSource(element.initializer, initializerScope),
-      )
+      if (bindEnvironmentPatternDefaults(
+        element.name, input ? { ...context, input: input.child(selected, initializer, processStatus) } : context,
+        isProcessObjectSource(boundSource, initializerScope),
+      ) === false) return false
     }
   }
+  return true
 }

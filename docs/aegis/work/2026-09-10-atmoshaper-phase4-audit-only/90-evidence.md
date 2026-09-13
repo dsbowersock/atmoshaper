@@ -1008,7 +1008,123 @@ receipt. Latest-head PR checks and reviews remain pending. Merge remains
 separately authorized. No candidate deletion, provider mutation, merge or
 Phase 5 action occurred.
 
-## Hosted review round 25 control-flow evidence
+## Hosted review round 26 accepted integrated-fix evidence
+
+The integrated review initially returned CHANGES REQUIRED for four findings:
+false compound-assignment callable/provenance, sloppy CommonJS Annex-B
+block-function ownership, getter-before-setter destructuring evidence, and five
+documentation/index-status contradictions. All four are addressed. Re-review
+returned SPEC PASS / QUALITY APPROVED with 58/58 focused checks.
+
+Only plain `=` preserves RHS callable/provenance; all 12 arithmetic/bitwise
+compound assignments avoid false exact evidence while logical assignments
+remain supported. Sloppy `.cjs` Annex-B block functions retain an outer
+callable binding; strict `.cjs` and `.mjs` retain block scope. A getter survives
+its paired setter, with later data/getter definitions replacing it in source
+order. Full cleanup passed 324/324; the source-cap maximum is 480 nonblank
+lines. Environment evidence remains 559 findings (79 declared, 189 missing,
+291 confirmed static reads, zero unread candidates) and a separate 5,751
+uncertainties (94 computed, 5,657 unproven), with `deletionAuthority: false`.
+The earlier documented bounded-analysis limits remain applicable.
+
+The final repository suite initially returned RED only for the stale
+project-state date bound. The minimal test-only ceiling in
+`tests/family-friends-server-workload.test.mjs` changed from `2026-09-11` to
+`2026-09-12`. Focused verification passed 1/1, the whole file passed 15/15 and
+independent review returned PASS. The authoritative final `npm run test`
+exited 0 with 4,543 total tests, 4,540 passed, 3 expected skips, zero failures,
+365 suites and 785,574.5335 ms; no OOM occurred.
+
+Typecheck, lint and build passed on the same production code before the
+one-line test-date edit; these gates are not represented as reruns after that
+edit. Build generated 115 static pages with only standard informational notes.
+No candidate deletion, provider mutation, product-runtime change or Phase 5
+action occurred.
+
+These five documentation records are included in the proposed commit. Commit,
+push and latest-head hosted review remain pending; pushed PR head remains
+`9c6550f`. Existing audit hashes are historical because code/test/docs changed
+after their receipts. The final post-fix staged audit identity is pending the
+coordinator rerun and will be recorded only in the ignored SDD/current handoff,
+not recursively in tracked documentation. Merge remains separately authorized.
+
+## Hosted review round 26 evidence before integrated fixes (historical)
+
+The following preserves the earlier checkpoint; its test totals, index status
+and audit hashes are historical, not the current integrated-fix receipt above.
+
+Round 26 code is accepted locally. The bounded audit-only repairs establish
+class-static-block `var` ownership, conservative completion-state compaction
+that prevents recursive-finally OOM, mixed process/CommonJS-loader provenance,
+mixed whole-environment value forwarding, and scope isolation after deferred
+invocation budget exhaustion. No cleanup deletion, provider mutation,
+product-runtime change, merge or Phase 5 action occurred.
+
+The final repository suite exited 0 with 4,540 tests: 4,537 passed, 3 expected
+skips and zero failed in 554,265.5792 ms; no OOM occurred. Typecheck and lint
+exited 0. Build exited 0 and generated 115 static pages. The Babel greater-than-
+500-KB note and Anatomime poll-shedder initialization note were informational.
+
+The accepted PRE-DOCUMENT staged-index commands each ran twice. Every execution
+exited 0 with empty stderr; each stdout parsed as JSON and was byte-identical
+within its pair. Raw and CRLF-normalized SHA-256 were identical in this run:
+
+| Command | Stdout bytes | Raw and CRLF-normalized SHA-256 | Result |
+| --- | ---: | --- | --- |
+| `npm run --silent repository:inventory` | 1,627 | `de29376b2ca6352baae3a19733e9f9d84c12d3c2daf10039f2dddb2707b14391` | 1,947 files; 48,145,340 bytes; 0 forbidden; inventory `06d007d1caeee21ab8b7ed9b7a4d6fe9c41f5e6fa0a274587675d607f92019a3` |
+| `npm run --silent brand:audit` | 189 | `fd1b776fe062af1215ef24b18f14fab558f9c13265f4f1d78aa483d74d361c84` | 0 missing; 0 unclassified; 22,905 compatibility; 1,481 historical; 42 legal; 1,952 pre-rebrand public copy |
+| `npm run --silent dead-code:audit` | 292,753 | `86cb4b040755dfc70b15c90958b94903827f37f27f723d2059294810deaf8a5a` | 1,629 findings; 211 uncertainties; `deletionAuthority: false` |
+| `npm run --silent dependency:audit` | 852,950 | `6a0ac92a3ab4679f19fcfd6392169de69840fff76b8510cff0fc47e4169ba01c` | 2,886 findings; 21 uncertainties; `deletionAuthority: false` |
+| `npm run --silent asset:audit` | 3,789,218 | `2e2d4e1670f24c6cad1399f72fe0a97c8e3ba5b19f7cce202d92b868f4ca4402` | 557 findings; 11,630 uncertainties; `deletionAuthority: false` |
+| `npm run --silent env:audit` | 2,282,003 | `b1017d716e8be2161559f3eb287b1cd4e02e868c05443fba0988c47c570e433c` | 559 findings; 5,751 uncertainties; `deletionAuthority: false` |
+
+Dead-code findings were 45 protected, 865 referenced, 696 roots and 23
+candidates; uncertainties were 1 expected fixture, 171 framework, 7 generated,
+2 manual, 8 nonliteral import and 22 stylesheet. Dependency findings were
+1,343 built-in owners, 2 configuration owners, 133 dependencies, 17 dev
+dependencies, 0 optional, 0 peer, 1,153 literal owners, 74 node-script owners,
+13 package-script CLI owners, 1 patch owner, 144 referenced packages,
+1 runtime-metadata owner and 5 candidates; uncertainties were 4 build-only,
+6 dynamic, 1 expected fixture, 6 implicit compiler, 2 nonliteral and 2 tooling.
+Asset findings were 25 basename, 137 protected, 258 owners, 137 tracked and
+zero candidates; uncertainties were 607 dynamic and 11,023 unresolved.
+Environment findings were 79 declared, 189 missing declarations, 291 confirmed
+static reads and zero unread candidates. The separate 5,751 uncertainties are
+not confirmed reads: 94 computed accesses and 5,657 unproven aliases. Unproven
+reasons were 3,608 call-expansion-budget receipts, 2,017 property accesses,
+17 element accesses and 15 spreads; their scopes split runtime 2,852, tests
+2,118 and tools 687. All 5,751 uncertainty coordinates were distinct; unproven
+evidence spanned 211 paths, rather than duplicated completion-replay rows.
+
+The accepted analysis has explicit precision limits: 128 expansions per outer
+invocation and 64 nested invocation levels. Above 32 outcomes, environment-only
+completion compaction joins matching completion kinds and target identities;
+the module-loader router does not opt in. Exhausted immediate calls retain
+conservative reachable-binding widening. Exhausted deferred inspection clones
+the incoming scope before widening and cannot contaminate the caller. All 15
+formerly exact sites are accounted for: seven by site-specific uncertainty
+and eight inside containing budget receipts. Independent 120/130/200-uncalled-
+arrow probes preserved the exact environment read with no ordinary-object
+uncertainty and 0/3/73 budget receipts. This is bounded conservative audit
+evidence, not exhaustive environment coverage or deletion authority.
+
+Fix-round-3 strict RED was 0/1 because the 130-arrow case lost its exact read;
+GREEN was 5/5 (precise RED/GREEN durations unavailable). Accumulated controls
+passed 111/111 in 63.207 s; isolation/source caps passed 2/2 in 17.964 s; the
+full cleanup file passed 321/321 (precise duration unavailable). Independent
+review reproduced 111/111 in 55,939.8116 ms and isolation 2/2 in 14,876.304 ms,
+and removing the exact deferred-scope isolation line made the regression RED
+0/1. Final independent receipt acceptance checks passed 7/7.
+
+These values are a PRE-DOCUMENT historical receipt: staging the tracked
+documentation changes the inventory identity and report bytes. Exact
+post-document hashes are reserved for the ignored SDD/current handoff rather
+than recursively embedded here. Documentation is updated and staged;
+coordinator code fixes, final verification, commit, push and latest-head hosted
+review remain pending.
+Pushed PR head remains `9c6550f`. Deletion authority remains none.
+
+## Hosted review round 25 control-flow evidence (historical)
 
 Hosted review round 24 is historical supporting evidence and its `889ab55`
 head is already pushed. Round 25 is the current staged, pre-push Phase 4

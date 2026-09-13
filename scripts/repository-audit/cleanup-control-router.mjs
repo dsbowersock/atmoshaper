@@ -4,13 +4,33 @@ const isLoop = (node) => ts.isForStatement(node) || ts.isForInStatement(node) ||
   ts.isForOfStatement(node) || ts.isWhileStatement(node) || ts.isDoStatement(node)
 
 /** Own abrupt-completion targets once for both audit flow domains. */
-export function createCompletionRouter({ merge, restore, snapshot }) {
+export function createCompletionRouter({ join, merge, restore, snapshot }) {
   const loops = [], breaks = [], tries = [], functions = []
   let pendingLoopLabels = []
 
+  /** Bound replay growth without conflating completion kinds or jump-target identities.
+   * The optional pure join retains scope/closure provenance and cannot mutate a live normal path.
+   * Small collections retain their individual finally correlations; wider ones join conservatively.
+   */
+  const compact = (outcomes) => {
+    if (!join || outcomes.length <= 32) return outcomes
+    const groups = []
+    for (const outcome of outcomes) {
+      let group = groups.find(({ first }) => first.kind === outcome.kind && first.target === outcome.target)
+      if (!group) { group = { first: outcome, states: [] }; groups.push(group) }
+      group.states.push(outcome.state)
+    }
+    return groups.map(({ first, states }) => ({ ...first, state: join(states) }))
+  }
+  const append = (outcomes, completion) => {
+    outcomes.push(completion)
+    const bounded = compact(outcomes)
+    if (bounded !== outcomes) outcomes.splice(0, outcomes.length, ...bounded)
+  }
+
   const route = (completion) => {
-    if (tries.length > 0) tries.at(-1).push(completion)
-    else if (["return", "throw"].includes(completion.kind) && functions.length > 0) functions.at(-1).push(completion)
+    if (tries.length > 0) append(tries.at(-1), completion)
+    else if (["return", "throw", "suspend"].includes(completion.kind) && functions.length > 0) append(functions.at(-1), completion)
     else if (completion.target) {
       const rows = completion.kind === "continue" ? completion.target.continues : completion.target.breaks
       rows.push(completion.state)
@@ -82,11 +102,11 @@ export function createCompletionRouter({ merge, restore, snapshot }) {
   }
   const visitFinally = (outcomes, block, scope, visit) => {
     const finalized = []
-    for (const outcome of outcomes) {
+    for (const outcome of compact(outcomes)) {
       restore(outcome.state)
       const { completions, result } = collectTry(() => visit(block, scope))
-      if (result !== false) finalized.push({ ...outcome, state: snapshot(scope) })
-      finalized.push(...completions)
+      if (result !== false) append(finalized, { ...outcome, state: snapshot(scope) })
+      for (const completion of completions) append(finalized, completion)
     }
     return finalized
   }

@@ -3,6 +3,23 @@ import { joinLoaderStatus } from "./cleanup-module-loader-control.mjs"
 
 const PROVEN = "proven-loader", POSSIBLE = "possible-loader", UNPROVEN = "unproven"
 
+const unwrap = (node) => {
+  while (node && (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) ||
+    ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node) || ts.isSatisfiesExpression(node))) {
+    node = node.expression
+  }
+  return node
+}
+
+const staticMemberName = (node) => {
+  if (ts.isPropertyAccessExpression(node)) return node.name.text
+  if (ts.isElementAccessExpression(node) &&
+    (ts.isStringLiteral(node.argumentExpression) || ts.isNoSubstitutionTemplateLiteral(node.argumentExpression))) {
+    return node.argumentExpression.text
+  }
+  return null
+}
+
 /** Resolve a logical assignment from its pre-RHS left value and evaluated RHS value. */
 export function logicalAssignmentLoaderStatus(left, right, operator) {
   if ([ts.SyntaxKind.BarBarEqualsToken, ts.SyntaxKind.QuestionQuestionEqualsToken].includes(operator) && left === PROVEN) return left
@@ -63,9 +80,10 @@ export function classifyModuleLoaderCall(node, scope, lookup, factoryNames, reso
   if (ts.isIdentifier(node.expression) && node.expression.text === "require") {
     return { kind: "require", proven: false }
   }
-  if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "resolve" &&
-    ts.isIdentifier(node.expression.expression)) {
-    const base = node.expression.expression
+  const callee = unwrap(node.expression)
+  if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) &&
+    staticMemberName(callee) === "resolve" && ts.isIdentifier(unwrap(callee.expression))) {
+    const base = unwrap(callee.expression)
     const baseStatus = lookup(scope, base.text)
     if (baseStatus === PROVEN) return { kind: "require-resolve", proven: !resolveDowngraded }
     if (baseStatus === POSSIBLE || base.text === "require") return { kind: "require-resolve", proven: false }

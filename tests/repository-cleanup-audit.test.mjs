@@ -4606,10 +4606,10 @@ test("environment assignment patterns record only exact source-object keys", (t)
   writeFixture(root, ".env.example", [...names, "UNUSED", "NOT_ENV_KEY"].map((name) => `${name}=\n`).join(""))
   writeFixture(root, "lib/assignment-keys.ts", [
     "let DIRECT, local, nested, NESTED_DEFAULT, DEFAULTED",
-    "({ DIRECT, RENAMED: local, ['LITERAL']: local } = process.env)",
-    "({ CONFIG: { NOT_ENV_KEY: nested } } = process.env)",
-    "({ config: { NESTED_DEFAULT } = process.env } = value)",
-    "({ DEFAULTED = process.env.FALLBACK } = (process.env satisfies NodeJS.ProcessEnv))",
+    "({ DIRECT, RENAMED: local, ['LITERAL']: local } = process.env);",
+    "({ CONFIG: { NOT_ENV_KEY: nested } } = process.env);",
+    "({ config: { NESTED_DEFAULT } = process.env } = value);",
+    "({ DEFAULTED = process.env.FALLBACK } = (process.env satisfies NodeJS.ProcessEnv));",
     "",
   ].join("\n"))
   const index = buildTrackedTextIndex(root, policy)
@@ -5902,7 +5902,7 @@ test("real environment evidence reads STRIPE_SECRET_KEY through a proven default
         row.path === "app/api/billing/webhook/route.ts"
       ))
       .map((row) => [row.kind, row.line]),
-    [["whole-object-value", 117], ["whole-object-value", 126]],
+    [["element-access", 53], ["whole-object-value", 117], ["whole-object-value", 126]],
   )
   const report = buildEnvironmentCandidateReport(index, realPolicy)
   assert.equal(report.unreadDeclarationCandidates.some((row) => row.name === "STRIPE_SECRET_KEY"), false)
@@ -7745,4 +7745,1166 @@ test("round 25 immediate callee prerequisites stop after abrupt completion", (t)
   assert.deepEqual(evidence.reads, [])
   assert.equal(evidence.uncertainties.some((row) =>
     ["COMMA_ABORTED", "CONDITION_ABORTED", "LOGICAL_ABORTED"].includes(row.name)), false)
+})
+
+test("round 25 registered function declarations apply closure effects at direct call time", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-registered-functions.ts", [
+    "let direct = {}; setDirect(); direct.DIRECT; function setDirect() { direct = process.env; }",
+    "let before = {}; setBefore(); before.BEFORE_DECLARATION; function setBefore() { before = process.env; }",
+    "let conditional = {}; if (flag) setConditional(); conditional.CONDITIONAL; function setConditional() { conditional = process.env; }",
+    "let optional = {}; const maybe = flag ? setOptional : undefined; maybe?.(); optional.OPTIONAL; function setOptional() { optional = process.env; }",
+    "let both = {}; const selected = flag ? setLeft : setRight; selected(); both.BOTH; function setLeft() { both = process.env; } function setRight() { both = process.env; }",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["DIRECT", "BEFORE_DECLARATION", "BOTH"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), ["CONDITIONAL", "OPTIONAL"])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 25 registered calls retain lexical shadow and rebinding boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/environment-registered-call-shadows.ts", [
+    "import { external } from './external';",
+    "let preserved = process.env; function shadows(preserved) { preserved = {}; } shadows(); preserved.PARAMETER_SHADOW;",
+    "let closure = {}; function setClosure() { closure = process.env; } { const setClosure = () => {}; setClosure(); } closure.LOCAL_SHADOW; setClosure(); closure.REAL_CALL;",
+    "let byExpression = {}, byArrow = {}; const expression = function () { byExpression = process.env; }; const arrow = () => { byArrow = process.env; }; expression(); arrow(); byExpression.EXPRESSION; byArrow.ARROW;",
+    "let deferredOnly = {}; function writesDeferredOnly() { deferredOnly = process.env; } function uncalled() { writesDeferredOnly(); } void uncalled; deferredOnly.UNCALLED_NESTED;",
+    "let rebound = {}; function setRebound() { rebound = process.env; } setRebound = external; setRebound(); rebound.REBOUND;",
+    "function caller(setClosure) { let local = {}; setClosure(); local.PARAMETER_CALL; } void caller;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/external.ts", "export const external = () => {}\n")
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["PARAMETER_SHADOW", "REAL_CALL", "EXPRESSION", "ARROW"])
+  assert.equal(evidence.uncertainties.some((row) =>
+    ["LOCAL_SHADOW", "UNCALLED_NESTED", "REBOUND", "PARAMETER_CALL"].includes(row.name)), false)
+})
+
+test("round 25 registered calls bound recursion parameters defaults and abrupt flow", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const privateName = "selectPrivateCallableKey()"
+  writeFixture(root, "app/environment-registered-call-flow.ts", [
+    "let before = {}, after = {}; function recursive(flag) { before = process.env; if (flag) recursive(false); after = process.env; } recursive(true); before.BEFORE_REENTRY; after.AFTER_REENTRY;",
+    "let argument = {}, fallback = {}, nested = {}; function capture(value, defaulted = process.env, { env: inner } = process, ...rest) { argument = value; fallback = defaulted; nested = inner; void rest; } capture(process.env); argument.ARGUMENT; fallback.DEFAULT; nested.DESTRUCTURED;",
+    "let explicitDefault = {}; function useDefault(value = process.env) { explicitDefault = value; } useDefault(undefined); explicitDefault.DEFAULT_UNDEFINED;",
+    "let returned = {}; function returner() { returned = process.env; return; returned = {}; } returner(); returned.RETURNED;",
+    "let beforeThrow = {}, afterThrow = {}; function boom() { beforeThrow = process.env; throw failure; afterThrow = process.env; } try { boom(); } catch {} beforeThrow.BEFORE_THROW; afterThrow.AFTER_THROW;",
+    "let skipped = {}; function defaultBoom(value = (() => { throw failure; })()) { skipped = process.env; } try { defaultBoom(); } catch {} skipped.AFTER_DEFAULT_THROW;",
+    `let maybePrivate = {}; if (flag) setPrivate(); maybePrivate[${privateName}]; function setPrivate() { maybePrivate = process.env; }`,
+    "let firstValue = {}, secondValue = {}; function first() { firstValue = process.env; second(); } function second() { secondValue = process.env; first(); } first(); firstValue.MUTUAL_FIRST; secondValue.MUTUAL_SECOND;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "BEFORE_REENTRY", "AFTER_REENTRY", "ARGUMENT", "DEFAULT", "DESTRUCTURED",
+    "DEFAULT_UNDEFINED", "RETURNED", "BEFORE_THROW",
+  ])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name), [null])
+  assertPrivateSerialization(first, root, [privateName])
+  assert.equal(first.reads.some((row) => ["AFTER_THROW", "AFTER_DEFAULT_THROW"].includes(row.name)), false)
+})
+
+test("round 25 possible process patterns distinguish static non-env properties", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, ".env.example", "DEFAULT_ASSIGNMENT_EFFECT=\nDEFAULT_EFFECT=\nENV_UNKNOWN=\n")
+  const privateKey = "privatePossibleProcessKey"
+  const lines = [
+    "let runtimeProcess = flag ? process : {};",
+    "const { stdout: binding } = runtimeProcess; void binding.BINDING_NON_ENV;",
+    "let assigned; ({ cwd: assigned } = runtimeProcess); void assigned.ASSIGNMENT_NON_ENV;",
+    "const { env: environment } = runtimeProcess; void environment.ENV_UNKNOWN;",
+    "const { env: { NESTED_UNKNOWN } } = runtimeProcess; void NESTED_UNKNOWN;",
+    `const { [${privateKey}]: computed } = runtimeProcess; void computed.COMPUTED_UNKNOWN;`,
+    "const { ...rest } = runtimeProcess; void rest.REST_UNKNOWN;",
+    "const { stdout: defaulted = process.env.DEFAULT_EFFECT } = runtimeProcess; void defaulted.DEFAULT_TARGET;",
+    "let assignedEnvironment; ({ env: assignedEnvironment } = runtimeProcess); void assignedEnvironment.ASSIGNED_ENV_UNKNOWN;",
+    `let assignedComputed; ({ [${privateKey}]: assignedComputed } = runtimeProcess); void assignedComputed.ASSIGNED_COMPUTED_UNKNOWN;`,
+    "let assignedRest; ({ ...assignedRest } = runtimeProcess); void assignedRest.ASSIGNED_REST_UNKNOWN;",
+    "let assignedDefault; ({ stdout: assignedDefault = process.env.DEFAULT_ASSIGNMENT_EFFECT } = runtimeProcess); void assignedDefault.ASSIGNED_DEFAULT_TARGET;",
+    "",
+  ]
+  writeFixture(root, "app/possible-process-patterns.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["DEFAULT_EFFECT", "DEFAULT_ASSIGNMENT_EFFECT"])
+  const aliases = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(aliases.map((row) => row.name), [
+    "ENV_UNKNOWN", "NESTED_UNKNOWN", "COMPUTED_UNKNOWN", "REST_UNKNOWN",
+    "ASSIGNED_ENV_UNKNOWN", "ASSIGNED_COMPUTED_UNKNOWN", "ASSIGNED_REST_UNKNOWN",
+  ])
+  assert.equal(aliases.some((row) => ["ASSIGNMENT_NON_ENV", "BINDING_NON_ENV"].includes(row.name)), false)
+  assertPrivateSerialization(first, root, [privateKey])
+})
+
+test("round 25 loader resolve recognizes static brackets and transparent wrappers", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root, { dependencies: { "fixture-package": "1.0.0" } })
+  writeFixture(root, "lib/tool.ts", "export const tool = true\n")
+  const privateKey = "privateResolveProperty"
+  const lines = [
+    "require['resolve']('fixture-package');",
+    "require[`resolve`]('../lib/tool');",
+    "((require as any)['resolve'])('fixture-package');",
+    "((require as any).resolve)('../lib/tool');",
+    "const loader = require; (loader['resolve'])('fixture-package');",
+    "require['other']('fixture-package');",
+    `require[${privateKey}]('fixture-package');`,
+    "function shadow(require) { require['resolve']('fixture-package') }",
+    "require.resolve = other; require['resolve']?.('fixture-package');",
+    "void shadow;",
+    "",
+  ]
+  writeFixture(root, "scripts/static-resolve.cjs", lines.join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.references.filter((row) => row.kind === "require-resolve").map((row) => row.line), [1, 2, 3, 4, 5])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER")
+  assert.deepEqual(uncertain.map((row) => [row.line, row.kind]), [[8, "require-resolve"], [9, "require-resolve"]])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  assertPrivateSerialization(first, root, [privateKey])
+})
+
+test("round 26 deferred self recursion stays isolated from declaration state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/deferred-self-recursion.ts", [
+    "let leaked = {};",
+    "function uncalled(flag) { leaked = process.env; process.env.INSIDE_DEFERRED; if (flag) uncalled(false); }",
+    "void uncalled; leaked.OUTSIDE_DEFERRED;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["INSIDE_DEFERRED"])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "OUTSIDE_DEFERRED"), false)
+})
+
+test("round 26 recursion boundaries do not invent normal completion", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/unconditional-self.ts", [
+    "let afterSelf = {}; function self() { self(); afterSelf = process.env; } self(); afterSelf.AFTER_SELF;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/unconditional-mutual.ts", [
+    "let afterMutual = {}; function first() { second(); afterMutual = process.env; } function second() { first(); } first(); afterMutual.AFTER_MUTUAL;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/guarded-recursion.ts", [
+    "let guarded = {}; function recurse(flag) { if (flag) recurse(false); guarded = process.env; } recurse(true); guarded.GUARDED_BASE;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["GUARDED_BASE"])
+  assert.equal(evidence.uncertainties.some((row) => ["AFTER_MUTUAL", "AFTER_SELF"].includes(row.name)), false)
+})
+
+test("round 26 process-pattern defaults join source and fallback provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const lines = [
+    "const maybeProcess = flag ? process : {};",
+    "const { stdout: selected = process.env } = maybeProcess; void selected.DECLARATION_DEFAULT;",
+    "let assigned; ({ stdout: assigned = process.env } = maybeProcess); void assigned.ASSIGNMENT_DEFAULT;",
+    "const { env: environment = process.env } = maybeProcess; void environment.ENV_DEFAULT;",
+    "const { pid } = maybeProcess; void pid.STATIC_NON_ENV;",
+    "",
+  ]
+  writeFixture(root, "app/possible-process-defaults.ts", lines.join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads, [])
+  assert.deepEqual(first.uncertainties.filter((row) => (
+    row.code === "UNPROVEN_ENVIRONMENT_ALIAS" && row.kind === "property-access"
+  ))
+    .map((row) => row.name), ["DECLARATION_DEFAULT", "ASSIGNMENT_DEFAULT", "ENV_DEFAULT"])
+  assert.equal(first.uncertainties.some((row) => row.name === "STATIC_NON_ENV"), false)
+})
+
+test("round 26 named calls normalize call apply and static undefined arguments", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/named-call-arguments.ts", [
+    "let direct = {}, called = {}, applied = {}, dropped = {}, defaulted = {}, commaDefault = {}, sideEffect = {};",
+    "function setDirect(value) { direct = value; } setDirect(process.env); direct.DIRECT_ARGUMENT;",
+    "function setCalled(value) { called = value; } setCalled.call(null, process.env); called.CALL_ARGUMENT;",
+    "function setApplied(value) { applied = value; } setApplied.apply(null, [process.env]); applied.APPLY_ARGUMENT;",
+    "function dropThis(value) { dropped = value; } dropThis.call(process.env, {}); dropped.DROPPED_THIS;",
+    "function useDefault(value = process.env) { defaulted = value; } useDefault(void 0); defaulted.VOID_DEFAULT;",
+    "function useComma(value = process.env) { commaDefault = value; } useComma((sideEffect = process.env, undefined)); sideEffect.COMMA_EFFECT; commaDefault.COMMA_DEFAULT;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "DIRECT_ARGUMENT", "CALL_ARGUMENT", "APPLY_ARGUMENT", "VOID_DEFAULT", "COMMA_EFFECT", "COMMA_DEFAULT",
+  ])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "DROPPED_THIS"), false)
+})
+
+test("round 26 assignment-expression callees use post-assignment callable state", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/assignment-callees.ts", [
+    "let assigned = {}, alias; function setAssigned() { assigned = process.env; } (alias = setAssigned)(); assigned.ASSIGNED_CALLEE;",
+    "let logical = {}; function setLeft() { logical = process.env; } function setRight() { logical = process.env; } let selected = flag ? setLeft : setRight; (selected ||= setRight)(); logical.LOGICAL_CALLEE;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["ASSIGNED_CALLEE", "LOGICAL_CALLEE"])
+})
+
+test("round 26 recursive calls do not manufacture catchable throws", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/nonterminating-self.ts", [
+    "let caught = {}; function infinite() { infinite(); } try { infinite(); } catch { caught = process.env; } caught.SELF_CATCH;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/nonterminating-mutual.ts", [
+    "let caught = {}; function first() { second(); } function second() { first(); } try { first(); } catch { caught = process.env; } caught.MUTUAL_CATCH;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "app/guarded-recursion-catch.ts", [
+    "let reached = {}; function guarded(flag) { if (flag) guarded(false); reached = process.env; } guarded(true); reached.GUARDED;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["GUARDED"])
+  assert.equal(evidence.uncertainties.some((row) => ["SELF_CATCH", "MUTUAL_CATCH"].includes(row.name)), false)
+})
+
+test("round 26 apply nullish and sparse argument lists trigger defaults", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/apply-defaults.ts", [
+    "let nullList = {}, undefinedList = {}, voidList = {}, commaList = {}, sparseList = {}, sideEffect = {}, dynamicList = {};",
+    "function setNull(value = process.env) { nullList = value; } setNull.apply(null, null); nullList.NULL_LIST;",
+    "function setUndefined(value = process.env) { undefinedList = value; } setUndefined.apply(null, undefined); undefinedList.UNDEFINED_LIST;",
+    "function setVoid(value = process.env) { voidList = value; } setVoid.apply(null, void (sideEffect = process.env)); voidList.VOID_LIST; sideEffect.VOID_EFFECT;",
+    "function setComma(value = process.env) { commaList = value; } setComma.apply(null, (sideEffect = process.env, undefined)); commaList.COMMA_LIST; sideEffect.COMMA_EFFECT;",
+    "function setSparse(value = process.env) { sparseList = value; } setSparse.apply(null, [,]); sparseList.SPARSE_LIST;",
+    "function setDynamic(value = process.env) { dynamicList = value; } setDynamic.apply(null, args); dynamicList.DYNAMIC_LIST;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "NULL_LIST", "UNDEFINED_LIST", "VOID_LIST", "VOID_EFFECT", "COMMA_LIST", "COMMA_EFFECT", "SPARSE_LIST",
+  ])
+  assert.ok(first.uncertainties.some((row) => row.name === "DYNAMIC_LIST"))
+})
+
+test("round 26 logical-assignment callees follow the selected runtime value", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/or-skip.ts", "let value = {}; function set() { value = process.env; } let callable = set; (callable ||= 0)(); value.OR_SKIP;\n")
+  writeFixture(root, "app/nullish-skip.ts", "let value = {}; function set() { value = process.env; } let callable = set; (callable ??= 0)(); value.NULLISH_SKIP;\n")
+  writeFixture(root, "app/or-execute.ts", "let value = {}; function set() { value = process.env; } let callable = null; (callable ||= set)(); value.OR_EXECUTE;\n")
+  writeFixture(root, "app/nullish-execute.ts", "let value = {}; function set() { value = process.env; } let callable = null; (callable ??= set)(); value.NULLISH_EXECUTE;\n")
+  writeFixture(root, "app/and-callable.ts", "let value = {}; function prior() {} function set() { value = process.env; } let callable = prior; (callable &&= set)(); value.AND_CALLABLE;\n")
+  writeFixture(root, "app/and-execute.ts", "let value = {}; function set() { value = process.env; } let callable = set; (callable &&= 0)(); value.AND_UNREACHABLE;\n")
+  writeFixture(root, "app/and-skip.ts", "let value = {}; function set() { value = process.env; } let callable = 0; (callable &&= set)(); value.AND_SKIP_UNREACHABLE;\n")
+  writeFixture(root, "app/or-truthy-skip.ts", "let value = {}; function set() { value = process.env; } let callable = {}; (callable ||= set)(); value.OR_TRUTHY_UNREACHABLE;\n")
+  writeFixture(root, "app/nullish-falsy-skip.ts", "let value = {}; function set() { value = process.env; } let callable = 0; (callable ??= set)(); value.NULLISH_FALSY_UNREACHABLE;\n")
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name).sort(), ["AND_CALLABLE", "NULLISH_EXECUTE", "NULLISH_SKIP", "OR_EXECUTE", "OR_SKIP"])
+  assert.equal(evidence.uncertainties.some((row) => row.name?.includes("UNREACHABLE")), false)
+})
+
+test("round 26 mixed callable logical assignments transform each runtime alternative", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const fixtures = [
+    ["or-null", "null", "||=", "A_OR_NULL", "B_OR_NULL"],
+    ["nullish-null", "null", "??=", "A_NULLISH_NULL", "B_NULLISH_NULL"],
+    ["and-null", "null", "&&=", "A_AND_NULL", "B_AND_NULL"],
+    ["or-falsy", "0", "||=", "A_OR_FALSY", "B_OR_FALSY"],
+    ["nullish-falsy", "0", "??=", "A_NULLISH_FALSY", "B_NULLISH_FALSY"],
+    ["and-falsy", "0", "&&=", "A_AND_FALSY", "B_AND_FALSY"],
+  ]
+  for (const [path, alternate, operator, leftName, rightName] of fixtures) {
+    writeFixture(root, `app/${path}.ts`, [
+      "let left = {}, right = {};",
+      `function setA() { left = process.env; } function setB() { right = process.env; }`,
+      `let callable = flag ? setA : ${alternate}; (callable ${operator} setB)();`,
+      `left.${leftName}; right.${rightName};`,
+      "",
+    ].join("\n"))
+  }
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name).sort(), ["A_NULLISH_FALSY", "B_AND_FALSY", "B_AND_NULL"])
+  const uncertain = first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+  assert.deepEqual(uncertain.map((row) => row.name).sort(), [
+    "A_NULLISH_NULL", "A_OR_FALSY", "A_OR_NULL", "B_NULLISH_NULL", "B_OR_FALSY", "B_OR_NULL",
+  ])
+  assert.ok(uncertain.every((row) => /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+})
+
+test("round 26 detached closure scopes participate in branch snapshots", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/detached-closures.ts", [
+    "let set, read; function make() { let captured = {}; set = () => { captured = process.env; }; read = () => { captured.IF_BRANCH; }; } make(); if (flag) set(); read();",
+    "let setConditional, readConditional; function makeConditional() { let captured = {}; setConditional = () => { captured = process.env; }; readConditional = () => { captured.CONDITIONAL_CALL; }; } makeConditional(); flag ? setConditional() : void 0; readConditional();",
+    "let setBoth, readBoth; function makeBoth() { let captured = {}; setBoth = () => { captured = process.env; }; readBoth = () => { captured.BOTH_BRANCHES; }; } makeBoth(); if (flag) setBoth(); else setBoth(); readBoth();",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["BOTH_BRANCHES"])
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), [
+    "IF_BRANCH", "CONDITIONAL_CALL",
+  ])
+})
+
+test("round 26 bounded argument spreads preserve parameter positions and dynamic tails", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/callable-spreads.ts", [
+    "let directA = {}, directB = {}; function direct(a, b) { directA = a; directB = b; } direct(...[process.env, process.env]); directA.DIRECT_A; directB.DIRECT_B;",
+    "let callA = {}, callB = {}; function called(a, b) { callA = a; callB = b; } called.call(...[null, process.env, process.env]); callA.CALL_A; callB.CALL_B;",
+    "let prefix = {}, tail = {}, effect = {}; function dynamic(a, b) { prefix = a; tail = b; } dynamic(process.env, ...args, (effect = process.env)); prefix.PREFIX; tail.DYNAMIC_TAIL; effect.EFFECT;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["DIRECT_A", "DIRECT_B", "CALL_A", "CALL_B", "PREFIX", "EFFECT"])
+  assert.ok(first.uncertainties.some((row) => row.name === "DYNAMIC_TAIL"))
+})
+
+test("round 26 parameters remain TDZ until initialized from left to right", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/parameter-tdz.ts", [
+    "let laterBody = {}; function laterDefault(first = later, later = process.env) { laterBody = process.env; } try { laterDefault(); } catch {} laterBody.LATER_BODY;",
+    "let destructuredBody = {}; function destructured({ value = later } = {}, later = process.env) { destructuredBody = process.env; } try { destructured(); } catch {} destructuredBody.DESTRUCTURED_BODY;",
+    "let selfBody = {}; function selfDefault(callback = selfDefault) { void callback; selfBody = process.env; } selfDefault(); selfBody.SELF_BINDING;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["SELF_BINDING"])
+  assert.equal(evidence.uncertainties.some((row) => ["LATER_BODY", "DESTRUCTURED_BODY"].includes(row.name)), false)
+})
+
+test("round 26 generator and async calls respect execution and suspension boundaries", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/callable-kinds.ts", [
+    "let generated = {}; function* generator() { generated = process.env; } generator(); generated.GENERATOR_BODY;",
+    "let before = {}, after = {}; async function suspended() { before = process.env; await wait; after = process.env; } suspended(); before.ASYNC_BEFORE; after.ASYNC_AFTER;",
+    "let synchronous = {}; async function noAwait() { synchronous = process.env; } noAwait(); synchronous.ASYNC_NO_AWAIT;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["ASYNC_BEFORE", "ASYNC_NO_AWAIT"])
+  assert.equal(evidence.uncertainties.some((row) => ["GENERATOR_BODY", "ASYNC_AFTER"].includes(row.name)), false)
+})
+
+test("round 26 call and apply mutations downgrade shared callable aliases", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/callable-intrinsics.ts", [
+    "let direct = {}; function directFn() { direct = process.env; } directFn.call = () => {}; directFn.call(null); directFn(); direct.DIRECT_CALL;",
+    "let aliased = {}; function aliasedFn() { aliased = process.env; } const alias = aliasedFn; alias['apply'] = () => {}; aliasedFn.apply(null, []); aliased.ALIAS_MUTATION;",
+    "let updated = {}; function updatedFn() { updated = process.env; } updatedFn.call++; updatedFn.call(null); updated.UPDATE_MUTATION;",
+    "let deleted = {}; function deletedFn() { deleted = process.env; } delete deletedFn[`apply`]; deletedFn.apply(null, []); deleted.DELETE_MUTATION;",
+    "let conditional = {}; function conditionalFn() { conditional = process.env; } if (flag) conditionalFn.call = () => {}; conditionalFn.call(null); conditional.CONDITIONAL_MUTATION;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["DIRECT_CALL", "DELETE_MUTATION"])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS").map((row) => row.name), ["CONDITIONAL_MUTATION"])
+})
+
+test("round 26 shared literal truthiness includes empty templates and zero bigint", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/literal-truthiness.ts", [
+    "let emptyEffect = {}; function setEmpty() { emptyEffect = process.env; } let empty = ``; (empty ||= setEmpty)(); emptyEffect.EMPTY_TEMPLATE;",
+    "let bigintEffect = {}; function setBigint() { bigintEffect = process.env; } let zero = 0n; (zero ||= setBigint)(); bigintEffect.ZERO_BIGINT;",
+    "let textEffect = {}; function setText() { textEffect = process.env; } let text = `x`; (text ||= setText)(); textEffect.NONEMPTY_UNREACHABLE;",
+    "let nonzeroEffect = {}; function setNonzero() { nonzeroEffect = process.env; } let nonzero = 1n; (nonzero ||= setNonzero)(); nonzeroEffect.NONZERO_UNREACHABLE;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["EMPTY_TEMPLATE", "ZERO_BIGINT"])
+  assert.equal(evidence.uncertainties.some((row) => row.name?.includes("UNREACHABLE")), false)
+})
+
+test("round 26 detached callable graphs clone every reachable closure scope", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/detached-callable-graph.ts", [
+    "let setter, reader;",
+    "function factory() { let captured = {}; setter = () => { captured = process.env; }; reader = () => { captured.INSIDE_DETACHED; }; }",
+    "factory();",
+    "function uncalledWrapper() { setter(); }",
+    "void uncalledWrapper; reader();",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads, [])
+  assert.equal(first.uncertainties.some((row) => row.name === "INSIDE_DETACHED"), false)
+})
+
+test("round 26 parameter binding completion distinguishes throwing and possible inputs", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/parameter-binding-completion.ts", [
+    "let nullObject = {}; function objectPattern({}) { nullObject = process.env; } try { objectPattern(null); } catch {} nullObject.NULL_OBJECT;",
+    "let undefinedObject = {}; function undefinedPattern({}) { undefinedObject = process.env; } try { undefinedPattern(undefined); } catch {} undefinedObject.UNDEFINED_OBJECT;",
+    "let nonIterable = {}; function arrayPattern([]) { nonIterable = process.env; } try { arrayPattern({}); } catch {} nonIterable.NON_ITERABLE;",
+    "let possibleObject = {}; function maybeObject({}) { possibleObject = process.env; } try { maybeObject(input); } catch {} possibleObject.POSSIBLE_OBJECT;",
+    "let possibleArray = {}; function maybeArray([]) { possibleArray = process.env; } try { maybeArray(input); } catch {} possibleArray.POSSIBLE_ARRAY;",
+    "let whole = {}; function wholeDefault({ env } = process) { whole = env; } wholeDefault(undefined); whole.WHOLE_DEFAULT;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["WHOLE_DEFAULT"])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+    .map((row) => row.name), ["POSSIBLE_OBJECT", "POSSIBLE_ARRAY"])
+})
+
+test("round 26 async calls separate synchronous effects from suspension and rejection", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/async-completion.ts", [
+    "let before = {}, after = {}, finalized = {}; async function suspended() { before = process.env; try { await pause; after = process.env; } finally { finalized = process.env; } } suspended(); before.BEFORE; after.AFTER; finalized.FINALLY;",
+    "let rejected = {}, caught = {}; async function rejects() { rejected = process.env; throw failure; } try { rejects(); } catch { caught = process.env; } rejected.REJECTED; caught.CALLER_CATCH;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["BEFORE", "REJECTED"])
+  assert.equal(first.uncertainties.some((row) => ["AFTER", "FINALLY", "CALLER_CATCH"].includes(row.name)), false)
+})
+
+test("round 26 call and apply mutations follow operator and inheritance semantics", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/callable-intrinsic-operators.ts", [
+    "let deleted = {}; function deletedFn() { deleted = process.env; } deletedFn.apply = other; delete deletedFn.apply; deletedFn.apply(null, []); deleted.DELETED_RESTORES;",
+    "let orSkipped = {}, orRhs = {}; function orFn() { orSkipped = process.env; } function makeOr() { orRhs = process.env; return other; } orFn.call ||= makeOr(); orFn.call(null); orSkipped.OR_SKIPS; orRhs.OR_RHS_SKIPPED;",
+    "let nullishSkipped = {}, nullishRhs = {}; function nullishFn() { nullishSkipped = process.env; } function makeNullish() { nullishRhs = process.env; return other; } nullishFn.apply ??= makeNullish(); nullishFn.apply(null, []); nullishSkipped.NULLISH_SKIPS; nullishRhs.NULLISH_RHS_SKIPPED;",
+    "let andWritten = {}; function andFn() { andWritten = process.env; } andFn.call &&= other; andFn.call(null); andWritten.AND_WRITES;",
+    "let aliasRestored = {}; function restoredFn() { aliasRestored = process.env; } const alias = restoredFn; alias['call'] = other; delete restoredFn['call']; alias.call(null); aliasRestored.ALIAS_RESTORED;",
+    "let separate = {}; function separateFn() { separate = process.env; } separateFn.call = other; separateFn.apply(null, []); separate.SEPARATE_INTRINSIC;",
+    "let conditional = {}; function conditionalFn() { conditional = process.env; } if (flag) conditionalFn.call &&= other; conditionalFn.call(null); conditional.CONDITIONAL_WRITE;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "DELETED_RESTORES", "OR_SKIPS", "NULLISH_SKIPS", "ALIAS_RESTORED", "SEPARATE_INTRINSIC",
+  ])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+    .map((row) => row.name), ["CONDITIONAL_WRITE"])
+  assert.equal(first.uncertainties.some((row) => row.name === "AND_WRITES"), false)
+  assert.equal(first.uncertainties.some((row) => row.name?.endsWith("RHS_SKIPPED")), false)
+})
+
+test("round 26 cloned callable aliases retain one stable intrinsic identity", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/cloned-callable-identity.ts", [
+    "let setter, alias, reader;",
+    "function factory() { let captured = {}; function setCaptured() { captured = process.env; } setter = setCaptured; alias = setCaptured; reader = () => captured.CLONED_IDENTITY; }",
+    "factory();",
+    "function uncalledWrapper() { alias.call = other; setter.call(null); reader(); }",
+    "void uncalledWrapper; reader();",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads, [])
+  assert.equal(first.uncertainties.some((row) => row.name === "CLONED_IDENTITY"), false)
+})
+
+test("round 26 recursive parameter patterns propagate selected values and getter failures", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/recursive-parameter-completion.ts", [
+    "let nullNested = {}; function nestedObject({ value: {} }) { nullNested = process.env; } try { nestedObject({ value: null }); } catch {} nullNested.NULL_NESTED;",
+    "let arrayNested = {}; function nestedArray({ value: [] }) { arrayNested = process.env; } try { nestedArray({ value: 0 }); } catch {} arrayNested.ARRAY_NESTED;",
+    "let getterBody = {}; function getterPattern({ value: {} }) { getterBody = process.env; } try { getterPattern({ get value() { throw failure; } }); } catch {} getterBody.GETTER_BODY;",
+    "let possible = {}; function maybeNested({ value: {} }) { possible = process.env; } try { maybeNested(input); } catch {} possible.POSSIBLE_NESTED;",
+    "let defaulted = {}; function nestedDefault({ value: { env } = process }) { defaulted = env; } nestedDefault({}); defaulted.NESTED_DEFAULT;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["NESTED_DEFAULT"])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+    .map((row) => row.name), ["POSSIBLE_NESTED"])
+})
+
+test("round 26 suspension in control discriminants stops synchronous continuation", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/async-control-suspension.ts", [
+    "let afterIf = {}; async function ifSuspends() { if (await flag) {} afterIf = process.env; } ifSuspends(); afterIf.AFTER_IF;",
+    "let afterWhile = {}; async function whileSuspends() { while (await flag) {} afterWhile = process.env; } whileSuspends(); afterWhile.AFTER_WHILE;",
+    "let afterFor = {}; async function forSuspends() { for (; await flag;) {} afterFor = process.env; } forSuspends(); afterFor.AFTER_FOR;",
+    "let afterSwitch = {}; async function switchSuspends() { switch (await flag) { default: break; } afterSwitch = process.env; } switchSuspends(); afterSwitch.AFTER_SWITCH;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.reads, [])
+  assert.equal(evidence.uncertainties.some((row) => row.name?.startsWith("AFTER_")), false)
+})
+
+test("round 26 intrinsic mutation commits only after its RHS completes", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/callable-intrinsic-rhs.ts", [
+    "let preserved = {}; function preservedFn() { preserved = process.env; } function throws() { throw failure; } try { preservedFn.call &&= throws(); } catch {} preservedFn.call(null); preserved.PRESERVED_AFTER_THROW;",
+    "let written = {}; function writtenFn() { written = process.env; } writtenFn.call &&= other; writtenFn.call(null); written.AFTER_WRITE;",
+    "let conditional = {}; function conditionalFn() { conditional = process.env; } try { conditionalFn.apply &&= flag ? other : throws(); } catch {} conditionalFn.apply(null, []); conditional.CONDITIONAL_RHS;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["PRESERVED_AFTER_THROW"])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+    .map((row) => row.name), ["CONDITIONAL_RHS"])
+  assert.equal(first.uncertainties.some((row) => row.name === "AFTER_WRITE"), false)
+})
+
+test("round 26 named self bindings share the active callable intrinsic identity", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/self-intrinsic-identity.ts", [
+    "let value = {}; function fn(input) { fn.call = other; value = input; } fn({}); fn.call(null, process.env); value.SELF_INTRINSIC_IDENTITY;",
+    "let expression = {}; const named = function self(input) { self.apply = other; expression = input; }; named({}); named.apply(null, [process.env]); expression.EXPRESSION_SELF_IDENTITY;",
+    "let control = {}; function direct(input) { direct.call = other; control = input; } direct({}); direct(process.env); control.DIRECT_SELF_CONTROL;",
+    "let restored = {}; const restore = function self(input) { self.call = other; restored = input; }; restore({}); delete restore.call; restore.call(null, process.env); restored.RESTORED_SELF_CONTROL;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["DIRECT_SELF_CONTROL", "RESTORED_SELF_CONTROL"])
+  assert.equal(first.uncertainties.some((row) => row.name?.includes("IDENTITY")), false)
+})
+
+test("round 26 parameter property accessors run in binding order before the body", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/ordered-parameter-accessors.ts", [
+    "let topBody = {}; function top({ value }) { topBody = process.env; } try { top({ get value() { throw failure; } }); } catch {} topBody.TOP_GETTER_BODY;",
+    "let nestedBody = {}; function nested({ outer: { value } }) { nestedBody = process.env; } try { nested({ outer: { get value() { throw failure; } } }); } catch {} nestedBody.NESTED_GETTER_BODY;",
+    "let prior = {}, later = {}, orderedBody = {}; function ordered({ first = (prior = process.env), value: {}, last = (later = process.env) }) { orderedBody = process.env; } try { ordered({ get value() { throw 0; } }); } catch {} prior.BEFORE_GETTER; later.AFTER_GETTER; orderedBody.ORDERED_BODY;",
+    "let key = {}; function computed({ [(key = process.env, 'value')]: {} }) {} try { computed({ value: null }); } catch {} key.COMPUTED_BEFORE_FAILURE;",
+    "let getterEffect = {}; function accessed({ value }) {} accessed({ get value() { getterEffect = process.env; return 1; } }); getterEffect.GETTER_EFFECT;",
+    "let skipped = {}, defaulted = {}; function defaults({ present = (skipped = process.env), missing = (defaulted = process.env) }) {} defaults({ present: 1 }); skipped.PRESENT_DEFAULT; defaulted.MISSING_DEFAULT;",
+    "let callerEffect = {}; const captured = process.env; function callerScope({ value }, captured = {}) {} callerScope({ get value() { callerEffect = captured; return 1; } }); callerEffect.GETTER_CALLER_SCOPE;",
+    "let possibleDefault = {}; function possible({ value = (possibleDefault = process.env) }) {} possible(input); possibleDefault.POSSIBLE_DEFAULT;",
+    "const dynamicKey = 'value'; let ambiguousBody = {}; function ambiguous({ value }) { ambiguousBody = process.env; } try { ambiguous({ get value() { throw 0; }, [dynamicKey]: 1 }); } catch {} ambiguousBody.AMBIGUOUS_PROPERTY;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "BEFORE_GETTER", "COMPUTED_BEFORE_FAILURE", "GETTER_EFFECT", "MISSING_DEFAULT", "GETTER_CALLER_SCOPE",
+  ])
+  assert.ok(first.uncertainties.some((row) => row.name === "POSSIBLE_DEFAULT"))
+  assert.ok(first.uncertainties.some((row) => row.name === "AMBIGUOUS_PROPERTY"))
+  assert.equal(first.uncertainties.some((row) => [
+    "TOP_GETTER_BODY", "NESTED_GETTER_BODY", "AFTER_GETTER", "ORDERED_BODY", "PRESENT_DEFAULT",
+  ].includes(row.name)), false)
+})
+
+test("round 26 case tests and iteration sources stop at async suspension", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/async-case-and-iteration.ts", [
+    "let switchBody = {}, afterSwitch = {}; async function switchCase() { switch (flag) { case await pause: switchBody = process.env; break; default: break; } afterSwitch = process.env; } switchCase(); switchBody.SWITCH_BODY; afterSwitch.AFTER_SWITCH_CASE;",
+    "let noDefault = {}; async function noDefaultCase() { switch (flag) { case await pause: break; } noDefault = process.env; } noDefaultCase(); noDefault.AFTER_NO_DEFAULT;",
+    "let inBody = {}, afterIn = {}; async function inSource() { for (const key in await source) { inBody = process.env; } afterIn = process.env; } inSource(); inBody.IN_BODY; afterIn.AFTER_IN;",
+    "let ofBody = {}, afterOf = {}; async function ofSource() { for (const value of await source) { ofBody = process.env; } afterOf = process.env; } ofSource(); ofBody.OF_BODY; afterOf.AFTER_OF;",
+    "let before = {}; async function beforeSource() { for (const value of (before = process.env, await source)) {} } beforeSource(); before.BEFORE_SOURCE_AWAIT;",
+    "let commaCase = {}; async function commaTest() { switch (flag) { case (await pause, commaCase = process.env): break; } } commaTest(); commaCase.AFTER_COMMA_CASE;",
+    "let commaSource = {}; async function commaIteration() { for (const value of (await source, commaSource = process.env)) {} } commaIteration(); commaSource.AFTER_COMMA_SOURCE;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), ["BEFORE_SOURCE_AWAIT"])
+  assert.equal(first.uncertainties.some((row) => row.name?.startsWith("AFTER_") || row.name?.endsWith("_BODY")), false)
+})
+
+test("round 26 object rest reads remaining enumerable getters before the body", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/rest-parameter-accessors.ts", [
+    "let body = {}; function rest({...copy}) { body = process.env; } try { rest({ get value() { throw 0; } }); } catch {} body.REST_BODY;",
+    "let before = {}, after = {}, orderedBody = {}; function ordered({...copy}) { orderedBody = process.env; } try { ordered({ get first() { before = process.env; return 1; }, get failure() { throw 0; }, get last() { after = process.env; return 1; } }); } catch {} before.BEFORE_REST_THROW; after.AFTER_REST_THROW; orderedBody.ORDERED_REST_BODY;",
+    "let excluded = {}; function exclude({ value, ...copy }) { excluded = process.env; } exclude({ get value() { return 1; }, other: 1 }); excluded.EXCLUDED_CONTROL;",
+    "let once = {}; function excludeOnce({ value, next = (once = process.env), ...copy }) {} excludeOnce({ get value() { once = {}; return 1; } }); once.REST_EXCLUDED_GETTER;",
+    "let nested = {}; function nestedRest({ value: {...copy} }) { nested = process.env; } try { nestedRest({ value: { get field() { throw 0; } } }); } catch {} nested.NESTED_REST_BODY;",
+    "let possible = {}; function maybeRest({...copy}) { possible = process.env; } try { maybeRest({ get value() { if (flag) throw 0; return 1; } }); } catch {} possible.POSSIBLE_REST_BODY;",
+    "let key = {}; function computed({ [(key = process.env, 'used')]: value, ...copy }) {} try { computed({ used: 1, get failure() { throw 0; } }); } catch {} key.BEFORE_REST_KEY;",
+    "let numeric = {}; function numericOrder({...copy}) {} try { numericOrder({ get later() { numeric = {}; return 1; }, get 0() { numeric = process.env; throw 0; } }); } catch {} numeric.NUMERIC_REST_ORDER;",
+    "let computedGetter = {}; function unknownKeyRest({...copy}) {} try { unknownKeyRest({ get [dynamicKey]() { computedGetter = process.env; return 1; } }); } catch {} computedGetter.COMPUTED_REST_GETTER;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "BEFORE_REST_THROW", "EXCLUDED_CONTROL", "REST_EXCLUDED_GETTER", "BEFORE_REST_KEY", "NUMERIC_REST_ORDER",
+  ])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_ENVIRONMENT_ALIAS")
+    .map((row) => row.name), ["POSSIBLE_REST_BODY", "COMPUTED_REST_GETTER"])
+})
+
+test("round 26 array parameter selection expands bounded spreads and forgets unbounded positions", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/array-parameter-spreads.ts", [
+    "let wrong = {}; function array([skip, value]) { wrong = value; } array([...[0, 1], process.env]); wrong.SYNTAX_INDEX_FALSE_READ;",
+    "let exact = {}; function exactArray([skip, value]) { exact = value; } exactArray([...[0], process.env]); exact.BOUNDED_SPREAD;",
+    "let nested = {}; function nestedArray([skip, value]) { nested = value; } nestedArray([...[...[0]], process.env]); nested.NESTED_BOUNDED_SPREAD;",
+    "let unknown = {}; function dynamicArray([skip, value]) { unknown = value; } dynamicArray([...input, process.env]); unknown.UNBOUNDED_POSITION;",
+    "let prefix = {}; function prefixArray([value]) { prefix = value; } prefixArray([process.env, ...input]); prefix.KNOWN_PREFIX;",
+    "let defaulted = {}; function holeArray([value = (defaulted = process.env)]) {} holeArray([...[,]]); defaulted.SPREAD_HOLE_DEFAULT;",
+    "let body = {}; function nestedNull([skip, {}]) { body = process.env; } try { nestedNull([...[0, null], {}]); } catch {} body.NESTED_SPREAD_BODY;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "BOUNDED_SPREAD", "NESTED_BOUNDED_SPREAD", "KNOWN_PREFIX", "SPREAD_HOLE_DEFAULT",
+  ])
+  assert.equal(first.uncertainties.some((row) => [
+    "SYNTAX_INDEX_FALSE_READ", "UNBOUNDED_POSITION", "NESTED_SPREAD_BODY",
+  ].includes(row.name)), false)
+})
+
+test("round 26 for await loops suspend before iteration and empty normal exit", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/implicit-iteration-suspension.ts", [
+    "let body = {}, after = {}; async function iterate() { for await (const item of [1]) { body = process.env; } after = process.env; } iterate(); body.FOR_AWAIT_BODY; after.AFTER_FOR_AWAIT;",
+    "let empty = {}; async function emptyLoop() { for await (const item of []) {} empty = process.env; } emptyLoop(); empty.AFTER_EMPTY_AWAIT;",
+    "let source = {}, cleanup = {}; async function sourceEffects() { try { for await (const item of (source = process.env, [1])) {} } finally { cleanup = process.env; } } sourceEffects(); source.SYNCHRONOUS_AWAIT_SOURCE; cleanup.AFTER_SUSPEND_FINALLY;",
+    "let beforeThrow = {}, caught = {}, rejected = {}; function sourceThrow() { beforeThrow = process.env; throw 0; } async function throwingSource() { try { for await (const item of sourceThrow()) {} } catch { caught = process.env; } } try { throwingSource(); } catch { rejected = process.env; } beforeThrow.BEFORE_SOURCE_THROW; caught.INTERNAL_SOURCE_CATCH; rejected.CALLER_REJECTION_CATCH;",
+    "let ordinary = {}; function ordinaryLoop() { for (const item of []) {} ordinary = process.env; } ordinaryLoop(); ordinary.ORDINARY_FOR_OF;",
+    "",
+  ].join("\n"))
+
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.reads.map((row) => row.name), [
+    "SYNCHRONOUS_AWAIT_SOURCE", "BEFORE_SOURCE_THROW", "INTERNAL_SOURCE_CATCH", "ORDINARY_FOR_OF",
+  ])
+  assert.equal(first.uncertainties.some((row) => row.name === "FOR_AWAIT_BODY" ||
+    row.name === "CALLER_REJECTION_CATCH" || row.name?.startsWith("AFTER_")), false)
+})
+
+/** Exercise final integration findings through the real tracked-input boundary. */
+function finalIntegrationEvidence(t, lines) {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/final-integration.ts", `${lines.join("\n")}\n`)
+  const first = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy))
+  assertPrivateSerialization(first, root, [])
+  assert.ok(first.uncertainties.every((row) => !row.expressionSha256 || /^[a-f0-9]{64}$/.test(row.expressionSha256)))
+  return first
+}
+
+test("round 26 final integration 01 deferred destructured parameters retain body evidence", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "export function configuration({flag}) { return process.env.DEFERRED_OBJECT_READ; }",
+    "export function arrayConfiguration([flag]) { return process.env.DEFERRED_ARRAY_READ; }",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["DEFERRED_OBJECT_READ", "DEFERRED_ARRAY_READ"])
+})
+
+test("round 26 final integration 02 call expansion has bounded conservative exhaustion", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/expansion.ts", [
+    "let value = {}; function leaf() { value = process.env; }",
+    ...Array.from({ length: 18 }, (_, index) => `function tree${index}() { ${index ? `tree${index - 1}` : "leaf"}(); ${index ? `tree${index - 1}` : "leaf"}(); }`),
+    "tree17(); value.BUDGET_OUTCOME; process.env.AFTER_BUDGET;",
+  ].join("\n"))
+  const code = `import { buildEnvironmentEvidence } from './scripts/repository-audit/cleanup-environment-evidence.mjs';
+    import { buildTrackedTextIndex, loadCleanupPolicy } from './scripts/repository-audit/cleanup-core.mjs';
+    const policy = {...loadCleanupPolicy(process.cwd(), 'scripts/repository-audit/cleanup-policy.json'), manualToolSources: []};
+    const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(process.argv[1], policy), policy);
+    process.stdout.write(JSON.stringify(evidence));`
+  const run = () => spawnSync(process.execPath, ["--input-type=module", "-e", code, root], {
+    cwd: repositoryRoot, encoding: "utf8", windowsHide: true, timeout: 4000,
+  })
+  const first = run()
+  assert.equal(first.error, undefined, "call expansion must finish within the bounded worker deadline")
+  assert.equal(first.status, 0, first.stderr)
+  const evidence = JSON.parse(first.stdout)
+  assert.ok(evidence.uncertainties.some((row) => row.kind === "call-expansion-budget"))
+  assert.ok(evidence.uncertainties.some((row) => row.name === "BUDGET_OUTCOME"))
+  assert.ok(evidence.reads.some((row) => row.name === "AFTER_BUDGET"))
+  assert.equal(run().stdout, first.stdout)
+  assertPrivateSerialization(first.stdout, root, [])
+})
+
+test("round 26 final integration 03 array rest is a fresh aggregate with contained provenance", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}; function collect([...rest]) { value = rest; } collect([process.env]); value.ARRAY_REST_OBJECT; value[0].ARRAY_REST_ELEMENT;",
+  ])
+  assert.equal(evidence.reads.some((row) => row.name === "ARRAY_REST_OBJECT"), false)
+  assert.ok(evidence.uncertainties.some((row) => row.name === "ARRAY_REST_ELEMENT"))
+})
+
+test("round 26 final integration 04 selected arguments retain evaluation scope and time", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}, source = {}; function collect({item}, ignored) { value = item; } collect({item: source}, source = process.env); value.LATE_ARGUMENT;",
+    "let shadowed = {}, outside = {}; function shadow({item}, outside = process.env) { shadowed = item; } shadow({item: outside}); shadowed.PARAMETER_SHADOW;",
+    "let ordered = {}, original = {}; function order({item}) { ordered = item; } order({item: original, later: original = process.env}); ordered.LATE_MEMBER;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [])
+})
+
+test("round 26 final integration 05 function declaration assignment rebinds its outer name", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}; function f(input) { f = () => {}; value = input; } f({}); f(process.env); value.DECLARATION_REBIND;",
+  ])
+  assert.equal(evidence.reads.some((row) => row.name === "DECLARATION_REBIND"), false)
+})
+
+test("round 26 final integration 06 parameter closures share assignment bindings", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}; function f(input, callback = () => { value = input; }) { input = {}; callback(); } f(process.env); value.STALE_PARAMETER;",
+    "let copied = {}; function g(input, callback = () => { copied = input; }) { var input = {}; callback(); } g(process.env); copied.BODY_VAR_COPY;",
+    "let shared = {}; function h(input) { var input; shared = input; } h(process.env); shared.SIMPLE_VAR_PARAMETER;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["BODY_VAR_COPY", "SIMPLE_VAR_PARAMETER"])
+})
+
+test("round 26 final integration 07 apply normalizes outer spread positions", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}; function f(input = process.env) { value = input; } f.apply(...[null, [{}]]); value.APPLY_OUTER_SPREAD;",
+    "let exact = {}; function g(input) { exact = input; } g.apply(...[null, [process.env]]); exact.APPLY_SPREAD_EXACT;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["APPLY_SPREAD_EXACT"])
+})
+
+test("round 26 final integration 08 composed call methods preserve receiver uncertainty", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}; function f(input) { value = input; } try { f.call.call(null, process.env); } catch {} value.NESTED_CALL_FALSE;",
+    "let other = {}; function g(input) { other = input; } try { g.apply.call(null, [process.env]); } catch {} other.NESTED_APPLY_FALSE;",
+    "let possible = {}; function h(input) { possible = input; } h.call.call(h, null, process.env); possible.COMPOSED_POSSIBLE;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [])
+  assert.ok(evidence.uncertainties.length > 0)
+  assert.ok(evidence.uncertainties.some((row) => row.name === "COMPOSED_POSSIBLE"))
+})
+
+test("round 26 final integration 09 unknown arguments join default effects and failure", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}; function f(input = (value = process.env)) {} f(dynamic); value.UNKNOWN_DEFAULT;",
+    "let indirect = {}, unknownInput = dynamic; function aliasDefault(input = (indirect = process.env)) {} aliasDefault(unknownInput); indirect.UNKNOWN_ALIAS_DEFAULT;",
+    "let caught = {}; function boom() { throw 0; } function g(input = boom()) {} try { g(dynamic); } catch { caught = process.env; } caught.UNKNOWN_DEFAULT_THROW;",
+  ])
+  assert.ok(evidence.uncertainties.some((row) => row.name === "UNKNOWN_DEFAULT"))
+  assert.ok(evidence.uncertainties.some((row) => row.name === "UNKNOWN_ALIAS_DEFAULT"))
+  assert.ok(evidence.uncertainties.some((row) => row.name === "UNKNOWN_DEFAULT_THROW"))
+})
+
+test("round 26 final integration 10 generator calls initialize parameters before body deferral", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}, body = {}; function* f(input = (value = process.env)) { body = process.env; } f(); value.GENERATOR_DEFAULT; body.GENERATOR_BODY;",
+    "let caught = {}; function* g({item}) {} try { g(null); } catch { caught = process.env; } caught.GENERATOR_PARAMETER_THROW;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["GENERATOR_DEFAULT", "GENERATOR_PARAMETER_THROW"])
+})
+
+test("round 26 final integration 11 finite reentry retains synchronous continuation", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "function run(cb) { cb(); } run(() => run(() => {})); process.env.FINITE_CONTINUATION;",
+    "function nest(cb) { run(() => cb()); } nest(() => nest(() => {})); process.env.FINITE_CLOSURE_CONTINUATION;",
+  ])
+  assert.ok(evidence.reads.some((row) => row.name === "FINITE_CONTINUATION"))
+  assert.ok(evidence.reads.some((row) => row.name === "FINITE_CLOSURE_CONTINUATION"))
+})
+
+test("round 26 final integration 12 abrupt loop tails retain zero and break exits", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let zero = {}; function boom() { throw 0; } function forLoop() { for (; flag; boom()) {} zero = process.env; } forLoop(); zero.ZERO_ITERATION;",
+    "let broken = {}; async function asyncLoop() { for (;; await 0) { if (flag) break; } broken = process.env; } asyncLoop(); broken.BREAK_BEFORE_AWAIT;",
+    "let afterDo = {}; function doLoop() { do { if (flag) break; } while (boom()); afterDo = process.env; } doLoop(); afterDo.BREAK_BEFORE_DO_THROW;",
+  ])
+  assert.ok(evidence.reads.some((row) => row.name === "ZERO_ITERATION"))
+  assert.ok([...evidence.reads, ...evidence.uncertainties].some((row) => row.name === "BREAK_BEFORE_AWAIT"))
+  assert.ok(evidence.reads.some((row) => row.name === "BREAK_BEFORE_DO_THROW"))
+})
+
+test("round 26 final integration 13 deferred for await scans retain later reads", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "export async function scan() { for await (const item of []) {} process.env.DEFERRED_AFTER_FOR_AWAIT; }",
+  ])
+  assert.ok(evidence.reads.some((row) => row.name === "DEFERRED_AFTER_FOR_AWAIT"))
+})
+
+test("round 26 final integration 14 union callable mutation preserves identity alternatives", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value = {}; function f() { value = process.env; } function g() {} const selected = flag ? f : g; selected.call = () => {}; f.call(null); value.UNION_MUTATION;",
+  ])
+  assert.ok(evidence.uncertainties.some((row) => row.name === "UNION_MUTATION"))
+  assert.equal(evidence.reads.some((row) => row.name === "UNION_MUTATION"), false)
+})
+
+test("round 26 final integration 15 known void callees still evaluate operand effects", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "try { (void process.env.VOID_READ)(); } catch {}",
+  ])
+  assert.ok(evidence.reads.some((row) => row.name === "VOID_READ"))
+})
+
+test("round 26 final integration 16 destructured callable inputs and defaults retain identity", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let supplied = {}; function f({item}) { item(); } f({item: () => { supplied = process.env; }}); supplied.SUPPLIED_CALLABLE;",
+    "let defaulted = {}; function g({item = () => { defaulted = process.env; }} = {}) { item(); } g(); defaulted.DEFAULT_CALLABLE;",
+    "let objectDefault = {}; function h({item} = {item: () => { objectDefault = process.env; }}) { item(); } h(); objectDefault.DEFAULT_OBJECT_CALLABLE;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["SUPPLIED_CALLABLE", "DEFAULT_CALLABLE", "DEFAULT_OBJECT_CALLABLE"])
+})
+
+test("round 26 approved narrow scope excludes class static vars from parameter copies", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let value={}; function f(input=process.env, cb=()=>{value=input}) { class C { static { var input; } } input={}; cb(); } f(); value.NESTED_STATIC_VAR;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [])
+})
+
+test("round 26 approved narrow scope retains real function body var copies", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let direct = {}; function directVar(input = process.env, cb = () => { direct = input; }) { var input; input = {}; cb(); } directVar(); direct.DIRECT_BODY_VAR;",
+    "let block = {}; function blockVar(input = process.env, cb = () => { block = input; }) { { var input; } input = {}; cb(); } blockVar(); block.BLOCK_BODY_VAR;",
+    "let loop = {}; function loopVar(input = process.env, cb = () => { loop = input; }) { for (var input of []) {} input = {}; cb(); } loopVar(); loop.LOOP_BODY_VAR;",
+    "let pattern = {}; function patternVar(input = process.env, cb = () => { pattern = input; }) { var {item: input} = {item: {}}; cb(); } patternVar(); pattern.DESTRUCTURED_BODY_VAR;",
+    "let mixed = {}; function mixedVar(input = process.env, cb = () => { mixed = input; }) { class C { static { var input; } } var input; input = {}; cb(); } mixedVar(); mixed.BODY_VAR_WITH_STATIC_CLASS;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "DIRECT_BODY_VAR", "BLOCK_BODY_VAR", "LOOP_BODY_VAR", "DESTRUCTURED_BODY_VAR", "BODY_VAR_WITH_STATIC_CLASS",
+  ])
+})
+
+test("round 26 approved narrow scope preserves nested function and class method ownership", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let declared = {}; function declaration(input = process.env, cb = () => { declared = input; }) { function inner() { var input; } input = {}; cb(); } declaration(); declared.NESTED_FUNCTION_VAR;",
+    "let arrow = {}; function arrowOwner(input = process.env, cb = () => { arrow = input; }) { const inner = () => { var input; }; input = {}; cb(); } arrowOwner(); arrow.NESTED_ARROW_VAR;",
+    "let expression = {}; function expressionOwner(input = process.env, cb = () => { expression = input; }) { const inner = function () { var input; }; input = {}; cb(); } expressionOwner(); expression.NESTED_FUNCTION_EXPRESSION_VAR;",
+    "let method = {}; function methodOwner(input = process.env, cb = () => { method = input; }) { class C { method() { var input; } static other() { var input; } } input = {}; cb(); } methodOwner(); method.NESTED_CLASS_METHOD_VAR;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [])
+})
+
+test("round 26 approved narrow scope preserves nested class static block ownership", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let expression = {}; function expressionOwner(input = process.env, cb = () => { expression = input; }) { const C = class { static { var input; } }; input = {}; cb(); } expressionOwner(); expression.CLASS_EXPRESSION_STATIC_VAR;",
+    "let nested = {}; function nestedOwner(input = process.env, cb = () => { nested = input; }) { class Outer { static { class Inner { static { var input; } } } } input = {}; cb(); } nestedOwner(); nested.NESTED_CLASS_STATIC_VAR;",
+    "let field = {}; function fieldOwner(input = process.env, cb = () => { field = input; }) { class Outer { static inner = class { static { var input; } }; } input = {}; cb(); } fieldOwner(); field.CLASS_FIELD_STATIC_VAR;",
+    "let heritage = {}; function heritageOwner(input = process.env, cb = () => { heritage = input; }) { class Outer extends (class { static { var input; } }) {} input = {}; cb(); } heritageOwner(); heritage.CLASS_HERITAGE_STATIC_VAR;",
+    "let computed = {}; function computedOwner(input = process.env, cb = () => { computed = input; }) { class Outer { [(class { static { var input; } }, 'key')] = 0; } input = {}; cb(); } computedOwner(); computed.CLASS_COMPUTED_STATIC_VAR;",
+    "let pattern = {}; function patternOwner(input = process.env, cb = () => { pattern = input; }) { class C { static { { var {item: input} = {item: {}}; } } } input = {}; cb(); } patternOwner(); pattern.STATIC_BLOCK_PATTERN_VAR;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [])
+})
+
+test("round 26 recursive finally completions stay within a deterministic snapshot budget", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/recursive-finally.ts", [
+    "const environment = process.env;",
+    "export function findElement(tree, predicate) {",
+    "  const ancestors = new Set();",
+    "  function visit(value) {",
+    "    if (!value || typeof value !== 'object') return null;",
+    "    if (ancestors.has(value)) return null;",
+    "    ancestors.add(value);",
+    "    try {",
+    "      if (Array.isArray(value)) {",
+    "        for (const child of value) { const match = visit(child); if (match) return match; }",
+    "        return null;",
+    "      }",
+    "      if (isJsxLikeNode(value) && predicate(value)) return value;",
+    "      const nestedValues = isJsxLikeNode(value) ? Object.values(value.props ?? {}) : Object.values(value);",
+    "      for (const nestedValue of nestedValues) { const match = visit(nestedValue); if (match) return match; }",
+    "      return null;",
+    "    } finally { environment.RECURSIVE_FINALLY; ancestors.delete(value); }",
+    "  }",
+    "  try { return visit(tree); } catch { environment.RECURSIVE_CATCH; }",
+    "}",
+    "process.env.AFTER_RECURSION;",
+  ].join("\n"))
+  // Count actual analyzer snapshots in a fresh worker; fail deterministically before heap growth.
+  const code = `import { registerHooks } from 'node:module';
+    let snapshots = 0;
+    globalThis.countAuditSnapshot = () => {
+      if (++snapshots > 20000) throw new Error('recursive completion snapshot budget exceeded: ' + snapshots);
+    };
+    registerHooks({ load(url, context, next) {
+      const loaded = next(url, context);
+      if (!url.endsWith('/cleanup-environment-flow.mjs')) return loaded;
+      const source = String(loaded.source).replace('export function snapshotScopes(scope) {',
+        'export function snapshotScopes(scope) { globalThis.countAuditSnapshot();');
+      return { ...loaded, source };
+    }});
+    const { buildEnvironmentEvidence } = await import('./scripts/repository-audit/cleanup-environment-evidence.mjs');
+    const { buildTrackedTextIndex, loadCleanupPolicy } = await import('./scripts/repository-audit/cleanup-core.mjs');
+    const policy = {...loadCleanupPolicy(process.cwd(), 'scripts/repository-audit/cleanup-policy.json'), manualToolSources: []};
+    const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(process.argv[1], policy), policy);
+    process.stdout.write(JSON.stringify({ evidence, snapshots }));`
+  const run = () => spawnSync(process.execPath, ["--input-type=module", "-e", code, root], {
+    cwd: repositoryRoot, encoding: "utf8", windowsHide: true, timeout: 10000,
+  })
+  const first = run()
+  assert.equal(first.error, undefined)
+  assert.equal(first.status, 0, first.stderr)
+  const { evidence, snapshots } = JSON.parse(first.stdout)
+  assert.ok(snapshots > 0 && snapshots <= 20000, "the structural snapshot guard must be active")
+  assert.ok(evidence.uncertainties.some((row) => row.kind === "call-expansion-budget"))
+  for (const name of ["RECURSIVE_FINALLY", "RECURSIVE_CATCH"]) {
+    assert.ok(evidence.uncertainties.some((row) => row.name === name), name)
+    assert.equal(evidence.reads.some((row) => row.name === name), false, name)
+  }
+  assert.ok(evidence.reads.some((row) => row.name === "AFTER_RECURSION"))
+  assert.equal(run().stdout, first.stdout)
+  assertPrivateSerialization(evidence, root, [])
+})
+
+test("round 26 compaction preserves mixed loader process and environment provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const [suffix, initial, later, reads] of [
+    ["loader-process", "require", "process", [
+      'receiver("node:process").env.COMPACT_LOADER_KEY;',
+      'receiver.env.COMPACT_PROCESS_KEY;',
+      'const copy = receiver; function consume(value) { value("node:process").env.COMPACT_ARGUMENT_KEY; } consume(copy);',
+      'function destructure({env: environment}) { environment.COMPACT_ARGUMENT_PROCESS; } destructure(receiver);',
+    ]],
+    ["loader-environment", "require", "process.env", [
+      'receiver("node:process").env.COMPACT_MIXED_LOADER_KEY;',
+      'receiver.COMPACT_ENVIRONMENT_KEY;',
+      'const {COMPACT_DECLARATION_KEY} = receiver; let assigned; ({COMPACT_ASSIGNMENT_KEY: assigned} = receiver);',
+      'function destructure({COMPACT_PARAMETER_KEY}) {} destructure(receiver);',
+    ]],
+  ]) writeFixture(root, `app/compact-${suffix}.cjs`, [
+    `let receiver = ${initial};`,
+    'try {',
+    ...Array.from({ length: 32 }, (_, index) => `if (flag${index}) throw 0;`),
+    `receiver = ${later}; throw 0;`,
+    '} finally {', ...reads, '}',
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  for (const name of ["COMPACT_LOADER_KEY", "COMPACT_PROCESS_KEY", "COMPACT_ARGUMENT_KEY", "COMPACT_ARGUMENT_PROCESS", "COMPACT_MIXED_LOADER_KEY", "COMPACT_ENVIRONMENT_KEY", "COMPACT_DECLARATION_KEY", "COMPACT_ASSIGNMENT_KEY", "COMPACT_PARAMETER_KEY"]) {
+    assert.ok(evidence.uncertainties.some((row) => row.name === name), `missing mixed provenance: ${name}`)
+    assert.equal(evidence.reads.some((row) => row.name === name), false, `mixed provenance became exact: ${name}`)
+  }
+  assertPrivateSerialization(evidence, root, [])
+})
+
+test("round 26 compaction preserves late completion bindings and captured closure effects", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/late-completion.cjs", [
+    'let late = {}, observed = {}; let callback = () => {};',
+    'try {',
+    ...Array.from({ length: 32 }, (_, index) => `if (flag${index}) throw 0;`),
+    'late = process.env;',
+    '{ const captured = process.env; callback = () => { observed = captured; }; throw 0; }',
+    '} finally {',
+    'late.LATE_COMPACT_BINDING; callback(); observed.LATE_COMPACT_CLOSURE;',
+    '}',
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  for (const name of ["LATE_COMPACT_BINDING", "LATE_COMPACT_CLOSURE"]) {
+    assert.ok(evidence.uncertainties.some((row) => row.name === name), `later completion disappeared: ${name}`)
+    assert.equal(evidence.reads.some((row) => row.name === name), false, `later completion became exact: ${name}`)
+  }
+  assert.deepEqual(evidence, buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy))
+  assertPrivateSerialization(evidence, root, [])
+})
+
+for (const [form, forwarding] of [
+  ["argument", "send(receiver);"],
+  ["object-property", "exported = { receiver };"],
+]) test(`round 26 compaction preserves mixed whole-environment ${form} forwarding`, (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, `app/compact-forward-${form}.cjs`, [
+    "let receiver = require;",
+    "try {",
+    ...Array.from({ length: 32 }, (_, index) => `if (flag${index}) throw 0;`),
+    "receiver = process.env; throw 0;",
+    "} finally {", forwarding, "}",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads, [])
+  assert.deepEqual(evidence.uncertainties.map(({ code, kind, name }) => ({ code, kind, name })), [
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "whole-object-value", name: null },
+  ], `mixed ${form} forwarding must retain possible whole-environment evidence`)
+  assert.deepEqual(evidence, buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy))
+  assertPrivateSerialization(evidence, root, [])
+})
+
+test("round 26 deferred budget exhaustion preserves the incoming declaration scope", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  for (const count of [120, 130]) writeFixture(root, `app/deferred-budget-${count}.ts`, [
+    "function outer() {",
+    "const environmentValue = process.env; const ordinary = {};",
+    ...Array.from({ length: count }, (_, index) => `const unused${index} = () => {};`),
+    "environmentValue.AFTER_DEFERRED; ordinary.NOT_ENV;",
+    "}",
+  ].join("\n"))
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map(({ path, name }) => ({ path, name })), [
+    { path: "app/deferred-budget-120.ts", name: "AFTER_DEFERRED" },
+    { path: "app/deferred-budget-130.ts", name: "AFTER_DEFERRED" },
+  ], "uncalled deferred entries must not widen the incoming declaration scope")
+  assert.ok(evidence.uncertainties.length > 0, "exhausted deferred entries must retain budget receipts")
+  assert.ok(evidence.uncertainties.every((row) =>
+    row.path === "app/deferred-budget-130.ts" && row.kind === "call-expansion-budget"),
+  "deferred exhaustion must not invent uncertain reads from the environment or an ordinary object")
+  assert.deepEqual(evidence, buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy))
+  assertPrivateSerialization(evidence, root, [])
+})
+
+test("round 26 integrated review keeps compound assignment results out of callable and environment provenance", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  const operators = [
+    ["ADD", "+="], ["SUBTRACT", "-="], ["MULTIPLY", "*="], ["DIVIDE", "/="],
+    ["REMAINDER", "%="], ["EXPONENT", "**="], ["SHIFT_LEFT", "<<="],
+    ["SHIFT_RIGHT", ">>="], ["SHIFT_UNSIGNED", ">>>="], ["BIT_AND", "&="],
+    ["BIT_OR", "|="], ["BIT_XOR", "^="],
+  ]
+  writeFixture(root, "app/compound-assignment-results.ts", [
+    "let target = {}, compoundEffect = {}, plainEffect = {}, logicalEffect = {};",
+    "function compoundCallable() { compoundEffect = process.env; }",
+    ...operators.map(([, operator]) => `try { (target ${operator} compoundCallable)(); } catch {}`),
+    ...operators.map(([label, operator]) => `const compound${label} = (target ${operator} process.env); compound${label}.FALSE_COMPOUND_${label};`),
+    "compoundEffect.FALSE_COMPOUND_CALL;",
+    "let plainTarget; function plainCallable() { plainEffect = process.env; } (plainTarget = plainCallable)(); plainEffect.PLAIN_ASSIGNMENT_CALL;",
+    "const plainEnvironment = (plainTarget = process.env); plainEnvironment.PLAIN_ASSIGNMENT_VALUE;",
+    "let logicalTarget = () => {}; function logicalCallable() { logicalEffect = process.env; } (logicalTarget &&= logicalCallable)(); logicalEffect.LOGICAL_ASSIGNMENT_CALL;",
+    "let logicalEnvironment = process.env; const logicalResult = (logicalEnvironment ||= {}); logicalResult.LOGICAL_ASSIGNMENT_VALUE;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const rows = [...evidence.reads, ...evidence.uncertainties]
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "PLAIN_ASSIGNMENT_CALL", "PLAIN_ASSIGNMENT_VALUE", "LOGICAL_ASSIGNMENT_CALL",
+  ])
+  assert.ok(rows.some((row) => row.name === "LOGICAL_ASSIGNMENT_VALUE"))
+  assert.equal(rows.some((row) => row.name === "FALSE_COMPOUND_CALL" || row.name?.startsWith("FALSE_COMPOUND_")), false)
+  assert.deepEqual(evidence, buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy))
+})
+
+test("round 26 integrated review models sloppy CommonJS Annex-B function bindings only in their runtime scopes", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "scripts/annex-call.cjs", [
+    "let exact = {}; { function setExact() { exact = process.env; } } setExact(); exact.ANNEX_EXACT;",
+    "let value = {}; if (true) { function setValue() { value = process.env; } } setValue(); value.ANNEX_CALL;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/strict-block.cjs", [
+    "'use strict'; let value = {}; if (true) { function setValue() { value = process.env; } } try { setValue(); } catch {} value.STRICT_BLOCK;",
+    "",
+  ].join("\n"))
+  writeFixture(root, "scripts/module-block.mjs", [
+    "let value = {}; if (true) { function setValue() { value = process.env; } } try { setValue(); } catch {} value.MODULE_BLOCK;",
+    "",
+  ].join("\n"))
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  const rows = [...evidence.reads, ...evidence.uncertainties]
+  assert.ok(evidence.reads.some((row) => row.name === "ANNEX_EXACT"))
+  assert.ok(rows.some((row) => row.name === "ANNEX_CALL"))
+  assert.equal(rows.some((row) => ["STRICT_BLOCK", "MODULE_BLOCK"].includes(row.name)), false)
+  assert.deepEqual(evidence, buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy))
+})
+
+test("round 26 integrated review invokes paired object getters while preserving last data definitions", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let paired = {}, body = {}; function readPair({value}) { body = process.env; } try { readPair({ get value() { paired = process.env; throw 0; }, set value(next) {} }); } catch {} paired.GETTER_EFFECT; body.UNREACHABLE_BODY;",
+    "let setterFirst = {}; function readSetterFirst({value}) {} readSetterFirst({ set value(next) {}, get value() { setterFirst = process.env; return 1; } }); setterFirst.SETTER_THEN_GETTER;",
+    "let replaced = {}; function readReplaced({value}) {} readReplaced({ get value() { replaced = process.env; throw 0; }, value: 1 }); replaced.REPLACED_GETTER;",
+    "let dataThenGetter = {}; function readLatest({value}) {} readLatest({ value: 1, get value() { dataThenGetter = process.env; return 2; } }); dataThenGetter.DATA_THEN_GETTER;",
+  ])
+  const rows = [...evidence.reads, ...evidence.uncertainties]
+  assert.deepEqual(evidence.reads.map((row) => row.name), ["GETTER_EFFECT", "SETTER_THEN_GETTER", "DATA_THEN_GETTER"])
+  assert.equal(rows.some((row) => ["UNREACHABLE_BODY", "REPLACED_GETTER"].includes(row.name)), false)
 })
