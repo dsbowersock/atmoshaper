@@ -49,3 +49,21 @@
 - Planning introduced no runtime, test, asset, dependency, lockfile, schema,
   migration, workflow or provider change. Pre-implementation inventory/build
   measurement remains the next local step.
+
+## 2026-09-13 — Pre-implementation observation baseline
+
+- Measurement commit:
+  `dc42f074df48817f5bbbfe60576d1f81abbd5559`.
+- `npm run repository:inventory` passed with 1,952 tracked files,
+  48,267,941 tracked Git blob bytes, inventory SHA-256
+  `628bb60be01d78221ac12af4ebf5ce4b21c07b348008fa22170670e441962537`,
+  and zero forbidden tracked paths.
+- `npm run build` passed on Next.js 16.2.12. The prebuild migration check
+  skipped outside Vercel Production as designed, Prisma Client generation
+  passed, compilation and TypeScript passed, and static generation completed
+  115/115 pages.
+- The page-data step logged the existing non-fatal
+  `ANATOMIME_POLL_SHEDDER` initialization warning. The build continued to a
+  complete route table and exited zero; no tracked file changed.
+- These are observation baselines, not a performance claim. Task 1 begins from a
+  clean worktree after this evidence-only synchronization.

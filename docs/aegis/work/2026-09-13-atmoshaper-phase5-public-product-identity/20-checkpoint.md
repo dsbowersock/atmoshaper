@@ -17,6 +17,22 @@
 - External gates: no QA provider creation, push, PR, merge, deployment or Phase 6
   work is authorized by this local implementation transition.
 
+## 2026-09-13 — Pre-implementation measurement complete
+
+- Planning commit: `dc42f074df48817f5bbbfe60576d1f81abbd5559`.
+- Exact committed-index inventory: 1,952 tracked files, 48,267,941 Git blob
+  bytes, identity
+  `628bb60be01d78221ac12af4ebf5ce4b21c07b348008fa22170670e441962537`,
+  and zero forbidden paths.
+- Production build: passed on Next 16.2.12; 115/115 static pages generated and
+  the final route table completed. The production migration gate correctly
+  skipped outside Vercel Production, and Prisma Client generation passed.
+- Observation: build logged the existing non-fatal Anatomime poll-shedder
+  initialization message during page-data collection; the command exited zero.
+- Post-build worktree: clean.
+- Current todo: dispatch Task 1, review its two-file working-tree delta, and
+  commit only after specification and code-quality approval.
+
 ## 2026-09-13 — Written design candidate
 
 - Current todo: complete the approved written design, self-review it, commit the
