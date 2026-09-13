@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "MassageLab",
-    short_name: "MassageLab",
+    name: PUBLIC_PRODUCT_IDENTITY.name,
+    short_name: PUBLIC_PRODUCT_IDENTITY.shortName,
     description: "Anatomy study, session timing, wellness, and local-first practice tools for massage students, educators, therapists, and small practices.",
     start_url: "/",
     scope: "/",

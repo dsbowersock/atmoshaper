@@ -5,7 +5,10 @@ import { LEGAL_DOCUMENTS } from "../lib/legal-documents.js"
 import {
   PUBLIC_SEO_ROUTES,
   ROBOTS_PRIVATE_DISALLOW_PATHS,
+  SEO_SITE_NAME,
+  SEO_DEFAULT_IMAGE,
   buildCanonicalUrl,
+  createPublicPageMetadata,
   createSeoJsonLd,
   createSitemapEntries,
   getRobotsRouteConfig,
@@ -22,6 +25,22 @@ function readProjectFile(path) {
 }
 
 describe("SEO route contract", () => {
+  it("preserves public identity exports and root social metadata", () => {
+    assert.equal(SEO_SITE_NAME, "MassageLab")
+    assert.equal(SEO_DEFAULT_IMAGE, "/brand/massagelab-home-logo-badge-padded-20260622.png")
+
+    const metadata = createPublicPageMetadata("/")
+
+    assert.equal(metadata.applicationName, "MassageLab")
+    assert.equal(metadata.openGraph.siteName, "MassageLab")
+    assert.deepEqual(metadata.openGraph.images, [{
+      url: "https://www.massagelab.app/brand/massagelab-home-logo-badge-padded-20260622.png",
+      width: 1536,
+      height: 760,
+      alt: "MassageLab",
+    }])
+  })
+
   it("enables public indexing only for production deployments", () => {
     assert.equal(publicSeoIndexingEnabled(productionEnv), true)
     assert.equal(publicSeoIndexingEnabled(previewEnv), false)

@@ -12,6 +12,7 @@ import { MusicProvider } from "@/components/providers/music-provider"
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { createPublicPageMetadata, createSeoJsonLd } from "@/lib/seo"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "MassageLab",
+    title: PUBLIC_PRODUCT_IDENTITY.name,
   },
   icons: {
     icon: [
