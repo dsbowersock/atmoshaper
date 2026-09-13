@@ -1,5 +1,24 @@
 # Phase 5 public product identity checkpoint
 
+## 2026-09-13 — Authorized Browser QA passed and temporary project removed
+
+- Completed todo: created a new independent empty Neon QA project, proved its
+  non-production identity, applied exactly the 46 committed migrations, and
+  proved all 134 application tables empty before the browser run.
+- Verification: `npm run build:browser-qa` completed immediately before the
+  scoped `pwa.spec.ts` plus `app-shell.spec.ts` Playwright run. The exact
+  selection contains 152 cases; Playwright recorded `passed` with zero failed
+  tests and no snapshot update.
+- Cleanup: exact post-run row counts remained zero across all 134 application
+  tables. The cycle-owned temporary project was deleted and proved absent. The
+  production project remained present; production data was not copied, read or
+  altered.
+- Closeout: the documentation brand baseline reached a byte-identical staged
+  fixed point; index-sensitive gates and independent specification/quality
+  reviews passed. The coordinator-owned Browser-QA commit is ready.
+- Next gate: publication remains separately authorized. Do not push, open a PR,
+  merge, deploy or begin Phase 6 from this checkpoint.
+
 ## 2026-09-13 — Local identity slice and both final reviews complete
 
 - The local Phase 5 identity slice and both complete-branch final specification
@@ -100,9 +119,11 @@ the closeout section above owns current task status.
 Resume on `codex/atmoshaper-public-product-identity`. Re-read `10-intent.md`, this
 checkpoint, the approved written design and plan, current project state, and
 exact Git status. The local Phase 5 identity slice, broad local verification,
-brand fixed-point proof and both final reviews passed. Fresh empty temporary
-Browser QA is next; provider resources, Browser QA and publication remain
-separately authorized gates.
+brand fixed-point proof, both final reviews and separately authorized empty
+Browser QA passed. The temporary QA project was deleted and proved absent.
+Documentation fixed-point proof and closeout reviews also passed. The
+coordinator-owned Browser-QA commit is next; publication remains separately
+gated.
 
 ## DriftCheckDraft
 
@@ -113,7 +134,7 @@ separately authorized gates.
   SEO exports remain adapters; no fallback added
 - Retirement track: mapped inline presentation copies retired; exclusions remain
 - Evidence sufficiency: per-task and both final branch reviews, broad local
-  gates and brand fixed-point proof passed; separately authorized fresh Browser
-  QA remains pending
-- Decision: local slice complete; fresh empty-QA/publication authorization
-  boundaries remain
+  gates, brand fixed-point proof and separately authorized fresh Browser QA
+  passed; temporary QA cleanup and production non-interference are proven
+- Decision: Browser-QA closeout is verified and ready for local commit;
+  publication remains separately gated

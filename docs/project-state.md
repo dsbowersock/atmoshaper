@@ -4,7 +4,7 @@ Verified: 2026-09-13
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 5 Public Product Identity Complete Locally
+## Current Snapshot — Phase 5 Public Product Identity and Browser QA Complete Locally
 
 - Phase 4 is merged. [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3)
   merged into `main` at `2026-09-13T17:56:59Z` by `dsbowersock` as
@@ -31,13 +31,19 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   records exact commits, inventory observations and non-fatal build/lint notes.
 - The staged brand baseline reached a byte-identical generated fixed point with
   zero unexplained category drift. The local Phase 5 identity slice and both
-  complete-branch final specification and code-quality reviews passed. The next
-  gate is separate authorization for a fresh empty temporary Browser-QA lifecycle
-  and publication. Browser QA is not claimed: no independent empty QA environment
-  is currently proven, and production must not be reused. The QA lifecycle must
-  run `npm run build:browser-qa` immediately before scoped Playwright, without
-  snapshot updates. No provider resource, production data, deployment, Phase 6
-  rebrand, push, PR or merge changed or was authorized by this local closeout.
+  complete-branch final specification and code-quality reviews passed.
+- The separately authorized Browser-QA lifecycle used a new independent empty
+  temporary Neon project. Its non-production identity was proven before use,
+  exactly 46 committed migrations were applied, and all 134 application tables
+  were empty both before and after the run. `npm run build:browser-qa` completed
+  immediately before the exact scoped Playwright command for `pwa.spec.ts` and
+  `app-shell.spec.ts`; the 152-case selection completed with status `passed`,
+  zero failed tests and no snapshot update. The temporary project was deleted
+  and proved absent; the existing production project remained present, and no
+  production data was copied, read or altered.
+- The next gate is separate publication authorization to push this branch and
+  open its PR. No deployment, Phase 6 rebrand, push, PR or merge occurred in
+  this Browser-QA closeout.
 
 ## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 

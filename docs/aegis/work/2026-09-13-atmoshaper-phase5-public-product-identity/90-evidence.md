@@ -1,5 +1,30 @@
 # Phase 5 public product identity evidence
 
+## 2026-09-13 — Authorized empty-project Browser QA
+
+- Authority and boundary: the user separately authorized creation, use and
+  deletion of a temporary empty Neon QA project. Production data and production
+  mutation remained excluded.
+- Isolation and migration proof: the accepted project was new, independently
+  identified and distinct from production. It had zero tables before migration,
+  received exactly 46/46 committed migrations, and its applied migration names
+  matched the committed migration-directory names. All 134 application tables
+  contained zero rows before Browser QA.
+- Browser build and run: `npm run build:browser-qa` completed immediately before
+  `npm run test:browser -- tests/browser/pwa.spec.ts tests/browser/app-shell.spec.ts`.
+  The exact selection enumerates 152 cases. Playwright's final receipt recorded
+  status `passed` and an empty failed-test list. No snapshot update or runtime
+  correction occurred.
+- Postcondition and cleanup: exact counts remained zero across all 134
+  application tables after Browser QA. The cycle-owned temporary project was
+  deleted and a fresh project listing proved it absent. A separate listing
+  confirmed the existing production project remained present. No production
+  data was supplied, copied, read or altered.
+- Privacy: no connection string, credential, fingerprint, database row, private
+  provider identifier or local absolute path is recorded here.
+- Remaining boundary: publication, PR creation, hosted review, merge, deployment
+  and Phase 6 remain separate gates.
+
 ## 2026-09-13 — Implementation and broad local verification
 
 The approved [design](../../../superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md)

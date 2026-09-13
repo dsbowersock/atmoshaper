@@ -2,6 +2,26 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-13 — Phase 5 identity Browser QA passed; temporary QA removed
+
+- The user separately authorized one new independent empty temporary Neon
+  Browser-QA lifecycle. The accepted project was proven distinct from the
+  existing production project, initially contained no tables, received exactly
+  the 46 committed migrations, and matched the committed migration-name set.
+  All 134 application tables contained zero rows before Browser QA.
+- `npm run build:browser-qa` completed immediately before
+  `npm run test:browser -- tests/browser/pwa.spec.ts tests/browser/app-shell.spec.ts`.
+  The exact selection enumerates 152 cases; Playwright's final run receipt was
+  `passed` with zero failed tests. No snapshot update or runtime correction was
+  made.
+- Post-run exact row counts remained zero for all 134 application tables. The
+  cycle-owned temporary project was deleted and proved absent, while the
+  existing production project remained present. No production data was copied,
+  read or altered.
+- Phase 5 local implementation and its authorized Browser QA are complete. The
+  branch remains local and unpushed; publication, PR creation, hosted review,
+  merge, deployment and Phase 6 remain separate gates.
+
 ## 2026-09-13 — Phase 5 identity complete locally; fresh Browser QA gated
 
 - Planning commit `dc42f074df48817f5bbbfe60576d1f81abbd5559` and
