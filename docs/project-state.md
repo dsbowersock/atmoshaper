@@ -4,7 +4,24 @@ Verified: 2026-09-13
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 4 Audit-Only Round 27 Closeout
+## Current Snapshot — Phase 5 Public Product Identity Design
+
+- Phase 4 is merged. [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3)
+  merged into `main` at `2026-09-13T17:56:59Z` by `dsbowersock` as
+  `a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb`. Its exact reviewed head was
+  `69ff135aed8d0b1ecb43c054595d1e08e89a22b1`; the retained review branch is
+  `codex/atmoshaper-dead-code-audit`.
+- The user selected public product identity as the first Phase 5 subsystem. The
+  clean branch `codex/atmoshaper-public-product-identity` starts from the exact
+  Phase 4 merge. Its [written design](superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md)
+  proposes one data-only owner for the current `MassageLab` presentation name
+  and core SEO/app-shell image paths.
+- Current action is written-spec review before implementation planning. No runtime
+  value, image, route, layout, accessibility behavior, legal/provider/private or
+  compatibility identifier has changed. No provider resource, deployment, Phase 6
+  rebrand, push, pull request or merge is authorized by this design step.
+
+## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 
 - The staged Round 27 candidate addresses finally-aware break/continue state, anonymous default function declarations, captured/default environment provenance, and BigInt zero spellings. Independent specification review found one reciprocal provenance case; it was fixed, and scoped specification re-review and full-candidate quality review passed. Code quality's CI timeout increases from 12 to 20 minutes after the prior hosted job was cancelled during unit tests, without an assertion failure.
 - Fresh coordinator checks passed: focused audit/browser-harness tests 386/386; full tests 4,552 total, 4,549 passed, 3 expected skips, zero failures; Prisma validate/generate, typecheck, lint, build (115 pages), and cached diff check. Pre-document audit receipts are historical once these records are staged; [the evidence record](aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md#round-27-integrated-closeout--2026-09-13) records their boundary. Ordinary brand audit reported zero missing/unclassified. Generated candidates A/B had 26,380 identical entries, unchanged source/categories, and zero occurrence deltas; their difference from the checked-out baseline was only generated LF versus Windows CRLF serialization.

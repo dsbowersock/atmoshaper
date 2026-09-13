@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-13 — Phase 4 merged; first Phase 5 subsystem selected
+
+- [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3) merged into `main`
+  at `2026-09-13T17:56:59Z` by `dsbowersock` as
+  `a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb`. The merge includes exact reviewed
+  head `69ff135aed8d0b1ecb43c054595d1e08e89a22b1`; all required hosted checks,
+  latest-head CodeRabbit review and unresolved-thread verification were clean
+  immediately before merge. The review branch remains retained.
+- Created `codex/atmoshaper-public-product-identity` from the exact merge after a
+  clean one-worktree snapshot. The user selected public product identity as the
+  first Phase 5 subsystem.
+- The approved design direction introduces one side-effect-free data owner for
+  the current public presentation name and bounded SEO/app-shell image paths,
+  then rewires only SEO identity, manifest/root metadata, app-bar/mobile-main-bar
+  branding and PWA installation presentation.
+- The behavior contract keeps every rendered `MassageLab` value, image, route,
+  layout and accessibility label unchanged. Legal, support-address, domain,
+  provider, persistence, auth, billing, environment, storage, media, audit and
+  internal compatibility identifiers remain excluded.
+- The written specification is now the review boundary. Implementation planning,
+  code changes, Browser-QA provider creation, push, pull request, merge,
+  deployment and Phase 6 rebrand remain later gates.
+
 ## 2026-09-08 — Fresh-history repository candidate materialized (historical Task 5 snapshot)
 
 - Phase 1 passed. Phase 2 is in progress at Task 5. Source selection was relocked to exact merged MassageLab `main` commit `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`; reviewed relock commit `f3b92a1afc44a5fdb2d56653bc82c8d0dc9a933e` descends from that immutable source and owns the migration-document overlays.
