@@ -1,5 +1,72 @@
 # Phase 5 public product identity evidence
 
+## 2026-09-13 — Implementation and broad local verification
+
+The approved [design](../../../superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md)
+and [plan](../../../superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md)
+own this bounded local refactor. The earlier sections below remain historical
+planning and baseline receipts.
+
+| Slice | Exact commit | Result |
+| --- | --- | --- |
+| Planning | `dc42f074df48817f5bbbfe60576d1f81abbd5559` | Approved design and independently approved plan |
+| Pre-implementation evidence | `e878432d5b2ad213ee887645e3b202fd65f56eb1` | Clean pre-code inventory/build baseline recorded |
+| Task 1 | `c1715d24eefd12d05f38b7c90d1d16954ea9c039` | Frozen dependency-free identity owner and focused contract; specification and quality reviews approved with no findings |
+| Task 2 | `ad0ae618648138295935cc701629369cc19481d7` | SEO compatibility exports/Open Graph alt, manifest names and Apple title delegated; 14/14 focused tests and typecheck passed; specification and quality reviews approved with no findings |
+| Task 3 | `c9acf0fdcbfa7be8cb1fa3e004fa462054e27131` | App-bar label/assets, mobile navigation label and install action/title/iOS guidance delegated; 48/48 focused tests and typecheck passed; specification and quality reviews approved with no findings |
+
+- Branch-wide focused command: `node --test tests/public-product-identity.test.mjs tests/seo.test.mjs tests/app-settings.test.mjs tests/pwa-install.test.mjs`;
+  result 58/58 passed.
+- `npm run prisma:validate`, `npm run prisma:generate`, `npm run typecheck`
+  and `npm run lint` passed. Lint emitted only the existing Babel deoptimization
+  note for `app/chimer/running-timer.tsx`.
+- `npm run test`: 4,557 total, 4,554 passed, 3 expected skips, zero failures;
+  duration 527,763.2615 ms.
+- Post-code `npm run build`: Next.js 16.2.12 compilation and TypeScript passed;
+  115/115 static pages generated and final route table completed; exit 0.
+  The existing non-fatal `ANATOMIME_POLL_SHEDDER` initialization message appeared.
+  Route count is unchanged. Prisma generation and builds left the worktree clean
+  before these documentation edits.
+
+### Post-code inventory observation
+
+- `npm run repository:inventory`: 1,954 files, 48,276,437 tracked Git blob bytes,
+  zero forbidden paths; inventory SHA-256
+  `7b9b988b1316d3f75de31547ad07f44492ff990f59aa5d292dfe6e3d3f96e292`.
+- Baseline: 1,952 files, 48,267,941 bytes and 115 pages. Delta: +2 files,
+  +8,496 bytes and no route-count change. These observations make no performance
+  claim. This inventory precedes Task 4 documentation and baseline staging;
+  it is not the final staged-index identity.
+
+### Retirement, rollback and remaining gates
+
+- No runtime output changed: every affected value remains `MassageLab`, with
+  the same assets, routes, layout, accessibility and install behavior. SEO
+  exports remain compatibility adapters.
+- Only mapped inline presentation copies retired. Legal, support, domain,
+  provider, persistence, auth, billing, environment, storage, media, audit,
+  historical and internal identifiers remain with their existing owners.
+- Rollback: revert the three task commits or branch, restore mapped inline
+  copies and remove the identity owner/test; no external rollback is required.
+- Brand staged-baseline fixed point: 26,426 entries — 22,909 compatibility,
+  1,527 historical, 42 legal and 1,948 pre-rebrand public-copy. A fresh generated
+  candidate was byte-identical at SHA-256
+  `5a296f0fee272509f76526d179106d6525de913d0015300b628fb96621856371`.
+- The local Phase 5 identity slice and both complete-branch final specification
+  and code-quality reviews passed. Final Aegis quality review covered Phase 4
+  base `a43d1a3` through the complete worktree at `c9acf0f`, with no critical,
+  important or minor findings. It independently confirmed zero missing or
+  unclassified brand references and the byte-identical staged baseline above.
+  This is local quality approval only; fresh Browser QA is the next separately
+  authorized gate.
+- Browser QA is not claimed. No independent empty QA environment is currently
+  proven. A future separately authorized empty temporary QA lifecycle must run
+  `npm run build:browser-qa` immediately before
+  `npm run test:browser -- tests/browser/pwa.spec.ts tests/browser/app-shell.spec.ts`.
+  Do not reuse production or update snapshots.
+- No provider resource, production data, deployment, Phase 6 rebrand, push, PR
+  or merge changed or was authorized by this local closeout.
+
 ## 2026-09-13 — Baseline and design evidence
 
 - GitHub PR #3 is merged. Remote `main` and the verified merge commit are

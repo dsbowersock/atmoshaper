@@ -2,6 +2,48 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-13 — Phase 5 identity complete locally; fresh Browser QA gated
+
+- Planning commit `dc42f074df48817f5bbbfe60576d1f81abbd5559` and
+  pre-implementation evidence commit `e878432d5b2ad213ee887645e3b202fd65f56eb1`
+  precede the three reviewed implementation commits: Task 1
+  `c1715d24eefd12d05f38b7c90d1d16954ea9c039` adds the frozen, dependency-free
+  owner and contract; Task 2 `ad0ae618648138295935cc701629369cc19481d7`
+  delegates SEO compatibility exports/Open Graph alt, manifest names and Apple
+  title; Task 3 `c9acf0fdcbfa7be8cb1fa3e004fa462054e27131` delegates app-bar
+  label/assets, mobile navigation label and install action/title/iOS guidance.
+  Each task passed independent specification and code-quality reviews with no
+  findings. Task 2 passed 14/14 focused tests and typecheck; Task 3 passed 48/48
+  focused tests and typecheck.
+- Branch-wide focused tests passed 58/58. Full unit tests passed with 4,557
+  total, 4,554 passed, 3 expected skips, zero failures and 527,763.2615 ms.
+  Prisma validate/generate, typecheck and lint passed; lint emitted only the
+  existing Babel deoptimization note for `app/chimer/running-timer.tsx`.
+  The Next.js 16.2.12 production build passed compilation, TypeScript, 115/115
+  static pages and the final route table with exit 0; the existing non-fatal
+  `ANATOMIME_POLL_SHEDDER` initialization message remained. Prisma generation
+  and builds left the worktree clean before these documentation edits.
+- Post-code inventory measured 1,954 files and 48,276,437 tracked Git blob bytes,
+  inventory SHA-256 `7b9b988b1316d3f75de31547ad07f44492ff990f59aa5d292dfe6e3d3f96e292`,
+  with zero forbidden paths. Against the 1,952-file, 48,267,941-byte baseline,
+  this is +2 files and +8,496 bytes; the 115-page route count is unchanged.
+  These are observations, not performance claims, and precede document staging.
+- Every affected runtime value remains `MassageLab`; assets, routes, layout,
+  accessibility and install behavior are unchanged. SEO exports remain
+  compatibility adapters. Only mapped inline presentation copies retired;
+  legal/support/domain/provider/persistence/auth/billing/environment/storage/
+  media/audit/historical/internal identifiers remain with their existing owners.
+  Rollback reverts the three task commits or branch, restores mapped inline
+  copies and removes the owner/test; no external rollback is needed.
+- The local Phase 5 identity slice, staged brand fixed point and both
+  complete-branch final specification and code-quality reviews passed. Fresh
+  Browser QA is next and separately authorized; no independent empty QA
+  environment is currently proven. A separately authorized empty temporary QA
+  lifecycle must run `npm run build:browser-qa` immediately before scoped
+  Playwright without snapshot updates; production must not be reused.
+  No provider resource, production data, deployment, Phase 6 rebrand, push, PR
+  or merge changed or was authorized by this local closeout.
+
 ## 2026-09-13 — Phase 4 merged; first Phase 5 subsystem approved and planned
 
 - [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3) merged into `main`

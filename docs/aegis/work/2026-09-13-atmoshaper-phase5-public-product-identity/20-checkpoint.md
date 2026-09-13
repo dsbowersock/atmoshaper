@@ -1,5 +1,45 @@
 # Phase 5 public product identity checkpoint
 
+## 2026-09-13 — Local identity slice and both final reviews complete
+
+- The local Phase 5 identity slice and both complete-branch final specification
+  and code-quality reviews passed. The coordinator regenerated, reviewed and
+  proved the staged brand-baseline fixed point. Next: separately authorized fresh
+  empty temporary Browser QA; publication remains a separate gate.
+- Completed commits: planning `dc42f074df48817f5bbbfe60576d1f81abbd5559`;
+  pre-implementation evidence `e878432d5b2ad213ee887645e3b202fd65f56eb1`;
+  Task 1 owner/contract `c1715d24eefd12d05f38b7c90d1d16954ea9c039`;
+  Task 2 metadata delegation `ad0ae618648138295935cc701629369cc19481d7`;
+  Task 3 shell/install delegation `c9acf0fdcbfa7be8cb1fa3e004fa462054e27131`.
+  Each implementation task passed independent specification and code-quality
+  reviews with no findings.
+- Verification: branch-wide focused tests 58/58; full unit tests 4,557 total,
+  4,554 passed, 3 expected skips and zero failures; Prisma validate/generate,
+  typecheck, lint and Next.js 16.2.12 production build passed. Static generation
+  and the route table completed at 115/115 pages, unchanged from baseline.
+  Generation and builds left the worktree clean before documentation edits.
+- Observation only: post-code inventory is 1,954 files and 48,276,437 tracked
+  bytes, +2 files and +8,496 bytes from baseline, with zero forbidden paths.
+  Exact hashes and non-fatal lint/build notes are in `90-evidence.md`; these
+  pre-document measurements are not performance claims or final-index receipts.
+- Compatibility: all affected values remain `MassageLab`; assets, routes,
+  layout, accessibility and install behavior stay unchanged. SEO exports remain
+  compatibility adapters. Only mapped inline presentation copies retired;
+  excluded legal, support, domain, provider, persistence, auth, billing,
+  environment, storage, media, audit, historical and internal identifiers remain.
+- Rollback: revert the three task commits or branch, restore mapped inline
+  copies and remove the owner/test. No external rollback is required.
+- Next gate after completed local closeout: separate authorization for
+  an empty temporary Browser-QA lifecycle and publication. Browser QA is not
+  claimed because no independent empty QA environment is currently proven.
+  Do not reuse production. Run `npm run build:browser-qa` immediately before
+  scoped Playwright in that future authorized lifecycle, without snapshot updates.
+- No provider resource, production data, deployment, Phase 6 rebrand, push, PR
+  or merge changed or was authorized by this local closeout.
+
+The earlier dated sections below preserve historical planning checkpoints;
+the closeout section above owns current task status.
+
 ## 2026-09-13 — Written spec approved; implementation plan reviewed
 
 - Current todo: commit the planning package, capture the pre-implementation
@@ -58,17 +98,22 @@
 ## ResumeStateHint
 
 Resume on `codex/atmoshaper-public-product-identity`. Re-read `10-intent.md`, this
-checkpoint, the written design, current project state, and exact Git status. Do
-not begin implementation or create provider resources unless the written spec and
-subsequent implementation plan have passed their gates.
+checkpoint, the approved written design and plan, current project state, and
+exact Git status. The local Phase 5 identity slice, broad local verification,
+brand fixed-point proof and both final reviews passed. Fresh empty temporary
+Browser QA is next; provider resources, Browser QA and publication remain
+separately authorized gates.
 
 ## DriftCheckDraft
 
 - Original intent: aligned
-- Scope fence: aligned; only design/authority/checkpoint records are changing
-- Compatibility boundary: aligned; runtime values and code are untouched
-- New owner/fallback/adapter: proposed owner only; no implementation exists
-- Retirement track: bounded mapped inline copies only; excluded identifiers remain
-- Evidence sufficiency: independent spec review and staged design validation are
-  sufficient for the user written-spec review, not implementation
-- Decision: continue to design commit, then pause for user review
+- Scope fence: aligned; only Task 4 authority/checkpoint/evidence records change
+- Compatibility boundary: aligned; runtime output remains unchanged
+- New owner/fallback/adapter: frozen dependency-free owner implemented; existing
+  SEO exports remain adapters; no fallback added
+- Retirement track: mapped inline presentation copies retired; exclusions remain
+- Evidence sufficiency: per-task and both final branch reviews, broad local
+  gates and brand fixed-point proof passed; separately authorized fresh Browser
+  QA remains pending
+- Decision: local slice complete; fresh empty-QA/publication authorization
+  boundaries remain

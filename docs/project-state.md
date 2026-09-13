@@ -4,7 +4,7 @@ Verified: 2026-09-13
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 5 Public Product Identity Implementation
+## Current Snapshot — Phase 5 Public Product Identity Complete Locally
 
 - Phase 4 is merged. [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3)
   merged into `main` at `2026-09-13T17:56:59Z` by `dsbowersock` as
@@ -17,12 +17,27 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and the [implementation plan](superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md)
   passed independent review after its Browser-QA build prerequisite was made
   explicit.
-- Current action is local subagent-driven implementation: add one frozen,
-  dependency-free owner; rewire only the approved SEO/metadata, app-shell and PWA
-  consumers; and preserve every current `MassageLab` value and asset. No runtime
-  change has occurred yet. Provider resources, Browser-QA database creation,
-  deployment, Phase 6 rebrand, push, pull request and merge remain separately
-  gated.
+- Local Tasks 1–3 are complete: one frozen, dependency-free identity owner now
+  serves the mapped SEO/metadata, app-shell and PWA consumers. Each task passed
+  independent specification and code-quality reviews with no findings. All
+  affected runtime values remain `MassageLab`, with the same assets, routes,
+  layout, accessibility and install behavior; SEO exports remain compatibility
+  adapters. Only mapped inline presentation copies retired.
+- Broad local verification passed: focused tests 58/58; full unit tests 4,557
+  total, 4,554 passed, 3 expected skips and zero failures; Prisma validate and
+  generate, typecheck, lint and production build. Next.js 16.2.12 generated
+  115/115 static pages and the complete route table, unchanged from baseline.
+  The [evidence record](aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/90-evidence.md)
+  records exact commits, inventory observations and non-fatal build/lint notes.
+- The staged brand baseline reached a byte-identical generated fixed point with
+  zero unexplained category drift. The local Phase 5 identity slice and both
+  complete-branch final specification and code-quality reviews passed. The next
+  gate is separate authorization for a fresh empty temporary Browser-QA lifecycle
+  and publication. Browser QA is not claimed: no independent empty QA environment
+  is currently proven, and production must not be reused. The QA lifecycle must
+  run `npm run build:browser-qa` immediately before scoped Playwright, without
+  snapshot updates. No provider resource, production data, deployment, Phase 6
+  rebrand, push, PR or merge changed or was authorized by this local closeout.
 
 ## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 
