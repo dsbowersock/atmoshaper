@@ -1,5 +1,22 @@
 # Phase 5 public product identity checkpoint
 
+## 2026-09-13 — Written spec approved; implementation plan reviewed
+
+- Current todo: commit the planning package, capture the pre-implementation
+  inventory/build measurement, then dispatch Task 1's fresh implementer.
+- Completed: the user approved the written specification. The detailed
+  implementation plan maps exact owner/consumer/test files, four task commits,
+  per-task specification and quality review, broad gates, rollback, inline-copy
+  retirement, and separate external authorization boundaries.
+- Independent plan review found one blocker: the app-shell Playwright gate needs
+  the specialized Browser-QA build. The plan now requires
+  `npm run build:browser-qa` immediately before that browser command.
+- Re-review result: Approved with no remaining issues or recommendations.
+- Active slice: local planning boundary; no runtime implementation yet.
+- Next: planning commit, observation-only baseline measurement, then Task 1.
+- External gates: no QA provider creation, push, PR, merge, deployment or Phase 6
+  work is authorized by this local implementation transition.
+
 ## 2026-09-13 — Written design candidate
 
 - Current todo: complete the approved written design, self-review it, commit the

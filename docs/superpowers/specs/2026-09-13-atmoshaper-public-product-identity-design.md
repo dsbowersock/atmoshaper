@@ -1,6 +1,7 @@
 # AtmoShaper Phase 5 Public Product Identity Boundary Design
 
-Status: approved design direction; written-spec review required before implementation.
+Status: approved by the user on 2026-09-13; implementation is governed by the
+[reviewed plan](../plans/2026-09-13-atmoshaper-public-product-identity.md).
 
 Parent design: [AtmoShaper Repository Migration and Modernization Design](2026-09-06-atmoshaper-repository-migration-design.md)
 

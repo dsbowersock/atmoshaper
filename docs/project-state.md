@@ -4,7 +4,7 @@ Verified: 2026-09-13
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 5 Public Product Identity Design
+## Current Snapshot — Phase 5 Public Product Identity Implementation
 
 - Phase 4 is merged. [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3)
   merged into `main` at `2026-09-13T17:56:59Z` by `dsbowersock` as
@@ -13,13 +13,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   `codex/atmoshaper-dead-code-audit`.
 - The user selected public product identity as the first Phase 5 subsystem. The
   clean branch `codex/atmoshaper-public-product-identity` starts from the exact
-  Phase 4 merge. Its [written design](superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md)
-  proposes one data-only owner for the current `MassageLab` presentation name
-  and core SEO/app-shell image paths.
-- Current action is written-spec review before implementation planning. No runtime
-  value, image, route, layout, accessibility behavior, legal/provider/private or
-  compatibility identifier has changed. No provider resource, deployment, Phase 6
-  rebrand, push, pull request or merge is authorized by this design step.
+  Phase 4 merge. The user approved its [written design](superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md),
+  and the [implementation plan](superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md)
+  passed independent review after its Browser-QA build prerequisite was made
+  explicit.
+- Current action is local subagent-driven implementation: add one frozen,
+  dependency-free owner; rewire only the approved SEO/metadata, app-shell and PWA
+  consumers; and preserve every current `MassageLab` value and asset. No runtime
+  change has occurred yet. Provider resources, Browser-QA database creation,
+  deployment, Phase 6 rebrand, push, pull request and merge remain separately
+  gated.
 
 ## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 

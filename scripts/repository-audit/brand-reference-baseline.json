@@ -89520,112 +89520,112 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 30,
+      "line": 39,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 31,
+      "line": 40,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 32,
+      "line": 41,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 35,
+      "line": 44,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 70,
+      "line": 79,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 74,
+      "line": 83,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 17,
-      "column": 49,
-      "textSha256": "281754d19a621ea76427572fa30947ffa5a29c5fcef87ab0b5dbefcf9ba14d25",
+      "line": 22,
+      "column": 42,
+      "textSha256": "12c0e0a260cdf54db46acff2a55864cb518610bd7fc1605ba116ff3b269060eb",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 36,
+      "line": 39,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 40,
+      "line": 43,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 42,
+      "line": 45,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 46,
+      "line": 49,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 47,
+      "line": 50,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 50,
+      "line": 53,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 51,
+      "line": 54,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 51,
+      "line": 54,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 78,
+      "line": 81,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -90397,7 +90397,7 @@
       "path": "docs/rebrand/atmoshaper-refactor-register.md",
       "line": 9,
       "column": 572,
-      "textSha256": "1b5f0990590ab2ae5633fd4e8ea01664c52c4d51b14ffc43876222c1b3624a79",
+      "textSha256": "641c9b61bb85f8ac1f4bedd5b69e78befc4ffa648a767999bb9b787bdb24faf8",
       "category": "historical"
     },
     {
@@ -94734,6 +94734,125 @@
       "category": "historical"
     },
     {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 10,
+      "column": 62,
+      "textSha256": "91fa2d386aeebd65b28c3b34e839a8f178b6cbce817223370faf827fe46e7f24",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 28,
+      "column": 26,
+      "textSha256": "bab80e7cb3c115c041f0b1f6ba0cfde0f6c3507ffac192ef65f8fe710d73a006",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 33,
+      "column": 26,
+      "textSha256": "4ec23c09550165f62d37ac925c289a28091c8fd6f2f243d0eeb94e29f6fa8a7d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 43,
+      "column": 55,
+      "textSha256": "0722983aae3c2ad3e857c93b671317b8b681f2db9297dfeff78bc1f92d3b30c7",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 109,
+      "column": 26,
+      "textSha256": "1f7639a7e8b726c6e8b4fc17bfaf27f2c221c965ce03b528c54367be536b992a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 227,
+      "column": 10,
+      "textSha256": "5997f0a972c71fd26f196e29b3b29f663fc159b0c8a50c62a13c58a3eaa46a53",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 228,
+      "column": 15,
+      "textSha256": "853eca8a9d9d357d184ba1bae85d4f58149f0f40579e43fddb9e32d5d24a7b5c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 230,
+      "column": 29,
+      "textSha256": "179a52cde08a7e9cdb577a8f6fe11378f7738610f4ee56b9e1591649de50db64",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 231,
+      "column": 25,
+      "textSha256": "6b1d19c26a4e57824bb888ca70a69a7d24f60395c2bfad8735e071f5aa5d554a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 232,
+      "column": 28,
+      "textSha256": "abe8882cf32b52f8edfa5823124dc47d22f7be86d05ef24d00688ef7bedf1ef1",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 292,
+      "column": 23,
+      "textSha256": "5ba6d5869bf9746ffdcf0944227b5156907e33834e55ce7bb0c394e37b3df947",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 293,
+      "column": 60,
+      "textSha256": "3a5ac5526aaf32a7ed121ca7361eab57fe4b4d2494a28a08485b6f8ab04b982d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 294,
+      "column": 68,
+      "textSha256": "f00b9476aeeabe657c1de651c744e5b6d74ad804a21db3435239546b7694f2cf",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 320,
+      "column": 34,
+      "textSha256": "268b025b3b48b8aa4c2c0a8be41917bdead5ca0671fdcc0f2b1f00840ab8cb1b",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 348,
+      "column": 17,
+      "textSha256": "a8b1fef66901dea2b68829bddb6129e59f2770423643a6a7dab0c8cc07680b7e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 372,
+      "column": 17,
+      "textSha256": "c30636ad04c9ca345cf1c408bf26483c51a571c1a1a602a12f033c5f410d403c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 468,
+      "column": 23,
+      "textSha256": "c93cf2f1ea1c142d53846e590591ec40dca13b69ab192dde3785a08c05b24312",
+      "category": "historical"
+    },
+    {
       "path": "docs/superpowers/plans/chimer-background-preview-media-workflow.md",
       "line": 24,
       "column": 163,
@@ -96457,147 +96576,147 @@
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 21,
+      "line": 22,
       "column": 52,
       "textSha256": "3dd8c4902fefa2350e3b19352e4f2850ffd0c8b686e16edeeb842694286b28c4",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 24,
+      "line": 25,
       "column": 53,
       "textSha256": "89302d314f3360d558f491d0d7a2ff23417df8116fa4d971c927c7c3731d7f44",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 52,
+      "line": 53,
       "column": 10,
       "textSha256": "5997f0a972c71fd26f196e29b3b29f663fc159b0c8a50c62a13c58a3eaa46a53",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 53,
+      "line": 54,
       "column": 15,
       "textSha256": "853eca8a9d9d357d184ba1bae85d4f58149f0f40579e43fddb9e32d5d24a7b5c",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 55,
+      "line": 56,
       "column": 29,
       "textSha256": "179a52cde08a7e9cdb577a8f6fe11378f7738610f4ee56b9e1591649de50db64",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 56,
+      "line": 57,
       "column": 25,
       "textSha256": "6b1d19c26a4e57824bb888ca70a69a7d24f60395c2bfad8735e071f5aa5d554a",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 57,
+      "line": 58,
       "column": 28,
       "textSha256": "abe8882cf32b52f8edfa5823124dc47d22f7be86d05ef24d00688ef7bedf1ef1",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 63,
+      "line": 64,
       "column": 59,
       "textSha256": "08081360b40de6aa1094e5d37b2005deaabd6e876e023b009b94acb02251e41d",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 64,
+      "line": 65,
       "column": 2,
       "textSha256": "614e385c014782f0322a97204d001a21c1de579d9bd6f2b5e4064e11711027a0",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 64,
+      "line": 65,
       "column": 44,
       "textSha256": "614e385c014782f0322a97204d001a21c1de579d9bd6f2b5e4064e11711027a0",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 77,
+      "line": 78,
       "column": 27,
       "textSha256": "efd16d0c2fbd356430d296ce666c61be240b535c63d30101cafaefefb5644851",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 88,
+      "line": 89,
       "column": 4,
       "textSha256": "d96d52efe10fc29bfea4668b8be735402a31dd9f0aa60933e71fa6c3464bc948",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 89,
+      "line": 90,
       "column": 62,
       "textSha256": "3fbc672e0a2be2f012f70f72e152ddd7357c773dfd7392c19c17f2b35ae5182a",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 90,
+      "line": 91,
       "column": 46,
       "textSha256": "7dde9a3e912fb3368715c24b7bbbc875a5acf4cdab2be9ea620e6bd03fa90a2a",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 92,
+      "line": 93,
       "column": 20,
       "textSha256": "6d45fc879830d453e1e6f535848adcef997889dcba9fcb591a1b11461dc40ec7",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 93,
+      "line": 94,
       "column": 44,
       "textSha256": "6703d6daf70535434522d98276a611510d77bf4daceac1c6528634c4be8bafb8",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 95,
+      "line": 96,
       "column": 38,
       "textSha256": "95200f51220cf800d2b7edd6c9ebd6349a27490f8a6abf2c4fb51ba3f08c9662",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 106,
+      "line": 107,
       "column": 18,
       "textSha256": "9699720901b0facbfd92fc22c176ba3e07aa144b72449fd787d773c14a711839",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 115,
+      "line": 116,
       "column": 55,
       "textSha256": "a2188675ace62028a5115f09dee6c7ae660d7ef94508ea997b4f636e94fdff15",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 165,
+      "line": 166,
       "column": 33,
       "textSha256": "05dcfe61e9311ae562536e6fceae8d4efd5a84df2a0d9c766ef89253e9a44c13",
       "category": "historical"
     },
     {
       "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
-      "line": 173,
+      "line": 174,
       "column": 14,
       "textSha256": "70b4ecd67fb31fb53f220ccddf8ab43e90d4337b4c808b657d5702781e4f8811",
       "category": "historical"
@@ -129336,14 +129455,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128631,
+      "line": 128750,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128631,
+      "line": 128750,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"

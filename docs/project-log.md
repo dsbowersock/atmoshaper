@@ -2,7 +2,7 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
-## 2026-09-13 — Phase 4 merged; first Phase 5 subsystem selected
+## 2026-09-13 — Phase 4 merged; first Phase 5 subsystem approved and planned
 
 - [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3) merged into `main`
   at `2026-09-13T17:56:59Z` by `dsbowersock` as
@@ -21,9 +21,18 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   layout and accessibility label unchanged. Legal, support-address, domain,
   provider, persistence, auth, billing, environment, storage, media, audit and
   internal compatibility identifiers remain excluded.
-- The written specification is now the review boundary. Implementation planning,
-  code changes, Browser-QA provider creation, push, pull request, merge,
-  deployment and Phase 6 rebrand remain later gates.
+- The user approved the written specification. The resulting
+  [implementation plan](superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md)
+  defines four coherent local tasks with a fresh implementer and independent
+  specification/code-quality reviews for each task.
+- Independent plan review found that the app-shell browser suite needs
+  `npm run build:browser-qa` immediately before Playwright because an ordinary
+  production artifact lacks its proof route and Browser-QA hooks. The plan was
+  corrected, gained a pre-refactor inventory/build measurement, and then passed
+  re-review with no remaining issues.
+- Local subagent-driven implementation is now active. Browser-QA provider
+  creation, push, pull request, hosted review, merge, deployment and Phase 6
+  rebrand remain separate later gates.
 
 ## 2026-09-08 — Fresh-history repository candidate materialized (historical Task 5 snapshot)
 
