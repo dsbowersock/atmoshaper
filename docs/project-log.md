@@ -18,9 +18,9 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   cycle-owned temporary project was deleted and proved absent, while the
   existing production project remained present. No production data was copied,
   read or altered.
-- Phase 5 local implementation and its authorized Browser QA are complete. The
-  branch remains local and unpushed; publication, PR creation, hosted review,
-  merge, deployment and Phase 6 remain separate gates.
+- Phase 5 local implementation and its authorized Browser QA are complete. PR #4
+  is open; initial published head `4f5485611e18327099081990d3d65e0943b89317`
+  passed hosted CI and exact-head CodeRabbit without actionable comments. Successor heads repeat those gates before merge; deployment, Phase 6 and merge remain gated.
 
 ## 2026-09-13 — Phase 5 identity complete locally; fresh Browser QA gated
 

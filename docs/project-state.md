@@ -41,9 +41,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   zero failed tests and no snapshot update. The temporary project was deleted
   and proved absent; the existing production project remained present, and no
   production data was copied, read or altered.
-- The next gate is separate publication authorization to push this branch and
-  open its PR. No deployment, Phase 6 rebrand, push, PR or merge occurred in
-  this Browser-QA closeout.
+- PR #4 is open. Initial published head `4f5485611e18327099081990d3d65e0943b89317`
+  passed Code quality, Browser build, all four Browser QA lanes, aggregate QA
+  and exact-head CodeRabbit with no actionable comments. Successor heads must repeat these gates before merge; deployment, Phase 6 rebrand and merge remain gated.
 
 ## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 

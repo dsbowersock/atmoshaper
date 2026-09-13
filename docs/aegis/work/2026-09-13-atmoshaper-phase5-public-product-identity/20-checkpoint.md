@@ -15,9 +15,9 @@
   altered.
 - Closeout: the documentation brand baseline reached a byte-identical staged
   fixed point; index-sensitive gates and independent specification/quality
-  reviews passed. The coordinator-owned Browser-QA commit is ready.
-- Next gate: publication remains separately authorized. Do not push, open a PR,
-  merge, deploy or begin Phase 6 from this checkpoint.
+  reviews passed. The coordinator-owned Browser-QA commit was published.
+- Publication: PR #4 is open; its initial head passed hosted CI and exact-head
+  CodeRabbit review. Successor heads repeat those gates before merge; deployment, Phase 6 and merge remain gated.
 
 ## 2026-09-13 — Local identity slice and both final reviews complete
 
@@ -121,9 +121,9 @@ checkpoint, the approved written design and plan, current project state, and
 exact Git status. The local Phase 5 identity slice, broad local verification,
 brand fixed-point proof, both final reviews and separately authorized empty
 Browser QA passed. The temporary QA project was deleted and proved absent.
-Documentation fixed-point proof and closeout reviews also passed. The
-coordinator-owned Browser-QA commit is next; publication remains separately
-gated.
+Documentation fixed-point proof and closeout reviews also passed. PR #4 is open;
+its initial published head passed hosted CI and exact-head CodeRabbit without
+actionable comments. Successor heads repeat those gates before merge.
 
 ## DriftCheckDraft
 
@@ -136,5 +136,5 @@ gated.
 - Evidence sufficiency: per-task and both final branch reviews, broad local
   gates, brand fixed-point proof and separately authorized fresh Browser QA
   passed; temporary QA cleanup and production non-interference are proven
-- Decision: Browser-QA closeout is verified and ready for local commit;
-  publication remains separately gated
+- Decision: PR #4 is open; continue exact-head hosted review on receipt updates
+  and stop before the separately gated merge

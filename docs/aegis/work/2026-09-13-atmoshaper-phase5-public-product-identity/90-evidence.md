@@ -22,8 +22,8 @@
   data was supplied, copied, read or altered.
 - Privacy: no connection string, credential, fingerprint, database row, private
   provider identifier or local absolute path is recorded here.
-- Remaining boundary: publication, PR creation, hosted review, merge, deployment
-  and Phase 6 remain separate gates.
+- Publication boundary: PR #4 is open; every successor head must repeat
+  exact-head hosted checks/review before merge. Merge, deployment and Phase 6 remain gated.
 
 ## 2026-09-13 — Implementation and broad local verification
 
@@ -63,7 +63,7 @@ planning and baseline receipts.
   claim. This inventory precedes Task 4 documentation and baseline staging;
   it is not the final staged-index identity.
 
-### Retirement, rollback and remaining gates
+### Retirement, rollback and publication receipt
 
 - No runtime output changed: every affected value remains `MassageLab`, with
   the same assets, routes, layout, accessibility and install behavior. SEO
@@ -73,24 +73,27 @@ planning and baseline receipts.
   historical and internal identifiers remain with their existing owners.
 - Rollback: revert the three task commits or branch, restore mapped inline
   copies and remove the identity owner/test; no external rollback is required.
-- Brand staged-baseline fixed point: 26,426 entries — 22,909 compatibility,
-  1,527 historical, 42 legal and 1,948 pre-rebrand public-copy. A fresh generated
+- Brand staged-baseline fixed point: 26,427 entries — 22,909 compatibility,
+  1,528 historical, 42 legal and 1,948 pre-rebrand public-copy. A fresh generated
   candidate was byte-identical at SHA-256
-  `5a296f0fee272509f76526d179106d6525de913d0015300b628fb96621856371`.
-- The local Phase 5 identity slice and both complete-branch final specification
-  and code-quality reviews passed. Final Aegis quality review covered Phase 4
-  base `a43d1a3` through the complete worktree at `c9acf0f`, with no critical,
-  important or minor findings. It independently confirmed zero missing or
-  unclassified brand references and the byte-identical staged baseline above.
-  This is local quality approval only; fresh Browser QA is the next separately
-  authorized gate.
-- Browser QA is not claimed. No independent empty QA environment is currently
-  proven. A future separately authorized empty temporary QA lifecycle must run
-  `npm run build:browser-qa` immediately before
-  `npm run test:browser -- tests/browser/pwa.spec.ts tests/browser/app-shell.spec.ts`.
-  Do not reuse production or update snapshots.
-- No provider resource, production data, deployment, Phase 6 rebrand, push, PR
-  or merge changed or was authorized by this local closeout.
+  `bbdeeefe1bab54fc6ba883ce9cd13635d285b0675b7e36037dc29d27c9e27881`.
+- Historical implementation review: the local Phase 5 identity slice and both
+  complete-branch final reviews passed. Final Aegis quality review covered Phase
+  4 base `a43d1a3` through worktree `c9acf0f`, with no critical, important or
+  minor findings. It independently confirmed zero missing or unclassified brand
+  references and the then-current staged baseline. The current publication
+  receipt above was separately verified from a fresh generated candidate.
+- Publication: initial head `4f5485611e18327099081990d3d65e0943b89317` passed hosted
+  CI and exact-head CodeRabbit review with no actionable comments.
+- Historical QA gate: at the pre-publication local closeout, Browser QA was not
+  yet claimed and no independent empty QA environment had been proven. The later
+  authorized empty temporary QA lifecycle ran the required build immediately
+  before the scoped browser tests, passed, and was deleted without using
+  production or updating snapshots.
+- At that local closeout, no provider resource, production data, deployment,
+  Phase 6 rebrand, push, PR or merge had changed. Since then, only the authorized
+  temporary QA lifecycle and PR #4 publication occurred; production data,
+  deployment, Phase 6 and merge remain unchanged.
 
 ## 2026-09-13 — Baseline and design evidence
 

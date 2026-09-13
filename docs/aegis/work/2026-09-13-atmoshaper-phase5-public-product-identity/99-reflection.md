@@ -30,6 +30,6 @@ inline values and removes the owner/test; no external rollback is required.
 
 ## Remaining boundary
 
-Phase 5 is locally verified through its authorized Browser-QA gate. Publication,
-hosted review, merge, deployment and Phase 6 are not implied by this result and
-remain separately gated.
+Phase 5 is locally verified through its authorized Browser-QA gate. PR #4 was
+opened after separate authorization; exact-head hosted review continues for any
+successor receipt, while merge, deployment and Phase 6 remain separately gated.
