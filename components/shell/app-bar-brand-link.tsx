@@ -1,17 +1,18 @@
 import Image from "next/image"
 import Link from "next/link"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 
 export function AppBarBrandLink({ className }: { className?: string }) {
   return (
     <Link
       href="/"
-      aria-label="MassageLab home"
+      aria-label={PUBLIC_PRODUCT_IDENTITY.name + " home"}
       className={cn("ml-app-bar-brand", className)}
       data-testid="app-bar-brand"
     >
       <Image
-        src="/brand/massagelab-wordmark-final-20260622.png"
+        src={PUBLIC_PRODUCT_IDENTITY.assets.appBarWordmark}
         alt=""
         width={1518}
         height={593}
@@ -20,7 +21,7 @@ export function AppBarBrandLink({ className }: { className?: string }) {
         priority
       />
       <Image
-        src="/brand/massagelab-mark-final-20260622.png"
+        src={PUBLIC_PRODUCT_IDENTITY.assets.appBarMark}
         alt=""
         width={500}
         height={500}

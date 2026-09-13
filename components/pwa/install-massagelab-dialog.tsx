@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Download, Share2, SquarePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import {
   Dialog,
   DialogContent,
@@ -24,9 +25,9 @@ export function InstallMassageLabDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Download aria-hidden="true" />
-            Install MassageLab
+            {"Install " + PUBLIC_PRODUCT_IDENTITY.name}
           </DialogTitle>
-          <DialogDescription>On iPhone or iPad, Safari installs MassageLab from the Share menu.</DialogDescription>
+          <DialogDescription>{"On iPhone or iPad, Safari installs " + PUBLIC_PRODUCT_IDENTITY.name + " from the Share menu."}</DialogDescription>
         </DialogHeader>
         <ol className="space-y-3 text-sm">
           <li className="flex gap-3">
