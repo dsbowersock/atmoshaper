@@ -8908,3 +8908,154 @@ test("round 26 integrated review invokes paired object getters while preserving 
   assert.deepEqual(evidence.reads.map((row) => row.name), ["GETTER_EFFECT", "SETTER_THEN_GETTER", "DATA_THEN_GETTER"])
   assert.equal(rows.some((row) => ["UNREACHABLE_BODY", "REPLACED_GETTER"].includes(row.name)), false)
 })
+
+test("round 27 labeled jumps retain their finally-visible branch scope", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "breakTarget: while (flag) { { let environment = {}; try { if (branch) { environment = process.env; break breakTarget; } environment = {}; break breakTarget; } finally { environment.FINALLY_BRANCH; } } }",
+    "continueTarget: for (; flag;) { { let environment = {}; try { if (branch) { environment = process.env; continue continueTarget; } environment = {}; continue continueTarget; } finally { environment.FINALLY_CONTINUE_BRANCH; } } }",
+    "let exact = process.env; exactTarget: while (flag) { try { break exactTarget; } finally { exact = process.env; } } exact.EXACT_FINALLY_CONTROL;",
+  ])
+  assert.deepEqual({
+    reads: evidence.reads.map((row) => row.name),
+    uncertainties: evidence.uncertainties.map(({ code, kind, name }) => ({ code, kind, name })),
+  }, {
+    reads: ["EXACT_FINALLY_CONTROL"],
+    uncertainties: [
+      { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "FINALLY_BRANCH" },
+      { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "FINALLY_CONTINUE_BRANCH" },
+    ],
+  })
+})
+
+test("round 27 anonymous default functions retain deferred environment evidence", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "app/anonymous-default.mjs",
+    "export default function () { process.env.DEFAULT_EXPORT_MJS; }\n")
+  writeFixture(root, "app/anonymous-default.ts",
+    "export default function () { process.env.DEFAULT_EXPORT_TS; }\n")
+  writeFixture(root, "app/named-default.ts",
+    "export default function namedDefault() { process.env.NAMED_DEFAULT_EXPORT; }\n")
+
+  const evidence = buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.reads.map(({ path, name }) => ({ path, name })), [
+    { path: "app/anonymous-default.mjs", name: "DEFAULT_EXPORT_MJS" },
+    { path: "app/anonymous-default.ts", name: "DEFAULT_EXPORT_TS" },
+    { path: "app/named-default.ts", name: "NAMED_DEFAULT_EXPORT" },
+  ])
+  assert.deepEqual(evidence.uncertainties, [])
+  assert.deepEqual(evidence, buildEnvironmentEvidence(buildTrackedTextIndex(root, policy), policy))
+})
+
+test("round 27 captured/default provenance retains cross-family uncertainty", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "function inspect({ value = process.env }) { value.CAPTURED_DEFAULT_ENVIRONMENT; value.env.CAPTURED_DEFAULT_MIXED; }",
+    "inspect({ value: flag ? process : undefined });",
+    "function generic({ value = process.env }) { value.env.GENERIC_DEFAULT_UNKNOWN; } generic(input);",
+  ])
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.name?.startsWith("CAPTURED_DEFAULT_"))
+    .map(({ code, kind, name }) => ({ code, kind, name })), [
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "CAPTURED_DEFAULT_ENVIRONMENT" },
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "CAPTURED_DEFAULT_MIXED" },
+  ])
+  const rows = [...evidence.reads, ...evidence.uncertainties]
+  assert.equal(rows.some((row) => row.name === "GENERIC_DEFAULT_UNKNOWN"), false)
+  assert.equal(evidence.reads.some((row) => row.name?.startsWith("CAPTURED_DEFAULT_")), false)
+})
+
+test("round 27 reciprocal captured/default provenance retains cross-family uncertainty", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "function inspect({ value = process }) { value.REVERSE_ENV; value.env.REVERSE_PROCESS; }",
+    "inspect({ value: flag ? process.env : undefined });",
+  ])
+  assert.deepEqual(evidence.errors, [])
+  assert.equal(evidence.reads.some((row) => row.name?.startsWith("REVERSE_")), false)
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.name?.startsWith("REVERSE_"))
+    .map(({ code, kind, name }) => ({ code, kind, name })), [
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "REVERSE_ENV" },
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "REVERSE_PROCESS" },
+  ])
+})
+
+test("round 27 BigInt zero spellings take falsy call branches", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let decimal = {}; try { (0n || (() => { decimal = process.env; }))(); } catch {} decimal.BIGINT_DECIMAL_ZERO;",
+    "let hexadecimal = {}; try { (0x0n || (() => { hexadecimal = process.env; }))(); } catch {} hexadecimal.BIGINT_HEX_ZERO;",
+    "let binary = {}; try { (0b0n || (() => { binary = process.env; }))(); } catch {} binary.BIGINT_BINARY_ZERO;",
+    "let octal = {}; try { (0o0n || (() => { octal = process.env; }))(); } catch {} octal.BIGINT_OCTAL_ZERO;",
+    "let hexSeparator = {}; try { (0x0_0n || (() => { hexSeparator = process.env; }))(); } catch {} hexSeparator.BIGINT_HEX_SEPARATOR_ZERO;",
+    "let binarySeparator = {}; try { (0b0_0n || (() => { binarySeparator = process.env; }))(); } catch {} binarySeparator.BIGINT_BINARY_SEPARATOR_ZERO;",
+    "let octalSeparator = {}; try { (0o0_0n || (() => { octalSeparator = process.env; }))(); } catch {} octalSeparator.BIGINT_OCTAL_SEPARATOR_ZERO;",
+    "let nonzero = {}; try { (0x1n || (() => { nonzero = process.env; }))(); } catch {} nonzero.BIGINT_HEX_ONE;",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "BIGINT_DECIMAL_ZERO", "BIGINT_HEX_ZERO", "BIGINT_BINARY_ZERO", "BIGINT_OCTAL_ZERO",
+    "BIGINT_HEX_SEPARATOR_ZERO", "BIGINT_BINARY_SEPARATOR_ZERO", "BIGINT_OCTAL_SEPARATOR_ZERO",
+  ])
+  assert.equal(evidence.uncertainties.some((row) => row.name === "BIGINT_HEX_ONE"), false)
+})
+
+test("round 27 nested finalizers retain labeled jump branch correlation", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "breakFirstNon: while (flag) { { let value = {}; try { try { if (branch) { value = {}; break breakFirstNon; } value = process.env; break breakFirstNon; } finally {} } finally { value.BREAK_FIRST_NON; } } }",
+    "breakFirstEnvironment: while (flag) { { let value = {}; try { try { if (branch) { value = process.env; break breakFirstEnvironment; } value = {}; break breakFirstEnvironment; } finally {} } finally { value.BREAK_FIRST_ENVIRONMENT; } } }",
+    "continueFirstNon: for (; flag;) { { let value = {}; try { try { if (branch) { value = {}; continue continueFirstNon; } value = process.env; continue continueFirstNon; } finally {} } finally { value.CONTINUE_FIRST_NON; } } }",
+    "continueFirstEnvironment: for (; flag;) { { let value = {}; try { try { if (branch) { value = process.env; continue continueFirstEnvironment; } value = {}; continue continueFirstEnvironment; } finally {} } finally { value.CONTINUE_FIRST_ENVIRONMENT; } } }",
+    "let control = {}; controlTarget: { try { control = process.env; break controlTarget; } catch {} } control.NO_FINALLY_CONTROL;",
+  ])
+  const relevant = (rows) => rows.filter((row) =>
+    ["BREAK_FIRST_NON", "BREAK_FIRST_ENVIRONMENT", "CONTINUE_FIRST_NON",
+      "CONTINUE_FIRST_ENVIRONMENT", "NO_FINALLY_CONTROL"].includes(row.name))
+  assert.deepEqual(relevant(evidence.reads).map((row) => row.name), ["NO_FINALLY_CONTROL"])
+  assert.deepEqual(relevant(evidence.uncertainties).map(({ code, kind, name }) => ({ code, kind, name })), [
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "BREAK_FIRST_NON" },
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "BREAK_FIRST_ENVIRONMENT" },
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "CONTINUE_FIRST_NON" },
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "CONTINUE_FIRST_ENVIRONMENT" },
+  ])
+})
+
+test("round 27 ordinary defaults retain possible captured process provenance", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "function inspectOrdinary({ value = {} }) { value.env.CAPTURED_ORDINARY_DEFAULT; }",
+    "inspectOrdinary({ value: flag ? process : undefined });",
+  ])
+  assert.equal(evidence.reads.some((row) => row.name === "CAPTURED_ORDINARY_DEFAULT"), false)
+  assert.deepEqual(evidence.uncertainties.filter((row) => row.name === "CAPTURED_ORDINARY_DEFAULT")
+    .map(({ code, kind, name }) => ({ code, kind, name })), [
+    { code: "UNPROVEN_ENVIRONMENT_ALIAS", kind: "property-access", name: "CAPTURED_ORDINARY_DEFAULT" },
+  ])
+})
+
+test("round 27 contained jump targets resume before outer finalizers", (t) => {
+  const evidence = finalIntegrationEvidence(t, [
+    "let afterContainedBreak = {}; try { containedBreak: { try { break containedBreak; } finally {} } afterContainedBreak = process.env; afterContainedBreak.AFTER_CONTAINED_BREAK; } finally {}",
+    "let afterContainedContinue = {}; try { containedContinue: do { try { continue containedContinue; } finally {} } while (false); afterContainedContinue = process.env; afterContainedContinue.AFTER_CONTAINED_CONTINUE; } finally {}",
+  ])
+  assert.deepEqual(evidence.reads.map((row) => row.name), [
+    "AFTER_CONTAINED_BREAK", "AFTER_CONTAINED_CONTINUE",
+  ])
+  assert.deepEqual(evidence.uncertainties, [])
+})
+
+test("round 27 contained jump targets retain following module-loader ownership", (t) => {
+  const root = createFixtureRepository(t)
+  writePackage(root)
+  writeFixture(root, "lib/service.ts", "export const service = true\n")
+  writeFixture(root, "scripts/contained-jump-loader.mjs", [
+    "import { createRequire } from 'node:module';",
+    "let afterContainedBreak;",
+    "try { containedBreak: { try { break containedBreak; } finally {} } afterContainedBreak = createRequire(import.meta.url); afterContainedBreak('../lib/service'); } finally {}",
+    "let afterContainedContinue;",
+    "try { containedContinue: do { try { continue containedContinue; } finally {} } while (false); afterContainedContinue = createRequire(import.meta.url); afterContainedContinue('../lib/service'); } finally {}",
+    "",
+  ].join("\n"))
+
+  const first = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  const second = buildModuleEvidence(buildTrackedTextIndex(root, policy), policy)
+  assert.deepEqual(first, second)
+  assert.deepEqual(first.references.filter((row) => row.kind === "require").map((row) => row.line), [3, 5])
+  assert.deepEqual(first.uncertainties.filter((row) => row.code === "UNPROVEN_MODULE_LOADER"), [])
+  assertPrivateSerialization(first, root, [])
+})

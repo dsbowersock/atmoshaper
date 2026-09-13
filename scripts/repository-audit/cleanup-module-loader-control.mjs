@@ -185,14 +185,15 @@ export function createModuleLoaderControl(visitNode) {
 
   const visitTry = (node, scope) => {
     const entry = snapshotScopes(scope)
-    const tried = router.collectTry(() => visitNode(node.tryBlock, scope))
+    const finalizes = Boolean(node.finallyBlock)
+    const tried = router.collectTry(() => visitNode(node.tryBlock, scope), finalizes)
     const tryNormal = tried.result !== false
     let outcomes = [...tried.completions]
     if (tryNormal) outcomes.push({ kind: "normal", state: snapshotScopes(scope) })
     const throws = outcomes.filter(({ kind }) => kind === "throw")
     if (node.catchClause && throws.length > 0) {
       mergeScopes(throws.map(({ state }) => state))
-      const caught = router.collectTry(() => visitNode(node.catchClause, scope))
+      const caught = router.collectTry(() => visitNode(node.catchClause, scope), finalizes)
       const normal = caught.result !== false
       outcomes = outcomes.filter(({ kind }) => kind !== "throw")
       if (normal) outcomes.push({ kind: "normal", state: snapshotScopes(scope) })

@@ -11,7 +11,10 @@ export function staticValueKind(node, identifierKind = () => "unknown") {
   if (value.kind === ts.SyntaxKind.FalseKeyword) return "falsy"
   if (value.kind === ts.SyntaxKind.TrueKeyword) return "truthy"
   if (ts.isNumericLiteral(value)) return Number(value.text) === 0 ? "falsy" : "truthy"
-  if (ts.isBigIntLiteral(value)) return /^0n$/i.test(value.text) ? "falsy" : "truthy"
+  if (ts.isBigIntLiteral(value)) {
+    const literal = value.text.replaceAll("_", "")
+    return /^(?:0+|0[xbo]0+)n$/i.test(literal) ? "falsy" : "truthy"
+  }
   if (ts.isStringLiteral(value) || ts.isNoSubstitutionTemplateLiteral(value)) {
     return value.text === "" ? "falsy" : "truthy"
   }

@@ -122,9 +122,11 @@ function collectEnvironmentRows(record, text) {
       } else if (ts.isFunctionDeclaration(statement)) {
         const owner = ts.isBlock(statement.parent) && ts.isFunctionLike(statement.parent.parent)
           ? varBindingScope(scope) : scope
-        shadowEnvironmentBinding(statement.name, owner)
-        predeclareBindingName(statement.name, owner, NON_ALIAS, true)
-        if (statement.name) owner.callables.set(statement.name.text, callableState(statement, owner))
+        if (statement.name) {
+          shadowEnvironmentBinding(statement.name, owner)
+          predeclareBindingName(statement.name, owner, NON_ALIAS, true)
+          owner.callables.set(statement.name.text, callableState(statement, owner))
+        }
       } else if (
         (ts.isClassDeclaration(statement) ||
           ts.isEnumDeclaration(statement) || ts.isModuleDeclaration(statement)) &&
@@ -219,7 +221,7 @@ function collectEnvironmentRows(record, text) {
   }
 
   const bindPatternElementInitializers = (pattern, scope, initializerScope, kind, processObjectSource = false, visitValue = visit, input) => bindEnvironmentPatternDefaults(
-    pattern, { aliasStatus, bindName, declareBindingName, initializerScope, input, kind, recordObjectBinding, scope, visit: visitValue }, processObjectSource)
+    pattern, { aliasStatus, bindName, declareBindingName, initializerScope, input, kind, recordObjectBinding, scope, valueStatus, visit: visitValue }, processObjectSource)
 
   let visitNode, control, argumentFlow, visitFunctionLike
   const visit = (node, scope) => {

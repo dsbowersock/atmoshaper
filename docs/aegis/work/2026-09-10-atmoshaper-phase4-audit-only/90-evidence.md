@@ -1,8 +1,55 @@
 # Phase 4 audit-only evidence
 
-Date: 2026-09-10
+Latest receipt: 2026-09-13. Earlier dated captures below remain historical.
 
-## Scope and immutable capture point
+## Round 27 integrated closeout — 2026-09-13
+
+Pushed PR #3 head remains `ce337648fc9b99a8b9724214ab8c961120d40afc`.
+The staged candidate addresses finally-aware break/continue state, anonymous
+default `FunctionDeclaration` handling, captured/default environment provenance,
+and BigInt zero spellings. Independent specification review found one reciprocal
+captured/default provenance case; it was fixed, and scoped specification re-review
+and full-candidate quality review passed. The authorized Code quality timeout
+changes from 12 to 20 minutes because the previous hosted job was cancelled during
+unit tests, without an assertion failure.
+
+Fresh coordinator validation before this documentation/date-bound update:
+
+- Focused repository-audit/browser-harness suite: 386/386 passed.
+- `npm run test`: 4,552 total, 4,549 passed, 3 expected skips, zero failures.
+- Prisma validate/generate, typecheck, lint, build, and cached diff check passed;
+  build generated 115 pages.
+
+The pre-document staged audits each ran twice byte-identically with empty stderr,
+shared inventory SHA-256
+`5ded59bd53d85ccad41451ea7cc13ed75078d2f14b439f3fb77683fb6ad0e56e`, and
+`deletionAuthority: false`:
+
+| Audit | Findings | Uncertainties |
+| --- | ---: | ---: |
+| Dead code | 1,629 | 211 |
+| Dependency | 2,886 | 21 |
+| Asset | 557 | 11,630 |
+| Environment | 559 | 5,761 |
+
+That inventory contained 1,947 files and 48,194,961 Git blob bytes, with zero
+forbidden paths. These are pre-document historical values once the versioned
+receipts are staged. Exact final-index identity remains in the ignored handoff
+to avoid embedding a changing identity in the tree it describes.
+
+Ordinary brand audit reported zero missing/unclassified. Generated candidates A/B
+had 26,380 identical entries, unchanged source/categories, and zero occurrence
+deltas. The checked-out baseline differed only by Windows CRLF versus generated LF
+serialization. After staging docs, the coordinator must regenerate/review any actual
+occurrence deltas, update/stage the baseline if required, and compare generated
+bytes with the staged Git blob, not CRLF worktree bytes, for the final fixed point.
+Next: coordinator stages bounded docs/test and any required reviewed baseline update, proves
+brand and all index-sensitive audits, commits/pushes, then obtains latest-head
+hosted checks and CodeRabbit review. Merge remains separately authorized.
+No candidate deletion, product-runtime, provider, lockfile, dependency, or Phase 5
+action occurred.
+
+## Historical scope and immutable capture point — 2026-09-10
 
 - Branch: `codex/atmoshaper-dead-code-audit`
 - Clean committed index: `656394639464601c6e8b0833389c8272a95c2a95`
@@ -1008,7 +1055,7 @@ receipt. Latest-head PR checks and reviews remain pending. Merge remains
 separately authorized. No candidate deletion, provider mutation, merge or
 Phase 5 action occurred.
 
-## Hosted review round 26 accepted integrated-fix evidence
+## Hosted review round 26 accepted integrated-fix evidence (historical)
 
 The integrated review initially returned CHANGES REQUIRED for four findings:
 false compound-assignment callable/provenance, sloppy CommonJS Annex-B

@@ -18,7 +18,7 @@ jobs:
   code_quality:
     name: Code quality
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     env:
       AUTH_SECRET: ci-browser-qa-auth-secret-not-for-production-use-only
       NEXTAUTH_SECRET: ci-browser-qa-auth-secret-not-for-production-use-only

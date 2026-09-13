@@ -16,7 +16,8 @@ export function createCompletionRouter({ join, merge, restore, snapshot }) {
     if (!join || outcomes.length <= 32) return outcomes
     const groups = []
     for (const outcome of outcomes) {
-      let group = groups.find(({ first }) => first.kind === outcome.kind && first.target === outcome.target)
+      let group = groups.find(({ first }) => first.kind === outcome.kind &&
+        first.target === outcome.target && first.pendingFinalizers === outcome.pendingFinalizers)
       if (!group) { group = { first: outcome, states: [] }; groups.push(group) }
       group.states.push(outcome.state)
     }
@@ -28,13 +29,34 @@ export function createCompletionRouter({ join, merge, restore, snapshot }) {
     if (bounded !== outcomes) outcomes.splice(0, outcomes.length, ...bounded)
   }
 
-  const route = (completion) => {
-    if (tries.length > 0) append(tries.at(-1), completion)
-    else if (["return", "throw", "suspend"].includes(completion.kind) && functions.length > 0) append(functions.at(-1), completion)
-    else if (completion.target) {
-      const rows = completion.kind === "continue" ? completion.target.continues : completion.target.breaks
-      rows.push(completion.state)
+  /** Join jump branches only when their last pending finalizer is about to observe them. */
+  const joinFinalJumpEntries = (outcomes) => {
+    if (!join) return outcomes
+    const entries = []
+    for (const outcome of outcomes) {
+      if (outcome.pendingFinalizers !== 1 || !outcome.target) {
+        entries.push(outcome)
+        continue
+      }
+      const prior = entries.find((entry) => entry.pendingFinalizers === 1 &&
+        entry.kind === outcome.kind && entry.target === outcome.target)
+      if (prior) prior.state = join([prior.state, outcome.state])
+      else entries.push({ ...outcome })
     }
+    return entries
+  }
+
+  const route = (completion) => {
+    if (completion.target) {
+      const collector = [...tries].reverse().find(({ capturesJumps, exitingTargets }) =>
+        capturesJumps || exitingTargets?.has(completion.target))
+      if (collector) append(collector.completions, completion)
+      else {
+        const rows = completion.kind === "continue" ? completion.target.continues : completion.target.breaks
+        rows.push(completion.state)
+      }
+    } else if (tries.length > 0) append(tries.at(-1).completions, completion)
+    else if (["return", "throw", "suspend"].includes(completion.kind) && functions.length > 0) append(functions.at(-1), completion)
   }
 
   const visitAbrupt = (node, scope, visit) => {
@@ -47,10 +69,15 @@ export function createCompletionRouter({ join, merge, restore, snapshot }) {
     const label = node.label?.text
     const candidates = ts.isContinueStatement(node) ? loops : breaks
     const target = [...candidates].reverse().find((frame) => !label || frame.labels.includes(label))
-    if (target) route({
-      kind: ts.isContinueStatement(node) ? "continue" : "break",
-      state: snapshot(target.scope), target,
-    })
+    if (target) {
+      const pendingFinalizers = tries.filter(({ exitingTargets }) => exitingTargets?.has(target)).length
+      route({
+        kind: ts.isContinueStatement(node) ? "continue" : "break",
+        // Pending finalizers need the jump's branch state until the last one runs.
+        state: snapshot(pendingFinalizers > 0 ? scope : target.scope), target,
+        ...(pendingFinalizers > 0 ? { pendingFinalizers } : {}),
+      })
+    }
     return false
   }
 
@@ -84,9 +111,11 @@ export function createCompletionRouter({ join, merge, restore, snapshot }) {
     breaks.push(frame)
     try { return callback() } finally { breaks.pop() }
   }
-  const collectTry = (callback) => {
+  const collectTry = (callback, finalizes = false, capturesJumps = false) => {
     const completions = []
-    tries.push(completions)
+    // Targets already active at protected-region entry are the ones this finalizer must precede.
+    const exitingTargets = finalizes ? new Set(breaks) : null
+    tries.push({ capturesJumps, completions, exitingTargets, finalizes })
     try { return { completions, result: callback() } } finally { tries.pop() }
   }
   const captureThrowState = (state) => route({ kind: "throw", state })
@@ -102,10 +131,18 @@ export function createCompletionRouter({ join, merge, restore, snapshot }) {
   }
   const visitFinally = (outcomes, block, scope, visit) => {
     const finalized = []
-    for (const outcome of compact(outcomes)) {
+    for (const outcome of compact(joinFinalJumpEntries(outcomes))) {
       restore(outcome.state)
-      const { completions, result } = collectTry(() => visit(block, scope))
-      if (result !== false) append(finalized, { ...outcome, state: snapshot(scope) })
+      const { completions, result } = collectTry(() => visit(block, scope), false, true)
+      if (result !== false) {
+        const { pendingFinalizers = 0, ...completion } = outcome
+        const remainingFinalizers = Math.max(0, pendingFinalizers - 1)
+        append(finalized, {
+          ...completion,
+          state: snapshot(remainingFinalizers > 0 ? scope : outcome.target?.scope ?? scope),
+          ...(remainingFinalizers > 0 ? { pendingFinalizers: remainingFinalizers } : {}),
+        })
+      }
       for (const completion of completions) append(finalized, completion)
     }
     return finalized

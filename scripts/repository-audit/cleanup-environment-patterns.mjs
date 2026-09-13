@@ -1,7 +1,7 @@
 import ts from "typescript"
 import { isLiteralNode } from "./cleanup-source.mjs"
-import { POSSIBLE_PROCESS_OBJECT, isProcessObjectSource, unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
-import { mergeScopeSnapshots, snapshotScopes } from "./cleanup-environment-flow.mjs"
+import { NON_ALIAS, POSSIBLE_PROCESS_OBJECT, isProcessObjectSource, unwrapTransparentExpression } from "./cleanup-environment-scope.mjs"
+import { mergeBindingStatuses, mergeScopeSnapshots, snapshotScopes } from "./cleanup-environment-flow.mjs"
 import { callableExpressionState, mergeCallableStates } from "./cleanup-environment-callables.mjs"
 
 const LOGICAL_ASSIGNMENT_KINDS = new Map([
@@ -151,7 +151,7 @@ export function processEnvironmentAssignmentStatus(property, ambiguous = false, 
 
 /** Evaluate binding-element defaults in source order and retain only supported provenance. */
 export function bindEnvironmentPatternDefaults(pattern, context, processObjectSource = false) {
-  const { aliasStatus, bindName, declareBindingName, initializerScope, input, kind, recordObjectBinding, scope, visit } = context
+  const { aliasStatus, bindName, declareBindingName, initializerScope, input, kind, recordObjectBinding, scope, valueStatus, visit } = context
   if (input && !input.complete(pattern)) return false
   for (const element of pattern.elements) {
     if (!ts.isBindingElement(element)) continue
@@ -174,7 +174,11 @@ export function bindEnvironmentPatternDefaults(pattern, context, processObjectSo
       ) : null
     if (processStatus && ts.isIdentifier(element.name)) scope.bindings.set(element.name.text, processStatus)
     else if ((boundSource || selected?.captured) && ts.isIdentifier(element.name)) {
-      const status = skippedDefault && aliasStatus(boundSource, initializerScope) ? "unknown" :
+      const capturedStatus = selected?.captured?.environment
+      // Captured alternatives retain both source families; generic inputs keep their alias-only fallback.
+      const status = skippedDefault ? capturedStatus
+        ? mergeBindingStatuses(capturedStatus, valueStatus(boundSource, initializerScope) ?? NON_ALIAS)
+        : aliasStatus(boundSource, initializerScope) ? "unknown" : undefined :
         selected?.defaults === "never" && selected.captured ? selected.captured.environment : undefined
       bindName(element.name.text, boundSource, scope, initializerScope, status)
     }

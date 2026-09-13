@@ -184,14 +184,15 @@ export function createEnvironmentControl(visitNode, visitAssignmentTarget, visit
 
   const visitTry = (node, scope) => {
     const entry = snap(scope)
-    const tried = router.collectTry(() => visitNode(node.tryBlock, scope))
+    const finalizes = Boolean(node.finallyBlock)
+    const tried = router.collectTry(() => visitNode(node.tryBlock, scope), finalizes)
     let completions = [...tried.completions]
     const tryNormal = tried.result !== false
     if (tryNormal) completions.push({ kind: "normal", state: snap(scope) })
     const thrown = completions.filter(({ kind }) => kind === "throw")
     if (node.catchClause && thrown.length > 0) {
       mergeScopeSnapshots(thrown.map(({ state }) => state))
-      const caught = router.collectTry(() => visitNode(node.catchClause, scope))
+      const caught = router.collectTry(() => visitNode(node.catchClause, scope), finalizes)
       const catchNormal = caught.result !== false
       completions = completions.filter(({ kind }) => kind !== "throw")
       if (catchNormal) completions.push({ kind: "normal", state: snap(scope) })

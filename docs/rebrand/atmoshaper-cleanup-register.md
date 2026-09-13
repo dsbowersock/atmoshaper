@@ -852,7 +852,37 @@ receipt. Latest-head PR checks and reviews remain pending. Merge remains
 separately authorized. No candidate deletion, provider mutation, merge or
 Phase 5 action occurred.
 
-### Hosted review round 26 accepted integrated-fix cleanup boundary
+### Round 27 integrated cleanup boundary — 2026-09-13
+
+This boundary supersedes earlier current-status and next-action wording. The
+staged candidate repairs finally-aware jumps, anonymous default function
+declarations, captured/default environment provenance, and BigInt zero spellings.
+The reciprocal provenance case found by independent specification review is
+fixed; scoped specification re-review and full-candidate quality review passed.
+The authorized Code quality timeout increases from 12 to 20 minutes after hosted
+unit-test cancellation, without an assertion failure.
+
+Fresh focused tests passed 386/386; full tests passed 4,549 of 4,552 with 3
+expected skips and zero failures. Prisma validate/generate, typecheck, lint,
+the 115-page build, and cached diff check passed. Twice-identical pre-document
+staged audits had empty stderr and `deletionAuthority: false`: dead code
+1,629 findings/211 uncertainties, dependency 2,886/21, asset 557/11,630, and
+environment 559/5,761. These are historical pre-document counts; the shared
+inventory receipt is in [90-evidence](../aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md#round-27-integrated-closeout--2026-09-13).
+
+Ordinary brand audit was zero missing/unclassified. Generated candidates A/B had
+26,380 identical entries, unchanged source/categories, and zero occurrence deltas;
+only generated LF versus Windows CRLF serialization differed from the checked-out
+baseline. After staging docs, regenerate/review any actual occurrence deltas,
+update/stage the baseline if required, and prove the fixed point against staged
+Git blob bytes rather than CRLF worktree bytes. Pushed PR #3 head remains
+`ce337648fc9b99a8b9724214ab8c961120d40afc`. Coordinator staging of these docs/test,
+conditional baseline update, final brand/index-sensitive proof, commit/push, and
+latest-head hosted checks/CodeRabbit remain next. Exact final identity stays in
+the ignored handoff; merge remains separately authorized. No candidate deletion,
+product-runtime, provider, lockfile, dependency, or Phase 5 action occurred.
+
+### Hosted review round 26 accepted integrated-fix cleanup boundary (historical)
 
 Integrated review initially returned CHANGES REQUIRED for compound-assignment
 callable/provenance promotion, sloppy CommonJS Annex-B block-function ownership,
