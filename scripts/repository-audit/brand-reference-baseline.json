@@ -51964,13 +51964,6 @@
       "category": "pre-rebrand-public-copy"
     },
     {
-      "path": "app/layout.tsx",
-      "line": 27,
-      "column": 13,
-      "textSha256": "dfe8435f55369238c04528c4880753c399d1fc692d724c1e4ef961ea8d1991b9",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "app/legal/[slug]/page.tsx",
       "line": 22,
       "column": 32,
@@ -52010,20 +52003,6 @@
       "line": 121,
       "column": 14,
       "textSha256": "6bc87b36df58db7276abd3c0b7d4e1902615581a71fea8be3132174bb975df98",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/manifest.ts",
-      "line": 6,
-      "column": 12,
-      "textSha256": "aeecbc3f78742beeda9f2cec565fcbe26b5c0018ea4f36da7999ae0c91783d3b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/manifest.ts",
-      "line": 7,
-      "column": 18,
-      "textSha256": "79241a5f75e8cd987c1a457dc3d3dedacc1fb99bb734d671a174aecb619431fd",
       "category": "pre-rebrand-public-copy"
     },
     {
@@ -74316,52 +74295,10 @@
     },
     {
       "path": "components/pwa/install-massagelab-dialog.tsx",
-      "line": 14,
+      "line": 15,
       "column": 24,
       "textSha256": "7e8ee7dff7043c271b1f23ba07bc671c7eee0df40652e54eb0e95b4975e7a856",
       "category": "compatibility"
-    },
-    {
-      "path": "components/pwa/install-massagelab-dialog.tsx",
-      "line": 27,
-      "column": 21,
-      "textSha256": "cc1a93f836234ade9b9ea716e2630e83b9dc56365ac3ec33bfc4fd0c02777f04",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "components/pwa/install-massagelab-dialog.tsx",
-      "line": 29,
-      "column": 65,
-      "textSha256": "fef80277038884a24b98aa54507179a18e202001d0e9e6f4f2da794f44fef7bf",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "components/shell/app-bar-brand-link.tsx",
-      "line": 9,
-      "column": 19,
-      "textSha256": "6c12725d65e19acc0bfdc314c664f96e1d1c976b5f6b21d95f90f9a3ed357c6a",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "components/shell/app-bar-brand-link.tsx",
-      "line": 14,
-      "column": 21,
-      "textSha256": "b1d89facbb1dddb6bd99b530e22d05e155e56bc2f7eeacfbbf7f2a6d374949c3",
-      "category": "compatibility"
-    },
-    {
-      "path": "components/shell/app-bar-brand-link.tsx",
-      "line": 23,
-      "column": 21,
-      "textSha256": "defe9dd5cea0f050b940a04ae1f9148b6a8c4bb6a32949125b38c58f59e200dc",
-      "category": "compatibility"
-    },
-    {
-      "path": "components/shell/mobile-main-bar.tsx",
-      "line": 122,
-      "column": 21,
-      "textSha256": "d34ae7e2710230838e0a9514fc20d59d9667368cf1294f19cfdfc4e52f66a06b",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "components/sidebar/app-sidebar-client.tsx",
@@ -74379,21 +74316,14 @@
     },
     {
       "path": "components/sidebar/app-sidebar-client.tsx",
-      "line": 109,
+      "line": 110,
       "column": 44,
       "textSha256": "a858a9ab7e4b1f20589b66c8ac3ecd71815e0311cf08f20dd83fa7065c2f9125",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "components/sidebar/app-sidebar-client.tsx",
-      "line": 722,
-      "column": 27,
-      "textSha256": "9f30cf1ad1ad58a979cbce06dd3780e03eb3a3c717eedd1a6826c06134a2b9a4",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "components/sidebar/app-sidebar-client.tsx",
-      "line": 741,
+      "line": 742,
       "column": 17,
       "textSha256": "abea1819d9891586a01e4b45f914919c89679f309b9cd40938cf8d66bf505e94",
       "category": "compatibility"
@@ -87223,6 +87153,41 @@
       "category": "historical"
     },
     {
+      "path": "docs/aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/10-intent.md",
+      "line": 38,
+      "column": 26,
+      "textSha256": "0cc824fe9c76e6c1dd56566884ac9d1b66646f655b1345835e3c695ac4005262",
+      "category": "historical"
+    },
+    {
+      "path": "docs/aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/10-intent.md",
+      "line": 72,
+      "column": 59,
+      "textSha256": "cc5798b466ae5e926b57068f235684db4a1251060a4506aa11cb315d7a131164",
+      "category": "historical"
+    },
+    {
+      "path": "docs/aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/20-checkpoint.md",
+      "line": 44,
+      "column": 46,
+      "textSha256": "e2f02fa40a3ac55ae5c7e5d5911563b98a59e7d9b19e1ffeb00ebb209cde0465",
+      "category": "historical"
+    },
+    {
+      "path": "docs/aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/90-evidence.md",
+      "line": 68,
+      "column": 60,
+      "textSha256": "96376a25e68ed9ade3fc7ea3f3d340905f41908a7c9ac84f22bd5cf2134b24d5",
+      "category": "historical"
+    },
+    {
+      "path": "docs/aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/99-reflection.md",
+      "line": 7,
+      "column": 69,
+      "textSha256": "74255675a00537f1658e94bb1a2f65de60809589ac35fe4a7a599d0644566b03",
+      "category": "historical"
+    },
+    {
       "path": "docs/alpha-qa.md",
       "line": 1,
       "column": 3,
@@ -89499,105 +89464,126 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 7,
+      "line": 51,
+      "column": 41,
+      "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-log.md",
+      "line": 82,
+      "column": 47,
+      "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-log.md",
+      "line": 101,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 8,
+      "line": 102,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 9,
+      "line": 103,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 12,
+      "line": 106,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 47,
+      "line": 141,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 51,
+      "line": 145,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 19,
+      "line": 23,
+      "column": 35,
+      "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-state.md",
+      "line": 60,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 23,
+      "line": 64,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 25,
+      "line": 66,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 29,
+      "line": 70,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 30,
+      "line": 71,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 33,
+      "line": 74,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 34,
+      "line": 75,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 34,
+      "line": 75,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 61,
+      "line": 102,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -90363,6 +90349,13 @@
       "line": 98,
       "column": 67,
       "textSha256": "f69fc5dda6f2a91f0d3eef138ce7dfb27af51518660c63588d8dbe249bbbd760",
+      "category": "historical"
+    },
+    {
+      "path": "docs/rebrand/atmoshaper-refactor-register.md",
+      "line": 9,
+      "column": 573,
+      "textSha256": "8e0c2451b7f44edb5290d6f7176fc4d2f21a89a0449d851feae237fa74eb98ed",
       "category": "historical"
     },
     {
@@ -94699,6 +94692,125 @@
       "category": "historical"
     },
     {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 10,
+      "column": 62,
+      "textSha256": "91fa2d386aeebd65b28c3b34e839a8f178b6cbce817223370faf827fe46e7f24",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 28,
+      "column": 26,
+      "textSha256": "bab80e7cb3c115c041f0b1f6ba0cfde0f6c3507ffac192ef65f8fe710d73a006",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 33,
+      "column": 26,
+      "textSha256": "4ec23c09550165f62d37ac925c289a28091c8fd6f2f243d0eeb94e29f6fa8a7d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 43,
+      "column": 55,
+      "textSha256": "0722983aae3c2ad3e857c93b671317b8b681f2db9297dfeff78bc1f92d3b30c7",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 109,
+      "column": 26,
+      "textSha256": "1f7639a7e8b726c6e8b4fc17bfaf27f2c221c965ce03b528c54367be536b992a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 227,
+      "column": 10,
+      "textSha256": "5997f0a972c71fd26f196e29b3b29f663fc159b0c8a50c62a13c58a3eaa46a53",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 228,
+      "column": 15,
+      "textSha256": "853eca8a9d9d357d184ba1bae85d4f58149f0f40579e43fddb9e32d5d24a7b5c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 230,
+      "column": 29,
+      "textSha256": "179a52cde08a7e9cdb577a8f6fe11378f7738610f4ee56b9e1591649de50db64",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 231,
+      "column": 25,
+      "textSha256": "6b1d19c26a4e57824bb888ca70a69a7d24f60395c2bfad8735e071f5aa5d554a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 232,
+      "column": 28,
+      "textSha256": "abe8882cf32b52f8edfa5823124dc47d22f7be86d05ef24d00688ef7bedf1ef1",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 292,
+      "column": 23,
+      "textSha256": "5ba6d5869bf9746ffdcf0944227b5156907e33834e55ce7bb0c394e37b3df947",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 293,
+      "column": 60,
+      "textSha256": "3a5ac5526aaf32a7ed121ca7361eab57fe4b4d2494a28a08485b6f8ab04b982d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 294,
+      "column": 68,
+      "textSha256": "f00b9476aeeabe657c1de651c744e5b6d74ad804a21db3435239546b7694f2cf",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 320,
+      "column": 34,
+      "textSha256": "268b025b3b48b8aa4c2c0a8be41917bdead5ca0671fdcc0f2b1f00840ab8cb1b",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 348,
+      "column": 17,
+      "textSha256": "a8b1fef66901dea2b68829bddb6129e59f2770423643a6a7dab0c8cc07680b7e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 372,
+      "column": 17,
+      "textSha256": "c30636ad04c9ca345cf1c408bf26483c51a571c1a1a602a12f033c5f410d403c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md",
+      "line": 468,
+      "column": 23,
+      "textSha256": "c93cf2f1ea1c142d53846e590591ec40dca13b69ab192dde3785a08c05b24312",
+      "category": "historical"
+    },
+    {
       "path": "docs/superpowers/plans/chimer-background-preview-media-workflow.md",
       "line": 24,
       "column": 163,
@@ -96418,6 +96530,153 @@
       "line": 681,
       "column": 45,
       "textSha256": "376ee6a7eeae1cc207bade20662db6e6fab5873ca9c764d2ecd9b617e399291e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 22,
+      "column": 52,
+      "textSha256": "3dd8c4902fefa2350e3b19352e4f2850ffd0c8b686e16edeeb842694286b28c4",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 25,
+      "column": 53,
+      "textSha256": "89302d314f3360d558f491d0d7a2ff23417df8116fa4d971c927c7c3731d7f44",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 53,
+      "column": 10,
+      "textSha256": "5997f0a972c71fd26f196e29b3b29f663fc159b0c8a50c62a13c58a3eaa46a53",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 54,
+      "column": 15,
+      "textSha256": "853eca8a9d9d357d184ba1bae85d4f58149f0f40579e43fddb9e32d5d24a7b5c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 56,
+      "column": 29,
+      "textSha256": "179a52cde08a7e9cdb577a8f6fe11378f7738610f4ee56b9e1591649de50db64",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 57,
+      "column": 25,
+      "textSha256": "6b1d19c26a4e57824bb888ca70a69a7d24f60395c2bfad8735e071f5aa5d554a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 58,
+      "column": 28,
+      "textSha256": "abe8882cf32b52f8edfa5823124dc47d22f7be86d05ef24d00688ef7bedf1ef1",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 64,
+      "column": 59,
+      "textSha256": "08081360b40de6aa1094e5d37b2005deaabd6e876e023b009b94acb02251e41d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 65,
+      "column": 2,
+      "textSha256": "614e385c014782f0322a97204d001a21c1de579d9bd6f2b5e4064e11711027a0",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 65,
+      "column": 44,
+      "textSha256": "614e385c014782f0322a97204d001a21c1de579d9bd6f2b5e4064e11711027a0",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 78,
+      "column": 27,
+      "textSha256": "efd16d0c2fbd356430d296ce666c61be240b535c63d30101cafaefefb5644851",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 89,
+      "column": 4,
+      "textSha256": "d96d52efe10fc29bfea4668b8be735402a31dd9f0aa60933e71fa6c3464bc948",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 90,
+      "column": 62,
+      "textSha256": "3fbc672e0a2be2f012f70f72e152ddd7357c773dfd7392c19c17f2b35ae5182a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 91,
+      "column": 46,
+      "textSha256": "7dde9a3e912fb3368715c24b7bbbc875a5acf4cdab2be9ea620e6bd03fa90a2a",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 93,
+      "column": 20,
+      "textSha256": "6d45fc879830d453e1e6f535848adcef997889dcba9fcb591a1b11461dc40ec7",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 94,
+      "column": 44,
+      "textSha256": "6703d6daf70535434522d98276a611510d77bf4daceac1c6528634c4be8bafb8",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 96,
+      "column": 38,
+      "textSha256": "95200f51220cf800d2b7edd6c9ebd6349a27490f8a6abf2c4fb51ba3f08c9662",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 107,
+      "column": 18,
+      "textSha256": "9699720901b0facbfd92fc22c176ba3e07aa144b72449fd787d773c14a711839",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 116,
+      "column": 55,
+      "textSha256": "a2188675ace62028a5115f09dee6c7ae660d7ef94508ea997b4f636e94fdff15",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 166,
+      "column": 33,
+      "textSha256": "05dcfe61e9311ae562536e6fceae8d4efd5a84df2a0d9c766ef89253e9a44c13",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md",
+      "line": 174,
+      "column": 14,
+      "textSha256": "70b4ecd67fb31fb53f220ccddf8ab43e90d4337b4c808b657d5702781e4f8811",
       "category": "historical"
     },
     {
@@ -127109,6 +127368,41 @@
       "category": "compatibility"
     },
     {
+      "path": "lib/public-product-identity.js",
+      "line": 6,
+      "column": 10,
+      "textSha256": "5997f0a972c71fd26f196e29b3b29f663fc159b0c8a50c62a13c58a3eaa46a53",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "lib/public-product-identity.js",
+      "line": 7,
+      "column": 15,
+      "textSha256": "853eca8a9d9d357d184ba1bae85d4f58149f0f40579e43fddb9e32d5d24a7b5c",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "lib/public-product-identity.js",
+      "line": 9,
+      "column": 29,
+      "textSha256": "179a52cde08a7e9cdb577a8f6fe11378f7738610f4ee56b9e1591649de50db64",
+      "category": "compatibility"
+    },
+    {
+      "path": "lib/public-product-identity.js",
+      "line": 10,
+      "column": 25,
+      "textSha256": "6b1d19c26a4e57824bb888ca70a69a7d24f60395c2bfad8735e071f5aa5d554a",
+      "category": "compatibility"
+    },
+    {
+      "path": "lib/public-product-identity.js",
+      "line": 11,
+      "column": 28,
+      "textSha256": "abe8882cf32b52f8edfa5823124dc47d22f7be86d05ef24d00688ef7bedf1ef1",
+      "category": "compatibility"
+    },
+    {
       "path": "lib/public-request-owner.ts",
       "line": 6,
       "column": 39,
@@ -127152,301 +127446,280 @@
     },
     {
       "path": "lib/seo.js",
-      "line": 4,
+      "line": 5,
       "column": 10,
       "textSha256": "10077a080c9126e924cfeda83f35d7fd7d9088d3805842273d770e853f81f7e3",
       "category": "compatibility"
     },
     {
       "path": "lib/seo.js",
-      "line": 6,
-      "column": 31,
-      "textSha256": "2d139dd9699f3a9c0e90bc5d1089e79d5818be61816475c1e9e0128aa87704c8",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/seo.js",
-      "line": 10,
+      "line": 11,
       "column": 52,
       "textSha256": "0db5022b6677e68a5ab567ad3a9a1580381f73e0966823ead7c6232a0d63f8e4",
       "category": "compatibility"
     },
     {
       "path": "lib/seo.js",
-      "line": 11,
+      "line": 12,
       "column": 35,
       "textSha256": "22886a0982e8916c6d8648bd183258f5465dc49721e1f5618966a0ea42325a20",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 13,
+      "line": 14,
       "column": 4,
       "textSha256": "d240c40e049664e5641705edaa9400998cccdd9392188d3f24a31984c61082d9",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 14,
-      "column": 42,
-      "textSha256": "384182af11ccd6f629aad1b5355b44bb47cca5f54287613899399b4d55025f63",
-      "category": "compatibility"
-    },
-    {
-      "path": "lib/seo.js",
-      "line": 45,
+      "line": 46,
       "column": 37,
       "textSha256": "77913db4487a5d246cb6b6d9b1ce4701e5a1d2296dfe7d8db2ff4b1432db13b4",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 50,
+      "line": 51,
       "column": 33,
       "textSha256": "047a3730d766d6b9b182d533574a617aa9d97755cbeb2fe75a9ddb0cc6cc5d1c",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 55,
+      "line": 56,
       "column": 95,
       "textSha256": "58ec41313af352fa58f1d8f250b7ff5228c4b1b6e4f3c8796347c2b3b35b5460",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 80,
+      "line": 81,
       "column": 19,
       "textSha256": "e500253ee76a4cd350d232da4c107ebe012ea539d8432d0bda73f036dcf657dd",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 81,
+      "line": 82,
       "column": 29,
       "textSha256": "8ae5cd0d4b941197380c7d454f7aa20c6c11b45510bc2334728f1115366b8da9",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 86,
+      "line": 87,
       "column": 114,
       "textSha256": "d37ae9f27e60634fa4d5992a5957e712992d25c99303da661d0574e6775c66e5",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 90,
+      "line": 91,
       "column": 13,
       "textSha256": "f4b74e46c11374d5a401db503060ba2dd6a0f8f41c747f414d3fb4c0d2f6ddd0",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 91,
+      "line": 92,
       "column": 27,
       "textSha256": "69b075dca602008fc9bfc116589dc205790499030080415aaf93f14101a48782",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 95,
+      "line": 96,
       "column": 13,
       "textSha256": "86e1c155e37bd72f220fdafc2ae1a745cf42f8f67650f4ba1c20fb8906d61594",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 96,
+      "line": 97,
       "column": 27,
       "textSha256": "617d68536b5cb3eddf885da90743e1a34c4a9b2770fccfa2b5a4059c99738165",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 100,
+      "line": 101,
       "column": 13,
       "textSha256": "50fb5edd96a4c6018e80a412cba728bc4f38a55c7130271cf44152d666120e20",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 101,
+      "line": 102,
       "column": 36,
       "textSha256": "0f2058f0431819ed1a12e62e1d513e42d6650c7691c85ae61c3be6eb1ff395e8",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 105,
+      "line": 106,
       "column": 13,
       "textSha256": "e90bea98d6d57e13806442a7340f4a5dcd71a81ab0ac3974c038af52f8c50532",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 106,
+      "line": 107,
       "column": 27,
       "textSha256": "b1282d63905b312c9d628591b81dc3593b45f8935e1a32a5ef98bdbf0ed2236c",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 110,
+      "line": 111,
       "column": 13,
       "textSha256": "0b8fdadaeb06d75287efe0d62b8cbe10ca6c3dc7ae5af23816b1f12156bf90be",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 111,
+      "line": 112,
       "column": 24,
       "textSha256": "0d6ed5c7afaf98ecd18357fcb1feb6f9f56f2e7c17bef82d9ff7903c28cb423e",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 115,
+      "line": 116,
       "column": 13,
       "textSha256": "64a70de2006cb2621c19f42da51b8f6a688988ae5be9c92eddf91c8bd0024ff5",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 116,
+      "line": 117,
       "column": 24,
       "textSha256": "7a44b57ffc9c5520a81d8321cb1822bd5e9ab92cd04eba56167cb38bf57ba6d1",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 122,
+      "line": 123,
       "column": 13,
       "textSha256": "c07eaef2a5f45737eecaacd26047b10370100e32fb4f24b98189a62db0870fe5",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 123,
+      "line": 124,
       "column": 23,
       "textSha256": "d430222a4742ecfd1109bdb47c32c7c7e5b87f5c98524ae9e5ce295719541a58",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 127,
+      "line": 128,
       "column": 13,
       "textSha256": "51bfaaf4623fdc33ab58b820786f1d78e9c34352b0af71aedaf23de79d7ed5f1",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 132,
+      "line": 133,
       "column": 13,
       "textSha256": "9c61ec2f05fc75516e986f58bbe4fb46cb2f6b92fe313ec8b266c03268f7c2b1",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 133,
+      "line": 134,
       "column": 34,
       "textSha256": "1c65812cd7925e9dead5b1a9b0184512303d81328a7915c78f2b093a66eb15b0",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 139,
+      "line": 140,
       "column": 35,
       "textSha256": "dd858d807cf5777865206a3f6457c8ef3f40f71b701fd8f5fe9f2700353eaa64",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 144,
+      "line": 145,
       "column": 31,
       "textSha256": "4b4f4e259c31ff66f67348e0e09fa8c88d40d9cb8ec10a3f1e5c7a3706a01db9",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 148,
+      "line": 149,
       "column": 13,
       "textSha256": "9a962f70abd4e425bee8fa79955a75a50022ae0a4be73179388d64b270046837",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 183,
+      "line": 184,
       "column": 13,
       "textSha256": "9930755e778abdef307c7f6285d359bd073a6a608f2545504ada3c8f52c50be0",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 184,
+      "line": 185,
       "column": 24,
       "textSha256": "cf4b44cd1835b4a72f6e3cd2a7c5e02cda52013c4f46d50931e485d7cff68e5b",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 188,
+      "line": 189,
       "column": 13,
       "textSha256": "3f91e55934e8d39e64c3878c101280d258cb56f09aca76d884eea8dc1d54376b",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 189,
+      "line": 190,
       "column": 29,
       "textSha256": "cf555b30ab8254085b518f4d78a45e2f6eb5ec6375682ff91458056fbb182b9e",
       "category": "compatibility"
     },
     {
       "path": "lib/seo.js",
-      "line": 193,
+      "line": 194,
       "column": 13,
       "textSha256": "a69d56455523c36e1e639d9c37456045e52b2ab8f8187728bf7b1bc3a8b1dc38",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 194,
+      "line": 195,
       "column": 23,
       "textSha256": "a2d6a651392d8a24a2a9be0da86a0d80a2f61cf2bc31fb4ef18b0d4d0e7d7159",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 198,
+      "line": 199,
       "column": 13,
       "textSha256": "8fa2790aa658c0184b20973fba345312819de3e09ac55a4370b291659260e5d2",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 199,
+      "line": 200,
       "column": 23,
       "textSha256": "2f1669353c54706b7f1c453b7a1f2419b1b0d84ffd2defcfce4f43ea8a9fa92c",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 204,
+      "line": 205,
       "column": 26,
       "textSha256": "ddc55a9338b5419c81a52bfcffdb9d4f6e5aa44db2cd5e8d616077685f280dc5",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
-      "line": 320,
-      "column": 17,
-      "textSha256": "668c6cea494ba1a5c75f0600b1b3cf391405e9d7bcc4d367172fc6b009e5459c",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/seo.js",
-      "line": 412,
+      "line": 413,
       "column": 21,
       "textSha256": "3e82b39e07f68ee56489e0414125ae31f1d76a30ddcf53cc59421b9f9b686a00",
       "category": "compatibility"
@@ -129133,35 +129406,21 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 74318,
+      "line": 74297,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 74325,
-      "column": 39,
-      "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
-      "category": "compatibility"
-    },
-    {
-      "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 74332,
-      "column": 39,
-      "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
-      "category": "compatibility"
-    },
-    {
-      "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128449,
+      "line": 128722,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128449,
+      "line": 128722,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
@@ -130621,34 +130880,6 @@
       "column": 43,
       "textSha256": "0aa941c804299fe7f40a11f854c540c8ad7a7da9525050b60fdb33b4228a532b",
       "category": "compatibility"
-    },
-    {
-      "path": "tests/app-settings.test.mjs",
-      "line": 515,
-      "column": 38,
-      "textSha256": "39bc6d7e93a1bf7fdc18cfa83f5426142be434adc1601c3dabf74036c36f1557",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/app-settings.test.mjs",
-      "line": 516,
-      "column": 26,
-      "textSha256": "bcdbe40ae88aeb699496d9dff0041e90c08413726441c89165415466e9efa393",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/app-settings.test.mjs",
-      "line": 517,
-      "column": 26,
-      "textSha256": "42371bd0e5cc4aa06e97ae8aa70fc4f8f8ced4ca2c69fd7ff1ef1107867860cf",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/app-settings.test.mjs",
-      "line": 663,
-      "column": 46,
-      "textSha256": "1e9978b9592d04d0f698cf4beb60ecc75563fd4f7e4d0dfd5515513f65c1b347",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/atmoshaper-browser-qa-build.test.mjs",
@@ -181835,11 +182066,60 @@
       "category": "compatibility"
     },
     {
-      "path": "tests/pwa-install.test.mjs",
-      "line": 50,
-      "column": 36,
-      "textSha256": "ad4a5082bb2b513e2f9c5d5c00afc9f3d198922cce4eb8f4532b0de21b40ad5d",
+      "path": "tests/public-product-identity.test.mjs",
+      "line": 15,
+      "column": 14,
+      "textSha256": "f0a1507a6da25c8e0a20b3e4cf9cb5816bbebe9607a94575d611125ff792ba27",
       "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/public-product-identity.test.mjs",
+      "line": 16,
+      "column": 19,
+      "textSha256": "2aa6a7c52d870a1df262e171773ac2eb6acab293d0d416536a35792ddad58668",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/public-product-identity.test.mjs",
+      "line": 18,
+      "column": 33,
+      "textSha256": "f7578125c206fc8dcca351adba9b1499e5a5e9aeafcd2096fc87f0a492c8ae51",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/public-product-identity.test.mjs",
+      "line": 19,
+      "column": 29,
+      "textSha256": "f5187c1fa5cd2e6955046bb82c1f85db6dc250135c81832bc89515b3fcdc7a7c",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/public-product-identity.test.mjs",
+      "line": 20,
+      "column": 32,
+      "textSha256": "b05539e20f718d5deed486c7b98e24dc680b75c300f26a03a32dd6a7540058c4",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/public-product-identity.test.mjs",
+      "line": 34,
+      "column": 49,
+      "textSha256": "ae44e6ede119bb7ef935dfc95013127bfa0bbb977b6ccf1b16ce5774f8ef06e0",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/public-product-identity.test.mjs",
+      "line": 35,
+      "column": 69,
+      "textSha256": "7426905cbf29cc906c7107138a635f31cc9e241ffce675d182803223e14688e5",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/pwa-install.test.mjs",
+      "line": 49,
+      "column": 68,
+      "textSha256": "bd918bd16d34247eb4746d21dcb49bff1200389ad7010e785f02512749c387fb",
+      "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
@@ -182221,77 +182501,126 @@
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 14,
+      "line": 17,
       "column": 10,
       "textSha256": "52e7e8da0d747e17fc8a18fa4c031f47432d065f8062cc91f5725b09f42bd345",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 32,
+      "line": 29,
+      "column": 34,
+      "textSha256": "b3cfbc8ce21864bfda729a14ccc1fef65b423ca849a83b30e8b19fe7fa91952f",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "line": 30,
+      "column": 45,
+      "textSha256": "90e0502d73259af11538737654fd153d1f0b434912fbf74d9ae340ef82501dfa",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "line": 34,
+      "column": 45,
+      "textSha256": "8b1a722283895afd7a9576dbdc6175931f726e17130a5b05afa8a900faa13268",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "line": 35,
+      "column": 48,
+      "textSha256": "b1b32ae916e31ea69ce56126cfd006658a8221bc9ef0743ad2247917c2d894cd",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "line": 37,
+      "column": 25,
+      "textSha256": "34a44fa8fe7e776d8d74ac62c8367588b7aa47ac255928631a26c21e48f86e63",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "line": 37,
+      "column": 46,
+      "textSha256": "34a44fa8fe7e776d8d74ac62c8367588b7aa47ac255928631a26c21e48f86e63",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "line": 40,
+      "column": 13,
+      "textSha256": "ab5399e892cf6cf528b7d75171ec6a25622235d69f19adebfdc153004da72351",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "line": 51,
       "column": 61,
       "textSha256": "aac4dcca9e6638bf760f667457fe70ad53616bdd00bd9ee64fbf6c26ed7a7bc2",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 33,
+      "line": 52,
       "column": 74,
       "textSha256": "3941762db0442eacdcedad49eeaa5689b097f2d02b157ebfec91779313e65462",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 47,
+      "line": 66,
       "column": 15,
       "textSha256": "28d24f6fd87dd0a546b0e0373005e52bad1ede26214259305ea4de698ab67612",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 48,
+      "line": 67,
       "column": 38,
       "textSha256": "bd9dd0c98ee27bf1123064b4837b919b91c018e639a915e1fbd9ba12a66a7d20",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 78,
+      "line": 97,
       "column": 39,
       "textSha256": "4971e37da813c834042752d295d60e9f071d5446505ea2a5f6ff2db5fc587f22",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 95,
+      "line": 114,
       "column": 47,
       "textSha256": "822e6d623c6ff2dab4bcb6dad265433173d6dddabd497ec56b36ab91bd0f7daf",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 109,
+      "line": 128,
       "column": 47,
       "textSha256": "6a63c4aa361599976a461bc10b3ae46b464133b7b3e588c667f74680ab07b83a",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 110,
+      "line": 129,
       "column": 26,
       "textSha256": "00248f6452b3aa9b5cee8f79a522b62b48fc075c4c6f269ed318bff97a47c777",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 111,
+      "line": 130,
       "column": 34,
       "textSha256": "2814fc24aedd02dd554b949ba51fb9961e263c9b171b1854bbc2cb4da9a07fb0",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 112,
+      "line": 131,
       "column": 33,
       "textSha256": "28f5cbf4dbead49107a12096793b98ce7d2ff5b9e29ba80342bbd46bcae66e59",
       "category": "pre-rebrand-public-copy"

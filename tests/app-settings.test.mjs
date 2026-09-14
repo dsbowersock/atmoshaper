@@ -512,9 +512,10 @@ describe("App settings helpers", () => {
     const brand = readFileSync(new URL("../components/shell/app-bar-brand-link.tsx", import.meta.url), "utf8")
     const sidebar = readFileSync(new URL("../components/sidebar/app-sidebar-client.tsx", import.meta.url), "utf8")
 
-    assert.match(brand, /aria-label="MassageLab home"/)
-    assert.match(brand, /massagelab-wordmark-final-20260622\.png/)
-    assert.match(brand, /massagelab-mark-final-20260622\.png/)
+    assert.match(brand, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.match(brand, /aria-label=\{PUBLIC_PRODUCT_IDENTITY\.name \+ " home"\}/)
+    assert.match(brand, /src=\{PUBLIC_PRODUCT_IDENTITY\.assets\.appBarWordmark\}/)
+    assert.match(brand, /src=\{PUBLIC_PRODUCT_IDENTITY\.assets\.appBarMark\}/)
     assert.doesNotMatch(sidebar, /function SidebarLogoHomeLink/)
   })
 
@@ -660,7 +661,8 @@ describe("App settings helpers", () => {
 
     assert.match(layoutSource, /<MobileMainBar\b/)
     assert.match(mainBarSource, /resolveMainBarLayout/)
-    assert.match(mainBarSource, /aria-label="MassageLab main navigation"/)
+    assert.match(mainBarSource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.match(mainBarSource, /aria-label=\{PUBLIC_PRODUCT_IDENTITY\.name \+ " main navigation"\}/)
     assert.match(mainBarSource, /QuickActionSpeedDial/)
     assert.match(speedDialSource, /aria-label="Quick create actions"/)
     assert.match(speedDialSource, /Escape/)

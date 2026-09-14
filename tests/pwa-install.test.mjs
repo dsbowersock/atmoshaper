@@ -46,8 +46,12 @@ describe("PWA install capability", () => {
 
   it("keeps install conditional and renders the selected public actions", () => {
     const sidebar = readFileSync(new URL("../components/sidebar/app-sidebar-client.tsx", import.meta.url), "utf8")
+    const dialog = readFileSync(new URL("../components/pwa/install-massagelab-dialog.tsx", import.meta.url), "utf8")
     assert.match(sidebar, /status === "prompt" \|\| status === "instructions"/)
-    assert.match(sidebar, /Install MassageLab/)
+    assert.match(sidebar, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.match(dialog, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.match(dialog, /<DialogTitle\b[^>]*>\s*<Download aria-hidden="true" \/>\s*\{"Install " \+ PUBLIC_PRODUCT_IDENTITY\.name\}\s*<\/DialogTitle>/)
+    assert.match(dialog, /<DialogDescription>\{"On iPhone or iPad, Safari installs " \+ PUBLIC_PRODUCT_IDENTITY\.name \+ " from the Share menu\."\}<\/DialogDescription>/)
     assert.match(
       sidebar,
       /const publicRoutes = accountRoutes\.filter\(\(route\) => \["help-faq", "send-feedback", "legal"\]\.includes\(route\.id\)\)/,
@@ -58,6 +62,7 @@ describe("PWA install capability", () => {
     )?.[0]
     assert.ok(commonMenuGroup)
     assert.match(commonMenuGroup, /Site Settings/)
+    assert.match(commonMenuGroup, /<DropdownMenuItem onSelect=\{\(\) => void handleInstall\(\)\}>\s*<Download className="mr-2 h-4 w-4" \/>\s*\{"Install " \+ PUBLIC_PRODUCT_IDENTITY\.name\}\s*<\/DropdownMenuItem>/)
     assert.match(commonMenuGroup, /\{publicRoutes\.map\(\(route\) => \{/)
     assert.match(commonMenuGroup, /<DropdownMenuItem key=\{route\.id\} asChild>/)
     assert.match(commonMenuGroup, /\{route\.label\}/)

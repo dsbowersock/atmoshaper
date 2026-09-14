@@ -10,6 +10,7 @@ import { useSidebar } from "@/components/ui/sidebar"
 import { useResolvedTheme, useSettings } from "@/components/providers/settings-provider"
 import type { SidebarUser } from "@/components/sidebar/app-sidebar-client"
 import { resolveMainBarLayout } from "@/lib/app-shell"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 import { AppBarBrandLink } from "./app-bar-brand-link"
 import { AppToolLink } from "./app-tool-link"
@@ -119,7 +120,7 @@ export function MobileMainBar({ user }: { user: SidebarUser }) {
         returnFocusRef={quickCreateButtonRef}
       />
       <nav
-        aria-label="MassageLab main navigation"
+        aria-label={PUBLIC_PRODUCT_IDENTITY.name + " main navigation"}
         data-sidebar-position={settings.sidebarPosition}
         data-app-bar-position={settings.appBarPosition}
         data-sidebar-open={isMobile && openMobile ? "true" : "false"}

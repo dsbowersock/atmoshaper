@@ -49,6 +49,7 @@ import {
   Wrench,
 } from "lucide-react"
 import { InstallMassageLabDialog } from "@/components/pwa/install-massagelab-dialog"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { LinkPendingIndicator } from "@/components/shell/link-pending-indicator"
 import { usePwaInstall } from "@/components/providers/pwa-install-provider"
 import { useSettings } from "@/components/providers/settings-provider"
@@ -719,7 +720,7 @@ function AccountMenu({
               {installAvailable ? (
                 <DropdownMenuItem onSelect={() => void handleInstall()}>
                   <Download className="mr-2 h-4 w-4" />
-                  Install MassageLab
+                  {"Install " + PUBLIC_PRODUCT_IDENTITY.name}
                 </DropdownMenuItem>
               ) : null}
               {publicRoutes.map((route) => {

@@ -2,6 +2,100 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-13 — Phase 5 identity Browser QA passed; temporary QA removed
+
+- The user separately authorized one new independent empty temporary Neon
+  Browser-QA lifecycle. The accepted project was proven distinct from the
+  existing production project, initially contained no tables, received exactly
+  the 46 committed migrations, and matched the committed migration-name set.
+  All 134 application tables contained zero rows before Browser QA.
+- `npm run build:browser-qa` completed immediately before
+  `npm run test:browser -- tests/browser/pwa.spec.ts tests/browser/app-shell.spec.ts`.
+  The exact selection enumerates 152 cases; Playwright's final run receipt was
+  `passed` with zero failed tests. No snapshot update or runtime correction was
+  made.
+- Post-run exact row counts remained zero for all 134 application tables. The
+  cycle-owned temporary project was deleted and proved absent, while the
+  existing production project remained present. No production data was copied,
+  read or altered.
+- Phase 5 local implementation and its authorized Browser QA are complete. PR #4
+  is open; initial published head `4f5485611e18327099081990d3d65e0943b89317`
+  passed hosted CI and exact-head CodeRabbit without actionable comments. Successor heads repeat those gates before merge; deployment, Phase 6 and merge remain gated.
+
+## 2026-09-13 — Phase 5 identity complete locally; fresh Browser QA gated
+
+- Planning commit `dc42f074df48817f5bbbfe60576d1f81abbd5559` and
+  pre-implementation evidence commit `e878432d5b2ad213ee887645e3b202fd65f56eb1`
+  precede the three reviewed implementation commits: Task 1
+  `c1715d24eefd12d05f38b7c90d1d16954ea9c039` adds the frozen, dependency-free
+  owner and contract; Task 2 `ad0ae618648138295935cc701629369cc19481d7`
+  delegates SEO compatibility exports/Open Graph alt, manifest names and Apple
+  title; Task 3 `c9acf0fdcbfa7be8cb1fa3e004fa462054e27131` delegates app-bar
+  label/assets, mobile navigation label and install action/title/iOS guidance.
+  Each task passed independent specification and code-quality reviews with no
+  findings. Task 2 passed 14/14 focused tests and typecheck; Task 3 passed 48/48
+  focused tests and typecheck.
+- Branch-wide focused tests passed 58/58. Full unit tests passed with 4,557
+  total, 4,554 passed, 3 expected skips, zero failures and 527,763.2615 ms.
+  Prisma validate/generate, typecheck and lint passed; lint emitted only the
+  existing Babel deoptimization note for `app/chimer/running-timer.tsx`.
+  The Next.js 16.2.12 production build passed compilation, TypeScript, 115/115
+  static pages and the final route table with exit 0; the existing non-fatal
+  `ANATOMIME_POLL_SHEDDER` initialization message remained. Prisma generation
+  and builds left the worktree clean before these documentation edits.
+- Post-code inventory measured 1,954 files and 48,276,437 tracked Git blob bytes,
+  inventory SHA-256 `7b9b988b1316d3f75de31547ad07f44492ff990f59aa5d292dfe6e3d3f96e292`,
+  with zero forbidden paths. Against the 1,952-file, 48,267,941-byte baseline,
+  this is +2 files and +8,496 bytes; the 115-page route count is unchanged.
+  These are observations, not performance claims, and precede document staging.
+- Every affected runtime value remains `MassageLab`; assets, routes, layout,
+  accessibility and install behavior are unchanged. SEO exports remain
+  compatibility adapters. Only mapped inline presentation copies retired;
+  legal/support/domain/provider/persistence/auth/billing/environment/storage/
+  media/audit/historical/internal identifiers remain with their existing owners.
+  Rollback reverts the three task commits or branch, restores mapped inline
+  copies and removes the owner/test; no external rollback is needed.
+- The local Phase 5 identity slice, staged brand fixed point and both
+  complete-branch final specification and code-quality reviews passed. Fresh
+  Browser QA is next and separately authorized; no independent empty QA
+  environment is currently proven. A separately authorized empty temporary QA
+  lifecycle must run `npm run build:browser-qa` immediately before scoped
+  Playwright without snapshot updates; production must not be reused.
+  No provider resource, production data, deployment, Phase 6 rebrand, push, PR
+  or merge changed or was authorized by this local closeout.
+
+## 2026-09-13 — Phase 4 merged; first Phase 5 subsystem approved and planned
+
+- [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3) merged into `main`
+  at `2026-09-13T17:56:59Z` by `dsbowersock` as
+  `a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb`. The merge includes exact reviewed
+  head `69ff135aed8d0b1ecb43c054595d1e08e89a22b1`; all required hosted checks,
+  latest-head CodeRabbit review and unresolved-thread verification were clean
+  immediately before merge. The review branch remains retained.
+- Created `codex/atmoshaper-public-product-identity` from the exact merge after a
+  clean one-worktree snapshot. The user selected public product identity as the
+  first Phase 5 subsystem.
+- The approved design direction introduces one side-effect-free data owner for
+  the current public presentation name and bounded SEO/app-shell image paths,
+  then rewires only SEO identity, manifest/root metadata, app-bar/mobile-main-bar
+  branding and PWA installation presentation.
+- The behavior contract keeps every rendered `MassageLab` value, image, route,
+  layout and accessibility label unchanged. Legal, support-address, domain,
+  provider, persistence, auth, billing, environment, storage, media, audit and
+  internal compatibility identifiers remain excluded.
+- The user approved the written specification. The resulting
+  [implementation plan](superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md)
+  defines four coherent local tasks with a fresh implementer and independent
+  specification/code-quality reviews for each task.
+- Independent plan review found that the app-shell browser suite needs
+  `npm run build:browser-qa` immediately before Playwright because an ordinary
+  production artifact lacks its proof route and Browser-QA hooks. The plan was
+  corrected, gained a pre-refactor inventory/build measurement, and then passed
+  re-review with no remaining issues.
+- Local subagent-driven implementation is now active. Browser-QA provider
+  creation, push, pull request, hosted review, merge, deployment and Phase 6
+  rebrand remain separate later gates.
+
 ## 2026-09-08 — Fresh-history repository candidate materialized (historical Task 5 snapshot)
 
 - Phase 1 passed. Phase 2 is in progress at Task 5. Source selection was relocked to exact merged MassageLab `main` commit `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`; reviewed relock commit `f3b92a1afc44a5fdb2d56653bc82c8d0dc9a933e` descends from that immutable source and owns the migration-document overlays.

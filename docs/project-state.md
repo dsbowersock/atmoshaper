@@ -4,7 +4,48 @@ Verified: 2026-09-13
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 4 Audit-Only Round 27 Closeout
+## Current Snapshot — Phase 5 Public Product Identity and Browser QA Complete Locally
+
+- Phase 4 is merged. [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3)
+  merged into `main` at `2026-09-13T17:56:59Z` by `dsbowersock` as
+  `a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb`. Its exact reviewed head was
+  `69ff135aed8d0b1ecb43c054595d1e08e89a22b1`; the retained review branch is
+  `codex/atmoshaper-dead-code-audit`.
+- The user selected public product identity as the first Phase 5 subsystem. The
+  clean branch `codex/atmoshaper-public-product-identity` starts from the exact
+  Phase 4 merge. The user approved its [written design](superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md),
+  and the [implementation plan](superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md)
+  passed independent review after its Browser-QA build prerequisite was made
+  explicit.
+- Local Tasks 1–3 are complete: one frozen, dependency-free identity owner now
+  serves the mapped SEO/metadata, app-shell and PWA consumers. Each task passed
+  independent specification and code-quality reviews with no findings. All
+  affected runtime values remain `MassageLab`, with the same assets, routes,
+  layout, accessibility and install behavior; SEO exports remain compatibility
+  adapters. Only mapped inline presentation copies retired.
+- Broad local verification passed: focused tests 58/58; full unit tests 4,557
+  total, 4,554 passed, 3 expected skips and zero failures; Prisma validate and
+  generate, typecheck, lint and production build. Next.js 16.2.12 generated
+  115/115 static pages and the complete route table, unchanged from baseline.
+  The [evidence record](aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/90-evidence.md)
+  records exact commits, inventory observations and non-fatal build/lint notes.
+- The staged brand baseline reached a byte-identical generated fixed point with
+  zero unexplained category drift. The local Phase 5 identity slice and both
+  complete-branch final specification and code-quality reviews passed.
+- The separately authorized Browser-QA lifecycle used a new independent empty
+  temporary Neon project. Its non-production identity was proven before use,
+  exactly 46 committed migrations were applied, and all 134 application tables
+  were empty both before and after the run. `npm run build:browser-qa` completed
+  immediately before the exact scoped Playwright command for `pwa.spec.ts` and
+  `app-shell.spec.ts`; the 152-case selection completed with status `passed`,
+  zero failed tests and no snapshot update. The temporary project was deleted
+  and proved absent; the existing production project remained present, and no
+  production data was copied, read or altered.
+- PR #4 is open. Initial published head `4f5485611e18327099081990d3d65e0943b89317`
+  passed Code quality, Browser build, all four Browser QA lanes, aggregate QA
+  and exact-head CodeRabbit with no actionable comments. Successor heads must repeat these gates before merge; deployment, Phase 6 rebrand and merge remain gated.
+
+## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 
 - The staged Round 27 candidate addresses finally-aware break/continue state, anonymous default function declarations, captured/default environment provenance, and BigInt zero spellings. Independent specification review found one reciprocal provenance case; it was fixed, and scoped specification re-review and full-candidate quality review passed. Code quality's CI timeout increases from 12 to 20 minutes after the prior hosted job was cancelled during unit tests, without an assertion failure.
 - Fresh coordinator checks passed: focused audit/browser-harness tests 386/386; full tests 4,552 total, 4,549 passed, 3 expected skips, zero failures; Prisma validate/generate, typecheck, lint, build (115 pages), and cached diff check. Pre-document audit receipts are historical once these records are staged; [the evidence record](aegis/work/2026-09-10-atmoshaper-phase4-audit-only/90-evidence.md#round-27-integrated-closeout--2026-09-13) records their boundary. Ordinary brand audit reported zero missing/unclassified. Generated candidates A/B had 26,380 identical entries, unchanged source/categories, and zero occurrence deltas; their difference from the checked-out baseline was only generated LF versus Windows CRLF serialization.
