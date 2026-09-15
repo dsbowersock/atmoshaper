@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "@prisma/client"
 import { createHash } from "node:crypto"
 import { normalizeEmail } from "../auth-security.js"
 import { runCommerceTransaction } from "../commerce/transactions.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "../public-product-identity.js"
 import { requireFullAdminUser } from "./access.ts"
 import { validateAdminReason, type AdminReasonCode } from "./operation-contract.ts"
 import {
@@ -461,14 +462,14 @@ function buildGrantBundle(
     },
     activity: {
       title: "Temporary feature access granted",
-      explanation: `Massage Lab support granted temporary ${featureLabel} access through ${readableExpiresAt}.`,
+      explanation: `${PUBLIC_PRODUCT_IDENTITY.name} support granted temporary ${featureLabel} access through ${readableExpiresAt}.`,
       effectiveValue: `${featureLabel} through ${readableExpiresAt}`,
     },
     email: {
       kind: "TEMPORARY_FEATURE_ACCESS_GRANTED",
       recipientEmail: facts.recipientEmail,
-      subject: "Temporary Massage Lab access was granted",
-      message: `Massage Lab support granted temporary ${featureLabel} access through ${readableExpiresAt}. If you did not expect this change, contact Massage Lab support.`,
+      subject: `Temporary ${PUBLIC_PRODUCT_IDENTITY.name} access was granted`,
+      message: `${PUBLIC_PRODUCT_IDENTITY.name} support granted temporary ${featureLabel} access through ${readableExpiresAt}. If you did not expect this change, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`,
     },
   }
 }
@@ -512,17 +513,17 @@ function buildRevocationBundle(
     activity: {
       title: "Temporary feature access revoked",
       explanation: facts.effective
-        ? `Massage Lab support revoked one temporary ${featureLabel} grant. Another temporary grant remains active.`
-        : `Massage Lab support revoked temporary ${featureLabel} access.`,
+        ? `${PUBLIC_PRODUCT_IDENTITY.name} support revoked one temporary ${featureLabel} grant. Another temporary grant remains active.`
+        : `${PUBLIC_PRODUCT_IDENTITY.name} support revoked temporary ${featureLabel} access.`,
       effectiveValue: facts.effective ? `${featureLabel} remains active` : "Temporary access removed",
     },
     email: {
       kind: "TEMPORARY_FEATURE_ACCESS_REVOKED",
       recipientEmail: facts.recipientEmail,
-      subject: "Temporary Massage Lab access was revoked",
+      subject: `Temporary ${PUBLIC_PRODUCT_IDENTITY.name} access was revoked`,
       message: facts.effective
-        ? `Massage Lab support revoked one temporary ${featureLabel} grant, but another temporary grant remains active. If you did not expect this change, contact Massage Lab support.`
-        : `Massage Lab support revoked temporary ${featureLabel} access. If you did not expect this change, contact Massage Lab support.`,
+        ? `${PUBLIC_PRODUCT_IDENTITY.name} support revoked one temporary ${featureLabel} grant, but another temporary grant remains active. If you did not expect this change, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`
+        : `${PUBLIC_PRODUCT_IDENTITY.name} support revoked temporary ${featureLabel} access. If you did not expect this change, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`,
     },
   }
 }

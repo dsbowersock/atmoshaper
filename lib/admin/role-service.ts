@@ -1,6 +1,7 @@
 import type { Prisma, PrismaClient } from "@prisma/client"
 import { normalizeRoleAssignments } from "../account-permissions.js"
 import { runCommerceTransaction } from "../commerce/transactions.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "../public-product-identity.js"
 import { requireFullAdminUser } from "./access.ts"
 import type { AdminReasonCode } from "./operation-contract.ts"
 import {
@@ -222,14 +223,14 @@ function buildRoleBundle(input: ChangeAnatomyRoleInput, facts: BundleFacts): Rec
     },
     activity: {
       title: `${roleLabel} access ${stateVerb}`,
-      explanation: `${roleLabel} access was ${stateVerb} for your Massage Lab account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.`,
+      explanation: `${roleLabel} access was ${stateVerb} for your ${PUBLIC_PRODUCT_IDENTITY.name} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.`,
       effectiveValue: assigning ? roleLabel : "Removed",
     },
     email: {
       kind: assigning ? "ANATOMY_ROLE_ASSIGNED" : "ANATOMY_ROLE_REVOKED",
       recipientEmail: facts.recipientEmail,
-      subject: `Your Massage Lab anatomy access was ${stateVerb}`,
-      message: `${roleLabel} access was ${stateVerb} for your Massage Lab account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact Massage Lab support.`,
+      subject: `Your ${PUBLIC_PRODUCT_IDENTITY.name} anatomy access was ${stateVerb}`,
+      message: `${roleLabel} access was ${stateVerb} for your ${PUBLIC_PRODUCT_IDENTITY.name} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`,
     },
   }
 }

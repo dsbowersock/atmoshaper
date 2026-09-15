@@ -17,6 +17,7 @@ import { AppInset, AppNotice, AppPageShell, AppSurface, appCalloutClassName } fr
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import {
   PROFESSIONAL_RECORD_VAULT_STORAGE_KEY,
   collectLegacyProfessionalRecordMigration,
@@ -92,7 +93,7 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       const parsed = JSON.parse(raw)
       if (!isEncryptedProfessionalRecordVault(parsed)) {
         setStatus("corrupt")
-        setMessage("MassageLab could not read this browser's professional-record vault metadata.")
+        setMessage(`${PUBLIC_PRODUCT_IDENTITY.name} could not read this browser's professional-record vault metadata.`)
         return
       }
 
@@ -100,7 +101,7 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       setStatus("locked")
     } catch {
       setStatus("corrupt")
-      setMessage("MassageLab could not parse this browser's professional-record vault.")
+      setMessage(`${PUBLIC_PRODUCT_IDENTITY.name} could not parse this browser's professional-record vault.`)
     }
   }, [])
 
@@ -354,7 +355,7 @@ export function ProfessionalRecordVaultGate({ children }: { children: ReactNode 
           isSetup
             ? "Create an offline passphrase before making or viewing therapist documentation in this browser."
             : isCorrupt
-              ? "MassageLab could not read this browser's professional-record vault data."
+              ? `${PUBLIC_PRODUCT_IDENTITY.name} could not read this browser's professional-record vault data.`
               : "Enter the passphrase to unlock local therapist documentation for this browser session."
         }
         icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}

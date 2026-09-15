@@ -2,33 +2,34 @@ import { createHash, randomBytes } from "node:crypto"
 import type { AccountSecurityEmailKind, PrismaClient } from "@prisma/client"
 
 import { sendAccountChangeEmail } from "./auth-mail.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "./public-product-identity.js"
 
 const CLAIM_LEASE_MS = 5 * 60 * 1000
 
 const SECURITY_EMAIL_COPY: Record<AccountSecurityEmailKind, { subject: string; message: string }> = {
   GOOGLE_LINKED: {
-    subject: "Google sign-in linked to your MassageLab account",
-    message: "Google sign-in was linked to your MassageLab account. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.",
+    subject: `Google sign-in linked to your ${PUBLIC_PRODUCT_IDENTITY.name} account`,
+    message: `Google sign-in was linked to your ${PUBLIC_PRODUCT_IDENTITY.name} account. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.`,
   },
   GOOGLE_UNLINKED: {
-    subject: "Google sign-in removed from your MassageLab account",
-    message: "Google sign-in was removed from your MassageLab account. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.",
+    subject: `Google sign-in removed from your ${PUBLIC_PRODUCT_IDENTITY.name} account`,
+    message: `Google sign-in was removed from your ${PUBLIC_PRODUCT_IDENTITY.name} account. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.`,
   },
   PASSWORD_ENABLED: {
-    subject: "Password sign-in enabled for your MassageLab account",
-    message: "Password sign-in was enabled for your MassageLab account. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.",
+    subject: `Password sign-in enabled for your ${PUBLIC_PRODUCT_IDENTITY.name} account`,
+    message: `Password sign-in was enabled for your ${PUBLIC_PRODUCT_IDENTITY.name} account. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.`,
   },
   PASSWORD_CHANGED: {
-    subject: "MassageLab account password changed",
-    message: "The password for your MassageLab account was changed. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.",
+    subject: `${PUBLIC_PRODUCT_IDENTITY.name} account password changed`,
+    message: `The password for your ${PUBLIC_PRODUCT_IDENTITY.name} account was changed. If you made this change, no action is needed. If you did not, reset your password and contact support. You may receive this notice more than once if delivery had to be retried.`,
   },
   PASSWORD_DISABLED: {
-    subject: "Password sign-in disabled for your MassageLab account",
-    message: "Password sign-in was disabled for your MassageLab account. If you made this change, no action is needed. If you did not, use your remaining sign-in method and contact support. You may receive this notice more than once if delivery had to be retried.",
+    subject: `Password sign-in disabled for your ${PUBLIC_PRODUCT_IDENTITY.name} account`,
+    message: `Password sign-in was disabled for your ${PUBLIC_PRODUCT_IDENTITY.name} account. If you made this change, no action is needed. If you did not, use your remaining sign-in method and contact support. You may receive this notice more than once if delivery had to be retried.`,
   },
   PASSWORD_RECOVERED: {
-    subject: "Password sign-in added or replaced for your MassageLab account",
-    message: "Password sign-in was added or replaced for your MassageLab account. This can add email and password to an existing account, or replace an existing password. Existing sign-in methods remain connected. If you made this change, no action is needed. If you did not, contact support. You may receive this notice more than once if delivery had to be retried.",
+    subject: `Password sign-in added or replaced for your ${PUBLIC_PRODUCT_IDENTITY.name} account`,
+    message: `Password sign-in was added or replaced for your ${PUBLIC_PRODUCT_IDENTITY.name} account. This can add email and password to an existing account, or replace an existing password. Existing sign-in methods remain connected. If you made this change, no action is needed. If you did not, contact support. You may receive this notice more than once if delivery had to be retried.`,
   },
 }
 

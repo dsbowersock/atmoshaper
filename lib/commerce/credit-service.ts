@@ -12,6 +12,7 @@ import {
   type RecordAdminActionInput,
 } from "../admin/operation-service.ts"
 import { normalizeEmail } from "../auth-security.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../public-product-identity.js"
 import { runCommerceTransaction } from "./transactions.ts"
 
 export const INITIAL_BACKGROUND_CREDIT_COUNT = 2
@@ -381,14 +382,14 @@ function buildAdminGrantBundle(
     afterState: { preparedBalance: input.expectedBalance, balance: facts.balanceAfter, amount: input.amount },
     activity: {
       title: "Background credits added",
-      explanation: `${amountLabel} ${addedVerb} added to your Massage Lab account by support. Your balance is now ${facts.balanceAfter}.`,
+      explanation: `${amountLabel} ${addedVerb} added to your ${PUBLIC_PRODUCT_IDENTITY.name} account by support. Your balance is now ${facts.balanceAfter}.`,
       effectiveValue: `+${input.amount} credits`,
     },
     email: {
       kind: "BACKGROUND_CREDITS_ADMIN_GRANTED",
       recipientEmail: facts.recipientEmail,
-      subject: "Background credits were added to your Massage Lab account",
-      message: `Massage Lab support added ${amountLabel} to your account. Your balance changed from ${facts.previousBalance} to ${facts.balanceAfter}. If you did not expect this change, contact Massage Lab support.`,
+      subject: `Background credits were added to your ${PUBLIC_PRODUCT_IDENTITY.name} account`,
+      message: `${PUBLIC_PRODUCT_IDENTITY.name} support added ${amountLabel} to your account. Your balance changed from ${facts.previousBalance} to ${facts.balanceAfter}. If you did not expect this change, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`,
     },
   }
 }

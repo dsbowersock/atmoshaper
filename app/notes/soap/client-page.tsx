@@ -22,6 +22,7 @@ import {
   createEditableDocumentHtml,
   createLocalDocumentFilename,
 } from "@/lib/local-documents"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import {
   PlaintextOutputWarningAction,
   ProfessionalRecordVaultGate,
@@ -117,7 +118,7 @@ function formatLine(label: string, value: unknown) {
 
 function generateSoapText(data: SoapNoteData) {
   return [
-    "MassageLab SOAP Note",
+    `${PUBLIC_PRODUCT_IDENTITY.name} SOAP Note`,
     "Local-first export. User is responsible for PHI storage and sharing.",
     "",
     "Identifying Information",
@@ -249,7 +250,7 @@ export default function SoapNotesPage() {
     })
     downloadFile(
       filename,
-      createEditableDocumentHtml({ title: "MassageLab SOAP Note", body: generateSoapText(formData) }),
+      createEditableDocumentHtml({ title: `${PUBLIC_PRODUCT_IDENTITY.name} SOAP Note`, body: generateSoapText(formData) }),
       "application/msword",
     )
     setMessage("Created a plaintext DOC file from the unlocked vault. Store and share it carefully.")
@@ -257,7 +258,7 @@ export default function SoapNotesPage() {
 
   const printPdf = () => {
     const opened = openPrintDocument(
-      createEditableDocumentHtml({ title: "MassageLab SOAP Note", body: generateSoapText(formData) }),
+      createEditableDocumentHtml({ title: `${PUBLIC_PRODUCT_IDENTITY.name} SOAP Note`, body: generateSoapText(formData) }),
     )
     setMessage(opened ? "Opened a plaintext print view. Choose Save as PDF in your browser dialog." : "Could not open the print view.")
   }
@@ -271,7 +272,7 @@ export default function SoapNotesPage() {
             <div>
               <CardTitle>Encrypted professional-record vault</CardTitle>
               <CardDescription>
-                SOAP notes are stored in the unlocked browser vault. MassageLab does not upload this note or import plaintext clinical JSON.
+                SOAP notes are stored in the unlocked browser vault. {PUBLIC_PRODUCT_IDENTITY.name} does not upload this note or import plaintext clinical JSON.
               </CardDescription>
             </div>
           </CardHeader>

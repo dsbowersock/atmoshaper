@@ -16,6 +16,7 @@ import {
   isRegistrationLegalAcceptancePath,
   safePostLegalAcceptanceCallback,
 } from "@/lib/legal-acceptance-gate"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 type LoginFormProps = {
   googleEnabled: boolean
@@ -118,7 +119,7 @@ export function LoginForm({ googleEnabled }: LoginFormProps) {
 
   return (
     <AppSurface
-      title="MassageLab account"
+      title={`${PUBLIC_PRODUCT_IDENTITY.name} account`}
       description={
         <>
           Sign in to sync preferences, profile defaults, progress, templates, and achievements. Core tools still work without login.

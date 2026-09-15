@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "@prisma/client"
 import { generateRandomToken, hashToken, normalizeEmail } from "../auth-security.js"
 import { sendPasswordResetEmail } from "../auth-mail.ts"
 import { runCommerceTransaction } from "../commerce/transactions.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "../public-product-identity.js"
 import { requireFullAdminUser } from "./access.ts"
 import { validateAdminReason, type AdminReasonCode } from "./operation-contract.ts"
 import {
@@ -388,14 +389,14 @@ function buildSessionRevocationBundle(input: AdminSecurityBaseInput, facts: Sess
     },
     activity: {
       title: "Sign-in tokens invalidated",
-      explanation: "Existing sign-in tokens were invalidated for your account by Massage Lab support. You will be signed out when an older token next reaches a successful database-backed session refresh.",
+      explanation: `Existing sign-in tokens were invalidated for your account by ${PUBLIC_PRODUCT_IDENTITY.name} support. You will be signed out when an older token next reaches a successful database-backed session refresh.`,
       effectiveValue: "Security refresh required",
     },
     email: {
       kind: "SESSIONS_REVOKED",
       recipientEmail: facts.recipientEmail,
-      subject: "Your Massage Lab sign-in tokens were invalidated",
-      message: "Existing sign-in tokens were invalidated for your account by Massage Lab support. You will be signed out when an older token next reaches a successful database-backed session refresh. If you did not expect this action, contact Massage Lab support.",
+      subject: `Your ${PUBLIC_PRODUCT_IDENTITY.name} sign-in tokens were invalidated`,
+      message: `Existing sign-in tokens were invalidated for your account by ${PUBLIC_PRODUCT_IDENTITY.name} support. You will be signed out when an older token next reaches a successful database-backed session refresh. If you did not expect this action, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`,
     },
   }
 }
@@ -427,14 +428,14 @@ function buildTwoFactorResetBundle(input: AdminSecurityBaseInput, facts: TwoFact
     },
     activity: {
       title: "Two-factor authentication reset",
-      explanation: "Massage Lab support reset two-factor authentication for your account and invalidated existing sign-in tokens. You can configure two-factor authentication again from Account Security.",
+      explanation: `${PUBLIC_PRODUCT_IDENTITY.name} support reset two-factor authentication for your account and invalidated existing sign-in tokens. You can configure two-factor authentication again from Account Security.`,
       effectiveValue: "Two-factor authentication off",
     },
     email: {
       kind: "TWO_FACTOR_RESET",
       recipientEmail: facts.recipientEmail,
-      subject: "Your Massage Lab two-factor authentication was reset",
-      message: "Massage Lab support reset two-factor authentication for your account and invalidated existing sign-in tokens. You can configure two-factor authentication again from Account Security. If you did not expect this action, contact Massage Lab support.",
+      subject: `Your ${PUBLIC_PRODUCT_IDENTITY.name} two-factor authentication was reset`,
+      message: `${PUBLIC_PRODUCT_IDENTITY.name} support reset two-factor authentication for your account and invalidated existing sign-in tokens. You can configure two-factor authentication again from Account Security. If you did not expect this action, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`,
     },
   }
 }
@@ -454,13 +455,13 @@ function buildPasswordResetBundle(input: AdminSecurityBaseInput, facts: {
     },
     activity: {
       title: "Password reset requested",
-      explanation: "Massage Lab support requested a password-reset email for your account. The secure link expires 60 minutes after it is created.",
+      explanation: `${PUBLIC_PRODUCT_IDENTITY.name} support requested a password-reset email for your account. The secure link expires 60 minutes after it is created.`,
       effectiveValue: "Reset email requested",
     },
     email: {
       kind: "PASSWORD_RESET",
       recipientEmail: facts.recipientEmail,
-      subject: "Reset your MassageLab password",
+      subject: `Reset your ${PUBLIC_PRODUCT_IDENTITY.name} password`,
       message: "A standard secure password-reset message was requested. The reset link is generated only for delivery and is not stored in this administrative record.",
     },
   }

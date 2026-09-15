@@ -7,6 +7,7 @@ import { clearAccountSurfaceDataCache } from "@/lib/account-surface-data"
 import { getAuthSecret } from "@/lib/auth-env"
 import { AUTH_METHOD_INTENT_COOKIE, resolveBoundAuthMethodIntent } from "@/lib/auth-method-intents"
 import { prisma } from "@/lib/prisma"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 const FRESH_PASSWORD_MS = 5 * 60 * 1000
 
@@ -74,7 +75,7 @@ export function createGoogleLinkConfirmHandler({
     clearCache(userId, "security")
     const response = NextResponse.json({
       code: "GOOGLE_LINKED",
-      message: "Google sign-in is now linked to this MassageLab account.",
+      message: `Google sign-in is now linked to this ${PUBLIC_PRODUCT_IDENTITY.name} account.`,
       googleLinked: result.googleLinked,
       hasPasswordCredential: result.passwordEnabled,
     })

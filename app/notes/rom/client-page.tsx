@@ -13,6 +13,7 @@ import {
   createEditableDocumentHtml,
   createLocalDocumentFilename,
 } from "@/lib/local-documents"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import {
   PlaintextOutputWarningAction,
   ProfessionalRecordVaultGate,
@@ -113,7 +114,7 @@ function generateRomText(data: RomDocument) {
     : "No measurements recorded."
 
   return [
-    "MassageLab Range of Motion Session",
+    `${PUBLIC_PRODUCT_IDENTITY.name} Range of Motion Session`,
     "Local-first export. User is responsible for sensitive health data storage and sharing.",
     "",
     `Client: ${data.clientName}`,
@@ -221,7 +222,7 @@ export default function RomPage() {
     })
     downloadFile(
       filename,
-      createEditableDocumentHtml({ title: "MassageLab Range of Motion Session", body: generateRomText(documentData) }),
+      createEditableDocumentHtml({ title: `${PUBLIC_PRODUCT_IDENTITY.name} Range of Motion Session`, body: generateRomText(documentData) }),
       "application/msword",
     )
     setMessage("Created a plaintext DOC file from the unlocked vault. Store and share it carefully.")
@@ -229,7 +230,7 @@ export default function RomPage() {
 
   const printPdf = () => {
     const opened = openPrintDocument(
-      createEditableDocumentHtml({ title: "MassageLab Range of Motion Session", body: generateRomText(documentData) }),
+      createEditableDocumentHtml({ title: `${PUBLIC_PRODUCT_IDENTITY.name} Range of Motion Session`, body: generateRomText(documentData) }),
     )
     setMessage(opened ? "Opened a plaintext print view. Choose Save as PDF in your browser dialog." : "Could not open the print view.")
   }

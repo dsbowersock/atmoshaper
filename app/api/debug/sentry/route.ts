@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 export const dynamic = "force-dynamic"
 
@@ -7,5 +8,5 @@ export function GET() {
     return NextResponse.json({ error: "Sentry test route is disabled." }, { status: 404 })
   }
 
-  throw new Error("MassageLab Sentry server test error")
+  throw new Error(`${PUBLIC_PRODUCT_IDENTITY.name} Sentry server test error`)
 }

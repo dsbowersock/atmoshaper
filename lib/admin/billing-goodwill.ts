@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "@prisma/client"
 import type Stripe from "stripe"
 import { normalizeEmail } from "../auth-security.js"
 import { runCommerceTransaction } from "../commerce/transactions.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "../public-product-identity.js"
 import { AdminAuthorityDeniedError, requireFullAdminUser } from "./access.ts"
 import { validateAdminReason, type AdminReasonCode } from "./operation-contract.ts"
 import {
@@ -781,14 +782,14 @@ function buildGoodwillBundle(
     },
     activity: {
       title: "Invoice credit added",
-      explanation: `Massage Lab support added a $${formatUsd(operation.amountCents)} credit toward future invoices. The invoice credit balance immediately after this credit was $${formatUsd(endingCreditCents)}.`,
+      explanation: `${PUBLIC_PRODUCT_IDENTITY.name} support added a $${formatUsd(operation.amountCents)} credit toward future invoices. The invoice credit balance immediately after this credit was $${formatUsd(endingCreditCents)}.`,
       effectiveValue: `+$${formatUsd(operation.amountCents)} invoice credit`,
     },
     email: {
       kind: "BILLING_GOODWILL_CREDIT_VERIFIED",
       recipientEmail,
-      subject: "A credit was added to your Massage Lab billing account",
-      message: `Massage Lab support added a $${formatUsd(operation.amountCents)} credit toward future invoices. The invoice credit balance immediately after this credit was $${formatUsd(endingCreditCents)}. If you did not expect this change, contact Massage Lab support.`,
+      subject: `A credit was added to your ${PUBLIC_PRODUCT_IDENTITY.name} billing account`,
+      message: `${PUBLIC_PRODUCT_IDENTITY.name} support added a $${formatUsd(operation.amountCents)} credit toward future invoices. The invoice credit balance immediately after this credit was $${formatUsd(endingCreditCents)}. If you did not expect this change, contact ${PUBLIC_PRODUCT_IDENTITY.name} support.`,
     },
   }
 }

@@ -460,12 +460,12 @@ function rewriteRevocationEffectiveEvidence(database, operationKey, effective) {
   const activity = database.state.activities.get(action.id)
   const featureLabel = temporaryAccessContract.ADMIN_TEMPORARY_ACCESS_FEATURE_LABELS[action.afterState.featureKey]
   activity.explanation = effective
-    ? `Massage Lab support revoked one temporary ${featureLabel} grant. Another temporary grant remains active.`
-    : `Massage Lab support revoked temporary ${featureLabel} access.`
+    ? `AtmoShaper support revoked one temporary ${featureLabel} grant. Another temporary grant remains active.`
+    : `AtmoShaper support revoked temporary ${featureLabel} access.`
   activity.effectiveValue = effective ? `${featureLabel} remains active` : "Temporary access removed"
   database.state.intents.get(action.id).message = effective
-    ? `Massage Lab support revoked one temporary ${featureLabel} grant, but another temporary grant remains active. If you did not expect this change, contact Massage Lab support.`
-    : `Massage Lab support revoked temporary ${featureLabel} access. If you did not expect this change, contact Massage Lab support.`
+    ? `AtmoShaper support revoked one temporary ${featureLabel} grant, but another temporary grant remains active. If you did not expect this change, contact AtmoShaper support.`
+    : `AtmoShaper support revoked temporary ${featureLabel} access. If you did not expect this change, contact AtmoShaper support.`
 }
 
 describe("Admin temporary feature access", () => {

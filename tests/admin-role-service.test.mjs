@@ -59,13 +59,15 @@ describe("delegated anatomy role changes", () => {
     assert.equal(database.intents.length, 1)
     assert.equal(
       database.activities[0].explanation,
-      "Anatomy Reviewer access was assigned for your Massage Lab account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.",
+      "Anatomy Reviewer access was assigned for your AtmoShaper account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.",
     )
     assert.equal(
       database.intents[0].message,
-      "Anatomy Reviewer access was assigned for your Massage Lab account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact Massage Lab support.",
+      "Anatomy Reviewer access was assigned for your AtmoShaper account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact AtmoShaper support.",
     )
     assert.deepEqual(database.actions[0].beforeState.roles, ["USER"])
+    assert.equal(database.actions[0].actionKind, "ANATOMY_ROLE_ASSIGNED")
+    assert.notEqual(database.actions[0].actionKind, "ATMOSHAPER_ANATOMY_ROLE_ASSIGNED")
     assert.equal(database.actions[0].beforeState.authSessionVersion, 0)
     assert.deepEqual(database.actions[0].afterState.roles, ["ANATOMY_REVIEWER", "USER"])
     assert.equal(database.actions[0].afterState.authSessionVersion, 1)

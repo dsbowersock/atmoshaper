@@ -1,5 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import {
   sanitizeSentryBreadcrumb,
   sanitizeSentryEvent,
@@ -9,7 +10,16 @@ import {
 
 test("stripUrlSensitiveParts removes query strings and fragments", () => {
   assert.equal(stripUrlSensitiveParts("/notes/soap?client=Jane#pain-map"), "/notes/soap")
-  assert.equal(stripUrlSensitiveParts("https://massagelab.app/chimer?token=abc#clock"), "https://massagelab.app/chimer")
+  const canonicalResult = stripUrlSensitiveParts("https://massagelab.app/chimer?token=abc#clock")
+  assert.equal(canonicalResult, "https://massagelab.app/chimer")
+  assert.doesNotMatch(canonicalResult, /atmoshaper\.app/i)
+})
+
+test("Sentry keeps its compatibility environment name while current test copy uses the product owner", () => {
+  const source = readFileSync(new URL("../app/api/debug/sentry/route.ts", import.meta.url), "utf8")
+  assert.match(source, /MASSAGELAB_ENABLE_SENTRY_TEST_ROUTE/)
+  assert.doesNotMatch(source, /ATMOSHAPER_ENABLE_SENTRY_TEST_ROUTE/)
+  assert.match(source, /PUBLIC_PRODUCT_IDENTITY\.name.*Sentry server test error/)
 })
 
 test("sanitizeSentryEvent removes request body, headers, query strings, and default PII", () => {

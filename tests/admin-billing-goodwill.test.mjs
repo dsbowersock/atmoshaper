@@ -310,6 +310,7 @@ describe("Admin invoice-credit mutation and reconciliation", () => {
         },
         options: { idempotencyKey: "billing-op-1" },
       }])
+      assert.notEqual(fixture.stripeRequests[0].payload.description, "AtmoShaper billing goodwill")
       assert.equal(fixture.state.operations.get("billing-op-1").status, "VERIFIED")
       assert.equal(fixture.state.actions.size, 1)
       assert.equal(fixture.state.activities.size, 1)

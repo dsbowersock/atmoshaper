@@ -32,6 +32,7 @@ import { BILLING_PORTAL_DESTINATIONS } from "@/lib/billing-portal-destinations"
 import { getLegalDocumentByKey, legalDocumentAcceptanceId } from "@/lib/legal-documents"
 import { US_MASSAGE_JURISDICTIONS } from "@/lib/license-verification"
 import { FEATURE_KEYS, resolveMembershipPricingMode } from "@/lib/membership"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { getPublicLaunchControls, SUPPORTER_CHECKOUT_PAUSED_MESSAGE } from "@/lib/public-launch-controls"
 import type { AccountRole, VerificationStatus } from "@/lib/domain-types"
 import { cn } from "@/lib/utils"
@@ -228,7 +229,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   // Account status uses the aggregate feature-key claim; a permanently owned
   // background does not imply that membership benefits are currently active.
   const hasActiveMembershipBenefits = sessionHasActiveMembershipBenefits(session.user as AccountSessionUser)
-  const accountDisplayName = session.user.name || session.user.email || "MassageLab account"
+  const accountDisplayName = session.user.name || session.user.email || `${PUBLIC_PRODUCT_IDENTITY.name} account`
   const roleSummary = roleLabels.length > 0 ? roleLabels.map(formatRole).join(", ") : "User"
   const accountItemStatuses = {
     overview: "Summary",
@@ -450,7 +451,7 @@ async function OverviewTab({ userId, sessionUser }: { userId: string; sessionUse
             href="/onboarding"
             icon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
             title="Tune your starting path"
-            description="Update the role and tool priorities MassageLab uses to shape account shortcuts."
+            description={`Update the role and tool priorities ${PUBLIC_PRODUCT_IDENTITY.name} uses to shape account shortcuts.`}
           />
           {sessionUser.capabilities?.canManageAnatomyContent ? (
             <AccountActionLink
@@ -577,7 +578,7 @@ async function CredentialsTab({ userId, sessionUser }: { userId: string; session
             Role verification
           </CardTitle>
           <CardDescription>
-            Ohio massage licenses can verify automatically. Student enrollment and other jurisdictions stay pending until MassageLab can review the credential.
+            Ohio massage licenses can verify automatically. Student enrollment and other jurisdictions stay pending until {PUBLIC_PRODUCT_IDENTITY.name} can review the credential.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -945,7 +946,7 @@ async function SyncTab({ userId, sessionUser }: { userId: string; sessionUser: A
           <div>
             <CardTitle>{data.clinicalSyncReadiness.enabled ? "Clinical sync is gated" : "Clinical sync is not hosted yet"}</CardTitle>
             <CardDescription>
-              Notes, intake forms, journals, and range-of-motion data stay on the user&apos;s device. MassageLab is structured for future compliant sync, but it will stay off until BAAs, risk review, audit controls, and sustainable funding are in place.
+              Notes, intake forms, journals, and range-of-motion data stay on the user&apos;s device. {PUBLIC_PRODUCT_IDENTITY.name} is structured for future compliant sync, but it will stay off until BAAs, risk review, audit controls, and sustainable funding are in place.
             </CardDescription>
           </div>
         </CardHeader>
@@ -1229,8 +1230,8 @@ function billingMessage(code: string) {
   if (code === "existing-subscription") return "Use Change support amount or billing period to update your current membership."
   if (code === "billing-terms-required") return "Accept the membership billing and refund terms before starting checkout."
   if (code === "account-not-found") return "The signed-in account could not be found."
-  // Origin validation rejected the form, so retry only after reloading a trusted MassageLab page.
-  if (code === "invalid-request") return "Reload this page from MassageLab and try checkout again."
+  // Origin validation rejected the form, so retry only after reloading a trusted AtmoShaper page.
+  if (code === "invalid-request") return `Reload this page from ${PUBLIC_PRODUCT_IDENTITY.name} and try checkout again.`
   if (code === "checkout-error") return "We could not open checkout right now. Please try again or contact support if this continues."
   return "We could not open checkout right now."
 }
