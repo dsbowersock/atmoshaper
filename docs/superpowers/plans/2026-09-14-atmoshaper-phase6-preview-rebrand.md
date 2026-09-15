@@ -1041,6 +1041,7 @@ parity oracle.
 - Modify: `docs/aegis/work/2026-09-14-atmoshaper-phase6-preview-rebrand/90-evidence.md`
 - Create: `docs/aegis/work/2026-09-14-atmoshaper-phase6-preview-rebrand/99-reflection.md`
 - Modify: `tests/family-friends-server-workload.test.mjs`
+- Modify: `tests/proprietary-license.test.mjs`
 
 - [ ] Capture `TaskStartSnapshot`.
 - [ ] Synchronize current authority with exact facts: Phase 5 PR #4 merged as
@@ -1049,6 +1050,9 @@ parity oracle.
   text-only fallback; legal archive/current versions; retained endpoints and
   compatibility names; final-logo, provider, deployment, domain, push/PR/merge
   status. Append the project log; do not rewrite dated historical entries.
+- [ ] Update README's copyright/DBA identity and its focused proprietary-license
+  assertion together to exact `Derrick Bowersock, doing business as AtmoShaper`.
+  Do not remove or weaken the assertion.
 - [ ] Amend ADR 0002 to the approved decision. Mark it Accepted only after all
   local implementation/verification evidence is complete; otherwise keep it
   Proposed with exact remaining gate. Record that legal migration was separately
