@@ -25,20 +25,18 @@ function readProjectFile(path) {
 }
 
 describe("SEO route contract", () => {
-  it("preserves public identity exports and root social metadata", () => {
-    assert.equal(SEO_SITE_NAME, "MassageLab")
-    assert.equal(SEO_DEFAULT_IMAGE, "/brand/massagelab-home-logo-badge-padded-20260622.png")
+  it("presents AtmoShaper and omits unapproved root social imagery", () => {
+    assert.equal(SEO_SITE_NAME, "AtmoShaper")
+    assert.equal(SEO_DEFAULT_IMAGE, null)
 
     const metadata = createPublicPageMetadata("/")
 
-    assert.equal(metadata.applicationName, "MassageLab")
-    assert.equal(metadata.openGraph.siteName, "MassageLab")
-    assert.deepEqual(metadata.openGraph.images, [{
-      url: "https://www.massagelab.app/brand/massagelab-home-logo-badge-padded-20260622.png",
-      width: 1536,
-      height: 760,
-      alt: "MassageLab",
-    }])
+    assert.equal(metadata.title, "AtmoShaper | Massage anatomy flashcards, session timer, and practice tools")
+    assert.equal(metadata.applicationName, "AtmoShaper")
+    assert.equal(metadata.openGraph.siteName, "AtmoShaper")
+    assert.equal("images" in metadata.openGraph, false)
+    assert.equal(metadata.twitter.card, "summary")
+    assert.equal("images" in metadata.twitter, false)
   })
 
   it("enables public indexing only for production deployments", () => {
@@ -63,8 +61,8 @@ describe("SEO route contract", () => {
       description: helpRoute.description,
     }, {
       path: "/help",
-      title: "MassageLab Help & FAQ",
-      description: "Learn how to use MassageLab accounts, installation, Clock, Chimer, Music, backgrounds, subscriptions, privacy, and support.",
+      title: "AtmoShaper Help & FAQ",
+      description: "Learn how to use AtmoShaper accounts, installation, Clock, Chimer, Music, backgrounds, subscriptions, privacy, and support.",
     })
     assert.ok(publicPaths.includes("/education/flashcards/decks/starter-all-body-identification"))
     assert.ok(publicPaths.includes("/education/flashcards/decks/starter-muscle-attachments"))
@@ -125,6 +123,8 @@ describe("SEO route contract", () => {
     const organization = createSeoJsonLd()["@graph"].find((node) => node["@type"] === "Organization")
     assert.ok(organization, "Organization node missing from SEO JSON-LD graph")
 
+    assert.equal(organization.name, "AtmoShaper")
+    assert.equal("logo" in organization, false)
     assert.deepEqual(organization.sameAs, [...MASSAGELAB_SOCIAL_URLS])
     assert.deepEqual([...MASSAGELAB_SOCIAL_URLS], [
       "https://www.instagram.com/massagelab/",

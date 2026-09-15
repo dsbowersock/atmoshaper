@@ -510,12 +510,18 @@ describe("App settings helpers", () => {
 
   it("keeps one responsive app-bar brand link beside the drawer control", () => {
     const brand = readFileSync(new URL("../components/shell/app-bar-brand-link.tsx", import.meta.url), "utf8")
+    const globalsSource = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8")
     const sidebar = readFileSync(new URL("../components/sidebar/app-sidebar-client.tsx", import.meta.url), "utf8")
 
     assert.match(brand, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
     assert.match(brand, /aria-label=\{PUBLIC_PRODUCT_IDENTITY\.name \+ " home"\}/)
+    assert.match(brand, /PUBLIC_PRODUCT_IDENTITY\.assets\.appBarWordmark \? \(/)
     assert.match(brand, /src=\{PUBLIC_PRODUCT_IDENTITY\.assets\.appBarWordmark\}/)
+    assert.match(brand, /<span className="ml-app-bar-brand-text">\s*\{PUBLIC_PRODUCT_IDENTITY\.name\}\s*<\/span>/)
+    assert.match(brand, /PUBLIC_PRODUCT_IDENTITY\.assets\.appBarMark \? \(/)
     assert.match(brand, /src=\{PUBLIC_PRODUCT_IDENTITY\.assets\.appBarMark\}/)
+    assert.match(globalsSource, /\.ml-app-bar-brand-text \{[\s\S]*white-space:\s*nowrap/)
+    assert.doesNotMatch(brand, /massagelab-(?:wordmark|mark)/)
     assert.doesNotMatch(sidebar, /function SidebarLogoHomeLink/)
   })
 

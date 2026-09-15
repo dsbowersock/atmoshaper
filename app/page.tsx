@@ -1,5 +1,4 @@
 import Link from "next/link"
-import Image from "next/image"
 import {
   BookOpen,
   Brain,
@@ -91,7 +90,7 @@ const proofLanes = [
   },
   {
     title: "Support what comes next",
-    description: "Unlock paid features, support new tools, and help MassageLab stay useful for independent practice.",
+    description: "Unlock paid features, support new tools, and help AtmoShaper stay useful for independent practice.",
     href: "/pricing",
     action: "View pricing",
     icon: HeartHandshake,
@@ -179,29 +178,16 @@ export default async function Home() {
     <AppPageShell width="full" className="pt-0 sm:pt-0 lg:pt-0" contentClassName="gap-8">
       <section className="grid gap-8 pb-4 pt-px lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.55fr)] lg:items-center lg:py-8">
         <div className="min-w-0">
-          <h1 className="sr-only">MassageLab</h1>
-          <div aria-hidden="true" className="relative mb-1 flex w-full justify-start pb-0 pt-1 sm:pb-0 sm:pt-2">
-            <span
-              className="ml-brand-asset-frame relative inline-block w-full max-w-[34rem] overflow-visible align-top"
-              data-testid="home-brand-wordmark"
-              style={{ viewTransitionName: "massagelab-wordmark" }}
-            >
-              <Image
-                src="/brand/massagelab-wordmark-final-20260622.png"
-                alt=""
-                width={1518}
-                height={593}
-                className="relative h-auto w-full object-contain"
-                data-testid="home-brand-wordmark-image"
-                sizes="(max-width: 640px) 92vw, 544px"
-                loading="eager"
-                priority
-              />
-            </span>
-          </div>
+          <h1
+            className="mb-1 inline-block max-w-full overflow-visible whitespace-nowrap pt-1 text-5xl font-semibold leading-none tracking-tight text-foreground sm:pt-2 sm:text-7xl lg:text-8xl"
+            data-testid="home-brand-wordmark"
+            style={{ viewTransitionName: "atmoshaper-wordmark" }}
+          >
+            AtmoShaper
+          </h1>
 
           <h2 className="max-w-4xl text-4xl font-semibold leading-tight text-foreground sm:text-5xl lg:text-6xl">
-            MassageLab helps <FlipWords words={flipWords} duration={2200} className="align-baseline" /> use massage anatomy flashcards, a massage session timer, classroom games, and local-first practice tools.
+            AtmoShaper helps <FlipWords words={flipWords} duration={2200} className="align-baseline" /> use massage anatomy flashcards, a massage session timer, classroom games, and local-first practice tools.
           </h2>
           <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
             Start with public study and timing tools. Create an account when you want saved flashcard progress, remembered timer settings, and a more personal workspace.
@@ -309,9 +295,9 @@ export default async function Home() {
       <section aria-labelledby="tool-discovery-heading" className="space-y-4">
         <div>
           <p className="text-sm font-medium text-primary">Tool discovery</p>
-          <h2 id="tool-discovery-heading" className="text-2xl font-semibold sm:text-3xl">Pick up where MassageLab can help</h2>
+          <h2 id="tool-discovery-heading" className="text-2xl font-semibold sm:text-3xl">Pick up where AtmoShaper can help</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Browse practice, study, wellness, music, and business tools in a swipeable hub. Sign in when you want MassageLab to remember your shortcuts and progress.
+            Browse practice, study, wellness, music, and business tools in a swipeable hub. Sign in when you want AtmoShaper to remember your shortcuts and progress.
           </p>
         </div>
         <HomeToolRails />
@@ -321,7 +307,7 @@ export default async function Home() {
         <div className="flex items-start gap-3">
           <UserRound className="mt-1 h-5 w-5 shrink-0 text-brand-orange" />
           <div>
-            <h2 className="text-xl font-semibold">Create an account when you want MassageLab to remember you</h2>
+            <h2 className="text-xl font-semibold">Create an account when you want AtmoShaper to remember you</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
               Save flashcard progress, deck templates, settings, and profile defaults. Your signed-in home can become a personalized launchpad as the toolset grows.
             </p>
@@ -356,7 +342,7 @@ export default async function Home() {
             <h2 id="available-tools-heading" className="text-2xl font-semibold sm:text-3xl">Available tools</h2>
           </div>
           <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-            A quick scan of the tools you can open from MassageLab now.
+            A quick scan of the tools you can open from AtmoShaper now.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

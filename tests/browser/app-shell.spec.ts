@@ -951,7 +951,7 @@ async function expectWideMobileSidebarBoundary(
   page: Page,
   appBarPosition: WideMobileShellCase["appBarPosition"],
 ) {
-  const bar = page.getByRole("navigation", { name: "MassageLab main navigation" })
+  const bar = page.getByRole("navigation", { name: "AtmoShaper main navigation" })
   const frame = page.locator(".ml-app-sidebar-frame")
 
   await expect(frame).toBeVisible()
@@ -966,16 +966,27 @@ async function expectWideMobileSidebarBoundary(
   }).toBeLessThanOrEqual(1)
 }
 
+async function expectTextBrandFits(brand: Locator) {
+  const text = brand.locator(".ml-app-bar-brand-text")
+  await expect(text).toBeVisible()
+  await expect(text).toHaveText("AtmoShaper")
+  await expect(brand.locator("img")).toHaveCount(0)
+  await expect.poll(async () => brand.evaluate((element) => (
+    element.scrollWidth <= element.clientWidth + 1
+  )), { message: "AtmoShaper text fits without clipping" }).toBe(true)
+}
+
 async function expectWideMobileShellGeometry(page: Page, shellCase: WideMobileShellCase) {
-  const bar = page.getByRole("navigation", { name: "MassageLab main navigation" })
+  const bar = page.getByRole("navigation", { name: "AtmoShaper main navigation" })
   const edgeCluster = bar.locator(".ml-main-bar-drawer-brand")
   const drawer = drawerControl(edgeCluster)
-  const brand = edgeCluster.getByRole("link", { name: "MassageLab home" })
+  const brand = edgeCluster.getByRole("link", { name: "AtmoShaper home" })
   const tools = bar.locator(".ml-main-bar-tools")
   const sidebarContainer = page.locator('[data-sidebar-container="true"]')
   const backdrop = page.getByTestId("wide-mobile-sidebar-backdrop")
   const appScroll = page.locator(".ml-app-scroll")
   await expectStableMainBarControls(page, shellCase.drawerEdge)
+  await expectTextBrandFits(brand)
   const [barBox, drawerBox, brandBox, toolsBox] = await Promise.all([
     bar.boundingBox(),
     drawer.boundingBox(),
@@ -989,8 +1000,6 @@ async function expectWideMobileShellGeometry(page: Page, shellCase: WideMobileSh
   expect(drawerBox, "wide-mobile drawer box").not.toBeNull()
   expect(brandBox, "wide-mobile brand box").not.toBeNull()
   expect(toolsBox, "wide-mobile tools box").not.toBeNull()
-  await expect(edgeCluster.locator(".ml-app-bar-brand-wordmark")).toBeVisible()
-  await expect(edgeCluster.locator(".ml-app-bar-brand-mark")).toBeHidden()
 
   if (shellCase.drawerEdge === "left") {
     expect(drawerBox?.x ?? Number.POSITIVE_INFINITY).toBeLessThanOrEqual(8)
@@ -1132,7 +1141,9 @@ test("desktop bar spans the viewport and keeps the brand beside the left drawer 
   const barBox = await bar.boundingBox()
   const clusterBox = await cluster.boundingBox()
   const drawerBox = await drawerControl(cluster).boundingBox()
-  const brandBox = await cluster.getByRole("link", { name: "MassageLab home" }).boundingBox()
+  const brand = cluster.getByRole("link", { name: "AtmoShaper home" })
+  await expectTextBrandFits(brand)
+  const brandBox = await brand.boundingBox()
   expect(barBox?.x).toBeLessThanOrEqual(1)
   expect(barBox?.width).toBeGreaterThanOrEqual(1278)
   expect(clusterBox?.x ?? Number.POSITIVE_INFINITY).toBeLessThanOrEqual(17)
@@ -1180,13 +1191,13 @@ test("account menu launches a captured install prompt and keeps help or feedback
   await prepareAccountMenu(page)
   await openAccountMenu(page)
   await dispatchPwaInstallPromptWhenReady(page, "resolve")
-  await expect(page.getByRole("menuitem", { name: "Install MassageLab" })).toBeVisible()
+  await expect(page.getByRole("menuitem", { name: "Install AtmoShaper" })).toBeVisible()
   await expect(page.getByRole("menuitem", { name: "Help & FAQ" })).toBeVisible()
   await expect(page.getByRole("menuitem", { name: "Send Feedback" })).toBeVisible()
-  await page.getByRole("menuitem", { name: "Install MassageLab" }).click()
+  await page.getByRole("menuitem", { name: "Install AtmoShaper" }).click()
   await expect(page.locator("html")).toHaveAttribute("data-install-prompt-called", "true")
   await reopenAccountMenu(page, testInfo.project.name)
-  await expect(page.getByRole("menuitem", { name: "Install MassageLab" })).toHaveCount(0)
+  await expect(page.getByRole("menuitem", { name: "Install AtmoShaper" })).toHaveCount(0)
 })
 
 test("guest account menu opens local Site Settings at 704px", async ({ page }, testInfo) => {
@@ -1250,7 +1261,7 @@ test("account menu hides install when already installed", async ({ page }) => {
   })
   await gotoShell(page, "/")
   await openAccountMenu(page)
-  await expect(page.getByRole("menuitem", { name: "Install MassageLab" })).toHaveCount(0)
+  await expect(page.getByRole("menuitem", { name: "Install AtmoShaper" })).toHaveCount(0)
   await expect(page.getByRole("menuitem", { name: "Help & FAQ" })).toBeVisible()
   await expect(page.getByRole("menuitem", { name: "Send Feedback" })).toBeVisible()
 })
@@ -1258,7 +1269,7 @@ test("account menu hides install when already installed", async ({ page }) => {
 test("account menu hides install on an unsupported browser", async ({ page }) => {
   await gotoShell(page, "/")
   await openAccountMenu(page)
-  await expect(page.getByRole("menuitem", { name: "Install MassageLab" })).toHaveCount(0)
+  await expect(page.getByRole("menuitem", { name: "Install AtmoShaper" })).toHaveCount(0)
   await expect(page.getByRole("menuitem", { name: "Help & FAQ" })).toBeVisible()
   await expect(page.getByRole("menuitem", { name: "Send Feedback" })).toBeVisible()
 })
@@ -1269,9 +1280,9 @@ test("failed install prompt stays hidden after the failed attempt", async ({ pag
   await prepareAccountMenu(page)
   await dispatchPwaInstallPromptWhenReady(page, "reject")
   await openAccountMenu(page)
-  await page.getByRole("menuitem", { name: "Install MassageLab" }).click()
+  await page.getByRole("menuitem", { name: "Install AtmoShaper" }).click()
   await reopenAccountMenu(page, testInfo.project.name)
-  await expect(page.getByRole("menuitem", { name: "Install MassageLab" })).toHaveCount(0)
+  await expect(page.getByRole("menuitem", { name: "Install AtmoShaper" })).toHaveCount(0)
 })
 
 test("help routes installation and problem reports without claiming commerce is live", async ({ page }) => {
@@ -1292,8 +1303,8 @@ test("recognized iOS Safari receives manual install instructions", async ({ page
   })
   await gotoShell(page, "/")
   await openAccountMenu(page)
-  await page.getByRole("menuitem", { name: "Install MassageLab" }).click()
-  const instructions = page.getByRole("dialog", { name: "Install MassageLab" })
+  await page.getByRole("menuitem", { name: "Install AtmoShaper" }).click()
+  const instructions = page.getByRole("dialog", { name: "Install AtmoShaper" })
   await expect(instructions).toContainText("Add to Home Screen")
   await page.waitForTimeout(600)
   await expect(instructions).toBeVisible()
@@ -1314,7 +1325,7 @@ test("right drawer keeps the drawer and brand ordered at the right edge", async 
   const drawer = drawerControl(cluster)
   await expect(drawer).toBeVisible()
   const drawerBox = await drawer.boundingBox()
-  const brandBox = await cluster.getByRole("link", { name: "MassageLab home" }).boundingBox()
+  const brandBox = await cluster.getByRole("link", { name: "AtmoShaper home" }).boundingBox()
   expect(barBox?.x).toBeLessThanOrEqual(1)
   expect(barBox?.width).toBeGreaterThanOrEqual(1278)
   expect((brandBox?.x ?? Number.POSITIVE_INFINITY)).toBeLessThan(drawerBox?.x ?? 0)
@@ -1376,18 +1387,18 @@ for (const drawerEdge of ["left", "right"] as const) {
   })
 }
 
-test("narrow mobile keeps every tool and collapses only the wordmark", async ({ page }, testInfo) => {
+test("narrow mobile keeps every tool and the full text brand visible", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== mobileProject, "Narrow main-bar behavior is covered in mobile Chromium.")
   await page.setViewportSize({ width: 390, height: 844 })
   await gotoShell(page, "/music")
 
-  const bar = page.getByRole("navigation", { name: "MassageLab main navigation" })
+  const bar = page.getByRole("navigation", { name: "AtmoShaper main navigation" })
   const barBox = await bar.boundingBox()
   const drawer = page.locator(".ml-mobile-main-bar .ml-main-bar-drawer-brand button").first()
+  const brand = bar.getByRole("link", { name: "AtmoShaper home" })
   expect(barBox?.height).toBeCloseTo(52, 0)
   await expectStableMainBarControls(page, "left")
-  await expect(bar.locator(".ml-app-bar-brand-mark")).toBeVisible()
-  await expect(bar.locator(".ml-app-bar-brand-wordmark")).toBeHidden()
+  await expectTextBrandFits(brand)
   for (const name of ["Open music", "Open clock", "Open quick actions", "Open calendar"]) {
     await expect(bar.getByLabel(name)).toBeVisible()
   }
@@ -1432,7 +1443,7 @@ test("global constrained landscape rail keeps route transitions, vinyl geometry,
   await expect(page.getByTestId("music-player-toolbar")).toHaveCount(0)
   await expect(page.locator("body")).not.toHaveClass(/ml-music-player-(?:active|rail|music-route)/)
   await expect.poll(async () => (await resolvedMusicRailSpacing(page)).rightSafe).toBe(0)
-  await page.locator('a[aria-label="MassageLab home"]:visible').first().click()
+  await page.locator('a[aria-label="AtmoShaper home"]:visible').first().click()
   await expect(page).toHaveURL(/\/$/)
   await expect(page.locator("body")).not.toHaveClass(/ml-music-player-(?:active|rail|music-route)/)
   await expect.poll(async () => (await resolvedMusicRailSpacing(page)).rightSafe).toBe(0)
@@ -1696,7 +1707,7 @@ test("global constrained landscape rail keeps route transitions, vinyl geometry,
 
   const navigateFrom = async (route: string) => {
     if (route === "music") {
-      await page.locator('a[aria-label="MassageLab home"]:visible').first().click()
+      await page.locator('a[aria-label="AtmoShaper home"]:visible').first().click()
       const homeLandmark = page.getByTestId("home-brand-wordmark")
       if (homeHoldActive) {
         await homeHold.waitForRequest()
@@ -2860,7 +2871,7 @@ test("real music rail keeps every exposed overlay and action inside the usable v
   await expect(portraitDialog).toBeHidden()
   await expect(portraitStationTrigger).toBeFocused()
 
-  const homeLink = page.locator('a[aria-label="MassageLab home"]:visible').first()
+  const homeLink = page.locator('a[aria-label="AtmoShaper home"]:visible').first()
   await homeLink.click()
   await expect(page).toHaveURL(/\/$/)
   await expect(portraitToolbar).toHaveAttribute("data-layout", "bottom")
@@ -5353,7 +5364,7 @@ test("mobile top placement reserves the top edge and leaves the active music pla
     (body, value) => body.style.setProperty("--ml-safe-bottom", `${value}px`),
     safeBottom,
   )
-  const bar = page.getByRole("navigation", { name: "MassageLab main navigation" })
+  const bar = page.getByRole("navigation", { name: "AtmoShaper main navigation" })
   const barBox = await bar.boundingBox()
   expect(barBox?.y).toBeLessThanOrEqual(1)
 
@@ -5430,7 +5441,7 @@ test("mobile bottom placement adds the main bar when idle and the audio toolbar 
     safeBottom,
   )
 
-  const bar = page.getByRole("navigation", { name: "MassageLab main navigation" })
+  const bar = page.getByRole("navigation", { name: "AtmoShaper main navigation" })
   const barBox = await bar.boundingBox()
   expect((barBox?.y ?? 0) + (barBox?.height ?? 0)).toBeGreaterThanOrEqual(843)
 
