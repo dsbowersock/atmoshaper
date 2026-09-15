@@ -655,8 +655,10 @@ needed.
 - Modify: `app/chimer/set-timer.tsx`
 - Modify: `app/chimer/running-timer.tsx`
 - Modify: `components/backgrounds/effects/css-backgrounds.tsx`
+- Modify: `components/backgrounds/effects/massage-lab-3d-globe-background.tsx`
 - Review exactly the effect-source paths in the `Task 5 exact effect-source
-  review set` below; modify only a path containing current prose. A path with
+  review set` below; modify only a path containing current prose or the one
+  explicitly retired built-in legacy-brand visual. Every other path with
   identifier-only matches remains byte-unchanged.
 - Modify: `data/background-branding-catalog.json`
 - Modify: `data/background-branding-audit.json`
@@ -709,6 +711,14 @@ needed.
   product to AtmoShaper or the exact unbranded catalog label. Preserve every
   `MassageLab...`/`massageLab...`/`MASSAGE_LAB_...` symbol, option key, export,
   component, file path, CSS token, persisted setting, and registry ID.
+- [ ] Remove the 3D Globe's always-rendered built-in MassageLab marker without
+  inventing a replacement: remove only its legacy image-loading/drawing path
+  and current built-in-marker claims. Keep the background ID, component/file
+  name, globe behavior, optional user-marker controls and symbols, preview
+  media, and the existing legacy asset file itself unchanged. Update current
+  registry/catalog/audit descriptions to describe only the optional user
+  marker, and add focused negative source assertions proving the old brand mark
+  is no longer loaded or drawn.
 - [ ] Extend the policy's case-insensitive `legacyPattern` with the exact
   underscore-separated candidate form `massage_lab`, then extend
   `compatibilityIdentifierPatterns` with the exact uppercase internal form
