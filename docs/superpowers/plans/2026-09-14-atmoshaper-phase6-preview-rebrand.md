@@ -442,7 +442,7 @@ preview copy without changing external state.
 - [ ] Media presentation uses `Atmosphere` for feature title and `AtmoShaper`
   from `PUBLIC_PRODUCT_IDENTITY` for artist/publisher/album copy. Rename the
   current proof-station display from `MassageLab Proof Drone` to
-  `AtmoShaper Proof Drone`; keep its stable station ID, audio URL, license/source
+  `Drone`; keep its stable station ID, audio URL, license/source
   record, and playback behavior.
 - [ ] Preserve component/filesystem/CSS/data/test symbols, category ID
   `atmoshaper`, playback kind `atmoshaper`, QA bridge names, runtime telemetry,

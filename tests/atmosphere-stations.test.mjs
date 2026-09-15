@@ -29,10 +29,10 @@ describe("Atmosphere station catalog", () => {
     )
   })
 
-  it("presents the proof station under AtmoShaper while preserving its stable source contract", () => {
+  it("presents the Drone station while preserving its stable source contract", () => {
     const station = getAtmosphereStationById("mlab-proof-drone")
 
-    assert.equal(station.title, "AtmoShaper Proof Drone")
+    assert.equal(station.title, "Drone")
     assert.equal(station.artist, "AtmoShaper")
     assert.equal(station.sourceType, "tone-generator")
     assert.equal(station.enabled, true)

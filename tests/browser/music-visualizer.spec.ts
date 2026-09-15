@@ -6,7 +6,7 @@ import { installSignedInUserFixture, removeSignedInUserFixture } from "./signed-
 const ATMOSPHERE_STORAGE_KEY = "massagelab-atmosphere-v2"
 const CHIMER_STORAGE_KEY = "massagelab-chimer-settings"
 const VISUAL_PANEL_OPENED_STORAGE_KEY = "massagelab.chimer.visual-panel-opened.v1"
-const PROOF_STATION_TITLE = "AtmoShaper Proof Drone"
+const PROOF_STATION_TITLE = "Drone"
 const signedInFixtureProjects = new Set<string>()
 
 test.afterEach(async ({}, testInfo) => {
@@ -110,7 +110,7 @@ async function startProofStation(page: Page, origin = "/music") {
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
   const player = page.getByTestId("music-player-toolbar")
   await expect(player).toBeVisible({ timeout: 30_000 })
   await expect(player.getByText(PROOF_STATION_TITLE)).toBeVisible()

@@ -1280,7 +1280,7 @@ test("Atmosphere visualizer action retains selected station across client routes
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
 
   const playerToolbar = page.getByTestId("music-player-toolbar")
   await expect(playerToolbar).toBeVisible()
@@ -1288,7 +1288,7 @@ test("Atmosphere visualizer action retains selected station across client routes
   const playerToolbarBox = await playerToolbar.boundingBox()
   expect(playerToolbarBox?.width ?? 0).toBeGreaterThan(320)
 
-  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
+  await expect(playerToolbar.getByText("Drone", { exact: true })).toBeVisible()
   await expect(page.getByText(/Playing|Preparing audio|Preparing station/i).last()).toBeVisible()
   const overflow = await playerToolbar.evaluate((node) => ({
     clientWidth: node.clientWidth,
@@ -1326,7 +1326,7 @@ test("Atmosphere visualizer action retains selected station across client routes
   await expect(page).toHaveURL(/\/music\?task8=public-route$/)
   await expect(playerToolbar.getByRole("link", { name: /^Background$/i })).toBeVisible()
   await page.getByRole("button", { name: /^Stop$/i }).last().click()
-  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
+  await expect(playerToolbar.getByText("Drone", { exact: true })).toBeVisible()
   await expect(playerToolbar.getByRole("link", { name: /^Background$/i })).toBeVisible()
   await expect(page.getByText("Stopped").last()).toBeVisible()
   await expect(playerToolbar.getByRole("link", { name: /^Background$/i })).toBeVisible()
@@ -1347,7 +1347,7 @@ test("Atmosphere visualizer action retains selected station across client routes
   await expect(flashcardsLink).toBeVisible()
   await flashcardsLink.click()
   await expect(page).toHaveURL(/\/education\/flashcards/)
-  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
+  await expect(playerToolbar.getByText("Drone", { exact: true })).toBeVisible()
   await expect(playerToolbar.getByRole("link", { name: /^Background$/i })).toBeVisible()
 
   expect(health.pageErrors, "uncaught page errors").toEqual([])
@@ -1367,7 +1367,7 @@ test("non-Music compact landscape keeps the global rail without narrowing ordina
   await page.setViewportSize({ width: 844, height: 390 })
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
   const toolbar = page.getByTestId("music-player-toolbar")
   await expect(toolbar).toHaveAttribute("data-layout", "rail")
 
@@ -1642,10 +1642,10 @@ test("Music visualizer background selection and account default actions preserve
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
   const playerToolbar = page.getByTestId("music-player-toolbar")
   await expect(playerToolbar).toBeVisible({ timeout: 30_000 })
-  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
+  await expect(playerToolbar.getByText("Drone", { exact: true })).toBeVisible()
   await playerToolbar.getByRole("link", { name: /^Background$/i }).click()
   await expect(page).toHaveURL(/\/clock\?[^#]*source=music/)
   await expect.poll(() => page.evaluate(() => (
@@ -1666,7 +1666,7 @@ test("Music visualizer background selection and account default actions preserve
     "data-background-id",
     "static-gradient",
   )
-  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
+  await expect(playerToolbar.getByText("Drone", { exact: true })).toBeVisible()
 
   await page.getByRole("button", { name: "Visual", exact: true }).click()
   await page.getByRole("button", { name: "Set as visualizer default", exact: true })
@@ -1678,7 +1678,7 @@ test("Music visualizer background selection and account default actions preserve
     return appSettings?.musicVisualizer?.defaultBackgroundId === "static-gradient"
   })).toBe(true)
 
-  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
+  await expect(playerToolbar.getByText("Drone", { exact: true })).toBeVisible()
   await expect(playerToolbar).toContainText(/Playing|Preparing audio|Preparing station/i)
   expect(await page.evaluate(() => {
     const stored = JSON.parse(localStorage.getItem("massagelab-atmosphere-v2") ?? "{}")
@@ -1882,7 +1882,7 @@ test("center station details support swipe and short tap while actions stay prot
 
   const proof = await centerCarouselItem(page, "mlab-proof-drone", "Next station")
   const protectedCenterId = await proof.getAttribute("data-carousel-item-id")
-  const playButton = proof.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i })
+  const playButton = proof.getByRole("button", { name: /^Play Drone$/i })
   await playButton.evaluate(async (button) => {
     const textNode = Array.from(button.childNodes).find((node) => (
       node.nodeType === Node.TEXT_NODE && node.textContent?.trim() === "Play"
@@ -1930,17 +1930,19 @@ test("center station details support swipe and short tap while actions stay prot
     .toBe(protectedCenterId)
 
   await proof.locator("[data-carousel-station-details]").click()
-  await expect(page.getByRole("dialog").getByRole("heading", { name: "AtmoShaper Proof Drone" })).toBeVisible()
+  await expect(page.getByRole("dialog").getByRole("heading", { name: "Drone", exact: true })).toBeVisible()
   await page.keyboard.press("Escape")
 
   await proof.locator("[data-carousel-station-details]").focus()
   await page.keyboard.press("Enter")
-  await expect(page.getByRole("dialog").getByRole("heading", { name: "AtmoShaper Proof Drone" })).toBeVisible()
+  await expect(page.getByRole("dialog").getByRole("heading", { name: "Drone", exact: true })).toBeVisible()
   await page.keyboard.press("Escape")
 
-  await proof.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
+  await proof.getByRole("button", { name: /^Play Drone$/i }).click()
   await expect(proof).toHaveAttribute("data-centered", "true")
-  await proof.getByRole("button", { name: /Favorite AtmoShaper Proof Drone|Remove AtmoShaper Proof Drone from favorites/i }).click()
+  await proof.getByRole("button", {
+    name: /^(?:Favorite Drone|Remove Drone from favorites)$/i,
+  }).click()
   await expect(proof).toHaveAttribute("data-centered", "true")
   await page.getByTestId("music-player-toolbar").getByRole("button", { name: "Stop", exact: true }).click()
 })
@@ -2267,7 +2269,7 @@ test("Atmosphere lists the Generative.fm catalog and starts a hosted-sample stat
   const smokePlaybackStations = [
     ["generative-fm-peace", "Peace"],
     ["generative-fm-trees", "Trees"],
-    ["mlab-proof-drone", "AtmoShaper Proof Drone"],
+    ["mlab-proof-drone", "Drone"],
   ] as const
   for (const [stationId, stationTitle] of smokePlaybackStations) {
     await centerCarouselItem(page, stationId, "Next station")
