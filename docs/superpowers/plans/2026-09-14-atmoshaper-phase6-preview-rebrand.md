@@ -994,6 +994,18 @@ evidence even while current code is reverted.
   `tests/browser/dna-twisted-cubes-backgrounds.spec.ts`, and
   `tests/browser/music-visualizer.spec.ts`. Do not change stable station IDs,
   playback behavior, layout, controls, routes, or historical snapshots.
+- [ ] Before Task 8 resumes again, complete one separately reviewed owner-routed
+  Browser-QA contract repair in `tests/browser/public-provider-ingress.spec.ts`.
+  Its ambiguous diagnostic-delivery assertion must expect the current
+  `AtmoShaper` product copy already emitted by
+  `app/support/support-diagnostic-report.tsx`; change only that asserted product
+  name. Do not edit application source, provider behavior, retry semantics, or
+  any historical evidence. Prove by exact static comparison that the Browser-QA
+  expectation matches the current runtime sentence and that the stale sentence
+  is absent, then run typecheck and diff checks. Defer runtime execution of this
+  Playwright scenario to Task 10's authorized Neon Browser-QA lifecycle. Complete
+  independent specification and quality reviews before committing the one-file
+  repair.
 - [ ] Capture `TaskStartSnapshot`.
 - [ ] Generate a review candidate without modifying the tracked baseline. Group
   remaining `pre-rebrand-public-copy` entries by semantic meaning, not file.
