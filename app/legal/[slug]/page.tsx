@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!document) {
     return createNoindexPageMetadata({
-      title: "Legal Document | MassageLab",
+      title: "Legal Document | AtmoShaper",
     })
   }
 

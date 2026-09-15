@@ -80,7 +80,7 @@ describe("legal acceptance helpers", () => {
     )
     assert.throws(
       () => buildDigitalPurchaseConsent({
-        acceptedDocumentIds: acceptedDocumentIds.map((id) => id.replace("2026-07-digital-purchases-v2", "stale")),
+        acceptedDocumentIds: acceptedDocumentIds.map((id) => id.replace(/:.+$/, ":stale")),
         combinedConsentAccepted: true,
       }),
       /digital purchase consent/i,
@@ -122,7 +122,7 @@ describe("legal acceptance helpers", () => {
         acceptedDocumentIds: new Set(["terms:2026-06-legal-v2"]),
         documents,
       }).map((document) => document.key),
-      ["privacy"],
+      ["terms", "privacy"],
     )
   })
 
@@ -150,6 +150,65 @@ describe("legal acceptance helpers", () => {
     assert.equal(await hasAcceptedCurrentDocuments({ prismaClient: db, userId: "user_1", documents }), false)
     assert.equal(await hasAcceptedCurrentDocuments({ prismaClient: db, userId: "user_2", documents }), true)
     assert.equal(await hasAcceptedCurrentDocuments({ prismaClient: db, userId: "user_3", documents }), false)
+  })
+
+  it("keeps a v2 acceptance unchanged when the same user genuinely accepts v3", async () => {
+    const documents = requiredLegalDocumentsForEvent("checkout")
+    const v2Acceptance = {
+      id: "acceptance_v2",
+      userId: "user_legacy",
+      documentKey: "membership-billing-refunds",
+      documentVersion: "2026-06-legal-v2",
+      acceptedAt: new Date("2026-06-24T12:00:00.000Z"),
+      createdAt: new Date("2026-06-24T12:00:00.000Z"),
+      updatedAt: new Date("2026-06-24T12:00:00.000Z"),
+      ipAddress: "203.0.113.9",
+      userAgent: "legacy-test",
+    }
+    const v2Snapshot = structuredClone(v2Acceptance)
+    const db = createMockDb([v2Acceptance])
+
+    assert.equal(documents[0].version, "2026-09-legal-v3")
+    assert.equal(
+      await hasAcceptedCurrentDocuments({ prismaClient: db, userId: "user_legacy", documents }),
+      false,
+      "an old v2 row must not silently satisfy the current v3 requirement",
+    )
+    assert.deepEqual(
+      missingRequiredLegalDocuments({
+        acceptedDocumentIds: ["membership-billing-refunds:2026-06-legal-v2"],
+        documents,
+      }).map((document) => document.key),
+      ["membership-billing-refunds"],
+    )
+
+    await recordLegalAcceptances({
+      prismaClient: db,
+      userId: "user_legacy",
+      documents,
+      metadata: { ipAddress: "203.0.113.10", userAgent: "current-test" },
+    })
+
+    assert.equal(
+      await hasAcceptedCurrentDocuments({ prismaClient: db, userId: "user_legacy", documents }),
+      true,
+    )
+    assert.equal(db.rows.length, 2)
+    assert.deepEqual(
+      db.rows.find((row) => row.documentVersion === "2026-06-legal-v2"),
+      v2Snapshot,
+    )
+    const v3Acceptance = db.rows.find((row) => row.documentVersion === "2026-09-legal-v3")
+    assert.notEqual(v3Acceptance?.id, v2Acceptance.id)
+    assert.equal(v3Acceptance?.ipAddress, "203.0.113.10")
+    assert.equal(v3Acceptance?.userAgent, "current-test")
+    assert.deepEqual(
+      db.rows.map((row) => `${row.documentKey}:${row.documentVersion}`).sort(),
+      [
+        "membership-billing-refunds:2026-06-legal-v2",
+        "membership-billing-refunds:2026-09-legal-v3",
+      ],
+    )
   })
 
   it("extracts request metadata without query strings or bodies", () => {

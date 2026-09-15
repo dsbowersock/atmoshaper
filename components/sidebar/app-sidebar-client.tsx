@@ -107,7 +107,7 @@ function ProprietaryCopyrightNotice({ className }: { className?: string }): Reac
         className,
       )}
     >
-      © 2025–2026 Derrick Bowersock, d/b/a Massage Lab. All rights reserved.
+      © 2025–2026 Derrick Bowersock, doing business as AtmoShaper. All rights reserved.
     </p>
   )
 }
