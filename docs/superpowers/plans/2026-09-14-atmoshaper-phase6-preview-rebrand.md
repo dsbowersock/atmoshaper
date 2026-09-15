@@ -709,11 +709,14 @@ needed.
   product to AtmoShaper or the exact unbranded catalog label. Preserve every
   `MassageLab...`/`massageLab...`/`MASSAGE_LAB_...` symbol, option key, export,
   component, file path, CSS token, persisted setting, and registry ID.
-- [ ] Extend `compatibilityIdentifierPatterns` with the exact uppercase internal
-  form `MASSAGE_LAB_[A-Z0-9_]*`. Add a regression fixture containing that token
+- [ ] Extend the policy's case-insensitive `legacyPattern` with the exact
+  underscore-separated candidate form `massage_lab`, then extend
+  `compatibilityIdentifierPatterns` with the exact uppercase internal form
+  `MASSAGE_LAB_[A-Z0-9_]*`. Add a regression fixture containing that token
   beside a separate `MassageLab visible copy` literal and prove the matched
-  identifier is compatibility while the literal remains public-copy. Do not
-  classify the entire line or file.
+  identifier is compatibility while the literal remains public-copy. Keep the
+  collector implementation byte-unchanged; do not classify the entire line or
+  file.
 - [ ] Add focused assertions that the three new labels resolve under the same
   exact IDs, prices/ownership modes, entitlements, checkout references, and
   preview asset paths as before.
