@@ -1,49 +1,45 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-13
+Verified: 2026-09-14
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 5 Public Product Identity and Browser QA Complete Locally
+## Current Snapshot — Phase 6 Preview Rebrand Planned
 
-- Phase 4 is merged. [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3)
-  merged into `main` at `2026-09-13T17:56:59Z` by `dsbowersock` as
-  `a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb`. Its exact reviewed head was
-  `69ff135aed8d0b1ecb43c054595d1e08e89a22b1`; the retained review branch is
-  `codex/atmoshaper-dead-code-audit`.
-- The user selected public product identity as the first Phase 5 subsystem. The
-  clean branch `codex/atmoshaper-public-product-identity` starts from the exact
-  Phase 4 merge. The user approved its [written design](superpowers/specs/2026-09-13-atmoshaper-public-product-identity-design.md),
-  and the [implementation plan](superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md)
-  passed independent review after its Browser-QA build prerequisite was made
-  explicit.
-- Local Tasks 1–3 are complete: one frozen, dependency-free identity owner now
-  serves the mapped SEO/metadata, app-shell and PWA consumers. Each task passed
-  independent specification and code-quality reviews with no findings. All
-  affected runtime values remain `MassageLab`, with the same assets, routes,
-  layout, accessibility and install behavior; SEO exports remain compatibility
-  adapters. Only mapped inline presentation copies retired.
-- Broad local verification passed: focused tests 58/58; full unit tests 4,557
-  total, 4,554 passed, 3 expected skips and zero failures; Prisma validate and
-  generate, typecheck, lint and production build. Next.js 16.2.12 generated
-  115/115 static pages and the complete route table, unchanged from baseline.
-  The [evidence record](aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/90-evidence.md)
-  records exact commits, inventory observations and non-fatal build/lint notes.
-- The staged brand baseline reached a byte-identical generated fixed point with
-  zero unexplained category drift. The local Phase 5 identity slice and both
-  complete-branch final specification and code-quality reviews passed.
-- The separately authorized Browser-QA lifecycle used a new independent empty
-  temporary Neon project. Its non-production identity was proven before use,
-  exactly 46 committed migrations were applied, and all 134 application tables
-  were empty both before and after the run. `npm run build:browser-qa` completed
-  immediately before the exact scoped Playwright command for `pwa.spec.ts` and
-  `app-shell.spec.ts`; the 152-case selection completed with status `passed`,
-  zero failed tests and no snapshot update. The temporary project was deleted
-  and proved absent; the existing production project remained present, and no
-  production data was copied, read or altered.
-- PR #4 is open. Initial published head `4f5485611e18327099081990d3d65e0943b89317`
-  passed Code quality, Browser build, all four Browser QA lanes, aggregate QA
-  and exact-head CodeRabbit with no actionable comments. Successor heads must repeat these gates before merge; deployment, Phase 6 rebrand and merge remain gated.
+- Phase 5 is merged. [PR #4](https://github.com/dsbowersock/atmoshaper/pull/4)
+  merged into `main` at `2026-09-14T10:49:49-04:00` as
+  `cdfa99e49cebf100fac1a5080d60514806eb17db`; its reviewed feature parent was
+  `b25b817da126359c5ffc15954182cc9573413735`. The frozen, dependency-free
+  `PUBLIC_PRODUCT_IDENTITY` owner is now part of `main`; Phase 5's local,
+  disposable Browser-QA, hosted-CI, and exact-head review evidence remains in
+  its [Aegis record](aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/90-evidence.md).
+- The active branch is `codex/atmoshaper-phase6-preview-rebrand`, created from
+  the exact Phase 5 merge. Its committed [design](superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md)
+  at `1c3683c31dcb8624a61d749fbcacddd85973dbe2` is approved. The detailed
+  [implementation plan](superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md)
+  is the current execution owner.
+- Approved current presentation is `AtmoShaper` for the platform and
+  `Atmosphere` for the audio mixer. Until approved logo assets are supplied,
+  product branding is styled accessible text; old wordmark/social imagery is
+  omitted, while existing favicon and install-icon paths remain unchanged.
+- Approved current legal presentation is exactly
+  `Derrick Bowersock, doing business as AtmoShaper`. Implementation must first
+  archive exact v2 legal exports, then publish new v3 current versions without
+  rewriting or deleting acceptance rows. No external filing or entity-status
+  claim follows from this code change.
+- Approved background display names are `Lava Lamp`, `Tile grid`, and
+  `Hex grid`; their stable IDs, ownership, entitlements, checkout references,
+  asset paths, and transaction evidence remain unchanged.
+- No application implementation has begun. The next local step is the clean
+  pre-implementation inventory/brand/build baseline, then subagent-driven Task 1
+  under per-task specification and quality review.
+- Canonical massagelab.app and support/social/provider endpoints,
+  `MASSAGELAB_` environment names, package/Prisma/storage/auth/Stripe identifiers,
+  internal `atmoshaper` names, historical evidence, data handling, routes,
+  entitlements, icons, and behavior remain compatibility boundaries.
+- No Phase 6 branch push, PR, merge, deployment, provider/domain mutation, final
+  logo integration, or new disposable QA project has occurred. Browser QA needs
+  a newly authorized independent empty Neon project after local gates pass.
 
 ## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 
@@ -80,8 +76,13 @@ the Round 27 snapshot above owns current status.
 
 - Preserve current behavior, routes, responsive design, accessibility, privacy, local-first data ownership, feature-key entitlements, APIs, provider-call boundaries, and compatibility identifiers during bootstrap.
 - Keep clinical notes, intake forms, journals, ROM sessions, encrypted professional records, and other PHI-bearing workflows local-first until hosted clinical storage passes the documented compliance gates.
-- Preserve the legal operator, copyright owner, proprietary license, legal-document versions and effective dates, accepted text, and acceptance history unless a later legal transition is separately reviewed and approved.
-- Treat AtmoShaper as the platform identity, `Atmosphere` or `Atmosphere mixer` as the later public audio label, and existing internal `atmoshaper` names as stable compatibility identifiers.
+- Phase 6 may migrate current legal presentation, proprietary license, document
+  versions, and effective dates only under its approved archive-first plan.
+  Preserve prior accepted text, version-addressable archives, acceptance rows,
+  and history without backfill or deletion.
+- Treat AtmoShaper as the platform identity, `Atmosphere` or
+  `Atmosphere mixer` as current Phase 6 public audio terminology, and existing
+  internal `atmoshaper` names as stable compatibility identifiers.
 
 ## Authority and Next Reads
 
@@ -91,7 +92,9 @@ the Round 27 snapshot above owns current status.
 - [Migration charter](rebrand/atmoshaper-migration-charter.md) — authority, invariants, and external mutation boundary.
 - [Operative Phase 1–2 plan](superpowers/plans/2026-09-06-atmoshaper-repository-migration.md) — task sequence and acceptance gates.
 - [Phase 3 plan](superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md) — completed consolidation scope, verification, and publication boundary.
-- [Phase 4 audit-only plan](superpowers/plans/2026-09-10-atmoshaper-phase4-audit-only.md) — active deterministic evidence-collection scope and no-deletion boundary.
+- [Phase 4 audit-only plan](superpowers/plans/2026-09-10-atmoshaper-phase4-audit-only.md) — completed deterministic evidence-collection scope and no-deletion boundary.
+- [Phase 5 public identity plan](superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md) — completed identity-owner implementation.
+- [Phase 6 preview-rebrand plan](superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md) — active local execution and authorization gates.
 - [Architecture](architecture.md), [decisions](decisions/README.md), and [account security](wiki/account-security.md) — current ownership and migration constraints.
 - [Project wiki](wiki/index.md) — stable operational documentation.
 

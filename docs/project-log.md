@@ -2,6 +2,32 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-14 — Phase 5 merged; Phase 6 preview rebrand planned
+
+- [PR #4](https://github.com/dsbowersock/atmoshaper/pull/4) merged at
+  `2026-09-14T10:49:49-04:00` as
+  `cdfa99e49cebf100fac1a5080d60514806eb17db`; its reviewed feature parent was
+  `b25b817da126359c5ffc15954182cc9573413735`. Phase 5's identity owner,
+  disposable empty-project Browser QA, exact-head hosted checks, CodeRabbit
+  coverage, and no-production-data boundary are complete historical evidence.
+- The Phase 6 branch starts from that exact merge. The user approved the
+  [written design](superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md):
+  platform `AtmoShaper`, audio feature `Atmosphere`, accessible text instead of
+  invented logo assets, current legal identity
+  `Derrick Bowersock, doing business as AtmoShaper`, and exact background labels
+  `Lava Lamp`, `Tile grid`, and `Hex grid` with stable ownership contracts.
+- The [implementation plan](superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md)
+  organizes one semantic migration across product, audio, public/service copy,
+  catalog, legal evidence/current versions, audit closure, and a separate visual
+  oracle. It requires archiving exact v2 legal exports before v3 changes and
+  occurrence-level classification instead of broad legacy-name ignores.
+- Current activity is planning/authority synchronization only; application code
+  is unchanged. Local execution begins with a clean inventory/brand/build
+  baseline and uses the user-selected subagent-driven route with independent
+  specification and quality review for every task.
+- A fresh disposable Neon QA project, push, PR, merge, deployment,
+  provider/domain mutation, and final-logo integration remain separate gates.
+
 ## 2026-09-13 — Phase 5 identity Browser QA passed; temporary QA removed
 
 - The user separately authorized one new independent empty temporary Neon

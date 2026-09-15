@@ -1,8 +1,8 @@
 # AtmoShaper Phase 6 Preview Rebrand and Legal Identity Migration Design
 
-Status: conversational design approved by the user on 2026-09-14, including
-the legal-identity and catalog-name amendments; written-spec approval remains
-the next gate before implementation planning.
+Status: approved by the user on 2026-09-14, including the legal-identity and
+catalog-name amendments; implementation is governed by the separate Phase 6
+plan.
 
 Parent design: [AtmoShaper Repository Migration and Modernization Design](2026-09-06-atmoshaper-repository-migration-design.md)
 

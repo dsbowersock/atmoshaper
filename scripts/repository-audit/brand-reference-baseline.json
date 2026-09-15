@@ -82,8 +82,8 @@
     {
       "path": "README.md",
       "line": 7,
-      "column": 165,
-      "textSha256": "2972b7f7ce5039cd13c49400ae7c7ec775aa4ee66331a65c93e167f8a5814e77",
+      "column": 118,
+      "textSha256": "56ad26f9568eb3c472e66d8b1d1f2957180d2d645c7b215aa6f2518aced80ef4",
       "category": "pre-rebrand-public-copy"
     },
     {
@@ -87314,13 +87314,6 @@
       "category": "historical"
     },
     {
-      "path": "docs/architecture.md",
-      "line": 46,
-      "column": 75,
-      "textSha256": "baef7b0f8c23f29ebd2bb49f43bb8b8b4d6761f9f68d35266eed62da31f8dff9",
-      "category": "historical"
-    },
-    {
       "path": "docs/audits/2026-05-17-project-review.md",
       "line": 1,
       "column": 3,
@@ -89381,20 +89374,20 @@
     {
       "path": "docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md",
       "line": 8,
-      "column": 16,
-      "textSha256": "5364e2ec4ad82f214ee469d1febdaca9820528fbce3a9f5c3d7dc35cf0f51510",
+      "column": 18,
+      "textSha256": "d333d9f9fb08696f629389aebd68062517406cec175cad5410dba7012d04e017",
       "category": "historical"
     },
     {
       "path": "docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md",
-      "line": 40,
+      "line": 48,
       "column": 34,
       "textSha256": "0728faba2570cae8972d1230a6c6dc4a473830d3fbd865a229369357724c8e23",
       "category": "historical"
     },
     {
       "path": "docs/decisions/0002-public-identity-legal-and-compatibility-boundaries.md",
-      "line": 57,
+      "line": 66,
       "column": 87,
       "textSha256": "4641ab30f6bbb5249478bc1e3d053c5dfe35ef1c629acbef1156821320e259a0",
       "category": "historical"
@@ -89464,126 +89457,133 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 51,
+      "line": 77,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 82,
+      "line": 108,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 101,
+      "line": 127,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 102,
+      "line": 128,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 103,
+      "line": 129,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 106,
+      "line": 132,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 141,
+      "line": 167,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 145,
+      "line": 171,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 23,
-      "column": 35,
-      "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
+      "line": 36,
+      "column": 13,
+      "textSha256": "744666054a5df923d568b0003c8c6c9d672d04a141405a7db8604765b9bd1797",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 60,
+      "line": 37,
+      "column": 4,
+      "textSha256": "7aca01e5d7c7fc2b4bec043da874af2a8f9ba9eef9991963bb177188fdd536d5",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-state.md",
+      "line": 56,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 64,
+      "line": 60,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 66,
+      "line": 62,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 70,
+      "line": 66,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 71,
+      "line": 67,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 74,
+      "line": 70,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 75,
+      "line": 71,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 75,
+      "line": 71,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 102,
+      "line": 105,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -90311,42 +90311,42 @@
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 8,
+      "line": 10,
       "column": 152,
       "textSha256": "4b22e5d5bfc7d8a4fe1f191cbf8e731fff5c480ddad522bc79f4ce24b665d4b6",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 16,
+      "line": 20,
       "column": 292,
       "textSha256": "9bdbfe9245e0e4de50097b8bb8c28a139a03bf9800f9aebc0821ef955ce5ffff",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 21,
+      "line": 29,
       "column": 54,
       "textSha256": "6441a98782b1377d7bbd50b45a29f3e967351a322bd0f3b306beaf7774cfb090",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 77,
+      "line": 85,
       "column": 107,
       "textSha256": "e84bbb54057a055be80fa32027d108a13ff77b175bed37663876d326b4ee11aa",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 78,
+      "line": 86,
       "column": 70,
       "textSha256": "61677f1175e867e02faaa2af63f783970ac0f3f8a7b052ccf0edf80bf77e15ab",
       "category": "historical"
     },
     {
       "path": "docs/rebrand/atmoshaper-migration-charter.md",
-      "line": 98,
+      "line": 111,
       "column": 67,
       "textSha256": "f69fc5dda6f2a91f0d3eef138ce7dfb27af51518660c63588d8dbe249bbbd760",
       "category": "historical"
@@ -94811,6 +94811,167 @@
       "category": "historical"
     },
     {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 9,
+      "column": 54,
+      "textSha256": "bf1bf0c21dd58dab51052640459c5cddf4599f485ef1c816872aaf35229ab40e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 41,
+      "column": 47,
+      "textSha256": "118c3781a3ec6e265db8ed4aa04358a4ef29483ecabe26253f13a473526ab736",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 44,
+      "column": 9,
+      "textSha256": "a9a41be0a3d947e01aee98791717cb84aa4f8d4fce92aa9fa291f8acf5085a40",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 113,
+      "column": 27,
+      "textSha256": "f007fa1b6857eb3a69020e5872d8933d8dc5c647346b3b86aa850151917d987e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 113,
+      "column": 50,
+      "textSha256": "f007fa1b6857eb3a69020e5872d8933d8dc5c647346b3b86aa850151917d987e",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 114,
+      "column": 17,
+      "textSha256": "00b0e94eff085fd6d86a3f041fd58707907a9cff338857991fffdadd780177f4",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 114,
+      "column": 44,
+      "textSha256": "00b0e94eff085fd6d86a3f041fd58707907a9cff338857991fffdadd780177f4",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 234,
+      "column": 16,
+      "textSha256": "51526c225d6cd650a1e86bf7253b99999f21f0535ad409081ebed05ca226b546",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 234,
+      "column": 49,
+      "textSha256": "51526c225d6cd650a1e86bf7253b99999f21f0535ad409081ebed05ca226b546",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 235,
+      "column": 41,
+      "textSha256": "b588c86ef80015db2456f44bdcc69d16c30cd0c12560922a3213eb02d9ed5bc9",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 238,
+      "column": 38,
+      "textSha256": "e018425666303b16cbf95866b4fa32a9aee429f2590b5414adc1989e5a8422ce",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 238,
+      "column": 52,
+      "textSha256": "e018425666303b16cbf95866b4fa32a9aee429f2590b5414adc1989e5a8422ce",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 357,
+      "column": 19,
+      "textSha256": "0ff27615f7d7e96bb058f70cf5bcdc65fa440c3f52dd49c6daff640b20342927",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 357,
+      "column": 58,
+      "textSha256": "0ff27615f7d7e96bb058f70cf5bcdc65fa440c3f52dd49c6daff640b20342927",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 416,
+      "column": 39,
+      "textSha256": "428f22ba48a5829474d5463b8a13d428d9d81b05c1fc47b5df6e9dac284e090c",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 507,
+      "column": 12,
+      "textSha256": "6d959b69252b6056cb99f99c515e66123e75e11fd2582f8f083fd221be670d5f",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 507,
+      "column": 30,
+      "textSha256": "6d959b69252b6056cb99f99c515e66123e75e11fd2582f8f083fd221be670d5f",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 521,
+      "column": 42,
+      "textSha256": "565830b2605d8dc360981e757b8bbcfb7b76c3d742df96abf774041325b128af",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 654,
+      "column": 37,
+      "textSha256": "96518aa1255a8e31d211cb62e13a5da01ca14a92b54f5bf9bbb478fa365ca268",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 663,
+      "column": 4,
+      "textSha256": "1af34e0f4593121c23a6f5c1b834c639a87d61ac618757aba39af52656d25f88",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 663,
+      "column": 20,
+      "textSha256": "1af34e0f4593121c23a6f5c1b834c639a87d61ac618757aba39af52656d25f88",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 667,
+      "column": 22,
+      "textSha256": "08a379c413c1c3557ef058bab8815e3d28a72fc0c29a1edd6c08db178096f0de",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md",
+      "line": 863,
+      "column": 52,
+      "textSha256": "214c7a5b062245177dae9d0350039a0feb8e87f4511e345431840e3b05d0e6b5",
+      "category": "historical"
+    },
+    {
       "path": "docs/superpowers/plans/chimer-background-preview-media-workflow.md",
       "line": 24,
       "column": 163,
@@ -96677,6 +96838,90 @@
       "line": 174,
       "column": 14,
       "textSha256": "70b4ecd67fb31fb53f220ccddf8ab43e90d4337b4c808b657d5702781e4f8811",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 13,
+      "column": 52,
+      "textSha256": "fcaf2aed7c6ac9c74b603ca53d248c288bf1767503f5f07a2a12ebb095700053",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 36,
+      "column": 6,
+      "textSha256": "bf1b86af2a1ba19f13eb4dcdb186334242d28c6d875d943d7714e9335c7cf004",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 36,
+      "column": 27,
+      "textSha256": "bf1b86af2a1ba19f13eb4dcdb186334242d28c6d875d943d7714e9335c7cf004",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 37,
+      "column": 6,
+      "textSha256": "19d0d8938e35ead02336a9c78fc6abd0dd36d355a99442fa9c1e4fb009400f64",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 38,
+      "column": 6,
+      "textSha256": "4aa3ec3271d0bbf7d5d8f4f38af4ec1f6fd3d0cac3909d86a2342b76f82876f2",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 48,
+      "column": 8,
+      "textSha256": "3564e91c472777e3b44ad83c6fcea6345e0e772175635185679a83f7899ca183",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 74,
+      "column": 30,
+      "textSha256": "69d30586e75a5f3cf77653891222c078da4f6d5f9b4abc01a2a92590cdbe7583",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 78,
+      "column": 4,
+      "textSha256": "5c151426b81519e02c3f4ab2e6bec3c1e293adc07f870c7f7eeffadd4efb2be1",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 120,
+      "column": 3,
+      "textSha256": "ad00f0ebe3367a513fabd6c4c38df8538f67ce62f3f9870dd5dc19b1e8a7acbb",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 176,
+      "column": 42,
+      "textSha256": "a56269b5bf15a4fa1f4f14928770e71d6a10aef489cc68fadf32955ed4f73a10",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 219,
+      "column": 7,
+      "textSha256": "6227e44e2fdfdfb70eee77fdc2478e6cb282c20729765ad5d82c81d0d480b8b9",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md",
+      "line": 243,
+      "column": 39,
+      "textSha256": "a4c847bf200cc7e0cd35fccd7bf48beeee7e9f23d8f8ab7ea9cfc6895be848f6",
       "category": "historical"
     },
     {
@@ -129413,14 +129658,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128722,
+      "line": 128967,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128722,
+      "line": 128967,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
