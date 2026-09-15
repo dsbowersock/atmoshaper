@@ -964,6 +964,8 @@ evidence even while current code is reverted.
   `scripts/repository-audit/brand-reference-baseline.json`. Task 8 does not edit
   an application source file. A true current-copy miss routes back to its owning
   Task 1-7 commit for repair and review before Task 8 resumes.
+- Modify: `scripts/repository-audit/core.mjs`
+- Modify: `scripts/repository-audit/brand.mjs`
 - Modify: `scripts/repository-audit/policy.json`
 - Modify: `tests/repository-audit.test.mjs`
 - Create: `tests/browser/phase6-preview-rebrand.spec.ts`
@@ -1006,6 +1008,40 @@ evidence even while current code is reverted.
   Playwright scenario to Task 10's authorized Neon Browser-QA lifecycle. Complete
   independent specification and quality reviews before committing the one-file
   repair.
+- [ ] Before Task 8 resumes after those bounded repairs, complete one separately
+  reviewed owner-routed repair of exactly 38 live current-product or
+  current-legal occurrences in these 13 paths:
+  `AGENTS.md`, `README.md`, `TODO.md`,
+  `tests/proprietary-license.test.mjs`,
+  `lib/anatomy-seed/body-system-concepts.ts`,
+  `lib/anatomy-seed/cardiorespiratory-lymphatic-concepts.ts`,
+  `lib/anatomy-seed/dermatome-myotome-atlas.ts`,
+  `lib/anatomy-seed/gross-body-system-structures.ts`,
+  `lib/anatomy-seed/legacy-anatomime-coverage.ts`,
+  `lib/anatomy-seed/movement-tissue-concepts.ts`,
+  `lib/anatomy-seed/nervous-system-concepts.ts`,
+  `lib/anatomy-seed/physiology-concepts-core.ts`, and
+  `lib/anatomy-seed/remaining-body-system-concepts.ts`. Route current product
+  voice to `AtmoShaper` and current operator/copyright voice to the exact
+  approved `Derrick Bowersock, doing business as AtmoShaper`. Do not change
+  massage/anatomy domain terminology, cited-source provenance, compatibility
+  identifiers, historical evidence, stable seed IDs/slugs/source references, or
+  educational meaning.
+- [ ] The 13 repair paths contain 42 fallback-classified occurrences. Preserve
+  exactly four of them unchanged and identify them in the implementation receipt:
+  the historical repository reference in `AGENTS.md`, both occurrences in
+  README's historical MassageLab repository link, and the FIPAT/source-provenance
+  occurrence in `lib/anatomy-seed/dermatome-myotome-atlas.ts`. Repair the other
+  38 only; do not use a blanket replacement across these files.
+- [ ] In that bounded 13-path repair, update the existing README contract in
+  `tests/proprietary-license.test.mjs` together with the README copyright line
+  so both require the exact approved DBA. Run
+  `node --test tests/proprietary-license.test.mjs tests/anatomy-foundation.test.mjs`,
+  `npm run typecheck`, and `git diff --check`; require exactly 38 intended
+  occurrence replacements, no other changed path, and no changed seed identity
+  or provenance fields. Complete independent specification review and then
+  independent quality review, repairing and re-reviewing before the coordinator
+  stages only those 13 paths and creates a bounded repair commit.
 - [ ] Capture `TaskStartSnapshot`.
 - [ ] Generate a review candidate without modifying the tracked baseline. Group
   remaining `pre-rebrand-public-copy` entries by semantic meaning, not file.
@@ -1015,6 +1051,38 @@ evidence even while current code is reverted.
 - [ ] Do not classify current rendered prose as compatibility. Do not add a
   directory, extension, broad filename, or whole-line exemption merely because
   a file contains many internal names.
+- [ ] Add `candidateOccurrenceRules` as an exact, fail-closed policy surface.
+  Each rule stores only `fingerprint` and `category`; the policy must not
+  store a raw source line or a raw repository path. Compute `fingerprint` as
+  lowercase hexadecimal SHA-256 of canonical JSON containing exactly the
+  normalized `path`, positive integer `line`, positive integer `column`,
+  and lowercase line `textSha256`. Canonical JSON uses the repository's stable
+  recursively key-sorted serializer so the identity is deterministic.
+- [ ] Restrict occurrence-rule categories to the terminal retained meanings
+  `compatibility`, `legal`, and `historical`; never permit
+  `pre-rebrand-public-copy` or `unclassified`. Apply structural path, scoped
+  line, and identifier rules first. Consult an exact occurrence rule only for an
+  occurrence that would otherwise reach the public-copy fallback, so it replaces
+  only that fallback and can never override a structural classification.
+- [ ] Validate occurrence rules and their active-reference coverage
+  unconditionally in `brand.mjs`, including candidate-print mode and a
+  repository with zero legacy references. Reject missing or unknown fields,
+  non-string or malformed hashes, uppercase hashes, nonterminal categories,
+  duplicate fingerprints, rules not sorted lexicographically by fingerprint
+  then category, any rule that overlaps or is shadowed by a structural rule, and
+  every stale, unmatched, moved, or edited rule. Every active rule must match
+  exactly one collected occurrence, and every matched occurrence must be claimed
+  by exactly one rule.
+  Keep CLI failures sanitized through the existing stable
+  `LEGACY_BRAND_AUDIT_FAILED` envelope; never print source text, paths, policy
+  contents, or fingerprint details in an error.
+- [ ] Extend `tests/repository-audit.test.mjs` with regression cases for the
+  canonical fingerprint calculation, normalized path handling, exact fallback
+  replacement, structural-rule precedence, all schema/category/hash/order/
+  duplicate/overlap/cardinality failures above, unconditional zero-reference
+  validation, stale fingerprints after line movement or text edits, sanitized
+  CLI failure output, and deterministic candidate output. Preserve the existing
+  candidate schema, occurrence ordering, JSON formatting, and terminal newline.
 - [ ] Add `phase6-preview-rebrand.spec.ts` covering homepage text presentation;
   app-bar at desktop/tablet/narrow mobile; Atmosphere navigation, heading,
   closed/expanded mixer geometry and transport labels; install dialog and served
@@ -1022,6 +1090,10 @@ evidence even while current code is reverted.
   versions; and Lava Lamp/Tile grid/Hex grid with unchanged ownership behavior.
 - [ ] Use new Phase 6 snapshot names/paths only. Do not touch
   `tests/browser/atmoshaper-repository-migration-parity.spec.ts` or its snapshots.
+- [ ] Task 8 authors and statically validates Browser-QA contracts only. Do not
+  create or mutate a Neon project, run Playwright, or create/update snapshots;
+  the separately authorized disposable Browser-QA lifecycle remains Task
+  10-only.
 - [ ] Add `phase6-preview-rebrand.spec.ts` to
   `ORDINARY_BROWSER_QA_SPEC_FILES`. Assign both `desktop-chromium` and
   `mobile-chromium` instances to lane 3. Update lane/harness tests for exact
@@ -1038,7 +1110,10 @@ evidence even while current code is reverted.
   Expected before baseline regeneration: classifier/tests pass; brand audit may
   report only expected missing entries caused by intentionally changed lines,
   but zero unclassified entries. The generated candidate must contain zero
-  `pre-rebrand-public-copy` entries.
+  `pre-rebrand-public-copy` entries. This is a strict gate after all owner
+  repairs: any remaining public-copy candidate stops Task 8 and routes back to
+  its semantic owner; it may not be waived, baselined, or converted by a broad
+  classifier.
 - [ ] Run independent specification review over the complete remaining-occurrence
   decision table and diff. Repair/re-review. Then run independent quality review
   of classifier precision, Browser-QA coverage, and source changes; repair and
@@ -1055,6 +1130,7 @@ parity oracle.
 **Files:**
 
 - Modify: `scripts/repository-audit/brand-reference-baseline.json`
+- Modify: `scripts/repository-audit/policy.json`
 - Modify: `docs/superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md`
 - Modify: `docs/project-state.md`
 - Modify: `docs/project-log.md`
@@ -1077,9 +1153,11 @@ parity oracle.
   text-only fallback; legal archive/current versions; retained endpoints and
   compatibility names; final-logo, provider, deployment, domain, push/PR/merge
   status. Append the project log; do not rewrite dated historical entries.
-- [ ] Update README's copyright/DBA identity and its focused proprietary-license
-  assertion together to exact `Derrick Bowersock, doing business as AtmoShaper`.
-  Do not remove or weaken the assertion.
+- [ ] Preserve the owner-repair commit's exact README copyright/DBA identity and
+  focused proprietary-license assertion:
+  `Derrick Bowersock, doing business as AtmoShaper`. If Task 9 changes the
+  surrounding README text, update that document and its contract together; do
+  not remove or weaken the assertion.
 - [ ] Amend ADR 0002 to the approved decision. Mark it Accepted only after all
   local implementation/verification evidence is complete; otherwise keep it
   Proposed with exact remaining gate. Record that legal migration was separately
@@ -1087,12 +1165,22 @@ parity oracle.
 - [ ] Advance the project-state verified-date bound in
   `tests/family-friends-server-workload.test.mjs` only with the same verified
   evidence change.
-- [ ] Stage all intended Task 9 documents except the brand baseline. Print a
-  candidate to a separate temporary path; inspect source commit/schema/category
-  totals/path deltas and prove zero `pre-rebrand-public-copy`, missing, and
-  unclassified entries. Replace the tracked baseline only after review, stage
-  it, regenerate, and repeat until the fresh candidate is byte-identical to the
-  staged Git blob. Never redirect generator output over its live input.
+- [ ] After README and authority-document edits, inspect every active
+  `candidateOccurrenceRules` fingerprint. Prune rules whose retained occurrence
+  was removed, and re-key rules whose approved retained occurrence moved or whose
+  line text changed; never loosen a fingerprint, add a path-only exception, or
+  retain a stale rule. Run the occurrence-rule validation and focused audit tests
+  before baseline generation, and require every surviving rule to match exactly
+  one current occurrence under its recorded terminal meaning.
+- [ ] Stage all intended Task 9 documents and `policy.json` except the brand
+  baseline. Print a candidate to a separate temporary path; inspect source
+  commit/schema/category totals/path deltas and prove zero
+  `pre-rebrand-public-copy`, missing, and unclassified entries. Replace the
+  tracked baseline only after review, stage it, regenerate, and repeat until the
+  fresh candidate is byte-identical to the staged Git blob. Never redirect
+  generator output over its live input. Task 9 is the sole owner of final
+  baseline regeneration; Task 8 must not edit the tracked baseline and Task 10
+  must not regenerate or modify it.
 - [ ] Remove only the exact temporary candidate files after validating their
   absolute paths are inside the task temp directory.
 - [ ] Run local closeout:
@@ -1143,7 +1231,6 @@ because no provider was changed.
 - Modify: `docs/aegis/work/2026-09-14-atmoshaper-phase6-preview-rebrand/90-evidence.md`
 - Modify: `docs/project-state.md`
 - Modify: `docs/project-log.md`
-- Modify: `scripts/repository-audit/brand-reference-baseline.json`
 
 - [ ] Capture `TaskStartSnapshot` immediately after fresh authorization. Confirm
   exact branch/HEAD, clean status, no active Git operation, and no pre-existing
@@ -1176,13 +1263,19 @@ because no provider was changed.
   cycle-owned project and prove it absent; separately prove production still
   exists without reading or changing production data.
 - [ ] If new Phase 6 snapshot files are accepted, run focused source/harness
-  tests, audits, fixed-point regeneration, independent spec/quality review, and
+  tests, audits without baseline regeneration, independent spec/quality review,
+  and
   commit:
 
   `test: record phase 6 visual baseline`
 
-- [ ] Repeat exact-head local diff/audit checks after receipt changes. Stop
-  before push and request separate publication authorization.
+- [ ] Repeat exact-head local diff/audit checks after receipt changes. Task 10
+  never edits `scripts/repository-audit/brand-reference-baseline.json` or
+  `scripts/repository-audit/policy.json`. If a receipt edit creates, moves, or
+  changes a legacy occurrence and therefore disturbs a strict fingerprint or
+  baseline entry, stop and route that reconciliation through a separately
+  reviewed Task 9-owned follow-up before QA closeout. Stop before push and
+  request separate publication authorization.
 
 **Rollback:** Revert only the new Phase 6 oracle/receipt commit. The temporary QA
 project is already deleted; production was never changed.
