@@ -14,13 +14,13 @@ import test from "node:test"
 import { fileURLToPath } from "node:url"
 
 import {
-  buildRepositoryInventory,
+  buildRepositoryInventory, candidateOccurrenceFingerprint,
   classifyCandidate,
   collectLegacyReferences,
   listTrackedFiles,
   loadJson,
   stableJson,
-  toBaselineEntry,
+  toBaselineEntry, validateCandidateOccurrenceRules,
   validateBaseline,
   verifyLegacyReferenceBaseline,
 } from "../scripts/repository-audit/core.mjs"
@@ -148,7 +148,7 @@ test("reviewed references pass, new references fail, and removals are informatio
   writeFixture(root, "new-copy.md", "A new Massage Lab reference\n")
   const withNewReference = collectLegacyReferences(root, ["copy.md", "new-copy.md"], policy)
   const added = verifyLegacyReferenceBaseline(withNewReference, baseline, policy)
-  assert.equal(added.unclassified.length, 1)
+  assert.deepEqual([added.missing.length, added.unclassified.length], [0, 1])
   assert.equal(added.unclassified[0].path, "new-copy.md")
 
   const removed = verifyLegacyReferenceBaseline([], baseline, policy)
@@ -469,7 +469,7 @@ test("CLI failures use exact sanitized JSON envelopes without leaking source dat
     "scripts/repository-audit/inventory.mjs",
     "scripts/repository-audit/policy.json",
   ]) {
-    writeFixture(inventoryRoot, path, readFileSync(resolve(repositoryRoot, ...path.split("/"))))
+    writeFixture(inventoryRoot, path, repositoryAuditFixtureContent(path))
   }
   const privatePath = writeFixture(
     inventoryRoot,
@@ -503,7 +503,7 @@ test("CLI failures use exact sanitized JSON envelopes without leaking source dat
     "scripts/repository-audit/brand.mjs",
     "scripts/repository-audit/policy.json",
   ]) {
-    writeFixture(brandRoot, path, readFileSync(resolve(repositoryRoot, ...path.split("/"))))
+    writeFixture(brandRoot, path, repositoryAuditFixtureContent(path))
   }
   writeFixture(
     brandRoot,
@@ -552,7 +552,7 @@ test("default brand report excludes removed occurrences from active totals", (t)
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -592,7 +592,7 @@ test("candidate baseline output ends with exactly one newline", (t) => {
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -603,12 +603,79 @@ test("candidate baseline output ends with exactly one newline", (t) => {
     ["scripts/repository-audit/brand.mjs", "--print-candidate-baseline"],
     { cwd: root, encoding: "utf8" },
   )
+  const repeated = spawnSync(
+    process.execPath,
+    ["scripts/repository-audit/brand.mjs", "--print-candidate-baseline"],
+    { cwd: root, encoding: "utf8" },
+  )
 
   assert.equal(result.status, 0)
   assert.equal(result.stderr, "")
+  assert.equal(repeated.status, 0)
+  assert.equal(repeated.stderr, "")
+  assert.equal(repeated.stdout, result.stdout)
   assert.match(result.stdout, /}\n$/)
   assert.doesNotMatch(result.stdout, /}\n\n$/)
   assert.equal(JSON.parse(result.stdout).sourceCommit, "a".repeat(40))
+})
+
+test("brand CLI validates occurrence rules with zero legacy references and sanitizes failures", (t) => {
+  const envelope = `{
+  "error": {
+    "code": "LEGACY_BRAND_AUDIT_FAILED"
+  },
+  "schemaVersion": 1
+}
+`
+  const staleFingerprint = "d".repeat(64)
+  const policies = [
+    {
+      ...policy,
+      candidateOccurrenceRules: [{
+        fingerprint: staleFingerprint,
+        category: "historical",
+      }],
+    },
+    {
+      ...policy,
+      candidateOccurrenceRules: [{
+        fingerprint: "e".repeat(64),
+        category: "historical",
+        sourceLine: "DO_NOT_PRINT_THIS_POLICY_VALUE",
+      }],
+    },
+  ]
+
+  for (const fixturePolicy of policies) {
+    const root = createFixtureRepository(t)
+    for (const path of [
+      "scripts/repository-audit/core.mjs",
+      "scripts/repository-audit/brand.mjs",
+    ]) {
+      writeFixture(root, path, repositoryAuditFixtureContent(path), { tracked: false })
+    }
+    writeFixture(
+      root,
+      "scripts/repository-audit/policy.json",
+      `${JSON.stringify(fixturePolicy, null, 2)}\n`,
+      { tracked: false },
+    )
+    writeFixture(root, "MIGRATION_LINEAGE.md", `Source commit: \`${"a".repeat(40)}\`\n`)
+
+    const result = spawnSync(
+      process.execPath,
+      ["scripts/repository-audit/brand.mjs", "--print-candidate-baseline"],
+      { cwd: root, encoding: "utf8" },
+    )
+
+    assert.equal(result.status, 1)
+    assert.equal(result.stdout, "")
+    assert.equal(result.stderr, envelope)
+    assert.equal(result.stderr.includes(staleFingerprint), false)
+    assert.equal(result.stderr.includes("DO_NOT_PRINT_THIS_POLICY_VALUE"), false)
+    assert.equal(result.stderr.includes("candidateOccurrenceRules"), false)
+    assert.equal(result.stderr.includes(root), false)
+  }
 })
 
 test("candidate baseline output preserves the established schema key order", (t) => {
@@ -621,7 +688,7 @@ test("candidate baseline output preserves the established schema key order", (t)
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -657,7 +724,7 @@ test("child Git failures expose only the sanitized CLI envelopes", (t) => {
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -740,4 +807,270 @@ test("missing or malformed inventory policy uses the sanitized envelope", (t) =>
     assert.equal(result.stderr.includes(root), false)
     assert.equal(result.stderr.includes("malformed"), false)
   }
+})
+
+test("candidate occurrence fingerprints use normalized canonical identities", () => {
+  const identity = {
+    path: ".\\nested\\copy.md",
+    line: 3,
+    column: 5,
+    textSha256: "A".repeat(64),
+  }
+
+  assert.equal(
+    candidateOccurrenceFingerprint(identity),
+    "44a223db38ef5a7b2508a0334f2aa4fdc95cb347686205c034a39e330f5735f3",
+  )
+  assert.equal(candidateOccurrenceFingerprint(identity), candidateOccurrenceFingerprint({
+    ...identity,
+    path: "nested/copy.md",
+    textSha256: "a".repeat(64),
+  }))
+})
+
+test("candidate occurrence fingerprints change with location or line content", () => {
+  const identity = {
+    path: "copy.md",
+    line: 1,
+    column: 1,
+    textSha256: "a".repeat(64),
+  }
+  const original = candidateOccurrenceFingerprint(identity)
+
+  for (const changed of [
+    { ...identity, path: "moved.md" },
+    { ...identity, line: 2 },
+    { ...identity, column: 2 },
+    { ...identity, textSha256: "b".repeat(64) },
+  ]) {
+    assert.notEqual(candidateOccurrenceFingerprint(changed), original)
+  }
+
+  for (const invalid of [
+    { ...identity, path: "" },
+    { ...identity, line: 0 },
+    { ...identity, column: 0 },
+    { ...identity, textSha256: "not-a-hash" },
+  ]) {
+    assert.throws(() => candidateOccurrenceFingerprint(invalid), /identity is invalid/)
+  }
+})
+
+test("exact occurrence rules replace only the public-copy fallback", (t) => {
+  const root = createFixtureRepository(t)
+  writeFixture(root, "copy.md", ["Massage", "Lab"].join("") + " retained attribution\n")
+  const [reference] = collectLegacyReferences(root, ["copy.md"], policy)
+  let exactPolicy
+  for (const category of ["compatibility", "legal", "historical"]) {
+    exactPolicy = {
+      ...policy,
+      candidateOccurrenceRules: [{
+        fingerprint: candidateOccurrenceFingerprint(reference),
+        category,
+      }],
+    }
+    validateCandidateOccurrenceRules(exactPolicy, [reference])
+    assert.equal(classifyCandidate(reference, exactPolicy), category)
+  }
+
+  const editedReference = { ...reference, textSha256: "b".repeat(64) }
+  assert.equal(
+    classifyCandidate(editedReference, exactPolicy),
+    "pre-rebrand-public-copy",
+  )
+})
+
+test("structural rules take precedence and reject shadowed occurrence rules", (t) => {
+  const root = createFixtureRepository(t)
+  writeFixture(root, "docs/history.md", ["Massage", "Lab"].join("") + " historical evidence\n")
+  const [reference] = collectLegacyReferences(root, ["docs/history.md"], policy)
+  const shadowedPolicy = {
+    ...policy,
+    candidateOccurrenceRules: [{
+      fingerprint: candidateOccurrenceFingerprint(reference),
+      category: "compatibility",
+    }],
+  }
+
+  assert.equal(classifyCandidate(reference, shadowedPolicy), "historical")
+  assert.throws(
+    () => validateCandidateOccurrenceRules(shadowedPolicy, [reference]),
+    /overlaps a structural rule/,
+  )
+})
+
+test("candidate occurrence rule schema, categories, hashes, order, and uniqueness fail closed", () => {
+  const valid = {
+    fingerprint: "a".repeat(64),
+    category: "historical",
+  }
+  const validate = (candidateOccurrenceRules) => validateCandidateOccurrenceRules(
+    { ...policy, candidateOccurrenceRules },
+    [],
+  )
+
+  const {
+    candidateOccurrenceRules: omittedOccurrenceRules,
+    ...policyWithoutOccurrenceRules
+  } = policy
+  assert.ok(Array.isArray(omittedOccurrenceRules))
+  assert.throws(
+    () => validateCandidateOccurrenceRules(policyWithoutOccurrenceRules, []),
+    /rules array/,
+  )
+  assert.throws(() => validate([null]), /object/)
+  assert.throws(() => validate([{ fingerprint: valid.fingerprint }]), /exact fields/)
+  assert.throws(() => validate([{ category: valid.category }]), /exact fields/)
+  assert.throws(() => validate([{ ...valid, path: "copy.md" }]), /exact fields/)
+  assert.throws(() => validate([{ ...valid, fingerprint: null }]), /lowercase SHA-256/)
+  assert.throws(() => validate([{ ...valid, fingerprint: "A".repeat(64) }]), /lowercase SHA-256/)
+  assert.throws(() => validate([{ ...valid, fingerprint: "a".repeat(63) }]), /lowercase SHA-256/)
+  for (const category of ["pre-rebrand-public-copy", "unclassified", "other"]) {
+    assert.throws(() => validate([{ ...valid, category }]), /terminal category/)
+  }
+  assert.throws(
+    () => validate([
+      { fingerprint: "b".repeat(64), category: "historical" },
+      valid,
+    ]),
+    /sorted/,
+  )
+  assert.throws(() => validate([valid, valid]), /duplicate/)
+})
+
+test("candidate occurrence rule coverage rejects stale and non-unique matches", (t) => {
+  const root = createFixtureRepository(t)
+  writeFixture(root, "copy.md", ["Massage", "Lab"].join("") + " retained attribution\n")
+  const [reference] = collectLegacyReferences(root, ["copy.md"], policy)
+  const exactPolicy = {
+    ...policy,
+    candidateOccurrenceRules: [{
+      fingerprint: candidateOccurrenceFingerprint(reference),
+      category: "historical",
+    }],
+  }
+
+  assert.throws(
+    () => validateCandidateOccurrenceRules(exactPolicy, []),
+    /exactly one active occurrence/,
+  )
+  assert.throws(
+    () => validateCandidateOccurrenceRules(exactPolicy, [reference, reference]),
+    /exactly one active occurrence/,
+  )
+  assert.throws(
+    () => validateCandidateOccurrenceRules(exactPolicy, [{
+      ...reference,
+      line: reference.line + 1,
+    }]),
+    /exactly one active occurrence/,
+  )
+  assert.throws(
+    () => validateCandidateOccurrenceRules(exactPolicy, [{
+      ...reference,
+      textSha256: "c".repeat(64),
+    }]),
+    /exactly one active occurrence/,
+  )
+})
+
+
+function repositoryAuditFixtureContent(path) {
+  if (path === "scripts/repository-audit/policy.json") {
+    return `${JSON.stringify({ ...policy, candidateOccurrenceRules: [] }, null, 2)}\n`
+  }
+  return readFileSync(resolve(repositoryRoot, ...path.split("/")))
+}
+
+test("classified baseline additions await baseline refresh without becoming missing or unclassified", (t) => {
+  const root = createFixtureRepository(t)
+  const legacyName = ["Massage", "Lab"].join("")
+  writeFixture(root, "docs/history.md", `${legacyName} historical evidence\n`)
+  writeFixture(root, "copy.md", `${legacyName} retained attribution\n`)
+  const references = collectLegacyReferences(root, ["docs/history.md", "copy.md"], policy)
+  const exactPolicy = {
+    ...policy,
+    candidateOccurrenceRules: [{
+      fingerprint: candidateOccurrenceFingerprint(
+        references.find((reference) => reference.path === "copy.md"),
+      ),
+      category: "historical",
+    }],
+  }
+  validateCandidateOccurrenceRules(exactPolicy, references)
+
+  const result = verifyLegacyReferenceBaseline(references, baselineFor([]), exactPolicy)
+  assert.deepEqual(result.missing, [])
+  assert.deepEqual(result.unclassified, [])
+})
+
+test("default brand CLI passes classified baseline additions pending baseline refresh", (t) => {
+  const root = createFixtureRepository(t)
+  for (const path of [
+    "scripts/repository-audit/core.mjs",
+    "scripts/repository-audit/brand.mjs",
+  ]) {
+    writeFixture(root, path, repositoryAuditFixtureContent(path), { tracked: false })
+  }
+  writeFixture(
+    root,
+    "scripts/repository-audit/policy.json",
+    repositoryAuditFixtureContent("scripts/repository-audit/policy.json"),
+    { tracked: false },
+  )
+  writeFixture(root, "MIGRATION_LINEAGE.md", `Source commit: \`${"a".repeat(40)}\`\n`)
+  writeFixture(root, "docs/history.md", `${["Massage", "Lab"].join("")} history\n`)
+  writeFixture(
+    root,
+    "scripts/repository-audit/brand-reference-baseline.json",
+    JSON.stringify(baselineFor([])),
+    { tracked: false },
+  )
+
+  const result = spawnSync(process.execPath, ["scripts/repository-audit/brand.mjs"], {
+    cwd: root,
+    encoding: "utf8",
+  })
+  const report = JSON.parse(result.stdout)
+  assert.equal(result.status, 0)
+  assert.equal(result.stderr, "")
+  assert.deepEqual(report.missing, [])
+  assert.deepEqual(report.unclassified, [])
+  assert.equal(report.totals.historical, 1)
+})
+
+test("default brand CLI fails a genuine fallback addition as unclassified", (t) => {
+  const root = createFixtureRepository(t)
+  for (const path of [
+    "scripts/repository-audit/core.mjs",
+    "scripts/repository-audit/brand.mjs",
+    "scripts/repository-audit/policy.json",
+  ]) {
+    writeFixture(root, path, repositoryAuditFixtureContent(path), { tracked: false })
+  }
+  const tick = String.fromCharCode(96)
+  writeFixture(
+    root,
+    "MIGRATION_LINEAGE.md",
+    "Source commit: " + tick + "a".repeat(40) + tick + "\n",
+  )
+  writeFixture(root, "copy.md", ["Massage", "Lab"].join("") + " public copy\n")
+  writeFixture(
+    root,
+    "scripts/repository-audit/brand-reference-baseline.json",
+    JSON.stringify(baselineFor([])),
+    { tracked: false },
+  )
+
+  const result = spawnSync(process.execPath, ["scripts/repository-audit/brand.mjs"], {
+    cwd: root,
+    encoding: "utf8",
+  })
+  const report = JSON.parse(result.stdout)
+  assert.equal(result.status, 1)
+  assert.equal(result.stderr, "")
+  assert.deepEqual(report.missing, [])
+  assert.equal(report.unclassified.length, 1)
+  assert.equal(report.unclassified[0].path, "copy.md")
+  assert.equal(report.totals["pre-rebrand-public-copy"], 1)
 })

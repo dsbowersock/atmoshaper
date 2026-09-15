@@ -998,13 +998,13 @@ test.describe("private account action settlement", () => {
     await page.goto("/account/link-google", { waitUntil: "domcontentloaded" })
     await page.getByLabel("Account email").fill(installed.identity.user.email)
     await page.getByLabel("Password").fill(installed.password)
-    await page.getByRole("button", { name: "Confirm same MassageLab account" }).click()
+    await page.getByRole("button", { name: "Confirm same AtmoShaper account" }).click()
     await expect(page.getByRole("button", { name: "Connecting Google…" })).toBeDisabled()
     await page.getByRole("button", { name: "Connecting Google…" }).click({ force: true })
     await expect(page.getByRole("alert").filter({
       hasText: /^Something went wrong\. Please try again\.$/,
     })).toHaveCount(1)
-    await expect(page.getByRole("button", { name: "Confirm same MassageLab account" })).toBeEnabled()
+    await expect(page.getByRole("button", { name: "Confirm same AtmoShaper account" })).toBeEnabled()
     expect(confirmations).toBe(1)
   })
 

@@ -418,7 +418,7 @@ async function openMusicBackground(page: Page) {
   })
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   await expect(
-    page.getByRole("heading", { name: /Atmosphere audio stations/i, includeHidden: true }),
+    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: true }),
   ).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
@@ -542,7 +542,12 @@ test("ordinary signed-in shell defers commerce until a real background consumer 
   const fixture = await installCommerceFixture({ context, page, baseURL, projectName: testInfo.project.name })
 
   await page.goto("/music", { waitUntil: "domcontentloaded" })
-  await expect(page.getByRole("heading", { name: /Atmosphere audio stations/i, includeHidden: true }))
+  await expect(page.getByRole("heading", {
+    level: 1,
+    name: "Atmosphere",
+    exact: true,
+    includeHidden: true,
+  }))
     .toBeAttached()
   await page.waitForFunction(() => (
     document.documentElement.dataset.backgroundCommerceRefreshPairReady === "true"

@@ -279,12 +279,12 @@ test.describe("private identity-method journeys", () => {
       signedIn: false,
     })
     await page.goto("/account/link-google", { waitUntil: "domcontentloaded" })
-    await expect(page.getByRole("heading", { name: /same MassageLab account/i })).toBeVisible()
+    await expect(page.getByRole("heading", { name: /same AtmoShaper account/i })).toBeVisible()
     await expect(page.locator("body")).not.toContainText(installed.intentId)
     await expect(page.locator("body")).not.toContainText(installed.identity.providerAccountId)
     await page.getByLabel("Account email").fill(installed.identity.user.email)
     await page.getByLabel("Password").fill(installed.password)
-    const confirm = page.getByRole("button", { name: /confirm same MassageLab account/i })
+    const confirm = page.getByRole("button", { name: /confirm same AtmoShaper account/i })
     await confirm.dblclick()
     await expect(page).toHaveURL("/account?tab=security")
     await expect(page.getByRole("heading", { name: "Sign-in methods" })).toBeVisible()
@@ -407,12 +407,12 @@ test.describe("private identity-method journeys", () => {
     await page.goto("/account/link-google", { waitUntil: "domcontentloaded" })
     await page.getByLabel("Account email").fill(installed.identity.user.email)
     await page.getByLabel("Password").fill(installed.password)
-    await page.getByRole("button", { name: "Confirm same MassageLab account" }).click()
+    await page.getByRole("button", { name: "Confirm same AtmoShaper account" }).click()
     await expect(page.getByRole("alert").filter({
       hasText: /^This confirmation expired or belongs to another session\. Start again with Google sign-in\.$/,
     })).toHaveCount(1)
     await page.getByLabel("Password").fill(installed.password)
-    await page.getByRole("button", { name: "Confirm same MassageLab account" }).click()
+    await page.getByRole("button", { name: "Confirm same AtmoShaper account" }).click()
     await expect(page).toHaveURL(/\/account\?tab=security/)
   })
 

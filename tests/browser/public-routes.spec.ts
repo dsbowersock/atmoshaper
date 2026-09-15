@@ -1269,7 +1269,12 @@ test("Atmosphere visualizer action retains selected station across client routes
   const origin = "/music?task8=public-route"
 
   await page.goto(origin, { waitUntil: "domcontentloaded" })
-  await expect(page.getByRole("heading", { name: /Atmosphere audio stations/i, includeHidden: true })).toBeAttached()
+  await expect(page.getByRole("heading", {
+    level: 1,
+    name: "Atmosphere",
+    exact: true,
+    includeHidden: true,
+  })).toBeAttached()
   await expect(page.getByRole("heading", { name: /Treatment room starters/i })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Breathing guide" })).toHaveCount(0)
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
@@ -2329,7 +2334,7 @@ test("register defaults new accounts toward post-account onboarding", async ({ p
 
   await page.goto("/register", { waitUntil: "domcontentloaded" })
 
-  await expect(page.getByRole("heading", { name: /Create MassageLab account/i })).toBeVisible()
+  await expect(page.getByRole("heading", { name: /Create AtmoShaper account/i })).toBeVisible()
   await expect(page.getByRole("button", { name: /Create account/i })).toBeVisible()
   await expect(page.getByRole("link", { name: /Sign in instead/i })).toHaveAttribute("href", "/login?callbackUrl=%2Fonboarding")
 
