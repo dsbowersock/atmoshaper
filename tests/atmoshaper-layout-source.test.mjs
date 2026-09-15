@@ -31,6 +31,21 @@ const productionSource = [
 ].join("\n")
 
 describe("AtmoShaper responsive integration source contract", () => {
+  it("uses the approved page heading while retaining the station region name", () => {
+    assert.equal(
+      browseWorkspace.match(/<h1 className="sr-only">Atmosphere<\/h1>/g)?.length ?? 0,
+      1,
+    )
+    assert.doesNotMatch(
+      browseWorkspace,
+      /<h1 className="sr-only">Atmosphere audio stations<\/h1>/,
+    )
+    assert.match(
+      carousel,
+      /aria-label=\{\`\$\{ATMOSPHERE_PUBLIC_LABELS\.name\} audio stations\`\}/,
+    )
+  })
+
   it("mounts only the mixer at the AtmoShaper category integration point", () => {
     assert.match(carousel, /import \{ AtmoShaperWorkspace \}/)
     assert.match(carousel, /import \{ ATMOSPHERE_PUBLIC_LABELS \}/)

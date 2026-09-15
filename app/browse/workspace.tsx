@@ -137,7 +137,7 @@ export function AtmosphereWorkspace({ layout = "grid" }: { layout?: AtmosphereWo
         contentClassName={cn(!isRailLayout && "pb-28", isRailLayout && "ml-atmosphere-rail-content")}
       >
       {isRailLayout ? (
-        <h1 className="sr-only">Atmosphere audio stations</h1>
+        <h1 className="sr-only">Atmosphere</h1>
       ) : (
         <section className="flex flex-col gap-3">
           <p className="text-sm uppercase tracking-normal text-primary">Atmosphere</p>
