@@ -986,7 +986,10 @@ evidence even while current code is reverted.
   `app/dev/buttons/metal-ring-gallery.tsx` must use unbranded current prose;
   and `components/ui/sidebar.tsx` must compose its screen-reader navigation
   title from `PUBLIC_PRODUCT_IDENTITY.name`. Update the impacted contracts in
-  `tests/app-settings.test.mjs`, `tests/browser/background-palette.spec.ts`,
+  `tests/app-settings.test.mjs`, and repair the existing compiled server-sidebar
+  harness in `tests/sidebar-owner-validation.test.mjs` by supplying that same
+  canonical identity owner. Update the impacted Browser-QA contracts in
+  `tests/browser/background-palette.spec.ts`,
   `tests/browser/background-commerce.spec.ts`,
   `tests/browser/dna-twisted-cubes-backgrounds.spec.ts`, and
   `tests/browser/music-visualizer.spec.ts`. Do not change stable station IDs,
