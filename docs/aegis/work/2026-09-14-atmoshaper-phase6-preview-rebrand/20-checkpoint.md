@@ -20,6 +20,11 @@
 - The committed pre-module Existence Check remains satisfied: the plan and
   architecture receipt found no neutral public feature-label owner and justified
   one noun-only addition. No additional competing owner is introduced.
+- Follow-up specification review traced the retained internal default recipe
+  name `AtmoShaper` through all three provider/media title sites. The same pure
+  presentation boundary now also owns exact default-title translation; custom
+  recipe names and the stored/internal default remain unchanged. This replaces,
+  rather than adds beside, the proposed error-only helper.
 - Current todo: independently review this plan correction, commit it separately,
   then return the exact repair to the Task 2 implementer before repeating both
   Task 2 review gates.
