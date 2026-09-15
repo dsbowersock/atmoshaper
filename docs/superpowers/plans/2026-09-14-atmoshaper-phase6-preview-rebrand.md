@@ -660,6 +660,13 @@ needed.
   identifier-only matches remains byte-unchanged.
 - Modify: `data/background-branding-catalog.json`
 - Modify: `data/background-branding-audit.json`
+- Modify: `docs/background-branding-audit/batch-01-foundations.md`
+- Modify: `docs/background-branding-audit/batch-02-flow-and-liquid.md`
+- Modify: `docs/background-branding-audit/batch-03-light-and-rays.md`
+- Modify: `docs/background-branding-audit/batch-04-grids-and-pixels.md`
+- Modify: `docs/background-branding-audit/batch-05-atmosphere-and-cosmos.md`
+- Modify: `docs/background-branding-audit/batch-06-digital-energy.md`
+- Modify: `docs/background-branding-audit/batch-07-fields-and-celestial.md`
 - Modify: `public/chimer/background-previews/index.json`
 - Modify: `scripts/background-branding/audit-model.mjs`
 - Modify: `scripts/repository-audit/policy.json`
@@ -684,7 +691,19 @@ needed.
   dated provenance/source-review statements as historical evidence.
 - [ ] Mirror only the canonical display/provider/license changes into the
   branding catalog, audit data, and preview manifest through their existing
-  generators or exact deterministic contract. Do not change image/video bytes.
+  generators or exact deterministic contract. The checked-in audit batches are
+  already stale against their canonical renderer at the Task start: Phase 6
+  semantic changes belong only to batches 01 and 07, while batches 02-06 may
+  change only to resynchronize pre-existing generated `Current name` fields
+  with the canonical registry. Do not change image/video bytes.
+- [ ] Before running the audit generator, record SHA-256 hashes over canonical
+  LF-normalized UTF-8 content for its index and seven batch outputs. After
+  generation, assert that the index's normalized content stayed identical,
+  that Git's changed generated-output path set is exactly the seven listed
+  batch files, and that no batch 02-06 delta contains anything beyond the
+  pre-existing deterministic `Current name` resynchronization. Raw worktree
+  byte hashes are not authoritative here because Windows checkout CRLF and the
+  generator's LF output represent the same tracked content.
 - [ ] In Chimer and effect-source prose, change current visible labels,
   aria-labels, user-facing errors, and current ownership comments from the old
   product to AtmoShaper or the exact unbranded catalog label. Preserve every
