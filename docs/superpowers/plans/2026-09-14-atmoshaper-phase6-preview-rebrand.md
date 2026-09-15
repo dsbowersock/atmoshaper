@@ -1042,6 +1042,40 @@ evidence even while current code is reverted.
   or provenance fields. Complete independent specification review and then
   independent quality review, repairing and re-reviewing before the coordinator
   stages only those 13 paths and creates a bounded repair commit.
+- [ ] Before Task 8 resumes again, complete one separately reviewed owner-routed
+  repair of exactly six current product-language comments in these four paths:
+  `components/backgrounds/use-ambient-reduced-motion.ts:10`,
+  `lib/atmosphere/generative-fm-catalog.js:798`,
+  `lib/atmosphere/generative-fm-runtime.ts:123,584`, and
+  `lib/google-calendar-adapter.ts:58,107`. Change only the six comment
+  occurrences from current `MassageLab` product voice to `AtmoShaper`.
+  Preserve runtime behavior, public and provider contracts, endpoints, token
+  fields, Google OAuth behavior, audio gain and lifecycle behavior, stable IDs,
+  and all non-comment source.
+- [ ] In that four-path repair, preserve the runtime namespaces
+  `massagelab:atmosphere-startup-timing` and
+  `massagelab:atmosphere:debug` exactly, and preserve the internal
+  `MassageLab Atmosphere startup timing` debug console marker at
+  `lib/atmosphere/generative-fm-runtime.ts:626`. Run
+  `node --test tests/sitewide-control-rollout.test.mjs tests/atmosphere-stations.test.mjs tests/generative-fm-runtime-source.test.mjs tests/google-calendar-adapter.test.mjs`,
+  `npm run typecheck`, and `git diff --check`. Also run an exact static
+  old/new scan across the four paths: require `AtmoShaper` in all six intended
+  comment positions and require the legacy-name scan to return exactly six
+  retained occurrences: the `massagelab:atmosphere-startup-timing` event
+  namespace, the `massagelab:atmosphere:debug` local-storage namespace, and the
+  `MassageLab Atmosphere startup timing` console marker in
+  `generative-fm-runtime.ts`; plus the import and two call-site uses of
+  `MASSAGELAB_GOOGLE_CALENDAR_SUMMARY` in
+  `google-calendar-adapter.ts`. Complete independent specification review and
+  then independent quality review, repairing and re-reviewing before the
+  coordinator stages only those four paths and creates a bounded repair commit.
+- [ ] The pending Task 8 audit repair has already removed the six invalid
+  `candidateOccurrenceRules` that targeted these current-product comments.
+  The four-path owner repair verifies those rules remain absent; it does not edit
+  or stage `policy.json`. After the six source comments change, their six old
+  tracked baseline rows appear only as informational `missing` entries until
+  Task 9 performs the sole baseline regeneration. Do not re-add occurrence rules
+  for removed current-product copy.
 - [ ] Capture `TaskStartSnapshot`.
 - [ ] Generate a review candidate without modifying the tracked baseline. Group
   remaining `pre-rebrand-public-copy` entries by semantic meaning, not file.
@@ -1083,6 +1117,22 @@ evidence even while current code is reverted.
   validation, stale fingerprints after line movement or text edits, sanitized
   CLI failure output, and deterministic candidate output. Preserve the existing
   candidate schema, occurrence ordering, JSON formatting, and terminal newline.
+- [ ] Preserve the baseline comparison's directional semantics. `missing`
+  contains only baseline entries whose exact occurrence identity is absent from
+  current references; it is informational and does not fail the brand CLI.
+  A new current occurrence that is classified exactly by a structural rule or
+  `candidateOccurrenceRules` is neither `missing` nor `unclassified` and may
+  await Task 9's sole baseline reconciliation. Only a new current occurrence
+  that still reaches the `pre-rebrand-public-copy` fallback enters
+  `unclassified` and makes the CLI exit nonzero.
+- [ ] Restore or retain focused CLI regression tests proving all three default
+  baseline cases: removing a baselined occurrence exits zero and reports it only
+  in `missing`; adding an exactly structurally or occurrence-classified current
+  reference exits zero with empty `missing` and `unclassified`; and adding a
+  genuine fallback current reference exits one with that occurrence in
+  `unclassified`. These semantics do not authorize a Task 8 baseline update:
+  `scripts/repository-audit/brand-reference-baseline.json` remains unchanged
+  until Task 9.
 - [ ] Add `phase6-preview-rebrand.spec.ts` covering homepage text presentation;
   app-bar at desktop/tablet/narrow mobile; Atmosphere navigation, heading,
   closed/expanded mixer geometry and transport labels; install dialog and served
@@ -1108,12 +1158,15 @@ evidence even while current code is reverted.
   ```
 
   Expected before baseline regeneration: classifier/tests pass; brand audit may
-  report only expected missing entries caused by intentionally changed lines,
-  but zero unclassified entries. The generated candidate must contain zero
-  `pre-rebrand-public-copy` entries. This is a strict gate after all owner
-  repairs: any remaining public-copy candidate stops Task 8 and routes back to
-  its semantic owner; it may not be waived, baselined, or converted by a broad
-  classifier.
+  report only informational `missing` entries caused by intentionally removed
+  or changed baseline occurrences, but `unclassified` is empty. Exactly
+  classified current additions may remain absent from the old tracked baseline
+  until Task 9 without appearing in either diff list. The generated candidate
+  must contain zero `pre-rebrand-public-copy` entries, and the current audit
+  must contain zero `unclassified` entries. These are strict gates after all
+  owner repairs: any remaining public-copy or unclassified candidate stops Task
+  8 and routes back to its semantic owner; it may not be waived, baselined, or
+  converted by a broad classifier.
 - [ ] Run independent specification review over the complete remaining-occurrence
   decision table and diff. Repair/re-review. Then run independent quality review
   of classifier precision, Browser-QA coverage, and source changes; repair and
