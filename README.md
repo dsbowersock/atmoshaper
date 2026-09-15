@@ -4,7 +4,7 @@ This repository contains the AtmoShaper codebase: a local-first toolkit for lear
 
 ## Repository Status
 
-AtmoShaper is the repository and approved platform identity. Phase 6 now owns the local preview rebrand from current MassageLab presentation to `AtmoShaper`, with the audio mixer presented as `Atmosphere`. Until approved logo assets exist, the preview uses accessible text instead of inventing replacements. This remains separate from production, provider, domain, and deployment cutover.
+AtmoShaper is the repository and approved platform identity. Phase 6 now owns the local preview rebrand to `AtmoShaper`, with the audio mixer presented as `Atmosphere`. Until approved logo assets exist, the preview uses accessible text instead of inventing replacements. This remains separate from production, provider, domain, and deployment cutover.
 
 The Phase 1–2 bootstrap is merged: [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged on 2026-09-09 at 09:36:44 UTC by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. The reviewed head was `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`; `codex/bootstrap-atmoshaper` is retained.
 
@@ -82,6 +82,6 @@ See the [release checklist](docs/wiki/release-checklist.md) before inviting user
 
 ## License
 
-Copyright © 2025–2026 Derrick Bowersock, doing business as Massage Lab. All rights reserved.
+Copyright © 2025–2026 Derrick Bowersock, doing business as AtmoShaper. All rights reserved.
 
 The codebase remains source-visible proprietary software, not open-source software. Public repository access does not grant permission to reuse, modify, or redistribute owner-controlled source code or assets. The migration does not change the legal owner or license. See [LICENSE](LICENSE) for the complete terms and the separate treatment of third-party materials.

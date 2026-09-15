@@ -263,7 +263,7 @@ const NEW_MUSCLE_SPECS: readonly NewMuscleSpec[] = [
     name: "Pectoralis Major",
     formalName: "Musculus pectoralis major",
     alternateNames: ["pec major", "pectoralis major muscle"],
-    description: "Pectoralis major is the broad superficial anterior chest muscle represented in MassageLab by clavicular, sternocostal, and abdominal head records. This group card gives the old whole-muscle label a sourced target.",
+    description: "Pectoralis major is the broad superficial anterior chest muscle represented in AtmoShaper by clavicular, sternocostal, and abdominal head records. This group card gives the old whole-muscle label a sourced target.",
     region: "shoulder-girdle",
     relativeDepth: "superficial",
     depthNotes: "Superficial anterior chest and shoulder-girdle muscle.",

@@ -43,7 +43,7 @@ describe("proprietary repository licensing", () => {
     )
     assert.match(
       readme,
-      /Copyright © 2025–2026 Derrick Bowersock, doing business as Massage Lab\. All rights reserved\./,
+      /Copyright © 2025–2026 Derrick Bowersock, doing business as AtmoShaper\. All rights reserved\./,
     )
     assert.match(
       readme,
