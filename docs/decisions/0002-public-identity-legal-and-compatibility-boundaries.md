@@ -1,15 +1,15 @@
 # ADR 0002: Public Identity, Legal and Compatibility Boundaries
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 
 Merged Phase 5 introduced one public-product identity owner while deliberately
-leaving rendered MassageLab values unchanged. Phase 6 has separate approval to
-present the platform as AtmoShaper, present the audio feature as Atmosphere, and
-migrate current legal presentation under new document versions. Historical legal
-agreements and durable technical identifiers still cannot be treated as current
-public copy.
+leaving rendered MassageLab values unchanged. Separately approved Phase 6 now
+uses that owner to present the platform as AtmoShaper, presents the audio feature
+as Atmosphere through its noun-only owner, and migrates current legal presentation
+under new document versions. Historical legal agreements and durable technical
+identifiers still cannot be treated as current public copy.
 
 ## Decision
 
@@ -43,6 +43,10 @@ new legal versions preserve what prior acceptance IDs meant. Global replacement 
 in-place legal editing would erase the distinction among presentation, historical
 evidence, and compatibility contracts.
 
+Reviewed head `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe` enforces that owner
+boundary for five additional actual public-audio literals without changing the
+approved label values, creating a runtime cycle, or widening scope.
+
 ## Compatibility boundary
 
 Keep Prisma objects/migrations, `MASSAGELAB_` environment names, auth/security
@@ -55,11 +59,15 @@ and acceptances, a new version/effective date and audit continuity.
 
 ## Revisit trigger
 
-Revisit after complete Phase 6 implementation and verification, or before any
+Task 9 local implementation and command verification establish this accepted
+decision. Its exact temporary cleanup is complete with absence proved, and its
+final receipt-only baseline reached a byte-identical fixed point with zero
+missing or unclassified references. Independent repair specification review and
+complete-branch quality re-review are APPROVED; coordinator commit remains the
+repository-integration gate.
+Revisit the architecture before any
 compatibility rename, provider-visible identifier change, external legal filing
-claim, domain cutover, or approved-logo integration. Mark this record Accepted only
-after current copy, accessibility, visual, legal-archive/acceptance, audit, and
-compatibility gates pass.
+claim, domain cutover, or approved-logo integration.
 
 ## Immutable source
 
@@ -70,8 +78,9 @@ compatibility gates pass.
 
 ## Consequences
 
-During planning, mixed names remain intentional. Phase 6 may change only approved
-current presentation and versioned legal text under its reviewed plan. It does not
-change compatibility IDs, provider state, production data, external endpoints, or
-historical evidence. Current owners remain those linked in the
+Mixed names remain intentional where they carry historical, legal-archive,
+domain, or compatibility meaning. Phase 6 changes only approved current
+presentation and versioned legal text under its reviewed plan. It does not
+change compatibility IDs, provider state, production data, external endpoints,
+or historical evidence. Current owners remain those linked in the
 [architecture map](../architecture.md).

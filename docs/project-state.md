@@ -1,10 +1,10 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-14
+Verified: 2026-09-15
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Preview Rebrand Planned
+## Current Snapshot — Phase 6 Task 9 Local Command Gates Complete
 
 - Phase 5 is merged. [PR #4](https://github.com/dsbowersock/atmoshaper/pull/4)
   merged into `main` at `2026-09-14T10:49:49-04:00` as
@@ -14,32 +14,81 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   disposable Browser-QA, hosted-CI, and exact-head review evidence remains in
   its [Aegis record](aegis/work/2026-09-13-atmoshaper-phase5-public-product-identity/90-evidence.md).
 - The active branch is `codex/atmoshaper-phase6-preview-rebrand`, created from
-  the exact Phase 5 merge. Its committed [design](superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md)
-  at `1c3683c31dcb8624a61d749fbcacddd85973dbe2` is approved. The detailed
-  [implementation plan](superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md)
-  is the current execution owner.
-- Approved current presentation is `AtmoShaper` for the platform and
-  `Atmosphere` for the audio mixer. Until approved logo assets are supplied,
-  product branding is styled accessible text; old wordmark/social imagery is
-  omitted, while existing favicon and install-icon paths remain unchanged.
-- Approved current legal presentation is exactly
-  `Derrick Bowersock, doing business as AtmoShaper`. Implementation must first
-  archive exact v2 legal exports, then publish new v3 current versions without
-  rewriting or deleting acceptance rows. No external filing or entity-status
-  claim follows from this code change.
-- Approved background display names are `Lava Lamp`, `Tile grid`, and
-  `Hex grid`; their stable IDs, ownership, entitlements, checkout references,
-  asset paths, and transaction evidence remain unchanged.
-- No application implementation has begun. The next local step is the clean
-  pre-implementation inventory/brand/build baseline, then subagent-driven Task 1
-  under per-task specification and quality review.
+  the exact Phase 5 merge. Its approved
+  [design](superpowers/specs/2026-09-14-atmoshaper-phase6-preview-rebrand-design.md)
+  and [implementation plan](superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md)
+  remain the execution owners. The committed local implementation sequence from
+  `b300382b8d4e14c858cc20a818649351ad996e48` through reviewed repair head
+  `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe` passed independent repair
+  specification review and complete-branch quality re-review. Earlier commits
+  through `8645f261b128731b3c51fff120a1c6225c0bf50a` passed their per-slice
+  specification and quality reviews. Commits `45947d7` and `8645f26` preserve
+  the renamed `Drone` station's stable artwork contract and refresh dependent
+  test contracts. Task 9 local implementation and command verification are
+  complete, and the exact authorized Task 9 temporary root was removed with
+  absence proved. The final receipt-only brand baseline reached its fixed point
+  with zero missing/unclassified references, no path drift, and byte-identical
+  candidate, live, and staged content. Complete-branch reviews are APPROVED;
+  the coordinator commit remains before the
+  separately gated Browser-QA lifecycle.
+- Current presentation is `AtmoShaper` for the platform and `Atmosphere` for
+  the audio mixer, with `Atmosphere mixer` used only where a descriptor is
+  clearer. Product branding uses styled accessible text because no final logo
+  asset is approved; old wordmark/social imagery is omitted, while existing
+  favicon and install-icon paths remain unchanged.
+- The reviewed station title is exactly `Drone`, its artist is `AtmoShaper`,
+  and stable ID `mlab-proof-drone` remains unchanged. An ID-keyed compatibility
+  model preserves the previously reviewed artwork bytes and revision.
+- Systemic owner repair `75e2741` makes five actual public-audio literals
+  delegate to unchanged `ATMOSPHERE_PUBLIC_LABELS.name`. Its TDD receipt was
+  RED 16 total/11 passed/five expected failures and GREEN 16/16; focused
+  five-suite verification passed 45/45, typecheck and diff check passed, and
+  independent repair specification review plus complete-branch quality
+  re-review APPROVED with no runtime cycle or scope regression.
+- Current legal presentation is exactly `Derrick Bowersock, doing business as
+  AtmoShaper`. Exact v2 exports are preserved in immutable archives; current
+  general documents use `2026-09-legal-v3`, the digital-purchase policy uses
+  `2026-09-digital-purchases-v3`, and existing acceptance rows remain untouched.
+  No external filing or entity-status claim follows from this code change.
+- Current background display names are `Lava Lamp`, `Tile grid`, and `Hex grid`.
+  Their stable IDs, ownership, entitlements, checkout references, asset paths,
+  and transaction evidence remain unchanged.
+- The coordinator-owned staged fixed point used schema 1 and immutable source
+  `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`: 25,383 entries across 528 paths,
+  with 23,675 compatibility, 1,673 historical, 35 legal, and zero pre-rebrand
+  public copy. It recorded 67 added and 67 removed occurrences, no path-set
+  drift, and zero missing or unclassified references. The first live candidate
+  SHA-256 was `a23537616cd2308a0e62029155d5d3e1e3b0fc62f2d079688ea6ad5d1ad8d748`;
+  the candidate and staged baseline had the same Git blob identity,
+  `b639b9b1e9b5c236ccb6b93cb7b4c5c3adee5a80`. The final receipt-only fixed
+  point retained schema 1, the same source, entries, paths, and category totals,
+  zero missing/unclassified, and no path drift, and proved candidate, live, and
+  staged bytes identical.
+- Local closeout commands passed: focused tests 332/332; inventory 1,970 files
+  and 48,331,625 Git blob bytes with SHA-256
+  `0a418f314de41b98e85c1d30ef02f779ec454ad5a6bab70179aeba6bb244f049`
+  and no forbidden paths; Prisma validation/generation, typecheck, lint, and the
+  full 4,600-test suite passed with 4,597 passed, zero failed, and three
+  documented skips. The production build generated 115/115 static pages and the
+  full route table; its production migration gate correctly skipped outside
+  Vercel Production. Diff hygiene passed before this final text update.
+- The coordinator verified
+  `C:\Users\derri\AppData\Local\Temp\atmoshaper-phase6-task9-01a09b4e` as
+  the exact expected directory under `[IO.Path]::GetTempPath()`, confirmed it
+  contained only Task 9 candidates, indexes, and logs, permanently removed it,
+  and proved it absent.
 - Canonical massagelab.app and support/social/provider endpoints,
   `MASSAGELAB_` environment names, package/Prisma/storage/auth/Stripe identifiers,
   internal `atmoshaper` names, historical evidence, data handling, routes,
   entitlements, icons, and behavior remain compatibility boundaries.
-- No Phase 6 branch push, PR, merge, deployment, provider/domain mutation, final
-  logo integration, or new disposable QA project has occurred. Browser QA needs
-  a newly authorized independent empty Neon project after local gates pass.
+- No Phase 6 branch push, PR, merge, deployment, provider/domain mutation,
+  final-logo integration, or disposable QA project has occurred. The remaining
+  local gate is the coordinator Task 9 commit; complete-branch reviews are
+  APPROVED. Only then does
+  Task 10 request fresh explicit
+  authorization to create one independent empty Neon Browser-QA project, run and
+  visually review all lanes, prove it remains empty, and delete it. Production
+  data is out of scope.
 
 ## Historical Snapshot — Phase 4 Audit-Only Round 27 Pre-Merge Closeout
 

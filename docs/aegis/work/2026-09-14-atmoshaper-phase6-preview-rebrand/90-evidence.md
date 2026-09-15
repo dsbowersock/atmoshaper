@@ -1,5 +1,68 @@
 # Phase 6 preview rebrand evidence
 
+## 2026-09-15 — Task 9 local command-gate closeout
+
+- Start state: clean `codex/atmoshaper-phase6-preview-rebrand` at
+  `fb134e0c95d9a4d9ea2b4a786f517c2f5718289a`, tracking `origin/main` at
+  `+29/-0`, with one worktree, empty index/worktree, and no active Git
+  operation.
+- Phase 5 authority: PR #4 merged as
+  `cdfa99e49cebf100fac1a5080d60514806eb17db`. Phase 6 local implementation
+  commits run from `b300382b8d4e14c858cc20a818649351ad996e48` through reviewed
+  repair head `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe`; planning and
+  evidence commits remain in the same branch history. Commit `45947d7` owns the
+  exact `Drone` title, stable artwork compatibility, and exact Browser selectors;
+  commit `8645f26` owns the dependent test-contract repairs; commit `75e2741`
+  makes five actual public-audio literals delegate to unchanged
+  `ATMOSPHERE_PUBLIC_LABELS.name`.
+- Owner result: current product presentation delegates to the AtmoShaper owner;
+  the audio feature delegates exact `Atmosphere` and `Atmosphere mixer` labels;
+  missing approved brand assets render accessible text. The proof station is
+  titled `Drone`, keeps artist `AtmoShaper` and stable ID `mlab-proof-drone`, and
+  preserves its reviewed artwork bytes/revision. Current general legal documents
+  are `2026-09-legal-v3`, the digital-purchase policy is
+  `2026-09-digital-purchases-v3`, and exact v2 archives plus acceptance history
+  remain preserved.
+- First fixed-point receipt: schema `1`, source
+  `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`, 25,383 entries across 528
+  paths, 67 added and 67 removed occurrences with no path-set drift. Categories
+  are 23,675 compatibility, 1,673 historical, 35 legal, and zero
+  pre-rebrand-public-copy; missing and unclassified are both zero. The live and
+  candidate SHA-256 is
+  `a23537616cd2308a0e62029155d5d3e1e3b0fc62f2d079688ea6ad5d1ad8d748`;
+  the candidate and staged Git blob are both
+  `b639b9b1e9b5c236ccb6b93cb7b4c5c3adee5a80`.
+- Temporary cleanup: the coordinator confirmed
+  `C:\Users\derri\AppData\Local\Temp\atmoshaper-phase6-task9-01a09b4e` was
+  the exact expected directory under `[IO.Path]::GetTempPath()` and contained
+  only Task 9 candidates, indexes, and logs. The directory was permanently
+  removed and its absence proved. The coordinator continues to own the real Git
+  index and commit.
+- Completed local command verification: focused closeout tests passed 332/332;
+  inventory passed with 1,970 files, 48,331,625 bytes, SHA-256
+  `0a418f314de41b98e85c1d30ef02f779ec454ad5a6bab70179aeba6bb244f049`,
+  and no forbidden paths; brand audit passed with zero missing/unclassified;
+  Prisma validate and generate passed; typecheck and lint passed; the full suite
+  passed with 4,600 total, 4,597 passed, zero failed, and three documented
+  skips. The production build passed with 115/115 generated static pages and
+  the full route table; the production migration gate correctly skipped outside
+  Vercel Production. Diff hygiene passed before these final receipt-only edits.
+- Final receipt-only fixed point: schema `1`, source
+  `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`, 25,383 entries across 528
+  paths, category totals of 23,675 compatibility, 1,673 historical, 35 legal,
+  and zero pre-rebrand-public-copy, zero missing/unclassified, and no path
+  drift. Candidate, live, and staged bytes were identical.
+- Systemic owner-repair verification: TDD RED was 16 total with 11 passing and
+  five expected failures; GREEN passed 16/16; focused five-suite verification
+  passed 45/45; typecheck and diff check passed. Independent repair
+  specification review APPROVED. The original complete-branch quality reviewer
+  re-reviewed and APPROVED, confirming no runtime cycle or scope regression.
+- Remaining local closeout: let the coordinator commit the reviewed Task 9
+  files.
+- External boundary: no disposable QA resource, Browser-QA run, provider or
+  deployment change, domain/DNS action, production-data access, push, Phase 6
+  PR, merge, or final-logo integration occurred.
+
 ## 2026-09-14 — Clean pre-implementation baseline
 
 - Planning commit:

@@ -1,8 +1,16 @@
 # AtmoShaper Phase 6 Preview Rebrand and Legal Identity Migration Design
 
 Status: approved by the user on 2026-09-14, including the legal-identity and
-catalog-name amendments; implementation is governed by the separate Phase 6
-plan.
+catalog-name amendments. The reviewed Browser-QA contract, `Drone` station,
+artwork-compatibility, dependent-contract, and systemic label-owner repair
+slices are complete at `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe`; Task 9 local
+implementation and command verification are complete, including
+the first deterministic fixed point. Exact Task 9 temporary cleanup is complete
+with absence proved, and the final receipt-only baseline reached a byte-identical
+fixed point with zero missing/unclassified and no path drift. The separate Phase
+6 plan continues to govern the coordinator commit, followed by authorized
+disposable Browser QA, publication, hosted review, and merge. Independent repair
+specification review and complete-branch quality re-review are APPROVED.
 
 Parent design: [AtmoShaper Repository Migration and Modernization Design](2026-09-06-atmoshaper-repository-migration-design.md)
 
@@ -247,8 +255,8 @@ support/social/provider URLs stay unchanged. Copy may call the product
 
 ## Documentation and audit state
 
-Current-state documentation must be synchronized with the actual Phase 5 merge
-before recording Phase 6 implementation. `docs/project-state.md`,
+Task 9 synchronizes current-state documentation with the actual Phase 5 merge
+and completed local Phase 6 implementation. `docs/project-state.md`,
 `docs/project-log.md`, `README.md`, the migration charter, architecture/decision
 indexes, and the relevant identity ADR must distinguish:
 
@@ -340,10 +348,10 @@ reviewable commits for:
 4. legal archives, current legal versions, and acceptance tests; and
 5. audit baseline, documentation, and final verification evidence.
 
-The written specification is committed before implementation planning. After
-written-spec approval, a separate Superpowers implementation plan must enumerate
-the exact files, tests, red/green commands, rollback points, and subagent review
-gates for each task.
+The written specification was committed before implementation planning. The
+approved Superpowers implementation plan enumerates the exact files, tests,
+rollback points, authorization boundaries, and subagent review gates for each
+task.
 
 No branch push, pull request, provider creation, merge, deployment, domain
 change, or hosted mutation is implied by design/spec approval. Each later
@@ -382,9 +390,13 @@ copy migration stops before any version change.
 
 ## Completion boundary
 
-This design checkpoint is complete when this written specification is
-self-reviewed, committed, and approved by the user. Phase 6 implementation may
-then begin only from the separately reviewed implementation plan. The phase is
-not complete until the public preview is coherent, historical legal evidence is
-preserved, all required local and hosted gates pass at the exact head, and the
-PR is separately authorized for merge.
+The written design checkpoint is complete. Local implementation establishes the
+approved AtmoShaper/Atmosphere owners, text-only fallback, versioned legal
+transition, catalog labels, audit logic, and Browser-QA contracts. Task 9 still
+has complete local implementation, command verification, exact temporary
+cleanup with absence proved, final receipt-only baseline fixed point, and
+complete-branch reviews through systemic owner-repair head `75e2741`. Only the
+coordinator commit remains in its repository closeout. Phase 6 itself is not
+complete until disposable Browser QA and visual
+review, exact-head publication and hosted review, and a separately authorized
+PR merge all pass.

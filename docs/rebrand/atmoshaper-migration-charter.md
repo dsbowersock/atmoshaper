@@ -6,23 +6,34 @@
 - Approved bootstrap plan: [AtmoShaper repository migration Phase 1-2 implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md).
 - Completed local plan: [Phase 3 documentation consolidation](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), limited to documentation and deterministic documentation-occurrence audit-baseline reconciliation.
 - Completed Phase 5 plan: [public product identity](../superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md), merged in PR #4.
-- Active approved plan: [Phase 6 preview rebrand](../superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md).
+- Active approved plan: [Phase 6 preview rebrand](../superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md); reviewed local implementation and repair work are complete through systemic owner-repair head `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe`, Task 9 local implementation and command verification are complete, and its repository-integration closeout remains coordinator-owned.
 - Superseded handoff: Derrick's 2026-09-06 AtmoShaper migration handoff supersedes the earlier Stage 1 handoff that kept this work inside `dsbowersock/massagelab`.
 - This charter governs source selection for Phases 1-2. The old repository remains the historical archive, evidence source, and rollback source unless separately authorized otherwise.
 
-## Current Status — Phase 6 Planning, 2026-09-14
+## Current Status — Phase 6 Local Closeout, 2026-09-15
 
 - Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. It joins sole fresh root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd` and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained.
 - Phase 3 PR #2, Phase 4 PR #3, and Phase 5 PR #4 are merged. PR #4 merged
   as `cdfa99e49cebf100fac1a5080d60514806eb17db`; its reviewed feature parent
   was `b25b817da126359c5ffc15954182cc9573413735`.
-- Current owners are the [architecture map](../architecture.md), [decisions](../decisions/README.md), and [account-security wiki](../wiki/account-security.md). ADR 0001 is Accepted; ADRs 0002–0004 remain Proposed pending their implementation gates.
+- Current owners are the [architecture map](../architecture.md), [decisions](../decisions/README.md), and [account-security wiki](../wiki/account-security.md). ADRs 0001 and 0002 are Accepted; ADR 0002 records the locally implemented, command-verified, and reviewed Phase 6 identity/legal/compatibility decision. Task 9 cleanup, final receipt-only baseline fixed point, and complete-branch reviews are complete; coordinator commit remains the repository-integration gate. ADRs 0003–0004 remain Proposed.
 - Semantic review covered 150 inherited records. All 28 specifications and 106 plans remain (134 inherited records); the [cleanup register](atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09) records 16 exact evidence-backed plan omissions, current owners, immutable MassageLab originals, and rollback blobs. The new Phase 3 plan is additional: 107 plans and 28 specifications remain. This separate omission boundary does not rewrite the bootstrap manifest.
-- Phase 6 current presentation and versioned legal transition are approved and
-  planned locally. Application implementation has not begun. Disposable Browser
-  QA, publication, merge, final logos, old-origin recovery, provider staging,
-  deployment, DNS/domain changes, and production/database/payment/email/media
-  actions remain future gates.
+- Phase 6 current presentation and versioned legal transition are implemented
+  locally through reviewed repair head
+  `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe`. AtmoShaper and Atmosphere use
+  their canonical presentation owners, the text-only fallback remains active,
+  current legal v3 documents coexist with immutable v2 archives, and the three
+  approved background labels preserve their stable ownership contracts. The
+  station title is exactly `Drone`; artist `AtmoShaper`, stable ID
+  `mlab-proof-drone`, and the reviewed artwork bytes/revision remain unchanged.
+  Task 9 local implementation, command verification, and exact temporary
+  cleanup are complete, with absence proved. Its final receipt-only baseline
+  reached a byte-identical fixed point with zero missing/unclassified and no
+  path drift. Complete-branch reviews are APPROVED; coordinator commit remains
+  the local gate.
+  Disposable Browser QA, publication, merge, final logos, old-origin recovery,
+  provider staging, deployment, DNS/domain changes, and
+  production/database/payment/email/media actions remain future gates.
 
 ## Source Lock (Historical Phase 2 Export Receipt)
 
@@ -101,15 +112,15 @@ This list records the original bootstrap boundary. Phase 3 is now separately aut
 ## Compatibility Invariants
 
 - **Runtime and visual parity:** the initial destination must preserve source routes, behavior, responsive geometry, accessibility, keyboard/focus/reduced-motion behavior, feature-key entitlements, APIs, provider-call boundaries, and working visual assets. An unexplained difference falsifies parity.
-- **Legal/operator separation:** Phase 6 has separate approval to change current
-  legal presentation and the proprietary license to
-  `Derrick Bowersock, doing business as AtmoShaper` only after exact prior-version
+- **Legal/operator separation:** Phase 6 separately changed current legal
+  presentation and the proprietary license to
+  `Derrick Bowersock, doing business as AtmoShaper` after exact prior-version
   archiving and under new current version IDs. Existing acceptance rows and
   archived text remain immutable. No trademark, registration, or entity-status
   claim is permitted.
 - **Local-first PHI boundary:** clinical notes, intake, journals, ROM sessions, and encrypted professional-record workflows remain local-first. No phase may automatically transfer PHI or encrypted vault content between origins.
 - **Stable private identifiers:** Prisma migrations and objects, `MASSAGELAB_` environment variables, Stripe metadata/idempotency namespaces, auth and security identifiers, browser storage/cache/vault identifiers, R2 identities, export schemas, and durable audit/operation identifiers remain unchanged unless a later dedicated migration proves compatibility and rollback.
-- **Atmosphere public label versus internal `atmoshaper` identifiers:** the later public audio label is `Atmosphere` or `Atmosphere mixer`; existing internal `atmoshaper` modules, scripts, data, tests, storage, paths, and release identifiers remain private compatibility identifiers. Global replacement is prohibited.
+- **Atmosphere public label versus internal `atmoshaper` identifiers:** the current public audio label is `Atmosphere` or `Atmosphere mixer`; existing internal `atmoshaper` modules, scripts, data, tests, storage, paths, and release identifiers remain private compatibility identifiers. Global replacement is prohibited.
 - **Disposable database parity:** the [external-account checklist](atmoshaper-external-account-checklist.md#disposable-database-parity-lifecycle) is the canonical policy owner; Task 7 of the [operative plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md#task-7-verify-and-create-the-fresh-local-atmoshaper-initial-commit) owns the executable lifecycle and redacted receipt. No other summary may weaken those gates.
 
 ## Historical Bootstrap Verification Ledger

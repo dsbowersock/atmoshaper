@@ -1,5 +1,79 @@
 # Phase 6 preview rebrand checkpoint
 
+## 2026-09-15 — Task 9 local authority and deterministic-baseline closeout
+
+- TaskStartSnapshot: one clean worktree at
+  `C:/Users/derri/code/my_projects/atmoshaper`, branch
+  `codex/atmoshaper-phase6-preview-rebrand`, exact `HEAD`
+  `fb134e0c95d9a4d9ea2b4a786f517c2f5718289a`, upstream `origin/main`,
+  divergence `+29/-0`, empty index/worktree, and no active merge, rebase,
+  cherry-pick, or revert operation.
+- Completed local slices: Phase 5 PR #4 merged as
+  `cdfa99e49cebf100fac1a5080d60514806eb17db`; Phase 6 Tasks 1-8 establish
+  AtmoShaper current identity, Atmosphere labels, text-only presentation,
+  renamed background display labels, immutable legal v2 archives, current v3
+  legal versions, curated compatibility classification, and the static
+  Browser-QA oracle/lane contracts. Reviewed repairs `45947d7` and `8645f26`
+  establish the exact `Drone` title, stable artwork compatibility, exact
+  Browser selectors, and current dependent test contracts. Reviewed repair
+  `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe` then makes five actual
+  public-audio literals delegate to unchanged `ATMOSPHERE_PUBLIC_LABELS.name`.
+- Active slice: Task 9 local implementation and command verification are
+  complete. Current authority preserves the exact `Derrick Bowersock, doing
+  business as AtmoShaper` license identity, and the coordinator remains the
+  only owner of the real index and commit.
+- First fixed-point receipt: schema `1`, source
+  `e74045c2fc85c2cb4df176fdb1aff2137c4d9848`, 25,383 entries across 528
+  paths, 67 added and 67 removed occurrences with no path-set drift. Categories
+  are 23,675 compatibility, 1,673 historical, 35 legal, and zero
+  pre-rebrand-public-copy; missing and unclassified are both zero. The live and
+  candidate SHA-256 is
+  `a23537616cd2308a0e62029155d5d3e1e3b0fc62f2d079688ea6ad5d1ad8d748`,
+  and the candidate and staged Git blob are both
+  `b639b9b1e9b5c236ccb6b93cb7b4c5c3adee5a80`. The final receipt-only fixed
+  point retained schema `1`, the same source, 25,383 entries across 528 paths,
+  the same category totals, zero missing/unclassified, and no path drift, and
+  proved candidate, live, and staged bytes identical.
+- Cleanup receipt: the coordinator verified the exact authorized Task 9 root
+  `C:\Users\derri\AppData\Local\Temp\atmoshaper-phase6-task9-01a09b4e` was
+  the expected directory under `[IO.Path]::GetTempPath()`, contained only Task 9
+  candidates, indexes, and logs, removed it permanently, and proved it absent.
+- Systemic owner-repair receipt: TDD RED was 16 total with 11 passing and five
+  expected failures; GREEN passed 16/16; focused five-suite verification passed
+  45/45; typecheck and diff check passed. Independent repair specification
+  review APPROVED, and the original complete-branch quality reviewer re-reviewed
+  and APPROVED with no runtime cycle or scope regression.
+- External boundary: Phase 6 has not created a Neon project, run Browser QA,
+  pushed a branch, opened or merged a PR, deployed, changed a provider or
+  domain, accessed production data, or integrated final logo assets.
+- Next gate: let the coordinator commit Task 9. Stop afterward and
+  request fresh explicit authorization for Task 10's independent empty Neon
+  Browser-QA lifecycle.
+
+## Current DriftCheckDraft
+
+- Intent lock: aligned; current presentation is AtmoShaper and the audio feature
+  is Atmosphere.
+- Scope fence: aligned; Task 9 authority, policy/baseline, and exact focused
+  documentation contracts only.
+- Compatibility boundary: aligned; canonical endpoints, provider names,
+  durable identifiers, archives, acceptance rows, and historical text remain.
+- Retirement boundary: old current presentation is removed; retained old-name
+  occurrences require structural or exact terminal classification.
+- Evidence sufficiency: focused closeout tests passed 332/332; inventory passed
+  with 1,970 files, 48,331,625 bytes, SHA-256
+  `0a418f314de41b98e85c1d30ef02f779ec454ad5a6bab70179aeba6bb244f049`,
+  and no forbidden paths; brand audit passed with zero missing/unclassified;
+  Prisma validate/generate, typecheck, lint, and the full suite passed (4,600
+  total, 4,597 passed, zero failed, three documented skips). The production
+  build passed with 115/115 static pages and the full route table; its production
+  migration gate correctly skipped outside Vercel Production. Diff hygiene
+  passed before these final text edits. Exact bounded temporary cleanup is
+  complete with absence proved, and the final receipt-only baseline fixed point
+  is complete. Complete-branch reviews are APPROVED; coordinator commit remains.
+- Decision: finish Task 9 repository closeout only; do not begin Task 10 or any
+  external action.
+
 ## 2026-09-14 — Task 2 specification-review scope correction
 
 - Task 1 passed implementation, specification, quality, and coordinator
