@@ -10,6 +10,7 @@ import {
   shouldCollapseSidebarFromOutsidePointer,
   shouldExpandSidebarFromRail,
 } from "@/lib/sidebar-layout"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -315,7 +316,9 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            <SheetTitle className="sr-only">MassageLab navigation</SheetTitle>
+            <SheetTitle className="sr-only">
+              {PUBLIC_PRODUCT_IDENTITY.name} navigation
+            </SheetTitle>
             <SheetDescription className="sr-only">
               Primary navigation, calendar shortcuts, support links, and account actions.
             </SheetDescription>

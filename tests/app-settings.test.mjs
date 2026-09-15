@@ -662,6 +662,7 @@ describe("App settings helpers", () => {
   it("renders the mobile main bar and quick-action speed dial from the layout shell", () => {
     const layoutSource = readFileSync(new URL("../components/layout-wrapper.tsx", import.meta.url), "utf8")
     const mainBarSource = readFileSync(new URL("../components/shell/mobile-main-bar.tsx", import.meta.url), "utf8")
+    const sidebarSource = readFileSync(new URL("../components/ui/sidebar.tsx", import.meta.url), "utf8")
     const speedDialSource = readFileSync(new URL("../components/shell/quick-action-speed-dial.tsx", import.meta.url), "utf8")
     const topBarSource = readFileSync(new URL("../components/calendar/calendar-operator-top-bar.tsx", import.meta.url), "utf8")
 
@@ -669,6 +670,12 @@ describe("App settings helpers", () => {
     assert.match(mainBarSource, /resolveMainBarLayout/)
     assert.match(mainBarSource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
     assert.match(mainBarSource, /aria-label=\{PUBLIC_PRODUCT_IDENTITY\.name \+ " main navigation"\}/)
+    assert.match(sidebarSource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.match(
+      sidebarSource,
+      /<SheetTitle className="sr-only">\s*\{PUBLIC_PRODUCT_IDENTITY\.name\} navigation\s*<\/SheetTitle>/,
+    )
+    assert.doesNotMatch(sidebarSource, /MassageLab navigation/)
     assert.match(mainBarSource, /QuickActionSpeedDial/)
     assert.match(speedDialSource, /aria-label="Quick create actions"/)
     assert.match(speedDialSource, /Escape/)
