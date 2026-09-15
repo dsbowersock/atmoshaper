@@ -1,5 +1,35 @@
 # Phase 6 preview rebrand checkpoint
 
+## 2026-09-14 — Clean pre-implementation baseline complete
+
+- Planning commit:
+  `b3a3a91289a329729f809f78ff00fcb001014779`.
+- Task 0 start snapshot matched the plan: exact Phase 5 merge at `origin/main`,
+  approved design as the planning commit's parent, clean single worktree, and no
+  active Git operation.
+- Retained local branches were
+  `codex/atmoshaper-dead-code-audit`,
+  `codex/atmoshaper-docs-consolidation`,
+  `codex/atmoshaper-phase6-preview-rebrand`,
+  `codex/atmoshaper-public-product-identity`,
+  `codex/bootstrap-atmoshaper`, and `main`.
+- Inventory passed at 1,959 tracked files, 48,396,501 tracked Git blob bytes,
+  identity `11c75e2d168f549bdf95f417191fa4f434514eafc1749236a1ecf348826d2960`,
+  and zero forbidden paths.
+- Brand audit passed at 22,909 compatibility, 1,563 historical, 42 legal, and
+  1,948 pre-rebrand public-copy entries with zero missing/unclassified. The
+  public-copy queue remains expected before application implementation.
+- Production build passed compilation, post-compile work, TypeScript, 115/115
+  static pages, and the 146-route final table. Production migration correctly
+  skipped outside Vercel Production; the existing non-fatal Anatomime
+  poll-shedder initialization message remained.
+- Post-build tracked worktree was clean. The build updated only ignored
+  generated/dependency output such as Prisma Client and `.next`. Current todo:
+  independently review and commit this evidence-only Task 0 receipt, then
+  dispatch Task 1's fresh implementer.
+- No disposable QA, publication, merge, deployment, provider/domain mutation,
+  production data access, or final-logo action occurred.
+
 ## 2026-09-14 — Written spec approved; implementation plan self-reviewed
 
 - Completed: Phase 5 PR #4 was merged as
@@ -47,11 +77,11 @@
 ## ResumeStateHint
 
 Resume on `codex/atmoshaper-phase6-preview-rebrand`. Re-read `10-intent.md`, this
-checkpoint, the approved Phase 6 spec and implementation plan, current project
-state, and exact Git status. Confirm the plan/spec planning commit is present and
-the worktree is clean before capturing Task 0 baseline. Do not begin Browser QA,
-publication, merge, deployment, provider/domain work, or final-logo integration
-without the applicable later authorization.
+checkpoint, `90-evidence.md`, the approved Phase 6 spec and implementation plan,
+current project state, and exact Git status. Task 0 baseline is complete; next is
+its evidence-only review/commit, followed by Task 1's fresh implementer. Do not
+begin Browser QA, publication, merge, deployment, provider/domain work, or
+final-logo integration without the applicable later authorization.
 
 ## DriftCheckDraft
 
