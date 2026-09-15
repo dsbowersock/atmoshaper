@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -216,8 +217,8 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Beams ships as stacked Three/R3F planes with a modified physical
-// material. MassageLab keeps the plane geometry and shader displacement in a
+// AtmoShaper Beams ships as stacked Three/R3F planes with a modified physical
+// material. AtmoShaper keeps the plane geometry and shader displacement in a
 // raw WebGL renderer so the premium background does not add Three/R3F.
 export default function MassageLabBeamsBackground({
   className,
@@ -616,7 +617,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Beams shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Beams shader uniform: ${name}`)
   }
 
   return location

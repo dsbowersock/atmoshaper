@@ -12,6 +12,29 @@ import {
 import { DEFAULT_GRID_MOTION_MANTRAS } from "../lib/grid-motion-mantras.js"
 
 describe("Chimer entitlement-aware settings", () => {
+  it("keeps the rebranded backgrounds on their original entitlement behavior", () => {
+    const freeDefault = sanitizeChimerSettingsForEntitlements({
+      backgroundId: "massage-lab-moving-gradient",
+    }, [])
+    assert.equal(freeDefault.backgroundId, "massage-lab-moving-gradient")
+
+    for (const backgroundId of ["massage-lab-tile-grid", "massage-lab-hex-grid"]) {
+      const locked = sanitizeChimerSettingsForEntitlements({ backgroundId }, [])
+      const subscribed = sanitizeChimerSettingsForEntitlements(
+        { backgroundId },
+        [FEATURE_KEYS.premiumBackgrounds],
+      )
+      const owned = sanitizeChimerSettingsForEntitlements(
+        { backgroundId },
+        { featureKeys: [], ownedBackgroundIds: [backgroundId] },
+      )
+
+      assert.equal(locked.backgroundId, DEFAULT_CHIMER_SETTINGS.backgroundId, backgroundId)
+      assert.equal(subscribed.backgroundId, backgroundId, backgroundId)
+      assert.equal(owned.backgroundId, backgroundId, backgroundId)
+    }
+  })
+
   it("resets Grid Motion mantras to a defensive starter copy when access is absent", () => {
     const customMantras = ["Move with ease", "I can recover"]
     const lockedSettings = sanitizeChimerSettingsForEntitlements({
@@ -116,7 +139,7 @@ describe("Chimer entitlement-aware settings", () => {
     }), "source")
   })
 
-  it("resets MassageLab Novatrix controls without premium background access", () => {
+  it("resets AtmoShaper Novatrix controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-novatrix",
       massageLabNovatrixPaletteMode: "harmony",
@@ -140,7 +163,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabNovatrixAmplitude, 0.3)
   })
 
-  it("resets MassageLab Matrix Rain controls without premium background access", () => {
+  it("resets AtmoShaper Matrix Rain controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-matrix-rain",
       massageLabMatrixRainPaletteMode: "harmony",
@@ -164,7 +187,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabMatrixRainFontSize, 22)
   })
 
-  it("resets MassageLab Photon Beam controls without premium background access", () => {
+  it("resets AtmoShaper Photon Beam controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-photon-beam",
       massageLabPhotonBeamPaletteMode: "harmony",
@@ -229,7 +252,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabPhotonBeamBloomRadius, 1.1)
   })
 
-  it("resets MassageLab Ferrofluid controls without premium background access", () => {
+  it("resets AtmoShaper Ferrofluid controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-ferrofluid",
       massageLabFerrofluidPaletteMode: "harmony",
@@ -282,7 +305,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabFerrofluidOpacity, 0.72)
   })
 
-  it("resets MassageLab Lightfall controls without premium background access", () => {
+  it("resets AtmoShaper Lightfall controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-lightfall",
       massageLabLightfallPaletteMode: "harmony",
@@ -360,7 +383,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabLightfallCursorDampening, 0.25)
   })
 
-  it("resets MassageLab Liquid Ether controls without premium background access", () => {
+  it("resets AtmoShaper Liquid Ether controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-liquid-ether",
       massageLabLiquidEtherPaletteMode: "harmony",
@@ -452,7 +475,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabLiquidEtherOpacity, 0.72)
   })
 
-  it("resets MassageLab Prism controls without premium background access", () => {
+  it("resets AtmoShaper Prism controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-prism",
       massageLabPrismHeight: 6.2,
@@ -511,7 +534,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabPrismTimeScale, 1.3)
   })
 
-  it("resets MassageLab Dark Veil controls without premium background access", () => {
+  it("resets AtmoShaper Dark Veil controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-dark-veil",
       massageLabDarkVeilHueShift: 72,
@@ -558,7 +581,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabDarkVeilResolutionScale, 0.65)
   })
 
-  it("resets MassageLab Light Pillar controls without premium background access", () => {
+  it("resets AtmoShaper Light Pillar controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-light-pillar",
       massageLabLightPillarPaletteMode: "harmony",
@@ -619,7 +642,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabLightPillarQuality, "medium")
   })
 
-  it("resets MassageLab Silk controls without premium background access", () => {
+  it("resets AtmoShaper Silk controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-silk",
       massageLabSilkPaletteMode: "harmony",
@@ -649,7 +672,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabSilkRotation, 1.4)
   })
 
-  it("resets MassageLab Floating Lines controls without premium background access", () => {
+  it("resets AtmoShaper Floating Lines controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-floating-lines",
       massageLabFloatingLinesPaletteMode: "harmony",
@@ -813,7 +836,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabFloatingLinesBlendMode, "normal")
   })
 
-  it("resets MassageLab Side Rays controls without premium background access", () => {
+  it("resets AtmoShaper Side Rays controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-side-rays",
       massageLabSideRaysPaletteMode: "harmony",
@@ -910,7 +933,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabLightRaysDistortion, 1.5)
   })
 
-  it("resets MassageLab Pixel Blast controls without premium background access", () => {
+  it("resets AtmoShaper Pixel Blast controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-pixel-blast",
       massageLabPixelBlastPaletteMode: "harmony",
@@ -993,7 +1016,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabPixelBlastNoiseAmount, 0.18)
   })
 
-  it("resets MassageLab Color Bends controls without premium background access", () => {
+  it("resets AtmoShaper Color Bends controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-color-bends",
       massageLabColorBendsPaletteMode: "harmony",
@@ -1067,7 +1090,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabColorBendsBandWidth, 10)
   })
 
-  it("resets MassageLab Evil Eye controls without premium background access", () => {
+  it("resets AtmoShaper Evil Eye controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-evil-eye",
       massageLabEvilEyePaletteMode: "harmony",
@@ -1122,7 +1145,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabEvilEyeInteractive, true)
   })
 
-  it("resets MassageLab Line Waves controls without premium background access", () => {
+  it("resets AtmoShaper Line Waves controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-line-waves",
       massageLabLineWavesPaletteMode: "harmony",
@@ -1182,7 +1205,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabLineWavesMouseInfluence, 2.8)
   })
 
-  it("resets MassageLab Radar controls without premium background access", () => {
+  it("resets AtmoShaper Radar controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-radar",
       massageLabRadarPaletteMode: "harmony",
@@ -1249,7 +1272,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabRadarMouseInfluence, 0.4)
   })
 
-  it("resets MassageLab Soft Aurora controls without premium background access", () => {
+  it("resets AtmoShaper Soft Aurora controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-soft-aurora",
       massageLabSoftAuroraPaletteMode: "harmony",
@@ -1313,7 +1336,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabSoftAuroraMouseInfluence, 0.4)
   })
 
-  it("resets MassageLab Plasma controls without premium background access", () => {
+  it("resets AtmoShaper Plasma controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-plasma",
       massageLabPlasmaPaletteMode: "harmony",
@@ -1354,7 +1377,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabPlasmaMouseInteractive, true)
   })
 
-  it("resets MassageLab Plasma Wave controls without premium background access", () => {
+  it("resets AtmoShaper Plasma Wave controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-plasma-wave",
       massageLabPlasmaWavePaletteMode: "harmony",
@@ -1409,7 +1432,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabPlasmaWaveBendTwo, 0.8)
   })
 
-  it("resets MassageLab Particles controls without premium background access", () => {
+  it("resets AtmoShaper Particles controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-particles",
       massageLabParticlesPaletteMode: "harmony",
@@ -1472,7 +1495,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabParticlesPixelRatio, 1.4)
   })
 
-  it("resets MassageLab Gradient Blinds controls without premium background access", () => {
+  it("resets AtmoShaper Gradient Blinds controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-gradient-blinds",
       massageLabGradientBlindsPaletteMode: "harmony",
@@ -1542,7 +1565,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabGradientBlindsEnableMouseInteraction, true)
   })
 
-  it("resets MassageLab Grainient controls without premium background access", () => {
+  it("resets AtmoShaper Grainient controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-grainient",
       massageLabGrainientPaletteMode: "harmony",
@@ -1629,7 +1652,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabGrainientZoom, 1.1)
   })
 
-  it("resets MassageLab Grid Scan controls without premium background access", () => {
+  it("resets AtmoShaper Grid Scan controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-grid-scan",
       massageLabGridScanPaletteMode: "harmony",
@@ -1705,7 +1728,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabGridScanScanOnClick, true)
   })
 
-  it("resets MassageLab Beams controls without premium background access", () => {
+  it("resets AtmoShaper Beams controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-beams",
       massageLabBeamsPaletteMode: "harmony",
@@ -1752,7 +1775,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabBeamsRotation, 24)
   })
 
-  it("resets MassageLab Pixel Snow controls without premium background access", () => {
+  it("resets AtmoShaper Pixel Snow controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-pixel-snow",
       massageLabPixelSnowPaletteMode: "harmony",
@@ -1811,7 +1834,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabPixelSnowDirection, 220)
   })
 
-  it("resets MassageLab Lightning controls without premium background access", () => {
+  it("resets AtmoShaper Lightning controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-lightning",
       massageLabLightningPaletteMode: "harmony",
@@ -1849,7 +1872,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabLightningSize, 1.8)
   })
 
-  it("resets MassageLab Prismatic Burst controls without premium background access", () => {
+  it("resets AtmoShaper Prismatic Burst controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-prismatic-burst",
       massageLabPrismaticBurstPaletteMode: "harmony",
@@ -1908,7 +1931,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabPrismaticBurstMixBlendMode, "screen")
   })
 
-  it("resets MassageLab Galaxy controls without premium background access", () => {
+  it("resets AtmoShaper Galaxy controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-galaxy",
       massageLabGalaxyPaletteMode: "harmony",
@@ -1982,7 +2005,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabGalaxyTransparent, false)
   })
 
-  it("resets MassageLab Dither controls without premium background access", () => {
+  it("resets AtmoShaper Dither controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-dither",
       massageLabDitherPaletteMode: "harmony",
@@ -2029,7 +2052,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabDitherMouseRadius, 1.75)
   })
 
-  it("resets MassageLab Faulty Terminal controls without premium background access", () => {
+  it("resets AtmoShaper Faulty Terminal controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-faulty-terminal",
       massageLabFaultyTerminalPaletteMode: "harmony",
@@ -2103,7 +2126,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabFaultyTerminalBrightness, 1.8)
   })
 
-  it("resets MassageLab Ripple Grid controls without premium background access", () => {
+  it("resets AtmoShaper Ripple Grid controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-ripple-grid",
       massageLabRippleGridPaletteMode: "harmony",
@@ -2159,7 +2182,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabRippleGridMouseInteractionRadius, 1.7)
   })
 
-  it("resets MassageLab Dot Field controls without premium background access", () => {
+  it("resets AtmoShaper Dot Field controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-dot-field",
       massageLabDotFieldPaletteMode: "harmony",
@@ -2219,7 +2242,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabDotFieldCursorInteraction, false)
   })
 
-  it("resets MassageLab Dot Grid controls without premium background access", () => {
+  it("resets AtmoShaper Dot Grid controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-dot-grid",
       massageLabDotGridPaletteMode: "harmony",
@@ -2286,7 +2309,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabDotGridClickShock, false)
   })
 
-  it("resets MassageLab Threads controls without premium background access", () => {
+  it("resets AtmoShaper Threads controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-threads",
       massageLabThreadsPaletteMode: "harmony",
@@ -2321,7 +2344,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabThreadsEnableMouseInteraction, true)
   })
 
-  it("resets MassageLab Iridescence controls without premium background access", () => {
+  it("resets AtmoShaper Iridescence controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-iridescence",
       massageLabIridescencePaletteMode: "harmony",
@@ -2356,7 +2379,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabIridescenceMouseReact, false)
   })
 
-  it("resets MassageLab Waves controls without premium background access", () => {
+  it("resets AtmoShaper Waves controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-waves",
       massageLabWavesPaletteMode: "harmony",
@@ -2417,7 +2440,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabWavesCursorInteraction, false)
   })
 
-  it("resets MassageLab Grid Distortion controls without premium background access", () => {
+  it("resets AtmoShaper Grid Distortion controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-grid-distortion",
       massageLabGridDistortionPaletteMode: "harmony",
@@ -2468,7 +2491,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabGridDistortionSimulationSpeed, 1.6)
   })
 
-  it("resets the latest MassageLab background controls without premium background access", () => {
+  it("resets the latest AtmoShaper background controls without premium background access", () => {
     const expected = {
       massageLabOrbHoverIntensity: 0.55,
       massageLabOrbRotateOnHover: false,
@@ -2526,7 +2549,7 @@ describe("Chimer entitlement-aware settings", () => {
     }
   })
 
-  it("resets MassageLab 3D Globe controls without premium background access", () => {
+  it("resets AtmoShaper 3D Globe controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-3d-globe",
       massageLab3DGlobeViewStyle: "graphic",
@@ -2616,7 +2639,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLab3DGlobeMarkerSize, 0.12)
   })
 
-  it("resets MassageLab Retro Grid controls without premium background access", () => {
+  it("resets AtmoShaper Retro Grid controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-retro-grid",
       massageLabRetroGridBackgroundColor: "#010203",
@@ -2642,7 +2665,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabRetroGridOpacity, 0.72)
   })
 
-  it("resets MassageLab Aerial Rays controls without premium background access", () => {
+  it("resets AtmoShaper Aerial Rays controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-aerial-rays",
       massageLabAerialRaysBackgroundColor: "#010203",
@@ -2673,7 +2696,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabAerialRaysOpacity, 0.82)
   })
 
-  it("resets MassageLab Aurora Field controls without premium background access", () => {
+  it("resets AtmoShaper Aurora Field controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-aurora",
       massageLabAuroraSpeed: 1.75,
@@ -2697,7 +2720,7 @@ describe("Chimer entitlement-aware settings", () => {
     assert.equal(premiumSettings.massageLabAuroraReach, 92)
   })
 
-  it("resets MassageLab Dotted Glow controls without premium background access", () => {
+  it("resets AtmoShaper Dotted Glow controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-dotted-glow",
       massageLabDottedGlowSpeed: 1.75,
@@ -2721,7 +2744,7 @@ describe("Chimer entitlement-aware settings", () => {
     }
   })
 
-  it("resets MassageLab Bubble Field controls without premium background access", () => {
+  it("resets AtmoShaper Bubble Field controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-bubble",
       massageLabBubbleSpeed: 1.75,
@@ -2747,7 +2770,7 @@ describe("Chimer entitlement-aware settings", () => {
     }
   })
 
-  it("resets MassageLab Beam Field controls without premium background access", () => {
+  it("resets AtmoShaper Beam Field controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-background-beams",
       massageLabBackgroundBeamsSpeed: 1.75,
@@ -2771,7 +2794,7 @@ describe("Chimer entitlement-aware settings", () => {
     }
   })
 
-  it("resets MassageLab Collision Beams controls without premium background access", () => {
+  it("resets AtmoShaper Collision Beams controls without premium background access", () => {
     const input = {
       backgroundId: "massage-lab-collision-beams",
       massageLabCollisionBeamsSpeed: 1.75,

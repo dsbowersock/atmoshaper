@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -204,7 +205,7 @@ const fragmentShaderSource = `#version 300 es
   }
 `
 
-// MassageLab Pixel Snow is a full-screen ray-marched fragment shader. MassageLab
+// AtmoShaper Pixel Snow is a full-screen ray-marched fragment shader. AtmoShaper
 // keeps that shader model in WebGL2 and removes the source Three/R3F wrapper.
 export default function MassageLabPixelSnowBackground({
   className,
@@ -466,7 +467,7 @@ function getUniformLocation(
   const location = gl.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Pixel Snow shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow shader uniform: ${name}`)
   }
 
   return location

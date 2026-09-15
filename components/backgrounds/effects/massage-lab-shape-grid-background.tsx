@@ -25,7 +25,7 @@ const DEFAULT_MASSAGELAB_SHAPE_GRID: ResolvedShapeGridOptions = {
   cursorInteraction: true,
 }
 
-// MassageLab Shape Grid is a moving canvas grid. This port keeps the source
+// AtmoShaper Shape Grid is a moving canvas grid. This port keeps the source
 // shape drawing, directional wrap, hover cell, and trail-opacity model.
 export default function MassageLabShapeGridBackground({
   className,

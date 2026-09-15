@@ -26,7 +26,7 @@ type ResolvedAuroraBarsOptions = typeof DEFAULT_AURORA_BARS & {
 
 type RgbColor = [number, number, number]
 
-// MassageLab Aurora Bars adapted as an internal MassageLab premium effect.
+// AtmoShaper Aurora Bars adapted as an internal AtmoShaper premium effect.
 // Music can opt into a visualizer mode; Clock and Chimer use the passive source motion.
 export default function MassageLabAuroraBarsBackground({
   auroraBars,
@@ -282,7 +282,7 @@ function createMonochromaticPalette(primaryColor: string) {
   const [hue, saturation, lightness] = rgbToHsl(parseHexColorToRgb(primaryColor))
   const boostedSaturation = Math.max(0.08, saturation)
 
-  // Auto mode keeps one hue family and changes brightness only, matching the MassageLab bar gradient shape.
+  // Auto mode keeps one hue family and changes brightness only, matching the AtmoShaper bar gradient shape.
   return [
     hslToHex(hue, Math.min(0.78, boostedSaturation * 0.62), Math.min(0.88, lightness + 0.34)),
     hslToHex(hue, Math.min(0.9, boostedSaturation * 0.82), Math.min(0.74, lightness + 0.18)),

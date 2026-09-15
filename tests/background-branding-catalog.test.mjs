@@ -6,6 +6,7 @@ import brandingCatalog from "../data/background-branding-catalog.json" with { ty
 import { backgroundRegistry } from "../components/backgrounds/backgroundRegistry.ts"
 import { ACTIVE_BACKGROUND_IDS } from "../lib/background-options.js"
 import { matchesBackgroundSearch } from "../lib/background-catalog.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 
 const normalize = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
 
@@ -41,11 +42,23 @@ describe("approved background branding catalog", () => {
     assert.equal(matchesBackgroundSearch(renamed, "unrelated phrase"), false)
   })
 
-  it("reserves Massage Lab branding for an internal signature original", () => {
+  it("publishes the three approved unbranded labels under the public product owner", () => {
     const visiblyBranded = backgroundRegistry.filter(({ label }) => normalize(label).replaceAll(" ", "").includes("massagelab"))
-    assert.deepEqual(visiblyBranded.map(({ id }) => id), ["massage-lab-moving-gradient"])
-    assert.equal(visiblyBranded[0]?.signatureOriginal, true)
-    assert.equal(visiblyBranded[0]?.sourceUrl, "internal")
+    assert.deepEqual(visiblyBranded, [])
+
+    for (const [id, label, legacyLabels] of [
+      ["massage-lab-moving-gradient", "Lava Lamp", ["MassageLaba Lamp", "Massage Laba Lamp"]],
+      ["massage-lab-tile-grid", "Tile grid", ["MassageLab tile grid", "Quiet Mosaic"]],
+      ["massage-lab-hex-grid", "Hex grid", ["MassageLab hex grid", "Honeycomb Glow"]],
+    ]) {
+      const background = backgroundRegistry.find((entry) => entry.id === id)
+      assert.equal(background?.label, label)
+      assert.equal(background?.provider, PUBLIC_PRODUCT_IDENTITY.name)
+      assert.equal(background?.license, `${PUBLIC_PRODUCT_IDENTITY.name} internal implementation`)
+      assert.equal(background?.sourceUrl, "internal")
+      assert.equal(background?.signatureOriginal, true)
+      assert.deepEqual(background?.legacyLabels, legacyLabels)
+    }
   })
 
   it("shows literal descriptors on primary picker and ownership surfaces", async () => {

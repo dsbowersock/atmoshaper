@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -195,7 +196,7 @@ void main() {
   gl_FragColor = vec4(col.rgb * col.a, col.a);
 }`
 
-// MassageLab Orb is an OGL shader. This keeps the source hue, hover, rotation,
+// AtmoShaper Orb is an OGL shader. This keeps the source hue, hover, rotation,
 // and background uniforms while using owned raw WebGL setup and cleanup.
 export default function MassageLabOrbBackground({
   className,
@@ -438,7 +439,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string) 
 function getUniformLocation(gl: WebGLRenderingContext, program: WebGLProgram, name: string) {
   const location = gl.getUniformLocation(program, name)
   if (!location) {
-    throw new Error(`Missing MassageLab Orb uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Orb uniform: ${name}`)
   }
   return location
 }

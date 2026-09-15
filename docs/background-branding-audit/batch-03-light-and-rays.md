@@ -2,7 +2,7 @@
 
 ## Starlight
 - **ID:** `massage-lab-light-speed`
-- **Current name:** Light Speed
+- **Current name:** Starlight
 - **Decision:** rename
 - **Alternatives:** Velocity Rush; Luminous Corridor
 - **Visual descriptor:** Luminous streaks rushing toward a center
@@ -22,7 +22,7 @@
 
 ## Monolight
 - **ID:** `massage-lab-light-pillar`
-- **Current name:** Light Pillar
+- **Current name:** Monolight
 - **Decision:** rename
 - **Alternatives:** Axis of Light; Beacon Monolith
 - **Visual descriptor:** Vertical light column flickering through haze
@@ -32,7 +32,7 @@
 
 ## Lateral Rays
 - **ID:** `massage-lab-side-rays`
-- **Current name:** Side Rays
+- **Current name:** Lateral Rays
 - **Decision:** rename
 - **Alternatives:** Horizon Fan; Oblique Glow
 - **Visual descriptor:** Soft rays entering from the screen edge
@@ -42,7 +42,7 @@
 
 ## Cascading Rays
 - **ID:** `massage-lab-light-rays`
-- **Current name:** Light Rays
+- **Current name:** Cascading Rays
 - **Decision:** rename
 - **Alternatives:** Haze Fan; Cloudbreak Light
 - **Visual descriptor:** Soft rays spreading through dark haze
@@ -52,7 +52,7 @@
 
 ## Rising Monoliths
 - **ID:** `massage-lab-beams`
-- **Current name:** Beams
+- **Current name:** Rising Monoliths
 - **Decision:** rename
 - **Alternatives:** Lumen Columns; Light Architecture
 - **Visual descriptor:** Tall light planes rising in staggered rows
@@ -62,7 +62,7 @@
 
 ## Roaming Sweep
 - **ID:** `massage-lab-background-beams`
-- **Current name:** Beam field
+- **Current name:** Roaming Sweep
 - **Decision:** rename
 - **Alternatives:** Luminous Filigree; Arc Relay
 - **Visual descriptor:** Fifty hairline arcs lit by roaming gradients
@@ -72,7 +72,7 @@
 
 ## Firework Dust
 - **ID:** `massage-lab-collision-beams`
-- **Current name:** Collision beams
+- **Current name:** Firework Dust
 - **Decision:** rename
 - **Alternatives:** Falling Signals; Spark Threshold
 - **Visual descriptor:** Slender beams falling into brief flares
@@ -82,7 +82,7 @@
 
 ## Signal Comets
 - **ID:** `massage-lab-background-lines`
-- **Current name:** Light lines
+- **Current name:** Signal Comets
 - **Decision:** rename
 - **Alternatives:** Signal Routes; Dash Relay
 - **Visual descriptor:** Forty-two luminous dashes sweeping along radial paths
@@ -92,7 +92,7 @@
 
 ## Convergence
 - **ID:** `massage-lab-photon-beam`
-- **Current name:** Photon Beam
+- **Current name:** Convergence
 - **Decision:** rename
 - **Alternatives:** Particle Lance; Focused Trail
 - **Visual descriptor:** Light particles converging into a focused trail
@@ -102,7 +102,7 @@
 
 ## Kaleidoscope Rays
 - **ID:** `massage-lab-prismatic-burst`
-- **Current name:** Prismatic Burst
+- **Current name:** Kaleidoscope Rays
 - **Decision:** rename
 - **Alternatives:** Radiant Aperture; Spectral Fan
 - **Visual descriptor:** Spectral rays bursting from a dark center
@@ -112,7 +112,7 @@
 
 ## Prismatic
 - **ID:** `massage-lab-prism`
-- **Current name:** Prism
+- **Current name:** Prismatic
 - **Decision:** rename
 - **Alternatives:** Spectrum Triangle; Refracted Glow
 - **Visual descriptor:** Glowing triangular prism refracting spectral light

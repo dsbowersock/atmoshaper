@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -129,7 +130,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Chrome Flow ships as a Three/R3F shader component. This native
+// AtmoShaper Chrome Flow ships as a Three/R3F shader component. This native
 // WebGL port keeps the source uniforms while avoiding that dependency stack.
 export default function MassageLabChromeFlowBackground({
   className,
@@ -437,7 +438,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Chrome Flow shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Chrome Flow shader uniform: ${name}`)
   }
 
   return location

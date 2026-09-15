@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import type { CSSProperties } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
@@ -291,7 +292,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Floating Lines ships as a Three.js ShaderMaterial. MassageLab
+// AtmoShaper Floating Lines ships as a Three.js ShaderMaterial. AtmoShaper
 // keeps the shader model and interaction math while owning the WebGL shell.
 export default function MassageLabFloatingLinesBackground({
   className,
@@ -709,7 +710,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Floating Lines shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Floating Lines shader uniform: ${name}`)
   }
 
   return location

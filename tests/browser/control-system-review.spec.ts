@@ -422,7 +422,7 @@ test.describe("control-system review lab", () => {
     await details.click()
     const detailsDialog = page.getByRole("dialog")
     await expect(detailsDialog).toBeVisible()
-    await expect(detailsDialog.getByText(/Source and license|MassageLab original/)).toBeVisible()
+    await expect(detailsDialog.getByText(/Source and license|AtmoShaper original/)).toBeVisible()
     await page.keyboard.press("Escape")
     await expect(detailsDialog).toBeHidden()
     await expect(stationSlides.first()).toHaveAttribute("data-centered", "true")
@@ -439,7 +439,7 @@ test.describe("control-system review lab", () => {
     expect(backgroundCopy.every((copy) => !/\b(?:Shader|Video)\b/.test(copy))).toBe(true)
     await expect(
       page.locator('[data-carousel-slide="true"][data-centered="true"]').getByText(
-        "MassageLab",
+        "AtmoShaper",
         { exact: true },
       ),
     ).toHaveCount(0)

@@ -1,5 +1,6 @@
 import type { CSSProperties, ComponentType } from "react"
 import { DEFAULT_BACKGROUND_ID } from "../../lib/background-options.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../../lib/public-product-identity.js"
 import { hasPremiumBackgroundAccess } from "../../lib/membership.js"
 import { backgroundPreviewManifest } from "./backgroundPreviewManifest.ts"
 import type { BackgroundPreviewManifestEntry } from "./backgroundPreviewManifest.ts"
@@ -115,7 +116,7 @@ export interface BackgroundDefinition {
   visualDescriptor: string
   /** Prior public names retained for search and support context only. */
   legacyLabels: readonly string[]
-  /** True only for internally conceived MassageLab signature visuals. */
+  /** True only for internally conceived AtmoShaper signature visuals. */
   signatureOriginal: boolean
   provider: string
   sourceUrl: string
@@ -295,11 +296,11 @@ const massageLabTwistedCubes = () => import("./effects/massage-lab-twisted-cubes
 const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-moving-gradient",
-    // Established product label; canonical source docs and tests intentionally preserve this spelling.
-    label: "MassageLaba Lamp",
-    provider: "MassageLab",
+    // Approved public label; the stable registry ID and saved values remain unchanged.
+    label: "Lava Lamp",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
-    license: "MassageLab internal implementation",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal implementation`,
     licenseStatus: "verified",
     category: ["chimer", "clock", "music", "ambient"],
     recommendedUse: "Free default; preserves the original Chimer and Clock moving gradient background.",
@@ -317,9 +318,9 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "static-gradient",
     label: "Static gradient",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
-    license: "MassageLab internal implementation",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal implementation`,
     licenseStatus: "verified",
     category: ["chimer", "clock", "music", "ambient"],
     recommendedUse: "Free static option and fallback for Chimer, Clock, Music, and future ambient mode.",
@@ -337,9 +338,9 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "solid-color",
     label: "Solid Color",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
-    license: "MassageLab internal implementation",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal implementation`,
     licenseStatus: "verified",
     category: ["chimer", "clock", "music", "ambient"],
     recommendedUse: "Free single-color background for Chimer, Clock, Music, and future ambient mode.",
@@ -356,12 +357,12 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-particles-draft",
     label: "Particles",
-    provider: "MassageLab draft",
+    provider: `${PUBLIC_PRODUCT_IDENTITY.name} draft`,
     sourceUrl: "internal",
-    license: "MassageLab internal draft; MassageLab MIT source candidate not imported",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal draft; ${PUBLIC_PRODUCT_IDENTITY.name} MIT source candidate not imported`,
     licenseStatus: "verified",
     category: ["clock", "music", "ambient"],
-    recommendedUse: "Draft placeholder for the MassageLab Particles candidate; review against the source demo before final activation.",
+    recommendedUse: `Draft placeholder for the ${PUBLIC_PRODUCT_IDENTITY.name} Particles candidate; review against the source demo before final activation.`,
     motionIntensity: "subtle",
     performanceCost: "low",
     requiresSubscription: true,
@@ -377,12 +378,12 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-noise-texture-draft",
     label: "Noise texture",
-    provider: "MassageLab draft",
+    provider: `${PUBLIC_PRODUCT_IDENTITY.name} draft`,
     sourceUrl: "internal",
-    license: "MassageLab internal draft; MassageLab MIT source candidate not imported",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal draft; ${PUBLIC_PRODUCT_IDENTITY.name} MIT source candidate not imported`,
     licenseStatus: "verified",
     category: ["chimer", "clock", "music", "ambient"],
-    recommendedUse: "Draft placeholder for the MassageLab Noise Texture candidate; review against the source demo before final activation.",
+    recommendedUse: `Draft placeholder for the ${PUBLIC_PRODUCT_IDENTITY.name} Noise Texture candidate; review against the source demo before final activation.`,
     motionIntensity: "static",
     performanceCost: "low",
     requiresSubscription: true,
@@ -398,12 +399,12 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-grid-pattern-draft",
     label: "Grid pattern",
-    provider: "MassageLab draft",
+    provider: `${PUBLIC_PRODUCT_IDENTITY.name} draft`,
     sourceUrl: "internal",
-    license: "MassageLab internal draft; MassageLab MIT source candidate not imported",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal draft; ${PUBLIC_PRODUCT_IDENTITY.name} MIT source candidate not imported`,
     licenseStatus: "verified",
     category: ["chimer", "clock", "music", "ambient"],
-    recommendedUse: "Draft placeholder for the MassageLab Grid Pattern candidate; review against the source demo before final activation.",
+    recommendedUse: `Draft placeholder for the ${PUBLIC_PRODUCT_IDENTITY.name} Grid Pattern candidate; review against the source demo before final activation.`,
     motionIntensity: "static",
     performanceCost: "low",
     requiresSubscription: true,
@@ -419,12 +420,12 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-animated-grid-draft",
     label: "Animated grid",
-    provider: "MassageLab draft",
+    provider: `${PUBLIC_PRODUCT_IDENTITY.name} draft`,
     sourceUrl: "internal",
-    license: "MassageLab internal draft; MassageLab MIT source candidate not imported",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal draft; ${PUBLIC_PRODUCT_IDENTITY.name} MIT source candidate not imported`,
     licenseStatus: "verified",
     category: ["music", "ambient"],
-    recommendedUse: "Draft placeholder for the MassageLab Animated Grid candidate; review against the source demo before final activation.",
+    recommendedUse: `Draft placeholder for the ${PUBLIC_PRODUCT_IDENTITY.name} Animated Grid candidate; review against the source demo before final activation.`,
     motionIntensity: "subtle",
     performanceCost: "low",
     requiresSubscription: true,
@@ -440,7 +441,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-retro-grid",
     label: "Retro Grid",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; MassageLab repository reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -461,7 +462,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-aerial-rays",
     label: "Aerial Rays",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; MassageLab repository reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -530,7 +531,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
     // Duplicate display copy is intentionally retained pending a separate
     // product naming decision; stable IDs distinguish the two effects.
     label: "Wave Current",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -551,7 +552,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-electric-mist",
     label: "Electric Mist",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-03",
     licenseStatus: "verified",
@@ -572,7 +573,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-astral-flow",
     label: "Astral Flow",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-03",
     licenseStatus: "verified",
@@ -593,7 +594,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-deep-space-nebula",
     label: "Deep Space Nebula",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -614,7 +615,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-grid-bloom",
     label: "Grid Bloom",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -635,7 +636,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-chrome-flow",
     label: "Chrome Flow",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -656,7 +657,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-light-speed",
     label: "Light Speed",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-03",
     licenseStatus: "verified",
@@ -677,7 +678,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-ferrofluid",
     label: "Ferrofluid",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-04",
     licenseStatus: "caution",
@@ -698,7 +699,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-lightfall",
     label: "Lightfall",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-04",
     licenseStatus: "caution",
@@ -719,7 +720,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-liquid-ether",
     label: "Liquid Ether",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -740,7 +741,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-prism",
     label: "Prism",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -761,7 +762,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-dark-veil",
     label: "Dark Veil",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -782,7 +783,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-light-pillar",
     label: "Light Pillar",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -803,7 +804,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-silk",
     label: "Silk",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -824,7 +825,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-floating-lines",
     label: "Floating Lines",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -845,7 +846,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-side-rays",
     label: "Side Rays",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -866,7 +867,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-light-rays",
     label: "Light Rays",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -887,7 +888,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-pixel-blast",
     label: "Pixel Blast",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -908,7 +909,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-color-bends",
     label: "Color Bends",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -929,7 +930,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-evil-eye",
     label: "Evil Eye",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -950,7 +951,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-line-waves",
     label: "Line Waves",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -971,7 +972,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-radar",
     label: "Radar",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -992,7 +993,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-soft-aurora",
     label: "Soft Aurora",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1013,7 +1014,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-plasma",
     label: "Plasma",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1034,7 +1035,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-plasma-wave",
     label: "Plasma Wave",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1055,7 +1056,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-particles",
     label: "Particles",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1076,7 +1077,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-gradient-blinds",
     label: "Gradient Blinds",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1097,7 +1098,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-grainient",
     label: "Grainient",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1118,7 +1119,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-grid-scan",
     label: "Grid Scan",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1139,7 +1140,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-synthesis",
     label: "Synthesis",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; copyright 2026 Amarnath; reviewed 2026-07-03",
     licenseStatus: "verified",
@@ -1160,7 +1161,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-beams",
     label: "Beams",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1171,7 +1172,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
     requiresSubscription: true,
     enabled: true,
     customizationSummary:
-      "Source white or custom/harmony light color plus source-shaped beam width, height, count, speed, noise, scale, and rotation; raw WebGL port of the MassageLab stacked-plane displacement shader without Three/R3F.",
+      `Source white or custom/harmony light color plus source-shaped beam width, height, count, speed, noise, scale, and rotation; raw WebGL port of the ${PUBLIC_PRODUCT_IDENTITY.name} stacked-plane displacement shader without Three/R3F.`,
     component: () => massageLabBeams().then((module) => ({ default: module.default })),
     fallbackStyle: {
       background:
@@ -1181,7 +1182,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-pixel-snow",
     label: "Pixel Snow",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1192,7 +1193,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
     requiresSubscription: true,
     enabled: true,
     customizationSummary:
-      "Source white or custom/harmony snow color plus source-shaped flake size, minimum flake size, pixel resolution, speed, depth fade, far plane, brightness, gamma, density, variant, and direction; WebGL2 port of the MassageLab fragment shader without Three/R3F.",
+      `Source white or custom/harmony snow color plus source-shaped flake size, minimum flake size, pixel resolution, speed, depth fade, far plane, brightness, gamma, density, variant, and direction; WebGL2 port of the ${PUBLIC_PRODUCT_IDENTITY.name} fragment shader without Three/R3F.`,
     component: () => massageLabPixelSnow().then((module) => ({ default: module.default })),
     fallbackStyle: {
       background:
@@ -1202,7 +1203,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-lightning",
     label: "Lightning",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1213,7 +1214,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
     requiresSubscription: true,
     enabled: true,
     customizationSummary:
-      "Source/custom/harmony hue plus source-shaped X offset, speed, intensity, and size controls; raw WebGL port of the MassageLab lightning shader.",
+      `Source/custom/harmony hue plus source-shaped X offset, speed, intensity, and size controls; raw WebGL port of the ${PUBLIC_PRODUCT_IDENTITY.name} lightning shader.`,
     component: () => massageLabLightning().then((module) => ({ default: module.default })),
     fallbackStyle: {
       background:
@@ -1223,7 +1224,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-prismatic-burst",
     label: "Prismatic Burst",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1244,7 +1245,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-galaxy",
     label: "Galaxy",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1265,7 +1266,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-dither",
     label: "Dither",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1286,7 +1287,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-faulty-terminal",
     label: "Faulty Terminal",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1309,7 +1310,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-ripple-grid",
     label: "Ripple Grid",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1331,7 +1332,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-dot-field",
     label: "Dot Field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1354,7 +1355,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-dot-grid",
     label: "Dot Grid",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1376,7 +1377,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-threads",
     label: "Threads",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1397,7 +1398,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-iridescence",
     label: "Iridescence",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1420,7 +1421,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
     // Keep this approved duplicate label pending a separate catalog naming
     // decision; stable IDs continue to distinguish the two effects.
     label: "Wave Current",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1441,7 +1442,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-grid-distortion",
     label: "Grid Distortion",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1462,7 +1463,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-orb",
     label: "Orb",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1483,7 +1484,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-letter-glitch",
     label: "Letter Glitch",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1504,7 +1505,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-grid-motion",
     label: "Grid Motion",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1525,7 +1526,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-shape-grid",
     label: "Shape Grid",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1547,7 +1548,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-liquid-chrome",
     label: "Chrome Flow",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1568,7 +1569,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-balatro",
     label: "Balatro",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2026 David Haz; reviewed 2026-07-05",
     licenseStatus: "caution",
@@ -1589,7 +1590,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-novatrix",
     label: "Novatrix Field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; MassageLab repository reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -1610,7 +1611,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-matrix-rain",
     label: "Matrix Rain",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; MassageLab repository reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -1631,7 +1632,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-photon-beam",
     label: "Photon Beam",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT; MassageLab repository reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -1652,7 +1653,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-aurora",
     label: "Aurora field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1672,7 +1673,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-dotted-glow",
     label: "Dotted glow",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1691,7 +1692,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-sparkles",
     label: "Sparkles",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1711,7 +1712,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-gradient-animation",
     label: "Animated gradient",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1731,7 +1732,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-background-beams",
     label: "Beam field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1751,7 +1752,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-collision-beams",
     label: "Collision beams",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1771,7 +1772,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-background-lines",
     label: "Light lines",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1791,7 +1792,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-glowing-stars",
     label: "Glowing stars",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1811,7 +1812,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-meteors",
     label: "Meteors",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1831,7 +1832,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-shooting-stars",
     label: "Shooting stars",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; source credits Vijay Verma / figmaplug.in",
     licenseStatus: "verified",
@@ -1851,7 +1852,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-reveal-dots",
     label: "Reveal dots",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora; inspired by Clerk's website",
     licenseStatus: "verified",
@@ -1871,7 +1872,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-3d-globe",
     label: "3D Globe",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; component registry reviewed 2026-07-04",
     licenseStatus: "verified",
@@ -1882,7 +1883,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
     requiresSubscription: true,
     enabled: true,
     customizationSummary:
-      "Background, globe tint, manual or Follow Sun lighting, rotation speed with fixed reverse spin, screen pan, fixed axial tilt, scale, bump, atmosphere, wireframe, icon location markers, built-in MassageLab marker, and a Graphic view with structured stable map dots and Outer Glow; reviewed Three.js source adapted with a dependency-free native WebGL sphere renderer and 2D marker overlay.",
+      "Background, globe tint, manual or Follow Sun lighting, rotation speed with fixed reverse spin, screen pan, fixed axial tilt, scale, bump, atmosphere, wireframe, optional user location marker, and a Graphic view with structured stable map dots and Outer Glow; reviewed Three.js source adapted with a dependency-free native WebGL sphere renderer and 2D marker overlay.",
     component: () => massageLab3DGlobe().then((module) => ({ default: module.default })),
     fallbackStyle: {
       background:
@@ -1892,7 +1893,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-spotlight",
     label: "Spotlight",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1912,7 +1913,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-lamp-effect",
     label: "Lamp Glow",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1932,7 +1933,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-wavy-background",
     label: "Wave flow",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora",
     licenseStatus: "verified",
@@ -1952,7 +1953,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-vortex",
     label: "Vortex field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "reviewed source license; author Manu Arora; inspired by crnacura/AmbientCanvasBackgrounds",
     licenseStatus: "verified",
@@ -1972,7 +1973,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-pixel-liquid",
     label: "Pixel liquid",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MassageLab free/open-source component page reviewed 2026-07-02; internal app visual effect only",
     licenseStatus: "verified",
@@ -1991,10 +1992,10 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   },
   {
     id: "massage-lab-tile-grid",
-    label: "MassageLab tile grid",
-    provider: "MassageLab",
+    label: "Tile grid",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
-    license: "MassageLab internal implementation",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal implementation`,
     licenseStatus: "verified",
     category: ["chimer", "clock", "music", "ambient"],
     recommendedUse: "Premium internal tile-grid background for Chimer, Clock, Music, and future ambient treatment-room mode.",
@@ -2011,10 +2012,10 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   },
   {
     id: "massage-lab-hex-grid",
-    label: "MassageLab hex grid",
-    provider: "MassageLab",
+    label: "Hex grid",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
-    license: "MassageLab internal implementation",
+    license: `${PUBLIC_PRODUCT_IDENTITY.name} internal implementation`,
     licenseStatus: "verified",
     category: ["chimer", "clock", "music", "ambient"],
     recommendedUse: "Premium internal hex-tile background for Chimer, Clock, Music, and future ambient treatment-room mode.",
@@ -2032,7 +2033,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-aurora-bars",
     label: "Aurora bars",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MassageLab free component license reviewed 2026-07-03; original idea credited to @SannaGranqvistX / Framer",
     licenseStatus: "verified",
@@ -2052,7 +2053,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-bubble",
     label: "Bubble field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2025 Elliot Sutton; reviewed 2026-07-03",
     licenseStatus: "caution",
@@ -2072,7 +2073,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-gradient",
     label: "Gradient field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2025 Elliot Sutton; reviewed 2026-07-03",
     licenseStatus: "caution",
@@ -2092,7 +2093,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-stars",
     label: "Star field",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2025 Elliot Sutton; reviewed 2026-07-03",
     licenseStatus: "caution",
@@ -2111,7 +2112,7 @@ const rawBackgroundRegistry: readonly RawBackgroundDefinition[] = [
   {
     id: "massage-lab-hole",
     label: "Depth well",
-    provider: "MassageLab",
+    provider: PUBLIC_PRODUCT_IDENTITY.name,
     sourceUrl: "internal",
     license: "MIT + Commons Clause; copyright 2025 Elliot Sutton; reviewed 2026-07-03",
     licenseStatus: "caution",

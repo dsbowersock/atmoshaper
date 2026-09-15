@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -95,7 +96,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Silk ships as a Three/R3F shader plane. MassageLab keeps the
+// AtmoShaper Silk ships as a Three/R3F shader plane. AtmoShaper keeps the
 // source shader math and replaces only the rendering shell with native WebGL.
 export default function MassageLabSilkBackground({
   className,
@@ -385,7 +386,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Silk shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Silk shader uniform: ${name}`)
   }
 
   return location

@@ -14,12 +14,13 @@
     ".mjs", ".prisma", ".sql", ".toml", ".ts", ".tsx", ".txt",
     ".yaml", ".yml"
   ],
-  "legacyPattern": "massagelab|massage lab",
+  "legacyPattern": "massagelab|massage lab|massage_lab",
   "compatibilityIdentifierPatterns": [
     "massageLab[A-Z][A-Za-z0-9_]*",
     "massageLab[0-9][A-Za-z0-9_]*",
     "MassageLab[A-Z0-9][A-Za-z0-9_]*",
-    "massagelab[A-Z][A-Za-z0-9_]*"
+    "massagelab[A-Z][A-Za-z0-9_]*",
+    "MASSAGE_LAB_[A-Z0-9_]*"
   ],
   "allowedCategories": [
     "compatibility",

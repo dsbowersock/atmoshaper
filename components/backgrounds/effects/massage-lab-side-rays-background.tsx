@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -123,7 +124,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Side Rays ships as an OGL full-screen shader. MassageLab keeps
+// AtmoShaper Side Rays ships as an OGL full-screen shader. AtmoShaper keeps
 // the shader and origin math while replacing OGL with a native WebGL shell.
 export default function MassageLabSideRaysBackground({
   className,
@@ -433,7 +434,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Side Rays shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Side Rays shader uniform: ${name}`)
   }
 
   return location

@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -264,7 +265,7 @@ void main() {
 }
 `
 
-// MassageLab Faulty Terminal is an OGL terminal shader. MassageLab keeps the
+// AtmoShaper Faulty Terminal is an OGL terminal shader. AtmoShaper keeps the
 // source uniform model while owning the raw WebGL sizing, motion, and cleanup.
 export default function MassageLabFaultyTerminalBackground({
   className,
@@ -455,7 +456,7 @@ function createFaultyTerminalResources(gl: WebGLRenderingContext): FaultyTermina
   gl.linkProgram(program)
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error("MassageLab Faulty Terminal program link failed", gl.getProgramInfoLog(program))
+    console.error(`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal program link failed`, gl.getProgramInfoLog(program))
     gl.deleteProgram(program)
     gl.deleteBuffer(vertexBuffer)
     gl.deleteShader(vertexShader)
@@ -567,7 +568,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
   gl.compileShader(shader)
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error("MassageLab Faulty Terminal shader compile failed", gl.getShaderInfoLog(shader))
+    console.error(`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal shader compile failed`, gl.getShaderInfoLog(shader))
     gl.deleteShader(shader)
     return null
   }
@@ -578,7 +579,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
 function getUniform(gl: WebGLRenderingContext, program: WebGLProgram, name: string): WebGLUniformLocation {
   const location = gl.getUniformLocation(program, name)
   if (!location) {
-    throw new Error(`Missing MassageLab Faulty Terminal shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal shader uniform: ${name}`)
   }
 
   return location

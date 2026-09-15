@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -94,7 +95,7 @@ void main() {
   gl_FragColor = col / float(samples);
 }`
 
-// MassageLab Liquid Chrome is an OGL full-screen shader. MassageLab ports the
+// AtmoShaper Liquid Chrome is an OGL full-screen shader. AtmoShaper ports the
 // same ripple, frequency, amplitude, and pointer uniforms into raw WebGL.
 export default function MassageLabLiquidChromeBackground({
   className,
@@ -313,7 +314,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string) 
 function getUniformLocation(gl: WebGLRenderingContext, program: WebGLProgram, name: string) {
   const location = gl.getUniformLocation(program, name)
   if (!location) {
-    throw new Error(`Missing MassageLab Liquid Chrome uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Chrome uniform: ${name}`)
   }
   return location
 }

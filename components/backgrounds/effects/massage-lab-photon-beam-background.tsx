@@ -51,7 +51,7 @@ const DEFAULT_MASSAGE_LAB_PHOTON_BEAM: ResolvedPhotonBeamOptions = {
 const SEGMENT_COUNT = 150
 const TARGET_FRAME_MS = 1000 / 30
 
-// MassageLab's source renders a Three.js line field with bloom. MassageLab keeps
+// AtmoShaper's source renders a Three.js line field with bloom. AtmoShaper keeps
 // the path, lane, signal, wave, and bloom controls in a dependency-free canvas
 // renderer so this remains an internal app background instead of a bundled copy.
 export default function MassageLabPhotonBeamBackground({

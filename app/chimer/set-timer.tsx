@@ -17,6 +17,7 @@ import { StyledToggleControl } from "@/components/chimer-controls/StyledToggleCo
 import { DarkVeilResolutionScaleControl } from "@/components/chimer-controls/DarkVeilBackgroundControls"
 import { getMassageLab3DGlobeScaleDisplayPercent, getMassageLab3DGlobeScaleFromDisplayPercent, getMassageLabShapeGridSpeedDisplayPercent, getMassageLabShapeGridSpeedFromDisplayPercent, parseGlobeCoordinateDraft, sanitizeChimerSettings } from "@/lib/chimer-timer"
 import { normalizeSharedBackgroundVisualPreferences } from "@/lib/background-palette"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { buildBackgroundVisualOpeningSnapshot, buildBackgroundVisualPendingCommit } from "@/lib/background-visual-draft"
 import styles from "./set-timer.module.css"
 import { GridMotionMantraEditor } from "./grid-motion-mantra-editor"
@@ -277,7 +278,7 @@ export function getMassageLabAstralFlowSourceSpeed(displaySpeed: number) {
 }
 
 // Deep Space Nebula stores the source shader multiplier, while the UI maps the
-// MassageLab source range 0.1-5 to a 1%-100% slider.
+// AtmoShaper source range 0.1-5 to a 1%-100% slider.
 export function getMassageLabDeepSpaceNebulaDisplaySpeed(sourceSpeed: number) {
   const clampedSpeed = Math.min(MASSAGE_LAB_DEEP_SPACE_NEBULA_SOURCE_SPEED_MAX, Math.max(MASSAGE_LAB_DEEP_SPACE_NEBULA_SOURCE_SPEED_MIN, sourceSpeed))
   const sourceRange = MASSAGE_LAB_DEEP_SPACE_NEBULA_SOURCE_SPEED_MAX - MASSAGE_LAB_DEEP_SPACE_NEBULA_SOURCE_SPEED_MIN
@@ -292,7 +293,7 @@ export function getMassageLabDeepSpaceNebulaSourceSpeed(displaySpeed: number) {
   return Math.round((MASSAGE_LAB_DEEP_SPACE_NEBULA_SOURCE_SPEED_MIN + ((clampedDisplay - MASSAGE_LAB_DEEP_SPACE_NEBULA_DISPLAY_SPEED_MIN) / displayRange) * sourceRange) * 1000) / 1000
 }
 
-// Grid Bloom stores the MassageLab shader multiplier, while users see 1%-100%.
+// Grid Bloom stores the AtmoShaper shader multiplier, while users see 1%-100%.
 export function getMassageLabGridBloomDisplaySpeed(sourceSpeed: number) {
   const clampedSpeed = Math.min(MASSAGE_LAB_GRID_BLOOM_SOURCE_SPEED_MAX, Math.max(MASSAGE_LAB_GRID_BLOOM_SOURCE_SPEED_MIN, sourceSpeed))
   const sourceRange = MASSAGE_LAB_GRID_BLOOM_SOURCE_SPEED_MAX - MASSAGE_LAB_GRID_BLOOM_SOURCE_SPEED_MIN
@@ -352,7 +353,7 @@ export function getMassageLabChromeFlowSourceTimeScale(displayTimeScale: number)
   return Math.round((MASSAGE_LAB_LIQUID_CHROME_SOURCE_TIME_SCALE_MIN + ((clampedDisplay - MASSAGE_LAB_LIQUID_CHROME_DISPLAY_TIME_SCALE_MIN) / displayRange) * sourceRange) * 1000) / 1000
 }
 
-// Waves stores the MassageLab source speed values; users see 1%-100%.
+// Waves stores the AtmoShaper source speed values; users see 1%-100%.
 export function getMassageLabWaveCurrentDisplaySpeed(sourceSpeed: number) {
   const clampedSpeed = Math.min(MASSAGE_LAB_WAVES_SOURCE_SPEED_MAX, Math.max(MASSAGE_LAB_WAVES_SOURCE_SPEED_MIN, sourceSpeed))
   const sourceRange = MASSAGE_LAB_WAVES_SOURCE_SPEED_MAX - MASSAGE_LAB_WAVES_SOURCE_SPEED_MIN
@@ -367,7 +368,7 @@ export function getMassageLabWaveCurrentSourceSpeed(displaySpeed: number) {
   return Math.round((MASSAGE_LAB_WAVES_SOURCE_SPEED_MIN + ((clampedDisplay - MASSAGE_LAB_WAVES_DISPLAY_SPEED_MIN) / displayRange) * sourceRange) * 10000) / 10000
 }
 
-// Novatrix keeps MassageLab's source speed/amplitude values but presents simple
+// Novatrix keeps AtmoShaper's source speed/amplitude values but presents simple
 // percentages so the slowest slider positions are visibly calm.
 export function getMassageLabNovatrixDisplaySpeed(sourceSpeed: number) {
   const clampedSpeed = Math.min(MASSAGE_LAB_NOVATRIX_SOURCE_SPEED_MAX, Math.max(MASSAGE_LAB_NOVATRIX_SOURCE_SPEED_MIN, sourceSpeed))
@@ -397,7 +398,7 @@ export function getMassageLabNovatrixSourceAmplitude(displayAmplitude: number) {
   return Math.round((MASSAGE_LAB_NOVATRIX_SOURCE_AMPLITUDE_MIN + ((clampedDisplay - MASSAGE_LAB_NOVATRIX_DISPLAY_AMPLITUDE_MIN) / displayRange) * sourceRange) * 1000) / 1000
 }
 
-// Matrix Rain stores MassageLab's source speed multiplier; the UI maps it to
+// Matrix Rain stores AtmoShaper's source speed multiplier; the UI maps it to
 // a 1%-100% slider with a deliberately slow low end.
 export function getMassageLabMatrixRainDisplaySpeed(sourceSpeed: number) {
   const clampedSpeed = Math.min(MASSAGE_LAB_MATRIX_RAIN_SOURCE_SPEED_MAX, Math.max(MASSAGE_LAB_MATRIX_RAIN_SOURCE_SPEED_MIN, sourceSpeed))
@@ -413,7 +414,7 @@ export function getMassageLabMatrixRainSourceSpeed(displaySpeed: number) {
   return Math.round((MASSAGE_LAB_MATRIX_RAIN_SOURCE_SPEED_MIN + ((clampedDisplay - MASSAGE_LAB_HACKER_DISPLAY_SPEED_MIN) / displayRange) * sourceRange) * 1000) / 1000
 }
 
-// Photon Beam stores MassageLab's source speed multiplier while users see a
+// Photon Beam stores AtmoShaper's source speed multiplier while users see a
 // consistent 1%-100% control alongside the other premium backgrounds.
 export function getMassageLabPhotonBeamDisplaySpeed(sourceSpeed: number) {
   const clampedSpeed = Math.min(MASSAGE_LAB_PHOTON_BEAM_SOURCE_SPEED_MAX, Math.max(MASSAGE_LAB_PHOTON_BEAM_SOURCE_SPEED_MIN, sourceSpeed))
@@ -429,7 +430,7 @@ export function getMassageLabPhotonBeamSourceSpeed(displaySpeed: number) {
   return Math.round((MASSAGE_LAB_PHOTON_BEAM_SOURCE_SPEED_MIN + ((clampedDisplay - MASSAGE_LAB_PHOTON_BEAM_DISPLAY_SPEED_MIN) / displayRange) * sourceRange) * 1000) / 1000
 }
 
-// The source MassageLab demo defaults to 0.4; MassageLab presents that as 1x.
+// The source AtmoShaper demo defaults to 0.4; AtmoShaper presents that as 1x.
 export function getMassageLabSynthesisDisplaySpeed(sourceSpeed: number) {
   return Math.round((sourceSpeed / MASSAGE_LAB_SYNTHESIS_SPEED_BASE) * 100) / 100
 }
@@ -1565,7 +1566,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientOpacity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab gradient opacity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} gradient opacity`}
             />
           </label>
         </div>
@@ -1588,7 +1589,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabHoleLineCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Hole line count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Hole line count`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -1604,7 +1605,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabHoleDiscCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Hole disc count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Hole disc count`}
             />
           </label>
         </div>
@@ -1627,7 +1628,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabStarsSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Stars speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Stars speed`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -1643,7 +1644,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabStarsDensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Stars density"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Stars density`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -1659,7 +1660,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabStarsParallax: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Stars parallax strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Stars parallax strength`}
             />
           </label>
         </div>
@@ -5260,7 +5261,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastVariant: event.target.value as MassageLabPixelBlastVariant,
                 })
               }
-              aria-label="MassageLab Pixel Blast shape"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast shape`}
             >
               <option value="square">Square</option>
               <option value="circle">Circle</option>
@@ -5278,7 +5279,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastAntialias: event.target.checked,
                 })
               }
-              aria-label="MassageLab Pixel Blast antialias"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast antialias`}
             />
             <span>Antialias edges</span>
           </label>
@@ -5292,7 +5293,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastEnableRipples: event.target.checked,
                 })
               }
-              aria-label="MassageLab Pixel Blast ripple clicks"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast ripple clicks`}
             />
             <span>Ripple clicks</span>
           </label>
@@ -5306,7 +5307,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastLiquid: event.target.checked,
                 })
               }
-              aria-label="MassageLab Pixel Blast liquid pointer warp"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast liquid pointer warp`}
             />
             <span>Liquid pointer warp</span>
           </label>
@@ -5320,7 +5321,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastTransparent: event.target.checked,
                 })
               }
-              aria-label="MassageLab Pixel Blast transparent background"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast transparent background`}
             />
             <span>Transparent background</span>
           </label>
@@ -5334,7 +5335,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastAutoPauseOffscreen: event.target.checked,
                 })
               }
-              aria-label="MassageLab Pixel Blast pause offscreen"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast pause offscreen`}
             />
             <span>Pause offscreen</span>
           </label>
@@ -5352,7 +5353,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastPixelSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast pixel size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast pixel size`}
             />
           </label>
 
@@ -5369,7 +5370,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastPatternScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast pattern scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast pattern scale`}
             />
           </label>
 
@@ -5386,7 +5387,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastPatternDensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast pattern density"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast pattern density`}
             />
           </label>
 
@@ -5403,7 +5404,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast speed`}
             />
           </label>
 
@@ -5420,7 +5421,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastPixelSizeJitter: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast pixel jitter"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast pixel jitter`}
             />
           </label>
 
@@ -5437,7 +5438,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastEdgeFade: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast edge fade"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast edge fade`}
             />
           </label>
 
@@ -5454,7 +5455,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastRippleIntensityScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast ripple intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast ripple intensity`}
             />
           </label>
 
@@ -5471,7 +5472,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastRippleThickness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast ripple thickness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast ripple thickness`}
             />
           </label>
 
@@ -5488,7 +5489,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastRippleSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast ripple speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast ripple speed`}
             />
           </label>
 
@@ -5505,7 +5506,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastLiquidStrength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast liquid strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast liquid strength`}
             />
           </label>
 
@@ -5522,7 +5523,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastLiquidRadius: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast liquid radius"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast liquid radius`}
             />
           </label>
 
@@ -5539,7 +5540,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastLiquidWobbleSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast liquid wobble speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast liquid wobble speed`}
             />
           </label>
 
@@ -5556,7 +5557,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelBlastNoiseAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Blast noise amount"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast noise amount`}
             />
           </label>
         </div>
@@ -5575,7 +5576,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsTransparent: event.target.checked,
                 })
               }
-              aria-label="MassageLab Color Bends transparent background"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends transparent background`}
             />
             <span>Transparent background</span>
           </label>
@@ -5589,7 +5590,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsInteractive: event.target.checked,
                 })
               }
-              aria-label="MassageLab Color Bends pointer interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends pointer interaction`}
             />
             <span>Pointer interaction</span>
           </label>
@@ -5607,7 +5608,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsRotation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends rotation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends rotation`}
             />
           </label>
 
@@ -5624,7 +5625,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends speed`}
             />
           </label>
 
@@ -5644,7 +5645,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsAutoRotate: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends auto rotate"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends auto rotate`}
             />
           </label>
 
@@ -5661,7 +5662,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends scale`}
             />
           </label>
 
@@ -5678,7 +5679,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsFrequency: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends frequency"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends frequency`}
             />
           </label>
 
@@ -5695,7 +5696,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsWarpStrength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends warp strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends warp strength`}
             />
           </label>
 
@@ -5712,7 +5713,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsMouseInfluence: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends mouse influence"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends mouse influence`}
             />
           </label>
 
@@ -5729,7 +5730,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsParallax: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends parallax"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends parallax`}
             />
           </label>
 
@@ -5746,7 +5747,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsNoise: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends noise"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends noise`}
             />
           </label>
 
@@ -5763,7 +5764,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsIterations: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends iterations"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends iterations`}
             />
           </label>
 
@@ -5780,7 +5781,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends intensity`}
             />
           </label>
 
@@ -5797,7 +5798,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabColorBendsBandWidth: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Color Bends band width"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Color Bends band width`}
             />
           </label>
         </div>
@@ -5816,7 +5817,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyeInteractive: event.target.checked,
                 })
               }
-              aria-label="MassageLab Evil Eye pointer interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye pointer interaction`}
             />
             <span>Pointer pupil follow</span>
           </label>
@@ -5834,7 +5835,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyeIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye intensity`}
             />
           </label>
 
@@ -5851,7 +5852,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyePupilSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye pupil size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye pupil size`}
             />
           </label>
 
@@ -5868,7 +5869,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyeIrisWidth: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye iris width"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye iris width`}
             />
           </label>
 
@@ -5885,7 +5886,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyeGlowIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye glow intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye glow intensity`}
             />
           </label>
 
@@ -5902,7 +5903,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyeScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye scale`}
             />
           </label>
 
@@ -5919,7 +5920,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyeNoiseScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye noise scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye noise scale`}
             />
           </label>
 
@@ -5936,7 +5937,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyePupilFollow: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye pupil follow"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye pupil follow`}
             />
           </label>
 
@@ -5953,7 +5954,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabEvilEyeFlameSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Evil Eye flame speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye flame speed`}
             />
           </label>
         </div>
@@ -5972,7 +5973,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesEnableMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Line Waves mouse warp"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves mouse warp`}
             />
             <span>Pointer warp</span>
           </label>
@@ -5990,7 +5991,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves speed`}
             />
           </label>
 
@@ -6007,7 +6008,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesInnerLineCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves inner line count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves inner line count`}
             />
           </label>
 
@@ -6024,7 +6025,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesOuterLineCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves outer line count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves outer line count`}
             />
           </label>
 
@@ -6041,7 +6042,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesWarpIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves warp intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves warp intensity`}
             />
           </label>
 
@@ -6058,7 +6059,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesRotation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves rotation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves rotation`}
             />
           </label>
 
@@ -6075,7 +6076,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesEdgeFadeWidth: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves edge fade width"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves edge fade width`}
             />
           </label>
 
@@ -6092,7 +6093,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesColorCycleSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves color cycle speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves color cycle speed`}
             />
           </label>
 
@@ -6109,7 +6110,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesBrightness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves brightness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves brightness`}
             />
           </label>
 
@@ -6126,7 +6127,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLineWavesMouseInfluence: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Line Waves mouse influence"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Line Waves mouse influence`}
             />
           </label>
         </div>
@@ -6145,7 +6146,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarEnableMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Radar pointer offset"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar pointer offset`}
             />
             <span>Pointer offset</span>
           </label>
@@ -6163,7 +6164,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar speed`}
             />
           </label>
 
@@ -6180,7 +6181,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar scale`}
             />
           </label>
 
@@ -6197,7 +6198,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarRingCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar ring count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar ring count`}
             />
           </label>
 
@@ -6214,7 +6215,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarSpokeCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar spoke count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar spoke count`}
             />
           </label>
 
@@ -6231,7 +6232,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarRingThickness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar ring thickness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar ring thickness`}
             />
           </label>
 
@@ -6248,7 +6249,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarSpokeThickness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar spoke thickness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar spoke thickness`}
             />
           </label>
 
@@ -6265,7 +6266,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarSweepSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar sweep speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar sweep speed`}
             />
           </label>
 
@@ -6282,7 +6283,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarSweepWidth: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar sweep width"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar sweep width`}
             />
           </label>
 
@@ -6299,7 +6300,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarSweepLobes: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar sweep lobes"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar sweep lobes`}
             />
           </label>
 
@@ -6316,7 +6317,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarFalloff: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar falloff"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar falloff`}
             />
           </label>
 
@@ -6333,7 +6334,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarBrightness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar brightness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar brightness`}
             />
           </label>
 
@@ -6350,7 +6351,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRadarMouseInfluence: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Radar mouse influence"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Radar mouse influence`}
             />
           </label>
         </div>
@@ -6370,7 +6371,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraEnableMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Soft Aurora mouse shift"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora mouse shift`}
             />
           </label>
 
@@ -6387,7 +6388,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora speed`}
             />
           </label>
 
@@ -6404,7 +6405,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora scale`}
             />
           </label>
 
@@ -6421,7 +6422,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraBrightness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora brightness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora brightness`}
             />
           </label>
 
@@ -6438,7 +6439,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraNoiseFrequency: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora noise frequency"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora noise frequency`}
             />
           </label>
 
@@ -6455,7 +6456,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraNoiseAmplitude: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora noise amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora noise amplitude`}
             />
           </label>
 
@@ -6472,7 +6473,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraBandHeight: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora band height"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora band height`}
             />
           </label>
 
@@ -6489,7 +6490,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraBandSpread: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora band spread"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora band spread`}
             />
           </label>
 
@@ -6506,7 +6507,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraOctaveDecay: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora octave decay"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora octave decay`}
             />
           </label>
 
@@ -6523,7 +6524,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraLayerOffset: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora layer offset"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora layer offset`}
             />
           </label>
 
@@ -6543,7 +6544,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraColorSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora color speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora color speed`}
             />
           </label>
 
@@ -6560,7 +6561,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabSoftAuroraMouseInfluence: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Soft Aurora mouse influence"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora mouse influence`}
             />
           </label>
         </div>
@@ -6579,7 +6580,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaDirection: event.target.value as MassageLabPlasmaDirection,
                 })
               }
-              aria-label="MassageLab Plasma direction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma direction`}
             >
               <option value="forward">Forward</option>
               <option value="reverse">Reverse</option>
@@ -6597,7 +6598,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaMouseInteractive: event.target.checked,
                 })
               }
-              aria-label="MassageLab Plasma mouse warp"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma mouse warp`}
             />
           </label>
 
@@ -6614,7 +6615,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma speed`}
             />
           </label>
 
@@ -6631,7 +6632,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma scale`}
             />
           </label>
 
@@ -6648,7 +6649,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaOpacity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma opacity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma opacity`}
             />
           </label>
         </div>
@@ -6667,7 +6668,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveDirectionTwo: Number(event.target.value) as 1 | -1,
                 })
               }
-              aria-label="MassageLab Plasma Wave secondary direction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave secondary direction`}
             >
               <option value={1}>Forward</option>
               <option value={-1}>Reverse</option>
@@ -6690,7 +6691,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveRotationDeg: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave rotation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave rotation`}
             />
           </label>
 
@@ -6707,7 +6708,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveFocalLength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave focal length"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave focal length`}
             />
           </label>
 
@@ -6724,7 +6725,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveSpeedOne: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave speed 1"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave speed 1`}
             />
           </label>
 
@@ -6741,7 +6742,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveSpeedTwo: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave speed 2"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave speed 2`}
             />
           </label>
 
@@ -6758,7 +6759,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveBendOne: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave bend 1"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave bend 1`}
             />
           </label>
 
@@ -6775,7 +6776,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveBendTwo: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave bend 2"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave bend 2`}
             />
           </label>
 
@@ -6792,7 +6793,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveXOffset: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave x offset"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave x offset`}
             />
           </label>
 
@@ -6809,7 +6810,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPlasmaWaveYOffset: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Plasma Wave y offset"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave y offset`}
             />
           </label>
         </div>
@@ -6871,7 +6872,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles particle count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles particle count`}
             />
           </label>
 
@@ -6888,7 +6889,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesSpread: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles spread"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles spread`}
             />
           </label>
 
@@ -6905,7 +6906,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles speed`}
             />
           </label>
 
@@ -6922,7 +6923,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesHoverFactor: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles hover push"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles hover push`}
             />
           </label>
 
@@ -6939,7 +6940,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesBaseSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles base size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles base size`}
             />
           </label>
 
@@ -6956,7 +6957,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesSizeRandomness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles size randomness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles size randomness`}
             />
           </label>
 
@@ -6973,7 +6974,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesCameraDistance: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles camera distance"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles camera distance`}
             />
           </label>
 
@@ -6990,7 +6991,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabParticlesPixelRatio: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Particles pixel ratio"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Particles pixel ratio`}
             />
           </label>
         </div>
@@ -7035,7 +7036,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsShineDirection: event.target.value as MassageLabGradientBlindsShineDirection,
                 })
               }
-              aria-label="MassageLab Gradient Blinds shine direction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds shine direction`}
             >
               <option value="left">Left</option>
               <option value="right">Right</option>
@@ -7051,7 +7052,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsBlendMode: event.target.value as MassageLabGradientBlindsBlendMode,
                 })
               }
-              aria-label="MassageLab Gradient Blinds blend mode"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds blend mode`}
             >
               <option value="lighten">Lighten</option>
               <option value="screen">Screen</option>
@@ -7073,7 +7074,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsAngle: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds angle"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds angle`}
             />
           </label>
 
@@ -7090,7 +7091,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsNoise: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds noise"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds noise`}
             />
           </label>
 
@@ -7107,7 +7108,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsBlindCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds blind count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds blind count`}
             />
           </label>
 
@@ -7124,7 +7125,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsBlindMinWidth: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds minimum blind width"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds minimum blind width`}
             />
           </label>
 
@@ -7141,7 +7142,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsMouseDampening: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds mouse damping"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds mouse damping`}
             />
           </label>
 
@@ -7158,7 +7159,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsSpotlightRadius: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds spotlight radius"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds spotlight radius`}
             />
           </label>
 
@@ -7175,7 +7176,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsSpotlightSoftness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds spotlight softness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds spotlight softness`}
             />
           </label>
 
@@ -7192,7 +7193,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsSpotlightOpacity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds spotlight opacity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds spotlight opacity`}
             />
           </label>
 
@@ -7209,7 +7210,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsDistort: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds distortion"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds distortion`}
             />
           </label>
 
@@ -7226,7 +7227,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGradientBlindsDpr: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Gradient Blinds dpr"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Gradient Blinds dpr`}
             />
           </label>
         </div>
@@ -7262,7 +7263,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientTimeSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient time speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient time speed`}
             />
           </label>
 
@@ -7279,7 +7280,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientColorBalance: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient color balance"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient color balance`}
             />
           </label>
 
@@ -7296,7 +7297,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientWarpStrength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient warp strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient warp strength`}
             />
           </label>
 
@@ -7313,7 +7314,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientWarpFrequency: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient warp frequency"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient warp frequency`}
             />
           </label>
 
@@ -7330,7 +7331,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientWarpSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient warp speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient warp speed`}
             />
           </label>
 
@@ -7347,7 +7348,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientWarpAmplitude: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient warp amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient warp amplitude`}
             />
           </label>
 
@@ -7367,7 +7368,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientBlendAngle: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient blend angle"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient blend angle`}
             />
           </label>
 
@@ -7384,7 +7385,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientBlendSoftness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient blend softness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient blend softness`}
             />
           </label>
 
@@ -7401,7 +7402,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientRotationAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient rotation amount"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient rotation amount`}
             />
           </label>
 
@@ -7418,7 +7419,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientNoiseScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient noise scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient noise scale`}
             />
           </label>
 
@@ -7435,7 +7436,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientGrainAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient grain amount"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient grain amount`}
             />
           </label>
 
@@ -7452,7 +7453,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientGrainScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient grain scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient grain scale`}
             />
           </label>
 
@@ -7469,7 +7470,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientContrast: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient contrast"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient contrast`}
             />
           </label>
 
@@ -7486,7 +7487,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientGamma: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient gamma"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient gamma`}
             />
           </label>
 
@@ -7503,7 +7504,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientSaturation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient saturation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient saturation`}
             />
           </label>
 
@@ -7520,7 +7521,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientCenterX: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient center X"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient center X`}
             />
           </label>
 
@@ -7537,7 +7538,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientCenterY: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient center Y"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient center Y`}
             />
           </label>
 
@@ -7554,7 +7555,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGrainientZoom: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grainient zoom"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grainient zoom`}
             />
           </label>
         </div>
@@ -7599,7 +7600,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanLineStyle: event.target.value as MassageLabGridScanLineStyle,
                 })
               }
-              aria-label="MassageLab Grid Scan line style"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan line style`}
             >
               <option value="solid">Solid</option>
               <option value="dashed">Dashed</option>
@@ -7616,7 +7617,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanDirection: event.target.value as MassageLabGridScanDirection,
                 })
               }
-              aria-label="MassageLab Grid Scan direction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan direction`}
             >
               <option value="forward">Forward</option>
               <option value="backward">Backward</option>
@@ -7637,7 +7638,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanSensitivity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan sensitivity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan sensitivity`}
             />
           </label>
 
@@ -7654,7 +7655,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanLineThickness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan line thickness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan line thickness`}
             />
           </label>
 
@@ -7671,7 +7672,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanScanOpacity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan opacity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan opacity`}
             />
           </label>
 
@@ -7688,7 +7689,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanGridScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan grid scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan grid scale`}
             />
           </label>
 
@@ -7705,7 +7706,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanLineJitter: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan line jitter"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan line jitter`}
             />
           </label>
 
@@ -7722,7 +7723,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanNoiseIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan noise"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan noise`}
             />
           </label>
 
@@ -7739,7 +7740,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanBloomOpacity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan bloom opacity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan bloom opacity`}
             />
           </label>
 
@@ -7756,7 +7757,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanScanGlow: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan glow"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan glow`}
             />
           </label>
 
@@ -7773,7 +7774,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanScanSoftness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan softness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan softness`}
             />
           </label>
 
@@ -7790,7 +7791,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanPhaseTaper: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan phase taper"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan phase taper`}
             />
           </label>
 
@@ -7807,7 +7808,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanScanDuration: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan duration"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan duration`}
             />
           </label>
 
@@ -7824,7 +7825,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridScanScanDelay: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Scan delay"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan delay`}
             />
           </label>
         </div>
@@ -7847,7 +7848,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBeamsBeamWidth: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Beams width"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Beams width`}
             />
           </label>
 
@@ -7864,7 +7865,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBeamsBeamHeight: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Beams height"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Beams height`}
             />
           </label>
 
@@ -7881,7 +7882,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBeamsBeamNumber: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Beams count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Beams count`}
             />
           </label>
 
@@ -7898,7 +7899,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBeamsSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Beams speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Beams speed`}
             />
           </label>
 
@@ -7915,7 +7916,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBeamsNoiseIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Beams noise"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Beams noise`}
             />
           </label>
 
@@ -7932,7 +7933,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBeamsScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Beams scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Beams scale`}
             />
           </label>
 
@@ -7949,7 +7950,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBeamsRotation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Beams rotation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Beams rotation`}
             />
           </label>
         </div>
@@ -7968,7 +7969,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowVariant: event.target.value as MassageLabPixelSnowVariant,
                 })
               }
-              aria-label="MassageLab Pixel Snow variant"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow variant`}
             >
               <option value="square">Square</option>
               <option value="round">Round</option>
@@ -7989,7 +7990,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowFlakeSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow flake size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow flake size`}
             />
           </label>
 
@@ -8006,7 +8007,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowMinFlakeSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow minimum flake size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow minimum flake size`}
             />
           </label>
 
@@ -8023,7 +8024,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowPixelResolution: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow pixel resolution"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow pixel resolution`}
             />
           </label>
 
@@ -8040,7 +8041,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow speed`}
             />
           </label>
 
@@ -8057,7 +8058,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowDepthFade: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow depth fade"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow depth fade`}
             />
           </label>
 
@@ -8074,7 +8075,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowFarPlane: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow far plane"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow far plane`}
             />
           </label>
 
@@ -8091,7 +8092,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowBrightness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow brightness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow brightness`}
             />
           </label>
 
@@ -8108,7 +8109,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowGamma: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow gamma"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow gamma`}
             />
           </label>
 
@@ -8125,7 +8126,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowDensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow density"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow density`}
             />
           </label>
 
@@ -8142,7 +8143,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPixelSnowDirection: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Pixel Snow direction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Pixel Snow direction`}
             />
           </label>
         </div>
@@ -8165,7 +8166,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLightningXOffset: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Lightning X offset"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Lightning X offset`}
             />
           </label>
 
@@ -8182,7 +8183,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLightningSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Lightning speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Lightning speed`}
             />
           </label>
 
@@ -8199,7 +8200,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLightningIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Lightning intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Lightning intensity`}
             />
           </label>
 
@@ -8216,7 +8217,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLightningSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Lightning size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Lightning size`}
             />
           </label>
         </div>
@@ -8235,7 +8236,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstAnimationType: event.target.value as MassageLabPrismaticBurstAnimationType,
                 })
               }
-              aria-label="MassageLab Prismatic Burst animation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst animation`}
             >
               <option value="rotate3d">Rotate 3D</option>
               <option value="rotate">Rotate</option>
@@ -8252,7 +8253,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstMixBlendMode: event.target.value as MassageLabPrismaticBurstMixBlendMode,
                 })
               }
-              aria-label="MassageLab Prismatic Burst blend mode"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst blend mode`}
             >
               <option value="lighten">Lighten</option>
               <option value="screen">Screen</option>
@@ -8273,7 +8274,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Prismatic Burst intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst intensity`}
             />
           </label>
 
@@ -8290,7 +8291,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Prismatic Burst speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst speed`}
             />
           </label>
 
@@ -8307,7 +8308,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstDistort: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Prismatic Burst distortion"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst distortion`}
             />
           </label>
 
@@ -8324,7 +8325,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstOffsetX: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Prismatic Burst offset X"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst offset X`}
             />
           </label>
 
@@ -8341,7 +8342,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstOffsetY: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Prismatic Burst offset Y"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst offset Y`}
             />
           </label>
 
@@ -8358,7 +8359,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstHoverDampness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Prismatic Burst hover damping"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst hover damping`}
             />
           </label>
 
@@ -8375,7 +8376,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabPrismaticBurstRayCount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Prismatic Burst ray count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst ray count`}
             />
           </label>
         </div>
@@ -8394,7 +8395,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyTransparent: event.target.checked,
                 })
               }
-              aria-label="MassageLab Galaxy transparent background"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy transparent background`}
             />
             <span>Transparent background</span>
           </label>
@@ -8408,7 +8409,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Galaxy cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy cursor interaction`}
             />
             <span>Cursor interaction</span>
           </label>
@@ -8422,7 +8423,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyMouseRepulsion: event.target.checked,
                 })
               }
-              aria-label="MassageLab Galaxy cursor repulsion"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy cursor repulsion`}
             />
             <span>Cursor repulsion</span>
           </label>
@@ -8440,7 +8441,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyFocalX: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy focal X"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy focal X`}
             />
           </label>
 
@@ -8457,7 +8458,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyFocalY: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy focal Y"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy focal Y`}
             />
           </label>
 
@@ -8474,7 +8475,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyRotationDeg: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy rotation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy rotation`}
             />
           </label>
 
@@ -8491,7 +8492,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyStarSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy star speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy star speed`}
             />
           </label>
 
@@ -8508,7 +8509,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyDensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy density"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy density`}
             />
           </label>
 
@@ -8525,7 +8526,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxySpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy speed`}
             />
           </label>
 
@@ -8542,7 +8543,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyGlowIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy glow intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy glow intensity`}
             />
           </label>
 
@@ -8559,7 +8560,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxySaturation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy saturation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy saturation`}
             />
           </label>
 
@@ -8576,7 +8577,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyTwinkleIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy twinkle intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy twinkle intensity`}
             />
           </label>
 
@@ -8593,7 +8594,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyRotationSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy rotation speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy rotation speed`}
             />
           </label>
 
@@ -8610,7 +8611,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyRepulsionStrength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy repulsion strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy repulsion strength`}
             />
           </label>
 
@@ -8627,7 +8628,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGalaxyAutoCenterRepulsion: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Galaxy center repulsion"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Galaxy center repulsion`}
             />
           </label>
         </div>
@@ -8646,7 +8647,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDitherMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Dither cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dither cursor interaction`}
             />
             <span>Cursor interaction</span>
           </label>
@@ -8664,7 +8665,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDitherWaveSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dither wave speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dither wave speed`}
             />
           </label>
 
@@ -8681,7 +8682,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDitherWaveFrequency: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dither wave frequency"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dither wave frequency`}
             />
           </label>
 
@@ -8698,7 +8699,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDitherWaveAmplitude: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dither wave amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dither wave amplitude`}
             />
           </label>
 
@@ -8715,7 +8716,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDitherColorNum: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dither color count"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dither color count`}
             />
           </label>
 
@@ -8732,7 +8733,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDitherPixelSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dither pixel size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dither pixel size`}
             />
           </label>
 
@@ -8750,7 +8751,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                     massageLabDitherMouseRadius: Number(event.target.value),
                   })
                 }
-                aria-label="MassageLab Dither cursor radius"
+                aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dither cursor radius`}
               />
             </label>
           ) : null}
@@ -8770,7 +8771,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalMouseReact: event.target.checked,
                 })
               }
-              aria-label="MassageLab Faulty Terminal cursor reaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal cursor reaction`}
             />
             <span>Cursor reaction</span>
           </label>
@@ -8784,7 +8785,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalPageLoadAnimation: event.target.checked,
                 })
               }
-              aria-label="MassageLab Faulty Terminal page-load animation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal page-load animation`}
             />
             <span>Page-load animation</span>
           </label>
@@ -8802,7 +8803,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal scale`}
             />
           </label>
 
@@ -8819,7 +8820,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalGridMulX: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal grid X multiplier"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal grid X multiplier`}
             />
           </label>
 
@@ -8836,7 +8837,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalGridMulY: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal grid Y multiplier"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal grid Y multiplier`}
             />
           </label>
 
@@ -8853,7 +8854,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalDigitSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal digit size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal digit size`}
             />
           </label>
 
@@ -8870,7 +8871,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalTimeScale: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal time scale"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal time scale`}
             />
           </label>
 
@@ -8887,7 +8888,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalScanlineIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal scanline intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal scanline intensity`}
             />
           </label>
 
@@ -8904,7 +8905,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalGlitchAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal glitch amount"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal glitch amount`}
             />
           </label>
 
@@ -8921,7 +8922,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalFlickerAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal flicker amount"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal flicker amount`}
             />
           </label>
 
@@ -8938,7 +8939,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalNoiseAmp: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal noise amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal noise amplitude`}
             />
           </label>
 
@@ -8955,7 +8956,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalChromaticAberration: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal chromatic aberration"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal chromatic aberration`}
             />
           </label>
 
@@ -8972,7 +8973,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalDither: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal dither"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal dither`}
             />
           </label>
 
@@ -8989,7 +8990,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalCurvature: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal curvature"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal curvature`}
             />
           </label>
 
@@ -9006,7 +9007,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabFaultyTerminalBrightness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Faulty Terminal brightness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal brightness`}
             />
           </label>
 
@@ -9024,7 +9025,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                     massageLabFaultyTerminalMouseStrength: Number(event.target.value),
                   })
                 }
-                aria-label="MassageLab Faulty Terminal cursor strength"
+                aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Faulty Terminal cursor strength`}
               />
             </label>
           ) : null}
@@ -9044,7 +9045,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Ripple Grid cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid cursor interaction`}
             />
             <span>Cursor interaction</span>
           </label>
@@ -9062,7 +9063,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridRippleIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid ripple intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid ripple intensity`}
             />
           </label>
 
@@ -9079,7 +9080,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridGridSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid size`}
             />
           </label>
 
@@ -9096,7 +9097,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridGridThickness: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid thickness"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid thickness`}
             />
           </label>
 
@@ -9113,7 +9114,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridFadeDistance: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid fade distance"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid fade distance`}
             />
           </label>
 
@@ -9130,7 +9131,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridVignetteStrength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid vignette strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid vignette strength`}
             />
           </label>
 
@@ -9147,7 +9148,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridGlowIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid glow intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid glow intensity`}
             />
           </label>
 
@@ -9164,7 +9165,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridOpacity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid opacity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid opacity`}
             />
           </label>
 
@@ -9184,7 +9185,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabRippleGridGridRotation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Ripple Grid rotation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid rotation`}
             />
           </label>
 
@@ -9202,7 +9203,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                     massageLabRippleGridMouseInteractionRadius: Number(event.target.value),
                   })
                 }
-                aria-label="MassageLab Ripple Grid cursor radius"
+                aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid cursor radius`}
               />
             </label>
           ) : null}
@@ -9223,7 +9224,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotFieldCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Dot Field cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field cursor interaction`}
             />
           </label>
 
@@ -9237,7 +9238,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotFieldBulgeOnly: event.target.checked,
                 })
               }
-              aria-label="MassageLab Dot Field bulge mode"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field bulge mode`}
             />
           </label>
 
@@ -9251,7 +9252,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotFieldSparkle: event.target.checked,
                 })
               }
-              aria-label="MassageLab Dot Field sparkle"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field sparkle`}
             />
           </label>
 
@@ -9268,7 +9269,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotFieldDotRadius: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Field dot radius"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field dot radius`}
             />
           </label>
 
@@ -9285,7 +9286,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotFieldDotSpacing: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Field dot spacing"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field dot spacing`}
             />
           </label>
 
@@ -9304,7 +9305,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                       massageLabDotFieldCursorRadius: Number(event.target.value),
                     })
                   }
-                  aria-label="MassageLab Dot Field cursor radius"
+                  aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field cursor radius`}
                 />
               </label>
               <label className={styles.rangeRow}>
@@ -9320,7 +9321,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                       massageLabDotFieldCursorForce: Number(event.target.value),
                     })
                   }
-                  aria-label="MassageLab Dot Field cursor force"
+                  aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field cursor force`}
                 />
               </label>
               <label className={styles.rangeRow}>
@@ -9336,7 +9337,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                       massageLabDotFieldBulgeStrength: Number(event.target.value),
                     })
                   }
-                  aria-label="MassageLab Dot Field bulge strength"
+                  aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field bulge strength`}
                 />
               </label>
               <label className={styles.rangeRow}>
@@ -9352,7 +9353,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                       massageLabDotFieldGlowRadius: Number(event.target.value),
                     })
                   }
-                  aria-label="MassageLab Dot Field glow radius"
+                  aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field glow radius`}
                 />
               </label>
             </>
@@ -9371,7 +9372,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotFieldWaveAmplitude: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Field wave amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Field wave amplitude`}
             />
           </label>
         </div>
@@ -9391,7 +9392,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Dot Grid cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid cursor interaction`}
             />
           </label>
 
@@ -9405,7 +9406,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridSimulateCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Dot Grid simulate cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid simulate cursor interaction`}
             />
           </label>
 
@@ -9423,7 +9424,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                     massageLabDotGridSimulationSpeed: Number(event.target.value),
                   })
                 }
-                aria-label="MassageLab Dot Grid fake cursor speed"
+                aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid fake cursor speed`}
               />
             </label>
           ) : null}
@@ -9438,7 +9439,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridClickShock: event.target.checked,
                 })
               }
-              aria-label="MassageLab Dot Grid click shock"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid click shock`}
             />
           </label>
 
@@ -9455,7 +9456,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridDotSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid dot size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid dot size`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9471,7 +9472,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridGap: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid gap"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid gap`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9487,7 +9488,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridProximity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid proximity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid proximity`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9503,7 +9504,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridSpeedTrigger: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid speed trigger"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid speed trigger`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9519,7 +9520,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridShockRadius: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid shock radius"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid shock radius`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9535,7 +9536,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridShockStrength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid shock strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid shock strength`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9551,7 +9552,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridMaxSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid max speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid max speed`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9567,7 +9568,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridResistance: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid resistance"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid resistance`}
             />
           </label>
           <label className={styles.rangeRow}>
@@ -9583,7 +9584,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabDotGridReturnDuration: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Dot Grid return duration"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Dot Grid return duration`}
             />
           </label>
         </div>
@@ -9603,7 +9604,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabThreadsEnableMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Threads mouse interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Threads mouse interaction`}
             />
           </label>
 
@@ -9620,7 +9621,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabThreadsAmplitude: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Threads amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Threads amplitude`}
             />
           </label>
 
@@ -9637,7 +9638,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabThreadsDistance: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Threads distance"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Threads distance`}
             />
           </label>
         </div>
@@ -9657,7 +9658,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabIridescenceMouseReact: event.target.checked,
                 })
               }
-              aria-label="MassageLab Iridescence mouse reaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Iridescence mouse reaction`}
             />
           </label>
 
@@ -9674,7 +9675,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabIridescenceSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Iridescence speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Iridescence speed`}
             />
           </label>
 
@@ -9691,7 +9692,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabIridescenceAmplitude: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Iridescence amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Iridescence amplitude`}
             />
           </label>
         </div>
@@ -9711,7 +9712,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesTransparentBackground: event.target.checked,
                 })
               }
-              aria-label="MassageLab Waves transparent background"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves transparent background`}
             />
           </label>
 
@@ -9727,7 +9728,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Waves cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves cursor interaction`}
             />
           </label>
 
@@ -9744,7 +9745,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesSpeedX: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves X speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves X speed`}
             />
           </label>
 
@@ -9761,7 +9762,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesSpeedY: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves Y speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves Y speed`}
             />
           </label>
 
@@ -9778,7 +9779,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesAmplitudeX: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves X amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves X amplitude`}
             />
           </label>
 
@@ -9795,7 +9796,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesAmplitudeY: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves Y amplitude"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves Y amplitude`}
             />
           </label>
 
@@ -9812,7 +9813,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesGapX: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves X gap"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves X gap`}
             />
           </label>
 
@@ -9829,7 +9830,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesGapY: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves Y gap"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves Y gap`}
             />
           </label>
 
@@ -9846,7 +9847,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesFriction: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves friction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves friction`}
             />
           </label>
 
@@ -9863,7 +9864,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesTension: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves tension"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves tension`}
             />
           </label>
 
@@ -9880,7 +9881,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabWavesMaxCursorMove: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Waves max cursor movement"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Waves max cursor movement`}
             />
           </label>
         </div>
@@ -9900,7 +9901,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridDistortionCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Grid Distortion cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion cursor interaction`}
             />
           </label>
 
@@ -9914,7 +9915,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridDistortionSimulateCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Grid Distortion simulate cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion simulate cursor interaction`}
             />
           </label>
 
@@ -9932,7 +9933,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                     massageLabGridDistortionSimulationSpeed: Number(event.target.value),
                   })
                 }
-                aria-label="MassageLab Grid Distortion fake cursor speed"
+                aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion fake cursor speed`}
               />
             </label>
           ) : null}
@@ -9950,7 +9951,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridDistortionGrid: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Distortion grid"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion grid`}
             />
           </label>
 
@@ -9967,7 +9968,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridDistortionMouse: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Distortion mouse radius"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion mouse radius`}
             />
           </label>
 
@@ -9984,7 +9985,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridDistortionStrength: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Distortion strength"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion strength`}
             />
           </label>
 
@@ -10001,7 +10002,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridDistortionRelaxation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Distortion relaxation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion relaxation`}
             />
           </label>
         </div>
@@ -10021,7 +10022,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabOrbCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Orb cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Orb cursor interaction`}
             />
           </label>
 
@@ -10035,7 +10036,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabOrbRotateOnHover: event.target.checked,
                 })
               }
-              aria-label="MassageLab Orb rotate on hover"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Orb rotate on hover`}
             />
           </label>
 
@@ -10049,7 +10050,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabOrbForceHoverState: event.target.checked,
                 })
               }
-              aria-label="MassageLab Orb force hover state"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Orb force hover state`}
             />
           </label>
 
@@ -10066,7 +10067,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabOrbHoverIntensity: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Orb hover intensity"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Orb hover intensity`}
             />
           </label>
         </div>
@@ -10086,7 +10087,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLetterGlitchCenterVignette: event.target.checked,
                 })
               }
-              aria-label="MassageLab Letter Glitch center vignette"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Letter Glitch center vignette`}
             />
           </label>
 
@@ -10100,7 +10101,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLetterGlitchOuterVignette: event.target.checked,
                 })
               }
-              aria-label="MassageLab Letter Glitch outer vignette"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Letter Glitch outer vignette`}
             />
           </label>
 
@@ -10114,7 +10115,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLetterGlitchSmooth: event.target.checked,
                 })
               }
-              aria-label="MassageLab Letter Glitch smooth colors"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Letter Glitch smooth colors`}
             />
           </label>
 
@@ -10131,7 +10132,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLetterGlitchGlitchSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Letter Glitch speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Letter Glitch speed`}
             />
           </label>
         </div>
@@ -10151,7 +10152,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridMotionCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Grid Motion cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Motion cursor interaction`}
             />
           </label>
 
@@ -10168,7 +10169,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridMotionMaxMoveAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Motion row travel"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Motion row travel`}
             />
           </label>
 
@@ -10185,7 +10186,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabGridMotionBaseDuration: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Grid Motion base duration"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Grid Motion base duration`}
             />
           </label>
 
@@ -10211,7 +10212,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabShapeGridDirection: event.target.value as ChimerSettings["massageLabShapeGridDirection"],
                 })
               }
-              aria-label="MassageLab Shape Grid direction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Shape Grid direction`}
             >
               <option value="right">Right</option>
               <option value="left">Left</option>
@@ -10230,7 +10231,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabShapeGridShape: event.target.value as ChimerSettings["massageLabShapeGridShape"],
                 })
               }
-              aria-label="MassageLab Shape Grid shape"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Shape Grid shape`}
             >
               <option value="square">Square</option>
               <option value="circle">Circle</option>
@@ -10249,7 +10250,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabShapeGridCursorInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Shape Grid cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Shape Grid cursor interaction`}
             />
           </label>
 
@@ -10266,7 +10267,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabShapeGridSpeed: getMassageLabShapeGridSpeedFromDisplayPercent(Number(event.target.value)),
                 })
               }
-              aria-label="MassageLab Shape Grid speed percentage"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Shape Grid speed percentage`}
             />
           </label>
 
@@ -10283,7 +10284,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabShapeGridSquareSize: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Shape Grid cell size"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Shape Grid cell size`}
             />
           </label>
 
@@ -10300,7 +10301,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabShapeGridHoverTrailAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Shape Grid hover trail"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Shape Grid hover trail`}
             />
           </label>
         </div>
@@ -10322,7 +10323,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabLiquidChromeInteractive: event.target.checked,
                 })
               }
-              aria-label="MassageLab Liquid Chrome cursor interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Liquid Chrome cursor interaction`}
             />
           </label>
 
@@ -10410,7 +10411,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroMouseInteraction: event.target.checked,
                 })
               }
-              aria-label="MassageLab Balatro mouse interaction"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro mouse interaction`}
             />
           </label>
 
@@ -10424,7 +10425,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroIsRotate: event.target.checked,
                 })
               }
-              aria-label="MassageLab Balatro rotate field"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro rotate field`}
             />
           </label>
 
@@ -10441,7 +10442,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroSpinSpeed: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Balatro spin speed"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro spin speed`}
             />
           </label>
 
@@ -10458,7 +10459,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroSpinRotation: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Balatro spin rotation"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro spin rotation`}
             />
           </label>
 
@@ -10475,7 +10476,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroContrast: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Balatro contrast"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro contrast`}
             />
           </label>
 
@@ -10492,7 +10493,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroLighting: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Balatro lighting"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro lighting`}
             />
           </label>
 
@@ -10509,7 +10510,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroSpinAmount: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Balatro spin amount"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro spin amount`}
             />
           </label>
 
@@ -10526,7 +10527,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroPixelFilter: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Balatro pixel filter"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro pixel filter`}
             />
           </label>
 
@@ -10543,7 +10544,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                   massageLabBalatroSpinEase: Number(event.target.value),
                 })
               }
-              aria-label="MassageLab Balatro spin ease"
+              aria-label={`${PUBLIC_PRODUCT_IDENTITY.name} Balatro spin ease`}
             />
           </label>
         </div>

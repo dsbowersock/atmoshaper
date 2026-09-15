@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -125,7 +126,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Radar ships as an OGL full-screen shader. MassageLab keeps the
+// AtmoShaper Radar ships as an OGL full-screen shader. AtmoShaper keeps the
 // source ring, spoke, sweep, falloff, and optional mouse-offset math in WebGL.
 export default function MassageLabRadarBackground({
   className,
@@ -478,7 +479,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Radar uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Radar uniform: ${name}`)
   }
 
   return location

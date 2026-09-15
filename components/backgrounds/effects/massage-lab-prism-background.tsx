@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -179,7 +180,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Prism ships as an OGL component. MassageLab ports the same ray-marched
+// AtmoShaper Prism ships as an OGL component. AtmoShaper ports the same ray-marched
 // prism shader and source rotation logic directly to native WebGL.
 export default function MassageLabPrismBackground({
   className,
@@ -620,7 +621,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Prism shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Prism shader uniform: ${name}`)
   }
 
   return location

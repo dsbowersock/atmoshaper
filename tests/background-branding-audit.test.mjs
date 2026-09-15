@@ -8,6 +8,7 @@ import {
   validateAuditEntry,
 } from "../scripts/background-branding/audit-model.mjs"
 import { backgroundRegistry } from "../components/backgrounds/backgroundRegistry.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { BACKGROUND_BRANDING_AUDIT_BATCHES } from "../scripts/background-branding/audit-batches.mjs"
 import {
   generateAuditFiles,
@@ -25,8 +26,8 @@ const validAuditEntry = {
   signatureOriginalEligible: false,
 }
 
-const massageLabBrandReservationError =
-  "Massage Lab-branded recommendations are reserved for the internal massage-lab-moving-gradient background named Massage Laba Lamp"
+const massageLabBrandError =
+  "Legacy branded recommendations are retired; use the approved unbranded background label Lava Lamp"
 
 describe("background branding audit", () => {
   it("covers all 84 enabled backgrounds exactly once in review-sized batches", () => {
@@ -78,7 +79,7 @@ describe("background branding audit", () => {
 
   it("requires a decision, recommendation, alternatives, descriptor, and rationale", () => {
     const errors = validateAuditEntry({ id: "one" }, {
-      id: "one", label: "Old", provider: "MassageLab", sourceUrl: "internal", enabled: true,
+      id: "one", label: "Old", provider: PUBLIC_PRODUCT_IDENTITY.name, sourceUrl: "internal", enabled: true,
     })
     assert.deepEqual(errors, [
       "one: decision must be keep or rename",
@@ -93,7 +94,7 @@ describe("background branding audit", () => {
 
   it("rejects non-string textual fields and alternatives", () => {
     const background = {
-      id: "one", label: "Old", provider: "MassageLab", sourceUrl: "internal", enabled: true,
+      id: "one", label: "Old", provider: PUBLIC_PRODUCT_IDENTITY.name, sourceUrl: "internal", enabled: true,
     }
 
     for (const [field, expectedError] of [
@@ -130,15 +131,15 @@ describe("background branding audit", () => {
     )
   })
 
-  it("allows the reserved Massage Laba Lamp recommendation only for its internal background", () => {
+  it("allows the approved unbranded Lava Lamp recommendation", () => {
     const errors = validateAuditEntry({
       ...validAuditEntry,
       id: "massage-lab-moving-gradient",
-      recommendedName: "Massage Laba Lamp",
+      recommendedName: "Lava Lamp",
     }, {
       id: "massage-lab-moving-gradient",
       label: "Old",
-      provider: "MassageLab",
+      provider: PUBLIC_PRODUCT_IDENTITY.name,
       sourceUrl: "internal",
       enabled: true,
     })
@@ -146,23 +147,23 @@ describe("background branding audit", () => {
     assert.deepEqual(errors, [])
   })
 
-  it("rejects the reserved recommendation for another internal background", () => {
+  it("rejects the retired branded recommendation on the original internal background", () => {
     const errors = validateAuditEntry({
       ...validAuditEntry,
-      id: "another-internal-background",
+      id: "massage-lab-moving-gradient",
       recommendedName: "Massage Laba Lamp",
     }, {
-      id: "another-internal-background",
+      id: "massage-lab-moving-gradient",
       label: "Old",
-      provider: "MassageLab",
+      provider: "AtmoShaper",
       sourceUrl: "internal",
       enabled: true,
     })
 
-    assert.deepEqual(errors, [`another-internal-background: ${massageLabBrandReservationError}`])
+    assert.deepEqual(errors, [`massage-lab-moving-gradient: ${massageLabBrandError}`])
   })
 
-  it("rejects the reserved recommendation when its source is external", () => {
+  it("rejects a branded recommendation regardless of source ownership", () => {
     const errors = validateAuditEntry({
       ...validAuditEntry,
       id: "massage-lab-moving-gradient",
@@ -170,12 +171,12 @@ describe("background branding audit", () => {
     }, {
       id: "massage-lab-moving-gradient",
       label: "Old",
-      provider: "MassageLab",
+      provider: PUBLIC_PRODUCT_IDENTITY.name,
       sourceUrl: "https://example.com/source",
       enabled: true,
     })
 
-    assert.deepEqual(errors, [`massage-lab-moving-gradient: ${massageLabBrandReservationError}`])
+    assert.deepEqual(errors, [`massage-lab-moving-gradient: ${massageLabBrandError}`])
   })
 
   it("rejects Massage Lab spacing, punctuation, and case variants on other backgrounds", () => {
@@ -187,12 +188,12 @@ describe("background branding audit", () => {
       }, {
         id: "another-internal-background",
         label: "Old",
-        provider: "MassageLab",
+        provider: PUBLIC_PRODUCT_IDENTITY.name,
         sourceUrl: "internal",
         enabled: true,
       })
 
-      assert.deepEqual(errors, [`another-internal-background: ${massageLabBrandReservationError}`])
+      assert.deepEqual(errors, [`another-internal-background: ${massageLabBrandError}`])
     }
   })
 

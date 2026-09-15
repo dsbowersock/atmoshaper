@@ -258,6 +258,7 @@ test("verified match-scoped compatibility identifier forms remain narrow", (t) =
       "massagelabAtmoShaperBrowserQa MassageLab visible copy",
       "getMassageLabAstralFlowDisplaySpeed MassageLab visible copy",
       "__massagelabAtmoShaperBrowserQa MassageLab visible copy",
+      "MASSAGE_LAB_BACKGROUND MassageLab visible copy",
     ].join("\n"),
   )
   const references = collectLegacyReferences(root, ["mixed.ts"], policy)
@@ -269,6 +270,7 @@ test("verified match-scoped compatibility identifier forms remain narrow", (t) =
     [3, "massagelabAtmoShaperBrowserQa"],
     [4, "MassageLabAstralFlowDisplaySpeed"],
     [5, "massagelabAtmoShaperBrowserQa"],
+    [6, "MASSAGE_LAB_BACKGROUND"],
   ]) {
     const lineReferences = byLine.get(line)
     assert.equal(lineReferences[0].identifierAtMatch, identifier)

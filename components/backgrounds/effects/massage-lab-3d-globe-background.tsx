@@ -186,7 +186,6 @@ type RgbColor = [number, number, number]
 type GlobeViewStyle = "realistic" | "graphic"
 type GlobeLightingMode = "manual" | "sun"
 type GlobeMarkerIcon = "pin" | "person" | "heart" | "star" | "home"
-type RenderedMarkerIcon = GlobeMarkerIcon | "massagelab"
 type ViewVector = { x: number; y: number; z: number }
 type GraphicMapPoint = { latitude: number; longitude: number; brightness: number }
 
@@ -195,14 +194,6 @@ const FIXED_SUN_LIGHT_VECTOR = normalizeViewVector({ x: -0.86, y: 0.08, z: 0.5 }
 const FIXED_SUN_LONGITUDE_OFFSET_DEGREES = radiansToDegrees(
   Math.atan2(FIXED_SUN_LIGHT_VECTOR.x, FIXED_SUN_LIGHT_VECTOR.z),
 )
-const MASSAGELAB_MARKER_ICON_SOURCE = "/brand/massagelab-mark-square-tight.png"
-const MASSAGELAB_MARKER = {
-  latitude: 40.8687,
-  longitude: -82.3182,
-  label: "",
-  icon: "massagelab" as const,
-  markerSize: 0.052,
-}
 
 interface ResolvedGlobeOptions {
   viewStyle: GlobeViewStyle
@@ -469,7 +460,6 @@ export default function MassageLab3DGlobeBackground({
     let rotationDegrees = isGraphicMode ? -102 : 0
     let textureReady = false
     let bumpReady = false
-    let massagelabMarkerReady = false
     let graphicMapPoints: GraphicMapPoint[] = []
     let paintFrame: (timestamp: number, animate: boolean) => void = () => undefined
 
@@ -502,14 +492,6 @@ export default function MassageLab3DGlobeBackground({
       }
     }
     graphicMapMask.src = COBE_WORLD_MAP_MASK
-
-    const massagelabMarkerImage = new Image()
-    massagelabMarkerImage.decoding = "async"
-    massagelabMarkerImage.onload = () => {
-      massagelabMarkerReady = true
-      paintFrame(performance.now(), shouldRun)
-    }
-    massagelabMarkerImage.src = MASSAGELAB_MARKER_ICON_SOURCE
 
     const backgroundRgb = parseHexColorToRgb(resolved.backgroundColor)
     const globeRgb = parseHexColorToRgb(resolved.globeColor)
@@ -599,23 +581,6 @@ export default function MassageLab3DGlobeBackground({
         })
       }
 
-      drawLocationMarker(markerContext, {
-        centerX,
-        centerY,
-        radius,
-        centerLongitude: overlayCenterLongitude,
-        tiltDegrees,
-        markerLat: MASSAGELAB_MARKER.latitude,
-        markerLng: MASSAGELAB_MARKER.longitude,
-        markerSize: MASSAGELAB_MARKER.markerSize,
-        markerLabel: MASSAGELAB_MARKER.label,
-        markerIcon: MASSAGELAB_MARKER.icon,
-        markerImage: massagelabMarkerReady ? massagelabMarkerImage : null,
-        atmosphereRgb,
-        graphicMode: isGraphicMode,
-        graphicMarkerRgb,
-      })
-
       if (resolved.markerEnabled) {
         drawLocationMarker(markerContext, {
           centerX,
@@ -628,7 +593,6 @@ export default function MassageLab3DGlobeBackground({
           markerSize: resolved.markerSize,
           markerLabel: resolved.markerLabel,
           markerIcon: resolved.markerIcon,
-          markerImage: null,
           atmosphereRgb,
           graphicMode: isGraphicMode,
           graphicMarkerRgb,
@@ -752,7 +716,6 @@ export default function MassageLab3DGlobeBackground({
       document.removeEventListener("visibilitychange", updateAnimationState)
       earthTexture.onload = null
       bumpTexture.onload = null
-      massagelabMarkerImage.onload = null
       renderer.dispose()
     }
   }, [resolved])
@@ -1181,8 +1144,7 @@ function drawLocationMarker(
     markerLng: number
     markerSize: number
     markerLabel: string
-    markerIcon: RenderedMarkerIcon
-    markerImage: HTMLImageElement | null
+    markerIcon: GlobeMarkerIcon
     atmosphereRgb: RgbColor
     graphicMode: boolean
     graphicMarkerRgb: RgbColor
@@ -1199,7 +1161,6 @@ function drawLocationMarker(
     markerSize,
     markerLabel,
     markerIcon,
-    markerImage,
     atmosphereRgb,
     graphicMode,
     graphicMarkerRgb,
@@ -1260,10 +1221,10 @@ function drawLocationMarker(
   context.fill()
   context.stroke()
 
-  drawMarkerIcon(context, markerIcon, iconX, iconY, iconRadius * 0.82, atmosphereRgb, markerImage)
+  drawMarkerIcon(context, markerIcon, iconX, iconY, iconRadius * 0.82, atmosphereRgb)
 
   context.shadowBlur = 0
-  context.fillStyle = markerIcon === "massagelab" ? "rgba(255, 122, 26, 0.98)" : rgba([255, 255, 255], 0.98)
+  context.fillStyle = rgba([255, 255, 255], 0.98)
   context.beginPath()
   context.arc(surfaceX, surfaceY, Math.max(3, iconRadius * 0.16), 0, Math.PI * 2)
   context.fill()
@@ -1323,21 +1284,15 @@ function drawGraphicLocationMarker(
 
 function drawMarkerIcon(
   context: CanvasRenderingContext2D,
-  icon: RenderedMarkerIcon,
+  icon: GlobeMarkerIcon,
   x: number,
   y: number,
   radius: number,
   atmosphereRgb: RgbColor,
-  markerImage: HTMLImageElement | null,
 ) {
   const gradient = context.createLinearGradient(x - radius, y - radius, x + radius, y + radius)
-  if (icon === "massagelab") {
-    gradient.addColorStop(0, "rgba(255, 194, 111, 1)")
-    gradient.addColorStop(1, "rgba(255, 122, 26, 1)")
-  } else {
-    gradient.addColorStop(0, rgba(atmosphereRgb, 1))
-    gradient.addColorStop(1, "rgba(255, 122, 26, 1)")
-  }
+  gradient.addColorStop(0, rgba(atmosphereRgb, 1))
+  gradient.addColorStop(1, "rgba(255, 122, 26, 1)")
 
   context.save()
   context.beginPath()
@@ -1345,25 +1300,11 @@ function drawMarkerIcon(
   context.clip()
   context.fillStyle = gradient
   context.fillRect(x - radius, y - radius, radius * 2, radius * 2)
-  if (icon === "massagelab" && markerImage) {
-    context.drawImage(markerImage, x - radius, y - radius, radius * 2, radius * 2)
-    context.restore()
-    return
-  }
   context.strokeStyle = "rgba(255, 255, 255, 0.94)"
   context.fillStyle = "rgba(255, 255, 255, 0.94)"
   context.lineWidth = Math.max(2, radius * 0.11)
   context.lineCap = "round"
   context.lineJoin = "round"
-
-  if (icon === "massagelab") {
-    context.font = `800 italic ${Math.max(14, radius * 0.9)}px system-ui, sans-serif`
-    context.textAlign = "center"
-    context.textBaseline = "middle"
-    context.fillText("m", x, y + radius * 0.08)
-    context.restore()
-    return
-  }
 
   if (icon === "person") {
     context.beginPath()

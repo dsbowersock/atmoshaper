@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -170,7 +171,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Line Waves ships as an OGL full-screen shader. MassageLab keeps
+// AtmoShaper Line Waves ships as an OGL full-screen shader. AtmoShaper keeps
 // the source displacement, line, color-cycle, and mouse-warp math in raw WebGL.
 export default function MassageLabLineWavesBackground({
   className,
@@ -529,7 +530,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Line Waves uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Line Waves uniform: ${name}`)
   }
 
   return location

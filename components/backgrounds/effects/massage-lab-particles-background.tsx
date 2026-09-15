@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -493,7 +494,7 @@ function getUniformLocation(
   const location = gl.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Particles uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Particles uniform: ${name}`)
   }
 
   return location

@@ -5,11 +5,11 @@
     {
       "id": "massage-lab-moving-gradient",
       "decision": "rename",
-      "recommendedName": "Massage Laba Lamp",
+      "recommendedName": "Lava Lamp",
       "alternatives": ["Orbital Drift", "Floating Forms"],
       "visualDescriptor": "Soft orbs drifting through a dark field",
-      "rationale": "The spaced signature treatment gives the internally conceived free default a pronounceable identity while describing its drifting orb motion.",
-      "collisionNotes": "Reserve this sole branded title for the original moving gradient; Lamp Glow is centered and Colorfield Drift uses broad shifting layers.",
+      "rationale": "The approved unbranded name preserves the familiar lamp concept while describing its drifting orb motion.",
+      "collisionNotes": "Lava Lamp preserves the default's familiar lamp identity; Lamp Glow is centered and Colorfield Drift uses broad shifting layers.",
       "signatureOriginalEligible": true
     },
     {
@@ -19,7 +19,7 @@
       "alternatives": ["Held Field", "Quiet Gradient"],
       "visualDescriptor": "Fixed layered gradient field at rest",
       "rationale": "In Transition gives the motionless internal fallback an intentional, contemplative identity without treating it as a technical state.",
-      "collisionNotes": "Its fixed layered field separates it from Massage Laba Lamp's drifting orbs and Colorfield Drift's motion.",
+      "collisionNotes": "Its fixed layered field separates it from Lava Lamp's drifting orbs and Colorfield Drift's motion.",
       "signatureOriginalEligible": true
     },
     {
@@ -75,21 +75,21 @@
     {
       "id": "massage-lab-tile-grid",
       "decision": "rename",
-      "recommendedName": "Quiet Mosaic",
+      "recommendedName": "Tile grid",
       "alternatives": ["Tiled Rhythm", "Mosaic Fade"],
       "visualDescriptor": "Raised square tiles fading independently",
-      "rationale": "Quiet Mosaic softens the utilitarian catalog wording while honoring the internally conceived square tiles that ease in and out.",
-      "collisionNotes": "Square geometry and independent fades distinguish it from Honeycomb Glow, Mosaic Warp, and the perspective grid effects.",
+      "rationale": "The approved literal label names the internally conceived square-tile geometry without carrying the prior product prefix.",
+      "collisionNotes": "Square geometry and independent fades distinguish Tile grid from Hex grid, Mosaic Warp, and the perspective grid effects.",
       "signatureOriginalEligible": true
     },
     {
       "id": "massage-lab-hex-grid",
       "decision": "rename",
-      "recommendedName": "Honeycomb Glow",
+      "recommendedName": "Hex grid",
       "alternatives": ["Hexagonal Rhythm", "Faceted Calm"],
       "visualDescriptor": "Raised hexagons softly fading in sequence",
-      "rationale": "Honeycomb Glow gives the original internal hex field an approachable sensory image and remains faithful to its softly illuminated cells.",
-      "collisionNotes": "The six-sided cell pattern keeps it visually distinct from Quiet Mosaic's squares and Connective Pulse's warped line mesh.",
+      "rationale": "The approved literal label names the internally conceived hex-tile geometry without carrying the prior product prefix.",
+      "collisionNotes": "The six-sided cell pattern keeps Hex grid visually distinct from Tile grid's squares and Connective Pulse's warped line mesh.",
       "signatureOriginalEligible": true
     },
     {
@@ -99,7 +99,7 @@
       "alternatives": ["Layered Weather", "Spectrum Breathing"],
       "visualDescriptor": "Broad layered forms slowly shifting across screen",
       "rationale": "Colorfield Drift names the expansive layered form and its restrained motion more memorably than the current generic field label.",
-      "collisionNotes": "Its broad shifting layers differ from Massage Laba Lamp's orbs and In Transition's fixed field.",
+      "collisionNotes": "Its broad shifting layers differ from Lava Lamp's orbs and In Transition's fixed field.",
       "signatureOriginalEligible": false
     },
     {
@@ -109,7 +109,7 @@
       "alternatives": ["Centered Canopy", "Quiet Beacon"],
       "visualDescriptor": "Centered lamp glow softly pulsing",
       "rationale": "Lamp Glow is warm, pronounceable, and visually precise for the centered conic beams, slim light line, and gentle pulse.",
-      "collisionNotes": "Keep it unbranded and premium; its centered canopy differs from Massage Laba Lamp's drifting orbs and mirrored Spotlight.",
+      "collisionNotes": "Keep it unbranded and premium; its centered canopy differs from Lava Lamp's drifting orbs and mirrored Spotlight.",
       "signatureOriginalEligible": false
     },
     {
@@ -797,9 +797,9 @@
       "decision": "rename",
       "recommendedName": "Pale Blue Dot",
       "alternatives": ["Atlas in Motion", "Sunlit Sphere"],
-      "visualDescriptor": "Mapped globe with built-in Massage Lab marker",
-      "rationale": "Pale Blue Dot gives the renderer's geographic identity an image-led title without fixing its configurable colors; the built-in Massage Lab marker is always present, while the separate user marker remains optional.",
-      "collisionNotes": "Mapped continents and the built-in Massage Lab marker keep it separate from Halo's abstract sphere and every unstructured celestial field.",
+      "visualDescriptor": "Mapped globe with optional user location marker",
+      "rationale": "Pale Blue Dot gives the renderer's geographic identity an image-led title without fixing its configurable colors; the optional user marker can identify a chosen location without changing the globe itself.",
+      "collisionNotes": "Mapped continents and the optional user location marker keep it separate from Halo's abstract sphere and every unstructured celestial field.",
       "signatureOriginalEligible": false
     },
     {

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { readFileSync } from "node:fs"
+import { readdirSync, readFileSync } from "node:fs"
 import { describe, it } from "node:test"
 import {
   ACTIVE_BACKGROUND_IDS,
@@ -9,6 +9,7 @@ import {
   normalizeBackgroundId,
 } from "../lib/background-options.js"
 import { FEATURE_KEYS, hasPremiumBackgroundAccess } from "../lib/membership.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import {
   backgroundRegistry,
   canUseBackgroundId,
@@ -46,6 +47,18 @@ const backgroundRegistrySource = readFileSync(
   new URL("../components/backgrounds/backgroundRegistry.ts", import.meta.url),
   "utf8",
 )
+const effectSources = readdirSync(new URL("../components/backgrounds/effects/", import.meta.url))
+  .filter((fileName) => fileName.endsWith(".tsx"))
+  .map((fileName) => [
+    fileName,
+    readFileSync(new URL(`../components/backgrounds/effects/${fileName}`, import.meta.url), "utf8"),
+  ])
+
+function withoutContextualComments(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "")
+}
 
 describe("premium background registry", () => {
   it("keeps runtime identifiers, stable keys, rotation precedence, and branded labels safe", () => {
@@ -161,13 +174,45 @@ describe("premium background registry", () => {
 
   it("keeps the default background free and the Music key available for legacy reads", () => {
     assert.equal(DEFAULT_BACKGROUND_ID, "massage-lab-moving-gradient")
-    assert.equal(backgroundRegistry.find((entry) => entry.id === DEFAULT_BACKGROUND_ID)?.label, "Massage Laba Lamp")
+    assert.equal(backgroundRegistry.find((entry) => entry.id === DEFAULT_BACKGROUND_ID)?.label, "Lava Lamp")
     assert.equal(BACKGROUND_STORAGE_KEYS.chimer, "massagelab.chimer.background")
     assert.equal(BACKGROUND_STORAGE_KEYS.music, "massagelab.music.background")
     assert.equal(canUseBackgroundId(DEFAULT_BACKGROUND_ID, []), true)
     assert.equal(canUseBackgroundId("static-gradient", []), true)
     assert.equal(canUseBackgroundId("solid-color", []), true)
     assert.equal(resolveAccessibleBackgroundDefinition("unknown", []).id, DEFAULT_BACKGROUND_ID)
+  })
+
+  it("keeps the rebranded backgrounds on their original IDs and access modes", () => {
+    for (const [id, label, requiresSubscription] of [
+      ["massage-lab-moving-gradient", "Lava Lamp", false],
+      ["massage-lab-tile-grid", "Tile grid", true],
+      ["massage-lab-hex-grid", "Hex grid", true],
+    ]) {
+      const background = backgroundRegistry.find((entry) => entry.id === id)
+      assert.ok(background)
+      assert.equal(background.label, label)
+      assert.equal(background.provider, PUBLIC_PRODUCT_IDENTITY.name)
+      assert.equal(background.sourceUrl, "internal")
+      assert.equal(background.requiresSubscription, requiresSubscription)
+      assert.deepEqual(background.category, ["chimer", "clock", "music", "ambient"])
+      assert.equal(canUseBackgroundId(id, []), !requiresSubscription)
+      assert.equal(canUseBackgroundId(id, [FEATURE_KEYS.premiumBackgrounds]), true)
+    }
+
+    assert.match(backgroundRegistrySource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "\.\.\/\.\.\/lib\/public-product-identity\.js"/)
+    assert.match(setTimerSource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.match(runningTimerSource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.doesNotMatch(withoutContextualComments(backgroundRegistrySource), /AtmoShaper/)
+    assert.doesNotMatch(withoutContextualComments(setTimerSource), /AtmoShaper/)
+    assert.doesNotMatch(withoutContextualComments(runningTimerSource), /AtmoShaper/)
+    for (const [fileName, source] of effectSources) {
+      assert.doesNotMatch(
+        withoutContextualComments(source),
+        /AtmoShaper/,
+        `${fileName} must derive runtime product-name copy from PUBLIC_PRODUCT_IDENTITY`,
+      )
+    }
   })
 
   it("registers Solid Color as a free static one-swatch background without tuning controls", () => {
@@ -809,7 +854,7 @@ describe("premium background registry", () => {
     assert.equal(normalizeBackgroundId("missing"), DEFAULT_BACKGROUND_ID)
   })
 
-  it("keeps the MassageLab tile grid deterministic and fade-time driven", () => {
+  it("keeps Tile grid deterministic and fade-time driven", () => {
     const source = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-tile-grid-background.tsx", import.meta.url),
       "utf8",
@@ -840,7 +885,7 @@ describe("premium background registry", () => {
     assert.doesNotMatch(runningSource, /Change interval/)
   })
 
-  it("keeps the MassageLab hex grid deterministic and shared-palette/fade-time driven", () => {
+  it("keeps Hex grid deterministic and shared-palette/fade-time driven", () => {
     const source = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-hex-grid-background.tsx", import.meta.url),
       "utf8",
@@ -898,7 +943,7 @@ describe("premium background registry", () => {
     assert.doesNotMatch(chimerRunningSource, /visualizerActive:\s*true/)
   })
 
-  it("keeps MassageLab Light Speed source-shaped, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Light Speed source-shaped, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-light-speed-background.tsx", import.meta.url),
       "utf8",
@@ -957,7 +1002,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Electric Mist source-shaped, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Electric Mist source-shaped, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-electric-mist-background.tsx", import.meta.url),
       "utf8",
@@ -1023,7 +1068,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Astral Flow source-shaped, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Astral Flow source-shaped, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-astral-flow-background.tsx", import.meta.url),
       "utf8",
@@ -1090,7 +1135,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Deep Space Nebula source-shaped, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Deep Space Nebula source-shaped, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-deep-space-nebula-background.tsx", import.meta.url),
       "utf8",
@@ -1153,7 +1198,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Grid Bloom source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Grid Bloom source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-grid-bloom-background.tsx", import.meta.url),
       "utf8",
@@ -1233,7 +1278,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Chrome Flow source-shaped, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Chrome Flow source-shaped, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-chrome-flow-background.tsx", import.meta.url),
       "utf8",
@@ -1305,7 +1350,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Wave Current source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Wave Current source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-wave-current-background.tsx", import.meta.url),
       "utf8",
@@ -1378,7 +1423,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Ferrofluid source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Ferrofluid source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-ferrofluid-background.tsx", import.meta.url),
       "utf8",
@@ -1461,7 +1506,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Lightfall source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Lightfall source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-lightfall-background.tsx", import.meta.url),
       "utf8",
@@ -1555,7 +1600,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Liquid Ether source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Liquid Ether source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-liquid-ether-background.tsx", import.meta.url),
       "utf8",
@@ -1694,7 +1739,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Prism source-shaped, raw WebGL, and cursor-optional", () => {
+  it("keeps AtmoShaper Prism source-shaped, raw WebGL, and cursor-optional", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-prism-background.tsx", import.meta.url),
       "utf8",
@@ -1825,7 +1870,7 @@ describe("premium background registry", () => {
     assert.match(runningSource, /onChange=\{\(value\) => handleSettingsChange\(\{ vortexBaseHue: value \}\)\}/)
   })
 
-  it("keeps MassageLab Dark Veil source-shaped, raw WebGL, and dependency-free", () => {
+  it("keeps AtmoShaper Dark Veil source-shaped, raw WebGL, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-dark-veil-background.tsx", import.meta.url),
       "utf8",
@@ -1970,7 +2015,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Light Pillar source-shaped, raw WebGL, customizable, and cursor-optional", () => {
+  it("keeps AtmoShaper Light Pillar source-shaped, raw WebGL, customizable, and cursor-optional", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-light-pillar-background.tsx", import.meta.url),
       "utf8",
@@ -2081,7 +2126,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Silk source-shaped, raw WebGL, customizable, and passive", () => {
+  it("keeps AtmoShaper Silk source-shaped, raw WebGL, customizable, and passive", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-silk-background.tsx", import.meta.url),
       "utf8",
@@ -2173,7 +2218,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Floating Lines source-shaped, raw WebGL, customizable, and cursor-optional", () => {
+  it("keeps AtmoShaper Floating Lines source-shaped, raw WebGL, customizable, and cursor-optional", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-floating-lines-background.tsx", import.meta.url),
       "utf8",
@@ -2280,7 +2325,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Side Rays source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Side Rays source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-side-rays-background.tsx", import.meta.url),
       "utf8",
@@ -2460,7 +2505,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Pixel Blast source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Pixel Blast source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-pixel-blast-background.tsx", import.meta.url),
       "utf8",
@@ -2567,7 +2612,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Color Bends source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Color Bends source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-color-bends-background.tsx", import.meta.url),
       "utf8",
@@ -2666,7 +2711,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Evil Eye source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Evil Eye source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-evil-eye-background.tsx", import.meta.url),
       "utf8",
@@ -2761,7 +2806,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Line Waves source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Line Waves source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-line-waves-background.tsx", import.meta.url),
       "utf8",
@@ -2859,7 +2904,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Radar source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Radar source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-radar-background.tsx", import.meta.url),
       "utf8",
@@ -2963,7 +3008,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Soft Aurora source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Soft Aurora source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-soft-aurora-background.tsx", import.meta.url),
       "utf8",
@@ -3067,7 +3112,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Plasma source-shaped, raw WebGL2, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Plasma source-shaped, raw WebGL2, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-plasma-background.tsx", import.meta.url),
       "utf8",
@@ -3149,7 +3194,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Plasma Wave source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Plasma Wave source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-plasma-wave-background.tsx", import.meta.url),
       "utf8",
@@ -3239,7 +3284,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Particles source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Particles source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-particles-background.tsx", import.meta.url),
       "utf8",
@@ -3332,7 +3377,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Gradient Blinds source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Gradient Blinds source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-gradient-blinds-background.tsx", import.meta.url),
       "utf8",
@@ -3424,7 +3469,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Grainient source-shaped, raw WebGL2, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Grainient source-shaped, raw WebGL2, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-grainient-background.tsx", import.meta.url),
       "utf8",
@@ -3524,7 +3569,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Grid Scan source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Grid Scan source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-grid-scan-background.tsx", import.meta.url),
       "utf8",
@@ -3638,7 +3683,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Beams source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Beams source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-beams-background.tsx", import.meta.url),
       "utf8",
@@ -3713,7 +3758,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Pixel Snow source-shaped, raw WebGL2, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Pixel Snow source-shaped, raw WebGL2, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-pixel-snow-background.tsx", import.meta.url),
       "utf8",
@@ -3790,7 +3835,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Lightning source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Lightning source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-lightning-background.tsx", import.meta.url),
       "utf8",
@@ -3863,7 +3908,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Prismatic Burst source-shaped, raw WebGL2, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Prismatic Burst source-shaped, raw WebGL2, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-prismatic-burst-background.tsx", import.meta.url),
       "utf8",
@@ -3954,7 +3999,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Galaxy source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Galaxy source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-galaxy-background.tsx", import.meta.url),
       "utf8",
@@ -4042,7 +4087,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Dither source-shaped, raw WebGL2, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Dither source-shaped, raw WebGL2, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-dither-background.tsx", import.meta.url),
       "utf8",
@@ -4125,7 +4170,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Faulty Terminal source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Faulty Terminal source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-faulty-terminal-background.tsx", import.meta.url),
       "utf8",
@@ -4218,7 +4263,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Ripple Grid source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Ripple Grid source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-ripple-grid-background.tsx", import.meta.url),
       "utf8",
@@ -4318,7 +4363,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Dot Field source-shaped, canvas-based, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Dot Field source-shaped, canvas-based, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-dot-field-background.tsx", import.meta.url),
       "utf8",
@@ -4404,7 +4449,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Dot Grid source-shaped, canvas-based, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Dot Grid source-shaped, canvas-based, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-dot-grid-background.tsx", import.meta.url),
       "utf8",
@@ -4489,7 +4534,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Threads source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Threads source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-threads-background.tsx", import.meta.url),
       "utf8",
@@ -4553,7 +4598,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Iridescence source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Iridescence source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-iridescence-background.tsx", import.meta.url),
       "utf8",
@@ -4619,7 +4664,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Waves source-shaped, canvas-based, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Waves source-shaped, canvas-based, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-waves-background.tsx", import.meta.url),
       "utf8",
@@ -4693,7 +4738,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Grid Distortion source-shaped, raw WebGL, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Grid Distortion source-shaped, raw WebGL, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-grid-distortion-background.tsx", import.meta.url),
       "utf8",
@@ -4773,7 +4818,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps the latest MassageLab background ports source-shaped, customizable, and dependency-free", () => {
+  it("keeps the latest AtmoShaper background ports source-shaped, customizable, and dependency-free", () => {
     const registrySource = readFileSync(
       new URL("../components/backgrounds/backgroundRegistry.ts", import.meta.url),
       "utf8",
@@ -5044,7 +5089,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Novatrix source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Novatrix source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-novatrix-background.tsx", import.meta.url),
       "utf8",
@@ -5119,7 +5164,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Matrix Rain source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Matrix Rain source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-matrix-rain-background.tsx", import.meta.url),
       "utf8",
@@ -5189,7 +5234,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Photon Beam source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Photon Beam source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-photon-beam-background.tsx", import.meta.url),
       "utf8",
@@ -5295,7 +5340,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab 3D Globe source-shaped, marker-aware, and dependency-free", () => {
+  it("keeps AtmoShaper 3D Globe source-shaped, marker-aware, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-3d-globe-background.tsx", import.meta.url),
       "utf8",
@@ -5335,16 +5380,17 @@ describe("premium background registry", () => {
     assert.match(effectSource, /lightingMode: "manual"/)
     assert.match(effectSource, /EARTH_AXIAL_TILT_DEGREES/)
     assert.match(effectSource, /FIXED_SUN_LIGHT_VECTOR/)
-    assert.match(effectSource, /MASSAGELAB_MARKER/)
-    assert.match(effectSource, /MASSAGELAB_MARKER_ICON_SOURCE/)
-    assert.match(effectSource, /massagelab-mark-square-tight\.png/)
-    assert.match(effectSource, /label: ""/)
+    assert.doesNotMatch(effectSource, /MASSAGELAB_MARKER/)
+    assert.doesNotMatch(effectSource, /massagelab-mark-square-tight\.png/)
+    assert.doesNotMatch(effectSource, /markerIcon === "massagelab"/)
+    assert.doesNotMatch(effectSource, /context\.drawImage\(markerImage/)
     assert.match(effectSource, /panX: 0/)
     assert.match(effectSource, /panY: 0/)
     assert.match(effectSource, /showTilt: true/)
     assert.match(effectSource, /markerLat/)
     assert.match(effectSource, /markerLng/)
     assert.match(effectSource, /markerIcon: "pin"/)
+    assert.match(effectSource, /if \(resolved\.markerEnabled\)/)
     assert.match(effectSource, /WEBGL_GLOBE_FRAGMENT_SHADER/)
     assert.match(effectSource, /createGlobeRenderer/)
     assert.match(effectSource, /uploadGlobeTexture/)
@@ -5461,7 +5507,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Retro Grid source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Retro Grid source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-retro-grid-background.tsx", import.meta.url),
       "utf8",
@@ -5539,7 +5585,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Aerial Rays source-shaped, passive, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Aerial Rays source-shaped, passive, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-aerial-rays-background.tsx", import.meta.url),
       "utf8",
@@ -5905,7 +5951,7 @@ describe("premium background registry", () => {
     assert.deepEqual(reducedFrameA, reducedFrameB)
   })
 
-  it("keeps MassageLab Synthesis source-shaped, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Synthesis source-shaped, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/massage-lab-synthesis-background.tsx", import.meta.url),
       "utf8",
@@ -6003,7 +6049,7 @@ describe("premium background registry", () => {
     )
   })
 
-  it("keeps MassageLab Bubble non-interactive and dependency-free", () => {
+  it("keeps AtmoShaper Bubble non-interactive and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/css-backgrounds.tsx", import.meta.url),
       "utf8",
@@ -6060,7 +6106,7 @@ describe("premium background registry", () => {
     assert.doesNotMatch(effectSource, /MassageLabBubbleBackground[\s\S]*pointermove[\s\S]*MassageLabGradientBackground/)
   })
 
-  it("keeps MassageLab Gradient customizable and dependency-free", () => {
+  it("keeps AtmoShaper Gradient customizable and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/css-backgrounds.tsx", import.meta.url),
       "utf8",
@@ -6095,7 +6141,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Stars source-shaped, customizable, and dependency-free", () => {
+  it("keeps AtmoShaper Stars source-shaped, customizable, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/css-backgrounds.tsx", import.meta.url),
       "utf8",
@@ -6143,7 +6189,7 @@ describe("premium background registry", () => {
     }
   })
 
-  it("keeps MassageLab Hole customizable, cleaned up, and dependency-free", () => {
+  it("keeps AtmoShaper Hole customizable, cleaned up, and dependency-free", () => {
     const effectSource = readFileSync(
       new URL("../components/backgrounds/effects/css-backgrounds.tsx", import.meta.url),
       "utf8",

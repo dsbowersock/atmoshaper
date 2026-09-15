@@ -141,7 +141,7 @@ const DEFAULT_MASSAGELAB_WAVES: ResolvedWavesOptions = {
 
 const OFFSCREEN_MOUSE_X = -10
 
-// MassageLab Waves is a dependency-free canvas simulation. MassageLab keeps the
+// AtmoShaper Waves is a dependency-free canvas simulation. AtmoShaper keeps the
 // source Perlin line grid and cursor spring math, then wraps it with route-safe
 // sizing, reduced-motion, and listener cleanup.
 export default function MassageLabWavesBackground({
