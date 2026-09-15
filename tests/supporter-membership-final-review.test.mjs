@@ -348,6 +348,10 @@ function migrationStripeFixture(targetPrice) {
 }
 
 describe("Supporter membership final-review contracts", () => {
+  it("retains the existing Stripe product identity as a provider compatibility value", () => {
+    assert.equal(SUPPORTER_MEMBERSHIP_PRODUCT_NAME, "MassageLab Supporter Membership")
+  })
+
   it("keeps return URLs identifier-free while preserving Checkout and Portal ownership", async () => {
     const [checkoutSource, portalSource, accountSource] = await Promise.all([
       readFile(new URL("../lib/membership-checkout.js", import.meta.url), "utf8"),

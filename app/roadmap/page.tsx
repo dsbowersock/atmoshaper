@@ -78,7 +78,7 @@ const productTracks = [
   },
   {
     title: "Audio & Ambient Experiences",
-    purpose: "Create calm, focused environments that can accompany sessions, study, rest, or other MassageLab tools.",
+    purpose: "Create calm, focused environments that can accompany sessions, study, rest, or other AtmoShaper tools.",
     availableNow:
       "A generative music catalog, persistent sitewide playback, clocks and timers, and customizable animated backgrounds.",
     longTermDirection:
@@ -95,10 +95,10 @@ export default function RoadmapPage() {
         <div className="max-w-4xl space-y-3">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">Product vision</p>
           <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-            Where MassageLab is going
+            Where AtmoShaper is going
           </h1>
           <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
-            MassageLab is growing into a connected home for anatomy learning, personal wellness, therapeutic practice,
+            AtmoShaper is growing into a connected home for anatomy learning, personal wellness, therapeutic practice,
             professional records, and calm ambient experiences.
           </p>
           <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
@@ -125,7 +125,7 @@ export default function RoadmapPage() {
       <section aria-labelledby="roadmap-foundation-heading">
         <AppSurface
           title={<h2 id="roadmap-foundation-heading">Shared foundation</h2>}
-          description="The same responsibilities guide every part of the MassageLab portfolio."
+          description="The same responsibilities guide every part of the AtmoShaper portfolio."
           icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
           className={appCalloutClassName}
         >
@@ -189,7 +189,7 @@ export default function RoadmapPage() {
       <section aria-labelledby="support-roadmap-heading">
         <AppSurface
           title={<h2 id="support-roadmap-heading">Support the mission</h2>}
-          description="Memberships and one-time support help advance the broader MassageLab mission. They do not determine feature order or guarantee delivery of a particular capability."
+          description="Memberships and one-time support help advance the broader AtmoShaper mission. They do not determine feature order or guarantee delivery of a particular capability."
           contentClassName="gap-4"
         >
           <div className="flex flex-wrap gap-3">

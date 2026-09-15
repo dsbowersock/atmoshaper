@@ -6,6 +6,7 @@ import { projectAccountShellAppSettings } from "@/lib/account-shell-bootstrap"
 import { FEATURE_KEYS } from "@/lib/membership"
 import { resolveNavigation } from "@/lib/navigation"
 import { prisma } from "@/lib/prisma"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 type SidebarDatabase = Pick<typeof prisma, "practiceMembership">
 
@@ -49,7 +50,7 @@ export async function getAppSidebarData() {
   ])
   const user: SidebarUser = authenticatedUser
     ? {
-      name: authenticatedUser.name ?? "MassageLab user",
+      name: authenticatedUser.name ?? `${PUBLIC_PRODUCT_IDENTITY.name} user`,
       email: authenticatedUser.email ?? "",
       image: authenticatedUser.image ?? "",
       quickActionOnboarding: preferenceContext.quickActionOnboarding,

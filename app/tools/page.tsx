@@ -39,7 +39,7 @@ export default function ToolsPage() {
   return (
     <AppPageShell width="wide" contentClassName="gap-6">
       <AppSurface
-        title="MassageLab Tools"
+        title="AtmoShaper Tools"
         description="Public and signed-in tools for massage session timing, business planning, wellness practice, and scheduling."
         icon={<Timer className="h-5 w-5" aria-hidden="true" />}
         badge="Tool index"

@@ -873,7 +873,7 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
               </div>
               <div className="min-w-0 space-y-2">
                 <h2 className="text-lg font-semibold">Try A Premade Deck</h2>
-                <p className="text-sm text-muted-foreground">Start from MassageLab or community deck templates.</p>
+                <p className="text-sm text-muted-foreground">Start from AtmoShaper or community deck templates.</p>
               </div>
             </div>
             {communityDecks.length > 0 ? (

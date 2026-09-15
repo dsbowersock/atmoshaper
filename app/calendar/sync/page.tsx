@@ -64,7 +64,7 @@ export default async function CalendarSyncPage({
     <CalendarOperatorShell width="full">
       <AppSurface
         title="Calendar sync"
-        description="Choose which Google calendars should make you unavailable in MassageLab. You can come back here anytime to change these selections."
+        description="Choose which Google calendars should make you unavailable in AtmoShaper. You can come back here anytime to change these selections."
       >
         <Card className={appSurfaceClassName}>
           <CardHeader>
@@ -75,7 +75,7 @@ export default async function CalendarSyncPage({
                   Google Calendar
                 </CardTitle>
                 <CardDescription>
-                  Checked calendars are read as busy time only. MassageLab events are written to the dedicated MassageLab calendar.
+                  Checked calendars are read as busy time only. AtmoShaper events are written to the dedicated MassageLab calendar.
                 </CardDescription>
               </div>
               <Badge variant={connection?.status === "ACTIVE" ? "default" : "outline"}>
@@ -128,9 +128,9 @@ export default async function CalendarSyncPage({
                   <input type="hidden" name="connectionId" value={connection.id} />
                   <div className="grid gap-2">
                     <div className="grid gap-1">
-                      <h2 className="text-sm font-medium">Calendars that block MassageLab scheduling</h2>
+                      <h2 className="text-sm font-medium">Calendars that block AtmoShaper scheduling</h2>
                       <p className="text-sm text-muted-foreground">
-                        Select the Google calendars whose events should make you busy in MassageLab. Only event start and end times are used for conflict checks; titles, notes, locations, guests, and other details are not imported.
+                        Select the Google calendars whose events should make you busy in AtmoShaper. Only event start and end times are used for conflict checks; titles, notes, locations, guests, and other details are not imported.
                       </p>
                       <p className="text-sm text-muted-foreground">
                         You can update this list later from this page.
@@ -150,7 +150,7 @@ export default async function CalendarSyncPage({
                         <span>
                           <span className="block font-medium">{source.label ?? "Google calendar"}</span>
                           <span className="block text-muted-foreground">
-                            When selected, events on this calendar block overlapping MassageLab bookings.
+                            When selected, events on this calendar block overlapping AtmoShaper bookings.
                           </span>
                         </span>
                       </label>

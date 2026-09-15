@@ -294,7 +294,7 @@ async function setInterruptionNoticeAudioSession(page: Page, state: "active" | "
 async function startInterruptionNoticeSession(page: Page) {
   await gotoShell(page, "/music")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
   const player = page.getByTestId("music-player-toolbar")
   await expect(player).toHaveAttribute("data-playback-state", /loading|playing/)
   return player
@@ -304,7 +304,7 @@ async function startInterruptionNoticeSession(page: Page) {
 async function startProofDrone(page: Page) {
   await gotoShell(page, "/music")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
   const toolbar = page.getByTestId("music-player-toolbar")
   await expect(toolbar).toHaveAttribute("data-playback-state", /loading|playing/)
   return toolbar
@@ -1622,7 +1622,7 @@ test("global constrained landscape rail keeps route transitions, vinyl geometry,
         .toEqual(["Previous station", "Pause", "Stop", "Next station"])
       expect(await toolbar.getByTestId("music-player-toolbar-rail-options")
         .locator("button[aria-label], a[aria-label]").evaluateAll((actions) => actions.map((action) => action.getAttribute("aria-label"))))
-        .toEqual(["Player settings", "Favorite MassageLab Proof Drone", "Background", "Minimize"])
+        .toEqual(["Player settings", "Favorite AtmoShaper Proof Drone", "Background", "Minimize"])
       await expect(toolbar.getByRole("button", { name: "Minimize" }).locator("svg.lucide-chevron-right")).toHaveCount(1)
       const vinylTreatment = await toolbar.evaluate((root) => {
         const identity = root.querySelector<HTMLElement>('[data-testid="music-player-toolbar-identity"]')
@@ -2365,7 +2365,7 @@ test("full constrained landscape four-view matrix plus S24 class keeps controls 
     elements.map((element) => element.getAttribute("aria-label"))
   ))).toEqual([
     "Player settings",
-    "Favorite MassageLab Proof Drone",
+    "Favorite AtmoShaper Proof Drone",
     "Background",
     "Minimize",
   ])
@@ -2577,13 +2577,13 @@ test("player rail keeps overlays clear of dialog, sheet, tooltip, and interrupti
   await expectClearOfRail(settings, "player settings")
   await page.keyboard.press("Escape")
 
-  const proofDrone = page.getByRole("group", { name: /MassageLab Proof Drone/ })
+  const proofDrone = page.getByRole("group", { name: /AtmoShaper Proof Drone/ })
   const stationDetailsTrigger = proofDrone.getByRole("button", {
-    name: /Show full information for MassageLab Proof Drone/i,
+    name: /Show full information for AtmoShaper Proof Drone/i,
   })
   await stationDetailsTrigger.focus()
   await page.keyboard.press("Enter")
-  const stationDialog = page.getByRole("dialog", { name: "MassageLab Proof Drone" })
+  const stationDialog = page.getByRole("dialog", { name: "AtmoShaper Proof Drone" })
   await expect(stationDialog).toBeVisible()
   await expectClearOfRail(stationDialog, "station dialog")
   await stationDialog.getByRole("button", { name: "Close" }).click()
@@ -2787,13 +2787,13 @@ test("real music rail keeps every exposed overlay and action inside the usable v
         await expect(settingsTrigger, `${state} settings focus return`).toBeFocused()
       }
 
-      const proofDrone = page.getByRole("group", { name: /MassageLab Proof Drone/ })
+      const proofDrone = page.getByRole("group", { name: /AtmoShaper Proof Drone/ })
       const stationDetailsTrigger = proofDrone.getByRole("button", {
-        name: /Show full information for MassageLab Proof Drone/i,
+        name: /Show full information for AtmoShaper Proof Drone/i,
       })
       await stationDetailsTrigger.focus()
       await page.keyboard.press("Enter")
-      const stationDialog = page.getByRole("dialog", { name: "MassageLab Proof Drone" })
+      const stationDialog = page.getByRole("dialog", { name: "AtmoShaper Proof Drone" })
       await assertSurfaceClear(stationDialog, toolbar, viewport, `${state} station dialog`, [
         {
           label: "MassageLab source link",
@@ -2855,12 +2855,12 @@ test("real music rail keeps every exposed overlay and action inside the usable v
   const portraitToolbar = page.getByTestId("music-player-toolbar")
   await expect(portraitToolbar).toHaveAttribute("data-layout", "bottom")
   await expect.poll(async () => (await resolvedMusicRailSpacing(page)).rightSafe).toBe(0)
-  const portraitStationTrigger = page.getByRole("group", { name: /MassageLab Proof Drone/ }).getByRole("button", {
-    name: /Show full information for MassageLab Proof Drone/i,
+  const portraitStationTrigger = page.getByRole("group", { name: /AtmoShaper Proof Drone/ }).getByRole("button", {
+    name: /Show full information for AtmoShaper Proof Drone/i,
   })
   await portraitStationTrigger.focus()
   await page.keyboard.press("Enter")
-  const portraitDialog = page.getByRole("dialog", { name: "MassageLab Proof Drone" })
+  const portraitDialog = page.getByRole("dialog", { name: "AtmoShaper Proof Drone" })
   await expect(portraitDialog).toBeVisible()
   const portraitDialogBox = await portraitDialog.boundingBox()
   expect(portraitDialogBox, "portrait station dialog box").not.toBeNull()
@@ -3495,7 +3495,7 @@ test("Favorites empty state explains the speed dial without duplicating station 
     .evaluate((element) => getComputedStyle(element).overflow))
     .toBe("visible")
 
-  const favorite = page.getByRole("button", { name: "Favorite MassageLab Proof Drone" })
+  const favorite = page.getByRole("button", { name: "Favorite AtmoShaper Proof Drone" })
   await favorite.click()
   await expect.poll(() => page.evaluate(() => localStorage.getItem("massagelab-atmosphere-v2")))
     .toContain('"mlab-proof-drone"')
@@ -3637,7 +3637,7 @@ test("selected Favorites remeasures as live favorites move between empty and pop
   await expect(empty).toBeVisible()
   await expect(page.getByTestId("atmosphere-favorites-region")).toBeHidden()
 
-  await toolbar.getByRole("button", { name: "Favorite MassageLab Proof Drone" }).click()
+  await toolbar.getByRole("button", { name: "Favorite AtmoShaper Proof Drone" }).click()
   const stage = page.getByTestId("station-carousel-stage")
   const carousel = page.getByRole("region", { name: "Station carousel" })
   const surface = page.locator(".ml-atmosphere-station-carousel")
@@ -3654,7 +3654,7 @@ test("selected Favorites remeasures as live favorites move between empty and pop
     element.style.getPropertyValue("--ml-atmosphere-station-stage-block-size")
   ))).not.toBe(portraitStageSize)
 
-  await toolbar.getByRole("button", { name: "Remove MassageLab Proof Drone from favorites" }).click()
+  await toolbar.getByRole("button", { name: "Remove AtmoShaper Proof Drone from favorites" }).click()
   await expect(empty).toBeVisible()
   await expect(stage).toHaveCount(0)
 
@@ -3673,7 +3673,7 @@ test("selected Favorites remeasures as live favorites move between empty and pop
     vertical: document.documentElement.scrollHeight <= innerHeight,
   }))).toEqual({ horizontal: true, vertical: true })
 
-  await toolbar.getByRole("button", { name: "Favorite MassageLab Proof Drone" }).click()
+  await toolbar.getByRole("button", { name: "Favorite AtmoShaper Proof Drone" }).click()
   await expect(stage).toBeVisible()
   await expect(carousel).toHaveAttribute("data-carousel-ready", "true")
   const compactStageSize = await surface.evaluate((element) => (
@@ -4285,7 +4285,7 @@ test("starting a constrained-landscape station preserves the approved card spaci
   expect(before.left).toBeGreaterThanOrEqual(4)
   expect(before.right).toBeGreaterThanOrEqual(4)
 
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
   const toolbar = page.getByTestId("music-player-toolbar")
   await expect(toolbar).toHaveAttribute("data-layout", "rail")
   await expect(page.locator("body")).toHaveClass(/ml-music-player-rail/)
@@ -4631,7 +4631,7 @@ test("carousel fits compact landscape rail", async ({ page }, testInfo) => {
   const carousel = page.getByRole("region", { name: "Atmosphere audio stations" })
   const stationStage = page.getByRole("region", { name: "Station carousel" })
   const stageViewport = page.getByTestId("station-carousel-stage")
-  const proofDrone = page.getByRole("group", { name: /MassageLab Proof Drone/ })
+  const proofDrone = page.getByRole("group", { name: /AtmoShaper Proof Drone/ })
   const nonShellCards = carousel.locator('[data-carousel-slide]:not([data-detail-level="shell"])')
   const readCenterOffset = async () => {
     const [containerBox, cardBox] = await Promise.all([carousel.boundingBox(), proofDrone.boundingBox()])
@@ -4668,7 +4668,7 @@ test("carousel fits compact landscape rail", async ({ page }, testInfo) => {
   await expect(nonShellCards).toHaveCount(9)
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true)
   await expect(proofDrone).toHaveAttribute("data-centered", "true")
-  await expect(proofDrone.getByRole("button", { name: /Play|Stop MassageLab Proof Drone/i })).toBeInViewport()
+  await expect(proofDrone.getByRole("button", { name: /Play|Stop AtmoShaper Proof Drone/i })).toBeInViewport()
   await expect(stationStage.getByRole("button", { name: "Previous station" })).toBeInViewport()
   await expect(stationStage.getByRole("button", { name: "Next station" })).toBeInViewport()
   await expect.poll(readCenterOffset).toBeLessThanOrEqual(0.5)
@@ -4710,7 +4710,7 @@ test("carousel fits compact landscape rail", async ({ page }, testInfo) => {
   expect(mountedObserverRecords.slice(0, -1).every(({ disconnected }) => disconnected)).toBe(true)
 
   await page.getByRole("button", { name: "About", exact: true }).click()
-  await page.getByRole("link", { name: "About MassageLab" }).click()
+  await page.getByRole("link", { name: "About AtmoShaper" }).click()
   await expect(page).toHaveURL(/\/about$/)
   const unmountedObserverRecords = await page.evaluate(() => {
     const records = Reflect.get(window, "__stationCarouselObserverRecords") as Array<{
@@ -4742,7 +4742,7 @@ test("Atmosphere expanded player actions expose session and saved interruption p
     actions.map((action) => action.getAttribute("aria-label"))
   ))).toEqual([
     "Player settings",
-    "Favorite MassageLab Proof Drone",
+    "Favorite AtmoShaper Proof Drone",
     "Previous station",
     "Pause",
     "Stop",
@@ -4814,7 +4814,7 @@ test("Atmosphere expanded player actions expose session and saved interruption p
     await expect(nextStation).toBeEnabled()
     await nextStation.click()
     await expect(player.getByTestId("music-player-toolbar-identity").locator("p").first())
-      .toHaveText("MassageLab Proof Drone")
+      .toHaveText("AtmoShaper Proof Drone")
     await expect(player).toHaveAttribute("data-playback-state", "playing", { timeout: 30_000 })
     await expect(notice).toBeHidden()
   } finally {
@@ -4827,7 +4827,7 @@ test("vinyl player controls expose grouped semantic actions and a minimal collap
   await installInterruptionNoticeMediaFakes(page)
   await page.setViewportSize({ width: 1024, height: 768 })
   const toolbar = await startInterruptionNoticeSession(page)
-  const stationTitle = "MassageLab Proof Drone"
+  const stationTitle = "AtmoShaper Proof Drone"
   const vinyl = toolbar.getByTestId("station-vinyl")
   const left = toolbar.getByTestId("music-player-toolbar-left")
   const primary = toolbar.getByTestId("music-player-toolbar-primary-controls")
@@ -5230,7 +5230,7 @@ test("stopped retirement exclusions do not cancel or extend the route and player
   const firstActionDelayMs = stoppedDeadline - 50_000 - pausedAt
   expect(firstActionDelayMs).toBeGreaterThan(0)
   await page.clock.fastForward(firstActionDelayMs)
-  await player.getByRole("button", { name: /Favorite MassageLab Proof Drone/i }).click()
+  await player.getByRole("button", { name: /Favorite AtmoShaper Proof Drone/i }).click()
   await expect(player).toHaveAttribute("data-playback-state", "stopped")
 
   await page.clock.fastForward(10_000)
@@ -5375,7 +5375,7 @@ test("mobile top placement reserves the top edge and leaves the active music pla
   expect(idleSpacing.pageBottom).not.toBeCloseTo(idleExpected + idleSpacing.mainBar)
 
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
   const player = page.getByTestId("music-player-toolbar")
   await expect(player).toBeVisible()
   await expect(player).toHaveAttribute("data-placement", "bottom")
@@ -5452,7 +5452,7 @@ test("mobile bottom placement adds the main bar when idle and the audio toolbar 
   expect(idleSpacing.pageBottom).toBeCloseTo(idleExpected)
 
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
   const player = page.getByTestId("music-player-toolbar")
   await expect(player).toBeVisible()
   await expect(player).toHaveAttribute("data-placement", "bottom")
@@ -5510,7 +5510,7 @@ test("mobile top player consumes its safe inset exactly once while expanded and 
   await page.setViewportSize({ width: 390, height: 844 })
   await gotoShell(page, "/music")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
 
   const player = page.getByTestId("music-player-toolbar")
   await expect(player).toBeVisible()

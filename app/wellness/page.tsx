@@ -94,7 +94,7 @@ export default async function WellnessPage() {
     <AppPageShell width="wide" contentClassName="gap-5">
       <AppSurface
         title="Massage wellness tools"
-        description="MassageLab's wellness page brings breathing, music, quick check-ins, body-sensation tracking, range-of-motion practice, reminders, and reflection tools into one public-friendly surface."
+        description="AtmoShaper's wellness page brings breathing, music, quick check-ins, body-sensation tracking, range-of-motion practice, reminders, and reflection tools into one public-friendly surface."
         icon={<HeartPulse className="h-5 w-5" aria-hidden="true" />}
         badge={userId ? "Signed in" : "Practice mode"}
         className={appCalloutClassName}

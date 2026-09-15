@@ -147,7 +147,7 @@ export function AtmosphereWorkspace({ layout = "grid" }: { layout?: AtmosphereWo
                 Wellness audio stations
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                Start a station, move to another MassageLab tool, and the bottom player keeps control of the sound.
+                Start a station, move to another AtmoShaper tool, and the bottom player keeps control of the sound.
                 {generativeFmCatalogStatusText}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">

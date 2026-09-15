@@ -8,25 +8,25 @@ import { createPublicPageMetadata } from "@/lib/seo"
 export const metadata = createPublicPageMetadata("/about")
 
 const originParagraphs = [
-  "MassageLab is being built from the perspective of a practicing massage therapist, educator, and small business owner.",
+  "AtmoShaper is being built from the perspective of a practicing massage therapist, educator, and small business owner.",
   "I have been a licensed massage therapist for 15 years. I started my career working for a franchise, then moved into independent practice as a sole proprietor inside a salon. That experience gave me the opportunity to grow my own practice, understand the business side of massage, and think deeply about what therapists actually need to succeed.",
   "Eventually, I began teaching massage therapy. Teaching came from my love of helping others reach their goals, build confidence, and think creatively. While working with students, I started to see gaps in massage education and professional practice. I also saw a need for modern tools that could help students and therapists learn more clearly, work more confidently, and build stronger practices.",
 ] as const
 
 const toolParagraphs = [
-  "MassageLab started with simple tools.",
+  "AtmoShaper started with simple tools.",
   "The first was Chimer, a classroom timer designed so students could see a large clock on a screen, track how much time had passed, and understand how much time remained in a service. I later added interval sounds so students could learn pacing without constantly looking at the clock.",
   "Then came Anatomime, a game built around describing anatomical concepts without relying only on words. The goal is to help students make physical, practical connections with anatomy instead of only memorizing terms from a page.",
-  "Over time, MassageLab has grown into a larger idea: one place where therapists, students, educators, and practice owners can access tools designed specifically for the massage profession.",
+  "Over time, AtmoShaper has grown into a larger idea: one place where therapists, students, educators, and practice owners can access tools designed specifically for the massage profession.",
 ] as const
 
 const professionParagraphs = [
-  "There are already many helpful business tools available, including platforms for scheduling, payments, marketing, and client management. Many of them are useful, but they often feel like general business products that massage therapists can adapt to fit their needs. MassageLab is different because it is being built from inside the profession, by someone who uses these tools in real practice.",
+  "There are already many helpful business tools available, including platforms for scheduling, payments, marketing, and client management. Many of them are useful, but they often feel like general business products that massage therapists can adapt to fit their needs. AtmoShaper is different because it is being built from inside the profession, by someone who uses these tools in real practice.",
   "The goal is to help independent massage therapists access the kinds of systems that larger franchises and corporate massage businesses already benefit from. Scheduling, documentation, education, marketing, organization, and client support should not only be available to large companies. Individual therapists and small practices deserve practical, affordable tools that help them do the work they love while also building sustainable careers.",
-  "What you see on MassageLab today is only the beginning.",
+  "What you see on AtmoShaper today is only the beginning.",
   "The long-term vision includes educational tools, practice-building resources, SOAP note support, client-centered features, and secure systems for handling sensitive health-related information. Some of those features require careful planning, responsible privacy protections, and more advanced infrastructure before they can be released.",
   "Support from users helps make that growth possible.",
-  "MassageLab exists to help massage therapists learn better, work smarter, support their clients more effectively, and build practices that are healthy for both the therapist and the people they serve.",
+  "AtmoShaper exists to help massage therapists learn better, work smarter, support their clients more effectively, and build practices that are healthy for both the therapist and the people they serve.",
 ] as const
 
 const toolCards = [
@@ -52,7 +52,7 @@ export default function AboutPage() {
     <AppPageShell width="prose" contentClassName="gap-6">
       <AppSurface className={appCalloutClassName} contentClassName="gap-5">
         <div>
-          <p className="text-sm font-medium text-primary">About MassageLab</p>
+          <p className="text-sm font-medium text-primary">About AtmoShaper</p>
           <h1 className="mt-2 text-3xl font-semibold leading-tight sm:text-4xl">Built from inside the massage profession</h1>
         </div>
         <div className="space-y-4 text-base leading-7 text-muted-foreground">
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
       <AppSurface
         title="How it started"
-        description="The first MassageLab tools came from real classroom and practice needs."
+        description="The first AtmoShaper tools came from real classroom and practice needs."
         icon={<Timer className="h-5 w-5" aria-hidden="true" />}
       >
         <div className="space-y-4 text-base leading-7 text-muted-foreground">
@@ -109,8 +109,8 @@ export default function AboutPage() {
       </AppSurface>
 
       <SocialLinksSurface
-        title="Follow MassageLab"
-        description="Follow the MassageLab project for tool updates, demos, and behind-the-scenes work."
+        title="Follow AtmoShaper"
+        description="Follow the AtmoShaper project for tool updates, demos, and behind-the-scenes work."
         linkIds={["instagram", "youtube"]}
       />
     </AppPageShell>

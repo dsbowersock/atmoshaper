@@ -307,10 +307,10 @@ async function assertOneDelayedNativeBillingSubmission({
 async function startProofDrone(page: Page) {
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play AtmoShaper Proof Drone$/i }).click()
   const toolbar = page.getByTestId("music-player-toolbar")
   await expect(toolbar).toBeVisible()
-  await expect(page.getByText("MassageLab Proof Drone").last()).toBeVisible()
+  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
   await expect(toolbar).toHaveAttribute("data-playback-state", "playing", { timeout: 30_000 })
   return toolbar
 }
@@ -450,7 +450,7 @@ test("shows throttled shell feedback while an owned tool Link keeps music mounte
   })
   await expect(page.locator('[data-route-progress="pending"]')).toHaveCount(0)
   await expect(page.getByRole("status").filter({ hasText: /^Loading page$/ })).toHaveCount(0)
-  await expect(page.getByText("MassageLab Proof Drone").last()).toBeVisible()
+  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
   await expect(toolbar).toHaveAttribute("data-playback-state", "playing")
   expect(await page.evaluate(() => (
     Reflect.get(window, "__interactionFeedbackMusicToolbar")
@@ -522,7 +522,7 @@ test("mobile portrait action feedback stays operable with enlarged text and keyb
     tagName: document.activeElement?.tagName,
   }))).toEqual({ insidePendingStatus: false, tagName: "BODY" })
   await expect(page.getByRole("status").filter({ hasText: /^Sending reset instructions…$/ })).toHaveCount(1)
-  await expect(page.getByRole("navigation", { name: "MassageLab main navigation" })).toBeVisible()
+  await expect(page.getByRole("navigation", { name: "AtmoShaper main navigation" })).toBeVisible()
   await expectNoHorizontalViewportOverflow(page)
   await expect.poll(() => requests).toBe(1)
   await expect(submit).toBeEnabled()
@@ -775,7 +775,7 @@ test("keeps the proof-drone session through the real music visualizer Link", asy
 
   await toolbar.getByRole("link", { name: "Background", exact: true }).click()
   await expect(page).toHaveURL(/\/clock\?[^#]*source=music/)
-  await expect(page.getByText("MassageLab Proof Drone").last()).toBeVisible()
+  await expect(page.getByText("AtmoShaper Proof Drone").last()).toBeVisible()
   await expect(toolbar).toHaveAttribute("data-playback-state", "playing")
   expect(await page.evaluate(() => (
     Reflect.get(window, "__interactionFeedbackMusicToolbar")

@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react"
 import { AtSign, Facebook, Instagram, Youtube } from "lucide-react"
 import { AppSurface, appInsetClassName } from "@/components/ui/app-surface"
 import { MASSAGELAB_SOCIAL_LINKS } from "@/lib/social-links"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 
 const socialIconById: Record<string, LucideIcon> = {
@@ -20,10 +21,10 @@ type SocialLinksSurfaceProps = {
   linkIds?: string[]
 }
 
-/** Renders MassageLab's canonical social profiles with optional page-level filtering. */
+/** Renders the product's canonical social profiles with optional page-level filtering. */
 export function SocialLinksSurface({
-  title = "Follow MassageLab",
-  description = "Find MassageLab updates, demos, and community posts on social media.",
+  title = `Follow ${PUBLIC_PRODUCT_IDENTITY.name}`,
+  description = `Find ${PUBLIC_PRODUCT_IDENTITY.name} updates, demos, and community posts on social media.`,
   linkIds,
 }: SocialLinksSurfaceProps) {
   const links = linkIds?.length

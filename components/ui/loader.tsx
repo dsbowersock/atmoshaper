@@ -101,7 +101,7 @@ function resolveColorUniforms(
 }
 
 /**
- * Shared indeterminate loader using MassageLab's dithered shader shapes.
+ * Shared indeterminate loader using AtmoShaper's dithered shader shapes.
  *
  * Omit `shape` for a per-instance random sphere/swirl/ripple choice; pass a
  * shape explicitly for deterministic comparison galleries or route-owned UI.

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { AppPageShell, AppSurface } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { createPublicPageMetadata } from "@/lib/seo"
 
 export const metadata = createPublicPageMetadata("/help")
@@ -14,8 +15,8 @@ const helpTopics = [
   },
   {
     id: "installing",
-    title: "Installing MassageLab",
-    body: "Use Install MassageLab from the avatar menu when it appears. On iPhone or iPad in Safari, use Share, Add to Home Screen, then Add.",
+    title: `Installing ${PUBLIC_PRODUCT_IDENTITY.name}`,
+    body: `Use Install ${PUBLIC_PRODUCT_IDENTITY.name} from the avatar menu when it appears. On iPhone or iPad in Safari, use Share, Add to Home Screen, then Add.`,
     links: [],
   },
   {
@@ -39,7 +40,7 @@ const helpTopics = [
   {
     id: "local-first-privacy",
     title: "Local-first privacy",
-    body: "Professional records remain in the encrypted browser vault unless MassageLab explicitly says otherwise. Do not send client PHI through support messages.",
+    body: `Professional records remain in the encrypted browser vault unless ${PUBLIC_PRODUCT_IDENTITY.name} explicitly says otherwise. Do not send client PHI through support messages.`,
     links: [{ href: "/legal", label: "Privacy and Legal" }],
   },
 ] as const
