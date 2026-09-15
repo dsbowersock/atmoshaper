@@ -153,6 +153,12 @@ and CodeRabbit.
 - Feature owner: no neutral public feature-label module exists. Add
   `lib/atmosphere/public-labels.js`; importing product identity or UI components
   into the audio domain would couple unrelated concepts.
+- Public audio-error boundary: no reusable neutral formatter exists. The only
+  similarly named helper is the private, commerce-specific
+  `normalizePublicError` in `lib/background-commerce-client.js`, whose policy is
+  unrelated to audio presentation. Add a separate pure
+  `lib/atmosphere/public-error.js` formatter instead of polluting the noun-only
+  label owner or rewriting internal runtime exceptions.
 - Legal archive: no version-addressable repository copy or safe archive writer
   exists. Add `scripts/legal-document-archive.mjs` and deterministic data files;
   keep `LEGAL_DOCUMENTS` as the only current runtime owner.
@@ -201,8 +207,10 @@ and CodeRabbit.
 
 ## Plan-Time Complexity Check
 
-- New runtime surface: one frozen two-field feature-label object; no state,
-  branches, callbacks, environment reads, provider calls, or persistence.
+- New runtime surfaces: one frozen two-field feature-label object and one
+  stateless public-error formatter with only exact-token/fallback branches.
+  Neither reads environment or browser state, calls providers, persists data,
+  mutates inputs, or owns runtime exceptions/telemetry.
 - New tooling surface: one deterministic legal-archive script with one explicit
   write mode and fail-closed overwrite behavior.
 - No dependency, lockfile, schema, migration, workflow, route, entitlement, or
@@ -381,9 +389,12 @@ preview copy without changing external state.
 - Modify: `components/atmoshaper/atmoshaper-workspace.tsx`
 - Modify: `components/atmoshaper/sound-library.tsx`
 - Modify: `components/providers/music-provider.tsx`
+- Modify: `components/providers/music-mini-player.tsx`
 - Modify: `components/ui/music-player.tsx`
+- Create: `lib/atmosphere/public-error.js`
 - Modify: `lib/atmosphere/media-session-controller.js`
 - Modify: `lib/atmosphere/stations.js`
+- Create: `tests/atmosphere-public-error.test.mjs`
 - Modify: `tests/atmosphere-media-session-controller.test.mjs`
 - Modify: `tests/atmosphere-stations.test.mjs`
 - Modify: `tests/carousel-lab-source.test.mjs`
@@ -411,6 +422,15 @@ preview copy without changing external state.
 - [ ] Change navigation/group title/page heading to `name`; compose controls,
   status/live-region text, dialog prose, empty/error states, and accessibility
   text from `name` or `descriptor` as appropriate. Do not centralize sentences.
+- [ ] Make the persistent mini-player consume the noun owner for its default
+  title, region label, and volume label; do not let its source contract bless
+  repeated public literals.
+- [ ] Add one dependency-light public-error formatter beside the noun owner.
+  It replaces the exact internal `AtmoShaper` compatibility token with
+  `Atmosphere` only at public UI/error boundaries, preserves unrelated message
+  text, accepts an explicit fallback, and never mutates or rewrites the stored
+  runtime exception or telemetry value. Cover exact replacement, unrelated
+  text, non-error/fallback input, and immutability of the supplied error.
 - [ ] Media presentation uses `Atmosphere` for feature title and `AtmoShaper`
   from `PUBLIC_PRODUCT_IDENTITY` for artist/publisher/album copy. Rename the
   current proof-station display from `MassageLab Proof Drone` to
@@ -425,7 +445,7 @@ preview copy without changing external state.
 - [ ] Run:
 
   ```powershell
-  node --test tests/atmosphere-public-labels.test.mjs tests/atmosphere-media-session-controller.test.mjs tests/atmosphere-stations.test.mjs tests/carousel-lab-source.test.mjs tests/atmoshaper-layout-source.test.mjs tests/atmoshaper-ui-refinement-source.test.mjs tests/atmoshaper-workspace-source.test.mjs tests/music-mini-player-source.test.mjs
+  node --test tests/atmosphere-public-labels.test.mjs tests/atmosphere-public-error.test.mjs tests/atmosphere-media-session-controller.test.mjs tests/atmosphere-stations.test.mjs tests/carousel-lab-source.test.mjs tests/atmoshaper-layout-source.test.mjs tests/atmoshaper-ui-refinement-source.test.mjs tests/atmoshaper-workspace-source.test.mjs tests/music-mini-player-source.test.mjs
   npm run typecheck
   git diff --check
   ```

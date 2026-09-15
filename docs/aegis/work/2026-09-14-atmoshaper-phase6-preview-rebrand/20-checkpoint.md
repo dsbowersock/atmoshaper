@@ -1,5 +1,29 @@
 # Phase 6 preview rebrand checkpoint
 
+## 2026-09-14 — Task 2 specification-review scope correction
+
+- Task 1 passed implementation, specification, quality, and coordinator
+  validation and was committed as `b300382b8d4e14c858cc20a818649351ad996e48`.
+- Task 2 started clean at that exact commit. Its initial implementation stayed
+  within the written file list and passed 96/96 focused tests plus typecheck and
+  diff check, but independent specification review found two systemic owner
+  gaps before commit.
+- The persistent mini-player still repeated three public `Atmosphere` literals,
+  and raw internal `AtmoShaper` runtime failures could still reach public error
+  or live-region surfaces.
+- The approved architecture already required representative UI, accessibility,
+  transport, status, and error consumers to depend on the public-label owner.
+  The plan is therefore corrected—not broadened—to include the missed
+  mini-player consumer and one pure public-error boundary with focused tests.
+  Internal exceptions, telemetry, IDs, storage, routes, and provenance remain
+  unchanged.
+- The committed pre-module Existence Check remains satisfied: the plan and
+  architecture receipt found no neutral public feature-label owner and justified
+  one noun-only addition. No additional competing owner is introduced.
+- Current todo: independently review this plan correction, commit it separately,
+  then return the exact repair to the Task 2 implementer before repeating both
+  Task 2 review gates.
+
 ## 2026-09-14 — Clean pre-implementation baseline complete
 
 - Planning commit:
