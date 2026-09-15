@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { purpleGlowClassName } from "@/components/ui/carousel-button-classes"
 import { MetalFavoriteIcon } from "@/components/ui/metal-favorite-icon"
 import { buildAtmosphereFavoritesSpeedDialModel } from "@/lib/atmosphere/favorites-speed-dial"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { groupAtmosphereStations } from "@/lib/atmosphere/station-groups"
 import { getVisibleAtmosphereStations } from "@/lib/atmosphere/stations"
 import { cn } from "@/lib/utils"
@@ -96,13 +97,13 @@ export function AtmosphereStationCarousel({
       ? {
           id: FAVORITES_CATEGORY_ID,
           title: "Favorites",
-          description: "Your saved Atmosphere stations.",
+          description: `Your saved ${ATMOSPHERE_PUBLIC_LABELS.name} stations.`,
           stations: favoriteStations,
         }
       : isAtmoshaperCategory
         ? {
             id: ATMOSHAPER_CATEGORY_ID,
-            title: "Atmoshaper",
+            title: ATMOSPHERE_PUBLIC_LABELS.name,
             description: "Layer ambient sounds into your own soundscape.",
             stations: [],
           }
@@ -238,7 +239,7 @@ export function AtmosphereStationCarousel({
   return (
     <section
       className="ml-atmosphere-station-carousel grid gap-4"
-      aria-label="Atmosphere audio stations"
+      aria-label={`${ATMOSPHERE_PUBLIC_LABELS.name} audio stations`}
       data-constrained-landscape={constrainedLandscape ? "true" : "false"}
       data-music-storage-status={music.visualizer.storageStatus}
       style={carouselStyle}
@@ -286,7 +287,7 @@ export function AtmosphereStationCarousel({
               size="compact"
               variant="glow"
             >
-              Atmoshaper
+              {ATMOSPHERE_PUBLIC_LABELS.name}
             </Button>
           </div>
         </div>

@@ -15,7 +15,7 @@ export type StationVinylProps = React.HTMLAttributes<HTMLDivElement> & {
  *
  * The upstream MIT notice is retained in docs/licenses/componentry-mit.txt.
  * This boundary keeps only the record artwork and decorative layers; playback,
- * animation timing, interaction, and media ownership remain with MassageLab.
+ * animation timing, interaction, and media ownership remain with AtmoShaper.
  */
 export function StationVinyl({
   artworkInput,

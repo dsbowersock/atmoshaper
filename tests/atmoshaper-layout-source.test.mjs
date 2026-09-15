@@ -33,6 +33,8 @@ const productionSource = [
 describe("AtmoShaper responsive integration source contract", () => {
   it("mounts only the mixer at the AtmoShaper category integration point", () => {
     assert.match(carousel, /import \{ AtmoShaperWorkspace \}/)
+    assert.match(carousel, /import \{ ATMOSPHERE_PUBLIC_LABELS \}/)
+    assert.match(carousel, /title: ATMOSPHERE_PUBLIC_LABELS\.name/)
     assert.match(
       carousel,
       /isFavoritesCategory && stationItems\.length === 0[\s\S]*?: isAtmoshaperCategory \? \(\s*<AtmoShaperWorkspace \/>\s*\) : \(\s*<AdaptiveCarouselStage/,

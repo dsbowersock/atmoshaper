@@ -29,14 +29,16 @@ describe("Atmosphere station catalog", () => {
     )
   })
 
-  it("exposes one playable MassageLab-hosted proof station", () => {
+  it("presents the proof station under AtmoShaper while preserving its stable source contract", () => {
     const station = getAtmosphereStationById("mlab-proof-drone")
 
-    assert.equal(station.title, "MassageLab Proof Drone")
+    assert.equal(station.title, "AtmoShaper Proof Drone")
+    assert.equal(station.artist, "AtmoShaper")
     assert.equal(station.sourceType, "tone-generator")
     assert.equal(station.enabled, true)
     assert.equal(station.runtime.adapterId, "tone-proof-drone")
     assert.equal(station.attribution.sourceUrl, "/music")
+    assert.equal(station.attribution.artist, "MassageLab")
     assert.match(station.description, /soft, steady drone/i)
     assert.equal(station.attribution.license, "MassageLab internal proof")
   })
