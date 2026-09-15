@@ -832,6 +832,7 @@ because they never changed.
 - Create: `tests/legal-document-archive.test.mjs`
 - Create: `data/legal-document-history/2026-06-legal-v2.json`
 - Create: `data/legal-document-history/2026-07-digital-purchases-v2.json`
+- Modify: `docs/aegis/work/2026-09-14-atmoshaper-phase6-preview-rebrand/90-evidence.md`
 - Modify: `package.json`
 - Modify: `scripts/repository-audit/policy.json`
 - Modify: `tests/repository-audit.test.mjs`
