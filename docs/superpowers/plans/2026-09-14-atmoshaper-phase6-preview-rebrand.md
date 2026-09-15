@@ -1076,6 +1076,23 @@ evidence even while current code is reverted.
   tracked baseline rows appear only as informational `missing` entries until
   Task 9 performs the sole baseline regeneration. Do not re-add occurrence rules
   for removed current-product copy.
+- [ ] Before Task 8 resumes after the browser specification finding, complete
+  one separately reviewed Task 2-owner repair in exactly
+  `app/browse/workspace.tsx` and
+  `tests/atmoshaper-layout-source.test.mjs`. Change the rail-layout screen-reader
+  page `h1` from `Atmosphere audio stations` to exactly `Atmosphere`, matching
+  the approved page-heading decision. Preserve the station carousel's distinct
+  region accessible name `Atmosphere audio stations`, and preserve layout,
+  navigation, station behavior, responsive geometry, and all other copy.
+- [ ] Update the focused source contract to require one page-level `h1` whose
+  exact text is `Atmosphere`, reject the old
+  `<h1 className="sr-only">Atmosphere audio stations</h1>`, and continue
+  requiring the carousel region name `Atmosphere audio stations`. Run
+  `node --test tests/atmoshaper-layout-source.test.mjs`,
+  `npm run typecheck`, and `git diff --check`. Complete independent
+  specification review and then independent quality review, repairing and
+  re-reviewing before the coordinator stages only those two paths and creates a
+  bounded repair commit.
 - [ ] Capture `TaskStartSnapshot`.
 - [ ] Generate a review candidate without modifying the tracked baseline. Group
   remaining `pre-rebrand-public-copy` entries by semantic meaning, not file.
@@ -1138,6 +1155,30 @@ evidence even while current code is reverted.
   closed/expanded mixer geometry and transport labels; install dialog and served
   manifest; SEO without social image; legal index/general/digital/acceptance
   versions; and Lava Lamp/Tile grid/Hex grid with unchanged ownership behavior.
+- [ ] In `tests/browser/background-commerce.spec.ts`,
+  `tests/browser/music-visualizer.spec.ts`,
+  `tests/browser/public-routes.spec.ts`, and
+  `tests/browser/phase6-preview-rebrand.spec.ts`, use a level-one heading
+  locator with exact name `Atmosphere`; do not use the carousel region name as
+  the page heading and do not use a partial or case-insensitive heading match.
+  Keep region locators exact and separately named
+  `Atmosphere audio stations`.
+- [ ] In the Phase 6 browser oracle, assert exactly one
+  `link[rel="canonical"]` with exact `href`
+  `https://www.massagelab.app/` and exactly one
+  `meta[property="og:url"]` with exact `content`
+  `https://www.massagelab.app/`. This is current-source evidence, not a
+  conditional expectation: `app/page.tsx` calls
+  `createPublicPageMetadata("/")`, whose `alternates.canonical` and
+  `openGraph.url` both use that exact URL.
+- [ ] Replace permissive legal `.first()` and `exact: false` checks in the new
+  oracle. On `/legal`, require exactly one rendered sentence:
+  `Derrick Bowersock, doing business as AtmoShaper. Current document version 2026-09-legal-v3.`
+  On `/legal/terms`, require exactly one exact rendered row
+  `Version: 2026-09-legal-v3`; on
+  `/legal/digital-purchases-refunds`, require exactly one exact rendered row
+  `Version: 2026-09-digital-purchases-v3`. Use exact-text locators plus
+  count-one assertions so duplicates, prefixes, and suffixes fail.
 - [ ] Use new Phase 6 snapshot names/paths only. Do not touch
   `tests/browser/atmoshaper-repository-migration-parity.spec.ts` or its snapshots.
 - [ ] Task 8 authors and statically validates Browser-QA contracts only. Do not
