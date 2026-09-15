@@ -32,13 +32,13 @@ const productionSource = [
 
 describe("AtmoShaper responsive integration source contract", () => {
   it("uses the approved page heading while retaining the station region name", () => {
-    assert.equal(
-      browseWorkspace.match(/<h1 className="sr-only">Atmosphere<\/h1>/g)?.length ?? 0,
-      1,
+    assert.match(
+      browseWorkspace,
+      /<h1 className="sr-only">\{ATMOSPHERE_PUBLIC_LABELS\.name\}<\/h1>/,
     )
     assert.doesNotMatch(
       browseWorkspace,
-      /<h1 className="sr-only">Atmosphere audio stations<\/h1>/,
+      /<h1 className="sr-only">Atmosphere(?: audio stations)?<\/h1>/,
     )
     assert.match(
       carousel,
