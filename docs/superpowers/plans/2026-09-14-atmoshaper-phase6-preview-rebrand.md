@@ -979,6 +979,18 @@ evidence even while current code is reverted.
   `tests/browser/music-visualizer.spec.ts`, `tests/browser/public-routes.spec.ts`,
   and `tests/browser/pwa.spec.ts`
 
+- [ ] Before Task 8 resumes, complete one separately reviewed owner-routed repair
+  commit for the three current-copy misses found by its initial candidate:
+  `app/dev/buttons/background-palette-gallery.tsx` must render the canonical
+  `mlab-proof-drone` station title while preserving that ID;
+  `app/dev/buttons/metal-ring-gallery.tsx` must use unbranded current prose;
+  and `components/ui/sidebar.tsx` must compose its screen-reader navigation
+  title from `PUBLIC_PRODUCT_IDENTITY.name`. Update the impacted contracts in
+  `tests/app-settings.test.mjs`, `tests/browser/background-palette.spec.ts`,
+  `tests/browser/background-commerce.spec.ts`,
+  `tests/browser/dna-twisted-cubes-backgrounds.spec.ts`, and
+  `tests/browser/music-visualizer.spec.ts`. Do not change stable station IDs,
+  playback behavior, layout, controls, routes, or historical snapshots.
 - [ ] Capture `TaskStartSnapshot`.
 - [ ] Generate a review candidate without modifying the tracked baseline. Group
   remaining `pre-rebrand-public-copy` entries by semantic meaning, not file.
