@@ -3930,6 +3930,11 @@
     border-radius: 9999px;
   }
 
+  /* Keep the desktop text identity intact when the toolbar settles at tablet widths. */
+  .ml-app-topbar .ml-app-bar-brand {
+    flex-shrink: 0;
+  }
+
   .ml-app-bar-brand-text {
     display: block;
     max-width: 100%;

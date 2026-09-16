@@ -26,23 +26,45 @@ async function expectMusicReady(page: Page) {
     .toHaveAttribute("data-music-storage-status", "available")
 }
 
-async function expectTextFits(locator: Locator) {
-  await expect(locator).toBeVisible()
-  expect(await locator.evaluate((element) => ({
-    clientHeight: element.clientHeight,
-    clientWidth: element.clientWidth,
-    scrollHeight: element.scrollHeight,
-    scrollWidth: element.scrollWidth,
-  }))).toMatchObject({
-    clientHeight: expect.any(Number),
-    clientWidth: expect.any(Number),
+/** Wait for layout convergence and CSS transitions before comparing geometry. */
+async function settledBox(locator: Locator) {
+  let previous = ""
+  let stableSamples = 0
+  await expect.poll(async () => {
+    const state = await locator.evaluate((element) => ({
+      box: element.getBoundingClientRect().toJSON(),
+      animating: element.getAnimations().some((animation) => animation.playState === "running"),
+    }))
+    const current = JSON.stringify(state.box)
+    stableSamples = !state.animating && current === previous ? stableSamples + 1 : 0
+    previous = current
+    return stableSamples >= 2
+  }, { intervals: [100], message: "layout has settled across consecutive geometry samples" }).toBe(true)
+  const box = await locator.boundingBox()
+  expect(box).not.toBeNull()
+  return box!
+}
+
+async function expectTextFits(brand: Locator) {
+  const text = brand.locator(".ml-app-bar-brand-text")
+  await settledBox(brand)
+  await expect(text).toBeVisible()
+  await expect(text).toHaveText(PRODUCT_NAME)
+  const fit = await text.evaluate((element) => {
+    const textBox = element.getBoundingClientRect()
+    const brandBox = element.parentElement!.getBoundingClientRect()
+    return {
+      horizontalOverflow: element.scrollWidth - element.clientWidth,
+      outsideBrand: Math.max(
+        brandBox.left - textBox.left,
+        textBox.right - brandBox.right,
+        brandBox.top - textBox.top,
+        textBox.bottom - brandBox.bottom,
+      ),
+    }
   })
-  const overflow = await locator.evaluate((element) => ({
-    horizontal: element.scrollWidth - element.clientWidth,
-    vertical: element.scrollHeight - element.clientHeight,
-  }))
-  expect(overflow.horizontal).toBeLessThanOrEqual(1)
-  expect(overflow.vertical).toBeLessThanOrEqual(1)
+  expect(fit.horizontalOverflow).toBeLessThanOrEqual(1)
+  expect(fit.outsideBrand).toBeLessThanOrEqual(1)
 }
 
 async function openAccountMenu(page: Page) {
@@ -87,6 +109,7 @@ test("presents the text-only product identity across homepage and responsive app
   await expect(tabletBrand.locator("img")).toHaveCount(0)
   await expectTextFits(tabletBrand)
   await expect(tabletBar).toHaveScreenshot("app-bar-tablet.png", { animations: "disabled" })
+  await expectTextFits(tabletBrand)
 
   await page.setViewportSize({ width: 320, height: 568 })
   await gotoReady(page, "/music")
@@ -105,7 +128,6 @@ test("presents the text-only product identity across homepage and responsive app
 })
 
 test("keeps Atmosphere navigation, transport labels, and closed or expanded geometry coherent", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 })
   await gotoReady(page, "/music")
   await expectMusicReady(page)
   await page.getByRole("group", { name: "Station category" })
@@ -127,22 +149,23 @@ test("keeps Atmosphere navigation, transport labels, and closed or expanded geom
   await expect(rail).toBeVisible()
   await expect(rail).toHaveAttribute("data-expanded", "false")
   await expect(rail.getByRole("button", { name: "Play Atmosphere" })).toBeVisible()
-  const closedBox = await rail.boundingBox()
-  expect(closedBox).not.toBeNull()
-  await expect(workspace).toHaveScreenshot("atmosphere-closed.png", { animations: "disabled" })
+  const closedBox = await settledBox(rail)
+  // Capture the configured desktop/mobile viewport, including the fixed outer rail.
+  await expect(page).toHaveScreenshot("atmosphere-closed.png", { animations: "disabled" })
 
   await rail.getByRole("button", { name: "Open Current Mix" }).click()
+  await expect(rail).toHaveAttribute("data-expanded", "true")
   await expect(dialog).toBeVisible()
   await expect(dialog.getByRole("button", { name: "Play Atmosphere" })).toBeVisible()
   await expect(dialog.getByRole("button", { name: "Close Current Mix" })).toBeVisible()
-  const expandedBox = await dialog.boundingBox()
-  expect(expandedBox).not.toBeNull()
-  expect(expandedBox!.width).toBeGreaterThan(closedBox!.width)
-  expect(Math.abs(expandedBox!.y - closedBox!.y)).toBeLessThanOrEqual(2)
+  // The persistent outer rail owns width and anchors in both states.
+  const expandedBox = await settledBox(rail)
+  expect(expandedBox.width).toBeGreaterThan(closedBox.width)
+  expect(Math.abs(expandedBox.y - closedBox.y)).toBeLessThanOrEqual(2)
   expect(Math.abs(
-    expandedBox!.y + expandedBox!.height - (closedBox!.y + closedBox!.height),
+    expandedBox.y + expandedBox.height - (closedBox.y + closedBox.height),
   )).toBeLessThanOrEqual(2)
-  await expect(workspace).toHaveScreenshot("atmosphere-expanded.png", { animations: "disabled" })
+  await expect(page).toHaveScreenshot("atmosphere-expanded.png", { animations: "disabled" })
 })
 
 test("uses AtmoShaper in install, manifest, and SEO contracts without an old social image", async ({ page, request }) => {
@@ -180,14 +203,14 @@ test("uses AtmoShaper in install, manifest, and SEO contracts without an old soc
   await expect(page.locator('meta[name="twitter:image"]')).toHaveCount(0)
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest")
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://www.massagelab.app/")
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/www\.massagelab\.app\/?$/)
   await expect(page.locator('meta[property="og:url"]')).toHaveCount(1)
-  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", "https://www.massagelab.app/")
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", /^https:\/\/www\.massagelab\.app\/?$/)
 })
 
 test("publishes the v3 legal identity and keeps general, digital, and acceptance versions distinct", async ({ page }) => {
   await gotoReady(page, "/legal")
-  await expect(page.getByRole("heading", { name: "Legal and trust documents" })).toBeVisible()
+  await expect(page.getByText("Legal and trust documents", { exact: true })).toBeVisible()
   const indexDescription = page.getByText(
     `${LEGAL_IDENTITY}. Current document version ${GENERAL_LEGAL_VERSION}.`,
     { exact: true },
@@ -196,24 +219,39 @@ test("publishes the v3 legal identity and keeps general, digital, and acceptance
   await expect(indexDescription).toBeVisible()
 
   await gotoReady(page, "/legal/terms")
-  await expect(page.getByRole("heading", { name: "Terms of Service" })).toBeVisible()
+  await expect(page.getByText("Terms of Service", { exact: true })).toBeVisible()
   const generalVersion = page.getByText(`Version: ${GENERAL_LEGAL_VERSION}`, { exact: true })
   await expect(generalVersion).toHaveCount(1)
   await expect(generalVersion).toBeVisible()
   await expect(page).toHaveScreenshot("legal-general.png", { animations: "disabled" })
 
   await gotoReady(page, "/legal/digital-purchases-refunds")
-  await expect(page.getByRole("heading", { name: "Digital Purchases and Refund Policy" })).toBeVisible()
+  await expect(page.getByText("Digital Purchases and Refund Policy", { exact: true })).toBeVisible()
   const digitalVersion = page.getByText(`Version: ${DIGITAL_LEGAL_VERSION}`, { exact: true })
   await expect(digitalVersion).toHaveCount(1)
   await expect(digitalVersion).toBeVisible()
   await expect(page).toHaveScreenshot("legal-digital.png", { animations: "disabled" })
 
+  // Exercise the form's real JSON boundary while preventing account or email writes.
+  await page.route("**/api/account/register", (route) => route.fulfill({
+    status: 202,
+    contentType: "application/json",
+    body: JSON.stringify({ message: "Registration request captured locally." }),
+  }))
   await gotoReady(page, "/register")
   await expect(page.getByRole("heading", { name: "Create AtmoShaper account", exact: true })).toBeVisible()
-  const acceptedValues = await page.locator('input[name="acceptedLegalDocuments"]')
-    .evaluateAll((inputs) => inputs.map((input) => (input as HTMLInputElement).value).sort())
-  expect(acceptedValues).toEqual([
+  await page.getByRole("textbox", { name: "Name", exact: true }).fill("Preview Legal QA")
+  await page.getByRole("textbox", { name: "Email", exact: true }).fill("preview-legal@example.test")
+  await page.getByLabel("Password", { exact: true }).fill("not-a-real-password")
+  await page.getByRole("checkbox", { name: /I agree to the Privacy Policy/ }).check()
+  await page.getByRole("checkbox", { name: /I agree to the Terms of Service/ }).check()
+  const registrationRequest = page.waitForRequest((request) => (
+    new URL(request.url()).pathname === "/api/account/register" && request.method() === "POST"
+  ))
+  await page.getByRole("button", { name: "Create account with email", exact: true }).click()
+  const { acceptedLegalDocuments: acceptedValues } = (await registrationRequest).postDataJSON()
+  expect(acceptedValues).toEqual(expect.any(Array))
+  expect([...acceptedValues].sort()).toEqual([
     `privacy:${GENERAL_LEGAL_VERSION}`,
     `terms:${GENERAL_LEGAL_VERSION}`,
   ])
@@ -234,19 +272,40 @@ test("shows the three approved background labels without changing free or premiu
   await expect(previewToggleOff).not.toBeChecked()
   await expect(panel.getByTestId("carousel-background-video")).toHaveCount(0)
 
-  const lava = await centerCarouselItem(page, "massage-lab-moving-gradient", "Next background")
-  await expect(lava).toContainText("Lava Lamp")
+  const controls = panel.getByTestId("background-carousel-controls")
+  await centerCarouselItem(page, "massage-lab-moving-gradient", "Next background")
+  await expect(controls.getByRole("heading", { name: "Lava Lamp", exact: true })).toBeVisible()
   await expect(panel.getByRole("button", { name: /^(?:Select|Selected) Lava Lamp background$/ })).toBeEnabled()
 
-  const tile = await centerCarouselItem(page, "massage-lab-tile-grid", "Next background")
-  await expect(tile).toContainText("Tile grid")
+  await centerCarouselItem(page, "massage-lab-tile-grid", "Next background")
+  await expect(controls.getByRole("heading", { name: "Tile grid", exact: true })).toBeVisible()
   await expect(panel.getByRole("button", { name: "Unlock Tile grid background" })).toBeEnabled()
+  await settledBox(controls)
+  const trayFit = await controls.evaluate((tray) => {
+    const trayBox = tray.getBoundingClientRect()
+    const panelBox = tray.closest('[role="dialog"]')!.getBoundingClientRect()
+    const contents = [tray, ...tray.querySelectorAll<HTMLElement>(
+      'h3, [role="switch"], [data-background-tray-action]',
+    )].filter((element) => element.getClientRects().length > 0)
+    return {
+      outsidePanel: Math.max(panelBox.left - trayBox.left, trayBox.right - panelBox.right),
+      horizontalOverflow: Math.max(...contents.map((element) => element.scrollWidth - element.clientWidth)),
+      outsideTray: Math.max(...contents.map((element) => {
+        const box = element.getBoundingClientRect()
+        return Math.max(trayBox.left - box.left, box.right - trayBox.right,
+          trayBox.top - box.top, box.bottom - trayBox.bottom)
+      })),
+    }
+  })
+  expect(trayFit.outsidePanel).toBeLessThanOrEqual(1)
+  expect(trayFit.horizontalOverflow).toBeLessThanOrEqual(1)
+  expect(trayFit.outsideTray).toBeLessThanOrEqual(1)
   await expect(panel).toHaveScreenshot("background-labels.png", { animations: "disabled" })
   await panel.getByRole("button", { name: "Unlock Tile grid background" }).click()
   await expect(page.getByRole("dialog", { name: "Unlock Tile grid" })).toBeVisible()
   await page.keyboard.press("Escape")
 
-  const hex = await centerCarouselItem(page, "massage-lab-hex-grid", "Next background")
-  await expect(hex).toContainText("Hex grid")
+  await centerCarouselItem(page, "massage-lab-hex-grid", "Next background")
+  await expect(controls.getByRole("heading", { name: "Hex grid", exact: true })).toBeVisible()
   await expect(panel.getByRole("button", { name: "Unlock Hex grid background" })).toBeEnabled()
 })

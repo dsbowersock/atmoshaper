@@ -60,6 +60,15 @@
   min-width: 0;
 }
 
+/* Portrait labels and the preview switch need the full width above wrapping actions. */
+:global([data-carousel-responsive-profile="phone-portrait"]) .tray {
+  grid-template-areas:
+    "metadata"
+    "preview"
+    "actions";
+  grid-template-columns: minmax(0, 1fr);
+}
+
 :global([data-carousel-responsive-profile="short-landscape"]) .tray {
   grid-template-areas:
     "metadata"
