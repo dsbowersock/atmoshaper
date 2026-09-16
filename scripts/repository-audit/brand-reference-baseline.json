@@ -49641,42 +49641,42 @@
     },
     {
       "path": "app/globals.css",
-      "line": 4704,
+      "line": 4709,
       "column": 4,
       "textSha256": "320a00d5336c42e42df8ea6886c6da39fe9a5efed31e53ff3b24de116c6131d5",
       "category": "compatibility"
     },
     {
       "path": "app/globals.css",
-      "line": 4715,
+      "line": 4720,
       "column": 16,
       "textSha256": "9d5abc6d306f095d77506c92149dcf5b8b8e89eb7fa40f098b17d745a5ab6165",
       "category": "compatibility"
     },
     {
       "path": "app/globals.css",
-      "line": 4717,
+      "line": 4722,
       "column": 39,
       "textSha256": "4dd8852aefe9dd3b17b46e66bcd4e3f4be6eef96988f64a06079ef6a2857221b",
       "category": "compatibility"
     },
     {
       "path": "app/globals.css",
-      "line": 4721,
+      "line": 4726,
       "column": 12,
       "textSha256": "356046c06bfd7ed4ce4888afb23bb0cc3253b9337e2d6376984282f52edaac7e",
       "category": "compatibility"
     },
     {
       "path": "app/globals.css",
-      "line": 4952,
+      "line": 4957,
       "column": 81,
       "textSha256": "47aa745ae93868115355a2e1bc0385227202d239a072cee5e1e88aa34e2d7170",
       "category": "compatibility"
     },
     {
       "path": "app/globals.css",
-      "line": 4962,
+      "line": 4967,
       "column": 6,
       "textSha256": "95433c2af3681fd2f1e7850927a834bfc407f89d1bb3802160b38d2f7fb9a42b",
       "category": "compatibility"
@@ -137925,7 +137925,7 @@
     },
     {
       "path": "tests/browser/background-carousel-preview.spec.ts",
-      "line": 445,
+      "line": 447,
       "column": 27,
       "textSha256": "517d3fcbdc8d51e54a1261bdb947b29d924dd7587d0f9c0ddf2e71b5909d48f9",
       "category": "compatibility"
@@ -139717,16 +139717,16 @@
     },
     {
       "path": "tests/browser/phase6-preview-rebrand.spec.ts",
-      "line": 183,
-      "column": 92,
-      "textSha256": "0203bf3983a46342e14719d94559790bc36ce27d406e771b0dea1076cdcad68e",
+      "line": 206,
+      "column": 96,
+      "textSha256": "facf0a4ab15ae022265d3f97fa162c64d80767a10b080dab62ec4a2f846c8fe4",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/phase6-preview-rebrand.spec.ts",
-      "line": 185,
-      "column": 97,
-      "textSha256": "7761e86c1f4be3811caa8f83b70a46f9383dee69c59099b722e89ea07d4db444",
+      "line": 208,
+      "column": 101,
+      "textSha256": "702136a394426dfe119802213b270838a835399fdf5bfebdd54aae82d9045a99",
       "category": "compatibility"
     },
     {

@@ -1,5 +1,121 @@
 # Phase 6 preview rebrand checkpoint
 
+## 2026-09-16 - Post-final-cycle bounded repair
+
+- Removed the invalid 2px font-line-box vertical scroll metric from the product
+  oracle. Exact visible text, horizontal overflow, settled geometry, parent
+  containment on all sides, and the post-screenshot recheck remain.
+- Legal acceptance now targets the actual registration JSON POST after
+  checking the named Privacy Policy and Terms of Service controls. The request
+  is intercepted and fulfilled locally, preventing database and email writes;
+  the oracle checks exact general-v3 IDs and excludes the digital-purchase version.
+- Atmosphere captures honor the configured desktop and Pixel 7 viewports and
+  capture the page, including the fixed Current Mix rail, while retaining
+  geometry and control assertions.
+- Diagnostic visual review identified the phone-portrait tray's inherited
+  two-column squeeze. Only the phone-portrait profile now stacks metadata,
+  preview, and wrapping actions. The horizontal visual-filter row is unchanged.
+- The production browser regression now checks portrait ordering, full-width
+  regions, containment, and visible action geometry. A network-blocked,
+  provider-free diagnostic against the real tray stylesheet failed before the
+  CSS repair and passed afterward: metadata and preview widths increased from
+  84px to 332px, with zero horizontal overflow. This is bounded CSS evidence,
+  not full application Browser GREEN.
+- Focused tests passed 109/109. Typecheck, full lint, scoped ESLint, and
+  file-scoped diff hygiene passed. Independent specification and quality
+  reviews both returned APPROVED.
+- The bounded repair changed the tray stylesheet and the two relevant browser
+  specs. No receipt update grants staging, commit, baseline/policy changes,
+  or provider authority. No disposable provider resource remains; no snapshots
+  have been accepted. Historical cycle facts and the ignored diagnostic
+  inventory remain intact.
+- Browser GREEN is still unestablished. Fresh explicit authorization is
+  required for a new independent empty QA project before the complete rerun,
+  including snapshot acceptance, all four no-update lanes, visual review,
+  emptiness and cleanup proofs, and final receipts.
+
+### Approved Task 9 fingerprint follow-up
+
+- Post-repair `brand:audit` initially exposed nine compatibility baseline
+  entries moved by line changes and two unclassified slash-tolerant SEO regex
+  occurrences. Task 10 left audit policy and baseline untouched and routed the
+  findings to the approved, separately owned Task 9 follow-up.
+- Task 9 added exactly two sorted, fail-closed compatibility occurrence rules
+  and deterministically regenerated the sole-owner baseline. The delta was nine
+  added and nine removed occurrences with zero path drift. Totals remain
+  25,383 entries across 528 paths: 23,675 compatibility, 1,673 historical,
+  35 legal, and zero public-copy occurrences.
+- Candidate A, live baseline, and candidate B were byte-identical. Audit tests
+  passed 31/31, and brand audit reported empty missing and unclassified sets.
+  Independent Task 9 specification and quality reviews both returned APPROVED.
+- Temporary candidates were safely removed. The follow-up performed no provider
+  action, staging, commit, or publication. Browser GREEN, accepted snapshots,
+  and all four no-update lanes still require a newly authorized independent
+  empty QA project and complete rerun.
+
+## 2026-09-15 - Task 10 authorized disposable Browser-QA start
+
+- Authority: the user explicitly authorized creation, use, and deletion of one
+  fresh temporary empty Neon QA project. Production data may not be copied,
+  read, or altered.
+- TaskStartSnapshot: one clean worktree at
+  `C:/Users/derri/code/my_projects/atmoshaper`, branch
+  `codex/atmoshaper-phase6-preview-rebrand`, exact `HEAD`
+  `4ec03547a98d55bce00ed3d300e0b55c6f115ec6`, upstream `origin/main`,
+  divergence `+33/-0`, empty index/worktree, and no active merge, rebase,
+  cherry-pick, revert, or bisect operation.
+- Provider preflight: a read-only project listing confirmed the pre-existing
+  project boundary and that the newly generated cycle label was absent. Names,
+  identifiers, connection values, credentials, fingerprints, and rows remain
+  memory-only and are not recorded here.
+- Slice Card goal: create one independent empty project, pass the fingerprint
+  gate, apply exactly the committed migration set, prove every application
+  table empty, capture and visually inspect only the new Phase 6 oracle, pass
+  all four no-update Browser-QA lanes, prove the database empty again, delete
+  the cycle-owned project, and prove it absent.
+- Explicit non-edits: production data and configuration, provider/domain/DNS
+  state, historical migration-parity snapshots, repository audit policy and
+  baseline, deployment, publication, and final-logo integration.
+- TDD route remains off. This is execution of the approved QA contract; any
+  discovered behavior defect requires a focused regression-first repair and
+  independent review before Task 10 can resume.
+- Drift decision: continue inside the approved Task 10 lifecycle and stop
+  before push or PR creation.
+
+## 2026-09-15 - Task 10 replacement cycle and focused oracle repair
+
+- The first disposable project passed identity, target-fingerprint, and
+  empty-schema gates, then encountered two Prisma advisory-lock `P1002`
+  timeouts. It was deleted; absence was proved and production remained present.
+- The user-authorized independent replacement passed identity,
+  target-fingerprint, and empty-schema gates. Exact advisory-lock inspection
+  found no matching lock, acquire/release passed, and no migration engine
+  remained. One isolated `PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1` deployment
+  passed, correcting the premature still-running progress message. Migration
+  status and exact equality with all 46 committed migrations passed.
+- All 134 application tables were empty before and after QA.
+  `npm run build:browser-qa` passed. No production data was accessed.
+  Private identifiers, connection values, credentials, fingerprints, and row
+  contents are not recorded.
+- The first Phase 6-only oracle capture failed 10 assertions from five causes
+  duplicated across both projects: tablet topbar text shrinkage was the product
+  defect; four oracle mistakes used the inner dialog instead of the outer rail,
+  required one root-slash serialization, assumed a legal heading role, and
+  selected slide text instead of the background control-tray label.
+- Four partial PNGs were removed; no snapshots were accepted. The four
+  no-update lanes and visual review were not run. The server was stopped,
+  the replacement was deleted and proved absent, and production remained present.
+- Focused repair changed only `app/globals.css` and
+  `tests/browser/phase6-preview-rebrand.spec.ts`. The retained browser failure
+  supplied RED; focused tests passed 79/79, and typecheck, lint, and scoped diff
+  hygiene passed. Independent specification and quality reviews approved.
+  The brand baseline and audit policy remain unchanged.
+- Browser GREEN, accepted snapshots, all four no-update lanes, visual review,
+  final receipts, and the coordinator commit remain pending fresh authorization
+  for one more independent empty QA project and full rerun. No disposable
+  provider resource remains, and no file has been staged or committed.
+
+
 ## 2026-09-15 — Task 9 local authority and deterministic-baseline closeout
 
 - TaskStartSnapshot: one clean worktree at

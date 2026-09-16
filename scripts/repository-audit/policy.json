@@ -303,6 +303,10 @@
       "category": "compatibility"
     },
     {
+      "fingerprint": "34c79485ec8d95c07d72a1d5e168449db380ee689bbba608653362278df88ad3",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "36311cb6f2245bcf680cc87ea22af74b91a6277fe374d6ad248c522af8ab43e8",
       "category": "historical"
     },
@@ -988,6 +992,10 @@
     },
     {
       "fingerprint": "da37eb8efa4eac25261832e0694fc512fd6563b72c113c30f4e3eb9b42c2729b",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "dab75d8d0c1f4decb6d3cd42732fede961234a2f6192a4362653cd24e12c22a1",
       "category": "compatibility"
     },
     {
