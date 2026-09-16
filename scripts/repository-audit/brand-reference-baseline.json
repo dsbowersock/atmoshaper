@@ -137701,7 +137701,7 @@
     },
     {
       "path": "tests/browser-qa-harness.test.mjs",
-      "line": 748,
+      "line": 807,
       "column": 52,
       "textSha256": "5c92d4786705331bf5680459d459899dbc6b4b1387c4f598867ccdfe4d3ecc8f",
       "category": "historical"
@@ -139717,14 +139717,14 @@
     },
     {
       "path": "tests/browser/phase6-preview-rebrand.spec.ts",
-      "line": 206,
+      "line": 263,
       "column": 96,
       "textSha256": "facf0a4ab15ae022265d3f97fa162c64d80767a10b080dab62ec4a2f846c8fe4",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/phase6-preview-rebrand.spec.ts",
-      "line": 208,
+      "line": 265,
       "column": 101,
       "textSha256": "702136a394426dfe119802213b270838a835399fdf5bfebdd54aae82d9045a99",
       "category": "compatibility"
