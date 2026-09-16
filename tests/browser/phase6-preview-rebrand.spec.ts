@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test"
+import { errors, expect, test, type Locator, type Page } from "@playwright/test"
 
 import { centerCarouselItem } from "./carousel-test-helpers"
 
@@ -6,6 +6,11 @@ const PRODUCT_NAME = "AtmoShaper"
 const GENERAL_LEGAL_VERSION = "2026-09-legal-v3"
 const DIGITAL_LEGAL_VERSION = "2026-09-digital-purchases-v3"
 const LEGAL_IDENTITY = "Derrick Bowersock, doing business as AtmoShaper"
+
+// The active tool ring is a canvas animation; use its real accessibility state.
+test.beforeEach(async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" })
+})
 
 async function gotoReady(page: Page, path: string) {
   await page.goto(path, { waitUntil: "domcontentloaded" })
@@ -24,6 +29,23 @@ async function expectMusicReady(page: Page) {
   })).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations", exact: true }))
     .toHaveAttribute("data-music-storage-status", "available")
+
+  // Both responsive bars share this owner. Keep the real painted ring and glyph.
+  const ring = page.locator(".ml-app-tool-link-active-ring:visible")
+  await expect(ring).toHaveCount(1)
+  await expect(ring).toHaveAttribute("data-ml-metal-motion-state", "paused")
+  await expect(ring).toHaveAttribute("data-paused", "true")
+  const canvas = ring.locator("canvas.metal-fx-canvas")
+  await expect(canvas).toHaveCount(1)
+  await expect(canvas).toBeVisible()
+  await expect(canvas).toHaveCSS("opacity", "0.72")
+  await expect.poll(() => canvas.evaluate((element: HTMLCanvasElement) => {
+    const pixels = element.getContext("2d")!.getImageData(0, 0, element.width, element.height).data
+    return pixels.some((value, index) => index % 4 === 3 && value > 0)
+  })).toBe(true)
+  const icon = ring.getByRole("link", { name: "Open music", exact: true }).locator("svg")
+  await expect(icon).toHaveCount(1)
+  await expect(icon).toBeVisible()
 }
 
 /** Wait for layout convergence and CSS transitions before comparing geometry. */
@@ -67,14 +89,49 @@ async function expectTextFits(brand: Locator) {
   expect(fit.outsideBrand).toBeLessThanOrEqual(1)
 }
 
+/** Follows the visible account owner as hydration replaces the desktop rail with a drawer. */
 async function openAccountMenu(page: Page) {
-  const trigger = page.getByTestId("account-menu-trigger")
-  if (!await trigger.isVisible().catch(() => false)) {
-    await page.getByRole("button", { name: "Open navigation" }).click()
+  const trigger = page.getByTestId("account-menu-trigger").filter({ visible: true })
+  const helpItem = page.getByRole("menuitem", { name: "Help & FAQ", exact: true })
+  const navigation = page.getByRole("button", { name: /^(?:Open|Close) navigation$/ }).filter({ visible: true })
+  const openClosedOwner = async (owner: Locator) => {
+    // Re-resolve only a closed owner, so replacement cannot toggle an open menu shut.
+    const closed = owner.and(page.locator('[aria-expanded="false"]'))
+    const count = await closed.count()
+    expect(count).toBeLessThanOrEqual(1)
+    if (count === 0) return
+    // Sheet owns a 500 ms entrance even under reduced motion. Poll its actual
+    // finite animation instead of spending an action timeout while it moves.
+    const drawerEntering = await closed.evaluateAll((elements) => elements.some((element) => {
+      const drawer = element.closest('[data-sidebar="sidebar"][data-mobile="true"][data-state="open"]')
+      return drawer?.getAnimations().some((animation) => (
+        animation instanceof CSSAnimation && animation.animationName === "enter" &&
+        animation.playState === "running" && animation.effect?.getTiming().iterations === 1
+      )) ?? false
+    }))
+    if (drawerEntering) return
+    try {
+      // One short action attempt leaves the outer poll in charge of hydration.
+      await closed.click({ timeout: 100 })
+    } catch (error) {
+      // Only absence/already-open after a bounded action timeout is transient.
+      if (!(error instanceof errors.TimeoutError) || await closed.count() !== 0) throw error
+    }
   }
-  await expect(trigger).toBeVisible()
-  if (await trigger.getAttribute("aria-expanded") !== "true") await trigger.click()
-  await expect(page.getByRole("menuitem", { name: "Help & FAQ" })).toBeVisible()
+  await expect.poll(async () => {
+    if (await helpItem.isVisible()) return true
+    const triggerCount = await trigger.count()
+    expect(triggerCount).toBeLessThanOrEqual(1)
+    if (triggerCount === 0) {
+      await openClosedOwner(navigation)
+    } else {
+      await openClosedOwner(trigger)
+    }
+    return helpItem.isVisible()
+  }).toBe(true)
+  await expect(trigger).toHaveCount(1)
+  await expect(helpItem).toHaveCount(1)
+  await expect(helpItem).toBeVisible()
 }
 
 test("presents the text-only product identity across homepage and responsive app bars", async ({ page }, testInfo) => {
@@ -210,24 +267,35 @@ test("uses AtmoShaper in install, manifest, and SEO contracts without an old soc
 
 test("publishes the v3 legal identity and keeps general, digital, and acceptance versions distinct", async ({ page }) => {
   await gotoReady(page, "/legal")
-  await expect(page.getByText("Legal and trust documents", { exact: true })).toBeVisible()
-  const indexDescription = page.getByText(
+  // LayoutWrapper owns visible route content; hidden copies are not the page.
+  const legalContent = page.locator("main .ml-app-content:visible")
+  await expect(legalContent).toHaveCount(1)
+  const legalTitle = legalContent.getByText("Legal and trust documents", { exact: true }).filter({ visible: true })
+  await expect(legalTitle).toHaveCount(1)
+  await expect(legalTitle).toBeVisible()
+  const indexDescription = legalContent.getByText(
     `${LEGAL_IDENTITY}. Current document version ${GENERAL_LEGAL_VERSION}.`,
     { exact: true },
-  )
+  ).filter({ visible: true })
   await expect(indexDescription).toHaveCount(1)
   await expect(indexDescription).toBeVisible()
 
   await gotoReady(page, "/legal/terms")
-  await expect(page.getByText("Terms of Service", { exact: true })).toBeVisible()
-  const generalVersion = page.getByText(`Version: ${GENERAL_LEGAL_VERSION}`, { exact: true })
+  await expect(legalContent).toHaveCount(1)
+  const generalTitle = legalContent.getByText("Terms of Service", { exact: true }).filter({ visible: true })
+  await expect(generalTitle).toHaveCount(1)
+  await expect(generalTitle).toBeVisible()
+  const generalVersion = legalContent.getByText(`Version: ${GENERAL_LEGAL_VERSION}`, { exact: true }).filter({ visible: true })
   await expect(generalVersion).toHaveCount(1)
   await expect(generalVersion).toBeVisible()
   await expect(page).toHaveScreenshot("legal-general.png", { animations: "disabled" })
 
   await gotoReady(page, "/legal/digital-purchases-refunds")
-  await expect(page.getByText("Digital Purchases and Refund Policy", { exact: true })).toBeVisible()
-  const digitalVersion = page.getByText(`Version: ${DIGITAL_LEGAL_VERSION}`, { exact: true })
+  await expect(legalContent).toHaveCount(1)
+  const digitalTitle = legalContent.getByText("Digital Purchases and Refund Policy", { exact: true }).filter({ visible: true })
+  await expect(digitalTitle).toHaveCount(1)
+  await expect(digitalTitle).toBeVisible()
+  const digitalVersion = legalContent.getByText(`Version: ${DIGITAL_LEGAL_VERSION}`, { exact: true }).filter({ visible: true })
   await expect(digitalVersion).toHaveCount(1)
   await expect(digitalVersion).toBeVisible()
   await expect(page).toHaveScreenshot("legal-digital.png", { animations: "disabled" })

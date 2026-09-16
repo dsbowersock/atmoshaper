@@ -309,6 +309,65 @@ test("public media journeys fixture opportunistic atmosphere prewarms", async ()
   )
 })
 
+test("Phase 6 uses the real reduced-motion owner without hiding the active music icon", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const tool = await readProjectFile("components/shell/app-tool-link.tsx")
+  const ring = await readProjectFile("components/ui/metal-attention-button.tsx")
+  assert.match(tool, /return active \? <ActiveToolMetalRing>/)
+  assert.match(tool, /<MetalAttentionRing className="ml-app-tool-link-active-ring">/)
+  assert.match(ring, /matchMedia\("\(prefers-reduced-motion: reduce\)"\)/)
+  assert.match(ring, /if \(reducedMotion\) \{\s*setMotionState\("paused"\)/)
+  assert.match(spec, /test\.beforeEach\(async \(\{ page \}\) => \{\s*await page\.emulateMedia\(\{ reducedMotion: "reduce" \}\)/)
+  const ready = sliceBetweenMarkers(spec, "async function expectMusicReady", "/** Wait for layout", "Phase 6 music readiness").slice
+  assert.match(ready, /\.ml-app-tool-link-active-ring:visible/)
+  assert.match(ready, /expect\(ring\)\.toHaveCount\(1\)/)
+  assert.match(ready, /toHaveAttribute\("data-ml-metal-motion-state", "paused"\)/)
+  assert.match(ready, /toHaveAttribute\("data-paused", "true"\)/)
+  assert.match(ready, /canvas\.metal-fx-canvas/)
+  assert.match(ready, /getImageData/)
+  assert.match(ready, /getByRole\("link", \{ name: "Open music", exact: true \}\)/)
+  assert.match(ready, /expect\(icon\)\.toHaveCount\(1\)[\s\S]*expect\(icon\)\.toBeVisible\(\)/)
+  assert.doesNotMatch(spec, /mask:|maxDiffPixels|maxDiffPixelRatio|threshold:|addStyleTag|waitForTimeout/)
+})
+
+test("Phase 6 retries the visible account path across responsive drawer hydration", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const sidebar = await readProjectFile("components/sidebar/app-sidebar-client.tsx")
+  const responsive = await readProjectFile("hooks/use-mobile.tsx")
+  const sheet = await readProjectFile("components/ui/sheet.tsx")
+  assert.match(sidebar, /data-testid="account-menu-trigger"/)
+  assert.match(responsive, /useState<SidebarRenderMode>\("desktop"\)/)
+  assert.match(sheet, /data-\[state=open\]:duration-500/)
+  const helper = sliceBetweenMarkers(spec, "async function openAccountMenu", 'test("presents', "Phase 6 account helper").slice
+  assert.match(helper, /getByTestId\("account-menu-trigger"\)\.filter\(\{ visible: true \}\)/)
+  assert.match(helper, /expect\.poll/)
+  assert.match(helper, /name: \/\^\(\?:Open\|Close\) navigation\$\//)
+  assert.match(helper, /owner\.and\(page\.locator\('\[aria-expanded="false"\]'\)\)/)
+  assert.match(helper, /openClosedOwner\(navigation\)/)
+  assert.match(helper, /openClosedOwner\(trigger\)/)
+  assert.doesNotMatch(helper, /getAttribute/)
+  assert.match(helper, /expect\(trigger\)\.toHaveCount\(1\)/)
+  assert.match(helper, /expect\(helpItem\)\.toHaveCount\(1\)/)
+  assert.doesNotMatch(helper, /\.first\(|\.nth\(|waitForTimeout/)
+})
+
+test("Phase 6 legal assertions require one visible route-owned exact title", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const layout = await readProjectFile("components/layout-wrapper.tsx")
+  const owner = await readProjectFile("app/legal/page.tsx")
+  assert.match(layout, /ml-app-content[\s\S]*?\{children\}/)
+  assert.equal((owner.match(/title="Legal and trust documents"/g) ?? []).length, 1)
+  const legal = sliceBetweenMarkers(spec, 'test("publishes the v3', 'test("shows the three', "Phase 6 legal content").slice
+  assert.match(legal, /page\.locator\("main \.ml-app-content:visible"\)/)
+  assert.match(legal, /expect\(legalContent\)\.toHaveCount\(1\)/)
+  assert.match(legal, /legalContent\.getByText\("Legal and trust documents", \{ exact: true \}\)\.filter\(\{ visible: true \}\)/)
+  assert.match(legal, /expect\(legalTitle\)\.toHaveCount\(1\)[\s\S]*expect\(legalTitle\)\.toBeVisible\(\)/)
+  assert.match(legal, /const indexDescription = legalContent\.getByText/)
+  assert.match(legal, /const generalVersion = legalContent\.getByText/)
+  assert.match(legal, /const digitalVersion = legalContent\.getByText/)
+  assert.doesNotMatch(legal, /\.first\(|\.nth\(/)
+})
+
 test("browser QA lanes cover each ordinary project and spec exactly once", async () => {
   const expectedProjects = ["desktop-chromium", "mobile-chromium"]
   const expectedSpecs = [
@@ -1111,4 +1170,133 @@ test("CI workflow parallelizes browser QA and aggregates every upstream result",
   assert.match(ciWorkflow, /cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/)
   assertWorkflowStepBefore(ciWorkflow, "npm run prisma:generate", "npm run typecheck")
   assertWorkflowStepBefore(ciWorkflow, "npm run prisma:generate", "npm run test:browser")
+})
+
+test("Phase 6 account helper survives owner replacement without swallowing defects", async (t) => {
+  const { chromium, expect: browserExpect, errors } = await import("@playwright/test")
+  const { transpileModule } = await import("typescript")
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const source = sliceBetweenMarkers(spec, "async function openAccountMenu", 'test("presents', "actual Phase 6 account helper").slice
+  const sandbox = { expect: browserExpect.configure({ timeout: 1500 }), errors }
+  runInNewContext(transpileModule(source, { compilerOptions: { target: 9 } }).outputText, sandbox)
+  const browser = await chromium.launch()
+  let requests = 0
+  try {
+    for (const scenario of ["desktop", "trigger-after-count", "trigger-before-click", "navigation-replaced", "navigation-already-open", "drawer-transition", "drawer-transition-blocked", "duplicate-trigger", "blocked-trigger", "unrelated-error"]) {
+      await t.test(scenario, async () => {
+        const context = await browser.newContext({ serviceWorkers: "block", reducedMotion: "reduce" })
+        await context.route("**/*", async (route) => { requests += 1; await route.abort() })
+        try {
+          const page = await context.newPage()
+          page.setDefaultTimeout(500)
+          await page.setContent(`
+            <style>
+              @keyframes enter { from { transform: translateX(-80px); } to { transform: translateX(0); } }
+              .drawer-enter { animation: enter 500ms linear; }
+            </style>
+            <button id="navigation" aria-label="Open navigation" aria-expanded="false">Navigation</button>
+            <div id="rail"><button data-testid="account-menu-trigger" aria-expanded="false">Account</button></div>
+            <button role="menuitem" hidden>Help &amp; FAQ</button>
+            <script>
+              window.navigationClicks = 0;
+              window.drawerFinished = false;
+              document.addEventListener("animationend", () => { window.drawerFinished = true; });
+              document.addEventListener("click", (event) => {
+                const target = event.target;
+                if (target.id === "navigation") {
+                  window.navigationClicks += 1;
+                  const open = target.getAttribute("aria-expanded") !== "true";
+                  target.setAttribute("aria-expanded", String(open));
+                  document.querySelector("#rail").innerHTML = open
+                    ? '<button data-testid="account-menu-trigger" aria-expanded="false">Account</button>' : '';
+                  if (open && ${scenario.startsWith("drawer-")}) {
+                    const drawer = document.querySelector("#rail");
+                    drawer.dataset.sidebar = "sidebar";
+                    drawer.dataset.mobile = "true";
+                    drawer.dataset.state = "open";
+                    drawer.className = "drawer-enter";
+                    if (${scenario === "drawer-transition-blocked"}) {
+                      const overlay = document.createElement("div");
+                      overlay.style.cssText = "position:fixed;inset:0;z-index:999";
+                      document.body.append(overlay);
+                    }
+                  }
+                }
+                if (target.matches('[data-testid="account-menu-trigger"]')) {
+                  target.setAttribute("aria-expanded", "true");
+                  document.querySelector('[role="menuitem"]').hidden = false;
+                }
+              });
+            </script>`)
+          if (scenario.startsWith("navigation-") || scenario.startsWith("drawer-")) await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
+          if (scenario === "duplicate-trigger") await page.locator("#rail").evaluate((element) => { element.innerHTML += element.innerHTML })
+          if (scenario === "blocked-trigger") await page.evaluate(() => {
+            const overlay = document.createElement("div")
+            overlay.style.cssText = "position:fixed;inset:0;z-index:999"
+            document.body.append(overlay)
+          })
+          let injected = false
+          // Keep real locator behavior; inject only the deterministic hydration edge.
+          const wrap = (locator, owner) => new Proxy(locator, {
+            get(target, property) {
+              if (property === "filter" || property === "and") return (...args) => wrap(target[property](...args), owner)
+              if (property === "count") return async () => {
+                const count = await target.count()
+                if (!injected && owner === "trigger" && count === 1 && scenario === "trigger-after-count") {
+                  injected = true
+                  await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
+                }
+                return count
+              }
+              if (property === "click") return async (...args) => {
+                if (!injected && scenario === "unrelated-error") { injected = true; throw new Error("deliberate action defect") }
+                if (!injected && owner === "trigger" && scenario === "trigger-before-click") {
+                  injected = true
+                  await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
+                }
+                if (!injected && owner === "navigation" && scenario.startsWith("navigation-")) {
+                  injected = true
+                  await page.locator("#navigation").evaluate((element, alreadyOpen) => {
+                    const replacement = element.cloneNode(true)
+                    element.replaceWith(replacement)
+                    if (alreadyOpen) replacement.click()
+                  }, scenario === "navigation-already-open")
+                }
+                return target.click(...args)
+              }
+              return typeof target[property] === "function" ? target[property].bind(target) : target[property]
+            },
+          })
+          const observedPage = new Proxy(page, {
+            get(target, property) {
+              if (property === "getByTestId") return (...args) => wrap(target.getByTestId(...args), "trigger")
+              if (property === "getByRole") return (...args) => args[0] === "button"
+                ? wrap(target.getByRole(...args), "navigation") : target.getByRole(...args)
+              return typeof target[property] === "function" ? target[property].bind(target) : target[property]
+            },
+          })
+          if (scenario === "duplicate-trigger") {
+            await assert.rejects(sandbox.openAccountMenu(observedPage), /toBeLessThanOrEqual/)
+          } else if (scenario === "blocked-trigger" || scenario === "drawer-transition-blocked") {
+            await assert.rejects(sandbox.openAccountMenu(observedPage), (error) => error instanceof errors.TimeoutError)
+          } else if (scenario === "unrelated-error") {
+            await assert.rejects(sandbox.openAccountMenu(observedPage), /deliberate action defect/)
+          } else {
+            await sandbox.openAccountMenu(observedPage)
+            await browserExpect(page.getByRole("menuitem", { name: "Help & FAQ", exact: true })).toBeVisible()
+            assert.equal(await page.evaluate(() => window.navigationClicks), scenario === "desktop" ? 0 : 1)
+          }
+          if (scenario.startsWith("drawer-")) {
+            assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), true)
+            assert.equal(await page.evaluate(() => window.drawerFinished), true)
+          } else if (!["desktop", "duplicate-trigger", "blocked-trigger"].includes(scenario)) assert.equal(injected, true)
+        } finally {
+          await context.close()
+        }
+      })
+    }
+  } finally {
+    await browser.close()
+    assert.equal(requests, 0, "the actual-helper diagnostic must remain completely offline")
+  }
 })
