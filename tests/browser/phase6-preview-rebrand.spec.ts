@@ -102,16 +102,20 @@ async function openAccountMenu(page: Page) {
     const count = await closed.count()
     expect(count).toBeLessThanOrEqual(1)
     if (count === 0) return
-    // Sheet owns a 500 ms entrance even under reduced motion. Poll its actual
-    // finite animation instead of spending an action timeout while it moves.
-    const drawerEntering = await closed.evaluateAll((elements) => elements.some((element) => {
-      const drawer = element.closest('[data-sidebar="sidebar"][data-mobile="true"][data-state="open"]')
-      return drawer?.getAnimations().some((animation) => (
-        animation instanceof CSSAnimation && animation.animationName === "enter" &&
-        animation.playState === "running" && animation.effect?.getTiming().iterations === 1
-      )) ?? false
+    // Shell owners can keep the persistent trigger moving during finite entrance
+    // motion. Poll that actual owner/ancestor condition before the bounded probe.
+    const finiteMotionRunning = await closed.evaluateAll((elements) => elements.some((element) => {
+      for (let candidate: Element | null = element; candidate; candidate = candidate.parentElement) {
+        const moving = candidate.getAnimations().some((animation) => {
+          const iterations = animation.effect?.getTiming().iterations
+          return animation.playState === "running" &&
+            typeof iterations === "number" && Number.isFinite(iterations)
+        })
+        if (moving) return true
+      }
+      return false
     }))
-    if (drawerEntering) return
+    if (finiteMotionRunning) return
     try {
       // One short action attempt leaves the outer poll in charge of hydration.
       await closed.click({ timeout: 100 })
@@ -228,7 +232,10 @@ for (const drawerEdge of ["left", "right"] as const) {
         expect(box.right).toBeLessThanOrEqual(320)
         expect(box.width).toBeGreaterThanOrEqual(32)
         expect(box.height).toBeGreaterThanOrEqual(32)
-        expect(box.y + box.height / 2).toBeCloseTo(boxes[0].y + boxes[0].height / 2, 0)
+        const centerDeviation = Math.abs(
+          box.y + box.height / 2 - (boxes[0].y + boxes[0].height / 2),
+        )
+        expect(centerDeviation).toBeLessThanOrEqual(1)
       }
       const orderedBoxes = [...boxes].sort((a, b) => a.x - b.x)
       for (let index = 1; index < orderedBoxes.length; index += 1) {

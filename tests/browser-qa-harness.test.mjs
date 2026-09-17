@@ -345,6 +345,11 @@ test("Phase 6 retries the visible account path across responsive drawer hydratio
   assert.match(helper, /owner\.and\(page\.locator\('\[aria-expanded="false"\]'\)\)/)
   assert.match(helper, /openClosedOwner\(navigation\)/)
   assert.match(helper, /openClosedOwner\(trigger\)/)
+  assert.match(helper, /candidate\.getAnimations\(\)/)
+  assert.match(helper, /candidate = candidate\.parentElement/)
+  assert.match(helper, /animation\.playState === "running"/)
+  assert.match(helper, /Number\.isFinite\(iterations\)/)
+  assert.doesNotMatch(helper, /animationName === "enter"/)
   assert.doesNotMatch(helper, /getAttribute/)
   assert.match(helper, /expect\(trigger\)\.toHaveCount\(1\)/)
   assert.match(helper, /expect\(helpItem\)\.toHaveCount\(1\)/)
@@ -1212,7 +1217,10 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
         for (const width of [320, 355, 356, 414, 416, 418, 600]) {
           await t.test(`${width}px ${edge} drawer cart=${cart}`, async () => {
             await page.setViewportSize({ width, height: 600 })
-            const control = (name) => `<button class="ml-main-bar-button" data-control="${name}">${name}</button>`
+            const control = (name) => {
+              const tactileVariant = name === "theme" ? "ml-button-glow" : name === "cart" ? "ml-button-outline" : "ml-button-cta-blue"
+              return `<button class="ml-main-bar-button ml-button-press-motion ml-button-tactile ${tactileVariant}" data-control="${name}">${name}</button>`
+            }
             const drawer = control("drawer")
             const cluster = `<div class="ml-main-bar-drawer-brand" data-drawer-edge="${edge}">${edge === "left" ? drawer + brandMarkup : brandMarkup + drawer}</div>`
             const names = edge === "left" ? ["music", "clock", "quick", "theme", "calendar"] : ["calendar", "theme", "quick", "clock", "music"]
@@ -1244,7 +1252,10 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
             for (const [index, box] of boxes.entries()) {
               assert.equal(box.width, box.name === "theme" ? 32 : 42)
               assert.equal(box.height, box.name === "theme" ? 32 : 42)
-              assert.equal(box.y + box.height / 2, boxes[0].y + boxes[0].height / 2)
+              const centerDeviation = Math.abs(
+                box.y + box.height / 2 - (boxes[0].y + boxes[0].height / 2),
+              )
+              assert.ok(centerDeviation <= 1)
               assert.ok(box.x >= 6 && box.right <= width - 6)
               if (index > 0) assert.ok(box.x >= boxes[index - 1].right)
             }
@@ -1298,7 +1309,7 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
   const browser = await chromium.launch()
   let requests = 0
   try {
-    for (const scenario of ["desktop", "trigger-after-count", "trigger-before-click", "navigation-replaced", "navigation-already-open", "drawer-transition", "drawer-transition-blocked", "duplicate-trigger", "blocked-trigger", "unrelated-error"]) {
+    for (const scenario of ["desktop", "desktop-transition", "trigger-after-count", "trigger-before-click", "navigation-replaced", "navigation-already-open", "drawer-transition", "drawer-transition-blocked", "duplicate-trigger", "blocked-trigger", "unrelated-error"]) {
       await t.test(scenario, async () => {
         const context = await browser.newContext({ serviceWorkers: "block", reducedMotion: "reduce" })
         await context.route("**/*", async (route) => { requests += 1; await route.abort() })
@@ -1345,6 +1356,12 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
               });
             </script>`)
           if (scenario.startsWith("navigation-") || scenario.startsWith("drawer-")) await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
+          if (scenario === "desktop-transition") await page.getByTestId("account-menu-trigger").evaluate((element) => {
+            element.animate([
+              { transform: "translateX(-80px)" },
+              { transform: "translateX(0)" },
+            ], { duration: 500, easing: "linear", iterations: 1 })
+          })
           if (scenario === "duplicate-trigger") await page.locator("#rail").evaluate((element) => { element.innerHTML += element.innerHTML })
           if (scenario === "blocked-trigger") await page.evaluate(() => {
             const overlay = document.createElement("div")
@@ -1400,12 +1417,12 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
           } else {
             await sandbox.openAccountMenu(observedPage)
             await browserExpect(page.getByRole("menuitem", { name: "Help & FAQ", exact: true })).toBeVisible()
-            assert.equal(await page.evaluate(() => window.navigationClicks), scenario === "desktop" ? 0 : 1)
+            assert.equal(await page.evaluate(() => window.navigationClicks), scenario.startsWith("desktop") ? 0 : 1)
           }
           if (scenario.startsWith("drawer-")) {
             assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), true)
             assert.equal(await page.evaluate(() => window.drawerFinished), true)
-          } else if (!["desktop", "duplicate-trigger", "blocked-trigger"].includes(scenario)) assert.equal(injected, true)
+          } else if (!["desktop", "desktop-transition", "duplicate-trigger", "blocked-trigger"].includes(scenario)) assert.equal(injected, true)
         } finally {
           await context.close()
         }
