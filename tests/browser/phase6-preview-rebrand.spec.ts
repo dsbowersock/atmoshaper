@@ -120,8 +120,8 @@ async function openAccountMenu(page: Page) {
       // One short action attempt leaves the outer poll in charge of hydration.
       await closed.click({ timeout: 100 })
     } catch (error) {
-      // Only absence/already-open after a bounded action timeout is transient.
-      if (!(error instanceof errors.TimeoutError) || await closed.count() !== 0) throw error
+      // A bounded action timeout is transient; the outer poll re-resolves the owner.
+      if (!(error instanceof errors.TimeoutError)) throw error
     }
   }
   await expect.poll(async () => {

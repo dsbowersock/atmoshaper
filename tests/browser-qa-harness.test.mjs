@@ -1304,12 +1304,14 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
   const { transpileModule } = await import("typescript")
   const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
   const source = sliceBetweenMarkers(spec, "async function openAccountMenu", 'test("presents', "actual Phase 6 account helper").slice
-  const sandbox = { expect: browserExpect.configure({ timeout: 1500 }), errors }
+  // This offline evidence budget covers 500 ms drawer motion, at least two
+  // bounded 100 ms trigger probes, and poll scheduling without changing the real helper.
+  const sandbox = { expect: browserExpect.configure({ timeout: 2500 }), errors }
   runInNewContext(transpileModule(source, { compilerOptions: { target: 9 } }).outputText, sandbox)
   const browser = await chromium.launch()
   let requests = 0
   try {
-    for (const scenario of ["desktop", "desktop-transition", "trigger-after-count", "trigger-before-click", "navigation-replaced", "navigation-already-open", "drawer-transition", "drawer-transition-blocked", "duplicate-trigger", "blocked-trigger", "unrelated-error"]) {
+    for (const scenario of ["desktop", "desktop-transition", "desktop-persistent-trigger-timeout", "trigger-after-count", "trigger-before-click", "navigation-replaced", "navigation-already-open", "drawer-transition", "drawer-transition-blocked", "duplicate-trigger", "blocked-trigger", "unrelated-error"]) {
       await t.test(scenario, async () => {
         const context = await browser.newContext({ serviceWorkers: "block", reducedMotion: "reduce" })
         await context.route("**/*", async (route) => { requests += 1; await route.abort() })
@@ -1369,7 +1371,8 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
             document.body.append(overlay)
           })
           let injected = false
-          // Keep real locator behavior; inject only the deterministic hydration edge.
+          let triggerClickAttempts = 0
+          // Keep real locator behavior outside the named deterministic replacement and failure edges.
           const wrap = (locator, owner) => new Proxy(locator, {
             get(target, property) {
               if (property === "filter" || property === "and") return (...args) => wrap(target[property](...args), owner)
@@ -1382,7 +1385,12 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
                 return count
               }
               if (property === "click") return async (...args) => {
+                if (owner === "trigger") triggerClickAttempts += 1
                 if (!injected && scenario === "unrelated-error") { injected = true; throw new Error("deliberate action defect") }
+                if (!injected && owner === "trigger" && scenario === "desktop-persistent-trigger-timeout") {
+                  injected = true
+                  throw new errors.TimeoutError("deliberate bounded action timeout")
+                }
                 if (!injected && owner === "trigger" && scenario === "trigger-before-click") {
                   injected = true
                   await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
@@ -1411,7 +1419,8 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
           if (scenario === "duplicate-trigger") {
             await assert.rejects(sandbox.openAccountMenu(observedPage), /toBeLessThanOrEqual/)
           } else if (scenario === "blocked-trigger" || scenario === "drawer-transition-blocked") {
-            await assert.rejects(sandbox.openAccountMenu(observedPage), (error) => error instanceof errors.TimeoutError)
+            await assert.rejects(sandbox.openAccountMenu(observedPage))
+            assert.ok(triggerClickAttempts > 1, "persistent obstruction must exhaust the outer poll across repeated trigger probes")
           } else if (scenario === "unrelated-error") {
             await assert.rejects(sandbox.openAccountMenu(observedPage), /deliberate action defect/)
           } else {
