@@ -4006,12 +4006,21 @@
   }
 
   @container ml-main-bar-brand (max-width: 11.75rem) {
+    .ml-app-bar-brand-text,
     .ml-app-bar-brand-wordmark {
       display: none;
     }
 
     .ml-app-bar-brand-mark {
       display: block;
+    }
+  }
+
+  /* Drawer (2.625rem) + existing gap (0.25rem) + mark (2.25rem).
+     Remove the whole link, including keyboard focus, before controls lose space. */
+  @container ml-main-bar-brand (width < 5.125rem) {
+    .ml-app-bar-brand {
+      display: none;
     }
   }
 

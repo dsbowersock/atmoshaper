@@ -36,7 +36,8 @@ provider, data, or infrastructure cutover.
   Explanatory prose may use `Atmosphere mixer` where the noun improves clarity.
 - No logo, monogram, icon, favicon, social card, color system, or slogan will be
   inferred, generated, or redesigned before approved assets are supplied.
-- The no-logo presentation uses styled text reading `AtmoShaper`.
+- The no-logo presentation uses styled text reading `AtmoShaper` when it fits;
+  the approved Task 10 amendment restores the existing mobile three-state collapse.
 - Current legal presentation uses the exact identity `Derrick Bowersock, doing
   business as AtmoShaper`.
 - The public catalog labels change as follows while their identifiers, purchase
@@ -111,7 +112,7 @@ export const PUBLIC_PRODUCT_IDENTITY = Object.freeze({
   shortName: "AtmoShaper",
   assets: Object.freeze({
     appBarWordmark: null,
-    appBarMark: null,
+    appBarMark: "/brand/massagelab-mark-final-20260622.png",
     socialPreview: null,
   }),
 })
@@ -120,8 +121,13 @@ export const PUBLIC_PRODUCT_IDENTITY = Object.freeze({
 `null` means that no approved asset exists. It is not an invitation to infer a
 path or generate a substitute. Consumers must handle the absence explicitly:
 
-- the app-bar brand link renders the full accessible text `AtmoShaper` at all
-  responsive sizes while retaining the same home link and test boundary;
+- the app-bar brand link renders full styled `AtmoShaper` text when the mobile
+  drawer/brand container has room, the existing 36px square mark at medium
+  available width, and no brand link when even that mark cannot fit beside the
+  unchanged drawer control and gap. Hiding the whole link removes its focus
+  target. Container width, including cart pressure, drives these states; no
+  device-width breakpoint drives the collapse. Desktop/tablet top bars retain
+  full styled text. The old wordmark never renders;
 - the homepage renders the product name as real text rather than a decorative
   image and keeps one semantic page heading;
 - SEO and social metadata omit the image field instead of publishing the old
@@ -132,9 +138,12 @@ path or generate a substitute. Consumers must handle the absence explicitly:
 
 The fallback uses the existing type scale, color tokens, and layout vocabulary.
 It does not introduce a new font, custom drawn lettering, decorative glyph,
-monogram, or substitute mark. Responsive CSS may change only as needed to keep
-the full text from clipping, wrapping into controls, or reducing control hit
-areas.
+monogram, or generated mark. The existing square mark is an explicitly approved
+temporary stand-in, verified from the former app-bar identity owner. When Derrick
+supplies the final approved mark, replace only `PUBLIC_PRODUCT_IDENTITY.assets.appBarMark`;
+the responsive structure remains unchanged. Keep `appBarWordmark` null. The
+single-row navigation and every control's size, order, focus behavior, and
+geometry remain unchanged across all three states.
 
 ## Atmosphere public-label owner
 
@@ -290,7 +299,8 @@ visual baseline or a separately named visual oracle for the approved rebrand.
 Browser receipts must cover at least:
 
 - homepage product presentation;
-- app-bar branding at desktop, tablet, and narrow mobile widths;
+- app-bar branding at desktop, tablet, and all three mobile container states,
+  including 320px with and without cart and both drawer edges;
 - navigation and headings for `Atmosphere`;
 - closed and expanded Atmosphere mixer geometry;
 - install dialog and served manifest naming;
@@ -308,8 +318,9 @@ blocks completion.
 
 ### Focused contracts
 
-- Product identity tests prove exact `AtmoShaper` values, explicit null asset
-  state, nested immutability, and deterministic text fallback behavior.
+- Product identity tests prove exact `AtmoShaper` values, the approved temporary
+  mark, null wordmark/social image, nested immutability, and container-driven
+  text/mark/hidden behavior without an invisible focus target.
 - Atmosphere label tests prove the exact two approved labels and verify that
   representative UI, accessibility, transport, and media consumers delegate to
   the label owner while internal identifiers remain unchanged.
@@ -368,8 +379,9 @@ Reverting current presentation restores the previous identity values and UI
 copy without deleting acceptance rows, changing provider state, renaming stored
 identifiers, or rewriting the immutable archive.
 
-If the text fallback cannot meet responsive geometry without an invented mark,
-the phase stops for design review rather than introducing an unapproved visual.
+The approved Task 10 amendment supersedes full text at every narrow width with
+the text/temporary-mark/hidden sequence above. It permits no invented mark or
+control geometry change; final asset delivery retires the temporary mark.
 If the legal archive cannot reproduce the exact current document exports, legal
 copy migration stops before any version change.
 
@@ -391,7 +403,7 @@ copy migration stops before any version change.
 ## Completion boundary
 
 The written design checkpoint is complete. Local implementation establishes the
-approved AtmoShaper/Atmosphere owners, text-only fallback, versioned legal
+approved AtmoShaper/Atmosphere owners, responsive brand fallback, versioned legal
 transition, catalog labels, audit logic, and Browser-QA contracts. Task 9 still
 has complete local implementation, command verification, exact temporary
 cleanup with absence proved, final receipt-only baseline fixed point, and

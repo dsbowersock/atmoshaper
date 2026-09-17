@@ -1172,6 +1172,122 @@ test("CI workflow parallelizes browser QA and aggregates every upstream result",
   assertWorkflowStepBefore(ciWorkflow, "npm run prisma:generate", "npm run test:browser")
 })
 
+test("Phase 6 brand collapse preserves controls at 320px with and without cart", async (t) => {
+  const { chromium } = await import("@playwright/test")
+  const { transpileModule } = await import("typescript")
+  const React = await import("react")
+  const jsxRuntime = await import("react/jsx-runtime")
+  const { renderToStaticMarkup } = await import("react-dom/server")
+  const identity = await import("../lib/public-product-identity.js")
+  const source = await readProjectFile("components/shell/app-bar-brand-link.tsx")
+  const css = await readProjectFile("app/globals.css")
+  const mark = identity.PUBLIC_PRODUCT_IDENTITY.assets.appBarMark
+  const imageData = mark ? await readFile(new URL(`../public${mark}`, import.meta.url)) : null
+  const exports = {}
+  // Render the actual owner; replace framework transport only, with no server or providers.
+  runInNewContext(transpileModule(source, { compilerOptions: { module: 1, jsx: 4, target: 9 } }).outputText, {
+    exports,
+    require(name) {
+      if (name === "react/jsx-runtime") return jsxRuntime
+      if (name === "@/lib/public-product-identity") return identity
+      if (name === "@/lib/utils") return { cn: (...values) => values.filter(Boolean).join(" ") }
+      if (name === "next/link") return { default: (props) => React.createElement("a", props) }
+      if (name === "next/image") return { default: (props) => React.createElement("img", {
+        alt: props.alt, width: props.width, height: props.height, className: props.className,
+        sizes: props.sizes, src: `data:image/png;base64,${imageData.toString("base64")}`,
+      }) }
+      throw new Error(`Unexpected brand dependency: ${name}`)
+    },
+  })
+  const brandMarkup = renderToStaticMarkup(React.createElement(exports.AppBarBrandLink))
+  assert.doesNotMatch(brandMarkup, /ml-app-bar-brand-wordmark/)
+  const browser = await chromium.launch()
+  const context = await browser.newContext({ serviceWorkers: "block", viewport: { width: 1000, height: 600 } })
+  let requests = 0
+  await context.route("**/*", async (route) => { requests += 1; await route.abort() })
+  try {
+    const page = await context.newPage()
+    for (const edge of ["left", "right"]) {
+      for (const cart of [false, true]) {
+        for (const width of [320, 355, 356, 414, 416, 418, 600]) {
+          await t.test(`${width}px ${edge} drawer cart=${cart}`, async () => {
+            await page.setViewportSize({ width, height: 600 })
+            const control = (name) => `<button class="ml-main-bar-button" data-control="${name}">${name}</button>`
+            const drawer = control("drawer")
+            const cluster = `<div class="ml-main-bar-drawer-brand" data-drawer-edge="${edge}">${edge === "left" ? drawer + brandMarkup : brandMarkup + drawer}</div>`
+            const names = edge === "left" ? ["music", "clock", "quick", "theme", "calendar"] : ["calendar", "theme", "quick", "clock", "music"]
+            if (cart) names.push("cart")
+            const tools = `<div class="ml-main-bar-tools">${names.map(control).join("")}</div>`
+            // Only fixture utilities: real CSS owns brand/container behavior and control dimensions.
+            await page.setContent(`<style>${css}</style><style>
+              * { box-sizing: border-box; } body { margin: 0; }
+              .ml-mobile-main-bar { width: ${width}px; padding: 0 6px; --ml-main-bar-height: 52px; }
+              button { flex-shrink: 0; } [data-control="theme"] { width: 32px !important; height: 32px !important; }
+            </style><nav class="ml-mobile-main-bar"><div class="ml-main-bar-layout" data-drawer-edge="${edge}">${edge === "left" ? cluster + tools : tools + cluster}</div></nav>`)
+            const brand = page.getByTestId("app-bar-brand")
+            // Existing controls: four 42px actions, 32px theme, 4px gaps, plus optional cart.
+            const available = Math.min(190, width - 12 - (cart ? 262 : 216))
+            const state = available < 42 + 4 + 36 ? "hidden" : available <= 188 ? "mark" : "text"
+            assert.equal(await brand.isVisible(), state !== "hidden", `${state}: brand visibility`)
+            assert.equal(await brand.locator(".ml-app-bar-brand-text").isVisible(), state === "text", `${state}: text visibility`)
+            assert.equal(await brand.locator(".ml-app-bar-brand-mark").isVisible(), state === "mark", `${state}: mark visibility`)
+            if (state === "mark") {
+              const box = await brand.locator("img").boundingBox()
+              assert.equal(box.width, 36)
+              assert.equal(box.height, 36)
+              assert.equal(await brand.locator("img").evaluate((image) => image.complete && image.naturalWidth > 0), true)
+            }
+            const boxes = await page.locator("[data-control]").evaluateAll((elements) => elements.map((element) => ({
+              name: element.getAttribute("data-control"), ...element.getBoundingClientRect().toJSON(),
+            })))
+            assert.deepEqual(boxes.map((box) => box.name), edge === "left" ? ["drawer", ...names] : [...names, "drawer"])
+            for (const [index, box] of boxes.entries()) {
+              assert.equal(box.width, box.name === "theme" ? 32 : 42)
+              assert.equal(box.height, box.name === "theme" ? 32 : 42)
+              assert.equal(box.y + box.height / 2, boxes[0].y + boxes[0].height / 2)
+              assert.ok(box.x >= 6 && box.right <= width - 6)
+              if (index > 0) assert.ok(box.x >= boxes[index - 1].right)
+            }
+            if (state !== "hidden") {
+              const box = await brand.boundingBox()
+              for (const controlBox of boxes) assert.ok(box.x >= controlBox.right || box.x + box.width <= controlBox.x)
+              if (state === "text") assert.equal(await brand.evaluate((element) => element.scrollWidth <= element.clientWidth), true)
+            }
+            // The same available container width must behave identically on a wider device.
+            await page.setViewportSize({ width: 1000, height: 600 })
+            assert.equal(await brand.isVisible(), state !== "hidden")
+            assert.equal(await brand.locator(".ml-app-bar-brand-text").isVisible(), state === "text")
+            assert.equal(await brand.locator(".ml-app-bar-brand-mark").isVisible(), state === "mark")
+            assert.deepEqual(await page.locator("[data-control]").evaluateAll((elements) => elements.map((element) => ({
+              name: element.getAttribute("data-control"), ...element.getBoundingClientRect().toJSON(),
+            }))), boxes)
+            await page.locator("body").click({ position: { x: 900, y: 200 } })
+            const tabOrder = []
+            for (let index = 0; index < boxes.length + (state === "hidden" ? 0 : 1); index += 1) {
+              await page.keyboard.press("Tab")
+              tabOrder.push(await page.evaluate(() => document.activeElement.getAttribute("data-control") ?? document.activeElement.getAttribute("data-testid")))
+            }
+            const expectedOrder = edge === "left" ? ["drawer", ...(state === "hidden" ? [] : ["app-bar-brand"]), ...names] : [...names, ...(state === "hidden" ? [] : ["app-bar-brand"]), "drawer"]
+            assert.deepEqual(tabOrder, expectedOrder, "hidden brand leaves no invisible focus target")
+          })
+        }
+      }
+    }
+    await t.test("tablet top bar retains full text outside the mobile container", async () => {
+      await page.setViewportSize({ width: 768, height: 600 })
+      await page.setContent(`<style>${css}</style><header class="ml-app-topbar">${brandMarkup}</header>`)
+      const brand = page.getByTestId("app-bar-brand")
+      assert.equal(await brand.locator(".ml-app-bar-brand-text").isVisible(), true)
+      assert.equal(await brand.locator(".ml-app-bar-brand-mark").isVisible(), false)
+      assert.equal(await brand.evaluate((element) => element.scrollWidth <= element.clientWidth), true)
+    })
+    assert.equal(requests, 0, "provider-free layout makes no network requests")
+  } finally {
+    await context.close()
+    await browser.close()
+  }
+})
+
 test("Phase 6 account helper survives owner replacement without swallowing defects", async (t) => {
   const { chromium, expect: browserExpect, errors } = await import("@playwright/test")
   const { transpileModule } = await import("typescript")

@@ -970,7 +970,8 @@ async function expectTextBrandFits(brand: Locator) {
   const text = brand.locator(".ml-app-bar-brand-text")
   await expect(text).toBeVisible()
   await expect(text).toHaveText("AtmoShaper")
-  await expect(brand.locator("img")).toHaveCount(0)
+  await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+  await expect(brand.locator(".ml-app-bar-brand-mark")).toBeHidden()
   await expect.poll(async () => brand.evaluate((element) => (
     element.scrollWidth <= element.clientWidth + 1
   )), { message: "AtmoShaper text fits without clipping" }).toBe(true)

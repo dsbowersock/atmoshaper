@@ -16,7 +16,7 @@ describe("public product identity", () => {
       shortName: "AtmoShaper",
       assets: {
         appBarWordmark: null,
-        appBarMark: null,
+        appBarMark: "/brand/massagelab-mark-final-20260622.png",
         socialPreview: null,
       },
     })
@@ -32,7 +32,7 @@ describe("public product identity", () => {
       PUBLIC_PRODUCT_IDENTITY.assets.appBarMark = "/changed.png"
     }, TypeError)
     assert.equal(PUBLIC_PRODUCT_IDENTITY.name, "AtmoShaper")
-    assert.equal(PUBLIC_PRODUCT_IDENTITY.assets.appBarMark, null)
+    assert.equal(PUBLIC_PRODUCT_IDENTITY.assets.appBarMark, "/brand/massagelab-mark-final-20260622.png")
   })
 
   it("has no imports, re-exports, or environment and browser dependencies", () => {

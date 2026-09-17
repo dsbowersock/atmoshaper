@@ -857,6 +857,14 @@ describe("App settings helpers", () => {
     assert.match(globalsSource, /\.ml-main-bar-drawer-brand \{[\s\S]*flex:\s*0 1 11\.875rem/)
     assert.match(
       globalsSource,
+      /@container ml-main-bar-brand \(max-width: 11\.75rem\) \{\s*\.ml-app-bar-brand-text,\s*\.ml-app-bar-brand-wordmark \{\s*display:\s*none/,
+    )
+    assert.match(
+      globalsSource,
+      /@container ml-main-bar-brand \(width < 5\.125rem\) \{\s*\.ml-app-bar-brand \{\s*display:\s*none/,
+    )
+    assert.match(
+      globalsSource,
       /@container ml-main-bar-brand \(max-width: 11\.75rem\) \{[\s\S]*\.ml-app-bar-brand-wordmark \{[\s\S]*display:\s*none[\s\S]*\.ml-app-bar-brand-mark \{[\s\S]*display:\s*block/,
     )
     assert.doesNotMatch(

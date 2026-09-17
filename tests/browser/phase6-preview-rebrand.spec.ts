@@ -69,6 +69,8 @@ async function settledBox(locator: Locator) {
 
 async function expectTextFits(brand: Locator) {
   const text = brand.locator(".ml-app-bar-brand-text")
+  await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+  await expect(brand.locator(".ml-app-bar-brand-mark")).toBeHidden()
   await settledBox(brand)
   await expect(text).toBeVisible()
   await expect(text).toHaveText(PRODUCT_NAME)
@@ -134,7 +136,7 @@ async function openAccountMenu(page: Page) {
   await expect(helpItem).toBeVisible()
 }
 
-test("presents the text-only product identity across homepage and responsive app bars", async ({ page }, testInfo) => {
+test("presents the product identity across homepage and responsive app bars", async ({ page }, testInfo) => {
   await page.setViewportSize(testInfo.project.name === "mobile-chromium"
     ? { width: 320, height: 568 }
     : { width: 1440, height: 900 })
@@ -153,7 +155,6 @@ test("presents the text-only product identity across homepage and responsive app
   await expect(desktopBar).toBeVisible()
   const desktopBrand = desktopBar.getByRole("link", { name: "AtmoShaper home", exact: true })
   await expect(desktopBrand).toHaveText(PRODUCT_NAME)
-  await expect(desktopBrand.locator("img")).toHaveCount(0)
   await expectTextFits(desktopBrand)
 
   await page.setViewportSize({ width: 768, height: 1024 })
@@ -163,7 +164,6 @@ test("presents the text-only product identity across homepage and responsive app
   await expect(tabletBar).toBeVisible()
   const tabletBrand = tabletBar.getByRole("link", { name: "AtmoShaper home", exact: true })
   await expect(tabletBrand).toHaveText(PRODUCT_NAME)
-  await expect(tabletBrand.locator("img")).toHaveCount(0)
   await expectTextFits(tabletBrand)
   await expect(tabletBar).toHaveScreenshot("app-bar-tablet.png", { animations: "disabled" })
   await expectTextFits(tabletBrand)
@@ -175,14 +175,72 @@ test("presents the text-only product identity across homepage and responsive app
   await expect(narrowBar).toBeVisible()
   const narrowBrand = narrowBar.getByRole("link", { name: "AtmoShaper home", exact: true })
   await expect(narrowBrand).toHaveText(PRODUCT_NAME)
-  await expect(narrowBrand.locator("img")).toHaveCount(0)
-  await expectTextFits(narrowBrand)
+  await expect(narrowBrand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+  await expect(narrowBrand.locator(".ml-app-bar-brand-text")).toBeHidden()
+  await expect(narrowBrand.locator(".ml-app-bar-brand-mark")).toBeVisible()
+  await expect(narrowBrand.locator(".ml-app-bar-brand-mark")).toHaveCSS("width", "36px")
+  await expect(narrowBrand.locator(".ml-app-bar-brand-mark")).toHaveCSS("height", "36px")
   const [barBox, brandBox] = await Promise.all([narrowBar.boundingBox(), narrowBrand.boundingBox()])
   expect(barBox).not.toBeNull()
   expect(brandBox).not.toBeNull()
   expect(brandBox!.x).toBeGreaterThanOrEqual(barBox!.x - 1)
   expect(brandBox!.x + brandBox!.width).toBeLessThanOrEqual(barBox!.x + barBox!.width + 1)
 })
+
+for (const drawerEdge of ["left", "right"] as const) {
+  for (const cart of [false, true]) {
+    test(`320px ${drawerEdge} brand ${cart ? "hides with cart" : "uses temporary mark"} without moving controls`, async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 568 })
+      await page.addInitScript(({ drawerEdge, cart }) => {
+        localStorage.setItem("massage-lab-settings", JSON.stringify({
+          sidebarPosition: drawerEdge, appBarPosition: "bottom", sidebarTriggerPosition: "bottom",
+        }))
+        localStorage.setItem("massagelab-guest-background-cart-v1", JSON.stringify(cart ? ["massage-lab-aurora"] : []))
+      }, { drawerEdge, cart })
+      await gotoReady(page, "/music")
+      await expectMusicReady(page)
+      const bar = page.getByRole("navigation", { name: "AtmoShaper main navigation" })
+      const cluster = bar.locator(".ml-main-bar-drawer-brand")
+      await expect(cluster).toHaveAttribute("data-drawer-edge", drawerEdge)
+      await expect(bar.locator("[data-commerce-cart-trigger]")).toHaveCount(cart ? 1 : 0)
+      const brand = bar.getByTestId("app-bar-brand")
+      await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+      await expect(brand.locator(".ml-app-bar-brand-text")).toBeHidden()
+      if (cart) {
+        await expect(brand).toBeHidden()
+        expect(await brand.evaluate((element: HTMLElement) => {
+          element.focus()
+          return document.activeElement === element
+        })).toBe(false)
+      } else {
+        await expect(brand).toBeVisible()
+        const mark = brand.locator(".ml-app-bar-brand-mark")
+        await expect(mark).toBeVisible()
+        await expect(mark).toHaveCSS("width", "36px")
+        await expect(mark).toHaveCSS("height", "36px")
+        await expect.poll(() => mark.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true)
+      }
+      const controls = bar.locator("button:visible, a:visible").filter({ hasNot: page.locator(".ml-app-bar-brand-mark") })
+      const boxes = await controls.evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().toJSON()))
+      expect(boxes).toHaveLength(cart ? 7 : 6)
+      for (const box of boxes) {
+        expect(box.x).toBeGreaterThanOrEqual(0)
+        expect(box.right).toBeLessThanOrEqual(320)
+        expect(box.width).toBeGreaterThanOrEqual(32)
+        expect(box.height).toBeGreaterThanOrEqual(32)
+        expect(box.y + box.height / 2).toBeCloseTo(boxes[0].y + boxes[0].height / 2, 0)
+      }
+      const orderedBoxes = [...boxes].sort((a, b) => a.x - b.x)
+      for (let index = 1; index < orderedBoxes.length; index += 1) {
+        expect(orderedBoxes[index].x).toBeGreaterThanOrEqual(orderedBoxes[index - 1].right)
+      }
+      if (!cart) {
+        const brandBox = (await brand.boundingBox())!
+        for (const box of boxes) expect(brandBox.x >= box.right || brandBox.x + brandBox.width <= box.x).toBe(true)
+      }
+    })
+  }
+}
 
 test("keeps Atmosphere navigation, transport labels, and closed or expanded geometry coherent", async ({ page }) => {
   await gotoReady(page, "/music")

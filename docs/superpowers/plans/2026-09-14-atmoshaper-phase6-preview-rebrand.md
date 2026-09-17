@@ -294,7 +294,7 @@ source-level or behavior assertions before local closeout:
 **Rollback:** Revert this evidence-only commit. No runtime or external state is
 affected.
 
-## Task 1: Switch product identity to text-only AtmoShaper presentation
+## Task 1: Switch product identity to responsive AtmoShaper presentation
 
 **Files:**
 
@@ -322,7 +322,7 @@ affected.
     shortName: "AtmoShaper",
     assets: Object.freeze({
       appBarWordmark: null,
-      appBarMark: null,
+      appBarMark: "/brand/massagelab-mark-final-20260622.png",
       socialPreview: null,
     }),
   })
@@ -334,9 +334,16 @@ affected.
   existing `Image` branches only when their corresponding approved path is
   non-null; do not create a substitute mark.
 - [ ] Add `.ml-app-bar-brand-text` using existing font, color, spacing, and focus
-  vocabulary. It remains visible at desktop, tablet, and narrow container sizes;
-  the existing container query continues to affect image classes only. Do not
-  reduce adjacent control hit areas.
+  vocabulary. The approved Task 10 amendment keeps full text in desktop/tablet
+  top bars and wide mobile drawer/brand containers; medium available container
+  width shows the existing 36px square mark; below the drawer-control + gap +
+  mark footprint, hide the entire brand link, including its focus target.
+  Container width, including cart pressure, drives switching. Preserve every
+  control's size, order, focus behavior, geometry, and the single-row navigation.
+  Never render the old wordmark; keep `appBarWordmark` null. When Derrick supplies
+  the final approved mark, replace `PUBLIC_PRODUCT_IDENTITY.assets.appBarMark`
+  without changing this responsive structure. This explicitly temporary reuse
+  supersedes the former full-text-at-every-width oracle.
 - [ ] Replace the homepage decorative wordmark with one visible text `<h1>` that
   retains `data-testid="home-brand-wordmark"`. Remove the now-unused `Image`
   import and `home-brand-wordmark-image`; update current homepage product copy
@@ -1244,7 +1251,7 @@ parity oracle.
 - [ ] Synchronize current authority with exact facts: Phase 5 PR #4 merged as
   `cdfa99e49cebf100fac1a5080d60514806eb17db`; Phase 6 current local commits;
   AtmoShaper/Atmosphere ownership;
-  text-only fallback; legal archive/current versions; retained endpoints and
+  responsive text/temporary-mark/hidden fallback; legal archive/current versions; retained endpoints and
   compatibility names; final-logo, provider, deployment, domain, push/PR/merge
   status. Append the project log; do not rewrite dated historical entries.
 - [ ] Preserve the owner-repair commit's exact README copyright/DBA identity and
@@ -1349,10 +1356,19 @@ because no provider was changed.
   Expected: all four lanes pass. Never pass `--update-snapshots` for historical
   specs. Generate the new Phase 6 screenshots only in the first explicitly
   reviewed oracle capture, then rerun without update mode and require a pass.
+- [ ] Before recapturing, add and prove a provider-free RED regression for the
+  approved three-state brand amendment, then repair through the existing asset
+  seam and mobile container queries. Cover 320px with/without cart, both drawer
+  edges, fixed viewport with changing container width, and invisible-focus
+  prevention. Run focused tests, typecheck, scoped lint, diff check, and ordinary
+  brand audit; route fingerprint drift separately without editing its baseline.
 - [ ] Inspect the new screenshots visually at desktop, tablet, and narrow mobile.
-  Confirm unclipped full `AtmoShaper` text, unchanged hit areas/focus/geometry,
-  correct Atmosphere controls, correct legal versions, correct catalog labels,
-  and no stale wordmark/social image or broken icon.
+  Confirm full styled `AtmoShaper` text where space allows, the approved temporary
+  square mark at medium mobile container width, and a fully hidden brand link
+  at very narrow width. Verify unchanged hit areas/focus/order/geometry, correct
+  Atmosphere controls, legal versions and catalog labels, and no stale wordmark,
+  social image or broken icon. Final supplied mark delivery retires the stand-in
+  through `PUBLIC_PRODUCT_IDENTITY.assets.appBarMark` without responsive redesign.
 - [ ] Prove all application tables remain empty after QA. Delete only the
   cycle-owned project and prove it absent; separately prove production still
   exists without reading or changing production data.
