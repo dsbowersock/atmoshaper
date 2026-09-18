@@ -314,7 +314,7 @@ test("uses AtmoShaper in install, manifest, and SEO contracts without an old soc
     })
   })
   await gotoReady(page, "/")
-  await expect(page.getByTestId("home-brand-wordmark")).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: PRODUCT_NAME, exact: true })).toBeVisible()
   await openAccountMenu(page)
   await page.getByRole("menuitem", { name: "Install AtmoShaper" }).click()
   const install = page.getByRole("dialog", { name: "Install AtmoShaper" })
