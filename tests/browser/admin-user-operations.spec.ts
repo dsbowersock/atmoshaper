@@ -371,8 +371,13 @@ test.describe("Admin user operations", () => {
       expect(beforeSession.user?.id).toBe(fixture.target.id)
 
       await page.goto(`${targetAdminUserPathname}?section=security`, { waitUntil: "domcontentloaded" })
-      await expect(page.getByText("Compatibility Session rows", { exact: true })).toBeVisible()
-      await expect(page.getByText(/not a count of active JWT sessions or users signed out/i)).toBeVisible()
+      const securityRegion = page.getByRole("region", { name: "Security", exact: true, includeHidden: false }).filter({ visible: true })
+      await expect(securityRegion).toHaveCount(1)
+      await expect(securityRegion).toBeVisible()
+      const compatibilityRow = securityRegion.locator('[data-detail-key="Compatibility Session rows"]')
+      await expect(compatibilityRow.getByRole("term")).toHaveText("Compatibility Session rows")
+      await expect(compatibilityRow.getByRole("term")).toBeVisible()
+      await expect(compatibilityRow.getByRole("definition").filter({ hasText: /not a count of active JWT sessions or users signed out/i })).toBeVisible()
       const revokeCard = page.locator("article").filter({
         has: page.getByRole("heading", { name: "Revoke sign-in tokens and sessions" }),
       })
@@ -463,14 +468,17 @@ test.describe("Admin user operations", () => {
     page.on("request", twoFactorResetPostObserver)
     try {
       await page.goto(`/admin/users/${encodeURIComponent(fixture.operator.id)}?section=security`, { waitUntil: "domcontentloaded" })
-      const securityRegion = page.getByRole("region", { name: "Security" }).filter({ visible: true })
+      const securityRegion = page.getByRole("region", { name: "Security", exact: true, includeHidden: false }).filter({ visible: true })
       await expect(securityRegion).toHaveCount(1)
+      await expect(securityRegion).toBeVisible()
       const selfRemediationNotice = securityRegion.getByText("You cannot perform security remediation on your own account from this console.", { exact: true }).filter({ visible: true })
       await expect(selfRemediationNotice).toHaveCount(1)
       await expect(selfRemediationNotice).toBeVisible()
       await expect(page.getByRole("button", { name: "Send password reset" })).toHaveCount(0)
 
       await page.goto(`${targetAdminUserPathname}?section=security`, { waitUntil: "domcontentloaded" })
+      await expect(securityRegion).toHaveCount(1)
+      await expect(securityRegion).toBeVisible()
       const twoFactorCard = page.locator("article").filter({
         has: page.getByRole("heading", { name: "Reset two-factor authentication" }),
       })
@@ -481,10 +489,10 @@ test.describe("Admin user operations", () => {
       await twoFactorCard.getByLabel("Confirmation email").fill(fixture.target.email)
       await expect(twoFactorButton).toBeEnabled()
       await twoFactorButton.press("Enter")
-      await expect(page.getByText(/Two-factor authentication was reset and existing sign-in tokens were invalidated/)).toBeVisible({
+      await expect(twoFactorCard.getByRole("status").filter({ hasText: /Two-factor authentication was reset and existing sign-in tokens were invalidated/ })).toBeVisible({
         timeout: 30_000,
       })
-      await expect(page.locator('[data-detail-key="Two-factor authentication"] [data-detail-value]')).toHaveText("No")
+      await expect(securityRegion.locator('[data-detail-key="Two-factor authentication"]').getByRole("definition", { includeHidden: false })).toHaveText("No")
       page.off("request", twoFactorResetPostObserver)
       expect(twoFactorResetPostCount).toBe(1)
     } finally {

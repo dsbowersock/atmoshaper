@@ -1388,7 +1388,7 @@ for (const drawerEdge of ["left", "right"] as const) {
   })
 }
 
-test("narrow mobile keeps every tool and the full text brand visible", async ({ page }, testInfo) => {
+test("narrow mobile keeps every tool and the temporary brand mark visible", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== mobileProject, "Narrow main-bar behavior is covered in mobile Chromium.")
   await page.setViewportSize({ width: 390, height: 844 })
   await gotoShell(page, "/music")
@@ -1399,7 +1399,7 @@ test("narrow mobile keeps every tool and the full text brand visible", async ({ 
   const brand = bar.getByRole("link", { name: "AtmoShaper home" })
   expect(barBox?.height).toBeCloseTo(52, 0)
   await expectStableMainBarControls(page, "left")
-  await expectTextBrandFits(brand)
+  await expectTemporaryMarkBrandFits(brand)
   for (const name of ["Open music", "Open clock", "Open quick actions", "Open calendar"]) {
     await expect(bar.getByLabel(name)).toBeVisible()
   }
@@ -5628,3 +5628,30 @@ test("running alerting and preview capture clear computed shell offsets while ba
     await expectImmersiveOffsetsCleared(page, bodyClass)
   }
 })
+
+/** Requires the approved narrow-container mark without accepting hidden, broken, or clipped branding. */
+async function expectTemporaryMarkBrandFits(brand: Locator) {
+  const mark = brand.locator(".ml-app-bar-brand-mark")
+  const text = brand.locator(".ml-app-bar-brand-text")
+  await expect(brand).toBeVisible()
+  await expect(text).toHaveText("AtmoShaper")
+  await expect(text).toBeHidden()
+  await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+  await expect(mark).toHaveCount(1)
+  await expect(mark).toBeVisible()
+  await expect(mark).toHaveCSS("width", "36px")
+  await expect(mark).toHaveCSS("height", "36px")
+  await expect.poll(() => mark.evaluate((image: HTMLImageElement) => (
+    image.complete && image.naturalWidth > 0
+  )), { message: "temporary brand mark has loaded" }).toBe(true)
+  await expect.poll(() => mark.evaluate((image) => {
+    const markBox = image.getBoundingClientRect()
+    const brandBox = image.parentElement!.getBoundingClientRect()
+    return Math.max(
+      brandBox.left - markBox.left,
+      markBox.right - brandBox.right,
+      brandBox.top - markBox.top,
+      markBox.bottom - brandBox.bottom,
+    )
+  }), { message: "temporary brand mark fits without clipping" }).toBeLessThanOrEqual(1)
+}
