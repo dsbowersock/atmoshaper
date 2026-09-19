@@ -1442,3 +1442,152 @@ test("Phase 6 account helper survives owner replacement without swallowing defec
     assert.equal(requests, 0, "the actual-helper diagnostic must remain completely offline")
   }
 })
+
+test("Phase 6 Station handoff readiness runs only before the closed/expanded category click", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const scenario = sliceBetweenMarkers(spec, 'test("keeps Atmosphere navigation', 'test("uses AtmoShaper in install', "Phase 6 Station handoff").slice
+  assertWorkflowStepBefore(scenario, "await expectMusicReady(page)", "await expectStationCompositionSettled(page)")
+  assertWorkflowStepBefore(scenario, "await expectStationCompositionSettled(page)", 'await page.getByRole("group", { name: "Station category" })')
+  assert.equal((spec.match(/await expectStationCompositionSettled\(page\)/g) ?? []).length, 1)
+  assert.doesNotMatch(spec, /waitForTimeout|addStyleTag|maxDiffPixels|maxDiffPixelRatio|threshold:|mask:/)
+})
+
+test("Phase 6 Station handoff readiness executes actual bounded card and scale convergence", async (t) => {
+  const { transpileModule } = await import("typescript")
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const start = spec.indexOf("async function expectStationCompositionSettled")
+  assert.notEqual(start, -1)
+  const helper = transpileModule(spec.slice(start), { compilerOptions: { target: 9 } }).outputText
+  const base = {
+    box: { x: 101.5, y: 202.25, width: 217, height: 253 },
+    scales: ["1.13", "1.09rem", "1.13rem"],
+  }
+  const motion = (iterations, playState = "running") => ({ playState, effect: { getTiming: () => ({ iterations }) } })
+
+  // Execute the actual DOM reader and convergence loop, replacing only the
+  // document and poll scheduler with controlled, network-free observations.
+  const run = async (sampleAt) => {
+    let reads = 0
+    let current
+    let options
+    const ancestor = {
+      parentElement: null,
+      getAnimations: () => current.ancestorAnimations ?? [],
+    }
+    const card = {
+      get isConnected() { return current.cardConnected !== false },
+      getBoundingClientRect: () => current.box ?? base.box,
+    }
+    const workspace = {
+      get isConnected() { return current.workspaceConnected !== false },
+      parentElement: ancestor,
+      querySelectorAll: (selector) => {
+        assert.equal(selector, '[data-carousel-slide][data-centered="true"]')
+        return current.cardMissing ? [] : current.duplicateCard ? [card, card] : [card]
+      },
+      getAnimations: (query) => {
+        assert.equal(query.subtree, true, "include descendant layout motion")
+        return [...(current.animations ?? [])]
+      },
+    }
+    const sandbox = {
+      document: {
+        querySelector: (selector) => {
+          assert.equal(selector, ".ml-atmosphere-carousel-workspace")
+          return current.workspaceMissing ? null : workspace
+        },
+      },
+      getComputedStyle: (element) => {
+        assert.equal(element, workspace)
+        return {
+          getPropertyValue: (property) => {
+            const index = ["--ml-atmosphere-workspace-scale", "--ml-atmosphere-header-scale-rem", "--ml-atmosphere-workspace-scale-rem"].indexOf(property)
+            assert.notEqual(index, -1)
+            return (current.scales ?? base.scales)[index]
+          },
+        }
+      },
+      expect: {
+        poll: (read, suppliedOptions) => {
+          options = suppliedOptions
+          return {
+            toBe: async (expected) => {
+              assert.equal(expected, true)
+              assert.deepEqual([...options.intervals], [50])
+              assert.equal(options.timeout, 7_500)
+              assert.match(options.message, /before category handoff/)
+              for (let elapsed = 0; elapsed <= options.timeout; elapsed += options.intervals[0]) {
+                if (await read() === expected) return
+              }
+              throw new Error("Station convergence exhausted its bounded poll")
+            },
+          }
+        },
+      },
+    }
+    runInNewContext(helper, sandbox)
+    let error
+    try {
+      await sandbox.expectStationCompositionSettled({
+        evaluate: async (read) => {
+          current = sampleAt(++reads)
+          if (current.error) throw current.error
+          return read()
+        },
+      })
+    } catch (caught) {
+      error = caught
+    }
+    return { reads, error }
+  }
+
+  await t.test("requires seven valid equal readings, not a guessed target geometry", async () => {
+    assert.deepEqual(await run(() => base), { reads: 7, error: undefined })
+    const alternate = { box: { x: 27, y: 18, width: 165, height: 199 }, scales: ["1", "1rem", "1rem"] }
+    assert.deepEqual(await run(() => alternate), { reads: 7, error: undefined })
+  })
+  await t.test("each card coordinate and each shared scale restarts the whole window", async () => {
+    const changes = Object.keys(base.box).map((key) => ({ box: { ...base.box, [key]: base.box[key] + 1 } }))
+    changes.push(...base.scales.map((_, index) => ({ scales: base.scales.map((value, position) => index === position ? "1.2" : value) })))
+    for (const change of changes) {
+      assert.deepEqual(await run((read) => read < 4 ? base : change), { reads: 10, error: undefined })
+    }
+  })
+  await t.test("missing, disconnected, invalid, and duplicate observations cannot bridge quiet samples", async () => {
+    const invalid = [
+      { workspaceMissing: true }, { cardMissing: true }, { duplicateCard: true },
+      { workspaceConnected: false }, { cardConnected: false },
+      { box: { ...base.box, x: NaN } }, { box: { ...base.box, width: 0 } },
+      { box: { ...base.box, height: -1 } },
+      ...["", "NaN", "Infinity", "0", "-1"].flatMap((value) => base.scales.map((_, index) => ({
+        scales: base.scales.map((scale, position) => position === index ? value : scale),
+      }))),
+    ]
+    for (const sample of invalid) {
+      assert.deepEqual(await run((read) => read === 4 ? sample : base), { reads: 11, error: undefined })
+    }
+  })
+  await t.test("running finite descendant or ancestor motion resets even with equal rectangles", async () => {
+    for (const key of ["animations", "ancestorAnimations"]) {
+      assert.deepEqual(await run((read) => read === 4 ? { [key]: [motion(1)] } : base), { reads: 11, error: undefined })
+      assert.deepEqual(await run(() => ({ [key]: [motion(Infinity), motion(1, "finished")] })), { reads: 7, error: undefined })
+    }
+  })
+  await t.test("persistent drift, missing card, and finite motion fail within the same bounded budget", async () => {
+    for (const sampleAt of [
+      (read) => ({ box: { ...base.box, width: base.box.width + read } }),
+      () => ({ cardMissing: true }),
+      () => ({ animations: [motion(1)] }),
+    ]) {
+      const result = await run(sampleAt)
+      assert.equal(result.reads, 151)
+      assert.match(result.error?.message ?? "", /exhausted its bounded poll/)
+    }
+  })
+  await t.test("unexpected DOM evaluation errors are not treated as transient readiness", async () => {
+    const defect = new Error("deliberate DOM evaluation defect")
+    const result = await run(() => ({ error: defect }))
+    assert.equal(result.reads, 1)
+    assert.equal(result.error, defect)
+  })
+})

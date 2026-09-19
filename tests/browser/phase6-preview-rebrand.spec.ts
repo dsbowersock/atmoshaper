@@ -252,13 +252,13 @@ for (const drawerEdge of ["left", "right"] as const) {
 test("keeps Atmosphere navigation, transport labels, and closed or expanded geometry coherent", async ({ page }) => {
   await gotoReady(page, "/music")
   await expectMusicReady(page)
+  await expectStationCompositionSettled(page)
   await page.getByRole("group", { name: "Station category" })
     .getByRole("button", { name: "Atmosphere", exact: true })
     .click()
   const workspace = page.getByLabel("Atmosphere live mixer")
   await expect(workspace).toBeVisible()
   await expect(page.getByRole("heading", { name: "Sound Library" })).toBeVisible()
-
   const noiseTab = page.getByRole("tab", { name: "Noise" })
   if (await noiseTab.getAttribute("aria-selected") !== "true") await noiseTab.click()
   await page.getByRole("button", { name: "Add White noise" }).click()
@@ -442,3 +442,56 @@ test("shows the three approved background labels without changing free or premiu
   await expect(controls.getByRole("heading", { name: "Hex grid", exact: true })).toBeVisible()
   await expect(panel.getByRole("button", { name: "Unlock Hex grid background" })).toBeEnabled()
 })
+
+/**
+ * Start this visual handoff from a settled Station composition. The workspace
+ * stops measuring its card-derived scales when the category changes, so a
+ * screenshot wait after that change cannot settle an earlier measurement.
+ */
+async function expectStationCompositionSettled(page: Page) {
+  let previous = ""
+  let stableSamples = 0
+  await expect.poll(async () => {
+    const sample = await page.evaluate(() => {
+      const workspace = document.querySelector(".ml-atmosphere-carousel-workspace")
+      const cards = workspace?.querySelectorAll('[data-carousel-slide][data-centered="true"]')
+      const card = cards?.length === 1 ? cards[0] : null
+      if (!workspace?.isConnected || !card?.isConnected) return null
+
+      const animations = workspace.getAnimations({ subtree: true })
+      for (let ancestor = workspace.parentElement; ancestor; ancestor = ancestor.parentElement) {
+        animations.push(...ancestor.getAnimations())
+      }
+      if (animations.some((animation) => {
+        const iterations = animation.effect?.getTiming().iterations
+        return animation.playState === "running" &&
+          typeof iterations === "number" && Number.isFinite(iterations)
+      })) return null
+
+      const { x, y, width, height } = card.getBoundingClientRect()
+      const style = getComputedStyle(workspace)
+      const scales = [
+        "--ml-atmosphere-workspace-scale",
+        "--ml-atmosphere-header-scale-rem",
+        "--ml-atmosphere-workspace-scale-rem",
+      ].map((property) => Number.parseFloat(style.getPropertyValue(property)))
+      if (![x, y, width, height, ...scales].every(Number.isFinite) ||
+        width <= 0 || height <= 0 || scales.some((scale) => scale <= 0)) return null
+      return { x, y, width, height, scales }
+    })
+    if (sample === null) {
+      previous = ""
+      stableSamples = 0
+      return false
+    }
+    const current = JSON.stringify(sample)
+    stableSamples = current === previous ? stableSamples + 1 : 0
+    previous = current
+    // Six unchanged 50 ms intervals require at least 300 ms of observed quiet.
+    return stableSamples >= 6
+  }, {
+    intervals: [50],
+    timeout: 7_500,
+    message: "Station card and shared workspace scales settle before category handoff",
+  }).toBe(true)
+}
