@@ -1048,6 +1048,47 @@ test.describe("private account action settlement", () => {
   })
 
   test("Google intent and password-method requests block overlap and recover after abort", async ({ context, page }, testInfo) => {
+    const { drainPromiseSetWithin } = await import("../helpers/async-control.mjs")
+    const { isHeldRouteTeardownCancellation } = await import("./held-route-teardown")
+    // Keep each request pending until overlap assertions finish, independent of machine speed.
+    async function holdAbort(pattern: string) {
+      let requests = 0
+      let release: () => void = () => undefined
+      let tearingDown = false
+      const activeRequests = new Set<Promise<void>>()
+      const hold = new Promise<void>((resolve) => { release = resolve })
+      const handler = async (route: Route) => {
+        requests += 1
+        let finish: () => void = () => undefined
+        const finished = new Promise<void>((resolve) => { finish = resolve })
+        activeRequests.add(finished)
+        try {
+          await hold
+          await route.abort("failed")
+        } catch (error) {
+          if (!tearingDown || !isHeldRouteTeardownCancellation(error)) throw error
+        } finally {
+          activeRequests.delete(finished)
+          finish()
+        }
+      }
+      await page.route(pattern, handler)
+      return {
+        requests: () => requests,
+        release,
+        async cleanup() {
+          tearingDown = true
+          release()
+          try {
+            await drainPromiseSetWithin(activeRequests, 10_000, `Timed out releasing ${pattern}`)
+          } finally {
+            await page.unroute(pattern, handler)
+          }
+          await drainPromiseSetWithin(activeRequests, 10_000, `Timed out draining ${pattern}`)
+        },
+      }
+    }
+
     const fixture = await import("./identity-method-safety-fixture")
     await fixture.installIdentityMethodSafetyFixture({
       context,
@@ -1055,22 +1096,23 @@ test.describe("private account action settlement", () => {
       projectName: interactionFixtureProject(testInfo.project.name),
       scenario: "GOOGLE_ONLY",
     })
-    let intents = 0
-    await page.route("**/api/auth/google/intent", async (route) => {
-      intents += 1
-      await new Promise((resolve) => setTimeout(resolve, 650))
-      await route.abort("failed")
-    })
-    await page.goto("/account?tab=security", { waitUntil: "domcontentloaded" })
-    await page.getByRole("button", { name: "Add password" }).click()
-    const proofPending = page.getByRole("button", { name: "Saving sign-in method…" })
-    await expect(proofPending).toBeDisabled()
-    await proofPending.click({ force: true })
-    await expect(page.getByRole("alert").filter({
-      hasText: /^Something went wrong\. Please try again\.$/,
-    })).toHaveCount(1)
-    await expect(page.getByRole("button", { name: "Add password" })).toBeEnabled()
-    expect(intents).toBe(1)
+    const intentAbort = await holdAbort("**/api/auth/google/intent")
+    try {
+      await page.goto("/account?tab=security", { waitUntil: "domcontentloaded" })
+      await page.getByRole("button", { name: "Add password" }).click()
+      const proofPending = page.getByRole("button", { name: "Saving sign-in method…" })
+      await expect(proofPending).toBeDisabled()
+      await proofPending.click({ force: true })
+      await expect.poll(intentAbort.requests).toBe(1)
+      intentAbort.release()
+      await expect(page.getByRole("alert").filter({
+        hasText: /^Something went wrong\. Please try again\.$/,
+      })).toHaveCount(1)
+      await expect(page.getByRole("button", { name: "Add password" })).toBeEnabled()
+      expect(intentAbort.requests()).toBe(1)
+    } finally {
+      await intentAbort.cleanup()
+    }
 
     await fixture.removeIdentityMethodSafetyFixture(interactionFixtureProject(testInfo.project.name), "GOOGLE_ONLY")
     const installed = await fixture.installIdentityMethodSafetyFixture({
@@ -1079,24 +1121,33 @@ test.describe("private account action settlement", () => {
       projectName: interactionFixtureProject(testInfo.project.name),
       scenario: "BOTH_METHODS",
     })
-    let passwordRequests = 0
-    await page.route("**/api/account/security/password", async (route) => {
-      passwordRequests += 1
-      await new Promise((resolve) => setTimeout(resolve, 1_500))
-      await route.abort("failed")
-    })
-    await page.goto("/account?tab=security", { waitUntil: "domcontentloaded" })
-    await page.getByLabel("Current password").fill(installed.password)
-    await page.getByLabel("New password").fill("a-new-browser-password")
-    await page.getByText("Confirm this password sign-in change.").click()
-    await page.getByRole("button", { name: "Update password" }).click()
-    const methodPending = page.getByRole("button", { name: "Saving sign-in method…" })
-    await expect(methodPending).toBeDisabled()
-    await methodPending.click({ force: true })
-    await expect(page.getByRole("alert").filter({
-      hasText: /^Something went wrong\. Please try again\.$/,
-    })).toHaveCount(1)
-    await expect(page.getByRole("button", { name: "Update password" })).toBeEnabled()
-    expect(passwordRequests).toBe(1)
+    const passwordAbort = await holdAbort("**/api/account/security/password")
+    try {
+      await page.goto("/account?tab=security", { waitUntil: "domcontentloaded" })
+      const updatePassword = page.getByRole("button", { name: "Update password" })
+      // Confirmation enables the React-owned form before input; this tests action settlement, not pre-hydration typing.
+      await expect(updatePassword).toBeDisabled()
+      await page.getByRole("checkbox", { name: "Confirm this password sign-in change." }).check()
+      await expect(updatePassword).toBeEnabled()
+      const currentPassword = page.getByLabel("Current password")
+      const newPassword = page.getByLabel("New password")
+      await currentPassword.fill(installed.password)
+      await newPassword.fill("a-new-browser-password")
+      await expect(currentPassword).toHaveValue(installed.password)
+      await expect(newPassword).toHaveValue("a-new-browser-password")
+      await updatePassword.click()
+      const methodPending = page.getByRole("button", { name: "Saving sign-in method…" })
+      await expect(methodPending).toBeDisabled()
+      await methodPending.click({ force: true })
+      await expect.poll(passwordAbort.requests).toBe(1)
+      passwordAbort.release()
+      await expect(page.getByRole("alert").filter({
+        hasText: /^Something went wrong\. Please try again\.$/,
+      })).toHaveCount(1)
+      await expect(updatePassword).toBeEnabled()
+      expect(passwordAbort.requests()).toBe(1)
+    } finally {
+      await passwordAbort.cleanup()
+    }
   })
 })
