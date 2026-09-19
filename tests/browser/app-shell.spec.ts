@@ -3533,7 +3533,7 @@ test("Favorites empty state explains the speed dial without duplicating station 
   await expect(page.getByTestId("music-player-toolbar")).toHaveCount(0)
 })
 
-test("Favorites and Atmoshaper bookend Station categories without duplicating the speed dial", async ({ page }, testInfo) => {
+test("Favorites and Atmosphere bookend Station categories without duplicating the speed dial", async ({ page }, testInfo) => {
   test.skip(
     testInfo.project.name !== mobileProject && testInfo.project.name !== desktopProject,
     "Special Station categories are covered in mobile and desktop Chromium.",
@@ -3546,7 +3546,7 @@ test("Favorites and Atmoshaper bookend Station categories without duplicating th
   const categoryButtons = categoryGroup.getByRole("button")
   await expect(categoryButtons).toHaveCount(7)
   await expect(categoryButtons.first()).toHaveText("Favorites")
-  await expect(categoryButtons.last()).toHaveText("Atmoshaper")
+  await expect(categoryButtons.last()).toHaveText("Atmosphere")
 
   const favoritesButton = categoryGroup.getByRole("button", { name: "Favorites", exact: true })
   await expect(favoritesButton.locator('[data-metal-icon-trace="true"]')).toHaveCount(1)
@@ -3566,10 +3566,10 @@ test("Favorites and Atmoshaper bookend Station categories without duplicating th
   })).toBeLessThanOrEqual(1)
   await expect(page.getByTestId("atmosphere-favorites-region")).toBeHidden()
 
-  const atmoshaperButton = categoryGroup.getByRole("button", { name: "Atmoshaper", exact: true })
-  await atmoshaperButton.click()
-  await expect(atmoshaperButton).toHaveAttribute("aria-pressed", "true")
-  await expect(page.getByRole("heading", { name: "Atmoshaper", exact: true })).toBeVisible()
+  const atmosphereButton = categoryGroup.getByRole("button", { name: "Atmosphere", exact: true })
+  await atmosphereButton.click()
+  await expect(atmosphereButton).toHaveAttribute("aria-pressed", "true")
+  await expect(page.getByRole("heading", { name: "Atmosphere", exact: true })).toBeVisible()
   await expect(page.getByText("Layer ambient sounds into your own soundscape.", { exact: true })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Sound Library", exact: true })).toBeVisible()
   const ambientSoundsTab = page.getByRole("tab", { name: "Ambient sounds", exact: true })
