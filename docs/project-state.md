@@ -1,10 +1,10 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-15
+Verified: 2026-09-19
 
-This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
+This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now. [Current Phase 6 Task 10 status](#current-phase-6-task-10-status) supersedes the dated snapshots and next-action statements retained below.
 
-## Current Snapshot — Phase 6 Task 9 Local Command Gates Complete
+## Historical Snapshot — Phase 6 Task 9 Local Command Gates Complete
 
 - Phase 5 is merged. [PR #4](https://github.com/dsbowersock/atmoshaper/pull/4)
   merged into `main` at `2026-09-14T10:49:49-04:00` as
@@ -123,7 +123,7 @@ the Round 27 snapshot above owns current status.
 
 ## Current Boundaries
 
-- Preserve current behavior, routes, responsive design, accessibility, privacy, local-first data ownership, feature-key entitlements, APIs, provider-call boundaries, and compatibility identifiers during bootstrap.
+- Preserve current routes, responsive behavior, accessibility, privacy, local-first data ownership, feature-key entitlements, APIs, provider-call boundaries, and durable compatibility identifiers during the remaining migration.
 - Keep clinical notes, intake forms, journals, ROM sessions, encrypted professional records, and other PHI-bearing workflows local-first until hosted clinical storage passes the documented compliance gates.
 - Phase 6 may migrate current legal presentation, proprietary license, document
   versions, and effective dates only under its approved archive-first plan.
@@ -202,3 +202,30 @@ and audit hashes are historical, not the current integrated-fix receipt above.
 ## Historical Snapshot Addendum — Hosted review round 25
 
 - This addendum supersedes the round-24 current-receipt wording above without changing historical line-addressed evidence. Round 24 head `889ab55` is pushed and historical; round 25 is the current staged, pre-push Phase 4 audit-only receipt. Four valid hosted findings were repaired: conditional and loop environment assignments join every normal-reaching path; deferred function-body alias writes are analyzed without changing declaration-time outer state; branch joins retain possible CommonJS-loader provenance; and loop assignment/incrementor proof includes every reaching `continue` path. Markdown inline/fenced-code destinations remain intentionally hash-only uncertainty, and CSS bad-URL recovery already follows CSS Syntax 4.3.15, so those two findings were rejected without behavior changes. Independent SPEC and QUALITY reviews passed. The accumulated focused Round 25 suite passed 46/46; the full suite recorded 4,480 total, 4,477 passed, 3 host-dependent skips and zero failures; typecheck, lint and the 115-route build passed, with the Babel greater-than-500-KB and existing Anatomime poll-shedder notices informational. Diff/source checks passed and the maximum maintained source size was 499 nonblank lines. Pre-document staged commands ran twice with exit 0, empty stderr, byte-identical output, shared inventory SHA-256 `e5228c0739194704755eabbce0896b0c6dd490c5421c64827e6ad9aff492436a` and `deletionAuthority: false`: dead 1,608/211 (raw `f15f7817bb2a2eed9fcd8af86cfea6853bdc40691dace3c2a1a71739353425f9`, CRLF `e12412da7923f04f772ce28bdc622e3a87a9cc257d5d8078b55f8e0ed3f5808c`), dependency 2,879/21 (raw `ca5113c8ab5f8dc8b4cc6955f4660378f78f89acf4e505841e10b38fd08140d4`, CRLF `6c6d5d7d4f5b70cfbdc1be2d526921b4b56a49e6a0fe868ea66de0f6679c1176`), asset 557/11,630 (raw `e5b1c9293a0eff98647bde6b111af82332a034abad2194e5797cd355b6dfbae0`, CRLF `e9f5046ba4a65fe271e31621e25e3604fd3cc1c8aca5b40d4b87c3e900067b52`) and environment 587/252 (raw `8a57296a932ac5066605b77b404c9a9c530dec1951d58e41ced946b138c7f0d3`, CRLF `2f7ab1fd70ca723b8ffa328fdc7c7ec0c6359d5fabe15d89da58c8e4364d0196`). The pre-document inventory was 1,940 files/48,002,713 bytes, raw output `f808ed400b25234f19c32bec5fa967a2ac741ee258df741b9b5589a41b0c5d07`, CRLF `1e71bdb69781109c5e33420f550575994d42a5b6e3feb7e3b334fe1e5eeb5763`, forbidden 0; brand was zero missing/zero unclassified (raw `fd1b776fe062af1215ef24b18f14fab558f9c13265f4f1d78aa483d74d361c84`, CRLF `50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`). These pre-document values become historical after staging; exact final staged identity remains only in the ignored SDD handoff. Round 25 is not committed or pushed; latest-head hosted follow-up remains pending and merge separately authorized. No candidate deletion, provider mutation, merge or Phase 5 action occurred.
+
+## Current Phase 6 Task 10 status
+
+- Verified 2026-09-19: the approved Browser-QA lifecycle passed on source
+  `c25d0daf13bbec3eeabc740a0bf0008afce83015`. Windows build, capture and comparison,
+  all four ordinary lanes, and native Linux build, capture, direct visual review
+  and explicit-none comparison passed. The four lanes total 648 passed with no
+  failures; the [current evidence record](aegis/work/2026-09-14-atmoshaper-phase6-preview-rebrand/90-evidence.md#task-10-visual-baseline-and-qa-closeout---2026-09-19)
+  distinguishes declared skips and exact verification boundaries.
+- Accepted baselines contain 14 Windows and 14 Linux PNGs. The historical parity
+  spec and all 24 historical images remain unchanged. The responsive app bar
+  retains full text where it fits, the approved temporary square mark at medium
+  container widths, and no focusable brand link at the narrowest widths.
+- The one independent QA project was empty before deletion and is now absent.
+  Production data was not read, copied or altered. Owned native workspaces,
+  processes and private holders are gone. A task-owned build crash dump was
+  removed without inspection; the guarded retry passed, as recorded in evidence.
+- Open inherited follow-ups remain: pre-hydration current-password input loss and
+  arbitrarily early station-handoff scale retention. Test readiness fixes do not
+  repair or accept those behaviors, or establish them as rebrand regressions.
+- Task 10 is locally verified: full unit tests passed 4,766 with three documented
+  skips and zero failures; focused checks passed 599/599. Typecheck, lint,
+  ordinary audits and independent specification/quality reviews passed. The
+  containing visual-baseline commit records this closeout; exact Git identity
+  and final staged verification are retained in the coordinator handoff.
+  No Phase 6 push, PR, merge, deployment, domain cutover or final-logo delivery
+  occurred. The next external step needs separate publication authorization.

@@ -1,8 +1,8 @@
-# AtmoShaper Project Log
+# AtmoShaper Project Log - [Latest receipt](#current-phase-6-task-10-receipt)
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
-## 2026-09-15 — Phase 6 Task 9 systemic label-owner repair approved
+## 2026-09-15 — Phase 6 Task 9 systemic label-owner repair approved (historical)
 
 - Repair commit `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe` makes five actual public-audio literals delegate to unchanged `ATMOSPHERE_PUBLIC_LABELS.name`, centralizing current presentation without a runtime cycle or scope regression.
 - TDD RED recorded 16 total with 11 passing and five expected failures; GREEN passed 16/16. Focused five-suite verification passed 45/45; typecheck and diff check passed.
@@ -304,3 +304,28 @@ and audit hashes are historical, not the current integrated-fix receipt above.
 ## 2026-09-12 — Hosted review round 25 (historical)
 
 - Round 24 head `889ab55` is pushed and now historical supporting evidence; round 25 is the current staged, pre-push Phase 4 audit-only receipt. Four valid hosted findings were repaired: conditional and loop environment assignments join every normal-reaching path; deferred function-body alias writes are analyzed without mutating declaration-time outer state; branch joins retain possible CommonJS-loader provenance; and loop assignment/incrementor proof includes every reaching `continue` path. Two findings were rejected without behavior changes: Markdown inline/fenced-code destinations intentionally remain hash-only uncertainty, and CSS bad-URL recovery already follows CSS Syntax 4.3.15, where comments are not special and the first unescaped `)` terminates bad-URL remnants. Independent SPEC and QUALITY reviews passed. The accumulated focused Round 25 suite passed 46/46; the full suite recorded 4,480 total, 4,477 passed, 3 host-dependent skips and zero failures; typecheck, lint and the 115-route build passed, with the Babel greater-than-500-KB and existing Anatomime poll-shedder notices informational. Diff/source checks passed and maintained sources stayed at or below 499 nonblank lines. Pre-document staged commands ran twice with exit 0, empty stderr, byte-identical output, shared inventory SHA-256 `e5228c0739194704755eabbce0896b0c6dd490c5421c64827e6ad9aff492436a` and `deletionAuthority: false`: dead 1,608/211 (raw `f15f7817bb2a2eed9fcd8af86cfea6853bdc40691dace3c2a1a71739353425f9`, CRLF `e12412da7923f04f772ce28bdc622e3a87a9cc257d5d8078b55f8e0ed3f5808c`), dependency 2,879/21 (raw `ca5113c8ab5f8dc8b4cc6955f4660378f78f89acf4e505841e10b38fd08140d4`, CRLF `6c6d5d7d4f5b70cfbdc1be2d526921b4b56a49e6a0fe868ea66de0f6679c1176`), asset 557/11,630 (raw `e5b1c9293a0eff98647bde6b111af82332a034abad2194e5797cd355b6dfbae0`, CRLF `e9f5046ba4a65fe271e31621e25e3604fd3cc1c8aca5b40d4b87c3e900067b52`) and environment 587/252 (raw `8a57296a932ac5066605b77b404c9a9c530dec1951d58e41ced946b138c7f0d3`, CRLF `2f7ab1fd70ca723b8ffa328fdc7c7ec0c6359d5fabe15d89da58c8e4364d0196`). Inventory was 1,940 files/48,002,713 bytes, raw output `f808ed400b25234f19c32bec5fa967a2ac741ee258df741b9b5589a41b0c5d07`, CRLF `1e71bdb69781109c5e33420f550575994d42a5b6e3feb7e3b334fe1e5eeb5763`, forbidden 0; brand was zero missing/zero unclassified (raw `fd1b776fe062af1215ef24b18f14fab558f9c13265f4f1d78aa483d74d361c84`, CRLF `50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`). These pre-document values become historical after staging; exact final staged identity remains in the ignored SDD handoff. Round 25 is staged for verification but not committed or pushed. Latest-head hosted follow-up remains pending; merge remains separately authorized. No candidate deletion, provider mutation, merge or Phase 5 action occurred.
+
+## Current Phase 6 Task 10 receipt
+
+Recorded 2026-09-19 on `codex/atmoshaper-phase6-preview-rebrand`.
+
+- Browser QA passed at `c25d0daf13bbec3eeabc740a0bf0008afce83015`: Windows and
+  native Linux capture/comparison each passed 18/18; all four ordinary Windows
+  lanes passed with 648 passed, 126 declared skips and zero failures. Accepted
+  visual evidence is 28 new PNGs; the historical parity spec/24 PNGs are preserved.
+- One authorized independent project served the complete current lifecycle and
+  bounded repairs. Exact migration equality and all 134 application tables empty
+  were verified; final emptiness preceded deletion and fresh absence proof.
+  Production presence was checked through metadata only, without reading,
+  copying or altering production data. Owned processes and native exports were
+  cleaned and private holders cleared. The contained native-build dump incident
+  and guarded retry are explicitly recorded in the current evidence section.
+- Known inherited account-input loss before hydration and early station-handoff
+  scale retention remain open; test readiness repairs do not close them.
+- Local verification passed: full suite 4,769 total, 4,766 passed, three documented
+  skips and zero failures; focused checks 599/599; typecheck, lint, ordinary
+  audits and independent specification/quality reviews. The containing local
+  commit records the accepted baseline and receipts. Detailed
+  results belong in the [current evidence record](aegis/work/2026-09-14-atmoshaper-phase6-preview-rebrand/90-evidence.md#task-10-visual-baseline-and-qa-closeout---2026-09-19).
+  No Phase 6 publication or deployment occurred; push/PR creation require
+  separate authorization; no temporary QA resource remains for reuse.

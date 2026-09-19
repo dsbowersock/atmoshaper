@@ -1,5 +1,28 @@
 # Phase 6 preview rebrand checkpoint
 
+## Current Task 10 closeout - 2026-09-19
+
+- Browser slice complete at tested source `c25d0daf13bbec3eeabc740a0bf0008afce83015`:
+  Windows capture and comparison, all four ordinary lanes, native Linux capture
+  and explicit-none comparison, and direct visual acceptance. The 28 accepted
+  platform PNGs preserve the historical parity spec and its 24 images.
+- The one independent QA project was empty before deletion and is now absent.
+  Production was checked through metadata only; no production data was read,
+  copied or altered. Owned processes, native exports and private holders are gone.
+  A build-generated crash dump was removed without inspection; the guarded
+  native retry passed. See the current evidence section for the incident boundary.
+- Local checks passed: full suite 4,766 passed/three documented skips/zero failed;
+  focused 599/599; typecheck and lint (seven ignored-script warnings, zero errors).
+  Ordinary inventory/brand and independent specification then quality reviews
+  passed. Final exact staged identities and containing commit are recorded in
+  the ignored coordinator handoff without self-referential document hashes.
+- Final receipt scope is four documents, the one-line verification-date contract,
+  and 28 accepted PNGs. Task 10 leaves audit policy and baseline unchanged.
+- Open inherited follow-ups: pre-hydration current-password input loss and
+  arbitrary-early station-handoff scale retention. Test readiness changes neither
+  repair nor accept these behaviors; they are not established rebrand regressions.
+- Earlier dated entries and their next-action statements below are historical.
+
 ## 2026-09-16 - Post-final-cycle bounded repair
 
 - Removed the invalid 2px font-line-box vertical scroll metric from the product
@@ -166,7 +189,7 @@
   request fresh explicit authorization for Task 10's independent empty Neon
   Browser-QA lifecycle.
 
-## Current DriftCheckDraft
+## Historical Task 9 DriftCheckDraft
 
 - Intent lock: aligned; current presentation is AtmoShaper and the audio feature
   is Atmosphere.
@@ -297,21 +320,24 @@
 
 Resume on `codex/atmoshaper-phase6-preview-rebrand`. Re-read `10-intent.md`, this
 checkpoint, `90-evidence.md`, the approved Phase 6 spec and implementation plan,
-current project state, and exact Git status. Task 0 baseline is complete; next is
-its evidence-only review/commit, followed by Task 1's fresh implementer. Do not
-begin Browser QA, publication, merge, deployment, provider/domain work, or
-final-logo integration without the applicable later authorization.
+current project state, and exact Git status. Task 10 local verification and
+provider cleanup are complete; confirm the containing baseline commit and clean
+state from Git plus the ignored coordinator handoff. The next step is separate
+authorization to push and open the Phase 6 PR. Do not recreate QA, publish, merge,
+deploy, change production or domains, or integrate final logos under the consumed
+resource approval.
 
 ## DriftCheckDraft
 
-- Original intent: aligned
-- Scope fence: aligned; planning/authority documents only
-- Compatibility boundary: explicit and unchanged
-- Owner/fallback/addition: product owner reused; noun-only feature owner and
-  evidence-only legal archive justified; no other fallback/adapter proposed
-- Retirement track: old current copy/assets retire; historical/provider/durable
-  values remain with explicit tests
-- Evidence sufficiency: plan self-review, focused tests, and fixed-point audit
-  passed; final staged checks and planning commit remain
-- Decision: commit the planning package after final checks; no runtime
-  implementation yet
+- Intent: AtmoShaper platform, Atmosphere audio, approved three-state responsive
+  brand presentation, and unchanged durable compatibility/data boundaries.
+- Scope: Task 10 visual evidence and truthful local receipts; no audit-policy or
+  baseline regeneration and no public delivery.
+- Owner/retirement: the temporary mark stays at the existing asset seam until
+  final supplied artwork replaces it without a responsive redesign.
+- Evidence: browser, cleanup and provider-free gates passed; independent reviews
+  accepted the bounded closeout. The containing commit and final staged readback
+  are the local Git receipt, not a claim of hosted readiness.
+- Limitations: inherited account-input loss and early station-handoff scale
+  retention remain open, not hidden by the test readiness/settlement contracts.
+- Decision: local Task 10 closeout; stop for separate publication authority.

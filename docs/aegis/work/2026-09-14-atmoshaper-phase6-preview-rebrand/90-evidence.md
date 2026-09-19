@@ -1,5 +1,87 @@
 # Phase 6 preview rebrand evidence
 
+## Task 10 visual-baseline and QA closeout - 2026-09-19
+
+This section owns current evidence. Earlier dated entries and next actions are
+historical. Browser QA exercised clean source
+`c25d0daf13bbec3eeabc740a0bf0008afce83015` on
+`codex/atmoshaper-phase6-preview-rebrand`; final receipts, their date contract and
+accepted image additions are not represented as a new application build.
+
+| Gate | Observed result |
+| --- | --- |
+| Resource authority | Exactly one newly authorized independent empty QA project; the same project was retained through bounded repairs. No production-data access. |
+| Database preflight | Exact committed set of 46 successful migrations; all 134 application tables empty. Native exports applied no additional migration. |
+| Windows build | Exit 0; 115/115 static pages, 80 seconds, immediately before the accepted attempt-6 cycle. |
+| Windows capture and visual review | 18/18 passed, zero skips/failures/retries; 14 candidates. All originals were directly inspected; final capture was accepted by exact filename/size/SHA-256 identity to those reviewed originals. |
+| Windows comparison | 18/18 passed, zero skips/failures/retries. No update flag was supplied (Playwright default missing); immediate before/after checks proved the exact 14 files unchanged, with no missing or added file. This was not an explicit-none invocation. |
+| Ordinary lane 1 | Exit 0: 137 passed, 7 declared skips, zero failures/retries; 638 seconds. |
+| Ordinary lane 2 | Exit 0: 184 passed, 34 declared skips, zero failures/retries; 673 seconds. |
+| Ordinary lane 3 | Exit 0: 178 passed, 34 declared skips, zero failures/retries; 770 seconds. |
+| Ordinary lane 4 | Exit 0: 149 passed, 51 declared skips, zero failures/retries; 725 seconds. |
+| Native Linux source/build | Exact Git export of all 1,970 tracked files; native dependencies/client generation; 115/115-page build passed in 65 seconds. Same QA project, no new migration. |
+| Native Linux capture/review | 18/18 passed, zero skips/failures/retries; all 14 Linux originals directly inspected before approval. |
+| Native Linux comparison | Explicit `--update-snapshots=none`: 18/18 passed, zero skips/failures/retries, 60 seconds. Accepted image names/bytes unchanged before copy into the source checkout. |
+| Accepted inventory | 28 new PNGs: seven exact assertion names across desktop/mobile and Windows/Linux. Historical parity spec and all 24 existing PNGs unchanged from the Phase 5 merge. |
+| Final database and provider cleanup | All 134 application tables empty immediately before deletion; cycle-owned project deleted and freshly proved absent. Pre-existing production project still present with unchanged stable metadata; no production rows read. |
+| Local cleanup | Owned servers/browsers/private holders exited; listeners clear; both owned native exports removed; original test-run metadata restored. |
+| Full provider-free unit suite | Exit 0 after provider cleanup and receipt/date changes: 4,769 total, 4,766 passed, three documented skips, zero failures; 368 suites, 518.419523 seconds. This exercised the staged receipt candidate before final result-only prose, not a later application build. |
+| Focused checks, typecheck and lint | Focused source/harness/date coverage passed 599/599, no skips/failures. Typecheck passed. Full lint passed with zero errors and seven warnings confined to ignored QA scripts. Final result-only receipt text receives fresh focused/diff/audit readback. |
+| Final staged audits and diff | Ordinary inventory: 1,998 files, no forbidden paths. Brand: missing=[] and unclassified=[], public-copy zero; compatibility 23,679, historical 1,675, legal 35. Policy/baseline unchanged. Exact final staged hashes/bytes and clean diff result are retained in the coordinator handoff after receipt synchronization. |
+| Independent review | Specification review APPROVED, then independent quality review APPROVED, no findings. Final result-only receipt delta is re-read in that order before commit; reviews do not grant publication or merge authority. |
+| Local commit | Containing coordinator commit: `test: record phase 6 visual baseline`. Exact SHA, committed paths and post-commit cleanliness are retained in the local handoff; no push or PR authorized. |
+
+The four lanes total 648 passed, 126 declared skips and zero failures. None skipped
+because a database was unavailable. Lane 1 skips six mobile-owned route copies and
+one separate public-pause variant; lane 2 skips 30 mobile-owned App Shell cases,
+three desktop-owned routes and one public-pause exclusion. All 34 lane-3 device
+skips have exact passing complementary-project cases. Lane 4 has 30 such device
+skips with passing counterparts plus 21 development-only exclusions against the
+production build (20 control-review cases and one real-Popover fixture).
+
+The full unit suite's three skips are two file-symlink cases unavailable on this
+Windows host (`EPERM`) and one credential-free catalog dry run whose optional
+ignored catalog is absent. No assertion was relaxed to obtain the green result.
+
+Closeout judgment: the approved preview boundary is aligned. Actual owner and
+readiness contracts were checked without treating test accommodation as a repair
+of the two inherited product limitations below. Final receipt work introduces no
+runtime owner, fallback or architectural decision; the only test edit advances
+the still-enforced verification-date ceiling alongside real evidence. Evidence
+confidence is B for this local slice, with hosted integration and the open
+product follow-ups explicitly uncovered. The next valuable external verification
+is exact-head PR CI/review, only after separate publication authorization.
+
+### Environment incident and containment
+
+The first native build compiled but its TypeScript worker exhausted the default
+heap. The operating system generated a potentially secret-bearing crash dump;
+metadata established task ownership, and the exact file was permanently removed
+without reading, copying or hashing its contents. Its absence was independently
+verified. The failed native workspace and private holder were also removed.
+A credential-free abort probe verified inherited process-local dump prevention;
+the successful retry used a build-only 4 GB heap. Subsequent dump inventories
+remained empty. This is not a claim that the entire lifecycle was memory-only.
+The temporary credentials were invalidated by deleting the project; production
+credentials and data were never supplied to the QA runners.
+
+### Boundaries and open follow-ups
+
+- The approved full-text / temporary-mark / hidden-link responsive behavior uses
+  the existing asset seam; final supplied artwork retires the stand-in without
+  redesign. No final logo is implied by these accepted baselines.
+- Pre-hydration current-password input can be lost during later form interaction;
+  an arbitrarily early Stations-to-Atmosphere switch can retain an intermediate
+  layout scale. These inherited product follow-ups remain open. Test readiness
+  repairs do not fix or accept them, nor establish them as rebrand regressions.
+- Evidence confidence is bounded to this local preview and the stated gates.
+  No push, PR, merge, deployment, domain cutover or production-data change occurred.
+  The next external step requires separate publication authorization.
+- Detailed sanitized receipts, exact image manifests, cleanup proofs and failed-run
+  history are retained in the ignored Task 10 QA evidence directory. Final staged
+  identities and the containing local commit belong in the coordinator handoff,
+  not recursively inside this tracked evidence record.
+
 ## 2026-09-15 — Task 9 local command-gate closeout
 
 - Start state: clean `codex/atmoshaper-phase6-preview-rebrand` at
