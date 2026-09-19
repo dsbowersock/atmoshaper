@@ -1592,44 +1592,92 @@ test("Phase 6 Station handoff readiness executes actual bounded card and scale c
   })
 })
 
-test("Phase 6 music readiness selects one accessible sr-only heading without accepting hidden or duplicate pages", async (t) => {
+test("Atmosphere heading assertions distinguish accessible page and category levels without accepting hidden or duplicate owners", async (t) => {
   const { chromium, expect: browserExpect } = await import("@playwright/test")
-  const { transpileModule } = await import("typescript")
-  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const ts = await import("typescript")
   const workspace = await readProjectFile("app/browse/workspace.tsx")
+  const carousel = await readProjectFile("components/atmosphere/station-carousel.tsx")
   assert.match(workspace, /<h1 className="sr-only">\{ATMOSPHERE_PUBLIC_LABELS\.name\}<\/h1>/)
-  // Execute the actual first readiness assertion; later ring/storage checks have separate contracts.
-  const source = sliceBetweenMarkers(spec, "async function expectMusicReady", '  await expect(page.getByRole("region"', "actual Phase 6 heading assertion").slice + "}"
-  assert.match(source, /level: 1,\s*name: "Atmosphere",\s*exact: true,/)
-  assert.doesNotMatch(source, /\.first\(|\.nth\(/)
-  const sandbox = { expect: browserExpect.configure({ timeout: 500 }) }
-  runInNewContext(transpileModule(source, { compilerOptions: { target: 9 } }).outputText, sandbox)
+  assert.match(carousel, /title: ATMOSPHERE_PUBLIC_LABELS\.name,/)
+  assert.match(carousel, /<h2 className="font-semibold tracking-normal">\{group\.title\}<\/h2>/)
+  const assertions = []
+  for (const [filename, count, level, matcher] of [
+    ["app-shell.spec.ts", 1, 2, "toBeVisible"],
+    ["music-visualizer.spec.ts", 2, 1, "toBeAttached"],
+    ["background-commerce.spec.ts", 2, 1, "toBeAttached"],
+    ["public-routes.spec.ts", 1, 1, "toBeAttached"],
+    ["phase6-preview-rebrand.spec.ts", 1, 1, "toBeAttached"],
+  ]) {
+    const source = await readProjectFile(`tests/browser/${filename}`)
+    const parsed = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+    let found = 0
+    // Run each original assertion, not a re-created locator that could drift from Browser QA.
+    const visit = (node) => {
+      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+        && node.expression.name.text === "getByRole" && node.arguments[0]?.text === "heading"
+        && node.arguments[1] && ts.isObjectLiteralExpression(node.arguments[1])) {
+        const options = new Map(node.arguments[1].properties
+          .filter(ts.isPropertyAssignment).map((property) => [property.name.getText(parsed), property.initializer]))
+        if (options.get("name")?.text === "Atmosphere") {
+          assert.equal(options.get("level")?.getText(parsed), String(level), filename)
+          assert.equal(options.get("exact")?.getText(parsed), "true", filename)
+          assert.equal(options.get("includeHidden")?.getText(parsed), "false", filename)
+          let statement = node
+          while (!ts.isExpressionStatement(statement)) {
+            assert.ok(statement.parent, `${filename} heading must belong to an assertion statement`)
+            statement = statement.parent
+          }
+          assert.ok(ts.isAwaitExpression(statement.expression), filename)
+          assert.equal(statement.expression.expression.expression?.name?.text, matcher, filename)
+          const assertionSource = statement.getText(parsed)
+          assert.doesNotMatch(assertionSource, /\.first\(|\.nth\(/)
+          const sandbox = { expect: browserExpect.configure({ timeout: 500 }) }
+          runInNewContext(ts.transpileModule(`async function checkHeading(page) { ${assertionSource} }`, {
+            compilerOptions: { target: ts.ScriptTarget.ES2022 },
+          }).outputText, sandbox)
+          assertions.push({ name: `${filename} assertion ${++found}`, level, matcher, run: sandbox.checkHeading })
+        }
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(parsed)
+    assert.equal(found, count, `${filename} must exercise every current Atmosphere heading assertion`)
+  }
   const browser = await chromium.launch()
   let requests = 0
   try {
-    const heading = '<h1 class="sr-only">Atmosphere</h1>'
-    for (const [name, content, failure] of [
-      ["active sr-only heading", heading],
-      ["hidden attribute clone", heading + `<div hidden>${heading}</div>`],
-      ["display-none clone", heading + `<div style="display:none">${heading}</div>`],
-      ["aria-hidden clone", heading + `<div aria-hidden="true">${heading}</div>`],
-      ["two accessible headings", heading + heading, /strict mode violation/],
-      ["hidden-only heading", `<div hidden>${heading}</div>`, /toBeAttached/],
-    ]) {
-      await t.test(name, async () => {
-        const context = await browser.newContext({ serviceWorkers: "block" })
-        try {
-          await context.route("**/*", async (route) => { requests += 1; await route.abort() })
-          const page = await context.newPage()
-          // Standard sr-only geometry clips paint without hiding the heading from accessibility.
-          await page.setContent(`<style>.sr-only {
-            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
-          }</style>${content}`)
-          if (failure) await assert.rejects(sandbox.expectMusicReady(page), failure)
-          else await sandbox.expectMusicReady(page)
-        } finally {
-          await context.close()
+    const pageHeading = '<h1 class="sr-only">Atmosphere</h1>'
+    const categoryHeading = '<h2>Atmosphere</h2>'
+    const both = pageHeading + categoryHeading
+    for (const assertion of assertions) {
+      await t.test(assertion.name, async (t) => {
+        const intended = assertion.level === 1 ? pageHeading : categoryHeading
+        const other = assertion.level === 1 ? categoryHeading : pageHeading
+        for (const [name, content, failure] of [
+          ["accessible page and category headings", both],
+          ["hidden attribute clones", both + `<div hidden>${both}</div>`],
+          ["display-none clones", both + `<div style="display:none">${both}</div>`],
+          ["aria-hidden clones", both + `<div aria-hidden="true">${both}</div>`],
+          ["duplicate accessible intended level", both + intended, /strict mode violation/],
+          ["missing intended level", other, new RegExp(assertion.matcher)],
+          ["hidden-only intended level", other + `<div hidden>${intended}</div>`, new RegExp(assertion.matcher)],
+        ]) {
+          await t.test(name, async () => {
+            const context = await browser.newContext({ serviceWorkers: "block" })
+            try {
+              await context.route("**/*", async (route) => { requests += 1; await route.abort() })
+              const page = await context.newPage()
+              // Standard sr-only geometry clips paint without hiding the heading from accessibility.
+              await page.setContent(`<style>.sr-only {
+                position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+                overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+              }</style>${content}`)
+              if (failure) await assert.rejects(assertion.run(page), failure)
+              else await assertion.run(page)
+            } finally {
+              await context.close()
+            }
+          })
         }
       })
     }

@@ -418,7 +418,7 @@ async function openMusicBackground(page: Page) {
   })
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   await expect(
-    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: true }),
+    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: false }),
   ).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
@@ -546,7 +546,7 @@ test("ordinary signed-in shell defers commerce until a real background consumer 
     level: 1,
     name: "Atmosphere",
     exact: true,
-    includeHidden: true,
+    includeHidden: false,
   }))
     .toBeAttached()
   await page.waitForFunction(() => (

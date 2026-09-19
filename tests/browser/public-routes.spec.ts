@@ -1273,7 +1273,7 @@ test("Atmosphere visualizer action retains selected station across client routes
     level: 1,
     name: "Atmosphere",
     exact: true,
-    includeHidden: true,
+    includeHidden: false,
   })).toBeAttached()
   await expect(page.getByRole("heading", { name: /Treatment room starters/i })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Breathing guide" })).toHaveCount(0)

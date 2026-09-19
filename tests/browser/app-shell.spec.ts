@@ -3569,7 +3569,7 @@ test("Favorites and Atmosphere bookend Station categories without duplicating th
   const atmosphereButton = categoryGroup.getByRole("button", { name: "Atmosphere", exact: true })
   await atmosphereButton.click()
   await expect(atmosphereButton).toHaveAttribute("aria-pressed", "true")
-  await expect(page.getByRole("heading", { name: "Atmosphere", exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 2, name: "Atmosphere", exact: true, includeHidden: false })).toBeVisible()
   await expect(page.getByText("Layer ambient sounds into your own soundscape.", { exact: true })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Sound Library", exact: true })).toBeVisible()
   const ambientSoundsTab = page.getByRole("tab", { name: "Ambient sounds", exact: true })

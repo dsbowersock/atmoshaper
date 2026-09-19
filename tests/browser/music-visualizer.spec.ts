@@ -105,7 +105,7 @@ async function installWakeLockRejection(page: Page) {
 async function startProofStation(page: Page, origin = "/music") {
   await page.goto(origin, { waitUntil: "domcontentloaded" })
   await expect(
-    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: true }),
+    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: false }),
   ).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
@@ -555,7 +555,7 @@ test("Clock, Music, and active Chimer keep wake and timer controls context-speci
 
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   await expect(
-    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: true }),
+    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: false }),
   ).toBeAttached()
   const musicWakeBaseline = await wakeLockRequestCount(page)
   await page.goto("/clock?source=music&returnTo=%2Fmusic", { waitUntil: "domcontentloaded" })
