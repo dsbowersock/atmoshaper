@@ -25,7 +25,7 @@ async function expectMusicReady(page: Page) {
     level: 1,
     name: "Atmosphere",
     exact: true,
-    includeHidden: true,
+    includeHidden: false,
   })).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations", exact: true }))
     .toHaveAttribute("data-music-storage-status", "available")

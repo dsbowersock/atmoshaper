@@ -1591,3 +1591,50 @@ test("Phase 6 Station handoff readiness executes actual bounded card and scale c
     assert.equal(result.error, defect)
   })
 })
+
+test("Phase 6 music readiness selects one accessible sr-only heading without accepting hidden or duplicate pages", async (t) => {
+  const { chromium, expect: browserExpect } = await import("@playwright/test")
+  const { transpileModule } = await import("typescript")
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const workspace = await readProjectFile("app/browse/workspace.tsx")
+  assert.match(workspace, /<h1 className="sr-only">\{ATMOSPHERE_PUBLIC_LABELS\.name\}<\/h1>/)
+  // Execute the actual first readiness assertion; later ring/storage checks have separate contracts.
+  const source = sliceBetweenMarkers(spec, "async function expectMusicReady", '  await expect(page.getByRole("region"', "actual Phase 6 heading assertion").slice + "}"
+  assert.match(source, /level: 1,\s*name: "Atmosphere",\s*exact: true,/)
+  assert.doesNotMatch(source, /\.first\(|\.nth\(/)
+  const sandbox = { expect: browserExpect.configure({ timeout: 500 }) }
+  runInNewContext(transpileModule(source, { compilerOptions: { target: 9 } }).outputText, sandbox)
+  const browser = await chromium.launch()
+  let requests = 0
+  try {
+    const heading = '<h1 class="sr-only">Atmosphere</h1>'
+    for (const [name, content, failure] of [
+      ["active sr-only heading", heading],
+      ["hidden attribute clone", heading + `<div hidden>${heading}</div>`],
+      ["display-none clone", heading + `<div style="display:none">${heading}</div>`],
+      ["aria-hidden clone", heading + `<div aria-hidden="true">${heading}</div>`],
+      ["two accessible headings", heading + heading, /strict mode violation/],
+      ["hidden-only heading", `<div hidden>${heading}</div>`, /toBeAttached/],
+    ]) {
+      await t.test(name, async () => {
+        const context = await browser.newContext({ serviceWorkers: "block" })
+        try {
+          await context.route("**/*", async (route) => { requests += 1; await route.abort() })
+          const page = await context.newPage()
+          // Standard sr-only geometry clips paint without hiding the heading from accessibility.
+          await page.setContent(`<style>.sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+          }</style>${content}`)
+          if (failure) await assert.rejects(sandbox.expectMusicReady(page), failure)
+          else await sandbox.expectMusicReady(page)
+        } finally {
+          await context.close()
+        }
+      })
+    }
+  } finally {
+    await browser.close()
+    assert.equal(requests, 0, "heading readiness fixtures must remain completely offline")
+  }
+})
