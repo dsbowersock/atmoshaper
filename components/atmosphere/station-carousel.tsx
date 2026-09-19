@@ -7,6 +7,7 @@ import { AtmoShaperWorkspace } from "@/components/atmoshaper/atmoshaper-workspac
 import { AdaptiveCarouselStage } from "@/components/carousels/adaptive-carousel-stage"
 import {
   getResponsiveStationCarouselTuning,
+  resolveResponsiveStationCarouselLayout,
 } from "@/components/carousels/adaptive-carousel-model"
 import { useMusic } from "@/components/providers/music-provider"
 import { Button } from "@/components/ui/button"
@@ -148,30 +149,11 @@ export function AtmosphereStationCarousel({
     if (!stage) return
     const observer = new ResizeObserver(([entry]) => {
       if (!entry) return
-      const measuredTuning = getResponsiveStationCarouselTuning({
+      setResponsiveLayout((current) => resolveResponsiveStationCarouselLayout(current, {
         containerWidth: entry.contentRect.width,
         containerHeight: entry.contentRect.height,
         constrainedLandscape,
-      })
-      setResponsiveLayout((current) => {
-        const meaningfulStageResize = Math.abs(current.containerWidth - entry.contentRect.width) >= 1
-          || Math.abs(current.containerHeight - entry.contentRect.height) >= 1
-        const adjacentRoundedSize = !constrainedLandscape
-          && !meaningfulStageResize
-          && Math.abs(current.tuning.cardWidth - measuredTuning.cardWidth) <= 1
-          && Math.abs(current.tuning.cardHeight - measuredTuning.cardHeight) <= 1
-        if (adjacentRoundedSize) return current
-
-        // A one-pixel card change can alter the remaining stage height enough
-        // to request the previous rounded size on the next frame. Preserve the
-        // last stable tuning only for sub-pixel feedback; genuine stage resizes
-        // still receive the newly measured composition.
-        return {
-          containerHeight: entry.contentRect.height,
-          containerWidth: entry.contentRect.width,
-          tuning: measuredTuning,
-        }
-      })
+      }))
     })
     observer.observe(stage)
     return () => observer.disconnect()
