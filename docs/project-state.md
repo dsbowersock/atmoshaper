@@ -12,8 +12,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   CodeRabbit reviewed all 46 files and completed without actionable findings at
   18:33 UTC. No review threads remain. Fresh hosted evidence confirms CI
   `35529020277` passed quality, build, all four browser lanes and aggregate QA.
-- The 63-file [public-content PR #9](https://github.com/dsbowersock/atmoshaper/pull/9)
-  is published at `f8add328996c668243cc7c1dae6ba16f1d8da565` against that exact
+- The 67-file [public-content PR #9](https://github.com/dsbowersock/atmoshaper/pull/9)
+  is published at `b6645013086635cc1287725d0ea0d3678f4b6071` against that exact
   audio head. The approved isolated checkout remains on
   `codex/phase6-04-public-content`. Original PR #5 and published replacements
   #6-#8 remain unchanged and unmerged.
@@ -50,6 +50,22 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - Initial-head CI `35533833313` passed quality, build, all four browser lanes
   and aggregate QA, verified at 20:15 UTC. This is not repair-head evidence.
   Earlier PR coverage does not cover this slice or its repair.
+- Round 1 repair head `b664501` passed all seven jobs in CI `35535560095`, and
+  Codex completed clean on that exact head at 20:31 UTC. CodeRabbit completed
+  its incremental review at 21:07 UTC with a new outside-diff audit finding:
+  identity-matched baseline entries can retain stale categories after valid
+  policy edits. This is not clean CodeRabbit coverage or slice completion.
+- The reproduced gap is in the shared verifier, not candidate generation.
+  Round 2 must compare matched categories against the existing classifier,
+  report sanitized mismatches, and fail normal audit mode. Strict new-reference
+  rejection, informational removals and existing classification precedence stay
+  intact. The repair requires independent SPEC then QUALITY, local verification,
+  and fresh exact-head hosted reviews and CI before the account slice starts.
+- Round 2's three-file implementation passed 28 audit tests and 64 focused
+  compatibility regressions; a coordinator run passed 101 focused/archive
+  checks and 25 delivery-document/archive checks. Typecheck and changed-file
+  lint passed. Independent review and repair publication remain pending;
+  these local results do not establish new hosted coverage.
 - The final combined-source equivalence and separate Linux Atmosphere snapshot
   decision remain whole-sequence gates. No PNG, frame, threshold, provider,
   billing, deployment or merge changes are authorized by this slice.

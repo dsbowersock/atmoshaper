@@ -395,6 +395,11 @@ export function validateBaseline(baseline, policy) {
   }
 }
 
+/**
+ * Compares occurrence identity and classification independently. New identities
+ * remain unclassified, removed identities remain informational, and an active
+ * identity is stale when its reviewed category no longer matches current policy.
+ */
 export function verifyLegacyReferenceBaseline(actual, baseline, policy) {
   validateBaseline(baseline, policy)
   const actualByKey = new Map(actual.map((entry) => [referenceKey(entry), entry]))
@@ -407,5 +412,22 @@ export function verifyLegacyReferenceBaseline(actual, baseline, policy) {
     .filter((entry) => !actualByKey.has(referenceKey(entry)))
     .map((entry) => toBaselineEntry(entry, entry.category))
     .sort(compareOccurrence)
-  return { missing, unclassified }
+  const categoryMismatches = actual
+    .map((entry) => {
+      const saved = baselineByKey.get(referenceKey(entry))
+      if (!saved) return null
+      const currentCategory = classifyCandidate(entry, policy)
+      if (saved.category === currentCategory) return null
+      return {
+        path: entry.path,
+        line: entry.line,
+        column: entry.column,
+        textSha256: entry.textSha256,
+        savedCategory: saved.category,
+        currentCategory,
+      }
+    })
+    .filter(Boolean)
+    .sort(compareOccurrence)
+  return { missing, unclassified, categoryMismatches }
 }

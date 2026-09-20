@@ -423,6 +423,41 @@ independent SPEC then QUALITY precede commit/push and fresh hosted gates.
 No screenshots, provider calls, original-branch writes or public configuration
 changes. If wrong, this ruling costs bounded local rework, not an external cutover.
 
+### Task 4 hosted repair round 2: enforce current category semantics
+
+CodeRabbit review `5261742961` of `b664501` found an outside-diff verification
+gap after the exact-rule API promotion. An in-memory reproduction changed one
+valid exact rule from compatibility to historical: classification changed, but
+the verifier returned zero missing and unclassified entries, so normal audit
+mode would still pass using the old saved category. The generator is correct;
+identity-only baseline matching omits current classification validation.
+
+Repair the existing verifier and normal CLI, not just the generated receipt.
+For every identity-matched active occurrence, compare its saved category to
+the canonical classifier, report deterministic sanitized category mismatches
+separately, and fail normal audit mode when any exist. Preserve exact identity
+matching, strict new-reference rejection, informational removals, structural
+precedence, exact-rule validation and the five current compatibility rules.
+This deliberately strengthens round 1's retained verifier semantics; final
+integration must preserve the new check rather than restore the source defect.
+
+Allowed source/test files are repository-audit `core.mjs`, `brand.mjs`, and
+`tests/repository-audit.test.mjs`. Extend the existing owner with a local fix,
+not a new responsibility or parallel classifier. Add focused documentation to
+the changed verifier and append regression coverage without moving exact-rule
+targets. Include real normal-mode CLI controls: correct baseline passes,
+changed exact category without regeneration fails, refreshed baseline passes,
+and removed rules or changed structural classification cannot retain stale
+categories. Cover deterministic sanitized mismatch output and unchanged
+addition/removal behavior. Existing test-file size is a pressure signal; keep
+new coverage cohesive and bounded rather than restructuring unrelated tests.
+
+Coordinator owns the generated receipt and delivery documents. Require fresh
+focused checks, typecheck/lint, staged receipt fixed point, zero missing,
+unclassified and category-mismatched entries, and independent SPEC then QUALITY.
+Only then commit and push this repair and obtain fresh exact-head hosted gates.
+No account slice, runtime change, screenshot, provider or earlier-branch edit.
+
 ## Remaining ownership sequence
 
 The source has 319 changed paths: 291 non-PNG plus 28 PNG. The independently

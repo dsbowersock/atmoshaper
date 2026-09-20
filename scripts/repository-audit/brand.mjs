@@ -54,9 +54,12 @@ try {
       totals,
       missing: result.missing,
       unclassified: result.unclassified,
+      categoryMismatches: result.categoryMismatches,
     })
     console.log(`${JSON.stringify(report, null, 2)}\n`)
-    if (result.unclassified.length > 0) process.exitCode = 1
+    if (result.unclassified.length > 0 || result.categoryMismatches.length > 0) {
+      process.exitCode = 1
+    }
   }
 } catch {
   console.error(JSON.stringify(stableJson({

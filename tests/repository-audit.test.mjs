@@ -152,7 +152,7 @@ test("reviewed references pass, new references fail, and removals are informatio
 
   assert.deepEqual(
     verifyLegacyReferenceBaseline(reviewed, baseline, policy),
-    { missing: [], unclassified: [] },
+    { missing: [], unclassified: [], categoryMismatches: [] },
   )
 
   writeFixture(root, "new-copy.md", "A new Massage Lab reference\n")
@@ -160,10 +160,12 @@ test("reviewed references pass, new references fail, and removals are informatio
   const added = verifyLegacyReferenceBaseline(withNewReference, baseline, policy)
   assert.equal(added.unclassified.length, 1)
   assert.equal(added.unclassified[0].path, "new-copy.md")
+  assert.deepEqual(added.categoryMismatches, [])
 
   const removed = verifyLegacyReferenceBaseline([], baseline, policy)
   assert.equal(removed.missing.length, 1)
   assert.deepEqual(removed.unclassified, [])
+  assert.deepEqual(removed.categoryMismatches, [])
 })
 
 test("baseline schema, source commit, locations, categories, and hashes fail closed", () => {
@@ -616,6 +618,7 @@ test("default brand report excludes removed occurrences from active totals", (t)
   assert.equal(report.missing[0].path, "removed.md")
   assert.equal(report.totals.historical, 0)
   assert.deepEqual(report.unclassified, [])
+  assert.deepEqual(report.categoryMismatches, [])
 })
 
 test("candidate baseline output ends with exactly one newline", (t) => {
@@ -982,4 +985,115 @@ test("current Stripe names use only the two reviewed exact compatibility rules",
       entry.category === "compatibility"
     )), true)
   }
+})
+
+test("normal brand audit rejects stale categories until candidate regeneration", (t) => {
+  const fixturePolicy = { ...policy, candidateOccurrenceRules: [] }
+  const legacyName = ["Massage", "Lab"].join("")
+  const actual = [
+    {
+      path: "b.md", line: 1, column: 1, textSha256: "b".repeat(64),
+      matchText: legacyName, sourceLine: `${legacyName} raw-b`, identifierAtMatch: null,
+    },
+    {
+      path: "a.md", line: 1, column: 1, textSha256: "a".repeat(64),
+      matchText: legacyName, sourceLine: `${legacyName} raw-a`, identifierAtMatch: null,
+    },
+  ]
+  const orderedMismatches = verifyLegacyReferenceBaseline(
+    actual,
+    baselineFor([
+      toBaselineEntry(actual[1], "compatibility"),
+      toBaselineEntry(actual[0], "historical"),
+    ]),
+    fixturePolicy,
+  ).categoryMismatches
+  assert.deepEqual(orderedMismatches, [
+    {
+      path: "a.md", line: 1, column: 1, textSha256: "a".repeat(64),
+      savedCategory: "compatibility", currentCategory: "pre-rebrand-public-copy",
+    },
+    {
+      path: "b.md", line: 1, column: 1, textSha256: "b".repeat(64),
+      savedCategory: "historical", currentCategory: "pre-rebrand-public-copy",
+    },
+  ])
+  assert.doesNotMatch(JSON.stringify(orderedMismatches), /sourceLine|raw-a|raw-b/)
+
+  const root = createFixtureRepository(t)
+  for (const path of [
+    "scripts/repository-audit/core.mjs",
+    "scripts/repository-audit/brand.mjs",
+  ]) {
+    writeFixture(root, path, repositoryAuditFixtureContent(path), { tracked: false })
+  }
+  writeFixture(root, "MIGRATION_LINEAGE.md", `Source commit: \`${"a".repeat(40)}\`\n`)
+  writeFixture(root, "copy.md", `${legacyName} retained provider identity\n`)
+  const [reference] = collectLegacyReferences(root, ["copy.md"], fixturePolicy)
+  const ruleFor = (category) => ({
+    fingerprint: candidateOccurrenceFingerprint(reference),
+    category,
+  })
+  const writePolicy = (nextPolicy) => writeFixture(
+    root,
+    "scripts/repository-audit/policy.json",
+    `${JSON.stringify(nextPolicy, null, 2)}\n`,
+    { tracked: false },
+  )
+  const writeBaseline = (nextBaseline) => writeFixture(
+    root,
+    "scripts/repository-audit/brand-reference-baseline.json",
+    typeof nextBaseline === "string" ? nextBaseline : JSON.stringify(nextBaseline),
+    { tracked: false },
+  )
+  const runBrand = (...args) => spawnSync(
+    process.execPath,
+    ["scripts/repository-audit/brand.mjs", ...args],
+    { cwd: root, encoding: "utf8" },
+  )
+  const mismatchFrom = (result) => {
+    assert.equal(result.status, 1)
+    assert.equal(result.stderr, "")
+    const report = JSON.parse(result.stdout)
+    assert.deepEqual(report.missing, [])
+    assert.deepEqual(report.unclassified, [])
+    assert.equal(report.categoryMismatches.length, 1)
+    assert.equal("sourceLine" in report.categoryMismatches[0], false)
+    return report.categoryMismatches[0]
+  }
+
+  writePolicy({ ...fixturePolicy, candidateOccurrenceRules: [ruleFor("compatibility")] })
+  writeBaseline(baselineFor([toBaselineEntry(reference, "compatibility")]))
+  const positive = runBrand()
+  assert.equal(positive.status, 0)
+  assert.deepEqual(JSON.parse(positive.stdout).categoryMismatches, [])
+
+  writePolicy({ ...fixturePolicy, candidateOccurrenceRules: [ruleFor("historical")] })
+  assert.deepEqual(mismatchFrom(runBrand()), {
+    path: "copy.md",
+    line: reference.line,
+    column: reference.column,
+    textSha256: reference.textSha256,
+    savedCategory: "compatibility",
+    currentCategory: "historical",
+  })
+
+  const generated = runBrand("--print-candidate-baseline")
+  assert.equal(generated.status, 0)
+  writeBaseline(generated.stdout)
+  const refreshed = runBrand()
+  assert.equal(refreshed.status, 0)
+  assert.deepEqual(JSON.parse(refreshed.stdout).categoryMismatches, [])
+
+  writePolicy(fixturePolicy)
+  assert.equal(mismatchFrom(runBrand()).currentCategory, "pre-rebrand-public-copy")
+
+  writePolicy({
+    ...fixturePolicy,
+    candidateRules: [
+      { category: "legal", pathPrefixes: ["copy.md"] },
+      ...fixturePolicy.candidateRules,
+    ],
+  })
+  assert.equal(mismatchFrom(runBrand()).currentCategory, "legal")
 })
