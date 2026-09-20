@@ -4,7 +4,52 @@ Verified: 2026-09-20
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Public Routes and Content Slice
+## Current Snapshot — Phase 6 Account and Service Slice
+
+- [Public-content PR #9](https://github.com/dsbowersock/atmoshaper/pull/9) is
+  verified at `9f2afb41854a6600a2c94f0c416d0531c6b16e0a`, stacked on
+  `f8c14f1812918b67051760669c4ccf07b5860ba7`. Codex completed clean at
+  21:28 UTC and CodeRabbit completed clean at 22:16 UTC. Both prior inline
+  threads are resolved; all seven jobs in CI `35538608085` passed.
+- The approved isolated checkout now assembles the next account/service slice
+  on `codex/phase6-05-account-service` from that exact reviewed head. Original
+  PR #5 and published replacements #6–#9 remain recovery references, unmerged.
+- Task 5 of the [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md)
+  carries account, security-message and local-first presentation with direct
+  tests, including existing private-account browser settlement repairs. It
+  preserves authentication, billing, provider, persistence and PHI boundaries.
+- The stable Sentry event correction and exact audit-classification/verification
+  repairs remain authoritative. Do not restore their source defects while
+  copying account files. Earlier pilot, homepage and audio fixes also stay intact.
+- An offline actual-route check found the recovery source also renames the
+  synthetic Sentry debug event. Keep that route at its reviewed-base bytes and
+  correct its paired static privacy expectation and add focused flag/event-identity
+  coverage; these two additional source divergences follow
+  the existing no-operational-event-rename contract, not a provider change.
+- Independent QUALITY found a historical admin-operation replay regression in
+  five source-copy producers despite a passing initial full unit suite. Root
+  confirmed both upgrade and rollback failures with in-memory actual-code
+  fixtures. Preserve the established immutable bundle templates and strict
+  equality validator; add producer-owned replay and corruption controls.
+  These administrative notifications retain compatibility-era copy until a
+  separately planned versioned migration. No database/provider was touched.
+- The repaired 53-file slice passed independent specification then quality
+  review on tree `65db8418bbca2c7ee134c5d7684af9fc68f61529`. Full provider-free
+  unit verification passed: 4,710 tests, three skipped, zero failures (4,713
+  total); 662 focused checks, typecheck, lint and 146 coordinator audit/document/
+  archive/workload checks also passed. Root and quality review both reproduced
+  successful upgrade and rollback replay without changing stored state.
+- Forty source-owned files equal recovery exactly; twenty protected paths equal
+  the reviewed base. The intermediate audit receipt is a generated fixed point
+  with zero missing, unclassified or category-mismatched entries, using 48 exact
+  compatibility rules. Inventory reports no forbidden paths.
+- This is local verification, not hosted approval or merge readiness. Publication
+  still requires its own exact-head hosted reviews and strict CI. The whole-sequence
+  source ledger and separate Linux Atmosphere snapshot approval remain incomplete.
+- No PNG, frame, tolerance, provider, billing, deployment or merge changes are
+  authorized by this work. Current legal versions and dates remain unchanged.
+
+## Historical Snapshot — Phase 6 Public Routes and Content Slice
 
 - The 46-file [Atmosphere audio PR #8](https://github.com/dsbowersock/atmoshaper/pull/8)
   is verified at `f8c14f1812918b67051760669c4ccf07b5860ba7`, stacked on

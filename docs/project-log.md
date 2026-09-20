@@ -2,6 +2,57 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Public-content gates verified; account/service slice started
+
+- Repaired candidate `65db8418bbca2c7ee134c5d7684af9fc68f61529` passed renewed
+  independent SPEC then QUALITY. Root full unit run: 4,710 passed, three skipped,
+  zero failures (4,713 total). The implementer passed 217 operation-owner and
+  662 broader focused checks, typecheck and lint; root passed 146 audit/document/
+  workload/archive checks. Both root and quality reviewer independently repeated
+  successful actual-code upgrade and rollback replay after repair.
+- The final local allocation has 53 paths: 40 exact recovery copies, five
+  partial companions, two expanded owner tests, one new Sentry route test and
+  five delivery/audit files. Twenty protected files match the reviewed base.
+  Seven existing exact audit rules are retained and 41 inspected administrative
+  compatibility occurrences are added; the generated receipt is byte-stable with
+  zero missing/unclassified/category mismatches. No broad exclusions were added.
+  This local receipt precedes publication; hosted review and CI remain required.
+
+- Initial account candidate passed SPEC and 4,708 unit tests (three skipped),
+  but independent QUALITY reproduced a P1 historical-operation replay failure.
+  Root confirmed upgrade and rollback failure: changed immutable bundle text
+  conflicts with the existing exact validator. The Task 5 amendment preserves
+  five reviewed-base producers and adds all-family replay/tamper controls rather
+  than accepting altered records or creating a migration. Publication is held
+  for renewed SPEC, QUALITY and fresh verification. Administrative compatibility
+  copy remains intentional; other account display copy is unchanged by this repair.
+
+- PR #9 round 2 head `9f2afb41854a6600a2c94f0c416d0531c6b16e0a` passed
+  independent SPEC then QUALITY, root validation and exact-head CI `35538608085`.
+  Codex completed clean at 21:28 UTC; CodeRabbit accepted at 22:06:45 UTC and
+  finished clean at 22:16 UTC. Both inline threads are resolved. Earlier review
+  findings are repaired, not discarded; the Sentry/audit divergences remain in
+  the final reconciliation ledger. No branch was merged.
+- Created `codex/phase6-05-account-service` from that exact head in the existing
+  approved worktree. Read-only allocation selected 48 manifest files, two full
+  browser companions and one register-heading hunk. The omitted manifest route
+  test already contains the required account behavior and the reviewed Sentry
+  correction; copying its source version would regress that correction.
+- The existing async drain and held-route teardown dependencies match recovery
+  exactly and stay unchanged. The private account settlement repair travels with
+  its owner; broader Phase 6 integration specs, lane registration, PNGs and final
+  fingerprint policy stay with later owners. Implementation, independent review,
+  local verification and hosted gates are still required for this new slice.
+- Subsequent actual-route diagnosis found another source exception: enabling
+  the synthetic Sentry debug route changes its emitted error name in recovery.
+  The accepted contract forbids operational event renames for presentation.
+  Preserve that route and correct its paired privacy-test expectation, reducing
+  exact account copies to 46. Add a dedicated small behavioral regression.
+  Include exact compatibility rules for the retained
+  event/assertion while preserving the five reviewed rules and strict verifier.
+- Original PR #5 and earlier published branches remain intact. No provider,
+  billing, deployment, screenshot relaxation or merge action is part of this work.
+
 ## 2026-09-20 — Public-content audit category consistency repair
 
 - Round 1 repair `b6645013086635cc1287725d0ea0d3678f4b6071` passed exact-head

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ToggleControl } from "@/components/ui/toggle-control"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 const sidebarSides = [
   {
@@ -52,13 +53,13 @@ const themeModes = [
   {
     value: "dark",
     label: "Dark",
-    description: "Use the darker MassageLab interface.",
+    description: `Use the darker ${PUBLIC_PRODUCT_IDENTITY.name} interface.`,
     icon: Moon,
   },
   {
     value: "light",
     label: "Light",
-    description: "Use the lighter MassageLab interface.",
+    description: `Use the lighter ${PUBLIC_PRODUCT_IDENTITY.name} interface.`,
     icon: Sun,
   },
 ]
@@ -73,7 +74,7 @@ const ambientMotionModes = [
   {
     value: "reduced",
     label: "Low motion",
-    description: "Use static visual backgrounds in MassageLab.",
+    description: `Use static visual backgrounds in ${PUBLIC_PRODUCT_IDENTITY.name}.`,
     icon: Waves,
   },
 ]

@@ -2,6 +2,7 @@ import nodemailer from "nodemailer-v9"
 import { getSiteUrl } from "./auth-env.ts"
 import { buildVerificationEmailUrl } from "./auth-registration.js"
 import { consumeOperationalRateLimit } from "./operational-rate-limit.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "./public-product-identity.js"
 
 type MailResult = {
   delivered: boolean
@@ -16,9 +17,9 @@ const SMTP_DNS_TIMEOUT_MS = 5_000
 const SMTP_CONNECTION_TIMEOUT_MS = 10_000
 const SMTP_GREETING_TIMEOUT_MS = 10_000
 const SMTP_SOCKET_TIMEOUT_MS = 20_000
-const EXISTING_ACCOUNT_NOTICE_SUBJECT = "MassageLab account sign-in request"
+const EXISTING_ACCOUNT_NOTICE_SUBJECT = `${PUBLIC_PRODUCT_IDENTITY.name} account sign-in request`
 const EXISTING_ACCOUNT_NOTICE_MESSAGE =
-  "A password registration request was received for this MassageLab account. Sign in with your existing password, or use account recovery if you need to reset it. If you did not make this request, no action is needed."
+  `A password registration request was received for this ${PUBLIC_PRODUCT_IDENTITY.name} account. Sign in with your existing password, or use account recovery if you need to reset it. If you did not make this request, no action is needed.`
 
 /**
  * Enforced wall-clock deadline for one account-change SMTP attempt. Admin
@@ -41,7 +42,7 @@ function isMailAttemptClass(value: unknown): value is MailAttemptClass {
 /**
  * Delivers a fixed-field text message without exposing Nodemailer's raw message
  * or attachment-loading options to callers. This boundary is intentional while
- * Auth.js does not enable its optional email provider, so MassageLab loads the
+ * Auth.js does not enable its optional email provider, so AtmoShaper loads the
  * patched Nodemailer 9 runtime through an alias without falsifying that peer.
  */
 async function sendMail(
@@ -157,7 +158,7 @@ function isSafeAccountChangeMailField(value: string, maxLength: number, allowLin
  *
  * @param token Opaque email-verification token placed in the verification URL.
  * @param callbackUrl Optional app-local destination to resume after sign-in.
- * @returns An absolute MassageLab verification URL. Unsafe callback values are
+ * @returns An absolute AtmoShaper verification URL. Unsafe callback values are
  * replaced by the account flow's safe fallback destination.
  */
 export function buildVerificationEmailLink(token: string, callbackUrl?: string) {
@@ -177,8 +178,8 @@ export async function sendVerificationEmail(email: string, token: string, callba
   const result = await sendMail(
     "PUBLIC_AUTH",
     email,
-    "Verify your MassageLab email",
-    `Verify your MassageLab account by opening this link:\n\n${link}\n\nThis link expires in 24 hours.`,
+    `Verify your ${PUBLIC_PRODUCT_IDENTITY.name} email`,
+    `Verify your ${PUBLIC_PRODUCT_IDENTITY.name} account by opening this link:\n\n${link}\n\nThis link expires in 24 hours.`,
   )
 
   return process.env.NODE_ENV === "production" ? result : { ...result, devLink: link }
@@ -189,8 +190,8 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const result = await sendMail(
     "PUBLIC_AUTH",
     email,
-    "Reset your MassageLab password",
-    `Reset your MassageLab password by opening this link:\n\n${link}\n\nThis link expires in 60 minutes.`,
+    `Reset your ${PUBLIC_PRODUCT_IDENTITY.name} password`,
+    `Reset your ${PUBLIC_PRODUCT_IDENTITY.name} password by opening this link:\n\n${link}\n\nThis link expires in 60 minutes.`,
   )
 
   return process.env.NODE_ENV === "production" ? result : { ...result, devLink: link }
@@ -198,11 +199,11 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 
 /** Builds one of two fixed setup messages from authoritative linked-method state. */
 export function passwordSetupEmailCopy(link: string, googleLinked: boolean) {
-  const subject = "Add password sign-in to your MassageLab account"
+  const subject = `Add password sign-in to your ${PUBLIC_PRODUCT_IDENTITY.name} account`
   const sharedEnding = "This link expires in 60 minutes. If you did not request this, ignore this email and nothing will change."
   const text = googleLinked
-    ? `A password registration request was received for the same MassageLab account you already use with Google.\n\nComplete this secure link to add email and password sign-in to that same account:\n\n${link}\n\nThis does not create a duplicate account and does not disconnect Google sign-in. ${sharedEnding}`
-    : `A password registration request was received for an existing MassageLab account.\n\nComplete this secure link to add email and password sign-in to that same account:\n\n${link}\n\nThis does not create a duplicate account. Existing sign-in methods remain connected. ${sharedEnding}`
+    ? `A password registration request was received for the same ${PUBLIC_PRODUCT_IDENTITY.name} account you already use with Google.\n\nComplete this secure link to add email and password sign-in to that same account:\n\n${link}\n\nThis does not create a duplicate account and does not disconnect Google sign-in. ${sharedEnding}`
+    : `A password registration request was received for an existing ${PUBLIC_PRODUCT_IDENTITY.name} account.\n\nComplete this secure link to add email and password sign-in to that same account:\n\n${link}\n\nThis does not create a duplicate account. Existing sign-in methods remain connected. ${sharedEnding}`
   return { subject, text }
 }
 

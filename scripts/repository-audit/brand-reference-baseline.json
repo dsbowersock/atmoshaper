@@ -136,104 +136,6 @@
       "category": "pre-rebrand-public-copy"
     },
     {
-      "path": "app/account/app-settings-panel.tsx",
-      "line": 55,
-      "column": 34,
-      "textSha256": "00763b20ae144c64d09dd0746ff2977d3cb300e573981e50a3457a86607f813c",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/app-settings-panel.tsx",
-      "line": 61,
-      "column": 35,
-      "textSha256": "eeff2d4f6c62214ebad4ac79336502e9fba9ac35e94b54ca1e48ebdb59369609",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/app-settings-panel.tsx",
-      "line": 76,
-      "column": 52,
-      "textSha256": "04ab657996519724473fac0aeaeb872835da6225ab9807c2c600273ca4fe0636",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/link-google/link-google-form.tsx",
-      "line": 89,
-      "column": 35,
-      "textSha256": "675e64b2564dbca943e068d670c4f6cc1c9d7b92b09b43252c9091b6558411de",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/link-google/link-google-form.tsx",
-      "line": 90,
-      "column": 22,
-      "textSha256": "a9fd25253f841f2a72cb1426fc315969fe34616ee3f594350a9e80fe2391e141",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/link-google/link-google-form.tsx",
-      "line": 90,
-      "column": 160,
-      "textSha256": "a9fd25253f841f2a72cb1426fc315969fe34616ee3f594350a9e80fe2391e141",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/link-google/link-google-form.tsx",
-      "line": 120,
-      "column": 37,
-      "textSha256": "580bfb0e4fb841573173b2a853d96d8c46afba8d1fcf704d78eb27c9e9c4bb66",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/page.tsx",
-      "line": 231,
-      "column": 74,
-      "textSha256": "d480568d1ee792a85cbb537d5decc09a6be8310cdb94d8aad7504bffc02d0e4d",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/page.tsx",
-      "line": 453,
-      "column": 62,
-      "textSha256": "d66386f48dcf8cb950fbd2b18d79d456d07f18ae222a81819ad80f12190989ad",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/page.tsx",
-      "line": 580,
-      "column": 123,
-      "textSha256": "d7a7fe4a111f9e5caedc4a09873270e7f260e0cb4d3ea5af7fdabf3567661624",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/page.tsx",
-      "line": 948,
-      "column": 103,
-      "textSha256": "c4b0897190e2e1fc5b380f302d4d08741f281c62266700d0cdc626f7a94a7925",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/page.tsx",
-      "line": 1232,
-      "column": 83,
-      "textSha256": "fef6dca4364b030d53e99f39b2891705e64689d473c1826307558bb7d8a1c198",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/page.tsx",
-      "line": 1233,
-      "column": 65,
-      "textSha256": "0040e0bf20db7d1bf0653ec53a0f48901b01503a79df52ad7b52a88eddddf448",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/account/supporter-interests-panel.tsx",
-      "line": 209,
-      "column": 63,
-      "textSha256": "a6ac2240b0f40e1b655ee8d94c8a00df4a536f0ec234f01f62a3fa5fefb38cbf",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "app/anatomime/anatomime-game-client.tsx",
       "line": 657,
       "column": 38,
@@ -246,13 +148,6 @@
       "column": 11,
       "textSha256": "870f7bc074dd2827fe9170f950aa981e70fdab4609a8f750531c5b953eed1868",
       "category": "compatibility"
-    },
-    {
-      "path": "app/api/account/security/google/link/confirm/route.ts",
-      "line": 77,
-      "column": 54,
-      "textSha256": "cdbf6deaf9e06d6b0ca7aa025237e66823430ec07284b85789032bc158900b7a",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "app/api/billing/webhook/route.ts",
@@ -297,13 +192,6 @@
       "category": "compatibility"
     },
     {
-      "path": "app/api/clients/invitations/route.ts",
-      "line": 10,
-      "column": 80,
-      "textSha256": "65883f3c35727a9ce27984c0080fcafbe0098ebb8a87ca7d45564b2e3f8dcfc5",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "app/api/debug/sentry/route.ts",
       "line": 6,
       "column": 19,
@@ -315,21 +203,7 @@
       "line": 10,
       "column": 20,
       "textSha256": "740c02d2b91032ca0186340bedd5305be7e2b533c3d5a9ca213b6b7b58a56c23",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/api/education/flashcards/decks/[slug]/route.ts",
-      "line": 28,
-      "column": 57,
-      "textSha256": "2830bee56c9f2ad2ca6def1803fa5ef54ddf3cba7eec5bf64b5b18a20c2654d7",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/api/education/flashcards/decks/route.ts",
-      "line": 23,
-      "column": 57,
-      "textSha256": "2830bee56c9f2ad2ca6def1803fa5ef54ddf3cba7eec5bf64b5b18a20c2654d7",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "app/calendar/calendar-guidance-notice.tsx",
@@ -51740,193 +51614,53 @@
       "category": "legal"
     },
     {
-      "path": "app/login/login-form.tsx",
-      "line": 121,
-      "column": 14,
-      "textSha256": "6bc87b36df58db7276abd3c0b7d4e1902615581a71fea8be3132174bb975df98",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "app/notes/intake/client-page.tsx",
-      "line": 119,
+      "line": 120,
       "column": 14,
       "textSha256": "2417c81da00be802edb6a15cebc166d94b235b33568671d76f54b6ee8d438d92",
       "category": "pre-rebrand-public-copy"
     },
     {
-      "path": "app/notes/intake/client-page.tsx",
-      "line": 908,
-      "column": 19,
-      "textSha256": "afbbbf94c8c95036ad4cec5c96e3fa3ab67107af88bc36cd56bcb55585ed072a",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "app/notes/journal/client-page.tsx",
-      "line": 121,
-      "column": 6,
-      "textSha256": "fd5c4ae94c9259f660761a01720df7c0d4ed74399d479df48bdadfee3b6d2372",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/journal/client-page.tsx",
-      "line": 175,
+      "line": 176,
       "column": 16,
       "textSha256": "91f52aa081950f81551c8841f4cc4ba4b9f5cf104a3d661a6166f6d8816c7e0a",
       "category": "compatibility"
     },
     {
-      "path": "app/notes/journal/client-page.tsx",
-      "line": 181,
-      "column": 44,
-      "textSha256": "9b9096be796e956ef0bc973925ff0c454e9aa32a7c62dddad1dd0eb32e52ef23",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/journal/client-page.tsx",
-      "line": 188,
-      "column": 75,
-      "textSha256": "899ade1c78ff66f59a85b1e74c95c5bec44b4e4c1c47760da938350e4d0cb8dc",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/journal/client-page.tsx",
-      "line": 201,
-      "column": 71,
-      "textSha256": "acca0c075f40e3370f7ce1e27be3fd51f82b8b48fdd5272a936e1617bf8c3a68",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "app/notes/professional-record-vault-provider.tsx",
-      "line": 95,
-      "column": 21,
-      "textSha256": "ed6774742621390dd822d96f983571b33f6fd4913a5961fe7fc5bfe810c4cabb",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/professional-record-vault-provider.tsx",
-      "line": 103,
-      "column": 19,
-      "textSha256": "55c396f13884ed05c011cc96dc40e03bd2ad586aaab13a49f76a8141b77dbed0",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/professional-record-vault-provider.tsx",
-      "line": 357,
-      "column": 18,
-      "textSha256": "ede3a318949bef1255a1cd09719adbc5d304395f5b847e690f33ca71d323108c",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/professional-record-vault-provider.tsx",
-      "line": 469,
+      "line": 470,
       "column": 8,
       "textSha256": "42ea3415ef93da0b745d68be87fe0d694006ffceeec115776abf1504deaafc4e",
       "category": "compatibility"
     },
     {
       "path": "app/notes/professional-record-vault-provider.tsx",
-      "line": 471,
+      "line": 472,
       "column": 24,
       "textSha256": "0bcf3d6071da26ceee31698c6d4c0929797737f3751b627f50f405e066f6ec12",
       "category": "compatibility"
     },
     {
       "path": "app/notes/professional-record-vault-provider.tsx",
-      "line": 518,
+      "line": 519,
       "column": 58,
       "textSha256": "79d98bbcc0d46d9e87e69ebe6ffde4188955c1c745c0b41faad33f2bb0eccfee",
       "category": "compatibility"
     },
     {
       "path": "app/notes/rom/client-page.tsx",
-      "line": 116,
-      "column": 6,
-      "textSha256": "6529ac46e00d0e85a497089ebe21ba7930ca160dafe93436604f56f9c18eb714",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/rom/client-page.tsx",
-      "line": 218,
+      "line": 219,
       "column": 16,
       "textSha256": "3e2f59afde71344aa82d247b6ac723acee0392dfb5f5a7051775610d75fd0e42",
       "category": "compatibility"
     },
     {
-      "path": "app/notes/rom/client-page.tsx",
-      "line": 224,
-      "column": 44,
-      "textSha256": "4ac44354213d988462feefe62399d36d407545e48bf9d7aee9daad131ea377bb",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/rom/client-page.tsx",
-      "line": 232,
-      "column": 44,
-      "textSha256": "4ac44354213d988462feefe62399d36d407545e48bf9d7aee9daad131ea377bb",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "app/notes/soap/client-page.tsx",
-      "line": 120,
-      "column": 6,
-      "textSha256": "941cd5dc6d2a3ef1e4a3f22ff2308e4e1ed0faa66ed2ede2d9fcf05a546ebc9b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/soap/client-page.tsx",
-      "line": 246,
+      "line": 247,
       "column": 16,
       "textSha256": "082a8608fb032cf2f8d04247d10afe553beaaaf90e9f3610cc93b1b33f75730e",
       "category": "compatibility"
-    },
-    {
-      "path": "app/notes/soap/client-page.tsx",
-      "line": 252,
-      "column": 44,
-      "textSha256": "8f51c737ef30cb1692001b5cd31d8c0b4e3400c9d4b09ced9a1f54550bf8d71b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/soap/client-page.tsx",
-      "line": 260,
-      "column": 44,
-      "textSha256": "8f51c737ef30cb1692001b5cd31d8c0b4e3400c9d4b09ced9a1f54550bf8d71b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/soap/client-page.tsx",
-      "line": 274,
-      "column": 70,
-      "textSha256": "21ed620109d9ea788fdf44e09bd161aced75f970a79536cdb46db7748556eb7b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/soap/components/transcript-review.tsx",
-      "line": 125,
-      "column": 61,
-      "textSha256": "e306703315b56acdd9856f1cf768c114d417e2ab499c565b453a0c797ce05c40",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/notes/therapist-notes-gate.tsx",
-      "line": 31,
-      "column": 24,
-      "textSha256": "8ea29060af0c7445990c20ffd2453f46e27f917dc316b767761befef791301cd",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/register/register-form.tsx",
-      "line": 99,
-      "column": 25,
-      "textSha256": "ce3339802b407c691f0447605d9f3e73a7df71144bb17d550b32e57b17030593",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "app/register/register-form.tsx",
-      "line": 145,
-      "column": 55,
-      "textSha256": "56969c949750b567520f251f03b984c56f11a8249f9f5fc8876094da2f766163",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "app/support/page.tsx",
@@ -89051,126 +88785,126 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 261,
+      "line": 312,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 292,
+      "line": 343,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 311,
+      "line": 362,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 312,
+      "line": 363,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 313,
+      "line": 364,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 316,
+      "line": 367,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 351,
+      "line": 402,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 355,
+      "line": 406,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 214,
+      "line": 259,
       "column": 35,
       "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 251,
+      "line": 296,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 255,
+      "line": 300,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 257,
+      "line": 302,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 261,
+      "line": 306,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 262,
+      "line": 307,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 265,
+      "line": 310,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 266,
+      "line": 311,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 266,
+      "line": 311,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 293,
+      "line": 338,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -94405,6 +94139,13 @@
       "category": "historical"
     },
     {
+      "path": "docs/superpowers/plans/2026-09-20-phase6-review-sized-prs.md",
+      "line": 538,
+      "column": 34,
+      "textSha256": "3ac96e407eb1d074f57b5c7244eb5d02292c88d46392fd21ee3c7bc0790b51f5",
+      "category": "historical"
+    },
+    {
       "path": "docs/superpowers/plans/chimer-background-preview-media-workflow.md",
       "line": 24,
       "column": 163,
@@ -97373,123 +97114,39 @@
       "category": "compatibility"
     },
     {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 10,
-      "column": 45,
-      "textSha256": "f4bd75ac19b584a843e85006056d81d88b883082237f90e30e883a3eb587f6a9",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 11,
-      "column": 49,
-      "textSha256": "e7c4885dea8c86c3bc96e15b22e3fc949a8b4914db76d1367389985edaa60348",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 14,
-      "column": 48,
-      "textSha256": "217733028202822157c795b3f0ec8dd9bd3e4e543eb4c3feda2e6e3a03027cb4",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 15,
-      "column": 52,
-      "textSha256": "17867b928588deddbab5edee8a1bb626fea1b23e7c99770eb9c5d1f0359fc5ed",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 18,
-      "column": 49,
-      "textSha256": "27f12a9b725b7ac84fc1d3a44ada5b74cdc59453a719ba6367b4f7baef74c3d8",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 19,
-      "column": 53,
-      "textSha256": "f56938e82e22f17054b6dc9fade170a645e80ef6db73a74a7e19ddcb43be602a",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 22,
-      "column": 15,
-      "textSha256": "04180ba46cf72488cf48a91959f2d37c8093537e87b992ffc87932ebcf0b6abf",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 23,
-      "column": 37,
-      "textSha256": "2aac6945e559e156d93f80cba41f797987c395642cf954ec3b9daeaf286ec88c",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 26,
-      "column": 50,
-      "textSha256": "b36e721c12555d10d6c5caaead398711c0bc6380010f619cb6e436da2d2bd8f1",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 27,
-      "column": 54,
-      "textSha256": "8c7d2f27ecad402d105770979b8469ef3246d3ded5fa16510d28ca157a135663",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 30,
-      "column": 59,
-      "textSha256": "bcfab56baef03deddfa284222a791f94dda23028aebbb441151a77f5699e1fb7",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/account-security-email-intents.ts",
-      "line": 31,
-      "column": 63,
-      "textSha256": "c21fdac787f0f3e9b65ce559e02f59363ce195dd60751af61ebcf952474803eb",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "lib/admin/billing-goodwill.ts",
       "line": 128,
       "column": 39,
       "textSha256": "35caed9929f216655882462f3554219355d149fd87dbd73124fab7723a39a5d8",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/billing-goodwill.ts",
       "line": 784,
       "column": 21,
       "textSha256": "839c33ddaf1dd8e81f5b35cdd6c483d66bfcfc171478eb8f9a79d5f72cc35151",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/billing-goodwill.ts",
       "line": 790,
       "column": 44,
       "textSha256": "e40a506e049ba0ff6f1ef01347cd6ad27af4026c431cba7dbf0351aff54be625",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/billing-goodwill.ts",
       "line": 791,
       "column": 17,
       "textSha256": "72ca59ce490b119cdd8f003d3b2afad9f1f2af79b7fe200f9a1d82aa2d5965e0",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/billing-goodwill.ts",
       "line": 791,
       "column": 251,
       "textSha256": "72ca59ce490b119cdd8f003d3b2afad9f1f2af79b7fe200f9a1d82aa2d5965e0",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/browser-qa-authorization.ts",
@@ -97524,175 +97181,175 @@
       "line": 225,
       "column": 67,
       "textSha256": "033614bed1416337960ae41f6002cb09bcfe879bbf2fb1ac3838e80282ad669d",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/role-service.ts",
       "line": 231,
       "column": 22,
       "textSha256": "4f73db02412d29a9e97245ac1d752bb0f815f11e95b3e35805cd0c1d9d913975",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/role-service.ts",
       "line": 232,
       "column": 63,
       "textSha256": "938bd2845c0a3ad620008fed8a4fbbb5ef107065038d97592af8f5faefe65d6b",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/role-service.ts",
       "line": 232,
       "column": 249,
       "textSha256": "938bd2845c0a3ad620008fed8a4fbbb5ef107065038d97592af8f5faefe65d6b",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 391,
       "column": 82,
       "textSha256": "bf9759607d6fb44f967ba7a33062debacc01fb2b84723f378803e88899dc6733",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 397,
       "column": 22,
       "textSha256": "917ba6ce1625554cc875fbe52063b3e8d4accaff01bf8c1c135a6135bdfc401e",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 398,
       "column": 78,
       "textSha256": "66f444d5bb83ffc694ccea084a1fa6e73c5ebf29eaf740e423d5c6330e141951",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 398,
       "column": 244,
       "textSha256": "66f444d5bb83ffc694ccea084a1fa6e73c5ebf29eaf740e423d5c6330e141951",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 430,
       "column": 21,
       "textSha256": "76109a6e463c706f518c3f03856f904392801131ec7d037bae8febd179635418",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 436,
       "column": 22,
       "textSha256": "f0e9310b8e5aa6cdfa8881b5070d005b544955f73bbce584fb25196d8da70f41",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 437,
       "column": 17,
       "textSha256": "597f451ec03d5229cb95ce846e2d361e61c89dada5bbf226cd8d5cd2009d0963",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 437,
       "column": 243,
       "textSha256": "597f451ec03d5229cb95ce846e2d361e61c89dada5bbf226cd8d5cd2009d0963",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 457,
       "column": 21,
       "textSha256": "106836da030df6711d439c076f48b531bf4b4de0980bba44da56d5a0e10094a1",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/security-service.ts",
       "line": 463,
       "column": 28,
       "textSha256": "b73355e5148eccb9db41c954095895496ee7300fa5300408d7017e06402a2f63",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 464,
       "column": 21,
       "textSha256": "6d32c78c89b15f86c68071a91813a15d9ae5ca280f20594513c28f38b2cad9ed",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 470,
       "column": 27,
       "textSha256": "3b594b447b76357fe5383e28367b97867f5b64344a4d6c07cc3099ad22cb9b17",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 471,
       "column": 17,
       "textSha256": "cf3115d214ffeafd0a06d251d61f1e8dd523fc118c8eec0ceff35dec9e261b8d",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 471,
       "column": 151,
       "textSha256": "cf3115d214ffeafd0a06d251d61f1e8dd523fc118c8eec0ceff35dec9e261b8d",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 515,
       "column": 12,
       "textSha256": "164810f028c42202ea4fb4717349618ead7938b5d6d3e94c07e1385f4fd76ec8",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 516,
       "column": 12,
       "textSha256": "92e2e7289f4cc9f64e7b1c617d51efa22e72f51c592404976362e7dfe80c6fa4",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 522,
       "column": 27,
       "textSha256": "819f5ec0ae237fc88ebbbbea13f28f5e7a10a2a075a79e8a4f5fc33a067c92a2",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 524,
       "column": 12,
       "textSha256": "1634c0c1c1085dee0c7c486cbb952764870427ed86ed1bd9dee0bb9889d77d44",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 524,
       "column": 164,
       "textSha256": "1634c0c1c1085dee0c7c486cbb952764870427ed86ed1bd9dee0bb9889d77d44",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 525,
       "column": 12,
       "textSha256": "927ceebd35089f28c0a08ef922e661afa1d8fa1fd30a24681d84bdbca311bf3a",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/admin/temporary-access.ts",
       "line": 525,
       "column": 117,
       "textSha256": "927ceebd35089f28c0a08ef922e661afa1d8fa1fd30a24681d84bdbca311bf3a",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/anatomime-traffic-server.ts",
@@ -99534,90 +99191,6 @@
       "column": 21,
       "textSha256": "2d7c15e5fe4df70aed281bcd9f326eb04357c32aadc0f0bbd688733687b9d923",
       "category": "compatibility"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 19,
-      "column": 42,
-      "textSha256": "01986adb667de6f112fc793dd815211bb9a5734381914893db1e077d21169032",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 21,
-      "column": 58,
-      "textSha256": "f77bc42cda37e705ac02241e61337371f3eb1e802af7f5b23321eb4466cdc37a",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 44,
-      "column": 60,
-      "textSha256": "a8807ba496c38cd8b1b3a2a1cfb541bfde63067b3fb7f8f5f25b0ce0b6cd216b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 160,
-      "column": 25,
-      "textSha256": "c4844ac47498b8ca1f5afcebf0533b8187ae1f03999c1e2f784a9ad50d52becb",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 180,
-      "column": 18,
-      "textSha256": "47f835361473dd81162dc1e78ddd6b16cfb026104a418027a59aa1e17e5c4244",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 181,
-      "column": 18,
-      "textSha256": "59375703be33b86f15dce4ead743840677adb557271900514d96f93fc171cc18",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 192,
-      "column": 17,
-      "textSha256": "7f7d9dfc7c033a987544a125daa98c2486fff5fc50513b6dd4cd451a3c685cf5",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 193,
-      "column": 17,
-      "textSha256": "f511acce1e2d0249e9cfa6caac1e6edfadd86b4f0da374b46cec8e2a12597fea",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 201,
-      "column": 49,
-      "textSha256": "9f8312f4bdae6266763789352d1d74210cc4befe3b51706cf3795d25024928ee",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 204,
-      "column": 66,
-      "textSha256": "9d073d76841e7088ee5397d3dff569df0e547632ed4c291b15c3921d0ec30a96",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-mail.ts",
-      "line": 205,
-      "column": 69,
-      "textSha256": "02dc6ffc87776277bc8c15bdfcbf90f88ceced3ca2a8560dec3567723ae9face",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/auth-registration.js",
-      "line": 5,
-      "column": 34,
-      "textSha256": "b33a1a94eb7775291917a7219c97a7e3474c406aa983849afe627ad86b67c7a2",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/auth-security.js",
@@ -125923,28 +125496,28 @@
       "line": 384,
       "column": 63,
       "textSha256": "4f8503ffcdbbb7c1f65b1fa00228d91eeba61c13ee3c095e9e91d95875aa0d61",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/commerce/credit-service.ts",
       "line": 390,
       "column": 55,
       "textSha256": "2132860c9ee95473f70db246d83b0e30d41c6e288e417d291631d3d94af407f2",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/commerce/credit-service.ts",
       "line": 391,
       "column": 17,
       "textSha256": "4d4f0ff92bbf2a1b99ce50121e4292e987d84c45032c85e4ddff7f16b4a793f7",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/commerce/credit-service.ts",
       "line": 391,
       "column": 195,
       "textSha256": "4d4f0ff92bbf2a1b99ce50121e4292e987d84c45032c85e4ddff7f16b4a793f7",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "lib/dna-background.js",
@@ -126409,123 +125982,39 @@
       "category": "legal"
     },
     {
-      "path": "lib/license-verification.js",
-      "line": 62,
-      "column": 67,
-      "textSha256": "18d2570cc8fc5ce46897aa5c733405115dbdf7b0df5b5d7af6aae7fd5f9262cd",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/license-verification.js",
-      "line": 95,
-      "column": 45,
-      "textSha256": "51121561261efa1a323d3866476d158eaba277c59378844043d3e4de2a9f0cb5",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/license-verification.js",
-      "line": 112,
-      "column": 17,
-      "textSha256": "068c51146c1a6c053a0ead16b743618da6f6386491c6303a294fb234023eb014",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/license-verification.js",
-      "line": 127,
-      "column": 54,
-      "textSha256": "7c2d3115371eb1d6d1504da855b6f66d7a7d32a17a1a328d3e8b69c5e2805af0",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "lib/local-documents.js",
-      "line": 81,
+      "line": 83,
       "column": 50,
       "textSha256": "15cb60e22c524d3264cbfbff71447752b7d94eafe8a862191aa319476562f87c",
       "category": "compatibility"
     },
     {
-      "path": "lib/local-documents.js",
-      "line": 124,
-      "column": 46,
-      "textSha256": "87b73d6377b185992d768a5809b2e5ae5faccc79300561f489fd70ba3fb97dda",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/local-documents.js",
-      "line": 133,
-      "column": 46,
-      "textSha256": "bd8fb4d9d3435162477eda04fa3b1c59ea163de2ac12225bd6b79c10274899fb",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "lib/local-intake-builder.js",
-      "line": 1,
+      "line": 3,
       "column": 46,
       "textSha256": "e0fac44bd9a589a78841d2de397d909d72cfd2700118e5bcf0eebd2b298cff40",
       "category": "compatibility"
     },
     {
       "path": "lib/local-intake-builder.js",
-      "line": 2,
+      "line": 4,
       "column": 47,
       "textSha256": "9389df7a0083ad96d5e09f55397ac1054865493f5067d24f552fe32bee8d8606",
       "category": "compatibility"
     },
     {
       "path": "lib/local-intake-builder.js",
-      "line": 595,
-      "column": 13,
-      "textSha256": "4dcc8aa963e342a8df97491d9e9a2f52f7965ced49675d30e9e24c4947637de1",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/local-intake-builder.js",
-      "line": 599,
-      "column": 6,
-      "textSha256": "7408a048c83f6053c49152ad53bdd2c999e326296d30b9b49f8cbcbd4c45e67b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/local-intake-builder.js",
-      "line": 600,
-      "column": 26,
-      "textSha256": "5dfa29b4c5bbe4aacb00ddc9e1e33280d8e03b2aa7072ae9775065d5bfa5cd08",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/local-intake-builder.js",
-      "line": 626,
-      "column": 14,
-      "textSha256": "e2e1b21580a1a4e18c34cef748c1b56c8398ba8fb375bda45168635a82f20ea9",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/local-intake-builder.js",
-      "line": 663,
+      "line": 665,
       "column": 14,
       "textSha256": "cd4cc26adf3a45a2db46074c4d33d83ff9bfaaa30cc23ad8b5cfc3f339bddd47",
       "category": "compatibility"
     },
     {
       "path": "lib/local-intake-builder.js",
-      "line": 676,
+      "line": 678,
       "column": 52,
       "textSha256": "f0c702594ab0dd1301bbc4388bbc323788b2228cfd7f68290b506fbd79bd21dd",
       "category": "compatibility"
-    },
-    {
-      "path": "lib/local-intake-builder.js",
-      "line": 677,
-      "column": 33,
-      "textSha256": "04ab54db2ddc768eb09f75ecc831168ccef68de9006776ab80eba6fbb49821bc",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/local-intake-builder.js",
-      "line": 732,
-      "column": 33,
-      "textSha256": "82200fc3f77509226942d1c636dff269ee85d9d55ec822d469fccd531284c277",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/mblex-content-outline.ts",
@@ -126578,59 +126067,45 @@
     },
     {
       "path": "lib/professional-record-vault.js",
-      "line": 8,
+      "line": 9,
       "column": 55,
       "textSha256": "0f5486362dd42952e8f2b8eb76c171ec57b855046df9ec3ebd71a35ab1a45046",
       "category": "compatibility"
     },
     {
       "path": "lib/professional-record-vault.js",
-      "line": 9,
+      "line": 10,
       "column": 50,
       "textSha256": "be8044bcf40110b70933f6cfd0fd61b2d5f7e9986a174a5d1dd155cc701a2baf",
       "category": "compatibility"
     },
     {
       "path": "lib/professional-record-vault.js",
-      "line": 10,
+      "line": 11,
       "column": 57,
       "textSha256": "4bc2fbb049d1b913fc1ec354143595c49f3f70decf553d60bab3f49e7ba5255e",
       "category": "compatibility"
     },
     {
       "path": "lib/professional-record-vault.js",
-      "line": 14,
+      "line": 15,
       "column": 10,
       "textSha256": "960afa4576d977fbc4b7cfa40f8ecdd7ac5217d8df559bbc3b0baddc25959e89",
       "category": "compatibility"
     },
     {
       "path": "lib/professional-record-vault.js",
-      "line": 16,
+      "line": 17,
       "column": 13,
       "textSha256": "a94dea077d64daba1f13055b90d1ccbabff16f58b6dc38b1fa8ca78dcec4f048",
       "category": "compatibility"
     },
     {
       "path": "lib/professional-record-vault.js",
-      "line": 17,
+      "line": 18,
       "column": 9,
       "textSha256": "107b938e0ce883e104667c732e6d93c1ee2fbfb05f202efe38d5afa07d9623f1",
       "category": "compatibility"
-    },
-    {
-      "path": "lib/professional-record-vault.js",
-      "line": 146,
-      "column": 56,
-      "textSha256": "00882cd7d23c5aa66e9cc7ae8c4b69533adf43178e80dc9921ae2c2470f36ff8",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/professional-record-vault.js",
-      "line": 170,
-      "column": 56,
-      "textSha256": "30cab5a20885e14bf310eaa16bdd2b848872a47667fab71a6e5a183a9f2ccc56",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/public-launch-controls.js",
@@ -126666,20 +126141,6 @@
       "column": 44,
       "textSha256": "e752cb593c702c20bf4fee70a4215873a13fdf70005a4cade703b80aab485861",
       "category": "compatibility"
-    },
-    {
-      "path": "lib/sentry-options.js",
-      "line": 13,
-      "column": 26,
-      "textSha256": "e50650e38b0d3781f99641bd298ad76b83ab6c0be230208a5e0d11c78fb66d7b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "lib/sentry-privacy.js",
-      "line": 489,
-      "column": 4,
-      "textSha256": "ce3f5d637a8071c09ca4495e34667334af66f742b4dbfe511c8df630828d6ae1",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "lib/seo.js",
@@ -128321,21 +127782,21 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 73688,
+      "line": 73422,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 127665,
+      "line": 127126,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 127665,
+      "line": 127126,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
@@ -128384,21 +127845,21 @@
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 80,
+      "line": 252,
       "column": 10,
       "textSha256": "70831aa5a19e94c7b2a9c495a38a71729e8c39bfb041a0f848881d06d36d4bce",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 81,
+      "line": 253,
       "column": 10,
       "textSha256": "0119da00006b0dbf0183dd48158331dedc56a6804f4403b37d45bb021b19945d",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 82,
+      "line": 254,
       "column": 12,
       "textSha256": "00444891010aaa422454b919bbbcc3e75233f9ccb3b7337547e3d45cb2472293",
       "category": "compatibility"
@@ -128985,13 +128446,6 @@
       "category": "compatibility"
     },
     {
-      "path": "tests/account-security-email-intents.test.mjs",
-      "line": 44,
-      "column": 92,
-      "textSha256": "66c64ec057575819a351575562588f657273461057e81b56d904b9e9353b79ad",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "tests/account-security-email-retry.test.mjs",
       "line": 8,
       "column": 89,
@@ -129070,20 +128524,6 @@
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 233,
-      "column": 54,
-      "textSha256": "cdbf6deaf9e06d6b0ca7aa025237e66823430ec07284b85789032bc158900b7a",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/account-security-routes.test.mjs",
-      "line": 464,
-      "column": 40,
-      "textSha256": "8ba7a278a789a7b6ec2e5d28514a341361ed2a20f3f3324ce70c9d6c610925ab",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/account-security-routes.test.mjs",
       "line": 559,
       "column": 22,
       "textSha256": "77509ff53f707c208b798c67b292f85e9b5a272c030f8083ba1d48efe89c6973",
@@ -129133,7 +128573,7 @@
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 958,
+      "line": 959,
       "column": 31,
       "textSha256": "e9ff14d54938dbd366b2381c428394ce94c30e3cb33bc456a430b616ea8fb0d1",
       "category": "compatibility"
@@ -129157,6 +128597,13 @@
       "line": 151,
       "column": 52,
       "textSha256": "64401767a96b9b59d3421923491483eea956e5a12f0102bf3cac3629157eab83",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/admin-background-credit-grant.test.mjs",
+      "line": 10,
+      "column": 42,
+      "textSha256": "451c05446dabdec758556818b953cd00cf572d6951a058de5bb81c56c127e94a",
       "category": "compatibility"
     },
     {
@@ -129203,52 +128650,38 @@
     },
     {
       "path": "tests/admin-billing-goodwill.test.mjs",
-      "line": 308,
+      "line": 16,
+      "column": 42,
+      "textSha256": "451c05446dabdec758556818b953cd00cf572d6951a058de5bb81c56c127e94a",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/admin-billing-goodwill.test.mjs",
+      "line": 309,
       "column": 25,
       "textSha256": "0a3b63e55d6482e432895879be0d04dd8b8d8acbe0486bcec0e88f37729463b7",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-operation-service.test.mjs",
-      "line": 323,
-      "column": 22,
-      "textSha256": "03cba12528483ca7ff4bf394df500c00f58b7c72e0c6b9bddb9aa6982f85719b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-operation-service.test.mjs",
-      "line": 723,
-      "column": 58,
-      "textSha256": "b37105470398802ee312cae66c7a42f5adcf2b47e3c37ae5a8adb867cb6c9f0c",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-operation-service.test.mjs",
-      "line": 1557,
-      "column": 22,
-      "textSha256": "03cba12528483ca7ff4bf394df500c00f58b7c72e0c6b9bddb9aa6982f85719b",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "tests/admin-role-service.test.mjs",
-      "line": 62,
-      "column": 54,
-      "textSha256": "03b2c542fd17d95fe4131001ac8419202107a457551dede7435cfdc0774e1446",
-      "category": "pre-rebrand-public-copy"
+      "line": 7,
+      "column": 42,
+      "textSha256": "451c05446dabdec758556818b953cd00cf572d6951a058de5bb81c56c127e94a",
+      "category": "compatibility"
     },
     {
-      "path": "tests/admin-role-service.test.mjs",
-      "line": 66,
-      "column": 54,
-      "textSha256": "d68349493c7208b578f8f800d0337aea246d88655203a08b2cc3b323fd9ed2b4",
-      "category": "pre-rebrand-public-copy"
+      "path": "tests/admin-security-service.test.mjs",
+      "line": 13,
+      "column": 42,
+      "textSha256": "451c05446dabdec758556818b953cd00cf572d6951a058de5bb81c56c127e94a",
+      "category": "compatibility"
     },
     {
-      "path": "tests/admin-role-service.test.mjs",
-      "line": 66,
-      "column": 240,
-      "textSha256": "d68349493c7208b578f8f800d0337aea246d88655203a08b2cc3b323fd9ed2b4",
-      "category": "pre-rebrand-public-copy"
+      "path": "tests/admin-security-service.test.mjs",
+      "line": 491,
+      "column": 32,
+      "textSha256": "a824620021d41dbba2daa86281650cc0ddbba5fa78fae1666014a4fc7f3beb64",
+      "category": "compatibility"
     },
     {
       "path": "tests/admin-temporary-access-browser-guard.test.mjs",
@@ -129259,45 +128692,10 @@
     },
     {
       "path": "tests/admin-temporary-access.test.mjs",
-      "line": 463,
-      "column": 8,
-      "textSha256": "46bc37f0b4b811df6ca2b4a289f05cd998d493aa26ecbb5b81c479e65c4d1388",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-temporary-access.test.mjs",
-      "line": 464,
-      "column": 8,
-      "textSha256": "7bbb30c10b2893c475e95658d33200a98a3230ec79a2ce2f748c518e6a0c697a",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-temporary-access.test.mjs",
-      "line": 467,
-      "column": 8,
-      "textSha256": "8f2cb1d079f3841360dacf23160131a8e817d64ef4f4e9214cd894c2bbcbf6c9",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-temporary-access.test.mjs",
-      "line": 467,
-      "column": 160,
-      "textSha256": "8f2cb1d079f3841360dacf23160131a8e817d64ef4f4e9214cd894c2bbcbf6c9",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-temporary-access.test.mjs",
-      "line": 468,
-      "column": 8,
-      "textSha256": "3373a7c51805562815c6975806e72e2167669c93e04a92600a98391b38466c57",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/admin-temporary-access.test.mjs",
-      "line": 468,
-      "column": 113,
-      "textSha256": "3373a7c51805562815c6975806e72e2167669c93e04a92600a98391b38466c57",
-      "category": "pre-rebrand-public-copy"
+      "line": 49,
+      "column": 42,
+      "textSha256": "451c05446dabdec758556818b953cd00cf572d6951a058de5bb81c56c127e94a",
+      "category": "compatibility"
     },
     {
       "path": "tests/admin-user-detail.test.mjs",
@@ -130567,20 +129965,6 @@
       "category": "compatibility"
     },
     {
-      "path": "tests/auth-mail-ceiling.test.mjs",
-      "line": 134,
-      "column": 48,
-      "textSha256": "4288872d98c1a68612a394d299ad13686f05df9329f5b8f88f9ea871e1595891",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/auth-mail-ceiling.test.mjs",
-      "line": 143,
-      "column": 13,
-      "textSha256": "e82b057e8aa2493cca0218a936dcc4c4577d5953820231e748a5059bf2848751",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "tests/auth-method-intents.test.mjs",
       "line": 855,
       "column": 33,
@@ -130638,20 +130022,6 @@
     },
     {
       "path": "tests/auth-registration.test.mjs",
-      "line": 108,
-      "column": 29,
-      "textSha256": "b04ab105eb8f437c46ce459d0c6f4b4d158bd6a61186d385f5493f020a6d98b8",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/auth-registration.test.mjs",
-      "line": 110,
-      "column": 34,
-      "textSha256": "b837d68183536cbb3cc84887115e25b32bfab964589b8b03859790751352c3cc",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/auth-registration.test.mjs",
       "line": 143,
       "column": 54,
       "textSha256": "a19ba1489cfdfe4e080e0a815896281d027f027cf823e62bb7151e2466a3d9c0",
@@ -130670,20 +130040,6 @@
       "column": 60,
       "textSha256": "cba65c6c818af2b3a0add27b74de20b4156bda730d446c12e89c545388fa2ed7",
       "category": "compatibility"
-    },
-    {
-      "path": "tests/auth-registration.test.mjs",
-      "line": 308,
-      "column": 37,
-      "textSha256": "d74f3429f662b3cd72f642206765d14e8e4919f5b09f9f23674ecf9675aa57af",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/auth-registration.test.mjs",
-      "line": 311,
-      "column": 40,
-      "textSha256": "54858f00c013824a836493b470daf7d95b6c2ebc3cd2f295f6918df4dfe2289e",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/auth-registration.test.mjs",
@@ -143755,34 +143111,6 @@
       "category": "pre-rebrand-public-copy"
     },
     {
-      "path": "tests/browser/identity-method-safety.spec.ts",
-      "line": 282,
-      "column": 58,
-      "textSha256": "1a5ddfaf2acb9ef02e2f0903ee83f3188aa458919356a0af298e64d75d86820b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/browser/identity-method-safety.spec.ts",
-      "line": 287,
-      "column": 68,
-      "textSha256": "fb2e679b834273bd5613f4c7715ec3fa9729d7c11ccdd79b6efdc699b9486e11",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/browser/identity-method-safety.spec.ts",
-      "line": 410,
-      "column": 58,
-      "textSha256": "80f1ad8120926d7eded585acea7d223222681bcadac6aa8414e63ac5fd80a553",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/browser/identity-method-safety.spec.ts",
-      "line": 415,
-      "column": 58,
-      "textSha256": "80f1ad8120926d7eded585acea7d223222681bcadac6aa8414e63ac5fd80a553",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "tests/browser/immersive-panel-shell.spec.ts",
       "line": 3,
       "column": 29,
@@ -143809,20 +143137,6 @@
       "column": 27,
       "textSha256": "1c97f6439145618ce45718f1932daffe7b27f33e36714989c6aabf7bfe159dde",
       "category": "compatibility"
-    },
-    {
-      "path": "tests/browser/interaction-feedback.spec.ts",
-      "line": 1001,
-      "column": 58,
-      "textSha256": "80f1ad8120926d7eded585acea7d223222681bcadac6aa8414e63ac5fd80a553",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/browser/interaction-feedback.spec.ts",
-      "line": 1007,
-      "column": 65,
-      "textSha256": "ea025b5ed62a517491196e46f94ebcfd5c3d67cd8f912080a596d1cdedb4182d",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/browser/music-media-session.spec.ts",
@@ -144208,13 +143522,6 @@
       "column": 53,
       "textSha256": "110dd550a15c389ff49380be53645f9bbc018c95f4899b03947a2a5c7b84075a",
       "category": "compatibility"
-    },
-    {
-      "path": "tests/browser/public-routes.spec.ts",
-      "line": 2339,
-      "column": 58,
-      "textSha256": "b305a9c6c7127581852174728a5a66fb86e19e457a21b2b3be2dbf534106e778",
-      "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
@@ -179302,21 +178609,7 @@
     },
     {
       "path": "tests/local-intake-builder.test.mjs",
-      "line": 230,
-      "column": 25,
-      "textSha256": "0c993515a52b21bdb98215e1c806785326a976e9090609950bf87ef59bda5c0e",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/local-intake-builder.test.mjs",
-      "line": 231,
-      "column": 25,
-      "textSha256": "580b411523aa8e2dc8e8e69b07b5f912def9f81bec5f9682e9bf8c9c195b1cbd",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/local-intake-builder.test.mjs",
-      "line": 292,
+      "line": 293,
       "column": 33,
       "textSha256": "d49e2d11a7887f6ded7904c750ab2da69e99d9c12eb2cfc0820730a129b65e6d",
       "category": "compatibility"
@@ -179770,20 +179063,6 @@
       "category": "compatibility"
     },
     {
-      "path": "tests/password-reset-confirmation.test.mjs",
-      "line": 171,
-      "column": 61,
-      "textSha256": "60ace0d983c16f530e2995964644d90f52274c9cfab1faf6936eb51fdabedff4",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/password-reset-confirmation.test.mjs",
-      "line": 172,
-      "column": 65,
-      "textSha256": "4fcf8786811ecf0dea619ef5c9cb7849637d6f4811294c23d3ed8091a81cd8cd",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "tests/password-reset-request-route.test.mjs",
       "line": 116,
       "column": 31,
@@ -179911,21 +179190,14 @@
     },
     {
       "path": "tests/professional-record-vault.test.mjs",
-      "line": 77,
+      "line": 79,
       "column": 34,
       "textSha256": "3829fbfe9ca88e7d8818cfaf108dcda181c2f24e2a151140ebf6732f3a43cc69",
       "category": "compatibility"
     },
     {
       "path": "tests/professional-record-vault.test.mjs",
-      "line": 80,
-      "column": 119,
-      "textSha256": "a84543846754cb5989acef92025762d57690479940a4f0825e224b600b237f3e",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/professional-record-vault.test.mjs",
-      "line": 112,
+      "line": 114,
       "column": 18,
       "textSha256": "4a7b57a5ddd09627a554eeb8d5070483371a42b5b533ab2405ed2e51689f9a56",
       "category": "compatibility"
@@ -180400,43 +179672,64 @@
       "category": "compatibility"
     },
     {
-      "path": "tests/sentry-privacy.test.mjs",
-      "line": 12,
-      "column": 48,
-      "textSha256": "627925d40b7b24363c7cc0a9412071f2ee922b3c981fc9cade48b92232eb4b96",
+      "path": "tests/sentry-debug-route.test.mjs",
+      "line": 7,
+      "column": 22,
+      "textSha256": "e8449c404904f208aad5c5cc9973109ae409bdd068195d1b0ba02362818242e3",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/sentry-debug-route.test.mjs",
+      "line": 8,
+      "column": 33,
+      "textSha256": "238629f65c6666b28e0441bb3954cbb9b750268652a431766ebaaa68eb425b9e",
       "category": "compatibility"
     },
     {
       "path": "tests/sentry-privacy.test.mjs",
-      "line": 12,
-      "column": 98,
-      "textSha256": "627925d40b7b24363c7cc0a9412071f2ee922b3c981fc9cade48b92232eb4b96",
+      "line": 13,
+      "column": 59,
+      "textSha256": "af16f59b5ae8966da0bcc94124f09f407f95eab2e7dc682044e424690c27d898",
       "category": "compatibility"
     },
     {
       "path": "tests/sentry-privacy.test.mjs",
-      "line": 18,
+      "line": 14,
+      "column": 42,
+      "textSha256": "02ec8974f7c1dcd0ef2b0f989361c631f368d4901e244136697b419de09b5398",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/sentry-privacy.test.mjs",
+      "line": 20,
+      "column": 25,
+      "textSha256": "f8a2dd6a53622176642d6ac41fb01456528effe0b02cbaa6e137ea5bf04b0871",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/sentry-privacy.test.mjs",
+      "line": 28,
       "column": 21,
       "textSha256": "f7910472a868897501cca49d37af3434f6248bd830b14ede2d5065ae0c4408c7",
       "category": "compatibility"
     },
     {
       "path": "tests/sentry-privacy.test.mjs",
-      "line": 121,
+      "line": 131,
       "column": 60,
       "textSha256": "c434263fd4fa958bbbb726a3d77ea1ce059cd4b0ae233a18b6b0a2fe877b92a7",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/sentry-privacy.test.mjs",
-      "line": 148,
+      "line": 158,
       "column": 21,
       "textSha256": "9ca64160a886660fc881f4f1049ef9405457532266bab12647025636556c90a9",
       "category": "compatibility"
     },
     {
       "path": "tests/sentry-privacy.test.mjs",
-      "line": 240,
+      "line": 250,
       "column": 28,
       "textSha256": "19fa6919f5c1c9df3030477eab2ff1f9ab4fe812d300848bedf03f6bff9beb74",
       "category": "compatibility"

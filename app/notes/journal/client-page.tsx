@@ -12,6 +12,7 @@ import {
   createEditableDocumentHtml,
   createLocalDocumentFilename,
 } from "@/lib/local-documents"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import {
   PlaintextOutputWarningAction,
   ProfessionalRecordVaultGate,
@@ -118,7 +119,7 @@ function generateJournalText(data: JournalDocument) {
     : "No entries recorded."
 
   return [
-    "MassageLab Pain / Sensation / Incident Journal",
+    `${PUBLIC_PRODUCT_IDENTITY.name} Pain / Sensation / Incident Journal`,
     "Local-first export. User is responsible for sensitive health data storage and sharing.",
     "",
     `Client: ${data.clientName}`,
@@ -178,14 +179,14 @@ export default function JournalPage() {
     })
     downloadFile(
       filename,
-      createEditableDocumentHtml({ title: "MassageLab Journal", body: generateJournalText(journal) }),
+      createEditableDocumentHtml({ title: `${PUBLIC_PRODUCT_IDENTITY.name} Journal`, body: generateJournalText(journal) }),
       "application/msword",
     )
     setMessage("Created a plaintext DOC file from the unlocked vault. Store and share it carefully.")
   }
 
   const printPdf = () => {
-    const opened = openPrintDocument(createEditableDocumentHtml({ title: "MassageLab Journal", body: generateJournalText(journal) }))
+    const opened = openPrintDocument(createEditableDocumentHtml({ title: `${PUBLIC_PRODUCT_IDENTITY.name} Journal`, body: generateJournalText(journal) }))
     setMessage(opened ? "Opened a plaintext print view. Choose Save as PDF in your browser dialog." : "Could not open the print view.")
   }
 
@@ -198,7 +199,7 @@ export default function JournalPage() {
             <div>
               <CardTitle>Encrypted professional-record vault</CardTitle>
               <CardDescription>
-                Journal data is stored in the unlocked browser vault. MassageLab does not upload this journal or import plaintext clinical JSON.
+                Journal data is stored in the unlocked browser vault. {PUBLIC_PRODUCT_IDENTITY.name} does not upload this journal or import plaintext clinical JSON.
               </CardDescription>
             </div>
           </CardHeader>

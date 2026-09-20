@@ -41,7 +41,7 @@ describe("durable account-security email intents", () => {
       idempotencyKey: "password-recovered:reset-1",
     })
 
-    assert.equal(db.state.intents[0].subject, "Password sign-in added or replaced for your MassageLab account")
+    assert.equal(db.state.intents[0].subject, "Password sign-in added or replaced for your AtmoShaper account")
     assert.match(db.state.intents[0].message, /add email and password to an existing account/i)
     assert.match(db.state.intents[0].message, /replace an existing password/i)
     assert.match(db.state.intents[0].message, /Existing sign-in methods remain connected/i)

@@ -46,6 +46,7 @@ const DAY_MS = 24 * 60 * 60 * 1_000
 const UI_OPERATION_ID = "42b90a0b-41d5-48f8-b798-b6da77178b67"
 const UI_REVOKE_OPERATION_ID = "e58989e0-af25-44b4-837f-478b425de8cb"
 const UI_IDLE_STATE = { status: "idle", message: "" }
+const ADMIN_BUNDLE_COMPATIBILITY_NAME = "Massage Lab"
 
 function temporaryAccessUiHarness({ formPending = false } = {}) {
   return loadCompiledModule(
@@ -460,12 +461,12 @@ function rewriteRevocationEffectiveEvidence(database, operationKey, effective) {
   const activity = database.state.activities.get(action.id)
   const featureLabel = temporaryAccessContract.ADMIN_TEMPORARY_ACCESS_FEATURE_LABELS[action.afterState.featureKey]
   activity.explanation = effective
-    ? `Massage Lab support revoked one temporary ${featureLabel} grant. Another temporary grant remains active.`
-    : `Massage Lab support revoked temporary ${featureLabel} access.`
+    ? `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked one temporary ${featureLabel} grant. Another temporary grant remains active.`
+    : `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked temporary ${featureLabel} access.`
   activity.effectiveValue = effective ? `${featureLabel} remains active` : "Temporary access removed"
   database.state.intents.get(action.id).message = effective
-    ? `Massage Lab support revoked one temporary ${featureLabel} grant, but another temporary grant remains active. If you did not expect this change, contact Massage Lab support.`
-    : `Massage Lab support revoked temporary ${featureLabel} access. If you did not expect this change, contact Massage Lab support.`
+    ? `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked one temporary ${featureLabel} grant, but another temporary grant remains active. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`
+    : `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked temporary ${featureLabel} access. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`
 }
 
 describe("Admin temporary feature access", () => {
@@ -877,6 +878,100 @@ describe("Admin temporary feature access", () => {
     assert.deepEqual(await revoke(database, created.grantId), { ...revoked, replayed: true })
     assert.deepEqual(counts(database.state), { grants: 1, revocations: 1, actions: 2, activities: 2, intents: 2 })
     await assert.rejects(() => revoke(database, created.grantId, { internalNote: "Different note." }), /administrative operation key is already in use/i)
+  })
+
+  it("replays all reviewed-base temporary-access bundles and rejects immutable copy drift", async () => {
+    const featureLabel = "Premium backgrounds"
+    const cases = [
+      {
+        label: "grant",
+        expected: {
+          explanation: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support granted temporary ${featureLabel} access through Sep 9, 2026, 12:00:00 PM UTC.`,
+          subject: `Temporary ${ADMIN_BUNDLE_COMPATIBILITY_NAME} access was granted`,
+          message: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support granted temporary ${featureLabel} access through Sep 9, 2026, 12:00:00 PM UTC. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+        },
+        async setup() {
+          const database = createDatabase()
+          return {
+            database,
+            actionKey: "temporary-grant-operation-1",
+            execute: () => grant(database),
+          }
+        },
+      },
+      {
+        label: "revoke without overlap",
+        expected: {
+          explanation: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked temporary ${featureLabel} access.`,
+          subject: `Temporary ${ADMIN_BUNDLE_COMPATIBILITY_NAME} access was revoked`,
+          message: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked temporary ${featureLabel} access. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+        },
+        async setup() {
+          const database = createDatabase()
+          const created = await grant(database)
+          return {
+            database,
+            actionKey: `temporary-revoke-${created.grantId}`,
+            execute: () => revoke(database, created.grantId),
+          }
+        },
+      },
+      {
+        label: "revoke with overlap",
+        expected: {
+          explanation: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked one temporary ${featureLabel} grant. Another temporary grant remains active.`,
+          subject: `Temporary ${ADMIN_BUNDLE_COMPATIBILITY_NAME} access was revoked`,
+          message: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support revoked one temporary ${featureLabel} grant, but another temporary grant remains active. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+        },
+        async setup() {
+          const database = createDatabase()
+          const first = await grant(database, { durationDays: 45 })
+          const second = await grant(database, {
+            idempotencyKey: "temporary-grant-operation-2",
+            expectedActiveGrantIds: [first.grantId],
+            durationDays: 15,
+          })
+          const expectedActiveGrantIds = [second.grantId, first.grantId]
+          return {
+            database,
+            actionKey: `temporary-revoke-${first.grantId}`,
+            execute: () => revoke(database, first.grantId, { expectedActiveGrantIds }),
+          }
+        },
+      },
+    ]
+
+    for (const testCase of cases) {
+      const fixture = await testCase.setup()
+      const first = await fixture.execute()
+      assert.equal(first.replayed, false, testCase.label)
+      const action = fixture.database.state.actions.get(fixture.actionKey)
+      assert.deepEqual({
+        explanation: fixture.database.state.activities.get(action.id).explanation,
+        subject: fixture.database.state.intents.get(action.id).subject,
+        message: fixture.database.state.intents.get(action.id).message,
+      }, testCase.expected, testCase.label)
+      const beforeReplay = structuredClone(fixture.database.state)
+      assert.equal((await fixture.execute()).replayed, true, testCase.label)
+      assert.deepEqual(fixture.database.state, beforeReplay, testCase.label)
+
+      for (const corruption of [
+        { owner: "activity", field: "explanation", value: testCase.expected.explanation.replaceAll(ADMIN_BUNDLE_COMPATIBILITY_NAME, "AtmoShaper") },
+        { owner: "intent", field: "subject", value: "Altered immutable temporary-access subject" },
+        { owner: "intent", field: "message", value: "Altered immutable temporary-access message" },
+      ]) {
+        const corrupted = await testCase.setup()
+        await corrupted.execute()
+        const corruptedAction = corrupted.database.state.actions.get(corrupted.actionKey)
+        const record = corruption.owner === "activity"
+          ? corrupted.database.state.activities.get(corruptedAction.id)
+          : corrupted.database.state.intents.get(corruptedAction.id)
+        record[corruption.field] = corruption.value
+        const beforeRejection = structuredClone(corrupted.database.state)
+        await assert.rejects(() => corrupted.execute(), /administrative operation key is already in use/i, `${testCase.label}:${corruption.field}`)
+        assert.deepEqual(corrupted.database.state, beforeRejection, `${testCase.label}:${corruption.field}`)
+      }
+    }
   })
 
   it("requires revoke snapshots to include the grant before opening a transaction", async () => {

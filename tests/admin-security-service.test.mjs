@@ -10,6 +10,7 @@ import {
 const ACTOR_ID = "admin-1"
 const TARGET_ID = "user-1"
 const NOW = new Date("2026-08-09T16:00:00.000Z")
+const ADMIN_BUNDLE_COMPATIBILITY_NAME = "Massage Lab"
 
 function baseInput(database, overrides = {}) {
   return {
@@ -459,6 +460,102 @@ describe("Admin security remediation service", () => {
     assert.equal(database.intents.length, 1)
   })
 
+  it("replays all reviewed-base security bundles and rejects immutable copy drift", async () => {
+    const cases = [
+      {
+        label: "session revocation",
+        expected: {
+          explanation: `Existing sign-in tokens were invalidated for your account by ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support. You will be signed out when an older token next reaches a successful database-backed session refresh.`,
+          subject: `Your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} sign-in tokens were invalidated`,
+          message: `Existing sign-in tokens were invalidated for your account by ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support. You will be signed out when an older token next reaches a successful database-backed session refresh. If you did not expect this action, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+        },
+        setup() {
+          const database = createSecurityDatabase({ targetAuthSessionVersion: 4 })
+          database.sessions.push(
+            { id: "compat-session-1", userId: TARGET_ID, sessionToken: "opaque-1", expires: new Date("2026-08-10T00:00:00.000Z") },
+            { id: "compat-session-2", userId: TARGET_ID, sessionToken: "opaque-2", expires: new Date("2026-08-11T00:00:00.000Z") },
+          )
+          const input = baseInput(database, {
+            idempotencyKey: "security-copy-session",
+            expectedAuthSessionVersion: 4,
+            expectedSessionCount: 2,
+            now: NOW,
+          })
+          return { database, execute: () => revokeUserSessions(input), effectCount: () => 0 }
+        },
+      },
+      {
+        label: "password reset",
+        expected: {
+          explanation: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support requested a password-reset email for your account. The secure link expires 60 minutes after it is created.`,
+          subject: "Reset your MassageLab password",
+          message: "A standard secure password-reset message was requested. The reset link is generated only for delivery and is not stored in this administrative record.",
+        },
+        setup() {
+          const database = createSecurityDatabase()
+          let deliveryCalls = 0
+          const input = baseInput(database, {
+            idempotencyKey: "security-copy-password",
+            now: NOW,
+            generateToken: () => "security-copy-password-token",
+            sendEmail: async () => { deliveryCalls += 1; return { delivered: true } },
+          })
+          return { database, execute: () => sendAdminPasswordReset(input), effectCount: () => deliveryCalls }
+        },
+      },
+      {
+        label: "two-factor reset",
+        expected: {
+          explanation: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support reset two-factor authentication for your account and invalidated existing sign-in tokens. You can configure two-factor authentication again from Account Security.`,
+          subject: `Your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} two-factor authentication was reset`,
+          message: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support reset two-factor authentication for your account and invalidated existing sign-in tokens. You can configure two-factor authentication again from Account Security. If you did not expect this action, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+        },
+        setup() {
+          const database = createSecurityDatabase({ targetAuthSessionVersion: 2, twoFactorEnabled: true })
+          database.backupCodes.push({ id: "compat-backup", userId: TARGET_ID, codeHash: "private-code" })
+          const input = baseInput(database, {
+            idempotencyKey: "security-copy-two-factor",
+            confirmationEmail: "member@example.test",
+            expectedTwoFactorEnabled: true,
+          })
+          return { database, execute: () => resetUserTwoFactor(input), effectCount: () => 0 }
+        },
+      },
+    ]
+
+    for (const testCase of cases) {
+      const fixture = testCase.setup()
+      const first = await fixture.execute()
+      assert.equal(first.replayed, false, testCase.label)
+      assert.deepEqual({
+        explanation: fixture.database.activities[0].explanation,
+        subject: fixture.database.intents[0].subject,
+        message: fixture.database.intents[0].message,
+      }, testCase.expected, testCase.label)
+      const beforeReplay = durableSecurityState(fixture.database)
+      const effectsBeforeReplay = fixture.effectCount()
+      assert.equal((await fixture.execute()).replayed, true, testCase.label)
+      assert.deepEqual(durableSecurityState(fixture.database), beforeReplay, testCase.label)
+      assert.equal(fixture.effectCount(), effectsBeforeReplay, testCase.label)
+
+      for (const corruption of [
+        { owner: "activity", field: "explanation", value: testCase.expected.explanation.replaceAll(ADMIN_BUNDLE_COMPATIBILITY_NAME, "AtmoShaper") },
+        { owner: "intent", field: "subject", value: "Altered immutable security subject" },
+        { owner: "intent", field: "message", value: "Altered immutable security message" },
+      ]) {
+        const corrupted = testCase.setup()
+        await corrupted.execute()
+        const record = corruption.owner === "activity" ? corrupted.database.activities[0] : corrupted.database.intents[0]
+        record[corruption.field] = corruption.value
+        const beforeRejection = durableSecurityState(corrupted.database)
+        const effectsBeforeRejection = corrupted.effectCount()
+        await assert.rejects(() => corrupted.execute(), /operation key is already in use/, `${testCase.label}:${corruption.field}`)
+        assert.deepEqual(durableSecurityState(corrupted.database), beforeRejection, `${testCase.label}:${corruption.field}`)
+        assert.equal(corrupted.effectCount(), effectsBeforeRejection, `${testCase.label}:${corruption.field}`)
+      }
+    }
+  })
+
   it("does not retry a password-reset token-hash P2002", async () => {
     const database = createSecurityDatabase()
     database.nextPasswordResetTokenCreateError = uniqueConstraintError("PasswordResetToken", ["tokenHash"])
@@ -797,6 +894,20 @@ function createSecurityDatabase({
     lockWaiters: new Map(),
   }
   return makeClient(root)
+}
+
+/** Captures only durable security rows so replay attempts may add transaction bookkeeping. */
+function durableSecurityState(database) {
+  return structuredClone({
+    users: database.users,
+    sessions: database.sessions,
+    twoFactorSecrets: database.twoFactorSecrets,
+    backupCodes: database.backupCodes,
+    resetTokens: database.resetTokens,
+    actions: database.actions,
+    activities: database.activities,
+    intents: database.intents,
+  })
 }
 
 /** Prisma-shaped transactional fake that commits one isolated snapshot only on success. */

@@ -29,7 +29,91 @@
   ],
   "candidateOccurrenceRules": [
     {
+      "fingerprint": "095a3f3b53d49355290e7fa33ca2b1dc7c55f205c7d1d262d5c6f626dfd32650",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "0ca82bb81dfca193a0834c3173832652091dcdfd4a7dd99a775354d35e131b6f",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "120e20f7daeabeda6f25b8284f74ee7a00ea71861f7854ff1c77fcf15d2c0682",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "14e42a2f52fe5aa55cfb820e7abc001c54054f4170598dad33e981d881ef8d9d",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "18517d8a61718ff756b9cf34ca2d436f9d21d1bb9ea35b73743a4820164cfdda",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "1906c0dcab6b51cd1e79a90c4095232c623e44c10bebebcf623416da96396612",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "1a949ea1e4a18486ae1556c64612c8c3cbb92195e5a8438d50f7f68f357e5fbe",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "369ba21678a9def36070ef1d32d230829b1648d9371e612617c9be6431bfc597",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "39d32b75b49a7606145f291f1b5fc8c7a8b698f13fbac99a91e6f768ccc9568c",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "3d82a6f7c97c563d5ce83f1e1faec6dd69d7257a551a9160bf07537e062abccf",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "457efecd5ba31c27ed02349151274c7293d303caaf9eabd72f6b3698384063eb",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "459993bc70512015c2f355f2a4c5d61493ca227fe3b86e1d657c8199d376dd73",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "465534e8edb456f2434a656ea3f13af91ebb8ce8afcad3e57aeb9f161aae6f67",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "471342d7793817f1342d53b7e63bee2373d1691047825e15e03cce18d9626479",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "537ec61f7558641eee87ea764251d31f373082f0477f65171214c990bd29222c",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "55f75c432e3e62c3ba7469f6ef789ea5a55cad7a67cfc57cf6e54680074bb224",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "5774ecf4ae57030996d7d12e00ac1164232630cda04355ebc60f9087a123e68d",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "579a90e693320e7f98349b986d866895478f42c0a6ff36c1bf27f36bb5e49461",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "5c664b6a1cccbd4b8f483657d09b1503bb78c71d8aadcc98c23d6286b0f84f98",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "5dd63015e8aaa086eaba598178cf3a5941fb70ec626aed53985c3b3f5fefbecf",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "5efc3ac39c4ed6108cbd3d6f7eca761d574fb71db6224f1f9d9ebcf8c4a83780",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "60d6b97edd09a213b4ab4ab0e151f6a08cae25c347004c4a8708ecfd71cc7d96",
       "category": "compatibility"
     },
     {
@@ -41,11 +125,99 @@
       "category": "compatibility"
     },
     {
+      "fingerprint": "782f9407430973d604aca169a20263e0f6474ac5bfc4b8d0653b7e93c1f0e090",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "792a9370de40b6ac528ffee3f224d19ded92aca0169496f0c921213ecfe11dd3",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "808e88cfdceb150f6827e8baeba5894e7eda88e07ce13007315ef686a1e65fbd",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "8ced42dc2db3e6e0238fc8bde6e10bf0fbb2370e7175fa28f70a4dd2b7181a1c",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "8f446c1c6853964511728fa8d7faef4697f479792dfaf6fa41f4e7b3abc26c95",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "900fcd62afeb1265e4f38979e565aaedc7654640487af739607bc8b28985e90d",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "93d8fb6d763dc20e09a8b88d432bfec8669535a196aa7bf38f9a873b6ab657a4",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "94a23fa2fa451c0a17c34512bf432a739e97f149b592f8495c8d6880a5bb3e95",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "a9c48dfe19844d48cee6c44c55578ff7ef1f039de4835b3c63c26b916fb40340",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "aa0efb325eef36c4f1a7a4da5bd128ed4eeb604e0483deb7c228b3d90ee80b2e",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "aa9b4e22eae1ffc8c44eaf3a7c25a4e224b2df3054f2bbb43b12b25cbf7b9d6a",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "ac88befc7c918681c9ce9a5391a56fc1f05f008d54891bb18841af3e051df1e3",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "bb1f165f9a22f79ee5c72fc71f8ca7d22eee51854aaaf6b503437355eb0eed56",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "c097cf89a772e7abbe0f2d24f6e8f5b00e306981385afc7851fcfab28758839a",
       "category": "compatibility"
     },
     {
+      "fingerprint": "c3020b4d43ed0aa39d3d67a89005f2fe8c81a1ea8df665298cc732390feb1829",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "c33dbb0c8b18b2d0a5724b53dada1493372ae3817224cfed87d7055e336ba0ed",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "c7638303db39291bd441ffe391697a2328e608dc950983e448a110fca09c1ec1",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "d265577840e9303ecec985566b82f15d68abb9008fbb4b9c71d821aa37921755",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "dd4bec9acd14b2c14e8e941ebc1a867c71440cfd85986eeb954e6de11af7239b",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "df511470da129449605f8e8e8d9857ef05a44533e62214e77433991fa8205bed",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "ec0d69f60cbbc7e575419d9da1a27269dc03695d730ac2c85f78906de7b44d7c",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "f2f2f6cb162812df24dc4944e360c975f4cd8fe1de4a8c1845994c82c9faabe3",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "f49fb590f575337fe30f782f3b6c82f11bb13040eca5ea73bc4b404854ecf4fe",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "ff9739f1071118fe1d172c3bd3aad122721fcad66bd7c15ca0cbb5da01d76080",
       "category": "compatibility"
     }
   ],

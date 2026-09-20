@@ -4,6 +4,7 @@ import { LockKeyhole } from "lucide-react"
 import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
 import { AppNotice, AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 export async function TherapistNotesGate({ children }: { children: ReactNode }) {
   const session = await getCurrentSession()
@@ -28,7 +29,7 @@ export async function TherapistNotesGate({ children }: { children: ReactNode }) 
       >
         <AppNotice
           title="Tools remain visible on the documentation dashboard"
-          description="MassageLab keeps the therapist note-taking tools visible so users can see what is available, while direct access stays gated by membership."
+          description={`${PUBLIC_PRODUCT_IDENTITY.name} keeps the therapist note-taking tools visible so users can see what is available, while direct access stays gated by membership.`}
         />
         <div className="flex flex-wrap gap-2">
           <Button asChild className="bg-primary hover:bg-brand-orange-glow">

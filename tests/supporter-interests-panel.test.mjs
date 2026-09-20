@@ -7,6 +7,7 @@ import {
   normalizeSupporterRoadmapInterests,
   supporterRoadmapInterestOptions,
 } from "../lib/onboarding-preferences.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { safeErrorCode } from "../lib/safe-error-code.js"
 import {
   createCompiledModuleLoader,
@@ -185,6 +186,7 @@ function createPanelHarness(fetchImpl) {
         supporterRoadmapInterestOptions,
       },
       "@/lib/account-preferences": { resolveSupporterRoadmapInterestsAfterSave },
+      "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY },
       "@/lib/safe-error-code": { safeErrorCode },
       "@/components/account/settings-surfaces": { SettingsSurface },
       "@/components/ui/button": { Button },

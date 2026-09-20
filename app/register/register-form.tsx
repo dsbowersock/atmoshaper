@@ -12,6 +12,7 @@ import { PUBLIC_ACCOUNT_ENTRY_MESSAGE } from "@/lib/auth-entry-messages"
 import { buildRegistrationLegalProviderRedirectPath } from "@/lib/legal-acceptance-gate"
 import { legalDocumentAcceptanceId, requiredLegalDocumentsForEvent } from "@/lib/legal-documents"
 import { REGISTRATION_PAUSED_MESSAGE } from "@/lib/public-launch-controls"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 const REGISTRATION_REQUEST_FAILED_MESSAGE = "We could not create your account right now. Please try again."
 
@@ -96,7 +97,7 @@ export function RegisterForm({ googleEnabled, initialCallbackUrl, registrationOp
 
   return (
     <AppSurface
-      title={<h1>Create MassageLab account</h1>}
+      title={<h1>{`Create ${PUBLIC_PRODUCT_IDENTITY.name} account`}</h1>}
       description={
         <>
           Continue with Google or use email and password for a new account.
@@ -142,7 +143,7 @@ export function RegisterForm({ googleEnabled, initialCallbackUrl, registrationOp
           <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" minLength={12} required disabled={!registrationOpen} />
         </div>
         <p className="text-sm text-muted-foreground">
-          If you use a matching email for an existing MassageLab sign-in, we keep it with the same account and send the safe next step to that inbox.
+          If you use a matching email for an existing {PUBLIC_PRODUCT_IDENTITY.name} sign-in, we keep it with the same account and send the safe next step to that inbox.
         </p>
         <div className="space-y-3">
           {registrationDocuments.map((document) => {

@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import type { SoapNoteData, SoapNoteSectionProps, TranscriptSegment, TranscriptTargetSoapSection } from "../types"
 
 const targetSections: Array<{ value: TranscriptTargetSoapSection; label: string }> = [
@@ -122,7 +123,7 @@ export function TranscriptReview({ formData, setFormData }: SoapNoteSectionProps
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="rounded-md border border-brand-orange/40 bg-primary/10 p-4 text-sm text-brand-orange">
-          Transcript content is local to this browser note. MassageLab does not automatically add transcript text to clinical documentation.
+          Transcript content is local to this browser note. {PUBLIC_PRODUCT_IDENTITY.name} does not automatically add transcript text to clinical documentation.
         </div>
 
         <div className="space-y-3">

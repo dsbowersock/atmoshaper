@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { Textarea } from "@/components/ui/textarea"
 import { usePendingNavigation } from "@/components/shell/use-pending-navigation"
 import {
@@ -905,7 +906,7 @@ function DashboardPanel({
               <AlertDialogHeader>
                 <AlertDialogTitle>{hasExistingSoapDraft ? "Use this intake in the existing SOAP draft?" : "Start SOAP from this intake?"}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  MassageLab will save the SOAP seed inside the unlocked encrypted vault, then open the SOAP editor for therapist review.
+                  {PUBLIC_PRODUCT_IDENTITY.name} will save the SOAP seed inside the unlocked encrypted vault, then open the SOAP editor for therapist review.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -13,6 +13,7 @@ import {
 import { isReservedStaticStarterFlashcardDeckSlug } from "@/lib/flashcard-static-metadata"
 import { loadAnatomyStudyMediaUrlOptions } from "@/lib/anatomy-study-media"
 import { prisma } from "@/lib/prisma"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 function json(value: unknown) {
   return value as Prisma.InputJsonValue
@@ -25,7 +26,7 @@ function objectBody(value: unknown) {
 }
 
 function ownerName(owner: { name: string | null; profile?: { displayName: string | null } | null } | null) {
-  return owner?.profile?.displayName ?? owner?.name ?? "MassageLab learner"
+  return owner?.profile?.displayName ?? owner?.name ?? `${PUBLIC_PRODUCT_IDENTITY.name} learner`
 }
 
 function rowSummary(deck: {

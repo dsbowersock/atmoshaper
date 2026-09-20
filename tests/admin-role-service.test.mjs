@@ -4,6 +4,7 @@ import { changeAnatomyRole } from "../lib/admin/role-service.ts"
 
 const ACTOR_ID = "admin-1"
 const TARGET_ID = "user-1"
+const ADMIN_BUNDLE_COMPATIBILITY_NAME = "Massage Lab"
 
 function changeInput(overrides = {}) {
   return {
@@ -59,13 +60,15 @@ describe("delegated anatomy role changes", () => {
     assert.equal(database.intents.length, 1)
     assert.equal(
       database.activities[0].explanation,
-      "Anatomy Reviewer access was assigned for your Massage Lab account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.",
+      `Anatomy Reviewer access was assigned for your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.`,
     )
     assert.equal(
       database.intents[0].message,
-      "Anatomy Reviewer access was assigned for your Massage Lab account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact Massage Lab support.",
+      `Anatomy Reviewer access was assigned for your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
     )
     assert.deepEqual(database.actions[0].beforeState.roles, ["USER"])
+    assert.equal(database.actions[0].actionKind, "ANATOMY_ROLE_ASSIGNED")
+    assert.notEqual(database.actions[0].actionKind, "ATMOSHAPER_ANATOMY_ROLE_ASSIGNED")
     assert.equal(database.actions[0].beforeState.authSessionVersion, 0)
     assert.deepEqual(database.actions[0].afterState.roles, ["ANATOMY_REVIEWER", "USER"])
     assert.equal(database.actions[0].afterState.authSessionVersion, 1)
@@ -161,21 +164,69 @@ describe("delegated anatomy role changes", () => {
     )
   })
 
-  it("replays the exact operation without re-mutating or duplicating evidence", async () => {
-    const database = createRoleDatabase()
-    database.sessions.push({ id: "session-1", userId: TARGET_ID })
-    const input = changeInput({ prismaClient: database })
+  it("replays both reviewed-base role bundles and rejects immutable copy drift", async () => {
+    const cases = [
+      {
+        label: "assign",
+        createDatabase: () => createRoleDatabase(),
+        overrides: {},
+        expected: {
+          explanation: `Anatomy Reviewer access was assigned for your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.`,
+          subject: `Your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} anatomy access was assigned`,
+          message: `Anatomy Reviewer access was assigned for your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+        },
+      },
+      {
+        label: "revoke",
+        createDatabase: () => createRoleDatabase({
+          targetRoles: [verifiedRole("USER", "role-user"), verifiedRole("ANATOMY_EDITOR", "role-editor")],
+        }),
+        overrides: {
+          role: "ANATOMY_EDITOR",
+          operation: "REVOKE",
+          expectedStatus: "VERIFIED",
+          reasonCode: "ROLE_REVOCATION",
+          idempotencyKey: "role-revoke-compatibility",
+        },
+        expected: {
+          explanation: `Anatomy Editor access was revoked for your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh.`,
+          subject: `Your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} anatomy access was revoked`,
+          message: `Anatomy Editor access was revoked for your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account. Existing sign-in tokens were invalidated; you will be signed out on your next successful database-backed session refresh. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+        },
+      },
+    ]
 
-    const first = await changeAnatomyRole(input)
-    database.sessions.push({ id: "new-session", userId: TARGET_ID })
-    const replay = await changeAnatomyRole(input)
+    for (const testCase of cases) {
+      const database = testCase.createDatabase()
+      database.sessions.push({ id: "session-1", userId: TARGET_ID })
+      const input = changeInput({ prismaClient: database, ...testCase.overrides })
+      const first = await changeAnatomyRole(input)
+      const copy = {
+        explanation: database.activities[0].explanation,
+        subject: database.intents[0].subject,
+        message: database.intents[0].message,
+      }
+      assert.deepEqual(copy, testCase.expected, testCase.label)
+      database.sessions.push({ id: "new-session", userId: TARGET_ID })
+      const beforeReplay = durableRoleState(database)
+      assert.deepEqual(await changeAnatomyRole(input), { ...first, replayed: true }, testCase.label)
+      assert.deepEqual(durableRoleState(database), beforeReplay, testCase.label)
 
-    assert.deepEqual(replay, { ...first, replayed: true })
-    assert.equal(database.users.find((candidate) => candidate.id === TARGET_ID).authSessionVersion, 1)
-    assert.equal(database.sessions.length, 1)
-    assert.equal(database.actions.length, 1)
-    assert.equal(database.activities.length, 1)
-    assert.equal(database.intents.length, 1)
+      for (const corruption of [
+        { owner: "activity", field: "explanation", value: testCase.expected.explanation.replaceAll(ADMIN_BUNDLE_COMPATIBILITY_NAME, "AtmoShaper") },
+        { owner: "intent", field: "subject", value: "Altered immutable role subject" },
+        { owner: "intent", field: "message", value: "Altered immutable role message" },
+      ]) {
+        const corrupted = testCase.createDatabase()
+        const corruptedInput = changeInput({ prismaClient: corrupted, ...testCase.overrides })
+        await changeAnatomyRole(corruptedInput)
+        const record = corruption.owner === "activity" ? corrupted.activities[0] : corrupted.intents[0]
+        record[corruption.field] = corruption.value
+        const beforeRejection = durableRoleState(corrupted)
+        await assert.rejects(() => changeAnatomyRole(corruptedInput), /operation key is already in use/, `${testCase.label}:${corruption.field}`)
+        assert.deepEqual(durableRoleState(corrupted), beforeRejection, `${testCase.label}:${corruption.field}`)
+      }
+    }
   })
 
   it("serializes concurrent exact duplicate submissions before role mutation", async () => {
@@ -282,6 +333,18 @@ function createRoleDatabase({
     lockWaiters: new Map(),
   }
   return makeClient(root)
+}
+
+/** Captures only durable fixture rows; transaction-attempt bookkeeping is intentionally excluded. */
+function durableRoleState(database) {
+  return structuredClone({
+    users: database.users,
+    roles: database.roles,
+    sessions: database.sessions,
+    actions: database.actions,
+    activities: database.activities,
+    intents: database.intents,
+  })
 }
 
 /** Prisma-shaped transactional fake that commits one isolated snapshot only on success. */
