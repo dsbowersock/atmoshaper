@@ -2087,7 +2087,7 @@ test.describe("DNA and Twisted Cubes development acceptance", () => {
     }
 
     await selectEffect(review, host, "massage-lab-dna")
-    await page.getByRole("button", { name: "Play MassageLab Proof Drone" }).click()
+    await page.getByRole("button", { name: "Play Drone", exact: true }).click()
     await expect(continuity).toHaveAttribute("data-music-playback-state", "playing", { timeout: 30_000 })
     await expect(continuity).toHaveAttribute("data-music-session-id", /^\d+$/)
     const sessionId = await continuity.getAttribute("data-music-session-id")

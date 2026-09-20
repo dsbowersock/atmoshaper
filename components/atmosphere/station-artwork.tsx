@@ -3,6 +3,7 @@ import {
   resolveAtmosphereStationArtworkInput,
   type AtmosphereStationArtworkInput,
 } from "@/lib/atmosphere/station-artwork"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { cn } from "@/lib/utils"
 
 type AtmosphereStationArtworkProps = {
@@ -27,14 +28,14 @@ export function AtmosphereStationArtwork({
     return (
       <div
         aria-hidden={decorative ? "true" : undefined}
-        aria-label={decorative ? undefined : "MassageLab station artwork unavailable"}
+        aria-label={decorative ? undefined : `${ATMOSPHERE_PUBLIC_LABELS.name} station artwork unavailable`}
         className={cn(
           "grid h-full w-full place-items-center rounded-[9px] bg-muted px-3 text-center text-xs font-medium text-muted-foreground",
           className,
         )}
         role={decorative ? undefined : "img"}
       >
-        MassageLab station artwork unavailable
+        {ATMOSPHERE_PUBLIC_LABELS.name} station artwork unavailable
       </div>
     )
   }

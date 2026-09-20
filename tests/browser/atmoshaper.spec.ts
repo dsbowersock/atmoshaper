@@ -208,9 +208,9 @@ async function openAtmoShaper(page: Page) {
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await page.getByRole("group", { name: "Station category" })
-    .getByRole("button", { name: /AtmoShaper/i })
+    .getByRole("button", { name: "Atmosphere", exact: true })
     .click()
-  await expect(page.getByLabel("AtmoShaper live mixer")).toBeVisible()
+  await expect(page.getByLabel("Atmosphere live mixer")).toBeVisible()
 }
 
 async function addBinauralPreset(page: Page, preset: "Alpha" | "Beta" = "Alpha") {
@@ -446,10 +446,10 @@ async function closeFullMix(page: Page) {
 async function playAtmoShaper(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Current Mix controls" })
   if (await dialog.isVisible()) {
-    await press(dialog.getByRole("button", { name: "Play AtmoShaper" }))
+    await press(dialog.getByRole("button", { name: "Play Atmosphere" }))
     return
   }
-  await press(page.getByRole("button", { name: "Play AtmoShaper" }).first())
+  await press(page.getByRole("button", { name: "Play Atmosphere" }).first())
 }
 
 async function closeInterruptionNoticeIfVisible(page: Page) {
@@ -595,7 +595,7 @@ test("keeps the Sound Library tab rail edge-to-edge with reachable endpoints", a
     }
 
     const library = page.locator(".ml-atmoshaper-library")
-    const tabs = page.getByRole("tablist", { name: "AtmoShaper sound groups" })
+    const tabs = page.getByRole("tablist", { name: "Atmosphere sound groups" })
     const noise = page.getByRole("tab", { name: "Noise" })
     const initial = await library.evaluate((element) => {
       const list = element.querySelector<HTMLElement>(".ml-atmoshaper-library-tabs-list")
@@ -653,7 +653,7 @@ test("keeps the Sound Library tab rail edge-to-edge with reachable endpoints", a
 test("keeps preview controls on the active card without shifting the sound-group rail", async ({ page }) => {
   await page.setViewportSize({ width: 1027, height: 1027 })
   await openAtmoShaper(page)
-  const tabs = page.getByRole("tablist", { name: "AtmoShaper sound groups" })
+  const tabs = page.getByRole("tablist", { name: "Atmosphere sound groups" })
   const whiteCard = page.locator("[data-library-source='noise:white']")
   const before = await Promise.all([tabs.boundingBox(), whiteCard.boundingBox()])
   const tabStyles = await tabs.evaluate((element) => {
@@ -825,7 +825,7 @@ test("expands the one edge rail inward without moving its control anchors", asyn
   await page.getByRole("heading", { name: "Sound Library" }).click()
   await expect(dialog).toHaveCount(0)
   await settleCurrentMixDrawer(page)
-  const workspace = page.getByLabel("AtmoShaper live mixer")
+  const workspace = page.getByLabel("Atmosphere live mixer")
   const rail = page.getByLabel("Current Mix rail")
   await expect(workspace).toHaveAttribute("data-drawer-mode", "roomy")
   const measureControls = (root: typeof rail) => root.evaluate((element) => {
@@ -1239,7 +1239,7 @@ test("layers preview over a committed mix and promotes the exact handle into one
   await expect(page.locator(".ml-music-player")).toHaveCount(1)
 
   await previewNoise(page, "White")
-  await press(page.getByRole("button", { name: "Stop AtmoShaper" }).first())
+  await press(page.getByRole("button", { name: "Stop Atmosphere" }).first())
   await expect.poll(async () => (await readDiagnostics(page)).runtime).toBeNull()
   expect((await readDiagnostics(page)).atmoShaperPreview).toBeNull()
   expect((await readDiagnostics(page)).playbackState).toBe("stopped")
@@ -1254,11 +1254,11 @@ test("preview replaces a station and an immediately started station becomes the 
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: "Play MassageLab Proof Drone" }).click()
+  await page.getByRole("button", { name: "Play Drone", exact: true }).click()
   await expect.poll(async () => (await readDiagnostics(page)).activePlaybackKind).toBe("station")
 
   await page.getByRole("group", { name: "Station category" })
-    .getByRole("button", { name: /AtmoShaper/i }).click()
+    .getByRole("button", { name: "Atmosphere", exact: true }).click()
   await previewNoise(page, "Pink")
   expect((await readDiagnostics(page)).activePlaybackKind).toBeNull()
 
@@ -1274,7 +1274,7 @@ test("preview replaces a station and an immediately started station becomes the 
   expect((await readDiagnostics(page)).atmoShaperPreview?.status).toBe("playing")
   await page.getByRole("group", { name: "Station category" })
     .getByRole("button", { name: "Treatment room starters" }).click()
-  await page.getByRole("button", { name: "Play MassageLab Proof Drone" }).click()
+  await page.getByRole("button", { name: "Play Drone", exact: true }).click()
   await expect.poll(async () => (await readDiagnostics(page)).activePlaybackKind).toBe("station")
   const replaced = await readDiagnostics(page)
   expect(replaced.activeStationId).toBe("mlab-proof-drone")
@@ -1301,7 +1301,7 @@ for (const sidebarPosition of ["left", "right"] as const) {
     }, sidebarPosition)
     await page.setViewportSize({ width: 1440, height: 900 })
     await openAtmoShaper(page)
-    const workspace = page.getByLabel("AtmoShaper live mixer")
+    const workspace = page.getByLabel("Atmosphere live mixer")
     const drawerSide = sidebarPosition === "left" ? "right" : "left"
     await expect(workspace).toHaveAttribute("data-current-mix-side", drawerSide)
     await expect(workspace).toHaveAttribute("data-drawer-mode", "roomy")
@@ -1354,7 +1354,7 @@ test("narrow drawer contains focus and restores the exact first-add and rail-til
   await press(addPink)
   const dialog = page.getByRole("dialog", { name: "Current Mix controls" })
   await expect(dialog).toBeVisible()
-  await expect(page.getByLabel("AtmoShaper live mixer")).toHaveAttribute("data-drawer-mode", "narrow")
+  await expect(page.getByLabel("Atmosphere live mixer")).toHaveAttribute("data-drawer-mode", "narrow")
   const overlay = page.locator(".ml-atmoshaper-current-mix-overlay-narrow")
   await expect(overlay).toBeVisible()
   expect(await overlay.evaluate((element) => getComputedStyle(element).pointerEvents)).not.toBe("none")
@@ -1579,7 +1579,7 @@ test("touch handle sorting honors the delayed activation path", async ({ page },
 test("Sound Library preserves glow semantics, meaningful art, success actions, and keyboard endpoints", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 })
   await openAtmoShaper(page)
-  const tabs = page.getByRole("tablist", { name: "AtmoShaper sound groups" })
+  const tabs = page.getByRole("tablist", { name: "Atmosphere sound groups" })
   const noiseTab = page.getByRole("tab", { name: "Noise" })
   const stationTab = page.getByRole("tab", { name: "Atmosphere stations" })
   await expect(noiseTab).toHaveAttribute("aria-selected", "true")
@@ -1616,7 +1616,7 @@ test("Sound Library preserves glow semantics, meaningful art, success actions, a
 
   const successActions = [
     page.getByRole("button", { name: "Add White noise" }),
-    page.getByRole("button", { name: "Play AtmoShaper" }).first(),
+    page.getByRole("button", { name: "Play Atmosphere" }).first(),
   ]
   for (const action of successActions) {
     await expect(action).toHaveClass(/ml-button-success/)
@@ -1698,7 +1698,7 @@ test("plays one free sound with no station through the single global player", as
   const collapsedControls = page.getByLabel("Current Mix rail")
   expect(await expandedControls.isVisible() || await collapsedControls.isVisible()).toBe(true)
   await expect(page.locator(".ml-music-player")).toHaveCount(1)
-  await expect(page.getByRole("button", { name: "Favorite AtmoShaper" })).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Favorite Atmosphere" })).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Previous station" })).toHaveCount(0)
 })
 
@@ -1715,7 +1715,7 @@ test("builds and plays a free multi-layer mix through one global player", async 
   expect(diagnostics.recipe?.layers.map(({ kind }) => kind)).toEqual(["noise", "binaural"])
   expect(Object.keys(diagnostics.runtime?.activeLayers ?? {})).toHaveLength(2)
   await expect(page.locator(".ml-music-player")).toHaveCount(1)
-  await expect(page.getByRole("button", { name: "Favorite AtmoShaper" })).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Favorite Atmosphere" })).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Previous station" })).toHaveCount(0)
 })
 
@@ -1724,7 +1724,7 @@ test("replaces ordinary playback with AtmoShaper and replaces it back with one s
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  const playStation = page.getByRole("button", { name: "Play MassageLab Proof Drone" })
+  const playStation = page.getByRole("button", { name: "Play Drone", exact: true })
   await expect(playStation).toBeEnabled({ timeout: 30_000 })
   await playStation.click()
   await expect.poll(async () => (await readDiagnostics(page)).activePlaybackKind, { timeout: 30_000 })
@@ -1732,7 +1732,7 @@ test("replaces ordinary playback with AtmoShaper and replaces it back with one s
   await closeInterruptionNoticeIfVisible(page)
 
   await page.getByRole("group", { name: "Station category" })
-    .getByRole("button", { name: /AtmoShaper/i })
+    .getByRole("button", { name: "Atmosphere", exact: true })
     .click()
   await addNoise(page, "Pink")
   await playAtmoShaper(page)
@@ -1744,7 +1744,7 @@ test("replaces ordinary playback with AtmoShaper and replaces it back with one s
     .getByRole("button", { name: "Treatment room starters" })
     .click()
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: "Play MassageLab Proof Drone" }).click()
+  await page.getByRole("button", { name: "Play Drone", exact: true }).click()
   await expect.poll(async () => (await readDiagnostics(page)).activePlaybackKind, { timeout: 30_000 })
     .toBe("station")
   expect((await readDiagnostics(page)).runtime).toBeNull()
@@ -1787,7 +1787,7 @@ test("keeps stopped edits silent and live edits preserve healthy layer ids", asy
   await expect.poll(async () => Object.keys((await readDiagnostics(page)).runtime?.activeLayers ?? {}))
     .toEqual([pinkId!])
 
-  await press(currentMix.getByRole("button", { name: "Stop AtmoShaper" }))
+  await press(currentMix.getByRole("button", { name: "Stop Atmosphere" }))
   await expect.poll(async () => (await readDiagnostics(page)).playbackState).toBe("stopped")
   if (sheetWasOpened) await closeFullMix(page)
   await addNoise(page, "White")
@@ -2020,7 +2020,7 @@ test("200% text keeps expanded Mix and interruption dismissal controls reachable
   })
   await addNoise(page, "Pink")
   await playAtmoShaper(page)
-  await expect(page.locator(".ml-music-player")).toContainText("AtmoShaper", { timeout: 30_000 })
+  await expect(page.locator(".ml-music-player")).toContainText("Atmosphere", { timeout: 30_000 })
   const dialog = page.getByRole("dialog", { name: "Current Mix controls" })
   await expect(dialog).toBeVisible()
   await press(dialog.getByLabel("Volume for Pink noise"), "ArrowLeft")
@@ -2080,9 +2080,9 @@ test("viewport matrix has no document overflow and grows usefully on large displ
     await closeFullMix(page)
     await expect(page.getByLabel("Current Mix rail")).toBeVisible()
     await playAtmoShaper(page)
-    await expect(page.locator(".ml-music-player")).toContainText("AtmoShaper", { timeout: 30_000 })
+    await expect(page.locator(".ml-music-player")).toContainText("Atmosphere", { timeout: 30_000 })
     await expect(page.getByLabel("Current Mix rail")).toBeVisible()
-    await expect(page.getByLabel("AtmoShaper live mixer")).toBeVisible()
+    await expect(page.getByLabel("Atmosphere live mixer")).toBeVisible()
     await settleCurrentMixDrawerMode(page)
     const closedReceipt = await measureGeometry(page)
     expectNoDocumentOverflow(closedReceipt)
@@ -2157,9 +2157,9 @@ test("Media Session represents the mix with artwork, Play, Pause, Stop, and no s
 
   let media = await readMediaSession(page)
   expect(media.metadata).toMatchObject({
-    album: "MassageLab Atmosphere",
-    artist: "MassageLab",
-    title: "AtmoShaper",
+    album: "AtmoShaper Atmosphere",
+    artist: "AtmoShaper",
+    title: "Atmosphere",
   })
   expect(media.metadata?.artwork).toEqual([{
     src: "/icons/icon-512.png",
@@ -2186,7 +2186,7 @@ test("Media Session represents the mix with artwork, Play, Pause, Stop, and no s
   await expect.poll(async () => (await readDiagnostics(page)).playbackState).toBe("stopped")
   const retainedPlayer = page.locator(".ml-music-player")
   await expect(retainedPlayer).toHaveCount(1)
-  await expect(retainedPlayer).toContainText("AtmoShaper")
+  await expect(retainedPlayer).toContainText("Atmosphere")
   await closeFullMix(page)
   await press(retainedPlayer.getByRole("button", { name: "Play", exact: true }))
   await waitForAtmoStatus(page, "playing")

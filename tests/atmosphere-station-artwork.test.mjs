@@ -51,6 +51,24 @@ test("canonical station artwork SVG is deterministic and its sized URL safely en
   )
 })
 
+test("proof station artwork remains stable when presentation copy changes", () => {
+  const proof = stationInput("mlab-proof-drone")
+  const renamed = {
+    ...proof,
+    description: "Different public description",
+    title: "Different public title",
+  }
+
+  assert.deepEqual(
+    getAtmosphereStationArtworkModel(renamed),
+    getAtmosphereStationArtworkModel(proof),
+  )
+  assert.equal(
+    renderAtmosphereStationArtworkSvg(renamed),
+    renderAtmosphereStationArtworkSvg(proof),
+  )
+})
+
 test("canonical input resolution reuses station identity and rejects invalid runtime data", () => {
   assert.equal(typeof stationArtwork.resolveAtmosphereStationArtworkInput, "function")
   const resolveAtmosphereStationArtworkInput = stationArtwork.resolveAtmosphereStationArtworkInput

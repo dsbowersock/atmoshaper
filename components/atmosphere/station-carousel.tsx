@@ -7,12 +7,14 @@ import { AtmoShaperWorkspace } from "@/components/atmoshaper/atmoshaper-workspac
 import { AdaptiveCarouselStage } from "@/components/carousels/adaptive-carousel-stage"
 import {
   getResponsiveStationCarouselTuning,
+  resolveResponsiveStationCarouselLayout,
 } from "@/components/carousels/adaptive-carousel-model"
 import { useMusic } from "@/components/providers/music-provider"
 import { Button } from "@/components/ui/button"
 import { purpleGlowClassName } from "@/components/ui/carousel-button-classes"
 import { MetalFavoriteIcon } from "@/components/ui/metal-favorite-icon"
 import { buildAtmosphereFavoritesSpeedDialModel } from "@/lib/atmosphere/favorites-speed-dial"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { groupAtmosphereStations } from "@/lib/atmosphere/station-groups"
 import { getVisibleAtmosphereStations } from "@/lib/atmosphere/stations"
 import { cn } from "@/lib/utils"
@@ -96,13 +98,13 @@ export function AtmosphereStationCarousel({
       ? {
           id: FAVORITES_CATEGORY_ID,
           title: "Favorites",
-          description: "Your saved Atmosphere stations.",
+          description: `Your saved ${ATMOSPHERE_PUBLIC_LABELS.name} stations.`,
           stations: favoriteStations,
         }
       : isAtmoshaperCategory
         ? {
             id: ATMOSHAPER_CATEGORY_ID,
-            title: "Atmoshaper",
+            title: ATMOSPHERE_PUBLIC_LABELS.name,
             description: "Layer ambient sounds into your own soundscape.",
             stations: [],
           }
@@ -147,30 +149,11 @@ export function AtmosphereStationCarousel({
     if (!stage) return
     const observer = new ResizeObserver(([entry]) => {
       if (!entry) return
-      const measuredTuning = getResponsiveStationCarouselTuning({
+      setResponsiveLayout((current) => resolveResponsiveStationCarouselLayout(current, {
         containerWidth: entry.contentRect.width,
         containerHeight: entry.contentRect.height,
         constrainedLandscape,
-      })
-      setResponsiveLayout((current) => {
-        const meaningfulStageResize = Math.abs(current.containerWidth - entry.contentRect.width) >= 1
-          || Math.abs(current.containerHeight - entry.contentRect.height) >= 1
-        const adjacentRoundedSize = !constrainedLandscape
-          && !meaningfulStageResize
-          && Math.abs(current.tuning.cardWidth - measuredTuning.cardWidth) <= 1
-          && Math.abs(current.tuning.cardHeight - measuredTuning.cardHeight) <= 1
-        if (adjacentRoundedSize) return current
-
-        // A one-pixel card change can alter the remaining stage height enough
-        // to request the previous rounded size on the next frame. Preserve the
-        // last stable tuning only for sub-pixel feedback; genuine stage resizes
-        // still receive the newly measured composition.
-        return {
-          containerHeight: entry.contentRect.height,
-          containerWidth: entry.contentRect.width,
-          tuning: measuredTuning,
-        }
-      })
+      }))
     })
     observer.observe(stage)
     return () => observer.disconnect()
@@ -238,7 +221,7 @@ export function AtmosphereStationCarousel({
   return (
     <section
       className="ml-atmosphere-station-carousel grid gap-4"
-      aria-label="Atmosphere audio stations"
+      aria-label={`${ATMOSPHERE_PUBLIC_LABELS.name} audio stations`}
       data-constrained-landscape={constrainedLandscape ? "true" : "false"}
       data-music-storage-status={music.visualizer.storageStatus}
       style={carouselStyle}
@@ -286,7 +269,7 @@ export function AtmosphereStationCarousel({
               size="compact"
               variant="glow"
             >
-              Atmoshaper
+              {ATMOSPHERE_PUBLIC_LABELS.name}
             </Button>
           </div>
         </div>

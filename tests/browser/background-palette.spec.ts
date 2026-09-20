@@ -1054,7 +1054,7 @@ test.describe("shared background palette review matrix", () => {
     test.setTimeout(120_000)
     await openPaletteGallery(page)
     const continuity = page.locator("[data-background-palette-music-continuity]")
-    await page.getByRole("button", { name: "Play MassageLab Proof Drone" }).click()
+    await page.getByRole("button", { name: "Play Drone", exact: true }).click()
     await expect(continuity).toHaveAttribute("data-music-station-id", "mlab-proof-drone")
     await expect(continuity).toHaveAttribute("data-music-playback-state", "playing", {
       timeout: 30_000,

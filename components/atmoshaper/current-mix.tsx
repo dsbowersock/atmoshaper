@@ -44,6 +44,8 @@ import {
   type AtmoShaperLayer,
   type AtmoShaperRecipe,
 } from "@/lib/atmoshaper/recipe.js"
+import { formatAtmospherePublicError } from "@/lib/atmosphere/public-presentation"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { getAtmosphereStationById } from "@/lib/atmosphere/stations.js"
 
 import { BrainwaveLayerControls } from "./brainwave-layer-controls"
@@ -461,7 +463,9 @@ function MixLayerControls({
             {retained ? `Still playing during replacement · ${status}` : status}
           </p>
           {!retained && runtimeState.error ? (
-            <p className="mt-1 text-sm text-destructive">{runtimeState.error}</p>
+            <p className="mt-1 text-sm text-destructive">
+              {formatAtmospherePublicError(runtimeState.error, "This layer could not start.")}
+            </p>
           ) : null}
         </div>
         <div className="ml-atmoshaper-layer-header-actions">
@@ -586,10 +590,10 @@ export function useAtmoShaperTransportControls(recipe: AtmoShaperRecipe) {
 function AtmoShaperTransportButton({ recipe }: { recipe: AtmoShaperRecipe }) {
   const transport = useAtmoShaperTransportControls(recipe)
   const label = transport.shouldStop
-    ? "Stop AtmoShaper"
+    ? `Stop ${ATMOSPHERE_PUBLIC_LABELS.name}`
     : transport.audioReady
-      ? "Play AtmoShaper"
-      : "Preparing AtmoShaper audio"
+      ? `Play ${ATMOSPHERE_PUBLIC_LABELS.name}`
+      : `Preparing ${ATMOSPHERE_PUBLIC_LABELS.name} audio`
 
   return (
     <Button
@@ -606,9 +610,9 @@ function AtmoShaperTransportButton({ recipe }: { recipe: AtmoShaperRecipe }) {
         : <Play aria-hidden="true" className="h-4 w-4" />}
       <span className="ml-atmoshaper-transport-label-full">
         {transport.shouldStop
-          ? "Stop AtmoShaper"
+          ? `Stop ${ATMOSPHERE_PUBLIC_LABELS.name}`
           : transport.audioReady
-            ? "Play AtmoShaper"
+            ? `Play ${ATMOSPHERE_PUBLIC_LABELS.name}`
             : "Preparing audio…"}
       </span>
       <span className="ml-atmoshaper-transport-label-compact">
@@ -623,7 +627,7 @@ export function atmoShaperLayerSourceName(layer: AtmoShaperLayer) {
     try {
       return getAtmosphereStationById(layer.sourceId).title
     } catch {
-      return "Unavailable Atmosphere station"
+      return `Unavailable ${ATMOSPHERE_PUBLIC_LABELS.name} station`
     }
   }
   if (layer.kind === "noise") {

@@ -49,7 +49,7 @@ test("reports unavailable and remains inert when Media Session is absent", () =>
 
   assert.equal(controller.isAvailable(), false)
   assert.doesNotThrow(() => controller.publish({
-    metadata: { title: "Quiet Current", artist: "MassageLab" },
+    metadata: { title: "Quiet Current", artist: "AtmoShaper" },
     playbackState: "playing",
     handlers: Object.fromEntries(actions.map((action) => [action, () => action])),
   }))
@@ -78,7 +78,7 @@ test("publishes constructed station metadata and all five controls without a fab
   assert.deepEqual(metadataInputs, [{
     title: "Quiet Current",
     artist: "Field Artist",
-    album: "MassageLab Atmosphere",
+    album: "AtmoShaper Atmosphere",
     artwork: [
       {
         src: "/api/atmosphere/stations/quiet-current/artwork?size=512&v=2026-08-17-1",
@@ -91,7 +91,7 @@ test("publishes constructed station metadata and all five controls without a fab
     kind: "MediaMetadata",
     title: "Quiet Current",
     artist: "Field Artist",
-    album: "MassageLab Atmosphere",
+    album: "AtmoShaper Atmosphere",
     artwork: [
       {
         src: "/api/atmosphere/stations/quiet-current/artwork?size=512&v=2026-08-17-1",
@@ -156,7 +156,7 @@ test("keeps one revisioned 512 artwork candidate stable per station and replaces
   ])
 })
 
-test("publishes the standard platform-safe MassageLab artwork for AtmoShaper metadata", () => {
+test("publishes the standard platform-safe icon for internal mixer metadata", () => {
   const mediaSession = createFakeMediaSession()
   const metadataInputs = []
   const controller = createAtmosphereMediaSessionController({
@@ -171,7 +171,7 @@ test("publishes the standard platform-safe MassageLab artwork for AtmoShaper met
     metadata: {
       id: "atmoshaper:quiet-focus",
       title: "Quiet Focus",
-      artist: "MassageLab",
+      artist: "AtmoShaper",
     },
     playbackState: "playing",
     handlers: {},
@@ -179,8 +179,8 @@ test("publishes the standard platform-safe MassageLab artwork for AtmoShaper met
 
   assert.deepEqual(metadataInputs, [{
     title: "Quiet Focus",
-    artist: "MassageLab",
-    album: "MassageLab Atmosphere",
+    artist: "AtmoShaper",
+    album: "AtmoShaper Atmosphere",
     artwork: [{
       src: "/icons/icon-512.png",
       sizes: "512x512",

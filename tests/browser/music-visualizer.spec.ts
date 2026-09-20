@@ -6,7 +6,7 @@ import { installSignedInUserFixture, removeSignedInUserFixture } from "./signed-
 const ATMOSPHERE_STORAGE_KEY = "massagelab-atmosphere-v2"
 const CHIMER_STORAGE_KEY = "massagelab-chimer-settings"
 const VISUAL_PANEL_OPENED_STORAGE_KEY = "massagelab.chimer.visual-panel-opened.v1"
-const PROOF_STATION_TITLE = "MassageLab Proof Drone"
+const PROOF_STATION_TITLE = "Drone"
 const signedInFixtureProjects = new Set<string>()
 
 test.afterEach(async ({}, testInfo) => {
@@ -105,12 +105,12 @@ async function installWakeLockRejection(page: Page) {
 async function startProofStation(page: Page, origin = "/music") {
   await page.goto(origin, { waitUntil: "domcontentloaded" })
   await expect(
-    page.getByRole("heading", { name: /Atmosphere audio stations/i, includeHidden: true }),
+    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: false }),
   ).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
   const player = page.getByTestId("music-player-toolbar")
   await expect(player).toBeVisible({ timeout: 30_000 })
   await expect(player.getByText(PROOF_STATION_TITLE)).toBeVisible()
@@ -555,7 +555,7 @@ test("Clock, Music, and active Chimer keep wake and timer controls context-speci
 
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   await expect(
-    page.getByRole("heading", { name: /Atmosphere audio stations/i, includeHidden: true }),
+    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: false }),
   ).toBeAttached()
   const musicWakeBaseline = await wakeLockRequestCount(page)
   await page.goto("/clock?source=music&returnTo=%2Fmusic", { waitUntil: "domcontentloaded" })

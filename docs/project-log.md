@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Identity replacement verified; audio slice started
+
+- PR #7 passed both hosted reviewers on `06f3147ab3ffb7dc319ad93666dc0f3d7605d238`:
+  Codex summary `5751392671` and clean reaction `515722116`; CodeRabbit run
+  `acf5fa6b-a786-4a2d-9c3b-85d7fc9bd9cc` reviewed all 24 files against `96d94b1`
+  with no actionable findings. Its successful request was at 17:26 UTC and
+  completion at 17:31 UTC; unchanged clean code needs no repeated request.
+- CI `35525692042` completed successfully, including all four browser lanes and
+  aggregate `106120181911`, verified at 17:45 UTC. Both original recovery and
+  earlier replacement branches remain unchanged; no PR was merged.
+- Started the bounded Atmosphere audio owner in the existing isolated worktree.
+  Preserve source `7e318558da425b8fcdddeb8df50e93a36900310a` audio changes and
+  later station-artwork, carousel-resume and label-owner repairs together with
+  their regressions. Shared browser files receive audio-owned assertions only.
+- The first frozen audio candidate passed 4,659 unit tests with three skips and
+  no failures (tree `b0df440f95c6b6a6e44b18f8ee275a424a260810`). Fresh focused
+  checks passed 227 cases, typecheck and lint. Independent SPEC review caught one
+  missed companion: the About link label is already changed by navigation, so
+  its browser click assertion belongs here rather than the later About page.
+  Carried only that existing source assertion and repeated independent SPEC then
+  QUALITY review: both pass with no remaining findings. Fresh post-correction
+  checks pass 132/132, typecheck and audit fixed-point verification. Independent
+  quality checks pass 62/62 and prove unchanged SVG bytes for all 58 visible
+  stations against the slice base. No runtime code changed after the full suite.
+- The 46-file audio candidate is locally verified; publication and its own
+  exact-head hosted reviews and strict CI remain required. The final combined-equivalence
+  proof must retain pilot and homepage repairs, not silently replace them with
+  older source bytes. Separate snapshot approval remains pending; no provider,
+  payment, deployment, merge or screenshot changes accompany this step.
+
 ## 2026-09-20 — Archive pilot verified; identity replacement started
 
 - Pilot PR #6 is clean on exact `96d94b1b0d779b998df01d07cfaec0198857d51d`:

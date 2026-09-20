@@ -22,8 +22,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { formatAtmospherePublicError } from "@/lib/atmosphere/public-presentation"
 import type { getVisibleAtmosphereStations } from "@/lib/atmosphere/stations"
 import { resolveAtmosphereStationArtworkInput } from "@/lib/atmosphere/station-artwork"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 
 export type AtmosphereStation = ReturnType<typeof getVisibleAtmosphereStations>[number]
@@ -335,7 +337,10 @@ export function AtmosphereStationCarouselCard({
               role="alert"
               className="absolute left-3 top-16 z-20 rounded-md border border-destructive/40 bg-background/90 px-2 py-1 text-xs text-destructive backdrop-blur"
             >
-              {music.runtimeReadiness.error ?? "Audio setup failed. Try again."}
+              {formatAtmospherePublicError(
+                music.runtimeReadiness.error,
+                "Audio setup failed. Try again.",
+              )}
             </p>
           ) : null}
 
@@ -372,7 +377,9 @@ export function AtmosphereStationCarouselCard({
                 {attributionText || "View station source"}
               </a>
             ) : (
-              <p className="text-muted-foreground">{attributionText || "MassageLab original"}</p>
+              <p className="text-muted-foreground">
+                {attributionText || `${PUBLIC_PRODUCT_IDENTITY.name} original`}
+              </p>
             )}
             <p className="text-muted-foreground">
               {station.enabled ? "Available to play." : station.disabledReason || "Not playable yet."}

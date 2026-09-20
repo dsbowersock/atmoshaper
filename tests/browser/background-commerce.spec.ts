@@ -418,15 +418,15 @@ async function openMusicBackground(page: Page) {
   })
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   await expect(
-    page.getByRole("heading", { name: /Atmosphere audio stations/i, includeHidden: true }),
+    page.getByRole("heading", { level: 1, name: "Atmosphere", exact: true, includeHidden: false }),
   ).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
   const playerToolbar = page.getByTestId("music-player-toolbar")
   await expect(playerToolbar).toBeVisible({ timeout: 30_000 })
-  await expect(playerToolbar.getByText("MassageLab Proof Drone")).toBeVisible()
+  await expect(playerToolbar.getByText("Drone", { exact: true })).toBeVisible()
   await playerToolbar.getByRole("link", { name: /^Background$/i }).click()
   await expect(page).toHaveURL(/\/clock\?[^#]*source=music/)
   await expect(page.getByLabel("Music visualizer")).toBeVisible()
@@ -542,7 +542,12 @@ test("ordinary signed-in shell defers commerce until a real background consumer 
   const fixture = await installCommerceFixture({ context, page, baseURL, projectName: testInfo.project.name })
 
   await page.goto("/music", { waitUntil: "domcontentloaded" })
-  await expect(page.getByRole("heading", { name: /Atmosphere audio stations/i, includeHidden: true }))
+  await expect(page.getByRole("heading", {
+    level: 1,
+    name: "Atmosphere",
+    exact: true,
+    includeHidden: false,
+  }))
     .toBeAttached()
   await page.waitForFunction(() => (
     document.documentElement.dataset.backgroundCommerceRefreshPairReady === "true"
@@ -1017,7 +1022,7 @@ test("Music visualizer keeps the shared account cart through minimize and restor
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }).click()
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
   const playerToolbar = page.getByTestId("music-player-toolbar")
   await expect(playerToolbar).toBeVisible({ timeout: 30_000 })
   await playerToolbar.getByRole("link", { name: /^Background$/i }).click()

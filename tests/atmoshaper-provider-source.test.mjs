@@ -1048,7 +1048,7 @@ describe("AtmoShaper provider ownership contract", () => {
       "atmoShaperPreviewInterruptedRef.current = false",
       "setAtmoShaperSnapshot(nextSnapshot)",
       'if (nextSnapshot.status === "failed")',
-      "setError(firstAtmoShaperError(nextSnapshot)",
+      "firstAtmoShaperError(nextSnapshot)",
       'publishMediaSession(metadata, "failed")',
     ]) {
       assert.ok(

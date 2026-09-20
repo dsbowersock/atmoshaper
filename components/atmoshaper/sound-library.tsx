@@ -24,6 +24,8 @@ import {
   type AtmoShaperProductionConcept,
 } from "@/lib/atmoshaper/production-catalog-runtime"
 import { ATMOSHAPER_PRESETS, type AtmoShaperLayer, type AtmoShaperRecipe } from "@/lib/atmoshaper/recipe.js"
+import { formatAtmospherePublicError } from "@/lib/atmosphere/public-presentation"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { resolveAtmosphereStationArtworkInput } from "@/lib/atmosphere/station-artwork"
 import { getPlayableAtmosphereStations } from "@/lib/atmosphere/stations.js"
 import { cn } from "@/lib/utils"
@@ -304,6 +306,12 @@ export function SoundLibrary({
           : "This sound could not be added.",
       }
     }
+    const publicSettlement = settlement.status === "failed"
+      ? {
+          ...settlement,
+          error: formatAtmospherePublicError(settlement.error, "This sound could not be added."),
+        }
+      : settlement
 
     const settled = settleSoundLibraryPendingCommit(
       pendingCommitsRef.current,
@@ -311,7 +319,7 @@ export function SoundLibrary({
     )
     if (!settled.owned) return
     replacePendingCommits(settled.pendingTransactions)
-    if (mountedRef.current) actions.settleLayerPromotion(transaction, settlement)
+    if (mountedRef.current) actions.settleLayerPromotion(transaction, publicSettlement)
   }
 
   return (
@@ -335,11 +343,11 @@ export function SoundLibrary({
         <TabsList
           ref={tabListRef}
           className="ml-atmoshaper-library-tabs-list"
-          aria-label="AtmoShaper sound groups"
+          aria-label={`${ATMOSPHERE_PUBLIC_LABELS.name} sound groups`}
         >
           {[
             ["noise", "Noise"],
-            ["stations", "Atmosphere stations"],
+            ["stations", `${ATMOSPHERE_PUBLIC_LABELS.name} stations`],
             ["binaural", "Binaural beats"],
             ["isochronic", "Isochronic tones"],
             ["ambient", "Ambient sounds"],
@@ -553,6 +561,12 @@ function LibraryCardActions({
   const music = useMusic()
   const previewMatches = atmoShaperPreviewMatchesCandidate(music.atmoShaperPreview, candidate)
   const previewStatus = previewMatches ? music.atmoShaperPreview?.status : null
+  const previewError = previewMatches && previewStatus === "failed"
+    ? formatAtmospherePublicError(
+        music.atmoShaperPreview?.error,
+        "This preview could not start.",
+      )
+    : undefined
   const audioReady = music.runtimeReadiness.status === "ready"
   const previewLabel = previewMatches
     ? previewStatus === "failed" ? "Retry Preview" : "Stop Preview"
@@ -606,11 +620,11 @@ function LibraryCardActions({
             previewMatches && previewStatus === "failed" && "text-destructive",
           )}
           title={previewMatches && previewStatus === "failed"
-            ? music.atmoShaperPreview?.error ?? "This preview could not start."
+            ? previewError
             : undefined}
         >
           {previewMatches && previewStatus === "failed"
-            ? music.atmoShaperPreview?.error ?? "This preview could not start."
+            ? previewError
             : previewMatches
               ? previewStatus
               : "ready to preview"}
