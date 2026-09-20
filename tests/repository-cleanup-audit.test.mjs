@@ -5980,8 +5980,14 @@ test("real retained data catalogs are tracked, protected, and never candidates",
   assert.ok(realPolicy.assetRoots.includes("data/"))
   assert.ok(realPolicy.protectedPathPrefixes.includes("data/"))
   const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
-  const dataPaths = index.trackedPaths.filter((path) => path.startsWith("data/") && path.endsWith(".json"))
-  assert.equal(dataPaths.length, 40)
+  const dataPaths = index.trackedPaths
+    .filter((path) => path.startsWith("data/") && path.endsWith(".json"))
+    .sort()
+  const expectedDataPaths = execFileSync("git", ["ls-files", "-z", "--", "data"], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+  }).split("\0").filter((path) => path.endsWith(".json")).sort()
+  assert.deepEqual(dataPaths, expectedDataPaths)
   const report = buildAssetCandidateReport(index, realPolicy)
   const trackedPaths = new Set(report.trackedAssets.map((row) => row.path))
   const protectedPaths = new Set(report.protectedAssets.map((row) => row.path))

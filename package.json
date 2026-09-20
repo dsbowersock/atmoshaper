@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
+    "legal:verify-archives": "node --test tests/legal-document-archive.test.mjs",
     "repository:inventory": "node scripts/repository-audit/inventory.mjs",
     "brand:audit": "node scripts/repository-audit/brand.mjs",
     "dead-code:audit": "node scripts/repository-audit/dead-code.mjs",

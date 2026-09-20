@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "documentVersion": "2026-07-digital-purchases-v2",
+  "documents": [
+    {
+      "key": "digital-purchases-refunds",
+      "slug": "digital-purchases-refunds",
+      "label": "Digital Purchases and Refund Policy",
+      "shortLabel": "Digital Purchase Terms",
+      "route": "/legal/digital-purchases-refunds",
+      "version": "2026-07-digital-purchases-v2",
+      "effectiveDate": "July 23, 2026",
+      "summary": "Immediate delivery, final-sale posture, and limited refund exceptions for permanent digital-background purchases.",
+      "sections": [
+        {
+          "title": "Immediate digital delivery",
+          "body": [
+            "Each named digital background is delivered to the purchasing MassageLab account immediately after successful payment and fulfillment.",
+            "By accepting the combined purchase consent before Checkout, the purchaser expressly requests that digital delivery begin immediately."
+          ]
+        },
+        {
+          "title": "Permitted use and license limits",
+          "body": [
+            "A purchase grants the purchaser a non-transferable right to personally use and display the background for personal activities and while the purchaser provides services through the purchaser's own sole proprietorship or practice. Clients and staff may see that purchaser-operated display, but they do not receive account access or a separate license.",
+            "The purchaser may not share account access; allow staff or teams to operate the background through the purchaser's login; redistribute, resell, or sublicense the background; extract or distribute its assets; package it into another product or service; or provide access to unrelated third parties."
+          ]
+        },
+        {
+          "title": "Final sale and exceptions",
+          "body": [
+            "Individual digital-background purchases are final except where applicable law requires otherwise or MassageLab approves a documented exception.",
+            "A failed delivery, duplicate charge, materially misdescribed item, or other legally required remedy may be reviewed through MassageLab support."
+          ]
+        },
+        {
+          "title": "Refunds and disputes",
+          "body": [
+            "Refunded or disputed purchase ownership may be suspended or revoked while the payment issue is reviewed and after a refund or adverse dispute outcome.",
+            "Subscription access is separate from permanent ownership, so an active subscription may continue to provide access while purchase ownership is suspended."
+          ]
+        },
+        {
+          "title": "Current geographic scope",
+          "body": [
+            "Permanent digital-background purchasing is initially limited to customers whose final Stripe Checkout billing country is the United States.",
+            "This policy is product architecture for the current launch posture and does not replace final legal review or rights that cannot be waived under applicable law."
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,33 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Review-sized Phase 6 delivery and archive pilot approved
+
+- The user approved preparing and publishing coherent replacement PRs for
+  oversized PR #5, then separately approved an isolated local worktree. The
+  [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md) preserves
+  all source work and repairs while keeping each PR below the observed review cap.
+- The first pilot begins at `cdfa99e49cebf100fac1a5080d60514806eb17db` and carries
+  only historical legal archives/verifier plus corresponding audit contracts.
+  Original PR #5 and source `7e318558da425b8fcdddeb8df50e93a36900310a` stay intact.
+  Current legal text, application runtime, acceptance storage and PNGs are not
+  part of this slice. The one-shot archive writer stays retired.
+- Fresh pre-change checks passed: locked npm install, local Prisma generation,
+  and full unit tests, 4,557 total / 4,554 passed / 3 skipped / zero failures
+  (510,204.5684 ms). No provider resource or copied environment file was used.
+- A real Git checkout-filter reproduction found that `core.autocrlf=true`
+  changed both pinned archives to CRLF. The narrow repair adds exact LF rules
+  at the existing `.gitattributes` owner and a temporary-Git regression. It
+  reproduced failure before repair and passed under three checkout settings
+  afterward while preserving unrelated bytes. All six source files remain
+  byte-identical; no verifier normalization or assertion weakening was used.
+- Independent specification review, then quality review, fresh candidate gates
+  and exact-head hosted reviews are required before a clean pilot claim. Further
+  publication waits for an actual CodeRabbit pilot review; a capacity refusal
+  stops expansion without spending, exclusions or repeated unchanged triggers.
+- Original Linux ring snapshot approval remains pending. Merge, deployment,
+  billing/provider changes and original PR/branch retirement are not authorized.
+
 ## 2026-09-13 — Phase 5 identity Browser QA passed; temporary QA removed
 
 - The user separately authorized one new independent empty temporary Neon
