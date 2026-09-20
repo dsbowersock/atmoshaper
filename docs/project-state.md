@@ -12,9 +12,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   CodeRabbit reviewed all 46 files and completed without actionable findings at
   18:33 UTC. No review threads remain. Fresh hosted evidence confirms CI
   `35529020277` passed quality, build, all four browser lanes and aggregate QA.
-- The approved isolated checkout now assembles the public routes/content slice
-  on `codex/phase6-04-public-content` from that exact head. Original PR #5 and
-  published replacements #6-#8 remain unchanged and unmerged.
+- The 63-file [public-content PR #9](https://github.com/dsbowersock/atmoshaper/pull/9)
+  is published at `f8add328996c668243cc7c1dae6ba16f1d8da565` against that exact
+  audio head. The approved isolated checkout remains on
+  `codex/phase6-04-public-content`. Original PR #5 and published replacements
+  #6-#8 remain unchanged and unmerged.
 - This slice carries source-approved public page, support, social, membership,
   cart and education display copy with producer-owned tests. It preserves
   endpoints, social handles, support addresses, Google calendar names, source
@@ -23,7 +25,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   names all shared-file boundaries. Private account settlement stays with its
   later owner; current legal dates/versions and the verified documentation date
   ceiling are preserved. Earlier pilot and homepage repairs remain intact.
-- The 63-file local candidate is assembled: 55 full-source files match recovery
+- At initial publication, 55 full-source files matched recovery
   `7e31855` exactly, and four shared test files contain only their assigned
   companion changes. Independent specification then quality review passed with
   no implementation findings; earlier pilot and homepage repairs are preserved.
@@ -31,10 +33,23 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   passed the full unit suite: 4,661 passed, three skipped, zero failures (4,664
   total), plus 247 focused regressions, typecheck, lint and 25 documentation/
   archive checks. The intermediate brand receipt has zero missing/unclassified
-  entries and inventory reports no forbidden paths. Only delivery receipts and
-  their generated audit offsets change after that tested source candidate.
-- Publication and this slice's own exact-head hosted reviews and strict CI
-  remain required. Earlier PR coverage is not evidence for this new delta.
+  entries and inventory reports no forbidden paths. Between that tested candidate
+  and initial publication, only delivery receipts and generated offsets changed.
+- Hosted reviews completed with two verified findings: retain the stable Sentry
+  problem-report event name, and classify retained Stripe assertions as exact
+  compatibility occurrences. The bounded repair restores that event identity
+  and promotes only the necessary exact-occurrence audit API with five fresh
+  rules. The source event-name defect is corrected, not preserved for equivalence.
+  Its three intentional source divergences and early audit API promotion must
+  remain explicit in the final combined-source reconciliation.
+- The audit generator, not only its generated receipt, must retain the corrected
+  classification without hiding neighboring public copy. Fresh focused checks
+  pass 91/91; the coordinator's focused/archive run passes 100/100. Independent SPEC then
+  QUALITY and strict validation precede a repair push. Both hosted reviewers
+  must subsequently cover the new exact head without actionable findings.
+- Initial-head CI `35533833313` passed quality, build, all four browser lanes
+  and aggregate QA, verified at 20:15 UTC. This is not repair-head evidence.
+  Earlier PR coverage does not cover this slice or its repair.
 - The final combined-source equivalence and separate Linux Atmosphere snapshot
   decision remain whole-sequence gates. No PNG, frame, threshold, provider,
   billing, deployment or merge changes are authorized by this slice.

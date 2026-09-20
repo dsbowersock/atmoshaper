@@ -9,6 +9,7 @@ import {
   loadJson,
   stableJson,
   toBaselineEntry,
+  validateCandidateOccurrenceRules,
   verifyLegacyReferenceBaseline,
 } from "./core.mjs"
 
@@ -19,6 +20,7 @@ try {
   const paths = listTrackedFiles(root)
   assertPrivatePathsAbsent(paths, policy.forbiddenTrackedPaths)
   const references = collectLegacyReferences(root, paths, policy)
+  validateCandidateOccurrenceRules(policy, references)
   const lineage = readFileSync(resolve(root, "MIGRATION_LINEAGE.md"), "utf8")
   const sourceMatch = lineage.match(/^Source commit: `([a-f0-9]{40})`$/m)
   if (!sourceMatch) throw new Error("MIGRATION_LINEAGE.md must contain one exact source commit line")

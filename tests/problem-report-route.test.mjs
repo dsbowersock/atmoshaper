@@ -296,7 +296,7 @@ describe("privacy-safe problem report route", () => {
         },
         captureMessage(message, options) {
           calls.push("capture")
-          assert.equal(message, "AtmoShaper privacy-safe problem report")
+          assert.equal(message, "MassageLab privacy-safe problem report")
           assert.equal(options.contexts.problemReport.safePath, "/timer")
           assert.doesNotMatch(JSON.stringify(options), /forbidden_probe/)
           return "event-id"

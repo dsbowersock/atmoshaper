@@ -89051,126 +89051,126 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 208,
+      "line": 236,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 239,
+      "line": 267,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 258,
+      "line": 286,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 259,
+      "line": 287,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 260,
+      "line": 288,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 263,
+      "line": 291,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 298,
+      "line": 326,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 302,
+      "line": 330,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 183,
+      "line": 198,
       "column": 35,
       "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 220,
+      "line": 235,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 224,
+      "line": 239,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 226,
+      "line": 241,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 230,
+      "line": 245,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 231,
+      "line": 246,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 234,
+      "line": 249,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 235,
+      "line": 250,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 235,
+      "line": 250,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 262,
+      "line": 277,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -94395,6 +94395,13 @@
       "line": 468,
       "column": 23,
       "textSha256": "c93cf2f1ea1c142d53846e590591ec40dca13b69ab192dde3785a08c05b24312",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-20-phase6-review-sized-prs.md",
+      "line": 399,
+      "column": 19,
+      "textSha256": "1bf8f13422890c5a115e219b93954661e6cb34eadb2de9571756571fbcbcd613",
       "category": "historical"
     },
     {
@@ -126563,6 +126570,13 @@
       "category": "compatibility"
     },
     {
+      "path": "lib/problem-report.js",
+      "line": 14,
+      "column": 40,
+      "textSha256": "a4d327462b7c03d096da3ea05364dc86b3a008886f344b477571c48c597d3df9",
+      "category": "compatibility"
+    },
+    {
       "path": "lib/professional-record-vault.js",
       "line": 8,
       "column": 55,
@@ -128314,14 +128328,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 127651,
+      "line": 127665,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 127651,
+      "line": 127665,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
@@ -128370,21 +128384,21 @@
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 58,
+      "line": 80,
       "column": 10,
       "textSha256": "70831aa5a19e94c7b2a9c495a38a71729e8c39bfb041a0f848881d06d36d4bce",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 59,
+      "line": 81,
       "column": 10,
       "textSha256": "0119da00006b0dbf0183dd48158331dedc56a6804f4403b37d45bb021b19945d",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 60,
+      "line": 82,
       "column": 12,
       "textSha256": "00444891010aaa422454b919bbbcc3e75233f9ccb3b7337547e3d45cb2472293",
       "category": "compatibility"
@@ -179641,7 +179655,7 @@
       "line": 132,
       "column": 8,
       "textSha256": "25c4a6ba6f70460f278e47436505ee1a3a052b14b798c99d7e7b9e4205cd2aef",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "tests/membership-webhook-route.test.mjs",
@@ -179861,10 +179875,24 @@
       "category": "compatibility"
     },
     {
+      "path": "tests/problem-report-route.test.mjs",
+      "line": 299,
+      "column": 34,
+      "textSha256": "47565d7e909f8f84695eab71ac32616b0feae99c517385c08da587d99abd3e15",
+      "category": "compatibility"
+    },
+    {
       "path": "tests/problem-report.test.mjs",
-      "line": 31,
+      "line": 32,
       "column": 43,
       "textSha256": "ede6d05d679b5fbacb6e1ccb58c023ccfc50039910637071d958423ca4a83c5e",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/problem-report.test.mjs",
+      "line": 78,
+      "column": 36,
+      "textSha256": "6bc4c047abb3e0fc6d8a638291f6739839bd282f2dcc9b40234a7c2f5605b8fd",
       "category": "compatibility"
     },
     {
@@ -180030,324 +180058,331 @@
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 137,
+      "line": 147,
       "column": 34,
       "textSha256": "067c0a636c6bdb3ed59766977ee60a3a02201bd40370e7a8e975e7dde26242f7",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 148,
+      "line": 158,
       "column": 44,
       "textSha256": "46f5e726e8b4dfb9c16da767e5c5cf4108a5f379eb21f913c768fca3ce0a3d03",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 187,
+      "line": 197,
       "column": 53,
       "textSha256": "46b458a37751635bae8fa05ca1cc830c3491729e87b0123a6f96a130650113b2",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 274,
+      "line": 284,
       "column": 60,
       "textSha256": "ee04a77db25dc922d347d9eb83045408c1651bfc8d89f99bfa6ebbef2356c19c",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 290,
+      "line": 300,
       "column": 24,
       "textSha256": "f1281e69d2f0435b20ffef1c7e1d1e01c8dc93ec5aaba45efcc733758d47b2c9",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 290,
+      "line": 300,
       "column": 59,
       "textSha256": "f1281e69d2f0435b20ffef1c7e1d1e01c8dc93ec5aaba45efcc733758d47b2c9",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 297,
+      "line": 307,
       "column": 24,
       "textSha256": "87bf6cb2bc3b2c27b9c2662b22fd5eadc89fdf667d3237a8e72170ac2541516f",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 297,
+      "line": 307,
       "column": 59,
       "textSha256": "87bf6cb2bc3b2c27b9c2662b22fd5eadc89fdf667d3237a8e72170ac2541516f",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 303,
+      "line": 313,
       "column": 34,
       "textSha256": "3a4c7a23d7680619c11456f8ccb2f8856188f3d20a8b20c07a92dc981a210dd5",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 314,
+      "line": 324,
       "column": 8,
       "textSha256": "6ec4839ec1e67425bbe79d634852ebe7ee4b359f65b139f4749e02f8616fc398",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 314,
+      "line": 324,
       "column": 26,
       "textSha256": "6ec4839ec1e67425bbe79d634852ebe7ee4b359f65b139f4749e02f8616fc398",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 315,
+      "line": 325,
       "column": 8,
       "textSha256": "acae6788ba23b2bed3880d06a17400bf9b09358c33144cea0ccc5a35b5981665",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 315,
+      "line": 325,
       "column": 29,
       "textSha256": "acae6788ba23b2bed3880d06a17400bf9b09358c33144cea0ccc5a35b5981665",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 316,
+      "line": 326,
       "column": 8,
       "textSha256": "f2615edd04ca72fa35de4cbeb727d62e5036578400fb79a07bd39b12743ff668",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 316,
+      "line": 326,
       "column": 38,
       "textSha256": "f2615edd04ca72fa35de4cbeb727d62e5036578400fb79a07bd39b12743ff668",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 317,
+      "line": 327,
       "column": 11,
       "textSha256": "79c11198e2f1ee1a952cfd6a12e20ad97142d35f73688cb5f08de00656f1c8ea",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 317,
+      "line": 327,
       "column": 44,
       "textSha256": "79c11198e2f1ee1a952cfd6a12e20ad97142d35f73688cb5f08de00656f1c8ea",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 318,
+      "line": 328,
       "column": 10,
       "textSha256": "240e23b2577ffb3c53cfe760ec72b28f6d0a5a99d0b390339d843281703fcf8d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 318,
+      "line": 328,
       "column": 40,
       "textSha256": "240e23b2577ffb3c53cfe760ec72b28f6d0a5a99d0b390339d843281703fcf8d",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 325,
+      "line": 335,
       "column": 10,
       "textSha256": "fdea30e1489fbf47ab970b45e505cda95125d63e20bfd5378b6bc39802ca1138",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 326,
+      "line": 336,
       "column": 10,
       "textSha256": "46be2fd016a42ac5916c742387fbc42b5171c5408cd11bedb953d536ece402b5",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 327,
+      "line": 337,
       "column": 10,
       "textSha256": "a72dbc1d541399f5f0091ca487f8d4224393ed6dac3828e52781c0d52dbae19e",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 328,
+      "line": 338,
       "column": 10,
       "textSha256": "62880db01b46bba09dbe3667fd99247baa197fa54feca495f11b7220a046da96",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 329,
+      "line": 339,
       "column": 10,
       "textSha256": "573c9bda9d192f601fdafc9b16b7060667ec45ed91ff78e93a1bd56ef7f8618a",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 342,
+      "line": 352,
       "column": 20,
       "textSha256": "ff19413824816874e04637ce98bc4ed64195e1a81b532e7a009af181bdec5a55",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 343,
+      "line": 353,
       "column": 27,
       "textSha256": "52e00fa57957e89da11dc41cc562a835d5c800581688837048faf64b64c08e4d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 350,
+      "line": 360,
       "column": 20,
       "textSha256": "ff19413824816874e04637ce98bc4ed64195e1a81b532e7a009af181bdec5a55",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 351,
+      "line": 361,
       "column": 27,
       "textSha256": "52e00fa57957e89da11dc41cc562a835d5c800581688837048faf64b64c08e4d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 362,
+      "line": 372,
       "column": 12,
       "textSha256": "ed5e39c53625766a4c8402215b82b5fb2b0e33750bb6ba7047ff2fdf87cb1f25",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 362,
+      "line": 372,
       "column": 41,
       "textSha256": "ed5e39c53625766a4c8402215b82b5fb2b0e33750bb6ba7047ff2fdf87cb1f25",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 367,
+      "line": 377,
       "column": 50,
       "textSha256": "a4f2dcd325a4be808ba5f71eedab8bcd902227f3ec1bc5860933cf6533152cfb",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 368,
+      "line": 378,
       "column": 50,
       "textSha256": "1607f7993c22c69601f0c06fd1cb543dd008c268adf69be7d040bb06d7f41353",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 377,
+      "line": 387,
       "column": 20,
       "textSha256": "8c5a13156df4131a6e580209b28c7bb2fb60bda2cb5a739c5665598e49a07273",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 378,
+      "line": 388,
       "column": 27,
       "textSha256": "7c4494a06a2306dcb701814b4e598b6954c18c1af08df7cb12e75dee1cf9a46a",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 389,
+      "line": 399,
       "column": 6,
       "textSha256": "a168025e0d631b712b286da8edf9986968918a3d23df7d250d6f2090c4e9163c",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 389,
+      "line": 399,
       "column": 18,
       "textSha256": "a168025e0d631b712b286da8edf9986968918a3d23df7d250d6f2090c4e9163c",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 394,
+      "line": 404,
       "column": 6,
       "textSha256": "a840a7a504e17be90ff310ada4dce0b4dc290c5eb0ce8d4113ee13817f013fde",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 394,
+      "line": 404,
       "column": 51,
       "textSha256": "a840a7a504e17be90ff310ada4dce0b4dc290c5eb0ce8d4113ee13817f013fde",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 400,
+      "line": 410,
       "column": 8,
       "textSha256": "faeea83be919ff4cdbe6ea30d1bef54e3a94f7b28e161bf4d7da75ae1fece65d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 401,
+      "line": 411,
       "column": 8,
       "textSha256": "25c566f5b990a3d59db22874286ed43df7cc63b9ac4c04ce4f219c11197100c7",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 402,
+      "line": 412,
       "column": 8,
       "textSha256": "dec2d8ae528e1dba71911a041e209229777cbe9fedfeba13bee56fccfb782621",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 403,
+      "line": 413,
       "column": 8,
       "textSha256": "b42d060a9c8a4923e77bc1f0a64bb0c98a2fc8b9eacffca72cb951291131ea62",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 404,
+      "line": 414,
       "column": 10,
       "textSha256": "cf319202288bfd085ed46fd4683e0c7261cbd9db2eb0348b488e9bf1ab57d057",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 405,
+      "line": 415,
       "column": 8,
       "textSha256": "e3db3ec9bd5d7339065c4f9e783b99be9b84452b4e8d9e7db7252354e176cb96",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 450,
+      "line": 460,
       "column": 33,
       "textSha256": "785d87057ed9499f3ed71935690baa2acdaa8610844c5a6fd767eee6216ebeac",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 451,
+      "line": 461,
       "column": 32,
       "textSha256": "bd5174ffd1f506354f2fb3cc2e19f7c1da970772fc0dc3359d46ac6600039df5",
+      "category": "pre-rebrand-public-copy"
+    },
+    {
+      "path": "tests/repository-audit.test.mjs",
+      "line": 947,
+      "column": 59,
+      "textSha256": "365b60eaeea8a323761d1003c6b4f477dab1cdb6bb9a3a84cfb3a1860f140c55",
       "category": "pre-rebrand-public-copy"
     },
     {
@@ -182588,7 +182623,7 @@
       "line": 352,
       "column": 54,
       "textSha256": "150ea3150404eb3136770b9963f265a445e1cb72a0fa7199e5266d217ea5c3f1",
-      "category": "pre-rebrand-public-copy"
+      "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",

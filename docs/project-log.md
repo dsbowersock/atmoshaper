@@ -2,6 +2,34 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Public-content replacement published; compatibility repair verified locally
+
+- Published and attached PR #9 at `f8add328996c668243cc7c1dae6ba16f1d8da565`,
+  stacked on exact audio head `f8c14f1812918b67051760669c4ccf07b5860ba7`.
+  The 63-file initial tree passed independent SPEC then QUALITY and local
+  verification recorded below. Earlier branches remain intact; nothing merged.
+- Codex completed at 19:57 UTC with one operational-identity finding (review
+  `5261580735`); CodeRabbit completed at 20:01 UTC with one exact-classification
+  finding (review `5261595695`). Neither result is clean coverage. The accepted
+  CodeRabbit request was at 19:55:06 UTC; its published one-hour allowance is
+  tracked separately from Codex and from review completion.
+- Local reproduction confirms the report payload message goes directly to
+  Sentry, while the audit generator misclassifies a retained Stripe assertion.
+  Preserve the historical event identity without changing public support copy;
+  promote only the already-planned exact-occurrence API and five fresh current
+  rules. Do not edit generated categories alone or widen path exclusions.
+- The repair deliberately diverges from three original source files. Final
+  integration must retain this validated compatibility correction and reconcile
+  the early audit capability, alongside prior pilot and homepage repairs.
+  The seven-file repair passes 91/91 focused checks; a fresh coordinator run
+  passes all 100 focused/archive cases. Diagnostic controls isolated two old
+  Sentry failures and one exact-classification failure before correction.
+  Independent SPEC then QUALITY, regenerated audit verification and repair-head
+  hosted reviews/CI are required before this slice can be called ready.
+- Initial-head CI `35533833313` passed quality, build, all four browser lanes
+  and aggregate `106141825509`, verified at 20:15 UTC. No provider, screenshot, threshold,
+  billing, deployment or original-branch changes accompany this repair.
+
 ## 2026-09-20 — Audio replacement verified; public-content slice started
 
 - PR #8 passed both hosted reviewers on `f8c14f1812918b67051760669c4ccf07b5860ba7`:

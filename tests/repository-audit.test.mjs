@@ -15,12 +15,14 @@ import { fileURLToPath } from "node:url"
 
 import {
   buildRepositoryInventory,
+  candidateOccurrenceFingerprint,
   classifyCandidate,
   collectLegacyReferences,
   listTrackedFiles,
   loadJson,
   stableJson,
   toBaselineEntry,
+  validateCandidateOccurrenceRules,
   validateBaseline,
   verifyLegacyReferenceBaseline,
 } from "../scripts/repository-audit/core.mjs"
@@ -62,6 +64,14 @@ const baselineEntry = (path, overrides = {}) => ({
   category: "historical",
   ...overrides,
 })
+
+/** Keep temporary audit repositories independent of this tree's exact rules. */
+function repositoryAuditFixtureContent(path) {
+  if (path === "scripts/repository-audit/policy.json") {
+    return `${JSON.stringify({ ...policy, candidateOccurrenceRules: [] }, null, 2)}\n`
+  }
+  return readFileSync(resolve(repositoryRoot, ...path.split("/")))
+}
 
 test("tracked-file ordering, aggregate hash, and output are deterministic", (t) => {
   const root = createFixtureRepository(t)
@@ -495,7 +505,7 @@ test("CLI failures use exact sanitized JSON envelopes without leaking source dat
     "scripts/repository-audit/inventory.mjs",
     "scripts/repository-audit/policy.json",
   ]) {
-    writeFixture(inventoryRoot, path, readFileSync(resolve(repositoryRoot, ...path.split("/"))))
+    writeFixture(inventoryRoot, path, repositoryAuditFixtureContent(path))
   }
   const privatePath = writeFixture(
     inventoryRoot,
@@ -529,7 +539,7 @@ test("CLI failures use exact sanitized JSON envelopes without leaking source dat
     "scripts/repository-audit/brand.mjs",
     "scripts/repository-audit/policy.json",
   ]) {
-    writeFixture(brandRoot, path, readFileSync(resolve(repositoryRoot, ...path.split("/"))))
+    writeFixture(brandRoot, path, repositoryAuditFixtureContent(path))
   }
   writeFixture(
     brandRoot,
@@ -578,7 +588,7 @@ test("default brand report excludes removed occurrences from active totals", (t)
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -618,7 +628,7 @@ test("candidate baseline output ends with exactly one newline", (t) => {
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -647,7 +657,7 @@ test("candidate baseline output preserves the established schema key order", (t)
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -683,7 +693,7 @@ test("child Git failures expose only the sanitized CLI envelopes", (t) => {
     writeFixture(
       root,
       path,
-      readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+      repositoryAuditFixtureContent(path),
       { tracked: false },
     )
   }
@@ -742,7 +752,7 @@ test("missing or malformed inventory policy uses the sanitized envelope", (t) =>
       writeFixture(
         root,
         path,
-        readFileSync(resolve(repositoryRoot, ...path.split("/"))),
+        repositoryAuditFixtureContent(path),
         { tracked: false },
       )
     }
@@ -765,5 +775,211 @@ test("missing or malformed inventory policy uses the sanitized envelope", (t) =>
     assert.equal(result.stderr, expected)
     assert.equal(result.stderr.includes(root), false)
     assert.equal(result.stderr.includes("malformed"), false)
+  }
+})
+
+test("candidate occurrence fingerprints use normalized exact identities", () => {
+  const identity = {
+    path: ".\\nested\\copy.md",
+    line: 3,
+    column: 5,
+    textSha256: "A".repeat(64),
+  }
+
+  assert.equal(
+    candidateOccurrenceFingerprint(identity),
+    "44a223db38ef5a7b2508a0334f2aa4fdc95cb347686205c034a39e330f5735f3",
+  )
+  assert.equal(candidateOccurrenceFingerprint(identity), candidateOccurrenceFingerprint({
+    ...identity,
+    path: "nested/copy.md",
+    textSha256: "a".repeat(64),
+  }))
+
+  for (const invalid of [
+    { ...identity, path: "" },
+    { ...identity, line: 0 },
+    { ...identity, column: 0 },
+    { ...identity, textSha256: "not-a-hash" },
+  ]) {
+    assert.throws(() => candidateOccurrenceFingerprint(invalid), /identity is invalid/)
+  }
+})
+
+test("exact rules classify only one occurrence and leave neighboring public copy visible", (t) => {
+  const root = createFixtureRepository(t)
+  const legacyName = ["Massage", "Lab"].join("")
+  writeFixture(root, "copy.md", `${legacyName} retained identity; ${legacyName} public copy\n`)
+  const references = collectLegacyReferences(root, ["copy.md"], policy)
+  assert.equal(references.length, 2)
+
+  const exactPolicy = {
+    ...policy,
+    candidateOccurrenceRules: [{
+      fingerprint: candidateOccurrenceFingerprint(references[0]),
+      category: "compatibility",
+    }],
+  }
+  validateCandidateOccurrenceRules(exactPolicy, references)
+  assert.deepEqual(
+    references.map((reference) => classifyCandidate(reference, exactPolicy)),
+    ["compatibility", "pre-rebrand-public-copy"],
+  )
+
+  for (const changed of [
+    { ...references[0], path: "different.md" },
+    { ...references[0], line: references[0].line + 1 },
+    { ...references[0], column: references[0].column + 1 },
+    { ...references[0], textSha256: "b".repeat(64) },
+  ]) {
+    assert.equal(classifyCandidate(changed, exactPolicy), "pre-rebrand-public-copy")
+  }
+})
+
+test("structural classification precedes exact rules and rejects overlap", (t) => {
+  const root = createFixtureRepository(t)
+  writeFixture(root, "docs/history.md", ["Massage", "Lab"].join("") + " historical evidence\n")
+  const [reference] = collectLegacyReferences(root, ["docs/history.md"], policy)
+  const overlappingPolicy = {
+    ...policy,
+    candidateOccurrenceRules: [{
+      fingerprint: candidateOccurrenceFingerprint(reference),
+      category: "compatibility",
+    }],
+  }
+
+  assert.equal(classifyCandidate(reference, overlappingPolicy), "historical")
+  assert.throws(
+    () => validateCandidateOccurrenceRules(overlappingPolicy, [reference]),
+    /overlaps a structural rule/,
+  )
+})
+
+test("exact-rule schema, ordering, uniqueness, and active coverage fail closed", (t) => {
+  const valid = { fingerprint: "a".repeat(64), category: "historical" }
+  const validate = (candidateOccurrenceRules, references = []) => (
+    validateCandidateOccurrenceRules({ ...policy, candidateOccurrenceRules }, references)
+  )
+  const { candidateOccurrenceRules: existingRules, ...policyWithoutExactRules } = policy
+  assert.ok(Array.isArray(existingRules))
+  assert.throws(
+    () => validateCandidateOccurrenceRules(policyWithoutExactRules, []),
+    /rules array/,
+  )
+  assert.throws(() => validate([null]), /object/)
+  assert.throws(() => validate([{ fingerprint: valid.fingerprint }]), /exact fields/)
+  assert.throws(() => validate([{ ...valid, path: "copy.md" }]), /exact fields/)
+  assert.throws(() => validate([{ ...valid, fingerprint: "A".repeat(64) }]), /lowercase SHA-256/)
+  assert.throws(
+    () => validate([{ ...valid, category: "pre-rebrand-public-copy" }]),
+    /terminal category/,
+  )
+  assert.throws(
+    () => validate([
+      { fingerprint: "b".repeat(64), category: "historical" },
+      valid,
+    ]),
+    /sorted/,
+  )
+  assert.throws(() => validate([valid, valid]), /duplicate/)
+  assert.throws(() => validate([valid]), /exactly one active occurrence/)
+
+  const root = createFixtureRepository(t)
+  writeFixture(root, "copy.md", ["Massage", "Lab"].join("") + " retained identity\n")
+  const [reference] = collectLegacyReferences(root, ["copy.md"], policy)
+  const exactRule = {
+    fingerprint: candidateOccurrenceFingerprint(reference),
+    category: "historical",
+  }
+  assert.throws(
+    () => validate([exactRule], [reference, reference]),
+    /exactly one active occurrence/,
+  )
+})
+
+test("brand CLI validates exact rules and sanitizes stale-rule failures", (t) => {
+  const root = createFixtureRepository(t)
+  for (const path of [
+    "scripts/repository-audit/core.mjs",
+    "scripts/repository-audit/brand.mjs",
+  ]) {
+    writeFixture(root, path, repositoryAuditFixtureContent(path), { tracked: false })
+  }
+  writeFixture(
+    root,
+    "scripts/repository-audit/policy.json",
+    `${JSON.stringify({
+      ...policy,
+      candidateOccurrenceRules: [{
+        fingerprint: "d".repeat(64),
+        category: "historical",
+      }],
+    }, null, 2)}\n`,
+    { tracked: false },
+  )
+  writeFixture(root, "MIGRATION_LINEAGE.md", `Source commit: \`${"a".repeat(40)}\`\n`)
+
+  const result = spawnSync(
+    process.execPath,
+    ["scripts/repository-audit/brand.mjs", "--print-candidate-baseline"],
+    { cwd: root, encoding: "utf8" },
+  )
+
+  assert.equal(result.status, 1)
+  assert.equal(result.stdout, "")
+  assert.equal(result.stderr, `{
+  "error": {
+    "code": "LEGACY_BRAND_AUDIT_FAILED"
+  },
+  "schemaVersion": 1
+}
+`)
+  assert.equal(result.stderr.includes("d".repeat(64)), false)
+  assert.equal(result.stderr.includes(root), false)
+})
+
+test("current Stripe names use only the two reviewed exact compatibility rules", () => {
+  const paths = [
+    "tests/membership-pricing.test.mjs",
+    "tests/supporter-membership-final-review.test.mjs",
+  ]
+  const references = collectLegacyReferences(repositoryRoot, paths, policy)
+    .filter((reference) => reference.sourceLine.includes("MassageLab Supporter Membership"))
+  const linesByPath = new Map(paths.map((path) => [
+    path,
+    readFileSync(resolve(repositoryRoot, ...path.split("/")), "utf8").split(/\r?\n/),
+  ]))
+  const directReferences = references.filter((reference) => {
+    if (reference.sourceLine.includes("SUPPORTER_MEMBERSHIP_PRODUCT_NAME")) return true
+    return linesByPath.get(reference.path)[reference.line - 2]
+      ?.includes("SUPPORTER_MEMBERSHIP_PRODUCT_NAME")
+  })
+  const fixtureReferences = references.filter((reference) => !directReferences.includes(reference))
+
+  assert.equal(references.length, 3)
+  assert.equal(directReferences.length, 2)
+  assert.equal(fixtureReferences.length, 1)
+  assert.deepEqual(
+    directReferences.map((reference) => classifyCandidate(reference, policy)),
+    ["compatibility", "compatibility"],
+  )
+  assert.equal(classifyCandidate(fixtureReferences[0], policy), "pre-rebrand-public-copy")
+
+  const result = spawnSync(
+    process.execPath,
+    ["scripts/repository-audit/brand.mjs", "--print-candidate-baseline"],
+    { cwd: repositoryRoot, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 },
+  )
+  assert.equal(result.status, 0)
+  assert.equal(result.stderr, "")
+  const candidate = JSON.parse(result.stdout)
+  for (const reference of directReferences) {
+    assert.equal(candidate.entries.some((entry) => (
+      entry.path === reference.path &&
+      entry.line === reference.line &&
+      entry.column === reference.column &&
+      entry.textSha256 === reference.textSha256 &&
+      entry.category === "compatibility"
+    )), true)
   }
 })

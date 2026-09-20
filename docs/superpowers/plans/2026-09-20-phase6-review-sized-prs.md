@@ -382,9 +382,46 @@ Task 4 local evidence: the frozen 63-path candidate
 review. All 55 complete source files match `7e31855`; four partial companions
 match the boundaries above. Full unit suite: 4,661 passed, three skipped, zero
 failures. Focused checks: 247/247; documentation/archive checks: 25/25;
-typecheck and lint passed. Delivery-receipt closeout and regenerated audit offsets
-must be checked before publication; exact-head hosted reviews and CI remain
-separate gates. These receipts do not close the whole replacement sequence.
+typecheck and lint passed. Final receipt-only closeout passed SPEC then QUALITY;
+the candidate was published as PR #9 at `f8add32`. These are historical initial
+receipts, not verification of the hosted repair below. Exact-head hosted reviews
+and CI remain separate gates and do not close the whole replacement sequence.
+
+### Task 4 hosted repair round 1: operational identity and exact audit classification
+
+PR #9 review of `f8add328996c668243cc7c1dae6ba16f1d8da565` identified a
+Sentry event identity rename and a retained Stripe assertion misclassified as
+public copy. Both reproduce locally. The problem-report route forwards the
+payload message directly to Sentry; the candidate generator derives the wrong
+category from the intermediate structural policy, so editing generated JSON
+alone is not a durable repair.
+
+Ruling: preserve `MassageLab privacy-safe problem report` as the operational
+message, independent of public display identity. This intentionally corrects
+three source-exact files rather than preserving a source defect. Keep public
+support copy, sanitized payload fields, tags, route responses and provider
+behavior unchanged. A dedicated observability migration is required to retire
+the stable message; this slice does not perform that migration.
+
+Ruling: promote only the source design's exact-occurrence classification API
+and validation into this slice as the generator dependency for the review fix.
+Generate fresh rules for the two changed Stripe assertions and the restored
+Sentry message's runtime/unit/route occurrences in this actual tree. Do not
+import the final-tree fingerprint table, whole-file categories or broad regex
+exclusions. Preserve structural precedence and existing baseline verification
+semantics; reject malformed, duplicate, stale and overlapping exact rules.
+Final integration must reconcile these current rules rather than overwrite them.
+
+Allowed implementation files: `lib/problem-report.js`, its two unit/route test
+files, repository-audit `core.mjs`, `brand.mjs`, `policy.json`, and
+`tests/repository-audit.test.mjs`. Coordinator owns generated baseline and the
+three delivery documents. Verify the original assertions fail on the old
+behavior, the real payload and route preserve the event, and exact audit rules
+cannot classify neighboring copy, moved/changed text, or unrelated files.
+Use focused regression, typecheck/lint, generator fixed point and inventory;
+independent SPEC then QUALITY precede commit/push and fresh hosted gates.
+No screenshots, provider calls, original-branch writes or public configuration
+changes. If wrong, this ruling costs bounded local rework, not an external cutover.
 
 ## Remaining ownership sequence
 
