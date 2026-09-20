@@ -14,7 +14,7 @@ import {
   getRobotsRouteConfig,
   publicSeoIndexingEnabled,
 } from "../lib/seo.js"
-import { MASSAGELAB_SOCIAL_URLS } from "../lib/social-links.js"
+import { MASSAGELAB_SOCIAL_LINKS, MASSAGELAB_SOCIAL_URLS } from "../lib/social-links.js"
 
 const productionEnv = Object.freeze({ NODE_ENV: "production", VERCEL_ENV: "production" })
 const previewEnv = Object.freeze({ NODE_ENV: "production", VERCEL_ENV: "preview" })
@@ -130,6 +130,11 @@ describe("SEO route contract", () => {
       "https://www.instagram.com/massagelab/",
       "https://www.youtube.com/@massagelabtv",
       "https://www.facebook.com/massagewithderrick",
+    ])
+    assert.deepEqual(MASSAGELAB_SOCIAL_LINKS.map((link) => link.description), [
+      "AtmoShaper photos, updates, and behind-the-scenes work.",
+      "AtmoShaper demos, education clips, and video updates.",
+      "Derrick's massage practice updates and community posts.",
     ])
   })
 

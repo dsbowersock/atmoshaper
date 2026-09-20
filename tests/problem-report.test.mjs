@@ -73,7 +73,7 @@ describe("privacy-safe problem reports", () => {
     })
     const serialized = JSON.stringify(payload)
 
-    assert.equal(payload.message, "MassageLab privacy-safe problem report")
+    assert.equal(payload.message, "AtmoShaper privacy-safe problem report")
     assert.equal(payload.tags["ml.report.category"], "page-error")
     assert.equal(payload.contexts.problemReport.safePath, "/notes/[local-first]")
     assert.equal(payload.contexts.problemReport.privacyLevel, "local-first-phi-capable")

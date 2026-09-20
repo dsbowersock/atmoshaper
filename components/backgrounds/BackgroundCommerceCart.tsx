@@ -19,6 +19,7 @@ import {
   buildBackgroundCartAuthReturnPath,
   formatCommerceAmount,
 } from "@/lib/background-commerce-client.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 
 const NOTICE_COPY: Record<string, string> = {
@@ -77,7 +78,7 @@ function CartContents({
 
   return (
     <section
-      aria-label={signedIn ? "Account cart" : "MassageLab cart"}
+      aria-label={signedIn ? "Account cart" : `${PUBLIC_PRODUCT_IDENTITY.name} cart`}
       className={cn("grid gap-3", compact && "rounded-xl border border-border/70 bg-background/80 p-3")}
     >
       <div className="flex items-center justify-between gap-3">
@@ -109,7 +110,7 @@ function CartContents({
                 variant="ghost"
                 disabled={Boolean(reservedOrder) || mutationPending}
                 onClick={() => void remove(item.productKey)}
-                aria-label={`Remove ${item.displayName} from ${signedIn ? "account" : "MassageLab"} cart`}
+                aria-label={`Remove ${item.displayName} from ${signedIn ? "account" : PUBLIC_PRODUCT_IDENTITY.name} cart`}
               >
                 <Trash2 className="size-4" aria-hidden="true" />
                 Remove
@@ -118,7 +119,7 @@ function CartContents({
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">Your {signedIn ? "account" : "MassageLab"} cart is empty.</p>
+        <p className="text-sm text-muted-foreground">Your {signedIn ? "account" : PUBLIC_PRODUCT_IDENTITY.name} cart is empty.</p>
       )}
 
       {cart.notices.length > 0 ? (
@@ -245,9 +246,9 @@ export function BackgroundCommerceCart({
           className="z-[10041] max-h-[min(80dvh,44rem)] overflow-y-auto"
         >
           <DialogHeader>
-            <DialogTitle>{signedIn ? "Account cart" : "MassageLab cart"}</DialogTitle>
+            <DialogTitle>{signedIn ? "Account cart" : `${PUBLIC_PRODUCT_IDENTITY.name} cart`}</DialogTitle>
             <DialogDescription>
-              Permanent MassageLab background purchases. Provider services and Calendar sales are separate.
+              Permanent {PUBLIC_PRODUCT_IDENTITY.name} background purchases. Provider services and Calendar sales are separate.
             </DialogDescription>
           </DialogHeader>
           <CartContents

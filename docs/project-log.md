@@ -2,6 +2,32 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Audio replacement verified; public-content slice started
+
+- PR #8 passed both hosted reviewers on `f8c14f1812918b67051760669c4ccf07b5860ba7`:
+  Codex summary `5751739355` completed at 18:29 UTC with clean reaction
+  `515768622`; CodeRabbit run `91e00cf5-ff83-4491-abba-fb28b89894c5` reviewed
+  all 46 files against `06f3147` and completed without actionable findings at
+  18:33 UTC. Its successful request was at 18:27 UTC. No threads remain.
+- CI `35529020277` passed Code quality, Browser build, all four Browser QA
+  lanes and aggregate `106129199412`. This proves the audio slice, not the
+  unresolved original full-phase snapshot gate or later replacement slices.
+- Started the bounded public routes/content slice from that exact audio head.
+  Public wording and direct producer-owned assertions travel together; the
+  remaining interaction-feedback delta is private account settlement and stays
+  with its account owner. Preserve endpoint/provider identifiers and source
+  attribution, as well as the prior verified date ceiling and homepage repair.
+- Assembled 55 source-exact public files and four bounded test companions; the
+  complete candidate has 63 paths including delivery documents and its generated
+  brand receipt. Independent SPEC then QUALITY review passed without findings.
+- Frozen tree `560521bd2f2c1220086240b46b19c7449ec9ee95` passed 4,661 unit tests
+  with three skips and no failures (4,664 total). Focused regressions passed
+  247/247; typecheck, lint and 25 documentation/archive checks also passed.
+  Audit missing/unclassified lists are empty and inventory has no forbidden paths.
+- Final receipt-only closeout precedes publication; this slice's own exact-head
+  hosted reviews and strict CI remain required. No earlier branch was moved,
+  no PR merged, and no provider, billing or screenshot action accompanies this step.
+
 ## 2026-09-20 — Identity replacement verified; audio slice started
 
 - PR #7 passed both hosted reviewers on `06f3147ab3ffb7dc319ad93666dc0f3d7605d238`:

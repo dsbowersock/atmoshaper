@@ -559,7 +559,7 @@ test("diagnostic client deadline returns to manual ambiguous recovery without re
   const retry = page.getByRole("button", { name: "Try Diagnostic Again", exact: true })
   await expect(retry).toBeEnabled()
   await expect(form.getByRole("status")).toHaveText(
-    "MassageLab could not confirm whether the diagnostic report was sent. This page will not resend it automatically.",
+    "AtmoShaper could not confirm whether the diagnostic report was sent. This page will not resend it automatically.",
   )
   await page.clock.fastForward(30_000)
   expect(reportBodies).toHaveLength(1)

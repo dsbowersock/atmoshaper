@@ -7,6 +7,7 @@ import { AppSurface } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { Textarea } from "@/components/ui/textarea"
 
 type SupportContactFormProps = {
@@ -46,10 +47,10 @@ export function SupportContactForm({
 
   return (
     <AppSurface
-      title="Contact MassageLab"
+      title={`Contact ${PUBLIC_PRODUCT_IDENTITY.name}`}
       description={
         <>
-          This opens your email app with the support request filled in. No message is uploaded to MassageLab from this form.
+          {`This opens your email app with the support request filled in. No message is uploaded to ${PUBLIC_PRODUCT_IDENTITY.name} from this form.`}
         </>
       }
     >

@@ -456,7 +456,7 @@ test("guest cart persists locally and requires an account only at checkout", asy
   )
   await acquisition.getByRole("button", { name: "Buy for $1" }).click()
 
-  const compactCart = backgroundPanel.getByRole("region", { name: "MassageLab cart" })
+  const compactCart = backgroundPanel.getByRole("region", { name: "AtmoShaper cart" })
   await expect(compactCart).toContainText(AURORA_NAME)
   await expect(compactCart.getByRole("button", { name: "Review checkout" })).toHaveCount(0)
   const signInLink = compactCart.getByRole("link", { name: "Sign in to checkout" })
@@ -473,9 +473,9 @@ test("guest cart persists locally and requires an account only at checkout", asy
   await page.reload({ waitUntil: "domcontentloaded" })
   const trigger = page.locator("[data-commerce-cart-trigger]:visible")
   await page.goto("/music", { waitUntil: "domcontentloaded" })
-  await expect(trigger).toHaveAccessibleName("Open MassageLab cart with 1 item")
+  await expect(trigger).toHaveAccessibleName("Open AtmoShaper cart with 1 item")
   await trigger.click()
-  const cartDialog = page.getByRole("dialog", { name: "MassageLab cart" })
+  const cartDialog = page.getByRole("dialog", { name: "AtmoShaper cart" })
   await expect(cartDialog).toContainText("This cart is saved in this browser until you sign in.")
   await expect(cartDialog).toContainText(AURORA_NAME)
   await expect(cartDialog.getByRole("link", { name: "Sign in to checkout" })).toHaveAttribute(

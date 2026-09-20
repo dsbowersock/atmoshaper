@@ -78,7 +78,7 @@ export default async function CalendarPage({
             <form action={createPracticeAction} className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
               <div className="space-y-2">
                 <Label htmlFor="name">Practice name</Label>
-                <Input id="name" name="name" placeholder="MassageLab Studio" required />
+                <Input id="name" name="name" placeholder="AtmoShaper Studio" required />
               </div>
               <Button type="submit" className="bg-primary hover:bg-brand-orange-glow">
                 <Plus className="mr-2 h-4 w-4" />

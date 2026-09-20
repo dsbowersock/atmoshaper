@@ -112,7 +112,7 @@ describe("privacy-safe problem report route", () => {
     }
   })
 
-  it("accepts the configured MassageLab alias only when Fetch Metadata agrees", async () => {
+  it("accepts the configured canonical alias only when Fetch Metadata agrees", async () => {
     const accepted = diagnosticRequest({ origin: "https://www.massagelab.app" })
     const rejected = diagnosticRequest()
     rejected.headers.set("sec-fetch-site", "cross-site")
@@ -296,7 +296,7 @@ describe("privacy-safe problem report route", () => {
         },
         captureMessage(message, options) {
           calls.push("capture")
-          assert.equal(message, "MassageLab privacy-safe problem report")
+          assert.equal(message, "AtmoShaper privacy-safe problem report")
           assert.equal(options.contexts.problemReport.safePath, "/timer")
           assert.doesNotMatch(JSON.stringify(options), /forbidden_probe/)
           return "event-id"

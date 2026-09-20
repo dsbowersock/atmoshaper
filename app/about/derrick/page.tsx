@@ -21,8 +21,8 @@ const teachingParagraphs = [
 const craftParagraphs = [
   "Outside of massage and teaching, I tend to stay close to creative and hands-on work. Photography, music, sound, design, building, and repair all interest me because they involve noticing details, shaping an experience, and understanding how things fit together. Those interests influence how I think about massage as well. The atmosphere of a room, the pacing of a session, the way information is presented, and the feeling of a tool all matter.",
   "I care about massage as a profession because I know how much good work happens quietly in individual treatment rooms, classrooms, clinics, salons, and small practices. I also know how easy it is for therapists and students to feel isolated, under-supported, or overwhelmed by everything surrounding the work itself.",
-  "MassageLab is one of the ways I am trying to respond to that.",
-  "The project reflects my experience as a working therapist, educator, mentor, and practical problem-solver. My goal is to build resources that are useful, thoughtful, and grounded in real experience. I am still practicing, still learning, still teaching, and still building. MassageLab is part of that ongoing work.",
+  "AtmoShaper is one of the ways I am trying to respond to that.",
+  "The project reflects my experience as a working therapist, educator, mentor, and practical problem-solver. My goal is to build resources that are useful, thoughtful, and grounded in real experience. I am still practicing, still learning, still teaching, and still building. AtmoShaper is part of that ongoing work.",
 ] as const
 
 const bioCards = [
@@ -58,7 +58,7 @@ export default function AboutDerrickPage() {
         </div>
         <div className="flex flex-wrap gap-3">
           <Button asChild variant="secondary">
-            <Link href="/about">About MassageLab</Link>
+            <Link href="/about">About AtmoShaper</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/support">Contact support</Link>
@@ -94,8 +94,8 @@ export default function AboutDerrickPage() {
       </AppSurface>
 
       <AppSurface
-        title="Creative work and MassageLab"
-        description="MassageLab connects clinical experience, classroom needs, and a hands-on approach to building better tools."
+        title="Creative work and AtmoShaper"
+        description="AtmoShaper connects clinical experience, classroom needs, and a hands-on approach to building better tools."
         icon={<Camera className="h-5 w-5" aria-hidden="true" />}
       >
         <div className="space-y-4 text-base leading-7 text-muted-foreground">
@@ -106,8 +106,8 @@ export default function AboutDerrickPage() {
       </AppSurface>
 
       <SocialLinksSurface
-        title="Follow Derrick and MassageLab"
-        description="Connect with Derrick's massage work and MassageLab project updates."
+        title="Follow Derrick and AtmoShaper"
+        description="Connect with Derrick's massage work and AtmoShaper project updates."
       />
     </AppPageShell>
   )

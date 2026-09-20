@@ -91,7 +91,7 @@ const publicRoutes = [
   { path: "/music", expectedText: /Treatment room starters/i },
   { path: "/wellness/breathing", expectedText: /Breathing guide/i },
   { path: "/calendar", expectedText: /Calendar/i },
-  { path: "/tools", expectedText: /MassageLab Tools/i },
+  { path: "/tools", expectedText: /AtmoShaper Tools/i },
   { path: "/tools/business-planner", expectedText: /Business Planner/i },
   { path: "/tools/business-planner/income", expectedText: /Business Income Planner/i },
   { path: "/tools/business-planner/break-even", expectedText: /Startup Costs and Break-Even/i },
@@ -1210,7 +1210,7 @@ test("Roadmap presents an unordered product portfolio", async ({ page }) => {
 
   await page.goto("/roadmap", { waitUntil: "domcontentloaded" })
 
-  await expect(page.getByRole("heading", { level: 1, name: "Where MassageLab is going" })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "Where AtmoShaper is going" })).toBeVisible()
   await expect(page.getByRole("region", { name: "Shared foundation" })).toBeVisible()
   await expect(page.getByRole("region", { name: "Product portfolio" })).toBeVisible()
 

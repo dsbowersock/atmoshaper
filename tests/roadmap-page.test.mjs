@@ -27,6 +27,8 @@ describe("public Roadmap page", () => {
     assert.equal(source.match(/capabilities:/g)?.length, 5)
     assert.match(source, /not a release order/i)
     assert.match(source, /Shared foundation/)
+    assert.match(source, /Where AtmoShaper is going/)
+    assert.doesNotMatch(source, /Where MassageLab is going/)
     assert.match(source, /local-first/i)
     assert.match(source, /informed consent/i)
     assert.match(source, /security, compliance, legal, and operational readiness/i)

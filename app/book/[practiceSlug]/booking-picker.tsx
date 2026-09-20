@@ -1191,7 +1191,7 @@ function AccountBenefitsCard({
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Save time with a free MassageLab account</DialogTitle>
+                <DialogTitle>Save time with a free AtmoShaper account</DialogTitle>
                 <DialogDescription>
                   Guest booking stays available here. Signing in or creating an account can save your contact details and make request status easier to find later.
                 </DialogDescription>

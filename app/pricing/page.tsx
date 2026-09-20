@@ -109,7 +109,7 @@ export default async function PricingPage({ searchParams }: PricingPageProps) {
           title="One-time support"
           description={
             <>
-              Use this path if you want to support MassageLab without starting a subscription.
+              Use this path if you want to support AtmoShaper without starting a subscription.
             </>
           }
           icon={<HeartHandshake className="h-5 w-5" aria-hidden="true" />}
@@ -126,10 +126,10 @@ export default async function PricingPage({ searchParams }: PricingPageProps) {
         </AppSurface>
 
         <AppSurface
-          title="How MassageLab is funded"
+          title="How AtmoShaper is funded"
           description={
             <>
-              MassageLab does not sell user data and does not use advertising to fund the project. Memberships and one-time support fund product development, secure infrastructure, compliance review, BAA/vendor work, audit controls, and the operating costs needed before hosted PHI storage can responsibly exist.
+              AtmoShaper does not sell user data and does not use advertising to fund the project. Memberships and one-time support fund product development, secure infrastructure, compliance review, BAA/vendor work, audit controls, and the operating costs needed before hosted PHI storage can responsibly exist.
             </>
           }
           className={appCalloutClassName}
@@ -160,7 +160,7 @@ function pricingOneTimeSupportNotice(code?: string) {
     return {
       tone: "accent" as const,
       title: "One-time support checkout completed",
-      description: "Thank you for supporting MassageLab. Stripe will send the payment receipt when available.",
+      description: "Thank you for supporting AtmoShaper. Stripe will send the payment receipt when available.",
     }
   }
 

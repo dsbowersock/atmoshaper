@@ -275,7 +275,7 @@ const CONCEPTS: ConceptSpec[] = [
     name: "Proliferative Repair Phase",
     conceptType: "tissue_repair",
     bodySystem: "integumentary",
-    description: "The proliferative repair phase is a broad healing period involving new tissue formation and wound closure processes. MassageLab uses it as education context, not client diagnosis.",
+    description: "The proliferative repair phase is a broad healing period involving new tissue formation and wound closure processes. AtmoShaper uses it as education context, not client diagnosis.",
     sourceRef: PHYSIOLOGY_SOURCE,
     locator: LOCATOR,
     terms: [{ term: "proliferation phase", termType: "common" }],

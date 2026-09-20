@@ -58,7 +58,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
   return (
     <AppPageShell title="User Support" width="standard">
         <AppSurface
-          title="Get help with MassageLab"
+          title="Get help with AtmoShaper"
           description={
             <>
                 Send a support request to contactmassagelab@gmail.com. Please avoid sending client PHI or sensitive clinical details.
@@ -78,7 +78,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
 
         <SocialLinksSurface
           title="Social updates"
-          description="Follow MassageLab for public updates and videos outside the support inbox."
+          description="Follow AtmoShaper for public updates and videos outside the support inbox."
         />
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -94,7 +94,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
           <Link href="/legal">
             <AppSurface
               title="Legal and trust documents"
-              description="Read MassageLab's current terms, privacy, billing, cookie, and local-first health data notices."
+              description="Read AtmoShaper's current terms, privacy, billing, cookie, and local-first health data notices."
               icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
               className="h-full transition-colors hover:bg-accent"
             />
@@ -104,7 +104,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
             title="Privacy note"
             description={
               <>
-                Support messages are sent through your email client. MassageLab does not upload this form content from the browser.
+                Support messages are sent through your email client. AtmoShaper does not upload this form content from the browser.
               </>
             }
             icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}

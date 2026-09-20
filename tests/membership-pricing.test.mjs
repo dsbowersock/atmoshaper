@@ -7,6 +7,7 @@ import {
   resolveMembershipPriceForInterval,
 } from "../lib/membership-pricing.js"
 import * as membershipPricing from "../lib/membership-pricing.js"
+import { SUPPORTER_MEMBERSHIP_PRODUCT_NAME } from "../lib/stripe-price-contract.js"
 import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import { boundedLatch } from "./helpers/async-control.mjs"
 import { SIX_PRICE_ENVIRONMENT } from "./helpers/membership-pricing-environment.mjs"
@@ -125,7 +126,12 @@ describe("Membership pricing catalog", () => {
     assert.equal(Object.hasOwn(catalog, "earlyAccess"), false)
     assert.deepEqual(catalog.intervals.map((interval) => interval.id), ["year", "month"])
     assert.equal(catalog.plans.length, 1)
-    assert.equal(supporter.name, "MassageLab Supporter Membership")
+    assert.equal(supporter.name, "AtmoShaper Supporter Membership")
+    assert.equal(
+      SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
+      "MassageLab Supporter Membership",
+      "the existing Stripe product identity remains a provider compatibility value",
+    )
     assert.deepEqual(supporter.amountChoices.map((choice) => choice.id), ["support-1", "support-2", "support-5"])
     assert.deepEqual(
       supporter.amountChoices.map(({

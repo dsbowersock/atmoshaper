@@ -2,6 +2,7 @@
 
 import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 export default function GlobalError({
   error,
@@ -21,7 +22,7 @@ export default function GlobalError({
       <body className="min-h-screen bg-background text-foreground">
         <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-5 p-6">
           <div className="rounded-md border border-border bg-card p-6 shadow-xl">
-            <p className="text-sm font-medium text-primary">MassageLab</p>
+            <p className="text-sm font-medium text-primary">{PUBLIC_PRODUCT_IDENTITY.name}</p>
             <h1 className="mt-3 text-2xl font-semibold">Something went wrong.</h1>
             <p className="mt-3 text-sm text-muted-foreground">
               The error was captured for review. You can send a privacy-safe diagnostic report from support without uploading clinical notes, intake details, screenshots, or local vault content.

@@ -7,6 +7,7 @@ import {
   createFlashcardPromptDeck,
   getAnatomyStudyPrompts,
 } from "./anatomy-study.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "./public-product-identity.js"
 import type {
   AnatomyStudyBuildOptions,
   AnatomyStudyCategory,
@@ -142,7 +143,7 @@ function starterDeck(slug: string, title: string, description: string, config: N
     answeredCount: 0,
     correctCount: 0,
     accuracyPercent: 0,
-    ownerName: "MassageLab",
+    ownerName: PUBLIC_PRODUCT_IDENTITY.name,
     isOwner: false,
     isStarter: true,
   }
