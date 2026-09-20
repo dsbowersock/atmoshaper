@@ -12,12 +12,12 @@ describe("public product identity", () => {
       "socialPreview",
     ])
     assert.deepEqual(PUBLIC_PRODUCT_IDENTITY, {
-      name: "MassageLab",
-      shortName: "MassageLab",
+      name: "AtmoShaper",
+      shortName: "AtmoShaper",
       assets: {
-        appBarWordmark: "/brand/massagelab-wordmark-final-20260622.png",
+        appBarWordmark: null,
         appBarMark: "/brand/massagelab-mark-final-20260622.png",
-        socialPreview: "/brand/massagelab-home-logo-badge-padded-20260622.png",
+        socialPreview: null,
       },
     })
   })
@@ -31,7 +31,7 @@ describe("public product identity", () => {
     assert.throws(() => {
       PUBLIC_PRODUCT_IDENTITY.assets.appBarMark = "/changed.png"
     }, TypeError)
-    assert.equal(PUBLIC_PRODUCT_IDENTITY.name, "MassageLab")
+    assert.equal(PUBLIC_PRODUCT_IDENTITY.name, "AtmoShaper")
     assert.equal(PUBLIC_PRODUCT_IDENTITY.assets.appBarMark, "/brand/massagelab-mark-final-20260622.png")
   })
 

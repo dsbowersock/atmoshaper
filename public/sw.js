@@ -130,7 +130,7 @@ async function offlineFallbackForNavigation(requestUrl) {
 async function handleNavigation(request, requestUrl) {
   if (!self.navigator.onLine) {
     return await offlineFallbackForNavigation(requestUrl)
-      || new Response("MassageLab is offline", {
+      || new Response("AtmoShaper is offline", {
         status: 503,
         headers: { "Content-Type": "text/plain" },
       })
@@ -140,7 +140,7 @@ async function handleNavigation(request, requestUrl) {
     return await fetch(request, { cache: "no-store" })
   } catch {
     return await offlineFallbackForNavigation(requestUrl)
-      || new Response("MassageLab is offline", {
+      || new Response("AtmoShaper is offline", {
         status: 503,
         headers: { "Content-Type": "text/plain" },
       })

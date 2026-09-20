@@ -47,8 +47,8 @@ test("PWA manifest exposes install metadata and resolvable icons", async ({ requ
 
   expect(manifest).toMatchObject({
     id: "/",
-    name: "MassageLab",
-    short_name: "MassageLab",
+    name: "AtmoShaper",
+    short_name: "AtmoShaper",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -78,10 +78,10 @@ test("service worker keeps selected public tools reloadable offline and excludes
   try {
     await page.reload({ waitUntil: "domcontentloaded" })
     await expect(page.getByRole("group", { name: /Session duration/i })).toBeVisible()
-    await expect(page.getByText(/MassageLab is offline/i)).toHaveCount(0)
+    await expect(page.getByText(/AtmoShaper is offline/i)).toHaveCount(0)
 
     await page.goto("/calendar", { waitUntil: "domcontentloaded" })
-    await expect(page.getByRole("heading", { name: /MassageLab is offline/i })).toBeVisible()
+    await expect(page.getByRole("heading", { name: /AtmoShaper is offline/i })).toBeVisible()
   } finally {
     await context.setOffline(false)
   }

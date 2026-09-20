@@ -42,7 +42,8 @@ paths per PR, and stop before publication at 100 reviewable paths or unclear sco
 
 Change necessity: existing changes must be redistributed because PR 5 exceeds
 the hosted review file cap. Exact source blobs and scoped intermediate audit
-receipts are sufficient; no new runtime fix is justified by this delivery task.
+receipts are sufficient; packaging alone does not justify a new runtime fix.
+Separately verified findings follow the bounded repair gates below.
 Existing legal verifier and audit owners remain canonical. Large existing audit
 tests receive only their owning contract hunks, with no broad cleanup.
 
@@ -164,6 +165,77 @@ documentation and generated audit receipts; one implementer owns policy and
 the two affected test files. Independent SPEC then QUALITY and fresh regression
 checks precede publishing the repaired head. Record both repairs in final source
 equivalence; source redistribution must not restore the directory-wide rule.
+
+## Task 2: product identity and shell
+
+The pilot gate passed on exact `96d94b1b0d779b998df01d07cfaec0198857d51d`:
+both hosted reviewers clean, all threads resolved, CI `35520831495` successful.
+Stack this slice from that head in the approved existing worktree. Keep pilot
+and recovery branches unchanged. The original Phase 6 Task 1 and its approved
+responsive amendment supply the implementation; this task only redistributes it.
+
+1. Carry exact source changes for `lib/public-product-identity.js`,
+   `components/shell/app-bar-brand-link.tsx`, `components/ui/sidebar.tsx`,
+   `app/globals.css`, `app/page.tsx`, `public/offline.html` and `public/sw.js`.
+   Preserve temporary square-mark identity, text/mark/hidden container behavior,
+   home semantics, controls, existing icons, routes, cache keys and endpoints.
+2. Carry `lib/seo.js` presentation and null-image changes plus its shared revision
+   date. Retain both legal revision-date values at `2026-06-17` until the current
+   legal slice; do not claim unchanged legal documents were revised.
+3. Carry source identity/settings/PWA unit contracts. In `tests/seo.test.mjs`,
+   defer current legal-page and social-description assertions to their owners.
+   Keep the strict date test with unchanged intermediate legal dates; the later
+   legal slice advances those expectations with its runtime metadata.
+4. In shared `app-shell.spec.ts`, `public-routes.spec.ts` and `pwa.spec.ts`, carry
+   only current identity/home/navigation/install and responsive-brand hunks.
+   Defer audio, secondary-page, account and streaming hunks. Also carry only the
+   main-navigation selector in `interaction-feedback.spec.ts` and home-link
+   selector in `music-media-session.spec.ts`. Leave the old About-page selector
+   until its current owner changes. The sidebar-owner validation mock addition
+   is unnecessary until the later authenticated-user presentation change.
+5. Carry only the source `Phase 6 brand collapse preserves controls at 320px
+   with and without cart` test from `tests/browser-qa-harness.test.mjs`. It
+   executes the real component, CSS and Browser-QA helpers without a server or
+   provider, including negative controls and focus order. Do not import later
+   integration oracle, lane, account or ring tests. No PNG changes are included.
+6. Update canonical state/log for completed versus pending work and regenerate
+   the intermediate brand baseline to an exact staged fixed point. Preserve
+   exact archive policy and all pilot regression repairs; do not copy the final
+   source baseline, use broad exclusions or require zero public-copy candidates
+   while their owning slices are explicitly still pending.
+7. Run focused identity/SEO/settings/PWA and provider-free brand tests, the full
+   unit suite, typecheck, lint, archive verification, inventory and brand audit;
+   require clean diff checks and source-hunk accounting. Independently review
+   SPEC then QUALITY, repair any valid findings, and repeat proportional checks.
+8. Publish a replacement PR against `codex/phase6-01-legal-archives`, measure
+   its actual changed paths below the review cap, attach it to the task, and
+   obtain its own exact-head hosted reviews and strict browser CI. Do not count
+   pilot coverage as review of this delta. No merge or provider changes.
+
+The source/test allocation is 19 paths plus the new geometry regression below,
+recurring delivery docs and the generated receipt. Shared paths are intentionally incomplete relative to the
+final recovery source; remaining hunks stay in the equivalence ledger until
+their owners are delivered. No new product decision or architecture is introduced.
+
+### Task 2 verified repair extension
+
+Independent quality review reproduced the text homepage heading overflowing its
+hero column with the normal expanded desktop sidebar: at 1024px the column is
+368px but the rendered Inter name is 553.39px wide; 1100px also fails. The image
+to text migration kept viewport-sized typography rather than sizing to the
+available column. Repair the existing homepage sizing owner, preserving the
+single visible name, page layout, accessible heading and unchanged assets. Add
+a portable provider-free regression that executes actual source classes/CSS,
+checks narrow and breakpoint widths with expanded/collapsed sidebar geometry,
+and rejects the old overflowing behavior. Do not clip the text, weaken bounds,
+add a provider dependency or update snapshots. Record this verified repair as an
+intentional addition beyond the recovery source in final equivalence accounting.
+
+The first full identity suite found one missed paired metadata contract in
+`tests/roadmap-page.test.mjs`: carry only the exact source description assertion
+for the already-owned shared SEO identity. Keep its later Roadmap page-copy
+assertions deferred. Recheck metadata consumers, repeat independent SPEC then
+QUALITY and fresh verification before publication.
 
 ## Remaining ownership sequence
 

@@ -78,7 +78,7 @@ function getPublicNetworkGuard(page: Page) {
 }
 
 const publicRoutes = [
-  { path: "/", expectedText: /MassageLab/i },
+  { path: "/", expectedText: /AtmoShaper/i },
   { path: "/about", expectedText: /Built from inside the massage profession/i },
   { path: "/about/derrick", expectedText: /Therapist, educator, mentor/i },
   { path: "/help", expectedText: /Help & FAQ/i },
@@ -783,7 +783,7 @@ test("core public tool surfaces keep shell spacing and visible primary content",
       await installAtmosphereFixtures(page, allowedExternalUrls, [], initialAtmosphereSampleIndexUrls)
     }
     await page.goto(path, { waitUntil: "domcontentloaded" })
-    await expect(page.getByRole("navigation", { name: /^MassageLab main navigation$/i })).toBeVisible()
+    await expect(page.getByRole("navigation", { name: /^AtmoShaper main navigation$/i })).toBeVisible()
     await expect(page.locator(".ml-app-content")).toBeVisible()
     const contentBox = await page.locator(".ml-app-content").boundingBox()
     expect(contentBox?.height ?? 0).toBeGreaterThan(240)
@@ -872,8 +872,8 @@ test("main bar exposes brand music clock quick create theme calendar and more co
   })
   await page.goto("/music", { waitUntil: "domcontentloaded" })
 
-  await expect(page.getByRole("navigation", { name: /^MassageLab main navigation$/i })).toBeVisible()
-  await expect(page.getByRole("link", { name: "MassageLab home" })).toHaveAttribute("href", "/")
+  await expect(page.getByRole("navigation", { name: /^AtmoShaper main navigation$/i })).toBeVisible()
+  await expect(page.getByRole("link", { name: "AtmoShaper home" })).toHaveAttribute("href", "/")
   await expect(page.getByRole("link", { name: /^Open music$/i })).toHaveAttribute("href", "/music")
   await expect(page.getByRole("link", { name: /^Open clock$/i })).toHaveAttribute("href", "/clock")
   // Poll through the active-link ring handoff and require a fully painted SVG.
@@ -914,7 +914,7 @@ test("main bar exposes brand music clock quick create theme calendar and more co
   await expect(page.getByRole("link", { name: /^Open calendar$/i })).toHaveAttribute("href", "/calendar")
   await expect(page.getByRole("button", { name: /^Open navigation$/i })).toBeVisible()
 
-  const mainBar = page.getByRole("navigation", { name: /^MassageLab main navigation$/i })
+  const mainBar = page.getByRole("navigation", { name: /^AtmoShaper main navigation$/i })
   await expect(mainBar.locator(".ml-main-bar-drawer-brand .ml-main-bar-button")).toHaveAccessibleName("Open navigation")
   await expect(mainBar.locator(".ml-main-bar-tools").getByRole("group", { name: /^Theme$/i })).toBeVisible()
 
@@ -1058,7 +1058,7 @@ test("Chimer keeps the mobile main bar and opens quick actions above the plus bu
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/chimer", { waitUntil: "domcontentloaded" })
 
-  const mainBar = page.getByRole("navigation", { name: /^MassageLab main navigation$/i })
+  const mainBar = page.getByRole("navigation", { name: /^AtmoShaper main navigation$/i })
   await expect(mainBar).toBeVisible()
   await expect(page.locator(".ml-app-shell")).toHaveAttribute("data-main-bar-visible", "true")
   await expect(page.getByTestId("app-moving-background")).toHaveCount(0)
@@ -1091,10 +1091,10 @@ test("Chimer keeps the mobile main bar and opens quick actions above the plus bu
 
   await page.goto("/clock", { waitUntil: "domcontentloaded" })
   await expect(page.locator("body")).toHaveClass(/chimer-running/)
-  await expect(page.getByRole("navigation", { name: /^MassageLab main navigation$/i })).toHaveCount(0)
+  await expect(page.getByRole("navigation", { name: /^AtmoShaper main navigation$/i })).toHaveCount(0)
   await page.getByRole("button", { name: /^Close clock$/i }).click()
   await expect(page.locator("body")).not.toHaveClass(/chimer-running/)
-  const clockSetupMainBar = page.getByRole("navigation", { name: /^MassageLab main navigation$/i })
+  const clockSetupMainBar = page.getByRole("navigation", { name: /^AtmoShaper main navigation$/i })
   await expect(clockSetupMainBar).toBeVisible()
   await expect(page.locator(".ml-app-shell")).toHaveAttribute("data-main-bar-visible", "true")
 
@@ -1152,9 +1152,9 @@ test("anonymous homepage presents landing copy and tool discovery rails", async 
 
   await page.goto("/", { waitUntil: "domcontentloaded" })
 
-  await expect(page.getByTestId("home-brand-wordmark")).toBeVisible()
-  await expect(page.getByRole("heading", { name: /MassageLab helps/i })).toBeVisible()
-  await expect(page.getByTestId("home-flip-word")).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "AtmoShaper", exact: true, includeHidden: false })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 2, name: /AtmoShaper helps/i, includeHidden: false })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 2, name: /AtmoShaper helps/i, includeHidden: false }).getByTestId("home-flip-word")).toBeVisible()
   await expect(page.getByRole("link", { name: /^Create a free account$/i }).first()).toHaveAttribute("href", "/register")
   await expect(page.getByRole("link", { name: /^Explore tools$/i }).first()).toHaveAttribute("href", "#available-tools")
 
@@ -2340,28 +2340,29 @@ test("register defaults new accounts toward post-account onboarding", async ({ p
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
-test("homepage uses the final logo artwork for light and dark themes", async ({ page }) => {
+test("homepage uses accessible AtmoShaper text for light and dark themes", async ({ page }) => {
   const health = await capturePageHealth(page, new Set())
 
   await page.goto("/", { waitUntil: "domcontentloaded" })
 
-  const logo = page.getByTestId("home-brand-wordmark-image")
-  await expect(logo).toHaveAttribute("src", /massagelab-wordmark-final-20260622/)
-  const initialSrc = await logo.getAttribute("src")
+  const brand = page.getByRole("heading", { level: 1, name: "AtmoShaper", exact: true })
+  await expect(brand).toHaveAttribute("data-testid", "home-brand-wordmark")
+  await expect(brand).toHaveText("AtmoShaper")
+  await expect(page.getByTestId("home-brand-wordmark-image")).toHaveCount(0)
 
   await page.evaluate(() => {
     document.documentElement.classList.remove("dark")
     document.documentElement.classList.add("light")
   })
-  await expect(logo).toBeVisible()
-  await expect(logo).toHaveAttribute("src", initialSrc ?? "")
+  await expect(brand).toBeVisible()
+  await expect(brand).toHaveText("AtmoShaper")
 
   await page.evaluate(() => {
     document.documentElement.classList.remove("light")
     document.documentElement.classList.add("dark")
   })
-  await expect(logo).toBeVisible()
-  await expect(logo).toHaveAttribute("src", initialSrc ?? "")
+  await expect(brand).toBeVisible()
+  await expect(brand).toHaveText("AtmoShaper")
 
   expect(health.pageErrors, "uncaught page errors").toEqual([])
   expect(health.unexpectedExternalRequests, "unexpected external requests").toEqual([])
