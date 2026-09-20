@@ -2,6 +2,30 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Pilot hosted-review repairs published; status corrected
+
+- Published repair `f9c4a2b3ee1df9b0be17cc5e2dfc12bdb4113838` on PR #6.
+  The audit policy now names only the two retained archives, with exact-positive
+  and sibling/suffix/nested negative tests. Every fixture Git command uses a
+  case-insensitively scrubbed `GIT_*` environment; the poisoned-child regression
+  proves actual named test execution, rejects recursive/zero-match false greens,
+  and checks unchanged decoy config, HEAD, index and content. Archive hashes,
+  unrelated CRLF controls and all six recovery-source blobs remain intact.
+- Independent SPEC then QUALITY review passed the repaired tree. Fresh local
+  checks passed: 49 focused tests, 15 documentation-contract tests, typecheck,
+  lint, and 4,568 full-suite cases (4,565 passed, 3 skipped, zero failures).
+  All three implementation review threads were resolved after publication.
+- Codex finished review of `f9c4a2b` at 15:34 UTC with one documentation finding,
+  not a new implementation finding. The tracked state/log had retained pending
+  repair language even though the ignored continuation checkpoint was current.
+  This documentation-only follow-up records completed work separately from
+  remaining gates. Future publication checkpoints must reconcile canonical
+  state/log with the actual repair status, not only update the ignored handoff.
+- At 15:39 UTC, repaired-head CI was running and CodeRabbit had not reviewed
+  that head. Both hosted reviewers and green required CI are still required
+  on the final follow-up head; prior-head checks cannot satisfy those gates.
+  Original PR #5, its branch, and pending Linux snapshot authority are unchanged.
+
 ## 2026-09-20 — Review-sized Phase 6 delivery and archive pilot approved
 
 - The user approved preparing and publishing coherent replacement PRs for
@@ -32,8 +56,9 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   passed 4,564 tests with 3 skips and zero failures. CodeRabbit successfully
   reviewed all 15 files and Codex also completed its review of that exact head.
   Both flagged the archive-directory prefix; CodeRabbit additionally flagged
-  inherited Git repository-location variables in the checkout test. These are
-  bounded repair work, not clean coverage. Original PR #5 remains unchanged.
+  inherited Git repository-location variables in the checkout test. Those initial
+  findings required the bounded repairs recorded above; they were not clean
+  coverage. Original PR #5 remains unchanged.
 
 ## 2026-09-13 — Phase 5 identity Browser QA passed; temporary QA removed
 
