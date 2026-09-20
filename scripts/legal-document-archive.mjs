@@ -1,16 +1,5 @@
-import { randomUUID } from "node:crypto"
-import {
-  existsSync,
-  linkSync,
-  mkdirSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs"
 import { dirname, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
-
-import { LEGAL_DOCUMENTS } from "../lib/legal-documents.js"
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 
@@ -173,7 +162,7 @@ function serializeLegalArchive(archive) {
   return `${JSON.stringify(archive, null, 2)}\n`
 }
 
-/** Build exact deterministic snapshots from an explicitly supplied legal registry. */
+/** Build deterministic v2 snapshots from a supplied historical legal registry. */
 export function buildLegalArchives(documents) {
   if (!Array.isArray(documents) || documents.length === 0) {
     throw new Error("Legal archive source must be a non-empty documents array")
@@ -196,7 +185,9 @@ export function buildLegalArchives(documents) {
       const documents = (groupedDocuments.get(documentVersion) ?? [])
         .sort((left, right) => compareText(left.key, right.key))
       if (documents.length === 0) {
-        throw new Error(`No current documents use legal version: ${documentVersion}`)
+        throw new Error(
+          `No supplied historical documents use legal version: ${documentVersion}`,
+        )
       }
       const archive = {
         schemaVersion: 1,
@@ -216,94 +207,9 @@ export function buildLegalArchives(documents) {
   return deepFreeze(archives)
 }
 
-/** Build snapshots from the current runtime registry without writing files. */
-export function buildCurrentLegalArchives() {
-  return buildLegalArchives(LEGAL_DOCUMENTS)
-}
-
-function resolveStagedArchivePath(filename) {
-  resolveLegalArchivePath(filename)
-  const stagedFilename = (
-    `.${filename}.atmoshaper-archive-${process.pid}-${randomUUID()}.tmp`
-  )
-  const stagedPath = resolve(LEGAL_ARCHIVE_DIRECTORY, stagedFilename)
-  if (!stagedPath.startsWith(`${LEGAL_ARCHIVE_DIRECTORY}${sep}`)) {
-    throw new Error("Staged legal archive path escapes the canonical archive directory")
-  }
-  return stagedPath
-}
-
-function removeOwnedStagedArchive(stagedPath) {
-  try {
-    unlinkSync(stagedPath)
-  } catch (error) {
-    if (error?.code !== "ENOENT") throw error
-  }
-}
-
-/**
- * Publish a complete same-directory staged file through an atomic no-replace hard link.
- * A race-created final file is accepted only when its bytes are identical.
- */
-function publishArchiveAtomically(archive) {
-  const archivePath = resolveLegalArchivePath(archive.filename)
-  const stagedPath = resolveStagedArchivePath(archive.filename)
-  let ownsStagedPath = false
-
-  try {
-    try {
-      writeFileSync(stagedPath, archive.bytes, { flag: "wx" })
-      ownsStagedPath = true
-    } catch (error) {
-      if (error?.code !== "EEXIST") ownsStagedPath = true
-      throw error
-    }
-
-    try {
-      linkSync(stagedPath, archivePath)
-    } catch (error) {
-      if (error?.code !== "EEXIST") throw error
-      const raceCreatedBytes = readFileSync(archivePath)
-      if (!raceCreatedBytes.equals(Buffer.from(archive.bytes))) {
-        throw new Error(`Refusing to overwrite differing legal archive: ${archive.filename}`)
-      }
-    }
-  } finally {
-    if (ownsStagedPath) removeOwnedStagedArchive(stagedPath)
-  }
-}
-
-/**
- * Write only missing canonical archives after proving every existing file is byte-identical.
- * A differing historical file is never overwritten.
- */
-export function writeCurrentLegalArchives() {
-  const archives = buildCurrentLegalArchives()
-  const writes = []
-
-  for (const archive of archives) {
-    const archivePath = resolveLegalArchivePath(archive.filename)
-    if (!existsSync(archivePath)) {
-      writes.push({ ...archive, archivePath })
-      continue
-    }
-    const existing = readFileSync(archivePath)
-    if (!existing.equals(Buffer.from(archive.bytes))) {
-      throw new Error(`Refusing to overwrite differing legal archive: ${archive.filename}`)
-    }
-  }
-
-  mkdirSync(LEGAL_ARCHIVE_DIRECTORY, { recursive: true })
-  for (const archive of writes) {
-    publishArchiveAtomically(archive)
-  }
-  return archives
-}
-
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : null
 if (invokedPath === fileURLToPath(import.meta.url)) {
-  if (process.argv.length !== 3 || process.argv[2] !== "--write") {
-    throw new Error("Usage: node scripts/legal-document-archive.mjs --write")
-  }
-  writeCurrentLegalArchives()
+  throw new Error(
+    "Legal archive generation is retired; use npm run legal:verify-archives",
+  )
 }

@@ -1424,3 +1424,14 @@ visual evidence, deterministic zero-current-copy audit state, unchanged
 protected contracts, deleted disposable QA resources, and separate user
 authorization to merge. Merge is followed by a fresh readback of merge commit,
 parents, timestamps, clean local state, and retained rollback/history evidence.
+
+### Task 6 post-transition tooling lifecycle
+
+Task 6's generation command describes its completed pre-v3 capture step.
+The hosted-review correction retires `legal:archive-current` and its unused
+current-registry writer after that one-shot operation. Use
+`npm run legal:verify-archives` for read-only checks of the exact saved v2
+evidence. This does not remove or rewrite either archive, broaden the version
+allowlist, or authorize future v3 generation; such a transition needs its own
+reviewed archive lifecycle. Pure historical parsing and deterministic integrity
+checks remain, including failure when committed evidence is missing or changed.

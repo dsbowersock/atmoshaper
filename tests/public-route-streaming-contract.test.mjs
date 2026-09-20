@@ -43,7 +43,7 @@ test("public route assertions select accessible owners while React stream segmen
   const home = after(publicJourneys.get("anonymous homepage presents landing copy and tool discovery rails"),
     (statement) => statement.startsWith("await page.goto("), 3)
   const immersive = after(publicJourneys.get("immersive context changes keep only the displays owned by Chimer, Clock, and hidden Music"),
-    (statement) => statement.includes('window.history.pushState({}, "", "/clock?source=music&returnTo=%2Fmusic")'), 1)
+    (statement) => statement.includes('window.history.pushState({}, "", "/clock?source=music&returnTo=%2Fmusic")'), 2)
   const bootstrap = after(publicJourneys.get("Music visualizer uses the anonymous shell bootstrap without client account discovery"),
     (statement) => statement.startsWith("await page.goto("), 2)
   const preview = previewJourneys.get("presents the product identity across homepage and responsive app bars")
@@ -56,15 +56,17 @@ test("public route assertions select accessible owners while React stream segmen
   assert.match(previewBrand[1], /expect\(homeBrand\)\.toHaveText\(PRODUCT_NAME\)/)
   assert.match(previewBrand[2], /expect\(homeBrand\.locator\("img"\)\)\.toHaveCount\(0\)/)
   assert.match(previewBrand[3], /level: 1, name: PRODUCT_NAME, exact: true.*toHaveCount\(1\)/)
-  assert.equal(home.length + immersive.length + bootstrap.length, 6)
-  for (const statement of [...home, ...immersive, ...bootstrap, previewBrand[0]]) {
+  assert.equal(home.length + immersive.length + bootstrap.length, 7)
+  for (const statement of [...home, ...immersive.slice(1), ...bootstrap, previewBrand[0]]) {
     assert.match(statement, /getByRole\(/)
     assert.match(statement, /includeHidden: false/)
     assert.doesNotMatch(statement, /\.first\(|\.nth\(|includeHidden: true/)
   }
+  assert.match(immersive[0], /getByRole\("button", \{ name: "Close Background panel" \}\)\.click\(\)/)
+  assert.doesNotMatch(immersive[0], /\.first\(|\.nth\(|includeHidden:/)
   assert.match(home[0], /level: 1, name: "AtmoShaper", exact: true/)
   for (const statement of home.slice(1)) assert.match(statement, /level: 2, name: \/AtmoShaper helps\/i/)
-  for (const statement of [...immersive, ...bootstrap]) {
+  for (const statement of [...immersive.slice(1), ...bootstrap]) {
     assert.match(statement, /getByRole\("region", \{ name: "Music visualizer", exact: true/)
   }
   assert.match(previewBrand[0], /level: 1, name: PRODUCT_NAME, exact: true/)
@@ -81,11 +83,16 @@ test("public route assertions select accessible owners while React stream segmen
   const copy = `<h2>AtmoShaper helps ${flip}</h2>`
   const background = '<div data-testid="chimer-premium-background" data-background-id="static-gradient">Background</div>'
   const visualizer = `<section aria-label="Music visualizer">${background}</section>`
+  // Model Radix modal ownership: the dialog hides the app stage until its real close action runs.
+  const dismissBackground = "document.getElementById('immersive-stage').removeAttribute('aria-hidden');this.closest('[role=dialog]').remove()"
+  const modalOwnedStage = (owners, dismissal = dismissBackground) => `<main id="immersive-stage" aria-hidden="true">${owners}<div hidden id="S:0">${visualizer}</div></main><div role="dialog" aria-label="Background"><button aria-label="Close Background panel" onclick="${dismissal}">Close</button></div>`
+  const repairedImmersiveSequence = { run: compile(immersive) }
+  const originalImmersiveSequence = { run: compile([immersive[1], immersive[0]]) }
   const contracts = [
     { name: "homepage wordmark", statements: [home[0]], html: brand, heading: "h1" },
     { name: "homepage landing heading", statements: [home[1]], html: copy, heading: "h2" },
     { name: "homepage flipword", statements: home.slice(1), html: copy, heading: "h2", child: flip },
-    { name: "immersive visualizer", statements: immersive, html: visualizer },
+    { name: "immersive visualizer", statements: [immersive[1]], html: visualizer },
     { name: "anonymous visualizer", statements: [bootstrap[0]], html: visualizer },
     { name: "anonymous visualizer background", statements: bootstrap, html: visualizer, child: background },
     { name: "preview homepage wordmark", statements: previewBrand, html: brand, heading: "h1" },
@@ -114,6 +121,24 @@ test("public route assertions select accessible owners while React stream segmen
     }
   }
   try {
+    await t.test("immersive modal dismissal restores the exact accessible owner", async (t) => {
+      const oneOwner = modalOwnedStage(visualizer)
+      await t.test("original assertion-before-dismissal ordering fails", () => check(
+        originalImmersiveSequence, oneOwner, true,
+      ))
+      await t.test("extracted dismissal-before-assertion sequence passes with a hidden stream clone", () => check(
+        repairedImmersiveSequence, oneOwner,
+      ))
+      await t.test("broken modal dismissal cannot expose the owner", () => check(
+        repairedImmersiveSequence, modalOwnedStage(visualizer, ""), true,
+      ))
+      await t.test("dismissal cannot supply a missing owner", () => check(
+        repairedImmersiveSequence, modalOwnedStage("<div>Unrelated content</div>"), true,
+      ))
+      await t.test("dismissal still rejects duplicate accessible owners", () => check(
+        repairedImmersiveSequence, modalOwnedStage(visualizer + visualizer), true,
+      ))
+    })
     for (const contract of contracts) {
       await t.test(contract.name, async (t) => {
         const { html, heading } = contract

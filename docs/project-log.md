@@ -361,3 +361,47 @@ Recorded 2026-09-20 UTC on `codex/atmoshaper-phase6-preview-rebrand`.
   warnings in older ignored diagnostics. New regression coverage rejects real
   accessible duplicates, missing/wrong owners and misplaced child evidence.
   Fresh hosted build, full-suite and four-lane results remain required.
+
+### Archive tooling lifecycle correction
+
+- Codex reviewed `87b0793d11794991ee47149fc997b777514f15f0` and identified that
+  the still-advertised current-archive command cannot consume the now-v3 registry.
+  A non-writing reproduction confirmed the error. The original Task 6 was
+  explicitly a one-time v2 capture before Task 7, not continuing v3 archival.
+- The bounded correction replaces that command with `legal:verify-archives`
+  and retires unused current-registry/writer APIs and their obsolete write
+  fixtures. Pure historical build/parse/path guards remain. Verification must
+  require both committed files and their exact hashes, without live-registry
+  fallbacks or conditional bypasses. No legal text, historical bytes, accepted
+  versions, user records, provider resources or dependency contracts change.
+- The named read-only verifier passed 9/9. Combined archive/legal/SEO checks passed
+  39/39; independent specification then quality reviews passed with no findings.
+  Both historical archive SHA-256 values remain unchanged from Task 6 evidence.
+
+### Hosted immersive-dialog readiness correction
+
+- Run `35480092309` on published `87b0793` passed quality, build and browser
+  lanes 3/4. Lanes 1/2 failed the same immersive-context assertion on both
+  attempts: desktop 118 passed/25 skipped/1 failed, mobile 165 passed/52 skipped/
+  1 failed. The earlier homepage and anonymous-visualizer repairs passed.
+- Captured failure evidence shows the Background modal open. Its deliberate
+  accessibility isolation excludes the underlying stage from role queries.
+  The prior repair incorrectly queried that region before closing the modal;
+  the offline streaming fixture had not represented this state. This is a test
+  regression, not evidence that the visualizer stopped rendering.
+- The bounded correction moves the existing close action before the strict
+  accessible-region assertion and retains display ownership checks. The
+  offline contract must exercise actual extracted actions with modal-hidden
+  content, broken dismissal and duplicate/missing owners. No runtime change,
+  expanded timeout or weakened region uniqueness is needed. Full hosted gates
+  on the containing published repair remain required before readiness.
+- All 105 offline streaming/modal contracts passed, retaining the prior 99
+  cases and adding the original-order failure, corrected-order pass, broken
+  dismissal and missing/duplicate-owner checks. Independent specification then
+  quality reviews passed for the two-file repair and its concise receipts.
+  Typecheck and changed-file lint passed; full lint reported zero errors and
+  the same seven warnings confined to older ignored diagnostic scripts.
+- The full provider-free unit suite then passed: 4,875 total, 4,872 passed,
+  three documented skips, zero failures. This is local repair verification;
+  exact-head hosted CI and fresh Codex review are still pending publication,
+  and CodeRabbit remains blocked by its observed file cap.

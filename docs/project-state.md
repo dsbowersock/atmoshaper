@@ -236,7 +236,7 @@ and audit hashes are historical, not the current integrated-fix receipt above.
   opened at `91b7c88911bbfebf891d7b584a2faa3fc2473588`. The earlier no-publication
   statements describe historical Task 10 closeout, not current delivery status.
 - The user authorized review fixes and repeat reviews from CodeRabbit and Codex,
-  but not merge or deployment. Codex identified stale sitemap revision dates.
+  but not merge or deployment. Codex feedback covers sitemap dates and obsolete archive tooling.
   Initial hosted CI passed quality, build and lanes 1/3/4; lane 2 failed on
   ambiguous selectors during hidden server-rendered staging. Repairs and fresh
   exact-head hosted verification are in progress; this PR is not merge-ready.
@@ -247,3 +247,13 @@ and audit hashes are historical, not the current integrated-fix receipt above.
 - No new provider lifecycle, production-data access, domain cutover, deployment
   or merge occurred. Task 10's inherited limitations and cleanup record remain
   unchanged. See the [hosted review receipt](project-log.md#phase-6-publication-and-initial-hosted-review).
+- The pre-rebrand archive generator was one-shot tooling. Its completed write
+  path is retired in favor of `npm run legal:verify-archives`, a read-only
+  verification of both committed v2 files. Current legal documents and both
+  historical archives remain unchanged; no new archive version is authorized.
+- At published `87b0793`, hosted quality, build and browser lanes 3/4 passed.
+  Lanes 1/2 exposed a test-ordering regression: the accessible visualizer was
+  queried while the modal Background dialog intentionally hid the underlying
+  page. The bounded correction closes that dialog before checking its region
+  and adds the missing modal fixture. Application behavior is unchanged;
+  another exact-head hosted run and both hosted reviews remain required.
