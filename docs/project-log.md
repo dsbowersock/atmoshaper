@@ -405,3 +405,30 @@ Recorded 2026-09-20 UTC on `codex/atmoshaper-phase6-preview-rebrand`.
   three documented skips, zero failures. This is local repair verification;
   exact-head hosted CI and fresh Codex review are still pending publication,
   and CodeRabbit remains blocked by its observed file cap.
+
+### Hosted paused-ring screenshot determinism correction
+
+- Run `35481867683` on `bb5c987` passed quality, build and browser lanes 1/2/4.
+  Lane 3 failed the closed Atmosphere screenshot by 11 pixels, then one on retry;
+  all differences were confined to the active music-button ring. The rest of
+  each screenshot was pixel-identical. Codex completed a clean review of this
+  published head; CodeRabbit had not reviewed it because of the file cap.
+- An offline experiment with the actual React shell owner and installed renderer
+  proved that pausing retains the first painted phase, which varies with initial
+  elapsed time. The repair supplies a fixed native-clock input only to the two
+  affected screenshot journeys and checks real geometry, paint, paused retention
+  and glyph visibility before resuming natural time. It does not alter runtime
+  rendering, screenshots, tolerances, skips, providers or historical parity.
+- An initial fixture missed a cold-navigation boundary: the browser's performance
+  clock resets while its paused wall clock remains fixed. The final contract
+  navigates a new document, and the setup normalizes that document's performance
+  input before releasing the renderer frames. Missing, duplicate, blank and
+  non-paused owners still fail; variable startup delays retain identical paint.
+- Provider-free build passed with 115 static pages. All four affected real-app
+  desktop/mobile comparisons passed twice with snapshot updates disabled; the
+  combined offline contract/harness/streaming suite passed 267/267. Typecheck
+  passed; lint had zero errors and the same seven ignored-diagnostic warnings.
+  Three unchanged compatibility references moved lines, requiring three baseline
+  coordinates and two exact policy fingerprints to move, not new exceptions.
+  Fresh exact-head hosted CI and Codex review remain required after publication;
+  CodeRabbit's review-size blocker and the separate merge boundary remain.

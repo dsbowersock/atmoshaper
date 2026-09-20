@@ -139738,21 +139738,21 @@
     },
     {
       "path": "tests/browser/phase6-preview-rebrand.spec.ts",
-      "line": 202,
+      "line": 289,
       "column": 31,
       "textSha256": "a782c3070a2ccdc8374bb826264c026007dbeb7e82ff71f3a58065b66c36b6e1",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/phase6-preview-rebrand.spec.ts",
-      "line": 328,
+      "line": 416,
       "column": 96,
       "textSha256": "facf0a4ab15ae022265d3f97fa162c64d80767a10b080dab62ec4a2f846c8fe4",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/phase6-preview-rebrand.spec.ts",
-      "line": 330,
+      "line": 418,
       "column": 101,
       "textSha256": "702136a394426dfe119802213b270838a835399fdf5bfebdd54aae82d9045a99",
       "category": "compatibility"

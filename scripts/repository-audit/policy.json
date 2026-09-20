@@ -303,10 +303,6 @@
       "category": "historical"
     },
     {
-      "fingerprint": "365e49efef92fd61deee397a2e00d7a98d98b7be11d8bfda0ed10f51a5fe1d8d",
-      "category": "compatibility"
-    },
-    {
       "fingerprint": "370ed0f9396b327b69a6a53cb0c1de83fb45a05ba9807ca57a59b8d3d5eef105",
       "category": "compatibility"
     },
@@ -511,6 +507,10 @@
       "category": "historical"
     },
     {
+      "fingerprint": "66b1da2b39c1a6375d9d369d10e147c2cf24060c89df99ace252618a36f9a6ea",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "66d7d198712228d1220a52d453cf09f31ae7c8e91261c835e338962d94e92390",
       "category": "historical"
     },
@@ -687,6 +687,10 @@
       "category": "compatibility"
     },
     {
+      "fingerprint": "92f090e003ec2b86468e5c22d5bb4278de0961e1412c0971be69558558361b0f",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "94e3cf4ad891de6a93b1f6aa3dbdc28a2935ca1b44c63504d82ef0e4496a377d",
       "category": "compatibility"
     },
@@ -816,10 +820,6 @@
     },
     {
       "fingerprint": "b4c1ee62750a1900feb8cd1cedc6eee8bfe05e41af6b0d993cdf851846568d7b",
-      "category": "compatibility"
-    },
-    {
-      "fingerprint": "b514da10a8102c1e719036b8fcd97c062de5f287eff7b34048b633b08cfb5ddd",
       "category": "compatibility"
     },
     {

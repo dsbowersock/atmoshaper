@@ -20,7 +20,12 @@ async function gotoReady(page: Page, path: string) {
   })
 }
 
-async function expectMusicReady(page: Page) {
+/** Install one native clock before a screenshot journey can create page timers. */
+async function installMusicRingCaptureClock(page: Page) {
+  await page.clock.install({ time: new Date("2026-09-19T12:00:00.000Z") })
+}
+
+async function expectMusicDocumentReady(page: Page) {
   await expect(page.getByRole("heading", {
     level: 1,
     name: "Atmosphere",
@@ -29,6 +34,88 @@ async function expectMusicReady(page: Page) {
   })).toBeAttached()
   await expect(page.getByRole("region", { name: "Atmosphere audio stations", exact: true }))
     .toHaveAttribute("data-music-storage-status", "available")
+}
+
+async function sampleMusicRingPaint(canvas: Locator) {
+  return canvas.evaluate((element: HTMLCanvasElement) => {
+    const pixels = element.getContext("2d")!.getImageData(0, 0, element.width, element.height).data
+    return {
+      dataUrl: element.toDataURL(),
+      height: element.height,
+      nontransparentPixels: pixels.reduce((count, value, index) => (
+        index % 4 === 3 && value > 0 ? count + 1 : count
+      ), 0),
+      width: element.width,
+    }
+  })
+}
+
+/**
+ * Mount the real active-tool ring from a fixed native-clock phase, let its
+ * responsive owner settle while paint is still blank, then release one paint
+ * frame and prove that the paused owner retains it before restoring real time.
+ */
+async function prepareMusicRingCapture(page: Page) {
+  await page.clock.pauseAt(new Date("2026-09-19T12:01:00.000Z"))
+  await gotoReady(page, "/music")
+  await expectMusicDocumentReady(page)
+
+  const probe = page.locator(".ml-app-tool-link-active-ring-probe:visible")
+  await expect(probe).toHaveCount(1)
+  const probeBox = await probe.boundingBox()
+  expect(probeBox).not.toBeNull()
+  expect(probeBox!.width).toBeGreaterThanOrEqual(3)
+  expect(probeBox!.height).toBeGreaterThanOrEqual(3)
+
+  const ring = page.locator(".ml-app-tool-link-active-ring")
+  await expect(ring).toHaveCount(0)
+  const postNavigationClock = await page.evaluate(() => ({
+    dateMs: Date.now(),
+    performanceMs: performance.now(),
+  }))
+  expect(postNavigationClock.performanceMs).toBeLessThan(60_000)
+  await page.clock.pauseAt(
+    postNavigationClock.dateMs + 60_000 - postNavigationClock.performanceMs,
+  )
+  const normalizedPerformanceMs = await page.evaluate(() => performance.now())
+  expect(Math.abs(normalizedPerformanceMs - 60_000)).toBeLessThanOrEqual(0.5)
+  // The one-shot jump releases the already queued first geometry RAF.
+  await expect(ring).toHaveCount(0)
+  await page.clock.runFor(16)
+  await expect(ring).toHaveCount(1)
+  await expect(ring).toHaveAttribute("data-ml-metal-motion-state", "paused")
+  await expect(ring).toHaveAttribute("data-paused", "true")
+
+  const canvas = ring.locator("canvas.metal-fx-canvas")
+  await expect(canvas).toHaveCount(1)
+  await expect(canvas).toHaveCSS("opacity", "0.72")
+  const canvasBox = await canvas.boundingBox()
+  expect(canvasBox).not.toBeNull()
+  expect(canvasBox!.width).toBeGreaterThan(0)
+  expect(canvasBox!.height).toBeGreaterThan(0)
+  const beforePaint = await sampleMusicRingPaint(canvas)
+  expect(beforePaint.width).toBeGreaterThan(0)
+  expect(beforePaint.height).toBeGreaterThan(0)
+  expect(beforePaint.nontransparentPixels).toBe(0)
+
+  await page.clock.runFor(16)
+  const firstPaint = await sampleMusicRingPaint(canvas)
+  expect(firstPaint.nontransparentPixels).toBeGreaterThan(0)
+  await expect(ring).toBeVisible()
+  await expect(canvas).toBeVisible()
+  await page.clock.runFor(16)
+  const retainedPaint = await sampleMusicRingPaint(canvas)
+  expect(retainedPaint.dataUrl).toBe(firstPaint.dataUrl)
+  await page.clock.resume()
+
+  const icon = ring.getByRole("link", { name: "Open music", exact: true }).locator("svg")
+  await expect(icon).toHaveCount(1)
+  await expect(icon).toBeVisible()
+  return { firstPaint: firstPaint.dataUrl, retainedPaint: retainedPaint.dataUrl }
+}
+
+async function expectMusicReady(page: Page) {
+  await expectMusicDocumentReady(page)
 
   // Both responsive bars share this owner. Keep the real painted ring and glyph.
   const ring = page.locator(".ml-app-tool-link-active-ring:visible")
@@ -141,6 +228,7 @@ async function openAccountMenu(page: Page) {
 }
 
 test("presents the product identity across homepage and responsive app bars", async ({ page }, testInfo) => {
+  await installMusicRingCaptureClock(page)
   await page.setViewportSize(testInfo.project.name === "mobile-chromium"
     ? { width: 320, height: 568 }
     : { width: 1440, height: 900 })
@@ -162,8 +250,7 @@ test("presents the product identity across homepage and responsive app bars", as
   await expectTextFits(desktopBrand)
 
   await page.setViewportSize({ width: 768, height: 1024 })
-  await gotoReady(page, "/music")
-  await expectMusicReady(page)
+  await prepareMusicRingCapture(page)
   const tabletBar = page.locator("header.ml-app-topbar")
   await expect(tabletBar).toBeVisible()
   const tabletBrand = tabletBar.getByRole("link", { name: "AtmoShaper home", exact: true })
@@ -250,7 +337,8 @@ for (const drawerEdge of ["left", "right"] as const) {
 }
 
 test("keeps Atmosphere navigation, transport labels, and closed or expanded geometry coherent", async ({ page }) => {
-  await gotoReady(page, "/music")
+  await installMusicRingCaptureClock(page)
+  await prepareMusicRingCapture(page)
   await expectMusicReady(page)
   await expectStationCompositionSettled(page)
   await page.getByRole("group", { name: "Station category" })

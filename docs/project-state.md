@@ -257,3 +257,13 @@ and audit hashes are historical, not the current integrated-fix receipt above.
   page. The bounded correction closes that dialog before checking its region
   and adds the missing modal fixture. Application behavior is unchanged;
   another exact-head hosted run and both hosted reviews remain required.
+- Codex completed a clean review of published `bb5c987`; all actionable threads
+  were resolved. Its CI run `35481867683` passed quality, build and lanes 1/2/4,
+  but lane 3 failed a mobile screenshot solely inside the paused active-tool
+  ring. The screenshot setup had not fixed the renderer's first-frame phase.
+- The containing test-only repair controls that phase with the native browser
+  clock, including its new-document performance reset. Existing screenshots,
+  runtime rendering and assertion tolerances are unchanged. Both affected
+  desktop/mobile journeys passed twice against the existing PNGs; 267 focused
+  contracts, typecheck and lint passed. This is local repair evidence, not new
+  exact-head hosted coverage. CodeRabbit's file-cap blocker remains unresolved.
