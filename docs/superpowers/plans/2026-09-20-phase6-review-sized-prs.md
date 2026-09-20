@@ -474,7 +474,15 @@ boundaries, and this bounded allocation. The runtime/architecture baseline is
 unchanged account/security, billing and local-first ownership: only presentation
 and its existing source-owned browser repairs move into this slice.
 
-1. Copy the final recovery versions of these account-owned paths (46 files):
+The original account ownership manifest contains exactly 49 paths: the 46
+listed in item 1 plus `app/api/debug/sentry/route.ts`,
+`tests/problem-report-route.test.mjs`, and `tests/sentry-privacy.test.mjs`.
+Membership describes recovery-source ownership, not permission to copy every
+file unchanged. Items 1–7 record the pre-administrative-amendment allocation;
+the amendment below supersedes its affected copies and counts. Apply the final
+amended scope when checking source equivalence or assembling this slice.
+
+1. The pre-amendment full-source account list contains these 46 paths:
    - `app/account/app-settings-panel.tsx`, `app/account/link-google/link-google-form.tsx`,
      `app/account/page.tsx`, `app/account/supporter-interests-panel.tsx`;
    - `app/api/account/security/google/link/confirm/route.ts`,
@@ -536,14 +544,14 @@ and its existing source-owned browser repairs move into this slice.
    billing, entitlement, PHI-storage or provider behavior changes. Keep earlier
    pilot, homepage, audio, Sentry and audit-verifier repairs. AtmoShaper is the
    current public name; retained MassageLab compatibility values are not stale copy.
-6. Implementer owns only the 51 changed source/test paths above. Coordinator owns this
+6. Before the amendment, the implementer owned 51 changed source/test paths. Coordinator owns this
    parent plan, canonical state/log, Git and the generated intermediate brand
    receipt and necessary exact classification rules. Preserve the five existing
    exact rules and add only fresh compatibility occurrences for the retained
    debug event and its regression assertion. Regenerate through the existing command;
    classifier precedence, mismatch rejection and strict addition detection.
    Verify a staged-byte fixed point, not final-source fingerprint substitution.
-7. Prove 48 full-source files equal recovery and enumerate the register-only
+7. The pre-amendment proof covered 48 full-source files, the register-only
    companion, corrected privacy-test companion and added debug-route regression.
    Run focused account/admin/mail/local-first/privacy and existing
    helper/browser contracts, typecheck, full lint, full provider-free unit suite,
@@ -551,7 +559,8 @@ and its existing source-owned browser repairs move into this slice.
    independent SPEC followed by QUALITY, root exact-candidate verification,
    commit, publish against `codex/phase6-04-public-content`, attach, and obtain
    both hosted reviewers and strict CI on the actual base/head. Expected scope
-   is 56 paths with delivery docs/policy/receipt; measure, target under 85 and never 100.
+   was 56 paths with delivery docs/policy/receipt; the amendment below replaces
+   these counts. Measure the final scope, target under 85 and never 100.
 
 No-code or documentation-only work cannot deliver the accepted copy. Existing
 owners suffice; no new runtime architecture, abstraction or ADR is needed.
@@ -577,8 +586,9 @@ Independent SPEC then QUALITY must review this explicit source exception.
 
 ### Task 5 amendment: immutable administrative bundle compatibility
 
-This amendment supersedes the five producer copies and three paired full-source
-test copies in Task 5 above. Independent QUALITY found a P1 after SPEC passed
+This amendment supersedes the five producer copies, three paired full-source
+test copies, and pre-amendment 51-source/test, 48-full-source and 56-total counts
+in Task 5 above. Independent QUALITY found a P1 after SPEC passed
 and the full provider-free suite passed (4,708 passed, three skipped). Root
 reproduced it using actual reviewed-base and candidate role implementations in
 the same transactional fixture: base create and replay succeed; candidate
@@ -641,6 +651,17 @@ existing rules and strict classifier. Renew independent SPEC then QUALITY on
 the final candidate before any commit or publication. Expected scope is now
 53 paths: 40 full-source files, five partial source/test companions, two expanded
 existing owner tests, one new debug test, and five delivery/audit files.
+
+Reconcile that final scope from the original 49-path ownership manifest: retain
+the debug route, problem-report route test and five administrative producers
+unchanged (seven paths), leaving 42 changed manifest members: 38 exact recovery
+copies and four partial companions (privacy, role, temporary-access and goodwill
+tests). Add the two exact browser companions, the register-only shared browser
+companion, two expanded owner tests and the new debug test: 48 source/test paths.
+The plan, project state, project log, audit policy and generated baseline add five
+delivery/audit paths, for 53 total. The 40 exact copies are those 38 manifest
+members plus the two full-source browser companions; unchanged exceptions are
+still accounted for and must not be restored from recovery during integration.
 
 Retirement decision: bounded compatibility exception at the documented durable
 operation contract. Existing canonical templates remain active, including their

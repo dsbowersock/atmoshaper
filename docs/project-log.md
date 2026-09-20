@@ -2,6 +2,20 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Account slice published; hosted manifest clarification
+
+- Published and attached PR #10 at `487fd7bfa8e8c000d13743d13fbeba99eadf9cf8`
+  against reviewed PR #9. Codex completed clean at 23:32 UTC. CodeRabbit's
+  completed 53-file review found one documentation issue: the plan referenced
+  49 source-owned account files while explicitly listing only 46.
+- Verified the three additional members and documented the distinction between
+  ownership, historical pre-amendment allocation and final change scope. The
+  final arithmetic is 42 changed manifest members plus six companions/tests
+  plus five delivery/audit files, totaling 53; 40 copies match recovery exactly.
+  No runtime, test, policy, snapshot or provider change is part of this repair.
+  Independent SPEC then QUALITY, strict receipt checks and new-head hosted gates
+  remain required. Original PR #5 and previous replacements stay unmerged.
+
 ## 2026-09-20 — Public-content gates verified; account/service slice started
 
 - Repaired candidate `65db8418bbca2c7ee134c5d7684af9fc68f61529` passed renewed

@@ -43,8 +43,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   the reviewed base. The intermediate audit receipt is a generated fixed point
   with zero missing, unclassified or category-mismatched entries, using 48 exact
   compatibility rules. Inventory reports no forbidden paths.
-- This is local verification, not hosted approval or merge readiness. Publication
-  still requires its own exact-head hosted reviews and strict CI. The whole-sequence
+- [Account/service PR #10](https://github.com/dsbowersock/atmoshaper/pull/10) is
+  published at `487fd7bfa8e8c000d13743d13fbeba99eadf9cf8`, stacked on PR #9.
+  Codex completed clean on that head at 23:32 UTC. CodeRabbit reviewed all 53
+  files and found one valid documentation ambiguity: the 49-path ownership
+  manifest and superseded pre-amendment counts were not clearly distinguished
+  from the final 53-file change scope. The plan now defines and reconciles them;
+  no source, test or classification-policy change is needed. CI is still running.
+- This documentation-only repair needs independent SPEC then QUALITY, strict
+  receipt verification, and renewed exact-head hosted reviews and CI after push.
+  It is not hosted approval or merge readiness. The whole-sequence
   source ledger and separate Linux Atmosphere snapshot approval remain incomplete.
 - No PNG, frame, tolerance, provider, billing, deployment or merge changes are
   authorized by this work. Current legal versions and dates remain unchanged.
