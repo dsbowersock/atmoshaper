@@ -28,6 +28,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   the observed 100-file cap, and its status also reported unavailable capacity.
   Publish only this pilot until actual CodeRabbit review is confirmed. Do not
   infer coverage from a skipped review or change billing, filters or assertions.
+- The 15-file [pilot PR #6](https://github.com/dsbowersock/atmoshaper/pull/6)
+  is published at `6961b4f8806c1cb0e61b121cc238eb56dacc5b55`. Fresh local unit
+  verification passed: 4,564 passed, 3 skipped, zero failures. Both hosted bots
+  completed reviews of that head. CodeRabbit processed all 15 files, confirming
+  that the pilot clears the size blocker; neither review is clean yet.
+- Hosted feedback identified an overbroad archive-directory audit rule and Git
+  subprocess environment inheritance in the checkout fixture. The bounded repair
+  must classify only the two retained archives and keep every fixture Git command
+  inside its temporary repository even under inherited location overrides.
+  Verification, independent SPEC then QUALITY review, new-head hosted reviews
+  and CI remain required before a clean pilot claim or further publication.
 - The original Linux Atmosphere ring snapshot failure remains unresolved;
   snapshot-refresh authorization is separate and pending. Splitting does not
   approve PNG changes, production access, provider creation, deployment or merge.

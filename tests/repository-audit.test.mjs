@@ -204,6 +204,13 @@ test("candidate path rules distinguish exact files from descendant directories",
     "legal",
   )
   assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/2026-07-digital-purchases-v2.json"),
+      policy,
+    ),
+    "legal",
+  )
+  assert.equal(
     classifyCandidate(reference("LICENSE.md.backup"), policy),
     "pre-rebrand-public-copy",
   )
@@ -218,6 +225,27 @@ test("candidate path rules distinguish exact files from descendant directories",
   assert.equal(
     classifyCandidate(
       reference("data/legal-document-history-copy/2026-06-legal-v2.json"),
+      policy,
+    ),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/unreviewed.json"),
+      policy,
+    ),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/2026-06-legal-v2.json.backup"),
+      policy,
+    ),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/nested/2026-06-legal-v2.json"),
       policy,
     ),
     "pre-rebrand-public-copy",

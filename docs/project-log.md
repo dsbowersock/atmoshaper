@@ -28,6 +28,12 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   stops expansion without spending, exclusions or repeated unchanged triggers.
 - Original Linux ring snapshot approval remains pending. Merge, deployment,
   billing/provider changes and original PR/branch retirement are not authorized.
+- Published the 15-file pilot as PR #6 at `6961b4f`; the full candidate suite
+  passed 4,564 tests with 3 skips and zero failures. CodeRabbit successfully
+  reviewed all 15 files and Codex also completed its review of that exact head.
+  Both flagged the archive-directory prefix; CodeRabbit additionally flagged
+  inherited Git repository-location variables in the checkout test. These are
+  bounded repair work, not clean coverage. Original PR #5 remains unchanged.
 
 ## 2026-09-13 — Phase 5 identity Browser QA passed; temporary QA removed
 

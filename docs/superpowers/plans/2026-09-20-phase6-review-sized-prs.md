@@ -146,6 +146,25 @@ their owning changes and must not revert the date ceiling to the older source
 date. Verify the focused file, repeat SPEC then QUALITY for this delta, and rerun
 the full candidate suite before publication.
 
+### Pilot hosted-review repair gate
+
+PR #6 at `6961b4f` received actual completed reviews from both hosted bots.
+Keep the policy matcher unchanged: replace only the legal-archive directory
+prefix with the two retained filenames and cover exact positives, same-directory
+unreviewed files, suffixes and nested descendants. The previous lookalike-folder
+negative did not detect the same-directory widening.
+
+The checkout test must own its Git subprocess environment as well as its working
+directory. Validate inherited repository-location overrides using only temporary
+decoy repositories, isolate every fixture Git command, and prove the actual test
+passes with a poisoned child environment without modifying the decoy repository
+or index. Preserve strict hashes and unrelated-path CRLF controls. Do not alter
+global Git settings, archive contents or application code. The coordinator owns
+documentation and generated audit receipts; one implementer owns policy and
+the two affected test files. Independent SPEC then QUALITY and fresh regression
+checks precede publishing the repaired head. Record both repairs in final source
+equivalence; source redistribution must not restore the directory-wide rule.
+
 ## Remaining ownership sequence
 
 The source has 319 changed paths: 291 non-PNG plus 28 PNG. The independently
