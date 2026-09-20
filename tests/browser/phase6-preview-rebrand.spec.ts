@@ -146,7 +146,7 @@ test("presents the product identity across homepage and responsive app bars", as
     : { width: 1440, height: 900 })
   await gotoReady(page, "/")
 
-  const homeBrand = page.getByTestId("home-brand-wordmark")
+  const homeBrand = page.getByRole("heading", { level: 1, name: PRODUCT_NAME, exact: true, includeHidden: false })
   await expect(homeBrand).toHaveText(PRODUCT_NAME)
   await expect(homeBrand.locator("img")).toHaveCount(0)
   await expect(page.getByRole("heading", { level: 1, name: PRODUCT_NAME, exact: true })).toHaveCount(1)

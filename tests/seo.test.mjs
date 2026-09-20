@@ -194,3 +194,26 @@ describe("SEO route contract", () => {
     assert.doesNotMatch(combinedCopy, /private-alpha|private alpha/)
   })
 })
+
+describe("Sitemap revision dates", () => {
+  it("publishes the approved shared and legal revision dates", () => {
+    const entries = createSitemapEntries(productionEnv)
+    const entriesByPath = new Map(entries.map((entry) => [new URL(entry.url).pathname, entry]))
+    const expectedDates = new Map([
+      ["/", "2026-09-19"],
+      ["/about", "2026-09-19"],
+      ["/legal", "2026-09-14"],
+      ...LEGAL_DOCUMENTS.map((document) => [document.route, "2026-09-14"]),
+    ])
+
+    for (const [path, expectedDate] of expectedDates) {
+      const entry = entriesByPath.get(path)
+      assert.ok(entry, `missing sitemap entry ${path}`)
+      assert.ok(Number.isFinite(entry.lastModified.getTime()), `invalid sitemap date ${path}`)
+      assert.equal(entry.lastModified.toISOString().slice(0, 10), expectedDate)
+    }
+
+    assert.equal(createSitemapEntries(previewEnv).length, 0)
+    assert.equal(createSitemapEntries(developmentEnv).length, 0)
+  })
+})

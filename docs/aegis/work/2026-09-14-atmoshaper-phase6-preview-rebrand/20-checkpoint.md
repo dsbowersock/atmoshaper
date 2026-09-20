@@ -1,6 +1,6 @@
 # Phase 6 preview rebrand checkpoint
 
-## Current Task 10 closeout - 2026-09-19
+## Task 10 closeout - 2026-09-19 ([current hosted review](../../../project-state.md#current-phase-6-hosted-review-status))
 
 - Browser slice complete at tested source `c25d0daf13bbec3eeabc740a0bf0008afce83015`:
   Windows capture and comparison, all four ordinary lanes, native Linux capture
@@ -316,7 +316,7 @@
   deployment, provider/domain change, or logo integration is authorized by this
   planning transition.
 
-## ResumeStateHint
+## Historical Task 10 ResumeStateHint (superseded by the current hosted-review link above)
 
 Resume on `codex/atmoshaper-phase6-preview-rebrand`. Re-read `10-intent.md`, this
 checkpoint, `90-evidence.md`, the approved Phase 6 spec and implementation plan,
@@ -327,7 +327,7 @@ authorization to push and open the Phase 6 PR. Do not recreate QA, publish, merg
 deploy, change production or domains, or integrate final logos under the consumed
 resource approval.
 
-## DriftCheckDraft
+## Historical Task 10 DriftCheckDraft (superseded by the current hosted-review link above)
 
 - Intent: AtmoShaper platform, Atmosphere audio, approved three-state responsive
   brand presentation, and unchanged durable compatibility/data boundaries.

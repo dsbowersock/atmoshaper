@@ -1,4 +1,4 @@
-# AtmoShaper Project Log - [Latest receipt](#current-phase-6-task-10-receipt)
+# AtmoShaper Project Log - [Latest receipt](#phase-6-publication-and-initial-hosted-review)
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
@@ -329,3 +329,35 @@ Recorded 2026-09-19 on `codex/atmoshaper-phase6-preview-rebrand`.
   results belong in the [current evidence record](aegis/work/2026-09-14-atmoshaper-phase6-preview-rebrand/90-evidence.md#task-10-visual-baseline-and-qa-closeout---2026-09-19).
   No Phase 6 publication or deployment occurred; push/PR creation require
   separate authorization; no temporary QA resource remains for reuse.
+
+## Phase 6 publication and initial hosted review
+
+Recorded 2026-09-20 UTC on `codex/atmoshaper-phase6-preview-rebrand`.
+
+- After recovery from the interrupted local session, the full provider-free
+  suite passed again at `91b7c88911bbfebf891d7b584a2faa3fc2473588`:
+  4,766 passed, three documented skips, zero failures. The authorized non-force
+  push and [PR 5](https://github.com/dsbowersock/atmoshaper/pull/5) creation completed.
+- Codex reviewed that exact head and reported stale sitemap revision dates.
+  Its thread remains open until the verified repair is pushed. The initial CI
+  run `35478383561` passed quality/build and lanes 1/3/4. Lane 2 reported
+  164 passed, 52 skipped, one failure and one flaky test; hidden/visible selector
+  ambiguity affected Home readiness and visualizer readiness respectively.
+- The manual CodeRabbit request was refused: 289 reviewable files exceed the
+  observed 100-file cap. No CodeRabbit review started; waiting cannot clear
+  this size cap. Review-allowance or PR-structure changes need user direction.
+- The authorized continuation is scoped repair, verification and latest-head
+  reviews, with minimal public trigger/inline comments. No merge, deployment,
+  production access or new provider lifecycle is authorized by this receipt.
+- The local repair corrects shared sitemap dates to September 19 and legal
+  sitemap dates to September 14, preserving legal versions and route membership.
+  Seven browser-test locator lines now select accessible heading/region owners
+  and their children; application behavior, geometry and screenshot assertions
+  are unchanged. Captured React stream staging explains the locator ambiguity;
+  the precise scheduling mechanism is unproved, not labeled an app defect.
+- Local repair verification passed 213 focused SEO/legal/harness/audit tests and
+  99 new offline streaming-contract tests, with zero failures/skips. Typecheck,
+  changed-file lint and diff hygiene passed. Full lint had zero errors and seven
+  warnings in older ignored diagnostics. New regression coverage rejects real
+  accessible duplicates, missing/wrong owners and misplaced child evidence.
+  Fresh hosted build, full-suite and four-lane results remain required.

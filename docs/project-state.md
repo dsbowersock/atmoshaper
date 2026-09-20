@@ -2,7 +2,7 @@
 
 Verified: 2026-09-19
 
-This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now. [Current Phase 6 Task 10 status](#current-phase-6-task-10-status) supersedes the dated snapshots and next-action statements retained below.
+This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now. [Current Phase 6 hosted review status](#current-phase-6-hosted-review-status) supersedes the dated snapshots and next-action statements retained below.
 
 ## Historical Snapshot — Phase 6 Task 9 Local Command Gates Complete
 
@@ -229,3 +229,21 @@ and audit hashes are historical, not the current integrated-fix receipt above.
   and final staged verification are retained in the coordinator handoff.
   No Phase 6 push, PR, merge, deployment, domain cutover or final-logo delivery
   occurred. The next external step needs separate publication authorization.
+
+## Current Phase 6 hosted review status
+
+- Publication was authorized and completed: [PR 5](https://github.com/dsbowersock/atmoshaper/pull/5)
+  opened at `91b7c88911bbfebf891d7b584a2faa3fc2473588`. The earlier no-publication
+  statements describe historical Task 10 closeout, not current delivery status.
+- The user authorized review fixes and repeat reviews from CodeRabbit and Codex,
+  but not merge or deployment. Codex identified stale sitemap revision dates.
+  Initial hosted CI passed quality, build and lanes 1/3/4; lane 2 failed on
+  ambiguous selectors during hidden server-rendered staging. Repairs and fresh
+  exact-head hosted verification are in progress; this PR is not merge-ready.
+- CodeRabbit refused the manual review because 289 reviewable files exceed its
+  observed 100-file cap. This is not a cooldown or clean review. A user decision
+  is required before changing review allowance or PR structure; no files will
+  be excluded to manufacture coverage. The recurring monitor tracks both bots.
+- No new provider lifecycle, production-data access, domain cutover, deployment
+  or merge occurred. Task 10's inherited limitations and cleanup record remain
+  unchanged. See the [hosted review receipt](project-log.md#phase-6-publication-and-initial-hosted-review).

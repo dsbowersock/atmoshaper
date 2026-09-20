@@ -2,7 +2,7 @@
 
 ## Task 10 visual-baseline and QA closeout - 2026-09-19
 
-This section owns current evidence. Earlier dated entries and next actions are
+This section owns local Task 10 evidence; [hosted review](../../../project-log.md#phase-6-publication-and-initial-hosted-review) is current delivery evidence. Earlier dated entries and next actions are
 historical. Browser QA exercised clean source
 `c25d0daf13bbec3eeabc740a0bf0008afce83015` on
 `codex/atmoshaper-phase6-preview-rebrand`; final receipts, their date contract and
