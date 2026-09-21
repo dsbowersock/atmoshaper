@@ -1568,5 +1568,11 @@ on desktop and mobile Chromium 2/2. The strict receipt reaches a fixed point
 with zero missing, unclassified or category mismatches; its exact hash is pinned
 in the frozen review evidence. Final scope is 33 files: 12 recovery-exact paths,
 16 explicit repairs and five records. The amendment relative to published head
-`4ef561c` is 19 files. Freeze that exact package, then require renewed
-independent SPEC followed by separate QUALITY before staging, commit or push.
+`4ef561c` is 19 files. Frozen v7 passed renewed independent SPEC followed by
+separate QUALITY on one byte set. Exact staged identity produced and pushed
+product amendment `2ab6382d2e944b75e8eb0e76808870f205d21736` to PR #13.
+A following synchronization of coordinator-owned records and the strict receipt
+does not change product scope; its live review/publication status belongs in the
+ignored handoff, and GitHub remains authoritative for the exact PR head, hosted
+reviews and CI. Every resulting exact head still requires both hosted reviewers
+and all seven strict CI jobs before Task 8 can close.

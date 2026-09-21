@@ -122,9 +122,14 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   with zero missing, unclassified or category mismatches; its exact hash is
   pinned in the frozen review evidence. Final scope is 33 files: 12 source-exact
   paths, 16 explicit repair paths and five coordinator-owned records; the
-  amendment relative to `4ef561c` is 19 files.
-  Frozen-package SPEC then QUALITY, amendment commit/push,
-  inline replies, renewed exact-head hosted reviews and strict CI remain. No
+  amendment relative to `4ef561c` is 19 files. Frozen v7 passed independent
+  SPEC then separate QUALITY without findings, and exact staged identity
+  produced product amendment `2ab6382d2e944b75e8eb0e76808870f205d21736`,
+  which was pushed to PR #13. A following coordinator-record synchronization
+  does not change product scope; its exact gate status is kept in the ignored
+  handoff so this chronological receipt does not become false merely when that
+  record commit is created. GitHub remains authoritative for the live PR head,
+  inline-thread state, renewed exact-head hosted reviews and strict CI. No
   merge, provider, billing, deployment, database, DNS/domain, PNG/frame/
   threshold, media or production action occurred.
 

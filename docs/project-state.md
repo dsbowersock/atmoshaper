@@ -76,12 +76,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   brand receipt reaches a fixed point with zero missing, unclassified or
   category mismatches; its exact hash is pinned in the frozen review evidence.
   No snapshot changed.
-- Root is freezing the final 33-file package and 19-file amendment.
-  Independent SPEC review followed by separate QUALITY review still precede the amendment
-  commit and push. Both hosted reviewers and all seven strict CI jobs must then
-  cover the new exact head; the initial head's review and CI are historical
-  evidence only. Tasks 9, combined-source equivalence and the separate Linux
-  Atmosphere snapshot decision remain pending.
+- The final 33-file package and 19-file amendment passed independent SPEC then
+  separate QUALITY on one frozen byte set. Exact staged identity produced and
+  pushed product amendment `2ab6382d2e944b75e8eb0e76808870f205d21736` to
+  PR #13. A coordinator-record synchronization may follow without changing
+  product scope; its exact progress belongs in the ignored handoff, while
+  GitHub is authoritative for the live PR head, hosted reviews and CI. Both
+  hosted reviewers and all seven strict CI jobs must cover the resulting exact
+  head; the initial head's review and CI are historical evidence only. Tasks 9,
+  combined-source equivalence and the separate Linux Atmosphere snapshot
+  decision remain pending.
 - Original PR #5 and replacements #6–#13 remain open and unmerged. No provider,
   billing, deployment, database, domain/DNS, PNG, frame, threshold, media-byte
   or production action occurred.
