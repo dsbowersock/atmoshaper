@@ -81,13 +81,6 @@
     },
     {
       "path": "README.md",
-      "line": 7,
-      "column": 165,
-      "textSha256": "2972b7f7ce5039cd13c49400ae7c7ec775aa4ee66331a65c93e167f8a5814e77",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "README.md",
       "line": 15,
       "column": 74,
       "textSha256": "722a2e3ec82efcc41498d2b2ab648215d1353c6d9598246132caf00e6ad0ed0b",
@@ -98,13 +91,6 @@
       "line": 15,
       "column": 118,
       "textSha256": "722a2e3ec82efcc41498d2b2ab648215d1353c6d9598246132caf00e6ad0ed0b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "README.md",
-      "line": 85,
-      "column": 60,
-      "textSha256": "5dad3b9aa721c23094560a8d93f1b3a569ece07b7a7688163e1fb5412e54217b",
       "category": "pre-rebrand-public-copy"
     },
     {
@@ -47281,41 +47267,6 @@
       "category": "compatibility"
     },
     {
-      "path": "app/legal/[slug]/page.tsx",
-      "line": 22,
-      "column": 32,
-      "textSha256": "95bb030de444565297de47d9b3ad8ba1ede37109380a80614eb211a51bb39f39",
-      "category": "legal"
-    },
-    {
-      "path": "app/legal/accept/page.tsx",
-      "line": 20,
-      "column": 34,
-      "textSha256": "ea8d45d77fe328213e3d32a6a888b23375c7bed13f791a3351604ef8a606bafa",
-      "category": "legal"
-    },
-    {
-      "path": "app/legal/accept/page.tsx",
-      "line": 21,
-      "column": 32,
-      "textSha256": "919134fa8ddd6ef0a11262e316bb5f144d07833845b1b15b45b24005e512816e",
-      "category": "legal"
-    },
-    {
-      "path": "app/legal/accept/page.tsx",
-      "line": 53,
-      "column": 23,
-      "textSha256": "5aa17ccee3f97d3cd8bc325592e11262111f6fd678567075e2a26d63c3801dae",
-      "category": "legal"
-    },
-    {
-      "path": "app/legal/page.tsx",
-      "line": 34,
-      "column": 36,
-      "textSha256": "853af3c3ea180f546fb2d760329bfcb9045e9e7e734e2e940c623cbfe62c5165",
-      "category": "legal"
-    },
-    {
       "path": "app/notes/intake/client-page.tsx",
       "line": 120,
       "column": 14,
@@ -66959,13 +66910,6 @@
     },
     {
       "path": "components/sidebar/app-sidebar-client.tsx",
-      "line": 110,
-      "column": 44,
-      "textSha256": "a858a9ab7e4b1f20589b66c8ac3ecd71815e0311cf08f20dd83fa7065c2f9125",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "components/sidebar/app-sidebar-client.tsx",
       "line": 742,
       "column": 17,
       "textSha256": "abea1819d9891586a01e4b45f914919c89679f309b9cd40938cf8d66bf505e94",
@@ -82177,126 +82121,133 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 552,
+      "line": 604,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 583,
+      "line": 635,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 602,
+      "line": 654,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 603,
+      "line": 655,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 604,
+      "line": 656,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 607,
+      "line": 659,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 642,
+      "line": 694,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 646,
+      "line": 698,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 394,
+      "line": 27,
+      "column": 14,
+      "textSha256": "63d0050213fed1d6fe70b1e96e4b839a16ff362d28d2ec9860176e786d36f9de",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-state.md",
+      "line": 442,
       "column": 35,
       "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 431,
+      "line": 479,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 435,
+      "line": 483,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 437,
+      "line": 485,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 441,
+      "line": 489,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 442,
+      "line": 490,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 445,
+      "line": 493,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 446,
+      "line": 494,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 446,
+      "line": 494,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 473,
+      "line": 521,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -87549,6 +87500,13 @@
       "line": 1364,
       "column": 64,
       "textSha256": "6071f914d7640756fe246b7918733134d27f3bcabc6d99d4bab9c389125348d9",
+      "category": "historical"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-20-phase6-review-sized-prs.md",
+      "line": 1434,
+      "column": 12,
+      "textSha256": "d1cda54ed96675cfa9e52de3dc780ca96a55ec37f1cdf4c670885287a4e72704",
       "category": "historical"
     },
     {
@@ -119129,265 +119087,6 @@
       "category": "compatibility"
     },
     {
-      "path": "lib/legal-acceptance-gate.js",
-      "line": 48,
-      "column": 43,
-      "textSha256": "fa4e0e912538c9f582205056ed7faf75b1b50d2135857466c97f5e0428035fcf",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-acceptance-gate.js",
-      "line": 49,
-      "column": 36,
-      "textSha256": "c929ae45af298b2118258727a51693e3742be4f44c9589a28b103e85ae170491",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 23,
-      "column": 41,
-      "textSha256": "dc9acdacffd0605e13d45d084c81a9f67eee5286d497689bd02b60be08f3f57c",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 37,
-      "column": 4,
-      "textSha256": "d2c4cba402483719077df183108ab708930d212b9a340edad0c444851b05d8b5",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 38,
-      "column": 4,
-      "textSha256": "2dab5ead681d61f7b28c23df1558e622f99dc1716c91233c15cbceabc2ca0215",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 51,
-      "column": 93,
-      "textSha256": "94e723868bc308caa3e58bdbbb5a9dfbb504d8338d234e126bc3339338c07f09",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 54,
-      "column": 30,
-      "textSha256": "da1afae5b4e8b4ce6333805bc6414a9a605c6f14617a5a57c366ca630ec04931",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 56,
-      "column": 49,
-      "textSha256": "4ff2df271378708eb25f6a17724d0d6ffda1754d941d1584761043e80797896e",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 63,
-      "column": 12,
-      "textSha256": "2148777d3282799048be6cd37e368e188b586e62883a64dbd90883131d7016d0",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 64,
-      "column": 173,
-      "textSha256": "c378c4af4cead187cf5b1e3205819fc7899c02077443d50d70710e1935894893",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 71,
-      "column": 12,
-      "textSha256": "638997b0a4fe19f31f5336d071189f892a9d90da740b94a469d8595577f8d31c",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 71,
-      "column": 132,
-      "textSha256": "638997b0a4fe19f31f5336d071189f892a9d90da740b94a469d8595577f8d31c",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 77,
-      "column": 31,
-      "textSha256": "e5c9a8b0a0f78311e3ee3d1a4165d8d35e4ef2ae623cf12dd5af9527e4612618",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 78,
-      "column": 12,
-      "textSha256": "baecd16c42edccfcd0598d9d6bbc2c5393d5212cba68a4dd67d58fe8830b2218",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 84,
-      "column": 88,
-      "textSha256": "215672e2f7368794a464dc5d75ab8b4d3d1155b013c095d425c3627c5ef03f9f",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 97,
-      "column": 19,
-      "textSha256": "d6c9e12876014f7ce91b226bf122a19334c7739f66ce3c118e0a47741b2543b9",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 100,
-      "column": 29,
-      "textSha256": "41850a7852cd59bff7732bc1ef79ca4249b7d3b2b1c2bd552c545ee06fe5b4f6",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 102,
-      "column": 12,
-      "textSha256": "4acde616f96d3aa50d7757944d10872b2908c086230ee5e68bc9f199d8cfb9f5",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 103,
-      "column": 47,
-      "textSha256": "38b43545129f2251891056ca1ef343e32e7d50aa6cd78df7d8e13065373a50a3",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 109,
-      "column": 12,
-      "textSha256": "f95644653542bcd5d2a7acdc6e5a38fea3f53954a57c9d9795231dd708623c2a",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 117,
-      "column": 54,
-      "textSha256": "a2e5299cf571aed65b8ac3cd64c9a1c43cedb01fad14d3977f1ee2fdce81bdd1",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 130,
-      "column": 12,
-      "textSha256": "1bfea9acdabee377c51e5d70a92d959897e63aeaa8fd96e7257709359c62786e",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 156,
-      "column": 12,
-      "textSha256": "c4ab4d2dc77e489f53eaa320b70802cb0c17f0d8032f0327f8976cc5bd3cc339",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 163,
-      "column": 12,
-      "textSha256": "ad79346a2e5f6f660cdfa53577adce42d132e73f585c809fabe7a51e0b7e1426",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 178,
-      "column": 46,
-      "textSha256": "dadedd1e78094424944654f53d6954adf0507128896f993d899ee75a64866eb1",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 184,
-      "column": 55,
-      "textSha256": "8adfb8e25fd1b942d6a558eb2c822a4d0446656498439132168e2a0d5711d1fa",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 209,
-      "column": 12,
-      "textSha256": "ef72fbe4dc0dde8de5f9eb3c0cdbd3c81880cf9ca9f60c42c5eb1f5eff2acc34",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 215,
-      "column": 12,
-      "textSha256": "5fe4eb69743e3994b4e066b8a765cf58db8f558c0583f669c1524298c0a2f93e",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 236,
-      "column": 15,
-      "textSha256": "e2f068013436eb337f7a73bbf07a5c962972eafc53476f5a44c831f4b25ad5b5",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 241,
-      "column": 12,
-      "textSha256": "29ad9ba208690a35f7e507198998624eff04b8518e421aaedb7356f2b61fea1b",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 242,
-      "column": 12,
-      "textSha256": "a7d132d22306f83f7ec3810bfb4db052b16e69bb91bfb68618dab4f69e835609",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 248,
-      "column": 12,
-      "textSha256": "be45525266978e736a3f52836e9255cf4574e27ab779f5617a9a8f4a75959b3b",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 273,
-      "column": 12,
-      "textSha256": "eb84958194fdbf43cdc9b36fc4caaf135711c47473e48de46c953dde821cb10b",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 287,
-      "column": 78,
-      "textSha256": "11e92639a6291bcd2049df18576fa93c9ef1e7ac075498ee23bf617194b528bd",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 311,
-      "column": 73,
-      "textSha256": "8438573bf5ede6fca83067ddc69e2c37c2d5dadd905c892e9adcf9d015a873ba",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 325,
-      "column": 112,
-      "textSha256": "d4826973565f3d9273ab52c630f34bde80a5d4526038d58f242c6bb3466f8b4e",
-      "category": "legal"
-    },
-    {
-      "path": "lib/legal-documents.js",
-      "line": 326,
-      "column": 136,
-      "textSha256": "9c9a207208f8e5f94554380c2176a10b2313aec566a9a708f6330fd6f94a2094",
-      "category": "legal"
-    },
-    {
       "path": "lib/local-documents.js",
       "line": 83,
       "column": 50,
@@ -120565,21 +120264,21 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 66940,
+      "line": 66891,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 119944,
+      "line": 119643,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 119944,
+      "line": 119643,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
@@ -123148,63 +122847,63 @@
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 90,
+      "line": 93,
       "column": 31,
       "textSha256": "76a98be875ec0cf94df2f59bd8316f20d6f0e82f8c5465a01421c399a303643b",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 103,
+      "line": 106,
       "column": 23,
       "textSha256": "5050b5da0ef716cfafff41f646209c0e6bd5fd2776ede78bf508196da8a4b129",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 229,
+      "line": 232,
       "column": 28,
       "textSha256": "2e93df78bb9386c9734706f3b7d6b7d4e2949071cc86801fb4aa0be1d87cd3be",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 230,
+      "line": 233,
       "column": 27,
       "textSha256": "e97f78afacef4487ff1c65a6cf76545d8de6d74cd473ec78112874fde4bb3f97",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 313,
+      "line": 316,
       "column": 32,
       "textSha256": "58c00ed2a5eeb8a2dc1fc6ce9ccbacd90edd2938faab5642e848b64eb2ca7cb8",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 314,
+      "line": 317,
       "column": 31,
       "textSha256": "76f20ec11f0cf4cfc457684cde26b4f07a77e2675ae0518a1749ffc1a47254bf",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 344,
+      "line": 347,
       "column": 28,
       "textSha256": "08b4bd2a9635baebca05b3191a0e8a3c224bca40316af63b2d72fe171bd3528d",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 345,
+      "line": 348,
       "column": 27,
       "textSha256": "0c4ea99eac4bb4e20e384583946153c2e7c3b30a083f299003c62e2d830beab6",
       "category": "compatibility"
     },
     {
       "path": "tests/background-checkout.test.mjs",
-      "line": 458,
+      "line": 461,
       "column": 47,
       "textSha256": "b65b4718d7fa434562408e86ccb9ac93a404217d47b78e4de21284297e854e7a",
       "category": "compatibility"
@@ -170887,48 +170586,6 @@
       "category": "compatibility"
     },
     {
-      "path": "tests/proprietary-license.test.mjs",
-      "line": 22,
-      "column": 29,
-      "textSha256": "28eff1a79aec2bf338767d55ccbea92197b7f4098acad169508c18bd46e7d067",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/proprietary-license.test.mjs",
-      "line": 25,
-      "column": 67,
-      "textSha256": "45d59c82a0dc24f64c336b59afb3b2619ba8e88d59945231e0c651e39a940abc",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/proprietary-license.test.mjs",
-      "line": 32,
-      "column": 26,
-      "textSha256": "654dfa1caf1b145dc93fa61102217083ac6fbabfebe101c767e29e7a49f4b15b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/proprietary-license.test.mjs",
-      "line": 32,
-      "column": 64,
-      "textSha256": "654dfa1caf1b145dc93fa61102217083ac6fbabfebe101c767e29e7a49f4b15b",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/proprietary-license.test.mjs",
-      "line": 46,
-      "column": 67,
-      "textSha256": "45d59c82a0dc24f64c336b59afb3b2619ba8e88d59945231e0c651e39a940abc",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
-      "path": "tests/proprietary-license.test.mjs",
-      "line": 59,
-      "column": 47,
-      "textSha256": "d5b0f767d6d9bb895a6ea076d379d4baacaf03eb0f7b7da9cf159e246a3ec8ec",
-      "category": "pre-rebrand-public-copy"
-    },
-    {
       "path": "tests/public-booking-traffic.test.mjs",
       "line": 67,
       "column": 31,
@@ -171448,49 +171105,49 @@
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 95,
+      "line": 106,
       "column": 39,
       "textSha256": "4971e37da813c834042752d295d60e9f071d5446505ea2a5f6ff2db5fc587f22",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 112,
+      "line": 123,
       "column": 47,
       "textSha256": "822e6d623c6ff2dab4bcb6dad265433173d6dddabd497ec56b36ab91bd0f7daf",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 128,
+      "line": 139,
       "column": 47,
       "textSha256": "6a63c4aa361599976a461bc10b3ae46b464133b7b3e588c667f74680ab07b83a",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 129,
+      "line": 140,
       "column": 26,
       "textSha256": "00248f6452b3aa9b5cee8f79a522b62b48fc075c4c6f269ed318bff97a47c777",
       "category": "compatibility"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 130,
+      "line": 141,
       "column": 34,
       "textSha256": "2814fc24aedd02dd554b949ba51fb9961e263c9b171b1854bbc2cb4da9a07fb0",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 131,
+      "line": 142,
       "column": 33,
       "textSha256": "28f5cbf4dbead49107a12096793b98ce7d2ff5b9e29ba80342bbd46bcae66e59",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/seo.test.mjs",
-      "line": 134,
+      "line": 145,
       "column": 22,
       "textSha256": "753092d3f05d7ac5147436bdefe1877c2fea842494bf29e0ca80d47f4ef91b99",
       "category": "compatibility"
@@ -172302,70 +171959,70 @@
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 37,
+      "line": 38,
       "column": 12,
       "textSha256": "bcbba4d37c9ffcc031342257ca2b37fbf41ac50472ce755142b3408d20b7b714",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 40,
+      "line": 41,
       "column": 13,
       "textSha256": "20f162d3eded588c3885d2fcdb61569d375287e0e81dccd204702850dbe42f6f",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 41,
+      "line": 42,
       "column": 7,
       "textSha256": "8b389c4b84a68dbdfd1fccd3002930e471f0618dc39b5c3b16a8a02d6b2b0826",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 42,
+      "line": 43,
       "column": 7,
       "textSha256": "bc304eb5b7632ca2f4a915a64d387fe45d074aee9b6e6440401a06f552334507",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 43,
+      "line": 44,
       "column": 7,
       "textSha256": "3b22ab81663580f19571a12b9f4709d5323d9591828edecd588bece52933fdca",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 158,
+      "line": 174,
       "column": 35,
       "textSha256": "604924de4cee9cc576218bf4e08a80897200cbf301c8165ab3db77e63eee73e9",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 277,
+      "line": 293,
       "column": 40,
       "textSha256": "244c6b9caec6a73cb3f4c53725a12bf2e6bf5ab74892bcbe3de14b98c87bdab4",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 365,
+      "line": 381,
       "column": 52,
       "textSha256": "790ae3519ad849ba6720c1e53dd092ef5f68295db5cfeb778e78092fa2ef215e",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 366,
+      "line": 382,
       "column": 47,
       "textSha256": "f602e2951c151c45c400f1866d5dc54360ff514f7a2cc185e7e2fc88e28957a4",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 620,
+      "line": 636,
       "column": 53,
       "textSha256": "a0ddca618e3a9c13d949d63ef7fe9e4a80f2f766aabd5cee732cc138033d15e7",
       "category": "compatibility"

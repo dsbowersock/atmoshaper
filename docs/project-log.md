@@ -2,6 +2,58 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Task 7 fully gated; Task 8 legal identity candidate implemented
+
+- Final Task 7 amendment `995fc4f7ce44902002ef2b36c7af1195dbdcb562`
+  repaired six verified current collision-note references and strengthened the
+  all-note/all-batch oracle against overlapping current and retired names.
+  Independent SPEC then separate QUALITY approved the frozen package. Codex and
+  CodeRabbit completed clean on the exact head; strict CI `35578132889`
+  passed quality, build, all four browser lanes and aggregate QA. PR #12 remains
+  open and unmerged with all four prior threads resolved or outdated.
+- Created `codex/phase6-08-legal-identity` from that exact reviewed head in the
+  approved isolated worktree. Before implementation, the archive verifier passed
+  9/9 and both immutable v2 SHA-256 pins matched their recorded values.
+- Read-only scoping identified the 13 manifest paths plus required companions
+  `lib/seo.js` and `tests/seo.test.mjs`. README is a partial current-record
+  owner because the recovery copy contains obsolete completion claims. The
+  shared public-routes source delta is streaming-only, and audit core/policy/test
+  source copies would undo reviewed repairs, so neither shared owner enters this
+  slice. The initial planned scope was 19 files.
+- Test-first redistribution applied six source tests first. The old v2 code
+  produced eight expected failures among 31 tests: registry/acceptance, license
+  identity, legal-page copy and legal sitemap dates. After the eight product/
+  legal owners moved, all 14 implementation/test blobs matched recovery source
+  exactly. Archive verification passed 9/9; the focused final suite passed
+  85/85; the post-ordering SEO run passed 12/12; focused ESLint and diff checks
+  passed.
+- The candidate sets current general and digital purchase versions to
+  `2026-09-legal-v3` and `2026-09-digital-purchases-v3`, both effective
+  September 14, 2026, under
+  `Derrick Bowersock, doing business as AtmoShaper`. Tests prove an old v2
+  acceptance does not satisfy v3 and remains byte-for-byte unchanged after a
+  genuine v3 acceptance is recorded. No schema, migration or backfill changed.
+- Root reconciled README and delivery records without importing recovery's stale
+  Task 9/head/Browser-QA claims. Prisma validate/generate, typecheck, lint, the
+  initial Node suite (4,728 passed, three skipped, zero failed), production and
+  Browser-QA builds (115 pages each), and the existing anonymous-registration
+  legal-gate smoke on desktop and mobile Chromium passed provider-free. No
+  snapshot changed.
+- Independent SPEC passed that frozen candidate. Separate QUALITY then found the
+  operational billing wiki still instructed operators to configure the retired
+  v2 digital-purchase document version, while runtime and readiness now require
+  exact equality with v3. The base and recovery source were both stale, and no
+  test coupled the operator instruction to the exported constant. A focused
+  regression failed on the v2 literal, then passed after changing only that wiki
+  value to `2026-09-digital-purchases-v3`; the full Stripe readiness file passed
+  26/26. The updated focused suite passed 86/86 and the final full Node suite
+  passed 4,729 with three skips and no failures. Final scope is 20 files: 13
+  source-exact paths, the test/wiki repair pair and five coordinator-owned records.
+- Strict receipt reconciliation, frozen-package SPEC re-review then QUALITY,
+  commit, push, new stacked PR, both hosted reviewers and CI remain pending. No merge,
+  provider, billing, deployment, database, DNS/domain, PNG/frame/threshold,
+  media or production action occurred.
+
 ## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
 
 - Published the first hosted repair as `03d7762` after independent SPEC then

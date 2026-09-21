@@ -1,10 +1,11 @@
 import assert from "node:assert/strict"
 import { spawnSync } from "node:child_process"
-import { mkdtemp, rm, writeFile } from "node:fs/promises"
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { describe, it } from "node:test"
 import { fileURLToPath } from "node:url"
+import { DIGITAL_PURCHASES_REFUNDS_VERSION } from "../lib/legal-documents.js"
 import {
   getOneTimeSupportTaxReadiness,
   isExplicitTrue,
@@ -69,7 +70,7 @@ function readinessEnvironment(overrides = {}) {
     BACKGROUND_COMMERCE_PRICE_CENTS: "100",
     BACKGROUND_COMMERCE_CURRENCY: "usd",
     BACKGROUND_COMMERCE_PURCHASE_COUNTRIES: "US",
-    BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION: "2026-07-digital-purchases-v2",
+    BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION: DIGITAL_PURCHASES_REFUNDS_VERSION,
     BACKGROUND_COMMERCE_WEBHOOK_READY: "true",
     BACKGROUND_COMMERCE_WEBHOOK_EVENTS: "checkout.session.completed,checkout.session.expired,checkout.session.async_payment_succeeded,checkout.session.async_payment_failed,refund.created,refund.updated,refund.failed,charge.dispute.created,charge.dispute.updated,charge.dispute.closed",
     BACKGROUND_COMMERCE_RECONCILIATION_READY: "true",
@@ -129,6 +130,21 @@ function runReadinessWithStripeStub(overrides = {}, args = []) {
 }
 
 describe("Stripe readiness background-commerce contract", () => {
+  it("keeps the operator wiki on the exact current digital-purchase document version", async () => {
+    const operatorWiki = await readFile(
+      new URL("../docs/wiki/billing-memberships.md", import.meta.url),
+      "utf8",
+    )
+    const documentedVersions = [
+      ...operatorWiki.matchAll(
+        /`BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION=([^`]+)`/g,
+      ),
+    ].map((match) => match[1])
+
+    assert.deepEqual(documentedVersions, [DIGITAL_PURCHASES_REFUNDS_VERSION])
+    assert.doesNotMatch(operatorWiki, /2026-07-digital-purchases-v2/)
+  })
+
   it("uses the pinned API version by default while preserving explicit stub overrides", async () => {
     const defaultEndpoint = await new StripeReadinessStub("sk_test_default")
       .webhookEndpoints.list()

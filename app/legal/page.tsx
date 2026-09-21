@@ -31,7 +31,7 @@ export default function LegalIndexPage() {
           ))}
         </div>
         <AppInset className="p-3 text-sm text-muted-foreground">
-          These documents describe MassageLab&apos;s current product posture, privacy boundaries, membership terms, and local-first health and wellness data practices. They may change as the product develops.
+          These documents describe AtmoShaper&apos;s current product posture, privacy boundaries, membership terms, and local-first health and wellness data practices. They may change as the product develops.
         </AppInset>
       </AppSurface>
 

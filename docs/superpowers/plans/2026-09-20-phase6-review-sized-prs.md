@@ -1369,3 +1369,107 @@ occurrence. Keep both directions of overlap covered, including valid Folded
 Plasma plus separate retired Plasma in one note. Preserve all known-alias
 standalone detection and the real-note mutations. This refines the test-local
 mechanism without changing names, data, generator, scope or runtime contracts.
+
+## Task 8: publish current AtmoShaper legal presentation and v3 versions
+
+Task 8 starts from reviewed base
+`995fc4f7ce44902002ef2b36c7af1195dbdcb562` on
+`codex/phase6-08-legal-identity`. Recovery source remains
+`7e318558da425b8fcdddeb8df50e93a36900310a`. Before any implementation,
+`npm run legal:verify-archives` passed 9/9 and the immutable v2 archive hashes
+remained `8c7263b53697495f096f479484b6ccd7eae574f20111ecf0e0a44f7fd50017aa`
+and `bdb76adf941e4e22022765734650d7e1224486d282d8303fa5869ee4fc25a4c8`.
+
+The final slice has 20 planned paths: 13 source-exact implementation/test paths,
+two explicit repair paths and five coordinator-owned current records. The 13
+source-exact paths are:
+
+- `app/legal/[slug]/page.tsx`
+- `app/legal/accept/page.tsx`
+- `app/legal/page.tsx`
+- `components/sidebar/app-sidebar-client.tsx`
+- `lib/legal-acceptance-gate.js`
+- `lib/legal-documents.js`
+- `lib/seo.js`
+- `LICENSE`
+- `tests/background-checkout.test.mjs`
+- `tests/legal-acceptance.test.mjs`
+- `tests/legal-documents.test.mjs`
+- `tests/proprietary-license.test.mjs`
+- `tests/seo.test.mjs`
+
+The two explicit repair paths are `tests/stripe-readiness.test.mjs` and
+`docs/wiki/billing-memberships.md`. They keep the operator's required
+`BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION` value synchronized with
+the exported current version. The test file retains all approved source changes
+and adds only the focused documentation contract.
+
+The five coordinator-owned paths are `README.md`, `docs/project-state.md`,
+`docs/project-log.md`, this plan and the generated brand-reference baseline.
+`README.md` carries the exact DBA copyright and current identity/audio-label
+statements but must describe the actual replacement stack; it must not copy the
+source snapshot's obsolete Task 9, head, final-receipt or Browser-QA claims.
+
+| Dependency | Task 8 ruling |
+| --- | --- |
+| archive to current registry | v2 archives and their hashes stay byte-identical; only current v3 constants and presentation change |
+| registry to acceptance | `lib/legal-acceptance.js`, schema, migrations and existing rows stay unchanged; the focused test proves genuine v2/v3 coexistence |
+| legal to SEO | `lib/seo.js` and `tests/seo.test.mjs` travel with this slice because the legal revision dates and current-page contract depend on v3 |
+| legal to operations | the billing wiki must publish the exported v3 digital-purchase version because readiness and checkout fail closed on exact mismatch; a focused test prevents another uncoordinated literal |
+| legal to browser | no source legal hunk exists in `tests/browser/public-routes.spec.ts`; preserve its reviewed streaming fixes and run its existing provider-free registration-gate smoke without adding a new companion |
+| legal to audit | preserve audit core, policy and audit tests; regenerate only the receipt baseline to a strict fixed point |
+| README to delivery records | root reconciles current facts after implementation and before the frozen review package |
+
+Implementation starts as a redistribution of already-approved source work. One
+implementer owns the 13 exact paths plus the bounded test/wiki repair pair and
+reports focused results without staging or committing. Root owns the five
+current records, receipt generation, equivalence proof and Git. No whole-file
+source copy of README or shared browser/audit files is allowed.
+
+Required values are `2026-09-legal-v3`,
+`2026-09-digital-purchases-v3`, `September 14, 2026` and
+`Derrick Bowersock, doing business as AtmoShaper`. Preserve substantive
+privacy, local-first, professional-responsibility, billing, refund, warranty and
+scope terms. Do not add a domain, entity, trademark or filing-status claim.
+Canonical `massagelab.app`, provider identifiers and stable Stripe metadata
+remain compatibility facts.
+
+Verification must prove:
+
+1. all 13 source-exact implementation/test blobs equal recovery source exactly,
+   and the two repair paths differ only by the focused operator-doc contract;
+2. the changed set is exactly the 20 planned paths;
+3. both archived v2 files retain their pinned bytes and
+   `lib/legal-acceptance.js`, Prisma, provider, public/media, shared browser and
+   repository-audit owners retain reviewed-base bytes;
+4. archive and checkout-filter tests plus legal-document, acceptance, license,
+   SEO, background-checkout and Stripe-readiness tests pass;
+5. Prisma validate/generate, typecheck, lint, build, strict brand/inventory,
+   diff check and the existing provider-free legal-registration browser smoke
+   pass without snapshot updates;
+6. the brand receipt reaches a byte-stable fixed point with zero missing,
+   unclassified or category-mismatched references and no forbidden path;
+7. a frozen exact-file package receives independent SPEC review followed by a
+   separate QUALITY review before staging, commit, push or PR publication.
+
+`tests/browser/phase6-preview-rebrand.spec.ts`, new exact-text browser
+coverage and the separate Linux Atmosphere snapshot decision remain later
+owners. No merge, deployment, provider, database, billing, account, PNG, frame,
+threshold, media-byte or original-PR action is authorized by Task 8.
+
+Candidate validation completed before the frozen review package: archive checks
+passed 9/9; the focused legal/SEO/checkout/readiness suite passed 85/85; the
+post-ordering SEO regression passed 12/12; Prisma validate/generate, typecheck,
+lint and both production builds passed with 115 pages; the full Node suite
+passed 4,728 with three intentional skips and no failures; and the existing
+anonymous-registration legal-gate smoke passed on desktop and mobile Chromium.
+No browser source, snapshot, provider, database or media byte changed.
+
+The first QUALITY review found one important recurrence: both the reviewed base
+and recovery source still documented the retired v2 operator value even though
+runtime/readiness require v3. The repair followed a focused red/green cycle,
+then passed the complete Stripe readiness file 26/26, changed-file ESLint and
+diff check. The repaired focused suite passed 86/86 and the final full Node suite
+passed 4,729 with three intentional skips and no failures. The v1 freeze remains
+evidence of the finding; a v2 freeze, SPEC re-review and separate QUALITY
+re-review are required before publication.

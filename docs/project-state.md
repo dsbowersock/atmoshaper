@@ -4,7 +4,55 @@ Verified: 2026-09-21
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Background Catalog and Controls
+## Current Snapshot — Phase 6 Legal Identity Candidate
+
+- Task 7 is complete for its own slice at
+  `995fc4f7ce44902002ef2b36c7af1195dbdcb562` on open, unmerged
+  [PR #12](https://github.com/dsbowersock/atmoshaper/pull/12). Independent SPEC
+  then QUALITY approved the final amendment; Codex and CodeRabbit completed
+  clean on that exact head; all seven jobs in strict CI `35578132889` passed;
+  and all four prior inline threads are resolved or outdated. No merge occurred.
+- Task 8 now assembles the current legal presentation on
+  `codex/phase6-08-legal-identity` from that exact reviewed base. Thirteen
+  implementation/test paths match recovery source
+  `7e318558da425b8fcdddeb8df50e93a36900310a` byte for byte. Two explicit repair
+  paths keep the operator wiki's required environment value synchronized with
+  the exported current digital-purchase version and test that contract. The
+  20-file slice also includes README, this state, the project log, delivery plan
+  and generated brand receipt as coordinator-owned records.
+- Current legal values are `2026-09-legal-v3`,
+  `2026-09-digital-purchases-v3`, `September 14, 2026` and
+  `Derrick Bowersock, doing business as AtmoShaper`. The current legal pages,
+  sidebar/license presentation and legal sitemap revision dates move together.
+  Canonical `massagelab.app` URLs, provider identifiers and stable Stripe
+  metadata remain compatibility facts.
+- Test-first redistribution produced eight expected failures against the old v2
+  code, then passed the archive verifier 9/9, the focused legal/SEO/checkout
+  suite 85/85, the post-ordering SEO regression 12/12, focused ESLint and diff
+  checks. QUALITY then found that the base and recovery source both retained a
+  stale v2 operator-wiki literal. A new focused test failed on that mismatch,
+  passed after the one-value v3 repair, and the updated focused suite passed
+  86/86.
+- The immutable v2 archive hashes remain
+  `8c7263b53697495f096f479484b6ccd7eae574f20111ecf0e0a44f7fd50017aa`
+  and `bdb76adf941e4e22022765734650d7e1224486d282d8303fa5869ee4fc25a4c8`.
+  `lib/legal-acceptance.js`, Prisma, existing acceptance rows/IDs, audit and
+  shared browser owners, public/media bytes and provider state remain unchanged.
+  The focused coexistence test proves an old v2 row does not satisfy v3 and is
+  retained unchanged when a genuine v3 acceptance is recorded.
+- Broader provider-free validation passed Prisma validate/generate, typecheck,
+  lint, the final 4,732-test Node suite with 4,729 passes and three skips, production
+  and Browser-QA builds with 115 pages, and the existing anonymous-registration
+  legal-gate smoke on desktop and mobile Chromium. No snapshot changed.
+- Root is revalidating the explicit repair and reconciling a v2 strict receipt
+  and 20-file freeze. Independent SPEC re-review followed by separate QUALITY
+  still precede commit, push and a new stacked PR. Tasks 9, combined-source
+  equivalence and the separate Linux Atmosphere snapshot decision remain pending.
+- Original PR #5 and replacements #6–#12 remain open and unmerged. No provider,
+  billing, deployment, database, domain/DNS, PNG, frame, threshold, media-byte
+  or production action occurred.
+
+## Historical Snapshot — Phase 6 Background Catalog and Controls
 
 - Renderer PR #11 is verified at `04e3868e3ab39111e50b6c8cdc7d5a89bc7b60e2`:
   Codex completed clean at 03:04 UTC and CodeRabbit at 03:05 UTC on September 21.
