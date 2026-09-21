@@ -18,7 +18,9 @@ import { ensureGoogleUserState, ensureUserRole, getUserAuthState } from "@/lib/a
 import { decideAuthSessionVersion } from "@/lib/auth-session-version"
 import type { AccountCapabilities, AccountRole, VerificationStatus } from "@/lib/domain-types"
 import { normalizeEmail } from "@/lib/auth-security"
+import { hasAcceptedCurrentDocuments } from "@/lib/legal-acceptance"
 import { buildRegistrationLegalProviderRedirectPath } from "@/lib/legal-acceptance-gate"
+import { requiredLegalDocumentsForEvent } from "@/lib/legal-documents"
 
 if (!process.env.NEXTAUTH_URL) {
   process.env.NEXTAUTH_URL = getSiteUrl()
@@ -103,7 +105,12 @@ if (googleAuthConfig) {
   )
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const {
+  handlers: rawHandlers,
+  auth: loadAuthJsSession,
+  signIn,
+  signOut,
+} = NextAuth({
   adapter: PrismaAdapter(prisma),
   secret: getAuthSecret(),
   session: {
@@ -122,7 +129,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!isVerifiedGoogleProfile(profile)) return "/login?auth=google-unavailable"
         const cookieStore = await cookies()
         const binding = parseAuthMethodIntentBinding(cookieStore.get(AUTH_METHOD_INTENT_COOKIE)?.value)
-        const currentSession = await auth().catch(() => null)
+        const currentSession = await loadAuthJsSession().catch(() => null)
         const result = await prepareGoogleAuthentication({
           prismaClient: prisma,
           intentId: binding?.intentId ?? "",
@@ -243,14 +250,74 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 } satisfies NextAuthConfig)
 
-export function getCurrentSession() {
+const handlers = {
+  ...rawHandlers,
+  GET: withPublicSessionAcceptance(rawHandlers.GET),
+  POST: withPublicSessionAcceptance(rawHandlers.POST),
+}
+
+/** Filters only the public session action after preserving raw Auth.js handling. */
+function withPublicSessionAcceptance(handler: typeof rawHandlers.GET) {
+  return async (...args: Parameters<typeof rawHandlers.GET>) => {
+    const response = await handler(...args)
+    if (new URL(args[0].url).pathname !== "/api/auth/session") return response
+    return filterPublicSessionResponse(response)
+  }
+}
+
+export { handlers, signIn, signOut }
+
+/** Loads the pre-acceptance session only for the registration legal gate. */
+export function getRegistrationLegalAcceptanceSession() {
   // Local visual-review routes must remain usable without copying account
   // secrets into disposable worktrees. Production still always invokes Auth.js.
   if (process.env.NODE_ENV !== "production" && !getAuthSecret()) {
     return Promise.resolve(null)
   }
 
-  return auth()
+  return loadAuthJsSession()
+}
+
+/** Returns an ordinary app session only after current registration documents are accepted. */
+export async function getCurrentSession() {
+  const session = await getRegistrationLegalAcceptanceSession()
+
+  try {
+    const accepted = await hasCurrentRegistrationAcceptance(session)
+    return accepted ? session : null
+  } catch {
+    return null
+  }
+}
+
+/** Checks current registration acceptance for every externally usable session projection. */
+async function hasCurrentRegistrationAcceptance(session: { user?: { id?: unknown } | null } | null) {
+  const userId = session?.user?.id
+  if (typeof userId !== "string" || !userId.trim()) return false
+
+  return hasAcceptedCurrentDocuments({
+    prismaClient: prisma,
+    userId,
+    documents: requiredLegalDocumentsForEvent("registration"),
+  })
+}
+
+/** Replaces a denied public session body without dropping Auth.js response metadata. */
+async function filterPublicSessionResponse(response: Response) {
+  try {
+    const session = await response.clone().json()
+    if (await hasCurrentRegistrationAcceptance(session)) return response
+  } catch {
+    // Malformed session JSON and acceptance lookup failures are anonymous externally.
+  }
+
+  const headers = new Headers(response.headers)
+  headers.delete("content-length")
+  return new Response("null", {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  })
 }
 
 function defaultAccountCapabilities(role: AccountRole): AccountCapabilities {

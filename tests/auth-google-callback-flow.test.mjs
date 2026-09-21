@@ -65,7 +65,9 @@ describe("Google callback safety seam", () => {
       "@/lib/auth-users": { ensureGoogleUserState: async () => {}, ensureUserRole: async () => {}, getUserAuthState: async () => ({}) },
       "@/lib/auth-session-version": { decideAuthSessionVersion: () => ({ accepted: false }) },
       "@/lib/auth-security": { normalizeEmail: (value) => String(value ?? "").trim().toLowerCase() },
+      "@/lib/legal-acceptance": { hasAcceptedCurrentDocuments: async () => true },
       "@/lib/legal-acceptance-gate": { buildRegistrationLegalProviderRedirectPath },
+      "@/lib/legal-documents": { requiredLegalDocumentsForEvent: () => [] },
     })
 
     const google = { account: { provider: "google", providerAccountId: "sub-a" }, profile: { email_verified: true } }

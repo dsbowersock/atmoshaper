@@ -19,6 +19,7 @@ import {
   sendRegistrationVerification,
 } from "../lib/auth-registration.js"
 import {
+  buildRegistrationLegalAcceptancePath,
   buildRegistrationLegalProviderRedirectPath,
   isRegistrationLegalAcceptancePath,
   safePostLegalAcceptanceCallback,
@@ -201,14 +202,38 @@ describe("registration email delivery policy", () => {
     assert.equal(open.submit.props.disabled, false)
   })
 
-  it("retains email entry ownership only after push and refresh both start", async () => {
+  it("routes successful email sign-in through current legal acceptance while preserving callbacks", async () => {
     const completed = await loadLoginFormScenario()
     await completed.submit()
     assert.deepEqual(completed.flow, [
       "prevent-default",
       "begin:email",
       "sign-in:credentials",
-      "push:/account",
+      "push:/legal/accept?callbackUrl=%2Faccount",
+      "refresh",
+    ])
+
+    const explicit = await loadLoginFormScenario({
+      callbackUrl: "/clock?source=music&panel=background",
+    })
+    await explicit.submit()
+    assert.deepEqual(explicit.flow, [
+      "prevent-default",
+      "begin:email",
+      "sign-in:credentials",
+      "push:/legal/accept?callbackUrl=%2Fclock%3Fsource%3Dmusic%26panel%3Dbackground",
+      "refresh",
+    ])
+
+    const existingGate = await loadLoginFormScenario({
+      callbackUrl: "/legal/accept?callbackUrl=%2Fclock%3Fpanel%3Dbackground&callbackUrl=%2Fother&ignored=1",
+    })
+    await existingGate.submit()
+    assert.deepEqual(existingGate.flow, [
+      "prevent-default",
+      "begin:email",
+      "sign-in:credentials",
+      "push:/legal/accept?callbackUrl=%2Fclock%3Fpanel%3Dbackground",
       "refresh",
     ])
 
@@ -218,7 +243,7 @@ describe("registration email delivery policy", () => {
       "prevent-default",
       "begin:email",
       "sign-in:credentials",
-      "push:/account",
+      "push:/legal/accept?callbackUrl=%2Faccount",
       "refresh",
       "finish",
     ])
@@ -473,6 +498,7 @@ async function loadLoginFormScenario({ callbackUrl, refreshError, security } = {
     },
     "@/lib/auth-registration": { buildVerificationRequestPath: () => "/verify-email" },
     "@/lib/legal-acceptance-gate": {
+      buildRegistrationLegalAcceptancePath,
       buildRegistrationLegalProviderRedirectPath,
       isRegistrationLegalAcceptancePath,
       safePostLegalAcceptanceCallback,
@@ -536,6 +562,7 @@ async function loadStatefulLoginFormScenario(signInResults) {
     },
     "@/lib/auth-registration": { buildVerificationRequestPath: () => "/verify-email" },
     "@/lib/legal-acceptance-gate": {
+      buildRegistrationLegalAcceptancePath,
       buildRegistrationLegalProviderRedirectPath,
       isRegistrationLegalAcceptancePath,
       safePostLegalAcceptanceCallback,

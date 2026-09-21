@@ -33,7 +33,6 @@ const rscSessionConsumers = [
   "app/education/flashcards/page.tsx",
   "app/education/flashcards/decks/page.tsx",
   "app/education/flashcards/decks/[slug]/page.tsx",
-  "app/legal/accept/page.tsx",
   "app/notes/page.tsx",
   "app/onboarding/page.tsx",
   "app/pricing/page.tsx",
@@ -252,11 +251,42 @@ describe("RSC session snapshot proof boundary", () => {
 
     const unexpectedDirectAuthConsumers = renderSources.filter((relativePath) => {
       if (!/from "@\/auth"/.test(renderSourceContents.get(relativePath))) return false
+      if (relativePath === "app/legal/accept/page.tsx") return false
       return !relativePath.startsWith("app/api/")
         && !relativePath.endsWith("/actions.ts")
         && !relativePath.includes("/actions/")
     })
     assert.deepEqual(unexpectedDirectAuthConsumers, [])
+  })
+
+  it("reserves the raw session loader for registration legal acceptance only", () => {
+    const authSource = source("auth.ts")
+    const legalPage = source("app/legal/accept/page.tsx")
+    const legalActions = source("app/legal/accept/actions.ts")
+    const proofBoundary = source("lib/rsc-session-proof.ts")
+
+    assert.match(authSource, /export (?:async )?function getRegistrationLegalAcceptanceSession\(\)/)
+    assert.doesNotMatch(authSource, /export const \{[^}]*\bauth\b/)
+    for (const legalConsumer of [legalPage, legalActions]) {
+      assert.match(
+        legalConsumer,
+        /import \{ getRegistrationLegalAcceptanceSession \} from "@\/auth"/,
+      )
+      assert.match(legalConsumer, /getRegistrationLegalAcceptanceSession\(\)/)
+    }
+
+    const rawSessionConsumers = [
+      ...discoverSourceFiles("app"),
+      ...discoverSourceFiles("components"),
+      ...discoverSourceFiles("lib"),
+    ].filter((relativePath) => (
+      /\bgetRegistrationLegalAcceptanceSession\b/.test(source(relativePath))
+    ))
+    assert.deepEqual(rawSessionConsumers.sort(), [
+      "app/legal/accept/actions.ts",
+      "app/legal/accept/page.tsx",
+    ])
+    assert.doesNotMatch(proofBoundary, /export \* from "\.\.\/auth"/)
   })
 
   it("leaves mutation and route-handler authentication on the direct auth owner", () => {

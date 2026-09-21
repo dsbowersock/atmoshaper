@@ -112,7 +112,9 @@ function captureAuthCallbacks(getUserAuthState) {
       parseAuthMethodIntentBinding: () => null,
       prepareGoogleAuthentication: async () => ({ kind: "REJECTED", recoveryPath: "/login?auth=google-retry" }),
     },
+    "@/lib/legal-acceptance": { hasAcceptedCurrentDocuments: async () => true },
     "@/lib/legal-acceptance-gate": strictLegalAcceptanceGate,
+    "@/lib/legal-documents": { requiredLegalDocumentsForEvent: () => [] },
     "@/lib/auth-users": {
       ensureGoogleUserState: async () => {},
       ensureUserRole: async () => {},

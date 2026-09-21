@@ -12,14 +12,28 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   then QUALITY approved the final amendment; Codex and CodeRabbit completed
   clean on that exact head; all seven jobs in strict CI `35578132889` passed;
   and all four prior inline threads are resolved or outdated. No merge occurred.
-- Task 8 now assembles the current legal presentation on
-  `codex/phase6-08-legal-identity` from that exact reviewed base. Thirteen
-  implementation/test paths match recovery source
-  `7e318558da425b8fcdddeb8df50e93a36900310a` byte for byte. Two explicit repair
-  paths keep the operator wiki's required environment value synchronized with
-  the exported current digital-purchase version and test that contract. The
-  20-file slice also includes README, this state, the project log, delivery plan
-  and generated brand receipt as coordinator-owned records.
+- Task 8 is published as open, unmerged
+  [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13), stacked on that
+  exact Task 7 head. Its initial `4ef561c75125ea3875da236759c10617cfdc8bb1`
+  head contained 20 files and passed independent SPEC then QUALITY before
+  publication. Both hosted reviewers completed on that exact head. Codex found
+  a credential-sign-in legal-gate bypass and this stale state checkpoint;
+  CodeRabbit found an ambiguous source-exact count in the chronological log.
+- The verified local candidate has 33 paths: 12 implementation/test paths still
+  match recovery source `7e318558da425b8fcdddeb8df50e93a36900310a`
+  byte for byte, 16 paths are explicit repairs, and README, this state, the
+  project log, delivery plan and generated brand receipt remain
+  coordinator-owned records. The original test/wiki repair keeps the operator
+  environment value synchronized with the exported digital-purchase version.
+  The first login/test repair routes successful email/password sign-ins through
+  the same current Terms/Privacy page as Google while preserving safe callbacks.
+  Independent QUALITY then proved that navigation was not authoritative because
+  the session already existed. The shared server-session owner now fails closed
+  until current registration documents are accepted, while a narrow raw loader
+  remains available only to the legal acceptance page/action. The public
+  `/api/auth/session` GET and POST owners apply the same predicate, return `null` for
+  stale or unavailable evidence while preserving Auth.js response metadata,
+  and leave non-session handlers and the narrow legal loader unchanged.
 - Current legal values are `2026-09-legal-v3`,
   `2026-09-digital-purchases-v3`, `September 14, 2026` and
   `Derrick Bowersock, doing business as AtmoShaper`. The current legal pages,
@@ -36,19 +50,39 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - The immutable v2 archive hashes remain
   `8c7263b53697495f096f479484b6ccd7eae574f20111ecf0e0a44f7fd50017aa`
   and `bdb76adf941e4e22022765734650d7e1224486d282d8303fa5869ee4fc25a4c8`.
-  `lib/legal-acceptance.js`, Prisma, existing acceptance rows/IDs, audit and
-  shared browser owners, public/media bytes and provider state remain unchanged.
+  `lib/legal-acceptance.js`, Prisma, existing acceptance rows/IDs, audit,
+  product browser owners, public/media bytes and provider state remain unchanged.
   The focused coexistence test proves an old v2 row does not satisfy v3 and is
   retained unchanged when a genuine v3 acceptance is recorded.
-- Broader provider-free validation passed Prisma validate/generate, typecheck,
-  lint, the final 4,732-test Node suite with 4,729 passes and three skips, production
-  and Browser-QA builds with 115 pages, and the existing anonymous-registration
-  legal-gate smoke on desktop and mobile Chromium. No snapshot changed.
-- Root is revalidating the explicit repair and reconciling a v2 strict receipt
-  and 20-file freeze. Independent SPEC re-review followed by separate QUALITY
-  still precede commit, push and a new stacked PR. Tasks 9, combined-source
-  equivalence and the separate Linux Atmosphere snapshot decision remain pending.
-- Original PR #5 and replacements #6–#12 remain open and unmerged. No provider,
+- Fresh provider-free validation of the final candidate passed Prisma
+  validate/generate, typecheck, full lint, the 4,736-test Node suite with 4,733
+  passes and three skips, production and Browser-QA builds with 115 pages, and
+  the existing anonymous-registration legal-gate smoke on desktop and mobile
+  Chromium. The authoritative session repair followed two focused red/green
+  cycles and its combined legal/auth/readiness slice passes 142/142. The full
+  suite exposed one stale dev-clock implementation assertion; that companion
+  failed before correction and now passes 7/7 against the new named boundary.
+  The public-session handler repair passes its affected 78-test suite. Initial
+  head CI `35591116189` then exposed a real-time race in the otherwise fixed
+  Anatomime clock helper: both lane-1 attempts tried to pause at an instant that
+  had already passed. The helper now installs one minute before the unchanged
+  deterministic phase and pauses at that phase; the exact browser case passed
+  three serial runs. Final QUALITY then proved the first extracted-owner test
+  could not falsify the old equal-target helper because its virtual clock modeled
+  no install latency. The strengthened contract advances a deterministic 25 ms,
+  requires the install instant to be strictly earlier, and rejects an extracted
+  equal-target mutation; it and the dev-clock contracts pass 12/12.
+  Archive 9/9, repository audit 28/28 and diff checks are clean. The strict
+  brand receipt reaches a fixed point with zero missing, unclassified or
+  category mismatches; its exact hash is pinned in the frozen review evidence.
+  No snapshot changed.
+- Root is freezing the final 33-file package and 19-file amendment.
+  Independent SPEC review followed by separate QUALITY review still precede the amendment
+  commit and push. Both hosted reviewers and all seven strict CI jobs must then
+  cover the new exact head; the initial head's review and CI are historical
+  evidence only. Tasks 9, combined-source equivalence and the separate Linux
+  Atmosphere snapshot decision remain pending.
+- Original PR #5 and replacements #6–#13 remain open and unmerged. No provider,
   billing, deployment, database, domain/DNS, PNG, frame, threshold, media-byte
   or production action occurred.
 

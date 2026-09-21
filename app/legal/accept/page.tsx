@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { ShieldCheck } from "lucide-react"
-import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
+import { getRegistrationLegalAcceptanceSession } from "@/auth"
 import { hasAcceptedCurrentDocuments } from "@/lib/legal-acceptance"
 import {
   buildRegistrationLegalAcceptancePath,
@@ -28,7 +28,7 @@ export default async function RegistrationLegalAcceptancePage({
 }) {
   const params = await searchParams
   const callbackUrl = safePostLegalAcceptanceCallback(params.callbackUrl)
-  const session = await getCurrentSession()
+  const session = await getRegistrationLegalAcceptanceSession()
 
   if (!session?.user?.id) {
     redirect(`/login?callbackUrl=${encodeURIComponent(buildRegistrationLegalAcceptancePath(callbackUrl))}`)

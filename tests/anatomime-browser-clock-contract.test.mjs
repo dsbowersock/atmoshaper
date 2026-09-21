@@ -67,7 +67,7 @@ function assertClockOwnerOrder(source) {
 const clockOwnerSource = extractStatements(
   browserSpecSource,
   "anatomime-traffic.spec.ts",
-  new Set(["ANATOMIME_TEST_CLOCK_TIME", "installPausedClock"]),
+  new Set(["ANATOMIME_TEST_CLOCK_TIME", "ANATOMIME_TEST_CLOCK_INSTALL_TIME", "installPausedClock"]),
 )
 const deadlineSource = extractStatements(
   clientFetchSource,
@@ -76,8 +76,8 @@ const deadlineSource = extractStatements(
 )
 
 /** Transpiles the extracted TypeScript owners into a VM wired to the deterministic test clock. */
-function compileContract(clock) {
-  const source = `${clockOwnerSource}\n${deadlineSource}\n;globalThis.__contract = { installPausedClock, runWithFetchDeadline }`
+function compileContract(clock, selectedClockOwnerSource = clockOwnerSource) {
+  const source = `${selectedClockOwnerSource}\n${deadlineSource}\n;globalThis.__contract = { ANATOMIME_TEST_CLOCK_TIME, ANATOMIME_TEST_CLOCK_INSTALL_TIME, installPausedClock, runWithFetchDeadline }`
   const compiled = ts.transpileModule(source, {
     compilerOptions: { target: ts.ScriptTarget.ES2022 },
   }).outputText
@@ -111,7 +111,7 @@ function controlledFetch() {
 }
 
 /** Models only the monotonic timer and install/pause semantics exercised by the extracted owners. */
-function virtualClock() {
+function virtualClock({ installLatencyMilliseconds = 0 } = {}) {
   let now = 0
   let nextId = 1
   let paused = false
@@ -143,6 +143,7 @@ function virtualClock() {
         async install({ time } = {}) {
           if (time) now = time.valueOf()
           paused = false
+          if (installLatencyMilliseconds > 0) advance(installLatencyMilliseconds)
         },
         async pauseAt(time) {
           const target = time.valueOf()
@@ -202,10 +203,17 @@ test("clock-driven Anatomime cases use only the fixed paused request owner", () 
 })
 
 test("the actual fixed clock owner preserves a slow valid response without consuming its deadline", async () => {
-  const clock = virtualClock()
-  const { installPausedClock, runWithFetchDeadline } = compileContract(clock)
+  const clock = virtualClock({ installLatencyMilliseconds: 25 })
+  const {
+    ANATOMIME_TEST_CLOCK_TIME,
+    ANATOMIME_TEST_CLOCK_INSTALL_TIME,
+    installPausedClock,
+    runWithFetchDeadline,
+  } = compileContract(clock)
+  assert.ok(ANATOMIME_TEST_CLOCK_INSTALL_TIME.valueOf() < ANATOMIME_TEST_CLOCK_TIME.valueOf())
   await installPausedClock(clock.page)
   const origin = clock.now()
+  assert.equal(origin, ANATOMIME_TEST_CLOCK_TIME.valueOf())
   const transport = controlledFetch()
   const request = runWithFetchDeadline("/room", {}, 1_500, (response) => response, transport.fetchImpl)
 
@@ -213,6 +221,21 @@ test("the actual fixed clock owner preserves a slow valid response without consu
   assert.equal(clock.now(), origin)
   transport.release({ ok: true, marker: "ACTIVE_TERM" })
   assert.equal((await request).marker, "ACTIVE_TERM")
+})
+
+test("the fixed clock owner rejects an equal-target install under positive latency", async () => {
+  const equalTargetClockOwnerSource = clockOwnerSource.replace(
+    "page.clock.install({ time: ANATOMIME_TEST_CLOCK_INSTALL_TIME })",
+    "page.clock.install({ time: ANATOMIME_TEST_CLOCK_TIME })",
+  )
+  assert.notEqual(equalTargetClockOwnerSource, clockOwnerSource, "negative control must remove install headroom")
+
+  const clock = virtualClock({ installLatencyMilliseconds: 25 })
+  const { installPausedClock } = compileContract(clock, equalTargetClockOwnerSource)
+  await assert.rejects(
+    () => installPausedClock(clock.page),
+    /Cannot pause in the past/,
+  )
 })
 
 test("the actual fetch deadline still aborts at the real 1500ms boundary", async () => {

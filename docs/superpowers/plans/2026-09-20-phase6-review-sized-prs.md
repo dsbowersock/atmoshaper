@@ -1380,7 +1380,7 @@ Task 8 starts from reviewed base
 remained `8c7263b53697495f096f479484b6ccd7eae574f20111ecf0e0a44f7fd50017aa`
 and `bdb76adf941e4e22022765734650d7e1224486d282d8303fa5869ee4fc25a4c8`.
 
-The final slice has 20 planned paths: 13 source-exact implementation/test paths,
+The initial published slice had 20 planned paths: 13 source-exact implementation/test paths,
 two explicit repair paths and five coordinator-owned current records. The 13
 source-exact paths are:
 
@@ -1471,5 +1471,102 @@ runtime/readiness require v3. The repair followed a focused red/green cycle,
 then passed the complete Stripe readiness file 26/26, changed-file ESLint and
 diff check. The repaired focused suite passed 86/86 and the final full Node suite
 passed 4,729 with three intentional skips and no failures. The v1 freeze remains
-evidence of the finding; a v2 freeze, SPEC re-review and separate QUALITY
-re-review are required before publication.
+evidence of the finding. The v2 freeze passed SPEC re-review and separate
+QUALITY re-review, then published as PR #13 at
+`4ef561c75125ea3875da236759c10617cfdc8bb1`.
+
+### Task 8 hosted repair: auth-method parity and auditable current state
+
+Both hosted reviewers completed actual review of the initial 20-file head.
+Codex found that successful credential sign-ins pushed the sanitized callback
+directly while Google sign-ins traversed the current registration legal gate.
+The acceptance page already redirects users who have accepted the current
+documents and blocks users whose evidence is stale, so the first bounded repair
+put the missing parity in the credential redirect. Codex
+also found that the canonical state still described pre-publication work.
+CodeRabbit found that the log's truthful 14-path pre-QUALITY count was not
+explicitly reconciled with the final 13-path source-exact count after the
+operator-doc test became a repair path.
+
+The bounded amendment adds `app/login/login-form.tsx`,
+`tests/auth-registration.test.mjs` and the existing cross-domain companion
+`tests/calendar-booking-schema.test.mjs` to the explicit repair set. A focused test
+first reproduces the direct `/account` bypass, then covers the default callback,
+an explicit safe callback, an already-normalized legal callback and interrupted
+navigation ownership. The three hosted record findings are corrected in the
+existing coordinator-owned state, log and plan. README and the generated receipt
+remain record owners. Final scope is therefore 23 paths: 13 source-exact paths,
+five explicit repairs and five records. No archive, acceptance storage, schema,
+provider, global middleware, browser source, screenshot or media owner changes.
+
+Freeze the entire 23-file PR diff against base `995fc4f`, while staging only the
+eight-file amendment relative to initial head `4ef561c`. Require the focused
+auth and legal/readiness suites, full unit suite, typecheck, lint, strict receipt
+fixed point and diff checks. Independent SPEC then separate QUALITY must approve
+the amendment before commit and push. Reply concisely to all three threads, then
+obtain clean exact-head Codex and CodeRabbit coverage plus all seven strict CI
+jobs. The initial reviews and CI do not cover the amendment.
+
+That 23-file package passed SPEC, but separate QUALITY proved the client
+redirect was not an authoritative access boundary: Credentials had already
+minted a valid session before navigation, so abandoning the redirect or calling
+the callback directly left a stale-v2 session usable by ordinary routes. The
+recurrence cause was treating client navigation as enforcement while tests only
+observed `router.push`.
+
+The authoritative repair stays at the existing shared session seam instead of
+adding middleware. Auth.js's raw loader is internal. Ordinary
+`getCurrentSession()` checks the current registration Terms/Privacy evidence and
+fails closed on missing evidence or lookup errors. Only
+`app/legal/accept/page.tsx` and `app/legal/accept/actions.ts` may use the narrow
+pre-acceptance loader so a signed-in user can reach and complete the gate.
+`lib/rsc-session-proof.ts` no longer star-reexports the raw loader. Focused
+runtime and ownership tests first failed against the old implementation, then
+passed; Google callback and feature/session contracts remain covered.
+
+The full suite exposed one stale test-only implementation assertion in
+`tests/dev-clock.test.mjs`; it expected the retired `return auth()` spelling
+rather than the anonymous local-preview behavior. The assertion now targets the
+named raw-loader boundary and passes its full file 7/7. At that checkpoint scope
+was 31 paths: 12 recovery-exact paths, 14 explicit repairs and five records.
+Relative to published head `4ef561c`, the amendment was 17 paths.
+`app/legal/accept/page.tsx`
+moves from recovery-exact to repair, while the action, shared auth owner, RSC
+proof owner and focused companions enter only because the authoritative repair
+requires them.
+
+Renewed SPEC passed that package. Separate QUALITY then found a second session
+owner: Auth.js's public GET `/api/auth/session` still returned a stale-v2
+session to browser consumers even when `getCurrentSession()` failed closed.
+The first bounded repair shared one current-registration predicate across the
+ordinary server loader and exact GET session responses. Final SPEC then verified
+that Auth.js also dispatches POST `/api/auth/session` for client session updates.
+The final shared wrapper filters exact GET and POST session responses, preserves
+Auth.js response metadata, returns `null` when evidence is stale or unavailable,
+and keeps the narrow legal raw loader plus every non-session handler unchanged.
+The affected auth/session suites pass 78/78.
+
+Initial-head strict CI `35591116189` independently exposed a fixed-clock race in
+the Anatomime Retry-After browser case on both lane-1 attempts. Installing the
+Playwright clock and immediately pausing at the same timestamp allowed real time
+to move past the pause target. The test helper now installs one fixed minute
+earlier and pauses at the unchanged deterministic phase. The exact browser case
+passes three serial runs. Its extraction contract was updated to compile the
+real new constant and helper together. Final QUALITY then proved the virtual
+clock did not model any install latency, allowing the old equal-target helper to
+pass falsely. The strengthened contract advances a deterministic 25 ms after
+installation, requires the real helper's install target to be strictly earlier,
+and rejects an extracted equal-target mutation. That negative control failed
+before repair with `Missing expected rejection`; the repaired real-owner and
+dev-clock contracts pass 12/12 and the exact browser case passes again.
+
+Fresh final validation passes archive verification 9/9, Prisma
+validate/generate, typecheck, full lint, the 4,736-test Node suite with 4,733
+passes and three skips, production and Browser-QA builds with 115 pages,
+repository audit 28/28, diff checks, and the existing legal-gate browser smoke
+on desktop and mobile Chromium 2/2. The strict receipt reaches a fixed point
+with zero missing, unclassified or category mismatches; its exact hash is pinned
+in the frozen review evidence. Final scope is 33 files: 12 recovery-exact paths,
+16 explicit repairs and five records. The amendment relative to published head
+`4ef561c` is 19 files. Freeze that exact package, then require renewed
+independent SPEC followed by separate QUALITY before staging, commit or push.

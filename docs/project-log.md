@@ -22,9 +22,11 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   slice. The initial planned scope was 19 files.
 - Test-first redistribution applied six source tests first. The old v2 code
   produced eight expected failures among 31 tests: registry/acceptance, license
-  identity, legal-page copy and legal sitemap dates. After the eight product/
-  legal owners moved, all 14 implementation/test blobs matched recovery source
-  exactly. Archive verification passed 9/9; the focused final suite passed
+  identity, legal-page copy and legal sitemap dates. At the initial pre-QUALITY
+  freeze, after the eight product/legal owners moved, all 14 implementation/test
+  blobs matched recovery source exactly. The later operator-doc repair moved
+  `tests/stripe-readiness.test.mjs` out of that set, leaving 13 source-exact
+  paths in the published 20-file scope. Archive verification passed 9/9; the focused final suite passed
   85/85; the post-ordering SEO run passed 12/12; focused ESLint and diff checks
   passed.
 - The candidate sets current general and digital purchase versions to
@@ -49,10 +51,82 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   26/26. The updated focused suite passed 86/86 and the final full Node suite
   passed 4,729 with three skips and no failures. Final scope is 20 files: 13
   source-exact paths, the test/wiki repair pair and five coordinator-owned records.
-- Strict receipt reconciliation, frozen-package SPEC re-review then QUALITY,
-  commit, push, new stacked PR, both hosted reviewers and CI remain pending. No merge,
-  provider, billing, deployment, database, DNS/domain, PNG/frame/threshold,
-  media or production action occurred.
+- The repaired v2 package passed independent SPEC re-review then separate
+  QUALITY. Exact staged identity produced commit
+  `4ef561c75125ea3875da236759c10617cfdc8bb1`, published as open, unmerged PR #13
+  with exact base `995fc4f7ce44902002ef2b36c7af1195dbdcb562`. CodeRabbit reviewed all 20 files,
+  proving the smaller-PR path can receive actual coverage; Codex also completed
+  exact-head review. The initial hosted CI passed build and code quality while
+  browser lanes continued, but this head became historical once findings were
+  accepted for repair.
+- Codex identified two valid findings. Email/password success pushed its safe
+  callback directly, unlike Google, so users with only v2 acceptance could
+  bypass the current v3 gate. The canonical state also still described local
+  review and publication as pending. CodeRabbit identified one valid auditability
+  ambiguity: 14 paths were recovery-exact at the pre-QUALITY freeze, but the
+  operator-doc repair left 13 in the published final scope without making that
+  transition explicit.
+- The first credential repair failed its focused assertion on direct
+  `push:/account`, then routes default, explicit safe and already-gated callbacks
+  through one normalized current legal gate. Its full auth-registration owner
+  passes 17/17. The broad suite then correctly rejected a cross-domain schema
+  assertion that still required the retired direct push; the corrected focused
+  file passes 7/7 and the paired auth/schema run passes 24/24. Changed-file
+  ESLint and diff checks pass. Fresh final validation passes the combined
+  legal/auth/readiness slice 108/108, archive verification 9/9, Prisma
+  validate/generate, typecheck, full lint, the 4,732-test Node suite with 4,729
+  passes and three skips, both 115-page builds, and the existing legal-gate
+  browser smoke on desktop and mobile Chromium.
+- Independent SPEC passed that 23-file package, but separate QUALITY found that
+  the redirect still followed session creation and therefore did not prevent an
+  abandoned or direct Credentials callback from using a stale-v2 session. Root
+  reproduced the issue at the shared server-session owner; no middleware or
+  provider change was needed. The repair makes ordinary `getCurrentSession()`
+  fail closed until current registration documents are accepted, keeps the raw
+  Auth.js loader internal, and exposes one narrow pre-acceptance loader only to
+  the legal acceptance page/action. Runtime and ownership tests each failed
+  against the old implementation before passing; the combined focused slice is
+  142/142. The full suite then exposed a stale dev-clock source assertion tied
+  to `return auth()`; its corrected semantic boundary passes 7/7.
+- Renewed SPEC passed that 31-file package. Separate QUALITY then found the
+  Auth.js public session GET handler remained an externally observable raw
+  session owner. Flashcards, Chimer and background hydration could therefore
+  observe a stale-v2 session even though ordinary server loaders failed closed.
+  The first public-session repair shared one current-registration predicate
+  between the ordinary server loader and exact GET session responses. Final
+  SPEC then proved Auth.js also exposes the session action through POST when a
+  client updates session data. The final wrapper now filters exact GET and POST
+  `/api/auth/session` responses, preserves Auth.js status, headers and cookies,
+  returns `null` for stale evidence or lookup failure, and leaves all non-session
+  handlers plus the legal raw loader unchanged. The affected auth/session suites
+  pass 78/78.
+- Strict CI `35591116189` on the initial published head passed quality, build
+  and browser lanes 2–4 but failed lane 1 and aggregate. Both lane-1 attempts
+  reproduced `clock.pauseAt` being asked to fast-forward to the past in the
+  fixed-clock Anatomime Retry-After case. The installed Playwright clock advances
+  between install and pause; installing one fixed minute earlier while pausing
+  at the original phase removes that race without changing the scenario. The
+  exact browser case passed three serial runs. Its actual-owner extraction test
+  initially rejected the new constant, then passed with the dev-clock contracts.
+  Final QUALITY then proved that contract still modeled no time between install
+  and pause, so the old equal-target helper would falsely pass. Root reproduced
+  the gap before repair. The strengthened real-owner contract advances a
+  deterministic 25 ms after install, requires strictly earlier installation and
+  rejects an extracted equal-target mutation. Its focused negative control first
+  failed with `Missing expected rejection`, then the repaired clock contract plus
+  dev-clock suite passed 12/12; the exact browser case passed again.
+- Fresh final validation passes the 4,736-test Node suite with 4,733 passes and
+  three skips, Prisma validate/generate, typecheck, full lint, both 115-page
+  builds, archive verification 9/9, repository audit 28/28 and the desktop/
+  mobile legal-gate smoke 2/2. The strict receipt reached the same fixed point
+  with zero missing, unclassified or category mismatches; its exact hash is
+  pinned in the frozen review evidence. Final scope is 33 files: 12 source-exact
+  paths, 16 explicit repair paths and five coordinator-owned records; the
+  amendment relative to `4ef561c` is 19 files.
+  Frozen-package SPEC then QUALITY, amendment commit/push,
+  inline replies, renewed exact-head hosted reviews and strict CI remain. No
+  merge, provider, billing, deployment, database, DNS/domain, PNG/frame/
+  threshold, media or production action occurred.
 
 ## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
 
