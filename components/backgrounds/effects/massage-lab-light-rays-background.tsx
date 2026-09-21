@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -151,7 +152,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Light Rays ships as an OGL full-screen shader. MassageLab ports
+// AtmoShaper Light Rays ships as an OGL full-screen shader. AtmoShaper ports
 // the source shader, placement helper, and optional mouse-follow math directly.
 export default function MassageLabLightRaysBackground({
   className,
@@ -500,7 +501,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Light Rays shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Light Rays shader uniform: ${name}`)
   }
 
   return location

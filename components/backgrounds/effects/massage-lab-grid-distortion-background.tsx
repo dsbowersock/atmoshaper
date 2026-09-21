@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -87,7 +88,7 @@ void main() {
   gl_FragColor = texture2D(uTexture, newUV);
 }`
 
-// MassageLab Grid Distortion uses a Three.js plane, image texture, and float
+// AtmoShaper Grid Distortion uses a Three.js plane, image texture, and float
 // data texture. This port keeps that shader/data-texture model in raw WebGL.
 export default function MassageLabGridDistortionBackground({
   className,
@@ -376,14 +377,14 @@ function createGridDistortionResources(
   const fragmentShader = compileShader(context, context.FRAGMENT_SHADER, fragmentShaderSource)
   const program = context.createProgram()
   if (!program) {
-    throw new Error("Unable to create MassageLab Grid Distortion program")
+    throw new Error(`Unable to create ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion program`)
   }
 
   context.attachShader(program, vertexShader)
   context.attachShader(program, fragmentShader)
   context.linkProgram(program)
   if (!context.getProgramParameter(program, context.LINK_STATUS)) {
-    throw new Error(context.getProgramInfoLog(program) ?? "Unable to link MassageLab Grid Distortion program")
+    throw new Error(context.getProgramInfoLog(program) ?? `Unable to link ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion program`)
   }
 
   const positionBuffer = createBuffer(context, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]))
@@ -391,7 +392,7 @@ function createGridDistortionResources(
   const imageTexture = createImageTexture(context, options)
   const dataTexture = context.createTexture()
   if (!dataTexture) {
-    throw new Error("Unable to create MassageLab Grid Distortion data texture")
+    throw new Error(`Unable to create ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion data texture`)
   }
 
   context.bindTexture(context.TEXTURE_2D, dataTexture)
@@ -429,7 +430,7 @@ function createImageTexture(context: WebGLRenderingContext, options: ResolvedGri
   textureCanvas.height = 512
   const textureContext = textureCanvas.getContext("2d")
   if (!textureContext) {
-    throw new Error("Unable to create MassageLab Grid Distortion image texture canvas")
+    throw new Error(`Unable to create ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion image texture canvas`)
   }
 
   const gradient = textureContext.createLinearGradient(0, 0, 512, 512)
@@ -454,7 +455,7 @@ function createImageTexture(context: WebGLRenderingContext, options: ResolvedGri
 
   const texture = context.createTexture()
   if (!texture) {
-    throw new Error("Unable to create MassageLab Grid Distortion image texture")
+    throw new Error(`Unable to create ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion image texture`)
   }
 
   context.bindTexture(context.TEXTURE_2D, texture)
@@ -470,7 +471,7 @@ function createImageTexture(context: WebGLRenderingContext, options: ResolvedGri
 function createBuffer(context: WebGLRenderingContext, data: Float32Array) {
   const buffer = context.createBuffer()
   if (!buffer) {
-    throw new Error("Unable to create MassageLab Grid Distortion buffer")
+    throw new Error(`Unable to create ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion buffer`)
   }
   context.bindBuffer(context.ARRAY_BUFFER, buffer)
   context.bufferData(context.ARRAY_BUFFER, data, context.STATIC_DRAW)
@@ -480,12 +481,12 @@ function createBuffer(context: WebGLRenderingContext, data: Float32Array) {
 function compileShader(context: WebGLRenderingContext, type: number, source: string) {
   const shader = context.createShader(type)
   if (!shader) {
-    throw new Error("Unable to create MassageLab Grid Distortion shader")
+    throw new Error(`Unable to create ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion shader`)
   }
   context.shaderSource(shader, source)
   context.compileShader(shader)
   if (!context.getShaderParameter(shader, context.COMPILE_STATUS)) {
-    throw new Error(context.getShaderInfoLog(shader) ?? "Unable to compile MassageLab Grid Distortion shader")
+    throw new Error(context.getShaderInfoLog(shader) ?? `Unable to compile ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion shader`)
   }
   return shader
 }
@@ -493,7 +494,7 @@ function compileShader(context: WebGLRenderingContext, type: number, source: str
 function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgram, name: string) {
   const location = context.getUniformLocation(program, name)
   if (!location) {
-    throw new Error(`Missing MassageLab Grid Distortion uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Grid Distortion uniform: ${name}`)
   }
   return location
 }

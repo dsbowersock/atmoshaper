@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -285,7 +286,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Pixel Blast ships as a Three.js/postprocessing shader. MassageLab
+// AtmoShaper Pixel Blast ships as a Three.js/postprocessing shader. AtmoShaper
 // ports the pixel shader, ripple clicks, and liquid touch texture to raw WebGL.
 export default function MassageLabPixelBlastBackground({
   className,
@@ -816,7 +817,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Pixel Blast shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Pixel Blast shader uniform: ${name}`)
   }
 
   return location

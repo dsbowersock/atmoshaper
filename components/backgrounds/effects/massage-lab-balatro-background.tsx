@@ -134,7 +134,7 @@ void main() {
   gl_FragColor = effect(iResolution.xy, uv);
 }`
 
-// MassageLab Balatro is an OGL shader inspired by the game title treatment.
+// AtmoShaper Balatro is an OGL shader inspired by the game title treatment.
 // This port keeps the same uniforms in raw WebGL for internal app backgrounds.
 export default function MassageLabBalatroBackground({
   className,

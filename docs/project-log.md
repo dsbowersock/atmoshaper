@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Account gates clean; background renderer local verification
+
+- PR #10 head `3e29e6e696131450820e8b70cc195d6bf5849f8a` passed Codex review,
+  CodeRabbit's incremental review and all seven jobs in CI `35545694616`.
+  CodeRabbit accepted at 00:30:28 UTC and finished at 00:32 UTC with no new
+  actionable comments. The prior documentation thread is resolved.
+- Started the next stacked branch in the existing approved worktree. Task 6
+  carries 59 renderer files plus its shared test hunk. Moved the single globe
+  marker-removal file from the original 60-path allocation into Task 7, keeping
+  it with registry/catalog/audit descriptions and marker tests (59/30 allocation).
+  No source work is discarded. Verified change scope is 64 paths with receipts.
+- All 59 renderer blobs match recovery. Focused checks passed 153/153;
+  typecheck, lint, strict audit and inventory passed. The full unit suite
+  passed 4,711 tests with three skips and zero failures (4,714 total).
+- Independent SPEC passed; QUALITY found no runtime or companion-test defect
+  but identified stale local-status wording. This checkpoint corrects those
+  records; the bounded documentation/receipt delta receives SPEC then QUALITY
+  confirmation before publication. No source or test changes were needed.
+- Own-head hosted reviews and strict CI remain unverified, and whole-sequence
+  reconciliation remains incomplete. Original and earlier branches remain
+  unchanged/unmerged. No provider, screenshot, frame, threshold, billing,
+  deployment or legal-version changes.
+
 ## 2026-09-20 — Account slice published; hosted manifest clarification
 
 - Published and attached PR #10 at `487fd7bfa8e8c000d13743d13fbeba99eadf9cf8`

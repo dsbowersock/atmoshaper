@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -112,7 +113,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Dark Veil ships as an OGL wrapper. MassageLab keeps the source CPPN
+// AtmoShaper Dark Veil ships as an OGL wrapper. AtmoShaper keeps the source CPPN
 // shader and ports only the rendering shell to native WebGL.
 export default function MassageLabDarkVeilBackground({
   className,
@@ -448,7 +449,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Dark Veil shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Dark Veil shader uniform: ${name}`)
   }
 
   return location

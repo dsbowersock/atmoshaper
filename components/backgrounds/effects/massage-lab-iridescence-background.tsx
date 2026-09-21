@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -81,7 +82,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Iridescence ships as an OGL full-screen shader. MassageLab keeps
+// AtmoShaper Iridescence ships as an OGL full-screen shader. AtmoShaper keeps
 // the source fragment loop and mouse offset uniforms in dependency-free WebGL.
 export default function MassageLabIridescenceBackground({
   className,
@@ -427,7 +428,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Iridescence uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Iridescence uniform: ${name}`)
   }
 
   return location

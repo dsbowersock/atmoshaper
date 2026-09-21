@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -135,7 +136,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Evil Eye ships as an OGL full-screen shader. MassageLab keeps the
+// AtmoShaper Evil Eye ships as an OGL full-screen shader. AtmoShaper keeps the
 // source noise texture and fragment math while using explicit WebGL resources.
 export default function MassageLabEvilEyeBackground({
   className,
@@ -605,7 +606,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Evil Eye shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Evil Eye shader uniform: ${name}`)
   }
 
   return location

@@ -702,8 +702,8 @@ files early. Earlier slices must carry matching owner-specific test/audit hunks.
 | 3 | Atmosphere audio | 35 |
 | 4 | Public routes/content | 54 |
 | 5 | Account/service copy | 49 |
-| 6 | Background renderer presentation | 60 |
-| 7 | Background catalog/controls | 29 |
+| 6 | Background renderer presentation | 59 |
+| 7 | Background catalog/controls and globe-marker retirement | 30 |
 | 8 | Current legal identity | 13 |
 | 9 | Integration/audits/authority | 29 |
 
@@ -738,3 +738,161 @@ worktree cleanup require separate ownership/authorization checks. Rollback is
 retaining the source and declining to merge replacements; no external resource
 rollback is needed. Future validated fixes must not silently disappear when
 the stack is reconciled. No new architectural ADR is needed for repackaging.
+
+## Task 6: Background renderer presentation
+
+Base `3e29e6e696131450820e8b70cc195d6bf5849f8a` is the exact reviewed PR #10
+head. Codex completed clean at 23:51 UTC on September 20; CodeRabbit completed
+its incremental review without actionable comments at 00:32 UTC on September 21.
+All seven jobs in CI `35545694616` passed and the prior thread is resolved.
+Original PR #5 and replacements #6-#10 remain open and unmerged.
+
+The source-locked Phase 6 plan's background task owns current effect prose and
+diagnostic text plus removal of the built-in legacy globe mark. The original
+allocation counted 60 renderer paths and 29 catalog/controls paths. Execute
+59/30 instead: keep `components/backgrounds/effects/massage-lab-3d-globe-background.tsx`
+with the next catalog slice, its registry/catalog/audit descriptions and paired
+marker assertions. This is a packaging boundary, not a dropped source change.
+
+### Exact source-owned files
+
+Copy these 59 files exactly from recovery
+`7e318558da425b8fcdddeb8df50e93a36900310a`:
+- `components/backgrounds/effects/css-backgrounds.tsx`
+- `components/backgrounds/effects/massage-lab-astral-flow-background.tsx`
+- `components/backgrounds/effects/massage-lab-aurora-bars-background.tsx`
+- `components/backgrounds/effects/massage-lab-balatro-background.tsx`
+- `components/backgrounds/effects/massage-lab-beams-background.tsx`
+- `components/backgrounds/effects/massage-lab-chrome-flow-background.tsx`
+- `components/backgrounds/effects/massage-lab-color-bends-background.tsx`
+- `components/backgrounds/effects/massage-lab-dark-veil-background.tsx`
+- `components/backgrounds/effects/massage-lab-deep-space-nebula-background.tsx`
+- `components/backgrounds/effects/massage-lab-dither-background.tsx`
+- `components/backgrounds/effects/massage-lab-dot-field-background.tsx`
+- `components/backgrounds/effects/massage-lab-dot-grid-background.tsx`
+- `components/backgrounds/effects/massage-lab-electric-mist-background.tsx`
+- `components/backgrounds/effects/massage-lab-evil-eye-background.tsx`
+- `components/backgrounds/effects/massage-lab-faulty-terminal-background.tsx`
+- `components/backgrounds/effects/massage-lab-ferrofluid-background.tsx`
+- `components/backgrounds/effects/massage-lab-floating-lines-background.tsx`
+- `components/backgrounds/effects/massage-lab-galaxy-background.tsx`
+- `components/backgrounds/effects/massage-lab-gradient-blinds-background.tsx`
+- `components/backgrounds/effects/massage-lab-grainient-background.tsx`
+- `components/backgrounds/effects/massage-lab-grid-bloom-background.tsx`
+- `components/backgrounds/effects/massage-lab-grid-distortion-background.tsx`
+- `components/backgrounds/effects/massage-lab-grid-scan-background.tsx`
+- `components/backgrounds/effects/massage-lab-iridescence-background.tsx`
+- `components/backgrounds/effects/massage-lab-letter-glitch-background.tsx`
+- `components/backgrounds/effects/massage-lab-light-pillar-background.tsx`
+- `components/backgrounds/effects/massage-lab-light-rays-background.tsx`
+- `components/backgrounds/effects/massage-lab-light-speed-background.tsx`
+- `components/backgrounds/effects/massage-lab-lightfall-background.tsx`
+- `components/backgrounds/effects/massage-lab-lightning-background.tsx`
+- `components/backgrounds/effects/massage-lab-line-waves-background.tsx`
+- `components/backgrounds/effects/massage-lab-liquid-chrome-background.tsx`
+- `components/backgrounds/effects/massage-lab-liquid-ether-background.tsx`
+- `components/backgrounds/effects/massage-lab-matrix-rain-background.tsx`
+- `components/backgrounds/effects/massage-lab-novatrix-background.tsx`
+- `components/backgrounds/effects/massage-lab-orb-background.tsx`
+- `components/backgrounds/effects/massage-lab-particles-background.tsx`
+- `components/backgrounds/effects/massage-lab-photon-beam-background.tsx`
+- `components/backgrounds/effects/massage-lab-pixel-blast-background.tsx`
+- `components/backgrounds/effects/massage-lab-pixel-snow-background.tsx`
+- `components/backgrounds/effects/massage-lab-plasma-background.tsx`
+- `components/backgrounds/effects/massage-lab-plasma-wave-background.tsx`
+- `components/backgrounds/effects/massage-lab-prism-background.tsx`
+- `components/backgrounds/effects/massage-lab-prismatic-burst-background.tsx`
+- `components/backgrounds/effects/massage-lab-radar-background.tsx`
+- `components/backgrounds/effects/massage-lab-ripple-grid-background.tsx`
+- `components/backgrounds/effects/massage-lab-shape-grid-background.tsx`
+- `components/backgrounds/effects/massage-lab-shooting-stars-background.tsx`
+- `components/backgrounds/effects/massage-lab-side-rays-background.tsx`
+- `components/backgrounds/effects/massage-lab-silk-background.tsx`
+- `components/backgrounds/effects/massage-lab-soft-aurora-background.tsx`
+- `components/backgrounds/effects/massage-lab-sparkles.tsx`
+- `components/backgrounds/effects/massage-lab-synthesis-background.tsx`
+- `components/backgrounds/effects/massage-lab-threads-background.tsx`
+- `components/backgrounds/effects/massage-lab-vortex-background.tsx`
+- `components/backgrounds/effects/massage-lab-wave-current-background.tsx`
+- `components/backgrounds/effects/massage-lab-waves-background.tsx`
+- `components/backgrounds/effects/massage-lab-wavy-background.tsx`
+- `components/backgrounds/use-ambient-reduced-motion.ts`
+
+### Paired test and delivery scope
+
+- Modify `tests/background-options.test.mjs` only for the renderer-owner
+  regression from recovery: its `readdirSync` import, `effectSources` collection,
+  `withoutContextualComments` helper and the loop proving effect runtime product
+  copy does not hard-code `AtmoShaper`. Put that loop in its own named renderer
+  test. Do not import the whole source file: registry/catalog label/provider
+  assertions, test-title renames and globe-marker assertions stay with Task 7.
+- Modify only `docs/project-state.md`, `docs/project-log.md`, this delivery plan,
+  and generated `scripts/repository-audit/brand-reference-baseline.json` for
+  delivery receipts. Expected scope: 59 source files + one shared test + four
+  delivery/audit files = 64. Measure the actual exact path set before publication.
+- Preserve `scripts/repository-audit/policy.json`, the strict audit verifier,
+  all existing 48 exact compatibility rules and all earlier verified repairs.
+  Regenerate the intermediate receipt through the existing deterministic audit
+  generator; do not copy the final source receipt or broaden exclusions.
+
+### Boundaries and execution
+
+Root owns Git, delivery documents and final receipt generation. One implementer
+owns the 59 source files and the one paired test; no parallel implementers.
+The current isolated worktree is reused on `codex/phase6-06-background-renderers`.
+No commit, push or provider action is delegated. Follow independent SPEC then
+QUALITY review after implementation and focused validation.
+
+Change necessity: source redistribution needs these existing-owner changes to
+deliver the approved preview without exceeding the review cap. No new rendering
+abstraction or dependency is necessary. TDD mode off, skipped for mechanical
+redistribution; retain existing regression coverage. A new defect requires
+cause verification and a bounded amendment before repair.
+
+Complexity: medium integration risk across many same-shaped source owners.
+Several renderer files and the shared background test are already large.
+Edits are source-exact local wiring/comments and a small owner-specific test
+block, with no new runtime responsibility or extraction. Do not expand into
+catalog, browser, audit-policy or runtime redesign to make this slice pass.
+
+Preserve shader equations, uniforms and resources, animation/visibility/motion
+behavior, paths, component and option symbols, CSS tokens, storage and media IDs,
+registry/catalog copy, globe markers, screenshots, tolerances, legal versions,
+provider and Sentry/admin compatibility contracts. No source PNGs are copied.
+
+### Verification and stop gates
+
+1. Prove all 59 source blobs equal recovery and the globe/catalog/control files
+   remain exact reviewed-base bytes. Inspect the shared test diff for only its
+   assigned renderer hunk. Record the partial companion in final equivalence.
+2. Run `node --test tests/background-options.test.mjs
+   tests/background-animation-autonomy.test.mjs tests/background-renderer-readiness.test.mjs
+   tests/motion-preferences.test.mjs tests/background-palette-registry.test.mjs`
+   after verifying these existing test paths. If a named path is absent, use
+   its actual existing owner rather than creating a substitute test file.
+3. Run `npm run typecheck`, `npm run lint`, then the full `npm run test` once
+   on the frozen candidate; root also verifies strict brand/inventory and
+   archive/document contracts, generated receipt fixed point and diff checks.
+4. Independent SPEC then QUALITY review must pass before root commits and
+   publishes the slice stacked on PR #10. Its own exact-head hosted reviewers
+   and strict CI remain required. No changed-base/head evidence may be reused.
+5. Stop on new behavior, unclassified retained occurrences, source drift,
+   unexpected dependencies, failed checks or approaching the 100-file cap.
+   No PNG/frame/tolerance/provider workaround is authorized. Whole-sequence
+   source reconciliation and separate Linux snapshot approval remain pending.
+
+### Local verification and documentation finalization
+
+The 59 source blobs and 64-path boundary were verified. The candidate passed
+153 focused tests, typecheck, lint, strict audit/inventory and the full unit
+suite: 4,711 passed, three skipped, zero failures (4,714 total). Independent
+SPEC passed; QUALITY found no renderer/test defect and requested correction
+of stale canonical status wording. The correction changes only delivery
+documents and the generated receipt; hosted gates remain unverified.
+
+Before freezing each later slice, synchronize the canonical state/log with
+achieved local evidence, distinguish completed checks from outstanding hosted
+gates, then regenerate the receipt. If review changes only these records,
+prove source/test/policy bytes unchanged and verify the bounded document/audit
+delta before scoped SPEC then QUALITY confirmation. Do not carry start-of-task
+pending claims into a publication candidate or imply whole-sequence completion.

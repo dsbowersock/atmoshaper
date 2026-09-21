@@ -180,7 +180,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Color Bends ships as a Three.js shader plane. MassageLab keeps
+// AtmoShaper Color Bends ships as a Three.js shader plane. AtmoShaper keeps
 // the source fragment shader and ports only the scene/material plumbing to WebGL.
 export default function MassageLabColorBendsBackground({
   className,

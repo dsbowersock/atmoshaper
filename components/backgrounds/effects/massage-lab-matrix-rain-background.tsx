@@ -17,7 +17,7 @@ const DEFAULT_MASSAGE_LAB_MATRIX_RAIN: ResolvedMatrixRainOptions = {
 const MATRIX_RAIN_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*()_+"
 const SOURCE_FRAME_INTERVAL_MS = 33
 
-// MassageLab's source is a 2D Matrix-rain canvas. MassageLab keeps that source
+// AtmoShaper's source is a 2D Matrix-rain canvas. AtmoShaper keeps that source
 // shape while adapting sizing and lifecycle cleanup to the shared background host.
 export default function MassageLabMatrixRainBackground({
   className,

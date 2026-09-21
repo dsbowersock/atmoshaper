@@ -52,7 +52,7 @@ const DEFAULT_MASSAGELAB_DOT_GRID: ResolvedDotGridOptions = {
 
 const OFFSCREEN_POINTER = -9999
 
-// MassageLab Dot Grid uses canvas with GSAP InertiaPlugin. MassageLab keeps the
+// AtmoShaper Dot Grid uses canvas with GSAP InertiaPlugin. AtmoShaper keeps the
 // source grid/proximity/shock model and replaces GSAP with local canvas physics.
 export default function MassageLabDotGridBackground({
   className,

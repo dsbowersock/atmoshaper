@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { type CSSProperties, useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -104,7 +105,7 @@ const vertexShaderSource = `
   }
 `
 
-// MassageLab Light Pillar ships as a Three.js shader material. MassageLab keeps
+// AtmoShaper Light Pillar ships as a Three.js shader material. AtmoShaper keeps
 // the source raymarching shader and quality presets, replacing only the runtime
 // shell with native WebGL so no new heavy dependency is added.
 export default function MassageLabLightPillarBackground({
@@ -621,7 +622,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Light Pillar shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Light Pillar shader uniform: ${name}`)
   }
 
   return location

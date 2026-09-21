@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -206,7 +207,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Ferrofluid ships as an OGL component. MassageLab ports the shader
+// AtmoShaper Ferrofluid ships as an OGL component. AtmoShaper ports the shader
 // directly so the premium background stays dependency-free and pointer-passive.
 export default function MassageLabFerrofluidBackground({
   className,
@@ -576,7 +577,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Ferrofluid shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Ferrofluid shader uniform: ${name}`)
   }
 
   return location

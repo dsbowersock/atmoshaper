@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -167,7 +168,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Wave Current ships as a Three/R3F/Drei shader plane. MassageLab keeps the
+// AtmoShaper Wave Current ships as a Three/R3F/Drei shader plane. AtmoShaper keeps the
 // same shader uniforms and tilted plane behavior in native WebGL.
 export default function MassageLabWaveCurrentBackground({
   className,
@@ -531,7 +532,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Wave Current shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Wave Current shader uniform: ${name}`)
   }
 
   return location

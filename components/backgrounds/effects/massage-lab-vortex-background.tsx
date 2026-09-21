@@ -28,7 +28,7 @@ const Y_OFFSET = 0.00125
 const Z_OFFSET = 0.0005
 const TAU = Math.PI * 2
 
-// MassageLab Vortex by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Vortex by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export default function MassageLabVortexBackground({ className, vortex }: BackgroundEffectProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const vortexParticleCount = vortex?.particleCount

@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -145,7 +146,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Electric Mist is published as a Three/R3F shader component. This
+// AtmoShaper Electric Mist is published as a Three/R3F shader component. This
 // ports the source shader into a native WebGL layer so Clock/Chimer avoid that stack.
 export default function MassageLabElectricMistBackground({
   className,
@@ -452,7 +453,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Electric Mist shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Electric Mist shader uniform: ${name}`)
   }
 
   return location

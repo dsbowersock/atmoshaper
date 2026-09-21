@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -218,7 +219,7 @@ const fragmentShaderSource = `#version 300 es
   }
 `
 
-// MassageLab Prismatic Burst is a WebGL2/OGL shader. MassageLab keeps the
+// AtmoShaper Prismatic Burst is a WebGL2/OGL shader. AtmoShaper keeps the
 // shader math and gradient texture model while owning WebGL lifecycle cleanup.
 export default function MassageLabPrismaticBurstBackground({
   className,
@@ -546,7 +547,7 @@ function getUniformLocation(
   const location = gl.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Prismatic Burst shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Prismatic Burst shader uniform: ${name}`)
   }
 
   return location

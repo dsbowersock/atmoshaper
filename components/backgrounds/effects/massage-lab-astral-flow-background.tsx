@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -150,8 +151,8 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Astral Flow ships as a Three/R3F shader component. This keeps the
-// same shader controls in MassageLab without adding that dependency stack.
+// AtmoShaper Astral Flow ships as a Three/R3F shader component. This keeps the
+// same shader controls in AtmoShaper without adding that dependency stack.
 export default function MassageLabAstralFlowBackground({
   className,
   massageLabAstralFlow,
@@ -477,7 +478,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Astral Flow shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Astral Flow shader uniform: ${name}`)
   }
 
   return location
