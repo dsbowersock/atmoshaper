@@ -76,14 +76,28 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   brand receipt reaches a fixed point with zero missing, unclassified or
   category mismatches; its exact hash is pinned in the frozen review evidence.
   No snapshot changed.
-- The final 33-file package and 19-file amendment passed independent SPEC then
+- The pre-CI 33-file package and 19-file amendment passed independent SPEC then
   separate QUALITY on one frozen byte set. Exact staged identity produced and
-  pushed product amendment `2ab6382d2e944b75e8eb0e76808870f205d21736` to
-  PR #13. A coordinator-record synchronization may follow without changing
-  product scope; its exact progress belongs in the ignored handoff, while
-  GitHub is authoritative for the live PR head, hosted reviews and CI. Both
-  hosted reviewers and all seven strict CI jobs must cover the resulting exact
-  head; the initial head's review and CI are historical evidence only. Tasks 9,
+  pushed product amendment `2ab6382d2e944b75e8eb0e76808870f205d21736`, then
+  durable record synchronization `ecf30584cf689edca4bfe2566e1d9a795253fd29`,
+  to PR #13. Both hosted reviewers completed clean coverage of the synchronized
+  head, but strict CI `35621507294` exposed a Browser-QA fixture recurrence:
+  synthetic users lacked current registration acceptances, provider-free JWTs
+  did not project server-rendered account ownership, and service workers could
+  bypass context routing on reload.
+- The bounded repair keeps the legal gate intact. Authorized connected fixtures
+  atomically create current Terms and Privacy acceptance rows, verify exact
+  ownership before cleanup, and delete the restricted rows and owned user in one
+  rollback-safe transaction. Provider-free tests own only context-local session
+  and account-bootstrap projections, preserve owner switching, and keep the
+  connected `Open account cart` assertion unchanged. Focused contracts pass
+  64/64 and the five exact repaired browser scenarios pass 10/10 across desktop
+  and mobile Chromium; the full Node suite passes 4,736 with three host-dependent
+  skips and zero failures, and typecheck, changed-file lint and diff checks pass.
+  The current candidate contains 40 paths: 12 recovery-exact, 23 repairs and five
+  records. GitHub and the ignored handoff remain authoritative for live review,
+  thread and CI status. The next exact head still requires independent SPEC then
+  QUALITY, both hosted reviewers and all seven strict CI jobs. Tasks 9,
   combined-source equivalence and the separate Linux Atmosphere snapshot
   decision remain pending.
 - Original PR #5 and replacements #6–#13 remain open and unmerged. No provider,

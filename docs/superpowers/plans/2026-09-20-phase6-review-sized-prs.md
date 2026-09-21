@@ -1560,13 +1560,13 @@ and rejects an extracted equal-target mutation. That negative control failed
 before repair with `Missing expected rejection`; the repaired real-owner and
 dev-clock contracts pass 12/12 and the exact browser case passes again.
 
-Fresh final validation passes archive verification 9/9, Prisma
+Pre-CI final validation passed archive verification 9/9, Prisma
 validate/generate, typecheck, full lint, the 4,736-test Node suite with 4,733
 passes and three skips, production and Browser-QA builds with 115 pages,
 repository audit 28/28, diff checks, and the existing legal-gate browser smoke
 on desktop and mobile Chromium 2/2. The strict receipt reaches a fixed point
 with zero missing, unclassified or category mismatches; its exact hash is pinned
-in the frozen review evidence. Final scope is 33 files: 12 recovery-exact paths,
+in the frozen review evidence. That scope was 33 files: 12 recovery-exact paths,
 16 explicit repairs and five records. The amendment relative to published head
 `4ef561c` is 19 files. Frozen v7 passed renewed independent SPEC followed by
 separate QUALITY on one byte set. Exact staged identity produced and pushed
@@ -1576,3 +1576,31 @@ does not change product scope; its live review/publication status belongs in the
 ignored handoff, and GitHub remains authoritative for the exact PR head, hosted
 reviews and CI. Every resulting exact head still requires both hosted reviewers
 and all seven strict CI jobs before Task 8 can close.
+
+The durable record synchronization was published as `ecf30584`. Both hosted
+reviewers completed clean exact-head coverage, but strict CI `35621507294`
+exposed the shared Browser-QA fixture recurrence: synthetic database users had
+no current registration acceptances; provider-free JWTs could not supply the
+server-rendered account bootstrap; and a registered service worker could bypass
+context routing on reload. The login recovery test also retained its pre-gate
+destination expectation. This was a fixture/expectation defect, not evidence
+for weakening the current-acceptance gate.
+
+The bounded repair adds seven paths to the explicit repair set. Authorized
+database-backed fixtures atomically create the current registration Terms and
+Privacy rows, verify exact ownership before cleanup, and delete the restricted
+rows and owned user in one rollback-safe transaction.
+Provider-free browser contexts own only their local `/api/auth/session` and
+serialized account-bootstrap projections, keep mutable owner identity across
+reloads, and disable service-worker registration only inside that routed test
+context. Connected QA retains the canonical `Open account cart` assertion;
+provider-free QA explicitly expects the product cart label because no server
+`SidebarUser` exists. RED reproduced the login, account-owner, reload and cart
+failures, including zero-count and thrown-delete rollback oracles. GREEN passes
+the fixture/harness contracts 64/64 and the five exact browser scenarios across
+desktop/mobile 10/10. The full Node suite passes 4,736
+with three host-dependent skips and zero failures, plus typecheck, changed-file
+lint and diff checks. The current candidate is 40 paths: 12 recovery-exact, 23
+repairs and five records. Freeze these exact bytes, run independent SPEC then
+separate QUALITY, prove staged identity, and require fresh exact-head coverage
+from both hosted reviewers plus all seven strict CI jobs before Task 8 closes.

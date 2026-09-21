@@ -82121,56 +82121,56 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 683,
+      "line": 707,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 714,
+      "line": 738,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 733,
+      "line": 757,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 734,
+      "line": 758,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 735,
+      "line": 759,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 738,
+      "line": 762,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 773,
+      "line": 797,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 777,
+      "line": 801,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
@@ -82184,70 +82184,70 @@
     },
     {
       "path": "docs/project-state.md",
-      "line": 480,
+      "line": 494,
       "column": 35,
       "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 517,
+      "line": 531,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 521,
+      "line": 535,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 523,
+      "line": 537,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 527,
+      "line": 541,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 528,
+      "line": 542,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 531,
+      "line": 545,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 532,
+      "line": 546,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 532,
+      "line": 546,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 559,
+      "line": 573,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -92593,7 +92593,7 @@
     },
     {
       "path": "lib/auth/browser-user-fixture.ts",
-      "line": 31,
+      "line": 33,
       "column": 45,
       "textSha256": "63fef46e50f94e707c4b502417d94bb5243c4b489ce05338cd59cfd01614728f",
       "category": "compatibility"
@@ -133137,168 +133137,168 @@
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 26,
+      "line": 27,
       "column": 91,
       "textSha256": "4739bd96db34d6848f6736d29e740c694ea49aee7f9078e28df45116443c42a6",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 27,
+      "line": 28,
       "column": 89,
       "textSha256": "5bf005d456437a1bdeb3cc2116178bdd72c14dccbab6db7cc3a28e0ba05d16f7",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 31,
+      "line": 32,
       "column": 5,
       "textSha256": "06a16ec06946ee558f9dff8b58640bea45c78b1f4574c40d61050ff7f7044b09",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 32,
+      "line": 33,
       "column": 5,
       "textSha256": "b630f1d59c5e0d8c9a9000f4e74ab2089524f723e09a2c741ab6051ef26b6c16",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 33,
+      "line": 34,
       "column": 5,
       "textSha256": "e52d5ca5f52facfd643e32ad246998faf4f629d197b58f9fbe809c38e77d7259",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 44,
+      "line": 45,
       "column": 5,
       "textSha256": "fdd0352d7824b1330a0c3913b76c9d2b0c8db30a5dddc69402e27dca5592ffe8",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 55,
+      "line": 130,
       "column": 18,
       "textSha256": "672db6fc328b62fecdb3504f1e973e91715a3a2b4fd1309dbb5a9fbb8b3792c1",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 226,
+      "line": 333,
       "column": 72,
       "textSha256": "3ba4fb566cf6bce80b712f94d820ec0218218737ce854f72fdd50fb39c5ecabb",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 310,
+      "line": 467,
       "column": 11,
       "textSha256": "ebc8396261cd73989405fd350e4c7c4bcbfc7ae28324c2fb7c8225015f68f9a7",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 312,
+      "line": 469,
       "column": 11,
       "textSha256": "365e8de0c06585cd697c0e411e82edcbbf35c1ea7efad693614d3cec11b079df",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 322,
+      "line": 479,
       "column": 32,
       "textSha256": "18e1139fa250152656ec410b93e42ce47412087ad3b0d655fc45360aa0501851",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 322,
+      "line": 479,
       "column": 79,
       "textSha256": "18e1139fa250152656ec410b93e42ce47412087ad3b0d655fc45360aa0501851",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 323,
+      "line": 480,
       "column": 32,
       "textSha256": "990dd28d396e6e448a2e4ea82c8a5783e9a18121617fcd8b75178151405cfc34",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 323,
+      "line": 480,
       "column": 83,
       "textSha256": "990dd28d396e6e448a2e4ea82c8a5783e9a18121617fcd8b75178151405cfc34",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 324,
+      "line": 481,
       "column": 32,
       "textSha256": "b7279b7904af1ff10ae0a3c89cf02b32213ba524e78f6f13abfcd265a0ee6e3b",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 324,
+      "line": 481,
       "column": 81,
       "textSha256": "b7279b7904af1ff10ae0a3c89cf02b32213ba524e78f6f13abfcd265a0ee6e3b",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 418,
+      "line": 575,
       "column": 39,
       "textSha256": "1becaf659937091a706f8a91bc51bdd85c01233da9802d51d93c2417f6c19734",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 419,
+      "line": 576,
       "column": 39,
       "textSha256": "1c4d424785ab14548315ef7f650f2783b8428e1c3b2ca15f0ade502f2c5442d7",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 420,
+      "line": 577,
       "column": 39,
       "textSha256": "316fbfead1b5776df85a2a72ddc50e6202c2a64dc70ee1e9f2153ec9a578dc39",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 427,
+      "line": 584,
       "column": 9,
       "textSha256": "b531e9f6c3ee552b76b6c7ed98f59b7c44baf773b46aeb722842e5401038dafe",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 431,
+      "line": 588,
       "column": 39,
       "textSha256": "ac942de93510d5a844644afbf110aecdc3742b730d660fd8bc784bd2e40dae82",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 432,
+      "line": 589,
       "column": 39,
       "textSha256": "fe2beb37d9180cb1d00e9a97e2927fc90993ad3dbf4af90f2bf7b97cc20aa144",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 433,
+      "line": 590,
       "column": 39,
       "textSha256": "82b58dfb552a29593d66acdf216d247b23ee79e486f43aa1f0769d8f6b9bbc60",
       "category": "compatibility"
     },
     {
       "path": "tests/browser-qa-database-target.test.mjs",
-      "line": 435,
+      "line": 592,
       "column": 9,
       "textSha256": "038b570f69fbf5d7c776087fe158e2bd39dce6005569257e55333431c9e2a96b",
       "category": "compatibility"
@@ -133774,21 +133774,21 @@
     },
     {
       "path": "tests/browser/background-commerce.spec.ts",
-      "line": 351,
+      "line": 355,
       "column": 48,
       "textSha256": "fea8e8daef8d7075de163016660ebceb7875cd371ad22a602a3816e9debd9728",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/background-commerce.spec.ts",
-      "line": 409,
+      "line": 413,
       "column": 27,
       "textSha256": "d39e97e5ef2a01e29bf96a82e368b84511e910def9f5ab4ed126ed9950ae765f",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/background-commerce.spec.ts",
-      "line": 1010,
+      "line": 1014,
       "column": 27,
       "textSha256": "d39e97e5ef2a01e29bf96a82e368b84511e910def9f5ab4ed126ed9950ae765f",
       "category": "compatibility"
@@ -135279,7 +135279,7 @@
     },
     {
       "path": "tests/browser/identity-method-safety.spec.ts",
-      "line": 271,
+      "line": 289,
       "column": 48,
       "textSha256": "fb3c79ff8af6e508bd62a3871f26017902c907d112c830647c1a2a88dd195fba",
       "category": "pre-rebrand-public-copy"
@@ -135671,49 +135671,49 @@
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
-      "line": 2167,
+      "line": 2170,
       "column": 30,
       "textSha256": "017905a03652e06d875039678ccc65153a0d3710784f3546b24d4b9de7741a4d",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
-      "line": 2168,
+      "line": 2171,
       "column": 47,
       "textSha256": "310387b145b28bfb63c458c47d7eb0094497fa0eb2ae80ef7504a2cb31cc841b",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
-      "line": 2170,
+      "line": 2173,
       "column": 30,
       "textSha256": "2ab448bd23602aada2cd1265ed669f54573581bf1b737c39114ba1d452e3f349",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
-      "line": 2246,
+      "line": 2249,
       "column": 53,
       "textSha256": "110dd550a15c389ff49380be53645f9bbc018c95f4899b03947a2a5c7b84075a",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
-      "line": 2816,
+      "line": 2819,
       "column": 34,
       "textSha256": "0e36728152de7698b43349399a1b3137e5976984cb8df4501b16203d86478bff",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
-      "line": 2875,
+      "line": 2878,
       "column": 34,
       "textSha256": "0e36728152de7698b43349399a1b3137e5976984cb8df4501b16203d86478bff",
       "category": "compatibility"
     },
     {
       "path": "tests/browser/public-routes.spec.ts",
-      "line": 2927,
+      "line": 2930,
       "column": 34,
       "textSha256": "0e36728152de7698b43349399a1b3137e5976984cb8df4501b16203d86478bff",
       "category": "compatibility"

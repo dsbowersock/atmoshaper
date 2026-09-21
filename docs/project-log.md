@@ -133,6 +133,30 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   merge, provider, billing, deployment, database, DNS/domain, PNG/frame/
   threshold, media or production action occurred.
 
+- The durable record synchronization was published as `ecf30584`, and both
+  hosted reviewers completed clean coverage of that exact head. Strict CI
+  `35621507294` passed quality, build and browser lane 3, but lanes 1 and 2
+  reproduced three desktop/mobile failures and lane 4 reproduced the same
+  anonymous-fixture effect before its 25-minute timeout. The new acceptance
+  gate correctly rejected synthetic Browser-QA users that had no current Terms
+  or Privacy rows; provider-free JWTs also lacked the server-rendered account
+  bootstrap, and reloads could bypass context routes through the service worker.
+- The bounded repair preserves production policy and connected assertions:
+  database fixtures create current registration acceptances atomically, verify
+  exact ownership before child cleanup, and delete the restricted rows and
+  owned user in one rollback-safe transaction; provider-free contexts project
+  only the client session/account bootstrap and disable worker registration for
+  that routed test context. The login recovery test now owns the legal-gate
+  destination, owner-switch coverage proves the reloaded bootstrap, and cart
+  labels remain `Open account cart` in connected QA. RED reproduced every
+  recurrence, including zero-count and thrown-delete rollback oracles. GREEN
+  passes the fixture contracts 64/64 and all five exact scenarios on desktop/
+  mobile 10/10. The full Node suite passes 4,736 with three
+  host-dependent skips and zero failures; typecheck, changed-file lint and diff
+  checks are clean. The resulting 40-path candidate still requires frozen SPEC,
+  separate QUALITY, exact staged identity, renewed hosted reviews and all seven
+  strict CI jobs before Task 8 can close.
+
 ## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
 
 - Published the first hosted repair as `03d7762` after independent SPEC then
