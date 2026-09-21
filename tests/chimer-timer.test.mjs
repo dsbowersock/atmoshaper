@@ -564,7 +564,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(settings.spotlightXOffset, 0)
   })
 
-  it("normalizes MassageLab Gradient field controls", () => {
+  it("normalizes AtmoShaper Gradient field controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabGradientPrimaryColor: "#112233",
       massageLabGradientHarmony: "triad",
@@ -578,7 +578,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Star field controls", () => {
+  it("normalizes AtmoShaper Star field controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabStarsColor: "#aabbcc",
       massageLabStarsSpeed: 999,
@@ -603,7 +603,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Depth well controls", () => {
+  it("normalizes AtmoShaper Depth well controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabHoleStrokeColor: "#112233",
       massageLabHoleParticleColor: "#aabbcc",
@@ -623,7 +623,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Light Speed background controls", () => {
+  it("normalizes AtmoShaper Light Speed background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabLightSpeedWarpSpeed: 0,
       massageLabLightSpeedWarpSpeedVersion: 2,
@@ -661,7 +661,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Electric Mist background controls", () => {
+  it("normalizes AtmoShaper Electric Mist background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabElectricMistColor: "#33b2ff",
       massageLabElectricMistSpeed: 999,
@@ -733,7 +733,7 @@ describe("Chimer timer helpers", () => {
     assert.deepEqual(second, first)
   })
 
-  it("normalizes MassageLab Astral Flow background controls", () => {
+  it("normalizes AtmoShaper Astral Flow background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabAstralFlowPaletteMode: "harmony",
       massageLabAstralFlowPrimaryColor: "#a0769a",
@@ -756,7 +756,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabAstralFlowSpeed: 0 }).massageLabAstralFlowSpeed, 0.1)
   })
 
-  it("normalizes MassageLab Deep Space Nebula background controls", () => {
+  it("normalizes AtmoShaper Deep Space Nebula background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabDeepSpaceNebulaPaletteMode: "harmony",
       massageLabDeepSpaceNebulaPrimaryColor: "#763b65",
@@ -775,7 +775,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabDeepSpaceNebulaSpeed: 0 }).massageLabDeepSpaceNebulaSpeed, 0.1)
   })
 
-  it("normalizes MassageLab Grid Bloom background controls", () => {
+  it("normalizes AtmoShaper Grid Bloom background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabGridBloomColor: "#e040fb",
       massageLabGridBloomSpeed: 99,
@@ -809,7 +809,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Chrome Flow background controls", () => {
+  it("normalizes AtmoShaper Chrome Flow background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabChromeFlowPaletteMode: "harmony",
       massageLabChromeFlowPrimaryColor: "#c0c0c0",
@@ -834,7 +834,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabChromeFlowTimeScale: 0 }).massageLabChromeFlowTimeScale, 0.001)
   })
 
-  it("normalizes MassageLab Wave Current background controls", () => {
+  it("normalizes AtmoShaper Wave Current background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabWaveCurrentPaletteMode: "harmony",
       massageLabWaveCurrentPrimaryColor: "#071697",
@@ -865,7 +865,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Ferrofluid background controls", () => {
+  it("normalizes AtmoShaper Ferrofluid background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabFerrofluidPaletteMode: "harmony",
       massageLabFerrofluidPrimaryColor: "#ffffff",
@@ -937,7 +937,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Lightfall background controls", () => {
+  it("normalizes AtmoShaper Lightfall background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabLightfallPaletteMode: "harmony",
       massageLabLightfallPrimaryColor: "#a6c8ff",
@@ -1034,7 +1034,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Liquid Ether background controls", () => {
+  it("normalizes AtmoShaper Liquid Ether background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabLiquidEtherPaletteMode: "harmony",
       massageLabLiquidEtherPrimaryColor: "#5227ff",
@@ -1148,7 +1148,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Prism background controls", () => {
+  it("normalizes AtmoShaper Prism background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabPrismHeight: 99,
       massageLabPrismBaseWidth: 0,
@@ -1244,7 +1244,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Dark Veil background controls", () => {
+  it("normalizes AtmoShaper Dark Veil background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabDarkVeilHueShift: 999,
       massageLabDarkVeilNoiseIntensity: 99,
@@ -1295,7 +1295,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Light Pillar background controls", () => {
+  it("normalizes AtmoShaper Light Pillar background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabLightPillarPaletteMode: "harmony",
       massageLabLightPillarPrimaryColor: "#123456",
@@ -1367,7 +1367,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Silk background controls", () => {
+  it("normalizes AtmoShaper Silk background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabSilkPaletteMode: "harmony",
       massageLabSilkPrimaryColor: "#123456",
@@ -1401,7 +1401,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Floating Lines background controls", () => {
+  it("normalizes AtmoShaper Floating Lines background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabFloatingLinesPaletteMode: "harmony",
       massageLabFloatingLinesPrimaryColor: "#123456",
@@ -1478,7 +1478,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Side Rays background controls", () => {
+  it("normalizes AtmoShaper Side Rays background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabSideRaysPaletteMode: "harmony",
       massageLabSideRaysPrimaryColor: "#eab308",
@@ -1563,7 +1563,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Pixel Blast background controls", () => {
+  it("normalizes AtmoShaper Pixel Blast background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabPixelBlastPaletteMode: "harmony",
       massageLabPixelBlastPrimaryColor: "#ffffff",
@@ -1639,7 +1639,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Color Bends background controls", () => {
+  it("normalizes AtmoShaper Color Bends background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabColorBendsPaletteMode: "harmony",
       massageLabColorBendsPrimaryColor: "#ffffff",
@@ -1692,7 +1692,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Evil Eye background controls", () => {
+  it("normalizes AtmoShaper Evil Eye background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabEvilEyePaletteMode: "harmony",
       massageLabEvilEyePrimaryColor: "#ffffff",
@@ -1729,7 +1729,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Line Waves background controls", () => {
+  it("normalizes AtmoShaper Line Waves background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabLineWavesPaletteMode: "harmony",
       massageLabLineWavesPrimaryColor: "#ffffff",
@@ -1769,7 +1769,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Radar background controls", () => {
+  it("normalizes AtmoShaper Radar background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabRadarPaletteMode: "harmony",
       massageLabRadarPrimaryColor: "#ffffff",
@@ -1814,7 +1814,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Soft Aurora field controls", () => {
+  it("normalizes AtmoShaper Soft Aurora field controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabSoftAuroraPaletteMode: "harmony",
       massageLabSoftAuroraPrimaryColor: "#ffffff",
@@ -1857,7 +1857,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Plasma background controls", () => {
+  it("normalizes AtmoShaper Plasma background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabPlasmaPaletteMode: "harmony",
       massageLabPlasmaPrimaryColor: "#ffffff",
@@ -1889,7 +1889,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Plasma Wave background controls", () => {
+  it("normalizes AtmoShaper Plasma Wave background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabPlasmaWavePaletteMode: "harmony",
       massageLabPlasmaWavePrimaryColor: "#ffffff",
@@ -1926,7 +1926,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Particles background controls", () => {
+  it("normalizes AtmoShaper Particles background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabParticlesPaletteMode: "harmony",
       massageLabParticlesPrimaryColor: "#ffffff",
@@ -1968,7 +1968,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Gradient Blinds background controls", () => {
+  it("normalizes AtmoShaper Gradient Blinds background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabGradientBlindsPaletteMode: "harmony",
       massageLabGradientBlindsPrimaryColor: "#ff9ffc",
@@ -2032,7 +2032,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Grainient background controls", () => {
+  it("normalizes AtmoShaper Grainient background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabGrainientPaletteMode: "harmony",
       massageLabGrainientPrimaryColor: "#ff9ffc",
@@ -2092,7 +2092,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Grid Scan background controls", () => {
+  it("normalizes AtmoShaper Grid Scan background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabGridScanPaletteMode: "harmony",
       massageLabGridScanPrimaryColor: "#ff9ffc",
@@ -2152,7 +2152,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Beams background controls", () => {
+  it("normalizes AtmoShaper Beams background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabBeamsPaletteMode: "harmony",
       massageLabBeamsPrimaryColor: "#abcdef",
@@ -2182,7 +2182,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabBeamsRotation: -999 }).massageLabBeamsRotation, -180)
   })
 
-  it("normalizes MassageLab Pixel Snow background controls", () => {
+  it("normalizes AtmoShaper Pixel Snow background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabPixelSnowPaletteMode: "harmony",
       massageLabPixelSnowPrimaryColor: "#abcdef",
@@ -2223,7 +2223,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabPixelSnowDirection: -1 }).massageLabPixelSnowDirection, 0)
   })
 
-  it("normalizes MassageLab Lightning background controls", () => {
+  it("normalizes AtmoShaper Lightning background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabLightningPaletteMode: "harmony",
       massageLabLightningPrimaryColor: "#abcdef",
@@ -2248,7 +2248,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabLightningSize: 0 }).massageLabLightningSize, 0.2)
   })
 
-  it("normalizes MassageLab Prismatic Burst background controls", () => {
+  it("normalizes AtmoShaper Prismatic Burst background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabPrismaticBurstPaletteMode: "harmony",
       massageLabPrismaticBurstPrimaryColor: "#abcdef",
@@ -2300,7 +2300,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabPrismaticBurstRayCount: 10.9 }).massageLabPrismaticBurstRayCount, 10)
   })
 
-  it("normalizes MassageLab Galaxy background controls", () => {
+  it("normalizes AtmoShaper Galaxy background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabGalaxyPaletteMode: "harmony",
       massageLabGalaxyPrimaryColor: "#abcdef",
@@ -2361,7 +2361,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabGalaxyRotationSpeed: -99 }).massageLabGalaxyRotationSpeed, -2)
   })
 
-  it("normalizes MassageLab Dither background controls", () => {
+  it("normalizes AtmoShaper Dither background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabDitherPaletteMode: "harmony",
       massageLabDitherPrimaryColor: "#abcdef",
@@ -2398,7 +2398,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabDitherMouseRadius: 0 }).massageLabDitherMouseRadius, 0.05)
   })
 
-  it("normalizes MassageLab Faulty Terminal background controls", () => {
+  it("normalizes AtmoShaper Faulty Terminal background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabFaultyTerminalPaletteMode: "harmony",
       massageLabFaultyTerminalPrimaryColor: "#abcdef",
@@ -2460,7 +2460,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabFaultyTerminalBrightness: 0 }).massageLabFaultyTerminalBrightness, 0.1)
   })
 
-  it("normalizes MassageLab Ripple Grid background controls", () => {
+  it("normalizes AtmoShaper Ripple Grid background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabRippleGridPaletteMode: "harmony",
       massageLabRippleGridPrimaryColor: "#abcdef",
@@ -2508,7 +2508,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Dot Field background controls", () => {
+  it("normalizes AtmoShaper Dot Field background controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabDotFieldDotRadius, 4)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabDotFieldDotSpacing, 6)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabDotFieldSparkle, true)
@@ -2582,7 +2582,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabDotFieldWaveAmplitude: -1 }).massageLabDotFieldWaveAmplitude, 0)
   })
 
-  it("normalizes MassageLab Dot Grid background controls", () => {
+  it("normalizes AtmoShaper Dot Grid background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabDotGridPaletteMode: "harmony",
       massageLabDotGridPrimaryColor: "#abcdef",
@@ -2627,7 +2627,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabDotGridSimulationSpeed: 0 }).massageLabDotGridSimulationSpeed, 0.3)
   })
 
-  it("normalizes MassageLab Threads background controls", () => {
+  it("normalizes AtmoShaper Threads background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabThreadsPaletteMode: "harmony",
       massageLabThreadsPrimaryColor: "#abcdef",
@@ -2645,7 +2645,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabThreadsDistance: -9 }).massageLabThreadsDistance, -1)
   })
 
-  it("normalizes MassageLab Iridescence background controls", () => {
+  it("normalizes AtmoShaper Iridescence background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabIridescencePaletteMode: "harmony",
       massageLabIridescencePrimaryColor: "#abcdef",
@@ -2663,7 +2663,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabIridescenceAmplitude: -1 }).massageLabIridescenceAmplitude, 0)
   })
 
-  it("normalizes MassageLab Waves background controls", () => {
+  it("normalizes AtmoShaper Waves background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabWavesPaletteMode: "harmony",
       massageLabWavesPrimaryColor: "#abcdef",
@@ -2703,7 +2703,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabWavesMaxCursorMove: -1 }).massageLabWavesMaxCursorMove, 0)
   })
 
-  it("normalizes MassageLab Grid Distortion background controls", () => {
+  it("normalizes AtmoShaper Grid Distortion background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabGridDistortionPaletteMode: "harmony",
       massageLabGridDistortionPrimaryColor: "#abcdef",
@@ -2736,7 +2736,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabGridDistortionSimulationSpeed: 0 }).massageLabGridDistortionSimulationSpeed, 0.3)
   })
 
-  it("normalizes the latest MassageLab background controls", () => {
+  it("normalizes the latest AtmoShaper background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabOrbPaletteMode: "harmony",
       massageLabOrbPrimaryColor: "#abcdef",
@@ -2862,7 +2862,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(getMassageLabShapeGridSpeedFromDisplayPercent(100), 2)
   })
 
-  it("normalizes MassageLab Novatrix background controls", () => {
+  it("normalizes AtmoShaper Novatrix background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabNovatrixPaletteMode: "harmony",
       massageLabNovatrixPrimaryColor: "#ffffff",
@@ -2885,7 +2885,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabNovatrixAmplitude: 10 }).massageLabNovatrixAmplitude, 0.45)
   })
 
-  it("normalizes MassageLab Matrix Rain background controls", () => {
+  it("normalizes AtmoShaper Matrix Rain background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabMatrixRainPaletteMode: "harmony",
       massageLabMatrixRainPrimaryColor: "#00d4ff",
@@ -2909,7 +2909,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabMatrixRainFontSize: 99 }).massageLabMatrixRainFontSize, 28)
   })
 
-  it("normalizes MassageLab Photon Beam background controls", () => {
+  it("normalizes AtmoShaper Photon Beam background controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabPhotonBeamLineCount, 12)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabPhotonBeamSignalCount, 12)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabPhotonBeamDefaultsVersion, 1)
@@ -2982,7 +2982,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(currentVersionSettings.massageLabPhotonBeamSignalCount, 94)
   })
 
-  it("normalizes MassageLab 3D Globe background controls", () => {
+  it("normalizes AtmoShaper 3D Globe background controls", () => {
     const longLabel = "A".repeat(96)
     const settings = sanitizeChimerSettings({
       massageLab3DGlobeViewStyle: "graphic",
@@ -3084,7 +3084,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(getMassageLab3DGlobeScaleFromDisplayPercent(100), 0.95)
   })
 
-  it("normalizes MassageLab Retro Grid background controls", () => {
+  it("normalizes AtmoShaper Retro Grid background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabRetroGridBackgroundColor: "black",
       massageLabRetroGridLightLineColor: "#aabbcc",
@@ -3114,7 +3114,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabRetroGridOpacity: 99 }).massageLabRetroGridOpacity, 1)
   })
 
-  it("normalizes MassageLab Aerial Rays background controls", () => {
+  it("normalizes AtmoShaper Aerial Rays background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabAerialRaysBackgroundColor: "black",
       massageLabAerialRaysColor: "#a0d2ff",
@@ -3157,7 +3157,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabAerialRaysOpacity: 9 }).massageLabAerialRaysOpacity, 1)
   })
 
-  it("normalizes MassageLab Aurora Field visual controls", () => {
+  it("normalizes AtmoShaper Aurora Field visual controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabAuroraSpeed, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabAuroraIntensity, 0.5)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabAuroraBlur, 10)
@@ -3179,7 +3179,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabAuroraReach: 999 }).massageLabAuroraReach, 100)
   })
 
-  it("normalizes MassageLab Dotted Glow visual controls", () => {
+  it("normalizes AtmoShaper Dotted Glow visual controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabDottedGlowSpeed, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabDottedGlowDotSize, 1.7)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabDottedGlowDotSpacing, 14)
@@ -3205,7 +3205,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabDottedGlowGlowStrength: -1 }).massageLabDottedGlowGlowStrength, 0)
   })
 
-  it("normalizes MassageLab Bubble Field visual controls", () => {
+  it("normalizes AtmoShaper Bubble Field visual controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabBubbleSpeed, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabBubbleIntensity, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabBubbleSize, 1)
@@ -3231,7 +3231,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabBubbleBlendStrength: 0 }).massageLabBubbleBlendStrength, 10)
   })
 
-  it("normalizes MassageLab Beam Field visual controls", () => {
+  it("normalizes AtmoShaper Beam Field visual controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabBackgroundBeamsSpeed, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabBackgroundBeamsIntensity, 0.82)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabBackgroundBeamsBeamWidth, 0.6)
@@ -3253,7 +3253,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabBackgroundBeamsGlowStrength: -1 }).massageLabBackgroundBeamsGlowStrength, 0)
   })
 
-  it("normalizes MassageLab Collision Beams visual controls", () => {
+  it("normalizes AtmoShaper Collision Beams visual controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabCollisionBeamsSpeed, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabCollisionBeamsIntensity, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabCollisionBeamsBeamWidth, 1)
@@ -3275,7 +3275,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabCollisionBeamsBurstSize: 0 }).massageLabCollisionBeamsBurstSize, 0.5)
   })
 
-  it("normalizes MassageLab Glowing Stars visual controls", () => {
+  it("normalizes AtmoShaper Glowing Stars visual controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabGlowingStarsSpeed, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabGlowingStarsIntensity, 0.94)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabGlowingStarsActiveStars, 5)
@@ -3300,7 +3300,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ massageLabGlowingStarsGlowStrength: -1 }).massageLabGlowingStarsGlowStrength, 0)
   })
 
-  it("normalizes MassageLab Meteors visual controls", () => {
+  it("normalizes AtmoShaper Meteors visual controls", () => {
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabMeteorsSpeed, 1)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabMeteorsIntensity, 0.82)
     assert.equal(DEFAULT_CHIMER_SETTINGS.massageLabMeteorsCount, 28)
@@ -3350,7 +3350,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(sanitizeChimerSettings({ backgroundLinesGlowStrength: -1 }).backgroundLinesGlowStrength, 0)
   })
 
-  it("normalizes MassageLab Synthesis background controls", () => {
+  it("normalizes AtmoShaper Synthesis background controls", () => {
     const settings = sanitizeChimerSettings({
       massageLabSynthesisPaletteMode: "harmony",
       massageLabSynthesisPrimaryColor: "#0ea5e9",
@@ -3444,7 +3444,7 @@ describe("Chimer timer helpers", () => {
     assert.equal(settings.auroraBarsMinHeightRatio, 0.78)
   })
 
-  it("normalizes MassageLab Tile Grid background controls", () => {
+  it("normalizes AtmoShaper Tile Grid background controls", () => {
     const settings = sanitizeChimerSettings({
       tileGridPaletteMode: "custom",
       tileGridPrimaryColor: "#112233",
@@ -3488,7 +3488,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("normalizes MassageLab Hex Grid background controls", () => {
+  it("normalizes AtmoShaper Hex Grid background controls", () => {
     const settings = sanitizeChimerSettings({
       hexGridPrimaryColor: "#112233",
       hexGridHarmony: "split-complementary",
@@ -3523,7 +3523,7 @@ describe("Chimer timer helpers", () => {
     )
   })
 
-  it("formats and combines MassageLab Tile Grid fade durations", () => {
+  it("formats and combines AtmoShaper Tile Grid fade durations", () => {
     assert.deepEqual(splitTileGridFadeSeconds(3661.5), {
       hours: 1,
       minutes: 1,

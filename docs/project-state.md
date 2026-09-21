@@ -4,7 +4,66 @@ Verified: 2026-09-21
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Background Renderer Slice
+## Current Snapshot — Phase 6 Background Catalog and Controls
+
+- Renderer PR #11 is verified at `04e3868e3ab39111e50b6c8cdc7d5a89bc7b60e2`:
+  Codex completed clean at 03:04 UTC and CodeRabbit at 03:05 UTC on September 21.
+  Both prior threads are resolved; all seven jobs in CI `35556031421` passed,
+  including the repaired Anatomime cadence case. No merge occurred.
+- Task 7 of the [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md)
+  is assembled on `codex/phase6-07-background-catalog` in the same approved
+  isolated worktree, based on that exact reviewed head. It carries background
+  catalog/control labels, optional-only globe-marker presentation and the
+  source-approved portrait tray repair with paired tests.
+- Ownership covers 30 source paths, of which three browser companions were
+  already recovery-exact in the reviewed base. Bounded inherited browser-test
+  repairs and their three companions bring planned scope to 35 files. Stable IDs,
+  entitlements, purchase references, user-marker controls, media bytes and all
+  earlier Sentry/admin/browser-clock repairs remain protected.
+- Source transfer passed 344 focused checks; the pre-repair full unit suite
+  passed 4,718 with three skips and zero failures. Typecheck, lint and the
+  provider-free production build passed; all 32 commerce browser cases passed.
+  All 18 carousel cases pass and the ten original control-lab failures are
+  repaired. An intermediate full rerun exposed four missing, intentionally untracked
+  preview videos in its strict console case. Diagnosis confirms a transient
+  initial video request before reduced-motion state settles; that unchanged
+  runtime behavior remains unresolved. An exact provider-free fixture amendment
+  retains unfiltered console checks and records initial request counts, without
+  claiming zero-fetch mount behavior or fixing the runtime race.
+  Palette inventory, unsupported-adapter and effective-mode checks are repaired
+  (77 focused checks pass). All six focused palette browser cases now pass,
+  including all 84 backgrounds in three requested modes on desktop and mobile.
+  Unsupported Harmony correctly preserves Source at the renderer boundary,
+  separately from raw gallery role diagnostics. All 38 final carousel/control
+  cases now pass with the exact fixture; each project records one initial hit
+  per known URL and zero additional hits after reduced motion settles. Final
+  focused contracts pass 108/108; typecheck, lint and nine archive checks pass.
+  No runtime or media change is part of the validation repairs.
+- This replacement preserves recovered lab behavior, not a new design:
+  Selected/Select remains the lab acquisition trigger and surrounding Station
+  previews remain square. Historical Unlock/193-pixel product records conflict
+  with these owners; this slice records but does not settle that design debt.
+- Independent SPEC passed the first frozen candidate. Final full-unit validation
+  then returned 4,722 passes, three skips and one failure: the unchanged sitewide
+  source contract still requires the retired fixed-count palette token. A bounded
+  companion amendment now guards the registry-owned exhaustive sweep; no browser
+  or runtime change was needed. The v2 full suite passed 4,723 tests with three
+  skips and zero failures. Independent QUALITY then identified a gap in that
+  companion: a mode loop could count cases without asserting their behavior.
+  Root verified the finding before a same-file repair. All 126 final focused
+  checks and changed-file lint pass; removal, out-of-loop placement and commented
+  assertion mutations now fail closed alongside the ID/fixed-count controls.
+  The existing comment masker closes the scoped SPEC finding without changing
+  the browser or adding a parser. The broad result covers
+  v2; the final guard-only amendment has focused verification, with unchanged
+  browser/runtime hashes. This snapshot precedes publication: scoped SPEC then
+  QUALITY approval, final staged audit, exact-head hosted reviews and strict CI
+  remain mandatory gates. Tasks 8-9, combined-source reconciliation and the
+  separate Linux Atmosphere snapshot-refresh decision remain pending.
+- Original PR #5 and replacements #6-#11 remain open and unmerged. No PNG,
+  frame, threshold, provider, billing, deployment or legal-version changes.
+
+## Historical Snapshot — Phase 6 Background Renderer Slice
 
 - Account/service PR #10 is verified at `3e29e6e696131450820e8b70cc195d6bf5849f8a`:
   Codex and CodeRabbit completed clean on the exact head, its prior thread is

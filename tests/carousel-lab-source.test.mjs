@@ -1,7 +1,11 @@
 import assert from "node:assert/strict"
 import { existsSync, readFileSync } from "node:fs"
 import { describe, it } from "node:test"
+import { runInNewContext } from "node:vm"
+import { backgroundPreviewManifest } from "../components/backgrounds/backgroundPreviewManifest.ts"
+import { backgroundRegistry } from "../components/backgrounds/backgroundRegistry.ts"
 import {
+  createAdaptiveCarouselLoopBuffer,
   normalizeAdaptiveCarouselItems,
   reconcileAdaptiveCarouselCenter,
   reconcileAdaptiveCarouselUpdateCenter,
@@ -11,7 +15,196 @@ function read(path) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8")
 }
 
+const EXPECTED_LOCAL_CAROUSEL_PREVIEW_FIXTURES = [
+  {
+    id: "massage-lab-moving-gradient",
+    path: "/chimer/background-previews/massage-lab-moving-gradient.webm",
+  },
+  { id: "static-gradient", path: "/chimer/background-previews/static-gradient.webm" },
+  { id: "massage-lab-stars", path: "/chimer/background-previews/massage-lab-stars.webm" },
+  { id: "massage-lab-hole", path: "/chimer/background-previews/massage-lab-hole.webm" },
+]
+
+function playwrightTestSlice(source, name) {
+  const marker = `  test("${name}",`
+  const start = source.indexOf(marker)
+  assert.notEqual(start, -1, `Missing Playwright consumer test: ${name}`)
+  const next = source.indexOf('\n  test("', start + marker.length)
+  return source.slice(start, next === -1 ? source.length : next)
+}
+
+function mutatePlaywrightTest(source, name, mutation) {
+  const original = playwrightTestSlice(source, name)
+  const mutated = mutation(original)
+  assert.notEqual(mutated, original, `Mutation did not change Playwright consumer test: ${name}`)
+  return source.replace(original, mutated)
+}
+
+function readBrowserExactPreviewRouteHandler(source) {
+  const body = source.match(
+    /function createExactLocalPreviewRouteHandler\([\s\S]*?\n\) \{([\s\S]*?)\n\}/,
+  )?.[1]
+  assert.ok(body, "exact local preview route-handler body")
+  const executableBody = body.replace("(route: Route)", "(route)")
+  assert.notEqual(executableBody, body, "route-handler type erasure")
+  return (expectedUrl, hitCounts) => runInNewContext(
+    `((expectedUrl, hitCounts) => {${executableBody}})(expectedUrl, hitCounts)`,
+    { expectedUrl, hitCounts },
+  )
+}
+
+function assertExactLocalPreviewFixtureConsumer(source) {
+  assert.match(source, /import \{ backgroundPreviewManifest \} from "\.\.\/\.\.\/components\/backgrounds\/backgroundPreviewManifest"/)
+  assert.match(source, /import \{ backgroundRegistry \} from "\.\.\/\.\.\/components\/backgrounds\/backgroundRegistry"/)
+  assert.match(
+    source,
+    /await page\.route\(\s*expectedUrl,\s*createExactLocalPreviewRouteHandler\(expectedUrl, hitCounts\),\s*\)/,
+  )
+  assert.doesNotMatch(source, /page\.route\(\s*["'`]\*\*/)
+  const fixtureLiteral = source.match(
+    /const LOCAL_CAROUSEL_PREVIEW_FIXTURES = (\[[\s\S]*?\]) as const/,
+  )?.[1]
+  assert.ok(fixtureLiteral, "exact local preview fixture inventory")
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(runInNewContext(`(${fixtureLiteral})`))),
+    EXPECTED_LOCAL_CAROUSEL_PREVIEW_FIXTURES,
+  )
+
+  const cleanup = playwrightTestSlice(
+    source,
+    "Carousel Lab supports keyboard, reduced motion, cleanup, and phone width",
+  )
+  const installPosition = cleanup.indexOf(
+    "const previewFixtureHits = await installExactLocalCarouselPreviewFixtures(page)",
+  )
+  const carouselPosition = cleanup.indexOf('getByRole("tab", { name: "Carousels" }).click()')
+  assert.ok(installPosition >= 0 && installPosition < carouselPosition)
+  assert.match(cleanup, /consoleErrors\)\.toEqual\(\[\]\)/)
+  assert.match(
+    cleanup,
+    /Reduced-motion rail[\s\S]*?carousel-background-video[\s\S]*?toHaveCount\(0\)[\s\S]*?waitForLoadState\("networkidle"\)[\s\S]*?settledPreviewFixtureHits/,
+  )
+  assert.match(
+    cleanup,
+    /finalPreviewFixtureHits[\s\S]*?local-carousel-preview-fixture-hits\.json[\s\S]*?toEqual\(settledPreviewFixtureHits\)/,
+  )
+}
+
+function assertRepairedControlBrowserConsumer(source) {
+  const access = playwrightTestSlice(
+    source,
+    "Carousel Lab persists and resets tuning while access actions stay mutation-free",
+  )
+  assert.match(access, /const lockedAction = centeredBackground\.locator\("\[data-carousel-primary-action\]"\)/)
+  assert.match(access, /await expect\(lockedAction\)\.toHaveAccessibleName\("Selected"\)/)
+  assert.match(access, /await expect\(lockedAction\)\.not\.toHaveAccessibleName\(\/\^Unlock\/\)/)
+
+  const dimensions = playwrightTestSlice(
+    source,
+    "Carousel Lab adapts Background profiles while Music Station dimensions stay universal",
+  )
+  assert.match(
+    dimensions,
+    /\.locator\('\[data-carousel-slide="true"\]\[role="group"\]\[data-detail-level="summary"\]'\)[\s\S]*?\.toEqual\(\{ width: 192, height: 192 \}\)/,
+  )
+
+  const tunedDimensions = playwrightTestSlice(
+    source,
+    "Carousel Lab tuning changes the selected Station Background Picker geometry",
+  )
+  assert.match(tunedDimensions, /\["carousel-tuning-cardWidth", "212"\]/)
+  assert.match(tunedDimensions, /\["carousel-tuning-cardHeight", "260"\]/)
+  assert.match(
+    tunedDimensions,
+    /\[data-carousel-slide="true"\]\[role="group"\]\[data-detail-level="summary"\][\s\S]*?\.toEqual\(\{ width: 212, height: 212 \}\)/,
+  )
+
+  const wrap = playwrightTestSlice(
+    source,
+    "Carousel Lab preserves presentation transforms across an Embla loop wrap",
+  )
+  assert.match(wrap, /const physicalSlides = stationCarousel\.locator\('\[data-carousel-slide="true"\]'\)/)
+  assert.match(
+    wrap,
+    /const logicalSlides = stationCarousel\.locator\(\s*'\[data-carousel-slide="true"\]\[role="group"\]',\s*\)/,
+  )
+  assert.match(wrap, /await physicalSlides\.count\(\) - await logicalSlides\.count\(\)/)
+  assert.match(wrap, /await expect\(loopClones\.first\(\)\)\.toHaveAttribute\("aria-hidden", "true"\)/)
+  assert.match(wrap, /name: "Previous station"[\s\S]*?logicalSlides\.last\(\)[\s\S]*?name: "Next station"[\s\S]*?logicalSlides\.first\(\)/)
+
+  const sampleLoop = playwrightTestSlice(
+    source,
+    "Carousel Lab places Background actions in preview corners and loops every Station sample",
+  )
+  assert.match(
+    sampleLoop,
+    /const stationSlides = stationCarousel\.locator\('\[data-carousel-slide="true"\]\[role="group"\]'\)/,
+  )
+  assert.match(sampleLoop, /name: "Previous station"[\s\S]*?stationSlides\.last\(\)/)
+}
+
 describe("Carousel Lab source boundaries", () => {
+  it("fixtures only the four exact catalog-owned local landscape preview requests", async () => {
+    const controlBrowserSource = read("tests/browser/control-system-review.spec.ts")
+    assertExactLocalPreviewFixtureConsumer(controlBrowserSource)
+    for (const { id, path } of EXPECTED_LOCAL_CAROUSEL_PREVIEW_FIXTURES) {
+      const manifestEntry = backgroundPreviewManifest[id]
+      const registryEntry = backgroundRegistry.find((entry) => entry.id === id)
+      assert.equal(manifestEntry?.variants?.landscape?.previewMediaUrl, path, `${id}:manifest landscape`)
+      assert.equal(manifestEntry?.previewMediaUrl, path, `${id}:manifest primary`)
+      assert.equal(registryEntry?.previewVariants?.landscape?.previewMediaUrl, path, `${id}:registry landscape`)
+      assert.equal(registryEntry?.previewMediaUrl, path, `${id}:registry primary`)
+    }
+
+    const expectedUrl = `http://127.0.0.1:3010${EXPECTED_LOCAL_CAROUSEL_PREVIEW_FIXTURES[0].path}`
+    const hitCounts = { [expectedUrl]: 0 }
+    const handler = readBrowserExactPreviewRouteHandler(controlBrowserSource)(expectedUrl, hitCounts)
+    const invoke = async (url, method) => {
+      const outcomes = []
+      await handler({
+        request: () => ({ url: () => url, method: () => method }),
+        fallback: async () => outcomes.push({ kind: "fallback" }),
+        fulfill: async (options) => outcomes.push({ kind: "fulfill", options }),
+      })
+      return outcomes
+    }
+
+    const exactOutcomes = await invoke(expectedUrl, "GET")
+    assert.equal(hitCounts[expectedUrl], 1)
+    assert.equal(exactOutcomes.length, 1)
+    assert.equal(exactOutcomes[0].kind, "fulfill")
+    assert.equal(exactOutcomes[0].options.status, 204)
+    assert.equal(exactOutcomes[0].options.contentType, "video/webm")
+    assert.equal(exactOutcomes[0].options.body, "")
+
+    for (const [label, url, method] of [
+      ["unknown", "http://127.0.0.1:3010/chimer/background-previews/unknown.webm", "GET"],
+      ["query", `${expectedUrl}?cache=1`, "GET"],
+      ["other origin", expectedUrl.replace("127.0.0.1", "other-origin.invalid"), "GET"],
+      ["other method", expectedUrl, "POST"],
+    ]) {
+      assert.deepEqual(await invoke(url, method), [{ kind: "fallback" }], label)
+      assert.equal(hitCounts[expectedUrl], 1, label)
+    }
+
+    const broadRouteMutation = controlBrowserSource.replace(
+      "      expectedUrl,\n      createExactLocalPreviewRouteHandler(expectedUrl, hitCounts),",
+      '      "**/*",\n      createExactLocalPreviewRouteHandler(expectedUrl, hitCounts),',
+    )
+    assert.notEqual(broadRouteMutation, controlBrowserSource)
+    assert.throws(() => assertExactLocalPreviewFixtureConsumer(broadRouteMutation))
+
+    const removedSetupMutation = mutatePlaywrightTest(
+      controlBrowserSource,
+      "Carousel Lab supports keyboard, reduced motion, cleanup, and phone width",
+      (testSource) => testSource.replace(
+        "    const previewFixtureHits = await installExactLocalCarouselPreviewFixtures(page)\n",
+        "",
+      ),
+    )
+    assert.throws(() => assertExactLocalPreviewFixtureConsumer(removedSetupMutation))
+  })
+
   it("records both adapted CodePens and their public-Pen MIT license boundary", () => {
     const ledger = read("docs/carousel-sources.md")
 
@@ -59,6 +252,33 @@ describe("Carousel Lab source boundaries", () => {
     assert.match(presentationRule, /transform:\s*[\s\S]*?translate3d/)
     assert.match(slideRule, /z-index:\s*var\(--carousel-z-index, 1\)/)
     assert.doesNotMatch(css, /\.slide\[data-centered="true"\]\s*\{[^}]*z-index/)
+  })
+
+  it("keeps loop clones hidden while logical Station identity stays canonical", () => {
+    const sourceItems = [
+      { id: "first", label: "First" },
+      { id: "second", label: "Second" },
+      { id: "third", label: "Third" },
+      { id: "fourth", label: "Fourth" },
+      { id: "fifth", label: "Fifth" },
+    ]
+    const bufferedItems = createAdaptiveCarouselLoopBuffer(sourceItems, 2, true)
+    const clones = bufferedItems.filter((item) => item.loopClone)
+    const logicalItems = bufferedItems.filter((item) => !item.loopClone)
+    const stage = read("components/carousels/adaptive-carousel-stage.tsx")
+
+    assert.deepEqual(logicalItems.map((item) => item.id), sourceItems.map((item) => item.id))
+    assert.deepEqual(clones.map((item) => item.canonicalId), [
+      "fourth",
+      "fifth",
+      "first",
+      "second",
+    ])
+    assert.ok(clones.every((item) => item.id !== item.canonicalId))
+    assert.match(stage, /role=\{item\.loopClone \? undefined : "group"\}/)
+    assert.match(stage, /aria-label=\{item\.loopClone \? undefined : accessibleLabel\}/)
+    assert.match(stage, /aria-hidden=\{item\.loopClone \? "true" : undefined\}/)
+    assert.match(stage, /data-carousel-canonical-id=\{canonicalId\}/)
   })
 
   it("keeps stations circular while Background motion-off navigation stays finite", () => {
@@ -265,6 +485,54 @@ describe("Carousel Lab source boundaries", () => {
     assert.doesNotMatch(combined, /fetch\(|stripe|checkout|server action/i)
   })
 
+  it("keeps the locked lab acquisition trigger on the marked Select state contract", () => {
+    const card = read("app/dev/buttons/carousel-lab/background-lab-card.tsx")
+    const lockedBranch = card.match(
+      /<AlertDialogTrigger asChild>[\s\S]*?<\/AlertDialogTrigger>/,
+    )?.[0] ?? ""
+
+    assert.match(lockedBranch, /data-carousel-primary-action/)
+    assert.match(lockedBranch, /\{selected \? "Selected" : "Select"\}/)
+    assert.doesNotMatch(lockedBranch, />\s*Unlock\s*</)
+    assert.match(card, /<AlertDialogTitle>Unlock \{option\.label\}<\/AlertDialogTitle>/)
+  })
+
+  it("binds the repaired control browser assertions to logical slides and current dimensions", () => {
+    const browser = read("tests/browser/control-system-review.spec.ts")
+
+    assertRepairedControlBrowserConsumer(browser)
+
+    const unlockMutation = mutatePlaywrightTest(
+      browser,
+      "Carousel Lab persists and resets tuning while access actions stay mutation-free",
+      (testSource) => testSource.replace(
+        'await expect(lockedAction).toHaveAccessibleName("Selected")',
+        'await expect(lockedAction).toHaveAccessibleName(/^Unlock/)',
+      ),
+    )
+    assert.throws(() => assertRepairedControlBrowserConsumer(unlockMutation))
+
+    const heightMutation = mutatePlaywrightTest(
+      browser,
+      "Carousel Lab adapts Background profiles while Music Station dimensions stay universal",
+      (testSource) => testSource.replace(
+        ".toEqual({ width: 192, height: 192 })",
+        ".toEqual({ width: 192, height: 193 })",
+      ),
+    )
+    assert.throws(() => assertRepairedControlBrowserConsumer(heightMutation))
+
+    const physicalIdentityMutation = mutatePlaywrightTest(
+      browser,
+      "Carousel Lab preserves presentation transforms across an Embla loop wrap",
+      (testSource) => testSource.replace(
+        "'[data-carousel-slide=\"true\"][role=\"group\"]'",
+        "'[data-carousel-slide=\"true\"]'",
+      ),
+    )
+    assert.throws(() => assertRepairedControlBrowserConsumer(physicalIdentityMutation))
+  })
+
   it("keeps 3D transforms inside the shared approved radial stage", () => {
     const stage = read("components/carousels/adaptive-carousel-stage.tsx")
     const css = read("components/carousels/adaptive-carousel-stage.module.css")
@@ -332,6 +600,14 @@ describe("Carousel Lab source boundaries", () => {
 
     assert.match(stage, /--carousel-card-height/)
     assert.match(stage, /--carousel-summary-card-height/)
+    assert.match(
+      stage,
+      /const approvedSummaryCardHeight = Math\.min\(cardHeight, cardWidth\)/,
+    )
+    assert.doesNotMatch(
+      stage,
+      /const approvedSummaryCardHeight = Math\.min\(cardHeight, cardWidth \+ 1\)/,
+    )
     assert.match(panel, /key:\s*"cardHeight"/)
     assert.match(panel, /visual height independently of its width/)
     assert.match(css, /height:\s*var\(--carousel-card-height\)/)

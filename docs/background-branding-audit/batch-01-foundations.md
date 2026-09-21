@@ -1,24 +1,24 @@
 # Background Branding Audit: Foundations and signature forms
 
-## Massage Laba Lamp
+## Lava Lamp
 - **ID:** `massage-lab-moving-gradient`
-- **Current name:** MassageLaba Lamp
+- **Current name:** Lava Lamp
 - **Decision:** rename
 - **Alternatives:** Orbital Drift; Floating Forms
 - **Visual descriptor:** Soft orbs drifting through a dark field
 - **Signature original eligible:** Yes
-- **Rationale:** The spaced signature treatment gives the internally conceived free default a pronounceable identity while describing its drifting orb motion.
-- **Collision notes:** Reserve this sole branded title for the original moving gradient; Lamp Glow is centered and Colorfield Drift uses broad shifting layers.
+- **Rationale:** The approved unbranded name preserves the familiar lamp concept while describing its drifting orb motion.
+- **Collision notes:** Lava Lamp preserves the default's familiar lamp identity; Lamp Glow is centered and Colorfield Drift uses broad shifting layers.
 
 ## In Transition
 - **ID:** `static-gradient`
-- **Current name:** Static gradient
+- **Current name:** In Transition
 - **Decision:** rename
 - **Alternatives:** Held Field; Quiet Gradient
 - **Visual descriptor:** Fixed layered gradient field at rest
 - **Signature original eligible:** Yes
 - **Rationale:** In Transition gives the motionless internal fallback an intentional, contemplative identity without treating it as a technical state.
-- **Collision notes:** Its fixed layered field separates it from Massage Laba Lamp's drifting orbs and Colorfield Drift's motion.
+- **Collision notes:** Its fixed layered field separates it from Lava Lamp's drifting orbs and Colorfield Drift's motion.
 
 ## Solid Color
 - **ID:** `solid-color`
@@ -32,7 +32,7 @@
 
 ## Endless Perspective
 - **ID:** `massage-lab-retro-grid`
-- **Current name:** Retro Grid
+- **Current name:** Endless Perspective
 - **Decision:** rename
 - **Alternatives:** Vanishing Horizon; Receding Plane
 - **Visual descriptor:** Perspective grid scrolling toward the horizon
@@ -42,7 +42,7 @@
 
 ## Skybreak
 - **ID:** `massage-lab-aerial-rays`
-- **Current name:** Aerial Rays
+- **Current name:** Skybreak
 - **Decision:** rename
 - **Alternatives:** Overhead Descent; Softlight Descent
 - **Visual descriptor:** Diffuse light rays descending from above
@@ -62,7 +62,7 @@
 
 ## Hypercube
 - **ID:** `massage-lab-twisted-cubes`
-- **Current name:** Twisted Cubes
+- **Current name:** Hypercube
 - **Decision:** rename
 - **Alternatives:** Turning Lattice; Nested Geometry
 - **Visual descriptor:** Nested wireframe cubes rotating in sequence
@@ -70,35 +70,35 @@
 - **Rationale:** Hypercube gives the source-shaped stack of outlined forms a concise geometric identity while remaining faithful to its count-relative progression.
 - **Collision notes:** Its nested three-dimensional frames separate it from Shape Grid, Endless Perspective, and DNA's rotating helix.
 
-## Quiet Mosaic
+## Tile grid
 - **ID:** `massage-lab-tile-grid`
-- **Current name:** MassageLab tile grid
+- **Current name:** Tile grid
 - **Decision:** rename
 - **Alternatives:** Tiled Rhythm; Mosaic Fade
 - **Visual descriptor:** Raised square tiles fading independently
 - **Signature original eligible:** Yes
-- **Rationale:** Quiet Mosaic softens the utilitarian catalog wording while honoring the internally conceived square tiles that ease in and out.
-- **Collision notes:** Square geometry and independent fades distinguish it from Honeycomb Glow, Mosaic Warp, and the perspective grid effects.
+- **Rationale:** The approved literal label names the internally conceived square-tile geometry without carrying the prior product prefix.
+- **Collision notes:** Square geometry and independent fades distinguish Tile grid from Hex grid, Mosaic Warp, and the perspective grid effects.
 
-## Honeycomb Glow
+## Hex grid
 - **ID:** `massage-lab-hex-grid`
-- **Current name:** MassageLab hex grid
+- **Current name:** Hex grid
 - **Decision:** rename
 - **Alternatives:** Hexagonal Rhythm; Faceted Calm
 - **Visual descriptor:** Raised hexagons softly fading in sequence
 - **Signature original eligible:** Yes
-- **Rationale:** Honeycomb Glow gives the original internal hex field an approachable sensory image and remains faithful to its softly illuminated cells.
-- **Collision notes:** The six-sided cell pattern keeps it visually distinct from Quiet Mosaic's squares and Connective Pulse's warped line mesh.
+- **Rationale:** The approved literal label names the internally conceived hex-tile geometry without carrying the prior product prefix.
+- **Collision notes:** The six-sided cell pattern keeps Hex grid visually distinct from Tile grid's squares and Connective Pulse's warped line mesh.
 
 ## Colorfield Drift
 - **ID:** `massage-lab-gradient`
-- **Current name:** Gradient field
+- **Current name:** Colorfield Drift
 - **Decision:** rename
 - **Alternatives:** Layered Weather; Spectrum Breathing
 - **Visual descriptor:** Broad layered forms slowly shifting across screen
 - **Signature original eligible:** No
 - **Rationale:** Colorfield Drift names the expansive layered form and its restrained motion more memorably than the current generic field label.
-- **Collision notes:** Its broad shifting layers differ from Massage Laba Lamp's orbs and In Transition's fixed field.
+- **Collision notes:** Its broad shifting layers differ from Lava Lamp's orbs and In Transition's fixed field.
 
 ## Lamp Glow
 - **ID:** `massage-lab-lamp-effect`
@@ -108,7 +108,7 @@
 - **Visual descriptor:** Centered lamp glow softly pulsing
 - **Signature original eligible:** No
 - **Rationale:** Lamp Glow is warm, pronounceable, and visually precise for the centered conic beams, slim light line, and gentle pulse.
-- **Collision notes:** Keep it unbranded and premium; its centered canopy differs from Massage Laba Lamp's drifting orbs and mirrored Spotlight.
+- **Collision notes:** Keep it unbranded and premium; its centered canopy differs from Lava Lamp's drifting orbs and mirrored Spotlight.
 
 ## Spotlight
 - **ID:** `massage-lab-spotlight`
@@ -122,7 +122,7 @@
 
 ## Speckled Veil
 - **ID:** `massage-lab-reveal-dots`
-- **Current name:** Reveal dots
+- **Current name:** Speckled Veil
 - **Decision:** rename
 - **Alternatives:** Luminous Pinfield; Quiet Pointillism
 - **Visual descriptor:** Tiny dots shimmering across darkness

@@ -11,11 +11,17 @@ import {
   readSavedBackgroundIds,
   writeSavedBackgroundIds,
 } from "../lib/background-catalog.js"
+import {
+  BACKGROUND_UNIT_AMOUNT,
+  COMMERCE_CURRENCY,
+  COMMERCE_PRODUCT_BACKGROUND,
+} from "../lib/commerce/constants.js"
+import { resolveCommerceProduct } from "../lib/commerce/catalog.ts"
 
 const videoBackground = {
   id: "video",
   label: "Video field",
-  provider: "MassageLab",
+  provider: "AtmoShaper",
   sourceUrl: "https://example.test/demo",
   recommendedUse: "Animated ambient field",
   customizationSummary: "Interactive WebGL shader",
@@ -74,6 +80,22 @@ describe("Background catalog helpers", () => {
       videoUrl: "/generic.webm",
       posterUrl: "/generic.webp",
     })
+  })
+
+  it("keeps premium rebrand checkout references and prices exact", () => {
+    for (const [productKey, displayName] of [
+      ["massage-lab-tile-grid", "Tile grid"],
+      ["massage-lab-hex-grid", "Hex grid"],
+    ]) {
+      assert.deepEqual(resolveCommerceProduct(COMMERCE_PRODUCT_BACKGROUND, productKey), {
+        productType: COMMERCE_PRODUCT_BACKGROUND,
+        productKey,
+        displayName,
+        unitAmount: BACKGROUND_UNIT_AMOUNT,
+        currency: COMMERCE_CURRENCY,
+        availableForPurchase: true,
+      })
+    }
   })
 
   it("parses only unique string ids from storage", () => {

@@ -13,6 +13,8 @@ import {
   buildGeneratedPreviewManifestItem,
   mergeGeneratedPreviewManifestItem,
 } from "../scripts/chimer-preview-generation/manifest-item-merge.mjs"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
+import previewManifest from "../public/chimer/background-previews/index.json" with { type: "json" }
 import { sourceBetween } from "./helpers/source-structure.mjs"
 
 const componentSource = readFileSync(
@@ -57,6 +59,35 @@ const runtimeDeclarationSource = readFileSync(
 )
 
 describe("background preview media", () => {
+  it("keeps the rebranded entries on their exact preview asset paths", () => {
+    for (const [id, label] of [
+      ["massage-lab-moving-gradient", "Lava Lamp"],
+      ["massage-lab-tile-grid", "Tile grid"],
+      ["massage-lab-hex-grid", "Hex grid"],
+    ]) {
+      const item = previewManifest.items.find((entry) => entry.id === id)
+      const prefix = `/chimer/background-previews/${id}`
+      assert.ok(item)
+      assert.equal(item.label, label)
+      assert.equal(item.provider, PUBLIC_PRODUCT_IDENTITY.name)
+      assert.deepEqual([
+        item.previewMediaUrl,
+        item.previewVideoUrl,
+        item.previewSquareVideoUrl,
+        item.previewVerticalVideoUrl,
+      ], [
+        `${prefix}.webm`,
+        `${prefix}.webm`,
+        `${prefix}-square.webm`,
+        `${prefix}-vertical.webm`,
+      ])
+      assert.deepEqual(
+        Object.values(item.variants).map((variant) => variant.previewMediaUrl),
+        [`${prefix}.webm`, `${prefix}-square.webm`, `${prefix}-vertical.webm`],
+      )
+    }
+  })
+
   it("renders a decorative video with a WebP poster over the registry fallback", () => {
     const videoMarkup = componentSource.match(/<video(?:(?!\n\s*<[A-Za-z/])[\s\S])*?\/>/)?.[0]
     assert.ok(videoMarkup, "decorative preview video markup exists")
@@ -400,7 +431,7 @@ describe("background preview media", () => {
     const previous = {
       id: "preview",
       label: "Preview",
-      provider: "MassageLab",
+      provider: "AtmoShaper",
       variants: {
         landscape: { previewMediaUrl: "/preview.webm", previewPosterUrl: "/preview.webp" },
         square: { previewMediaUrl: "/preview-square-old.webm", previewPosterUrl: "/preview-square-old.webp" },
@@ -410,7 +441,7 @@ describe("background preview media", () => {
     const incoming = {
       id: "preview",
       label: "Preview",
-      provider: "MassageLab",
+      provider: "AtmoShaper",
       variants: {
         square: { previewMediaUrl: "/preview-square.webm", previewPosterUrl: "/preview-square.webp" },
       },
@@ -464,7 +495,7 @@ describe("background preview media", () => {
 
   it("rejects a generated manifest item without any rendered variant", () => {
     assert.throws(
-      () => buildGeneratedPreviewManifestItem({ id: "missing", label: "Missing", provider: "MassageLab" }, {}),
+      () => buildGeneratedPreviewManifestItem({ id: "missing", label: "Missing", provider: "AtmoShaper" }, {}),
       /Preview manifest item "missing" requires at least one variant/,
     )
   })

@@ -47,6 +47,7 @@ import { Notice } from "@/components/ui/notice"
 import { GridMotionMantraEditor } from "@/app/chimer/grid-motion-mantra-editor"
 import { useMusic } from "@/components/providers/music-provider"
 import { useSettings } from "@/components/providers/settings-provider"
+import { getAtmosphereStationById } from "@/lib/atmosphere/stations.js"
 import { FEATURE_KEYS } from "@/lib/membership"
 import { DEFAULT_GRID_MOTION_MANTRAS } from "@/lib/grid-motion-mantras"
 import { BackgroundPreviewMediaReview } from "./background-preview-media-review"
@@ -81,6 +82,8 @@ const DEVELOPMENT_REVIEW_ACCESS = Object.freeze({
   featureKeys: DEVELOPMENT_REVIEW_FEATURE_KEYS,
   ownedBackgroundIds: [],
 })
+const PROOF_STATION_ID = "mlab-proof-drone"
+const PROOF_STATION_TITLE = getAtmosphereStationById(PROOF_STATION_ID).title
 
 const TRACK_4B_IDS = ["massage-lab-dna", "massage-lab-twisted-cubes"] as const
 type Track4BBackgroundId = (typeof TRACK_4B_IDS)[number]
@@ -297,9 +300,9 @@ function ProductionMusicContinuityProbe() {
       <Button
         size="compact"
         variant="secondary"
-        onClick={() => void music.playStation("mlab-proof-drone")}
+        onClick={() => void music.playStation(PROOF_STATION_ID)}
       >
-        Play MassageLab Proof Drone
+        Play {PROOF_STATION_TITLE}
       </Button>
       <span>{music.activeStationTitle ?? "No station selected"}</span>
       <span>Production playback {music.playbackState}</span>

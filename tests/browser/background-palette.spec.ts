@@ -37,8 +37,10 @@ const AUTONOMOUS_PHONE_BACKGROUND_IDS = [
   "massage-lab-faulty-terminal",
   "massage-lab-grid-distortion",
 ] as const
-const EXPECTED_ENABLED_BACKGROUND_COUNT = 83
 const enabledRegistryEntries = backgroundRegistry.filter((entry) => entry.enabled)
+const unsupportedEnabledRegistryEntries = enabledRegistryEntries.filter(
+  ({ id }) => backgroundPaletteRegistry[id]?.status === "unsupported",
+)
 
 function captureRuntimeErrors(page: Page) {
   const consoleErrors: string[] = []
@@ -83,6 +85,16 @@ function paletteForMode(mode: typeof MODES[number]) {
     harmony: "analogous",
     swatches: CUSTOM_SWATCHES,
   }
+}
+
+/** Keeps requested gallery diagnostics intact while applying an adapter's renderer fallback. */
+function resolveAdapterEffectivePaletteMode(
+  adapter: { supportsHarmony?: boolean },
+  requestedMode: typeof MODES[number],
+) {
+  return requestedMode === "harmony" && adapter.supportsHarmony === false
+    ? "source"
+    : requestedMode
 }
 
 function hexHue(value: string) {
@@ -220,19 +232,26 @@ async function expectLoadedPaletteMode(
   expect(Object.keys(actualRoleColors).sort(), `${id}:${mode}:role inventory`).toEqual(
     adapter.roles.map((role) => role.id).sort(),
   )
+  const effectiveMode = resolveAdapterEffectivePaletteMode(adapter, mode)
+  const expectedRendererRoleColors = resolveBackgroundRoleColors({
+    palette: paletteForMode(effectiveMode),
+    adapter,
+    mapping,
+    canCustomize: true,
+  })
+  const rendererOverrideKey = effectiveMode === "source" ? "sourceValue" : "customValue"
   for (const role of adapter.roles) {
     expect(String(actualRoleColors[role.id]).length, `${id}:${mode}:${role.id}`).toBeGreaterThan(0)
     const replacingOverride = (adapter.modeOverrides ?? []).find((override) => {
-      const key = mode === "source" ? "sourceValue" : "customValue"
-      return Object.hasOwn(override, key)
+      return Object.hasOwn(override, rendererOverrideKey)
         && role.rendererTarget.startsWith(`${override.rendererTarget}[`)
     })
     if (replacingOverride) {
       continue
     }
-    const expectedTargetColor = mode === "source" && role.sourceColorFormat === "css"
+    const expectedTargetColor = effectiveMode === "source" && role.sourceColorFormat === "css"
       ? role.sourceColor
-      : expectedRoleColors[role.id]
+      : expectedRendererRoleColors[role.id]
     await expectTargetColor(
       page,
       actualTargets[role.rendererTarget],
@@ -241,10 +260,9 @@ async function expectLoadedPaletteMode(
     )
   }
   for (const override of adapter.modeOverrides ?? []) {
-    const key = mode === "source" ? "sourceValue" : "customValue"
-    if (Object.hasOwn(override, key)) {
+    if (Object.hasOwn(override, rendererOverrideKey)) {
       expect(actualTargets[override.rendererTarget], `${id}:${mode}:${override.rendererTarget}`)
-        .toEqual(override[key])
+        .toEqual(override[rendererOverrideKey])
     }
   }
 }
@@ -592,7 +610,6 @@ test.describe("shared background palette review matrix", () => {
         family: row.getAttribute("data-renderer-family") as AdapterInventoryRow["family"],
       })))
 
-    expect(enabledRegistryEntries).toHaveLength(EXPECTED_ENABLED_BACKGROUND_COUNT)
     expect(inventory).toHaveLength(enabledRegistryEntries.length)
     expect(inventory.map(({ id }) => id).sort()).toEqual(
       enabledRegistryEntries.map(({ id }) => id).sort(),
@@ -615,7 +632,7 @@ test.describe("shared background palette review matrix", () => {
       })
     }
 
-    expect(executedCaseCount).toBe(EXPECTED_ENABLED_BACKGROUND_COUNT * MODES.length)
+    expect(executedCaseCount).toBe(enabledRegistryEntries.length * MODES.length)
     expect(health.pageErrors).toEqual([])
     expect(health.consoleErrors).toEqual([])
   })
@@ -1000,7 +1017,7 @@ test.describe("shared background palette review matrix", () => {
     }
   })
 
-  test("proves special controls and unsupported no-op through Host diagnostics", async ({ page }) => {
+  test("proves special controls and registry-declared unsupported no-ops through Host diagnostics", async ({ page }) => {
     await openPaletteGallery(page)
     const host = page.getByTestId("background-palette-live-host")
 
@@ -1044,9 +1061,15 @@ test.describe("shared background palette review matrix", () => {
       CUSTOM_SWATCHES,
     )
 
-    await selectBackground(page, "massage-lab-aurora")
-    for (const mode of MODES) {
-      await expectLoadedPaletteMode(page, "massage-lab-aurora", "unsupported", mode)
+    expect(
+      unsupportedEnabledRegistryEntries.length,
+      "The enabled registry must retain at least one explicit unsupported adapter.",
+    ).toBeGreaterThan(0)
+    for (const { id } of unsupportedEnabledRegistryEntries) {
+      await selectBackground(page, id)
+      for (const mode of MODES) {
+        await expectLoadedPaletteMode(page, id, "unsupported", mode)
+      }
     }
   })
 

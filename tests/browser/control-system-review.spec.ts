@@ -1,5 +1,69 @@
-import { expect, test } from "@playwright/test"
+import { expect, test, type Page, type Route } from "@playwright/test"
+import { backgroundPreviewManifest } from "../../components/backgrounds/backgroundPreviewManifest"
+import { backgroundRegistry } from "../../components/backgrounds/backgroundRegistry"
 import { isDevelopmentReviewUnavailable } from "./development-review-test-helpers"
+
+const LOCAL_CAROUSEL_PREVIEW_FIXTURES = [
+  {
+    id: "massage-lab-moving-gradient",
+    path: "/chimer/background-previews/massage-lab-moving-gradient.webm",
+  },
+  {
+    id: "static-gradient",
+    path: "/chimer/background-previews/static-gradient.webm",
+  },
+  {
+    id: "massage-lab-stars",
+    path: "/chimer/background-previews/massage-lab-stars.webm",
+  },
+  {
+    id: "massage-lab-hole",
+    path: "/chimer/background-previews/massage-lab-hole.webm",
+  },
+] as const
+
+type LocalCarouselPreviewFixtureHits = Record<string, number>
+
+/** Serves one exact local preview request while leaving every non-matching request observable. */
+function createExactLocalPreviewRouteHandler(
+  expectedUrl: string,
+  hitCounts: LocalCarouselPreviewFixtureHits,
+) {
+  return async (route: Route) => {
+    const request = route.request()
+    if (request.method() !== "GET" || request.url() !== expectedUrl) {
+      await route.fallback()
+      return
+    }
+
+    hitCounts[expectedUrl] = (hitCounts[expectedUrl] ?? 0) + 1
+    await route.fulfill({ status: 204, contentType: "video/webm", body: "" })
+  }
+}
+
+/** Installs only the trace-proven local landscape previews after checking their catalog owners. */
+async function installExactLocalCarouselPreviewFixtures(page: Page) {
+  const pageOrigin = new URL(page.url()).origin
+  const hitCounts: LocalCarouselPreviewFixtureHits = {}
+
+  for (const fixture of LOCAL_CAROUSEL_PREVIEW_FIXTURES) {
+    const manifestEntry = backgroundPreviewManifest[fixture.id]
+    const registryEntry = backgroundRegistry.find(({ id }) => id === fixture.id)
+    expect(manifestEntry?.variants?.landscape?.previewMediaUrl).toBe(fixture.path)
+    expect(manifestEntry?.previewMediaUrl).toBe(fixture.path)
+    expect(registryEntry?.previewVariants?.landscape?.previewMediaUrl).toBe(fixture.path)
+    expect(registryEntry?.previewMediaUrl).toBe(fixture.path)
+
+    const expectedUrl = new URL(fixture.path, pageOrigin).toString()
+    hitCounts[expectedUrl] = 0
+    await page.route(
+      expectedUrl,
+      createExactLocalPreviewRouteHandler(expectedUrl, hitCounts),
+    )
+  }
+
+  return hitCounts
+}
 
 test.describe("control-system review lab", () => {
   test.beforeEach(async ({ page }) => {
@@ -71,10 +135,10 @@ test.describe("control-system review lab", () => {
         await expect(page.getByTestId("carousel-lab-summary")).toContainText(surface)
         await expect(page.getByTestId("carousel-lab-summary")).toContainText(presentation)
 
-        const pairSlides = page.locator('[data-carousel-slide="true"]')
-        expect(await pairSlides.count()).toBeGreaterThan(0)
+        const renderedSlides = page.locator('[data-carousel-slide="true"]')
+        expect(await renderedSlides.count()).toBeGreaterThan(0)
         const centeredFullCard = page.locator(
-          '[data-carousel-slide="true"][data-centered="true"][data-detail-level="full"]',
+          '[data-carousel-slide="true"][role="group"][data-centered="true"][data-detail-level="full"]',
         )
         await expect(centeredFullCard).toHaveCount(1)
         if (surface === "Backgrounds") {
@@ -95,7 +159,7 @@ test.describe("control-system review lab", () => {
 
     await page.getByRole("radio", { name: "Backgrounds", exact: true }).click()
     await page.getByRole("radio", { name: "Existing", exact: true }).click()
-    const slides = page.locator('[data-carousel-slide="true"]')
+    const slides = page.locator('[data-carousel-slide="true"][role="group"]')
     expect(await slides.count()).toBeGreaterThan(2)
     const originalSelected = await page
       .locator('[data-background-selected="true"]')
@@ -194,12 +258,16 @@ test.describe("control-system review lab", () => {
 
     await page.getByRole("combobox", { name: "Access state fixture" }).click()
     await page.getByRole("option", { name: "Locked", exact: true }).click()
-    const centeredBackground = page.locator('[data-centered="true"]')
+    const centeredBackground = page.locator(
+      '[data-carousel-slide="true"][role="group"][data-centered="true"]',
+    )
     await expect(centeredBackground.locator("article")).toHaveAttribute(
       "data-background-access-state",
       "locked",
     )
-    const lockedAction = centeredBackground.getByRole("button", { name: /^Unlock/ })
+    const lockedAction = centeredBackground.locator("[data-carousel-primary-action]")
+    await expect(lockedAction).toHaveAccessibleName("Selected")
+    await expect(lockedAction).not.toHaveAccessibleName(/^Unlock/)
     await lockedAction.scrollIntoViewIfNeeded()
     await expect.poll(() => lockedAction.evaluate((element) => {
       const rect = element.getBoundingClientRect()
@@ -240,7 +308,9 @@ test.describe("control-system review lab", () => {
       [{ width: 1121, height: 779 }, "Wide landscape", 280, 388, 36],
     ] as const
 
-    const centered = page.locator('[data-carousel-slide="true"][data-centered="true"]')
+    const centered = page.locator(
+      '[data-carousel-slide="true"][role="group"][data-centered="true"]',
+    )
     const centeredLabel = await centered.getAttribute("aria-label")
     for (const [viewport, label, cardWidth, cardHeight, sideRotation] of profiles) {
       await page.setViewportSize(viewport)
@@ -253,7 +323,9 @@ test.describe("control-system review lab", () => {
         height: (element as HTMLElement).offsetHeight,
       }))).toEqual({ width: cardWidth, height: cardHeight })
       await expect(centered).toHaveAttribute("aria-label", centeredLabel ?? "")
-      const side = page.locator('[data-carousel-slide="true"][data-detail-level="summary"]').first()
+      const side = page.locator(
+        '[data-carousel-slide="true"][role="group"][data-detail-level="summary"]',
+      ).first()
       await expect.poll(() => side.evaluate((element) => Math.abs(
         Number.parseFloat(element.style.getPropertyValue("--carousel-rotate-y")),
       ))).toBeCloseTo(sideRotation, 0)
@@ -265,17 +337,22 @@ test.describe("control-system review lab", () => {
       await page.getByRole("radio", { name: "Music Stations", exact: true }).click()
       await expect(page.getByTestId("carousel-lab-summary")).toContainText("Card width: 192px")
       await expect(page.getByTestId("carousel-lab-summary")).toContainText("Height: 224px")
-      const centeredStation = page.locator('[data-carousel-slide="true"][data-centered="true"]')
+      const stationCarousel = page.getByRole("region", { name: "Station carousel" })
+      const centeredStation = stationCarousel.locator(
+        '[data-carousel-slide="true"][role="group"][data-centered="true"]',
+      )
       await expect.poll(() => centeredStation.locator("article").evaluate((element) => ({
         width: (element as HTMLElement).offsetWidth,
         height: (element as HTMLElement).offsetHeight,
       }))).toEqual({ width: 192, height: 224 })
-      const summaryPresentation = page
-        .locator('[data-carousel-slide="true"][data-detail-level="summary"]')
+      const summaryPresentation = stationCarousel
+        .locator('[data-carousel-slide="true"][role="group"][data-detail-level="summary"]')
         .first()
         .locator('[data-carousel-transform="true"]')
-      await expect.poll(() => summaryPresentation.evaluate((element) => (element as HTMLElement).offsetHeight))
-        .toBe(193)
+      await expect.poll(() => summaryPresentation.evaluate((element) => ({
+        width: (element as HTMLElement).offsetWidth,
+        height: (element as HTMLElement).offsetHeight,
+      }))).toEqual({ width: 192, height: 192 })
       await page.getByRole("radio", { name: "Backgrounds", exact: true }).click()
     }
   })
@@ -285,10 +362,14 @@ test.describe("control-system review lab", () => {
     await page.getByRole("radio", { name: "Music Stations", exact: true }).click()
 
     const stage = page.getByTestId("carousel-lab-stage")
-    const sideSlide = page.locator('[data-carousel-slide="true"]').nth(1)
+    const stationCarousel = page.getByRole("region", { name: "Station carousel" })
+    const logicalSlides = stationCarousel.locator('[data-carousel-slide="true"][role="group"]')
+    const sideSlide = logicalSlides.nth(1)
     await expect(sideSlide).toBeAttached()
     await expect(page.getByText("Sets the angle between cards on the production-style radial arc.")).toBeVisible()
-    const centerOffset = await page.locator('[data-carousel-slide="true"][data-centered="true"]').evaluate(
+    const centerOffset = await stationCarousel.locator(
+      '[data-carousel-slide="true"][role="group"][data-centered="true"]',
+    ).evaluate(
       (centered, stageElement) => {
         const cardRect = centered.getBoundingClientRect()
         const stageRect = (stageElement as HTMLElement).getBoundingClientRect()
@@ -299,7 +380,9 @@ test.describe("control-system review lab", () => {
       await stage.elementHandle(),
     )
     expect(centerOffset).toBeLessThanOrEqual(2)
-    const centeredSlide = page.locator('[data-carousel-slide="true"][data-centered="true"]')
+    const centeredSlide = stationCarousel.locator(
+      '[data-carousel-slide="true"][role="group"][data-centered="true"]',
+    )
     const stacking = await Promise.all([
       centeredSlide.evaluate((element) => Number(getComputedStyle(element).zIndex)),
       sideSlide.evaluate((element) => Number(getComputedStyle(element).zIndex)),
@@ -320,18 +403,66 @@ test.describe("control-system review lab", () => {
     await expect.poll(() => sideSlide.evaluate((element) =>
       element.style.getPropertyValue("--carousel-rotate-y"),
     )).not.toBe(initialRotation)
+
+    for (const [testId, value] of [
+      ["carousel-tuning-cardWidth", "212"],
+      ["carousel-tuning-cardHeight", "260"],
+    ] as const) {
+      await page.getByTestId(testId).evaluate((input, nextValue) => {
+        const range = input as HTMLInputElement
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set
+        setter?.call(range, nextValue)
+        range.dispatchEvent(new Event("input", { bubbles: true }))
+        range.dispatchEvent(new Event("change", { bubbles: true }))
+      }, value)
+    }
+    await expect(page.getByTestId("carousel-lab-summary")).toContainText("Card width: 212px")
+    await expect(page.getByTestId("carousel-lab-summary")).toContainText("Height: 260px")
+    await expect.poll(() => centeredSlide.locator("article").evaluate((element) => ({
+      width: (element as HTMLElement).offsetWidth,
+      height: (element as HTMLElement).offsetHeight,
+    }))).toEqual({ width: 212, height: 260 })
+    const tunedSummary = stationCarousel
+      .locator(
+        '[data-carousel-slide="true"][role="group"][data-detail-level="summary"] '
+          + '[data-carousel-transform="true"]',
+      )
+      .first()
+    await expect.poll(() => tunedSummary.evaluate((element) => ({
+      width: (element as HTMLElement).offsetWidth,
+      height: (element as HTMLElement).offsetHeight,
+    }))).toEqual({ width: 212, height: 212 })
   })
 
   test("Carousel Lab preserves presentation transforms across an Embla loop wrap", async ({ page }) => {
     await page.getByRole("tab", { name: "Carousels" }).click()
     await page.getByRole("radio", { name: "Music Stations", exact: true }).click()
 
-    const slides = page.locator('[data-carousel-slide="true"]')
-    await expect(slides.first()).toHaveAttribute("data-centered", "true")
+    const stationCarousel = page.getByRole("region", { name: "Station carousel" })
+    const physicalSlides = stationCarousel.locator('[data-carousel-slide="true"]')
+    const loopClones = stationCarousel.locator(
+      '[data-carousel-slide="true"][data-carousel-loop-clone="true"]',
+    )
+    const logicalSlides = stationCarousel.locator(
+      '[data-carousel-slide="true"][role="group"]',
+    )
+    await expect.poll(async () => (
+      await physicalSlides.count() - await logicalSlides.count()
+    )).toBeGreaterThan(0)
+    await expect.poll(() => loopClones.count()).toBeGreaterThan(0)
+    await expect(loopClones.first()).toHaveAttribute("aria-hidden", "true")
+    await expect(loopClones.first()).not.toHaveAttribute("role", "group")
+    await expect(loopClones.first()).not.toHaveAttribute("aria-label", /.+/)
+    await expect(logicalSlides.first()).toHaveAttribute("data-centered", "true")
     await page.getByRole("button", { name: "Previous station" }).click()
-    await expect(slides.last()).toHaveAttribute("data-centered", "true")
+    await expect(logicalSlides.last()).toHaveAttribute("data-centered", "true")
+    await expect(logicalSlides.last()).not.toHaveAttribute("data-carousel-loop-clone", "true")
+    await page.getByRole("button", { name: "Next station" }).click()
+    await expect(logicalSlides.first()).toHaveAttribute("data-centered", "true")
+    await page.getByRole("button", { name: "Previous station" }).click()
+    await expect(logicalSlides.last()).toHaveAttribute("data-centered", "true")
 
-    const wrappedSlide = slides.first()
+    const wrappedSlide = logicalSlides.first()
     await expect.poll(() => wrappedSlide.evaluate((element) =>
       element.style.getPropertyValue("--carousel-x"),
     )).not.toBe("")
@@ -385,9 +516,10 @@ test.describe("control-system review lab", () => {
     await expect(page.getByRole("radio", { name: "3D Carousel", exact: true })).toHaveCount(0)
     await expect(page.getByTestId("carousel-lab-summary")).toContainText("Loop: On")
     await expect(page.getByText("Loop unavailable for this item count")).toHaveCount(0)
-    const stationSlides = page.locator('[data-carousel-slide="true"]')
-    const centeredStation = page.locator(
-      '[data-carousel-slide="true"][data-centered="true"]',
+    const stationCarousel = page.getByRole("region", { name: "Station carousel" })
+    const stationSlides = stationCarousel.locator('[data-carousel-slide="true"][role="group"]')
+    const centeredStation = stationCarousel.locator(
+      '[data-carousel-slide="true"][role="group"][data-centered="true"]',
     )
     const stationPlay = centeredStation.locator("[data-carousel-primary-action]")
     const stationFavorite = centeredStation.locator("[data-carousel-favorite-action]")
@@ -422,7 +554,7 @@ test.describe("control-system review lab", () => {
     await details.click()
     const detailsDialog = page.getByRole("dialog")
     await expect(detailsDialog).toBeVisible()
-    await expect(detailsDialog.getByText(/Source and license|MassageLab original/)).toBeVisible()
+    await expect(detailsDialog.getByText(/Source and license|AtmoShaper original/)).toBeVisible()
     await page.keyboard.press("Escape")
     await expect(detailsDialog).toBeHidden()
     await expect(stationSlides.first()).toHaveAttribute("data-centered", "true")
@@ -439,7 +571,7 @@ test.describe("control-system review lab", () => {
     expect(backgroundCopy.every((copy) => !/\b(?:Shader|Video)\b/.test(copy))).toBe(true)
     await expect(
       page.locator('[data-carousel-slide="true"][data-centered="true"]').getByText(
-        "MassageLab",
+        "AtmoShaper",
         { exact: true },
       ),
     ).toHaveCount(0)
@@ -449,7 +581,8 @@ test.describe("control-system review lab", () => {
     await page.getByRole("tab", { name: "Carousels" }).click()
     await page.getByRole("radio", { name: "Music Stations", exact: true }).click()
 
-    const slides = page.locator('[data-carousel-slide="true"]')
+    const stationCarousel = page.getByRole("region", { name: "Station carousel" })
+    const slides = stationCarousel.locator('[data-carousel-slide="true"][role="group"]')
     await expect(slides.nth(1)).toBeAttached()
     const restoredLabel = await slides.nth(1).getAttribute("aria-label")
     expect(restoredLabel).toBeTruthy()
@@ -463,11 +596,13 @@ test.describe("control-system review lab", () => {
     await page.getByRole("option", { name: "Treatment room starters" }).click()
 
     await expect(
-      page.locator('[data-carousel-slide="true"][data-centered="true"]'),
+      stationCarousel.locator(
+        '[data-carousel-slide="true"][role="group"][data-centered="true"]',
+      ),
     ).toHaveAttribute("aria-label", restoredLabel ?? "")
   })
 
-  test("Carousel Lab supports keyboard, reduced motion, cleanup, and phone width", async ({ page }) => {
+  test("Carousel Lab supports keyboard, reduced motion, cleanup, and phone width", async ({ page }, testInfo) => {
     const consoleErrors: string[] = []
     page.on("console", (message) => {
       if (message.type() === "error") consoleErrors.push(message.text())
@@ -475,6 +610,7 @@ test.describe("control-system review lab", () => {
 
     await page.emulateMedia({ reducedMotion: "reduce" })
     await page.setViewportSize({ width: 390, height: 844 })
+    const previewFixtureHits = await installExactLocalCarouselPreviewFixtures(page)
     await page.getByRole("tab", { name: "Carousels" }).click()
 
     for (const presentation of ["Existing"]) {
@@ -482,27 +618,40 @@ test.describe("control-system review lab", () => {
       await expect(page.getByTestId("carousel-lab-summary")).toContainText(presentation)
     }
     await expect(page.getByTestId("carousel-lab-summary")).toContainText("Reduced-motion rail")
+    await expect(page.locator('video[data-testid="carousel-background-video"]')).toHaveCount(0)
+    await page.waitForLoadState("networkidle")
+    const settledPreviewFixtureHits = { ...previewFixtureHits }
 
     const stage = page.getByTestId("carousel-lab-stage")
     await stage.focus()
     await stage.press("End")
-    await expect(page.locator('[data-carousel-slide="true"]').last()).toHaveAttribute(
+    await expect(page.locator('[data-carousel-slide="true"][role="group"]').last()).toHaveAttribute(
       "data-centered",
       "true",
     )
     await stage.press("Home")
-    await expect(page.locator('[data-carousel-slide="true"]').first()).toHaveAttribute(
+    await expect(page.locator('[data-carousel-slide="true"][role="group"]').first()).toHaveAttribute(
       "data-centered",
       "true",
     )
     await stage.press("Tab")
-    await expect(page.locator('[data-carousel-slide="true"]:focus-within')).toHaveAttribute(
+    await expect(page.locator('[data-carousel-slide="true"][role="group"]:focus-within')).toHaveAttribute(
       "data-centered",
       "true",
     )
 
     await page.getByRole("radio", { name: "Music Stations", exact: true }).click()
     await expect(page.locator('video[data-testid="carousel-background-video"]')).toHaveCount(0)
+    await page.waitForLoadState("networkidle")
+    const finalPreviewFixtureHits = { ...previewFixtureHits }
+    await testInfo.attach("local-carousel-preview-fixture-hits.json", {
+      body: JSON.stringify({
+        settledBeforeKeyboardAndCleanup: settledPreviewFixtureHits,
+        afterKeyboardAndCleanup: finalPreviewFixtureHits,
+      }, null, 2),
+      contentType: "application/json",
+    })
+    expect(finalPreviewFixtureHits).toEqual(settledPreviewFixtureHits)
     const pageOverflows = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth + 1,
     )

@@ -34,7 +34,7 @@ export function MetalRingGallery() {
         <div>
           <h3 className="text-sm font-semibold">Attention timing</h3>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            Same ring, with MassageLab random play, settle, and pause behavior.
+            Same ring, with randomized play, settle, and pause behavior.
           </p>
         </div>
         <MetalAttentionButton metalStrength={0.6}>
