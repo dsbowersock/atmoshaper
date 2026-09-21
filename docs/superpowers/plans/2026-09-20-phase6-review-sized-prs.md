@@ -747,8 +747,8 @@ its incremental review without actionable comments at 00:32 UTC on September 21.
 All seven jobs in CI `35545694616` passed and the prior thread is resolved.
 Original PR #5 and replacements #6-#10 remain open and unmerged.
 
-The source-locked Phase 6 plan's background task owns current effect prose and
-diagnostic text plus removal of the built-in legacy globe mark. The original
+Task 6 owns only current effect prose and diagnostic text. Removal of the
+built-in legacy globe mark remains assigned to Task 7. The original
 allocation counted 60 renderer paths and 29 catalog/controls paths. Execute
 59/30 instead: keep `components/backgrounds/effects/massage-lab-3d-globe-background.tsx`
 with the next catalog slice, its registry/catalog/audit descriptions and paired
@@ -826,10 +826,15 @@ Copy these 59 files exactly from recovery
   copy does not hard-code `AtmoShaper`. Put that loop in its own named renderer
   test. Do not import the whole source file: registry/catalog label/provider
   assertions, test-title renames and globe-marker assertions stay with Task 7.
+- Update `tests/family-friends-server-workload.test.mjs` only to advance the
+  verified-date ceiling alongside the September 21 UTC project-state checkpoint.
+  Preserve its assertions; this paired metadata update addresses hosted review.
 - Modify only `docs/project-state.md`, `docs/project-log.md`, this delivery plan,
   and generated `scripts/repository-audit/brand-reference-baseline.json` for
-  delivery receipts. Expected scope: 59 source files + one shared test + four
-  delivery/audit files = 64. Measure the actual exact path set before publication.
+  delivery receipts. Updated scope: 59 source files + one shared renderer test
+  + one verified-date test companion + four delivery/audit files = 65. The initial
+  published scope was 64, before the date-test companion. Measure the actual
+  exact path set before each publication.
 - Preserve `scripts/repository-audit/policy.json`, the strict audit verifier,
   all existing 48 exact compatibility rules and all earlier verified repairs.
   Regenerate the intermediate receipt through the existing deterministic audit
@@ -883,7 +888,7 @@ provider and Sentry/admin compatibility contracts. No source PNGs are copied.
 
 ### Local verification and documentation finalization
 
-The 59 source blobs and 64-path boundary were verified. The candidate passed
+The initial 59 source blobs and 64-path boundary were verified. The candidate passed
 153 focused tests, typecheck, lint, strict audit/inventory and the full unit
 suite: 4,711 passed, three skipped, zero failures (4,714 total). Independent
 SPEC passed; QUALITY found no renderer/test defect and requested correction
@@ -896,3 +901,11 @@ gates, then regenerate the receipt. If review changes only these records,
 prove source/test/policy bytes unchanged and verify the bounded document/audit
 delta before scoped SPEC then QUALITY confirmation. Do not carry start-of-task
 pending claims into a publication candidate or imply whole-sequence completion.
+
+The first published head passed both local review stages. Its hosted reviewers
+then requested the paired verification-date update and explicit Task 7 globe
+ownership wording above. These corrections do not change source ownership or
+runtime behavior. Include the header and companion date ceiling in later
+checkpoint finalization; use the verified UTC evidence date consistently.
+The five-path repair (three delivery documents, date-test companion and generated
+receipt) needs scoped SPEC then QUALITY and renewed exact-head hosted gates.

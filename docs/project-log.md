@@ -2,6 +2,26 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Renderer slice published; hosted record corrections
+
+- Published PR #11 at `6d92e6daa073be40db6f61e26c7ac8958b1ab0f1`, stacked on
+  PR #10 with 64 changed files. Independent SPEC and QUALITY passed, including
+  the earlier stale-status correction. Codex and CodeRabbit then completed
+  hosted review and each raised one documentation finding.
+- The canonical verification header and its companion test ceiling now advance
+  together to the verified September 21 UTC checkpoint. The prior update changed
+  the snapshot/log but omitted these paired freshness fields. No assertion is
+  removed or weakened; the existing date-validation contract is preserved.
+- The plan now explicitly assigns only effect prose and diagnostics to Task 6;
+  globe-marker removal remains in Task 7 with its descriptions and tests. The
+  earlier wording conflated the original source task with replacement slices.
+  The 59/30 packaging boundary and source ownership are unchanged.
+- Adding the date-test companion brings PR scope to 65 files. This bounded
+  amendment requires scoped SPEC then QUALITY and renewed exact-head hosted
+  reviews/strict CI. It does not close the remaining slices, combined-source
+  ledger or pending Linux Atmosphere snapshot decision. No runtime, PNG, frame,
+  threshold, provider, billing, deployment, merge or legal-version changes.
+
 ## 2026-09-21 — Account gates clean; background renderer local verification
 
 - PR #10 head `3e29e6e696131450820e8b70cc195d6bf5849f8a` passed Codex review,

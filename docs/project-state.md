@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-20
+Verified: 2026-09-21
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -9,22 +9,30 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - Account/service PR #10 is verified at `3e29e6e696131450820e8b70cc195d6bf5849f8a`:
   Codex and CodeRabbit completed clean on the exact head, its prior thread is
   resolved, and all seven jobs in CI `35545694616` passed. Nothing was merged.
-- Task 6 of the existing delivery plan is implemented on
+- Task 6 of the existing delivery plan is published as
+  [PR #11](https://github.com/dsbowersock/atmoshaper/pull/11) on
   `codex/phase6-06-background-renderers` in the approved isolated worktree.
   It carries 59 recovery-exact renderer prose/diagnostic files and one partial
   shared test companion. The globe-marker retirement stays with the next
   catalog slice and its descriptions/tests, preserving coherent ownership.
-- Verified scope is 64 files including four delivery/audit records. Existing
+- Scope is 65 files: 59 renderer files, the shared renderer test, the verified-date
+  test companion and four delivery/audit records. The initial published scope
+  was 64; the date companion is added by the hosted-review amendment. Existing
   shader, animation, lifecycle, identifiers, catalog, legal and provider
   boundaries stay unchanged. Prior Sentry and immutable admin replay repairs
   remain authoritative, including their deliberate compatibility-era copy.
 - All 59 renderer files match recovery exactly. Local checks passed: 153
   focused tests, typecheck, lint, strict audit/inventory, and the full unit
   suite (4,711 passed, three skipped, zero failures; 4,714 total).
-- Independent SPEC passed. QUALITY found no renderer or companion-test defect;
-  its stale-status documentation finding is corrected in this checkpoint.
-  Final documentation confirmation follows the same SPEC-then-QUALITY gate.
-- This slice's exact-head hosted reviews and strict CI remain unverified.
+- The initial 64-file candidate passed independent SPEC then QUALITY, including
+  the stale-status documentation correction. Both hosted reviewers completed
+  on initial head `6d92e6daa073be40db6f61e26c7ac8958b1ab0f1` and raised record-only
+  findings: align the verification date and test ceiling with this September 21
+  UTC checkpoint, and explicitly retain globe-marker ownership in Task 7.
+  This amendment addresses both without changing renderer behavior or assertions.
+- Each amendment must pass scoped SPEC then QUALITY before publication.
+  The updated head still requires both hosted reviews and strict CI; initial-head
+  coverage is not updated-head approval.
   The final combined-source ledger and separate Linux Atmosphere
   snapshot-refresh approval remain incomplete.
 - Original PR #5 and all published replacements remain recovery references,
