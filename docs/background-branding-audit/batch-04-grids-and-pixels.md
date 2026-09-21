@@ -8,7 +8,7 @@
 - **Visual descriptor:** Grid waves pulsing through interference
 - **Signature original eligible:** No
 - **Rationale:** Connective Pulse is an apt sensory name for the lattice as interference pulses swell and recede across its warped surface.
-- **Collision notes:** The continuous mesh and interference bloom separate it from Ripple Grid's central square wave and Honeycomb Glow's discrete cells.
+- **Collision notes:** The continuous mesh and interference bloom separate it from Ripple Grid's central square wave and Hex grid's discrete cells.
 
 ## Nomad
 - **ID:** `massage-lab-pixel-blast`
@@ -98,7 +98,7 @@
 - **Visual descriptor:** Mosaic blocks bending in soft waves
 - **Signature original eligible:** No
 - **Rationale:** Mosaic Warp names the generated texture as well as its deformation, making the effect more tangible than the current engineering phrase.
-- **Collision notes:** Large blended blocks distinguish it from Quiet Mosaic's small independently fading tiles and Mantra Drift's word-bearing panels.
+- **Collision notes:** Large blended blocks distinguish it from Tile grid's small independently fading tiles and Mantra Drift's word-bearing panels.
 
 ## Mantra Drift
 - **ID:** `massage-lab-grid-motion`
@@ -118,4 +118,4 @@
 - **Visual descriptor:** Outlined square cells sliding across a field
 - **Signature original eligible:** No
 - **Rationale:** Geometric Current gives the moving canvas forms a softer directional identity while remaining broad enough for the source's selectable shapes.
-- **Collision notes:** Outlined moving cells distinguish this renderer from Mantra Drift's text panels and Quiet Mosaic's independently fading filled squares.
+- **Collision notes:** Outlined moving cells distinguish this renderer from Mantra Drift's text panels and Tile grid's independently fading filled squares.

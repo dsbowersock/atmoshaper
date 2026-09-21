@@ -2,6 +2,31 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Catalog published; hosted findings verified before bounded repair
+
+- Published and attached PR #12 at `30bd341eae393b7ddaa7d1c7f443ffdc5adf0925`,
+  based on reviewed renderer head `04e3868e3ab39111e50b6c8cdc7d5a89bc7b60e2`.
+  Final scoped SPEC and QUALITY approved the executable sweep guard; all 35
+  staged blobs matched the frozen candidate. Strict receipt and tracked inventory
+  passed. All seven initial CI jobs passed in run `35566555008`.
+- Codex found nine license strings wrongly tied to public presentation identity.
+  Root reproduced that attribution drift and the paired test's incorrect
+  expectation. Restore the literal inherited attribution, preserving provider
+  labels, and cover all nine exported values. The structural equivalence check
+  must protect licenses rather than exclude them as presentation.
+- CodeRabbit found 72 stale labels among 83 preview entries, a free-default
+  entitlement test that also passes through the reset path, three current
+  collision notes using retired names, and ambiguous 31-path baseline wording.
+  Root verified each against actual owners. Existing generators are correct;
+  this is incomplete metadata synchronization and weak test coverage, not a
+  demonstrated runtime defect. Preserve preview identities and every non-label
+  field; preserve legacy audit aliases. Regenerate only changed audit prose.
+- One existing implementer owns eight bounded implementation/test paths; root
+  owns delivery records and receipt. Total PR scope remains 35. Fresh focused
+  and full-unit validation, lint/typecheck, independent SPEC then QUALITY,
+  staged verification and both exact-head hosted reviews remain required.
+  No merge, PNG, threshold, provider, billing or media-byte changes.
+
 ## 2026-09-21 — Catalog browser validation exposes inherited palette and media assumptions
 
 - The v2 full unit suite passed 4,723 with three skips and zero failures.

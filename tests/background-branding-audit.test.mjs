@@ -244,6 +244,57 @@ describe("background branding audit", () => {
     ].join("\n"))
   })
 
+  it("uses the current grid names in source collision notes and generated batch 04", async () => {
+    const audit = JSON.parse(await readFile(
+      new URL("../data/background-branding-audit.json", import.meta.url),
+      "utf8",
+    ))
+    const expectedNotesById = new Map([
+      [
+        "massage-lab-grid-bloom",
+        "The continuous mesh and interference bloom separate it from Ripple Grid's central square wave and Hex grid's discrete cells.",
+      ],
+      [
+        "massage-lab-grid-distortion",
+        "Large blended blocks distinguish it from Tile grid's small independently fading tiles and Mantra Drift's word-bearing panels.",
+      ],
+      [
+        "massage-lab-shape-grid",
+        "Outlined moving cells distinguish this renderer from Mantra Drift's text panels and Tile grid's independently fading filled squares.",
+      ],
+    ])
+    const entriesById = new Map(audit.entries.map((entry) => [entry.id, entry]))
+
+    for (const [id, expectedNote] of expectedNotesById) {
+      assert.equal(entriesById.get(id)?.collisionNotes, expectedNote)
+    }
+
+    const batch = BACKGROUND_BRANDING_AUDIT_BATCHES.find(({ slug }) => slug === "04-grids-and-pixels")
+    assert.ok(batch)
+    const renderedBatch = renderAuditBatch({
+      batch,
+      backgroundsById: new Map(backgroundRegistry.map((background) => [background.id, background])),
+      entriesById,
+    })
+    const publishedBatch = await readFile(
+      new URL("../docs/background-branding-audit/batch-04-grids-and-pixels.md", import.meta.url),
+      "utf8",
+    )
+
+    const assertPublishedBatchMatchesRendered = (publishedDocument) => {
+      const normalizedPublishedDocument = publishedDocument.replaceAll("\r\n", "\n")
+      assert.equal(normalizedPublishedDocument, renderedBatch)
+      for (const expectedNote of expectedNotesById.values()) {
+        assert.ok(normalizedPublishedDocument.includes(`- **Collision notes:** ${expectedNote}`))
+      }
+      assert.doesNotMatch(normalizedPublishedDocument, /Honeycomb Glow|Quiet Mosaic/)
+    }
+
+    assertPublishedBatchMatchesRendered(renderedBatch)
+    assertPublishedBatchMatchesRendered(renderedBatch.replaceAll("\n", "\r\n"))
+    assertPublishedBatchMatchesRendered(publishedBatch)
+  })
+
   it("aggregates root and entry errors without invoking the output writer", async () => {
     let writeCalls = 0
     const result = await generateAuditFiles({

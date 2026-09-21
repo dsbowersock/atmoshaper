@@ -11,10 +11,21 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Both prior threads are resolved; all seven jobs in CI `35556031421` passed,
   including the repaired Anatomime cadence case. No merge occurred.
 - Task 7 of the [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md)
-  is assembled on `codex/phase6-07-background-catalog` in the same approved
+  is published as [PR #12](https://github.com/dsbowersock/atmoshaper/pull/12) at
+  `30bd341eae393b7ddaa7d1c7f443ffdc5adf0925` on
+  `codex/phase6-07-background-catalog` in the same approved
   isolated worktree, based on that exact reviewed head. It carries background
   catalog/control labels, optional-only globe-marker presentation and the
   source-approved portrait tray repair with paired tests.
+- The initial head passed all seven jobs in CI `35566555008`. Codex completed
+  at 06:02 UTC and CodeRabbit at 06:08 UTC on September 21, with five verified
+  findings in total: nine license attributions coupled to presentation identity,
+  72 stale preview labels, a free-background test masked by the reset path,
+  three stale current collision notes and ambiguous initial file-count wording.
+  One bounded repair batch is in progress; it restores attribution, synchronizes
+  existing metadata and strengthens their existing tests without changing runtime
+  behavior, historical aliases or media. Scope stays 35 files. Independent SPEC
+  then QUALITY and new exact-head hosted reviews/CI are required for the amendment.
 - Ownership covers 30 source paths, of which three browser companions were
   already recovery-exact in the reviewed base. Bounded inherited browser-test
   repairs and their three companions bring planned scope to 35 files. Stable IDs,
@@ -56,11 +67,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   The existing comment masker closes the scoped SPEC finding without changing
   the browser or adding a parser. The broad result covers
   v2; the final guard-only amendment has focused verification, with unchanged
-  browser/runtime hashes. This snapshot precedes publication: scoped SPEC then
-  QUALITY approval, final staged audit, exact-head hosted reviews and strict CI
-  remain mandatory gates. Tasks 8-9, combined-source reconciliation and the
+  browser/runtime hashes. Scoped SPEC and QUALITY approved that final guard;
+  staged audit and initial publication are complete. The hosted repair batch
+  now requires its own validation and review gates. Tasks 8-9, combined-source reconciliation and the
   separate Linux Atmosphere snapshot-refresh decision remain pending.
-- Original PR #5 and replacements #6-#11 remain open and unmerged. No PNG,
+- Original PR #5 and replacements #6-#12 remain open and unmerged. No PNG,
   frame, threshold, provider, billing, deployment or legal-version changes.
 
 ## Historical Snapshot — Phase 6 Background Renderer Slice

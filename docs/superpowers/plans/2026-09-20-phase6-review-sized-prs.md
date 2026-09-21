@@ -1011,7 +1011,9 @@ all earlier replacement fixes outside this set. No new source design is needed.
 
 Root changes only this plan, `docs/project-state.md`, `docs/project-log.md` and
 the generated `scripts/repository-audit/brand-reference-baseline.json` receipt.
-Expected total: 27 source changes + four delivery/audit records = 31 PR paths.
+Initial expected total before validation amendments: 27 source changes plus
+four delivery/audit records = 31 PR paths. Current publication scope is 35 paths,
+including the bounded browser/companion amendments recorded below.
 The ignored ledger/brief/evidence are not publication paths. Measure the final
 set; stop at an unexpected owner, failed invariant, or approaching 100 files.
 
@@ -1261,3 +1263,50 @@ Scoped follow-up: the same guard must inspect executable source, not commented
 text. Root confirmed that commenting out the actual call still passed the v3
 guard. Reuse the existing source-comment masker and add that precise negative
 mutation; no new parser, owner, browser change or scope expansion is needed.
+
+### Task 7 hosted findings — preserved attribution and canonical metadata
+
+PR #12 at `30bd341eae393b7ddaa7d1c7f443ffdc5adf0925` received one Codex
+attribution finding, three inline CodeRabbit metadata/test/documentation findings
+and one outside-diff collision-note finding.
+Root verified each against the actual owners before approving this amendment.
+Nine registry license strings follow the presentation identity despite the
+preserved-attribution boundary; the paired branding test explicitly repeats
+that coupling. Restore the five implementation and four draft strings exactly
+from the reviewed base, keeping current provider labels and catalog names.
+Add focused actual-registry coverage for all nine, distinguishing provenance
+from presentation; do not change legal documents or third-party license terms.
+
+The public preview JSON has 72 labels that differ from the approved catalog.
+Its generator already uses the effective registry label; the partial source
+transfer and three-label regression left this checked-in artifact stale.
+Synchronize labels for its existing 83 items from the canonical catalog only.
+Do not regenerate media or the runtime module, add Solid Color, change timestamp,
+provider, order, IDs, paths, dimensions, timing, hashes or other metadata. Extend
+the existing preview companion to check every published ID/label against the
+catalog and reject a stale-label counterexample, not just the three new labels.
+
+The free-background entitlement test passes because both the selected ID and
+fallback ID are Lava Lamp. An actual-owner probe with Stars speed 73 returned
+50 without the registry decision and 73 with it. Supply the real registry access
+decision, assert the reset-sensitive value survives, and retain a denied/omitted
+decision counterexample. Preserve all premium and owned-background assertions;
+no sanitizer/runtime or entitlement policy change is needed.
+
+Three current collision notes also retain the former Honeycomb Glow and Quiet
+Mosaic names for Hex grid and Tile grid. Correct only those source notes and
+regenerate the deterministic batch-04 document, preserving historical aliases.
+Add focused source/generated-prose regression in the existing audit companion.
+The generator already faithfully renders the source notes and needs no repair.
+
+One implementer owns only the existing registry, branding-catalog test, public
+preview JSON, preview-media test, Chimer-entitlement test, audit JSON, batch-04
+audit document and audit test. Root owns this
+31-to-35-path clarification, current state/log, receipt and equivalence records.
+Scope remains 35. Record the eight additional deviations from recovery explicitly;
+the registry comparison must now preserve licenses instead of treating them as
+presentation. Verify focused tests with pre-fix failures, typecheck/lint and one
+final full unit run, then independent SPEC followed by QUALITY. Regenerate and
+inspect the strict receipt without changing policy. Publish only after staged
+blob verification; both hosted reviewers must cover the resulting exact head.
+No PNG, threshold, media-byte, provider, deployment, billing or merge authority.

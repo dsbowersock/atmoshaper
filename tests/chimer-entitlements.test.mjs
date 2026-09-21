@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
+import { canUseBackgroundId } from "../components/backgrounds/backgroundRegistry.ts"
 import { FEATURE_KEYS } from "../lib/membership.js"
 import {
   DEFAULT_CHIMER_SETTINGS,
@@ -13,10 +14,33 @@ import { DEFAULT_GRID_MOTION_MANTRAS } from "../lib/grid-motion-mantras.js"
 
 describe("Chimer entitlement-aware settings", () => {
   it("keeps the rebranded backgrounds on their original entitlement behavior", () => {
-    const freeDefault = sanitizeChimerSettingsForEntitlements({
+    const freeDefaultInput = {
       backgroundId: "massage-lab-moving-gradient",
-    }, [])
+      massageLabStarsSpeed: 73,
+    }
+    assert.notEqual(freeDefaultInput.massageLabStarsSpeed, DEFAULT_CHIMER_SETTINGS.massageLabStarsSpeed)
+    const freeDefault = sanitizeChimerSettingsForEntitlements(freeDefaultInput, [], {
+      canUseSelectedBackground: (id) => canUseBackgroundId(id, []),
+    })
     assert.equal(freeDefault.backgroundId, "massage-lab-moving-gradient")
+    assert.equal(freeDefault.massageLabStarsSpeed, 73)
+
+    for (const [decision, sanitized] of [
+      ["omitted", sanitizeChimerSettingsForEntitlements(freeDefaultInput, [])],
+      [
+        "denied",
+        sanitizeChimerSettingsForEntitlements(freeDefaultInput, [], {
+          canUseSelectedBackground: () => false,
+        }),
+      ],
+    ]) {
+      assert.equal(sanitized.backgroundId, "massage-lab-moving-gradient", `${decision}: same fallback ID`)
+      assert.equal(
+        sanitized.massageLabStarsSpeed,
+        DEFAULT_CHIMER_SETTINGS.massageLabStarsSpeed,
+        `${decision}: fallback value reset`,
+      )
+    }
 
     for (const backgroundId of ["massage-lab-tile-grid", "massage-lab-hex-grid"]) {
       const locked = sanitizeChimerSettingsForEntitlements({ backgroundId }, [])

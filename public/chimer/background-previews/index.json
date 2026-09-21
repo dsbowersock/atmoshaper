@@ -6,7 +6,7 @@
   "items": [
     {
       "id": "massage-lab-3d-globe",
-      "label": "3D Globe",
+      "label": "Pale Blue Dot",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-3d-globe.webm",
@@ -51,7 +51,7 @@
     },
     {
       "id": "massage-lab-aerial-rays",
-      "label": "Aerial Rays",
+      "label": "Skybreak",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-aerial-rays.webm",
@@ -96,7 +96,7 @@
     },
     {
       "id": "massage-lab-astral-flow",
-      "label": "Astral Flow",
+      "label": "Celestial Breath",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-astral-flow.webm",
@@ -141,7 +141,7 @@
     },
     {
       "id": "massage-lab-aurora",
-      "label": "Aurora field",
+      "label": "Interstellar",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-aurora.webm",
@@ -186,7 +186,7 @@
     },
     {
       "id": "massage-lab-aurora-bars",
-      "label": "Aurora bars",
+      "label": "Equalizer",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-aurora-bars.webm",
@@ -231,7 +231,7 @@
     },
     {
       "id": "massage-lab-background-beams",
-      "label": "Beam field",
+      "label": "Roaming Sweep",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-background-beams.webm",
@@ -276,7 +276,7 @@
     },
     {
       "id": "massage-lab-background-lines",
-      "label": "Light lines",
+      "label": "Signal Comets",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-background-lines.webm",
@@ -321,7 +321,7 @@
     },
     {
       "id": "massage-lab-balatro",
-      "label": "Balatro",
+      "label": "Chromatic Swirl",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-balatro.webm",
@@ -366,7 +366,7 @@
     },
     {
       "id": "massage-lab-beams",
-      "label": "Beams",
+      "label": "Rising Monoliths",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-beams.webm",
@@ -411,7 +411,7 @@
     },
     {
       "id": "massage-lab-bubble",
-      "label": "Bubble field",
+      "label": "Bubbles",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-bubble.webm",
@@ -456,7 +456,7 @@
     },
     {
       "id": "massage-lab-chrome-flow",
-      "label": "Chrome Flow",
+      "label": "Reflective Currents",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-chrome-flow.webm",
@@ -501,7 +501,7 @@
     },
     {
       "id": "massage-lab-collision-beams",
-      "label": "Collision beams",
+      "label": "Firework Dust",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-collision-beams.webm",
@@ -546,7 +546,7 @@
     },
     {
       "id": "massage-lab-color-bends",
-      "label": "Color Bends",
+      "label": "Prismatic Ribbons",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-color-bends.webm",
@@ -591,7 +591,7 @@
     },
     {
       "id": "massage-lab-dark-veil",
-      "label": "Dark Veil",
+      "label": "Shadows",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-dark-veil.webm",
@@ -636,7 +636,7 @@
     },
     {
       "id": "massage-lab-deep-space-nebula",
-      "label": "Deep Space Nebula",
+      "label": "Clouded Cosmos",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-deep-space-nebula.webm",
@@ -681,7 +681,7 @@
     },
     {
       "id": "massage-lab-dither",
-      "label": "Dither",
+      "label": "Dithered Smoke",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-dither.webm",
@@ -828,7 +828,7 @@
     },
     {
       "id": "massage-lab-dot-grid",
-      "label": "Dot Grid",
+      "label": "Pegboard",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-dot-grid.webm",
@@ -873,7 +873,7 @@
     },
     {
       "id": "massage-lab-dotted-glow",
-      "label": "Dotted glow",
+      "label": "Shimmer",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-dotted-glow.webm",
@@ -918,7 +918,7 @@
     },
     {
       "id": "massage-lab-electric-mist",
-      "label": "Electric Mist",
+      "label": "Electric Glow",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-electric-mist.webm",
@@ -963,7 +963,7 @@
     },
     {
       "id": "massage-lab-evil-eye",
-      "label": "Evil Eye",
+      "label": "Ember Iris",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-evil-eye.webm",
@@ -1008,7 +1008,7 @@
     },
     {
       "id": "massage-lab-faulty-terminal",
-      "label": "Faulty Terminal",
+      "label": "Scanline",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-faulty-terminal.webm",
@@ -1053,7 +1053,7 @@
     },
     {
       "id": "massage-lab-ferrofluid",
-      "label": "Ferrofluid",
+      "label": "Fluid Filament",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-ferrofluid.webm",
@@ -1098,7 +1098,7 @@
     },
     {
       "id": "massage-lab-floating-lines",
-      "label": "Floating Lines",
+      "label": "Arc Currant",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-floating-lines.webm",
@@ -1143,7 +1143,7 @@
     },
     {
       "id": "massage-lab-galaxy",
-      "label": "Galaxy",
+      "label": "Constellations",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-galaxy.webm",
@@ -1188,7 +1188,7 @@
     },
     {
       "id": "massage-lab-glowing-stars",
-      "label": "Glowing stars",
+      "label": "Star Lattice",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-glowing-stars.webm",
@@ -1233,7 +1233,7 @@
     },
     {
       "id": "massage-lab-gradient",
-      "label": "Gradient field",
+      "label": "Colorfield Drift",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-gradient.webm",
@@ -1278,7 +1278,7 @@
     },
     {
       "id": "massage-lab-gradient-animation",
-      "label": "Animated gradient",
+      "label": "Color Drift",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-gradient-animation.webm",
@@ -1323,7 +1323,7 @@
     },
     {
       "id": "massage-lab-gradient-blinds",
-      "label": "Gradient Blinds",
+      "label": "Slats",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-gradient-blinds.webm",
@@ -1368,7 +1368,7 @@
     },
     {
       "id": "massage-lab-grainient",
-      "label": "Grainient",
+      "label": "Velvet Grain",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-grainient.webm",
@@ -1413,7 +1413,7 @@
     },
     {
       "id": "massage-lab-grid-bloom",
-      "label": "Grid Bloom",
+      "label": "Connective Pulse",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-grid-bloom.webm",
@@ -1458,7 +1458,7 @@
     },
     {
       "id": "massage-lab-grid-distortion",
-      "label": "Grid Distortion",
+      "label": "Mosaic Warp",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-grid-distortion.webm",
@@ -1503,7 +1503,7 @@
     },
     {
       "id": "massage-lab-grid-motion",
-      "label": "Grid Motion",
+      "label": "Mantra Drift",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-grid-motion.webm",
@@ -1548,7 +1548,7 @@
     },
     {
       "id": "massage-lab-grid-scan",
-      "label": "Grid Scan",
+      "label": "Neon Survey",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-grid-scan.webm",
@@ -1638,7 +1638,7 @@
     },
     {
       "id": "massage-lab-hole",
-      "label": "Depth well",
+      "label": "Descent",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-hole.webm",
@@ -1683,7 +1683,7 @@
     },
     {
       "id": "massage-lab-iridescence",
-      "label": "Iridescence",
+      "label": "Soapfilm",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-iridescence.webm",
@@ -1773,7 +1773,7 @@
     },
     {
       "id": "massage-lab-letter-glitch",
-      "label": "Letter Glitch",
+      "label": "Code Confetti",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-letter-glitch.webm",
@@ -1818,7 +1818,7 @@
     },
     {
       "id": "massage-lab-light-pillar",
-      "label": "Light Pillar",
+      "label": "Monolight",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-light-pillar.webm",
@@ -1863,7 +1863,7 @@
     },
     {
       "id": "massage-lab-light-rays",
-      "label": "Light Rays",
+      "label": "Cascading Rays",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-light-rays.webm",
@@ -1908,7 +1908,7 @@
     },
     {
       "id": "massage-lab-light-speed",
-      "label": "Light Speed",
+      "label": "Starlight",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-light-speed.webm",
@@ -1998,7 +1998,7 @@
     },
     {
       "id": "massage-lab-lightning",
-      "label": "Lightning",
+      "label": "Electric Storm",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-lightning.webm",
@@ -2043,7 +2043,7 @@
     },
     {
       "id": "massage-lab-line-waves",
-      "label": "Line Waves",
+      "label": "Filament Waves",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-line-waves.webm",
@@ -2088,7 +2088,7 @@
     },
     {
       "id": "massage-lab-liquid-chrome",
-      "label": "Chrome Flow",
+      "label": "Molten Mirror",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-liquid-chrome.webm",
@@ -2133,7 +2133,7 @@
     },
     {
       "id": "massage-lab-liquid-ether",
-      "label": "Liquid Ether",
+      "label": "Fluid Infusion",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-liquid-ether.webm",
@@ -2178,7 +2178,7 @@
     },
     {
       "id": "massage-lab-matrix-rain",
-      "label": "Matrix Rain",
+      "label": "Encrypted",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-matrix-rain.webm",
@@ -2223,7 +2223,7 @@
     },
     {
       "id": "massage-lab-meteors",
-      "label": "Meteors",
+      "label": "Falling Sky",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-meteors.webm",
@@ -2313,7 +2313,7 @@
     },
     {
       "id": "massage-lab-novatrix",
-      "label": "Novatrix Field",
+      "label": "Drift",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-novatrix.webm",
@@ -2358,7 +2358,7 @@
     },
     {
       "id": "massage-lab-orb",
-      "label": "Orb",
+      "label": "Halo",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-orb.webm",
@@ -2403,7 +2403,7 @@
     },
     {
       "id": "massage-lab-particles",
-      "label": "Particles",
+      "label": "Particle Drift",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-particles.webm",
@@ -2448,7 +2448,7 @@
     },
     {
       "id": "massage-lab-photon-beam",
-      "label": "Photon Beam",
+      "label": "Convergence",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-photon-beam.webm",
@@ -2493,7 +2493,7 @@
     },
     {
       "id": "massage-lab-pixel-blast",
-      "label": "Pixel Blast",
+      "label": "Nomad",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-pixel-blast.webm",
@@ -2538,7 +2538,7 @@
     },
     {
       "id": "massage-lab-pixel-liquid",
-      "label": "Pixel liquid",
+      "label": "Simulation",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-pixel-liquid.webm",
@@ -2583,7 +2583,7 @@
     },
     {
       "id": "massage-lab-pixel-snow",
-      "label": "Pixel Snow",
+      "label": "Snowglobe",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-pixel-snow.webm",
@@ -2628,7 +2628,7 @@
     },
     {
       "id": "massage-lab-plasma",
-      "label": "Plasma",
+      "label": "Charged Foam",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-plasma.webm",
@@ -2673,7 +2673,7 @@
     },
     {
       "id": "massage-lab-plasma-wave",
-      "label": "Plasma Wave",
+      "label": "Folded Plasma",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-plasma-wave.webm",
@@ -2718,7 +2718,7 @@
     },
     {
       "id": "massage-lab-prism",
-      "label": "Prism",
+      "label": "Prismatic",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-prism.webm",
@@ -2763,7 +2763,7 @@
     },
     {
       "id": "massage-lab-prismatic-burst",
-      "label": "Prismatic Burst",
+      "label": "Kaleidoscope Rays",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-prismatic-burst.webm",
@@ -2808,7 +2808,7 @@
     },
     {
       "id": "massage-lab-radar",
-      "label": "Radar",
+      "label": "Deep Search",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-radar.webm",
@@ -2853,7 +2853,7 @@
     },
     {
       "id": "massage-lab-retro-grid",
-      "label": "Retro Grid",
+      "label": "Endless Perspective",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-retro-grid.webm",
@@ -2898,7 +2898,7 @@
     },
     {
       "id": "massage-lab-reveal-dots",
-      "label": "Reveal dots",
+      "label": "Speckled Veil",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-reveal-dots.webm",
@@ -2988,7 +2988,7 @@
     },
     {
       "id": "massage-lab-shape-grid",
-      "label": "Shape Grid",
+      "label": "Geometric Current",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-shape-grid.webm",
@@ -3033,7 +3033,7 @@
     },
     {
       "id": "massage-lab-shooting-stars",
-      "label": "Shooting stars",
+      "label": "Wish",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-shooting-stars.webm",
@@ -3078,7 +3078,7 @@
     },
     {
       "id": "massage-lab-side-rays",
-      "label": "Side Rays",
+      "label": "Lateral Rays",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-side-rays.webm",
@@ -3168,7 +3168,7 @@
     },
     {
       "id": "massage-lab-soft-aurora",
-      "label": "Soft Aurora",
+      "label": "Polar Aurora",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-soft-aurora.webm",
@@ -3213,7 +3213,7 @@
     },
     {
       "id": "massage-lab-sparkles",
-      "label": "Sparkles",
+      "label": "Fireflies",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-sparkles.webm",
@@ -3303,7 +3303,7 @@
     },
     {
       "id": "massage-lab-stars",
-      "label": "Star field",
+      "label": "Drifting Starfield",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-stars.webm",
@@ -3348,7 +3348,7 @@
     },
     {
       "id": "massage-lab-synthesis",
-      "label": "Synthesis",
+      "label": "Emulsion",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-synthesis.webm",
@@ -3483,7 +3483,7 @@
     },
     {
       "id": "massage-lab-twisted-cubes",
-      "label": "Twisted Cubes",
+      "label": "Hypercube",
       "provider": "Jhey / CodePen",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-twisted-cubes.webm",
@@ -3540,7 +3540,7 @@
     },
     {
       "id": "massage-lab-vortex",
-      "label": "Vortex field",
+      "label": "Orbits",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-vortex.webm",
@@ -3585,7 +3585,7 @@
     },
     {
       "id": "massage-lab-wave-current",
-      "label": "Wave Current",
+      "label": "Tidal Glass",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-wave-current.webm",
@@ -3630,7 +3630,7 @@
     },
     {
       "id": "massage-lab-waves",
-      "label": "Wave Current",
+      "label": "Currents",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-waves.webm",
@@ -3675,7 +3675,7 @@
     },
     {
       "id": "massage-lab-wavy-background",
-      "label": "Wave flow",
+      "label": "Ribbons",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/massage-lab-wavy-background.webm",
@@ -3720,7 +3720,7 @@
     },
     {
       "id": "static-gradient",
-      "label": "Static gradient",
+      "label": "In Transition",
       "provider": "AtmoShaper",
       "previewMediaType": "video",
       "previewMediaUrl": "/chimer/background-previews/static-gradient.webm",
