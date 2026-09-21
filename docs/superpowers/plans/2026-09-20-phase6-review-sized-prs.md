@@ -1604,3 +1604,60 @@ lint and diff checks. The current candidate is 40 paths: 12 recovery-exact, 23
 repairs and five records. Freeze these exact bytes, run independent SPEC then
 separate QUALITY, prove staged identity, and require fresh exact-head coverage
 from both hosted reviewers plus all seven strict CI jobs before Task 8 closes.
+
+The reviewed repair was published as `26c76ada`. Codex completed clean
+exact-head review and strict CI `35638346707` passed all seven jobs, but
+CodeRabbit's exact 12-file review found two valid Minor fixture-contract gaps.
+Provider-free Auth.js sessions must include a future ISO expiry, and standalone
+same-origin HTML with no shared-layout account bootstrap must pass through
+unchanged; one marker must still project and duplicates must still fail closed.
+Strict RED reproduced both defects. The bounded repair changes only
+`tests/browser/signed-in-user-fixture.ts` and its executable contract owner.
+GREEN first passed the hosted recurrence checks. Independent QUALITY then found
+that the expiry oracle admitted a short or already-expired lifetime and that the
+context-wide session glob fulfilled foreign origins. Executable mutation proof
+confirmed both. Strict RED passed only the same-origin control and failed the
+short-lifetime and foreign-origin checks; GREEN passes all three. The actual
+owners now enforce the sibling fixture's exact one-hour lifetime and fall back
+outside the configured origin. The complete fixture/harness surface passes
+70/70, six representative provider-free desktop/mobile journeys pass 6/6
+without retries, and the full Node suite is 4,745 total / 4,742 pass / 3 skip /
+0 fail.
+Frozen v12 passed independent SPEC, but separate QUALITY found that the signed
+cookie, provider-free fixture and oracle still duplicated the one-hour value;
+a cookie-owner change could leave the consumer and all 70 tests green. Strict
+RED mutated the canonical cookie lifetime to 60 seconds and failed because the
+consumer remained one hour. GREEN exports one cookie-owned constant, wires both
+fixture paths to it and keeps an independent one-hour acceptance oracle.
+Frozen v13 passed independent SPEC, but separate QUALITY proved the harness
+removed the actual lifetime import and manually injected a value, allowing a
+canonical-import removal plus new local owner to remain falsely green. Strict
+RED reproduced that gap. GREEN now uses TypeScript AST evidence to require the
+exact unaliased canonical import, rejects a top-level local replacement before
+controlled injection, and retains the independent timing and canonical-owner
+mutation oracles. Frozen v14 then passed independent SPEC, but separate QUALITY
+proved the tuple still accepted both whole-clause and inline type-only imports,
+which own no runtime binding. Root reproduced both false positives and
+invalidated v14 before staging. Strict RED missed both mutations 0/2; GREEN now
+requires non-type-only clause and specifier flags plus a literal unaliased
+binding. Frozen v15 then passed independent SPEC, but separate QUALITY proved
+the canonical mutation only checked “not one hour.” A consumer clamp to 120
+seconds still passed after the cookie owner changed to 60 seconds. Root
+reproduced the false positive and invalidated v15 before staging. Strict RED
+failed both exact-propagation cases 0/2. GREEN retains the independent one-hour
+positive bound, requires the mutation to match the observed 60,000ms cookie
+lifetime exactly, and rejects the real-source 120-second clamp. Frozen v16 then
+passed independent SPEC, but separate QUALITY proved the two selected values
+and handler-duration window still admitted a nonlinear 3,600-second cap and a
+five-millisecond consumer offset. Root reproduced both actual-source
+counterexamples and invalidated v16 before staging. Strict RED failed both
+fixed-clock mutation cases 0/2. GREEN injects a deterministic `Date`, asserts
+the exact ISO expiry at 17, 60, 3,600 and 7,200 seconds, rejects both mutation
+families, and retains the real-clock one-hour integration oracle. The complete
+fixture/harness surface passes 76/76 and the full Node suite is 4,751 total /
+4,748 pass / 3 skip / 0 fail; the earlier six provider-free desktop/mobile
+journeys remain green without retries because runtime bytes did not change.
+Typecheck, changed-file lint and diff checks pass. Scope is now 41 paths with
+12 recovery-exact, 24 repair and five record owners. Re-freeze the exact
+bytes and repeat independent SPEC then QUALITY before any publication; a new
+head still requires both hosted reviewers and every strict CI job.

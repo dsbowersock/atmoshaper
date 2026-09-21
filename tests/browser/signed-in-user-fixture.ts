@@ -8,16 +8,20 @@ import {
   removeBrowserUserFixtureRecord,
 } from "../../lib/auth/browser-user-fixture"
 import { isBrowserQaDatabaseTargetAuthorized } from "../../scripts/assert-browser-qa-database-target.mjs"
-import { installSignedInSessionCookie } from "./signed-in-session-cookie"
+import {
+  SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,
+  installSignedInSessionCookie,
+} from "./signed-in-session-cookie"
 
 const databaseFreeSessionIdentityByContext = new WeakMap<BrowserContext, BrowserUserFixtureIdentity>()
 const databaseFreeSessionRouteContexts = new WeakSet<BrowserContext>()
 const anonymousAccountBootstrapSource = '\\"initialBootstrap\\":{\\"ownerKey\\":null,\\"syncEnabled\\":false,\\"preferenceStatus\\":\\"anonymous\\"'
 
-/** Projects only the serialized account bootstrap owned by the shared root layout. */
+/** Leaves non-layout HTML unchanged and projects only the shared root layout's single account bootstrap. */
 function projectDatabaseFreeAccountBootstrap(body: string, identity: BrowserUserFixtureIdentity) {
   const signedInAccountBootstrapSource = `\\"initialBootstrap\\":{\\"ownerKey\\":\\"${identity.user.id}\\",\\"syncEnabled\\":true,\\"preferenceStatus\\":\\"failed\\"`
   const occurrences = body.split(anonymousAccountBootstrapSource).length - 1
+  if (occurrences === 0) return body
   if (occurrences !== 1) {
     throw new Error("Database-free signed-in fixture requires exactly one anonymous account bootstrap.")
   }
@@ -43,8 +47,13 @@ async function installDatabaseFreeSessionRoute(
     })
   })
   databaseFreeSessionRouteContexts.add(context)
+  const baseOrigin = new URL(baseURL).origin
 
   await context.route("**/api/auth/session", async (route) => {
+    if (new URL(route.request().url()).origin !== baseOrigin) {
+      await route.fallback()
+      return
+    }
     const currentIdentity = databaseFreeSessionIdentityByContext.get(context)
     if (!currentIdentity) {
       await route.fallback()
@@ -58,11 +67,11 @@ async function installDatabaseFreeSessionRoute(
           ...currentIdentity.user,
           emailVerified: true,
         },
+        expires: new Date(Date.now() + SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS * 1000).toISOString(),
       }),
     })
   })
 
-  const baseOrigin = new URL(baseURL).origin
   await context.route("**/*", async (route) => {
     const request = route.request()
     if (request.resourceType() !== "document" || new URL(request.url()).origin !== baseOrigin) {

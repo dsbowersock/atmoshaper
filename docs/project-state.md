@@ -19,7 +19,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   publication. Both hosted reviewers completed on that exact head. Codex found
   a credential-sign-in legal-gate bypass and this stale state checkpoint;
   CodeRabbit found an ambiguous source-exact count in the chronological log.
-- The verified local candidate has 33 paths: 12 implementation/test paths still
+- The pre-CI legal/session candidate had 33 paths: 12 implementation/test paths
+  still
   match recovery source `7e318558da425b8fcdddeb8df50e93a36900310a`
   byte for byte, 16 paths are explicit repairs, and README, this state, the
   project log, delivery plan and generated brand receipt remain
@@ -90,13 +91,59 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   ownership before cleanup, and delete the restricted rows and owned user in one
   rollback-safe transaction. Provider-free tests own only context-local session
   and account-bootstrap projections, preserve owner switching, and keep the
-  connected `Open account cart` assertion unchanged. Focused contracts pass
-  64/64 and the five exact repaired browser scenarios pass 10/10 across desktop
-  and mobile Chromium; the full Node suite passes 4,736 with three host-dependent
-  skips and zero failures, and typecheck, changed-file lint and diff checks pass.
-  The current candidate contains 40 paths: 12 recovery-exact, 23 repairs and five
-  records. GitHub and the ignored handoff remain authoritative for live review,
-  thread and CI status. The next exact head still requires independent SPEC then
+  connected `Open account cart` assertion unchanged. That 40-path repair was
+  published as `26c76ada77c7d3977af666942101b6e5018e15f3`. Codex completed clean
+  exact-head review and strict CI `35638346707` passed quality, build, all four
+  browser lanes and aggregate QA. CodeRabbit reviewed the exact 12-file
+  amendment and found two valid fixture-contract gaps, so those green checks are
+  historical rather than final: the provider-free Auth.js response omitted its
+  required expiry, and the same-origin HTML route rejected standalone documents
+  that correctly contain zero shared-layout account-bootstrap markers.
+- The bounded follow-up changes only the signed-in cookie/session fixtures and
+  their executable contract owner. Zero markers now pass through unchanged,
+  one marker is still
+  projected, duplicates still fail closed, and provider-free sessions carry a
+  future ISO expiry. RED reproduced both hosted defects. Independent QUALITY
+  then proved the expiry oracle accepted short or already-expired mutations and
+  the broad session glob fulfilled foreign origins. The repaired actual-owner
+  contracts enforce the exact one-hour lifetime, reject a short-lifetime
+  mutation, fulfill only the configured origin and fall back for foreign
+  origins. A later QUALITY review proved the cookie and provider-free fixtures
+  still owned separate lifetime literals, invalidating v12 before staging. The
+  cookie fixture now exports the sole canonical one-hour constant used by both
+  paths, and a canonical-owner mutation proves the consumer cannot silently
+  drift. Although frozen v13 passed SPEC, separate QUALITY proved its harness
+  dropped the real import and manually injected the lifetime, so replacing the
+  import with a new local owner could remain falsely green. That freeze was
+  invalidated before staging. The repaired executable oracle uses TypeScript
+  AST evidence to require the exact unaliased canonical import and rejects a
+  local replacement before controlled injection. Frozen v14 then passed SPEC,
+  but separate QUALITY proved that whole-clause and inline type-only imports
+  still produced the accepted tuple despite owning no runtime binding. Root
+  reproduced both forms and invalidated v14 before staging. The repaired guard
+  now requires a non-type-only clause, non-type-only specifier and literal
+  unaliased binding; strict negative mutations cover both TypeScript forms.
+  Frozen v15 then passed SPEC, but separate QUALITY showed the canonical
+  mutation proved only “not one hour”: a consumer clamp to 120 seconds still
+  passed after a 60-second owner mutation. Root reproduced the false positive
+  and invalidated v15 before staging. The v16 parameterized timing oracle kept
+  the independent one-hour positive bound, required a 60-second mutation to
+  match the observed cookie lifetime exactly and rejected a real-source
+  120-second clamp. Frozen v16 passed SPEC, but separate QUALITY proved the two
+  selected values and handler-duration window still admitted a nonlinear
+  3,600-second cap and a five-millisecond consumer offset. Root reproduced both
+  actual-source counterexamples and invalidated v16 before staging. The repaired
+  controlled compiler now injects a deterministic `Date`, asserts the exact ISO
+  expiry at 17, 60, 3,600 and 7,200 seconds, rejects both mutation families and
+  retains the real-clock one-hour integration oracle. The complete fixture/
+  harness surface passes 76/76, and the earlier six representative provider-free
+  desktop/mobile journeys remain 6/6 without retries because runtime bytes did
+  not change. The full Node suite passes 4,751 total with 4,748 passes, three
+  host-dependent skips and zero failures; typecheck, changed-file lint and diff
+  checks pass.
+  The candidate is 41 paths: 12 recovery-exact, 24 repairs and five records.
+  GitHub and the ignored handoff remain authoritative for live review, thread
+  and CI status. The follow-up exact bytes still require independent SPEC then
   QUALITY, both hosted reviewers and all seven strict CI jobs. Tasks 9,
   combined-source equivalence and the separate Linux Atmosphere snapshot
   decision remain pending.

@@ -3,6 +3,446 @@ import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8")
+const expectedOneHourSessionLifetimeMilliseconds = 3_600_000
+
+async function captureSignedInSessionCookieMaxAge({ transformSource } = {}) {
+  const [originalSource, ts] = await Promise.all([
+    read("tests/browser/signed-in-session-cookie.ts"),
+    import("typescript"),
+  ])
+  const source = transformSource ? transformSource(originalSource) : originalSource
+  const parsed = ts.createSourceFile(
+    "signed-in-session-cookie.ts",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  )
+  const functionOwners = new Set(["signedInSessionToken", "installSignedInSessionCookie"])
+  const owners = parsed.statements.filter((statement) => (
+    ts.isVariableStatement(statement)
+      ? statement.declarationList.declarations.some((declaration) => (
+          declaration.name.getText(parsed) === "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS"
+        ))
+      : ts.isFunctionDeclaration(statement) && functionOwners.has(statement.name?.text)
+  ))
+  assert.equal(
+    owners.filter((statement) => ts.isFunctionDeclaration(statement)).length,
+    functionOwners.size,
+    "both signed-cookie function owners must compile",
+  )
+  const javascript = ts.transpileModule(
+    owners.map((statement) => statement.getText(parsed)).join("\n").replace(/\bexport\s+/g, ""),
+    { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
+  ).outputText
+  let encodeInput
+  const { installSignedInSessionCookie } = Function(
+    "encode",
+    "process",
+    `${javascript}\nreturn { installSignedInSessionCookie }`,
+  )(
+    async (input) => {
+      encodeInput = input
+      return "encoded-browser-qa-token"
+    },
+    { env: { AUTH_SECRET: "browser-qa-secret" } },
+  )
+  await installSignedInSessionCookie(
+    { async addCookies() {} },
+    "https://browser-qa.example.test",
+    {
+      id: "fixture-user",
+      name: "Browser QA",
+      email: "browser-qa@example.test",
+      authSessionVersion: 0,
+    },
+  )
+  assert.equal(typeof encodeInput?.maxAge, "number")
+  return encodeInput.maxAge
+}
+
+async function compileSignedInUserFixtureOwners({
+  fixedNowMilliseconds,
+  transformSessionCookieSource,
+  transformSource,
+} = {}) {
+  const [originalSource, ts, signedCookieMaxAgeSeconds] = await Promise.all([
+    read("tests/browser/signed-in-user-fixture.ts"),
+    import("typescript"),
+    captureSignedInSessionCookieMaxAge({ transformSource: transformSessionCookieSource }),
+  ])
+  const source = transformSource ? transformSource(originalSource) : originalSource
+  const parsed = ts.createSourceFile(
+    "signed-in-user-fixture.ts",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  )
+  const canonicalLifetimeOwner = "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS"
+  const lifetimeImportBindings = parsed.statements.flatMap((statement) => {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) return []
+    const namedBindings = statement.importClause?.namedBindings
+    if (!namedBindings || !ts.isNamedImports(namedBindings)) return []
+    return namedBindings.elements
+      .map((element) => ({
+        source: statement.moduleSpecifier.text,
+        imported: element.propertyName?.text ?? element.name.text,
+        local: element.name.text,
+        clauseTypeOnly: statement.importClause?.isTypeOnly ?? false,
+        specifierTypeOnly: element.isTypeOnly,
+        unaliased: element.propertyName === undefined,
+      }))
+      .filter((binding) => binding.imported === canonicalLifetimeOwner || binding.local === canonicalLifetimeOwner)
+  })
+  assert.deepEqual(
+    lifetimeImportBindings,
+    [{
+      source: "./signed-in-session-cookie",
+      imported: canonicalLifetimeOwner,
+      local: canonicalLifetimeOwner,
+      clauseTypeOnly: false,
+      specifierTypeOnly: false,
+      unaliased: true,
+    }],
+    "signed-in user fixture must retain exactly one unaliased canonical signed-cookie lifetime import",
+  )
+  const localLifetimeOwners = parsed.statements.flatMap((statement) => (
+    ts.isVariableStatement(statement)
+      ? statement.declarationList.declarations.filter((declaration) => (
+          declaration.name.getText(parsed) === canonicalLifetimeOwner
+        ))
+      : []
+  ))
+  assert.equal(
+    localLifetimeOwners.length,
+    0,
+    "signed-in user fixture must not replace the canonical lifetime import with a local owner",
+  )
+  const variableOwners = new Set([
+    "databaseFreeSessionIdentityByContext",
+    "databaseFreeSessionRouteContexts",
+    "anonymousAccountBootstrapSource",
+  ])
+  const functionOwners = new Set([
+    "projectDatabaseFreeAccountBootstrap",
+    "installDatabaseFreeSessionRoute",
+  ])
+  const owners = parsed.statements.filter((statement) => (
+    ts.isVariableStatement(statement)
+      ? statement.declarationList.declarations.some((declaration) => variableOwners.has(declaration.name.getText(parsed)))
+      : ts.isFunctionDeclaration(statement) && functionOwners.has(statement.name?.text)
+  ))
+  assert.equal(owners.length, variableOwners.size + functionOwners.size, "all signed-in fixture owners must compile")
+  const javascript = ts.transpileModule(
+    owners.map((statement) => statement.getText(parsed)).join("\n"),
+    { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
+  ).outputText
+  const compiled = Function(
+    "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS",
+    "Date",
+    `${javascript}\nreturn { projectDatabaseFreeAccountBootstrap, installDatabaseFreeSessionRoute }`,
+  )(
+    signedCookieMaxAgeSeconds,
+    fixedNowMilliseconds === undefined
+      ? Date
+      : class FixedDate extends Date {
+          static now() { return fixedNowMilliseconds }
+        },
+  )
+  return { ...compiled, signedCookieMaxAgeSeconds }
+}
+
+async function captureDatabaseFreeSession({
+  fixedNowMilliseconds,
+  requestUrl = "https://browser-qa.example.test/api/auth/session",
+  transformSessionCookieSource,
+  transformSource,
+} = {}) {
+  const { installDatabaseFreeSessionRoute, signedCookieMaxAgeSeconds } = await compileSignedInUserFixtureOwners({
+    fixedNowMilliseconds,
+    transformSessionCookieSource,
+    transformSource,
+  })
+  const registeredRoutes = []
+  const context = {
+    async addInitScript() {},
+    async route(pattern, handler) {
+      registeredRoutes.push([pattern, handler])
+    },
+  }
+  await installDatabaseFreeSessionRoute(context, "https://browser-qa.example.test", {
+    user: {
+      id: "fixture-user",
+      name: "Browser QA",
+      email: "browser-qa@example.test",
+      authSessionVersion: 0,
+    },
+  })
+  const sessionHandler = registeredRoutes.find(([pattern]) => pattern === "**/api/auth/session")?.[1]
+  assert.equal(typeof sessionHandler, "function")
+  const fulfillments = []
+  let fallbacks = 0
+  const handlerStartedAt = Date.now()
+  await sessionHandler({
+    request() {
+      return { url: () => requestUrl }
+    },
+    async fallback() { fallbacks += 1 },
+    async fulfill(value) { fulfillments.push(value) },
+  })
+  const handlerFinishedAt = Date.now()
+  return {
+    fallbacks,
+    fulfillments,
+    handlerStartedAt,
+    handlerFinishedAt,
+    session: fulfillments.length === 1 ? JSON.parse(fulfillments[0].body) : null,
+    signedCookieMaxAgeSeconds,
+  }
+}
+
+function assertAuthJsExpiryTiming(
+  { session, handlerStartedAt, handlerFinishedAt },
+  {
+    expectedLifetimeMilliseconds = expectedOneHourSessionLifetimeMilliseconds,
+    expectation = "one hour",
+  } = {},
+) {
+  assert.equal(typeof session?.expires, "string")
+  const expiry = Date.parse(session.expires)
+  assert.equal(Number.isFinite(expiry), true)
+  assert.equal(new Date(expiry).toISOString(), session.expires)
+  assert.ok(
+    expiry >= handlerStartedAt + expectedLifetimeMilliseconds,
+    `session expiry must be at least the ${expectation} from handler start`,
+  )
+  assert.ok(
+    expiry <= handlerFinishedAt + expectedLifetimeMilliseconds,
+    `session expiry must be at most the ${expectation} from handler finish`,
+  )
+}
+
+const fixedSessionNowMilliseconds = Date.UTC(2030, 0, 2, 3, 4, 5)
+const canonicalLifetimeProbeSeconds = [17, 60, 3600, 7200]
+
+/** Probes distinct lifetime regions so pointwise or offset consumer transforms cannot mimic propagation. */
+async function assertCanonicalLifetimePropagatesExactly({ transformSource } = {}) {
+  for (const lifetimeSeconds of canonicalLifetimeProbeSeconds) {
+    const result = await captureDatabaseFreeSession({
+      fixedNowMilliseconds: fixedSessionNowMilliseconds,
+      transformSessionCookieSource(source) {
+        const currentOwner = "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60"
+        const mutatedOwner = `export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = ${lifetimeSeconds}`
+        const mutated = source.replace(currentOwner, mutatedOwner)
+        assert.notEqual(mutated, source, "the canonical lifetime probe must alter its actual owner")
+        return mutated
+      },
+      transformSource,
+    })
+    assert.equal(result.signedCookieMaxAgeSeconds, lifetimeSeconds)
+    assert.equal(
+      result.session?.expires,
+      new Date(fixedSessionNowMilliseconds + lifetimeSeconds * 1000).toISOString(),
+      "provider-free expiry must exactly propagate the canonical signed-cookie lifetime",
+    )
+  }
+}
+
+const anonymousAccountBootstrap = '\\"initialBootstrap\\":{\\"ownerKey\\":null,\\"syncEnabled\\":false,\\"preferenceStatus\\":\\"anonymous\\"'
+
+it("leaves same-origin HTML without an account bootstrap unchanged", async () => {
+  const { projectDatabaseFreeAccountBootstrap } = await compileSignedInUserFixtureOwners()
+  const body = "<!doctype html><html><body>global error</body></html>"
+  assert.equal(projectDatabaseFreeAccountBootstrap(body, { user: { id: "fixture-user" } }), body)
+})
+
+it("projects exactly one anonymous account bootstrap to the fixture owner", async () => {
+  const { projectDatabaseFreeAccountBootstrap } = await compileSignedInUserFixtureOwners()
+  const body = `prefix:${anonymousAccountBootstrap}:suffix`
+  assert.equal(
+    projectDatabaseFreeAccountBootstrap(body, { user: { id: "fixture-user" } }),
+    'prefix:\\"initialBootstrap\\":{\\"ownerKey\\":\\"fixture-user\\",\\"syncEnabled\\":true,\\"preferenceStatus\\":\\"failed\\":suffix',
+  )
+})
+
+it("rejects duplicate anonymous account bootstrap markers", async () => {
+  const { projectDatabaseFreeAccountBootstrap } = await compileSignedInUserFixtureOwners()
+  const body = `${anonymousAccountBootstrap}:${anonymousAccountBootstrap}`
+  assert.throws(
+    () => projectDatabaseFreeAccountBootstrap(body, { user: { id: "fixture-user" } }),
+    /exactly one anonymous account bootstrap/i,
+  )
+})
+
+it("fulfills same-origin provider-free sessions with an Auth.js-compatible one-hour expiry", async () => {
+  const result = await captureDatabaseFreeSession()
+  assert.equal(result.fallbacks, 0)
+  assert.equal(result.fulfillments.length, 1)
+  assertAuthJsExpiryTiming(result)
+})
+
+it("propagates a canonical signed-cookie lifetime mutation to provider-free expiry", async () => {
+  const result = await captureDatabaseFreeSession({
+    transformSessionCookieSource(source) {
+      const currentOwner = source.includes("export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS")
+        ? "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60"
+        : "maxAge: 60 * 60"
+      const mutatedOwner = currentOwner.startsWith("export const")
+        ? "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60"
+        : "maxAge: 60"
+      const mutated = source.replace(currentOwner, mutatedOwner)
+      assert.notEqual(mutated, source, "the canonical signed-cookie lifetime mutation must alter its actual owner")
+      return mutated
+    },
+  })
+  assert.equal(result.signedCookieMaxAgeSeconds, 60)
+  assertAuthJsExpiryTiming(result, {
+    expectedLifetimeMilliseconds: result.signedCookieMaxAgeSeconds * 1000,
+    expectation: "signed-cookie lifetime",
+  })
+})
+
+it("rejects a 120-second consumer clamp when the canonical owner is 60 seconds", async () => {
+  const result = await captureDatabaseFreeSession({
+    transformSessionCookieSource(source) {
+      const currentOwner = source.includes("export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS")
+        ? "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60"
+        : "maxAge: 60 * 60"
+      const mutatedOwner = currentOwner.startsWith("export const")
+        ? "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60"
+        : "maxAge: 60"
+      const mutated = source.replace(currentOwner, mutatedOwner)
+      assert.notEqual(mutated, source, "the canonical signed-cookie lifetime mutation must alter its actual owner")
+      return mutated
+    },
+    transformSource(source) {
+      const canonicalLifetimeUse = "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS * 1000"
+      const clampedLifetimeUse = "Math.max(SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS, 120) * 1000"
+      const mutated = source.replace(canonicalLifetimeUse, clampedLifetimeUse)
+      assert.notEqual(mutated, source, "the consumer clamp mutation must alter its actual lifetime expression")
+      return mutated
+    },
+  })
+  assert.equal(result.signedCookieMaxAgeSeconds, 60)
+  assert.throws(
+    () => assertAuthJsExpiryTiming(result, {
+      expectedLifetimeMilliseconds: result.signedCookieMaxAgeSeconds * 1000,
+      expectation: "signed-cookie lifetime",
+    }),
+    /signed-cookie lifetime/i,
+  )
+})
+
+for (const [mutationName, mutateConsumerLifetime] of [
+  [
+    "a nonlinear lifetime cap",
+    (source) => {
+      const canonicalLifetimeUse = "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS * 1000"
+      const nonlinearLifetimeUse = "Math.min(SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS * 1000, 3_600_000)"
+      const mutated = source.replace(canonicalLifetimeUse, nonlinearLifetimeUse)
+      assert.notEqual(mutated, source, "the nonlinear consumer mutation must alter its actual lifetime expression")
+      return mutated
+    },
+  ],
+  [
+    "an offset lifetime",
+    (source) => {
+      const canonicalLifetimeUse = "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS * 1000"
+      const offsetLifetimeUse = "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS * 1000 + 5"
+      const mutated = source.replace(canonicalLifetimeUse, offsetLifetimeUse)
+      assert.notEqual(mutated, source, "the offset consumer mutation must alter its actual lifetime expression")
+      return mutated
+    },
+  ],
+]) {
+  it(`rejects ${mutationName} across exact canonical lifetime probes`, async () => {
+    await assertCanonicalLifetimePropagatesExactly()
+    await assert.rejects(
+      assertCanonicalLifetimePropagatesExactly({ transformSource: mutateConsumerLifetime }),
+      /exactly propagate the canonical signed-cookie lifetime/i,
+    )
+  })
+}
+
+it("rejects a local lifetime owner that replaces the canonical signed-cookie import", async () => {
+  await assert.rejects(
+    captureDatabaseFreeSession({
+      transformSource(source) {
+        const canonicalImport = [
+          "import {",
+          "  SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
+          "  installSignedInSessionCookie,",
+          '} from "./signed-in-session-cookie"',
+        ].join("\n")
+        const localOwner = [
+          'import { installSignedInSessionCookie } from "./signed-in-session-cookie"',
+          "const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60",
+        ].join("\n")
+        const mutated = source.replace(canonicalImport, localOwner)
+        assert.notEqual(mutated, source, "the consumer lifetime-owner mutation must alter its actual import")
+        return mutated
+      },
+    }),
+    /canonical signed-cookie lifetime import/i,
+  )
+})
+
+it("rejects a whole-clause type-only canonical lifetime import", async () => {
+  await assert.rejects(
+    captureDatabaseFreeSession({
+      transformSource(source) {
+        const canonicalImport = [
+          "import {",
+          "  SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
+          "  installSignedInSessionCookie,",
+          '} from "./signed-in-session-cookie"',
+        ].join("\n")
+        const typeOnlyImport = [
+          'import type { SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS } from "./signed-in-session-cookie"',
+          'import { installSignedInSessionCookie } from "./signed-in-session-cookie"',
+        ].join("\n")
+        const mutated = source.replace(canonicalImport, typeOnlyImport)
+        assert.notEqual(mutated, source, "the whole-clause type-only mutation must alter the actual import")
+        return mutated
+      },
+    }),
+    /canonical signed-cookie lifetime import/i,
+  )
+})
+
+it("rejects an inline type-only canonical lifetime import", async () => {
+  await assert.rejects(
+    captureDatabaseFreeSession({
+      transformSource(source) {
+        const canonicalImport = [
+          "import {",
+          "  SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
+          "  installSignedInSessionCookie,",
+          '} from "./signed-in-session-cookie"',
+        ].join("\n")
+        const inlineTypeOnlyImport = [
+          "import {",
+          "  type SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
+          "  installSignedInSessionCookie,",
+          '} from "./signed-in-session-cookie"',
+        ].join("\n")
+        const mutated = source.replace(canonicalImport, inlineTypeOnlyImport)
+        assert.notEqual(mutated, source, "the inline type-only mutation must alter the actual import")
+        return mutated
+      },
+    }),
+    /canonical signed-cookie lifetime import/i,
+  )
+})
+
+it("falls back instead of fulfilling a foreign-origin session request", async () => {
+  const result = await captureDatabaseFreeSession({
+    requestUrl: "https://foreign.example.test/api/auth/session",
+  })
+  assert.equal(result.fallbacks, 1)
+  assert.equal(result.fulfillments.length, 0)
+})
 
 describe("Task 4A browser harness contracts", () => {
   it("scopes identity and interaction messages without first-or-last ambiguity", async () => {

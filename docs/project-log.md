@@ -157,6 +157,77 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   separate QUALITY, exact staged identity, renewed hosted reviews and all seven
   strict CI jobs before Task 8 can close.
 
+- Independent SPEC then QUALITY approved that frozen 40-path repair, and exact
+  staged identity produced `26c76ada77c7d3977af666942101b6e5018e15f3` on
+  PR #13. Codex completed clean exact-head review. Strict CI `35638346707`
+  passed code quality, build, all four browser lanes and aggregate QA.
+  CodeRabbit reviewed the exact 12-file amendment and raised two valid Minor
+  fixture-contract findings, so the green hosted result is historical rather
+  than final.
+- The provider-free Auth.js projection omitted its required session expiry, and
+  the same-origin HTML catch-all assumed every document contained the shared
+  root-layout account bootstrap. The standalone global-error document disproves
+  that assumption. Strict RED reproduced both defects while retaining the
+  existing one-marker projection and duplicate-marker rejection. The bounded
+  two-file repair adds a future ISO expiry, passes zero-marker HTML through,
+  projects exactly one marker and still rejects duplicates.
+- Independent QUALITY then found the expiry test accepted a short or already-
+  expired mutation and the context-wide session glob fulfilled foreign origins.
+  Executable mutation probes confirmed both before repair. Strict RED passed
+  only the same-origin control and failed the short-lifetime and foreign-origin
+  oracles; GREEN passes all three. The real extracted owners now enforce the
+  sibling fixture's exact one-hour lifetime and fall back outside the configured
+  origin.
+- Frozen v12 passed independent SPEC, but separate QUALITY found that the signed
+  cookie, provider-free fixture and oracle still carried three independent
+  one-hour values. Changing the cookie lifetime left the consumer and all 70
+  tests green, so v12 was invalidated before staging. Strict RED mutated the
+  canonical cookie owner to 60 seconds and failed because the consumer remained
+  one hour. GREEN exports one cookie-owned constant, wires both runtime test
+  paths to it, and keeps an independent one-hour acceptance oracle.
+- Frozen v13 passed independent SPEC, but separate QUALITY found that its
+  harness removed the actual lifetime import and injected a value manually, so
+  replacing the canonical import with a new local owner could remain falsely
+  green. The frozen bytes were invalidated before staging. Strict RED removed
+  the canonical import and inserted a local `60 * 60`; the old harness did not
+  reject it. GREEN now uses TypeScript AST evidence to require exactly one
+  unaliased import of the cookie-owned constant, rejects a top-level local
+  replacement before controlled injection, and retains the independent timing
+  and canonical-owner mutation oracles.
+- Frozen v14 passed independent SPEC, but separate QUALITY proved its import
+  tuple ignored whole-clause and inline TypeScript type-only flags. Both forms
+  could satisfy the ownership assertion without a runtime binding, after which
+  controlled injection could keep the executable checks green. Root reproduced
+  both false positives and invalidated v14 before staging. Strict RED missed
+  both mutations 0/2; GREEN requires non-type-only clause and specifier flags
+  plus an explicitly unaliased binding, and passes both new negatives 2/2.
+- Frozen v15 passed independent SPEC, but separate QUALITY found that the
+  60-second canonical mutation only asserted rejection by the one-hour oracle.
+  A type-safe consumer clamp to 120 seconds retained the canonical import and
+  still passed. Root reproduced that false positive and invalidated v15 before
+  staging. Strict RED failed both exact-propagation cases 0/2. GREEN
+  parameterizes the timing bounds: the positive path retains its independent
+  one-hour oracle, the canonical mutation must match the observed 60,000ms
+  lifetime, and the real-source 120-second clamp is rejected.
+- Frozen v16 passed independent SPEC, but separate QUALITY proved that its
+  selected 60- and 3,600-second values and handler-duration window did not prove
+  arbitrary owner-to-consumer identity. A nonlinear 3,600-second cap agreed at
+  both selected values but failed at 7,200 seconds, while a five-millisecond
+  consumer offset fit inside a ten-millisecond handler window. Root reproduced
+  both actual-source counterexamples and invalidated v16 before staging. Strict
+  RED failed both fixed-clock mutation cases 0/2. GREEN injects a deterministic
+  `Date`, asserts exact ISO expiry at 17, 60, 3,600 and 7,200 seconds, rejects
+  both mutation families and retains the real-clock one-hour integration oracle.
+- The complete fixture/harness surface passes 76/76; six representative
+  provider-free desktop/mobile browser journeys pass 6/6 with one worker and no
+  retries because runtime bytes did not change; and the full Node suite passes
+  4,751 total with 4,748 passes, three
+  host-dependent skips and zero failures.
+  Typecheck, changed-file lint and diff checks pass. The scope is now 41 paths:
+  12 recovery-exact, 24 repairs and five records. A new frozen SPEC, separate
+  QUALITY, exact staged identity, fresh
+  exact-head hosted reviews and all seven strict CI jobs remain required.
+
 ## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
 
 - Published the first hosted repair as `03d7762` after independent SPEC then
