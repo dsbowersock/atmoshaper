@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Renderer CI exposed Anatomime test-clock race
+
+- Exact head `3857f13d6b3c241061960f2d1d1f0740f4978166` received clean Codex
+  review. CI `35552471156` passed quality/build/three browser lanes but lane 1
+  failed the Anatomime polling cadence test on both attempts (118 passed,
+  25 skipped, one failed). This was not a screenshot comparison failure.
+- Trace evidence and a provider-free Chromium reproduction using the actual
+  fetch-deadline helper show that the test's late wall-time pause advances an
+  already-running request beyond its 1,500ms deadline before releasing a held
+  response. The test and runtime owners were unchanged from recovery.
+- The bounded Task 6 amendment moves clock setup before the tested request and adds a
+  focused falsifying regression. It keeps genuine timeout/cadence controls and
+  all application/provider/visual behavior unchanged. The two test-only source
+  divergences bring planned scope from 65 to 67 files; record them in final
+  equivalence rather than overwriting them with recovery bytes later.
+- Local verification passes all 42 Anatomime browser cases across desktop/mobile
+  and both cadence cases with a temporary 2.1-second observation delay (removed
+  after the control). Focused checks pass 108/108, typecheck and changed-file
+  lint pass, and strict audit/inventory remain clean. Independent SPEC then
+  QUALITY and a reviewed repair push remain required. Both hosted reviewers and strict CI
+  must cover the eventual new head. Task 7 and whole-sequence readiness remain
+  pending; no unchanged CI retry, snapshot refresh or provider workaround.
+
 ## 2026-09-21 — Renderer slice published; hosted record corrections
 
 - Published PR #11 at `6d92e6daa073be40db6f61e26c7ac8958b1ab0f1`, stacked on

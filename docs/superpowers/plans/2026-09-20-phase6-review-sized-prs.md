@@ -909,3 +909,54 @@ runtime behavior. Include the header and companion date ceiling in later
 checkpoint finalization; use the verified UTC evidence date consistently.
 The five-path repair (three delivery documents, date-test companion and generated
 receipt) needs scoped SPEC then QUALITY and renewed exact-head hosted gates.
+
+### PR #11 CI amendment: deterministic Anatomime test-clock ownership
+
+CI `35552471156` failed the Anatomime visible/hidden polling cadence test on
+both attempts; the other three browser lanes, quality and build passed. The
+test and runtime deadline owners are unchanged from recovery. The retry trace
+shows a held first request, delayed observation, then `Date.now() + 500` passed
+to `clock.pauseAt` before releasing its response. This advances the clock past
+the real 1,500ms fetch deadline. A provider-free Chromium reproduction using
+the actual fetch helper returns `TimeoutError` with this ordering and succeeds
+when the clock is frozen before the request starts.
+
+Change necessity: a retry can conceal this harness race but cannot close it.
+Decision: code-change limited to test orchestration, not production behavior.
+The canonical owner is clock setup in `tests/browser/anatomime-traffic.spec.ts`.
+Establish a fixed paused clock before the tested request is created, retire
+the late wall-time pause helper, and keep every
+cadence, retry, deadline, recovery and provider-isolation assertion strict.
+The related support-report spec already pauses before submit and has no
+in-flight deadline at that point; it is not part of this repair.
+
+Add one focused `tests/anatomime-browser-clock-contract.test.mjs` companion
+which executes the actual test-clock setup, proves time is frozen before a
+request, and falsifies the old ordering with the actual fetch deadline helper.
+Include slow observation, normal response, and genuine timeout controls. Do
+not merely assert that an expected helper name appears. If real browser
+hydration cannot progress with the proposed ownership, stop and diagnose;
+do not add timer pumping, arbitrary buffers, or loosen assertions to mask it.
+The first browser falsifier showed the host route's lazy anatomy-deck loading
+is stranded by a pre-navigation freeze. Player/join routes passed their initial
+snapshot and deadline checks. Therefore pause before navigation only for those
+initial-request routes. Host/create cases must first observe the actual Create
+Shared Game control ready, then install/pause before clicking it. No create
+deadline exists during that setup; readiness is condition-based, not timed.
+This refinement replaces the failed setup boundary rather than adding a
+timer-pumping exception or altering lazy application behavior.
+
+This is local-fix-without-new-responsibility in the existing harness, plus its
+focused regression. No new runtime owner, dependency, snapshot/frame/tolerance,
+production timeout, provider or audit-policy change is authorized. Root owns
+the delivery state/log/receipt and Git. Maximum scope for this amendment is
+the two test paths plus existing four delivery/audit records, bringing PR
+scope to 67 paths; verify the actual set before publication. Record these two
+test paths as intentional source divergences in final equivalence.
+
+Verify focused regression/deadline/polling and existing release receipts;
+run the complete Anatomime browser spec in both projects and repeat the
+formerly failing cadence case under delayed response observation. Typecheck,
+changed-file lint, strict brand/inventory/document contracts and independent
+SPEC then QUALITY precede push. The resulting head needs fresh hosted reviews
+and all required CI. This amendment does not start Task 7 or waive any gate.

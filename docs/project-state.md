@@ -15,9 +15,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   It carries 59 recovery-exact renderer prose/diagnostic files and one partial
   shared test companion. The globe-marker retirement stays with the next
   catalog slice and its descriptions/tests, preserving coherent ownership.
-- Scope is 65 files: 59 renderer files, the shared renderer test, the verified-date
-  test companion and four delivery/audit records. The initial published scope
-  was 64; the date companion is added by the hosted-review amendment. Existing
+- Repair scope is 67 files: 59 renderer files, the shared renderer test,
+  verified-date companion, Anatomime browser-clock repair and its regression,
+  plus four delivery/audit records. Initial publication had 64 files; the date
+  amendment raised it to 65. The CI amendment adds two test-only paths. Existing
   shader, animation, lifecycle, identifiers, catalog, legal and provider
   boundaries stay unchanged. Prior Sentry and immutable admin replay repairs
   remain authoritative, including their deliberate compatibility-era copy.
@@ -31,8 +32,19 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   UTC checkpoint, and explicitly retain globe-marker ownership in Task 7.
   This amendment addresses both without changing renderer behavior or assertions.
 - Each amendment must pass scoped SPEC then QUALITY before publication.
-  The updated head still requires both hosted reviews and strict CI; initial-head
-  coverage is not updated-head approval.
+  Head `3857f13d6b3c241061960f2d1d1f0740f4978166` has clean exact-head Codex
+  review, but CI `35552471156` failed one Anatomime polling test on both attempts.
+  Quality, build and the other three browser lanes passed. The test held a
+  response while its late clock pause advanced past the real request deadline;
+  a controlled actual-helper browser reproduction confirms that mechanism.
+  The bounded repair freezes the test clock before the tested request, preserves all
+  production deadlines/assertions and adds a falsifying regression. No renderer
+  or application behavior changes. All 42 Anatomime browser cases pass across
+  desktop/mobile; the cadence case also passes both with a temporary 2.1-second
+  observation delay, removed afterward. Focused checks pass 108/108, along with
+  typecheck, changed-file lint and strict audit/inventory. Independent SPEC then
+  QUALITY precedes push; the eventual head needs both hosted reviews and strict
+  CI. CodeRabbit's full coverage still belongs to the initial head.
   The final combined-source ledger and separate Linux Atmosphere
   snapshot-refresh approval remain incomplete.
 - Original PR #5 and all published replacements remain recovery references,
