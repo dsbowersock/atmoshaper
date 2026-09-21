@@ -38,7 +38,7 @@
 - **Visual descriptor:** Perspective grid sweeping through a dark tunnel
 - **Signature original eligible:** No
 - **Rationale:** Neon Survey is concise and accurate for the scanner-like illumination traveling through the source-shaped perspective line field.
-- **Collision notes:** The tunnel perspective and moving scan distinguish it from Retro Grid's open horizon and Ripple Grid's frontal plane.
+- **Collision notes:** The tunnel perspective and moving scan distinguish it from Endless Perspective's open horizon and Ripple Grid's frontal plane.
 
 ## Snowglobe
 - **ID:** `massage-lab-pixel-snow`

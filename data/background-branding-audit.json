@@ -69,7 +69,7 @@
       "alternatives": ["Turning Lattice", "Nested Geometry"],
       "visualDescriptor": "Nested wireframe cubes rotating in sequence",
       "rationale": "Hypercube gives the source-shaped stack of outlined forms a concise geometric identity while remaining faithful to its count-relative progression.",
-      "collisionNotes": "Its nested three-dimensional frames separate it from Shape Grid, Endless Perspective, and DNA's rotating helix.",
+      "collisionNotes": "Its nested three-dimensional frames separate it from Geometric Current, Endless Perspective, and DNA's rotating helix.",
       "signatureOriginalEligible": false
     },
     {
@@ -289,7 +289,7 @@
       "alternatives": ["Horizon Fan", "Oblique Glow"],
       "visualDescriptor": "Soft rays entering from the screen edge",
       "rationale": "Lateral Rays preserves the source effect's defining side origin in smoother catalog language and remains truthful as its tilt and spread change.",
-      "collisionNotes": "Side entry is the review cue separating it from Aerial Rays above, Cascading Rays across the field, and centered Convergence.",
+      "collisionNotes": "Side entry is the review cue separating it from Skybreak above, Cascading Rays across the field, and centered Convergence.",
       "signatureOriginalEligible": false
     },
     {
@@ -299,7 +299,7 @@
       "alternatives": ["Haze Fan", "Cloudbreak Light"],
       "visualDescriptor": "Soft rays spreading through dark haze",
       "rationale": "Cascading Rays adds motion and softness to an overly generic current label while matching the broad, layered light shader at rest.",
-      "collisionNotes": "The dispersed fan differs from Lateral Rays' edge source, Aerial Rays' overhead wash, and Spotlight's mirrored cones.",
+      "collisionNotes": "The dispersed fan differs from Lateral Rays' edge source, Skybreak's overhead wash, and Spotlight's mirrored cones.",
       "signatureOriginalEligible": false
     },
     {
@@ -409,7 +409,7 @@
       "alternatives": ["Perspective Sweep", "Receding Matrix"],
       "visualDescriptor": "Perspective grid sweeping through a dark tunnel",
       "rationale": "Neon Survey is concise and accurate for the scanner-like illumination traveling through the source-shaped perspective line field.",
-      "collisionNotes": "The tunnel perspective and moving scan distinguish it from Retro Grid's open horizon and Ripple Grid's frontal plane.",
+      "collisionNotes": "The tunnel perspective and moving scan distinguish it from Endless Perspective's open horizon and Ripple Grid's frontal plane.",
       "signatureOriginalEligible": false
     },
     {
@@ -759,7 +759,7 @@
       "alternatives": ["Chromatic Exhale", "Gradient Weather"],
       "visualDescriptor": "Gradient clouds slowly roaming",
       "rationale": "Color Drift removes the generic Animated prefix and names the quiet cloudlike movement that users can actually see at the passive default without fixing its configurable palette.",
-      "collisionNotes": "Its soft roaming clouds should be compared with Colorfield Drift's layered sweep and Still Gradient's motionless haze.",
+      "collisionNotes": "Its soft roaming clouds should be compared with Colorfield Drift's layered sweep and In Transition's motionless haze.",
       "signatureOriginalEligible": false
     },
     {
@@ -839,7 +839,7 @@
       "alternatives": ["Radial Abyss", "Lattice Well"],
       "visualDescriptor": "Radiant wire grid flowing into a dark center",
       "rationale": "Descent directly expresses the grid's inward sense of depth while preserving the established visual concept.",
-      "collisionNotes": "The inward-falling radial lattice differs from Retro Grid's horizon plane, Neon Survey's tunnel, and Orbits' particle streaks.",
+      "collisionNotes": "The inward-falling radial lattice differs from Endless Perspective's horizon plane, Neon Survey's tunnel, and Orbits' particle streaks.",
       "signatureOriginalEligible": false
     }
   ]

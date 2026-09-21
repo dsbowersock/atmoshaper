@@ -38,7 +38,7 @@
 - **Visual descriptor:** Soft rays entering from the screen edge
 - **Signature original eligible:** No
 - **Rationale:** Lateral Rays preserves the source effect's defining side origin in smoother catalog language and remains truthful as its tilt and spread change.
-- **Collision notes:** Side entry is the review cue separating it from Aerial Rays above, Cascading Rays across the field, and centered Convergence.
+- **Collision notes:** Side entry is the review cue separating it from Skybreak above, Cascading Rays across the field, and centered Convergence.
 
 ## Cascading Rays
 - **ID:** `massage-lab-light-rays`
@@ -48,7 +48,7 @@
 - **Visual descriptor:** Soft rays spreading through dark haze
 - **Signature original eligible:** No
 - **Rationale:** Cascading Rays adds motion and softness to an overly generic current label while matching the broad, layered light shader at rest.
-- **Collision notes:** The dispersed fan differs from Lateral Rays' edge source, Aerial Rays' overhead wash, and Spotlight's mirrored cones.
+- **Collision notes:** The dispersed fan differs from Lateral Rays' edge source, Skybreak's overhead wash, and Spotlight's mirrored cones.
 
 ## Rising Monoliths
 - **ID:** `massage-lab-beams`

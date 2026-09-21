@@ -68,7 +68,7 @@
 - **Visual descriptor:** Nested wireframe cubes rotating in sequence
 - **Signature original eligible:** No
 - **Rationale:** Hypercube gives the source-shaped stack of outlined forms a concise geometric identity while remaining faithful to its count-relative progression.
-- **Collision notes:** Its nested three-dimensional frames separate it from Shape Grid, Endless Perspective, and DNA's rotating helix.
+- **Collision notes:** Its nested three-dimensional frames separate it from Geometric Current, Endless Perspective, and DNA's rotating helix.
 
 ## Tile grid
 - **ID:** `massage-lab-tile-grid`

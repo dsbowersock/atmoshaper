@@ -12,7 +12,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   including the repaired Anatomime cadence case. No merge occurred.
 - Task 7 of the [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md)
   is published as [PR #12](https://github.com/dsbowersock/atmoshaper/pull/12) at
-  `30bd341eae393b7ddaa7d1c7f443ffdc5adf0925` on
+  `03d7762d38b46dc73d1dbd149b911508be0359d8` on
   `codex/phase6-07-background-catalog` in the same approved
   isolated worktree, based on that exact reviewed head. It carries background
   catalog/control labels, optional-only globe-marker presentation and the
@@ -22,10 +22,20 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   findings in total: nine license attributions coupled to presentation identity,
   72 stale preview labels, a free-background test masked by the reset path,
   three stale current collision notes and ambiguous initial file-count wording.
-  One bounded repair batch is in progress; it restores attribution, synchronizes
-  existing metadata and strengthens their existing tests without changing runtime
-  behavior, historical aliases or media. Scope stays 35 files. Independent SPEC
-  then QUALITY and new exact-head hosted reviews/CI are required for the amendment.
+  The first repair batch passed independent SPEC then QUALITY and was published
+  as `03d7762`. Its full unit suite passed 4,726 with three skips; all seven jobs
+  in strict CI `35571083634` passed. Codex completed clean at 07:13 UTC, but
+  CodeRabbit reported one remaining current-note naming mismatch. Root verified
+  six stale references across four audit batches, including the reported example.
+  A bounded data/generated-prose/test amendment has 107 focused passes and awaits
+  independent review. SPEC verified the data but found a false pass when a
+  retired name contains a current name. The scoped occurrence-span repair passes
+  all 16 audit tests and awaits SPEC re-review, then separate QUALITY.
+  The old regression covered only three grid notes; its
+  replacement covers all 84 notes and all seven generated batches, preserving
+  historical aliases and valid longer names.
+  Scope stays 35 files. Independent SPEC then QUALITY and both new exact-head
+  hosted reviews/CI remain required; no runtime or media change is involved.
 - Ownership covers 30 source paths, of which three browser companions were
   already recovery-exact in the reviewed base. Bounded inherited browser-test
   repairs and their three companions bring planned scope to 35 files. Stable IDs,
@@ -68,8 +78,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   the browser or adding a parser. The broad result covers
   v2; the final guard-only amendment has focused verification, with unchanged
   browser/runtime hashes. Scoped SPEC and QUALITY approved that final guard;
-  staged audit and initial publication are complete. The hosted repair batch
-  now requires its own validation and review gates. Tasks 8-9, combined-source reconciliation and the
+  staged audit and initial publication are complete. The audit-note recurrence
+  amendment now requires its own validation and review gates. Tasks 8-9, combined-source reconciliation and the
   separate Linux Atmosphere snapshot-refresh decision remain pending.
 - Original PR #5 and replacements #6-#12 remain open and unmerged. No PNG,
   frame, threshold, provider, billing, deployment or legal-version changes.

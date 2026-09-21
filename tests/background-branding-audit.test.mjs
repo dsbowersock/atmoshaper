@@ -244,55 +244,134 @@ describe("background branding audit", () => {
     ].join("\n"))
   })
 
-  it("uses the current grid names in source collision notes and generated batch 04", async () => {
-    const audit = JSON.parse(await readFile(
-      new URL("../data/background-branding-audit.json", import.meta.url),
-      "utf8",
-    ))
-    const expectedNotesById = new Map([
-      [
-        "massage-lab-grid-bloom",
-        "The continuous mesh and interference bloom separate it from Ripple Grid's central square wave and Hex grid's discrete cells.",
-      ],
-      [
-        "massage-lab-grid-distortion",
-        "Large blended blocks distinguish it from Tile grid's small independently fading tiles and Mantra Drift's word-bearing panels.",
-      ],
-      [
-        "massage-lab-shape-grid",
-        "Outlined moving cells distinguish this renderer from Mantra Drift's text panels and Tile grid's independently fading filled squares.",
-      ],
+  it("keeps every collision note and generated batch on current complete-name references", async () => {
+    const [audit, catalog] = await Promise.all([
+      readFile(new URL("../data/background-branding-audit.json", import.meta.url), "utf8").then(JSON.parse),
+      readFile(new URL("../data/background-branding-catalog.json", import.meta.url), "utf8").then(JSON.parse),
     ])
-    const entriesById = new Map(audit.entries.map((entry) => [entry.id, entry]))
-
-    for (const [id, expectedNote] of expectedNotesById) {
-      assert.equal(entriesById.get(id)?.collisionNotes, expectedNote)
-    }
-
-    const batch = BACKGROUND_BRANDING_AUDIT_BATCHES.find(({ slug }) => slug === "04-grids-and-pixels")
-    assert.ok(batch)
-    const renderedBatch = renderAuditBatch({
-      batch,
-      backgroundsById: new Map(backgroundRegistry.map((background) => [background.id, background])),
-      entriesById,
-    })
-    const publishedBatch = await readFile(
-      new URL("../docs/background-branding-audit/batch-04-grids-and-pixels.md", import.meta.url),
-      "utf8",
+    const escapeRegExp = (value) => value.replace(/[.*+?^$()|[\]\\{}]/g, "\\$&")
+    const completeNamePattern = (name) => new RegExp(
+      `(?<![\\p{L}\\p{N}])${escapeRegExp(name)}(?![\\p{L}\\p{N}])`,
+      "giu",
+    )
+    const canonicalLabels = [...new Set(catalog.entries.map(({ label }) => label))]
+      .sort((left, right) => right.length - left.length)
+    const catalogLegacyNames = catalog.entries.flatMap(({ legacyLabels = [] }) => legacyLabels)
+    const retiredNames = [...new Set([
+      ...catalogLegacyNames,
+      "Still Gradient",
+      "Honeycomb Glow",
+      "Quiet Mosaic",
+    ])].sort((left, right) => right.length - left.length)
+    const completeNameSpans = (text, name) => (
+      [...text.matchAll(completeNamePattern(name))].map((match) => ({
+        start: match.index,
+        end: match.index + match[0].length,
+      }))
     )
 
-    const assertPublishedBatchMatchesRendered = (publishedDocument) => {
-      const normalizedPublishedDocument = publishedDocument.replaceAll("\r\n", "\n")
-      assert.equal(normalizedPublishedDocument, renderedBatch)
-      for (const expectedNote of expectedNotesById.values()) {
-        assert.ok(normalizedPublishedDocument.includes(`- **Collision notes:** ${expectedNote}`))
-      }
-      assert.doesNotMatch(normalizedPublishedDocument, /Honeycomb Glow|Quiet Mosaic/)
+    /** Suppresses only retired occurrences contained by a strictly longer current-label occurrence. */
+    const findRetiredCollisionNameReferences = (entries) => entries.flatMap(({ id, collisionNotes }) => {
+      const canonicalSpans = canonicalLabels.flatMap((label) => completeNameSpans(collisionNotes, label))
+      return retiredNames
+        .filter((retiredName) => completeNameSpans(collisionNotes, retiredName).some((retiredSpan) => (
+          !canonicalSpans.some((canonicalSpan) => (
+            canonicalSpan.start <= retiredSpan.start
+            && canonicalSpan.end >= retiredSpan.end
+            && canonicalSpan.end - canonicalSpan.start > retiredSpan.end - retiredSpan.start
+          ))
+        )))
+        .map((retiredName) => ({ id, retiredName }))
+    })
+    const assertNoRetiredCollisionNameReferences = (entries) => {
+      assert.deepEqual(
+        findRetiredCollisionNameReferences(entries),
+        [],
+        "collision notes must reference only current canonical background names",
+      )
     }
 
-    assertPublishedBatchMatchesRendered(renderedBatch)
-    assertPublishedBatchMatchesRendered(renderedBatch.replaceAll("\n", "\r\n"))
-    assertPublishedBatchMatchesRendered(publishedBatch)
+    assert.equal(catalogLegacyNames.includes("Still Gradient"), false)
+    assert.ok(catalogLegacyNames.includes("Honeycomb Glow"))
+    assert.ok(catalogLegacyNames.includes("Quiet Mosaic"))
+    assertNoRetiredCollisionNameReferences(audit.entries)
+
+    const foldedPlasmaEntries = audit.entries.filter(({ collisionNotes }) => (
+      collisionNotes.includes("Folded Plasma")
+    ))
+    assert.equal(foldedPlasmaEntries.length, 2)
+    assert.deepEqual(findRetiredCollisionNameReferences(foldedPlasmaEntries), [])
+
+    for (const [id, currentName, retiredName] of [
+      ["massage-lab-grid-bloom", "Hex grid", "Honeycomb Glow"],
+      ["massage-lab-grid-distortion", "Tile grid", "Quiet Mosaic"],
+      ["massage-lab-shape-grid", "Tile grid", "Quiet Mosaic"],
+      ["massage-lab-twisted-cubes", "Geometric Current", "Shape Grid"],
+      ["massage-lab-side-rays", "Skybreak", "Aerial Rays"],
+      ["massage-lab-light-rays", "Skybreak", "Aerial Rays"],
+      ["massage-lab-grid-scan", "Endless Perspective", "Retro Grid"],
+      ["massage-lab-gradient-animation", "In Transition", "Still Gradient"],
+      ["massage-lab-hole", "Endless Perspective", "Retro Grid"],
+      ["massage-lab-grid-distortion", "Tile grid", "MassageLab tile grid"],
+      ["massage-lab-grid-bloom", "Hex grid", "MassageLab hex grid"],
+      ["massage-lab-color-bends", "Kaleidoscope Rays", "Prismatic Burst"],
+    ]) {
+      const mutatedEntries = structuredClone(audit.entries)
+      const mutatedEntry = mutatedEntries.find((entry) => entry.id === id)
+      assert.ok(mutatedEntry)
+      const restoredNote = mutatedEntry.collisionNotes.replace(currentName, retiredName)
+      assert.notEqual(restoredNote, mutatedEntry.collisionNotes, `${id}: current-name fixture`)
+      mutatedEntry.collisionNotes = restoredNote
+      assert.throws(
+        () => assertNoRetiredCollisionNameReferences(mutatedEntries),
+        (error) => {
+          assert.ok(error instanceof assert.AssertionError)
+          assert.ok(error.actual.some((finding) => (
+            finding.id === id && finding.retiredName === retiredName
+          )))
+          return true
+        },
+        `${id}: restored ${retiredName} must be rejected`,
+      )
+    }
+
+    for (const retiredName of retiredNames) {
+      const findings = findRetiredCollisionNameReferences([{
+        id: "standalone-retired-name",
+        collisionNotes: `Compared with ${retiredName}.`,
+      }])
+      assert.ok(
+        findings.some((finding) => (
+          finding.id === "standalone-retired-name" && finding.retiredName === retiredName
+        )),
+        `${retiredName}: standalone retired name must be reported`,
+      )
+    }
+    assert.deepEqual(
+      findRetiredCollisionNameReferences([{
+        id: "mixed-plasma-occurrences",
+        collisionNotes: "Folded Plasma remains distinct from standalone Plasma.",
+      }]),
+      [{ id: "mixed-plasma-occurrences", retiredName: "Plasma" }],
+    )
+
+    const entriesById = new Map(audit.entries.map((entry) => [entry.id, entry]))
+    const backgroundsById = new Map(backgroundRegistry.map((background) => [background.id, background]))
+    assert.equal(BACKGROUND_BRANDING_AUDIT_BATCHES.length, 7)
+    for (const batch of BACKGROUND_BRANDING_AUDIT_BATCHES) {
+      const renderedBatch = renderAuditBatch({ batch, backgroundsById, entriesById })
+      const publishedBatch = await readFile(
+        new URL(`../docs/background-branding-audit/batch-${batch.slug}.md`, import.meta.url),
+        "utf8",
+      )
+      const assertPublishedBatchMatchesRendered = (publishedDocument) => {
+        assert.equal(publishedDocument.replaceAll("\r\n", "\n"), renderedBatch)
+      }
+
+      assertPublishedBatchMatchesRendered(renderedBatch)
+      assertPublishedBatchMatchesRendered(renderedBatch.replaceAll("\n", "\r\n"))
+      assertPublishedBatchMatchesRendered(publishedBatch)
+    }
   })
 
   it("aggregates root and entry errors without invoking the output writer", async () => {

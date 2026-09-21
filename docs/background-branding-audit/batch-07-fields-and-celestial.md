@@ -28,7 +28,7 @@
 - **Visual descriptor:** Gradient clouds slowly roaming
 - **Signature original eligible:** No
 - **Rationale:** Color Drift removes the generic Animated prefix and names the quiet cloudlike movement that users can actually see at the passive default without fixing its configurable palette.
-- **Collision notes:** Its soft roaming clouds should be compared with Colorfield Drift's layered sweep and Still Gradient's motionless haze.
+- **Collision notes:** Its soft roaming clouds should be compared with Colorfield Drift's layered sweep and In Transition's motionless haze.
 
 ## Star Lattice
 - **ID:** `massage-lab-glowing-stars`
@@ -108,4 +108,4 @@
 - **Visual descriptor:** Radiant wire grid flowing into a dark center
 - **Signature original eligible:** No
 - **Rationale:** Descent directly expresses the grid's inward sense of depth while preserving the established visual concept.
-- **Collision notes:** The inward-falling radial lattice differs from Retro Grid's horizon plane, Neon Survey's tunnel, and Orbits' particle streaks.
+- **Collision notes:** The inward-falling radial lattice differs from Endless Perspective's horizon plane, Neon Survey's tunnel, and Orbits' particle streaks.

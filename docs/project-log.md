@@ -2,6 +2,41 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
+
+- Published the first hosted repair as `03d7762` after independent SPEC then
+  QUALITY, 4,726 unit passes with three skips, 107 focused passes, lint/typecheck,
+  strict receipt verification and exact staged-blob identity. All four inline
+  threads are resolved. Both hosted reviewers ran on that head; Codex completed
+  clean. All seven jobs in CI `35571083634` passed, aggregate at 07:23 UTC.
+- CodeRabbit's outside-diff finding identifies Still Gradient in the current
+  Color Drift collision note. Canonical catalog identity is In Transition.
+  Root verified the source and rendered copy, then scanned all notes: five more
+  references use Shape Grid, Aerial Rays or Retro Grid in place of Geometric
+  Current, Skybreak or Endless Perspective. These are current comparisons, not
+  historical aliases. Plasma inside the valid name Folded Plasma is not stale.
+- The renderer faithfully copies source notes. The recurrence is incomplete
+  current-prose synchronization and a three-note-only regression. Correct only
+  the six proven source notes, regenerate four affected batches, and replace
+  that narrow regression with all-note/all-batch checks and negative controls.
+  Preserve every other data field, catalog alias, runtime, media and prior fix.
+  Total PR scope remains 35; three more allocated documents become explicit
+  repair deviations, leaving 17 of 30 source paths recovery-exact.
+- The same implementer completed the six implementation paths with 107 focused
+  passes and changed-file lint. The strengthened note contract rejected the old
+  six references before correction; generated documents changed only those six
+  note lines. SPEC then found that canonical masking hides three longer retired
+  aliases. Root reproduced the false passes and bounded the repair to original-
+  note match spans plus overlap counterfactuals in the same audit test. The data
+  substitutions remain correct. The corrected oracle passes all 16 audit tests
+  and changed-file lint, including overlap and standalone-alias controls. Nested
+  retired aliases may both be reported; the fixture requires the target finding
+  rather than suppressing other valid findings. Root owns records, receipt and
+  Git. SPEC re-review then QUALITY precede
+  publication. New-head hosted reviews and strict CI remain mandatory; the
+  published hourly CodeRabbit window is tracked separately. Tasks 8-9 and the
+  separate snapshot decision remain pending. No merge or provider action.
+
 ## 2026-09-21 — Catalog published; hosted findings verified before bounded repair
 
 - Published and attached PR #12 at `30bd341eae393b7ddaa7d1c7f443ffdc5adf0925`,

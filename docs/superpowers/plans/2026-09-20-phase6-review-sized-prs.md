@@ -1310,3 +1310,62 @@ final full unit run, then independent SPEC followed by QUALITY. Regenerate and
 inspect the strict receipt without changing policy. Publish only after staged
 blob verification; both hosted reviewers must cover the resulting exact head.
 No PNG, threshold, media-byte, provider, deployment, billing or merge authority.
+
+### Task 7 audit-note recurrence — complete current-prose coverage
+
+Published amendment `03d7762` passed its full local unit suite (4,726 passed,
+three skipped), separate SPEC then QUALITY, exact-head Codex review and all
+seven jobs in strict CI `35571083634`. CodeRabbit review `5263926326` at
+07:13:49 UTC on September 21 found a remaining Still Gradient reference in
+the current Color Drift comparison note. Root verified the actual source and
+generated copy, then scanned all 84 collision notes against current catalog
+names and historical aliases. Five more stale references share the same path.
+
+The renderer directly copies `entry.collisionNotes`; it does not invent names.
+The prior repair corrected three grid notes and tested only batch 04, leaving
+the same current-reference contract unguarded elsewhere. Decision: repair the
+canonical data and its existing test owner, not the generator or runtime.
+
+| Audit entry | Retired phrase | Approved phrase |
+| --- | --- | --- |
+| massage-lab-twisted-cubes | Shape Grid | Geometric Current |
+| massage-lab-side-rays | Aerial Rays | Skybreak |
+| massage-lab-light-rays | Aerial Rays | Skybreak |
+| massage-lab-grid-scan | Retro Grid | Endless Perspective |
+| massage-lab-gradient-animation | Still Gradient | In Transition |
+| massage-lab-hole | Retro Grid | Endless Perspective |
+
+Change only these six `collisionNotes` values; regenerate the four affected
+batch documents (01, 03, 04, 07). Every other field and historical alias remains
+unchanged. Replace the existing three-note-only test with actual-data coverage
+of all current notes and all seven deterministic batch documents, including
+LF/CRLF checkout forms. Use the canonical catalog's retired aliases plus known
+superseded audit prose names. Complete-name checks must preserve valid longer
+canonical names first: Plasma inside Folded Plasma is not a stale reference.
+Negative mutations must reject the six former references and prior repaired
+names, while positive controls preserve valid current names. Keep this bounded
+to the existing audit test; do not add a production parser, schema, dependency,
+fallback or helper module. The maintained test gains no unrelated responsibility.
+
+One existing implementer owns data, four generated documents and the audit test.
+Root owns current state/log, this plan, receipt and equivalence helpers. Total
+scope stays 35 paths; 17 of 30 allocated source paths remain recovery-exact,
+with 13 explicit repair deviations. Structural proof must allow only the nine
+total corrected notes relative to initial publication and six in this amendment,
+preserving all other data, media, license, access and earlier-repair invariants.
+Run the four focused contract files, changed-file lint and strict audit/receipt
+checks. The previous full-unit/CI evidence covers `03d7762`, not this amendment;
+the amendment needs its own focused evidence, independent SPEC then separate
+QUALITY, frozen/staged identity and new-head hosted reviews/strict CI. This
+finding is Minor but user-required actionable closure still requires its repair.
+No merge, PNG/frame/threshold adjustment, provider or billing activity.
+
+SPEC round 1 refinement: current-name masking can erase a shorter canonical
+substring inside a longer retired alias (MassageLab tile grid, MassageLab hex
+grid and Prismatic Burst). Root reproduced all three false passes using the
+actual helper. Replace destructive masking with original-note match spans:
+ignore a retired occurrence only when contained in a strictly longer canonical
+occurrence. Keep both directions of overlap covered, including valid Folded
+Plasma plus separate retired Plasma in one note. Preserve all known-alias
+standalone detection and the real-note mutations. This refines the test-local
+mechanism without changing names, data, generator, scope or runtime contracts.
