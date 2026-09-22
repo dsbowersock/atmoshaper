@@ -169,10 +169,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   clean full Node suite passes 4,755 total with 4,752 passes, three
   host-dependent skips and zero failures.
 - The published v21 candidate contains 43 paths: 12 recovery-exact, 26 repairs
-  and five records. At exact head `22eb0ef690b354317a74a74bf0318aa6c6f2a733`,
-  CodeRabbit completed product review, Codex found only this record issue, and all seven strict CI
-  jobs passed. Tasks 9, combined-source equivalence and the separate Linux Atmosphere
-  snapshot decision remain pending.
+  and five records. It was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`; CodeRabbit completed product review,
+  Codex found only its then-current record issue, and all seven strict CI jobs passed. The post-v21 OAuth amendment is published as `7ad60de8519e4a1d4bcc0bd892583b0c54d80186`;
+  it switches public Google callbacks to the acceptance-filtered session identity while keeping raw access in the legal gate. Current status for the latest PR #13 head is delegated to GitHub and the ignored review handoff;
+  its hosted-review and strict-CI gates must pass before Task 9. Combined-source equivalence and the separate Linux Atmosphere snapshot decision remain pending.
 - Frozen v19 passed independent SPEC, but separate QUALITY proved the two
   mismatched pairs still did not lock exact response-code value and shape.
   Prefix matching accepted `AUTHENTICATION_REQUIRED_LATER`; string coercion

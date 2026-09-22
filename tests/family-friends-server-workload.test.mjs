@@ -904,5 +904,10 @@ describe("family-and-friends server workload baseline", () => {
       /Frozen v21 passed independent SPEC then separate QUALITY, retained the 43-path classification, and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`/i,
       "project state must identify the completed and published v21 checkpoint",
     )
+    assert.match(
+      normalizedProjectStateSource,
+      /post-v21 OAuth amendment.*`7ad60de8519e4a1d4bcc0bd892583b0c54d80186`.*acceptance-filtered session identity.*latest PR #13 head.*hosted-review and strict-CI gates.*Task 9/i,
+      "project state must record the OAuth amendment and preserve its latest-head gates",
+    )
   })
 })
