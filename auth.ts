@@ -129,7 +129,9 @@ const {
         if (!isVerifiedGoogleProfile(profile)) return "/login?auth=google-unavailable"
         const cookieStore = await cookies()
         const binding = parseAuthMethodIntentBinding(cookieStore.get(AUTH_METHOD_INTENT_COOKIE)?.value)
-        const currentSession = await loadAuthJsSession().catch(() => null)
+        // Public OAuth sign-in must use the same acceptance-filtered identity
+        // that the browser sees; raw sessions remain reserved for legal gating.
+        const currentSession = await getCurrentSession().catch(() => null)
         const result = await prepareGoogleAuthentication({
           prismaClient: prisma,
           intentId: binding?.intentId ?? "",
