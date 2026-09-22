@@ -875,7 +875,25 @@ describe("family-and-friends server workload baseline", () => {
     console.log(`valid explicit Portal action: Portal-session creates = ${calls.portalSessionCreates}; ordinary render = ${ordinaryRenderProviderCalls}`)
   })
 
-  it("records the completed and published v21 checkpoint", () => {
+  it("records the completed and published v21 checkpoint", async () => {
+    const normalizedReadmeSource = normalizeDocumentationWhitespace(
+      await readFile(new URL("../README.md", import.meta.url), "utf8"),
+    )
+    assert.doesNotMatch(
+      normalizedReadmeSource,
+      /The repaired exact bytes still require a fresh freeze, independent SPEC then QUALITY, publication, exact-head coverage from both hosted reviewers and all strict CI jobs/i,
+      "README must not send contributors back through the completed v21 gates",
+    )
+    assert.match(
+      normalizedReadmeSource,
+      /The repaired 43-path v21 package passed independent SPEC then QUALITY and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`[\s\S]*Both hosted reviewers completed exact-head review[\s\S]*all seven jobs in strict CI `35682219253` passed/i,
+      "README must record the completed v21 publication, hosted reviews, and strict CI",
+    )
+    assert.match(
+      normalizedReadmeSource,
+      /PR #13 remains open and unmerged[\s\S]*Task 9, combined-source equivalence, and the separate Linux Atmosphere snapshot decision remain pending/i,
+      "README must retain the unmerged and pending closeout boundaries",
+    )
     assert.doesNotMatch(
       normalizedProjectStateSource,
       /Re-freeze the same 43-path classification as v21 and repeat SPEC then QUALITY before staging/i,
