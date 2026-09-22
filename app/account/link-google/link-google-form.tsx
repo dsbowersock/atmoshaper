@@ -15,6 +15,7 @@ import {
   resolveCredentialLinkRecovery,
   resolveGoogleLinkConfirmationRecovery,
 } from "@/lib/google-link-confirmation-recovery"
+import { buildRegistrationLegalAcceptancePath } from "@/lib/legal-acceptance-gate"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 type LinkActionState = "idle" | "proving" | "saving" | "redirecting" | "error"
@@ -62,6 +63,13 @@ export function LinkGoogleForm({ validIntent }: { validIntent: boolean }) {
         body: JSON.stringify({ confirmed: true }),
       })
       const result = await response.json().catch(() => ({})) as { code?: unknown }
+      if (response.status === 401 && result.code === "AUTHENTICATION_REQUIRED") {
+        // Credentials succeeded, but the central session guard withholds identity until current legal acceptance.
+        setActionState("redirecting")
+        setMessage("Accept the current Terms and Privacy Policy to continue linking Google…")
+        router.push(buildRegistrationLegalAcceptancePath("/account/link-google"))
+        return
+      }
       if (!response.ok || result.code !== "GOOGLE_LINKED") {
         const recovery = resolveGoogleLinkConfirmationRecovery(response.status, result.code)
         setActionState("error")

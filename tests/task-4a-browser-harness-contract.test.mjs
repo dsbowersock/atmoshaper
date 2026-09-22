@@ -202,25 +202,11 @@ async function captureDatabaseFreeSession({
   }
 }
 
-function assertAuthJsExpiryTiming(
-  { session, handlerStartedAt, handlerFinishedAt },
-  {
-    expectedLifetimeMilliseconds = expectedOneHourSessionLifetimeMilliseconds,
-    expectation = "one hour",
-  } = {},
-) {
+function assertAuthJsExpiryShape({ session }) {
   assert.equal(typeof session?.expires, "string")
   const expiry = Date.parse(session.expires)
   assert.equal(Number.isFinite(expiry), true)
   assert.equal(new Date(expiry).toISOString(), session.expires)
-  assert.ok(
-    expiry >= handlerStartedAt + expectedLifetimeMilliseconds,
-    `session expiry must be at least the ${expectation} from handler start`,
-  )
-  assert.ok(
-    expiry <= handlerFinishedAt + expectedLifetimeMilliseconds,
-    `session expiry must be at most the ${expectation} from handler finish`,
-  )
 }
 
 const fixedSessionNowMilliseconds = Date.UTC(2030, 0, 2, 3, 4, 5)
@@ -279,11 +265,34 @@ it("fulfills same-origin provider-free sessions with an Auth.js-compatible one-h
   const result = await captureDatabaseFreeSession()
   assert.equal(result.fallbacks, 0)
   assert.equal(result.fulfillments.length, 1)
-  assertAuthJsExpiryTiming(result)
+  assertAuthJsExpiryShape(result)
+})
+
+it("proves the unmodified one-hour expiry against the deterministic clock", async () => {
+  const result = await captureDatabaseFreeSession({
+    fixedNowMilliseconds: fixedSessionNowMilliseconds,
+  })
+  assert.equal(
+    result.session?.expires,
+    new Date(fixedSessionNowMilliseconds + expectedOneHourSessionLifetimeMilliseconds).toISOString(),
+  )
+})
+
+it("keeps canonical ISO expiry valid when the outer wall clock rolls backward", async () => {
+  const result = await captureDatabaseFreeSession()
+  const expiry = Date.parse(result.session?.expires)
+  const rollbackResult = {
+    ...result,
+    handlerStartedAt: expiry - expectedOneHourSessionLifetimeMilliseconds,
+    handlerFinishedAt: expiry - expectedOneHourSessionLifetimeMilliseconds - 1,
+  }
+  assert.ok(rollbackResult.handlerFinishedAt < rollbackResult.handlerStartedAt)
+  assertAuthJsExpiryShape(rollbackResult)
 })
 
 it("propagates a canonical signed-cookie lifetime mutation to provider-free expiry", async () => {
   const result = await captureDatabaseFreeSession({
+    fixedNowMilliseconds: fixedSessionNowMilliseconds,
     transformSessionCookieSource(source) {
       const currentOwner = source.includes("export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS")
         ? "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60"
@@ -297,25 +306,14 @@ it("propagates a canonical signed-cookie lifetime mutation to provider-free expi
     },
   })
   assert.equal(result.signedCookieMaxAgeSeconds, 60)
-  assertAuthJsExpiryTiming(result, {
-    expectedLifetimeMilliseconds: result.signedCookieMaxAgeSeconds * 1000,
-    expectation: "signed-cookie lifetime",
-  })
+  assert.equal(
+    result.session?.expires,
+    new Date(fixedSessionNowMilliseconds + result.signedCookieMaxAgeSeconds * 1000).toISOString(),
+  )
 })
 
-it("rejects a 120-second consumer clamp when the canonical owner is 60 seconds", async () => {
-  const result = await captureDatabaseFreeSession({
-    transformSessionCookieSource(source) {
-      const currentOwner = source.includes("export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS")
-        ? "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60"
-        : "maxAge: 60 * 60"
-      const mutatedOwner = currentOwner.startsWith("export const")
-        ? "export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60"
-        : "maxAge: 60"
-      const mutated = source.replace(currentOwner, mutatedOwner)
-      assert.notEqual(mutated, source, "the canonical signed-cookie lifetime mutation must alter its actual owner")
-      return mutated
-    },
+it("rejects a 120-second consumer floor across exact canonical lifetime probes", async () => {
+  await assert.rejects(assertCanonicalLifetimePropagatesExactly({
     transformSource(source) {
       const canonicalLifetimeUse = "SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS * 1000"
       const clampedLifetimeUse = "Math.max(SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS, 120) * 1000"
@@ -323,15 +321,7 @@ it("rejects a 120-second consumer clamp when the canonical owner is 60 seconds",
       assert.notEqual(mutated, source, "the consumer clamp mutation must alter its actual lifetime expression")
       return mutated
     },
-  })
-  assert.equal(result.signedCookieMaxAgeSeconds, 60)
-  assert.throws(
-    () => assertAuthJsExpiryTiming(result, {
-      expectedLifetimeMilliseconds: result.signedCookieMaxAgeSeconds * 1000,
-      expectation: "signed-cookie lifetime",
-    }),
-    /signed-cookie lifetime/i,
-  )
+  }), /exactly propagate the canonical signed-cookie lifetime/i)
 })
 
 for (const [mutationName, mutateConsumerLifetime] of [

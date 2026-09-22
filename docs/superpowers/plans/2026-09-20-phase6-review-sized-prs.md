@@ -1661,3 +1661,70 @@ Typecheck, changed-file lint and diff checks pass. Scope is now 41 paths with
 12 recovery-exact, 24 repair and five record owners. Re-freeze the exact
 bytes and repeat independent SPEC then QUALITY before any publication; a new
 head still requires both hosted reviewers and every strict CI job.
+
+Frozen v17 passed independent SPEC then QUALITY and exact staged identity, then
+was published as `fd7d6124`. Both hosted reviewers completed exact-head review
+and each found one valid bounded defect. The matching-email Google-linking form
+did not route an already-proven user to registration legal acceptance when the
+confirmation endpoint returned the exact 401 `AUTHENTICATION_REQUIRED` gate,
+and the real-clock expiry assertion could false-fail if the wall clock moved
+backward between samples. Root verified both against the actual owners. Strict
+RED reproduced both failures. GREEN routes only the exact legal-gate response
+through the canonical builder with `/account/link-google` as the callback and
+preserves the cookie-bound intent; an executable provider-free form harness
+owns the interaction contract. The real-clock test now proves successful
+invocation and canonical ISO shape, while fixed-clock exact identity and the
+17/60/3,600/7,200-second mutation matrix remain authoritative. Focused
+fixture/database tests pass 78/78, legal/interaction tests pass 24/24, and the
+full Node suite is 4,754 total / 4,751 pass / 3 skip / 0 fail; typecheck, lint
+and diff checks pass. Superseded CI `35668571160` passed code quality, build and
+all browser test bodies (lane 3: 152 pass / 42 skip), but GitHub's artifact
+intermediary returned 403 while lane 3 uploaded diagnostics, so lane 3 and
+aggregate failed. The repaired local candidate is 43 paths: 12 recovery-exact,
+26 repairs and five records. Freeze these exact bytes and repeat independent
+SPEC then QUALITY before staging or publication; the new exact head still
+requires both hosted reviewers and every strict CI job.
+
+Frozen v18 passed independent SPEC, but separate QUALITY proved the real-form
+legal-routing regression was positive-only: changing the exact-pair condition
+from `&&` to `||` still passed and would route 401 + `PROOF_EXPIRED` and
+403 + `AUTHENTICATION_REQUIRED` into legal acceptance. Root independently
+reproduced the false-pass 1/1, restored the exact production blob and
+invalidated v18 before staging. The test-only repair adds both mismatched pairs
+to the executable actual-form matrix. Each must invoke existing confirmation
+recovery with the exact pair and produce zero legal-builder callbacks, router
+pushes or refreshes. Correct-source focused tests pass 2/2; the controlled
+`||` mutation fails 0/1. Account-security passes 20/20,
+legal/interaction companions pass 24/24, and the clean full Node suite is
+4,755 total / 4,752 pass / 3 skip / 0 fail. Re-freeze the unchanged 43-path
+classification as v19 and repeat independent SPEC then QUALITY before staging
+or publication.
+
+Frozen v19 passed independent SPEC, but separate QUALITY proved the two
+mismatched status/code pairs still did not establish exact response-code value
+and shape. Actual-source prefix matching accepted
+`AUTHENTICATION_REQUIRED_LATER`, while string coercion accepted
+`["AUTHENTICATION_REQUIRED"]`. Root independently reproduced the coercion
+false-pass 1/1, restored the production blob and invalidated v19 before staging.
+The test-only matrix now includes near-match, case-changed and
+whitespace-padded strings plus null, array and object values. Each requires the
+exact confirmation-recovery arguments and zero legal-builder calls, pushes or
+refreshes. Correct-source focused tests pass 2/2; controlled prefix and
+coercion mutations each fail 0/1 and restore in `finally`. Account security
+remains 20/20 and legal/interaction companions 24/24. Re-freeze the unchanged
+43-path classification as v20 and repeat independent SPEC then QUALITY before
+staging or publication.
+
+Frozen v20 passed independent SPEC, but separate QUALITY proved the response
+corpus omitted missing code, a fullwidth Unicode lookalike and rejected JSON.
+Actual-source mutations accepting undefined, NFKC-normalizing string codes or
+defaulting rejected JSON to `AUTHENTICATION_REQUIRED` preserved all v20
+assertions. Root reproduced the JSON-fallback false-pass 2/2, restored the
+production blob and invalidated v20 before staging. The test-only corpus now
+adds 401 with a missing code, the fullwidth lookalike, rejected
+`response.json()` and string status `"401"`. Each requires exact recovery
+arguments and zero legal-builder calls, pushes or refreshes. Correct-source
+focused tests pass 2/2; controlled undefined, NFKC and JSON-fallback mutations
+each fail 0/1 and restore in `finally`. Re-freeze the unchanged 43-path
+classification as v21 and repeat independent SPEC then QUALITY before staging
+or publication.

@@ -133,20 +133,68 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   selected values and handler-duration window still admitted a nonlinear
   3,600-second cap and a five-millisecond consumer offset. Root reproduced both
   actual-source counterexamples and invalidated v16 before staging. The repaired
-  controlled compiler now injects a deterministic `Date`, asserts the exact ISO
+  controlled compiler injects a deterministic `Date`, asserts the exact ISO
   expiry at 17, 60, 3,600 and 7,200 seconds, rejects both mutation families and
-  retains the real-clock one-hour integration oracle. The complete fixture/
-  harness surface passes 76/76, and the earlier six representative provider-free
-  desktop/mobile journeys remain 6/6 without retries because runtime bytes did
-  not change. The full Node suite passes 4,751 total with 4,748 passes, three
-  host-dependent skips and zero failures; typecheck, changed-file lint and diff
-  checks pass.
-  The candidate is 41 paths: 12 recovery-exact, 24 repairs and five records.
-  GitHub and the ignored handoff remain authoritative for live review, thread
-  and CI status. The follow-up exact bytes still require independent SPEC then
-  QUALITY, both hosted reviewers and all seven strict CI jobs. Tasks 9,
-  combined-source equivalence and the separate Linux Atmosphere snapshot
-  decision remain pending.
+  retains a shape-only real-clock integration check. Frozen v17 passed
+  independent SPEC then QUALITY and was published as
+  `fd7d6124b57177a5f2266af8af82fb0561aba332`. Both hosted reviewers completed
+  exact-head review and each found one valid follow-up. The matching-email
+  Google-linking flow could prove credentials and then receive the legal gate's
+  `AUTHENTICATION_REQUIRED` response without routing to current registration
+  acceptance. The real-clock oracle compared separately sampled wall-clock
+  bounds and could false-fail if the clock moved backward.
+- Strict RED reproduced both hosted findings. The bounded local repair routes
+  only that exact 401/code pair through the canonical legal-acceptance builder,
+  keeps the cookie-bound linking intent intact, and leaves other errors on the
+  existing recovery path. Its provider-free form harness executes the real
+  submit flow and proves the canonical `/account/link-google` callback. The
+  real-clock integration now proves successful invocation and canonical ISO
+  shape only; fixed-clock tests retain exact one-hour identity and the 17, 60,
+  3,600 and 7,200-second mutation probes. Focused fixture/database contracts
+  pass 78/78, legal/interaction contracts pass 24/24, and the full Node suite
+  passes 4,754 total with 4,751 passes, three host-dependent skips and zero
+  failures; typecheck, lint and diff checks pass.
+- Superseded strict CI `35668571160` passed code quality, build and all browser
+  test bodies (lane 3: 152 passed, 42 skipped), but lane 3 diagnostics upload
+  received a GitHub artifact-intermediary 403 and aggregate QA therefore failed.
+  No superseded-head rerun is warranted; the repaired head receives fresh CI.
+- Frozen v18 passed independent SPEC, but separate QUALITY proved the
+  positive-only real-form legal-routing test admitted an `&&` to `||`
+  mutation. Root independently reproduced the false-pass 1/1 and restored the
+  production blob before editing. The test-only recurrence repair now checks
+  401 + `PROOF_EXPIRED` and 403 + `AUTHENTICATION_REQUIRED`: both must call
+  existing confirmation recovery with the exact pair and produce zero legal
+  callbacks, pushes or refreshes. The controlled `||` mutation now fails
+  0/1. Account-security passes 20/20, legal/interaction passes 24/24, and the
+  clean full Node suite passes 4,755 total with 4,752 passes, three
+  host-dependent skips and zero failures.
+- The local candidate remains 43 paths: 12 recovery-exact, 26 repairs and five
+  records. It requires a fresh exact-byte freeze, independent SPEC then QUALITY,
+  staged identity, publication, both hosted reviewers and all seven strict CI
+  jobs. Tasks 9, combined-source equivalence and the separate Linux Atmosphere
+  snapshot decision remain pending.
+- Frozen v19 passed independent SPEC, but separate QUALITY proved the two
+  mismatched pairs still did not lock exact response-code value and shape.
+  Prefix matching accepted `AUTHENTICATION_REQUIRED_LATER`; string coercion
+  accepted `["AUTHENTICATION_REQUIRED"]`. Root independently reproduced the
+  coercion false-pass 1/1 and restored the production blob before editing.
+  The test-only matrix now also covers near-match, case-changed and
+  whitespace-padded strings plus null, array and object values. Every case
+  requires exact confirmation-recovery arguments and zero legal callback,
+  navigation or refresh. Controlled prefix and coercion mutations both fail
+  0/1; the production form remains byte-identical. Re-freeze these exact bytes
+  as v20 and repeat SPEC then QUALITY before staging.
+- Frozen v20 passed independent SPEC, but separate QUALITY proved the corpus
+  omitted missing code, a fullwidth Unicode lookalike and rejected JSON.
+  Actual-source mutations accepting undefined, NFKC-normalizing strings or
+  defaulting rejected JSON to `AUTHENTICATION_REQUIRED` preserved all v20
+  assertions. Root independently reproduced the JSON-fallback false-pass 2/2
+  and restored the production blob. The test-only corpus now adds those three
+  cases plus string status `"401"`; every negative requires exact recovery
+  arguments and zero legal callback/navigation/refresh. Controlled undefined,
+  NFKC and JSON-fallback mutations each fail 0/1 and restore exactly. Re-freeze
+  the same 43-path classification as v21 and repeat SPEC then QUALITY before
+  staging.
 - Original PR #5 and replacements #6–#13 remain open and unmerged. No provider,
   billing, deployment, database, domain/DNS, PNG, frame, threshold, media-byte
   or production action occurred.

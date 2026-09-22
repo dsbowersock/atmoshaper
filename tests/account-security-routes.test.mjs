@@ -13,6 +13,7 @@ import {
   passThroughElement,
   renderFunctionComponents,
 } from "./helpers/compiled-module.mjs"
+import { buildRegistrationLegalAcceptancePath } from "../lib/legal-acceptance-gate.js"
 
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const routeFiles = {
@@ -465,6 +466,59 @@ describe("recoverable account-method UI contracts", () => {
     assert.match(linkFormSource, /redirect:\s*false/)
   })
 
+  it("routes stale legal acceptance after credential proof back through the bound Google-link callback", async () => {
+    const harness = createLinkGoogleFormHarness({
+      response: jsonResponse(401, { code: "AUTHENTICATION_REQUIRED" }),
+    })
+    try {
+      await harness.submit()
+      assert.equal(harness.signInCalls.length, 1)
+      assert.equal(harness.signInCalls[0][0], "credentials")
+      assert.equal(harness.signInCalls[0][1].redirect, false)
+      assert.equal(harness.fetchCalls.length, 1)
+      assert.equal(harness.fetchCalls[0][0], "/api/account/security/google/link/confirm")
+      assert.deepEqual(JSON.parse(harness.fetchCalls[0][1].body), { confirmed: true })
+      assert.deepEqual(harness.legalCallbacks, ["/account/link-google"])
+      assert.deepEqual(harness.routerPushCalls, [
+        buildRegistrationLegalAcceptancePath("/account/link-google"),
+      ])
+      assert.equal(harness.routerRefreshCalls, 0)
+      assert.deepEqual(harness.confirmationRecoveryCalls, [])
+      assert.match(harness.renderedText(), /Terms and Privacy Policy/i)
+    } finally {
+      harness.restore()
+    }
+  })
+
+  it("keeps non-exact legal-gate response pairs in confirmation recovery", async () => {
+    for (const { label, response, expectedStatus, expectedCode } of [
+      { label: "different code", response: jsonResponse(401, { code: "PROOF_EXPIRED" }), expectedStatus: 401, expectedCode: "PROOF_EXPIRED" },
+      { label: "different status", response: jsonResponse(403, { code: "AUTHENTICATION_REQUIRED" }), expectedStatus: 403, expectedCode: "AUTHENTICATION_REQUIRED" },
+      { label: "near-match string", response: jsonResponse(401, { code: "AUTHENTICATION_REQUIRED_LATER" }), expectedStatus: 401, expectedCode: "AUTHENTICATION_REQUIRED_LATER" },
+      { label: "case-changed string", response: jsonResponse(401, { code: "authentication_required" }), expectedStatus: 401, expectedCode: "authentication_required" },
+      { label: "whitespace-padded string", response: jsonResponse(401, { code: " AUTHENTICATION_REQUIRED " }), expectedStatus: 401, expectedCode: " AUTHENTICATION_REQUIRED " },
+      { label: "fullwidth Unicode string", response: jsonResponse(401, { code: "ＡＵＴＨＥＮＴＩＣＡＴＩＯＮ＿ＲＥＱＵＩＲＥＤ" }), expectedStatus: 401, expectedCode: "ＡＵＴＨＥＮＴＩＣＡＴＩＯＮ＿ＲＥＱＵＩＲＥＤ" },
+      { label: "missing code", response: jsonResponse(401, {}), expectedStatus: 401, expectedCode: undefined },
+      { label: "null", response: jsonResponse(401, { code: null }), expectedStatus: 401, expectedCode: null },
+      { label: "array", response: jsonResponse(401, { code: ["AUTHENTICATION_REQUIRED"] }), expectedStatus: 401, expectedCode: ["AUTHENTICATION_REQUIRED"] },
+      { label: "object", response: jsonResponse(401, { code: { value: "AUTHENTICATION_REQUIRED" } }), expectedStatus: 401, expectedCode: { value: "AUTHENTICATION_REQUIRED" } },
+      { label: "rejected JSON body", response: rejectingJsonResponse(401), expectedStatus: 401, expectedCode: undefined },
+      { label: "string status", response: jsonResponse("401", { code: "AUTHENTICATION_REQUIRED" }), expectedStatus: "401", expectedCode: "AUTHENTICATION_REQUIRED" },
+    ]) {
+      const harness = createLinkGoogleFormHarness({ response })
+      try {
+        await harness.submit()
+        assert.deepEqual(harness.legalCallbacks, [], label)
+        assert.deepEqual(harness.routerPushCalls, [], label)
+        assert.equal(harness.routerRefreshCalls, 0, label)
+        assert.deepEqual(harness.confirmationRecoveryCalls, [[expectedStatus, expectedCode]], label)
+        assert.match(harness.renderedText(), /Confirmation recovery\./, label)
+      } finally {
+        harness.restore()
+      }
+    }
+  })
+
   it("never reveals intent or provider identifiers from the link page", () => {
     assert.doesNotMatch(linkPageSource, /intentId|providerAccountId|providerEmailHash|browserBindingToken/)
     assert.match(linkPageSource, /AUTH_METHOD_INTENT_COOKIE/)
@@ -658,6 +712,127 @@ function jsonResponse(status, body) {
     ok: status >= 200 && status < 300,
     status,
     async json() { return body },
+  }
+}
+
+function rejectingJsonResponse(status) {
+  return {
+    ok: false,
+    status,
+    async json() { throw new SyntaxError("Invalid JSON response") },
+  }
+}
+
+/** Executes the real matching-account form with provider-free auth, request, and navigation owners. */
+function createLinkGoogleFormHarness({ response }) {
+  const hooks = createLinkGoogleHookRuntime()
+  const confirmationRecoveryCalls = []
+  const fetchCalls = []
+  const legalCallbacks = []
+  const routerPushCalls = []
+  const signInCalls = []
+  let routerRefreshCalls = 0
+  const previousFetch = globalThis.fetch
+  globalThis.fetch = async (...args) => {
+    fetchCalls.push(args)
+    return response
+  }
+  const router = {
+    push(path) { routerPushCalls.push(path) },
+    refresh() { routerRefreshCalls += 1 },
+  }
+  const Div = passThroughElement("div")
+  let compiled
+  let restored = false
+  try {
+    compiled = loadCompiledModule(linkFormSource, "app/account/link-google/link-google-form.behavior.test.tsx", {
+      react: hooks.react,
+      "react/jsx-runtime": { Fragment: "fragment", jsx: createElement, jsxs: createElement },
+      "next/link": { __esModule: true, default: passThroughElement("a") },
+      "next/navigation": { useRouter: () => router },
+      "next-auth/react": {
+        async signIn(...args) {
+          signInCalls.push(args)
+          return { error: null }
+        },
+      },
+      "@/components/forms/async-action-button": { AsyncActionButton: passThroughElement("button") },
+      "@/components/ui/app-surface": { AppInset: Div, AppSurface: Div },
+      "@/components/ui/button": { Button: passThroughElement("button") },
+      "@/components/ui/input": { Input: passThroughElement("input") },
+      "@/components/ui/label": { Label: passThroughElement("label") },
+      "@/lib/google-link-confirmation-recovery": {
+        GENERIC_GOOGLE_LINK_RECOVERY_MESSAGE: "Something went wrong. Please try again.",
+        resolveCredentialLinkRecovery: () => ({ message: "Credential recovery.", needsTwoFactor: false }),
+        resolveGoogleLinkConfirmationRecovery(status, code) {
+          confirmationRecoveryCalls.push([status, code])
+          return { message: "Confirmation recovery." }
+        },
+      },
+      "@/lib/legal-acceptance-gate": {
+        buildRegistrationLegalAcceptancePath(callbackUrl) {
+          legalCallbacks.push(callbackUrl)
+          return buildRegistrationLegalAcceptancePath(callbackUrl)
+        },
+      },
+      "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY: { name: "AtmoShaper" } },
+    })
+  } catch (error) {
+    restore()
+    throw error
+  }
+
+  function render() {
+    hooks.startRender()
+    return renderFunctionComponents(compiled.LinkGoogleForm({ validIntent: true }))
+  }
+
+  async function submit() {
+    const form = findElement(render(), (element) => element.type === "form")
+    assert.ok(form, "LinkGoogleForm must render its confirmation form")
+    await form.props.onSubmit({ preventDefault() {} })
+  }
+
+  function restore() {
+    if (restored) return
+    restored = true
+    globalThis.fetch = previousFetch
+  }
+
+  return {
+    confirmationRecoveryCalls,
+    fetchCalls,
+    legalCallbacks,
+    renderedText: () => elementText(render()),
+    restore,
+    routerPushCalls,
+    get routerRefreshCalls() { return routerRefreshCalls },
+    signInCalls,
+    submit,
+  }
+}
+
+function createLinkGoogleHookRuntime() {
+  const slots = []
+  let cursor = 0
+  return {
+    startRender() { cursor = 0 },
+    react: {
+      useRef(initialValue) {
+        const index = cursor
+        cursor += 1
+        if (!(index in slots)) slots[index] = { current: initialValue }
+        return slots[index]
+      },
+      useState(initialValue) {
+        const index = cursor
+        cursor += 1
+        if (!(index in slots)) slots[index] = typeof initialValue === "function" ? initialValue() : initialValue
+        return [slots[index], (value) => {
+          slots[index] = typeof value === "function" ? value(slots[index]) : value
+        }]
+      },
+    },
   }
 }
 

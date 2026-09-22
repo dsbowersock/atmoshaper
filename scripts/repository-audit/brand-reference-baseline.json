@@ -82121,56 +82121,56 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 778,
+      "line": 842,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 809,
+      "line": 873,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 828,
+      "line": 892,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 829,
+      "line": 893,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 830,
+      "line": 894,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 833,
+      "line": 897,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 868,
+      "line": 932,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 872,
+      "line": 936,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
@@ -82184,70 +82184,70 @@
     },
     {
       "path": "docs/project-state.md",
-      "line": 541,
+      "line": 589,
       "column": 35,
       "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 578,
+      "line": 626,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 582,
+      "line": 630,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 584,
+      "line": 632,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 588,
+      "line": 636,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 589,
+      "line": 637,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 592,
+      "line": 640,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 593,
+      "line": 641,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 593,
+      "line": 641,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 620,
+      "line": 668,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -121006,56 +121006,56 @@
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 559,
+      "line": 613,
       "column": 22,
       "textSha256": "77509ff53f707c208b798c67b292f85e9b5a272c030f8083ba1d48efe89c6973",
       "category": "compatibility"
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 593,
+      "line": 647,
       "column": 47,
       "textSha256": "6ebe4895892be65f72a21fae2d208d6fd1d6e3c4589b6819f4497355731b37e4",
       "category": "compatibility"
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 608,
+      "line": 662,
       "column": 22,
       "textSha256": "77509ff53f707c208b798c67b292f85e9b5a272c030f8083ba1d48efe89c6973",
       "category": "compatibility"
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 627,
+      "line": 681,
       "column": 24,
       "textSha256": "c4a7d00f0f894c0a85f03f9bbb20f379960590cb6468464d4a3b9157fb8038cd",
       "category": "compatibility"
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 635,
+      "line": 689,
       "column": 47,
       "textSha256": "cda05a6ec0a87710f8d337f1648934c033454555332975da6421037f8a410672",
       "category": "compatibility"
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 670,
+      "line": 845,
       "column": 16,
       "textSha256": "e0932ce32e22c9a2c5ce7aceb5759ab208533f9e1d179e6f47c2b0b775cd7ebe",
       "category": "compatibility"
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 671,
+      "line": 846,
       "column": 16,
       "textSha256": "90b41dd8c13d3a7936e147f324ff9abfbd553c8f04c8b18a7d2d6b2da33256de",
       "category": "compatibility"
     },
     {
       "path": "tests/account-security-routes.test.mjs",
-      "line": 959,
+      "line": 1134,
       "column": 31,
       "textSha256": "e9ff14d54938dbd366b2381c428394ce94c30e3cb33bc456a430b616ea8fb0d1",
       "category": "compatibility"
@@ -173373,7 +173373,7 @@
     },
     {
       "path": "tests/task-4a-browser-harness-contract.test.mjs",
-      "line": 458,
+      "line": 448,
       "column": 94,
       "textSha256": "eb3a7b1e912c1a874555fae463ce4079b44e15c46fd422329bfac78a94babdd7",
       "category": "pre-rebrand-public-copy"
