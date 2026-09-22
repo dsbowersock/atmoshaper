@@ -2,7 +2,7 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
-## 2026-09-21 — Task 7 fully gated; Task 8 legal identity candidate implemented
+## 2026-09-21–22 — Task 7 fully gated; Task 8 legal identity candidate implemented
 
 - Final Task 7 amendment `995fc4f7ce44902002ef2b36c7af1195dbdcb562`
   repaired six verified current collision-note references and strengthened the
@@ -289,8 +289,8 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   requires exact confirmation-recovery arguments and zero legal-builder calls,
   pushes or refreshes. Correct-source focused tests pass 2/2; controlled
   undefined, NFKC and JSON-fallback mutations each fail 0/1 and restore in
-  `finally`. Re-freeze the same 43-path classification as v21 and repeat SPEC
-  then QUALITY before staging.
+  `finally`. Frozen v21 later passed SPEC then QUALITY and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`; the post-v21 OAuth repair `7ad60de8519e4a1d4bcc0bd892583b0c54d80186` followed.
+  Each new PR #13 head must receive both hosted reviews and strict CI before Task 9; GitHub and the ignored handoff hold live status.
 
 ## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
 
