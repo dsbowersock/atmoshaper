@@ -874,4 +874,17 @@ describe("family-and-friends server workload baseline", () => {
     console.log(`valid explicit Checkout: Checkout-session creates = ${calls.checkoutSessionCreates}; ordinary render = ${ordinaryRenderProviderCalls}`)
     console.log(`valid explicit Portal action: Portal-session creates = ${calls.portalSessionCreates}; ordinary render = ${ordinaryRenderProviderCalls}`)
   })
+
+  it("records the completed and published v21 checkpoint", () => {
+    assert.doesNotMatch(
+      normalizedProjectStateSource,
+      /Re-freeze the same 43-path classification as v21 and repeat SPEC then QUALITY before staging/i,
+      "project state must not send future agents back through the completed v21 freeze and local reviews",
+    )
+    assert.match(
+      normalizedProjectStateSource,
+      /Frozen v21 passed independent SPEC then separate QUALITY, retained the 43-path classification, and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`/i,
+      "project state must identify the completed and published v21 checkpoint",
+    )
+  })
 })

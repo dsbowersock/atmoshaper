@@ -168,10 +168,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   0/1. Account-security passes 20/20, legal/interaction passes 24/24, and the
   clean full Node suite passes 4,755 total with 4,752 passes, three
   host-dependent skips and zero failures.
-- The local candidate remains 43 paths: 12 recovery-exact, 26 repairs and five
-  records. It requires a fresh exact-byte freeze, independent SPEC then QUALITY,
-  staged identity, publication, both hosted reviewers and all seven strict CI
-  jobs. Tasks 9, combined-source equivalence and the separate Linux Atmosphere
+- The published v21 candidate contains 43 paths: 12 recovery-exact, 26 repairs
+  and five records. At exact head `22eb0ef690b354317a74a74bf0318aa6c6f2a733`,
+  CodeRabbit completed product review, Codex found only this record issue, and all seven strict CI
+  jobs passed. Tasks 9, combined-source equivalence and the separate Linux Atmosphere
   snapshot decision remain pending.
 - Frozen v19 passed independent SPEC, but separate QUALITY proved the two
   mismatched pairs still did not lock exact response-code value and shape.
@@ -192,9 +192,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and restored the production blob. The test-only corpus now adds those three
   cases plus string status `"401"`; every negative requires exact recovery
   arguments and zero legal callback/navigation/refresh. Controlled undefined,
-  NFKC and JSON-fallback mutations each fail 0/1 and restore exactly. Re-freeze
-  the same 43-path classification as v21 and repeat SPEC then QUALITY before
-  staging.
+  NFKC and JSON-fallback mutations each fail 0/1 and restore exactly. Frozen v21
+  passed independent SPEC then separate QUALITY, retained the 43-path
+  classification, and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`.
 - Original PR #5 and replacements #6–#13 remain open and unmerged. No provider,
   billing, deployment, database, domain/DNS, PNG, frame, threshold, media-byte
   or production action occurred.
