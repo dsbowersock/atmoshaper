@@ -1,4 +1,4 @@
-# MassageLab TODO
+# AtmoShaper TODO
 
 Current project state now lives in [docs/project-state.md](docs/project-state.md), and chronological progress tracking lives in [docs/project-log.md](docs/project-log.md). Keep this file as source evidence and a detailed historical checkbox list, but mirror meaningful status changes in the project state and project log.
 
@@ -43,14 +43,14 @@ Current project state now lives in [docs/project-state.md](docs/project-state.md
 
 - [ ] Add Payload CMS after a dedicated integration plan, not as an incidental dependency.
 - [ ] Blog is the first Payload content type; design collections so documentation, client education, therapist resources, course lessons, anatomy articles, and paid or role-restricted content can be added later.
-- [ ] Decide whether Payload uses the existing MassageLab Neon/Postgres database or a separate database. Default recommendation to evaluate first: separate Payload database or schema until table ownership, migrations, and backup boundaries are clear.
+- [ ] Decide whether Payload uses the existing application Neon/Postgres database or a separate database. Default recommendation to evaluate first: separate Payload database or schema until table ownership, migrations, and backup boundaries are clear.
 - [ ] Confirm required packages before implementation: `payload`, `@payloadcms/next`, a Postgres adapter such as `@payloadcms/db-postgres` or the Vercel-optimized adapter, editor package choices, and any storage plugin needed for uploads.
 - [ ] Identify file changes before implementation: Payload config, admin route, generated Payload types, collection definitions, access-control helpers, content query helpers, and public blog routes.
 - [ ] Identify env vars before implementation: `PAYLOAD_SECRET`, Payload database URL, public site URL, admin user/bootstrap settings, storage credentials if uploads are enabled, and any preview/draft secrets.
-- [ ] Decide auth integration. Default assumption: keep MassageLab app auth as the product auth source and treat Payload admin auth as a separate editorial/admin surface until a shared-auth plan is proven safe.
+- [ ] Decide auth integration. Default assumption: keep AtmoShaper app auth as the product auth source and treat Payload admin auth as a separate editorial/admin surface until a shared-auth plan is proven safe.
 - [ ] Vercel deployment review: serverless/runtime compatibility, migration workflow, build-time database requirements, permanent file storage for uploads, CDN/image handling, and preview/draft behavior.
 - [ ] Risk review: migration conflicts with Prisma, role/paid-content leakage, PHI boundaries, upload storage persistence, content preview security, and operational complexity.
-- [ ] Head decision: the existing Next.js App Router site is the public head. Payload supplies admin/content APIs; MassageLab pages render the public blog and future content experiences.
+- [ ] Head decision: the existing Next.js App Router site is the public head. Payload supplies admin/content APIs; AtmoShaper pages render the public blog and future content experiences.
 
 ## Anatomy Data Foundation
 

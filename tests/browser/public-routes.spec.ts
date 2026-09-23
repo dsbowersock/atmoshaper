@@ -1481,11 +1481,11 @@ test("immersive context changes keep only the displays owned by Chimer, Clock, a
   await page.evaluate(() => {
     window.history.pushState({}, "", "/clock?source=music&returnTo=%2Fmusic")
   })
-  await expect(page.getByLabel("Music visualizer")).toBeVisible()
+  await page.getByRole("button", { name: "Close Background panel" }).click()
+  await expect(page.getByRole("region", { name: "Music visualizer", exact: true, includeHidden: false })).toBeVisible()
   await expect(page.getByTestId("running-timer-clock")).toHaveCount(0)
   await expect(page.getByTestId("running-current-time")).toHaveCount(0)
 
-  await page.getByRole("button", { name: "Close Background panel" }).click()
   await page.getByRole("button", { name: "Clock", exact: true }).click()
   await expect(page.getByRole("status")).toContainText(
     "Clock is hidden. The selected background continues without a time display.",
@@ -1541,8 +1541,8 @@ test("Music visualizer uses the anonymous shell bootstrap without client account
     }).observe(document, { childList: true, subtree: true })
   })
   await page.goto("/clock?source=music&returnTo=%2Fmusic", { waitUntil: "domcontentloaded" })
-  await expect(page.getByLabel("Music visualizer")).toBeVisible()
-  await expect(page.getByTestId("chimer-premium-background")).toHaveAttribute(
+  await expect(page.getByRole("region", { name: "Music visualizer", exact: true, includeHidden: false })).toBeVisible()
+  await expect(page.getByRole("region", { name: "Music visualizer", exact: true, includeHidden: false }).getByTestId("chimer-premium-background")).toHaveAttribute(
     "data-background-id",
     "static-gradient",
   )

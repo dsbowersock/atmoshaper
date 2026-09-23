@@ -17,6 +17,7 @@ export const ORDINARY_BROWSER_QA_SPEC_FILES = [
   "membership-return-status.spec.ts",
   "music-media-session.spec.ts",
   "music-visualizer.spec.ts",
+  "phase6-preview-rebrand.spec.ts",
   "public-booking-traffic.spec.ts",
   "public-provider-ingress.spec.ts",
   "public-routes.spec.ts",
@@ -62,11 +63,13 @@ export const BROWSER_QA_LANES = {
     "desktop-chromium": [
       "atmoshaper.spec.ts",
       "music-media-session.spec.ts",
+      "phase6-preview-rebrand.spec.ts",
       "admin-user-operations.spec.ts",
     ],
     "mobile-chromium": [
       "atmoshaper.spec.ts",
       "music-media-session.spec.ts",
+      "phase6-preview-rebrand.spec.ts",
     ],
   },
   "4": {

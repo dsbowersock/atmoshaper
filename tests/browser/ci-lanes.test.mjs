@@ -35,6 +35,27 @@ test("AtmoShaper acceptance is discovered once per Chromium project in the music
   assert.doesNotThrow(() => assertBrowserQaLaneCoverage())
 })
 
+test("Phase 6 preview oracle runs once per Chromium project in lane 3", () => {
+  const spec = "phase6-preview-rebrand.spec.ts"
+  assert.equal(ORDINARY_BROWSER_QA_SPEC_FILES.filter((candidate) => candidate === spec).length, 1)
+  assert.deepEqual(
+    splitLaneAssignments.filter((assignment) => assignment.spec === spec),
+    [
+      { laneId: "3", project: "desktop-chromium", spec },
+      { laneId: "3", project: "mobile-chromium", spec },
+    ],
+  )
+  const lane = resolveCiBrowserQaLaneProjects("3")
+  for (const project of BROWSER_QA_PROJECT_NAMES) {
+    assert.ok(
+      lane?.find(({ name, testMatch }) => (
+        name === project && testMatch.includes(`**/${spec}`)
+      )),
+      `${project} must run the Phase 6 preview oracle in lane 3`,
+    )
+  }
+})
+
 const splitLaneAssignments = Object.entries(BROWSER_QA_LANES).flatMap(([laneId, lane]) => (
   Object.entries(lane).flatMap(([project, specs]) => specs.map((spec) => ({ laneId, project, spec })))
 ))

@@ -4,36 +4,49 @@ Status: Proposed
 
 ## Context
 
-AtmoShaper is the repository and future public platform identity, while the runtime
-still presents MassageLab and the internal audio subsystem already uses
-`atmoshaper`. Legal agreements and durable technical identifiers cannot be treated
-as interchangeable public copy.
+Merged Phase 5 introduced one public-product identity owner while deliberately
+leaving rendered MassageLab values unchanged. Separately approved Phase 6 now
+uses that owner to present the platform as AtmoShaper, presents the audio feature
+as Atmosphere through its noun-only owner, and migrates current legal presentation
+under new document versions. Historical legal agreements and durable technical
+identifiers still cannot be treated as current public copy.
 
 ## Decision
 
-Propose a focused central owner for public product copy, approved assets and public
-feature labels, with explicit separation from legal, origin, provider and private
-compatibility identities. That central public-brand owner is not implemented by
-Phase 3. Preview rebranding remains Phase 6 work under its own reviewed plan.
+Use the Phase 5 `PUBLIC_PRODUCT_IDENTITY` owner for current platform name, short
+name, and approved-asset availability. Use one noun-only
+`ATMOSPHERE_PUBLIC_LABELS` owner for `Atmosphere` and `Atmosphere mixer`.
+Contextual sentences remain with their domain owners. Missing approved assets are
+represented by `null` and rendered as accessible text; no variant is invented.
 
-Binding now: preserve existing runtime copy/design until that phase; retain Chimer,
-Anatomime, Calendar, Notes, Wellness and accurate massage-domain terminology. The
-later public audio label is `Atmosphere` or `Atmosphere mixer`; internal `atmoshaper`
-modules, paths, tests, storage, release tooling and media identities remain stable.
-Do not globally replace names. Use only supplied, approved logo assets; missing
-variants must not be invented.
+Keep Chimer, Anatomime, Calendar, Notes, Wellness, and accurate massage-domain
+terminology. Keep internal `atmoshaper` modules, routes, CSS, tests, storage,
+playback, release, and media identities stable. Curate legacy-name occurrences by
+meaning; never globally replace them.
 
-The [LICENSE](../../LICENSE), [legal documents](../../lib/legal-documents.js) and
-[acceptance owner](../../lib/legal-acceptance.js) retain their current operator,
-copyright, proprietary terms, accepted text, versions, effective dates and acceptance
-history. No registration or trademark claim follows from the repository name.
+Before changing current legal copy, serialize the exact existing v2 exports into
+deterministic evidence-only archives. Then publish current general documents as
+`2026-09-legal-v3` and the current digital-purchase document as
+`2026-09-digital-purchases-v3`, both effective `September 14, 2026`, with exact
+operator wording `Derrick Bowersock, doing business as AtmoShaper`. The current
+registry remains the runtime owner. Existing acceptance rows remain untouched and
+new genuine v3 acceptance adds versioned rows beside v2 history.
+
+No trademark, registration, external filing, or entity-status claim follows from
+the repository or current legal-presentation change.
 
 ## Rationale
 
-A public-brand boundary can reduce future copy drift while preserving historical
-agreements and reconciliation. Global replacement or changing legal identity as a
-side effect of a display rebrand would erase those distinctions. The migration
-design rejects combining repository work, rebrand and cutover.
+A product owner and a noun-only feature owner prevent current-copy drift without
+turning brand configuration into a sentence registry. Archive-before-mutation and
+new legal versions preserve what prior acceptance IDs meant. Global replacement or
+in-place legal editing would erase the distinction among presentation, historical
+evidence, and compatibility contracts.
+
+Reviewed recovery-source head `75e2741aa3ea5d2cb24fef62fdefb1b5564d4bfe`
+enforces that owner boundary for five additional actual public-audio literals
+without changing the approved label values, creating a runtime cycle, or widening
+scope. The stacked replacement sequence still requires final Task 9 equivalence.
 
 ## Compatibility boundary
 
@@ -47,10 +60,11 @@ and acceptances, a new version/effective date and audit continuity.
 
 ## Revisit trigger
 
-Revisit during focused brand-owner implementation and Phase 6 review, or before any
-legal/operator change, compatibility rename, provider-visible label change or logo
-integration. Accept the proposed architecture only after implementation and relevant
-copy, accessibility, visual, legal-boundary and compatibility verification.
+The Phase 6 implementation and its reviewed recovery-source head support this
+decision; final replacement-stack equivalence, Task 9 integration review and
+hosted gates remain pending. Revisit before any compatibility rename,
+provider-visible identifier change, external legal filing claim, domain cutover,
+or approved-logo integration.
 
 ## Immutable source
 
@@ -61,7 +75,9 @@ copy, accessibility, visual, legal-boundary and compatibility verification.
 
 ## Consequences
 
-Mixed names remain intentional until their owning phase changes them. This record
-documents existing constraints but does not modify legal text, runtime copy,
-compatibility IDs or provider state. Current owners remain those linked in the
+Mixed names remain intentional where they carry historical, legal-archive,
+domain, or compatibility meaning. Phase 6 changes only approved current
+presentation and versioned legal text under its reviewed plan. It does not
+change compatibility IDs, provider state, production data, external endpoints,
+or historical evidence. Current owners remain those linked in the
 [architecture map](../architecture.md).

@@ -66,7 +66,7 @@ const normalizedProjectLogSource = normalizeDocumentationWhitespace(projectLogSo
 const normalizedDeploymentSource = normalizeDocumentationWhitespace(deploymentSource)
 const normalizedReleaseChecklistSource = normalizeDocumentationWhitespace(releaseChecklistSource)
 // Advance this review-date ceiling only alongside newly verified project-state evidence.
-const PROJECT_STATE_VERIFIED_DATE_UPPER_BOUND = "2026-09-21"
+const PROJECT_STATE_VERIFIED_DATE_UPPER_BOUND = "2026-09-22"
 
 /** Returns one named function body bounded by the next named owner. */
 function namedFunctionSlice(source, startMarker, endMarker) {
@@ -891,7 +891,7 @@ describe("family-and-friends server workload baseline", () => {
     )
     assert.match(
       normalizedReadmeSource,
-      /PR #13 remains open and unmerged[\s\S]*Task 9, combined-source equivalence, and the separate Linux Atmosphere snapshot decision remain pending/i,
+      /PR #13 remains open and unmerged[\s\S]*Task 9 is underway only in the isolated local worktree; combined-source equivalence, Task 9 reviews and CI, and the separate Linux Atmosphere snapshot decision remain pending/i,
       "README must retain the unmerged and pending closeout boundaries",
     )
     assert.doesNotMatch(
