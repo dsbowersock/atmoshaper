@@ -87104,6 +87104,251 @@
       "category": "pre-rebrand-public-copy"
     },
     {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 13,
+      "column": 19,
+      "textSha256": "2746856ff46d59b18ac295b60c23079d348d6529f5c60879d6cbfa024595329a",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 18,
+      "column": 14,
+      "textSha256": "9ea7600d2320f2f78570bd92a3c29e40e33aa0ede822aece6a133ecc1692f859",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 19,
+      "column": 14,
+      "textSha256": "4c6424b7c4e9d9d8d6391e457f749e29f3c714dab61df73c9afd6d76fc5ce218",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 25,
+      "column": 14,
+      "textSha256": "3f551470c31a25b41a91b7c8ce8f78b17fb8736270dde298d2606f085046200a",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 50,
+      "column": 14,
+      "textSha256": "55e80e117b6ad3a1406975cf7c64d3216657873d9083d60cbe838c7649281264",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 64,
+      "column": 80,
+      "textSha256": "19274867d0d9316b416b6a7794eaac630a220aad8ee990696cc44a840bf00b9c",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 88,
+      "column": 14,
+      "textSha256": "f4de641d0b453f3a67c2c4893bc605205851a23c9b3d303a0b91dd64ab65ee33",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 95,
+      "column": 14,
+      "textSha256": "096568996fef4da27b69a143ca68acd6bb38535f126353bae655b975756061d1",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 110,
+      "column": 48,
+      "textSha256": "88fa60870fa6c05c1c7d9d697c660b8ce0dd9e6368766c0becaedf87a0411556",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 116,
+      "column": 57,
+      "textSha256": "36bb48a71c8d16aba13842b2fbc4b336d86943d01df005256d9727d1cf566a5c",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 129,
+      "column": 23,
+      "textSha256": "27aaf55950cdb004748ce0b08b49e10c4ee5e99498c9f212488e493675daf3db",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 132,
+      "column": 33,
+      "textSha256": "713782b060ded94a0dcd3f7cc16759c53e4c6786de5e8e13db9da227143a3820",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 134,
+      "column": 14,
+      "textSha256": "3a506ec80f14e59da820687879b0f96021fce14373fefdfad470542b18869e97",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 135,
+      "column": 49,
+      "textSha256": "0817564b25dcbb55e5c4499410ce6cacd3894c104494ef3c44347c4fc4aa1a6f",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 141,
+      "column": 14,
+      "textSha256": "5c8d4946bd478c6b05c70d8bd4b2e68361be2f7fb6e51fa1454d198cb06f7794",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 149,
+      "column": 56,
+      "textSha256": "6a50e2f63c539da9b3e4a74bf27d41f7620be2ff8e135a7b1aff5b3a14aebd9c",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 162,
+      "column": 14,
+      "textSha256": "19a5cb18a2247209e69ca6b43e6e762d76e0572b56f9fe8c80b893769366c573",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 183,
+      "column": 97,
+      "textSha256": "4023c9774ed34a8874f226eb1c8eeecaa677f212a0b9dfa03b9beee005049436",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 186,
+      "column": 34,
+      "textSha256": "8ef85db82d88e2e5559fb8d59d7acd2002a2b4cbab8b88c1478eb3dc354fe58c",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 188,
+      "column": 14,
+      "textSha256": "120c1e86a407248a261b93b4656c3c2230ce5285debdb2795185522ecd25c309",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 188,
+      "column": 67,
+      "textSha256": "120c1e86a407248a261b93b4656c3c2230ce5285debdb2795185522ecd25c309",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 189,
+      "column": 14,
+      "textSha256": "925edcf6edb49f5d4dda1ad52b4b4dc737c0a07c0e1f2183e9a6ce8b650d0f2e",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 190,
+      "column": 14,
+      "textSha256": "77d71df9204b9ee8ea4b77aa029035021542658ca5b0975dcc222cc763045679",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 196,
+      "column": 14,
+      "textSha256": "9d78a18cf3ada6679dafdb9f748dd61a3ece213c78fe583d7cf0d267233cf108",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 197,
+      "column": 175,
+      "textSha256": "d981d264d8792ff20779710ade016ef234be34f9fb2bc8a234307dd892045eac",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 204,
+      "column": 14,
+      "textSha256": "25fe3bcc79ece8dfaf0f6620845e4ffbfeb60b24cfb6623b4af5c562c6844f24",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 204,
+      "column": 134,
+      "textSha256": "25fe3bcc79ece8dfaf0f6620845e4ffbfeb60b24cfb6623b4af5c562c6844f24",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 210,
+      "column": 33,
+      "textSha256": "13448f9ec08dffb5f760c0ae7bc7525afeb62860790bfe87fbc1d64aeba4eff0",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 211,
+      "column": 14,
+      "textSha256": "fffa909d13d1dafd5cb40c9ebbd269fb38e66074db87ce04e633e2ffa7c2b99a",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 217,
+      "column": 90,
+      "textSha256": "67af991d40228c09451761b7126e0defbecb544fa5f8da407cac591ee45f6830",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 242,
+      "column": 14,
+      "textSha256": "019369e93112dd06d10e75d572fbec0943ef56d5ae1a9d21e6f40ffbdf08bd51",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-06-legal-v2.json",
+      "line": 248,
+      "column": 14,
+      "textSha256": "92bee6ac4beb5c0be5caf3ff85e1c52fa2fbe1f6afd590021a6c5a21059e5e1b",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-07-digital-purchases-v2.json",
+      "line": 18,
+      "column": 75,
+      "textSha256": "c132b69f6649087a24d6f6416a6488f8186c9cdc986cc41ea09f2ca149e9863a",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-07-digital-purchases-v2.json",
+      "line": 32,
+      "column": 114,
+      "textSha256": "5e5b7680dcc419f931c9f22cb46242c9f782ca33c910c2e3131b511d95e422d0",
+      "category": "legal"
+    },
+    {
+      "path": "data/legal-document-history/2026-07-digital-purchases-v2.json",
+      "line": 33,
+      "column": 138,
+      "textSha256": "9854a0e63d5cd1d1dadd6a6d574e68f56271e5ff759bf72a41f804ada6f9ddba",
+      "category": "legal"
+    },
+    {
       "path": "docs/aegis/work/2026-08-09-admin-security-support/90-evidence.md",
       "line": 31,
       "column": 129,
@@ -89464,126 +89709,126 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 51,
+      "line": 109,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 82,
+      "line": 140,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 101,
+      "line": 159,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 102,
+      "line": 160,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 103,
+      "line": 161,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 106,
+      "line": 164,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 141,
+      "line": 199,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 145,
+      "line": 203,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 23,
+      "line": 73,
       "column": 35,
       "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 60,
+      "line": 110,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 64,
+      "line": 114,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 66,
+      "line": 116,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 70,
+      "line": 120,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 71,
+      "line": 121,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 74,
+      "line": 124,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 75,
+      "line": 125,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 75,
+      "line": 125,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 102,
+      "line": 152,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -129413,14 +129658,14 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128722,
+      "line": 128967,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 128722,
+      "line": 128967,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
@@ -129469,21 +129714,21 @@
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 54,
+      "line": 58,
       "column": 10,
       "textSha256": "70831aa5a19e94c7b2a9c495a38a71729e8c39bfb041a0f848881d06d36d4bce",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 55,
+      "line": 59,
       "column": 10,
       "textSha256": "0119da00006b0dbf0183dd48158331dedc56a6804f4403b37d45bb021b19945d",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 56,
+      "line": 60,
       "column": 12,
       "textSha256": "00444891010aaa422454b919bbbcc3e75233f9ccb3b7337547e3d45cb2472293",
       "category": "compatibility"
@@ -182144,301 +182389,301 @@
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 216,
+      "line": 274,
       "column": 60,
       "textSha256": "ee04a77db25dc922d347d9eb83045408c1651bfc8d89f99bfa6ebbef2356c19c",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 232,
+      "line": 290,
       "column": 24,
       "textSha256": "f1281e69d2f0435b20ffef1c7e1d1e01c8dc93ec5aaba45efcc733758d47b2c9",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 232,
+      "line": 290,
       "column": 59,
       "textSha256": "f1281e69d2f0435b20ffef1c7e1d1e01c8dc93ec5aaba45efcc733758d47b2c9",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 239,
+      "line": 297,
       "column": 24,
       "textSha256": "87bf6cb2bc3b2c27b9c2662b22fd5eadc89fdf667d3237a8e72170ac2541516f",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 239,
+      "line": 297,
       "column": 59,
       "textSha256": "87bf6cb2bc3b2c27b9c2662b22fd5eadc89fdf667d3237a8e72170ac2541516f",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 245,
+      "line": 303,
       "column": 34,
       "textSha256": "3a4c7a23d7680619c11456f8ccb2f8856188f3d20a8b20c07a92dc981a210dd5",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 256,
+      "line": 314,
       "column": 8,
       "textSha256": "6ec4839ec1e67425bbe79d634852ebe7ee4b359f65b139f4749e02f8616fc398",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 256,
+      "line": 314,
       "column": 26,
       "textSha256": "6ec4839ec1e67425bbe79d634852ebe7ee4b359f65b139f4749e02f8616fc398",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 257,
+      "line": 315,
       "column": 8,
       "textSha256": "acae6788ba23b2bed3880d06a17400bf9b09358c33144cea0ccc5a35b5981665",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 257,
+      "line": 315,
       "column": 29,
       "textSha256": "acae6788ba23b2bed3880d06a17400bf9b09358c33144cea0ccc5a35b5981665",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 258,
+      "line": 316,
       "column": 8,
       "textSha256": "f2615edd04ca72fa35de4cbeb727d62e5036578400fb79a07bd39b12743ff668",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 258,
+      "line": 316,
       "column": 38,
       "textSha256": "f2615edd04ca72fa35de4cbeb727d62e5036578400fb79a07bd39b12743ff668",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 259,
+      "line": 317,
       "column": 11,
       "textSha256": "79c11198e2f1ee1a952cfd6a12e20ad97142d35f73688cb5f08de00656f1c8ea",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 259,
+      "line": 317,
       "column": 44,
       "textSha256": "79c11198e2f1ee1a952cfd6a12e20ad97142d35f73688cb5f08de00656f1c8ea",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 260,
+      "line": 318,
       "column": 10,
       "textSha256": "240e23b2577ffb3c53cfe760ec72b28f6d0a5a99d0b390339d843281703fcf8d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 260,
+      "line": 318,
       "column": 40,
       "textSha256": "240e23b2577ffb3c53cfe760ec72b28f6d0a5a99d0b390339d843281703fcf8d",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 267,
+      "line": 325,
       "column": 10,
       "textSha256": "fdea30e1489fbf47ab970b45e505cda95125d63e20bfd5378b6bc39802ca1138",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 268,
+      "line": 326,
       "column": 10,
       "textSha256": "46be2fd016a42ac5916c742387fbc42b5171c5408cd11bedb953d536ece402b5",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 269,
+      "line": 327,
       "column": 10,
       "textSha256": "a72dbc1d541399f5f0091ca487f8d4224393ed6dac3828e52781c0d52dbae19e",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 270,
+      "line": 328,
       "column": 10,
       "textSha256": "62880db01b46bba09dbe3667fd99247baa197fa54feca495f11b7220a046da96",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 271,
+      "line": 329,
       "column": 10,
       "textSha256": "573c9bda9d192f601fdafc9b16b7060667ec45ed91ff78e93a1bd56ef7f8618a",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 284,
+      "line": 342,
       "column": 20,
       "textSha256": "ff19413824816874e04637ce98bc4ed64195e1a81b532e7a009af181bdec5a55",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 285,
+      "line": 343,
       "column": 27,
       "textSha256": "52e00fa57957e89da11dc41cc562a835d5c800581688837048faf64b64c08e4d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 292,
+      "line": 350,
       "column": 20,
       "textSha256": "ff19413824816874e04637ce98bc4ed64195e1a81b532e7a009af181bdec5a55",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 293,
+      "line": 351,
       "column": 27,
       "textSha256": "52e00fa57957e89da11dc41cc562a835d5c800581688837048faf64b64c08e4d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 304,
+      "line": 362,
       "column": 12,
       "textSha256": "ed5e39c53625766a4c8402215b82b5fb2b0e33750bb6ba7047ff2fdf87cb1f25",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 304,
+      "line": 362,
       "column": 41,
       "textSha256": "ed5e39c53625766a4c8402215b82b5fb2b0e33750bb6ba7047ff2fdf87cb1f25",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 309,
+      "line": 367,
       "column": 50,
       "textSha256": "a4f2dcd325a4be808ba5f71eedab8bcd902227f3ec1bc5860933cf6533152cfb",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 310,
+      "line": 368,
       "column": 50,
       "textSha256": "1607f7993c22c69601f0c06fd1cb543dd008c268adf69be7d040bb06d7f41353",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 319,
+      "line": 377,
       "column": 20,
       "textSha256": "8c5a13156df4131a6e580209b28c7bb2fb60bda2cb5a739c5665598e49a07273",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 320,
+      "line": 378,
       "column": 27,
       "textSha256": "7c4494a06a2306dcb701814b4e598b6954c18c1af08df7cb12e75dee1cf9a46a",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 331,
+      "line": 389,
       "column": 6,
       "textSha256": "a168025e0d631b712b286da8edf9986968918a3d23df7d250d6f2090c4e9163c",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 331,
+      "line": 389,
       "column": 18,
       "textSha256": "a168025e0d631b712b286da8edf9986968918a3d23df7d250d6f2090c4e9163c",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 336,
+      "line": 394,
       "column": 6,
       "textSha256": "a840a7a504e17be90ff310ada4dce0b4dc290c5eb0ce8d4113ee13817f013fde",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 336,
+      "line": 394,
       "column": 51,
       "textSha256": "a840a7a504e17be90ff310ada4dce0b4dc290c5eb0ce8d4113ee13817f013fde",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 342,
+      "line": 400,
       "column": 8,
       "textSha256": "faeea83be919ff4cdbe6ea30d1bef54e3a94f7b28e161bf4d7da75ae1fece65d",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 343,
+      "line": 401,
       "column": 8,
       "textSha256": "25c566f5b990a3d59db22874286ed43df7cc63b9ac4c04ce4f219c11197100c7",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 344,
+      "line": 402,
       "column": 8,
       "textSha256": "dec2d8ae528e1dba71911a041e209229777cbe9fedfeba13bee56fccfb782621",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 345,
+      "line": 403,
       "column": 8,
       "textSha256": "b42d060a9c8a4923e77bc1f0a64bb0c98a2fc8b9eacffca72cb951291131ea62",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 346,
+      "line": 404,
       "column": 10,
       "textSha256": "cf319202288bfd085ed46fd4683e0c7261cbd9db2eb0348b488e9bf1ab57d057",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 347,
+      "line": 405,
       "column": 8,
       "textSha256": "e3db3ec9bd5d7339065c4f9e783b99be9b84452b4e8d9e7db7252354e176cb96",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 392,
+      "line": 450,
       "column": 33,
       "textSha256": "785d87057ed9499f3ed71935690baa2acdaa8610844c5a6fd767eee6216ebeac",
       "category": "pre-rebrand-public-copy"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 393,
+      "line": 451,
       "column": 32,
       "textSha256": "bd5174ffd1f506354f2fb3cc2e19f7c1da970772fc0dc3359d46ac6600039df5",
       "category": "pre-rebrand-public-copy"

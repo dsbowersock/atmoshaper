@@ -189,7 +189,65 @@ test("candidate path rules distinguish exact files from descendant directories",
   assert.equal(classifyCandidate(reference("LICENSE"), policy), "legal")
   assert.equal(classifyCandidate(reference("app/legal/privacy.ts"), policy), "legal")
   assert.equal(
+    classifyCandidate(reference("scripts/legal-document-archive.mjs"), policy),
+    "legal",
+  )
+  assert.equal(
+    classifyCandidate(reference("tests/legal-document-archive.test.mjs"), policy),
+    "legal",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/2026-06-legal-v2.json"),
+      policy,
+    ),
+    "legal",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/2026-07-digital-purchases-v2.json"),
+      policy,
+    ),
+    "legal",
+  )
+  assert.equal(
     classifyCandidate(reference("LICENSE.md.backup"), policy),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(reference("scripts/legal-document-archive.mjs.backup"), policy),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(reference("tests/legal-document-archive.test.mjs.backup"), policy),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history-copy/2026-06-legal-v2.json"),
+      policy,
+    ),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/unreviewed.json"),
+      policy,
+    ),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/2026-06-legal-v2.json.backup"),
+      policy,
+    ),
+    "pre-rebrand-public-copy",
+  )
+  assert.equal(
+    classifyCandidate(
+      reference("data/legal-document-history/nested/2026-06-legal-v2.json"),
+      policy,
+    ),
     "pre-rebrand-public-copy",
   )
   assert.equal(classifyCandidate(reference("MIGRATION_LINEAGE.md"), policy), "historical")

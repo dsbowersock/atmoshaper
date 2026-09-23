@@ -1,10 +1,60 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-13
+Verified: 2026-09-20
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 5 Public Product Identity and Browser QA Complete Locally
+## Current Snapshot — Phase 6 Legal Archive Pilot
+
+- The user approved replacing oversized [PR #5](https://github.com/dsbowersock/atmoshaper/pull/5)
+  with smaller dependency-ordered PRs and approved one isolated worktree. The
+  [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md) owns the
+  sequence. This first pilot starts at `cdfa99e49cebf100fac1a5080d60514806eb17db`;
+  the original branch and source `7e318558da425b8fcdddeb8df50e93a36900310a`
+  remain recovery references, not replaced or merged work.
+- Pilot scope is immutable historical legal archives, their read-only verifier,
+  exact archive-path audit classification, and the retained-data inventory test.
+  Application runtime, current legal versions, acceptance storage, dependencies,
+  providers and screenshots remain unchanged from the pilot base.
+- Verification exposed Git's Windows checkout conversion changing the pinned
+  archive bytes. Two exact `.gitattributes` LF rules now preserve those bytes;
+  the temporary-Git regression failed before the repair and passes afterward,
+  including an unrelated-path control. The six recovery-source files stay exact.
+- Fresh clean-base verification passed: locked dependency install, Prisma
+  generation, and 4,557 unit tests (4,554 passed, 3 skipped, zero failures).
+  The published repair below passed independent specification/quality review
+  and fresh local verification; exact-head hosted gates remain separate.
+- CodeRabbit has not reviewed the original PR: its 291 selected files exceeded
+  the observed 100-file cap, and its status also reported unavailable capacity.
+  Publish only this pilot until actual CodeRabbit review is confirmed. Do not
+  infer coverage from a skipped review or change billing, filters or assertions.
+- The 15-file [pilot PR #6](https://github.com/dsbowersock/atmoshaper/pull/6)
+  first published `6961b4f`, which both hosted bots reviewed. CodeRabbit processed
+  all 15 files, confirming that the pilot clears the size blocker. That head's
+  CI passed, but the reviews identified two valid implementation findings.
+- Published repair `f9c4a2b3ee1df9b0be17cc5e2dfc12bdb4113838` restricts the
+  audit policy to the two exact archive filenames and isolates every fixture Git
+  command from inherited `GIT_*` variables. Regressions cover sibling/suffix/
+  nested paths, actual poisoned-child execution, recursive/zero-match false
+  success, unchanged decoy repository bytes, strict hashes and CRLF controls.
+  Both implementation findings are fixed; their three hosted threads resolved.
+- The repair passed independent SPEC then QUALITY review, 49 focused checks,
+  15 documentation-contract checks, typecheck, lint, and full unit verification:
+  4,565 passed, 3 skipped, zero failures. Source archive bytes remain unchanged.
+- As of 2026-09-20 15:39 UTC, Codex completed review of `f9c4a2b` with one
+  documentation-only finding: this state and the log had not recorded the
+  completed repairs. This follow-up corrects that stale status; it does not
+  reopen implementation work. CodeRabbit has not reviewed `f9c4a2b`, and its CI
+  is still running. The final follow-up head still needs both hosted reviewers
+  clean and required CI green before a clean pilot claim or further publication.
+  Check live hosted evidence before acting; earlier-head results are not coverage
+  of a later head. No additional implementation finding was reported by Codex.
+- The original Linux Atmosphere ring snapshot failure remains unresolved;
+  snapshot-refresh authorization is separate and pending. Splitting does not
+  approve PNG changes, production access, provider creation, deployment or merge.
+  Earlier dated snapshots below remain historical evidence only.
+
+## Historical Snapshot — Phase 5 Public Product Identity and Browser QA Complete Locally
 
 - Phase 4 is merged. [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3)
   merged into `main` at `2026-09-13T17:56:59Z` by `dsbowersock` as

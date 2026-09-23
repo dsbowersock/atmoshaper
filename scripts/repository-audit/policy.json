@@ -36,8 +36,12 @@
         "lib/legal-acceptance-gate.js",
         "lib/legal-acceptance.js",
         "lib/legal-documents.js",
+        "scripts/legal-document-archive.mjs",
         "tests/legal-acceptance.test.mjs",
-        "tests/legal-documents.test.mjs"
+        "tests/legal-document-archive.test.mjs",
+        "tests/legal-documents.test.mjs",
+        "data/legal-document-history/2026-06-legal-v2.json",
+        "data/legal-document-history/2026-07-digital-purchases-v2.json"
       ]
     },
     {

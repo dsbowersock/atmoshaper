@@ -2,6 +2,64 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Pilot hosted-review repairs published; status corrected
+
+- Published repair `f9c4a2b3ee1df9b0be17cc5e2dfc12bdb4113838` on PR #6.
+  The audit policy now names only the two retained archives, with exact-positive
+  and sibling/suffix/nested negative tests. Every fixture Git command uses a
+  case-insensitively scrubbed `GIT_*` environment; the poisoned-child regression
+  proves actual named test execution, rejects recursive/zero-match false greens,
+  and checks unchanged decoy config, HEAD, index and content. Archive hashes,
+  unrelated CRLF controls and all six recovery-source blobs remain intact.
+- Independent SPEC then QUALITY review passed the repaired tree. Fresh local
+  checks passed: 49 focused tests, 15 documentation-contract tests, typecheck,
+  lint, and 4,568 full-suite cases (4,565 passed, 3 skipped, zero failures).
+  All three implementation review threads were resolved after publication.
+- Codex finished review of `f9c4a2b` at 15:34 UTC with one documentation finding,
+  not a new implementation finding. The tracked state/log had retained pending
+  repair language even though the ignored continuation checkpoint was current.
+  This documentation-only follow-up records completed work separately from
+  remaining gates. Future publication checkpoints must reconcile canonical
+  state/log with the actual repair status, not only update the ignored handoff.
+- At 15:39 UTC, repaired-head CI was running and CodeRabbit had not reviewed
+  that head. Both hosted reviewers and green required CI are still required
+  on the final follow-up head; prior-head checks cannot satisfy those gates.
+  Original PR #5, its branch, and pending Linux snapshot authority are unchanged.
+
+## 2026-09-20 — Review-sized Phase 6 delivery and archive pilot approved
+
+- The user approved preparing and publishing coherent replacement PRs for
+  oversized PR #5, then separately approved an isolated local worktree. The
+  [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md) preserves
+  all source work and repairs while keeping each PR below the observed review cap.
+- The first pilot begins at `cdfa99e49cebf100fac1a5080d60514806eb17db` and carries
+  only historical legal archives/verifier plus corresponding audit contracts.
+  Original PR #5 and source `7e318558da425b8fcdddeb8df50e93a36900310a` stay intact.
+  Current legal text, application runtime, acceptance storage and PNGs are not
+  part of this slice. The one-shot archive writer stays retired.
+- Fresh pre-change checks passed: locked npm install, local Prisma generation,
+  and full unit tests, 4,557 total / 4,554 passed / 3 skipped / zero failures
+  (510,204.5684 ms). No provider resource or copied environment file was used.
+- A real Git checkout-filter reproduction found that `core.autocrlf=true`
+  changed both pinned archives to CRLF. The narrow repair adds exact LF rules
+  at the existing `.gitattributes` owner and a temporary-Git regression. It
+  reproduced failure before repair and passed under three checkout settings
+  afterward while preserving unrelated bytes. All six source files remain
+  byte-identical; no verifier normalization or assertion weakening was used.
+- Independent specification review, then quality review, fresh candidate gates
+  and exact-head hosted reviews are required before a clean pilot claim. Further
+  publication waits for an actual CodeRabbit pilot review; a capacity refusal
+  stops expansion without spending, exclusions or repeated unchanged triggers.
+- Original Linux ring snapshot approval remains pending. Merge, deployment,
+  billing/provider changes and original PR/branch retirement are not authorized.
+- Published the 15-file pilot as PR #6 at `6961b4f`; the full candidate suite
+  passed 4,564 tests with 3 skips and zero failures. CodeRabbit successfully
+  reviewed all 15 files and Codex also completed its review of that exact head.
+  Both flagged the archive-directory prefix; CodeRabbit additionally flagged
+  inherited Git repository-location variables in the checkout test. Those initial
+  findings required the bounded repairs recorded above; they were not clean
+  coverage. Original PR #5 remains unchanged.
+
 ## 2026-09-13 — Phase 5 identity Browser QA passed; temporary QA removed
 
 - The user separately authorized one new independent empty temporary Neon
