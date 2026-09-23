@@ -522,7 +522,7 @@ test("mobile portrait action feedback stays operable with enlarged text and keyb
     tagName: document.activeElement?.tagName,
   }))).toEqual({ insidePendingStatus: false, tagName: "BODY" })
   await expect(page.getByRole("status").filter({ hasText: /^Sending reset instructions…$/ })).toHaveCount(1)
-  await expect(page.getByRole("navigation", { name: "MassageLab main navigation" })).toBeVisible()
+  await expect(page.getByRole("navigation", { name: "AtmoShaper main navigation" })).toBeVisible()
   await expectNoHorizontalViewportOverflow(page)
   await expect.poll(() => requests).toBe(1)
   await expect(submit).toBeEnabled()

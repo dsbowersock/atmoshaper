@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { describe, it } from "node:test"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { isIosSafariNavigator, resolvePwaInstallStatus } from "../lib/pwa-install.js"
 
 describe("PWA install capability", () => {
@@ -44,9 +45,10 @@ describe("PWA install capability", () => {
     }), false)
   })
 
-  it("keeps install conditional and renders the selected public actions", () => {
+  it("keeps install conditional and renders the selected AtmoShaper actions", () => {
     const sidebar = readFileSync(new URL("../components/sidebar/app-sidebar-client.tsx", import.meta.url), "utf8")
     const dialog = readFileSync(new URL("../components/pwa/install-massagelab-dialog.tsx", import.meta.url), "utf8")
+    assert.equal(PUBLIC_PRODUCT_IDENTITY.name, "AtmoShaper")
     assert.match(sidebar, /status === "prompt" \|\| status === "instructions"/)
     assert.match(sidebar, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
     assert.match(dialog, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)

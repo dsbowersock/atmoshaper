@@ -2601,7 +2601,7 @@ test("Previous and Next retain the session preference and route changes keep one
       .toBe("MassageLab Proof Drone")
     const handlerCallsBeforeRouteChange = (await readProbe(page)).mediaSession.handlerCalls
 
-    await page.getByRole("link", { name: "MassageLab home" }).click()
+    await page.getByRole("link", { name: "AtmoShaper home" }).click()
     await expect(page).toHaveURL(/\/$/)
     await expect.poll(async () => (await readProbe(page)).audio.created).toBe(1)
     await expect.poll(async () => page.evaluate(() => {

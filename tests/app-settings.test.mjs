@@ -510,12 +510,18 @@ describe("App settings helpers", () => {
 
   it("keeps one responsive app-bar brand link beside the drawer control", () => {
     const brand = readFileSync(new URL("../components/shell/app-bar-brand-link.tsx", import.meta.url), "utf8")
+    const globalsSource = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8")
     const sidebar = readFileSync(new URL("../components/sidebar/app-sidebar-client.tsx", import.meta.url), "utf8")
 
     assert.match(brand, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
     assert.match(brand, /aria-label=\{PUBLIC_PRODUCT_IDENTITY\.name \+ " home"\}/)
+    assert.match(brand, /PUBLIC_PRODUCT_IDENTITY\.assets\.appBarWordmark \? \(/)
     assert.match(brand, /src=\{PUBLIC_PRODUCT_IDENTITY\.assets\.appBarWordmark\}/)
+    assert.match(brand, /<span className="ml-app-bar-brand-text">\s*\{PUBLIC_PRODUCT_IDENTITY\.name\}\s*<\/span>/)
+    assert.match(brand, /PUBLIC_PRODUCT_IDENTITY\.assets\.appBarMark \? \(/)
     assert.match(brand, /src=\{PUBLIC_PRODUCT_IDENTITY\.assets\.appBarMark\}/)
+    assert.match(globalsSource, /\.ml-app-bar-brand-text \{[\s\S]*white-space:\s*nowrap/)
+    assert.doesNotMatch(brand, /massagelab-(?:wordmark|mark)/)
     assert.doesNotMatch(sidebar, /function SidebarLogoHomeLink/)
   })
 
@@ -656,6 +662,7 @@ describe("App settings helpers", () => {
   it("renders the mobile main bar and quick-action speed dial from the layout shell", () => {
     const layoutSource = readFileSync(new URL("../components/layout-wrapper.tsx", import.meta.url), "utf8")
     const mainBarSource = readFileSync(new URL("../components/shell/mobile-main-bar.tsx", import.meta.url), "utf8")
+    const sidebarSource = readFileSync(new URL("../components/ui/sidebar.tsx", import.meta.url), "utf8")
     const speedDialSource = readFileSync(new URL("../components/shell/quick-action-speed-dial.tsx", import.meta.url), "utf8")
     const topBarSource = readFileSync(new URL("../components/calendar/calendar-operator-top-bar.tsx", import.meta.url), "utf8")
 
@@ -663,6 +670,12 @@ describe("App settings helpers", () => {
     assert.match(mainBarSource, /resolveMainBarLayout/)
     assert.match(mainBarSource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
     assert.match(mainBarSource, /aria-label=\{PUBLIC_PRODUCT_IDENTITY\.name \+ " main navigation"\}/)
+    assert.match(sidebarSource, /import \{ PUBLIC_PRODUCT_IDENTITY \} from "@\/lib\/public-product-identity"/)
+    assert.match(
+      sidebarSource,
+      /<SheetTitle className="sr-only">\s*\{PUBLIC_PRODUCT_IDENTITY\.name\} navigation\s*<\/SheetTitle>/,
+    )
+    assert.doesNotMatch(sidebarSource, /MassageLab navigation/)
     assert.match(mainBarSource, /QuickActionSpeedDial/)
     assert.match(speedDialSource, /aria-label="Quick create actions"/)
     assert.match(speedDialSource, /Escape/)
@@ -842,6 +855,14 @@ describe("App settings helpers", () => {
     assert.match(globalsSource, /\.ml-main-bar-drawer-brand \{[\s\S]*container-name:\s*ml-main-bar-brand/)
     assert.match(globalsSource, /\.ml-main-bar-drawer-brand \{[\s\S]*container-type:\s*inline-size/)
     assert.match(globalsSource, /\.ml-main-bar-drawer-brand \{[\s\S]*flex:\s*0 1 11\.875rem/)
+    assert.match(
+      globalsSource,
+      /@container ml-main-bar-brand \(max-width: 11\.75rem\) \{\s*\.ml-app-bar-brand-text,\s*\.ml-app-bar-brand-wordmark \{\s*display:\s*none/,
+    )
+    assert.match(
+      globalsSource,
+      /@container ml-main-bar-brand \(width < 5\.125rem\) \{\s*\.ml-app-bar-brand \{\s*display:\s*none/,
+    )
     assert.match(
       globalsSource,
       /@container ml-main-bar-brand \(max-width: 11\.75rem\) \{[\s\S]*\.ml-app-bar-brand-wordmark \{[\s\S]*display:\s*none[\s\S]*\.ml-app-bar-brand-mark \{[\s\S]*display:\s*block/,

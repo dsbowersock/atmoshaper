@@ -52,7 +52,7 @@ describe("public Roadmap page", () => {
     assert.ok(route)
     assert.equal(
       route.description,
-      "Explore MassageLab's long-term vision for anatomy education, wellness, therapist practice tools, local-first records, and ambient experiences.",
+      "Explore AtmoShaper's long-term vision for anatomy education, wellness, therapist practice tools, local-first records, and ambient experiences.",
     )
     assert.doesNotMatch(route.description, /current|milestone|phase|priority|date/i)
   })

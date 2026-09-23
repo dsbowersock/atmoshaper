@@ -3930,6 +3930,23 @@
     border-radius: 9999px;
   }
 
+  /* Keep the desktop text identity intact when the toolbar settles at tablet widths. */
+  .ml-app-topbar .ml-app-bar-brand {
+    flex-shrink: 0;
+  }
+
+  .ml-app-bar-brand-text {
+    display: block;
+    max-width: 100%;
+    padding: 0 0.5rem;
+    color: hsl(var(--foreground));
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
   .ml-app-bar-brand-wordmark {
     display: block;
     width: 9rem;
@@ -3989,12 +4006,21 @@
   }
 
   @container ml-main-bar-brand (max-width: 11.75rem) {
+    .ml-app-bar-brand-text,
     .ml-app-bar-brand-wordmark {
       display: none;
     }
 
     .ml-app-bar-brand-mark {
       display: block;
+    }
+  }
+
+  /* Drawer (2.625rem) + existing gap (0.25rem) + mark (2.25rem).
+     Remove the whole link, including keyboard focus, before controls lose space. */
+  @container ml-main-bar-brand (width < 5.125rem) {
+    .ml-app-bar-brand {
+      display: none;
     }
   }
 

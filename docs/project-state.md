@@ -4,7 +4,49 @@ Verified: 2026-09-20
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Legal Archive Pilot
+## Current Snapshot — Phase 6 Product Identity Slice
+
+- The 15-file [archive pilot PR #6](https://github.com/dsbowersock/atmoshaper/pull/6)
+  passed both hosted reviewers on exact head
+  `96d94b1b0d779b998df01d07cfaec0198857d51d`. Codex completed clean at
+  15:53 UTC; CodeRabbit completed its full-source plus repair-delta review at
+  16:02 UTC with no actionable comments. All four review threads are resolved.
+  Fresh hosted evidence at 16:20 UTC confirms CI run `35520831495` completed
+  successfully, including all four browser lanes and aggregate `qa`.
+- The next [delivery-plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md)
+  slice is product identity and shell, stacked from that pilot head on
+  `codex/phase6-02-product-identity`. The approved isolated checkout is reused;
+  the pilot branch and original PR #5 recovery source remain intact and unmerged.
+- This slice carries the approved AtmoShaper identity, responsive text/temporary
+  mark/hidden brand states, homepage, metadata with no unapproved social image,
+  offline copy and matching contracts. It preserves canonical endpoints, icon
+  assets, routes, private identifiers, cache keys and the existing legal registry.
+  Secondary pages, audio labels, account copy, legal versions and final integration
+  remain later slices; this is not a claim that the whole rebrand is complete.
+- Local quality review found the new homepage text exceeding its hero column
+  with an expanded desktop sidebar. The heading now sizes to that column at
+  large widths, retaining its existing maximum size and layout without clipping.
+  A focused provider-free regression checks 23 viewport/sidebar combinations
+  and proves the old viewport-only sizing overflows at both reproduced widths.
+- Fresh coordinator checks pass all 89 focused identity/SEO/PWA/layout cases.
+  A separate zero-network check with the actual locally bundled Inter font also
+  verifies text bounds at 768, 1023, 1024, 1025, 1100 and 1280px. The first full
+  suite found one omitted paired Roadmap metadata assertion; only that exact
+  source assertion is now included, while later Roadmap page copy stays deferred.
+- The repaired 24-file candidate passed repeated independent SPEC then QUALITY
+  review and fresh full unit verification: 4,635 passed, three skipped, zero
+  failures (4,638 total). Coordinator typecheck, lint, 15 documentation checks
+  and nine immutable-archive checks also passed. The generated intermediate
+  brand receipt is byte-stable with zero missing or unclassified references.
+- Publication, both exact-head hosted reviews and strict CI remain required
+  for this slice; earlier pilot evidence does not cover it. Final equivalence must keep
+  the verified heading repair and new regression as additions to the source,
+  alongside the pilot repairs and all later original-source fixes.
+- The separate Linux Atmosphere snapshot-refresh decision remains pending.
+  No PNG update, assertion relaxation, provider creation, billing change,
+  deployment or merge is authorized by this delivery work.
+
+## Historical Snapshot — Phase 6 Legal Archive Pilot
 
 - The user approved replacing oversized [PR #5](https://github.com/dsbowersock/atmoshaper/pull/5)
   with smaller dependency-ordered PRs and approved one isolated worktree. The
