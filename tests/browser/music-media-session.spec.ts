@@ -1116,7 +1116,7 @@ async function startProofStation(page: Page) {
   await expect(page.getByRole("region", { name: "Atmosphere audio stations" }))
     .toHaveAttribute("data-music-storage-status", "available")
   await centerCarouselItem(page, "mlab-proof-drone", "Next station")
-  await activateSetupButton(page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }))
+  await activateSetupButton(page.getByRole("button", { name: /^Play Drone$/i }))
   return page.getByTestId("music-player-toolbar")
 }
 
@@ -1595,7 +1595,7 @@ test("one cold touch starts the generator while carrier readiness is held", asyn
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   const carousel = page.getByRole("region", { name: "Station carousel" })
   await expect(carousel).toHaveAttribute("data-carousel-ready", "true")
-  const play = carousel.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })
+  const play = carousel.getByRole("button", { name: /^Play Drone$/i })
   await play.tap()
   await expect(page.getByTestId("music-player-toolbar")).toHaveAttribute("data-playback-state", "loading")
   await expect.poll(async () => (await readProbe(page)).audioContext.generatorGeneration).toBe(1)
@@ -1604,7 +1604,7 @@ test("one cold touch starts the generator while carrier readiness is held", asyn
   expect((await readProbe(page)).audio.playCalls).toBe(1)
 })
 
-test("one cold AtmoShaper Play unlocks audio before lazy mixer startup", async ({ page }, testInfo) => {
+test("one cold Atmosphere Play unlocks audio before lazy mixer startup", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-chromium", "Physical-touch activation is mobile-owned.")
   await installMediaOwnershipFakes(page, {
     requireAudioContextResumeInPlayTurn: true,
@@ -1613,13 +1613,13 @@ test("one cold AtmoShaper Play unlocks audio before lazy mixer startup", async (
 
   await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => undefined)
   const atmoShaperCategory = page.getByRole("group", { name: "Station category" })
-    .getByRole("button", { name: "Atmoshaper", exact: true })
+    .getByRole("button", { name: "Atmosphere", exact: true })
   await atmoShaperCategory.click()
   await expect(atmoShaperCategory).toHaveAttribute("aria-pressed", "true")
   await expect(page.getByRole("heading", { name: "Sound Library", exact: true })).toBeVisible()
   await page.getByRole("button", { name: "Add White noise", exact: true }).click()
 
-  const play = page.getByRole("button", { name: "Play AtmoShaper", exact: true }).first()
+  const play = page.getByRole("button", { name: "Play Atmosphere", exact: true }).first()
   await expect(play).toBeEnabled({ timeout: 30_000 })
   const resumeAttemptsBeforePlay = (await readProbe(page)).audioContext.resumeAttempts.length
   await play.tap()
@@ -1655,10 +1655,10 @@ test("fresh-page cold runtime exposes only an activation-safe centered Play acti
   if (initiallyPreparing) {
     await expect(primaryAction).toBeDisabled()
     await releaseHeldStartupPhase(page)
-    centeredPlay = carousel.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })
+    centeredPlay = carousel.getByRole("button", { name: /^Play Drone$/i })
     await expect(centeredPlay).toBeEnabled({ timeout: 30_000 })
   } else {
-    centeredPlay = carousel.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })
+    centeredPlay = carousel.getByRole("button", { name: /^Play Drone$/i })
   }
 
   await centeredPlay.tap()
@@ -1701,7 +1701,7 @@ test("Favorites direct playback keeps the provider as the single owner during lo
 
   const favorites = page.getByRole("region", { name: "Favorites" })
   const observable = favorites.getByRole("button", { name: "Observable Streams" })
-  const proofDrone = favorites.getByRole("button", { name: "MassageLab Proof Drone" })
+  const proofDrone = favorites.getByRole("button", { name: "Drone", exact: true })
   await expect(observable).toBeVisible()
   await observable.click()
   await waitForStartupPhase(page, "module-loading")
@@ -1755,7 +1755,7 @@ test("All favorites direct playback reuses provider ownership and collection sta
     .getByRole("button", { name: "All favorites, 11 stations" })
     .click()
   const sheet = page.getByRole("dialog", { name: "All favorites" })
-  const proofDrone = sheet.getByRole("button", { name: "MassageLab Proof Drone" })
+  const proofDrone = sheet.getByRole("button", { name: "Drone", exact: true })
   await expect(proofDrone).toHaveAttribute("data-all-favorite-station", "")
   const probeBeforeStart = await readProbe(page)
   await proofDrone.click()
@@ -1773,7 +1773,7 @@ test("All favorites direct playback reuses provider ownership and collection sta
   await expect.poll(async () => (await readProbe(page)).audioContext.generatorGeneration).toBe(
     probeBeforeStart.audioContext.generatorGeneration + 1,
   )
-  const activeStation = sheet.getByRole("button", { name: "MassageLab Proof Drone playing" })
+  const activeStation = sheet.getByRole("button", { name: "Drone playing", exact: true })
   await expect(activeStation).toHaveAttribute("aria-current", "true")
   await expect(activeStation).toHaveAttribute("aria-disabled", "true")
   await activeStation.focus()
@@ -1845,7 +1845,7 @@ test("runtime readiness failure exposes a visible retry before Play becomes acti
 
   const reloadedCarousel = page.getByRole("region", { name: "Station carousel" })
   await expect(reloadedCarousel).toHaveAttribute("data-carousel-ready", "true")
-  const play = reloadedCarousel.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })
+  const play = reloadedCarousel.getByRole("button", { name: /^Play Drone$/i })
   await expect(play).toBeEnabled({ timeout: 30_000 })
   const generationBeforeTap = (await readProbe(page)).audioContext.generatorGeneration
   await play.tap()
@@ -1929,7 +1929,7 @@ test("runtime readiness withholds Play until module loading completes without a 
   let stateHistoryStarted = false
   try {
     await waitForStartupPhase(page, "module-loading")
-    const preparing = page.getByRole("button", { name: /^Preparing audio for MassageLab Proof Drone$/i })
+    const preparing = page.getByRole("button", { name: /^Preparing audio for Drone$/i })
     await expect(preparing).toBeDisabled()
     expect((await readProbe(page)).audioContext.generatorGeneration).toBe(0)
     await beginPlaybackStateHistory(page)
@@ -1940,7 +1940,7 @@ test("runtime readiness withholds Play until module loading completes without a 
     stateHistoryStarted = false
     expect(states).not.toContain("playing")
     expect((await readProbe(page)).audioContext.activeGeneratorSources).toBe(0)
-    const play = page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })
+    const play = page.getByRole("button", { name: /^Play Drone$/i })
     await expect(play).toBeEnabled()
     await play.click()
     const player = page.getByTestId("music-player-toolbar")
@@ -2118,8 +2118,8 @@ test("unbounded playback keeps position absent while Playing and clears prior st
     }
   })).toEqual({
     actions: ["nexttrack", "pause", "play", "previoustrack", "stop"],
-    album: "MassageLab Atmosphere",
-    artist: "MassageLab",
+    album: "AtmoShaper Atmosphere",
+    artist: "AtmoShaper",
     artwork: [
       {
         sizes: "512x512",
@@ -2129,7 +2129,7 @@ test("unbounded playback keeps position absent while Playing and clears prior st
     ],
     positionStateCallCount: 0,
     playbackState: "playing",
-    title: "MassageLab Proof Drone",
+    title: "Drone",
   })
   await expect.poll(async () => {
     const probe = await readProbe(page)
@@ -2193,7 +2193,7 @@ test("an implementation that rejects position state still receives no fabricated
     livePositionPublished: false,
     positionStateCallCount: 0,
     playbackState: "playing",
-    title: "MassageLab Proof Drone",
+    title: "Drone",
   })
   await expect.poll(async () => (await readProbe(page)).audioContext.activeGeneratorSources)
     .toBeGreaterThan(0)
@@ -2311,12 +2311,13 @@ test("canonical station artwork and platform artwork derivative preserve honest 
   await expect(mountedCardArtwork.locator("svg")).toHaveCount(mountedCardCount)
   await expect(mountedCardArtwork.locator("img")).toHaveCount(0)
   const cardArtwork = centered.locator("[data-carousel-artwork]").getByRole("img", {
-    name: "MassageLab Proof Drone station artwork",
+    name: "Drone station artwork",
+    exact: true,
   })
   await expect(cardArtwork.locator("svg")).toBeVisible()
   await expect(centered.locator("[data-carousel-artwork] img")).toHaveCount(0)
   expect(artworkApiRequests).toBe(0)
-  await activateSetupButton(centered.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }))
+  await activateSetupButton(centered.getByRole("button", { name: /^Play Drone$/i }))
   const player = page.getByTestId("music-player-toolbar")
   const vinyl = player.getByTestId("station-vinyl")
   await expect(vinyl.locator("svg")).toBeVisible()
@@ -2351,9 +2352,10 @@ test("platform artwork route failure cannot break inline canonical art or playba
   await page.goto("/music", { waitUntil: "domcontentloaded" })
   const centered = await centerCarouselItem(page, "mlab-proof-drone", "Next station")
   await expect(centered.getByRole("img", {
-    name: "MassageLab Proof Drone station artwork",
+    name: "Drone station artwork",
+    exact: true,
   }).locator("svg")).toBeVisible()
-  await activateSetupButton(centered.getByRole("button", { name: /^Play MassageLab Proof Drone$/i }))
+  await activateSetupButton(centered.getByRole("button", { name: /^Play Drone$/i }))
   await expect(page.getByTestId("music-player-toolbar"))
     .toHaveAttribute("data-playback-state", /loading|playing/)
   expect(artworkApiRequests).toBe(0)
@@ -2379,7 +2381,7 @@ test("position stays absent while Loading and an external carrier Pause cancels 
       positionStateCallCount: 0,
       pauseHandler: "function",
       playbackState: "playing",
-      title: "MassageLab Proof Drone",
+      title: "Drone",
     })
 
     await invokeProbeAction(page, "emitExternalPause")
@@ -2578,10 +2580,10 @@ test("Previous and Next retain the session preference and route changes keep one
       vinylStationId: await player.getByTestId("station-vinyl").getAttribute("data-artwork-station-id"),
       metadata: (await readProbe(page)).mediaSession.metadata,
     })).toMatchObject({
-      title: "MassageLab Proof Drone",
+      title: "Drone",
       vinylStationId: "mlab-proof-drone",
       metadata: {
-        title: "MassageLab Proof Drone",
+        title: "Drone",
         artwork: [
           {
             sizes: "512x512",
@@ -2595,10 +2597,10 @@ test("Previous and Next retain the session preference and route changes keep one
     releaseSampleIndex()
     await expect(player).toHaveAttribute("data-playback-state", "playing", { timeout: 30_000 })
     await expect.poll(async () => (await readProbe(page)).mediaSession.metadata?.title)
-      .toBe("MassageLab Proof Drone")
+      .toBe("Drone")
     await page.waitForTimeout(300)
     await expect.poll(async () => (await readProbe(page)).mediaSession.metadata?.title)
-      .toBe("MassageLab Proof Drone")
+      .toBe("Drone")
     const handlerCallsBeforeRouteChange = (await readProbe(page)).mediaSession.handlerCalls
 
     await page.getByRole("link", { name: "AtmoShaper home" }).click()
@@ -2637,7 +2639,7 @@ test("vinyl player controls keep decorative artwork outside the media owner", as
     return Object.values(probe.mediaSession.handlers).filter(Boolean).length
   })).toBe(5)
 
-  await player.getByRole("button", { name: "Favorite MassageLab Proof Drone" }).click()
+  await player.getByRole("button", { name: "Favorite Drone", exact: true }).click()
   await expect.poll(async () => (await readProbe(page)).audio.created).toBe(1)
   await invokeMediaAction(page, "stop")
 })
@@ -2794,14 +2796,14 @@ test("the station card returns to Play immediately after its explicit Stop", asy
   await closeInterruptionNotice(page)
 
   await page.locator("#station-mlab-proof-drone")
-    .getByRole("button", { name: /^Stop MassageLab Proof Drone$/i })
+    .getByRole("button", { name: /^Stop Drone$/i })
     .click({ force: true })
   await expect(player).toHaveAttribute("data-playback-state", "stopped")
-  await expect(page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })).toBeVisible()
+  await expect(page.getByRole("button", { name: /^Play Drone$/i })).toBeVisible()
   await expect(player).toBeVisible()
 
   await page.locator("#station-mlab-proof-drone")
-    .getByRole("button", { name: /^Play MassageLab Proof Drone$/i })
+    .getByRole("button", { name: /^Play Drone$/i })
     .click({ force: true })
   await expect(player).toHaveAttribute("data-playback-state", /loading|playing/)
 })
@@ -2829,12 +2831,12 @@ test("stopped player retires after 60 seconds", async ({ page }) => {
   await page.clock.fastForward(remainingRetentionMs - 1)
   await expect(player).toHaveAttribute("data-playback-state", "stopped")
   await expect(player.getByTestId("music-player-toolbar-identity").locator("p").first()).toHaveText(title ?? "")
-  await expect(page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })).toBeVisible()
+  await expect(page.getByRole("button", { name: /^Play Drone$/i })).toBeVisible()
 
   await page.clock.fastForward(1)
   await expect(page.getByTestId("music-player-toolbar")).toHaveCount(0)
   await expect(page.locator("body")).not.toHaveClass(/ml-music-player-(?:active|rail)/)
-  await expect(page.getByRole("button", { name: /^Play MassageLab Proof Drone$/i })).toBeVisible()
+  await expect(page.getByRole("button", { name: /^Play Drone$/i })).toBeVisible()
   console.log(`[task-21-stop-boundary] ${JSON.stringify({
     expiredAtMs: 60_000,
     immediateCarrierSource: immediate.audio.source,
@@ -2858,7 +2860,7 @@ test("stopped retirement exclusions leave paused and interrupted identity intact
   await pausePageClockAhead(page)
   await page.clock.fastForward(60_000)
   await expect(player).toHaveAttribute("data-playback-state", "paused")
-  await expect(player.getByTestId("music-player-toolbar-identity")).toContainText("MassageLab Proof Drone")
+  await expect(player.getByTestId("music-player-toolbar-identity").locator("p").first()).toHaveText("Drone")
 
   await page.clock.resume()
   await invokeMediaAction(page, "play")
@@ -2869,7 +2871,7 @@ test("stopped retirement exclusions leave paused and interrupted identity intact
   await pausePageClockAhead(page)
   await page.clock.fastForward(60_000)
   await expect(player).toHaveAttribute("data-playback-state", "interrupted")
-  await expect(player.getByTestId("music-player-toolbar-identity")).toContainText("MassageLab Proof Drone")
+  await expect(player.getByTestId("music-player-toolbar-identity").locator("p").first()).toHaveText("Drone")
   console.log(`[task-21-state-exclusions] ${JSON.stringify({
     interruptedRetainedAtMs: 60_000,
     pausedRetainedAtMs: 60_000,
@@ -2897,7 +2899,7 @@ test("restart cancels stopped retirement without stale identity or media teardow
   expect(restarted.audioContext.generatorGeneration).toBeGreaterThan(generationBeforeStop)
   expect(restarted.audioContext.activeGeneratorSources).toBeGreaterThan(0)
   expect(restarted.audio.source).not.toBe("")
-  expect(restarted.mediaSession.metadata?.title).toBe("MassageLab Proof Drone")
+  expect(restarted.mediaSession.metadata?.title).toBe("Drone")
   expect(restarted.mediaSession.metadata?.artwork).toHaveLength(1)
   const restartedArtwork = restarted.mediaSession.metadata?.artwork?.[0]?.src
   expect(restartedArtwork).toBeTruthy()
@@ -2913,7 +2915,7 @@ test("restart cancels stopped retirement without stale identity or media teardow
   await page.clock.resume()
   await expect(player).toHaveAttribute("data-playback-state", "playing", { timeout: 30_000 })
   const adjacentTitle = await player.getByTestId("music-player-toolbar-identity").locator("p").first().textContent()
-  expect(adjacentTitle).not.toBe("MassageLab Proof Drone")
+  expect(adjacentTitle).not.toBe("Drone")
   const adjacent = await readProbe(page)
   expect(adjacent.mediaSession.metadata?.title).toBe(adjacentTitle)
   expect(adjacent.mediaSession.metadata?.artwork).toHaveLength(1)

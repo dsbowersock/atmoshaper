@@ -78,6 +78,40 @@ export const STATION_CAROUSEL_LARGE_SCREEN_TUNING = Object.freeze({
 })
 
 /**
+ * @typedef {{ containerWidth: number, containerHeight: number, tuning: AdaptiveCarouselTuning }} StationCarouselLayout
+ */
+
+/**
+ * Applies the Station observer's measurement transition. Subpixel feedback may
+ * cross a rounded-card boundary; select the smaller tuning so arrival order
+ * cannot enlarge the composition beyond either measurement's fit footprint.
+ * Compare every field varied by the responsive getter, including equal-card
+ * radius/perspective ties. Keep the selected measurement as the resize anchor
+ * so accumulated drift still reaches the existing one-pixel resize threshold.
+ * @param {StationCarouselLayout} current
+ * @param {{ containerWidth: number, containerHeight: number, constrainedLandscape: boolean }} dimensions
+ * @returns {StationCarouselLayout}
+ */
+export function resolveResponsiveStationCarouselLayout(current, dimensions) {
+  const { containerWidth, containerHeight, constrainedLandscape } = dimensions
+  const tuning = getResponsiveStationCarouselTuning(dimensions)
+  const meaningfulStageResize = Math.abs(current.containerWidth - containerWidth) >= 1
+    || Math.abs(current.containerHeight - containerHeight) >= 1
+  const adjacentRoundedSize = !constrainedLandscape
+    && !meaningfulStageResize
+    && Math.abs(current.tuning.cardWidth - tuning.cardWidth) <= 1
+    && Math.abs(current.tuning.cardHeight - tuning.cardHeight) <= 1
+  if (adjacentRoundedSize) {
+    const fields = ["cardWidth", "cardHeight", "radius", "perspective", "spread"]
+    const differingField = fields.find((field) => current.tuning[field] !== tuning[field])
+    if (!differingField || Number(current.tuning[differingField]) < Number(tuning[differingField])) {
+      return current
+    }
+  }
+  return { containerWidth, containerHeight, tuning }
+}
+
+/**
  * Preserves the approved Station composition while allowing roomy phones,
  * tablets, laptops, and televisions to scale it as one unit. Width establishes
  * the baseline while increasingly tall stages blend in two-thirds of their

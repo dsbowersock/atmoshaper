@@ -47,17 +47,33 @@ describe("persistent music player source ownership", () => {
     assert.match(playerSource, /const nextAction = music\.canNavigateStations \? \(/)
   })
 
-  it("retains the existing shell features without adding mix-layer controls", () => {
+  it("retains the existing shell features and delegates public audio nouns", () => {
     for (const contract of [
       /StationVinyl/,
       /MusicLoadingProgress/,
       /MusicInterruptionNotice/,
-      /Atmosphere volume/,
+      /import \{ ATMOSPHERE_PUBLIC_LABELS \} from "@\/lib\/atmosphere\/public-labels"/,
       /setMiniPlayerCollapsed/,
       /visualizerHref/,
       /ml-music-player-toolbar/,
     ]) assert.match(playerSource, contract)
 
+    assert.match(
+      playerSource,
+      /const title = music\.activeStationTitle \?\? ATMOSPHERE_PUBLIC_LABELS\.name/,
+    )
+    assert.match(
+      playerSource,
+      /aria-label=\{\`\$\{ATMOSPHERE_PUBLIC_LABELS\.name\} audio player\`\}/,
+    )
+    assert.match(
+      playerSource,
+      /aria-label=\{\`\$\{ATMOSPHERE_PUBLIC_LABELS\.name\} volume\`\}/,
+    )
+    assert.doesNotMatch(
+      playerSource,
+      /"Atmosphere"|"Atmosphere audio player"|"Atmosphere volume"/,
+    )
     assert.doesNotMatch(playerSource, /retryAtmoShaperLayer|updateAtmoShaper|AtmoShaper layer/)
   })
 })

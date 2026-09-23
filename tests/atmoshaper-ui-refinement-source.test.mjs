@@ -201,9 +201,12 @@ describe("AtmoShaper annotated UI refinement contract", () => {
     assert.match(currentMix, /function AtmoShaperTransportButton/)
     assert.doesNotMatch(currentMix, /function AtmoShaperTransportButtons/)
     assert.match(currentMix, /Whole mix volume/)
-    assert.match(currentMix, /transport\.shouldStop[\s\S]*?transport\.audioReady[\s\S]*?"Play AtmoShaper"/)
+    assert.match(
+      currentMix,
+      /transport\.shouldStop[\s\S]*?transport\.audioReady[\s\S]*?`Play \$\{ATMOSPHERE_PUBLIC_LABELS\.name\}`/,
+    )
     assert.match(currentMix, /variant=\{transport\.shouldStop \? "destructive" : "success"\}/)
-    assert.doesNotMatch(rail, /Pause AtmoShaper/)
+    assert.doesNotMatch(`${currentMix}\n${rail}`, /(?:Play|Stop|Pause) AtmoShaper/)
   })
 
   it("lets an outside interaction collapse the roomy drawer", () => {

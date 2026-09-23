@@ -41,15 +41,30 @@ const palettes: ArtworkPalette[] = [
   { background: "#17242a", foreground: "#d98620", accent: "#8fd0ba", muted: "#35676f", line: "#ead7a8" },
 ]
 
+/**
+ * Preserves reviewed bytes for a stable station whose display copy may evolve
+ * under the unchanged artwork URL and revision. Retire an entry only with a
+ * separately approved artwork revision and renewed visual review.
+ */
+const stationArtworkCompatibilityModels: ReadonlyMap<string, {
+  motif: ArtworkMotif
+  seed: number
+}> = new Map([
+  ["mlab-proof-drone", { motif: "rings", seed: 3296681437 }],
+])
+
 /** Returns the deterministic motif, palette, and seed for one station identity. */
 export function getAtmosphereStationArtworkModel(input: AtmosphereStationArtworkInput): {
   motif: ArtworkMotif
   palette: ArtworkPalette
   seed: number
 } {
-  const seed = hashString(`${input.stationId}:${input.title}:${input.groupId}`)
+  const compatibilityModel = stationArtworkCompatibilityModels.get(input.stationId)
+  const seed = compatibilityModel?.seed
+    ?? hashString(`${input.stationId}:${input.title}:${input.groupId}`)
   return {
-    motif: chooseMotif(`${input.title} ${input.description} ${input.groupId}`.toLowerCase(), seed),
+    motif: compatibilityModel?.motif
+      ?? chooseMotif(`${input.title} ${input.description} ${input.groupId}`.toLowerCase(), seed),
     palette: palettes[seed % palettes.length],
     seed,
   }

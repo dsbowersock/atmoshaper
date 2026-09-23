@@ -237,6 +237,81 @@ for the already-owned shared SEO identity. Keep its later Roadmap page-copy
 assertions deferred. Recheck metadata consumers, repeat independent SPEC then
 QUALITY and fresh verification before publication.
 
+## Task 3: Atmosphere audio and paired browser contracts
+
+Why: deliver the approved feature-name boundary as a reviewable unit without
+losing its later station-artwork, carousel-resume or shared-label fixes. PR #7
+passed both hosted reviews and CI `35525692042` on exact `06f3147`; use that as
+this slice's base and keep all previously published branches unchanged.
+
+1. Reuse the approved checkout on `codex/phase6-03-atmosphere-audio`. Read the
+   source-locked Phase 6 design's audio-label/public-presentation contract and
+   source Task 2. Exact `7e31855` content is the implementation specification,
+   including later repairs; do not reconstruct only the earliest rename commit.
+2. Carry the 35 audio-owned paths in the retained manifest: browse workspace;
+   the three `components/atmoshaper` UI owners; favorites, station artwork/card/
+   carousel; adaptive-carousel model; music provider/mini-player/player;
+   generative catalog/runtime, media-session controller, labels, presentation,
+   artwork, groups and stations; navigation; their 12 focused unit/source tests;
+   and the Atmoshaper and media-session browser specs. Preserve any prior-slice
+   additions when reconciling exact source blobs.
+3. Carry only audio-owned source hunks in `tests/browser/app-shell.spec.ts`,
+   `tests/browser/public-routes.spec.ts` and `tests/browser/music-visualizer.spec.ts`:
+   Drone title with strict exact selectors, Atmosphere heading/feature labels,
+   and the owning accessibility assertions. Keep unrelated public-page/account/
+   background/streaming assertions deferred. A further companion needs concrete
+   dependency evidence and a recorded boundary before editing.
+   The pre-edit consumer scan identified four more required browser companions:
+   `background-palette.spec.ts` and `dna-twisted-cubes-backgrounds.spec.ts` each
+   carry only their exact Play Drone assertion; `background-commerce.spec.ts`
+   carries two audio-heading selectors, two Play Drone assertions and the exact
+   toolbar title, but no cart copy; `interaction-feedback.spec.ts` carries its
+   four Drone setup/continuity assertions, but no account/abort-settlement work.
+   Each hunk exists in the recovery source and is required by the audio owner,
+   not an expansion into its containing spec's other responsibilities.
+   SPEC review identified one further pairing within the same app-shell file:
+   exact source `lib/navigation.js` also changes the About link label. Carry its
+   matching `About AtmoShaper` click assertion now, even though About page copy
+   remains deferred. Producer-owned navigation, not the destination page name,
+   determines this assertion's allocation; the old selector matches no link.
+4. Preserve frozen noun ownership, public-only error/default-recipe formatting,
+   custom recipe names and raw runtime errors. Keep Drone's media ID, audio URL,
+   source/license attribution and artwork compatibility metadata stable. Keep
+   the source carousel-resume model and its falsifying regression together.
+   Do not rename internal `atmoshaper` identifiers or add a new public alias.
+5. Root updates canonical delivery state/log and regenerates only the intermediate
+   brand receipt after staging owned paths. No final fingerprint import, broad
+   exclusion, PNG, dependency, legal registry or provider change is permitted.
+   Existing large source/test owners receive wiring or exact source repair hunks,
+   not new responsibilities or opportunistic refactors. Naming authority is
+   unchanged from the approved design; no new glossary or architecture is needed.
+6. Run the 12 focused audio unit/source files listed by the manifest with
+   `node --test`, then the affected shared-browser consumer contracts. Run
+   `npm run typecheck`, `npm run lint`, `npm run legal:verify-archives`,
+   `npm run test`, `npm run brand:audit`, `npm run repository:inventory`,
+   documentation contracts and `git diff --check`. Verify all exact blobs and
+   enumerate shared hunks retained/deferred; require zero missing/unclassified
+   audit entries and a generated staged-byte fixed point.
+7. Independent SPEC review must verify scope and source equivalence before
+   independent QUALITY review evaluates behavior, compatibility and tests.
+   Root then verifies, commits and publishes against
+   `codex/phase6-02-product-identity`, attaches the PR, and confirms actual
+   base/head/file count plus both hosted reviews and strict CI. Target fewer
+   than 85 paths and never publish 100 reviewable paths. No merge is authorized.
+
+Mechanical redistribution retains the existing TDD-off route. Any newly observed
+defect requires causal evidence and a bounded repair before extending this task.
+Final equivalence must retain pilot and heading repairs beyond the source tree.
+The separate ring snapshot decision remains pending and cannot be bypassed here.
+
+The first frozen audio candidate passed its 4,662-case unit suite (4,659 passed,
+three skipped). Independent SPEC review separately caught the missing About
+navigation assertion described above. Its exact source correction changes only
+that paired browser selector; recheck its actual navigation producer, browser
+harness and final audit receipts, and repeat SPEC before QUALITY. This first
+full-suite receipt covers tree `b0df440f95c6b6a6e44b18f8ee275a424a260810`, not an
+unmeasured later tree; hosted browser CI remains required after publication.
+
 ## Remaining ownership sequence
 
 The source has 319 changed paths: 291 non-PNG plus 28 PNG. The independently

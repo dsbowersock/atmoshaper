@@ -4,6 +4,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 
 import { useSettings } from "@/components/providers/settings-provider"
 import { Button } from "@/components/ui/button"
+import { formatAtmospherePublicError } from "@/lib/atmosphere/public-presentation"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 
 import { atmoShaperLayerSourceName } from "./current-mix"
 import { CurrentMixRail, useAtmoShaperSoloControls } from "./current-mix-rail"
@@ -161,7 +163,10 @@ export function AtmoShaperWorkspace() {
         .map(([layerId, state]) => {
           const layer = recipeLayers.get(layerId)
           const sourceName = layer ? atmoShaperLayerSourceName(layer) : "Layer"
-          return `${sourceName} failed${state.error ? `: ${state.error}` : "."}`
+          const publicError = state.error
+            ? formatAtmospherePublicError(state.error, "This layer could not start.")
+            : null
+          return `${sourceName} failed${publicError ? `: ${publicError}` : "."}`
         })
         .join(" "))
     }
@@ -169,9 +174,15 @@ export function AtmoShaperWorkspace() {
 
   useEffect(() => {
     const preview = music.atmoShaperPreview
+    const publicPreview = preview?.error
+      ? {
+          ...preview,
+          error: formatAtmospherePublicError(preview.error, "This preview could not start."),
+        }
+      : preview
     const transition = resolveSoundLibraryPreviewAnnouncement(
       previewAnnouncementStateRef.current,
-      preview,
+      publicPreview,
       preview ? atmoShaperLayerSourceName(preview.layer) : null,
     )
     previewAnnouncementStateRef.current = transition.state
@@ -239,7 +250,7 @@ export function AtmoShaperWorkspace() {
     <div
       ref={workspaceRef}
       className="ml-atmoshaper-workspace min-w-0"
-      aria-label="AtmoShaper live mixer"
+      aria-label={`${ATMOSPHERE_PUBLIC_LABELS.name} live mixer`}
       data-current-mix-side={drawerSide}
       data-drawer-mode={drawerMode}
     >
@@ -247,8 +258,11 @@ export function AtmoShaperWorkspace() {
         <div className="mb-3 flex items-center justify-between gap-3 text-sm text-muted-foreground" role="status">
           <span>
             {music.runtimeReadiness.status === "error"
-              ? music.runtimeReadiness.error ?? "Audio setup failed. Try again."
-              : "Preparing AtmoShaper audio…"}
+              ? formatAtmospherePublicError(
+                  music.runtimeReadiness.error,
+                  "Audio setup failed. Try again.",
+                )
+              : `Preparing ${ATMOSPHERE_PUBLIC_LABELS.name} audio…`}
           </span>
           {music.runtimeReadiness.status === "error" ? (
             <Button type="button" size="sm" variant="outline" onClick={music.retryRuntimeReadiness}>

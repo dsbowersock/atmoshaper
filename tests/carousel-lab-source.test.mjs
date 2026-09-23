@@ -450,7 +450,7 @@ describe("Carousel Lab source boundaries", () => {
     assert.doesNotMatch(favoritesSurface, /Add \{centeredStation\.title\} to favorites/)
   })
 
-  it("bookends the Station categories with Favorites and the integrated AtmoShaper workspace", () => {
+  it("bookends the Station categories with Favorites and the public Atmosphere mixer", () => {
     const carousel = read("components/atmosphere/station-carousel.tsx")
     const workspace = read("app/browse/workspace.tsx")
 
@@ -466,7 +466,9 @@ describe("Carousel Lab source boundaries", () => {
     assert.match(carousel, /ml-atmosphere-station-special-icon/)
     assert.match(carousel, /ml-atmosphere-station-special-content/)
     assert.match(carousel, /data-special-state="favorites"/)
-    assert.match(carousel, /title: "Atmoshaper"/)
+    assert.match(carousel, /import \{ ATMOSPHERE_PUBLIC_LABELS \}/)
+    assert.match(carousel, /title: ATMOSPHERE_PUBLIC_LABELS\.name/)
+    assert.match(carousel, /\{ATMOSPHERE_PUBLIC_LABELS\.name\}/)
     assert.match(carousel, /Layer ambient sounds into your own soundscape\./)
     assert.match(carousel, /import \{ AtmoShaperWorkspace \}/)
     assert.match(carousel, /isAtmoshaperCategory \? \(\s*<AtmoShaperWorkspace \/>/)

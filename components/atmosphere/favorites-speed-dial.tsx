@@ -15,6 +15,7 @@ import {
   buildAtmosphereFavoritesSpeedDialModel,
   getAtmosphereFavoriteStationTileState,
 } from "@/lib/atmosphere/favorites-speed-dial"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { resolveAtmosphereStationArtworkInput } from "@/lib/atmosphere/station-artwork"
 import { getVisibleAtmosphereStations } from "@/lib/atmosphere/stations"
 
@@ -103,7 +104,7 @@ export function AtmosphereFavoritesSpeedDial({
                   >
                     <SheetHeader>
                       <SheetTitle>All favorites</SheetTitle>
-                      <SheetDescription>Start any saved Atmosphere station.</SheetDescription>
+                      <SheetDescription>Start any saved {ATMOSPHERE_PUBLIC_LABELS.name} station.</SheetDescription>
                     </SheetHeader>
                     <div className="ml-atmosphere-all-favorites-grid">
                       {model.allFavorites.map((station) => (

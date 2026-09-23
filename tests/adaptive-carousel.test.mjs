@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { describe, it } from "node:test"
+import ts from "typescript"
 import {
   BACKGROUND_CAROUSEL_BASE_TUNING,
   STATION_CAROUSEL_TUNING,
@@ -10,6 +11,7 @@ import {
   getMountedAdaptiveCarouselItemIds,
   getResponsiveBackgroundCarouselTuning,
   getResponsiveStationCarouselTuning,
+  resolveResponsiveStationCarouselLayout,
   resolveEffectiveCarouselLoop,
   resolveAdaptiveCarouselViewportProfile,
 } from "../components/carousels/adaptive-carousel-model.js"
@@ -56,6 +58,139 @@ describe("production adaptive carousel", () => {
       }),
     )
   })
+
+  it("stabilizes real subpixel Station measurements in both orders and repeated feedback", () => {
+    const dimensions = [590.4, 590.9].map((containerHeight) => ({
+      containerWidth: 1000, containerHeight, constrainedLandscape: false,
+    }))
+    const tunings = dimensions.map(getResponsiveStationCarouselTuning)
+    assert.deepEqual(tunings.map(({ cardWidth, cardHeight }) => [cardWidth, cardHeight]), [
+      [235, 275], [236, 275],
+    ])
+    for (const order of [dimensions, [...dimensions].reverse()]) {
+      let layout = { ...order[0], tuning: getResponsiveStationCarouselTuning(order[0]) }
+      for (const measurement of [...order.slice(1), ...dimensions, ...dimensions]) {
+        layout = resolveResponsiveStationCarouselLayout(layout, measurement)
+        assert.deepEqual(layout.tuning, tunings[0])
+      }
+      assert.equal(resolveResponsiveStationCarouselLayout(layout, order[0]), layout)
+    }
+  })
+
+  it("resolves equal-card Station perspective and spread ties in both orders", () => {
+    const pairs = [
+      [{ containerWidth: 1000, containerHeight: 590.38 }, { containerWidth: 1000, containerHeight: 590.88 }],
+      [{ containerWidth: 699.8, containerHeight: 600 }, { containerWidth: 700.2, containerHeight: 600 }],
+    ]
+    for (const pair of pairs) {
+      const dimensions = pair.map((size) => ({ ...size, constrainedLandscape: false }))
+      const [smaller, larger] = dimensions.map(getResponsiveStationCarouselTuning)
+      assert.deepEqual([smaller.cardWidth, smaller.cardHeight], [larger.cardWidth, larger.cardHeight])
+      assert.notDeepEqual(smaller, larger)
+      for (const order of [dimensions, [...dimensions].reverse()]) {
+        const layout = resolveResponsiveStationCarouselLayout({
+          ...order[0], tuning: getResponsiveStationCarouselTuning(order[0]),
+        }, order[1])
+        assert.deepEqual(layout.tuning, smaller)
+      }
+    }
+  })
+
+  it("keeps admitted Station feedback within the smaller measured fit footprint", () => {
+    // The larger real tuning needs 543.1px, exceeding the 543.05px stage:
+    // the getter's 2px buffer alone cannot justify choosing the larger member.
+    const dimensions = [543.05, 544.04].map((containerHeight) => ({
+      containerWidth: 1000, containerHeight, constrainedLandscape: false,
+    }))
+    const [smaller, larger] = dimensions.map(getResponsiveStationCarouselTuning)
+    const footprint = (tuning) => tuning.cardHeight + tuning.cardWidth * 1.3 + 8
+    assert.deepEqual([smaller.cardWidth, smaller.cardHeight], [216, 252])
+    assert.deepEqual([larger.cardWidth, larger.cardHeight], [217, 253])
+    assert.ok(footprint(larger) > dimensions[0].containerHeight)
+    for (const order of [dimensions, [...dimensions].reverse()]) {
+      const layout = resolveResponsiveStationCarouselLayout({
+        ...order[0], tuning: getResponsiveStationCarouselTuning(order[0]),
+      }, order[1])
+      assert.deepEqual(layout.tuning, smaller)
+      assert.ok(footprint(layout.tuning) <= dimensions[0].containerHeight)
+    }
+  })
+
+  it("accepts genuine Station resizes, accumulated drift, and constrained measurements", () => {
+    const base = { containerWidth: 1000, containerHeight: 590.4, constrainedLandscape: false }
+    const current = { ...base, tuning: getResponsiveStationCarouselTuning(base) }
+    assert.equal(resolveResponsiveStationCarouselLayout(current, { ...base, containerHeight: 590.9 }), current)
+    for (const measurement of [
+      { ...base, containerHeight: 591.4 },
+      { ...base, containerHeight: 589.4 },
+      { ...base, containerWidth: 1001 },
+      { ...base, containerHeight: 800 },
+      { ...base, constrainedLandscape: true },
+    ]) {
+      const next = resolveResponsiveStationCarouselLayout(current, measurement)
+      assert.deepEqual(next, {
+        containerWidth: measurement.containerWidth,
+        containerHeight: measurement.containerHeight,
+        tuning: getResponsiveStationCarouselTuning(measurement),
+      })
+      assert.notEqual(next, current)
+    }
+    // These previously hand-written 242/243px fixtures bypass the production
+    // guard: the actual heights differ by 3px and card heights differ by 2px.
+    const dimensions = [606.4, 609.4].map((containerHeight) => ({ ...base, containerHeight }))
+    assert.deepEqual(dimensions.map(getResponsiveStationCarouselTuning)
+      .map(({ cardWidth, cardHeight }) => [cardWidth, cardHeight]), [[242, 282], [243, 284]])
+    for (const order of [dimensions, [...dimensions].reverse()]) {
+      const next = resolveResponsiveStationCarouselLayout({
+        ...order[0], tuning: getResponsiveStationCarouselTuning(order[0]),
+      }, order[1])
+      assert.deepEqual(next.tuning, getResponsiveStationCarouselTuning(order[1]))
+    }
+  })
+
+  it("routes real Station observer deliveries through the responsive transition", () => {
+    const ast = ts.createSourceFile("station-carousel.tsx", stationCarouselSource,
+      ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+    const effects = []
+    function visit(node) {
+      if (ts.isCallExpression(node) && node.expression.getText(ast) === "useEffect"
+        && node.arguments[0]?.getText(ast).includes("stageRef.current")) effects.push(node)
+      ts.forEachChild(node, visit)
+    }
+    visit(ast)
+    assert.equal(effects.length, 1)
+    const compiled = ts.transpileModule(effects[0].getText(ast), {
+      compilerOptions: { target: ts.ScriptTarget.ES2022 },
+    }).outputText
+    for (const heights of [[590.4, 590.9], [590.9, 590.4]]) {
+      let callback, cleanup, observed, disconnected = false
+      const stage = {}
+      let layout = { containerWidth: 0, containerHeight: 0,
+        tuning: getResponsiveStationCarouselTuning({ containerWidth: 0, containerHeight: 0, constrainedLandscape: false }) }
+      const Observer = class {
+        constructor(listener) { callback = listener }
+        observe(node) { observed = node }
+        disconnect() { disconnected = true }
+      }
+      // Execute the actual effect so this test covers its observer wiring as
+      // well as the shared transition, without duplicating production guards.
+      new Function("useEffect", "stageRef", "ResizeObserver", "setResponsiveLayout",
+        "resolveResponsiveStationCarouselLayout", "constrainedLandscape", "group", "stationItems", compiled)(
+        (effect) => { cleanup = effect() }, { current: stage }, Observer,
+        (update) => { layout = update(layout) }, resolveResponsiveStationCarouselLayout,
+        false, { id: "stations" }, [1])
+      assert.equal(observed, stage)
+      callback([])
+      assert.equal(layout.containerHeight, 0)
+      for (const height of [...heights, ...heights]) callback([{ contentRect: { width: 1000, height } }])
+      assert.deepEqual(layout.tuning, getResponsiveStationCarouselTuning({
+        containerWidth: 1000, containerHeight: 590.4, constrainedLandscape: false,
+      }))
+      cleanup()
+      assert.equal(disconnected, true)
+    }
+  })
+
   it("uses three Background renderers only in short landscape", () => {
     const cases = [
       [{ containerWidth: 479, viewportWidth: 390, viewportHeight: 844 }, "phone-portrait", 164, 312, 22, 2],
@@ -330,7 +465,7 @@ describe("production adaptive carousel", () => {
     assert.match(stationCarouselSource, /customControlsVisible=\{showStationControls\}/)
     assert.match(
       stationCarouselSource,
-      /getResponsiveStationCarouselTuning\(\{[\s\S]*?constrainedLandscape,?[\s\S]*?\}\)/,
+      /resolveResponsiveStationCarouselLayout\(current, \{[\s\S]*?constrainedLandscape,?[\s\S]*?\}\)/,
     )
     assert.doesNotMatch(stationCarouselSource, /maxTouchPoints/)
   })

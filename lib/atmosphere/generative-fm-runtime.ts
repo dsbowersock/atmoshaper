@@ -120,7 +120,7 @@ const HOSTED_SAMPLE_FORMAT_PREFERENCE: ReadonlyArray<{
 ])
 
 /**
- * Starts a Generative.fm package inside MassageLab's global audio lifecycle.
+ * Starts a Generative.fm package inside AtmoShaper's global audio lifecycle.
  * The adapter reuses any already prepared metadata/module promise and requests
  * Tone activation immediately from the user-initiated playback path.
  */
@@ -581,7 +581,7 @@ async function loadGenerativeFmPiece(pieceId: string): Promise<GenerativeMusicPi
 /**
  * Maps UI volume values from 0..1 onto a conservative -60 dB..-12 dB range.
  * The -12 dB upper cap is intentional so imported Generative.fm pieces stay
- * below unity gain inside MassageLab's shared audio graph.
+ * below unity gain inside AtmoShaper's shared audio graph.
  */
 function volumeToDecibels(volume: number) {
   const clampedVolume = Math.min(1, Math.max(0, Number.isFinite(volume) ? volume : 0.75))

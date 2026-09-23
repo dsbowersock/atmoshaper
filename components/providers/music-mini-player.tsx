@@ -38,6 +38,8 @@ import {
   buildMusicVisualizerHref,
   sanitizeMusicVisualizerReturnTo,
 } from "@/lib/music-visualizer"
+import { formatAtmospherePublicError } from "@/lib/atmosphere/public-presentation"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { cn } from "@/lib/utils"
 import { MusicLoadingProgress } from "./music-loading-progress"
 import { MusicInterruptionNotice } from "./music-interruption-notice"
@@ -114,7 +116,10 @@ export function MusicMiniPlayer({ placement = "bottom" }: { placement?: MusicMin
     return null
   }
 
-  const title = music.activeStationTitle ?? "Atmosphere"
+  const title = music.activeStationTitle ?? ATMOSPHERE_PUBLIC_LABELS.name
+  const publicError = music.error
+    ? formatAtmospherePublicError(music.error, "Audio playback failed.")
+    : null
 
   function handlePlayPause() {
     if (music.playbackState === "playing") void music.pauseCurrent()
@@ -323,7 +328,7 @@ export function MusicMiniPlayer({ placement = "bottom" }: { placement?: MusicMin
       data-playback-state={music.playbackState}
       data-testid="music-player-toolbar"
       role="region"
-      aria-label="Atmosphere audio player"
+      aria-label={`${ATMOSPHERE_PUBLIC_LABELS.name} audio player`}
     >
       <MusicInterruptionNotice placement={placement} />
       <div className="ml-music-player-toolbar-surface pointer-events-auto relative bg-card/95 shadow-2xl shadow-black/35 backdrop-blur">
@@ -342,9 +347,9 @@ export function MusicMiniPlayer({ placement = "bottom" }: { placement?: MusicMin
               <p className="ml-music-player-toolbar-title truncate text-sm font-semibold">{title}</p>
               <p className={cn(
                 "ml-music-player-toolbar-status truncate text-xs text-muted-foreground",
-                music.error && "text-destructive",
+                publicError && "text-destructive",
               )}>
-                {music.error ?? playerStatusLabel(music.playbackState)}
+                {publicError ?? playerStatusLabel(music.playbackState)}
               </p>
               {isLoading ? (
                 <div className="ml-music-player-toolbar-progress mt-1 w-full max-w-72">
@@ -413,7 +418,7 @@ export function MusicMiniPlayer({ placement = "bottom" }: { placement?: MusicMin
                     <label className="hidden min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground lg:flex">
                       <Volume2 aria-hidden="true" className="size-4 shrink-0" />
                       <Slider
-                        aria-label="Atmosphere volume"
+                        aria-label={`${ATMOSPHERE_PUBLIC_LABELS.name} volume`}
                         className="ml-slider-fill-blue"
                         min={0}
                         max={1}

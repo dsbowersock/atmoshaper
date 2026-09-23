@@ -4,7 +4,40 @@ Verified: 2026-09-20
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Product Identity Slice
+## Current Snapshot — Phase 6 Atmosphere Audio Slice
+
+- The 24-file [identity PR #7](https://github.com/dsbowersock/atmoshaper/pull/7)
+  is verified at `06f3147ab3ffb7dc319ad93666dc0f3d7605d238`, stacked on pilot
+  `96d94b1b0d779b998df01d07cfaec0198857d51d`. Codex completed clean at 17:25 UTC;
+  CodeRabbit reviewed all 24 files and completed without actionable findings at
+  17:31 UTC. No review threads remain. Fresh 17:45 UTC evidence confirms CI
+  `35525692042` passed quality, build, all four browser lanes and aggregate QA.
+- The approved isolated worktree now assembles the next delivery-plan owner,
+  Atmosphere audio, on `codex/phase6-03-atmosphere-audio` from that exact head.
+  Original PR #5 and published PRs #6–#7 remain intact and unmerged.
+- This slice carries the source-approved feature labels, public error/title
+  presentation, Drone display label, stable artwork identity, carousel-resume
+  repair and matching audio/browser contracts. Stored identifiers, media/source
+  records, playback kinds, external endpoints and legal records remain unchanged.
+- All 35 audio-owned files match the recovery source exactly. Fresh local checks
+  pass 227 focused audio/navigation/document/archive cases, typecheck and lint.
+  The frozen first candidate passed the full unit suite: 4,659 passed, three
+  skipped, zero failures (4,662 total). SPEC review found one missed paired
+  About navigation assertion, which must travel with its changed label owner.
+- The one-line source correction passed repeated independent SPEC then QUALITY
+  review. Fresh affected browser-harness/navigation/document/audit checks pass
+  132/132, with typecheck and a byte-stable brand receipt containing zero missing
+  or unclassified entries. Independent quality checks pass 62/62 and confirm
+  byte-identical artwork for all 58 visible stations against this slice's base.
+- The 46-file candidate is locally verified; publication and its own exact-head
+  hosted reviews and strict CI remain required. Shared files carry only current
+  producer-owned hunks; public/account/background/legal/integration work remains
+  with later owners. Earlier-slice hosted evidence does not cover this delta.
+- The separate Linux Atmosphere snapshot decision and final combined-source
+  equivalence remain whole-sequence gates. No PNG, threshold, frame, provider,
+  billing, deployment or merge changes are authorized by this slice.
+
+## Historical Snapshot — Phase 6 Product Identity Slice
 
 - The 15-file [archive pilot PR #6](https://github.com/dsbowersock/atmoshaper/pull/6)
   passed both hosted reviewers on exact head

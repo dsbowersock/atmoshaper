@@ -22,6 +22,7 @@ import {
   stationAttributionText,
   type AtmosphereStation,
 } from "@/components/atmosphere/station-carousel-card"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { groupAtmosphereStations } from "@/lib/atmosphere/station-groups"
 import { getVisibleAtmosphereStations } from "@/lib/atmosphere/stations"
 import { cn } from "@/lib/utils"
@@ -137,17 +138,17 @@ export function AtmosphereWorkspace({ layout = "grid" }: { layout?: AtmosphereWo
         contentClassName={cn(!isRailLayout && "pb-28", isRailLayout && "ml-atmosphere-rail-content")}
       >
       {isRailLayout ? (
-        <h1 className="sr-only">Atmosphere audio stations</h1>
+        <h1 className="sr-only">{ATMOSPHERE_PUBLIC_LABELS.name}</h1>
       ) : (
         <section className="flex flex-col gap-3">
-          <p className="text-sm uppercase tracking-normal text-primary">Atmosphere</p>
+          <p className="text-sm uppercase tracking-normal text-primary">{ATMOSPHERE_PUBLIC_LABELS.name}</p>
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
             <div>
               <h1 className="text-3xl font-semibold tracking-normal sm:text-4xl">
                 Wellness audio stations
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                Start a station, move to another MassageLab tool, and the bottom player keeps control of the sound.
+                Start a station, move to another AtmoShaper tool, and the bottom player keeps control of the sound.
                 {generativeFmCatalogStatusText}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">

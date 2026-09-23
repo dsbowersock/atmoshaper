@@ -31,8 +31,25 @@ const productionSource = [
 ].join("\n")
 
 describe("AtmoShaper responsive integration source contract", () => {
+  it("uses the approved page heading while retaining the station region name", () => {
+    assert.match(
+      browseWorkspace,
+      /<h1 className="sr-only">\{ATMOSPHERE_PUBLIC_LABELS\.name\}<\/h1>/,
+    )
+    assert.doesNotMatch(
+      browseWorkspace,
+      /<h1 className="sr-only">Atmosphere(?: audio stations)?<\/h1>/,
+    )
+    assert.match(
+      carousel,
+      /aria-label=\{\`\$\{ATMOSPHERE_PUBLIC_LABELS\.name\} audio stations\`\}/,
+    )
+  })
+
   it("mounts only the mixer at the AtmoShaper category integration point", () => {
     assert.match(carousel, /import \{ AtmoShaperWorkspace \}/)
+    assert.match(carousel, /import \{ ATMOSPHERE_PUBLIC_LABELS \}/)
+    assert.match(carousel, /title: ATMOSPHERE_PUBLIC_LABELS\.name/)
     assert.match(
       carousel,
       /isFavoritesCategory && stationItems\.length === 0[\s\S]*?: isAtmoshaperCategory \? \(\s*<AtmoShaperWorkspace \/>\s*\) : \(\s*<AdaptiveCarouselStage/,

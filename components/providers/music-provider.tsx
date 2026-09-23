@@ -37,6 +37,8 @@ import {
   settleSourceRuntimeStartup,
   transitionAtmospherePlayback,
 } from "@/lib/atmosphere/playback-lifecycle"
+import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
+import { resolveAtmospherePublicTitle } from "@/lib/atmosphere/public-presentation"
 import {
   createMusicVisualizerAccountIntentTracker,
   normalizeMusicVisualizerAccountPreferences,
@@ -53,6 +55,7 @@ import {
   isSameAtmoShaperLayerSource,
   type AtmoShaperPromotionAdoptionReceipt,
 } from "@/lib/atmoshaper/provider-command-gate"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 type PlaybackState = "stopped" | "loading" | "playing" | "interrupted" | "paused" | "failed"
 export type MusicPlaybackKind = "station" | "atmoshaper" | null
@@ -1206,7 +1209,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       }
     }
     if (nextSnapshot.status === "failed") {
-      setError(firstAtmoShaperError(nextSnapshot) ?? "AtmoShaper could not start any layer.")
+      setError(
+        firstAtmoShaperError(nextSnapshot)
+          ?? `${ATMOSPHERE_PUBLIC_LABELS.name} could not start any layer.`,
+      )
       mediaCarrierRef.current?.stopAndDismiss()
       const metadata = activeStationMetadataRef.current
       if (metadata) publishMediaSession(metadata, "failed")
@@ -1530,8 +1536,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     publishMediaSession(
       retainedMetadata ?? {
         id: stationId,
-        title: initialArtwork?.title ?? "Atmosphere",
-        artist: "MassageLab",
+        title: initialArtwork?.title ?? ATMOSPHERE_PUBLIC_LABELS.name,
+        artist: PUBLIC_PRODUCT_IDENTITY.name,
       },
       "loading",
     )
@@ -1717,14 +1723,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     ]).then(() => loadAtmoShaperRuntime(runtimeLease))
     atmoShaperPendingRuntimeRef.current = pendingRuntime
 
-    const title = recipe.name || "AtmoShaper"
+    const title = resolveAtmospherePublicTitle(recipe.name)
     const artwork: AtmosphereStationArtworkInput = {
       stationId: `atmoshaper:${recipe.artworkSeed}`,
       title,
-      description: "A custom AtmoShaper mix.",
+      description: `A custom ${ATMOSPHERE_PUBLIC_LABELS.name} mix.`,
       groupId: "atmoshaper",
     }
-    const metadata = { id: artwork.stationId, title, artist: "MassageLab" }
+    const metadata = { id: artwork.stationId, title, artist: PUBLIC_PRODUCT_IDENTITY.name }
     atmoShaperRecipeRef.current = recipe
     atmoShaperDesiredRecipeRef.current = recipe
     atmoShaperRecipeRevisionRef.current += 1
@@ -1814,7 +1820,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         mediaSessionControllerRef.current?.clear()
       } else {
         commitPlaybackLifecycle({ type: "START_FAILED", sessionId: lifecycleSessionId })
-        setError(firstAtmoShaperError(snapshot) ?? "AtmoShaper could not start any layer.")
+        setError(
+          firstAtmoShaperError(snapshot)
+            ?? `${ATMOSPHERE_PUBLIC_LABELS.name} could not start any layer.`,
+        )
         mediaCarrierRef.current?.stopAndDismiss()
         publishMediaSession(latestMetadata, "failed")
       }
@@ -1830,7 +1839,11 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       commitPlaybackLifecycle({ type: "START_FAILED", sessionId: lifecycleSessionId })
       mediaCarrierRef.current?.stopAndDismiss()
       mediaSessionControllerRef.current?.clear()
-      setError(caughtError instanceof Error ? caughtError.message : "AtmoShaper audio could not start.")
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : `${ATMOSPHERE_PUBLIC_LABELS.name} audio could not start.`,
+      )
     }
 
     void carrierStartPromise
@@ -2073,14 +2086,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         if (atmoShaperPromotionRef.current === promotionTransaction) {
           atmoShaperPromotionRef.current = null
         }
-        const title = committedRecipe.name || "AtmoShaper"
+        const title = resolveAtmospherePublicTitle(committedRecipe.name)
         const artwork: AtmosphereStationArtworkInput = {
           stationId: `atmoshaper:${committedRecipe.artworkSeed}`,
           title,
-          description: "A custom AtmoShaper mix.",
+          description: `A custom ${ATMOSPHERE_PUBLIC_LABELS.name} mix.`,
           groupId: "atmoshaper",
         }
-        const metadata = { id: artwork.stationId, title, artist: "MassageLab" }
+        const metadata = { id: artwork.stationId, title, artist: PUBLIC_PRODUCT_IDENTITY.name }
         atmoShaperRecipeRef.current = committedRecipe
         atmoShaperDesiredRecipeRef.current = committedRecipe
         atmoShaperRecipeRevisionRef.current += 1
@@ -2135,7 +2148,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
             commitPlaybackLifecycle({ type: "START_FAILED", sessionId: lifecycleSessionId })
           }
           const failureMessage = firstAtmoShaperError(snapshot)
-            ?? "AtmoShaper could not promote this preview."
+            ?? `${ATMOSPHERE_PUBLIC_LABELS.name} could not promote this preview.`
           setError(failureMessage)
           mediaCarrierRef.current?.stopAndDismiss()
           publishMediaSession(metadata, "failed")
@@ -2149,7 +2162,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         }
         const message = caughtError instanceof Error
           ? caughtError.message
-          : "AtmoShaper preview could not be promoted."
+          : `${ATMOSPHERE_PUBLIC_LABELS.name} preview could not be promoted.`
         if (hadMediaOwnership) {
           await restoreCommittedPromotion(message)
         } else {
@@ -2206,14 +2219,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     const recipeRevision = atmoShaperRecipeRevisionRef.current
     if (activePlaybackKindRef.current !== "atmoshaper") return
 
-    const title = recipe.name || "AtmoShaper"
+    const title = resolveAtmospherePublicTitle(recipe.name)
     const artwork: AtmosphereStationArtworkInput = {
       stationId: `atmoshaper:${recipe.artworkSeed}`,
       title,
-      description: "A custom AtmoShaper mix.",
+      description: `A custom ${ATMOSPHERE_PUBLIC_LABELS.name} mix.`,
       groupId: "atmoshaper",
     }
-    const metadata = { id: artwork.stationId, title, artist: "MassageLab" }
+    const metadata = { id: artwork.stationId, title, artist: PUBLIC_PRODUCT_IDENTITY.name }
     activeStationMetadataRef.current = metadata
     activeStationArtworkRef.current = artwork
     setActiveStationTitle(title)
@@ -2261,7 +2274,11 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       }
     } catch (caughtError) {
       if (runtimeLease !== atmoShaperRuntimeLeaseRef.current) return
-      setError(caughtError instanceof Error ? caughtError.message : "AtmoShaper could not update.")
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : `${ATMOSPHERE_PUBLIC_LABELS.name} could not update.`,
+      )
     }
   }, [publishMediaSession])
 
@@ -2464,7 +2481,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         commitPlaybackLifecycle({ type: "START_FAILED", sessionId })
         mediaCarrierRef.current?.stopAndDismiss()
         if (metadata) publishMediaSession(metadata, "failed")
-        setError(firstAtmoShaperError(snapshot) ?? "AtmoShaper could not resume.")
+        setError(
+          firstAtmoShaperError(snapshot)
+            ?? `${ATMOSPHERE_PUBLIC_LABELS.name} could not resume.`,
+        )
       }
     } catch (caughtError) {
       if (requestId !== playbackRequestIdRef.current) return
@@ -3004,7 +3024,7 @@ function readStoredAtmosphereState(): StoredAtmosphereHydration {
       return {
         state: createDefaultAtmosphereStorage() as AtmosphereStorageState,
         storageStatus: "unsupported-version",
-        storageError: "A newer version of Atmosphere preferences is stored on this device.",
+        storageError: `A newer version of ${ATMOSPHERE_PUBLIC_LABELS.name} preferences is stored on this device.`,
       }
     }
 
@@ -3017,7 +3037,7 @@ function readStoredAtmosphereState(): StoredAtmosphereHydration {
     return {
       state: createDefaultAtmosphereStorage() as AtmosphereStorageState,
       storageStatus: "unavailable",
-      storageError: "This browser blocked local Atmosphere preferences.",
+      storageError: `This browser blocked local ${ATMOSPHERE_PUBLIC_LABELS.name} preferences.`,
     }
   }
 }
@@ -3027,7 +3047,7 @@ function persistStoredAtmosphereState(storageState: AtmosphereStorageState) {
     window.localStorage.setItem(ATMOSPHERE_STORAGE_KEY, serializeAtmosphereStorage(storageState))
     return null
   } catch {
-    return "This browser blocked local Atmosphere preferences."
+    return `This browser blocked local ${ATMOSPHERE_PUBLIC_LABELS.name} preferences.`
   }
 }
 
@@ -3077,5 +3097,5 @@ async function loadAtmosphereRuntimeModules(): Promise<AtmosphereRuntimeModules>
 }
 
 function getStationArtist(station: AtmosphereStation) {
-  return station.artist || station.attribution?.artist || "MassageLab"
+  return station.artist || station.attribution?.artist || PUBLIC_PRODUCT_IDENTITY.name
 }

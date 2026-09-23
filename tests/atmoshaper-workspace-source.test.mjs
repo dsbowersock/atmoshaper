@@ -83,7 +83,6 @@ describe("AtmoShaper live-session workspace source contract", () => {
       "White noise",
       "Pink noise",
       "Brown noise",
-      "Atmosphere stations",
       "Binaural beats",
       "Isochronic tones",
       "Delta",
@@ -94,6 +93,8 @@ describe("AtmoShaper live-session workspace source contract", () => {
       "Advanced",
     ]) assert.match(librarySource, new RegExp(label))
 
+    assert.match(librarySource, /import \{ ATMOSPHERE_PUBLIC_LABELS \}/)
+    assert.match(librarySource, /`\$\{ATMOSPHERE_PUBLIC_LABELS\.name\} stations`/)
     assert.match(librarySource, /getPlayableAtmosphereStations/)
     assert.match(librarySource, /sourceId:\s*station\.id/)
     assert.match(librarySource, /ATMOSHAPER_PRODUCTION_CATALOG/)
@@ -135,8 +136,8 @@ describe("AtmoShaper live-session workspace source contract", () => {
       /SortableLayerRow/,
       /Retry/,
       /Remove/,
-      /Play AtmoShaper/,
-      /Stop AtmoShaper/,
+      /`Play \$\{ATMOSPHERE_PUBLIC_LABELS\.name\}`/,
+      /`Stop \$\{ATMOSPHERE_PUBLIC_LABELS\.name\}`/,
       /Whole mix volume/,
       /music\.retryAtmoShaperLayer/,
       /music\.restartCurrent/,
@@ -158,7 +159,7 @@ describe("AtmoShaper live-session workspace source contract", () => {
     assert.match(mixSource, /Still playing during replacement/)
     assert.match(mixSource, /music\.atmoShaperPreview !== null \|\| canStopAtmoShaperWorkspaceRecipe/)
     assert.match(mixSource, /if \(shouldStop\) void music\.stopCurrent\(\)/)
-    assert.doesNotMatch(mixSource, /Pause AtmoShaper|music\.pauseCurrent/)
+    assert.doesNotMatch(mixSource, /(?:Play|Stop|Pause) AtmoShaper|music\.pauseCurrent/)
   })
 
   it("restores focus after explicit removal and focused-row reconciliation", () => {
@@ -245,7 +246,7 @@ describe("AtmoShaper live-session workspace source contract", () => {
       /soundLibraryCommitIsPending/,
       /beginSoundLibraryPendingCommit/,
       /settleSoundLibraryPendingCommit/,
-      /actions\.settleLayerPromotion\(transaction, settlement\)/,
+      /actions\.settleLayerPromotion\(transaction, publicSettlement\)/,
       /aria-busy=\{commitPending \|\| undefined\}/,
       /onSelectLayer\(resolution\.layerId, opener, "select-existing"\)/,
       /ml-atmoshaper-card-preview-controls/,
