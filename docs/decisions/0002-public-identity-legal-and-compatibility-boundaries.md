@@ -1,6 +1,6 @@
 # ADR 0002: Public Identity, Legal and Compatibility Boundaries
 
-Status: Proposed
+Status: Proposed pending final integration
 
 ## Context
 

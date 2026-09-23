@@ -303,14 +303,14 @@ test("Phase 6 ring capture fixes the paused first frame without replacing actual
       }
     })
 
-    for (const [name, options] of [
-      ["missing owner", { mountCount: 0 }],
-      ["duplicate owner", { mountCount: 2 }],
-      ["blank first paint", { blankFirstPaint: true }],
-      ["owner that is not paused", { reducedMotion: "no-preference" }],
+    for (const [name, options, failure] of [
+      ["missing owner", { mountCount: 0 }, /toHaveCount/],
+      ["duplicate owner", { mountCount: 2 }, /toHaveCount/],
+      ["blank first paint", { blankFirstPaint: true }, /toBeGreaterThan/],
+      ["owner that is not paused", { reducedMotion: "no-preference" }, /toHaveAttribute/],
     ]) {
       await t.test(`critical ${name} still fails`, async () => {
-        await assert.rejects(controlledCapture(options), /expect\(|Expected|toHaveCount|toHaveAttribute/)
+        await assert.rejects(controlledCapture(options), failure)
       })
     }
   } finally {
