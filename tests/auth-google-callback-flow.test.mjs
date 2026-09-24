@@ -33,7 +33,7 @@ describe("Google callback safety seam", () => {
     let googleProviderConfig
     let decision = { kind: "REJECTED", recoveryPath: "/login?auth=google-retry" }
     let verified = true
-    let currentSession = null
+    let currentSession = null, registrationAccepted = true
     const preparationInputs = []
     const NextAuth = (config) => {
       capturedConfig = config
@@ -65,7 +65,9 @@ describe("Google callback safety seam", () => {
       "@/lib/auth-users": { ensureGoogleUserState: async () => {}, ensureUserRole: async () => {}, getUserAuthState: async () => ({}) },
       "@/lib/auth-session-version": { decideAuthSessionVersion: () => ({ accepted: false }) },
       "@/lib/auth-security": { normalizeEmail: (value) => String(value ?? "").trim().toLowerCase() },
+      "@/lib/legal-acceptance": { hasAcceptedCurrentDocuments: async () => registrationAccepted },
       "@/lib/legal-acceptance-gate": { buildRegistrationLegalProviderRedirectPath },
+      "@/lib/legal-documents": { requiredLegalDocumentsForEvent: () => [] },
     })
 
     const google = { account: { provider: "google", providerAccountId: "sub-a" }, profile: { email_verified: true } }
@@ -106,6 +108,10 @@ describe("Google callback safety seam", () => {
     }
     currentSession = { user: { id: "user-a", email: "account-a@example.com" } }
     decision = { kind: "REJECTED", recoveryPath: "/account?tab=security&auth=google-retry" }
+    registrationAccepted = false
+    assert.equal(await capturedConfig.callbacks.signIn(google), "/account?tab=security&auth=google-retry")
+    assert.equal(preparationInputs.at(-1).currentSessionUser, undefined)
+    registrationAccepted = true
     assert.equal(await capturedConfig.callbacks.signIn(google), "/account?tab=security&auth=google-retry")
     assert.equal(preparationInputs.at(-1).currentSessionUser, currentSession.user)
     const preparedCount = preparationInputs.length

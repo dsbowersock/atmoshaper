@@ -6,7 +6,10 @@ import {
   getBackgroundPurchaseCheckoutSessionEvidence,
 } from "../lib/stripe-billing.js"
 import { buildDigitalPurchaseConsent } from "../lib/legal-acceptance.js"
-import { requiredLegalDocumentsForEvent } from "../lib/legal-documents.js"
+import {
+  DIGITAL_PURCHASES_REFUNDS_VERSION,
+  requiredLegalDocumentsForEvent,
+} from "../lib/legal-documents.js"
 import {
   createBackgroundCheckoutPostHandler,
   markBackgroundCheckoutIndeterminate,
@@ -25,7 +28,7 @@ function readyEnv(overrides = {}) {
     BACKGROUND_COMMERCE_PURCHASING_ENABLED: "true",
     BACKGROUND_COMMERCE_PRICE_CENTS: "100",
     BACKGROUND_COMMERCE_PURCHASE_COUNTRIES: "US",
-    BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION: "2026-07-digital-purchases-v2",
+    BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION: DIGITAL_PURCHASES_REFUNDS_VERSION,
     BACKGROUND_COMMERCE_WEBHOOK_READY: "true",
     BACKGROUND_COMMERCE_RECONCILIATION_READY: "true",
     BACKGROUND_COMMERCE_TAX_MODE: "stripe",

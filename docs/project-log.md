@@ -2,6 +2,296 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21–22 — Task 7 fully gated; Task 8 legal identity candidate implemented
+
+- Final Task 7 amendment `995fc4f7ce44902002ef2b36c7af1195dbdcb562`
+  repaired six verified current collision-note references and strengthened the
+  all-note/all-batch oracle against overlapping current and retired names.
+  Independent SPEC then separate QUALITY approved the frozen package. Codex and
+  CodeRabbit completed clean on the exact head; strict CI `35578132889`
+  passed quality, build, all four browser lanes and aggregate QA. PR #12 remains
+  open and unmerged with all four prior threads resolved or outdated.
+- Created `codex/phase6-08-legal-identity` from that exact reviewed head in the
+  approved isolated worktree. Before implementation, the archive verifier passed
+  9/9 and both immutable v2 SHA-256 pins matched their recorded values.
+- Read-only scoping identified the 13 manifest paths plus required companions
+  `lib/seo.js` and `tests/seo.test.mjs`. README is a partial current-record
+  owner because the recovery copy contains obsolete completion claims. The
+  shared public-routes source delta is streaming-only, and audit core/policy/test
+  source copies would undo reviewed repairs, so neither shared owner enters this
+  slice. The initial planned scope was 19 files.
+- Test-first redistribution applied six source tests first. The old v2 code
+  produced eight expected failures among 31 tests: registry/acceptance, license
+  identity, legal-page copy and legal sitemap dates. At the initial pre-QUALITY
+  freeze, after the eight product/legal owners moved, all 14 implementation/test
+  blobs matched recovery source exactly. The later operator-doc repair moved
+  `tests/stripe-readiness.test.mjs` out of that set, leaving 13 source-exact
+  paths in the published 20-file scope. Archive verification passed 9/9; the focused final suite passed
+  85/85; the post-ordering SEO run passed 12/12; focused ESLint and diff checks
+  passed.
+- The candidate sets current general and digital purchase versions to
+  `2026-09-legal-v3` and `2026-09-digital-purchases-v3`, both effective
+  September 14, 2026, under
+  `Derrick Bowersock, doing business as AtmoShaper`. Tests prove an old v2
+  acceptance does not satisfy v3 and remains byte-for-byte unchanged after a
+  genuine v3 acceptance is recorded. No schema, migration or backfill changed.
+- Root reconciled README and delivery records without importing recovery's stale
+  Task 9/head/Browser-QA claims. Prisma validate/generate, typecheck, lint, the
+  initial Node suite (4,728 passed, three skipped, zero failed), production and
+  Browser-QA builds (115 pages each), and the existing anonymous-registration
+  legal-gate smoke on desktop and mobile Chromium passed provider-free. No
+  snapshot changed.
+- Independent SPEC passed that frozen candidate. Separate QUALITY then found the
+  operational billing wiki still instructed operators to configure the retired
+  v2 digital-purchase document version, while runtime and readiness now require
+  exact equality with v3. The base and recovery source were both stale, and no
+  test coupled the operator instruction to the exported constant. A focused
+  regression failed on the v2 literal, then passed after changing only that wiki
+  value to `2026-09-digital-purchases-v3`; the full Stripe readiness file passed
+  26/26. The updated focused suite passed 86/86 and the final full Node suite
+  passed 4,729 with three skips and no failures. Final scope is 20 files: 13
+  source-exact paths, the test/wiki repair pair and five coordinator-owned records.
+- The repaired v2 package passed independent SPEC re-review then separate
+  QUALITY. Exact staged identity produced commit
+  `4ef561c75125ea3875da236759c10617cfdc8bb1`, published as open, unmerged PR #13
+  with exact base `995fc4f7ce44902002ef2b36c7af1195dbdcb562`. CodeRabbit reviewed all 20 files,
+  proving the smaller-PR path can receive actual coverage; Codex also completed
+  exact-head review. The initial hosted CI passed build and code quality while
+  browser lanes continued, but this head became historical once findings were
+  accepted for repair.
+- Codex identified two valid findings. Email/password success pushed its safe
+  callback directly, unlike Google, so users with only v2 acceptance could
+  bypass the current v3 gate. The canonical state also still described local
+  review and publication as pending. CodeRabbit identified one valid auditability
+  ambiguity: 14 paths were recovery-exact at the pre-QUALITY freeze, but the
+  operator-doc repair left 13 in the published final scope without making that
+  transition explicit.
+- The first credential repair failed its focused assertion on direct
+  `push:/account`, then routes default, explicit safe and already-gated callbacks
+  through one normalized current legal gate. Its full auth-registration owner
+  passes 17/17. The broad suite then correctly rejected a cross-domain schema
+  assertion that still required the retired direct push; the corrected focused
+  file passes 7/7 and the paired auth/schema run passes 24/24. Changed-file
+  ESLint and diff checks pass. Fresh final validation passes the combined
+  legal/auth/readiness slice 108/108, archive verification 9/9, Prisma
+  validate/generate, typecheck, full lint, the 4,732-test Node suite with 4,729
+  passes and three skips, both 115-page builds, and the existing legal-gate
+  browser smoke on desktop and mobile Chromium.
+- Independent SPEC passed that 23-file package, but separate QUALITY found that
+  the redirect still followed session creation and therefore did not prevent an
+  abandoned or direct Credentials callback from using a stale-v2 session. Root
+  reproduced the issue at the shared server-session owner; no middleware or
+  provider change was needed. The repair makes ordinary `getCurrentSession()`
+  fail closed until current registration documents are accepted, keeps the raw
+  Auth.js loader internal, and exposes one narrow pre-acceptance loader only to
+  the legal acceptance page/action. Runtime and ownership tests each failed
+  against the old implementation before passing; the combined focused slice is
+  142/142. The full suite then exposed a stale dev-clock source assertion tied
+  to `return auth()`; its corrected semantic boundary passes 7/7.
+- Renewed SPEC passed that 31-file package. Separate QUALITY then found the
+  Auth.js public session GET handler remained an externally observable raw
+  session owner. Flashcards, Chimer and background hydration could therefore
+  observe a stale-v2 session even though ordinary server loaders failed closed.
+  The first public-session repair shared one current-registration predicate
+  between the ordinary server loader and exact GET session responses. Final
+  SPEC then proved Auth.js also exposes the session action through POST when a
+  client updates session data. The final wrapper now filters exact GET and POST
+  `/api/auth/session` responses, preserves Auth.js status, headers and cookies,
+  returns `null` for stale evidence or lookup failure, and leaves all non-session
+  handlers plus the legal raw loader unchanged. The affected auth/session suites
+  pass 78/78.
+- Strict CI `35591116189` on the initial published head passed quality, build
+  and browser lanes 2–4 but failed lane 1 and aggregate. Both lane-1 attempts
+  reproduced `clock.pauseAt` being asked to fast-forward to the past in the
+  fixed-clock Anatomime Retry-After case. The installed Playwright clock advances
+  between install and pause; installing one fixed minute earlier while pausing
+  at the original phase removes that race without changing the scenario. The
+  exact browser case passed three serial runs. Its actual-owner extraction test
+  initially rejected the new constant, then passed with the dev-clock contracts.
+  Final QUALITY then proved that contract still modeled no time between install
+  and pause, so the old equal-target helper would falsely pass. Root reproduced
+  the gap before repair. The strengthened real-owner contract advances a
+  deterministic 25 ms after install, requires strictly earlier installation and
+  rejects an extracted equal-target mutation. Its focused negative control first
+  failed with `Missing expected rejection`, then the repaired clock contract plus
+  dev-clock suite passed 12/12; the exact browser case passed again.
+- Fresh final validation passes the 4,736-test Node suite with 4,733 passes and
+  three skips, Prisma validate/generate, typecheck, full lint, both 115-page
+  builds, archive verification 9/9, repository audit 28/28 and the desktop/
+  mobile legal-gate smoke 2/2. The strict receipt reached the same fixed point
+  with zero missing, unclassified or category mismatches; its exact hash is
+  pinned in the frozen review evidence. Final scope is 33 files: 12 source-exact
+  paths, 16 explicit repair paths and five coordinator-owned records; the
+  amendment relative to `4ef561c` is 19 files. Frozen v7 passed independent
+  SPEC then separate QUALITY without findings, and exact staged identity
+  produced product amendment `2ab6382d2e944b75e8eb0e76808870f205d21736`,
+  which was pushed to PR #13. A following coordinator-record synchronization
+  does not change product scope; its exact gate status is kept in the ignored
+  handoff so this chronological receipt does not become false merely when that
+  record commit is created. GitHub remains authoritative for the live PR head,
+  inline-thread state, renewed exact-head hosted reviews and strict CI. No
+  merge, provider, billing, deployment, database, DNS/domain, PNG/frame/
+  threshold, media or production action occurred.
+
+- The durable record synchronization was published as `ecf30584`, and both
+  hosted reviewers completed clean coverage of that exact head. Strict CI
+  `35621507294` passed quality, build and browser lane 3, but lanes 1 and 2
+  reproduced three desktop/mobile failures and lane 4 reproduced the same
+  anonymous-fixture effect before its 25-minute timeout. The new acceptance
+  gate correctly rejected synthetic Browser-QA users that had no current Terms
+  or Privacy rows; provider-free JWTs also lacked the server-rendered account
+  bootstrap, and reloads could bypass context routes through the service worker.
+- The bounded repair preserves production policy and connected assertions:
+  database fixtures create current registration acceptances atomically, verify
+  exact ownership before child cleanup, and delete the restricted rows and
+  owned user in one rollback-safe transaction; provider-free contexts project
+  only the client session/account bootstrap and disable worker registration for
+  that routed test context. The login recovery test now owns the legal-gate
+  destination, owner-switch coverage proves the reloaded bootstrap, and cart
+  labels remain `Open account cart` in connected QA. RED reproduced every
+  recurrence, including zero-count and thrown-delete rollback oracles. GREEN
+  passes the fixture contracts 64/64 and all five exact scenarios on desktop/
+  mobile 10/10. The full Node suite passes 4,736 with three
+  host-dependent skips and zero failures; typecheck, changed-file lint and diff
+  checks are clean. The resulting 40-path candidate still requires frozen SPEC,
+  separate QUALITY, exact staged identity, renewed hosted reviews and all seven
+  strict CI jobs before Task 8 can close.
+
+- Independent SPEC then QUALITY approved that frozen 40-path repair, and exact
+  staged identity produced `26c76ada77c7d3977af666942101b6e5018e15f3` on
+  PR #13. Codex completed clean exact-head review. Strict CI `35638346707`
+  passed code quality, build, all four browser lanes and aggregate QA.
+  CodeRabbit reviewed the exact 12-file amendment and raised two valid Minor
+  fixture-contract findings, so the green hosted result is historical rather
+  than final.
+- The provider-free Auth.js projection omitted its required session expiry, and
+  the same-origin HTML catch-all assumed every document contained the shared
+  root-layout account bootstrap. The standalone global-error document disproves
+  that assumption. Strict RED reproduced both defects while retaining the
+  existing one-marker projection and duplicate-marker rejection. The bounded
+  two-file repair adds a future ISO expiry, passes zero-marker HTML through,
+  projects exactly one marker and still rejects duplicates.
+- Independent QUALITY then found the expiry test accepted a short or already-
+  expired mutation and the context-wide session glob fulfilled foreign origins.
+  Executable mutation probes confirmed both before repair. Strict RED passed
+  only the same-origin control and failed the short-lifetime and foreign-origin
+  oracles; GREEN passes all three. The real extracted owners now enforce the
+  sibling fixture's exact one-hour lifetime and fall back outside the configured
+  origin.
+- Frozen v12 passed independent SPEC, but separate QUALITY found that the signed
+  cookie, provider-free fixture and oracle still carried three independent
+  one-hour values. Changing the cookie lifetime left the consumer and all 70
+  tests green, so v12 was invalidated before staging. Strict RED mutated the
+  canonical cookie owner to 60 seconds and failed because the consumer remained
+  one hour. GREEN exports one cookie-owned constant, wires both runtime test
+  paths to it, and keeps an independent one-hour acceptance oracle.
+- Frozen v13 passed independent SPEC, but separate QUALITY found that its
+  harness removed the actual lifetime import and injected a value manually, so
+  replacing the canonical import with a new local owner could remain falsely
+  green. The frozen bytes were invalidated before staging. Strict RED removed
+  the canonical import and inserted a local `60 * 60`; the old harness did not
+  reject it. GREEN now uses TypeScript AST evidence to require exactly one
+  unaliased import of the cookie-owned constant, rejects a top-level local
+  replacement before controlled injection, and retains the independent timing
+  and canonical-owner mutation oracles.
+- Frozen v14 passed independent SPEC, but separate QUALITY proved its import
+  tuple ignored whole-clause and inline TypeScript type-only flags. Both forms
+  could satisfy the ownership assertion without a runtime binding, after which
+  controlled injection could keep the executable checks green. Root reproduced
+  both false positives and invalidated v14 before staging. Strict RED missed
+  both mutations 0/2; GREEN requires non-type-only clause and specifier flags
+  plus an explicitly unaliased binding, and passes both new negatives 2/2.
+- Frozen v15 passed independent SPEC, but separate QUALITY found that the
+  60-second canonical mutation only asserted rejection by the one-hour oracle.
+  A type-safe consumer clamp to 120 seconds retained the canonical import and
+  still passed. Root reproduced that false positive and invalidated v15 before
+  staging. Strict RED failed both exact-propagation cases 0/2. GREEN
+  parameterizes the timing bounds: the positive path retains its independent
+  one-hour oracle, the canonical mutation must match the observed 60,000ms
+  lifetime, and the real-source 120-second clamp is rejected.
+- Frozen v16 passed independent SPEC, but separate QUALITY proved that its
+  selected 60- and 3,600-second values and handler-duration window did not prove
+  arbitrary owner-to-consumer identity. A nonlinear 3,600-second cap agreed at
+  both selected values but failed at 7,200 seconds, while a five-millisecond
+  consumer offset fit inside a ten-millisecond handler window. Root reproduced
+  both actual-source counterexamples and invalidated v16 before staging. Strict
+  RED failed both fixed-clock mutation cases 0/2. GREEN injects a deterministic
+  `Date`, asserts exact ISO expiry at 17, 60, 3,600 and 7,200 seconds, rejects
+  both mutation families and retains the real-clock one-hour integration oracle.
+- The complete fixture/harness surface passes 76/76; six representative
+  provider-free desktop/mobile browser journeys pass 6/6 with one worker and no
+  retries because runtime bytes did not change; and the full Node suite passes
+  4,751 total with 4,748 passes, three
+  host-dependent skips and zero failures.
+  Typecheck, changed-file lint and diff checks pass. The scope is now 41 paths:
+  12 recovery-exact, 24 repairs and five records. A new frozen SPEC, separate
+  QUALITY, exact staged identity, fresh
+  exact-head hosted reviews and all seven strict CI jobs remain required.
+- Frozen v17 passed independent SPEC then QUALITY, staged-blob identity and was
+  published as `fd7d6124b57177a5f2266af8af82fb0561aba332`. Both hosted reviewers
+  completed exact-head review. Codex found that matching-email Google linking
+  could prove credentials, receive `AUTHENTICATION_REQUIRED` from confirmation
+  and never route to the current registration legal gate. CodeRabbit found that
+  the real-clock expiry window could false-fail under backward clock correction.
+- Root verified both findings against the real owners before changing code.
+  Strict RED reproduced the missing legal redirect and the rollback-sensitive
+  timing failure. GREEN routes only the exact 401/code pair through the
+  canonical legal-acceptance builder while preserving the cookie-bound intent,
+  and an executable provider-free form harness proves the canonical callback.
+  The real-clock case now asserts successful invocation and canonical ISO shape;
+  deterministic-clock tests retain exact one-hour identity and the full
+  17/60/3,600/7,200-second mutation matrix.
+- The repaired fixture/database surface passes 78/78, legal/interaction tests
+  pass 24/24, and the full Node suite passes 4,754 total / 4,751 pass / 3 skip /
+  0 fail; typecheck, lint and diff checks pass. Superseded CI `35668571160`
+  passed quality, build and every browser test body (lane 3: 152 pass / 42
+  skip), but lane 3 diagnostics upload received a GitHub artifact-intermediary
+  403 and aggregate QA failed. Do not rerun that superseded head; fresh CI will
+  run on the repair. The local candidate is now 43 paths: 12 recovery-exact, 26
+  repairs and five records, and still requires fresh freeze, SPEC, QUALITY,
+  staged identity, publication and exact-head hosted/CI coverage.
+- Frozen v18 passed independent SPEC with 97/97 focused actual-owner tests and
+  no finding. Separate QUALITY then proved the positive-only real-form
+  legal-routing test admitted an `&&` to `||` mutation, which incorrectly
+  redirected both 401 + `PROOF_EXPIRED` and 403 +
+  `AUTHENTICATION_REQUIRED`. Root reproduced the false-pass 1/1, restored the
+  production blob and invalidated v18 before staging.
+- The same implementer changed only the executable account-security contract.
+  Both mismatched pairs now prove exact confirmation-recovery invocation and
+  zero legal-builder callbacks, router pushes and refreshes. Correct-source
+  focused tests pass 2/2; the controlled `||` mutation fails 0/1. The full
+  account-security suite passes 20/20, legal/interaction companions pass 24/24,
+  and the clean full Node suite passes 4,755 total / 4,752 pass / 3 skip /
+  0 fail. Re-freeze the same 43-path classification as v19 and repeat SPEC then
+  QUALITY before staging.
+- Frozen v19 passed independent SPEC with 98/98 focused actual-owner tests and
+  no finding. Separate QUALITY then proved the mismatched-pair matrix still
+  admitted prefix matching and string coercion. Actual-source mutations
+  redirected 401 + `AUTHENTICATION_REQUIRED_LATER` and 401 +
+  `["AUTHENTICATION_REQUIRED"]` without failing any assertion. Root
+  reproduced the coercion false-pass 1/1, restored the exact production blob
+  and invalidated v19 before staging.
+- The test-only matrix now includes near-match, case-changed and
+  whitespace-padded strings plus null, array and object codes. Each requires
+  exact confirmation-recovery arguments and zero legal-builder calls, pushes
+  or refreshes. Correct-source focused tests pass 2/2; controlled prefix and
+  coercion mutations each fail 0/1 and restore in `finally`. Account security
+  remains 20/20 and legal/interaction companions 24/24. Re-freeze the same
+  43-path classification as v20 and repeat SPEC then QUALITY before staging.
+- Frozen v20 passed independent SPEC with 98/98 focused actual-owner tests and
+  no finding. Separate QUALITY then proved the corpus omitted missing code, a
+  fullwidth Unicode lookalike and rejected JSON. Actual-source undefined-
+  acceptance, NFKC-normalization and JSON-fallback mutations preserved every
+  v20 assertion. Root reproduced the JSON-fallback false-pass 2/2, restored the
+  exact production blob and invalidated v20 before staging.
+- The test-only corpus now includes 401 with a missing code, the fullwidth
+  lookalike, rejected `response.json()` and string status `"401"`. Each
+  requires exact confirmation-recovery arguments and zero legal-builder calls,
+  pushes or refreshes. Correct-source focused tests pass 2/2; controlled
+  undefined, NFKC and JSON-fallback mutations each fail 0/1 and restore in
+  `finally`. Frozen v21 later passed SPEC then QUALITY and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`; the post-v21 OAuth repair `7ad60de8519e4a1d4bcc0bd892583b0c54d80186` followed.
+  Each new PR #13 head must receive both hosted reviews and strict CI before Task 9; GitHub and the ignored handoff hold live status.
+
 ## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
 
 - Published the first hosted repair as `03d7762` after independent SPEC then

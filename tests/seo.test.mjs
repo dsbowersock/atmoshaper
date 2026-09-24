@@ -81,6 +81,17 @@ describe("SEO route contract", () => {
     }
   })
 
+  it("presents current legal-page metadata as AtmoShaper", () => {
+    const legalPageCopy = [
+      readProjectFile("app/legal/page.tsx"),
+      readProjectFile("app/legal/[slug]/page.tsx"),
+      readProjectFile("app/legal/accept/page.tsx"),
+    ].join(" ")
+
+    assert.match(legalPageCopy, /atmoshaper/)
+    assert.doesNotMatch(legalPageCopy, /massage\s*lab/)
+  })
+
   it("does not include private or per-user paths in sitemap entries", () => {
     const entries = createSitemapEntries(productionEnv)
     const urls = entries.map((entry) => new URL(entry.url))
@@ -185,14 +196,14 @@ describe("SEO route contract", () => {
 })
 
 describe("Sitemap revision dates", () => {
-  it("publishes the approved shared date while preserving current legal dates", () => {
+  it("publishes the approved shared and legal revision dates", () => {
     const entries = createSitemapEntries(productionEnv)
     const entriesByPath = new Map(entries.map((entry) => [new URL(entry.url).pathname, entry]))
     const expectedDates = new Map([
       ["/", "2026-09-19"],
       ["/about", "2026-09-19"],
-      ["/legal", "2026-06-17"],
-      ...LEGAL_DOCUMENTS.map((document) => [document.route, "2026-06-17"]),
+      ["/legal", "2026-09-14"],
+      ...LEGAL_DOCUMENTS.map((document) => [document.route, "2026-09-14"]),
     ])
 
     for (const [path, expectedDate] of expectedDates) {

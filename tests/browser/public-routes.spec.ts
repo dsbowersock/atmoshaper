@@ -1777,13 +1777,16 @@ test("Music account preference owner switch ignores a delayed old-owner PUT", as
     .evaluate((button) => (button as HTMLButtonElement).click())
   await ownerAWriteStarted
 
-  await installOwnedSignedInUserFixture({
+  const ownerBIdentity = await installOwnedSignedInUserFixture({
     context,
     baseURL: String(testInfo.project.use.baseURL),
     projectName: testInfo.project.name,
     owner: "public-routes-owner-b",
   })
-  await page.reload({ waitUntil: "domcontentloaded" })
+  const ownerBReload = await page.reload({ waitUntil: "domcontentloaded" })
+  expect(ownerBReload, "owner B reload response").not.toBeNull()
+  await expect(ownerBReload!.text(), "the reloaded account bootstrap belongs to owner B")
+    .resolves.toContain(`\\"ownerKey\\":\\"${ownerBIdentity.user.id}\\"`)
   await expect(page.getByRole("region", {
     name: "Music visualizer",
     exact: true,

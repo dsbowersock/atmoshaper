@@ -11,6 +11,7 @@ import {
   removeBrowserUserFixtureRecord,
 } from "../lib/auth/browser-user-fixture.ts"
 import { decideAuthSessionVersion } from "../lib/auth-session-version.ts"
+import { requiredLegalDocumentsForEvent } from "../lib/legal-documents.js"
 import { signedInSessionToken } from "./browser/signed-in-session-cookie.ts"
 
 const {
@@ -43,6 +44,80 @@ function completeAuthorizedEnvironment(overrides = {}) {
     DIRECT_URL: directUrl,
     MASSAGELAB_BROWSER_QA_DATABASE_FINGERPRINT: fingerprintBrowserQaDatabaseTarget(runtimeUrl, directUrl),
     ...overrides,
+  }
+}
+
+function immediateTransactionClient(delegates) {
+  return {
+    ...delegates,
+    async $transaction(callback) {
+      return callback(delegates)
+    },
+  }
+}
+
+function createGenericCleanupRollbackHarness(identity, userDeleteFailure) {
+  const acceptanceRows = requiredLegalDocumentsForEvent("registration").map((document) => ({
+    documentKey: document.key,
+    documentVersion: document.version,
+  }))
+  const committed = {
+    users: new Map([[identity.user.id, { email: identity.user.email }]]),
+    legalAcceptances: new Map([[identity.user.id, acceptanceRows]]),
+  }
+  let transactions = 0
+
+  const delegatesFor = (state) => ({
+    user: {
+      async findUnique({ where }) {
+        return state.users.get(where.id) ?? null
+      },
+      async deleteMany({ where }) {
+        if (userDeleteFailure === "throw") throw new Error("simulated exact user delete failure")
+        if (userDeleteFailure === "zero") return { count: 0 }
+        const existing = state.users.get(where.id)
+        if (existing?.email !== where.email) return { count: 0 }
+        state.users.delete(where.id)
+        return { count: 1 }
+      },
+    },
+    legalAcceptance: {
+      async deleteMany({ where }) {
+        const count = state.legalAcceptances.get(where.userId)?.length ?? 0
+        state.legalAcceptances.delete(where.userId)
+        return { count }
+      },
+    },
+  })
+
+  return {
+    prismaClient: {
+      ...delegatesFor(committed),
+      async $transaction(callback) {
+        transactions += 1
+        const draft = {
+          users: new Map(committed.users),
+          legalAcceptances: new Map(
+            [...committed.legalAcceptances].map(([userId, rows]) => [
+              userId,
+              rows.map((row) => ({ ...row })),
+            ]),
+          ),
+        }
+        const result = await callback(delegatesFor(draft))
+        committed.users = draft.users
+        committed.legalAcceptances = draft.legalAcceptances
+        return result
+      },
+    },
+    snapshot() {
+      return {
+        user: committed.users.get(identity.user.id) ?? null,
+        legalAcceptances: committed.legalAcceptances.get(identity.user.id) ?? null,
+        transactions,
+      }
+    },
+    acceptanceRows,
   }
 }
 
@@ -96,12 +171,15 @@ describe("disposable browser-QA database target guard", () => {
     assert.notEqual(first.user.email, second.user.email)
 
     const rows = new Map()
-    const prismaClient = {
+    const legalAcceptances = new Map()
+    const transactionClient = {
       user: {
         async create({ data }) {
           assert.equal(rows.has(data.id), false)
-          rows.set(data.id, data)
-          return data
+          const { legalAcceptances: relation, ...user } = data
+          rows.set(data.id, user)
+          legalAcceptances.set(data.id, relation.create)
+          return user
         },
         async deleteMany({ where }) {
           const row = rows.get(where.id)
@@ -113,7 +191,15 @@ describe("disposable browser-QA database target guard", () => {
           return rows.get(where.id) ?? null
         },
       },
+      legalAcceptance: {
+        async deleteMany({ where }) {
+          const removed = legalAcceptances.get(where.userId)?.length ?? 0
+          legalAcceptances.delete(where.userId)
+          return { count: removed }
+        },
+      },
     }
+    const prismaClient = immediateTransactionClient(transactionClient)
 
     await createBrowserUserFixtureRecord({
       prismaClient,
@@ -132,10 +218,12 @@ describe("disposable browser-QA database target guard", () => {
     })
 
     assert.equal(rows.has(first.user.id), false)
+    assert.equal(legalAcceptances.has(first.user.id), false)
     assert.equal(rows.get(second.user.id)?.email, second.user.email)
+    assert.equal(legalAcceptances.get(second.user.id)?.length, 2)
   })
 
-  it("generic signed-in fixture refuses unauthorized mutation and creates an explicit version", async () => {
+  it("generic signed-in fixture refuses unauthorized mutation and atomically creates current registration acceptances", async () => {
     const identity = createBrowserUserFixtureIdentity("desktop-chromium", "music-visualizer-defaults")
     let creates = 0
     await assert.rejects(
@@ -166,28 +254,43 @@ describe("disposable browser-QA database target guard", () => {
     assert.equal(createQuery.data.authSessionVersion, 0)
     assert.equal(createQuery.data.id, identity.user.id)
     assert.equal(createQuery.data.email, identity.user.email)
+    assert.deepEqual(createQuery.data.legalAcceptances, {
+      create: requiredLegalDocumentsForEvent("registration").map((document) => ({
+        documentKey: document.key,
+        documentVersion: document.version,
+      })),
+    })
     assert.equal(created.authSessionVersion, 0)
   })
 
-  it("generic signed-in cleanup verifies ownership and deletes only the exact id/email pair", async () => {
+  it("generic signed-in cleanup verifies ownership before deleting owned acceptances and the exact user", async () => {
     const identity = createBrowserUserFixtureIdentity("mobile-chromium", "background-commerce")
     const calls = []
     await removeBrowserUserFixtureRecord({
-      prismaClient: {
+      prismaClient: immediateTransactionClient({
         user: {
+          async findUnique(query) {
+            calls.push(["findUnique", query])
+            return { email: identity.user.email }
+          },
           async deleteMany(query) {
             calls.push(["deleteMany", query])
             return { count: 1 }
           },
-          async findUnique() {
-            throw new Error("successful cleanup must not need a follow-up read")
+        },
+        legalAcceptance: {
+          async deleteMany(query) {
+            calls.push(["legalAcceptance.deleteMany", query])
+            return { count: 2 }
           },
         },
-      },
+      }),
       identity,
       environment: completeAuthorizedEnvironment(),
     })
     assert.deepEqual(calls, [
+      ["findUnique", { where: { id: identity.user.id }, select: { email: true } }],
+      ["legalAcceptance.deleteMany", { where: { userId: identity.user.id } }],
       ["deleteMany", { where: { id: identity.user.id, email: identity.user.email } }],
     ])
   })
@@ -196,53 +299,107 @@ describe("disposable browser-QA database target guard", () => {
     const identity = createBrowserUserFixtureIdentity("mobile-chromium", "background-commerce")
     const calls = []
     await removeBrowserUserFixtureRecord({
-      prismaClient: {
+      prismaClient: immediateTransactionClient({
         user: {
-          async deleteMany(query) {
-            calls.push(["deleteMany", query])
-            return { count: 0 }
-          },
           async findUnique(query) {
             calls.push(["findUnique", query])
             return null
           },
+          async deleteMany() {
+            throw new Error("absent cleanup must not delete a user")
+          },
         },
-      },
+        legalAcceptance: {
+          async deleteMany() {
+            throw new Error("absent cleanup must not delete child rows")
+          },
+        },
+      }),
       identity,
       environment: completeAuthorizedEnvironment(),
     })
     assert.deepEqual(calls, [
-      ["deleteMany", { where: { id: identity.user.id, email: identity.user.email } }],
       ["findUnique", { where: { id: identity.user.id }, select: { email: true } }],
     ])
   })
 
-  it("fails closed when zero-count generic cleanup finds a different owner", async () => {
+  it("fails closed before deleting children when generic cleanup finds a different owner", async () => {
     const identity = createBrowserUserFixtureIdentity("mobile-chromium", "background-commerce")
+    let deletes = 0
     await assert.rejects(removeBrowserUserFixtureRecord({
-      prismaClient: {
+      prismaClient: immediateTransactionClient({
         user: {
-          async deleteMany() { return { count: 0 } },
+          async deleteMany() { deletes += 1; return { count: 0 } },
           async findUnique() { return { email: "different@browser-user.massagelab.example.test" } },
         },
-      },
+        legalAcceptance: {
+          async deleteMany() { deletes += 1; return { count: 0 } },
+        },
+      }),
       identity,
       environment: completeAuthorizedEnvironment(),
     }), { message: "Browser user fixture ownership mismatch." })
+    assert.equal(deletes, 0)
   })
 
-  it("fails exactly when zero-count generic cleanup leaves the owned row present", async () => {
+  it("fails exactly when the verified owned row disappears after child cleanup", async () => {
     const identity = createBrowserUserFixtureIdentity("mobile-chromium", "background-commerce")
     await assert.rejects(removeBrowserUserFixtureRecord({
-      prismaClient: {
+      prismaClient: immediateTransactionClient({
         user: {
           async deleteMany() { return { count: 0 } },
           async findUnique() { return { email: identity.user.email } },
         },
-      },
+        legalAcceptance: {
+          async deleteMany() { return { count: 2 } },
+        },
+      }),
       identity,
       environment: completeAuthorizedEnvironment(),
     }), { message: "Browser user fixture cleanup did not remove exactly one owned user." })
+  })
+
+  for (const userDeleteFailure of ["zero", "throw"]) {
+    it(`rolls back generic cleanup when exact user deletion returns ${userDeleteFailure}`, async () => {
+      const identity = createBrowserUserFixtureIdentity("mobile-chromium", `rollback-${userDeleteFailure}`)
+      const harness = createGenericCleanupRollbackHarness(identity, userDeleteFailure)
+      const expectedError = userDeleteFailure === "zero"
+        ? "Browser user fixture cleanup did not remove exactly one owned user."
+        : "simulated exact user delete failure"
+
+      await assert.rejects(removeBrowserUserFixtureRecord({
+        prismaClient: harness.prismaClient,
+        identity,
+        environment: completeAuthorizedEnvironment(),
+      }), { message: expectedError })
+      assert.deepEqual(harness.snapshot(), {
+        user: { email: identity.user.email },
+        legalAcceptances: harness.acceptanceRows,
+        transactions: 1,
+      })
+    })
+  }
+
+  it("rejects unauthorized generic cleanup before opening a transaction or invoking a database callback", async () => {
+    const identity = createBrowserUserFixtureIdentity("mobile-chromium", "unauthorized-cleanup")
+    let databaseCalls = 0
+    const unexpectedDatabaseCall = async () => {
+      databaseCalls += 1
+      throw new Error("unauthorized cleanup must not access the database")
+    }
+    await assert.rejects(removeBrowserUserFixtureRecord({
+      prismaClient: {
+        $transaction: unexpectedDatabaseCall,
+        user: {
+          findUnique: unexpectedDatabaseCall,
+          deleteMany: unexpectedDatabaseCall,
+        },
+        legalAcceptance: { deleteMany: unexpectedDatabaseCall },
+      },
+      identity,
+      environment: {},
+    }), /approved disposable browser-QA database target/i)
+    assert.equal(databaseCalls, 0)
   })
 
   it("guards fixture creation and exact cleanup before any database call", () => {

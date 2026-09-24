@@ -106,6 +106,8 @@ describe("JWT session-version integration contract", () => {
         }),
       },
       "@/lib/legal-acceptance-gate": strictLegalAcceptanceGate,
+      "@/lib/legal-acceptance": { hasAcceptedCurrentDocuments: async () => true },
+      "@/lib/legal-documents": { requiredLegalDocumentsForEvent: () => [] },
       "@/lib/auth-users": {
         ensureGoogleUserState: async () => {},
         ensureUserRole: async () => {},
@@ -122,6 +124,251 @@ describe("JWT session-version integration contract", () => {
 
     assert.equal(redirect, "/register?callbackUrl=%2Fregister%3FcallbackUrl%3D%252F")
     assert.deepEqual(legalRedirectInvocations, [["/legal/accept?callbackUrl=%2Fwellness"]])
+  })
+
+  it("fails ordinary sessions closed until current registration documents are accepted", async () => {
+    const authSource = await read("auth.ts")
+    const rawSession = { user: { id: "stale-v2-user", email: "person@example.test" } }
+    const requiredDocuments = [
+      { key: "terms", version: "current-terms" },
+      { key: "privacy", version: "current-privacy" },
+    ]
+    const prisma = { legalAcceptance: {} }
+    const acceptanceCalls = []
+    let currentRawSession = rawSession
+    let acceptanceResult = false
+    let acceptanceError = null
+    class CredentialsSignin extends Error {}
+    const NextAuth = () => ({
+      handlers: {},
+      auth: async () => currentRawSession,
+      signIn() {},
+      signOut() {},
+    })
+    NextAuth.CredentialsSignin = CredentialsSignin
+
+    const authModule = loadCompiledModule(authSource, "auth-registration-acceptance-session.test.ts", {
+      "next-auth": NextAuth,
+      "next-auth/providers/credentials": (config) => config,
+      "next-auth/providers/google": (config) => config,
+      "next/headers": { cookies: async () => ({ get: () => undefined }) },
+      "@auth/prisma-adapter": { PrismaAdapter: () => ({}) },
+      "@/lib/prisma": { prisma },
+      "@/lib/auth-account-linking": { googleProfileEmail: () => "", isVerifiedGoogleProfile: () => true },
+      "@/lib/auth-env": {
+        getAuthSecret: () => "test-secret",
+        getGoogleAuthConfig: () => null,
+        getSiteUrl: () => "http://localhost:3000",
+      },
+      "@/lib/auth-method-proof": { verifyPasswordMethodProof: async () => ({ status: "INVALID" }) },
+      "@/lib/auth-request": { authRequestNetworkIdentifier: () => "network" },
+      "@/lib/auth-method-intents": {
+        AUTH_METHOD_INTENT_COOKIE: "ml-auth-method-binding",
+        parseAuthMethodIntentBinding: () => null,
+        prepareGoogleAuthentication: async () => ({ kind: "REJECTED", recoveryPath: "/login?auth=google-retry" }),
+      },
+      "@/lib/legal-acceptance": {
+        async hasAcceptedCurrentDocuments(input) {
+          acceptanceCalls.push(input)
+          if (acceptanceError) throw acceptanceError
+          return acceptanceResult
+        },
+      },
+      "@/lib/legal-acceptance-gate": strictLegalAcceptanceGate,
+      "@/lib/legal-documents": {
+        requiredLegalDocumentsForEvent: (event) => {
+          assert.equal(event, "registration")
+          return requiredDocuments
+        },
+      },
+      "@/lib/auth-users": {
+        ensureGoogleUserState: async () => {},
+        ensureUserRole: async () => {},
+        getUserAuthState: async () => null,
+      },
+      "@/lib/auth-session-version": { decideAuthSessionVersion },
+      "@/lib/auth-security": { normalizeEmail: () => "" },
+    })
+
+    assert.equal(await authModule.getCurrentSession(), null)
+    assert.deepEqual(acceptanceCalls, [{
+      prismaClient: prisma,
+      userId: "stale-v2-user",
+      documents: requiredDocuments,
+    }])
+    assert.equal(await authModule.getRegistrationLegalAcceptanceSession(), rawSession)
+
+    acceptanceResult = true
+    assert.equal(await authModule.getCurrentSession(), rawSession)
+
+    currentRawSession = null
+    const callsBeforeAnonymous = acceptanceCalls.length
+    assert.equal(await authModule.getCurrentSession(), null)
+    assert.equal(acceptanceCalls.length, callsBeforeAnonymous)
+    assert.equal(await authModule.getRegistrationLegalAcceptanceSession(), null)
+
+    currentRawSession = rawSession
+    acceptanceError = new Error("legal acceptance lookup unavailable")
+    assert.equal(await authModule.getCurrentSession(), null)
+  })
+
+  it("filters the public Auth.js session response through current registration acceptance", async () => {
+    const authSource = await read("auth.ts")
+    const rawSession = { user: { id: "stale-v2-user", email: "person@example.test" }, expires: "2099-01-01" }
+    const requiredDocuments = [{ key: "terms", version: "current" }, { key: "privacy", version: "current" }]
+    const prisma = { legalAcceptance: {} }
+    const acceptanceCalls = []
+    const rawGetResponses = []
+    const rawPostResponses = []
+    let rawResponseBody = rawSession
+    let acceptanceResult = false
+    let acceptanceError = null
+    const rawPost = async (request) => {
+      const body = new URL(request.url).pathname === "/api/auth/session"
+        ? rawResponseBody
+        : { action: "raw-post" }
+      const response = new Response(JSON.stringify(body), {
+        status: 208,
+        statusText: "Raw Auth POST Response",
+        headers: {
+          "content-length": "999",
+          "content-type": "application/json",
+          "set-cookie": "post-auth-cookie=preserved; Path=/; HttpOnly",
+          "x-auth-owner": "raw-post",
+        },
+      })
+      rawPostResponses.push(response)
+      return response
+    }
+    const rawGet = async (request) => {
+      const body = new URL(request.url).pathname === "/api/auth/session"
+        ? rawResponseBody
+        : { provider: "raw" }
+      const response = new Response(JSON.stringify(body), {
+        status: 207,
+        statusText: "Raw Auth Response",
+        headers: {
+          "content-length": "999",
+          "content-type": "application/json",
+          "set-cookie": "auth-cookie=preserved; Path=/; HttpOnly",
+          "x-auth-owner": "raw",
+        },
+      })
+      rawGetResponses.push(response)
+      return response
+    }
+    class CredentialsSignin extends Error {}
+    const NextAuth = () => ({
+      handlers: { GET: rawGet, POST: rawPost },
+      auth: async () => rawSession,
+      signIn() {},
+      signOut() {},
+    })
+    NextAuth.CredentialsSignin = CredentialsSignin
+
+    const authModule = loadCompiledModule(authSource, "auth-public-session-acceptance.test.ts", {
+      "next-auth": NextAuth,
+      "next-auth/providers/credentials": (config) => config,
+      "next-auth/providers/google": (config) => config,
+      "next/headers": { cookies: async () => ({ get: () => undefined }) },
+      "@auth/prisma-adapter": { PrismaAdapter: () => ({}) },
+      "@/lib/prisma": { prisma },
+      "@/lib/auth-account-linking": { googleProfileEmail: () => "", isVerifiedGoogleProfile: () => true },
+      "@/lib/auth-env": {
+        getAuthSecret: () => "test-secret",
+        getGoogleAuthConfig: () => null,
+        getSiteUrl: () => "http://localhost:3000",
+      },
+      "@/lib/auth-method-proof": { verifyPasswordMethodProof: async () => ({ status: "INVALID" }) },
+      "@/lib/auth-request": { authRequestNetworkIdentifier: () => "network" },
+      "@/lib/auth-method-intents": {
+        AUTH_METHOD_INTENT_COOKIE: "ml-auth-method-binding",
+        parseAuthMethodIntentBinding: () => null,
+        prepareGoogleAuthentication: async () => ({ kind: "REJECTED", recoveryPath: "/login?auth=google-retry" }),
+      },
+      "@/lib/legal-acceptance": {
+        async hasAcceptedCurrentDocuments(input) {
+          acceptanceCalls.push(input)
+          if (acceptanceError) throw acceptanceError
+          return acceptanceResult
+        },
+      },
+      "@/lib/legal-acceptance-gate": strictLegalAcceptanceGate,
+      "@/lib/legal-documents": {
+        requiredLegalDocumentsForEvent: (event) => {
+          assert.equal(event, "registration")
+          return requiredDocuments
+        },
+      },
+      "@/lib/auth-users": {
+        ensureGoogleUserState: async () => {},
+        ensureUserRole: async () => {},
+        getUserAuthState: async () => null,
+      },
+      "@/lib/auth-session-version": { decideAuthSessionVersion },
+      "@/lib/auth-security": { normalizeEmail: () => "" },
+    })
+
+    const staleResponse = await authModule.handlers.GET(new Request("https://massagelab.test/api/auth/session"))
+    assert.deepEqual(await staleResponse.json(), null)
+    assert.equal(staleResponse.status, 207)
+    assert.equal(staleResponse.statusText, "Raw Auth Response")
+    assert.equal(staleResponse.headers.get("set-cookie"), "auth-cookie=preserved; Path=/; HttpOnly")
+    assert.equal(staleResponse.headers.get("x-auth-owner"), "raw")
+    assert.equal(staleResponse.headers.get("content-length"), null)
+    assert.deepEqual(acceptanceCalls, [{
+      prismaClient: prisma,
+      userId: "stale-v2-user",
+      documents: requiredDocuments,
+    }])
+
+    acceptanceResult = true
+    const acceptedResponse = await authModule.handlers.GET(new Request("https://massagelab.test/api/auth/session"))
+    assert.equal(acceptedResponse, rawGetResponses.at(-1))
+    assert.deepEqual(await acceptedResponse.json(), rawSession)
+
+    const callsBeforeAnonymous = acceptanceCalls.length
+    for (const anonymousBody of [null, { user: { email: "missing-id@example.test" } }]) {
+      rawResponseBody = anonymousBody
+      const anonymousResponse = await authModule.handlers.GET(new Request("https://massagelab.test/api/auth/session"))
+      assert.deepEqual(await anonymousResponse.json(), null)
+      assert.equal(anonymousResponse.headers.get("content-length"), null)
+    }
+    assert.equal(acceptanceCalls.length, callsBeforeAnonymous)
+
+    rawResponseBody = rawSession
+    acceptanceError = new Error("legal acceptance lookup unavailable")
+    const failedLookupResponse = await authModule.handlers.GET(new Request("https://massagelab.test/api/auth/session"))
+    assert.deepEqual(await failedLookupResponse.json(), null)
+
+    acceptanceError = null
+    rawResponseBody = Symbol("malformed session JSON")
+    const malformedResponse = await authModule.handlers.GET(new Request("https://massagelab.test/api/auth/session"))
+    assert.deepEqual(await malformedResponse.json(), null)
+
+    const nonSessionResponse = await authModule.handlers.GET(new Request("https://massagelab.test/api/auth/providers"))
+    assert.equal(nonSessionResponse, rawGetResponses.at(-1))
+    assert.deepEqual(await nonSessionResponse.json(), { provider: "raw" })
+
+    rawResponseBody = rawSession
+    acceptanceResult = false
+    const stalePostResponse = await authModule.handlers.POST(new Request("https://massagelab.test/api/auth/session", { method: "POST" }))
+    assert.deepEqual(await stalePostResponse.json(), null)
+    assert.equal(stalePostResponse.status, 208)
+    assert.equal(stalePostResponse.statusText, "Raw Auth POST Response")
+    assert.equal(stalePostResponse.headers.get("set-cookie"), "post-auth-cookie=preserved; Path=/; HttpOnly")
+    assert.equal(stalePostResponse.headers.get("x-auth-owner"), "raw-post")
+    assert.equal(stalePostResponse.headers.get("content-length"), null)
+
+    acceptanceResult = true
+    const acceptedPostResponse = await authModule.handlers.POST(new Request("https://massagelab.test/api/auth/session", { method: "POST" }))
+    assert.equal(acceptedPostResponse, rawPostResponses.at(-1))
+    assert.deepEqual(await acceptedPostResponse.json(), rawSession)
+
+    const nonSessionPostResponse = await authModule.handlers.POST(new Request("https://massagelab.test/api/auth/callback/credentials", { method: "POST" }))
+    assert.equal(nonSessionPostResponse, rawPostResponses.at(-1))
+    assert.deepEqual(await nonSessionPostResponse.json(), { action: "raw-post" })
+    assert.equal(await authModule.getRegistrationLegalAcceptanceSession(), rawSession)
   })
 
   it("rejects a pre-reset JWT version after reset consumption advances the account version", async () => {
@@ -287,6 +534,8 @@ describe("JWT session-version integration contract", () => {
         prepareGoogleAuthentication: async () => ({ kind: "REJECTED", recoveryPath: "/login?auth=google-retry" }),
       },
       "@/lib/legal-acceptance-gate": strictLegalAcceptanceGate,
+      "@/lib/legal-acceptance": { hasAcceptedCurrentDocuments: async () => true },
+      "@/lib/legal-documents": { requiredLegalDocumentsForEvent: () => [] },
       "@/lib/auth-users": {
         ensureGoogleUserState: async () => {}, ensureUserRole: async () => {},
         async getUserAuthState(userId) {
@@ -351,6 +600,8 @@ describe("JWT session-version integration contract", () => {
         prepareGoogleAuthentication: async () => ({ kind: "REJECTED", recoveryPath: "/login?auth=google-retry" }),
       },
       "@/lib/legal-acceptance-gate": strictLegalAcceptanceGate,
+      "@/lib/legal-acceptance": { hasAcceptedCurrentDocuments: async () => true },
+      "@/lib/legal-documents": { requiredLegalDocumentsForEvent: () => [] },
       "@/lib/auth-users": {
         ensureGoogleUserState: async () => {}, ensureUserRole: async () => {},
         getUserAuthState: async () => ({
@@ -425,6 +676,8 @@ describe("JWT session-version integration contract", () => {
         prepareGoogleAuthentication: async () => ({ kind: "REJECTED", recoveryPath: "/login?auth=google-retry" }),
       },
       "@/lib/legal-acceptance-gate": strictLegalAcceptanceGate,
+      "@/lib/legal-acceptance": { hasAcceptedCurrentDocuments: async () => true },
+      "@/lib/legal-documents": { requiredLegalDocumentsForEvent: () => [] },
       "@/lib/auth-users": {
         ensureGoogleUserState: async () => {}, ensureUserRole: async () => {},
         getUserAuthState: async () => ({

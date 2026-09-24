@@ -86,10 +86,11 @@ async function expectSignedOutSecuritySurface(page: Page) {
 }
 
 test.describe("public account-entry recovery", () => {
-  test("login prevents duplicate Credentials submission and recovers from a thrown request", async ({ page }) => {
+  test("login prevents duplicate Credentials submission and routes recovered success through legal acceptance", async ({ page }) => {
     const providerRequests = await blockLiveGoogleProviderRequests(page)
     let requests = 0
     let googleRequests = 0
+    const legalGateDestinations: Array<{ pathname: string; callbackUrl: string | null }> = []
     await page.route("**/api/auth/google/intent", async (route) => {
       googleRequests += 1
       await route.fulfill({ status: 503, contentType: "application/json", body: "{}" })
@@ -107,6 +108,20 @@ test.describe("public account-entry recovery", () => {
         })
       }
     })
+    // The mocked Credentials callback does not create a session, so own the
+    // destination request instead of letting the real legal page redirect it.
+    await page.route((url) => url.pathname === "/legal/accept", async (route) => {
+      const destination = new URL(route.request().url())
+      legalGateDestinations.push({
+        pathname: destination.pathname,
+        callbackUrl: destination.searchParams.get("callbackUrl"),
+      })
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html",
+        body: "<!doctype html><title>Legal acceptance browser fixture</title>",
+      })
+    })
     await page.goto("/login?callbackUrl=%2Flogin%3FretrySuccess%3D1", { waitUntil: "domcontentloaded" })
     await page.getByLabel("Email").fill("browser-login@example.test")
     await page.getByLabel("Password").fill("not-a-real-password")
@@ -123,7 +138,10 @@ test.describe("public account-entry recovery", () => {
     await expect(page.getByRole("button", { name: "Sign in with email" })).toBeEnabled()
     await expect(google).toBeEnabled()
     await page.getByRole("button", { name: "Sign in with email" }).click()
-    await expect(page).toHaveURL(/\/login\?retrySuccess=1$/)
+    await expect.poll(() => legalGateDestinations).toContainEqual({
+      pathname: "/legal/accept",
+      callbackUrl: "/login?retrySuccess=1",
+    })
     expect(requests).toBe(2)
     expect(googleRequests).toBe(0)
     expect(providerRequests).toEqual([])

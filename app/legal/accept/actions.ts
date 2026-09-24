@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { getCurrentSession } from "@/auth"
+import { getRegistrationLegalAcceptanceSession } from "@/auth"
 import {
   acceptedDocumentIdsFromInput,
   legalHeadersMetadata,
@@ -21,7 +21,7 @@ import { prisma } from "@/lib/prisma"
  */
 export async function acceptRegistrationLegalDocumentsAction(formData: FormData) {
   const callbackUrl = safePostLegalAcceptanceCallback(formData.get("callbackUrl"))
-  const session = await getCurrentSession()
+  const session = await getRegistrationLegalAcceptanceSession()
 
   if (!session?.user?.id) {
     redirect(`/login?callbackUrl=${encodeURIComponent(buildRegistrationLegalAcceptancePath(callbackUrl))}`)

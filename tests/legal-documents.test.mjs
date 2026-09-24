@@ -2,9 +2,11 @@ import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 import {
   DIGITAL_PURCHASES_REFUNDS_VERSION,
+  LEGAL_BUSINESS_IDENTITY,
   LEGAL_DOCUMENT_KEYS,
   LEGAL_DOCUMENT_VERSION,
   LEGAL_DOCUMENTS,
+  LEGAL_EFFECTIVE_DATE,
   getLegalDocumentByKey,
   getLegalDocumentBySlug,
   legalDocumentAcceptanceId,
@@ -12,8 +14,14 @@ import {
 } from "../lib/legal-documents.js"
 
 describe("legal document registry", () => {
-  it("defines the Branch 1 legal documents with one version source", () => {
-    assert.equal(LEGAL_DOCUMENT_VERSION, "2026-06-legal-v2")
+  it("defines the current AtmoShaper legal versions and identity", () => {
+    assert.equal(LEGAL_DOCUMENT_VERSION, "2026-09-legal-v3")
+    assert.equal(DIGITAL_PURCHASES_REFUNDS_VERSION, "2026-09-digital-purchases-v3")
+    assert.equal(LEGAL_EFFECTIVE_DATE, "September 14, 2026")
+    assert.equal(
+      LEGAL_BUSINESS_IDENTITY,
+      "Derrick Bowersock, doing business as AtmoShaper",
+    )
     assert.deepEqual(LEGAL_DOCUMENT_KEYS, [
       "terms",
       "privacy",
@@ -24,6 +32,17 @@ describe("legal document registry", () => {
       "digital-purchases-refunds",
     ])
     assert.equal(LEGAL_DOCUMENTS.length, LEGAL_DOCUMENT_KEYS.length)
+    assert.ok(LEGAL_DOCUMENTS.every((document) => document.effectiveDate === LEGAL_EFFECTIVE_DATE))
+
+    const currentPresentation = LEGAL_DOCUMENTS
+      .flatMap((document) => [
+        document.summary,
+        ...document.sections.flatMap((section) => [section.title, ...section.body]),
+      ])
+      .join(" ")
+
+    assert.match(currentPresentation, /AtmoShaper/)
+    assert.doesNotMatch(currentPresentation, /Massage\s*Lab/i)
   })
 
   it("resolves legal documents by key and slug", () => {
@@ -34,7 +53,7 @@ describe("legal document registry", () => {
     assert.equal(terms.route, "/legal/terms")
     assert.equal(privacy.key, "privacy")
     assert.equal(privacy.version, LEGAL_DOCUMENT_VERSION)
-    assert.equal(legalDocumentAcceptanceId(terms), "terms:2026-06-legal-v2")
+    assert.equal(legalDocumentAcceptanceId(terms), "terms:2026-09-legal-v3")
   })
 
   it("maps acceptance events to the required current documents", () => {
@@ -59,12 +78,12 @@ describe("legal document registry", () => {
   it("keeps the digital-purchase policy independently versioned", () => {
     const policy = getLegalDocumentByKey("digital-purchases-refunds")
 
-    assert.equal(DIGITAL_PURCHASES_REFUNDS_VERSION, "2026-07-digital-purchases-v2")
+    assert.equal(DIGITAL_PURCHASES_REFUNDS_VERSION, "2026-09-digital-purchases-v3")
     assert.equal(policy.version, DIGITAL_PURCHASES_REFUNDS_VERSION)
     assert.equal(policy.route, "/legal/digital-purchases-refunds")
     assert.equal(
       legalDocumentAcceptanceId(policy),
-      "digital-purchases-refunds:2026-07-digital-purchases-v2",
+      "digital-purchases-refunds:2026-09-digital-purchases-v3",
     )
   })
 

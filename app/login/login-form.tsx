@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { startGoogleAuthMethodIntent, useEntryAction } from "@/lib/auth-entry-actions"
 import { buildVerificationRequestPath } from "@/lib/auth-registration"
 import {
+  buildRegistrationLegalAcceptancePath,
   buildRegistrationLegalProviderRedirectPath,
   isRegistrationLegalAcceptancePath,
   safePostLegalAcceptanceCallback,
@@ -38,6 +39,9 @@ export function LoginForm({ googleEnabled }: LoginFormProps) {
   const callbackUrl = isRegistrationLegalAcceptancePath(requestedCallbackUrl)
     ? buildRegistrationLegalProviderRedirectPath(requestedCallbackUrl)
     : safePostLegalAcceptanceCallback(requestedCallbackUrl, "/account")
+  const emailRedirectTo = isRegistrationLegalAcceptancePath(callbackUrl)
+    ? callbackUrl
+    : buildRegistrationLegalAcceptancePath(callbackUrl)
   // Google OAuth defaults to onboarding only when no callback was requested.
   const googleCallbackUrl = hasCallbackUrl ? callbackUrl : "/onboarding"
   const googleRedirectTo = buildRegistrationLegalProviderRedirectPath(googleCallbackUrl)
@@ -79,7 +83,7 @@ export function LoginForm({ googleEnabled }: LoginFormProps) {
         redirect: false,
       })
       if (!result?.error) {
-        router.push(callbackUrl)
+        router.push(emailRedirectTo)
         router.refresh()
         navigationStarted = true
         return

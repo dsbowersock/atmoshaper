@@ -4,7 +4,202 @@ Verified: 2026-09-21
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Background Catalog and Controls
+## Current Snapshot — Phase 6 Legal Identity Candidate
+
+- Task 7 is complete for its own slice at
+  `995fc4f7ce44902002ef2b36c7af1195dbdcb562` on open, unmerged
+  [PR #12](https://github.com/dsbowersock/atmoshaper/pull/12). Independent SPEC
+  then QUALITY approved the final amendment; Codex and CodeRabbit completed
+  clean on that exact head; all seven jobs in strict CI `35578132889` passed;
+  and all four prior inline threads are resolved or outdated. No merge occurred.
+- Task 8 is published as open, unmerged
+  [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13), stacked on that
+  exact Task 7 head. Its initial `4ef561c75125ea3875da236759c10617cfdc8bb1`
+  head contained 20 files and passed independent SPEC then QUALITY before
+  publication. Both hosted reviewers completed on that exact head. Codex found
+  a credential-sign-in legal-gate bypass and this stale state checkpoint;
+  CodeRabbit found an ambiguous source-exact count in the chronological log.
+- The pre-CI legal/session candidate had 33 paths: 12 implementation/test paths
+  still
+  match recovery source `7e318558da425b8fcdddeb8df50e93a36900310a`
+  byte for byte, 16 paths are explicit repairs, and README, this state, the
+  project log, delivery plan and generated brand receipt remain
+  coordinator-owned records. The original test/wiki repair keeps the operator
+  environment value synchronized with the exported digital-purchase version.
+  The first login/test repair routes successful email/password sign-ins through
+  the same current Terms/Privacy page as Google while preserving safe callbacks.
+  Independent QUALITY then proved that navigation was not authoritative because
+  the session already existed. The shared server-session owner now fails closed
+  until current registration documents are accepted, while a narrow raw loader
+  remains available only to the legal acceptance page/action. The public
+  `/api/auth/session` GET and POST owners apply the same predicate, return `null` for
+  stale or unavailable evidence while preserving Auth.js response metadata,
+  and leave non-session handlers and the narrow legal loader unchanged.
+- Current legal values are `2026-09-legal-v3`,
+  `2026-09-digital-purchases-v3`, `September 14, 2026` and
+  `Derrick Bowersock, doing business as AtmoShaper`. The current legal pages,
+  sidebar/license presentation and legal sitemap revision dates move together.
+  Canonical `massagelab.app` URLs, provider identifiers and stable Stripe
+  metadata remain compatibility facts.
+- Test-first redistribution produced eight expected failures against the old v2
+  code, then passed the archive verifier 9/9, the focused legal/SEO/checkout
+  suite 85/85, the post-ordering SEO regression 12/12, focused ESLint and diff
+  checks. QUALITY then found that the base and recovery source both retained a
+  stale v2 operator-wiki literal. A new focused test failed on that mismatch,
+  passed after the one-value v3 repair, and the updated focused suite passed
+  86/86.
+- The immutable v2 archive hashes remain
+  `8c7263b53697495f096f479484b6ccd7eae574f20111ecf0e0a44f7fd50017aa`
+  and `bdb76adf941e4e22022765734650d7e1224486d282d8303fa5869ee4fc25a4c8`.
+  `lib/legal-acceptance.js`, Prisma, existing acceptance rows/IDs, audit,
+  product browser owners, public/media bytes and provider state remain unchanged.
+  The focused coexistence test proves an old v2 row does not satisfy v3 and is
+  retained unchanged when a genuine v3 acceptance is recorded.
+- Fresh provider-free validation of the final candidate passed Prisma
+  validate/generate, typecheck, full lint, the 4,736-test Node suite with 4,733
+  passes and three skips, production and Browser-QA builds with 115 pages, and
+  the existing anonymous-registration legal-gate smoke on desktop and mobile
+  Chromium. The authoritative session repair followed two focused red/green
+  cycles and its combined legal/auth/readiness slice passes 142/142. The full
+  suite exposed one stale dev-clock implementation assertion; that companion
+  failed before correction and now passes 7/7 against the new named boundary.
+  The public-session handler repair passes its affected 78-test suite. Initial
+  head CI `35591116189` then exposed a real-time race in the otherwise fixed
+  Anatomime clock helper: both lane-1 attempts tried to pause at an instant that
+  had already passed. The helper now installs one minute before the unchanged
+  deterministic phase and pauses at that phase; the exact browser case passed
+  three serial runs. Final QUALITY then proved the first extracted-owner test
+  could not falsify the old equal-target helper because its virtual clock modeled
+  no install latency. The strengthened contract advances a deterministic 25 ms,
+  requires the install instant to be strictly earlier, and rejects an extracted
+  equal-target mutation; it and the dev-clock contracts pass 12/12.
+  Archive 9/9, repository audit 28/28 and diff checks are clean. The strict
+  brand receipt reaches a fixed point with zero missing, unclassified or
+  category mismatches; its exact hash is pinned in the frozen review evidence.
+  No snapshot changed.
+- The pre-CI 33-file package and 19-file amendment passed independent SPEC then
+  separate QUALITY on one frozen byte set. Exact staged identity produced and
+  pushed product amendment `2ab6382d2e944b75e8eb0e76808870f205d21736`, then
+  durable record synchronization `ecf30584cf689edca4bfe2566e1d9a795253fd29`,
+  to PR #13. Both hosted reviewers completed clean coverage of the synchronized
+  head, but strict CI `35621507294` exposed a Browser-QA fixture recurrence:
+  synthetic users lacked current registration acceptances, provider-free JWTs
+  did not project server-rendered account ownership, and service workers could
+  bypass context routing on reload.
+- The bounded repair keeps the legal gate intact. Authorized connected fixtures
+  atomically create current Terms and Privacy acceptance rows, verify exact
+  ownership before cleanup, and delete the restricted rows and owned user in one
+  rollback-safe transaction. Provider-free tests own only context-local session
+  and account-bootstrap projections, preserve owner switching, and keep the
+  connected `Open account cart` assertion unchanged. That 40-path repair was
+  published as `26c76ada77c7d3977af666942101b6e5018e15f3`. Codex completed clean
+  exact-head review and strict CI `35638346707` passed quality, build, all four
+  browser lanes and aggregate QA. CodeRabbit reviewed the exact 12-file
+  amendment and found two valid fixture-contract gaps, so those green checks are
+  historical rather than final: the provider-free Auth.js response omitted its
+  required expiry, and the same-origin HTML route rejected standalone documents
+  that correctly contain zero shared-layout account-bootstrap markers.
+- The bounded follow-up changes only the signed-in cookie/session fixtures and
+  their executable contract owner. Zero markers now pass through unchanged,
+  one marker is still
+  projected, duplicates still fail closed, and provider-free sessions carry a
+  future ISO expiry. RED reproduced both hosted defects. Independent QUALITY
+  then proved the expiry oracle accepted short or already-expired mutations and
+  the broad session glob fulfilled foreign origins. The repaired actual-owner
+  contracts enforce the exact one-hour lifetime, reject a short-lifetime
+  mutation, fulfill only the configured origin and fall back for foreign
+  origins. A later QUALITY review proved the cookie and provider-free fixtures
+  still owned separate lifetime literals, invalidating v12 before staging. The
+  cookie fixture now exports the sole canonical one-hour constant used by both
+  paths, and a canonical-owner mutation proves the consumer cannot silently
+  drift. Although frozen v13 passed SPEC, separate QUALITY proved its harness
+  dropped the real import and manually injected the lifetime, so replacing the
+  import with a new local owner could remain falsely green. That freeze was
+  invalidated before staging. The repaired executable oracle uses TypeScript
+  AST evidence to require the exact unaliased canonical import and rejects a
+  local replacement before controlled injection. Frozen v14 then passed SPEC,
+  but separate QUALITY proved that whole-clause and inline type-only imports
+  still produced the accepted tuple despite owning no runtime binding. Root
+  reproduced both forms and invalidated v14 before staging. The repaired guard
+  now requires a non-type-only clause, non-type-only specifier and literal
+  unaliased binding; strict negative mutations cover both TypeScript forms.
+  Frozen v15 then passed SPEC, but separate QUALITY showed the canonical
+  mutation proved only “not one hour”: a consumer clamp to 120 seconds still
+  passed after a 60-second owner mutation. Root reproduced the false positive
+  and invalidated v15 before staging. The v16 parameterized timing oracle kept
+  the independent one-hour positive bound, required a 60-second mutation to
+  match the observed cookie lifetime exactly and rejected a real-source
+  120-second clamp. Frozen v16 passed SPEC, but separate QUALITY proved the two
+  selected values and handler-duration window still admitted a nonlinear
+  3,600-second cap and a five-millisecond consumer offset. Root reproduced both
+  actual-source counterexamples and invalidated v16 before staging. The repaired
+  controlled compiler injects a deterministic `Date`, asserts the exact ISO
+  expiry at 17, 60, 3,600 and 7,200 seconds, rejects both mutation families and
+  retains a shape-only real-clock integration check. Frozen v17 passed
+  independent SPEC then QUALITY and was published as
+  `fd7d6124b57177a5f2266af8af82fb0561aba332`. Both hosted reviewers completed
+  exact-head review and each found one valid follow-up. The matching-email
+  Google-linking flow could prove credentials and then receive the legal gate's
+  `AUTHENTICATION_REQUIRED` response without routing to current registration
+  acceptance. The real-clock oracle compared separately sampled wall-clock
+  bounds and could false-fail if the clock moved backward.
+- Strict RED reproduced both hosted findings. The bounded local repair routes
+  only that exact 401/code pair through the canonical legal-acceptance builder,
+  keeps the cookie-bound linking intent intact, and leaves other errors on the
+  existing recovery path. Its provider-free form harness executes the real
+  submit flow and proves the canonical `/account/link-google` callback. The
+  real-clock integration now proves successful invocation and canonical ISO
+  shape only; fixed-clock tests retain exact one-hour identity and the 17, 60,
+  3,600 and 7,200-second mutation probes. Focused fixture/database contracts
+  pass 78/78, legal/interaction contracts pass 24/24, and the full Node suite
+  passes 4,754 total with 4,751 passes, three host-dependent skips and zero
+  failures; typecheck, lint and diff checks pass.
+- Superseded strict CI `35668571160` passed code quality, build and all browser
+  test bodies (lane 3: 152 passed, 42 skipped), but lane 3 diagnostics upload
+  received a GitHub artifact-intermediary 403 and aggregate QA therefore failed.
+  No superseded-head rerun is warranted; the repaired head receives fresh CI.
+- Frozen v18 passed independent SPEC, but separate QUALITY proved the
+  positive-only real-form legal-routing test admitted an `&&` to `||`
+  mutation. Root independently reproduced the false-pass 1/1 and restored the
+  production blob before editing. The test-only recurrence repair now checks
+  401 + `PROOF_EXPIRED` and 403 + `AUTHENTICATION_REQUIRED`: both must call
+  existing confirmation recovery with the exact pair and produce zero legal
+  callbacks, pushes or refreshes. The controlled `||` mutation now fails
+  0/1. Account-security passes 20/20, legal/interaction passes 24/24, and the
+  clean full Node suite passes 4,755 total with 4,752 passes, three
+  host-dependent skips and zero failures.
+- The published v21 candidate contains 43 paths: 12 recovery-exact, 26 repairs
+  and five records. It was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`; CodeRabbit completed product review,
+  Codex found only its then-current record issue, and all seven strict CI jobs passed. The post-v21 OAuth amendment is published as `7ad60de8519e4a1d4bcc0bd892583b0c54d80186`;
+  it switches public Google callbacks to the acceptance-filtered session identity while keeping raw access in the legal gate. Current status for the latest PR #13 head is delegated to GitHub and the ignored review handoff;
+  its hosted-review and strict-CI gates must pass before Task 9. Combined-source equivalence and the separate Linux Atmosphere snapshot decision remain pending.
+- Frozen v19 passed independent SPEC, but separate QUALITY proved the two
+  mismatched pairs still did not lock exact response-code value and shape.
+  Prefix matching accepted `AUTHENTICATION_REQUIRED_LATER`; string coercion
+  accepted `["AUTHENTICATION_REQUIRED"]`. Root independently reproduced the
+  coercion false-pass 1/1 and restored the production blob before editing.
+  The test-only matrix now also covers near-match, case-changed and
+  whitespace-padded strings plus null, array and object values. Every case
+  requires exact confirmation-recovery arguments and zero legal callback,
+  navigation or refresh. Controlled prefix and coercion mutations both fail
+  0/1; the production form remains byte-identical. Re-freeze these exact bytes
+  as v20 and repeat SPEC then QUALITY before staging.
+- Frozen v20 passed independent SPEC, but separate QUALITY proved the corpus
+  omitted missing code, a fullwidth Unicode lookalike and rejected JSON.
+  Actual-source mutations accepting undefined, NFKC-normalizing strings or
+  defaulting rejected JSON to `AUTHENTICATION_REQUIRED` preserved all v20
+  assertions. Root independently reproduced the JSON-fallback false-pass 2/2
+  and restored the production blob. The test-only corpus now adds those three
+  cases plus string status `"401"`; every negative requires exact recovery
+  arguments and zero legal callback/navigation/refresh. Controlled undefined,
+  NFKC and JSON-fallback mutations each fail 0/1 and restore exactly. Frozen v21
+  passed independent SPEC then separate QUALITY, retained the 43-path
+  classification, and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`.
+- Original PR #5 and replacements #6–#13 remain open and unmerged. No provider,
+  billing, deployment, database, domain/DNS, PNG, frame, threshold, media-byte
+  or production action occurred.
+
+## Historical Snapshot — Phase 6 Background Catalog and Controls
 
 - Renderer PR #11 is verified at `04e3868e3ab39111e50b6c8cdc7d5a89bc7b60e2`:
   Codex completed clean at 03:04 UTC and CodeRabbit at 03:05 UTC on September 21.

@@ -11,6 +11,10 @@ const DOTTED_GLOW_ID = "massage-lab-dotted-glow"
 const DOTTED_GLOW_NAME = "Shimmer"
 const RETURN_STORAGE_KEY = "massagelab-background-checkout-return-v1"
 const signedInFixtureProjects = new Set<string>()
+// Connected QA receives SidebarUser from the server; provider-free QA can project only client-owned identity.
+const expectedSignedInCartTriggerName = isBrowserQaDatabaseTargetAuthorized(process.env)
+  ? "Open account cart with 1 item"
+  : "Open AtmoShaper cart with 1 item"
 
 type CartItem = {
   productType: "background"
@@ -1042,7 +1046,7 @@ test("Music visualizer keeps the shared account cart through minimize and restor
   await page.getByRole("button", { name: /^Minimize visualizer$/i }).last().click()
   await expect(page).toHaveURL(/\/music$/)
   await expect(page.locator("[data-commerce-cart-trigger]:visible"))
-    .toHaveAccessibleName("Open account cart with 1 item")
+    .toHaveAccessibleName(expectedSignedInCartTriggerName)
 
   await page.getByTestId("music-player-toolbar").getByRole("link", { name: /^Background$/i }).click()
   await expect(page).toHaveURL(/\/clock\?[^#]*source=music/)
@@ -1092,7 +1096,7 @@ test("global account cart appears after explicit cart intent and stays hidden on
   await expect(page).toHaveURL(/\/music$/)
   await page.keyboard.press("Escape")
   await expect(cartDialog).toHaveCount(0)
-  await expect(trigger).toHaveAccessibleName("Open account cart with 1 item")
+  await expect(trigger).toHaveAccessibleName(expectedSignedInCartTriggerName)
   const badge = trigger.locator('span[aria-hidden="true"]')
   // Require both the cart count and nonzero painted geometry after each hydration.
   const expectBadgeToPaint = async () => {

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { ShieldCheck } from "lucide-react"
-import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
+import { getRegistrationLegalAcceptanceSession } from "@/auth"
 import { hasAcceptedCurrentDocuments } from "@/lib/legal-acceptance"
 import {
   buildRegistrationLegalAcceptancePath,
@@ -17,8 +17,8 @@ import { Button } from "@/components/ui/button"
 export const dynamic = "force-dynamic"
 
 export const metadata = createNoindexPageMetadata({
-  title: "Review Account Terms | MassageLab",
-  description: "Accept current MassageLab Terms and Privacy before continuing after account sign-in.",
+  title: "Review Account Terms | AtmoShaper",
+  description: "Accept current AtmoShaper Terms and Privacy before continuing after account sign-in.",
 })
 
 export default async function RegistrationLegalAcceptancePage({
@@ -28,7 +28,7 @@ export default async function RegistrationLegalAcceptancePage({
 }) {
   const params = await searchParams
   const callbackUrl = safePostLegalAcceptanceCallback(params.callbackUrl)
-  const session = await getCurrentSession()
+  const session = await getRegistrationLegalAcceptanceSession()
 
   if (!session?.user?.id) {
     redirect(`/login?callbackUrl=${encodeURIComponent(buildRegistrationLegalAcceptancePath(callbackUrl))}`)
@@ -50,7 +50,7 @@ export default async function RegistrationLegalAcceptancePage({
   return (
     <AppPageShell title="Review Account Terms" width="narrow">
       <AppSurface
-        title="Review MassageLab account terms"
+        title="Review AtmoShaper account terms"
         description="Before continuing, acknowledge the current Terms and Privacy Policy for this account."
         icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
         contentClassName="gap-5"

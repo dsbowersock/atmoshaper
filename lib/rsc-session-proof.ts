@@ -3,7 +3,7 @@ import "server-only"
 import { headers } from "next/headers"
 import { getCurrentSession as loadCurrentSession } from "../auth"
 
-export * from "../auth"
+export { handlers, signIn, signOut } from "../auth"
 
 export const RSC_SESSION_PROOF_HEADER = "x-massagelab-rsc-session-proof"
 const MAX_OUTSTANDING_PROOFS = 32

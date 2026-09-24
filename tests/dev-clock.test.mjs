@@ -200,7 +200,10 @@ describe("development Clock review route", () => {
       authSource,
       /process\.env\.NODE_ENV !== "production" && !getAuthSecret\(\)[\s\S]*return Promise\.resolve\(null\)/,
     )
-    assert.match(authSource, /return auth\(\)/)
+    assert.match(
+      authSource,
+      /export function getRegistrationLegalAcceptanceSession\(\)[\s\S]*return loadAuthJsSession\(\)/,
+    )
     assertAccountBootstrapOwnsMusic(layoutSource)
     assert.doesNotMatch(layoutSource, /accountSyncEnabled/)
     assert.match(musicProviderSource, /useAccountShellBootstrap/)

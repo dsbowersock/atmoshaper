@@ -1,9 +1,11 @@
 import type { PrismaClient } from "@prisma/client"
 
 import { isBrowserQaDatabaseTargetAuthorized } from "../../scripts/assert-browser-qa-database-target.mjs"
+import { requiredLegalDocumentsForEvent } from "../legal-documents.js"
 
 type QaEnvironment = Record<string, string | undefined>
-type FixtureClient = Pick<PrismaClient, "user">
+type FixtureCreateClient = Pick<PrismaClient, "user">
+type FixtureCleanupClient = Pick<PrismaClient, "$transaction">
 
 export type BrowserUserFixtureIdentity = {
   projectName: string
@@ -51,9 +53,9 @@ export function requireBrowserUserFixtureAuthorization(environment: QaEnvironmen
   }
 }
 
-/** Creates only the exact verified User needed for a database-backed JWT refresh. */
+/** Atomically creates the exact verified User and current registration acceptances needed by Browser QA. */
 export async function createBrowserUserFixtureRecord(input: {
-  prismaClient: FixtureClient
+  prismaClient: FixtureCreateClient
   identity: BrowserUserFixtureIdentity
   environment?: QaEnvironment
 }) {
@@ -63,6 +65,12 @@ export async function createBrowserUserFixtureRecord(input: {
     data: {
       ...input.identity.user,
       emailVerified: new Date("2026-09-07T00:00:00.000Z"),
+      legalAcceptances: {
+        create: requiredLegalDocumentsForEvent("registration").map((document) => ({
+          documentKey: document.key,
+          documentVersion: document.version,
+        })),
+      },
     },
     select: {
       id: true,
@@ -73,34 +81,37 @@ export async function createBrowserUserFixtureRecord(input: {
   })
 }
 
-/** Removes only the exact id/email pair; a zero-count delete distinguishes absence from an ownership failure. */
+/** Verifies ownership, then atomically deletes the fixture's restricted legal rows and exact User record. */
 export async function removeBrowserUserFixtureRecord(input: {
-  prismaClient: FixtureClient
+  prismaClient: FixtureCleanupClient
   identity: BrowserUserFixtureIdentity
   environment?: QaEnvironment
 }) {
   requireBrowserUserFixtureAuthorization(input.environment)
   assertBrowserUserFixtureIdentity(input.identity)
-  const removed = await input.prismaClient.user.deleteMany({
-    where: {
-      id: input.identity.user.id,
-      email: input.identity.user.email,
-    },
-  })
-  if (removed.count === 1) return
-  if (removed.count !== 0) {
-    throw new Error("Browser user fixture cleanup did not remove exactly one owned user.")
-  }
+  await input.prismaClient.$transaction(async (transaction) => {
+    const existing = await transaction.user.findUnique({
+      where: { id: input.identity.user.id },
+      select: { email: true },
+    })
+    if (!existing) return
+    if (existing.email !== input.identity.user.email) {
+      throw new Error("Browser user fixture ownership mismatch.")
+    }
 
-  const existing = await input.prismaClient.user.findUnique({
-    where: { id: input.identity.user.id },
-    select: { email: true },
+    await transaction.legalAcceptance.deleteMany({
+      where: { userId: input.identity.user.id },
+    })
+    const removed = await transaction.user.deleteMany({
+      where: {
+        id: input.identity.user.id,
+        email: input.identity.user.email,
+      },
+    })
+    if (removed.count !== 1) {
+      throw new Error("Browser user fixture cleanup did not remove exactly one owned user.")
+    }
   })
-  if (!existing) return
-  if (existing.email !== input.identity.user.email) {
-    throw new Error("Browser user fixture ownership mismatch.")
-  }
-  throw new Error("Browser user fixture cleanup did not remove exactly one owned user.")
 }
 
 function assertBrowserUserFixtureIdentity(identity: BrowserUserFixtureIdentity) {

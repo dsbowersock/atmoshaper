@@ -141,7 +141,16 @@ describe("calendar booking settings schema and route surface", () => {
         `unsafe callback ${JSON.stringify(unsafeCallback)} must fall back to /account`,
       )
     }
-    assert.match(loginForm, /router\.push\(callbackUrl\)/)
+    assert.match(
+      loginForm,
+      /import \{[\s\S]*buildRegistrationLegalAcceptancePath,[\s\S]*\} from "@\/lib\/legal-acceptance-gate"/,
+    )
+    assert.match(
+      loginForm,
+      /const emailRedirectTo = isRegistrationLegalAcceptancePath\(callbackUrl\)[\s\S]*\? callbackUrl[\s\S]*: buildRegistrationLegalAcceptancePath\(callbackUrl\)/,
+    )
+    assert.equal(loginForm.match(/buildRegistrationLegalAcceptancePath\(callbackUrl\)/g)?.length, 1)
+    assert.match(loginForm, /router\.push\(emailRedirectTo\)/)
     assert.match(loginForm, /buildRegistrationLegalProviderRedirectPath/)
     assert.match(loginForm, /const googleCallbackUrl = hasCallbackUrl \? callbackUrl : "\/onboarding"/)
     assert.match(loginForm, /startGoogleAuthMethodIntent\(googleRedirectTo\)/)

@@ -19,17 +19,17 @@ describe("proprietary repository licensing", () => {
     const packageJson = JSON.parse(packageText)
     const packageLock = JSON.parse(packageLockText)
 
-    assert.match(license, /^MassageLab Proprietary License$/m)
+    assert.match(license, /^AtmoShaper Proprietary License$/m)
     assert.match(
       license,
-      /Copyright © 2025–2026 Derrick Bowersock, doing business as Massage Lab\. All rights reserved\./,
+      /Copyright © 2025–2026 Derrick Bowersock, doing business as AtmoShaper\. All rights reserved\./,
     )
     assert.match(license, /source-visible proprietary software/i)
     assert.match(license, /not open-source software/i)
     assert.match(license, /without prior written permission/i)
     assert.match(
       license,
-      /Use of the hosted MassageLab application is governed by MassageLab's applicable user-facing terms and policies/,
+      /Use of the hosted AtmoShaper application is governed by AtmoShaper's applicable user-facing terms and policies/,
     )
     assert.match(
       license,
@@ -43,7 +43,7 @@ describe("proprietary repository licensing", () => {
     )
     assert.match(
       readme,
-      /Copyright © 2025–2026 Derrick Bowersock, doing business as Massage Lab\. All rights reserved\./,
+      /Copyright © 2025–2026 Derrick Bowersock, doing business as AtmoShaper\. All rights reserved\./,
     )
     assert.match(
       readme,
@@ -56,7 +56,7 @@ describe("proprietary repository licensing", () => {
     assert.match(sidebar, /function ProprietaryCopyrightNotice/)
     assert.match(
       sidebar,
-      /© 2025–2026 Derrick Bowersock, d\/b\/a Massage Lab\. All rights reserved\./,
+      /© 2025–2026 Derrick Bowersock, doing business as AtmoShaper\. All rights reserved\./,
     )
     assert.match(
       sidebar,

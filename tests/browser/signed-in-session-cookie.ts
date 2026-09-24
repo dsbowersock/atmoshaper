@@ -1,6 +1,8 @@
 import type { BrowserContext } from "@playwright/test"
 import { encode } from "next-auth/jwt"
 
+export const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60
+
 export type SignedInSessionIdentity = {
   id: string
   name: string
@@ -45,7 +47,7 @@ export async function installSignedInSessionCookie(
     token: signedInSessionToken(identity),
     secret,
     salt: cookieName,
-    maxAge: 60 * 60,
+    maxAge: SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,
   })
   await context.addCookies([{
     name: cookieName,
