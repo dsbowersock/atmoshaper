@@ -2,7 +2,7 @@
 
 ## Reflective Currents
 - **ID:** `massage-lab-chrome-flow`
-- **Current name:** Chrome Flow
+- **Current name:** Reflective Currents
 - **Decision:** rename
 - **Alternatives:** Liquid Folds; Liquid Geology
 - **Visual descriptor:** Reflective marbling folding through broad liquid currents
@@ -12,7 +12,7 @@
 
 ## Ember Iris
 - **ID:** `massage-lab-evil-eye`
-- **Current name:** Evil Eye
+- **Current name:** Ember Iris
 - **Decision:** rename
 - **Alternatives:** Solar Aperture; Firewheel
 - **Visual descriptor:** Luminous iris flickering around a dark pupil
@@ -22,7 +22,7 @@
 
 ## Deep Search
 - **ID:** `massage-lab-radar`
-- **Current name:** Radar
+- **Current name:** Deep Search
 - **Decision:** rename
 - **Alternatives:** Rotating Sweep; Echo Dial
 - **Visual descriptor:** Luminous sweep rotating across concentric rings
@@ -32,7 +32,7 @@
 
 ## Emulsion
 - **ID:** `massage-lab-synthesis`
-- **Current name:** Synthesis
+- **Current name:** Emulsion
 - **Decision:** rename
 - **Alternatives:** Soft Morphology; Soft Fusion
 - **Visual descriptor:** Luminous forms blending through soft focus
@@ -42,7 +42,7 @@
 
 ## Electric Storm
 - **ID:** `massage-lab-lightning`
-- **Current name:** Lightning
+- **Current name:** Electric Storm
 - **Decision:** rename
 - **Alternatives:** Branching Fracture; Storm Thread
 - **Visual descriptor:** Bright branching bolts flashing across a dark field
@@ -52,7 +52,7 @@
 
 ## Scanline
 - **ID:** `massage-lab-faulty-terminal`
-- **Current name:** Faulty Terminal
+- **Current name:** Scanline
 - **Decision:** rename
 - **Alternatives:** Signal Chamber; Broken Broadcast
 - **Visual descriptor:** Pixelated terminal glyph grid moving behind scanlines
@@ -62,7 +62,7 @@
 
 ## Code Confetti
 - **ID:** `massage-lab-letter-glitch`
-- **Current name:** Letter Glitch
+- **Current name:** Code Confetti
 - **Decision:** rename
 - **Alternatives:** Character Mosaic; Letter Weather
 - **Visual descriptor:** Character grid flickering through randomized substitutions
@@ -72,7 +72,7 @@
 
 ## Chromatic Swirl
 - **ID:** `massage-lab-balatro`
-- **Current name:** Balatro
+- **Current name:** Chromatic Swirl
 - **Decision:** rename
 - **Alternatives:** Ink Current; Dancing Pigments
 - **Visual descriptor:** Layered currents spiraling like marbled ink
@@ -82,7 +82,7 @@
 
 ## Drift
 - **ID:** `massage-lab-novatrix`
-- **Current name:** Novatrix Field
+- **Current name:** Drift
 - **Decision:** rename
 - **Alternatives:** Sorbet Weather; Prism Daydream
 - **Visual descriptor:** Soft color bands drifting through a grainy field
@@ -92,7 +92,7 @@
 
 ## Encrypted
 - **ID:** `massage-lab-matrix-rain`
-- **Current name:** Matrix Rain
+- **Current name:** Encrypted
 - **Decision:** rename
 - **Alternatives:** Glyph Cascade; Cipher Curtain
 - **Visual descriptor:** Character columns cascading over a dark field
@@ -102,7 +102,7 @@
 
 ## Simulation
 - **ID:** `massage-lab-pixel-liquid`
-- **Current name:** Pixel liquid
+- **Current name:** Simulation
 - **Decision:** rename
 - **Alternatives:** Pixel Field; Cubist Fluid
 - **Visual descriptor:** Pixelated fluid shifting through a dark field
@@ -112,7 +112,7 @@
 
 ## Orbits
 - **ID:** `massage-lab-vortex`
-- **Current name:** Vortex field
+- **Current name:** Orbits
 - **Decision:** rename
 - **Alternatives:** Particle Choreography; Swirling Dust
 - **Visual descriptor:** Particles drifting through a swirling current

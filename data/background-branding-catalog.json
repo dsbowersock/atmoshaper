@@ -3,10 +3,11 @@
   "entries": [
     {
       "id": "massage-lab-moving-gradient",
-      "label": "Massage Laba Lamp",
+      "label": "Lava Lamp",
       "visualDescriptor": "Soft orbs drifting through a dark field",
       "legacyLabels": [
-        "MassageLaba Lamp"
+        "MassageLaba Lamp",
+        "Massage Laba Lamp"
       ],
       "signatureOriginal": true
     },
@@ -62,19 +63,21 @@
     },
     {
       "id": "massage-lab-tile-grid",
-      "label": "Quiet Mosaic",
+      "label": "Tile grid",
       "visualDescriptor": "Raised square tiles fading independently",
       "legacyLabels": [
-        "MassageLab tile grid"
+        "MassageLab tile grid",
+        "Quiet Mosaic"
       ],
       "signatureOriginal": true
     },
     {
       "id": "massage-lab-hex-grid",
-      "label": "Honeycomb Glow",
+      "label": "Hex grid",
       "visualDescriptor": "Raised hexagons softly fading in sequence",
       "legacyLabels": [
-        "MassageLab hex grid"
+        "MassageLab hex grid",
+        "Honeycomb Glow"
       ],
       "signatureOriginal": true
     },
@@ -697,7 +700,7 @@
     {
       "id": "massage-lab-3d-globe",
       "label": "Pale Blue Dot",
-      "visualDescriptor": "Mapped globe with built-in Massage Lab marker",
+      "visualDescriptor": "Mapped globe with optional user location marker",
       "legacyLabels": [
         "3D Globe"
       ],

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
+import { runInNewContext } from "node:vm"
 import {
   DEFAULT_CHIMER_SETTINGS,
   sanitizeChimerSettings,
@@ -396,6 +397,42 @@ function fixtureForAdapter(adapter) {
   return fixture
 }
 
+function readBrowserEffectiveModeResolver(source) {
+  const body = source.match(
+    /function resolveAdapterEffectivePaletteMode\([\s\S]*?\n\) \{([\s\S]*?)\n\}/,
+  )?.[1]
+  assert.ok(body, "browser effective-mode helper body")
+  return (adapter, requestedMode) => runInNewContext(
+    `((adapter, requestedMode) => {${body}})(adapter, requestedMode)`,
+    { adapter, requestedMode },
+  )
+}
+
+function assertBrowserEffectiveModeConsumer(source) {
+  const resolveBrowserEffectiveMode = readBrowserEffectiveModeResolver(source)
+  assert.equal(resolveBrowserEffectiveMode(backgroundPaletteRegistry["solid-color"], "harmony"), "source")
+  assert.equal(resolveBrowserEffectiveMode(backgroundPaletteRegistry["massage-lab-vortex"], "harmony"), "source")
+  assert.equal(resolveBrowserEffectiveMode(backgroundPaletteRegistry["static-gradient"], "harmony"), "harmony")
+  assert.equal(resolveBrowserEffectiveMode(backgroundPaletteRegistry["solid-color"], "custom"), "custom")
+  assert.match(
+    source,
+    /const expectedRoleColors = resolveBackgroundRoleColors\(\{\s*palette: paletteForMode\(mode\),[\s\S]*?expect\(actualRoleColors[\s\S]*?\.toEqual\(expectedRoleColors\)/,
+  )
+  assert.match(
+    source,
+    /const effectiveMode = resolveAdapterEffectivePaletteMode\(adapter, mode\)[\s\S]*?const expectedRendererRoleColors = resolveBackgroundRoleColors\(\{\s*palette: paletteForMode\(effectiveMode\),/,
+  )
+  assert.match(
+    source,
+    /const rendererOverrideKey = effectiveMode === "source" \? "sourceValue" : "customValue"/,
+  )
+  assert.match(
+    source,
+    /const expectedTargetColor = effectiveMode === "source"[\s\S]*?: expectedRendererRoleColors\[role\.id\]/,
+  )
+  return resolveBrowserEffectiveMode
+}
+
 describe("background palette adapter registry", () => {
   it("shares one parser and reader for dotted and indexed renderer paths", () => {
     const props = {
@@ -605,6 +642,71 @@ describe("background palette adapter registry", () => {
       canCustomize: true,
     })
     assert.equal(harmonyResolved.solidColor.toLowerCase(), "#ff7a1a")
+  })
+
+  it("keeps the real browser renderer oracle on each adapter-effective palette mode", async () => {
+    const browserSource = await readFile(
+      new URL("./browser/background-palette.spec.ts", import.meta.url),
+      "utf8",
+    )
+    const resolveBrowserEffectiveMode = assertBrowserEffectiveModeConsumer(browserSource)
+    const scenarios = [
+      { id: "solid-color", effectiveMode: "source", rawMustDiffer: true },
+      { id: "massage-lab-vortex", effectiveMode: "source", rawMustDiffer: true },
+      { id: "static-gradient", effectiveMode: "harmony", rawMustDiffer: false },
+    ]
+
+    for (const scenario of scenarios) {
+      const adapter = backgroundPaletteRegistry[scenario.id]
+      assert.equal(adapter.status, "supported", scenario.id)
+      const effectiveMode = resolveBrowserEffectiveMode(adapter, "harmony")
+      assert.equal(effectiveMode, scenario.effectiveMode, scenario.id)
+      const rawRoleColors = roleColorsForMode(adapter, "harmony")
+      const expectedRendererRoleColors = roleColorsForMode(adapter, effectiveMode)
+      if (scenario.rawMustDiffer) {
+        assert.notDeepEqual(rawRoleColors, expectedRendererRoleColors, scenario.id)
+      } else {
+        assert.deepEqual(rawRoleColors, expectedRendererRoleColors, scenario.id)
+      }
+
+      const resolvedProps = resolveBackgroundEffectProps({
+        selectedId: scenario.id,
+        effectProps: fixtureForAdapter(adapter),
+        palette: paletteForMode("harmony"),
+        mapping: {},
+        canCustomize: true,
+      })
+      for (const role of adapter.roles) {
+        assert.equal(
+          readBackgroundRendererTarget(resolvedProps, role.rendererTarget),
+          expectedRendererRoleColors[role.id],
+          `${scenario.id}:${role.rendererTarget}`,
+        )
+      }
+      const overrideKey = effectiveMode === "source" ? "sourceValue" : "customValue"
+      for (const override of adapter.modeOverrides ?? []) {
+        if (!Object.hasOwn(override, overrideKey)) continue
+        assert.deepEqual(
+          readBackgroundRendererTarget(resolvedProps, override.rendererTarget),
+          override[overrideKey],
+          `${scenario.id}:${override.rendererTarget}`,
+        )
+      }
+    }
+
+    const normalizationMutation = browserSource.replace(
+      'requestedMode === "harmony" && adapter.supportsHarmony === false',
+      'requestedMode === "harmony" && false',
+    )
+    assert.notEqual(normalizationMutation, browserSource)
+    assert.throws(() => assertBrowserEffectiveModeConsumer(normalizationMutation))
+
+    const consumerMutation = browserSource.replace(
+      "palette: paletteForMode(effectiveMode)",
+      "palette: paletteForMode(mode)",
+    )
+    assert.notEqual(consumerMutation, browserSource)
+    assert.throws(() => assertBrowserEffectiveModeConsumer(consumerMutation))
   })
 
   it("keeps audited Swatch 7 backgrounds independent from Harmony", () => {

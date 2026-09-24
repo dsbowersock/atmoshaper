@@ -8,6 +8,7 @@ import {
   validateAuditEntry,
 } from "../scripts/background-branding/audit-model.mjs"
 import { backgroundRegistry } from "../components/backgrounds/backgroundRegistry.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { BACKGROUND_BRANDING_AUDIT_BATCHES } from "../scripts/background-branding/audit-batches.mjs"
 import {
   generateAuditFiles,
@@ -25,8 +26,8 @@ const validAuditEntry = {
   signatureOriginalEligible: false,
 }
 
-const massageLabBrandReservationError =
-  "Massage Lab-branded recommendations are reserved for the internal massage-lab-moving-gradient background named Massage Laba Lamp"
+const massageLabBrandError =
+  "Legacy branded recommendations are retired; use the approved unbranded background label Lava Lamp"
 
 describe("background branding audit", () => {
   it("covers all 84 enabled backgrounds exactly once in review-sized batches", () => {
@@ -78,7 +79,7 @@ describe("background branding audit", () => {
 
   it("requires a decision, recommendation, alternatives, descriptor, and rationale", () => {
     const errors = validateAuditEntry({ id: "one" }, {
-      id: "one", label: "Old", provider: "MassageLab", sourceUrl: "internal", enabled: true,
+      id: "one", label: "Old", provider: PUBLIC_PRODUCT_IDENTITY.name, sourceUrl: "internal", enabled: true,
     })
     assert.deepEqual(errors, [
       "one: decision must be keep or rename",
@@ -93,7 +94,7 @@ describe("background branding audit", () => {
 
   it("rejects non-string textual fields and alternatives", () => {
     const background = {
-      id: "one", label: "Old", provider: "MassageLab", sourceUrl: "internal", enabled: true,
+      id: "one", label: "Old", provider: PUBLIC_PRODUCT_IDENTITY.name, sourceUrl: "internal", enabled: true,
     }
 
     for (const [field, expectedError] of [
@@ -130,15 +131,15 @@ describe("background branding audit", () => {
     )
   })
 
-  it("allows the reserved Massage Laba Lamp recommendation only for its internal background", () => {
+  it("allows the approved unbranded Lava Lamp recommendation", () => {
     const errors = validateAuditEntry({
       ...validAuditEntry,
       id: "massage-lab-moving-gradient",
-      recommendedName: "Massage Laba Lamp",
+      recommendedName: "Lava Lamp",
     }, {
       id: "massage-lab-moving-gradient",
       label: "Old",
-      provider: "MassageLab",
+      provider: PUBLIC_PRODUCT_IDENTITY.name,
       sourceUrl: "internal",
       enabled: true,
     })
@@ -146,23 +147,23 @@ describe("background branding audit", () => {
     assert.deepEqual(errors, [])
   })
 
-  it("rejects the reserved recommendation for another internal background", () => {
+  it("rejects the retired branded recommendation on the original internal background", () => {
     const errors = validateAuditEntry({
       ...validAuditEntry,
-      id: "another-internal-background",
+      id: "massage-lab-moving-gradient",
       recommendedName: "Massage Laba Lamp",
     }, {
-      id: "another-internal-background",
+      id: "massage-lab-moving-gradient",
       label: "Old",
-      provider: "MassageLab",
+      provider: "AtmoShaper",
       sourceUrl: "internal",
       enabled: true,
     })
 
-    assert.deepEqual(errors, [`another-internal-background: ${massageLabBrandReservationError}`])
+    assert.deepEqual(errors, [`massage-lab-moving-gradient: ${massageLabBrandError}`])
   })
 
-  it("rejects the reserved recommendation when its source is external", () => {
+  it("rejects a branded recommendation regardless of source ownership", () => {
     const errors = validateAuditEntry({
       ...validAuditEntry,
       id: "massage-lab-moving-gradient",
@@ -170,12 +171,12 @@ describe("background branding audit", () => {
     }, {
       id: "massage-lab-moving-gradient",
       label: "Old",
-      provider: "MassageLab",
+      provider: PUBLIC_PRODUCT_IDENTITY.name,
       sourceUrl: "https://example.com/source",
       enabled: true,
     })
 
-    assert.deepEqual(errors, [`massage-lab-moving-gradient: ${massageLabBrandReservationError}`])
+    assert.deepEqual(errors, [`massage-lab-moving-gradient: ${massageLabBrandError}`])
   })
 
   it("rejects Massage Lab spacing, punctuation, and case variants on other backgrounds", () => {
@@ -187,12 +188,12 @@ describe("background branding audit", () => {
       }, {
         id: "another-internal-background",
         label: "Old",
-        provider: "MassageLab",
+        provider: PUBLIC_PRODUCT_IDENTITY.name,
         sourceUrl: "internal",
         enabled: true,
       })
 
-      assert.deepEqual(errors, [`another-internal-background: ${massageLabBrandReservationError}`])
+      assert.deepEqual(errors, [`another-internal-background: ${massageLabBrandError}`])
     }
   })
 
@@ -241,6 +242,136 @@ describe("background branding audit", () => {
       "- [Second group](batch-02-second.md) — 1 backgrounds",
       "",
     ].join("\n"))
+  })
+
+  it("keeps every collision note and generated batch on current complete-name references", async () => {
+    const [audit, catalog] = await Promise.all([
+      readFile(new URL("../data/background-branding-audit.json", import.meta.url), "utf8").then(JSON.parse),
+      readFile(new URL("../data/background-branding-catalog.json", import.meta.url), "utf8").then(JSON.parse),
+    ])
+    const escapeRegExp = (value) => value.replace(/[.*+?^$()|[\]\\{}]/g, "\\$&")
+    const completeNamePattern = (name) => new RegExp(
+      `(?<![\\p{L}\\p{N}])${escapeRegExp(name)}(?![\\p{L}\\p{N}])`,
+      "giu",
+    )
+    const canonicalLabels = [...new Set(catalog.entries.map(({ label }) => label))]
+      .sort((left, right) => right.length - left.length)
+    const catalogLegacyNames = catalog.entries.flatMap(({ legacyLabels = [] }) => legacyLabels)
+    const retiredNames = [...new Set([
+      ...catalogLegacyNames,
+      "Still Gradient",
+      "Honeycomb Glow",
+      "Quiet Mosaic",
+    ])].sort((left, right) => right.length - left.length)
+    const completeNameSpans = (text, name) => (
+      [...text.matchAll(completeNamePattern(name))].map((match) => ({
+        start: match.index,
+        end: match.index + match[0].length,
+      }))
+    )
+
+    /** Suppresses only retired occurrences contained by a strictly longer current-label occurrence. */
+    const findRetiredCollisionNameReferences = (entries) => entries.flatMap(({ id, collisionNotes }) => {
+      const canonicalSpans = canonicalLabels.flatMap((label) => completeNameSpans(collisionNotes, label))
+      return retiredNames
+        .filter((retiredName) => completeNameSpans(collisionNotes, retiredName).some((retiredSpan) => (
+          !canonicalSpans.some((canonicalSpan) => (
+            canonicalSpan.start <= retiredSpan.start
+            && canonicalSpan.end >= retiredSpan.end
+            && canonicalSpan.end - canonicalSpan.start > retiredSpan.end - retiredSpan.start
+          ))
+        )))
+        .map((retiredName) => ({ id, retiredName }))
+    })
+    const assertNoRetiredCollisionNameReferences = (entries) => {
+      assert.deepEqual(
+        findRetiredCollisionNameReferences(entries),
+        [],
+        "collision notes must reference only current canonical background names",
+      )
+    }
+
+    assert.equal(catalogLegacyNames.includes("Still Gradient"), false)
+    assert.ok(catalogLegacyNames.includes("Honeycomb Glow"))
+    assert.ok(catalogLegacyNames.includes("Quiet Mosaic"))
+    assertNoRetiredCollisionNameReferences(audit.entries)
+
+    const foldedPlasmaEntries = audit.entries.filter(({ collisionNotes }) => (
+      collisionNotes.includes("Folded Plasma")
+    ))
+    assert.equal(foldedPlasmaEntries.length, 2)
+    assert.deepEqual(findRetiredCollisionNameReferences(foldedPlasmaEntries), [])
+
+    for (const [id, currentName, retiredName] of [
+      ["massage-lab-grid-bloom", "Hex grid", "Honeycomb Glow"],
+      ["massage-lab-grid-distortion", "Tile grid", "Quiet Mosaic"],
+      ["massage-lab-shape-grid", "Tile grid", "Quiet Mosaic"],
+      ["massage-lab-twisted-cubes", "Geometric Current", "Shape Grid"],
+      ["massage-lab-side-rays", "Skybreak", "Aerial Rays"],
+      ["massage-lab-light-rays", "Skybreak", "Aerial Rays"],
+      ["massage-lab-grid-scan", "Endless Perspective", "Retro Grid"],
+      ["massage-lab-gradient-animation", "In Transition", "Still Gradient"],
+      ["massage-lab-hole", "Endless Perspective", "Retro Grid"],
+      ["massage-lab-grid-distortion", "Tile grid", "MassageLab tile grid"],
+      ["massage-lab-grid-bloom", "Hex grid", "MassageLab hex grid"],
+      ["massage-lab-color-bends", "Kaleidoscope Rays", "Prismatic Burst"],
+    ]) {
+      const mutatedEntries = structuredClone(audit.entries)
+      const mutatedEntry = mutatedEntries.find((entry) => entry.id === id)
+      assert.ok(mutatedEntry)
+      const restoredNote = mutatedEntry.collisionNotes.replace(currentName, retiredName)
+      assert.notEqual(restoredNote, mutatedEntry.collisionNotes, `${id}: current-name fixture`)
+      mutatedEntry.collisionNotes = restoredNote
+      assert.throws(
+        () => assertNoRetiredCollisionNameReferences(mutatedEntries),
+        (error) => {
+          assert.ok(error instanceof assert.AssertionError)
+          assert.ok(error.actual.some((finding) => (
+            finding.id === id && finding.retiredName === retiredName
+          )))
+          return true
+        },
+        `${id}: restored ${retiredName} must be rejected`,
+      )
+    }
+
+    for (const retiredName of retiredNames) {
+      const findings = findRetiredCollisionNameReferences([{
+        id: "standalone-retired-name",
+        collisionNotes: `Compared with ${retiredName}.`,
+      }])
+      assert.ok(
+        findings.some((finding) => (
+          finding.id === "standalone-retired-name" && finding.retiredName === retiredName
+        )),
+        `${retiredName}: standalone retired name must be reported`,
+      )
+    }
+    assert.deepEqual(
+      findRetiredCollisionNameReferences([{
+        id: "mixed-plasma-occurrences",
+        collisionNotes: "Folded Plasma remains distinct from standalone Plasma.",
+      }]),
+      [{ id: "mixed-plasma-occurrences", retiredName: "Plasma" }],
+    )
+
+    const entriesById = new Map(audit.entries.map((entry) => [entry.id, entry]))
+    const backgroundsById = new Map(backgroundRegistry.map((background) => [background.id, background]))
+    assert.equal(BACKGROUND_BRANDING_AUDIT_BATCHES.length, 7)
+    for (const batch of BACKGROUND_BRANDING_AUDIT_BATCHES) {
+      const renderedBatch = renderAuditBatch({ batch, backgroundsById, entriesById })
+      const publishedBatch = await readFile(
+        new URL(`../docs/background-branding-audit/batch-${batch.slug}.md`, import.meta.url),
+        "utf8",
+      )
+      const assertPublishedBatchMatchesRendered = (publishedDocument) => {
+        assert.equal(publishedDocument.replaceAll("\r\n", "\n"), renderedBatch)
+      }
+
+      assertPublishedBatchMatchesRendered(renderedBatch)
+      assertPublishedBatchMatchesRendered(renderedBatch.replaceAll("\n", "\r\n"))
+      assertPublishedBatchMatchesRendered(publishedBatch)
+    }
   })
 
   it("aggregates root and entry errors without invoking the output writer", async () => {

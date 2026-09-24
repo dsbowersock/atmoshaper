@@ -2,7 +2,7 @@
 
 ## Velvet Grain
 - **ID:** `massage-lab-grainient`
-- **Current name:** Grainient
+- **Current name:** Velvet Grain
 - **Decision:** rename
 - **Alternatives:** Analog Grain; Powdered Spectrum
 - **Visual descriptor:** Grainy color field drifting softly
@@ -12,7 +12,7 @@
 
 ## Halo
 - **ID:** `massage-lab-orb`
-- **Current name:** Orb
+- **Current name:** Halo
 - **Decision:** rename
 - **Alternatives:** Glass Eclipse; Glass Orb
 - **Visual descriptor:** Luminous ring surrounding a shaded sphere
@@ -22,17 +22,17 @@
 
 ## Color Drift
 - **ID:** `massage-lab-gradient-animation`
-- **Current name:** Animated gradient
+- **Current name:** Color Drift
 - **Decision:** rename
 - **Alternatives:** Chromatic Exhale; Gradient Weather
 - **Visual descriptor:** Gradient clouds slowly roaming
 - **Signature original eligible:** No
 - **Rationale:** Color Drift removes the generic Animated prefix and names the quiet cloudlike movement that users can actually see at the passive default without fixing its configurable palette.
-- **Collision notes:** Its soft roaming clouds should be compared with Colorfield Drift's layered sweep and Still Gradient's motionless haze.
+- **Collision notes:** Its soft roaming clouds should be compared with Colorfield Drift's layered sweep and In Transition's motionless haze.
 
 ## Star Lattice
 - **ID:** `massage-lab-glowing-stars`
-- **Current name:** Glowing stars
+- **Current name:** Star Lattice
 - **Decision:** rename
 - **Alternatives:** Ordered Night; Fivefold Twinkle
 - **Visual descriptor:** Small stars brightening across an ordered grid
@@ -42,7 +42,7 @@
 
 ## Falling Sky
 - **ID:** `massage-lab-meteors`
-- **Current name:** Meteors
+- **Current name:** Falling Sky
 - **Decision:** rename
 - **Alternatives:** Ember Transit; Diagonal Signals
 - **Visual descriptor:** Diagonal meteor streaks crossing a dark sky
@@ -52,7 +52,7 @@
 
 ## Wish
 - **ID:** `massage-lab-shooting-stars`
-- **Current name:** Shooting stars
+- **Current name:** Wish
 - **Decision:** rename
 - **Alternatives:** Transit Sky; Starlight Passage
 - **Visual descriptor:** Sparse stars twinkling between occasional bright streaks
@@ -62,17 +62,17 @@
 
 ## Pale Blue Dot
 - **ID:** `massage-lab-3d-globe`
-- **Current name:** 3D Globe
+- **Current name:** Pale Blue Dot
 - **Decision:** rename
 - **Alternatives:** Atlas in Motion; Sunlit Sphere
-- **Visual descriptor:** Mapped globe with built-in Massage Lab marker
+- **Visual descriptor:** Mapped globe with optional user location marker
 - **Signature original eligible:** No
-- **Rationale:** Pale Blue Dot gives the renderer's geographic identity an image-led title without fixing its configurable colors; the built-in Massage Lab marker is always present, while the separate user marker remains optional.
-- **Collision notes:** Mapped continents and the built-in Massage Lab marker keep it separate from Halo's abstract sphere and every unstructured celestial field.
+- **Rationale:** Pale Blue Dot gives the renderer's geographic identity an image-led title without fixing its configurable colors; the optional user marker can identify a chosen location without changing the globe itself.
+- **Collision notes:** Mapped continents and the optional user location marker keep it separate from Halo's abstract sphere and every unstructured celestial field.
 
 ## Equalizer
 - **ID:** `massage-lab-aurora-bars`
-- **Current name:** Aurora bars
+- **Current name:** Equalizer
 - **Decision:** rename
 - **Alternatives:** Polar Columns; Ribbon Columns
 - **Visual descriptor:** Luminous vertical bars rising in rolling waves
@@ -82,7 +82,7 @@
 
 ## Bubbles
 - **ID:** `massage-lab-bubble`
-- **Current name:** Bubble field
+- **Current name:** Bubbles
 - **Decision:** rename
 - **Alternatives:** Soft Buoyancy; Blurred Planets
 - **Visual descriptor:** Blurred bubbles floating through a dark wash
@@ -92,7 +92,7 @@
 
 ## Drifting Starfield
 - **ID:** `massage-lab-stars`
-- **Current name:** Star field
+- **Current name:** Drifting Starfield
 - **Decision:** rename
 - **Alternatives:** Threefold Sky; Parallax Night
 - **Visual descriptor:** Three star layers gliding above a dark horizon
@@ -102,10 +102,10 @@
 
 ## Descent
 - **ID:** `massage-lab-hole`
-- **Current name:** Depth well
+- **Current name:** Descent
 - **Decision:** rename
 - **Alternatives:** Radial Abyss; Lattice Well
 - **Visual descriptor:** Radiant wire grid flowing into a dark center
 - **Signature original eligible:** No
 - **Rationale:** Descent directly expresses the grid's inward sense of depth while preserving the established visual concept.
-- **Collision notes:** The inward-falling radial lattice differs from Retro Grid's horizon plane, Neon Survey's tunnel, and Orbits' particle streaks.
+- **Collision notes:** The inward-falling radial lattice differs from Endless Perspective's horizon plane, Neon Survey's tunnel, and Orbits' particle streaks.

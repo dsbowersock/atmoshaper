@@ -2,7 +2,7 @@
 
 ## Electric Glow
 - **ID:** `massage-lab-electric-mist`
-- **Current name:** Electric Mist
+- **Current name:** Electric Glow
 - **Decision:** rename
 - **Alternatives:** Charged Discharge; Thunderhead Glow
 - **Visual descriptor:** Electrical veins churning through smoky texture
@@ -12,7 +12,7 @@
 
 ## Celestial Breath
 - **ID:** `massage-lab-astral-flow`
-- **Current name:** Astral Flow
+- **Current name:** Celestial Breath
 - **Decision:** rename
 - **Alternatives:** Radial Bloom; Orbital Bloom
 - **Visual descriptor:** Dark radial wisps breathing around a center
@@ -22,7 +22,7 @@
 
 ## Clouded Cosmos
 - **ID:** `massage-lab-deep-space-nebula`
-- **Current name:** Deep Space Nebula
+- **Current name:** Clouded Cosmos
 - **Decision:** rename
 - **Alternatives:** Vapor Expanse; Boundless Expanse
 - **Visual descriptor:** Nebula clouds billowing through deep shadow
@@ -32,7 +32,7 @@
 
 ## Shadows
 - **ID:** `massage-lab-dark-veil`
-- **Current name:** Dark Veil
+- **Current name:** Shadows
 - **Decision:** rename
 - **Alternatives:** Neural Dusk; Veiled Current
 - **Visual descriptor:** Neural ribbons drifting through shadow
@@ -42,7 +42,7 @@
 
 ## Polar Aurora
 - **ID:** `massage-lab-soft-aurora`
-- **Current name:** Soft Aurora
+- **Current name:** Polar Aurora
 - **Decision:** rename
 - **Alternatives:** Horizon Ribbon; Horizon Hush
 - **Visual descriptor:** Aurora band glowing at horizon
@@ -52,7 +52,7 @@
 
 ## Charged Foam
 - **ID:** `massage-lab-plasma`
-- **Current name:** Plasma
+- **Current name:** Charged Foam
 - **Decision:** rename
 - **Alternatives:** Luminous Cells; Cellular Current
 - **Visual descriptor:** Plasma cells swelling and dissolving
@@ -62,7 +62,7 @@
 
 ## Folded Plasma
 - **ID:** `massage-lab-plasma-wave`
-- **Current name:** Plasma Wave
+- **Current name:** Folded Plasma
 - **Decision:** rename
 - **Alternatives:** Electric Braids; Wave Weave
 - **Visual descriptor:** Plasma ribbons curling together
@@ -72,7 +72,7 @@
 
 ## Particle Drift
 - **ID:** `massage-lab-particles`
-- **Current name:** Particles
+- **Current name:** Particle Drift
 - **Decision:** rename
 - **Alternatives:** Quiet Point Cloud; Quiet Suspension
 - **Visual descriptor:** Sparse particles drifting through a spacious field
@@ -82,7 +82,7 @@
 
 ## Constellations
 - **ID:** `massage-lab-galaxy`
-- **Current name:** Galaxy
+- **Current name:** Constellations
 - **Decision:** rename
 - **Alternatives:** Central Orbit; Deep Orbit
 - **Visual descriptor:** Dense stars rotating around a luminous center
@@ -92,7 +92,7 @@
 
 ## Interstellar
 - **ID:** `massage-lab-aurora`
-- **Current name:** Aurora field
+- **Current name:** Interstellar
 - **Decision:** rename
 - **Alternatives:** Boreal Canvas; Chromatic Drapery
 - **Visual descriptor:** Blurred vertical color curtains slowly shifting
@@ -102,7 +102,7 @@
 
 ## Shimmer
 - **ID:** `massage-lab-dotted-glow`
-- **Current name:** Dotted glow
+- **Current name:** Shimmer
 - **Decision:** rename
 - **Alternatives:** Cyan Stipple; Night Microstars
 - **Visual descriptor:** Tiny cyan dots twinkling over deep blue
@@ -112,7 +112,7 @@
 
 ## Fireflies
 - **ID:** `massage-lab-sparkles`
-- **Current name:** Sparkles
+- **Current name:** Fireflies
 - **Decision:** rename
 - **Alternatives:** Glittering Haze; Haze Lanterns
 - **Visual descriptor:** Sparkles pulsing across ambient haze

@@ -175,7 +175,9 @@ test.afterEach(async ({}, testInfo) => {
 async function expectCompactActionGeometry(controls: Locator) {
   const geometry = await controls.evaluate((tray) => {
     const trayBox = tray.getBoundingClientRect()
-    return Array.from(tray.querySelectorAll<HTMLElement>("[data-background-tray-action]")).map((action) => {
+    const visibleActions = Array.from(tray.querySelectorAll<HTMLElement>("[data-background-tray-action]"))
+      .filter((action) => action.getClientRects().length > 0)
+    return visibleActions.map((action) => {
       const box = action.getBoundingClientRect()
       return {
         action: action.getAttribute("data-background-tray-action"),
@@ -483,6 +485,41 @@ test("production Background controls stay off-card and visible in portrait and s
 
   await expect(controls).toBeVisible()
   await expect(centeredCard.locator("h3, [data-carousel-primary-action], [data-carousel-favorite-action]")).toHaveCount(0)
+  const root = panel.getByRole("region", { name: "Background carousel" })
+  await expect(root).toHaveAttribute("data-carousel-responsive-profile", "phone-portrait")
+  await expect(controls.getByRole("switch", { name: /Animated previews/ })).toBeVisible()
+  const portrait = await controls.evaluate((tray) => {
+    const children = Array.from(tray.children) as HTMLElement[]
+    const metadata = children.find((child) => child.querySelector("h3"))!
+    const preview = children.find((child) => child.querySelector('[role="switch"]'))!
+    const actions = children.find((child) => child.querySelector("[data-background-tray-action]"))!
+    const trayBox = tray.getBoundingClientRect()
+    const style = getComputedStyle(tray)
+    const contentLeft = trayBox.left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft)
+    const contentRight = trayBox.right - parseFloat(style.borderRightWidth) - parseFloat(style.paddingRight)
+    return {
+      metadata: metadata.getBoundingClientRect().toJSON(),
+      preview: preview.getBoundingClientRect().toJSON(),
+      actions: actions.getBoundingClientRect().toJSON(),
+      tray: trayBox.toJSON(),
+      contentLeft,
+      contentRight,
+      horizontalOverflow: Math.max(...[tray, metadata, preview, actions].map(
+        (element) => element.scrollWidth - element.clientWidth,
+      )),
+    }
+  })
+  // A desktop two-column fallback squeezes metadata beside actions and fails these bounds.
+  expect(portrait.metadata.bottom).toBeLessThanOrEqual(portrait.preview.top + 1)
+  expect(portrait.preview.bottom).toBeLessThanOrEqual(portrait.actions.top + 1)
+  expect(portrait.horizontalOverflow).toBeLessThanOrEqual(1)
+  for (const region of [portrait.metadata, portrait.preview, portrait.actions]) {
+    expect(Math.abs(region.left - portrait.contentLeft)).toBeLessThanOrEqual(1)
+    expect(Math.abs(region.right - portrait.contentRight)).toBeLessThanOrEqual(1)
+    expect(region.top).toBeGreaterThanOrEqual(portrait.tray.top)
+    expect(region.bottom).toBeLessThanOrEqual(portrait.tray.bottom)
+  }
+  await expectCompactActionGeometry(controls)
   await expect(controls.getByRole("button", { name: "Previous background" })).toBeVisible()
   await expect(controls.getByRole("button", { name: "Next background" })).toBeVisible()
   const firstName = await controls.getByRole("heading", { level: 3 }).textContent()
@@ -490,7 +527,6 @@ test("production Background controls stay off-card and visible in portrait and s
   await expect.poll(() => controls.getByRole("heading", { level: 3 }).textContent()).not.toBe(firstName)
 
   await page.setViewportSize({ width: 844, height: 390 })
-  const root = panel.getByRole("region", { name: "Background carousel" })
   await expect(root).toHaveAttribute("data-carousel-responsive-profile", "short-landscape")
   await expect(panel.locator('[data-carousel-slide][data-detail-level="full"], [data-carousel-slide][data-detail-level="summary"]')).toHaveCount(3)
 

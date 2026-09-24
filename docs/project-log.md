@@ -2,6 +2,166 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Catalog repair verified; remaining audit-note recurrence bounded
+
+- Published the first hosted repair as `03d7762` after independent SPEC then
+  QUALITY, 4,726 unit passes with three skips, 107 focused passes, lint/typecheck,
+  strict receipt verification and exact staged-blob identity. All four inline
+  threads are resolved. Both hosted reviewers ran on that head; Codex completed
+  clean. All seven jobs in CI `35571083634` passed, aggregate at 07:23 UTC.
+- CodeRabbit's outside-diff finding identifies Still Gradient in the current
+  Color Drift collision note. Canonical catalog identity is In Transition.
+  Root verified the source and rendered copy, then scanned all notes: five more
+  references use Shape Grid, Aerial Rays or Retro Grid in place of Geometric
+  Current, Skybreak or Endless Perspective. These are current comparisons, not
+  historical aliases. Plasma inside the valid name Folded Plasma is not stale.
+- The renderer faithfully copies source notes. The recurrence is incomplete
+  current-prose synchronization and a three-note-only regression. Correct only
+  the six proven source notes, regenerate four affected batches, and replace
+  that narrow regression with all-note/all-batch checks and negative controls.
+  Preserve every other data field, catalog alias, runtime, media and prior fix.
+  Total PR scope remains 35; three more allocated documents become explicit
+  repair deviations, leaving 17 of 30 source paths recovery-exact.
+- The same implementer completed the six implementation paths with 107 focused
+  passes and changed-file lint. The strengthened note contract rejected the old
+  six references before correction; generated documents changed only those six
+  note lines. SPEC then found that canonical masking hides three longer retired
+  aliases. Root reproduced the false passes and bounded the repair to original-
+  note match spans plus overlap counterfactuals in the same audit test. The data
+  substitutions remain correct. The corrected oracle passes all 16 audit tests
+  and changed-file lint, including overlap and standalone-alias controls. Nested
+  retired aliases may both be reported; the fixture requires the target finding
+  rather than suppressing other valid findings. Root owns records, receipt and
+  Git. SPEC re-review then QUALITY precede
+  publication. New-head hosted reviews and strict CI remain mandatory; the
+  published hourly CodeRabbit window is tracked separately. Tasks 8-9 and the
+  separate snapshot decision remain pending. No merge or provider action.
+
+## 2026-09-21 — Catalog published; hosted findings verified before bounded repair
+
+- Published and attached PR #12 at `30bd341eae393b7ddaa7d1c7f443ffdc5adf0925`,
+  based on reviewed renderer head `04e3868e3ab39111e50b6c8cdc7d5a89bc7b60e2`.
+  Final scoped SPEC and QUALITY approved the executable sweep guard; all 35
+  staged blobs matched the frozen candidate. Strict receipt and tracked inventory
+  passed. All seven initial CI jobs passed in run `35566555008`.
+- Codex found nine license strings wrongly tied to public presentation identity.
+  Root reproduced that attribution drift and the paired test's incorrect
+  expectation. Restore the literal inherited attribution, preserving provider
+  labels, and cover all nine exported values. The structural equivalence check
+  must protect licenses rather than exclude them as presentation.
+- CodeRabbit found 72 stale labels among 83 preview entries, a free-default
+  entitlement test that also passes through the reset path, three current
+  collision notes using retired names, and ambiguous 31-path baseline wording.
+  Root verified each against actual owners. Existing generators are correct;
+  this is incomplete metadata synchronization and weak test coverage, not a
+  demonstrated runtime defect. Preserve preview identities and every non-label
+  field; preserve legacy audit aliases. Regenerate only changed audit prose.
+- One existing implementer owns eight bounded implementation/test paths; root
+  owns delivery records and receipt. Total PR scope remains 35. Fresh focused
+  and full-unit validation, lint/typecheck, independent SPEC then QUALITY,
+  staged verification and both exact-head hosted reviews remain required.
+  No merge, PNG, threshold, provider, billing or media-byte changes.
+
+## 2026-09-21 — Catalog browser validation exposes inherited palette and media assumptions
+
+- The v2 full unit suite passed 4,723 with three skips and zero failures.
+  Independent QUALITY found one weakness in the new sweep companion: removing
+  the actual per-mode assertion still satisfied its loop/count guards. Root
+  reproduced that mutation, then the same implementer strengthened the existing
+  helper to require the awaited assertion inside the mode loop before counting.
+  Scoped SPEC exposed a further commented-out-call false positive; root verified
+  it, and the existing comment masker now excludes inactive loop text. Removal,
+  commented-call and out-of-loop placement mutations now fail; the final combined
+  focused run passes 126/126 and changed-file lint passes. Browser/runtime hashes
+  are unchanged. Broad-suite evidence remains explicitly v2; scoped SPEC then
+  QUALITY and final staged/hosted gates still apply to the final amendment.
+- Independent SPEC passed the first frozen candidate, but its final full-unit
+  run completed with 4,722 passes, three skips and one stale source-contract
+  failure. The bootstrap-era sitewide guard still requires the removed fixed
+  palette count. The final amendment repairs that companion only, preserving
+  registry-exact IDs, exhaustive modes and all Host assertions. Planned scope is
+  now 35 files. The companion passes 18/18 and the combined focused run passes
+  126/126, including two negative mutation controls; browser hashes are unchanged.
+  Scoped SPEC recheck, fresh QUALITY and full-unit rerun are pending.
+- Final exact-fixture validation passes all 38 paired carousel/control cases
+  (2.7 minutes), with strict unfiltered console health. Both saved request-count
+  attachments show one initial hit for each of the four known local assets and
+  no additional hits during settled keyboard navigation/cleanup. That evidence
+  preserves the initial-request race rather than claiming it disappeared.
+  Final combined focused contracts pass 108/108; typecheck, full lint and nine
+  legal archive checks pass. Full-unit reconciliation, final receipt and
+  independent SPEC then QUALITY still precede publication.
+- Effective-mode repair now passes 77 focused contracts and all six focused
+  palette browser cases (4.5 minutes): every one of 84 enabled backgrounds in
+  all three requested modes on desktop and mobile, label isolation and both
+  currently unsupported adapters. Raw gallery diagnostics and exact effective
+  renderer targets/overrides remain separate and strict. The full control
+  fixture rerun and independent review are still pending.
+- The control repair clears all ten original assertion failures. Full traced
+  validation is still 36/38 because both console-health cases request the same
+  four optional, gitignored local preview videos and receive 404s. An isolated
+  unchanged 2/2 pass is not closure. No errors were filtered or media generated.
+- Palette validation removed the stale count of 83 and obsolete Aurora
+  unsupported assumption while retaining registry-exact IDs and all modes.
+  Focused palette/control contracts pass 76/76; the six-case browser rerun is
+  4/6, exposing Solid Color's unsupported-Harmony Source fallback. Root verified
+  the unchanged canonical resolver and existing unit contract. Vortex shares
+  that capability boundary; a Harmony-capable control retains generated colors.
+- The bounded follow-up repairs only the browser oracle and its existing
+  palette-registry test companion, bringing planned scope to 34 files. Raw
+  gallery diagnostics remain distinct from renderer-effective colors and mode
+  overrides. Missing-media diagnosis, complete browser validation, receipt
+  reconciliation and independent SPEC then QUALITY remain pending. The media
+  diagnosis also confirms an inherited initial reduced-motion request race.
+  A subsequent exact-URL fixture amendment isolates missing local bytes while
+  reporting transient request counts and checking no new settled-state fetches;
+  it does not claim to fix that runtime behavior. No runtime, media, snapshot,
+  provider, publication or merge action occurred.
+
+## 2026-09-21 — Catalog source transferred; inherited lab test drift isolated
+
+- The exact-source transfer passed 344 focused tests. Root verified stable
+  registry/access/commerce structure, all 83 preview identities and media
+  metadata, unchanged policy and earlier repairs. Full unit validation passed
+  4,718 with three skips and zero failures before the test-only amendment;
+  typecheck, lint and provider-free production build passed, as did all 32
+  commerce browser cases.
+- Development browser validation passed all 18 carousel cases, including the
+  portrait geometry regression, but five control-lab definitions failed in both
+  projects. Root and implementer independently traced unchanged base/recovery
+  producers: the lab renders Selected/Select, Station summary layout is square,
+  and loop buffers contain intentionally inaccessible physical clones. Old
+  Unlock/193/physical-order test assumptions no longer address those owners.
+- The bounded Task 7 amendment updates only that browser consumer and its
+  existing source-test companion (32 planned paths). Strict acquisition,
+  hit-target, zero-mutation, exact geometry, logical identity and clone
+  accessibility checks remain required. No runtime, screenshot or threshold
+  adjustment is part of this repair.
+- Historical prototype/acquisition records conflict with the recovered lab
+  behavior. Current source-preservation authority controls this replacement;
+  this is not a new product-design decision or closure of that historical debt.
+  Final browser evidence and independent SPEC then QUALITY remain pending.
+
+## 2026-09-21 — Renderer gates verified; background catalog slice started
+
+- PR #11 at `04e3868e3ab39111e50b6c8cdc7d5a89bc7b60e2` now has clean
+  exact-head Codex and CodeRabbit reviews, both threads resolved and all seven
+  jobs successful in CI `35556031421`. The formerly failing cadence case
+  passed; no retry or production deadline change was used.
+- Started Task 7 from that exact base in the existing approved worktree.
+  Its explicit 30-path ownership includes the globe moved from Task 6; three
+  browser companions are already complete, leaving 27 source changes and four
+  delivery/audit records. The source renderer assertion moves into its combined
+  registry/control test without dropping coverage.
+- This slice preserves stable background/access/media identifiers, optional
+  user markers and previous validated repairs. Only the always-rendered legacy
+  globe mark is retired; its image asset remains. Portrait tray CSS and its
+  geometry regression travel together. Current legal and final integration
+  remain later tasks; no snapshot refresh, provider activity or merge.
+- Local implementation/verification and both independent review stages are
+  pending. Publication must receive its own exact-head hosted reviews and CI;
+  the completed renderer gates are only its verified starting baseline.
+
 ## 2026-09-21 — Renderer CI exposed Anatomime test-clock race
 
 - Exact head `3857f13d6b3c241061960f2d1d1f0740f4978166` received clean Codex

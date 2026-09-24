@@ -2,7 +2,7 @@
 
 ## Tidal Glass
 - **ID:** `massage-lab-wave-current`
-- **Current name:** Wave Current
+- **Current name:** Tidal Glass
 - **Decision:** rename
 - **Alternatives:** Subsurface Cells; Liquid Cartography
 - **Visual descriptor:** Layered liquid contours moving with directional flow
@@ -12,7 +12,7 @@
 
 ## Currents
 - **ID:** `massage-lab-waves`
-- **Current name:** Wave Current
+- **Current name:** Currents
 - **Decision:** rename
 - **Alternatives:** Fine Topography; Parallel Murmur
 - **Visual descriptor:** Fine parallel lines undulating as an ordered field
@@ -22,7 +22,7 @@
 
 ## Ribbons
 - **ID:** `massage-lab-wavy-background`
-- **Current name:** Wave flow
+- **Current name:** Ribbons
 - **Decision:** rename
 - **Alternatives:** Velvet Roll; Soft Lull
 - **Visual descriptor:** Blurred ribbons rolling across an open field
@@ -42,7 +42,7 @@
 
 ## Arc Currant
 - **ID:** `massage-lab-floating-lines`
-- **Current name:** Floating Lines
+- **Current name:** Arc Currant
 - **Decision:** rename
 - **Alternatives:** Suspended Lines; Layered Sweep
 - **Visual descriptor:** Layered lines sweeping in arcs
@@ -52,7 +52,7 @@
 
 ## Filament Waves
 - **ID:** `massage-lab-line-waves`
-- **Current name:** Line Waves
+- **Current name:** Filament Waves
 - **Decision:** rename
 - **Alternatives:** Luminous Weave; Fine Harmonics
 - **Visual descriptor:** Dense filaments folding like waves
@@ -72,7 +72,7 @@
 
 ## Prismatic Ribbons
 - **ID:** `massage-lab-color-bends`
-- **Current name:** Color Bends
+- **Current name:** Prismatic Ribbons
 - **Decision:** rename
 - **Alternatives:** Band Fold; Chromatic Bend
 - **Visual descriptor:** Separated bands bending across a field
@@ -82,7 +82,7 @@
 
 ## Fluid Infusion
 - **ID:** `massage-lab-liquid-ether`
-- **Current name:** Liquid Ether
+- **Current name:** Fluid Infusion
 - **Decision:** rename
 - **Alternatives:** Luminous Suspension; Weightless Plume
 - **Visual descriptor:** Fluid plumes curling through a translucent volume
@@ -92,7 +92,7 @@
 
 ## Molten Mirror
 - **ID:** `massage-lab-liquid-chrome`
-- **Current name:** Chrome Flow
+- **Current name:** Molten Mirror
 - **Decision:** rename
 - **Alternatives:** Mirror Whirlpool; Reflective Bloom
 - **Visual descriptor:** Reflective liquid spiraling into a central void
@@ -102,7 +102,7 @@
 
 ## Fluid Filament
 - **ID:** `massage-lab-ferrofluid`
-- **Current name:** Ferrofluid
+- **Current name:** Fluid Filament
 - **Decision:** rename
 - **Alternatives:** Magnetic Bloom; Cellular Contours
 - **Visual descriptor:** Liquid contours clustering and separating
@@ -112,7 +112,7 @@
 
 ## Soapfilm
 - **ID:** `massage-lab-iridescence`
-- **Current name:** Iridescence
+- **Current name:** Soapfilm
 - **Decision:** rename
 - **Alternatives:** Pearl Sheen; Opaline Drift
 - **Visual descriptor:** Reflective light folding across a fabric-like surface

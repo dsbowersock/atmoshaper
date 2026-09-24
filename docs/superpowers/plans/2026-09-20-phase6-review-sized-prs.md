@@ -960,3 +960,412 @@ formerly failing cadence case under delayed response observation. Typecheck,
 changed-file lint, strict brand/inventory/document contracts and independent
 SPEC then QUALITY precede push. The resulting head needs fresh hosted reviews
 and all required CI. This amendment does not start Task 7 or waive any gate.
+
+## Task 7: Background catalog, controls and globe-marker retirement
+
+Slice Card: deliver the remaining background presentation and paired contracts
+from recovery `7e318558da425b8fcdddeb8df50e93a36900310a` without changing stable
+ownership. Parent authority is the source-locked Phase 6 design and its Task 5,
+plus the verified source carousel portrait repair. Base is reviewed PR #11 head
+`04e3868e3ab39111e50b6c8cdc7d5a89bc7b60e2`: both hosted reviewers clean, both
+threads resolved and all seven jobs in CI `35556031421` successful. Reuse the
+approved worktree on `codex/phase6-07-background-catalog`; root alone owns Git.
+
+### Exact source ownership
+
+These 30 paths comprise the original 29 background paths plus the deferred
+globe. Copy the 27 differing files exactly from recovery using apply_patch;
+the three already-exact browser files below are verification-only. Preserve
+all earlier replacement fixes outside this set. No new source design is needed.
+
+- `app/chimer/running-timer.tsx`
+- `app/chimer/set-timer.tsx`
+- `app/dev/buttons/background-palette-gallery.tsx`
+- `app/dev/buttons/metal-ring-gallery.tsx`
+- `components/backgrounds/background-carousel-control-tray.module.css`
+- `components/backgrounds/backgroundRegistry.ts`
+- `components/backgrounds/effects/massage-lab-3d-globe-background.tsx`
+- `data/background-branding-audit.json`
+- `data/background-branding-catalog.json`
+- `docs/background-branding-audit/batch-01-foundations.md`
+- `docs/background-branding-audit/batch-02-flow-and-liquid.md`
+- `docs/background-branding-audit/batch-03-light-and-rays.md`
+- `docs/background-branding-audit/batch-04-grids-and-pixels.md`
+- `docs/background-branding-audit/batch-05-atmosphere-and-cosmos.md`
+- `docs/background-branding-audit/batch-06-digital-energy.md`
+- `docs/background-branding-audit/batch-07-fields-and-celestial.md`
+- `public/chimer/background-previews/index.json`
+- `scripts/background-branding/audit-model.mjs`
+- `tests/background-branding-audit.test.mjs`
+- `tests/background-branding-catalog.test.mjs`
+- `tests/background-catalog.test.mjs`
+- `tests/background-options.test.mjs`
+- `tests/background-preview-media.test.mjs`
+- `tests/browser/background-carousel-preview.spec.ts`
+- `tests/browser/background-commerce.spec.ts` (already exact)
+- `tests/browser/background-palette.spec.ts` (already exact)
+- `tests/browser/control-system-review.spec.ts`
+- `tests/browser/dna-twisted-cubes-backgrounds.spec.ts` (already exact)
+- `tests/chimer-entitlements.test.mjs`
+- `tests/chimer-timer.test.mjs`
+
+Root changes only this plan, `docs/project-state.md`, `docs/project-log.md` and
+the generated `scripts/repository-audit/brand-reference-baseline.json` receipt.
+Initial expected total before validation amendments: 27 source changes plus
+four delivery/audit records = 31 PR paths. Current publication scope is 35 paths,
+including the bounded browser/companion amendments recorded below.
+The ignored ledger/brief/evidence are not publication paths. Measure the final
+set; stop at an unexpected owner, failed invariant, or approaching 100 files.
+
+### Interfaces and preserved contracts
+
+- Consume existing `PUBLIC_PRODUCT_IDENTITY` and canonical station display
+  owner. Publish exact labels `Lava Lamp`, `Tile grid`, `Hex grid` on the same
+  IDs, prices, access modes, entitlements, checkout references and media paths.
+- Preserve symbols, exports, option keys, CSS tokens, paths, storage settings,
+  registry keys, historical provenance and external provider URLs. The only
+  retired globe behavior is its always-rendered legacy logo/image/fallback.
+  Optional user-marker controls/icons and globe rendering stay intact; the
+  existing legacy image asset and all other media/PNG bytes stay unchanged.
+- Keep the portrait tray CSS repair with its real-browser geometry regression.
+  No screenshot, frame, threshold or timeout weakening; no provider workaround.
+- The Task 6 renderer-identity loop moves into the source's combined registry/
+  control/renderer regression without losing assertions. Existing app-settings
+  and three browser companions are already recovery-exact; do not rewrite them.
+- Preserve the 48 exact audit rules, current collector/verifier and all prior
+  Sentry, immutable admin replay, browser readiness and clock repairs. The source
+  underscore-identifier policy requirement is already in the reviewed base.
+  Do not copy final source policy/fingerprints into this intermediate tree.
+- Current legal identity and full integration/QA-lane/visual-oracle work remain
+  Tasks 8-9. Separate Linux Atmosphere snapshot approval remains pending.
+
+### Execution and verification
+
+TDD mode off for exact mechanical redistribution. One fresh implementer owns
+only the 30-path source manifest and its ignored report; no Git writes or agents.
+Root owns delivery documents, receipt, broad validation and frozen review package.
+Medium integration risk: existing large control/test files are not refactored.
+
+- [ ] Inspect base-to-source changes and compare earlier repairs before edits.
+  Report any collision before copying. Capture normalized LF SHA-256 hashes
+  for audit index plus seven batches and pre-edit registry/preview identities.
+- [ ] Transfer source blobs through apply_patch, preserving the exact manifest.
+  The source code itself is the complete mechanical implementation; use
+  `git show 7e318558da425b8fcdddeb8df50e93a36900310a:<path>` for exact values.
+- [ ] Run `npm run backgrounds:branding:audit` and
+  `npm run backgrounds:branding:catalog`. Verify fixed-point output and exact
+  recovery blobs. Audit index normalized bytes must be unchanged; changed
+  generated docs must be exactly seven batches. Batches 02-06 may change only
+  deterministic Current name fields; batches 01/07 contain approved semantics.
+- [ ] Run `node --test tests/background-branding-audit.test.mjs
+  tests/background-branding-catalog.test.mjs tests/background-catalog.test.mjs
+  tests/background-options.test.mjs tests/background-preview-media.test.mjs
+  tests/chimer-entitlements.test.mjs tests/chimer-timer.test.mjs
+  tests/app-settings.test.mjs`. Keep repository-audit checks for root after the
+  intermediate receipt is regenerated. Record exact output in the report.
+- [ ] Root compares stable registry IDs/access/commerce/preview paths and asset
+  bytes with base, verifies source equality, preserved earlier repairs and
+  scope. Run typecheck, lint, full unit suite once, strict brand/inventory,
+  document/archive checks and `git diff --check` on the frozen candidate.
+- [ ] Root runs provider-free browser validation for the changed carousel/
+  control owners and exact label consumers in both ordinary projects. Use the
+  existing owned development-server selection for gallery-only specs and a
+  fresh production build for commerce. Retain strict geometry/accessibility
+  assertions and the canonical environment isolation. No provider credentials.
+- [ ] Synchronize achieved local evidence in state/log before final receipt
+  generation. Independent SPEC then QUALITY must pass before root stages,
+  commits and publishes stacked on PR #11. Do not imply hosted clearance before
+  actual exact-head results. Attach the new PR and request each needed hosted
+  review once under that PR's actual eligibility; require strict hosted CI.
+
+Preflight: Task2 identity owner is in base; Task3 audio/gallery and Task4 browser
+selectors are already carried; Task6 shared renderer loop remains semantically
+identical when reunited with catalog assertions. Task7 globe runtime stays with
+descriptions/negative tests. Task9 final policy/visual harness must not appear
+early. Self-consistency: source27 + receipts4 matches31 planned changes; all
+30 ownership paths are explicit. Whole-source equivalence remains a later gate.
+
+### Task 7 validation amendment — inherited control-lab contract drift
+
+The full development run passed all 18 carousel cases but failed five control-lab
+definitions in both projects. Root verified all three relevant producer files
+are identical in the reviewed base and recovery source. The browser spec's
+source delta is only two branding strings; its failing assumptions predate this
+slice. Detailed history and counterfactual evidence remain in the ignored
+`task-7-control-lab-diagnosis.md` report.
+
+The current migration/replacement authority preserves the exact recovered
+application behavior; historical prototype designs are evidence, not permission
+to redesign this slice. The July prototype note still says 193-pixel surrounding
+previews, whereas the later shared owner deliberately uses square previews.
+This amendment records that discrepancy and does not claim to resolve the old
+product-design history or change production geometry/copy.
+
+Decision: test-only code change. No-change would leave validation unable to
+exercise the actual recovered owner. Minimum boundary is the already allocated
+`tests/browser/control-system-review.spec.ts` plus the existing
+`tests/carousel-lab-source.test.mjs` for focused regression controls (32 PR paths).
+The same implementer owns only those two paths for repair round 1; root remains
+sole Git/browser writer. No new helper owner or production behavior is needed.
+
+- Identify the locked Background action through its canonical primary-action
+  marker and verify its actual accessible Select/Selected label. Preserve the
+  locked-state, hit-target, dialog outcome and zero-mutation assertions.
+- Assert exact square Station summary dimensions against the approved current
+  width/height inputs, not a looser tolerance. Include a non-default tuning
+  counterexample so a hard-coded one-sample expectation cannot hide regression.
+- Use canonical, non-clone slide identity for logical order, accessible labels,
+  category restoration and geometry; retain explicit hidden-clone semantics and
+  real previous/next loop navigation. Audit same-pattern locators in this spec.
+- Add focused negative/mutation controls using actual test/owner code where
+  practical; keep production owner contract and consumer checks together.
+- Root repeats all 38 dev browser cases after the source freezes, plus focused
+  unit/typecheck/lint and strict audit. Independent SPEC then QUALITY must review
+  the amendment and historical-authority explanation before publication.
+
+Retirement: stale Unlock/193/physical-slide assumptions are removed only from
+this validation owner. Hidden loop clones and historical records remain intact.
+No PNG, frame, threshold, provider or application-runtime amendment is authorized.
+
+### Task 7 validation amendment — registry-owned palette coverage
+
+Provider-free palette validation exposed two additional inherited browser
+assumptions in both projects: a duplicated count of 83 predating Solid Color,
+and Aurora's retired unsupported classification. Root verified the unchanged
+palette registry and existing focused adapter coverage; the current enabled
+registry has 84 identities and Aurora has a supported CSS/DOM adapter. The
+browser spec and palette registry are base/recovery identical. No runtime or
+product-authority conflict is present for these two failures.
+
+Decision: test-only code change in the already allocated but previously exact
+`tests/browser/background-palette.spec.ts`, bringing the publication to 33 paths.
+Remove the stale browser count, retain exact live inventory ID equality against
+the canonical enabled registry, and require every enabled ID in all three modes.
+Derive unsupported examples from the canonical adapter status, require at least
+one enabled example, and retain all existing empty-target/no-application/error
+checks across all three modes. Do not convert Aurora back to unsupported or
+weaken counts, mode execution, diagnostics, timeouts or resource-error checks.
+
+The same implementer also strengthens the existing control-lab source-test
+companion to inspect the actual repaired browser consumer and reject in-memory
+mutations restoring Unlock, 193 or physical-clone identity selection. Root found
+the first 36-test addition guarded producers alone and would miss a consumer
+reversion. This does not alter the already tested control browser spec.
+
+Root reruns the palette selection (including full enabled three-mode sweep) and
+the whole carousel/control browser pair. A separate mobile console-404 failure
+in the 37/38 control run remains under trace diagnosis; its isolated unchanged
+case passed both projects, which is not yet causal closure or whole-run proof.
+All amendments still require independent SPEC then QUALITY before publication.
+
+### Task 7 validation amendment — effective renderer palette mode
+
+The repaired inventory sweep now reaches Solid Color and fails in both projects:
+the raw Harmony role diagnostic is `#ff5119`, but the renderer correctly applies
+its authored `#ff7a1a`. Root verified the resolver, adapter registry and generic
+role resolver are base/recovery/worktree identical. Existing focused contracts
+explicitly require Solid Color to reject Harmony; Vortex also declares
+`supportsHarmony: false` and restores Source mode overrides. A provider-free
+owner counterfactual produced the exact mismatch and proved a Harmony-capable
+Static Gradient still applies Harmony. This is inherited oracle drift exposed
+by removing the stale inventory-count stop, not a runtime regression.
+
+Decision: retain raw gallery role diagnostics as their own checks, but compare
+actual renderer targets and mode overrides against the adapter-effective mode.
+For requested Harmony with `supportsHarmony: false`, expect exact Source colors
+and Source overrides; do not skip these cases or turn Harmony support on. All
+other requested modes and all supported-adapter targets stay strict. Exercise
+Solid Color and Vortex plus a Harmony-capable control, and reject in-memory
+mutations removing the normalization or changing the real browser consumer.
+
+Minimum repair boundary: existing `tests/browser/background-palette.spec.ts`
+and `tests/background-palette-registry.test.mjs`. The latter is a new changed
+companion, increasing planned publication scope from 33 to 34 paths. Same
+implementer, root-owned browser/Git validation, no runtime/helper ownership
+expansion. No timeouts, tolerances, error filters or snapshot changes. Repeat
+the six focused browser cases including the full 84-by-three-mode sweep in
+both projects, then independent SPEC and QUALITY on the complete frozen slice.
+
+### Task 7 validation amendment — exact local preview fixture boundary
+
+Full-run traces confirm the four console 404s come from absent, intentionally
+gitignored local preview videos. Their unchanged manifest/registry/card owners
+request metadata briefly before the lab's reduced-motion effect settles. These
+are separate facts: an offline fixture can serve missing bytes, but cannot prove
+zero transient requests. Current source-preservation authority and the existing
+test assert settled poster-only UI, keyboard/cleanup and strict console health;
+they do not establish a zero-initial-fetch product policy. That runtime race is
+retained as explicitly unresolved behavior, not fixed or newly approved here.
+
+Decision: test-only provider-free fixture, following the existing public-route
+exact-URL 204 video fixture convention. Change only the already allocated
+control browser and carousel source-test companion; total remains 34 paths.
+Install before opening Carousels, fulfill only the four trace-proven same-origin
+landscape URLs (moving-gradient, static-gradient, stars and hole), and verify
+their identities against the committed manifest/registry owner. Do not match
+unknown, query-bearing, other-origin or other-method requests. Preserve the
+unfiltered empty console-error assertion; no wildcard, silence filter, fallback
+route, provider/media generation or runtime change is authorized.
+
+Expose per-URL fixture hit counts as a browser attachment so transient requests
+remain visible without freezing their nondeterministic count as desired behavior.
+After the reduced-motion rail is present, require zero video elements, settle
+the existing network work, then prove keyboard navigation and surface cleanup
+add no further preview requests. This is not a zero-request mount claim or a
+media decoding/playback test. Add an actual-helper regression for exact routing,
+wrong URL/origin/query/method fall-through, and strict console/consumer wiring;
+mutation controls must reject broad routing or removed fixture setup. Root
+repeats the whole paired 38-case suite and retains request-count attachments.
+Independent SPEC then QUALITY must evaluate both fixture scope and residual
+race disclosure; no whole-sequence or runtime-race closure may be claimed.
+
+### Task 7 validation amendment — palette sweep companion contract
+
+The final full unit run completed with 4,722 passes, three skips and one failure
+out of 4,726 tests. The only failure is the unchanged bootstrap-era sitewide
+contract requiring `EXPECTED_ENABLED_BACKGROUND_COUNT`, removed by the approved
+registry-owned palette amendment. Base and recovery contain the same stale
+assertion; repository search finds no other test consumer of that constant.
+The actual browser still asserts exact enabled IDs, registry-derived cardinality,
+all three modes and final executed-case equality. Its final browser run passed.
+
+Diagnosis: a source contract bound to a duplicate numeric owner was not migrated
+with the browser consumer. This is test-contract drift, not a renderer or sweep
+failure. The recurrence path is a token-presence guard that accepts a stale
+constant but does not establish the exhaustive registry-owned checks. Scope is
+the existing `tests/sitewide-control-rollout.test.mjs` companion, raising planned
+publication from 34 to 35 paths. No browser or production change is needed.
+
+Decision: code-change, test-only. Replace the stale token check with guards for
+the actual canonical enabled inventory, exact ID equality, three-mode iteration
+and registry-derived executed-case count. Retain every existing no-skip and real
+Host diagnostic assertion. Add in-memory mutation controls proving loss of ID
+equality or restoration of a fixed-count ceiling is rejected. Keep the guard
+local to the existing test owner; no new production helper or compatibility path.
+The same implementer owns only this companion and its ignored report. Root will
+run the focused suite plus full unit validation, confirm browser hashes unchanged,
+refresh scope/receipt records, and obtain scoped SPEC then independent QUALITY.
+The original SPEC pass covers the earlier frozen candidate only. All publication,
+hosted-review, strict CI and whole-sequence gates remain in force.
+
+QUALITY fix round 1: the v2 full unit run passed 4,723 with three skips and zero
+failures, but independent review demonstrated a gap in the new source guard.
+Removing the actual per-mode awaited assertion still passes its loop/count
+predicates. Root reproduced this against the extracted real guard before repair.
+Require the actual assertion inside the canonical mode loop before incrementing
+the successful-case count, and reject both removal and misplaced-call mutations.
+This remains the same test companion and 35-path scope; no browser or runtime
+repair. Verify the amendment with the focused suite, lint and scoped SPEC then
+QUALITY. Preserve the broad v2 result as evidence of that candidate, and label
+the final amendment's narrower verification accurately until exact-head CI runs.
+
+Scoped follow-up: the same guard must inspect executable source, not commented
+text. Root confirmed that commenting out the actual call still passed the v3
+guard. Reuse the existing source-comment masker and add that precise negative
+mutation; no new parser, owner, browser change or scope expansion is needed.
+
+### Task 7 hosted findings — preserved attribution and canonical metadata
+
+PR #12 at `30bd341eae393b7ddaa7d1c7f443ffdc5adf0925` received one Codex
+attribution finding, three inline CodeRabbit metadata/test/documentation findings
+and one outside-diff collision-note finding.
+Root verified each against the actual owners before approving this amendment.
+Nine registry license strings follow the presentation identity despite the
+preserved-attribution boundary; the paired branding test explicitly repeats
+that coupling. Restore the five implementation and four draft strings exactly
+from the reviewed base, keeping current provider labels and catalog names.
+Add focused actual-registry coverage for all nine, distinguishing provenance
+from presentation; do not change legal documents or third-party license terms.
+
+The public preview JSON has 72 labels that differ from the approved catalog.
+Its generator already uses the effective registry label; the partial source
+transfer and three-label regression left this checked-in artifact stale.
+Synchronize labels for its existing 83 items from the canonical catalog only.
+Do not regenerate media or the runtime module, add Solid Color, change timestamp,
+provider, order, IDs, paths, dimensions, timing, hashes or other metadata. Extend
+the existing preview companion to check every published ID/label against the
+catalog and reject a stale-label counterexample, not just the three new labels.
+
+The free-background entitlement test passes because both the selected ID and
+fallback ID are Lava Lamp. An actual-owner probe with Stars speed 73 returned
+50 without the registry decision and 73 with it. Supply the real registry access
+decision, assert the reset-sensitive value survives, and retain a denied/omitted
+decision counterexample. Preserve all premium and owned-background assertions;
+no sanitizer/runtime or entitlement policy change is needed.
+
+Three current collision notes also retain the former Honeycomb Glow and Quiet
+Mosaic names for Hex grid and Tile grid. Correct only those source notes and
+regenerate the deterministic batch-04 document, preserving historical aliases.
+Add focused source/generated-prose regression in the existing audit companion.
+The generator already faithfully renders the source notes and needs no repair.
+
+One implementer owns only the existing registry, branding-catalog test, public
+preview JSON, preview-media test, Chimer-entitlement test, audit JSON, batch-04
+audit document and audit test. Root owns this
+31-to-35-path clarification, current state/log, receipt and equivalence records.
+Scope remains 35. Record the eight additional deviations from recovery explicitly;
+the registry comparison must now preserve licenses instead of treating them as
+presentation. Verify focused tests with pre-fix failures, typecheck/lint and one
+final full unit run, then independent SPEC followed by QUALITY. Regenerate and
+inspect the strict receipt without changing policy. Publish only after staged
+blob verification; both hosted reviewers must cover the resulting exact head.
+No PNG, threshold, media-byte, provider, deployment, billing or merge authority.
+
+### Task 7 audit-note recurrence — complete current-prose coverage
+
+Published amendment `03d7762` passed its full local unit suite (4,726 passed,
+three skipped), separate SPEC then QUALITY, exact-head Codex review and all
+seven jobs in strict CI `35571083634`. CodeRabbit review `5263926326` at
+07:13:49 UTC on September 21 found a remaining Still Gradient reference in
+the current Color Drift comparison note. Root verified the actual source and
+generated copy, then scanned all 84 collision notes against current catalog
+names and historical aliases. Five more stale references share the same path.
+
+The renderer directly copies `entry.collisionNotes`; it does not invent names.
+The prior repair corrected three grid notes and tested only batch 04, leaving
+the same current-reference contract unguarded elsewhere. Decision: repair the
+canonical data and its existing test owner, not the generator or runtime.
+
+| Audit entry | Retired phrase | Approved phrase |
+| --- | --- | --- |
+| massage-lab-twisted-cubes | Shape Grid | Geometric Current |
+| massage-lab-side-rays | Aerial Rays | Skybreak |
+| massage-lab-light-rays | Aerial Rays | Skybreak |
+| massage-lab-grid-scan | Retro Grid | Endless Perspective |
+| massage-lab-gradient-animation | Still Gradient | In Transition |
+| massage-lab-hole | Retro Grid | Endless Perspective |
+
+Change only these six `collisionNotes` values; regenerate the four affected
+batch documents (01, 03, 04, 07). Every other field and historical alias remains
+unchanged. Replace the existing three-note-only test with actual-data coverage
+of all current notes and all seven deterministic batch documents, including
+LF/CRLF checkout forms. Use the canonical catalog's retired aliases plus known
+superseded audit prose names. Complete-name checks must preserve valid longer
+canonical names first: Plasma inside Folded Plasma is not a stale reference.
+Negative mutations must reject the six former references and prior repaired
+names, while positive controls preserve valid current names. Keep this bounded
+to the existing audit test; do not add a production parser, schema, dependency,
+fallback or helper module. The maintained test gains no unrelated responsibility.
+
+One existing implementer owns data, four generated documents and the audit test.
+Root owns current state/log, this plan, receipt and equivalence helpers. Total
+scope stays 35 paths; 17 of 30 allocated source paths remain recovery-exact,
+with 13 explicit repair deviations. Structural proof must allow only the nine
+total corrected notes relative to initial publication and six in this amendment,
+preserving all other data, media, license, access and earlier-repair invariants.
+Run the four focused contract files, changed-file lint and strict audit/receipt
+checks. The previous full-unit/CI evidence covers `03d7762`, not this amendment;
+the amendment needs its own focused evidence, independent SPEC then separate
+QUALITY, frozen/staged identity and new-head hosted reviews/strict CI. This
+finding is Minor but user-required actionable closure still requires its repair.
+No merge, PNG/frame/threshold adjustment, provider or billing activity.
+
+SPEC round 1 refinement: current-name masking can erase a shorter canonical
+substring inside a longer retired alias (MassageLab tile grid, MassageLab hex
+grid and Prismatic Burst). Root reproduced all three false passes using the
+actual helper. Replace destructive masking with original-note match spans:
+ignore a retired occurrence only when contained in a strictly longer canonical
+occurrence. Keep both directions of overlap covered, including valid Folded
+Plasma plus separate retired Plasma in one note. Preserve all known-alias
+standalone detection and the real-note mutations. This refines the test-local
+mechanism without changing names, data, generator, scope or runtime contracts.

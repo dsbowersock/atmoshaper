@@ -13,6 +13,45 @@ import { maskCssComments, maskSourceComments, sourceBetween } from "./helpers/so
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8")
 
+/** Guards the browser sweep's registry-owned inventory instead of a duplicated numeric ceiling. */
+function assertRegistryOwnedPaletteSweepContract(browserSource) {
+  assert.match(browserSource, /const MODES = \["source", "custom", "harmony"\] as const/)
+  assert.match(
+    browserSource,
+    /const enabledRegistryEntries = backgroundRegistry\.filter\(\(entry\) => entry\.enabled\)/,
+  )
+  const sweep = sourceBetween(
+    browserSource,
+    'test("sweeps every enabled background through Source, Custom, and Harmony"',
+    'test("mounts truthful CSS/DOM, Canvas, and WebGL representatives"',
+    "Exhaustive background palette sweep",
+  )
+  assert.match(sweep, /expect\(inventory\)\.toHaveLength\(enabledRegistryEntries\.length\)/)
+  assert.match(
+    sweep,
+    /expect\(inventory\.map\(\(\{ id \}\) => id\)\.sort\(\)\)\.toEqual\(\s*enabledRegistryEntries\.map\(\(\{ id \}\) => id\)\.sort\(\),\s*\)/,
+  )
+  const modeLoop = sourceBetween(
+    sweep,
+    "for (const mode of MODES) {",
+    "        }",
+    "Canonical palette mode loop",
+  )
+  const executableModeLoop = maskSourceComments(modeLoop)
+  const perModeAssertion = "await expectLoadedPaletteMode(page, row.id, row.status, mode)"
+  const successCount = "executedCaseCount += 1"
+  assert.match(executableModeLoop, /await expectLoadedPaletteMode\(page, row\.id, row\.status, mode\)/)
+  assert.ok(
+    executableModeLoop.indexOf(perModeAssertion) < executableModeLoop.indexOf(successCount),
+    "The real per-mode assertion must finish before the sweep counts the case.",
+  )
+  assert.match(
+    sweep,
+    /expect\(executedCaseCount\)\.toBe\(enabledRegistryEntries\.length \* MODES\.length\)/,
+  )
+  assert.doesNotMatch(sweep, /EXPECTED_ENABLED_BACKGROUND_COUNT/)
+}
+
 test("S6 ordinary action routes delegate to the shared Button family", async () => {
   const [chimer, pricing, donationCheckout, anatomimeAlias] = await Promise.all([
     read("app/chimer/set-timer.tsx"),
@@ -397,7 +436,42 @@ test("background palette browser review fails closed and reads real Host diagnos
 
   assert.doesNotMatch(browserSource, /PALETTE_SWEEP_START_INDEX/)
   assert.doesNotMatch(browserSource, /test\.skip\(/)
-  assert.match(browserSource, /EXPECTED_ENABLED_BACKGROUND_COUNT/)
+  assertRegistryOwnedPaletteSweepContract(browserSource)
+  const missingIdEquality = browserSource.replace(
+    /\s*expect\(inventory\.map\(\(\{ id \}\) => id\)\.sort\(\)\)\.toEqual\(\s*enabledRegistryEntries\.map\(\(\{ id \}\) => id\)\.sort\(\),\s*\)/,
+    "",
+  )
+  assert.notEqual(missingIdEquality, browserSource)
+  assert.throws(() => assertRegistryOwnedPaletteSweepContract(missingIdEquality))
+
+  const fixedCeiling = browserSource.replace(
+    "enabledRegistryEntries.length * MODES.length",
+    "83 * MODES.length",
+  )
+  assert.notEqual(fixedCeiling, browserSource)
+  assert.throws(() => assertRegistryOwnedPaletteSweepContract(fixedCeiling))
+
+  const missingPerModeAssertion = browserSource.replace(
+    /\s*await expectLoadedPaletteMode\(page, row\.id, row\.status, mode\)/,
+    "",
+  )
+  assert.notEqual(missingPerModeAssertion, browserSource)
+  assert.throws(() => assertRegistryOwnedPaletteSweepContract(missingPerModeAssertion))
+
+  const commentedPerModeAssertion = browserSource.replace(
+    "          await expectLoadedPaletteMode(page, row.id, row.status, mode)",
+    "          // await expectLoadedPaletteMode(page, row.id, row.status, mode)",
+  )
+  assert.notEqual(commentedPerModeAssertion, browserSource)
+  assert.throws(() => assertRegistryOwnedPaletteSweepContract(commentedPerModeAssertion))
+
+  const misplacedPerModeAssertion = browserSource.replace(
+    /        for \(const mode of MODES\) \{\r?\n          await expectLoadedPaletteMode\(page, row\.id, row\.status, mode\)\r?\n/,
+    "        await expectLoadedPaletteMode(page, row.id, row.status, mode)\n"
+      + "        for (const mode of MODES) {\n",
+  )
+  assert.notEqual(misplacedPerModeAssertion, browserSource)
+  assert.throws(() => assertRegistryOwnedPaletteSweepContract(misplacedPerModeAssertion))
   assert.match(browserSource, /executedCaseCount/)
   assert.match(browserSource, /data-background-diagnostic-status/)
   assert.match(browserSource, /data-background-diagnostic-loaded-id/)
