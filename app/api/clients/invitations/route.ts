@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server"
 import { getCurrentSession } from "@/auth"
 import { getClinicalSyncReadiness } from "@/lib/phi-sync"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 function gatedInvitationResponse() {
   return NextResponse.json(
     {
       error: "Client invitations are not enabled in production yet.",
       reason:
-        "A therapist-client relationship can reveal sensitive care context, so MassageLab will not store invitations until the hosted clinical sync compliance gate is complete.",
+        `A therapist-client relationship can reveal sensitive care context, so ${PUBLIC_PRODUCT_IDENTITY.name} will not store invitations until the hosted clinical sync compliance gate is complete.`,
       localFirst: true,
     },
     { status: 403 },

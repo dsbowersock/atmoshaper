@@ -15,6 +15,7 @@ import {
   resolveCredentialLinkRecovery,
   resolveGoogleLinkConfirmationRecovery,
 } from "@/lib/google-link-confirmation-recovery"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 type LinkActionState = "idle" | "proving" | "saving" | "redirecting" | "error"
 
@@ -86,8 +87,8 @@ export function LinkGoogleForm({ validIntent }: { validIntent: boolean }) {
 
   return (
     <AppSurface
-      title={<h1>Confirm the same MassageLab account</h1>}
-      description="A MassageLab account already uses this Google email. Confirm its password sign-in to make Google and password login two ways into that same MassageLab account."
+      title={<h1>{`Confirm the same ${PUBLIC_PRODUCT_IDENTITY.name} account`}</h1>}
+      description={`An ${PUBLIC_PRODUCT_IDENTITY.name} account already uses this Google email. Confirm its password sign-in to make Google and password login two ways into that same ${PUBLIC_PRODUCT_IDENTITY.name} account.`}
       contentClassName="gap-5"
     >
       {!validIntent ? (
@@ -117,7 +118,7 @@ export function LinkGoogleForm({ validIntent }: { validIntent: boolean }) {
             type="submit"
             className="w-full"
             pending={busy}
-            idleLabel="Confirm same MassageLab account"
+            idleLabel={`Confirm same ${PUBLIC_PRODUCT_IDENTITY.name} account`}
             pendingLabel="Connecting Google…"
             announcePending={false}
           />

@@ -2336,7 +2336,7 @@ test("register defaults new accounts toward post-account onboarding", async ({ p
 
   await page.goto("/register", { waitUntil: "domcontentloaded" })
 
-  await expect(page.getByRole("heading", { name: /Create MassageLab account/i })).toBeVisible()
+  await expect(page.getByRole("heading", { name: /Create AtmoShaper account/i })).toBeVisible()
   await expect(page.getByRole("button", { name: /Create account/i })).toBeVisible()
   await expect(page.getByRole("link", { name: /Sign in instead/i })).toHaveAttribute("href", "/login?callbackUrl=%2Fonboarding")
 

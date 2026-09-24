@@ -105,9 +105,9 @@ describe("registration email delivery policy", () => {
     assert.doesNotMatch(registerRoute, /sendPasswordReset: sendPasswordResetEmail/)
     assert.match(authMail, /export async function sendPasswordSetupEmail/)
     assert.match(authMail, /export async function sendExistingAccountRegistrationNotice/)
-    assert.match(authMail, /MassageLab account sign-in request/)
+    assert.match(authMail, /PUBLIC_PRODUCT_IDENTITY\.name.*account sign-in request/)
     assert.match(authMail, /Sign in with your existing password/)
-    assert.match(authMail, /same MassageLab account/i)
+    assert.match(authMail, /same \$\{PUBLIC_PRODUCT_IDENTITY\.name\} account/i)
     assert.match(authMail, /does not create a duplicate account/i)
     assert.match(authMail, /does not disconnect Google sign-in/i)
     assert.match(authMail, /ignore this email and nothing will change/i)
@@ -305,10 +305,10 @@ describe("registration email delivery policy", () => {
     const google = authMail.passwordSetupEmailCopy("https://massagelab.app/reset-password?token=safe", true)
     const other = authMail.passwordSetupEmailCopy("https://massagelab.app/reset-password?token=safe", false)
 
-    assert.match(google.text, /same MassageLab account/i)
+    assert.match(google.text, /same AtmoShaper account/i)
     assert.match(google.text, /does not create a duplicate account/i)
     assert.match(google.text, /does not disconnect Google sign-in/i)
-    assert.match(other.text, /existing MassageLab account/i)
+    assert.match(other.text, /existing AtmoShaper account/i)
     assert.match(other.text, /existing sign-in methods remain connected/i)
     assert.doesNotMatch(other.text, /Google/i)
   })
@@ -477,6 +477,7 @@ async function loadLoginFormScenario({ callbackUrl, refreshError, security } = {
       isRegistrationLegalAcceptancePath,
       safePostLegalAcceptanceCallback,
     },
+    "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY: { name: "AtmoShaper" } },
   })
   const tree = renderFunctionComponents(login.LoginForm({ googleEnabled: true }))
   const form = findElement(tree, (element) => element.type === "form")
@@ -539,6 +540,7 @@ async function loadStatefulLoginFormScenario(signInResults) {
       isRegistrationLegalAcceptancePath,
       safePostLegalAcceptanceCallback,
     },
+    "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY: { name: "AtmoShaper" } },
   })
 
   function render() {
@@ -616,6 +618,7 @@ async function loadRegisterFormScenario(registrationOpen) {
       requiredLegalDocumentsForEvent: () => [],
     },
     "@/lib/public-launch-controls": { REGISTRATION_PAUSED_MESSAGE },
+    "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY: { name: "AtmoShaper" } },
   })
   const tree = renderFunctionComponents(register.RegisterForm({
     googleEnabled: true,

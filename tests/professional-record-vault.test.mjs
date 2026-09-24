@@ -22,6 +22,8 @@ describe("professional record vault", () => {
   it("defines the global local vault storage contract", () => {
     assert.equal(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, "massagelab-professional-record-vault-v1")
     assert.equal(PROFESSIONAL_RECORD_VAULT_FORMAT, "massagelab-professional-record-vault")
+    assert.notEqual(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, "atmoshaper-professional-record-vault-v1")
+    assert.notEqual(PROFESSIONAL_RECORD_VAULT_FORMAT, "atmoshaper-professional-record-vault")
   })
 
   it("encrypts and unlocks one professional-record payload without plaintext in the envelope", async () => {
@@ -77,7 +79,7 @@ describe("professional record vault", () => {
     assert.equal(bundle.format, "massagelab-professional-record-vault-bundle")
     assert.equal(JSON.stringify(bundle).includes("Bundle Client"), false)
     assert.equal(decrypted.records.journal.draft.clientName, "Bundle Client")
-    await assert.rejects(() => decryptEncryptedProfessionalRecordBundle({ format: "other" }, passphrase), /Expected a MassageLab/)
+    await assert.rejects(() => decryptEncryptedProfessionalRecordBundle({ format: "other" }, passphrase), /Expected an AtmoShaper/)
   })
 
   it("collects legacy plaintext drafts for one-time encrypted migration", () => {

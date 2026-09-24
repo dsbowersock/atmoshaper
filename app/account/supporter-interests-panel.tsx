@@ -12,6 +12,7 @@ import { SettingsSurface } from "@/components/account/settings-surfaces"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader } from "@/components/ui/loader"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 type PanelMessage = {
   text: string
@@ -206,7 +207,7 @@ export function SupporterInterestsPanel() {
     <SettingsSurface
       id="supporter-roadmap-interests"
       title="Roadmap interests"
-      description="Choose the broad areas you would most like MassageLab to prioritize. This does not change your membership amount, benefits, or billing."
+      description={`Choose the broad areas you would most like ${PUBLIC_PRODUCT_IDENTITY.name} to prioritize. This does not change your membership amount, benefits, or billing.`}
       icon={<HeartHandshake data-icon="inline-start" aria-hidden="true" />}
     >
       <div className="space-y-3">

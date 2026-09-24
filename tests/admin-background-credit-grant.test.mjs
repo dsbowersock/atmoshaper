@@ -7,6 +7,7 @@ import {
 import { grantAdminBackgroundCredits } from "../lib/commerce/credit-service.ts"
 
 const OPERATION_KEY = "admin-background-credit-grant-1"
+const ADMIN_BUNDLE_COMPATIBILITY_NAME = "Massage Lab"
 
 function user(id, {
   email = `${id}@example.com`,
@@ -231,6 +232,13 @@ function mutableCounts(state) {
   }
 }
 
+/** Excludes transaction-attempt telemetry while retaining every durable grant and evidence row. */
+function durableGrantState(state) {
+  const snapshot = structuredClone(state)
+  delete snapshot.transactionAttempts
+  return snapshot
+}
+
 describe("Admin background-credit grant", () => {
   it("adds five credits to a prepared balance of two with one immutable ledger/event/evidence bundle", async () => {
     const database = createGrantDatabase()
@@ -433,17 +441,47 @@ describe("Admin background-credit grant", () => {
     assert.equal(database.state.actions.size, 1)
   })
 
-  it("returns the original result for an exact duplicate without a second mutation or evidence record", async () => {
+  it("replays reviewed-base credit copy and rejects immutable copy drift without another effect", async () => {
     const database = createGrantDatabase()
 
     const created = await grant(database)
+    const action = database.state.actions.get(OPERATION_KEY)
+    const expected = {
+      explanation: `5 background credits were added to your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account by support. Your balance is now 7.`,
+      subject: `Background credits were added to your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} account`,
+      message: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support added 5 background credits to your account. Your balance changed from 2 to 7. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+    }
+    assert.deepEqual({
+      explanation: database.state.activities.get(action.id).explanation,
+      subject: database.state.intents.get(action.id).subject,
+      message: database.state.intents.get(action.id).message,
+    }, expected)
+    const beforeReplay = durableGrantState(database.state)
     const replayed = await grant(database)
 
     assert.deepEqual(replayed, { ...created, replayed: true })
+    assert.deepEqual(durableGrantState(database.state), beforeReplay)
     assert.deepEqual(mutableCounts(database.state), {
       wallet: { id: "wallet-target-user", userId: "target-user", balance: 7, version: 1 },
       entries: 4, events: 1, actions: 1, activities: 1, intents: 1,
     })
+
+    for (const corruption of [
+      { owner: "activity", field: "explanation", value: expected.explanation.replaceAll(ADMIN_BUNDLE_COMPATIBILITY_NAME, "AtmoShaper") },
+      { owner: "intent", field: "subject", value: "Altered immutable background-credit subject" },
+      { owner: "intent", field: "message", value: "Altered immutable background-credit message" },
+    ]) {
+      const corrupted = createGrantDatabase()
+      await grant(corrupted)
+      const corruptedAction = corrupted.state.actions.get(OPERATION_KEY)
+      const record = corruption.owner === "activity"
+        ? corrupted.state.activities.get(corruptedAction.id)
+        : corrupted.state.intents.get(corruptedAction.id)
+      record[corruption.field] = corruption.value
+      const beforeRejection = durableGrantState(corrupted.state)
+      await assert.rejects(() => grant(corrupted), /administrative operation key is already in use/i, corruption.field)
+      assert.deepEqual(durableGrantState(corrupted.state), beforeRejection, corruption.field)
+    }
   })
 
   it("fails closed when the same operation key changes any immutable grant input", async () => {

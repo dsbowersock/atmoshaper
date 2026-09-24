@@ -320,7 +320,7 @@ describe("admin operation service", () => {
       adminActionId: "action_1",
       kind: "SECURITY_RECOVERY",
       recipientEmail: "member@example.com",
-      subject: "Your MassageLab account security changed",
+      subject: "Your AtmoShaper account security changed",
       message: "Your active sessions were revoked. Please sign in again.",
       status: "PENDING",
       attemptCount: 0,
@@ -720,7 +720,7 @@ describe("admin operation service", () => {
       randomBytesFn: () => Buffer.alloc(32, 7),
     })
 
-    assert.deepEqual(sent, [["member@example.com", "Your MassageLab account security changed", "Your active sessions were revoked. Please sign in again."]])
+    assert.deepEqual(sent, [["member@example.com", "Your AtmoShaper account security changed", "Your active sessions were revoked. Please sign in again."]])
     assert.deepEqual(result, { status: "DELIVERED", attemptCount: 1, attempted: true })
     assert.equal(database.intents[0].status, "DELIVERED")
     assert.equal(database.intents[0].attemptCount, 1)
@@ -1554,7 +1554,7 @@ function bundleInput() {
     email: {
       kind: "SECURITY_RECOVERY",
       recipientEmail: " Member@Example.COM ",
-      subject: "Your MassageLab account security changed",
+      subject: "Your AtmoShaper account security changed",
       message: "Your active sessions were revoked. Please sign in again.",
     },
   }

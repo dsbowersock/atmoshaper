@@ -452,7 +452,7 @@ describe("Admin security browser contract", () => {
     )
     assert.match(pageSource, /data-detail-key=\{label\}/)
     assert.match(pageSource, /data-detail-value/)
-    assert.match(browserSource, /\[data-detail-key="Two-factor authentication"\] \[data-detail-value\]/)
+    assert.match(browserSource, /await expect\(securityRegion\.locator\('\[data-detail-key="Two-factor authentication"\]'\)\.getByRole\("definition", \{ includeHidden: false \}\)\)\.toHaveText\("No"\)/)
     assert.doesNotMatch(browserSource, /xpath=following-sibling/)
   })
 })

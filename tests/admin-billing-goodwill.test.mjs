@@ -13,6 +13,7 @@ import {
 import * as adminAccess from "../lib/admin/access.ts"
 
 const { AdminAuthorityDeniedError } = adminAccess
+const ADMIN_BUNDLE_COMPATIBILITY_NAME = "Massage Lab"
 
 const CREATOR_PRE_CALL_FAILURE_CASES = [
   {
@@ -310,6 +311,7 @@ describe("Admin invoice-credit mutation and reconciliation", () => {
         },
         options: { idempotencyKey: "billing-op-1" },
       }])
+      assert.notEqual(fixture.stripeRequests[0].payload.description, "AtmoShaper billing goodwill")
       assert.equal(fixture.state.operations.get("billing-op-1").status, "VERIFIED")
       assert.equal(fixture.state.actions.size, 1)
       assert.equal(fixture.state.activities.size, 1)
@@ -357,17 +359,51 @@ describe("Admin invoice-credit mutation and reconciliation", () => {
     assert.equal(fixture.state.intents.size, 0)
   })
 
-  it("returns an exact VERIFIED duplicate without a second evidence bundle", async () => {
+  it("replays reviewed-base goodwill copy and rejects immutable copy drift without provider effects", async () => {
     const fixture = createMutationFixture()
     const created = await apply(fixture)
+    const action = fixture.state.actions.get("billing-op-1")
+    const expected = {
+      explanation: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support added a $5.00 credit toward future invoices. The invoice credit balance immediately after this credit was $8.00.`,
+      subject: `A credit was added to your ${ADMIN_BUNDLE_COMPATIBILITY_NAME} billing account`,
+      message: `${ADMIN_BUNDLE_COMPATIBILITY_NAME} support added a $5.00 credit toward future invoices. The invoice credit balance immediately after this credit was $8.00. If you did not expect this change, contact ${ADMIN_BUNDLE_COMPATIBILITY_NAME} support.`,
+    }
+    assert.deepEqual({
+      explanation: fixture.state.activities.get(action.id).explanation,
+      subject: fixture.state.intents.get(action.id).subject,
+      message: fixture.state.intents.get(action.id).message,
+    }, expected)
+    const beforeReplay = durableGoodwillState(fixture)
     const replayed = await apply(fixture)
 
     assert.equal(created.currentCreditCents, 800)
     assert.deepEqual(replayed, { ...created, currentCreditCents: null, replayed: true })
+    assert.deepEqual(durableGoodwillState(fixture), beforeReplay)
     assert.equal(fixture.stripeRequests.length, 1)
     assert.equal(fixture.state.actions.size, 1)
     assert.equal(fixture.state.activities.size, 1)
     assert.equal(fixture.state.intents.size, 1)
+
+    for (const corruption of [
+      { owner: "activity", field: "explanation", value: expected.explanation.replaceAll(ADMIN_BUNDLE_COMPATIBILITY_NAME, "AtmoShaper") },
+      { owner: "intent", field: "subject", value: "Altered immutable goodwill subject" },
+      { owner: "intent", field: "message", value: "Altered immutable goodwill message" },
+    ]) {
+      const corrupted = createMutationFixture()
+      await apply(corrupted)
+      const corruptedAction = corrupted.state.actions.get("billing-op-1")
+      const record = corruption.owner === "activity"
+        ? corrupted.state.activities.get(corruptedAction.id)
+        : corrupted.state.intents.get(corruptedAction.id)
+      record[corruption.field] = corruption.value
+      const beforeRejection = durableGoodwillState(corrupted)
+      await assert.rejects(
+        () => apply(corrupted),
+        (error) => error instanceof BillingGoodwillMutationError && error.code === "OPERATION_KEY_IN_USE",
+        corruption.field,
+      )
+      assert.deepEqual(durableGoodwillState(corrupted), beforeRejection, corruption.field)
+    }
   })
 
   it("serializes concurrent exact duplicates into one local operation and one evidence bundle", async () => {
@@ -1188,6 +1224,18 @@ function reconcile(fixture, overrides = {}) {
     env: { STRIPE_SECRET_KEY: "sk_test_example" },
     now: new Date("2026-08-08T00:00:00.000Z"),
     ...overrides,
+  })
+}
+
+/** Captures durable goodwill rows and provider calls while excluding transaction-attempt telemetry. */
+function durableGoodwillState(fixture) {
+  return structuredClone({
+    operations: fixture.state.operations,
+    actions: fixture.state.actions,
+    activities: fixture.state.activities,
+    intents: fixture.state.intents,
+    stripeCalls: fixture.stripeCalls,
+    stripeRequests: fixture.stripeRequests,
   })
 }
 

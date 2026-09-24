@@ -32,6 +32,7 @@ describe("local intake form builder", () => {
     const painMap = workspace.templates.find((template) => template.id === "template-pain-map-v1")
 
     assert.equal(INTAKE_WORKSPACE_STORAGE_KEY, "massagelab-intake-workspace-v1")
+    assert.notEqual(INTAKE_WORKSPACE_STORAGE_KEY, "atmoshaper-intake-workspace-v1")
     assert.ok(FORM_QUESTION_TYPES.includes("body_map"))
     assert.equal(workspace.schemaVersion, 1)
     assert.equal(workspace.clients.length, 0)
@@ -227,8 +228,8 @@ describe("local intake form builder", () => {
     const text = createFormResponseExportText({ response, template, client: { displayName: "Jane Client" } })
     const issues = requiredQuestionIssues(template, response.answers)
 
-    assert.match(text, /MassageLab Local Intake Export/)
-    assert.match(text, /MassageLab did not upload/)
+    assert.match(text, /AtmoShaper Local Intake Export/)
+    assert.match(text, /AtmoShaper did not upload/)
     assert.match(text, /Desired Pressure: Medium/)
     assert.ok(issues.some((issue) => issue.includes("Draping understood")))
     assert.ok(issues.some((issue) => issue.includes("Client signature")))

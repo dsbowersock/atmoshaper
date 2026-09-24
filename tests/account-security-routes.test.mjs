@@ -230,7 +230,7 @@ describe("account security route adapters", () => {
     assert.equal(response.status, 200)
     assert.deepEqual(response.body, {
       code: "GOOGLE_LINKED",
-      message: "Google sign-in is now linked to this MassageLab account.",
+      message: "Google sign-in is now linked to this AtmoShaper account.",
       googleLinked: true,
       hasPasswordCredential: true,
     })
@@ -461,7 +461,7 @@ describe("recoverable account-method UI contracts", () => {
     const confirmationBody = linkFormSource.slice(confirmIndex, confirmIndex + 600)
     assert.match(confirmationBody, /JSON\.stringify\(\{\s*confirmed:\s*true\s*\}\)/)
     assert.doesNotMatch(confirmationBody, /password|twoFactorCode|provider|intent/i)
-    assert.match(linkFormSource, /same MassageLab account/i)
+    assert.match(linkFormSource, /same \$\{PUBLIC_PRODUCT_IDENTITY\.name\} account/i)
     assert.match(linkFormSource, /redirect:\s*false/)
   })
 
@@ -891,6 +891,7 @@ function loadRoute(routeName, {
     "@/lib/auth-request": { authRequestNetworkIdentifier: () => "network" },
     "@/lib/auth-security": { hashPassword: async () => { onHash(); return "argon2-hash" } },
     "@/lib/prisma": { prisma },
+    "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY: { name: "AtmoShaper" } },
   }
   const routeModule = loadCompiledModule(source, `${routeName}-account-security-route.test.ts`, dependencies)
   const factoryName = {

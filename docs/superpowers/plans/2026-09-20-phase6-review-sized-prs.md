@@ -458,7 +458,238 @@ unclassified and category-mismatched entries, and independent SPEC then QUALITY.
 Only then commit and push this repair and obtain fresh exact-head hosted gates.
 No account slice, runtime change, screenshot, provider or earlier-branch edit.
 
+## Task 5: Account, service and local-first presentation
+
+PR #9 is verified at `9f2afb41854a6600a2c94f0c416d0531c6b16e0a`:
+Codex completed clean at 21:28 UTC, CodeRabbit completed clean at 22:16 UTC,
+both existing threads are resolved, and all seven jobs in CI `35538608085`
+passed. This opens the next slice, not merge authorization or sequence completion.
+
+Use `codex/phase6-05-account-service` from that exact public-content head in
+the existing approved isolated checkout. Preserve every published branch and
+the original `7e318558da425b8fcdddeb8df50e93a36900310a` recovery source.
+The product/requirement baseline is source Task 4 (account/security/messaging/
+local-first presentation), the source design's curated-copy and compatibility
+boundaries, and this bounded allocation. The runtime/architecture baseline is
+unchanged account/security, billing and local-first ownership: only presentation
+and its existing source-owned browser repairs move into this slice.
+
+The original account ownership manifest contains exactly 49 paths: the 46
+listed in item 1 plus `app/api/debug/sentry/route.ts`,
+`tests/problem-report-route.test.mjs`, and `tests/sentry-privacy.test.mjs`.
+Membership describes recovery-source ownership, not permission to copy every
+file unchanged. Items 1–7 record the pre-administrative-amendment allocation;
+the amendment below supersedes its affected copies and counts. Apply the final
+amended scope when checking source equivalence or assembling this slice.
+
+1. The pre-amendment full-source account list contains these 46 paths:
+   - `app/account/app-settings-panel.tsx`, `app/account/link-google/link-google-form.tsx`,
+     `app/account/page.tsx`, `app/account/supporter-interests-panel.tsx`;
+   - `app/api/account/security/google/link/confirm/route.ts`,
+     `app/api/clients/invitations/route.ts`,
+     `app/api/education/flashcards/decks/[slug]/route.ts`,
+     `app/api/education/flashcards/decks/route.ts`;
+   - `app/login/login-form.tsx`, `app/register/register-form.tsx`,
+     `app/notes/intake/client-page.tsx`, `app/notes/journal/client-page.tsx`,
+     `app/notes/professional-record-vault-provider.tsx`, `app/notes/rom/client-page.tsx`,
+     `app/notes/soap/client-page.tsx`, `app/notes/soap/components/transcript-review.tsx`,
+     `app/notes/therapist-notes-gate.tsx`;
+   - `lib/account-security-email-intents.ts`, `lib/admin/billing-goodwill.ts`,
+     `lib/admin/role-service.ts`, `lib/admin/security-service.ts`,
+     `lib/admin/temporary-access.ts`, `lib/auth-mail.ts`, `lib/auth-registration.js`,
+     `lib/commerce/credit-service.ts`, `lib/license-verification.js`,
+     `lib/local-documents.js`, `lib/local-intake-builder.js`,
+     `lib/professional-record-vault.js`, `lib/sentry-options.js`, `lib/sentry-privacy.js`;
+   - `tests/account-security-email-intents.test.mjs`, `tests/account-security-routes.test.mjs`,
+     `tests/admin-billing-goodwill.test.mjs`, `tests/admin-operation-service.test.mjs`,
+     `tests/admin-role-service.test.mjs`, `tests/admin-security-ui.test.mjs`,
+     `tests/admin-temporary-access.test.mjs`, `tests/auth-mail-ceiling.test.mjs`,
+     `tests/auth-registration.test.mjs`, `tests/browser/admin-user-operations.spec.ts`,
+     `tests/local-intake-builder.test.mjs`, `tests/password-reset-confirmation.test.mjs`,
+     `tests/professional-record-vault.test.mjs`,
+     `tests/supporter-interests-panel.test.mjs`, `tests/task-4a-browser-harness-contract.test.mjs`.
+2. Exclude `tests/problem-report-route.test.mjs` from the 49-path manifest's
+   source copying. Its only remaining source delta would undo the validated
+   stable Sentry event repair. Preserve that route test, `lib/problem-report.js`
+   and `tests/problem-report.test.mjs` byte-for-byte from the reviewed base.
+   Also exclude `app/api/debug/sentry/route.ts`: an offline execution of the
+   actual base/source GET functions proves that source changes the enabled
+   synthetic event name while disabled responses remain identical. Source Task 4
+   explicitly forbids renaming an event/provider identity for presentation.
+   Preserve the complete reviewed-base route, including its existing flag, and
+   add a small `tests/sentry-debug-route.test.mjs` behavioral contract for the
+   actual route's disabled/enabled behavior and independence from public identity.
+   Also carry the canonical-origin assertions from `tests/sentry-privacy.test.mjs`,
+   but correct its paired static test: retain the original environment-name checks
+   and reject public-identity wiring instead of requiring the source defect.
+   The new behavioral contract proves the actual emitted name. These two paths
+   add the fourth and fifth intentional Sentry source divergences, not a provider migration.
+3. Carry two full-source direct companions: `tests/browser/identity-method-safety.spec.ts`
+   (four account link selectors), and `tests/browser/interaction-feedback.spec.ts`
+   (two account selectors plus deterministic private-account abort settlement).
+   The latter carries the source's held abort gates, readiness/overlap assertions,
+   bounded handler drain and exact teardown-cancellation classification together.
+   Its two helper dependencies already match source; do not edit them or replace
+   behavior proof with string-only checks. Run their existing contracts and the
+   paired account harness contract. Hosted browser CI remains required.
+4. In shared `tests/browser/public-routes.spec.ts`, change only the register
+   heading to `Create AtmoShaper account`. Defer its two remaining visualizer
+   hunks. Do not import the full Phase 6 spec, its sidebar-hydration/ring/heading
+   contracts, lane registration, PNGs, current legal versions or final fingerprints.
+   `tests/browser-qa-harness.test.mjs` and the existing async/teardown helpers
+   stay unchanged; their applicable existing tests provide dependency evidence.
+5. Preserve internal operation names, audit actions, stored formats, email-intent
+   kinds, idempotency/reconciliation descriptions, environment values and provider
+   payload identities. No authentication, same-account proof, 2FA, authorization,
+   billing, entitlement, PHI-storage or provider behavior changes. Keep earlier
+   pilot, homepage, audio, Sentry and audit-verifier repairs. AtmoShaper is the
+   current public name; retained MassageLab compatibility values are not stale copy.
+6. Before the amendment, the implementer owned 51 changed source/test paths. Coordinator owns this
+   parent plan, canonical state/log, Git and the generated intermediate brand
+   receipt and necessary exact classification rules. Preserve the five existing
+   exact rules and add only fresh compatibility occurrences for the retained
+   debug event and its regression assertion. Regenerate through the existing command;
+   classifier precedence, mismatch rejection and strict addition detection.
+   Verify a staged-byte fixed point, not final-source fingerprint substitution.
+7. The pre-amendment proof covered 48 full-source files, the register-only
+   companion, corrected privacy-test companion and added debug-route regression.
+   Run focused account/admin/mail/local-first/privacy and existing
+   helper/browser contracts, typecheck, full lint, full provider-free unit suite,
+   documentation/archive tests, brand audit, inventory and diff checks. Then
+   independent SPEC followed by QUALITY, root exact-candidate verification,
+   commit, publish against `codex/phase6-04-public-content`, attach, and obtain
+   both hosted reviewers and strict CI on the actual base/head. Expected scope
+   was 56 paths with delivery docs/policy/receipt; the amendment below replaces
+   these counts. Measure the final scope, target under 85 and never 100.
+
+No-code or documentation-only work cannot deliver the accepted copy. Existing
+owners suffice; no new runtime architecture, abstraction or ADR is needed.
+Large files receive only existing-source presentation wiring and cohesive paired
+test repairs, not broad restructuring or another responsibility. TDD remains
+off/skipped for mechanical redistribution; a new defect requires causal evidence
+and its own bounded repair. Retire only old current-presentation wording; stable
+external/data compatibility identities remain until separately migrated. Final
+source equivalence must retain validated divergences, including Sentry and audit
+repairs. The separate Linux Atmosphere snapshot decision remains pending.
+
+The debug recurrence is source allocation treating an emitted synthetic event as
+public display copy, analogous to the already corrected problem-report event.
+The canonical route is the producer; preserving it is sufficient at runtime,
+without a second identity owner, fallback or new branch. The focused test executes
+the route under controlled flags and alternate public identity, and the existing
+problem-report regressions preserve the other known manifestation. No semantic
+decision changed: public presentation and operational identity remain distinct.
+The new small test owner avoids adding route execution to the unrelated SDK-options
+tests or enlarging the existing operational-boundary scanner. Fresh exact audit
+rules prevent regeneration from misclassifying these retained values as public copy.
+Independent SPEC then QUALITY must review this explicit source exception.
+
+### Task 5 amendment: immutable administrative bundle compatibility
+
+This amendment supersedes the five producer copies, three paired full-source
+test copies, and pre-amendment 51-source/test, 48-full-source and 56-total counts
+in Task 5 above. Independent QUALITY found a P1 after SPEC passed
+and the full provider-free suite passed (4,708 passed, three skipped). Root
+reproduced it using actual reviewed-base and candidate role implementations in
+the same transactional fixture: base create and replay succeed; candidate
+replay rejects the unchanged historical operation key. The inverse candidate
+create then base replay also rejects. Failed replay leaves stored state unchanged.
+
+The shared recurrence is classifying persisted evidence as mutable presentation.
+Five producer families rebuild changed explanations/subjects/messages; the
+unchanged exact comparator in `lib/admin/operation-service.ts` correctly rejects
+them. That strict owner is not defective. All production bundle call sites are
+in the five files below. Account-security email intents instead retain an existing
+row through an empty-update upsert and deliver its stored copy; they do not
+reconstruct an immutable bundle, so their presentation changes remain in scope.
+No database/provider was used to create candidate records during this slice.
+
+Change necessity: the unchanged candidate violates Task 4's idempotency and
+rollback boundaries; documentation alone cannot make historical keys replay.
+Decision: remove the five incompatible producer deltas, not weaken validation.
+Restore exact base `9f2afb41854a6600a2c94f0c416d0531c6b16e0a` content in:
+
+- `lib/admin/role-service.ts`
+- `lib/admin/security-service.ts`
+- `lib/admin/temporary-access.ts`
+- `lib/commerce/credit-service.ts`
+- `lib/admin/billing-goodwill.ts`
+
+Existing builders remain the only copy owners; no new fallback, alias, text
+normalization, copy-from-existing input, version field, operation-key version,
+send-time rewriting or schema/data migration is permitted. The comparator and
+every action kind, payload, Stripe description, transaction and delivery contract
+remain unchanged. Retain the brand-agnostic supplied-bundle fixture change in
+`tests/admin-operation-service.test.mjs`.
+
+Use the real existing service fixtures to assert exact base-era bundle copy,
+then unchanged-key replay without duplicate effects. Cover role assign/revoke;
+session revoke, 2FA reset and password-reset request; temporary grant and both
+temporary-revoke effective states; background-credit grant; verified goodwill.
+For every case, independently corrupt a persisted explanation, subject or
+message and require rejection without state/delivery/provider changes. Include
+the unpublished AtmoShaper variant as a negative, not an accepted template.
+Owner test files are `tests/admin-role-service.test.mjs`,
+`tests/admin-security-service.test.mjs`, `tests/admin-temporary-access.test.mjs`,
+`tests/admin-background-credit-grant.test.mjs`, and
+`tests/admin-billing-goodwill.test.mjs`. No external provider or persistent DB.
+
+Complexity: these existing fixtures are large (security 972, temporary 1,494,
+goodwill 1,675 lines), so use compact table-driven cases and existing helpers;
+do not add another fixture/loader architecture. Intent is a local contract
+regression, not new responsibility. Broader fixture extraction is a separate
+follow-up and not a prerequisite for preserving this already-defined contract.
+Runtime owners become smaller by removing public-identity wiring. TDD remains
+off/skipped, with diagnostic reproduction and behavioral regression coverage.
+
+Verify the six-file operation/producer test group, then amended Task 5 focused
+tests, full provider-free unit suite, typecheck, lint, audit and inventory.
+Root independently proves all five runtime blobs equal base; this also gives
+bidirectional copy compatibility without accepting altered evidence. Regenerate
+only exact compatibility occurrence rules/receipt while preserving the seven
+existing rules and strict classifier. Renew independent SPEC then QUALITY on
+the final candidate before any commit or publication. Expected scope is now
+53 paths: 40 full-source files, five partial source/test companions, two expanded
+existing owner tests, one new debug test, and five delivery/audit files.
+
+Reconcile that final scope from the original 49-path ownership manifest: retain
+the debug route, problem-report route test and five administrative producers
+unchanged (seven paths), leaving 42 changed manifest members: 38 exact recovery
+copies and four partial companions (privacy, role, temporary-access and goodwill
+tests). Add the two exact browser companions, the register-only shared browser
+companion, two expanded owner tests and the new debug test: 48 source/test paths.
+The plan, project state, project log, audit policy and generated baseline add five
+delivery/audit paths, for 53 total. The 40 exact copies are those 38 manifest
+members plus the two full-source browser companions; unchanged exceptions are
+still accounted for and must not be restored from recovery during integration.
+
+Retirement decision: bounded compatibility exception at the documented durable
+operation contract. Existing canonical templates remain active, including their
+legacy brand wording in administrative evidence and notifications. Observation
+is the exact-template/replay matrix; retirement requires a separately approved
+version-aware rollout and removal of the old rollback target before new writes.
+No current records are changed or deleted. Rebranding these immutable notices
+is deferred, explicitly not claimed complete. Original source equivalence must
+record these five runtime and three paired-test exceptions alongside Sentry.
+
+Execution readiness: same approved branch/worktree and sole implementer;
+coordinator owns docs, policy, receipt and Git. Intent is replay preservation;
+scope is the ten files named above, no provider or snapshot work. Stop on any
+unexpected runtime delta, need for persistent-data migration, failed behavioral
+case, or review finding. Method guidance does not grant completion authority.
+
 ## Remaining ownership sequence
+
+Task 5 local verification receipt: repaired tree
+`65db8418bbca2c7ee134c5d7684af9fc68f61529` passed SPEC then QUALITY, 4,710 unit
+tests with three skips and zero failures, 662 focused checks, 146 coordinator
+checks, typecheck and full lint. The scope is 53 paths, with 40 exact recovery
+copies and 20 unchanged protected-base paths. Both independent actual-code
+reproductions now pass upgrade and rollback. The 48 exact audit rules preserve
+all seven prior rules and classify 41 inspected administrative occurrences;
+the 26,024-entry receipt is a staged-byte fixed point with zero discrepancies.
+Final delivery-document receipt edits require focused revalidation; hosted gates
+remain pending until publication. This is not completion of later slices.
 
 The source has 319 changed paths: 291 non-PNG plus 28 PNG. The independently
 mapped allocation below is final-file ownership, not permission to copy shared

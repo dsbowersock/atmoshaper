@@ -57,6 +57,7 @@ function loadAuthMail({
         return decisions.shift() ?? { allowed: true }
       },
     },
+    "./public-product-identity.js": { PUBLIC_PRODUCT_IDENTITY: { name: "AtmoShaper" } },
   })
 
   return {
@@ -131,7 +132,7 @@ export const unrelatedBudget = SMTP_CONNECTION_TIMEOUT_MS
     ])
     assert.equal(fixture.transportOptions.length, 4)
     assert.equal(fixture.messages.length, 4)
-    assert.match(fixture.messages[3].subject, /MassageLab account sign-in request/)
+    assert.match(fixture.messages[3].subject, /AtmoShaper account sign-in request/)
     assert.match(fixture.messages[3].text, /existing password/i)
   })
 
@@ -140,7 +141,7 @@ export const unrelatedBudget = SMTP_CONNECTION_TIMEOUT_MS
 
     const result = await withSmtpConfig(true, () => fixture.module.sendAccountChangeEmail(
       "member@example.com",
-      "Your MassageLab account changed",
+      "Your AtmoShaper account changed",
       "If this was not you, recover your account.",
     ))
 
