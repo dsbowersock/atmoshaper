@@ -309,6 +309,70 @@ test("public media journeys fixture opportunistic atmosphere prewarms", async ()
   )
 })
 
+test("Phase 6 uses the real reduced-motion owner without hiding the active music icon", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const tool = await readProjectFile("components/shell/app-tool-link.tsx")
+  const ring = await readProjectFile("components/ui/metal-attention-button.tsx")
+  assert.match(tool, /return active \? <ActiveToolMetalRing>/)
+  assert.match(tool, /<MetalAttentionRing className="ml-app-tool-link-active-ring">/)
+  assert.match(ring, /matchMedia\("\(prefers-reduced-motion: reduce\)"\)/)
+  assert.match(ring, /if \(reducedMotion\) \{\s*setMotionState\("paused"\)/)
+  assert.match(spec, /test\.beforeEach\(async \(\{ page \}\) => \{\s*await page\.emulateMedia\(\{ reducedMotion: "reduce" \}\)/)
+  const ready = sliceBetweenMarkers(spec, "async function expectMusicReady", "/** Wait for layout", "Phase 6 music readiness").slice
+  assert.match(ready, /\.ml-app-tool-link-active-ring:visible/)
+  assert.match(ready, /expect\(ring\)\.toHaveCount\(1\)/)
+  assert.match(ready, /toHaveAttribute\("data-ml-metal-motion-state", "paused"\)/)
+  assert.match(ready, /toHaveAttribute\("data-paused", "true"\)/)
+  assert.match(ready, /canvas\.metal-fx-canvas/)
+  assert.match(ready, /getImageData/)
+  assert.match(ready, /getByRole\("link", \{ name: "Open music", exact: true \}\)/)
+  assert.match(ready, /expect\(icon\)\.toHaveCount\(1\)[\s\S]*expect\(icon\)\.toBeVisible\(\)/)
+  assert.doesNotMatch(spec, /mask:|maxDiffPixels|maxDiffPixelRatio|threshold:|addStyleTag|waitForTimeout/)
+})
+
+test("Phase 6 retries the visible account path across responsive drawer hydration", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const sidebar = await readProjectFile("components/sidebar/app-sidebar-client.tsx")
+  const responsive = await readProjectFile("hooks/use-mobile.tsx")
+  const sheet = await readProjectFile("components/ui/sheet.tsx")
+  assert.match(sidebar, /data-testid="account-menu-trigger"/)
+  assert.match(responsive, /useState<SidebarRenderMode>\("desktop"\)/)
+  assert.match(sheet, /data-\[state=open\]:duration-500/)
+  const helper = sliceBetweenMarkers(spec, "async function openAccountMenu", 'test("presents', "Phase 6 account helper").slice
+  assert.match(helper, /getByTestId\("account-menu-trigger"\)\.filter\(\{ visible: true \}\)/)
+  assert.match(helper, /expect\.poll/)
+  assert.match(helper, /name: \/\^\(\?:Open\|Close\) navigation\$\//)
+  assert.match(helper, /owner\.and\(page\.locator\('\[aria-expanded="false"\]'\)\)/)
+  assert.match(helper, /openClosedOwner\(navigation\)/)
+  assert.match(helper, /openClosedOwner\(trigger\)/)
+  assert.match(helper, /candidate\.getAnimations\(\)/)
+  assert.match(helper, /candidate = candidate\.parentElement/)
+  assert.match(helper, /animation\.playState === "running"/)
+  assert.match(helper, /Number\.isFinite\(iterations\)/)
+  assert.doesNotMatch(helper, /animationName === "enter"/)
+  assert.doesNotMatch(helper, /getAttribute/)
+  assert.match(helper, /expect\(trigger\)\.toHaveCount\(1\)/)
+  assert.match(helper, /expect\(helpItem\)\.toHaveCount\(1\)/)
+  assert.doesNotMatch(helper, /\.first\(|\.nth\(|waitForTimeout/)
+})
+
+test("Phase 6 legal assertions require one visible route-owned exact title", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const layout = await readProjectFile("components/layout-wrapper.tsx")
+  const owner = await readProjectFile("app/legal/page.tsx")
+  assert.match(layout, /ml-app-content[\s\S]*?\{children\}/)
+  assert.equal((owner.match(/title="Legal and trust documents"/g) ?? []).length, 1)
+  const legal = sliceBetweenMarkers(spec, 'test("publishes the v3', 'test("shows the three', "Phase 6 legal content").slice
+  assert.match(legal, /page\.locator\("main \.ml-app-content:visible"\)/)
+  assert.match(legal, /expect\(legalContent\)\.toHaveCount\(1\)/)
+  assert.match(legal, /legalContent\.getByText\("Legal and trust documents", \{ exact: true \}\)\.filter\(\{ visible: true \}\)/)
+  assert.match(legal, /expect\(legalTitle\)\.toHaveCount\(1\)[\s\S]*expect\(legalTitle\)\.toBeVisible\(\)/)
+  assert.match(legal, /const indexDescription = legalContent\.getByText/)
+  assert.match(legal, /const generalVersion = legalContent\.getByText/)
+  assert.match(legal, /const digitalVersion = legalContent\.getByText/)
+  assert.doesNotMatch(legal, /\.first\(|\.nth\(/)
+})
+
 test("browser QA lanes cover each ordinary project and spec exactly once", async () => {
   const expectedProjects = ["desktop-chromium", "mobile-chromium"]
   const expectedSpecs = [
@@ -325,6 +389,7 @@ test("browser QA lanes cover each ordinary project and spec exactly once", async
     "membership-return-status.spec.ts",
     "music-media-session.spec.ts",
     "music-visualizer.spec.ts",
+    "phase6-preview-rebrand.spec.ts",
     "public-booking-traffic.spec.ts",
     "public-provider-ingress.spec.ts",
     "public-routes.spec.ts",
@@ -353,8 +418,8 @@ test("browser QA lanes cover each ordinary project and spec exactly once", async
   const expectedPairs = new Set(
     expectedProjects.flatMap((projectName) => expectedSpecs.map((spec) => `${projectName}:${spec}`)),
   )
-  assert.equal(expectedSpecs.length, 17)
-  assert.equal(expectedPairs.size, 34)
+  assert.equal(expectedSpecs.length, 18)
+  assert.equal(expectedPairs.size, 36)
 
   const actualPairs = []
   for (const lane of Object.values(BROWSER_QA_LANES)) {
@@ -445,6 +510,7 @@ test("browser QA lane resolver preserves ordinary runs and returns exact lane as
         testMatch: [
           "**/atmoshaper.spec.ts",
           "**/music-media-session.spec.ts",
+          "**/phase6-preview-rebrand.spec.ts",
           "**/admin-user-operations.spec.ts",
         ],
       },
@@ -453,6 +519,7 @@ test("browser QA lane resolver preserves ordinary runs and returns exact lane as
         testMatch: [
           "**/atmoshaper.spec.ts",
           "**/music-media-session.spec.ts",
+          "**/phase6-preview-rebrand.spec.ts",
         ],
       },
     ],
@@ -1280,5 +1347,393 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
   } finally {
     await context.close()
     await browser.close()
+  }
+})
+
+test("Phase 6 account helper survives owner replacement without swallowing defects", async (t) => {
+  const { chromium, expect: browserExpect, errors } = await import("@playwright/test")
+  const { transpileModule } = await import("typescript")
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const source = sliceBetweenMarkers(spec, "async function openAccountMenu", 'test("presents', "actual Phase 6 account helper").slice
+  // This offline evidence budget covers 500 ms drawer motion, at least two
+  // bounded 100 ms trigger probes, and poll scheduling without changing the real helper.
+  const sandbox = { expect: browserExpect.configure({ timeout: 2500 }), errors }
+  runInNewContext(transpileModule(source, { compilerOptions: { target: 9 } }).outputText, sandbox)
+  const browser = await chromium.launch()
+  let requests = 0
+  try {
+    for (const scenario of ["desktop", "desktop-transition", "desktop-persistent-trigger-timeout", "trigger-after-count", "trigger-before-click", "navigation-replaced", "navigation-already-open", "drawer-transition", "drawer-transition-blocked", "duplicate-trigger", "blocked-trigger", "unrelated-error"]) {
+      await t.test(scenario, async () => {
+        const context = await browser.newContext({ serviceWorkers: "block", reducedMotion: "reduce" })
+        await context.route("**/*", async (route) => { requests += 1; await route.abort() })
+        try {
+          const page = await context.newPage()
+          page.setDefaultTimeout(500)
+          await page.setContent(`
+            <style>
+              @keyframes enter { from { transform: translateX(-80px); } to { transform: translateX(0); } }
+              .drawer-enter { animation: enter 500ms linear; }
+            </style>
+            <button id="navigation" aria-label="Open navigation" aria-expanded="false">Navigation</button>
+            <div id="rail"><button data-testid="account-menu-trigger" aria-expanded="false">Account</button></div>
+            <button role="menuitem" hidden>Help &amp; FAQ</button>
+            <script>
+              window.navigationClicks = 0;
+              window.drawerFinished = false;
+              document.addEventListener("animationend", () => { window.drawerFinished = true; });
+              document.addEventListener("click", (event) => {
+                const target = event.target;
+                if (target.id === "navigation") {
+                  window.navigationClicks += 1;
+                  const open = target.getAttribute("aria-expanded") !== "true";
+                  target.setAttribute("aria-expanded", String(open));
+                  document.querySelector("#rail").innerHTML = open
+                    ? '<button data-testid="account-menu-trigger" aria-expanded="false">Account</button>' : '';
+                  if (open && ${scenario.startsWith("drawer-")}) {
+                    const drawer = document.querySelector("#rail");
+                    drawer.dataset.sidebar = "sidebar";
+                    drawer.dataset.mobile = "true";
+                    drawer.dataset.state = "open";
+                    drawer.className = "drawer-enter";
+                    if (${scenario === "drawer-transition-blocked"}) {
+                      const overlay = document.createElement("div");
+                      overlay.style.cssText = "position:fixed;inset:0;z-index:999";
+                      document.body.append(overlay);
+                    }
+                  }
+                }
+                if (target.matches('[data-testid="account-menu-trigger"]')) {
+                  target.setAttribute("aria-expanded", "true");
+                  document.querySelector('[role="menuitem"]').hidden = false;
+                }
+              });
+            </script>`)
+          if (scenario.startsWith("navigation-") || scenario.startsWith("drawer-")) await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
+          if (scenario === "desktop-transition") await page.getByTestId("account-menu-trigger").evaluate((element) => {
+            element.animate([
+              { transform: "translateX(-80px)" },
+              { transform: "translateX(0)" },
+            ], { duration: 500, easing: "linear", iterations: 1 })
+          })
+          if (scenario === "duplicate-trigger") await page.locator("#rail").evaluate((element) => { element.innerHTML += element.innerHTML })
+          if (scenario === "blocked-trigger") await page.evaluate(() => {
+            const overlay = document.createElement("div")
+            overlay.style.cssText = "position:fixed;inset:0;z-index:999"
+            document.body.append(overlay)
+          })
+          let injected = false
+          let triggerClickAttempts = 0
+          // Keep real locator behavior outside the named deterministic replacement and failure edges.
+          const wrap = (locator, owner) => new Proxy(locator, {
+            get(target, property) {
+              if (property === "filter" || property === "and") return (...args) => wrap(target[property](...args), owner)
+              if (property === "count") return async () => {
+                const count = await target.count()
+                if (!injected && owner === "trigger" && count === 1 && scenario === "trigger-after-count") {
+                  injected = true
+                  await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
+                }
+                return count
+              }
+              if (property === "click") return async (...args) => {
+                if (owner === "trigger") triggerClickAttempts += 1
+                if (!injected && scenario === "unrelated-error") { injected = true; throw new Error("deliberate action defect") }
+                if (!injected && owner === "trigger" && scenario === "desktop-persistent-trigger-timeout") {
+                  injected = true
+                  throw new errors.TimeoutError("deliberate bounded action timeout")
+                }
+                if (!injected && owner === "trigger" && scenario === "trigger-before-click") {
+                  injected = true
+                  await page.locator("#rail").evaluate((element) => { element.innerHTML = "" })
+                }
+                if (!injected && owner === "navigation" && scenario.startsWith("navigation-")) {
+                  injected = true
+                  await page.locator("#navigation").evaluate((element, alreadyOpen) => {
+                    const replacement = element.cloneNode(true)
+                    element.replaceWith(replacement)
+                    if (alreadyOpen) replacement.click()
+                  }, scenario === "navigation-already-open")
+                }
+                return target.click(...args)
+              }
+              return typeof target[property] === "function" ? target[property].bind(target) : target[property]
+            },
+          })
+          const observedPage = new Proxy(page, {
+            get(target, property) {
+              if (property === "getByTestId") return (...args) => wrap(target.getByTestId(...args), "trigger")
+              if (property === "getByRole") return (...args) => args[0] === "button"
+                ? wrap(target.getByRole(...args), "navigation") : target.getByRole(...args)
+              return typeof target[property] === "function" ? target[property].bind(target) : target[property]
+            },
+          })
+          if (scenario === "duplicate-trigger") {
+            await assert.rejects(sandbox.openAccountMenu(observedPage), /toBeLessThanOrEqual/)
+          } else if (scenario === "blocked-trigger" || scenario === "drawer-transition-blocked") {
+            await assert.rejects(sandbox.openAccountMenu(observedPage))
+            assert.ok(triggerClickAttempts > 1, "persistent obstruction must exhaust the outer poll across repeated trigger probes")
+          } else if (scenario === "unrelated-error") {
+            await assert.rejects(sandbox.openAccountMenu(observedPage), /deliberate action defect/)
+          } else {
+            await sandbox.openAccountMenu(observedPage)
+            await browserExpect(page.getByRole("menuitem", { name: "Help & FAQ", exact: true })).toBeVisible()
+            assert.equal(await page.evaluate(() => window.navigationClicks), scenario.startsWith("desktop") ? 0 : 1)
+          }
+          if (scenario.startsWith("drawer-")) {
+            assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), true)
+            assert.equal(await page.evaluate(() => window.drawerFinished), true)
+          } else if (!["desktop", "desktop-transition", "duplicate-trigger", "blocked-trigger"].includes(scenario)) assert.equal(injected, true)
+        } finally {
+          await context.close()
+        }
+      })
+    }
+  } finally {
+    await browser.close()
+    assert.equal(requests, 0, "the actual-helper diagnostic must remain completely offline")
+  }
+})
+
+test("Phase 6 Station handoff readiness runs only before the closed/expanded category click", async () => {
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const scenario = sliceBetweenMarkers(spec, 'test("keeps Atmosphere navigation', 'test("uses AtmoShaper in install', "Phase 6 Station handoff").slice
+  assertWorkflowStepBefore(scenario, "await expectMusicReady(page)", "await expectStationCompositionSettled(page)")
+  assertWorkflowStepBefore(scenario, "await expectStationCompositionSettled(page)", 'await page.getByRole("group", { name: "Station category" })')
+  assert.equal((spec.match(/await expectStationCompositionSettled\(page\)/g) ?? []).length, 1)
+  assert.doesNotMatch(spec, /waitForTimeout|addStyleTag|maxDiffPixels|maxDiffPixelRatio|threshold:|mask:/)
+})
+
+test("Phase 6 Station handoff readiness executes actual bounded card and scale convergence", async (t) => {
+  const { transpileModule } = await import("typescript")
+  const spec = await readProjectFile("tests/browser/phase6-preview-rebrand.spec.ts")
+  const start = spec.indexOf("async function expectStationCompositionSettled")
+  assert.notEqual(start, -1)
+  const helper = transpileModule(spec.slice(start), { compilerOptions: { target: 9 } }).outputText
+  const base = {
+    box: { x: 101.5, y: 202.25, width: 217, height: 253 },
+    scales: ["1.13", "1.09rem", "1.13rem"],
+  }
+  const motion = (iterations, playState = "running") => ({ playState, effect: { getTiming: () => ({ iterations }) } })
+
+  // Execute the actual DOM reader and convergence loop, replacing only the
+  // document and poll scheduler with controlled, network-free observations.
+  const run = async (sampleAt) => {
+    let reads = 0
+    let current
+    let options
+    const ancestor = {
+      parentElement: null,
+      getAnimations: () => current.ancestorAnimations ?? [],
+    }
+    const card = {
+      get isConnected() { return current.cardConnected !== false },
+      getBoundingClientRect: () => current.box ?? base.box,
+    }
+    const workspace = {
+      get isConnected() { return current.workspaceConnected !== false },
+      parentElement: ancestor,
+      querySelectorAll: (selector) => {
+        assert.equal(selector, '[data-carousel-slide][data-centered="true"]')
+        return current.cardMissing ? [] : current.duplicateCard ? [card, card] : [card]
+      },
+      getAnimations: (query) => {
+        assert.equal(query.subtree, true, "include descendant layout motion")
+        return [...(current.animations ?? [])]
+      },
+    }
+    const sandbox = {
+      document: {
+        querySelector: (selector) => {
+          assert.equal(selector, ".ml-atmosphere-carousel-workspace")
+          return current.workspaceMissing ? null : workspace
+        },
+      },
+      getComputedStyle: (element) => {
+        assert.equal(element, workspace)
+        return {
+          getPropertyValue: (property) => {
+            const index = ["--ml-atmosphere-workspace-scale", "--ml-atmosphere-header-scale-rem", "--ml-atmosphere-workspace-scale-rem"].indexOf(property)
+            assert.notEqual(index, -1)
+            return (current.scales ?? base.scales)[index]
+          },
+        }
+      },
+      expect: {
+        poll: (read, suppliedOptions) => {
+          options = suppliedOptions
+          return {
+            toBe: async (expected) => {
+              assert.equal(expected, true)
+              assert.deepEqual([...options.intervals], [50])
+              assert.equal(options.timeout, 7_500)
+              assert.match(options.message, /before category handoff/)
+              for (let elapsed = 0; elapsed <= options.timeout; elapsed += options.intervals[0]) {
+                if (await read() === expected) return
+              }
+              throw new Error("Station convergence exhausted its bounded poll")
+            },
+          }
+        },
+      },
+    }
+    runInNewContext(helper, sandbox)
+    let error
+    try {
+      await sandbox.expectStationCompositionSettled({
+        evaluate: async (read) => {
+          current = sampleAt(++reads)
+          if (current.error) throw current.error
+          return read()
+        },
+      })
+    } catch (caught) {
+      error = caught
+    }
+    return { reads, error }
+  }
+
+  await t.test("requires seven valid equal readings, not a guessed target geometry", async () => {
+    assert.deepEqual(await run(() => base), { reads: 7, error: undefined })
+    const alternate = { box: { x: 27, y: 18, width: 165, height: 199 }, scales: ["1", "1rem", "1rem"] }
+    assert.deepEqual(await run(() => alternate), { reads: 7, error: undefined })
+  })
+  await t.test("each card coordinate and each shared scale restarts the whole window", async () => {
+    const changes = Object.keys(base.box).map((key) => ({ box: { ...base.box, [key]: base.box[key] + 1 } }))
+    changes.push(...base.scales.map((_, index) => ({ scales: base.scales.map((value, position) => index === position ? "1.2" : value) })))
+    for (const change of changes) {
+      assert.deepEqual(await run((read) => read < 4 ? base : change), { reads: 10, error: undefined })
+    }
+  })
+  await t.test("missing, disconnected, invalid, and duplicate observations cannot bridge quiet samples", async () => {
+    const invalid = [
+      { workspaceMissing: true }, { cardMissing: true }, { duplicateCard: true },
+      { workspaceConnected: false }, { cardConnected: false },
+      { box: { ...base.box, x: NaN } }, { box: { ...base.box, width: 0 } },
+      { box: { ...base.box, height: -1 } },
+      ...["", "NaN", "Infinity", "0", "-1"].flatMap((value) => base.scales.map((_, index) => ({
+        scales: base.scales.map((scale, position) => position === index ? value : scale),
+      }))),
+    ]
+    for (const sample of invalid) {
+      assert.deepEqual(await run((read) => read === 4 ? sample : base), { reads: 11, error: undefined })
+    }
+  })
+  await t.test("running finite descendant or ancestor motion resets even with equal rectangles", async () => {
+    for (const key of ["animations", "ancestorAnimations"]) {
+      assert.deepEqual(await run((read) => read === 4 ? { [key]: [motion(1)] } : base), { reads: 11, error: undefined })
+      assert.deepEqual(await run(() => ({ [key]: [motion(Infinity), motion(1, "finished")] })), { reads: 7, error: undefined })
+    }
+  })
+  await t.test("persistent drift, missing card, and finite motion fail within the same bounded budget", async () => {
+    for (const sampleAt of [
+      (read) => ({ box: { ...base.box, width: base.box.width + read } }),
+      () => ({ cardMissing: true }),
+      () => ({ animations: [motion(1)] }),
+    ]) {
+      const result = await run(sampleAt)
+      assert.equal(result.reads, 151)
+      assert.match(result.error?.message ?? "", /exhausted its bounded poll/)
+    }
+  })
+  await t.test("unexpected DOM evaluation errors are not treated as transient readiness", async () => {
+    const defect = new Error("deliberate DOM evaluation defect")
+    const result = await run(() => ({ error: defect }))
+    assert.equal(result.reads, 1)
+    assert.equal(result.error, defect)
+  })
+})
+
+test("Atmosphere heading assertions distinguish accessible page and category levels without accepting hidden or duplicate owners", async (t) => {
+  const { chromium, expect: browserExpect } = await import("@playwright/test")
+  const ts = await import("typescript")
+  const workspace = await readProjectFile("app/browse/workspace.tsx")
+  const carousel = await readProjectFile("components/atmosphere/station-carousel.tsx")
+  assert.match(workspace, /<h1 className="sr-only">\{ATMOSPHERE_PUBLIC_LABELS\.name\}<\/h1>/)
+  assert.match(carousel, /title: ATMOSPHERE_PUBLIC_LABELS\.name,/)
+  assert.match(carousel, /<h2 className="font-semibold tracking-normal">\{group\.title\}<\/h2>/)
+  const assertions = []
+  for (const [filename, count, level, matcher] of [
+    ["app-shell.spec.ts", 1, 2, "toBeVisible"],
+    ["music-visualizer.spec.ts", 2, 1, "toBeAttached"],
+    ["background-commerce.spec.ts", 2, 1, "toBeAttached"],
+    ["public-routes.spec.ts", 1, 1, "toBeAttached"],
+    ["phase6-preview-rebrand.spec.ts", 1, 1, "toBeAttached"],
+  ]) {
+    const source = await readProjectFile(`tests/browser/${filename}`)
+    const parsed = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+    let found = 0
+    // Run each original assertion, not a re-created locator that could drift from Browser QA.
+    const visit = (node) => {
+      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+        && node.expression.name.text === "getByRole" && node.arguments[0]?.text === "heading"
+        && node.arguments[1] && ts.isObjectLiteralExpression(node.arguments[1])) {
+        const options = new Map(node.arguments[1].properties
+          .filter(ts.isPropertyAssignment).map((property) => [property.name.getText(parsed), property.initializer]))
+        if (options.get("name")?.text === "Atmosphere") {
+          assert.equal(options.get("level")?.getText(parsed), String(level), filename)
+          assert.equal(options.get("exact")?.getText(parsed), "true", filename)
+          assert.equal(options.get("includeHidden")?.getText(parsed), "false", filename)
+          let statement = node
+          while (!ts.isExpressionStatement(statement)) {
+            assert.ok(statement.parent, `${filename} heading must belong to an assertion statement`)
+            statement = statement.parent
+          }
+          assert.ok(ts.isAwaitExpression(statement.expression), filename)
+          assert.equal(statement.expression.expression.expression?.name?.text, matcher, filename)
+          const assertionSource = statement.getText(parsed)
+          assert.doesNotMatch(assertionSource, /\.first\(|\.nth\(/)
+          const sandbox = { expect: browserExpect.configure({ timeout: 500 }) }
+          runInNewContext(ts.transpileModule(`async function checkHeading(page) { ${assertionSource} }`, {
+            compilerOptions: { target: ts.ScriptTarget.ES2022 },
+          }).outputText, sandbox)
+          assertions.push({ name: `${filename} assertion ${++found}`, level, matcher, run: sandbox.checkHeading })
+        }
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(parsed)
+    assert.equal(found, count, `${filename} must exercise every current Atmosphere heading assertion`)
+  }
+  const browser = await chromium.launch()
+  let requests = 0
+  try {
+    const pageHeading = '<h1 class="sr-only">Atmosphere</h1>'
+    const categoryHeading = '<h2>Atmosphere</h2>'
+    const both = pageHeading + categoryHeading
+    for (const assertion of assertions) {
+      await t.test(assertion.name, async (t) => {
+        const intended = assertion.level === 1 ? pageHeading : categoryHeading
+        const other = assertion.level === 1 ? categoryHeading : pageHeading
+        for (const [name, content, failure] of [
+          ["accessible page and category headings", both],
+          ["hidden attribute clones", both + `<div hidden>${both}</div>`],
+          ["display-none clones", both + `<div style="display:none">${both}</div>`],
+          ["aria-hidden clones", both + `<div aria-hidden="true">${both}</div>`],
+          ["duplicate accessible intended level", both + intended, /strict mode violation/],
+          ["missing intended level", other, new RegExp(assertion.matcher)],
+          ["hidden-only intended level", other + `<div hidden>${intended}</div>`, new RegExp(assertion.matcher)],
+        ]) {
+          await t.test(name, async () => {
+            const context = await browser.newContext({ serviceWorkers: "block" })
+            try {
+              await context.route("**/*", async (route) => { requests += 1; await route.abort() })
+              const page = await context.newPage()
+              // Standard sr-only geometry clips paint without hiding the heading from accessibility.
+              await page.setContent(`<style>.sr-only {
+                position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+                overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+              }</style>${content}`)
+              if (failure) await assert.rejects(assertion.run(page), failure)
+              else await assertion.run(page)
+            } finally {
+              await context.close()
+            }
+          })
+        }
+      })
+    }
+  } finally {
+    await browser.close()
+    assert.equal(requests, 0, "heading readiness fixtures must remain completely offline")
   }
 })

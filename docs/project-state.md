@@ -1,10 +1,21 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-21
+Verified: 2026-09-22
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Legal Identity Candidate
+## Current Snapshot — Phase 6 Final Integration Candidate
+
+- Task 8's bounded record correction is published on open, unmerged
+  [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13) at
+  `5345c7cc2f413e4dfd33def15bff5c8e99151243`. Both hosted reviewers
+  completed clean exact-head coverage, all seven strict CI jobs in
+  `35768851810` passed, and no actionable thread remains. Task 9 has started
+  only in the approved isolated worktree on
+  `codex/phase6-09-integration-closeout`; no final integration PR exists yet.
+  Source equivalence, independent Task 9 review and its own hosted gates remain
+  pending. Original PR #5 remains open and unmerged as the recovery source;
+  the separate Linux Atmosphere snapshot-refresh decision is still pending.
 
 - Task 7 is complete for its own slice at
   `995fc4f7ce44902002ef2b36c7af1195dbdcb562` on open, unmerged
@@ -172,7 +183,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and five records. It was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`; CodeRabbit completed product review,
   Codex found only its then-current record issue, and all seven strict CI jobs passed. The post-v21 OAuth amendment is published as `7ad60de8519e4a1d4bcc0bd892583b0c54d80186`;
   it switches public Google callbacks to the acceptance-filtered session identity while keeping raw access in the legal gate. Current status for the latest PR #13 head is delegated to GitHub and the ignored review handoff;
-  its hosted-review and strict-CI gates must pass before Task 9. Combined-source equivalence and the separate Linux Atmosphere snapshot decision remain pending.
+  its hosted-review and strict-CI gates passed on `5345c7cc2f413e4dfd33def15bff5c8e99151243`
+  before Task 9 started. Combined-source equivalence and the separate Linux
+  Atmosphere snapshot decision remain pending.
 - Frozen v19 passed independent SPEC, but separate QUALITY proved the two
   mismatched pairs still did not lock exact response-code value and shape.
   Prefix matching accepted `AUTHENTICATION_REQUIRED_LATER`; string coercion

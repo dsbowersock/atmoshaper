@@ -20,8 +20,8 @@ Read these files first, in order:
 
 ## Identity, Legal, and Compatibility Boundaries
 
-- AtmoShaper is the repository and future public platform identity. Until the separately reviewed Phase 6 preview rebrand, preserve the existing MassageLab runtime design, copy, routes, behavior, accessibility, and visual geometry. Do not describe the runtime rebrand as complete.
-- `Atmosphere` or `Atmosphere mixer` is the approved later public label for the audio feature. Existing internal `atmoshaper` modules, paths, scripts, tests, storage keys, data, and release identifiers remain compatibility identifiers. Do not perform global replacement.
+- AtmoShaper is the repository and approved public platform identity. Phase 6 owns a separately reviewed local preview rebrand; preserve runtime design, copy, routes, behavior, accessibility, and visual geometry outside that approved scope. Do not describe production, provider, domain, or deployment cutover as complete.
+- `Atmosphere` or `Atmosphere mixer` is the current Phase 6 preview public label for the audio feature. Existing internal `atmoshaper` modules, paths, scripts, tests, storage keys, data, and release identifiers remain compatibility identifiers. Do not perform global replacement.
 - Preserve established feature and domain language, including Chimer, Anatomime, Calendar, Notes, Wellness, massage, anatomy, education, treatment-room, clinical, and practice terminology.
 - Keep public product identity separate from the legal operator, copyright owner, proprietary license, accepted legal text, document versions and effective dates, and historical acceptance records. Do not change legal identity or claim trademark registration without separate review and approval.
 - Preserve stable private identifiers and reconciliation contracts, including Prisma objects and migrations, environment-variable names, auth and security identifiers, Stripe metadata and idempotency namespaces, browser storage/cache/vault identifiers, media identities, export schemas, and durable audit or operation identifiers, unless a dedicated migration proves compatibility and rollback.

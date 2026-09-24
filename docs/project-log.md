@@ -2,6 +2,24 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-22 — PR #13 gated; final Phase 6 integration in progress
+
+- The bounded Task 8 record correction reached open, unmerged PR #13 head
+  `5345c7cc2f413e4dfd33def15bff5c8e99151243`. CodeRabbit and Codex
+  completed clean exact-head reviews, all prior actionable threads are
+  resolved, and all seven strict CI jobs in run `35768851810` passed. The
+  first small replacement pilot had received actual CodeRabbit review before
+  the later slices were published; these gates cover PR #13, not Task 9.
+- In the approved isolated worktree, final Task 9 begins from that exact
+  head on `codex/phase6-09-integration-closeout`. It restores missing Phase 6
+  integration contracts and reconciles current authority with the reviewed
+  recovery source without discarding later repairs. Source-equivalence proof,
+  the exact occurrence-level audit fixed point, independent SPEC then QUALITY,
+  a final replacement PR, its own hosted reviews and strict CI are pending.
+  Original PR #5 and its branch remain intact and unmerged. The separate Linux
+  Atmosphere snapshot-refresh decision remains pending; no PNG, provider,
+  production, billing, deployment or merge action is authorized here.
+
 ## 2026-09-21–22 — Task 7 fully gated; Task 8 legal identity candidate implemented
 
 - Final Task 7 amendment `995fc4f7ce44902002ef2b36c7af1195dbdcb562`

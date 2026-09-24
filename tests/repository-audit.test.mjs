@@ -941,7 +941,7 @@ test("brand CLI validates exact rules and sanitizes stale-rule failures", (t) =>
   assert.equal(result.stderr.includes(root), false)
 })
 
-test("current Stripe names use only the two reviewed exact compatibility rules", () => {
+test("current Stripe names use only their three reviewed exact compatibility rules", () => {
   const paths = [
     "tests/membership-pricing.test.mjs",
     "tests/supporter-membership-final-review.test.mjs",
@@ -966,7 +966,11 @@ test("current Stripe names use only the two reviewed exact compatibility rules",
     directReferences.map((reference) => classifyCandidate(reference, policy)),
     ["compatibility", "compatibility"],
   )
-  assert.equal(classifyCandidate(fixtureReferences[0], policy), "pre-rebrand-public-copy")
+  assert.equal(classifyCandidate(fixtureReferences[0], policy), "compatibility")
+  assert.equal(
+    classifyCandidate({ ...fixtureReferences[0], line: fixtureReferences[0].line + 1 }, policy),
+    "pre-rebrand-public-copy",
+  )
 
   const result = spawnSync(
     process.execPath,
@@ -976,7 +980,7 @@ test("current Stripe names use only the two reviewed exact compatibility rules",
   assert.equal(result.status, 0)
   assert.equal(result.stderr, "")
   const candidate = JSON.parse(result.stdout)
-  for (const reference of directReferences) {
+  for (const reference of references) {
     assert.equal(candidate.entries.some((entry) => (
       entry.path === reference.path &&
       entry.line === reference.line &&
@@ -1096,4 +1100,18 @@ test("normal brand audit rejects stale categories until candidate regeneration",
     ],
   })
   assert.equal(mismatchFrom(runBrand()).currentCategory, "legal")
+})
+
+test("uppercase underscore legacy identifiers retain match-scoped compatibility", (t) => {
+  const root = createFixtureRepository(t)
+  const legacyName = ["Massage", "Lab"].join("")
+  writeFixture(root, "mixed.ts", `MASSAGE_LAB_BACKGROUND ${legacyName} visible copy\n`)
+  const references = collectLegacyReferences(root, ["mixed.ts"], policy)
+
+  assert.equal(references.length, 2)
+  assert.equal(references[0].identifierAtMatch, "MASSAGE_LAB_BACKGROUND")
+  assert.deepEqual(
+    references.map((reference) => classifyCandidate(reference, policy)),
+    ["compatibility", "pre-rebrand-public-copy"],
+  )
 })
