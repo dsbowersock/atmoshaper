@@ -191,7 +191,29 @@ export function collectLegacyReferences(root, paths, policy) {
   return references.sort(compareOccurrence)
 }
 
-export function classifyCandidate(reference, policy) {
+/** Build an opaque identity for one exact legacy-name occurrence. */
+export function candidateOccurrenceFingerprint(reference) {
+  const path = normalizeRepoPath(reference?.path ?? "")
+  const textSha256 = typeof reference?.textSha256 === "string"
+    ? reference.textSha256.toLowerCase()
+    : ""
+  if (
+    path.length === 0 ||
+    !Number.isInteger(reference?.line) || reference.line < 1 ||
+    !Number.isInteger(reference?.column) || reference.column < 1 ||
+    !/^[a-f0-9]{64}$/.test(textSha256)
+  ) {
+    throw new Error("Candidate occurrence identity is invalid")
+  }
+  return sha256(JSON.stringify(stableJson({
+    path,
+    line: reference.line,
+    column: reference.column,
+    textSha256,
+  })))
+}
+
+function classifyStructuralCandidate(reference, policy) {
   for (const rule of policy.candidateRules) {
     const pathMatch = (rule.pathPrefixes ?? []).some((prefix) => (
       pathMatches(reference.path, prefix)
@@ -226,6 +248,88 @@ export function classifyCandidate(reference, policy) {
     return "compatibility"
   }
   return "pre-rebrand-public-copy"
+}
+
+export function classifyCandidate(reference, policy) {
+  const structuralCategory = classifyStructuralCandidate(reference, policy)
+  if (structuralCategory !== "pre-rebrand-public-copy") return structuralCategory
+
+  const hasOccurrenceIdentity = (
+    typeof reference?.path === "string" && reference.path.length > 0 &&
+    Number.isInteger(reference.line) && reference.line > 0 &&
+    Number.isInteger(reference.column) && reference.column > 0 &&
+    typeof reference.textSha256 === "string" &&
+    /^[a-f0-9]{64}$/i.test(reference.textSha256)
+  )
+  if (!hasOccurrenceIdentity) return structuralCategory
+
+  const fingerprint = candidateOccurrenceFingerprint(reference)
+  return policy.candidateOccurrenceRules?.find((rule) => (
+    rule.fingerprint === fingerprint
+  ))?.category ?? structuralCategory
+}
+
+/**
+ * Validate that opaque candidate rules are deterministic and still identify one
+ * otherwise-unclassified active occurrence each.
+ */
+export function validateCandidateOccurrenceRules(policy, references) {
+  const rules = policy?.candidateOccurrenceRules
+  if (!Array.isArray(rules)) {
+    throw new Error("Candidate occurrence policy requires a rules array")
+  }
+
+  const terminalCategories = new Set(["compatibility", "legal", "historical"])
+  const seenFingerprints = new Set()
+  let previousRule = null
+  for (const rule of rules) {
+    if (!rule || typeof rule !== "object" || Array.isArray(rule)) {
+      throw new Error("Candidate occurrence rule must be an object")
+    }
+    const keys = Object.keys(rule)
+    if (
+      keys.length !== 2 ||
+      !Object.hasOwn(rule, "fingerprint") ||
+      !Object.hasOwn(rule, "category")
+    ) {
+      throw new Error("Candidate occurrence rule must contain exact fields")
+    }
+    if (typeof rule.fingerprint !== "string" || !/^[a-f0-9]{64}$/.test(rule.fingerprint)) {
+      throw new Error("Candidate occurrence fingerprint must be lowercase SHA-256")
+    }
+    if (typeof rule.category !== "string" || !terminalCategories.has(rule.category)) {
+      throw new Error("Candidate occurrence rule requires a terminal category")
+    }
+    if (previousRule && (
+      compareText(previousRule.fingerprint, rule.fingerprint) ||
+      compareText(previousRule.category, rule.category)
+    ) > 0) {
+      throw new Error("Candidate occurrence rules must be sorted")
+    }
+    if (seenFingerprints.has(rule.fingerprint)) {
+      throw new Error("Candidate occurrence rules contain a duplicate fingerprint")
+    }
+    seenFingerprints.add(rule.fingerprint)
+    previousRule = rule
+  }
+
+  const referencesByFingerprint = new Map()
+  for (const reference of references) {
+    const fingerprint = candidateOccurrenceFingerprint(reference)
+    const matches = referencesByFingerprint.get(fingerprint) ?? []
+    matches.push(reference)
+    referencesByFingerprint.set(fingerprint, matches)
+  }
+
+  for (const rule of rules) {
+    const matches = referencesByFingerprint.get(rule.fingerprint) ?? []
+    if (matches.length !== 1) {
+      throw new Error("Candidate occurrence rule must match exactly one active occurrence")
+    }
+    if (classifyStructuralCandidate(matches[0], policy) !== "pre-rebrand-public-copy") {
+      throw new Error("Candidate occurrence rule overlaps a structural rule")
+    }
+  }
 }
 
 function referenceKey(reference) {
@@ -291,6 +395,11 @@ export function validateBaseline(baseline, policy) {
   }
 }
 
+/**
+ * Compares occurrence identity and classification independently. New identities
+ * remain unclassified, removed identities remain informational, and an active
+ * identity is stale when its reviewed category no longer matches current policy.
+ */
 export function verifyLegacyReferenceBaseline(actual, baseline, policy) {
   validateBaseline(baseline, policy)
   const actualByKey = new Map(actual.map((entry) => [referenceKey(entry), entry]))
@@ -303,5 +412,22 @@ export function verifyLegacyReferenceBaseline(actual, baseline, policy) {
     .filter((entry) => !actualByKey.has(referenceKey(entry)))
     .map((entry) => toBaselineEntry(entry, entry.category))
     .sort(compareOccurrence)
-  return { missing, unclassified }
+  const categoryMismatches = actual
+    .map((entry) => {
+      const saved = baselineByKey.get(referenceKey(entry))
+      if (!saved) return null
+      const currentCategory = classifyCandidate(entry, policy)
+      if (saved.category === currentCategory) return null
+      return {
+        path: entry.path,
+        line: entry.line,
+        column: entry.column,
+        textSha256: entry.textSha256,
+        savedCategory: saved.category,
+        currentCategory,
+      }
+    })
+    .filter(Boolean)
+    .sort(compareOccurrence)
+  return { missing, unclassified, categoryMismatches }
 }

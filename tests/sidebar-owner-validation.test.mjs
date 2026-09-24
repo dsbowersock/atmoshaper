@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises"
 import { it } from "node:test"
 
 import { canSyncAccountPreferences } from "../lib/account-preferences.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
@@ -26,6 +27,7 @@ function loadSidebar(implicitPracticeMembershipAccesses) {
       FEATURE_KEYS: { therapistDocumentationTools: "therapist_documentation_tools" },
     },
     "@/lib/navigation": { resolveNavigation: (context) => context },
+    "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY },
     "@/lib/prisma": {
       prisma: {
         get practiceMembership() {

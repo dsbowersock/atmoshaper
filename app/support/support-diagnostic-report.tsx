@@ -105,7 +105,7 @@ export function SupportDiagnosticReport({ linkedEventId = "" }: SupportDiagnosti
       : status.kind === "unavailable"
         ? "Diagnostic report temporarily unavailable. Try again manually when you are ready."
         : status.kind === "ambiguous"
-          ? "MassageLab could not confirm whether the diagnostic report was sent. This page will not resend it automatically."
+          ? "AtmoShaper could not confirm whether the diagnostic report was sent. This page will not resend it automatically."
           : ""
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -279,7 +279,7 @@ export function SupportDiagnosticReport({ linkedEventId = "" }: SupportDiagnosti
 
         <AppNotice
           title="No clinical details in this report"
-          description="For notes, intake, journal, ROM, and wellness tools, MassageLab only sends a coarse product area so Sentry can alert on the problem without receiving PHI-capable content."
+          description="For notes, intake, journal, ROM, and wellness tools, AtmoShaper only sends a coarse product area so Sentry can alert on the problem without receiving PHI-capable content."
           tone="accent"
         />
 
@@ -342,7 +342,7 @@ export function SupportDiagnosticReport({ linkedEventId = "" }: SupportDiagnosti
           {status.kind === "ambiguous" ? (
             <AppNotice
               title="Diagnostic report delivery uncertain"
-              description="MassageLab could not confirm whether it was sent. Try again manually only if you still need to; this page will not resend it automatically. The email support form still works without a diagnostic ID."
+              description="AtmoShaper could not confirm whether it was sent. Try again manually only if you still need to; this page will not resend it automatically. The email support form still works without a diagnostic ID."
               tone="destructive"
             />
           ) : null}

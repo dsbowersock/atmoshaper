@@ -112,7 +112,7 @@ describe("privacy-safe problem report route", () => {
     }
   })
 
-  it("accepts the configured MassageLab alias only when Fetch Metadata agrees", async () => {
+  it("accepts the configured canonical alias only when Fetch Metadata agrees", async () => {
     const accepted = diagnosticRequest({ origin: "https://www.massagelab.app" })
     const rejected = diagnosticRequest()
     rejected.headers.set("sec-fetch-site", "cross-site")

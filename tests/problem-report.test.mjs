@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { sanitizeSentryEvent } from "../lib/sentry-privacy.js"
 import {
   buildProblemReportSentryPayload,
@@ -73,6 +74,7 @@ describe("privacy-safe problem reports", () => {
     })
     const serialized = JSON.stringify(payload)
 
+    assert.equal(PUBLIC_PRODUCT_IDENTITY.name, "AtmoShaper")
     assert.equal(payload.message, "MassageLab privacy-safe problem report")
     assert.equal(payload.tags["ml.report.category"], "page-error")
     assert.equal(payload.contexts.problemReport.safePath, "/notes/[local-first]")

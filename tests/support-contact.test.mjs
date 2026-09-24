@@ -14,7 +14,7 @@ describe("Support contact mailto helper", () => {
     assert.match(source, /React\.useEffect\(\(\) => \{[\s\S]*setTopic\(initialTopic\)[\s\S]*\}, \[initialTopic\]\)/)
   })
 
-  it("builds a mailto URL for MassageLab support requests", () => {
+  it("builds a mailto URL for AtmoShaper support requests without changing the support address", () => {
     const url = buildSupportMailtoUrl({
       name: "Dana Client",
       contact: "dana@example.com",
@@ -23,7 +23,8 @@ describe("Support contact mailto helper", () => {
     })
 
     assert.equal(url.startsWith(`mailto:${SUPPORT_CONTACT_EMAIL}?`), true)
-    assert.equal(url.includes("subject=MassageLab%20support%3A%20Calendar%20help"), true)
+    assert.equal(SUPPORT_CONTACT_EMAIL, "contactmassagelab@gmail.com")
+    assert.equal(url.includes("subject=AtmoShaper%20support%3A%20Calendar%20help"), true)
     assert.equal(url.includes("Name%3A%20Dana%20Client"), true)
     assert.equal(url.includes("Contact%3A%20dana%40example.com"), true)
     assert.equal(url.includes("Message%3A%0AI%20need%20help%20with%20availability."), true)
@@ -37,7 +38,7 @@ describe("Support contact mailto helper", () => {
       message: "  Hello  ",
     })
 
-    assert.equal(url.includes("subject=MassageLab%20support%20request"), true)
+    assert.equal(url.includes("subject=AtmoShaper%20support%20request"), true)
     assert.equal(url.includes("Name%3A%20%0A"), true)
     assert.equal(url.includes("Contact%3A%20user%40example.com"), true)
     assert.equal(url.includes("Message%3A%0AHello"), true)

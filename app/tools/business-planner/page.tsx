@@ -55,7 +55,7 @@ export default function BusinessPlannerHubPage() {
         description="The planner is for education and business planning. It does not replace tax, accounting, employment, or legal advice."
       >
         <Link className="text-sm font-medium text-primary underline-offset-4 hover:underline" href="/about">
-          Learn why MassageLab is building tools from inside massage practice
+          Learn why AtmoShaper is building tools from inside massage practice
         </Link>
       </AppSurface>
     </AppPageShell>

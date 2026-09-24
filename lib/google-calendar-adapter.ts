@@ -55,7 +55,7 @@ const GOOGLE_CALENDAR_API = "https://www.googleapis.com/calendar/v3"
 /**
  * Builds the explicit Google OAuth URL for provider calendar sync.
  * This requests offline Calendar API scopes and keeps calendar consent separate
- * from sign-in so MassageLab can store a provider-owned refresh token.
+ * from sign-in so AtmoShaper can store a provider-owned refresh token.
  */
 export function buildGoogleCalendarAuthUrl({
   clientId,
@@ -104,7 +104,7 @@ export function decodeGoogleCalendarIdTokenClaims(idToken?: string | null): Goog
 /**
  * Creates a small Google Calendar REST adapter.
  * Methods throw sanitized status errors for non-expected responses and return
- * only the fields MassageLab needs for token storage, busy-time import, and
+ * only the fields AtmoShaper needs for token storage, busy-time import, and
  * generic outbound event writes.
  */
 export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?: FetchImpl } = {}) {

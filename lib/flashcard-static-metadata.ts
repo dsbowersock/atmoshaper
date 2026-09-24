@@ -1,5 +1,6 @@
 import type { FlashcardDeckSummary, NormalizedFlashcardDeckConfig } from "./flashcard-community.ts"
 import type { FlashcardAnswerMode, FlashcardPromptType } from "./anatomy-study.ts"
+import { PUBLIC_PRODUCT_IDENTITY } from "./public-product-identity.js"
 
 export type FlashcardSetupOption = {
   id: string
@@ -148,7 +149,7 @@ export const FLASHCARD_STATIC_STARTER_DECKS: FlashcardDeckSummary[] = starterDec
   answeredCount: 0,
   correctCount: 0,
   accuracyPercent: 0,
-  ownerName: "MassageLab",
+  ownerName: PUBLIC_PRODUCT_IDENTITY.name,
   isOwner: false,
   isStarter: true,
 }))

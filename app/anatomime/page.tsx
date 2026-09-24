@@ -43,7 +43,7 @@ const anatomimeProofs = [
   },
   {
     title: "Reviewed study adapter",
-    description: "Anatomime uses the same reviewed anatomy foundation as MassageLab flashcards.",
+    description: "Anatomime uses the same reviewed anatomy foundation as AtmoShaper flashcards.",
     icon: ShieldCheck,
   },
 ] as const

@@ -19,6 +19,7 @@ import {
   searchAnatomyFoundation,
   validateAnatomyFoundation,
 } from "../lib/anatomy-foundation.js"
+import { ANATOMY_SOURCES } from "../lib/anatomy-legacy.js"
 
 function assertCommercialSafeMusclePack(muscleSlugs, { identifierProviders = ["UBERON", "NCIT", "FMA", "FIPAT"] } = {}) {
   const sourceBySlug = new Map(ANATOMY_FOUNDATION_SEED.sources.map((source) => [source.slug, source]))
@@ -154,6 +155,34 @@ function assertCommercialSafeSource(sourceRef, label) {
 }
 
 describe("Anatomy data foundation", () => {
+  it("presents current anatomy display copy as AtmoShaper while retaining source attribution and identifiers", () => {
+    const starterSource = ANATOMY_FOUNDATION_SEED.sources.find(
+      (source) => source.slug === "massagelab-initial-anatomy-foundation",
+    )
+    const trackingRange = ANATOMY_FOUNDATION_SEED.rangesOfMotion.find(
+      (range) => range.slug === "rom-tracking-thoracic-extension",
+    )
+    const starterRegion = ANATOMY_FOUNDATION_SEED.bodyRegions.find(
+      (region) => region.slug === "neck-shoulder-upper-back",
+    )
+    const legacyMuscleSource = ANATOMY_SOURCES["massagelab-muscle-seed"]
+
+    assert.equal(starterSource?.id, "source-massagelab-initial-anatomy-foundation")
+    assert.equal(starterSource?.name, "MassageLab initial anatomy foundation")
+    assert.equal(
+      starterSource?.attribution,
+      "Internal MassageLab starter model for schema and review workflow development.",
+    )
+    assert.equal(legacyMuscleSource.id, "massagelab-muscle-seed")
+    assert.equal(legacyMuscleSource.label, "MassageLab original muscle seed list")
+    assert.equal(legacyMuscleSource.attribution, "Original MassageLab classroom muscle list.")
+    assert.equal(
+      starterRegion?.description,
+      "Initial focused region for AtmoShaper anatomy data foundation work.",
+    )
+    assert.match(trackingRange?.measurementPosition ?? "", /^Non-diagnostic AtmoShaper tracking scale/)
+  })
+
   it("keeps the initial anatomy foundation internally valid", () => {
     assert.deepEqual(validateAnatomyFoundation(), [])
 

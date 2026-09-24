@@ -4,6 +4,7 @@ import { ShoppingCart } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useBackgroundCommerce } from "@/components/backgrounds/BackgroundCommerceProvider"
 import { Button } from "@/components/ui/button"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 
 export function CommerceCartTrigger({
@@ -26,14 +27,14 @@ export function CommerceCartTrigger({
   const itemCount = cart?.items.length ?? 0
   const reserved = Boolean(cart?.reservedOrder)
 
-  // Keep MassageLab purchases out of provider scheduling and public booking commerce.
+  // Keep product purchases out of provider scheduling and public booking commerce.
   if (isProviderCommerceRoute || !cart || (itemCount === 0 && !reserved)) {
     return null
   }
 
   const status = reserved
     ? `Account cart reserved for checkout with ${itemCount} ${itemCount === 1 ? "item" : "items"}`
-    : `Open ${signedIn ? "account" : "MassageLab"} cart with ${itemCount} ${itemCount === 1 ? "item" : "items"}`
+    : `Open ${signedIn ? "account" : PUBLIC_PRODUCT_IDENTITY.name} cart with ${itemCount} ${itemCount === 1 ? "item" : "items"}`
 
   return (
     <Button

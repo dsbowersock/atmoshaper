@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises"
 import { beforeEach, describe, it } from "node:test"
 
 import { canSyncAccountPreferences } from "../lib/account-preferences.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 import { createStrictLegalAcceptanceGateDouble } from "./helpers/legal-acceptance-gate-double.mjs"
 
@@ -139,6 +140,7 @@ function loadSidebar(database, session = null) {
     },
     "@/lib/navigation": { resolveNavigation: (context) => context },
     "@/lib/prisma": { prisma: database },
+    "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY },
   })
 }
 

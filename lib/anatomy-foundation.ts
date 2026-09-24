@@ -2421,7 +2421,7 @@ export const NECK_SHOULDER_UPPER_BACK_SEED: AnatomyFoundationSeed = {
       id: "region-neck-shoulder-upper-back",
       slug: "neck-shoulder-upper-back",
       name: "Neck, Shoulder, and Upper Back",
-      description: "Initial focused region for MassageLab anatomy data foundation work.",
+      description: "Initial focused region for AtmoShaper anatomy data foundation work.",
       sourceRefs: [STARTER_SOURCE],
     },
     { id: "region-head-neck", slug: "head-neck", name: "Head and Neck", sourceRefs: [STARTER_SOURCE] },
@@ -4619,7 +4619,7 @@ function withAtlasEnrichmentGapClosure(seed: AnatomyFoundationSeed): AnatomyFoun
         typicalMinValue: 0,
         typicalMaxValue: 5,
         measurementUnit: "ordinal_0_5",
-        measurementPosition: `Non-diagnostic MassageLab tracking scale for ${displayName}; record quality, ease, or observed range consistently for comparison over time.`,
+        measurementPosition: `Non-diagnostic AtmoShaper tracking scale for ${displayName}; record quality, ease, or observed range consistently for comparison over time.`,
         notes: "Generated tracking protocol for movements without a commercial-safe published degree reference in the seed. This is for education and longitudinal tracking, not diagnosis.",
         sourceRef: ROM_TRACKING_SOURCE,
       })

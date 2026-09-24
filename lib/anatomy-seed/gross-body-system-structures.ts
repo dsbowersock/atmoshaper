@@ -25,7 +25,7 @@ const MUSCULOSKELETAL_SYSTEM_CONCEPT: AnatomyConcept = {
   name: "Musculoskeletal System",
   conceptType: "practical_system_group",
   bodySystem: "musculoskeletal",
-  description: "The musculoskeletal grouping combines skeletal, muscular, joint, ligament, fascia, tendon, and related movement-support structures for practical MassageLab browsing; it is not treated as a separate textbook organ system.",
+  description: "The musculoskeletal grouping combines skeletal, muscular, joint, ligament, fascia, tendon, and related movement-support structures for practical AtmoShaper browsing; it is not treated as a separate textbook organ system.",
   sourceRef: TEXTBOOK_TAXONOMY_SOURCE,
 }
 
@@ -61,7 +61,7 @@ const TISSUE_TYPE_CONCEPTS: AnatomyConcept[] = [
     slug: "epithelial-tissue",
     name: "Epithelial Tissue",
     conceptType: "tissue_type",
-    description: "Epithelial tissue covers body surfaces, lines cavities and passageways, and forms glandular structures. MassageLab models it as a tissue-type taxonomy target rather than a body system.",
+    description: "Epithelial tissue covers body surfaces, lines cavities and passageways, and forms glandular structures. AtmoShaper models it as a tissue-type taxonomy target rather than a body system.",
     sourceRef: TEXTBOOK_TAXONOMY_SOURCE,
   },
   {

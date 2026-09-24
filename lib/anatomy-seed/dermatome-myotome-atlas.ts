@@ -176,11 +176,11 @@ const MYOTOME_SPECS: MyotomeSpec[] = [
 ]
 
 function dermatomeDescription(spec: DermatomeSpec) {
-  return `${spec.name} is a segmental sensory reference map for the ${spec.sensoryArea}. MassageLab stores it as a non-diagnostic education and body-map structure so therapists can connect client language with spinal segment patterns while still referring out when symptoms suggest medical evaluation.`
+  return `${spec.name} is a segmental sensory reference map for the ${spec.sensoryArea}. AtmoShaper stores it as a non-diagnostic education and body-map structure so therapists can connect client language with spinal segment patterns while still referring out when symptoms suggest medical evaluation.`
 }
 
 function myotomeDescription(spec: MyotomeSpec) {
-  return `${spec.name} is a segmental motor reference map associated with ${spec.motorAction}. MassageLab stores it as a non-diagnostic education and SOAP-tag structure that links spinal level language to representative muscles without implying a diagnosis or neurological exam result.`
+  return `${spec.name} is a segmental motor reference map associated with ${spec.motorAction}. AtmoShaper stores it as a non-diagnostic education and SOAP-tag structure that links spinal level language to representative muscles without implying a diagnosis or neurological exam result.`
 }
 
 const DERMATOME_STRUCTURES: StructureRow[] = DERMATOME_SPECS.map((spec) => ({

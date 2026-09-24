@@ -4,7 +4,73 @@ Verified: 2026-09-20
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Atmosphere Audio Slice
+## Current Snapshot — Phase 6 Public Routes and Content Slice
+
+- The 46-file [Atmosphere audio PR #8](https://github.com/dsbowersock/atmoshaper/pull/8)
+  is verified at `f8c14f1812918b67051760669c4ccf07b5860ba7`, stacked on
+  `06f3147ab3ffb7dc319ad93666dc0f3d7605d238`. Codex completed clean at 18:29 UTC;
+  CodeRabbit reviewed all 46 files and completed without actionable findings at
+  18:33 UTC. No review threads remain. Fresh hosted evidence confirms CI
+  `35529020277` passed quality, build, all four browser lanes and aggregate QA.
+- The 67-file [public-content PR #9](https://github.com/dsbowersock/atmoshaper/pull/9)
+  is published at `b6645013086635cc1287725d0ea0d3678f4b6071` against that exact
+  audio head. The approved isolated checkout remains on
+  `codex/phase6-04-public-content`. Original PR #5 and published replacements
+  #6-#8 remain unchanged and unmerged.
+- This slice carries source-approved public page, support, social, membership,
+  cart and education display copy with producer-owned tests. It preserves
+  endpoints, social handles, support addresses, Google calendar names, source
+  attribution, stable anatomy IDs, Stripe identity and entitlement behavior.
+- The [delivery plan](superpowers/plans/2026-09-20-phase6-review-sized-prs.md)
+  names all shared-file boundaries. Private account settlement stays with its
+  later owner; current legal dates/versions and the verified documentation date
+  ceiling are preserved. Earlier pilot and homepage repairs remain intact.
+- At initial publication, 55 full-source files matched recovery
+  `7e31855` exactly, and four shared test files contain only their assigned
+  companion changes. Independent specification then quality review passed with
+  no implementation findings; earlier pilot and homepage repairs are preserved.
+- Fresh verification on frozen tree `560521bd2f2c1220086240b46b19c7449ec9ee95`
+  passed the full unit suite: 4,661 passed, three skipped, zero failures (4,664
+  total), plus 247 focused regressions, typecheck, lint and 25 documentation/
+  archive checks. The intermediate brand receipt has zero missing/unclassified
+  entries and inventory reports no forbidden paths. Between that tested candidate
+  and initial publication, only delivery receipts and generated offsets changed.
+- Hosted reviews completed with two verified findings: retain the stable Sentry
+  problem-report event name, and classify retained Stripe assertions as exact
+  compatibility occurrences. The bounded repair restores that event identity
+  and promotes only the necessary exact-occurrence audit API with five fresh
+  rules. The source event-name defect is corrected, not preserved for equivalence.
+  Its three intentional source divergences and early audit API promotion must
+  remain explicit in the final combined-source reconciliation.
+- The audit generator, not only its generated receipt, must retain the corrected
+  classification without hiding neighboring public copy. Fresh focused checks
+  pass 91/91; the coordinator's focused/archive run passes 100/100. Independent SPEC then
+  QUALITY and strict validation precede a repair push. Both hosted reviewers
+  must subsequently cover the new exact head without actionable findings.
+- Initial-head CI `35533833313` passed quality, build, all four browser lanes
+  and aggregate QA, verified at 20:15 UTC. This is not repair-head evidence.
+  Earlier PR coverage does not cover this slice or its repair.
+- Round 1 repair head `b664501` passed all seven jobs in CI `35535560095`, and
+  Codex completed clean on that exact head at 20:31 UTC. CodeRabbit completed
+  its incremental review at 21:07 UTC with a new outside-diff audit finding:
+  identity-matched baseline entries can retain stale categories after valid
+  policy edits. This is not clean CodeRabbit coverage or slice completion.
+- The reproduced gap is in the shared verifier, not candidate generation.
+  Round 2 must compare matched categories against the existing classifier,
+  report sanitized mismatches, and fail normal audit mode. Strict new-reference
+  rejection, informational removals and existing classification precedence stay
+  intact. The repair requires independent SPEC then QUALITY, local verification,
+  and fresh exact-head hosted reviews and CI before the account slice starts.
+- Round 2's three-file implementation passed 28 audit tests and 64 focused
+  compatibility regressions; a coordinator run passed 101 focused/archive
+  checks and 25 delivery-document/archive checks. Typecheck and changed-file
+  lint passed. Independent review and repair publication remain pending;
+  these local results do not establish new hosted coverage.
+- The final combined-source equivalence and separate Linux Atmosphere snapshot
+  decision remain whole-sequence gates. No PNG, frame, threshold, provider,
+  billing, deployment or merge changes are authorized by this slice.
+
+## Historical Snapshot — Phase 6 Atmosphere Audio Slice
 
 - The 24-file [identity PR #7](https://github.com/dsbowersock/atmoshaper/pull/7)
   is verified at `06f3147ab3ffb7dc319ad93666dc0f3d7605d238`, stacked on pilot

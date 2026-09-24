@@ -66,7 +66,7 @@ const documentationProofs = [
   },
   {
     title: "Hosted clinical sync is not active",
-    description: "MassageLab does not upload therapist professional records in this alpha.",
+    description: "AtmoShaper does not upload therapist professional records in this alpha.",
     icon: ShieldCheck,
   },
 ] as const
@@ -83,7 +83,7 @@ export default async function NotesPage() {
           title="Local-first massage documentation"
           description={
             <>
-              MassageLab&apos;s alpha documentation tools are built for therapist-controlled local records: SOAP notes, massage intake forms, client journals, and range-of-motion records stay in an encrypted browser vault unless you explicitly export them.
+              AtmoShaper&apos;s alpha documentation tools are built for therapist-controlled local records: SOAP notes, massage intake forms, client journals, and range-of-motion records stay in an encrypted browser vault unless you explicitly export them.
             </>
           }
           icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
@@ -110,7 +110,7 @@ export default async function NotesPage() {
           title={canUseLocalClinicalTools ? "PHI stays under user control" : "Therapist or Team/Practice required"}
           description={
             <>
-                MassageLab stores therapist documentation in one encrypted local professional-record vault in this alpha. Therapist note-taking tools are visible here, but using them requires an active Therapist or Team/Practice membership.
+                AtmoShaper stores therapist documentation in one encrypted local professional-record vault in this alpha. Therapist note-taking tools are visible here, but using them requires an active Therapist or Team/Practice membership.
             </>
           }
           icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}

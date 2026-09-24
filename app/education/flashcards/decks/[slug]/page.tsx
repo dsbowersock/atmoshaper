@@ -13,6 +13,7 @@ import {
   getStaticStarterFlashcardDeck,
 } from "@/lib/flashcard-static-metadata"
 import { createNoindexPageMetadata, createPublicPageMetadata } from "@/lib/seo"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { FlashcardsClient } from "../../flashcards-client"
 
 export const dynamic = "force-dynamic"
@@ -23,8 +24,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!starterDeck) {
     return createNoindexPageMetadata({
-      title: "Flashcard Deck | MassageLab",
-      description: "MassageLab flashcard deck.",
+      title: `Flashcard Deck | ${PUBLIC_PRODUCT_IDENTITY.name}`,
+      description: `${PUBLIC_PRODUCT_IDENTITY.name} flashcard deck.`,
     })
   }
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function displayName(owner: { name: string | null; profile?: { displayName: string | null } | null } | null) {
-  return owner?.profile?.displayName ?? owner?.name ?? "MassageLab learner"
+  return owner?.profile?.displayName ?? owner?.name ?? `${PUBLIC_PRODUCT_IDENTITY.name} learner`
 }
 
 async function loadPersistedDeck(slug: string, viewerUserId?: string): Promise<FlashcardDeckSummary | null> {

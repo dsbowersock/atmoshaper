@@ -2,6 +2,85 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-20 — Public-content audit category consistency repair
+
+- Round 1 repair `b6645013086635cc1287725d0ea0d3678f4b6071` passed exact-head
+  Codex review at 20:31 UTC and all seven hosted CI jobs in `35535560095`.
+  Original PR #5 and earlier replacement branches remain unchanged/unmerged.
+- CodeRabbit accepted its incremental review at 21:02:34 UTC and completed
+  review `5261742961` at 21:07:30 UTC with one major outside-diff finding.
+  Its prior two inline findings are resolved, but that does not close this new
+  verification gap. Published review allowance remains one included review/hour.
+- Read-only reproduction changed a valid exact occurrence rule from compatibility
+  to historical. The classifier changed its result while the verifier returned
+  zero missing/unclassified entries, allowing normal mode to retain the old
+  category. The existing generator is not the failing owner in this recurrence.
+- Round 2 adds matched-category consistency to the existing verifier and normal
+  CLI. Keep identity matching, strict additions and informational removals;
+  expose deterministic sanitized mismatches and fail rather than silently accept
+  stale categories. No second classifier or broader policy exclusion is needed.
+- The frozen three-file implementation passed 28/28 audit and 64/64 focused
+  compatibility tests. Coordinator checks passed 101/101 focused/archive and
+  25/25 delivery-document/archive cases. Typecheck and changed-file lint passed.
+  Independent SPEC then QUALITY, final receipt verification and hosted gates
+  remain pending; the previous head's CI is not evidence for this new repair.
+  No account slice, PNG/frame/tolerance, provider, billing or runtime change is
+  part of this bounded audit repair. The final source ledger must retain it.
+
+## 2026-09-20 — Public-content replacement published; compatibility repair verified locally
+
+- Published and attached PR #9 at `f8add328996c668243cc7c1dae6ba16f1d8da565`,
+  stacked on exact audio head `f8c14f1812918b67051760669c4ccf07b5860ba7`.
+  The 63-file initial tree passed independent SPEC then QUALITY and local
+  verification recorded below. Earlier branches remain intact; nothing merged.
+- Codex completed at 19:57 UTC with one operational-identity finding (review
+  `5261580735`); CodeRabbit completed at 20:01 UTC with one exact-classification
+  finding (review `5261595695`). Neither result is clean coverage. The accepted
+  CodeRabbit request was at 19:55:06 UTC; its published one-hour allowance is
+  tracked separately from Codex and from review completion.
+- Local reproduction confirms the report payload message goes directly to
+  Sentry, while the audit generator misclassifies a retained Stripe assertion.
+  Preserve the historical event identity without changing public support copy;
+  promote only the already-planned exact-occurrence API and five fresh current
+  rules. Do not edit generated categories alone or widen path exclusions.
+- The repair deliberately diverges from three original source files. Final
+  integration must retain this validated compatibility correction and reconcile
+  the early audit capability, alongside prior pilot and homepage repairs.
+  The seven-file repair passes 91/91 focused checks; a fresh coordinator run
+  passes all 100 focused/archive cases. Diagnostic controls isolated two old
+  Sentry failures and one exact-classification failure before correction.
+  Independent SPEC then QUALITY, regenerated audit verification and repair-head
+  hosted reviews/CI are required before this slice can be called ready.
+- Initial-head CI `35533833313` passed quality, build, all four browser lanes
+  and aggregate `106141825509`, verified at 20:15 UTC. No provider, screenshot, threshold,
+  billing, deployment or original-branch changes accompany this repair.
+
+## 2026-09-20 — Audio replacement verified; public-content slice started
+
+- PR #8 passed both hosted reviewers on `f8c14f1812918b67051760669c4ccf07b5860ba7`:
+  Codex summary `5751739355` completed at 18:29 UTC with clean reaction
+  `515768622`; CodeRabbit run `91e00cf5-ff83-4491-abba-fb28b89894c5` reviewed
+  all 46 files against `06f3147` and completed without actionable findings at
+  18:33 UTC. Its successful request was at 18:27 UTC. No threads remain.
+- CI `35529020277` passed Code quality, Browser build, all four Browser QA
+  lanes and aggregate `106129199412`. This proves the audio slice, not the
+  unresolved original full-phase snapshot gate or later replacement slices.
+- Started the bounded public routes/content slice from that exact audio head.
+  Public wording and direct producer-owned assertions travel together; the
+  remaining interaction-feedback delta is private account settlement and stays
+  with its account owner. Preserve endpoint/provider identifiers and source
+  attribution, as well as the prior verified date ceiling and homepage repair.
+- Assembled 55 source-exact public files and four bounded test companions; the
+  complete candidate has 63 paths including delivery documents and its generated
+  brand receipt. Independent SPEC then QUALITY review passed without findings.
+- Frozen tree `560521bd2f2c1220086240b46b19c7449ec9ee95` passed 4,661 unit tests
+  with three skips and no failures (4,664 total). Focused regressions passed
+  247/247; typecheck, lint and 25 documentation/archive checks also passed.
+  Audit missing/unclassified lists are empty and inventory has no forbidden paths.
+- Final receipt-only closeout precedes publication; this slice's own exact-head
+  hosted reviews and strict CI remain required. No earlier branch was moved,
+  no PR merged, and no provider, billing or screenshot action accompanies this step.
+
 ## 2026-09-20 — Identity replacement verified; audio slice started
 
 - PR #7 passed both hosted reviewers on `06f3147ab3ffb7dc319ad93666dc0f3d7605d238`:

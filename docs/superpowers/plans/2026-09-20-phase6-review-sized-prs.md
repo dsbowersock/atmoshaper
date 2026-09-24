@@ -312,6 +312,152 @@ harness and final audit receipts, and repeat SPEC before QUALITY. This first
 full-suite receipt covers tree `b0df440f95c6b6a6e44b18f8ee275a424a260810`, not an
 unmeasured later tree; hosted browser CI remains required after publication.
 
+## Task 4: public routes and content
+
+Why: carry the approved public product wording and its direct consumers as one
+reviewable unit. PR #8 is clean on exact `f8c14f1812918b67051760669c4ccf07b5860ba7`:
+both hosted reviewers completed without findings, all threads are resolved, and
+CI `35529020277` passed quality, build, four browser lanes and aggregate QA.
+Reuse the approved isolated checkout on `codex/phase6-04-public-content`; preserve
+PRs #5-#8 and their branches. No new product or architecture decision is made.
+
+1. Use exact `7e318558da425b8fcdddeb8df50e93a36900310a` content for the 53 paths in
+   the retained manifest's `groups.public.paths`, excluding
+   `tests/browser/interaction-feedback.spec.ts`. The remaining interaction
+   delta belongs to private account settlement and must stay with Task 5 and
+   its paired helper/contract. Do not copy this file in Task 4.
+2. Carry the required direct companions identified before editing:
+   - Full source `tests/sidebar-owner-validation.test.mjs`: the sidebar now
+     imports the canonical public identity, so its compiled-loader mock must
+     provide that dependency, paired with the public-group auth-session test.
+   - Full source `tests/problem-report-route.test.mjs`: public report message
+     assertion and canonical-alias test description; preserve all route behavior.
+   - `tests/family-friends-server-workload.test.mjs`: only the identity import
+     and two membership-pricing/sidebar loader mocks. Preserve the verified
+     date ceiling `2026-09-20`, not the older source ceiling.
+   - `tests/seo.test.mjs`: only the social-links import and three-description
+     assertion. Keep legal-page and legal-date assertions unchanged.
+   - `tests/browser/public-routes.spec.ts`: only Tools and Roadmap heading
+     assertions. Defer register and visualizer/streaming hunks to their owners.
+   - `tests/browser/background-commerce.spec.ts`: the three guest cart
+     name/trigger/dialog assertions. Existing audio hunks remain intact.
+3. Preserve canonical URLs, social handles and destinations, support address,
+   dedicated Google calendar names, source attribution and stable anatomy IDs,
+   Stripe product identity and billing/entitlement behavior. Change presentation
+   only. No provider calls, schema/data writes, new public identity owner,
+   dependency, layout restructuring, PNG/frame/tolerance or legal-version change.
+4. Before extending any path beyond this list, show its concrete producer/
+   consumer dependency to the coordinator. Preserve prior pilot and homepage
+   fixes. Large source and test owners get only existing-source presentation
+   wiring and paired assertions, not new responsibilities or broad cleanup.
+5. Coordinator owns canonical state/log, this parent plan, Git mutations and
+   generated intermediate brand receipt. Stage only owned paths; regenerate
+   using the existing audit command, inspect semantic deltas, and prove a
+   staged-byte fixed point with zero missing/unclassified entries. Do not
+   import final-source fingerprints, receipt files or broad exclusions.
+6. Run source equivalence for the 55 full-source files and enumerate the four
+   partial companions. Run the public-group unit tests plus sidebar-owner,
+   problem-report-route, family-friends workload, SEO, quick-actions, flashcard
+   and calendar-adapter regressions; run typecheck, lint, documentation/archive
+   checks, full unit suite, inventory, audit and diff checks. Hosted strict
+   browser CI is required after publication; local fixtures do not replace it.
+7. Independent SPEC review precedes independent QUALITY. Root verifies the
+   exact frozen candidate, creates one coherent commit, publishes against
+   `codex/phase6-03-atmosphere-audio`, attaches the PR, and confirms its own
+   exact-head bot reviews and CI. The expected scope is 63 paths including
+   three delivery docs and the generated receipt; measure before publishing,
+   target under 85 and never reach the observed 100-file review cap.
+
+Change necessity is mechanical source redistribution; a documentation-only
+change cannot deliver the approved visible copy. Existing owners are sufficient.
+TDD stays off for redistribution; any new defect first requires causal evidence.
+Retirement is limited to old current-presentation wording. Compatibility values
+and historical attribution remain active for their documented external/data
+contracts; changing them requires a separate migration. No durable architecture
+or baseline status is changed here. The whole sequence and separate Linux
+Atmosphere snapshot decision remain incomplete.
+
+Task 4 local evidence: the frozen 63-path candidate
+`560521bd2f2c1220086240b46b19c7449ec9ee95` passed independent SPEC then QUALITY
+review. All 55 complete source files match `7e31855`; four partial companions
+match the boundaries above. Full unit suite: 4,661 passed, three skipped, zero
+failures. Focused checks: 247/247; documentation/archive checks: 25/25;
+typecheck and lint passed. Final receipt-only closeout passed SPEC then QUALITY;
+the candidate was published as PR #9 at `f8add32`. These are historical initial
+receipts, not verification of the hosted repair below. Exact-head hosted reviews
+and CI remain separate gates and do not close the whole replacement sequence.
+
+### Task 4 hosted repair round 1: operational identity and exact audit classification
+
+PR #9 review of `f8add328996c668243cc7c1dae6ba16f1d8da565` identified a
+Sentry event identity rename and a retained Stripe assertion misclassified as
+public copy. Both reproduce locally. The problem-report route forwards the
+payload message directly to Sentry; the candidate generator derives the wrong
+category from the intermediate structural policy, so editing generated JSON
+alone is not a durable repair.
+
+Ruling: preserve `MassageLab privacy-safe problem report` as the operational
+message, independent of public display identity. This intentionally corrects
+three source-exact files rather than preserving a source defect. Keep public
+support copy, sanitized payload fields, tags, route responses and provider
+behavior unchanged. A dedicated observability migration is required to retire
+the stable message; this slice does not perform that migration.
+
+Ruling: promote only the source design's exact-occurrence classification API
+and validation into this slice as the generator dependency for the review fix.
+Generate fresh rules for the two changed Stripe assertions and the restored
+Sentry message's runtime/unit/route occurrences in this actual tree. Do not
+import the final-tree fingerprint table, whole-file categories or broad regex
+exclusions. Preserve structural precedence and existing baseline verification
+semantics; reject malformed, duplicate, stale and overlapping exact rules.
+Final integration must reconcile these current rules rather than overwrite them.
+
+Allowed implementation files: `lib/problem-report.js`, its two unit/route test
+files, repository-audit `core.mjs`, `brand.mjs`, `policy.json`, and
+`tests/repository-audit.test.mjs`. Coordinator owns generated baseline and the
+three delivery documents. Verify the original assertions fail on the old
+behavior, the real payload and route preserve the event, and exact audit rules
+cannot classify neighboring copy, moved/changed text, or unrelated files.
+Use focused regression, typecheck/lint, generator fixed point and inventory;
+independent SPEC then QUALITY precede commit/push and fresh hosted gates.
+No screenshots, provider calls, original-branch writes or public configuration
+changes. If wrong, this ruling costs bounded local rework, not an external cutover.
+
+### Task 4 hosted repair round 2: enforce current category semantics
+
+CodeRabbit review `5261742961` of `b664501` found an outside-diff verification
+gap after the exact-rule API promotion. An in-memory reproduction changed one
+valid exact rule from compatibility to historical: classification changed, but
+the verifier returned zero missing and unclassified entries, so normal audit
+mode would still pass using the old saved category. The generator is correct;
+identity-only baseline matching omits current classification validation.
+
+Repair the existing verifier and normal CLI, not just the generated receipt.
+For every identity-matched active occurrence, compare its saved category to
+the canonical classifier, report deterministic sanitized category mismatches
+separately, and fail normal audit mode when any exist. Preserve exact identity
+matching, strict new-reference rejection, informational removals, structural
+precedence, exact-rule validation and the five current compatibility rules.
+This deliberately strengthens round 1's retained verifier semantics; final
+integration must preserve the new check rather than restore the source defect.
+
+Allowed source/test files are repository-audit `core.mjs`, `brand.mjs`, and
+`tests/repository-audit.test.mjs`. Extend the existing owner with a local fix,
+not a new responsibility or parallel classifier. Add focused documentation to
+the changed verifier and append regression coverage without moving exact-rule
+targets. Include real normal-mode CLI controls: correct baseline passes,
+changed exact category without regeneration fails, refreshed baseline passes,
+and removed rules or changed structural classification cannot retain stale
+categories. Cover deterministic sanitized mismatch output and unchanged
+addition/removal behavior. Existing test-file size is a pressure signal; keep
+new coverage cohesive and bounded rather than restructuring unrelated tests.
+
+Coordinator owns the generated receipt and delivery documents. Require fresh
+focused checks, typecheck/lint, staged receipt fixed point, zero missing,
+unclassified and category-mismatched entries, and independent SPEC then QUALITY.
+Only then commit and push this repair and obtain fresh exact-head hosted gates.
+No account slice, runtime change, screenshot, provider or earlier-branch edit.
+
 ## Remaining ownership sequence
 
 The source has 319 changed paths: 291 non-PNG plus 28 PNG. The independently

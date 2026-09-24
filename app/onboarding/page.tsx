@@ -19,6 +19,7 @@ import { AppInset, AppPageShell, AppSurface } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
 export const dynamic = "force-dynamic"
 
@@ -47,7 +48,7 @@ export default async function OnboardingPage() {
       <section className="grid gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(18rem,0.42fr)]">
         <AppSurface
           title="Choose your starting path"
-          description="A few account-safe answers help MassageLab put the right tools in reach after sign-in. You can skip this or change it later."
+          description={`A few account-safe answers help ${PUBLIC_PRODUCT_IDENTITY.name} put the right tools in reach after sign-in. You can skip this or change it later.`}
           contentClassName="gap-6"
         >
           <form action={saveOnboardingAction} className="space-y-6">
@@ -197,5 +198,5 @@ function formatPathLabel(path: string) {
   if (path.startsWith("/education")) return "education"
   if (path.startsWith("/anatomime")) return "Anatomime"
   if (path.startsWith("/calendar")) return "calendar"
-  return "MassageLab"
+  return PUBLIC_PRODUCT_IDENTITY.name
 }

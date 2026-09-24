@@ -27,6 +27,28 @@
     "historical",
     "pre-rebrand-public-copy"
   ],
+  "candidateOccurrenceRules": [
+    {
+      "fingerprint": "471342d7793817f1342d53b7e63bee2373d1691047825e15e03cce18d9626479",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "60fc38024d7ef9159c0772577bb3c4dd8c4492ffc4d4623832dd992a5b12cc98",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "77e47131fa57e5429d25c2eea3c5bf83a99cc10728072d9d2af208a81bbd8d3a",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "c097cf89a772e7abbe0f2d24f6e8f5b00e306981385afc7851fcfab28758839a",
+      "category": "compatibility"
+    },
+    {
+      "fingerprint": "ec0d69f60cbbc7e575419d9da1a27269dc03695d730ac2c85f78906de7b44d7c",
+      "category": "compatibility"
+    }
+  ],
   "candidateRules": [
     {
       "category": "legal",

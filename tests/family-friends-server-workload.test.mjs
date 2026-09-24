@@ -15,6 +15,7 @@ import {
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 import { SIX_PRICE_ENVIRONMENT } from "./helpers/membership-pricing-environment.mjs"
 import { MEMBERSHIP_PRICING_IMPORT_PATTERN } from "./helpers/membership-pricing-import-guard.mjs"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const HISTORICAL_BROWSER_QA_RECEIPT_PATTERN =
@@ -116,6 +117,7 @@ function sharedMembershipPricingWorkload(priceReads, {
         SUPPORTER_AMOUNT_CHOICES,
         getConfiguredMembershipOptions: () => getConfiguredMembershipOptions(configuredEnvironment),
       },
+      "./public-product-identity.js": { PUBLIC_PRODUCT_IDENTITY },
       "./stripe-billing.js": {
         getStripeSecretKey: () => providerKey,
         getStripeClient(apiKey) {
@@ -271,6 +273,7 @@ function sidebarNavigationWorkload(calls, authoritativeFeatureKeys) {
     "@/lib/membership": { FEATURE_KEYS: { therapistDocumentationTools: "therapist_documentation_tools" } },
     "@/lib/navigation": { resolveNavigation: (context) => context },
     "@/lib/prisma": { prisma: database },
+    "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY },
     "@/lib/rsc-session": {
       getCurrentRscSession: async () => {
         calls.rscAuthSnapshots += 1
