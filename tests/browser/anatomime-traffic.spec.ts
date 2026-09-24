@@ -222,10 +222,11 @@ async function fulfillJson(route: Route, status: number, body: unknown, headers?
 }
 
 const ANATOMIME_TEST_CLOCK_TIME = new Date("2026-09-20T12:00:00.000Z")
+const ANATOMIME_TEST_CLOCK_INSTALL_TIME = new Date(ANATOMIME_TEST_CLOCK_TIME.getTime() - 60_000)
 
-/** Freezes a fixed clock immediately before the tested request can own a deadline. */
+/** Installs with IPC headroom, then freezes at the exact deterministic deadline origin. */
 async function installPausedClock(page: Page) {
-  await page.clock.install({ time: ANATOMIME_TEST_CLOCK_TIME })
+  await page.clock.install({ time: ANATOMIME_TEST_CLOCK_INSTALL_TIME })
   await page.clock.pauseAt(ANATOMIME_TEST_CLOCK_TIME)
 }
 
