@@ -26,6 +26,15 @@ const rscSessionProofEnabled = process.env.NEXT_PUBLIC_RSC_SESSION_PROOF === "1"
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  // Vercel's function trace can retain Sharp's native binding while dropping
+  // the separate libvips package it loads at runtime. Keep both Linux runtime
+  // packages with the only route that rasterizes station artwork.
+  outputFileTracingIncludes: {
+    "/api/atmosphere/stations/*/artwork": [
+      "./node_modules/@img/sharp-linux-x64/**/*",
+      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+    ],
+  },
   ...(buildCpuOverride > 0 ? { experimental: { cpus: buildCpuOverride } } : {}),
   async headers() {
     return [
