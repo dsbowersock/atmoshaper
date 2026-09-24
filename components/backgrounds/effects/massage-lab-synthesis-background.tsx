@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -112,7 +113,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Synthesis is a Three/R3F shader component. This internal WebGL
+// AtmoShaper Synthesis is a Three/R3F shader component. This internal WebGL
 // renderer ports the source fragment shader directly without adding that stack.
 export default function MassageLabSynthesisBackground({
   className,
@@ -444,7 +445,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Synthesis shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Synthesis shader uniform: ${name}`)
   }
 
   return location

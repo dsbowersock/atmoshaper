@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -118,7 +119,7 @@ const fragmentShaderSource = `#version 300 es
   }
 `
 
-// MassageLab Plasma is a WebGL2/OGL raymarch shader. MassageLab keeps the
+// AtmoShaper Plasma is a WebGL2/OGL raymarch shader. AtmoShaper keeps the
 // source loop, direction modes, color branch, and optional mouse warp.
 export default function MassageLabPlasmaBackground({
   className,
@@ -439,7 +440,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Plasma uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Plasma uniform: ${name}`)
   }
 
   return location

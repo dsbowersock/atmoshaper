@@ -2,6 +2,72 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-21 — Renderer CI exposed Anatomime test-clock race
+
+- Exact head `3857f13d6b3c241061960f2d1d1f0740f4978166` received clean Codex
+  review. CI `35552471156` passed quality/build/three browser lanes but lane 1
+  failed the Anatomime polling cadence test on both attempts (118 passed,
+  25 skipped, one failed). This was not a screenshot comparison failure.
+- Trace evidence and a provider-free Chromium reproduction using the actual
+  fetch-deadline helper show that the test's late wall-time pause advances an
+  already-running request beyond its 1,500ms deadline before releasing a held
+  response. The test and runtime owners were unchanged from recovery.
+- The bounded Task 6 amendment moves clock setup before the tested request and adds a
+  focused falsifying regression. It keeps genuine timeout/cadence controls and
+  all application/provider/visual behavior unchanged. The two test-only source
+  divergences bring planned scope from 65 to 67 files; record them in final
+  equivalence rather than overwriting them with recovery bytes later.
+- Local verification passes all 42 Anatomime browser cases across desktop/mobile
+  and both cadence cases with a temporary 2.1-second observation delay (removed
+  after the control). Focused checks pass 108/108, typecheck and changed-file
+  lint pass, and strict audit/inventory remain clean. Independent SPEC then
+  QUALITY and a reviewed repair push remain required. Both hosted reviewers and strict CI
+  must cover the eventual new head. Task 7 and whole-sequence readiness remain
+  pending; no unchanged CI retry, snapshot refresh or provider workaround.
+
+## 2026-09-21 — Renderer slice published; hosted record corrections
+
+- Published PR #11 at `6d92e6daa073be40db6f61e26c7ac8958b1ab0f1`, stacked on
+  PR #10 with 64 changed files. Independent SPEC and QUALITY passed, including
+  the earlier stale-status correction. Codex and CodeRabbit then completed
+  hosted review and each raised one documentation finding.
+- The canonical verification header and its companion test ceiling now advance
+  together to the verified September 21 UTC checkpoint. The prior update changed
+  the snapshot/log but omitted these paired freshness fields. No assertion is
+  removed or weakened; the existing date-validation contract is preserved.
+- The plan now explicitly assigns only effect prose and diagnostics to Task 6;
+  globe-marker removal remains in Task 7 with its descriptions and tests. The
+  earlier wording conflated the original source task with replacement slices.
+  The 59/30 packaging boundary and source ownership are unchanged.
+- Adding the date-test companion brings PR scope to 65 files. This bounded
+  amendment requires scoped SPEC then QUALITY and renewed exact-head hosted
+  reviews/strict CI. It does not close the remaining slices, combined-source
+  ledger or pending Linux Atmosphere snapshot decision. No runtime, PNG, frame,
+  threshold, provider, billing, deployment, merge or legal-version changes.
+
+## 2026-09-21 — Account gates clean; background renderer local verification
+
+- PR #10 head `3e29e6e696131450820e8b70cc195d6bf5849f8a` passed Codex review,
+  CodeRabbit's incremental review and all seven jobs in CI `35545694616`.
+  CodeRabbit accepted at 00:30:28 UTC and finished at 00:32 UTC with no new
+  actionable comments. The prior documentation thread is resolved.
+- Started the next stacked branch in the existing approved worktree. Task 6
+  carries 59 renderer files plus its shared test hunk. Moved the single globe
+  marker-removal file from the original 60-path allocation into Task 7, keeping
+  it with registry/catalog/audit descriptions and marker tests (59/30 allocation).
+  No source work is discarded. Verified change scope is 64 paths with receipts.
+- All 59 renderer blobs match recovery. Focused checks passed 153/153;
+  typecheck, lint, strict audit and inventory passed. The full unit suite
+  passed 4,711 tests with three skips and zero failures (4,714 total).
+- Independent SPEC passed; QUALITY found no runtime or companion-test defect
+  but identified stale local-status wording. This checkpoint corrects those
+  records; the bounded documentation/receipt delta receives SPEC then QUALITY
+  confirmation before publication. No source or test changes were needed.
+- Own-head hosted reviews and strict CI remain unverified, and whole-sequence
+  reconciliation remains incomplete. Original and earlier branches remain
+  unchanged/unmerged. No provider, screenshot, frame, threshold, billing,
+  deployment or legal-version changes.
+
 ## 2026-09-20 — Account slice published; hosted manifest clarification
 
 - Published and attached PR #10 at `487fd7bfa8e8c000d13743d13fbeba99eadf9cf8`

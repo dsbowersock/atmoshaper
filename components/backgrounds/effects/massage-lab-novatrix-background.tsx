@@ -75,7 +75,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Novatrix ships as an OGL component. MassageLab keeps the source
+// AtmoShaper Novatrix ships as an OGL component. AtmoShaper keeps the source
 // shader uniforms in a native WebGL layer and replaces cursor reaction with
 // passive drift so the shared background remains pointer-events free.
 export default function MassageLabNovatrixBackground({

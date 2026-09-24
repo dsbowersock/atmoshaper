@@ -1985,7 +1985,7 @@ const DEFAULT_MASSAGE_LAB_METEORS = Object.freeze({
   tailLength: 50,
 })
 
-// MassageLab Aurora Field by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Aurora Field by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabAuroraBackground({
   className,
   massageLabAurora,
@@ -2012,7 +2012,7 @@ export function MassageLabAuroraBackground({
   )
 }
 
-// MassageLab Dotted Glow by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Dotted Glow by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabDottedGlowBackground({
   className,
   massageLabDottedGlow,
@@ -2250,7 +2250,7 @@ export function MassageLabDottedGlowBackground({
   )
 }
 
-// MassageLab Background Animated Gradient by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Background Animated Gradient by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabGradientAnimationBackground({
   className,
   gradientAnimation,
@@ -2310,7 +2310,7 @@ export function MassageLabGradientAnimationBackground({
   )
 }
 
-// MassageLab Beam Field by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Beam Field by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabBackgroundBeams({
   className,
   massageLabBackgroundBeams,
@@ -2406,7 +2406,7 @@ export function MassageLabBackgroundBeams({
   )
 }
 
-// MassageLab Collision Beams by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Collision Beams by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabBackgroundBeamsWithCollision({
   className,
   massageLabCollisionBeams: collisionBeamOptions,
@@ -2489,7 +2489,7 @@ export function MassageLabBackgroundBeamsWithCollision({
   )
 }
 
-// MassageLab Light Lines by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Light Lines by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabBackgroundLines({
   className,
   backgroundLines,
@@ -2549,7 +2549,7 @@ export function MassageLabBackgroundLines({
   )
 }
 
-// MassageLab Glowing Stars by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Glowing Stars by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabGlowingStarsBackground({
   className,
   massageLabGlowingStars,
@@ -2628,7 +2628,7 @@ export function MassageLabGlowingStarsBackground({
   )
 }
 
-// MassageLab Meteors by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Meteors by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export function MassageLabMeteorsBackground({ className, massageLabMeteors }: BackgroundEffectProps) {
   const resolved = resolveMassageLabMeteorsOptions(massageLabMeteors)
   const meteors = Array.from({ length: resolved.count }, (_, index) => ({
@@ -2674,7 +2674,7 @@ export function MassageLabMeteorsBackground({ className, massageLabMeteors }: Ba
   )
 }
 
-// MassageLab Bubble Field adapted as an internal MassageLab premium effect.
+// AtmoShaper Bubble Field adapted as an internal AtmoShaper premium effect.
 // Cursor interaction from the source component is intentionally omitted.
 export function MassageLabBubbleBackground({
   className,
@@ -2733,7 +2733,7 @@ export function MassageLabBubbleBackground({
   )
 }
 
-// MassageLab Gradient Field adapted as an internal MassageLab premium effect.
+// AtmoShaper Gradient Field adapted as an internal AtmoShaper premium effect.
 // The source Motion background-position loop is reproduced with CSS keyframes to avoid adding motion.
 export function MassageLabGradientBackground({
   className,
@@ -2760,7 +2760,7 @@ export function MassageLabGradientBackground({
   )
 }
 
-// MassageLab Star Field adapted as an internal MassageLab premium effect.
+// AtmoShaper Star Field adapted as an internal AtmoShaper premium effect.
 // The source Motion layers are reproduced with CSS keyframes, while parallax listens at window level to avoid pointer capture.
 export function MassageLabStarsBackground({
   className,
@@ -2857,7 +2857,7 @@ export function MassageLabStarsBackground({
   )
 }
 
-// MassageLab Depth Well adapted as an internal MassageLab premium effect.
+// AtmoShaper Depth Well adapted as an internal AtmoShaper premium effect.
 // Mirrors the source disc tween, clip path, and square-particle canvas loop while replacing Motion with CSS.
 export function MassageLabHoleBackground({
   className,
@@ -3300,7 +3300,7 @@ export function MassageLabHoleBackground({
   )
 }
 
-// MassageLab Canvas Reveal Effect dot matrix, adapted as a passive internal MassageLab premium background.
+// AtmoShaper Canvas Reveal Effect dot matrix, adapted as a passive internal AtmoShaper premium background.
 export function MassageLabCanvasRevealDotsBackground({
   className,
   canvasRevealDots,
@@ -3543,7 +3543,7 @@ export function MassageLabCanvasRevealDotsBackground({
   )
 }
 
-// MassageLab Spotlight by Manu Arora, adapted with CSS keyframes so no Motion runtime is added.
+// AtmoShaper Spotlight by Manu Arora, adapted with CSS keyframes so no Motion runtime is added.
 export function MassageLabSpotlightNewBackground({
   className,
   spotlight,
@@ -3585,7 +3585,7 @@ export function MassageLabSpotlightNewBackground({
   )
 }
 
-// MassageLab Lamp Glow by Manu Arora, adapted as an internal passive background.
+// AtmoShaper Lamp Glow by Manu Arora, adapted as an internal passive background.
 export function MassageLabLampEffectBackground({
   className,
   lamp,

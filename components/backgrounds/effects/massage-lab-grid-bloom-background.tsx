@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -151,7 +152,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Grid Bloom ships as a Three/R3F shader. MassageLab keeps the
+// AtmoShaper Grid Bloom ships as a Three/R3F shader. AtmoShaper keeps the
 // source's passive shader uniforms in a native WebGL background layer.
 export default function MassageLabGridBloomBackground({
   className,
@@ -487,7 +488,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Grid Bloom shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Grid Bloom shader uniform: ${name}`)
   }
 
   return location

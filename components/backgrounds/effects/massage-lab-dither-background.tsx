@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -186,8 +187,8 @@ void main() {
 }
 `
 
-// MassageLab Dither combines a wave/noise shader with a Bayer dither postprocess.
-// MassageLab keeps that two-pass shape while owning the WebGL framebuffer cleanup.
+// AtmoShaper Dither combines a wave/noise shader with a Bayer dither postprocess.
+// AtmoShaper keeps that two-pass shape while owning the WebGL framebuffer cleanup.
 export default function MassageLabDitherBackground({
   className,
   massageLabDither,
@@ -494,7 +495,7 @@ function compileShader(gl: WebGL2RenderingContext, type: number, source: string)
   gl.compileShader(shader)
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error("MassageLab Dither shader compile failed", gl.getShaderInfoLog(shader))
+    console.error(`${PUBLIC_PRODUCT_IDENTITY.name} Dither shader compile failed`, gl.getShaderInfoLog(shader))
     gl.deleteShader(shader)
     return null
   }
@@ -517,7 +518,7 @@ function linkProgram(
   gl.linkProgram(program)
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error("MassageLab Dither program link failed", gl.getProgramInfoLog(program))
+    console.error(`${PUBLIC_PRODUCT_IDENTITY.name} Dither program link failed`, gl.getProgramInfoLog(program))
     gl.deleteProgram(program)
     return null
   }
@@ -538,7 +539,7 @@ function enablePositionAttribute(gl: WebGL2RenderingContext, program: WebGLProgr
 function getUniform(gl: WebGL2RenderingContext, program: WebGLProgram, name: string): WebGLUniformLocation {
   const location = gl.getUniformLocation(program, name)
   if (!location) {
-    throw new Error(`Missing MassageLab Dither shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Dither shader uniform: ${name}`)
   }
 
   return location

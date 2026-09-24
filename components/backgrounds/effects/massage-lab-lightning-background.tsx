@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -121,7 +122,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Lightning already ships as a raw WebGL shader. MassageLab wraps the
+// AtmoShaper Lightning already ships as a raw WebGL shader. AtmoShaper wraps the
 // same shader with reduced-motion, resize, visibility, and resource cleanup.
 export default function MassageLabLightningBackground({
   className,
@@ -364,7 +365,7 @@ function getUniformLocation(
   const location = gl.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Lightning shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Lightning shader uniform: ${name}`)
   }
 
   return location

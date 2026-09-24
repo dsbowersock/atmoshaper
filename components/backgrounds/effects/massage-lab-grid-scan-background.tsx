@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -752,7 +753,7 @@ function getUniformLocation(
 ): WebGLUniformLocation {
   const location = gl.getUniformLocation(program, name)
   if (!location) {
-    throw new Error(`Missing MassageLab Grid Scan uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Grid Scan uniform: ${name}`)
   }
   return location
 }

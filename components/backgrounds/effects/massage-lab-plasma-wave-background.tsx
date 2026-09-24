@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -143,7 +144,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Plasma Wave is an OGL full-screen raymarch shader. MassageLab
+// AtmoShaper Plasma Wave is an OGL full-screen raymarch shader. AtmoShaper
 // keeps the source offset, rotation, speed, bend, and two-color wave uniforms.
 export default function MassageLabPlasmaWaveBackground({
   className,
@@ -431,7 +432,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Plasma Wave uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Plasma Wave uniform: ${name}`)
   }
 
   return location

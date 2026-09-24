@@ -20,7 +20,7 @@ const initSparklesParticles = async (engine: Engine) => {
   await loadSlim(engine)
 }
 
-// MassageLab Sparkles by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Sparkles by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export default function MassageLabSparklesBackground({
   className,
   sparkles,

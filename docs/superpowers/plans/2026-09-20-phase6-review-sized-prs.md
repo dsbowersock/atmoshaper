@@ -702,8 +702,8 @@ files early. Earlier slices must carry matching owner-specific test/audit hunks.
 | 3 | Atmosphere audio | 35 |
 | 4 | Public routes/content | 54 |
 | 5 | Account/service copy | 49 |
-| 6 | Background renderer presentation | 60 |
-| 7 | Background catalog/controls | 29 |
+| 6 | Background renderer presentation | 59 |
+| 7 | Background catalog/controls and globe-marker retirement | 30 |
 | 8 | Current legal identity | 13 |
 | 9 | Integration/audits/authority | 29 |
 
@@ -738,3 +738,225 @@ worktree cleanup require separate ownership/authorization checks. Rollback is
 retaining the source and declining to merge replacements; no external resource
 rollback is needed. Future validated fixes must not silently disappear when
 the stack is reconciled. No new architectural ADR is needed for repackaging.
+
+## Task 6: Background renderer presentation
+
+Base `3e29e6e696131450820e8b70cc195d6bf5849f8a` is the exact reviewed PR #10
+head. Codex completed clean at 23:51 UTC on September 20; CodeRabbit completed
+its incremental review without actionable comments at 00:32 UTC on September 21.
+All seven jobs in CI `35545694616` passed and the prior thread is resolved.
+Original PR #5 and replacements #6-#10 remain open and unmerged.
+
+Task 6 owns only current effect prose and diagnostic text. Removal of the
+built-in legacy globe mark remains assigned to Task 7. The original
+allocation counted 60 renderer paths and 29 catalog/controls paths. Execute
+59/30 instead: keep `components/backgrounds/effects/massage-lab-3d-globe-background.tsx`
+with the next catalog slice, its registry/catalog/audit descriptions and paired
+marker assertions. This is a packaging boundary, not a dropped source change.
+
+### Exact source-owned files
+
+Copy these 59 files exactly from recovery
+`7e318558da425b8fcdddeb8df50e93a36900310a`:
+- `components/backgrounds/effects/css-backgrounds.tsx`
+- `components/backgrounds/effects/massage-lab-astral-flow-background.tsx`
+- `components/backgrounds/effects/massage-lab-aurora-bars-background.tsx`
+- `components/backgrounds/effects/massage-lab-balatro-background.tsx`
+- `components/backgrounds/effects/massage-lab-beams-background.tsx`
+- `components/backgrounds/effects/massage-lab-chrome-flow-background.tsx`
+- `components/backgrounds/effects/massage-lab-color-bends-background.tsx`
+- `components/backgrounds/effects/massage-lab-dark-veil-background.tsx`
+- `components/backgrounds/effects/massage-lab-deep-space-nebula-background.tsx`
+- `components/backgrounds/effects/massage-lab-dither-background.tsx`
+- `components/backgrounds/effects/massage-lab-dot-field-background.tsx`
+- `components/backgrounds/effects/massage-lab-dot-grid-background.tsx`
+- `components/backgrounds/effects/massage-lab-electric-mist-background.tsx`
+- `components/backgrounds/effects/massage-lab-evil-eye-background.tsx`
+- `components/backgrounds/effects/massage-lab-faulty-terminal-background.tsx`
+- `components/backgrounds/effects/massage-lab-ferrofluid-background.tsx`
+- `components/backgrounds/effects/massage-lab-floating-lines-background.tsx`
+- `components/backgrounds/effects/massage-lab-galaxy-background.tsx`
+- `components/backgrounds/effects/massage-lab-gradient-blinds-background.tsx`
+- `components/backgrounds/effects/massage-lab-grainient-background.tsx`
+- `components/backgrounds/effects/massage-lab-grid-bloom-background.tsx`
+- `components/backgrounds/effects/massage-lab-grid-distortion-background.tsx`
+- `components/backgrounds/effects/massage-lab-grid-scan-background.tsx`
+- `components/backgrounds/effects/massage-lab-iridescence-background.tsx`
+- `components/backgrounds/effects/massage-lab-letter-glitch-background.tsx`
+- `components/backgrounds/effects/massage-lab-light-pillar-background.tsx`
+- `components/backgrounds/effects/massage-lab-light-rays-background.tsx`
+- `components/backgrounds/effects/massage-lab-light-speed-background.tsx`
+- `components/backgrounds/effects/massage-lab-lightfall-background.tsx`
+- `components/backgrounds/effects/massage-lab-lightning-background.tsx`
+- `components/backgrounds/effects/massage-lab-line-waves-background.tsx`
+- `components/backgrounds/effects/massage-lab-liquid-chrome-background.tsx`
+- `components/backgrounds/effects/massage-lab-liquid-ether-background.tsx`
+- `components/backgrounds/effects/massage-lab-matrix-rain-background.tsx`
+- `components/backgrounds/effects/massage-lab-novatrix-background.tsx`
+- `components/backgrounds/effects/massage-lab-orb-background.tsx`
+- `components/backgrounds/effects/massage-lab-particles-background.tsx`
+- `components/backgrounds/effects/massage-lab-photon-beam-background.tsx`
+- `components/backgrounds/effects/massage-lab-pixel-blast-background.tsx`
+- `components/backgrounds/effects/massage-lab-pixel-snow-background.tsx`
+- `components/backgrounds/effects/massage-lab-plasma-background.tsx`
+- `components/backgrounds/effects/massage-lab-plasma-wave-background.tsx`
+- `components/backgrounds/effects/massage-lab-prism-background.tsx`
+- `components/backgrounds/effects/massage-lab-prismatic-burst-background.tsx`
+- `components/backgrounds/effects/massage-lab-radar-background.tsx`
+- `components/backgrounds/effects/massage-lab-ripple-grid-background.tsx`
+- `components/backgrounds/effects/massage-lab-shape-grid-background.tsx`
+- `components/backgrounds/effects/massage-lab-shooting-stars-background.tsx`
+- `components/backgrounds/effects/massage-lab-side-rays-background.tsx`
+- `components/backgrounds/effects/massage-lab-silk-background.tsx`
+- `components/backgrounds/effects/massage-lab-soft-aurora-background.tsx`
+- `components/backgrounds/effects/massage-lab-sparkles.tsx`
+- `components/backgrounds/effects/massage-lab-synthesis-background.tsx`
+- `components/backgrounds/effects/massage-lab-threads-background.tsx`
+- `components/backgrounds/effects/massage-lab-vortex-background.tsx`
+- `components/backgrounds/effects/massage-lab-wave-current-background.tsx`
+- `components/backgrounds/effects/massage-lab-waves-background.tsx`
+- `components/backgrounds/effects/massage-lab-wavy-background.tsx`
+- `components/backgrounds/use-ambient-reduced-motion.ts`
+
+### Paired test and delivery scope
+
+- Modify `tests/background-options.test.mjs` only for the renderer-owner
+  regression from recovery: its `readdirSync` import, `effectSources` collection,
+  `withoutContextualComments` helper and the loop proving effect runtime product
+  copy does not hard-code `AtmoShaper`. Put that loop in its own named renderer
+  test. Do not import the whole source file: registry/catalog label/provider
+  assertions, test-title renames and globe-marker assertions stay with Task 7.
+- Update `tests/family-friends-server-workload.test.mjs` only to advance the
+  verified-date ceiling alongside the September 21 UTC project-state checkpoint.
+  Preserve its assertions; this paired metadata update addresses hosted review.
+- Modify only `docs/project-state.md`, `docs/project-log.md`, this delivery plan,
+  and generated `scripts/repository-audit/brand-reference-baseline.json` for
+  delivery receipts. Updated scope: 59 source files + one shared renderer test
+  + one verified-date test companion + four delivery/audit files = 65. The initial
+  published scope was 64, before the date-test companion. Measure the actual
+  exact path set before each publication.
+- Preserve `scripts/repository-audit/policy.json`, the strict audit verifier,
+  all existing 48 exact compatibility rules and all earlier verified repairs.
+  Regenerate the intermediate receipt through the existing deterministic audit
+  generator; do not copy the final source receipt or broaden exclusions.
+
+### Boundaries and execution
+
+Root owns Git, delivery documents and final receipt generation. One implementer
+owns the 59 source files and the one paired test; no parallel implementers.
+The current isolated worktree is reused on `codex/phase6-06-background-renderers`.
+No commit, push or provider action is delegated. Follow independent SPEC then
+QUALITY review after implementation and focused validation.
+
+Change necessity: source redistribution needs these existing-owner changes to
+deliver the approved preview without exceeding the review cap. No new rendering
+abstraction or dependency is necessary. TDD mode off, skipped for mechanical
+redistribution; retain existing regression coverage. A new defect requires
+cause verification and a bounded amendment before repair.
+
+Complexity: medium integration risk across many same-shaped source owners.
+Several renderer files and the shared background test are already large.
+Edits are source-exact local wiring/comments and a small owner-specific test
+block, with no new runtime responsibility or extraction. Do not expand into
+catalog, browser, audit-policy or runtime redesign to make this slice pass.
+
+Preserve shader equations, uniforms and resources, animation/visibility/motion
+behavior, paths, component and option symbols, CSS tokens, storage and media IDs,
+registry/catalog copy, globe markers, screenshots, tolerances, legal versions,
+provider and Sentry/admin compatibility contracts. No source PNGs are copied.
+
+### Verification and stop gates
+
+1. Prove all 59 source blobs equal recovery and the globe/catalog/control files
+   remain exact reviewed-base bytes. Inspect the shared test diff for only its
+   assigned renderer hunk. Record the partial companion in final equivalence.
+2. Run `node --test tests/background-options.test.mjs
+   tests/background-animation-autonomy.test.mjs tests/background-renderer-readiness.test.mjs
+   tests/motion-preferences.test.mjs tests/background-palette-registry.test.mjs`
+   after verifying these existing test paths. If a named path is absent, use
+   its actual existing owner rather than creating a substitute test file.
+3. Run `npm run typecheck`, `npm run lint`, then the full `npm run test` once
+   on the frozen candidate; root also verifies strict brand/inventory and
+   archive/document contracts, generated receipt fixed point and diff checks.
+4. Independent SPEC then QUALITY review must pass before root commits and
+   publishes the slice stacked on PR #10. Its own exact-head hosted reviewers
+   and strict CI remain required. No changed-base/head evidence may be reused.
+5. Stop on new behavior, unclassified retained occurrences, source drift,
+   unexpected dependencies, failed checks or approaching the 100-file cap.
+   No PNG/frame/tolerance/provider workaround is authorized. Whole-sequence
+   source reconciliation and separate Linux snapshot approval remain pending.
+
+### Local verification and documentation finalization
+
+The initial 59 source blobs and 64-path boundary were verified. The candidate passed
+153 focused tests, typecheck, lint, strict audit/inventory and the full unit
+suite: 4,711 passed, three skipped, zero failures (4,714 total). Independent
+SPEC passed; QUALITY found no renderer/test defect and requested correction
+of stale canonical status wording. The correction changes only delivery
+documents and the generated receipt; hosted gates remain unverified.
+
+Before freezing each later slice, synchronize the canonical state/log with
+achieved local evidence, distinguish completed checks from outstanding hosted
+gates, then regenerate the receipt. If review changes only these records,
+prove source/test/policy bytes unchanged and verify the bounded document/audit
+delta before scoped SPEC then QUALITY confirmation. Do not carry start-of-task
+pending claims into a publication candidate or imply whole-sequence completion.
+
+The first published head passed both local review stages. Its hosted reviewers
+then requested the paired verification-date update and explicit Task 7 globe
+ownership wording above. These corrections do not change source ownership or
+runtime behavior. Include the header and companion date ceiling in later
+checkpoint finalization; use the verified UTC evidence date consistently.
+The five-path repair (three delivery documents, date-test companion and generated
+receipt) needs scoped SPEC then QUALITY and renewed exact-head hosted gates.
+
+### PR #11 CI amendment: deterministic Anatomime test-clock ownership
+
+CI `35552471156` failed the Anatomime visible/hidden polling cadence test on
+both attempts; the other three browser lanes, quality and build passed. The
+test and runtime deadline owners are unchanged from recovery. The retry trace
+shows a held first request, delayed observation, then `Date.now() + 500` passed
+to `clock.pauseAt` before releasing its response. This advances the clock past
+the real 1,500ms fetch deadline. A provider-free Chromium reproduction using
+the actual fetch helper returns `TimeoutError` with this ordering and succeeds
+when the clock is frozen before the request starts.
+
+Change necessity: a retry can conceal this harness race but cannot close it.
+Decision: code-change limited to test orchestration, not production behavior.
+The canonical owner is clock setup in `tests/browser/anatomime-traffic.spec.ts`.
+Establish a fixed paused clock before the tested request is created, retire
+the late wall-time pause helper, and keep every
+cadence, retry, deadline, recovery and provider-isolation assertion strict.
+The related support-report spec already pauses before submit and has no
+in-flight deadline at that point; it is not part of this repair.
+
+Add one focused `tests/anatomime-browser-clock-contract.test.mjs` companion
+which executes the actual test-clock setup, proves time is frozen before a
+request, and falsifies the old ordering with the actual fetch deadline helper.
+Include slow observation, normal response, and genuine timeout controls. Do
+not merely assert that an expected helper name appears. If real browser
+hydration cannot progress with the proposed ownership, stop and diagnose;
+do not add timer pumping, arbitrary buffers, or loosen assertions to mask it.
+The first browser falsifier showed the host route's lazy anatomy-deck loading
+is stranded by a pre-navigation freeze. Player/join routes passed their initial
+snapshot and deadline checks. Therefore pause before navigation only for those
+initial-request routes. Host/create cases must first observe the actual Create
+Shared Game control ready, then install/pause before clicking it. No create
+deadline exists during that setup; readiness is condition-based, not timed.
+This refinement replaces the failed setup boundary rather than adding a
+timer-pumping exception or altering lazy application behavior.
+
+This is local-fix-without-new-responsibility in the existing harness, plus its
+focused regression. No new runtime owner, dependency, snapshot/frame/tolerance,
+production timeout, provider or audit-policy change is authorized. Root owns
+the delivery state/log/receipt and Git. Maximum scope for this amendment is
+the two test paths plus existing four delivery/audit records, bringing PR
+scope to 67 paths; verify the actual set before publication. Record these two
+test paths as intentional source divergences in final equivalence.
+
+Verify focused regression/deadline/polling and existing release receipts;
+run the complete Anatomime browser spec in both projects and repeat the
+formerly failing cadence case under delayed response observation. Typecheck,
+changed-file lint, strict brand/inventory/document contracts and independent
+SPEC then QUALITY precede push. The resulting head needs fresh hosted reviews
+and all required CI. This amendment does not start Task 7 or waive any gate.

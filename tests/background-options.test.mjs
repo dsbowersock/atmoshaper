@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { readFileSync } from "node:fs"
+import { readdirSync, readFileSync } from "node:fs"
 import { describe, it } from "node:test"
 import {
   ACTIVE_BACKGROUND_IDS,
@@ -46,6 +46,18 @@ const backgroundRegistrySource = readFileSync(
   new URL("../components/backgrounds/backgroundRegistry.ts", import.meta.url),
   "utf8",
 )
+const effectSources = readdirSync(new URL("../components/backgrounds/effects/", import.meta.url))
+  .filter((fileName) => fileName.endsWith(".tsx"))
+  .map((fileName) => [
+    fileName,
+    readFileSync(new URL(`../components/backgrounds/effects/${fileName}`, import.meta.url), "utf8"),
+  ])
+
+function withoutContextualComments(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "")
+}
 
 describe("premium background registry", () => {
   it("keeps runtime identifiers, stable keys, rotation precedence, and branded labels safe", () => {
@@ -60,6 +72,16 @@ describe("premium background registry", () => {
     assert.match(runningTimerSource, /aria-label="Molten Mirror speed percentage"/)
     assert.doesNotMatch(setTimerSource, /aria-label="Chrome Flow speed percentage"/)
     assert.doesNotMatch(runningTimerSource, /aria-label="Chrome Flow speed percentage"/)
+  })
+
+  it("keeps renderer runtime product copy derived from the public product identity", () => {
+    for (const [fileName, source] of effectSources) {
+      assert.doesNotMatch(
+        withoutContextualComments(source),
+        /AtmoShaper/,
+        `${fileName} must derive runtime product-name copy from PUBLIC_PRODUCT_IDENTITY`,
+      )
+    }
   })
 
   it("uses explicit named CSS/DOM palette assignments instead of heuristic target matching", () => {

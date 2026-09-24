@@ -19,7 +19,7 @@ const DEFAULT_WAVY: Required<WavyBackgroundOptions> = {
 const WAVE_COUNT = 5
 const NOISE_Y_STEP = 0.3
 
-// MassageLab Wavy Background by Manu Arora, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Wavy Background by Manu Arora, adapted as an internal AtmoShaper premium visual effect.
 export default function MassageLabWavyBackground({ className, wavy }: BackgroundEffectProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const wavyInputColors = Array.isArray(wavy?.colors) ? wavy.colors : []

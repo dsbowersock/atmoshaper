@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -221,7 +222,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Galaxy is an OGL shader. MassageLab keeps the star-layer,
+// AtmoShaper Galaxy is an OGL shader. AtmoShaper keeps the star-layer,
 // hue-shift, twinkle, rotation, and cursor-repulsion uniforms with owned WebGL cleanup.
 export default function MassageLabGalaxyBackground({
   className,
@@ -594,7 +595,7 @@ function getUniformLocation(
   const location = gl.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Galaxy shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Galaxy shader uniform: ${name}`)
   }
 
   return location

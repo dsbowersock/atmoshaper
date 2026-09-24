@@ -39,7 +39,7 @@ const CAMERA_END_Z = 5
 const MASSAGE_LAB_LIGHT_SPEED_RENDER_SCALE = 0.1
 const TWO_PI = Math.PI * 2
 
-// MassageLab Light Speed uses a WebGL/R3F cylinder of stretched particles. This
+// AtmoShaper Light Speed uses a WebGL/R3F cylinder of stretched particles. This
 // canvas adaptation keeps the same public prop model without adding that stack.
 export default function MassageLabLightSpeedBackground({
   className,

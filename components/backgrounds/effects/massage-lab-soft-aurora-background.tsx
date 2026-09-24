@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -188,7 +189,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Soft Aurora ships as an OGL full-screen shader. MassageLab keeps
+// AtmoShaper Soft Aurora ships as an OGL full-screen shader. AtmoShaper keeps
 // the source Perlin band math and optional mouse shift while avoiding OGL.
 export default function MassageLabSoftAuroraBackground({
   className,
@@ -519,7 +520,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Soft Aurora uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Soft Aurora uniform: ${name}`)
   }
 
   return location

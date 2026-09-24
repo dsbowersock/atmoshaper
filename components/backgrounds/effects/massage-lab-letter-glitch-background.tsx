@@ -31,7 +31,7 @@ const FONT_SIZE = 16
 const CHAR_WIDTH = 10
 const CHAR_HEIGHT = 20
 
-// MassageLab Letter Glitch is a canvas character grid. MassageLab keeps the
+// AtmoShaper Letter Glitch is a canvas character grid. AtmoShaper keeps the
 // source grid, color interpolation, vignettes, and update cadence with cleanup.
 export default function MassageLabLetterGlitchBackground({
   className,

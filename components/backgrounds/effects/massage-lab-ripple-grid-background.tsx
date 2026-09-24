@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -155,7 +156,7 @@ void main() {
 }
 `
 
-// MassageLab Ripple Grid is an OGL shader. MassageLab keeps the source ripple
+// AtmoShaper Ripple Grid is an OGL shader. AtmoShaper keeps the source ripple
 // grid uniforms while replacing the OGL wrapper with raw WebGL and cleanup.
 export default function MassageLabRippleGridBackground({
   className,
@@ -288,7 +289,7 @@ export default function MassageLabRippleGridBackground({
       try {
         nextResources = createRippleGridResources(gl)
       } catch (error) {
-        console.error("MassageLab Ripple Grid initialization failed", error)
+        console.error(`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid initialization failed`, error)
       }
       if (!nextResources) {
         return false
@@ -406,7 +407,7 @@ function createRippleGridResources(gl: WebGLRenderingContext): RippleGridResourc
   gl.linkProgram(program)
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error("MassageLab Ripple Grid program link failed", gl.getProgramInfoLog(program))
+    console.error(`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid program link failed`, gl.getProgramInfoLog(program))
     gl.deleteProgram(program)
     gl.deleteBuffer(vertexBuffer)
     gl.deleteShader(vertexShader)
@@ -501,7 +502,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
   gl.compileShader(shader)
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error("MassageLab Ripple Grid shader compile failed", gl.getShaderInfoLog(shader))
+    console.error(`${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid shader compile failed`, gl.getShaderInfoLog(shader))
     gl.deleteShader(shader)
     return null
   }
@@ -512,7 +513,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
 function getUniform(gl: WebGLRenderingContext, program: WebGLProgram, name: string): WebGLUniformLocation {
   const location = gl.getUniformLocation(program, name)
   if (!location) {
-    throw new Error(`Missing MassageLab Ripple Grid shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Ripple Grid shader uniform: ${name}`)
   }
 
   return location

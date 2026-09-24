@@ -103,7 +103,7 @@ function isOutOfBounds(star: ActiveShootingStar, width: number, height: number) 
   )
 }
 
-// MassageLab Shooting Stars and Stars Background, adapted as an internal MassageLab premium visual effect.
+// AtmoShaper Shooting Stars and Stars Background, adapted as an internal AtmoShaper premium visual effect.
 export default function MassageLabShootingStarsBackground({ className, shootingStars }: BackgroundEffectProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const shootingStarRef = useRef<SVGRectElement>(null)

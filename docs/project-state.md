@@ -1,10 +1,57 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-20
+Verified: 2026-09-21
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Account and Service Slice
+## Current Snapshot — Phase 6 Background Renderer Slice
+
+- Account/service PR #10 is verified at `3e29e6e696131450820e8b70cc195d6bf5849f8a`:
+  Codex and CodeRabbit completed clean on the exact head, its prior thread is
+  resolved, and all seven jobs in CI `35545694616` passed. Nothing was merged.
+- Task 6 of the existing delivery plan is published as
+  [PR #11](https://github.com/dsbowersock/atmoshaper/pull/11) on
+  `codex/phase6-06-background-renderers` in the approved isolated worktree.
+  It carries 59 recovery-exact renderer prose/diagnostic files and one partial
+  shared test companion. The globe-marker retirement stays with the next
+  catalog slice and its descriptions/tests, preserving coherent ownership.
+- Repair scope is 67 files: 59 renderer files, the shared renderer test,
+  verified-date companion, Anatomime browser-clock repair and its regression,
+  plus four delivery/audit records. Initial publication had 64 files; the date
+  amendment raised it to 65. The CI amendment adds two test-only paths. Existing
+  shader, animation, lifecycle, identifiers, catalog, legal and provider
+  boundaries stay unchanged. Prior Sentry and immutable admin replay repairs
+  remain authoritative, including their deliberate compatibility-era copy.
+- All 59 renderer files match recovery exactly. Local checks passed: 153
+  focused tests, typecheck, lint, strict audit/inventory, and the full unit
+  suite (4,711 passed, three skipped, zero failures; 4,714 total).
+- The initial 64-file candidate passed independent SPEC then QUALITY, including
+  the stale-status documentation correction. Both hosted reviewers completed
+  on initial head `6d92e6daa073be40db6f61e26c7ac8958b1ab0f1` and raised record-only
+  findings: align the verification date and test ceiling with this September 21
+  UTC checkpoint, and explicitly retain globe-marker ownership in Task 7.
+  This amendment addresses both without changing renderer behavior or assertions.
+- Each amendment must pass scoped SPEC then QUALITY before publication.
+  Head `3857f13d6b3c241061960f2d1d1f0740f4978166` has clean exact-head Codex
+  review, but CI `35552471156` failed one Anatomime polling test on both attempts.
+  Quality, build and the other three browser lanes passed. The test held a
+  response while its late clock pause advanced past the real request deadline;
+  a controlled actual-helper browser reproduction confirms that mechanism.
+  The bounded repair freezes the test clock before the tested request, preserves all
+  production deadlines/assertions and adds a falsifying regression. No renderer
+  or application behavior changes. All 42 Anatomime browser cases pass across
+  desktop/mobile; the cadence case also passes both with a temporary 2.1-second
+  observation delay, removed afterward. Focused checks pass 108/108, along with
+  typecheck, changed-file lint and strict audit/inventory. Independent SPEC then
+  QUALITY precedes push; the eventual head needs both hosted reviews and strict
+  CI. CodeRabbit's full coverage still belongs to the initial head.
+  The final combined-source ledger and separate Linux Atmosphere
+  snapshot-refresh approval remain incomplete.
+- Original PR #5 and all published replacements remain recovery references,
+  open and unmerged. No snapshot, provider, billing or deployment change is
+  authorized by this slice.
+
+## Historical Snapshot — Phase 6 Account and Service Slice
 
 - [Public-content PR #9](https://github.com/dsbowersock/atmoshaper/pull/9) is
   verified at `9f2afb41854a6600a2c94f0c416d0531c6b16e0a`, stacked on

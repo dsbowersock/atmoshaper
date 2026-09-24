@@ -45,7 +45,7 @@ const DEFAULT_MASSAGELAB_DOT_FIELD: ResolvedDotFieldOptions = {
   cursorInteraction: true,
 }
 
-// MassageLab Dot Field is a canvas/SVG simulation rather than a shader. This
+// AtmoShaper Dot Field is a canvas/SVG simulation rather than a shader. This
 // port keeps the source dot physics and glow model while adding app cleanup.
 export default function MassageLabDotFieldBackground({
   className,

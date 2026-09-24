@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -146,7 +147,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Threads ships as an OGL shader. MassageLab keeps the source
+// AtmoShaper Threads ships as an OGL shader. AtmoShaper keeps the source
 // Perlin thread field and mouse smoothing in raw WebGL without adding OGL.
 export default function MassageLabThreadsBackground({
   className,
@@ -488,7 +489,7 @@ function getUniformLocation(
   const location = context.getUniformLocation(program, name)
 
   if (!location) {
-    throw new Error(`Missing MassageLab Threads uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Threads uniform: ${name}`)
   }
 
   return location

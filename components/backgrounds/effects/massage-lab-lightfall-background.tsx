@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -212,7 +213,7 @@ const fragmentShaderSource = `
   }
 `
 
-// MassageLab Lightfall ships as an OGL component. MassageLab ports the shader
+// AtmoShaper Lightfall ships as an OGL component. AtmoShaper ports the shader
 // directly so the premium background stays dependency-free and pointer-passive.
 export default function MassageLabLightfallBackground({
   className,
@@ -641,7 +642,7 @@ function getUniformLocation(context: WebGLRenderingContext, program: WebGLProgra
   const location = context.getUniformLocation(program, name)
 
   if (location === null) {
-    throw new Error(`Missing MassageLab Lightfall shader uniform: ${name}`)
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Lightfall shader uniform: ${name}`)
   }
 
   return location

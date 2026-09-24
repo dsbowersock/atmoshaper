@@ -1,5 +1,6 @@
 "use client"
 
+import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { useEffect, useMemo, useRef } from "react"
 import { shouldAnimateAmbientBackground } from "@/lib/motion-preferences"
 import { cn } from "@/lib/utils"
@@ -273,8 +274,8 @@ const colorFragment = `
   }
 `
 
-// Direct raw-WebGL port of the MassageLab Liquid Ether simulation passes.
-// The source implementation uses Three.js wrappers; MassageLab keeps the same
+// Direct raw-WebGL port of the AtmoShaper Liquid Ether simulation passes.
+// The source implementation uses Three.js wrappers; AtmoShaper keeps the same
 // pass structure and shaders without adding Three as a runtime dependency.
 export default function MassageLabLiquidEtherBackground({
   className,
@@ -825,7 +826,7 @@ function createProgramInfo<TUniforms extends string>(
   const program = context.createProgram()
 
   if (!program) {
-    throw new Error("Could not create MassageLab Liquid Ether shader program.")
+    throw new Error(`Could not create ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether shader program.`)
   }
 
   context.attachShader(program, vertexShader)
@@ -846,7 +847,7 @@ function createProgramInfo<TUniforms extends string>(
   const position = context.getAttribLocation(program, "aPosition")
   if (position < 0) {
     context.deleteProgram(program)
-    throw new Error("Missing MassageLab Liquid Ether shader attribute: aPosition")
+    throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether shader attribute: aPosition`)
   }
 
   const locations = {} as Record<TUniforms, WebGLUniformLocation>
@@ -854,7 +855,7 @@ function createProgramInfo<TUniforms extends string>(
     const location = context.getUniformLocation(program, uniformName)
     if (location === null) {
       context.deleteProgram(program)
-      throw new Error(`Missing MassageLab Liquid Ether shader uniform: ${uniformName}`)
+      throw new Error(`Missing ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether shader uniform: ${uniformName}`)
     }
     locations[uniformName] = location
   }
@@ -866,7 +867,7 @@ function compileShader(context: WebGLRenderingContext, type: number, source: str
   const shader = context.createShader(type)
 
   if (!shader) {
-    throw new Error("Could not create MassageLab Liquid Ether shader.")
+    throw new Error(`Could not create ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether shader.`)
   }
 
   context.shaderSource(shader, source)
@@ -885,7 +886,7 @@ function createQuadBuffer(context: WebGLRenderingContext) {
   const buffer = context.createBuffer()
 
   if (!buffer) {
-    throw new Error("Could not create MassageLab Liquid Ether quad buffer.")
+    throw new Error(`Could not create ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether quad buffer.`)
   }
 
   context.bindBuffer(context.ARRAY_BUFFER, buffer)
@@ -927,7 +928,7 @@ function createRenderTarget(
   const framebuffer = context.createFramebuffer()
 
   if (!texture || !framebuffer) {
-    throw new Error("Could not create MassageLab Liquid Ether render target.")
+    throw new Error(`Could not create ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether render target.`)
   }
 
   context.bindTexture(context.TEXTURE_2D, texture)
@@ -942,7 +943,7 @@ function createRenderTarget(
   if (context.checkFramebufferStatus(context.FRAMEBUFFER) !== context.FRAMEBUFFER_COMPLETE) {
     context.deleteTexture(texture)
     context.deleteFramebuffer(framebuffer)
-    throw new Error("MassageLab Liquid Ether render target is incomplete.")
+    throw new Error(`${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether render target is incomplete.`)
   }
 
   context.bindFramebuffer(context.FRAMEBUFFER, null)
@@ -955,7 +956,7 @@ function createPaletteTexture(context: WebGLRenderingContext, palette: RgbColor[
   const texture = context.createTexture()
 
   if (!texture) {
-    throw new Error("Could not create MassageLab Liquid Ether palette texture.")
+    throw new Error(`Could not create ${PUBLIC_PRODUCT_IDENTITY.name} Liquid Ether palette texture.`)
   }
 
   const width = Math.max(2, palette.length)
