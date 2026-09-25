@@ -1087,6 +1087,15 @@ async function seedAnatomyFoundation(seed: AnatomyFoundationSeed) {
     })
   })
 
+  // Remove fact-level references before deleting superseded actions so a
+  // rerun cannot leave citations pointing at anatomy rows that no longer exist.
+  await prisma.anatomyCitation.deleteMany({
+    where: {
+      factType: "action",
+      factSlug: { in: OBSOLETE_MUSCLE_ACTION_SLUGS },
+    },
+  })
+
   // Delete superseded natural-key duplicates before updating the retained row;
   // otherwise its corrected role can conflict with the obsolete seeded record.
   await prisma.muscleAction.deleteMany({
