@@ -6,34 +6,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 ## Current Snapshot — Standalone Migration Live; Data Cutover Pending
 
-- The full MassageLab website migration and AtmoShaper rebrand are integrated on
-  `main`, deployed at `atmoshaper.com`, and the user verified audio Play/Stop on
-  the real domain. This is the whole-site migration; Atmosphere is one feature,
-  not the scope of the migration.
-- Production identity and data cutover remains a separate pending operation. No
-  live MassageLab user, practice, subscription, or other production data is
-  copied by the current anatomy work.
-- A bounded anatomy pre-cutover audit found nine muscle-action rows whose valid
-  movement belonged to a different joint and one definite extensor carpi
-  radialis longus landmark error. The active branch repairs only those verified
-  inconsistencies, adds recurrence protection, and records the broader catalog
-  observations as future anatomy-module work.
-- Broader content completion, media review, 3D work, and partial MBLEx-area
-  expansion are explicitly non-blocking for the data cutover. See
+- The full site and AtmoShaper rebrand are integrated on `main`, deployed at
+  `atmoshaper.com`, and the user verified audio Play/Stop on the real domain.
+  Production identity and data cutover remain a separate pending operation.
+  The current bounded anatomy branch repairs nine action joint/movement
+  mismatches and one verified extensor carpi radialis longus landmark error,
+  adds recurrence protection, and records broader catalog observations in
   [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
-
-## Historical Snapshot — Phase 6 Final Integration Candidate (2026-09-22)
-
-- Task 8's bounded record correction is published on open, unmerged
-  [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13) at
-  `5345c7cc2f413e4dfd33def15bff5c8e99151243`. Both hosted reviewers
-  completed clean exact-head coverage, all seven strict CI jobs in
-  `35768851810` passed, and no actionable thread remains. Task 9 has started
-  only in the approved isolated worktree on
-  `codex/phase6-09-integration-closeout`; no final integration PR exists yet.
-  Source equivalence, independent Task 9 review and its own hosted gates remain
-  pending. Original PR #5 remains open and unmerged as the recovery source;
-  the separate Linux Atmosphere snapshot-refresh decision is still pending.
+  Those future content, media, 3D, and MBLEx items are non-blocking for data
+  cutover. No production data, provider configuration, or deployment changes.
+  PR #17 remains subject to exact-head hosted review and strict CI gates.
 
 - Task 7 is complete for its own slice at
   `995fc4f7ce44902002ef2b36c7af1195dbdcb562` on open, unmerged

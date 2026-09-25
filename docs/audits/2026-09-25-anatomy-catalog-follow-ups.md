@@ -31,8 +31,8 @@ Counts are a 2026-09-25 snapshot and should be remeasured before implementation.
      should be reconciled deliberately.
 
 3. Rebrand the anatomy media origin before retiring legacy infrastructure.
-   - 5,159 media URLs used `anatomy-media.massagelab.app` in the audited
-     snapshot.
+   - 5,159 media URLs used the legacy anatomy-media host in the audited
+     snapshot; preserve the exact host privately in the cutover inventory.
    - Move or alias them to an AtmoShaper-owned media origin with cache,
      availability, and rollback checks; do not perform a blind URL rewrite.
 
@@ -58,6 +58,6 @@ Counts are a 2026-09-25 snapshot and should be remeasured before implementation.
 ## Migration decision
 
 These follow-ups should remain visible in anatomy planning, but they do not
-delay the broader MassageLab-to-AtmoShaper migration or the separately approved
+delay the broader source-site-to-AtmoShaper migration or the separately approved
 production data-cutover procedure. Any implementation should be scoped and
 reviewed as its own content or schema track.

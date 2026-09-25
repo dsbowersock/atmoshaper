@@ -2,23 +2,6 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
-## 2026-09-25 — Bounded anatomy consistency repair prepared before data cutover
-
-- A read-only, isolated audit of the migrated anatomy catalog found nine
-  muscle-action rows whose referenced movement belonged to a different joint,
-  plus one definite extensor carpi radialis longus origin landmark mapped to a
-  femur landmark despite the attachment bone being the humerus.
-- Regression coverage reproduced all ten findings before the seed repair. The
-  action validator now rejects joint/movement ownership mismatches. The bounded
-  seed correction introduces an explicit metacarpophalangeal-flexion movement,
-  reuses thoracic-cage expansion for thoracic rib mechanics, and adds the proper
-  lateral supracondylar ridge of the humerus.
-- The anatomy foundation suite passes 121/121 after the repair. No database,
-  provider, deployment, production data, or identity cutover action is part of
-  this branch.
-- Larger catalog observations are preserved as non-blocking future work in
-  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
-
 ## 2026-09-22 — PR #13 gated; final Phase 6 integration in progress
 
 - The bounded Task 8 record correction reached open, unmerged PR #13 head
@@ -1087,3 +1070,20 @@ and audit hashes are historical, not the current integrated-fix receipt above.
 ## 2026-09-12 — Hosted review round 25 (historical)
 
 - Round 24 head `889ab55` is pushed and now historical supporting evidence; round 25 is the current staged, pre-push Phase 4 audit-only receipt. Four valid hosted findings were repaired: conditional and loop environment assignments join every normal-reaching path; deferred function-body alias writes are analyzed without mutating declaration-time outer state; branch joins retain possible CommonJS-loader provenance; and loop assignment/incrementor proof includes every reaching `continue` path. Two findings were rejected without behavior changes: Markdown inline/fenced-code destinations intentionally remain hash-only uncertainty, and CSS bad-URL recovery already follows CSS Syntax 4.3.15, where comments are not special and the first unescaped `)` terminates bad-URL remnants. Independent SPEC and QUALITY reviews passed. The accumulated focused Round 25 suite passed 46/46; the full suite recorded 4,480 total, 4,477 passed, 3 host-dependent skips and zero failures; typecheck, lint and the 115-route build passed, with the Babel greater-than-500-KB and existing Anatomime poll-shedder notices informational. Diff/source checks passed and maintained sources stayed at or below 499 nonblank lines. Pre-document staged commands ran twice with exit 0, empty stderr, byte-identical output, shared inventory SHA-256 `e5228c0739194704755eabbce0896b0c6dd490c5421c64827e6ad9aff492436a` and `deletionAuthority: false`: dead 1,608/211 (raw `f15f7817bb2a2eed9fcd8af86cfea6853bdc40691dace3c2a1a71739353425f9`, CRLF `e12412da7923f04f772ce28bdc622e3a87a9cc257d5d8078b55f8e0ed3f5808c`), dependency 2,879/21 (raw `ca5113c8ab5f8dc8b4cc6955f4660378f78f89acf4e505841e10b38fd08140d4`, CRLF `6c6d5d7d4f5b70cfbdc1be2d526921b4b56a49e6a0fe868ea66de0f6679c1176`), asset 557/11,630 (raw `e5b1c9293a0eff98647bde6b111af82332a034abad2194e5797cd355b6dfbae0`, CRLF `e9f5046ba4a65fe271e31621e25e3604fd3cc1c8aca5b40d4b87c3e900067b52`) and environment 587/252 (raw `8a57296a932ac5066605b77b404c9a9c530dec1951d58e41ced946b138c7f0d3`, CRLF `2f7ab1fd70ca723b8ffa328fdc7c7ec0c6359d5fabe15d89da58c8e4364d0196`). Inventory was 1,940 files/48,002,713 bytes, raw output `f808ed400b25234f19c32bec5fa967a2ac741ee258df741b9b5589a41b0c5d07`, CRLF `1e71bdb69781109c5e33420f550575994d42a5b6e3feb7e3b334fe1e5eeb5763`, forbidden 0; brand was zero missing/zero unclassified (raw `fd1b776fe062af1215ef24b18f14fab558f9c13265f4f1d78aa483d74d361c84`, CRLF `50a8f6f48d60f51c00edfd2b0a5005289e007e9939f18862beaa5e83667ecd2b`). These pre-document values become historical after staging; exact final staged identity remains in the ignored SDD handoff. Round 25 is staged for verification but not committed or pushed. Latest-head hosted follow-up remains pending; merge remains separately authorized. No candidate deletion, provider mutation, merge or Phase 5 action occurred.
+
+## 2026-09-25 — Bounded anatomy consistency repair prepared before data cutover
+
+- A read-only, isolated audit of the migrated anatomy catalog found nine
+  muscle-action rows whose referenced movement belonged to a different joint,
+  plus one definite extensor carpi radialis longus origin landmark mapped to a
+  femur landmark despite the attachment bone being the humerus.
+- Regression coverage reproduced all ten findings before the seed repair. The
+  action validator now rejects joint/movement ownership mismatches. The bounded
+  seed correction introduces an explicit metacarpophalangeal-flexion movement,
+  reuses thoracic-cage expansion for thoracic rib mechanics, and adds the proper
+  lateral supracondylar ridge of the humerus.
+- The anatomy foundation suite passes 121/121 after the repair. No database,
+  provider, deployment, production data, or identity cutover action is part of
+  this branch.
+- Larger catalog observations are preserved as non-blocking future work in
+  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
