@@ -1106,8 +1106,16 @@ async function seedAnatomyFoundation(seed: AnatomyFoundationSeed) {
 
   await prisma.anatomyCitation.deleteMany({
     where: {
-      factType: "action",
-      factSlug: { in: OBSOLETE_MUSCLE_ACTION_SLUGS },
+      OR: [
+        {
+          entityType: "MUSCLE_ACTION",
+          entitySlug: { in: OBSOLETE_MUSCLE_ACTION_SLUGS },
+        },
+        {
+          factType: "action",
+          factSlug: { in: OBSOLETE_MUSCLE_ACTION_SLUGS },
+        },
+      ],
     },
   })
 

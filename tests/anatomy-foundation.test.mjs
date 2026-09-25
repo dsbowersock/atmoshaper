@@ -1083,6 +1083,7 @@ describe("Anatomy data foundation", () => {
     assert.equal(externalIntercostalActions[0]?.role, "primary")
     assert.match(seedSource, /OBSOLETE_MUSCLE_ACTION_SLUGS[\s\S]*action-external-intercostals-rib-elevation/)
     assert.match(seedSource, /anatomyRelationship\.deleteMany\([\s\S]*sourceEntityType: "MUSCLE_ACTION"[\s\S]*sourceEntitySlug: \{ in: OBSOLETE_MUSCLE_ACTION_SLUGS \}/)
+    assert.match(seedSource, /anatomyCitation\.deleteMany\([\s\S]*entityType: "MUSCLE_ACTION"[\s\S]*entitySlug: \{ in: OBSOLETE_MUSCLE_ACTION_SLUGS \}/)
     assert.match(seedSource, /anatomyCitation\.deleteMany\([\s\S]*factType: "action"[\s\S]*factSlug: \{ in: OBSOLETE_MUSCLE_ACTION_SLUGS \}/)
     assert.match(seedSource, /muscleAction\.deleteMany\([\s\S]*OBSOLETE_MUSCLE_ACTION_SLUGS/)
   })
