@@ -1,10 +1,28 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-22
+Verified: 2026-09-25
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Final Integration Candidate
+## Current Snapshot — Standalone Migration Live; Data Cutover Pending
+
+- The full MassageLab website migration and AtmoShaper rebrand are integrated on
+  `main`, deployed at `atmoshaper.com`, and the user verified audio Play/Stop on
+  the real domain. This is the whole-site migration; Atmosphere is one feature,
+  not the scope of the migration.
+- Production identity and data cutover remains a separate pending operation. No
+  live MassageLab user, practice, subscription, or other production data is
+  copied by the current anatomy work.
+- A bounded anatomy pre-cutover audit found nine muscle-action rows whose valid
+  movement belonged to a different joint and one definite extensor carpi
+  radialis longus landmark error. The active branch repairs only those verified
+  inconsistencies, adds recurrence protection, and records the broader catalog
+  observations as future anatomy-module work.
+- Broader content completion, media review, 3D work, and partial MBLEx-area
+  expansion are explicitly non-blocking for the data cutover. See
+  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
+
+## Historical Snapshot — Phase 6 Final Integration Candidate (2026-09-22)
 
 - Task 8's bounded record correction is published on open, unmerged
   [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13) at

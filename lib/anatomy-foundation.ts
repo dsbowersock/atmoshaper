@@ -6129,6 +6129,10 @@ export function validateAnatomyFoundation(seed: AnatomyFoundationSeed = ANATOMY_
     if (!muscleSlugs.has(action.muscle)) issues.push(`Invalid muscle for action ${action.id}`)
     if (!jointSlugs.has(action.joint)) issues.push(`Invalid joint for action ${action.id}`)
     if (!movementSlugs.has(action.movement)) issues.push(`Invalid movement for action ${action.id}`)
+    const movement = movementBySlug.get(action.movement)
+    if (movement && movement.joint !== action.joint) {
+      issues.push(`Action movement joint mismatch for ${action.id}: ${action.joint} / ${action.movement} belongs to ${movement.joint}`)
+    }
     validSource(action.sourceRef, `action ${action.id}`)
   })
   seed.nerves.forEach((nerve) => {

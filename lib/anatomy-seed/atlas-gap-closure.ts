@@ -1107,7 +1107,7 @@ const INTRINSIC_MUSCLE_SPECS: MuscleSpec[] = [
       { type: "origin", bone: "hand-phalanges", landmark: "atlas-proximal-phalanx-index-finger-base", description: "Flexor digitorum profundus tendon slip for the associated digit." },
       { type: "insertion", bone: "hand-phalanges", landmark: "atlas-proximal-phalanx-index-finger-base", description: "Radial side of the dorsal extensor expansion for the associated digit." },
     ],
-    actions: [{ joint: "metacarpophalangeal-joints", movement: "finger-flexion", role: "secondary", contractionType: "concentric", description: `${name} assists MCP flexion while coordinating IP extension through the extensor expansion.` }],
+    actions: [{ joint: "metacarpophalangeal-joints", movement: "metacarpophalangeal-flexion", role: "secondary", contractionType: "concentric", description: `${name} assists MCP flexion while coordinating IP extension through the extensor expansion.` }],
     nerve,
     innervationDescription: nerve === "median-nerve" ? "Median nerve contribution to the lateral hand lumbricals." : "Deep branch of the ulnar nerve contribution to the medial hand lumbricals.",
     structureTargets: ["dorsal-extensor-expansion"],
