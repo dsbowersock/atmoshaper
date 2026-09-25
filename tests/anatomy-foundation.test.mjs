@@ -1041,6 +1041,50 @@ describe("Anatomy data foundation", () => {
     assert.deepEqual(mismatches, [])
   })
 
+  it("keeps one muscle action per muscle, joint, and movement", () => {
+    const actionIdByNaturalKey = new Map()
+    const duplicates = []
+
+    for (const action of ANATOMY_FOUNDATION_SEED.muscleActions) {
+      const naturalKey = `${action.muscle}:${action.joint}:${action.movement}`
+      const existingActionId = actionIdByNaturalKey.get(naturalKey)
+
+      if (existingActionId) {
+        duplicates.push(`${existingActionId} / ${action.id}`)
+      } else {
+        actionIdByNaturalKey.set(naturalKey, action.id)
+      }
+    }
+
+    assert.deepEqual(duplicates, [])
+  })
+
+  it("rejects duplicate muscle actions that would duplicate movement query results", () => {
+    const duplicateAction = {
+      ...ANATOMY_FOUNDATION_SEED.muscleActions[0],
+      id: "action-test-duplicate-natural-key",
+      role: "secondary",
+    }
+    const issues = validateAnatomyFoundation({
+      ...ANATOMY_FOUNDATION_SEED,
+      muscleActions: [...ANATOMY_FOUNDATION_SEED.muscleActions, duplicateAction],
+    })
+
+    assert.ok(issues.some((issue) => issue.includes("Duplicate muscle action")))
+  })
+
+  it("consolidates the external intercostal expansion and cleans its obsolete seed row", () => {
+    const externalIntercostalActions = ANATOMY_FOUNDATION_SEED.muscleActions.filter((action) => (
+      action.muscle === "external-intercostals" && action.movement === "thoracic-cage-expansion"
+    ))
+    const seedSource = readFileSync(new URL("../prisma/seed.ts", import.meta.url), "utf8")
+
+    assert.deepEqual(externalIntercostalActions.map((action) => action.id), ["action-external-intercostals-expansion"])
+    assert.equal(externalIntercostalActions[0]?.role, "primary")
+    assert.match(seedSource, /OBSOLETE_MUSCLE_ACTION_SLUGS[\s\S]*action-external-intercostals-rib-elevation/)
+    assert.match(seedSource, /muscleAction\.deleteMany\([\s\S]*OBSOLETE_MUSCLE_ACTION_SLUGS/)
+  })
+
   it("keeps corrected generated muscle-action IDs stable for existing seeded rows", () => {
     const expectedIdByMuscle = new Map([
       ["levatores-costarum", "action-atlas-complete-levatores-costarum-rib-elevation-1"],

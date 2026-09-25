@@ -45,6 +45,10 @@ const OBSOLETE_FOUNDATION_SOURCE_SLUGS = [
   "massagelab-initial-anatomy-foundation",
 ]
 
+const OBSOLETE_MUSCLE_ACTION_SLUGS = [
+  "action-external-intercostals-rib-elevation",
+]
+
 function normalizePublicBaseUrl(value: string | undefined) {
   return value?.trim().replace(/\/+$/, "") || undefined
 }
@@ -1081,6 +1085,12 @@ async function seedAnatomyFoundation(seed: AnatomyFoundationSeed) {
         sourceId: source.id,
       },
     })
+  })
+
+  // Delete superseded natural-key duplicates before updating the retained row;
+  // otherwise its corrected role can conflict with the obsolete seeded record.
+  await prisma.muscleAction.deleteMany({
+    where: { slug: { in: OBSOLETE_MUSCLE_ACTION_SLUGS } },
   })
 
   const existingActionBySlug = await existingRowsBySlug<{
