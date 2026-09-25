@@ -1041,6 +1041,24 @@ describe("Anatomy data foundation", () => {
     assert.deepEqual(mismatches, [])
   })
 
+  it("keeps corrected generated muscle-action IDs stable for existing seeded rows", () => {
+    const expectedIdByMuscle = new Map([
+      ["levatores-costarum", "action-atlas-complete-levatores-costarum-rib-elevation-1"],
+      ["lumbrical-hand-1", "action-lumbrical-hand-1-finger-flexion-1"],
+      ["lumbrical-hand-2", "action-lumbrical-hand-2-finger-flexion-1"],
+      ["lumbrical-hand-3", "action-lumbrical-hand-3-finger-flexion-1"],
+      ["lumbrical-hand-4", "action-lumbrical-hand-4-finger-flexion-1"],
+    ])
+
+    const actualIdByMuscle = new Map(
+      ANATOMY_FOUNDATION_SEED.muscleActions
+        .filter((action) => expectedIdByMuscle.has(action.muscle))
+        .map((action) => [action.muscle, action.id]),
+    )
+
+    assert.deepEqual(actualIdByMuscle, expectedIdByMuscle)
+  })
+
   it("maps the extensor carpi radialis longus origin to a humerus landmark", () => {
     const origin = ANATOMY_FOUNDATION_SEED.muscleAttachments.find((attachment) => (
       attachment.id === "attach-atlas-complete-extensor-carpi-radialis-longus-origin-1"

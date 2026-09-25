@@ -85761,56 +85761,56 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 860,
+      "line": 878,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 891,
+      "line": 909,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 910,
+      "line": 928,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 911,
+      "line": 929,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 912,
+      "line": 930,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 915,
+      "line": 933,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 950,
+      "line": 968,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 954,
+      "line": 972,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
@@ -94980,21 +94980,21 @@
     },
     {
       "path": "lib/anatomy-seed/atlas-completeness-closure.ts",
-      "line": 192,
+      "line": 194,
       "column": 8,
       "textSha256": "a5be7acab19b22766fff9dd0b5204b67aac8836c47f8dd186d6f4167b03b6c97",
       "category": "compatibility"
     },
     {
       "path": "lib/anatomy-seed/atlas-completeness-closure.ts",
-      "line": 258,
+      "line": 260,
       "column": 129,
       "textSha256": "47bc0864059f9bea335085d09ebae0918937a21ea2f3aced071ae94c3d29df80",
       "category": "compatibility"
     },
     {
       "path": "lib/anatomy-seed/atlas-completeness-closure.ts",
-      "line": 390,
+      "line": 392,
       "column": 306,
       "textSha256": "3a2a829689e15ec70790fcaa3c86fdc65390b7117deec2be5b1375e4e6c73cf6",
       "category": "compatibility"
@@ -95050,21 +95050,21 @@
     },
     {
       "path": "lib/anatomy-seed/atlas-gap-closure.ts",
-      "line": 197,
+      "line": 199,
       "column": 8,
       "textSha256": "4fc2af837b29e09a4e974e30f5eb5af22b2414459614bb951560c73c90099071",
       "category": "compatibility"
     },
     {
       "path": "lib/anatomy-seed/atlas-gap-closure.ts",
-      "line": 313,
+      "line": 315,
       "column": 4,
       "textSha256": "d87572190ffab06a0247e07192d3462d8bda920134d5ea7b42f1ee0f2b837298",
       "category": "compatibility"
     },
     {
       "path": "lib/anatomy-seed/atlas-gap-closure.ts",
-      "line": 1165,
+      "line": 1167,
       "column": 139,
       "textSha256": "6236db34794e2f9fdc0d2dc6c0695e5524105b87b4dae463ba7826c6b4a6543e",
       "category": "compatibility"
@@ -125906,231 +125906,231 @@
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 1070,
+      "line": 1088,
       "column": 46,
       "textSha256": "1dc0d454ec655c1f32ffd6df297a8f6fbdbf1c37f3f47e1b67769e234d9b4e5b",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 1164,
+      "line": 1182,
       "column": 104,
       "textSha256": "6f969457aa43cda5ddaa0a5feb7f8b2522a2c2b05855e89e7b36ff61203dec8d",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2003,
+      "line": 2021,
       "column": 89,
       "textSha256": "c86991f4bf50e8deb976c2ca82af39d47f97ef8739eadaf6aabd9f14472a45bf",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2007,
+      "line": 2025,
       "column": 110,
       "textSha256": "aec20b07cc8f75c196d4cabf362814c1b79c0f911146bb761291d458c88c82ef",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2009,
+      "line": 2027,
       "column": 36,
       "textSha256": "8d77f0c218672b2e8ed0260b4f0eba4bc2b9fb32ee26952c922dacfabd22e499",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2028,
+      "line": 2046,
       "column": 35,
       "textSha256": "ebab262a549a74b218c9437348d3991ebdeaefb380e77ab841ca570ebd772d2a",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2092,
+      "line": 2110,
       "column": 36,
       "textSha256": "8d77f0c218672b2e8ed0260b4f0eba4bc2b9fb32ee26952c922dacfabd22e499",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2103,
+      "line": 2121,
       "column": 95,
       "textSha256": "d62550fac7f17ed4e35391d8f9036d577c4a326ab8b48bc6d6fcc7b2a4824631",
       "category": "historical"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2107,
+      "line": 2125,
       "column": 57,
       "textSha256": "727eef35aeaa3597c28e7033dee9289d1ddcea4f2ecd9a9e4baf9054372e9a6d",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2110,
+      "line": 2128,
       "column": 57,
       "textSha256": "727eef35aeaa3597c28e7033dee9289d1ddcea4f2ecd9a9e4baf9054372e9a6d",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2113,
+      "line": 2131,
       "column": 47,
       "textSha256": "2302cd66172aa7ebd1496da9d70b610f8232210f9bf545ed0544f5b772d58342",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2119,
+      "line": 2137,
       "column": 36,
       "textSha256": "f17a300b6ee91ff8aec28e56e4d1cc500aa9abe14a95f8842818e144a8552e7c",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2126,
+      "line": 2144,
       "column": 36,
       "textSha256": "9a96fa604ebe505b4da77f37de9cfe67c2214834d64c3e2a30ec810a8c04c528",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2127,
+      "line": 2145,
       "column": 36,
       "textSha256": "891fe9009df91e4dd137c28688c791c2baa51cdeed2e474d09389c55f36940e7",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2311,
+      "line": 2329,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2833,
+      "line": 2851,
       "column": 186,
       "textSha256": "c6b89805753bbe03613ad6797c9483d1904c306fed8dbfac1c882990123f4819",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2867,
+      "line": 2885,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2919,
+      "line": 2937,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 2991,
+      "line": 3009,
       "column": 77,
       "textSha256": "84eb339d5e6ffbc2d222678699f936316f815608a012d7ee32bbe8c9ee126664",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3085,
+      "line": 3103,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3152,
+      "line": 3170,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3209,
+      "line": 3227,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3271,
+      "line": 3289,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3331,
+      "line": 3349,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3440,
+      "line": 3458,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3510,
+      "line": 3528,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 3570,
+      "line": 3588,
       "column": 81,
       "textSha256": "5a491fcd59de8c02cb31023b77f2d2fc674d3d7ffbd3efa2917ea1ddac60dec2",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 4430,
+      "line": 4448,
       "column": 36,
       "textSha256": "c6c3080e474ff18f31b5b2e92700d690caed4034e79aea84e297bc7a7e44e21a",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 4740,
+      "line": 4758,
       "column": 81,
       "textSha256": "c46a7a2b32a40822d4b93e28e568d2192e67c2a500f9de38c1072f66e0b0407d",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 4937,
+      "line": 4955,
       "column": 81,
       "textSha256": "06a8ac7fd6c66f99f70c75eb1578c2b87d5d8252582b197ba4ebaf6580a28efc",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 5026,
+      "line": 5044,
       "column": 77,
       "textSha256": "83376e8012064af5898faa01a77310c0e365bb9ffdfe672217f89295648faf1d",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 5268,
+      "line": 5286,
       "column": 28,
       "textSha256": "9b5ee6517abfff1b35d41cad8233ea2d2dd069846b90ca27282b0a5a0d559ff3",
       "category": "compatibility"
     },
     {
       "path": "tests/anatomy-foundation.test.mjs",
-      "line": 5286,
+      "line": 5304,
       "column": 53,
       "textSha256": "7cad35b3c633040d3044868bd1b26af5334d1938202a27c04891dd5cf2f9f89f",
       "category": "compatibility"
