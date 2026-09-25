@@ -1087,8 +1087,23 @@ async function seedAnatomyFoundation(seed: AnatomyFoundationSeed) {
     })
   })
 
-  // Remove fact-level references before deleting superseded actions so a
-  // rerun cannot leave citations pointing at anatomy rows that no longer exist.
+  // Remove generic entity links and fact-level references before deleting
+  // superseded actions so reruns cannot leave orphaned anatomy metadata.
+  await prisma.anatomyRelationship.deleteMany({
+    where: {
+      OR: [
+        {
+          sourceEntityType: "MUSCLE_ACTION",
+          sourceEntitySlug: { in: OBSOLETE_MUSCLE_ACTION_SLUGS },
+        },
+        {
+          targetEntityType: "MUSCLE_ACTION",
+          targetEntitySlug: { in: OBSOLETE_MUSCLE_ACTION_SLUGS },
+        },
+      ],
+    },
+  })
+
   await prisma.anatomyCitation.deleteMany({
     where: {
       factType: "action",

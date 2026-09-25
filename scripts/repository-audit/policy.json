@@ -514,10 +514,6 @@
       "category": "compatibility"
     },
     {
-      "fingerprint": "580753c316b91d486fa368ee2c5d03c9252430b0c450cf061cd528a04b660fc1",
-      "category": "historical"
-    },
-    {
       "fingerprint": "58a011abea55fbb0304e1a4892ec4bbbe120ad7efd52c203cf450b22a7d75bbd",
       "category": "compatibility"
     },
@@ -968,6 +964,10 @@
     {
       "fingerprint": "af9da26334cb841c322a03cd9546499e0db0203f9e0d2f862e22dfac7c5e908d",
       "category": "compatibility"
+    },
+    {
+      "fingerprint": "b19e30144950d68268b0cd008fd7eab3452ff00801816239bec41f96a3556033",
+      "category": "historical"
     },
     {
       "fingerprint": "b2e411d623b45bb47b44607fa7bb0f005388ac7ca9e7d7cafab960c293bd5835",
