@@ -6125,10 +6125,22 @@ export function validateAnatomyFoundation(seed: AnatomyFoundationSeed = ANATOMY_
     if (attachment.landmark && !boneLandmarkSlugs.has(attachment.landmark)) issues.push(`Invalid landmark for attachment ${attachment.id}`)
     validSource(attachment.sourceRef, `attachment ${attachment.id}`)
   })
+  const muscleActionByNaturalKey = new Map<string, string>()
   seed.muscleActions.forEach((action) => {
     if (!muscleSlugs.has(action.muscle)) issues.push(`Invalid muscle for action ${action.id}`)
     if (!jointSlugs.has(action.joint)) issues.push(`Invalid joint for action ${action.id}`)
     if (!movementSlugs.has(action.movement)) issues.push(`Invalid movement for action ${action.id}`)
+    const movement = movementBySlug.get(action.movement)
+    if (movement && movement.joint !== action.joint) {
+      issues.push(`Action movement joint mismatch for ${action.id}: ${action.joint} / ${action.movement} belongs to ${movement.joint}`)
+    }
+    const naturalKey = `${action.muscle}:${action.joint}:${action.movement}`
+    const existingActionId = muscleActionByNaturalKey.get(naturalKey)
+    if (existingActionId) {
+      issues.push(`Duplicate muscle action for ${naturalKey}: ${existingActionId} / ${action.id}`)
+    } else {
+      muscleActionByNaturalKey.set(naturalKey, action.id)
+    }
     validSource(action.sourceRef, `action ${action.id}`)
   })
   seed.nerves.forEach((nerve) => {

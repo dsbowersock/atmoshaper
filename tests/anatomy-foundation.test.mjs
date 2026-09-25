@@ -1032,6 +1032,91 @@ describe("Anatomy data foundation", () => {
     assert.ok(contractionTypes.has("reverse_action"))
   })
 
+  it("keeps every muscle action on the same joint as its referenced movement", () => {
+    const movementBySlug = new Map(ANATOMY_FOUNDATION_SEED.jointMovements.map((movement) => [movement.slug, movement]))
+    const mismatches = ANATOMY_FOUNDATION_SEED.muscleActions
+      .filter((action) => movementBySlug.get(action.movement)?.joint !== action.joint)
+      .map((action) => `${action.id}:${action.joint}:${action.movement}:${movementBySlug.get(action.movement)?.joint ?? "missing"}`)
+
+    assert.deepEqual(mismatches, [])
+  })
+
+  it("keeps one muscle action per muscle, joint, and movement", () => {
+    const actionIdByNaturalKey = new Map()
+    const duplicates = []
+
+    for (const action of ANATOMY_FOUNDATION_SEED.muscleActions) {
+      const naturalKey = `${action.muscle}:${action.joint}:${action.movement}`
+      const existingActionId = actionIdByNaturalKey.get(naturalKey)
+
+      if (existingActionId) {
+        duplicates.push(`${existingActionId} / ${action.id}`)
+      } else {
+        actionIdByNaturalKey.set(naturalKey, action.id)
+      }
+    }
+
+    assert.deepEqual(duplicates, [])
+  })
+
+  it("rejects duplicate muscle actions that would duplicate movement query results", () => {
+    const duplicateAction = {
+      ...ANATOMY_FOUNDATION_SEED.muscleActions[0],
+      id: "action-test-duplicate-natural-key",
+      role: "secondary",
+    }
+    const issues = validateAnatomyFoundation({
+      ...ANATOMY_FOUNDATION_SEED,
+      muscleActions: [...ANATOMY_FOUNDATION_SEED.muscleActions, duplicateAction],
+    })
+
+    assert.ok(issues.some((issue) => issue.includes("Duplicate muscle action")))
+  })
+
+  it("consolidates the external intercostal expansion and cleans its obsolete seed row", () => {
+    const externalIntercostalActions = ANATOMY_FOUNDATION_SEED.muscleActions.filter((action) => (
+      action.muscle === "external-intercostals" && action.movement === "thoracic-cage-expansion"
+    ))
+    const seedSource = readFileSync(new URL("../prisma/seed.ts", import.meta.url), "utf8")
+
+    assert.deepEqual(externalIntercostalActions.map((action) => action.id), ["action-external-intercostals-expansion"])
+    assert.equal(externalIntercostalActions[0]?.role, "primary")
+    assert.match(seedSource, /OBSOLETE_MUSCLE_ACTION_SLUGS[\s\S]*action-external-intercostals-rib-elevation/)
+    assert.match(seedSource, /anatomyRelationship\.deleteMany\([\s\S]*sourceEntityType: "MUSCLE_ACTION"[\s\S]*sourceEntitySlug: \{ in: OBSOLETE_MUSCLE_ACTION_SLUGS \}/)
+    assert.match(seedSource, /anatomyCitation\.deleteMany\([\s\S]*entityType: "MUSCLE_ACTION"[\s\S]*entitySlug: \{ in: OBSOLETE_MUSCLE_ACTION_SLUGS \}/)
+    assert.match(seedSource, /anatomyCitation\.deleteMany\([\s\S]*factType: "action"[\s\S]*factSlug: \{ in: OBSOLETE_MUSCLE_ACTION_SLUGS \}/)
+    assert.match(seedSource, /muscleAction\.deleteMany\([\s\S]*OBSOLETE_MUSCLE_ACTION_SLUGS/)
+  })
+
+  it("keeps corrected generated muscle-action IDs stable for existing seeded rows", () => {
+    const expectedIdByMuscle = new Map([
+      ["levatores-costarum", "action-atlas-complete-levatores-costarum-rib-elevation-1"],
+      ["lumbrical-hand-1", "action-lumbrical-hand-1-finger-flexion-1"],
+      ["lumbrical-hand-2", "action-lumbrical-hand-2-finger-flexion-1"],
+      ["lumbrical-hand-3", "action-lumbrical-hand-3-finger-flexion-1"],
+      ["lumbrical-hand-4", "action-lumbrical-hand-4-finger-flexion-1"],
+    ])
+
+    const actualIdByMuscle = new Map(
+      ANATOMY_FOUNDATION_SEED.muscleActions
+        .filter((action) => expectedIdByMuscle.has(action.muscle))
+        .map((action) => [action.muscle, action.id]),
+    )
+
+    assert.deepEqual(actualIdByMuscle, expectedIdByMuscle)
+  })
+
+  it("maps the extensor carpi radialis longus origin to a humerus landmark", () => {
+    const origin = ANATOMY_FOUNDATION_SEED.muscleAttachments.find((attachment) => (
+      attachment.id === "attach-atlas-complete-extensor-carpi-radialis-longus-origin-1"
+    ))
+    const landmark = ANATOMY_FOUNDATION_SEED.boneLandmarks.find((entry) => entry.slug === origin?.landmark)
+
+    assert.equal(origin?.bone, "humerus")
+    assert.equal(origin?.landmark, "lateral-supracondylar-ridge-humerus")
+    assert.equal(landmark?.bone, origin?.bone)
+  })
+
   it("connects joints to bones, ligaments, actions, and sourced range-of-motion values", () => {
     const cervicalSpine = ANATOMY_FOUNDATION_SEED.joints.find((joint) => joint.slug === "cervical-spine")
     const cervicalMovements = ANATOMY_FOUNDATION_SEED.jointMovements.filter((movement) => movement.joint === "cervical-spine")
@@ -1138,6 +1223,9 @@ describe("Anatomy data foundation", () => {
     seed.mediaEntityLinks[0].entitySlug = "missing-entity"
     seed.painMapRegions[0].laterality = undefined
     seed.painMapRegions[1].surface = undefined
+    const supraspinatusAbduction = seed.muscleActions.find((action) => action.id === "action-supraspinatus-abduction")
+    assert.ok(supraspinatusAbduction)
+    supraspinatusAbduction.movement = "cervical-flexion"
     const shoulderAbductionVisualization = seed.movementVisualizations.find((entry) => entry.slug === "massagelab-human-bodymap-v1-shoulder-abduction")
     assert.ok(shoulderAbductionVisualization)
     shoulderAbductionVisualization.primaryEntitySlug = undefined
@@ -1158,6 +1246,7 @@ describe("Anatomy data foundation", () => {
     assert.ok(issues.some((issue) => issue.includes("Invalid media entity target")))
     assert.ok(issues.some((issue) => issue.includes("Pain map requires laterality")))
     assert.ok(issues.some((issue) => issue.includes("Pain map requires surface")))
+    assert.ok(issues.some((issue) => issue.includes("Action movement joint mismatch")))
     assert.ok(issues.some((issue) => issue.includes("requires both primary entity type and slug")))
     assert.ok(issues.some((issue) => issue.includes("does not belong to joint")))
     assert.ok(issues.some((issue) => issue.includes("does not match joint")))
@@ -3157,7 +3246,6 @@ describe("Anatomy data foundation", () => {
       "external-intercostals",
       "internal-intercostals",
     ]
-    const ribElevators = findMusclesForJointMovement("rib-elevation").map((entry) => entry.muscle.slug)
     const ribDepressors = findMusclesForJointMovement("rib-depression").map((entry) => entry.muscle.slug)
     const chestExpanders = findMusclesForJointMovement("thoracic-cage-expansion").map((entry) => entry.muscle.slug)
     const phrenicMuscles = findMusclesByInnervation("phrenic-nerve").map((muscle) => muscle.slug)
@@ -3165,7 +3253,6 @@ describe("Anatomy data foundation", () => {
 
     assert.ok(chestExpanders.includes("diaphragm"))
     assert.ok(chestExpanders.includes("external-intercostals"))
-    assert.ok(ribElevators.includes("external-intercostals"))
     assert.ok(ribDepressors.includes("internal-intercostals"))
     assert.ok(phrenicMuscles.includes("diaphragm"))
     assert.ok(intercostalMuscles.includes("external-intercostals"))
@@ -3799,14 +3886,14 @@ describe("Anatomy data foundation", () => {
     const thumbFlexors = findMusclesForJointMovement("thumb-flexion").map((entry) => entry.muscle.slug)
     const thumbAbductors = findMusclesForJointMovement("thumb-abduction").map((entry) => entry.muscle.slug)
     const thumbExtensors = findMusclesForJointMovement("thumb-extension").map((entry) => entry.muscle.slug)
-    const fingerFlexors = findMusclesForJointMovement("finger-flexion").map((entry) => entry.muscle.slug)
+    const metacarpophalangealFlexors = findMusclesForJointMovement("metacarpophalangeal-flexion").map((entry) => entry.muscle.slug)
     const fingerExtensors = findMusclesForJointMovement("finger-extension").map((entry) => entry.muscle.slug)
 
     assert.ok(thumbFlexors.includes("flexor-pollicis-longus"))
     assert.ok(thumbAbductors.includes("abductor-pollicis-longus"))
     assert.ok(thumbExtensors.includes("extensor-pollicis-brevis"))
     assert.ok(thumbExtensors.includes("extensor-pollicis-longus"))
-    assert.ok(fingerFlexors.includes("lumbricals-hand"))
+    assert.ok(metacarpophalangealFlexors.includes("lumbricals-hand"))
     assert.ok(fingerExtensors.includes("lumbricals-hand"))
     assert.ok(findMusclesByInnervation("median-nerve").some((entry) => entry.slug === "flexor-pollicis-longus"))
     assert.ok(findMusclesByInnervation("radial-nerve").some((entry) => entry.slug === "extensor-pollicis-longus"))
@@ -4238,12 +4325,12 @@ describe("Anatomy data foundation", () => {
       "palmaris-brevis",
     ]
     const fingerAbductors = findMusclesForJointMovement("finger-abduction").map((entry) => entry.muscle.slug)
-    const fingerFlexors = findMusclesForJointMovement("finger-flexion").map((entry) => entry.muscle.slug)
+    const metacarpophalangealFlexors = findMusclesForJointMovement("metacarpophalangeal-flexion").map((entry) => entry.muscle.slug)
     const littleFingerOpponents = findMusclesForJointMovement("little-finger-opposition").map((entry) => entry.muscle.slug)
     const palmarCompressors = findMusclesForJointMovement("palmar-compression").map((entry) => entry.muscle.slug)
 
     assert.ok(fingerAbductors.includes("abductor-digiti-minimi-hand"))
-    assert.ok(fingerFlexors.includes("flexor-digiti-minimi-brevis-hand"))
+    assert.ok(metacarpophalangealFlexors.includes("flexor-digiti-minimi-brevis-hand"))
     assert.ok(littleFingerOpponents.includes("opponens-digiti-minimi"))
     assert.ok(palmarCompressors.includes("palmaris-brevis"))
     assert.ok(findMusclesByInnervation("deep-branch-ulnar-nerve").some((entry) => entry.slug === "opponens-digiti-minimi"))
@@ -4294,11 +4381,11 @@ describe("Anatomy data foundation", () => {
       "longissimus",
       "spinalis",
     ]
-    const ribElevators = findMusclesForJointMovement("rib-elevation").map((entry) => entry.muscle.slug)
+    const thoracicExpanders = findMusclesForJointMovement("thoracic-cage-expansion").map((entry) => entry.muscle.slug)
     const ribDepressors = findMusclesForJointMovement("rib-depression").map((entry) => entry.muscle.slug)
     const thoracicExtensors = findMusclesForJointMovement("thoracic-extension").map((entry) => entry.muscle.slug)
 
-    assert.ok(ribElevators.includes("serratus-posterior-superior"))
+    assert.ok(thoracicExpanders.includes("serratus-posterior-superior"))
     assert.ok(ribDepressors.includes("serratus-posterior-inferior"))
     assert.ok(thoracicExtensors.includes("iliocostalis"))
     assert.ok(thoracicExtensors.includes("longissimus"))

@@ -2,6 +2,24 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-25 — Bounded anatomy consistency repair prepared before data cutover
+
+- A read-only, isolated audit of the migrated anatomy catalog found nine
+  muscle-action rows whose referenced movement belonged to a different joint,
+  plus one definite extensor carpi radialis longus origin landmark mapped to a
+  femur landmark despite the attachment bone being the humerus.
+- Regression coverage reproduced all ten findings before the seed repair. The
+  action validator now rejects joint/movement ownership mismatches. The bounded
+  seed correction introduces an explicit metacarpophalangeal-flexion movement,
+  reuses thoracic-cage expansion for thoracic rib mechanics, and adds the proper
+  lateral supracondylar ridge of the humerus. Corrected generated actions retain
+  their existing database slugs so idempotent seeding updates rather than
+  duplicates the five affected rows.
+- The anatomy foundation suite passes after the repair. No database, provider,
+  deployment, production data, or identity cutover action is part of this branch.
+- Larger catalog observations are preserved as non-blocking future work in
+  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
+
 ## 2026-09-22 — PR #13 gated; final Phase 6 integration in progress
 
 - The bounded Task 8 record correction reached open, unmerged PR #13 head

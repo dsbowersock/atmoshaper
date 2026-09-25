@@ -1,21 +1,21 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-22
+Verified: 2026-09-25
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Phase 6 Final Integration Candidate
+## Current Snapshot — Standalone Migration Live; Data Cutover Pending
 
-- Task 8's bounded record correction is published on open, unmerged
-  [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13) at
-  `5345c7cc2f413e4dfd33def15bff5c8e99151243`. Both hosted reviewers
-  completed clean exact-head coverage, all seven strict CI jobs in
-  `35768851810` passed, and no actionable thread remains. Task 9 has started
-  only in the approved isolated worktree on
-  `codex/phase6-09-integration-closeout`; no final integration PR exists yet.
-  Source equivalence, independent Task 9 review and its own hosted gates remain
-  pending. Original PR #5 remains open and unmerged as the recovery source;
-  the separate Linux Atmosphere snapshot-refresh decision is still pending.
+- The full site and AtmoShaper rebrand are integrated on `main`, deployed at
+  `atmoshaper.com`, and the user verified audio Play/Stop on the real domain.
+  Production identity and data cutover remain a separate pending operation.
+  The current bounded anatomy branch repairs nine action joint/movement
+  mismatches and one verified extensor carpi radialis longus landmark error,
+  adds recurrence protection, and records broader catalog observations in
+  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
+  Those future content, media, 3D, and MBLEx items are non-blocking for data
+  cutover. No production data, provider configuration, or deployment changes.
+  PR #17 remains subject to exact-head hosted review and strict CI gates.
 
 - Task 7 is complete for its own slice at
   `995fc4f7ce44902002ef2b36c7af1195dbdcb562` on open, unmerged

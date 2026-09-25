@@ -33,6 +33,8 @@ type AttachmentSpec = {
 }
 
 type ActionSpec = {
+  /** Overrides the derived slug when an already-seeded action changes its corrected movement. */
+  id?: string
   joint: string
   movement: string
   role?: MuscleActionRow["role"]
@@ -1107,7 +1109,7 @@ const INTRINSIC_MUSCLE_SPECS: MuscleSpec[] = [
       { type: "origin", bone: "hand-phalanges", landmark: "atlas-proximal-phalanx-index-finger-base", description: "Flexor digitorum profundus tendon slip for the associated digit." },
       { type: "insertion", bone: "hand-phalanges", landmark: "atlas-proximal-phalanx-index-finger-base", description: "Radial side of the dorsal extensor expansion for the associated digit." },
     ],
-    actions: [{ joint: "metacarpophalangeal-joints", movement: "finger-flexion", role: "secondary", contractionType: "concentric", description: `${name} assists MCP flexion while coordinating IP extension through the extensor expansion.` }],
+    actions: [{ id: `action-${slug}-finger-flexion-1`, joint: "metacarpophalangeal-joints", movement: "metacarpophalangeal-flexion", role: "secondary", contractionType: "concentric", description: `${name} assists MCP flexion while coordinating IP extension through the extensor expansion.` }],
     nerve,
     innervationDescription: nerve === "median-nerve" ? "Median nerve contribution to the lateral hand lumbricals." : "Deep branch of the ulnar nerve contribution to the medial hand lumbricals.",
     structureTargets: ["dorsal-extensor-expansion"],
@@ -1180,7 +1182,7 @@ const MUSCLE_ATTACHMENTS: MuscleAttachmentRow[] = ALL_MUSCLE_SPECS.flatMap((spec
 })))
 
 const MUSCLE_ACTIONS: MuscleActionRow[] = ALL_MUSCLE_SPECS.flatMap((spec) => spec.actions.map((action, index) => ({
-  id: `action-${spec.slug}-${action.movement}-${index + 1}`,
+  id: action.id ?? `action-${spec.slug}-${action.movement}-${index + 1}`,
   muscle: spec.slug,
   joint: action.joint,
   movement: action.movement,
