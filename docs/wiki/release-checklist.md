@@ -270,7 +270,7 @@ The migration verification and readiness command must pass without printing
 secret values. Only then complete the live Supporter and one-time-support smoke
 tests and confirm:
 
-- The only public membership is MassageLab Supporter Membership, at exactly
+- The only public membership is AtmoShaper Supporter Membership, at exactly
   $1/$2/$5 monthly or $10/$20/$50 annually.
 - The recurring-tax enablement, `txcd_10000000` classification, provider,
   registrations, and final professional-confirmation gates are all explicit.
@@ -287,15 +287,15 @@ tests and confirm:
   historical Session with a relevant subscription blocks another Checkout
   during signed-webhook persistence.
 - The Checkout session uses Automatic Tax, requires a billing address, updates
-  the Stripe Customer address, completes, and returns to MassageLab.
+  the Stripe Customer address, completes, and returns to AtmoShaper.
 - Membership status updates from the signed webhook.
 - The Stripe Customer Portal opens, permits switching only among the six
   Supporter Prices, and preserves cancellation, payment-method updates,
-  billing-detail updates, invoice history, and return to MassageLab.
+  billing-detail updates, invoice history, and return to AtmoShaper.
 - The Track 1 controlled smoke covers a taxed low-dollar monthly enrollment,
   signed-webhook entitlement persistence, one focused amount or billing-period
   change with the documented anchor/no-proration contract, and return to
-  MassageLab.
+  AtmoShaper.
 - The remaining expanded billing matrix -- a $5 change, payment/address update,
   period-end cancellation, and a public annual Checkout plus cancellation or
   interval switch -- is first-cohort Production monitoring or a separately

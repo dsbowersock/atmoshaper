@@ -15,6 +15,7 @@ import {
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
   SUPPORTER_RECURRING_TAX_CODE,
 } from "../lib/stripe-price-contract.js"
+import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import { safeErrorCode } from "../lib/safe-error-code.js"
 import { REGISTRATION_PAUSED_MESSAGE } from "../lib/public-launch-controls.js"
@@ -348,8 +349,11 @@ function migrationStripeFixture(targetPrice) {
 }
 
 describe("Supporter membership final-review contracts", () => {
-  it("retains the existing Stripe product identity as a provider compatibility value", () => {
-    assert.equal(SUPPORTER_MEMBERSHIP_PRODUCT_NAME, "MassageLab Supporter Membership")
+  it("derives the public Stripe product name from the AtmoShaper identity owner", () => {
+    assert.equal(
+      SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
+      `${PUBLIC_PRODUCT_IDENTITY.name} Supporter Membership`,
+    )
   })
 
   it("keeps return URLs identifier-free while preserving Checkout and Portal ownership", async () => {
@@ -680,7 +684,7 @@ describe("Supporter membership final-review contracts", () => {
       {
         id: "prod_supporter",
         active: true,
-        name: "MassageLab Supporter Membership",
+        name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
         tax_code: "txcd_10000000",
         metadata: {
           app: "massagelab",

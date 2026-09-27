@@ -18,6 +18,7 @@ import { SUPPORTER_AMOUNT_CHOICES } from "../lib/membership.js"
 import {
   recurringPriceSemanticMismatches,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
 } from "../lib/stripe-price-contract.js"
 import StripeReadinessStub from "./fixtures/stripe-readiness-stripe-stub.mjs"
 
@@ -35,7 +36,7 @@ function supporterProduct(amountChoiceId = "support-1", overrides = {}) {
   return {
     id: `prod_${amountChoiceId.replace("-", "_")}`,
     active: true,
-    name: "MassageLab Supporter Membership",
+    name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
     tax_code: "txcd_10000000",
     metadata: {
       app: "massagelab",
@@ -379,7 +380,7 @@ describe("Stripe readiness background-commerce contract", () => {
       ],
       [
         (candidate) => { candidate.product.name = "MassageLab Supporter" },
-        `${expected.key} Product name must be MassageLab Supporter Membership.`,
+        `${expected.key} Product name must be ${SUPPORTER_MEMBERSHIP_PRODUCT_NAME}.`,
       ],
       [
         (candidate) => { candidate.currency = "cad" },

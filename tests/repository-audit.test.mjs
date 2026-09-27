@@ -941,54 +941,34 @@ test("brand CLI validates exact rules and sanitizes stale-rule failures", (t) =>
   assert.equal(result.stderr.includes(root), false)
 })
 
-test("current Stripe names use only their three reviewed exact compatibility rules", () => {
+test("current Stripe owners derive the public product name from the AtmoShaper identity", () => {
+  const legacyProductName = ["Massage", "Lab Supporter Membership"].join("")
   const paths = [
+    "lib/stripe-price-contract.js",
+    "scripts/stripe-supporter-membership-migration.mjs",
     "tests/membership-pricing.test.mjs",
     "tests/supporter-membership-final-review.test.mjs",
   ]
-  const references = collectLegacyReferences(repositoryRoot, paths, policy)
-    .filter((reference) => reference.sourceLine.includes("MassageLab Supporter Membership"))
-  const linesByPath = new Map(paths.map((path) => [
+  const sources = new Map(paths.map((path) => [
     path,
-    readFileSync(resolve(repositoryRoot, ...path.split("/")), "utf8").split(/\r?\n/),
+    readFileSync(resolve(repositoryRoot, ...path.split("/")), "utf8"),
   ]))
-  const directReferences = references.filter((reference) => {
-    if (reference.sourceLine.includes("SUPPORTER_MEMBERSHIP_PRODUCT_NAME")) return true
-    return linesByPath.get(reference.path)[reference.line - 2]
-      ?.includes("SUPPORTER_MEMBERSHIP_PRODUCT_NAME")
-  })
-  const fixtureReferences = references.filter((reference) => !directReferences.includes(reference))
 
-  assert.equal(references.length, 3)
-  assert.equal(directReferences.length, 2)
-  assert.equal(fixtureReferences.length, 1)
-  assert.deepEqual(
-    directReferences.map((reference) => classifyCandidate(reference, policy)),
-    ["compatibility", "compatibility"],
-  )
-  assert.equal(classifyCandidate(fixtureReferences[0], policy), "compatibility")
-  assert.equal(
-    classifyCandidate({ ...fixtureReferences[0], line: fixtureReferences[0].line + 1 }, policy),
-    "pre-rebrand-public-copy",
-  )
-
-  const result = spawnSync(
-    process.execPath,
-    ["scripts/repository-audit/brand.mjs", "--print-candidate-baseline"],
-    { cwd: repositoryRoot, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 },
-  )
-  assert.equal(result.status, 0)
-  assert.equal(result.stderr, "")
-  const candidate = JSON.parse(result.stdout)
-  for (const reference of references) {
-    assert.equal(candidate.entries.some((entry) => (
-      entry.path === reference.path &&
-      entry.line === reference.line &&
-      entry.column === reference.column &&
-      entry.textSha256 === reference.textSha256 &&
-      entry.category === "compatibility"
-    )), true)
+  for (const source of sources.values()) {
+    assert.equal(source.includes(legacyProductName), false)
   }
+  assert.match(
+    sources.get("lib/stripe-price-contract.js"),
+    /import \{ PUBLIC_PRODUCT_IDENTITY \} from "\.\/public-product-identity\.js"/,
+  )
+  assert.match(
+    sources.get("lib/stripe-price-contract.js"),
+    /SUPPORTER_MEMBERSHIP_PRODUCT_NAME\s*=\s*`\$\{PUBLIC_PRODUCT_IDENTITY\.name\} Supporter Membership`/,
+  )
+  assert.match(
+    sources.get("scripts/stripe-supporter-membership-migration.mjs"),
+    /SUPPORTER_MEMBERSHIP_PRODUCT_NAME as SUPPORTER_PRODUCT_NAME/,
+  )
 })
 
 test("normal brand audit rejects stale categories until candidate regeneration", (t) => {

@@ -2,6 +2,21 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-27 — AtmoShaper Stripe public catalog identity candidate
+
+- Started from current `origin/main` at
+  `122dd9f07995f62c758627ea6fc4cd3da4909dfb` in an isolated worktree.
+- The shared Stripe contract now derives the public Supporter Product name from
+  `PUBLIC_PRODUCT_IDENTITY`, while migration reuse can repair a stale display
+  name only after the exact private classification, tax, and active-state
+  contract matches.
+- Private `massagelab_*` metadata, idempotency keys, environment names,
+  historical reconciliation inputs, prices, subscriptions, and webhook
+  contracts remain unchanged. No provider write or deployment was performed.
+- Focused red tests first proved the old public name, then the membership,
+  migration, readiness, billing, and repository-audit suites were brought back
+  to green. The 4,955-test suite, typecheck, lint, audits, and build all passed.
+
 ## 2026-09-27 — Production provider-readiness audit after migration merges
 
 - Current `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`; the anatomy repair
