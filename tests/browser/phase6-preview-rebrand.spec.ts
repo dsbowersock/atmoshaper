@@ -154,6 +154,7 @@ async function settledBox(locator: Locator) {
   return box!
 }
 
+/** Proves the wide wordmark is loaded and contained without accepting fallback text. */
 async function expectWordmarkFits(brand: Locator) {
   const wordmark = brand.locator(".ml-app-bar-brand-wordmark")
   await expect(brand.locator(".ml-app-bar-brand-text")).toHaveCount(0)

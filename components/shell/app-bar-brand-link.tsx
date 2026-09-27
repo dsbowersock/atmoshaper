@@ -3,6 +3,7 @@ import Link from "next/link"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 
+/** Renders the canonical responsive product identity without duplicating asset selection. */
 export function AppBarBrandLink({ className }: { className?: string }) {
   return (
     <Link

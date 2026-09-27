@@ -36,6 +36,7 @@ describe("public product identity", () => {
   })
 
   it("uses the approved runtime brand variants at their exported dimensions", () => {
+    /** Reads PNG dimensions directly so the test remains independent of image tooling. */
     const pngDimensions = (relativePath) => {
       const bytes = readFileSync(new URL(relativePath, import.meta.url))
       assert.equal(bytes.toString("ascii", 1, 4), "PNG")

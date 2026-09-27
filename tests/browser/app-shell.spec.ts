@@ -966,6 +966,7 @@ async function expectWideMobileSidebarBoundary(
   }).toBeLessThanOrEqual(1)
 }
 
+/** Requires the approved wide wordmark to load and remain inside its responsive link. */
 async function expectWordmarkBrandFits(brand: Locator) {
   const text = brand.locator(".ml-app-bar-brand-text")
   const wordmark = brand.locator(".ml-app-bar-brand-wordmark")
