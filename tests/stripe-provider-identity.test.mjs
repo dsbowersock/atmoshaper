@@ -125,6 +125,24 @@ describe("Stripe provider identity", () => {
     })
   })
 
+  it("emits Stripe metadata tombstones only for managed keys on updates", () => {
+    assert.deepEqual(buildCurrentSupporterProductMetadata({
+      ...legacyProduct,
+      massagelab_supporter_price_key: "stale-price",
+      unrelated: "keep",
+    }, "support-5", { forUpdate: true }), {
+      unrelated: "keep",
+      massagelab_catalog: "",
+      massagelab_membership_level: "",
+      massagelab_supporter_amount_choice: "",
+      massagelab_supporter_price_key: "",
+      app: "atmoshaper",
+      atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      atmoshaper_membership_level: "SUPPORTER",
+      atmoshaper_supporter_amount_choice: "support-5",
+    })
+  })
+
   it("builds current Price metadata and validates required identities", () => {
     assert.deepEqual(buildCurrentSupporterPriceMetadata({
       ...currentPrice,
@@ -147,4 +165,3 @@ describe("Stripe provider identity", () => {
     )
   })
 })
-

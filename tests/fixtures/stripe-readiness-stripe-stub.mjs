@@ -54,10 +54,10 @@ function supporterPrice(priceId) {
       name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
       tax_code: "txcd_10000000",
       metadata: {
-        app: "massagelab",
-        massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-        massagelab_membership_level: "SUPPORTER",
-        massagelab_supporter_amount_choice: productAmountChoiceId,
+        app: "atmoshaper",
+        atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+        atmoshaper_membership_level: "SUPPORTER",
+        atmoshaper_supporter_amount_choice: productAmountChoiceId,
       },
     },
   }

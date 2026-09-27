@@ -16,6 +16,7 @@ import {
   SUPPORTER_RECURRING_TAX_CODE,
 } from "../lib/stripe-price-contract.js"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
+import { classifySupporterProductMetadata } from "../lib/stripe-provider-identity.js"
 import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import { safeErrorCode } from "../lib/safe-error-code.js"
 import { REGISTRATION_PAUSED_MESSAGE } from "../lib/public-launch-controls.js"
@@ -704,6 +705,9 @@ describe("Supporter membership final-review contracts", () => {
       {
         "./donations.js": {
           ONE_TIME_SUPPORT_TAX_CODE: "txcd_90000001",
+        },
+        "./stripe-provider-identity.js": {
+          classifySupporterProductMetadata,
         },
         "./stripe-price-contract.js": {
           SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
