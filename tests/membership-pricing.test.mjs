@@ -129,8 +129,8 @@ describe("Membership pricing catalog", () => {
     assert.equal(supporter.name, "AtmoShaper Supporter Membership")
     assert.equal(
       SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
-      "MassageLab Supporter Membership",
-      "the existing Stripe product identity remains a provider compatibility value",
+      "AtmoShaper Supporter Membership",
+      "the Stripe catalog uses the approved public product identity",
     )
     assert.deepEqual(supporter.amountChoices.map((choice) => choice.id), ["support-1", "support-2", "support-5"])
     assert.deepEqual(

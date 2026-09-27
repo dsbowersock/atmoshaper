@@ -9,6 +9,7 @@ import {
 import { BILLING_PORTAL_DESTINATIONS } from "../../lib/billing-portal-destinations.js"
 import { resolveMembershipPriceForInterval } from "../../lib/membership-pricing.js"
 import { SUPPORTER_CHECKOUT_PAUSED_MESSAGE } from "../../lib/public-launch-controls.js"
+import { SUPPORTER_MEMBERSHIP_PRODUCT_NAME } from "../../lib/stripe-price-contract.js"
 
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const pricingCardsSource = await readFile(
@@ -162,7 +163,7 @@ export function renderMembershipPricingCards({
     }],
     plans: [{
       membershipLevel: "SUPPORTER",
-      name: "MassageLab Supporter Membership",
+      name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
       eyebrow: "Alpha support",
       description: "Support current features and careful future development.",
       currentFeatures: ["Access to all backgrounds"],

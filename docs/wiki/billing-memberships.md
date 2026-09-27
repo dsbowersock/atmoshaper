@@ -1,6 +1,12 @@
 # Billing And Memberships
 
-MassageLab uses feature-based access. Code should ask whether a user has a feature, not whether the user has a named plan.
+AtmoShaper uses feature-based access. Code should ask whether a user has a feature, not whether the user has a named plan.
+
+AtmoShaper's dedicated Stripe account is not configured for enrollment yet.
+Statements below about a completed Production catalog describe the inherited
+MassageLab provider history and remain compatibility/reference evidence until
+the separate AtmoShaper test-mode setup, readiness checks, and live activation
+are explicitly authorized and completed.
 
 Do not write access checks like this:
 
@@ -22,7 +28,7 @@ if (features.includes("premium_backgrounds")) {
 
 - Free access is the default when a user has no active paid subscription.
 - Free is not a Stripe product.
-- Student access is internal to MassageLab and is not a Stripe subscription.
+- Student access is internal to AtmoShaper and is not a Stripe subscription.
 - A freshly verified full `ADMIN` database role grants the complete current
   non-PHI feature set as an explicit administrative source. It does not create
   a Stripe Customer or subscription, does not change `level` or `paidLevel`,
@@ -83,7 +89,7 @@ Student access lasts 18 months from the student's first day of class.
 
 Do not wire Student into Stripe Checkout. If a Student product or price exists in a Stripe test or live account, archive it or leave it disabled so it cannot be selected by the app.
 
-MassageLab stores:
+AtmoShaper stores:
 
 - `studentStartDate`
 - `studentAccessExpiresAt`
@@ -126,11 +132,11 @@ Therapist documentation surfaces should remain visible in the app so users can s
 
 Membership messaging can explain that paid support helps fund future compliance-heavy documentation work, including voice notes, local transcription experiments, therapist-reviewed SOAP assistance, managed sync planning, BAAs, audit controls, and secure operating infrastructure. Keep that language separate from current benefits: memberships do not currently unlock hosted transcription, cloud SOAP drafting, HIPAA-ready sync, or any server-side PHI processing.
 
-Pricing and legal copy should also say that MassageLab does not sell user data and does not use advertising to fund the project. The current funding posture is memberships, optional one-time support, and product revenue.
+Pricing and legal copy should also say that AtmoShaper does not sell user data and does not use advertising to fund the project. The current funding posture is memberships, optional one-time support, and product revenue.
 
 ## Completed Supporter Catalog State
 
-Production now uses one **MassageLab Supporter Membership** with identical
+The target AtmoShaper catalog uses one **AtmoShaper Supporter Membership** with identical
 current benefits, including access to all premium backgrounds, at fixed support
 amounts:
 
@@ -145,7 +151,7 @@ multi-select preference. The Customer Portal remains configured to allow payment
 method and billing-address updates, invoices, cancellation, and switching among
 the approved Supporter amounts.
 
-MassageLab creates Portal sessions on demand through two explicit actions.
+AtmoShaper creates Portal sessions on demand through two explicit actions.
 **Change support amount or billing period** uses Stripe's focused
 `subscription_update` flow only for the account's persisted active or trialing
 subscription. **Manage billing account** opens the general Portal homepage for

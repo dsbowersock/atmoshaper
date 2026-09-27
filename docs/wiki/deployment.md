@@ -218,7 +218,7 @@ public enrollment.
 
 Before enabling subscription checkout, confirm:
 
-- `MassageLab Supporter Membership` is the only user-facing membership. Stripe
+- `AtmoShaper Supporter Membership` is the only user-facing membership. Stripe
   represents it as three amount-specific Products, each with tax code
   `txcd_10000000`, identical Supporter entitlement metadata, and one monthly
   plus one annual Price.

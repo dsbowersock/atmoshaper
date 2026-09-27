@@ -8,14 +8,24 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`; PR #17's anatomy repair
-  and PR #18's support update are merged; CI `36296398216` passed all seven jobs.
+  `main` is `122dd9f07995f62c758627ea6fc4cd3da4909dfb`; PR #19's provider-readiness
+  record is merged. Earlier CI evidence remains historical until the next
+  exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, and support routing are operational; branding review has a
   one-week follow-up reminder.
 - A read-only Stripe audit found one legacy active monthly subscription that is
   not attached to the fresh administrator; billing remains unconfigured. See the
-  [provider audit](audits/2026-09-27-atmoshaper-provider-readiness.md); database aggregate readback is pending because the CLI cannot see the destination.
+  [provider audit](audits/2026-09-27-atmoshaper-provider-readiness.md). A later
+  bounded read-only check confirmed the Vercel-managed destination's committed
+  migration state and aggregate application readiness without exposing rows,
+  secrets, connection strings, or provider identifiers. The personal Neon
+  organization still lists only its directly owned projects, as expected.
+- The current code-only Stripe catalog candidate derives the public Product
+  name from `PUBLIC_PRODUCT_IDENTITY`, yielding `AtmoShaper Supporter
+  Membership`. It deliberately preserves the private `massagelab_*`
+  metadata, idempotency, environment, and reconciliation contracts. No Stripe
+  object, Vercel setting, database state, or deployment changed; validation passed.
 
 - Task 7's reviewed head
   `995fc4f7ce44902002ef2b36c7af1195dbdcb562` merged through

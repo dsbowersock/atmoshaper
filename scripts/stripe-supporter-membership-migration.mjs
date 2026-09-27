@@ -6,6 +6,7 @@ import Stripe from "stripe"
 import {
   recurringPriceSemanticsMatch,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_CATALOG,
+  SUPPORTER_MEMBERSHIP_PRODUCT_NAME as SUPPORTER_PRODUCT_NAME,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
   SUPPORTER_RECURRING_TAX_CODE as EXPECTED_TAX_CODE,
 } from "../lib/stripe-price-contract.js"
@@ -16,7 +17,6 @@ export { TARGET_PRICE_SPECS }
 
 // Keep catalog mutation on the same explicitly pinned version as runtime
 // billing and the verified webhook endpoint rather than the SDK's moving default.
-const SUPPORTER_PRODUCT_NAME = "MassageLab Supporter Membership"
 const CREATE_NEW_PRODUCT = "CREATE_NEW"
 const NO_ALLOWED_SUBSCRIPTION = "none"
 const PORTAL_PRODUCT_EXPANSIONS = Object.freeze([
@@ -462,15 +462,20 @@ function legacyPriceMatches(candidate, spec, productId) {
     && priceProductId(candidate) === productId
 }
 
-/** Verifies fields and metadata shared by all three amount Products. */
-function targetSupporterProductCoreMatches(candidate) {
+/** Verifies stable private classification shared by all amount Products. */
+function targetSupporterProductClassificationMatches(candidate) {
   return Boolean(candidate)
-    && candidate.name === SUPPORTER_PRODUCT_NAME
     && candidate.active === true
     && candidate.tax_code === EXPECTED_TAX_CODE
     && candidate.metadata?.app === "massagelab"
     && candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
     && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
+}
+
+/** Verifies private classification plus the current public Product name. */
+function targetSupporterProductCoreMatches(candidate) {
+  return targetSupporterProductClassificationMatches(candidate)
+    && candidate.name === SUPPORTER_PRODUCT_NAME
 }
 
 /** Verifies the complete contract for one amount-specific Supporter Product. */
@@ -515,7 +520,9 @@ export function targetSupporterProductReusable(candidate, spec) {
   if (spec.configKey === "supporter" && legacySupporterProductMatches(candidate)) {
     return true
   }
-  if (!targetSupporterProductCoreMatches(candidate)) return false
+  // Display copy can be repaired in place after a public rebrand, but the
+  // private catalog classification must remain exact before reuse is safe.
+  if (!targetSupporterProductClassificationMatches(candidate)) return false
 
   const amountChoiceId =
     candidate.metadata?.massagelab_supporter_amount_choice

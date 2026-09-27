@@ -14,6 +14,7 @@ import {
 } from "../scripts/stripe-supporter-membership-migration.mjs"
 import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
 } from "../lib/stripe-price-contract.js"
 
 const LEGACY_PRICE_SPECS = Object.freeze([
@@ -1104,7 +1105,7 @@ describe("Supporter membership Stripe migration", () => {
       [false, true],
     )
     const supporter = fixture.products.get("prod_supporter")
-    assert.equal(supporter.name, "MassageLab Supporter Membership")
+    assert.equal(supporter.name, SUPPORTER_MEMBERSHIP_PRODUCT_NAME)
     assert.equal(supporter.tax_code, "txcd_10000000")
     assert.equal(supporter.active, true)
 
@@ -1300,7 +1301,7 @@ describe("Supporter membership Stripe migration", () => {
       "only the $2/$20 and $5/$50 Products should be created",
     )
     const supporter = fixture.products.get("prod_supporter")
-    assert.equal(supporter.name, "MassageLab Supporter Membership")
+    assert.equal(supporter.name, SUPPORTER_MEMBERSHIP_PRODUCT_NAME)
     assert.equal(supporter.tax_code, "txcd_10000000")
     assert.equal(
       [...fixture.prices.values()].filter(
@@ -3131,6 +3132,10 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(
       fixture.products.get("prod_stale_support_2").description,
       "$2 monthly or $20 annually. Same Supporter Membership benefits; only the support amount differs.",
+    )
+    assert.equal(
+      fixture.products.get("prod_stale_support_2").name,
+      SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
     )
     assert.equal(
       fixture.calls.some(

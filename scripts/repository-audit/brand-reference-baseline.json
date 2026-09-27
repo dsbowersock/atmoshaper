@@ -85747,133 +85747,147 @@
     },
     {
       "path": "docs/project-log.md",
-      "line": 895,
+      "line": 13,
+      "column": 12,
+      "textSha256": "651cc24c7d9fb795ea30fb43d1e5f8473eecc5df92a3142ea386550080bf84c7",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-log.md",
+      "line": 910,
       "column": 41,
       "textSha256": "592250d587108f87cefad9c6ecdf9ce4558d362a77c97b21974e450c6f21f8a3",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 926,
+      "line": 941,
       "column": 47,
       "textSha256": "2e1fa29cc0771958a568caac7d12e8c263c60b0be612300f20d97a3483b36602",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 945,
+      "line": 960,
       "column": 99,
       "textSha256": "d2fbcd710b691baea1005f03d19df7faa6781c2ebe58878bb81e16cd4f9662f0",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 946,
+      "line": 961,
       "column": 113,
       "textSha256": "41a340b32fbc5265b0ddcb6ea827c5d02009a7cfc4d9ec9f2c5889e08506c78b",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 947,
+      "line": 962,
       "column": 128,
       "textSha256": "ec48970d6f544d17f6513e011209da0364a253bd8280165a6b5a0bf070b085ce",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 950,
+      "line": 965,
       "column": 12,
       "textSha256": "06f434a29701fc58b8a7e7263c76a1dbecf34cf8e66b1659ccbb7c9fc4fa483e",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 985,
+      "line": 1000,
       "column": 363,
       "textSha256": "be30a14d1f9bfe3bf274a2ce2572e68da72fa0cbce46c0b36e01972feee7fad6",
       "category": "historical"
     },
     {
       "path": "docs/project-log.md",
-      "line": 989,
+      "line": 1004,
       "column": 244,
       "textSha256": "e68c91622d11924247edc2dba10a815fbdf79f4e6dcc2bf989035b35476b6005",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 53,
+      "line": 26,
+      "column": 55,
+      "textSha256": "4c671c0a088d14202d0f24fc935ab1b13fa7bf17905c7a615e71fc9db19aff0d",
+      "category": "historical"
+    },
+    {
+      "path": "docs/project-state.md",
+      "line": 63,
       "column": 14,
       "textSha256": "63d0050213fed1d6fe70b1e96e4b839a16ff362d28d2ec9860176e786d36f9de",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 602,
+      "line": 612,
       "column": 35,
       "textSha256": "9e11a00edb38c63c1eaa9fdeac0e0df72f0d5ff1fb460d8fa880a23cbdb785e6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 639,
+      "line": 649,
       "column": 84,
       "textSha256": "3336f486cd86e7eff6ec8305926b1024ba1ad35994151951910fd5d5dcc15cea",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 643,
+      "line": 653,
       "column": 365,
       "textSha256": "454d35cff6ff5238e769ae4d28c9cb33a0259cb8f2d4842b770d65a1f04308fa",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 645,
+      "line": 655,
       "column": 38,
       "textSha256": "6ae4628b4488e4a52959b4595962573669a618811701be1d69fb818bcd993b4e",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 649,
+      "line": 659,
       "column": 174,
       "textSha256": "0a361955eb33a711170b6d9e54143157b2a3fde36c90b54459b4c5642426fa1a",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 650,
+      "line": 660,
       "column": 74,
       "textSha256": "9a888e29b0a254566b1c0505696856cbbb60656e831fe4dac1f6e652f83b88c6",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 653,
+      "line": 663,
       "column": 89,
       "textSha256": "7dbdc956ce0594beb2e4e87f82a7536cf8ed257dde37a023dc494ff8b2254db4",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 654,
+      "line": 664,
       "column": 105,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 654,
+      "line": 664,
       "column": 149,
       "textSha256": "f8049789b9e6933f9d03ef7b949f7106b5af439ce3a3007f62f226192a923579",
       "category": "historical"
     },
     {
       "path": "docs/project-state.md",
-      "line": 681,
+      "line": 691,
       "column": 33,
       "textSha256": "b15a50a13d428ac51678880c48c2a1b31f8bcb30c73cb14091e475a849aff70f",
       "category": "historical"
@@ -86107,20 +86121,6 @@
       "line": 20,
       "column": 154,
       "textSha256": "e9eda24c8754194399bae060a56ae11c9217741c5a2b08cda54a070c92bfcb53",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 25,
-      "column": 101,
-      "textSha256": "172eaeee3afe93ec41a9f92dccfc2eb4e84a59f86c4bd8d5826c3ab7d34be0c2",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 26,
-      "column": 79,
-      "textSha256": "11bc865348de29a524485d9cd2fc06511bd5c0e3f7b1364a8fc0845044794ca7",
       "category": "historical"
     },
     {
@@ -93776,77 +93776,42 @@
     },
     {
       "path": "docs/wiki/billing-memberships.md",
-      "line": 3,
+      "line": 7,
       "column": 1,
-      "textSha256": "f4805e8ac775c5737d35e171293856137c6c0cc40c1b800260de7657a48e55b2",
+      "textSha256": "bb9c7fbe035a06f55129a53b7fe07045979a6c0976ca9d18480ea85f91132d4c",
       "category": "historical"
     },
     {
       "path": "docs/wiki/billing-memberships.md",
-      "line": 25,
-      "column": 33,
-      "textSha256": "ca8a4dcc2511cec16513b4b7666f17cadd0aa1f9c7ec9faff54864319c69773c",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/billing-memberships.md",
-      "line": 64,
+      "line": 70,
       "column": 27,
       "textSha256": "600f563e1cc2c29ee9901a2f957ef3a53bafe6f16591a817f29c6fa2e70d0376",
       "category": "historical"
     },
     {
       "path": "docs/wiki/billing-memberships.md",
-      "line": 86,
-      "column": 1,
-      "textSha256": "0381fbf4c4c5569d45d7720bb94d50900194b43a1d509903dbc2eaa21d60b6c0",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/billing-memberships.md",
-      "line": 129,
-      "column": 45,
-      "textSha256": "9519aa7d14bf0fc72d3fc626a472ce11137e18c4700efca2ef049ee34ad593b0",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/billing-memberships.md",
-      "line": 133,
-      "column": 27,
-      "textSha256": "e242151cb11e9d1b4ee1e6f1e0a05e7a99e08b5550358b3380caf56016f35643",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/billing-memberships.md",
-      "line": 148,
-      "column": 1,
-      "textSha256": "e38d922eb090426173762eac10856930e47d68d1d34a46f961afadc65aa95582",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/billing-memberships.md",
-      "line": 168,
+      "line": 174,
       "column": 1,
       "textSha256": "eb8e12e2e077691fed425610d532ec5143e7915b276a84b26e516496f7a0db8f",
       "category": "historical"
     },
     {
       "path": "docs/wiki/billing-memberships.md",
-      "line": 200,
+      "line": 206,
       "column": 10,
       "textSha256": "b545214034c5cefc23fb344e0c1684dd333c000c023a62e17ac8bb3ed59ce05b",
       "category": "historical"
     },
     {
       "path": "docs/wiki/billing-memberships.md",
-      "line": 259,
+      "line": 265,
       "column": 61,
       "textSha256": "f6f4a1c96cb9442824b1f0f6b178d7f0ed3d66dbedb12bf52279270bd1276945",
       "category": "historical"
     },
     {
       "path": "docs/wiki/billing-memberships.md",
-      "line": 297,
+      "line": 303,
       "column": 56,
       "textSha256": "844370d7dc1cc25f8d807d628e75d8387f110e5afb9e255d1ef455b2a5c6a3d5",
       "category": "historical"
@@ -94003,13 +93968,6 @@
       "line": 180,
       "column": 42,
       "textSha256": "68845fda05814b3f8ee2d2cb9ab86a23b59b0b2b40878c808e7784843115ad2b",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/deployment.md",
-      "line": 221,
-      "column": 4,
-      "textSha256": "ebb00ea9f33d80e6e3a835b439b61db2c49728677fe7b2c3b599773f7f1bbc47",
       "category": "historical"
     },
     {
@@ -94388,34 +94346,6 @@
       "line": 266,
       "column": 53,
       "textSha256": "157009dcb9e5a58acacdc85cdd8b090985275e23748711bdceca37f33930e696",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/release-checklist.md",
-      "line": 273,
-      "column": 33,
-      "textSha256": "6725f62bf143243958100aca5fb754971e1e9b75e2f5e8d7f554510be08e33b1",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/release-checklist.md",
-      "line": 290,
-      "column": 58,
-      "textSha256": "ece67bdc029c812f60582bde254ed5dd8000b47f85bf1986abfcc18e465df6af",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/release-checklist.md",
-      "line": 294,
-      "column": 58,
-      "textSha256": "a686d48bc1649c9bf70a57ad7f2710698d1b9113fa2fc29c3aeda19099a32133",
-      "category": "historical"
-    },
-    {
-      "path": "docs/wiki/release-checklist.md",
-      "line": 298,
-      "column": 3,
-      "textSha256": "d04b7991c4cc471d16f08e616329d6fcbec6c0134a2ef206a002c05e3b701cbb",
       "category": "historical"
     },
     {
@@ -123819,13 +123749,6 @@
       "category": "compatibility"
     },
     {
-      "path": "lib/stripe-price-contract.js",
-      "line": 8,
-      "column": 51,
-      "textSha256": "539a685f2dcd51ed2cfd4f1fbe05d4689eb66be5ed610330af2a7d021e4fa214",
-      "category": "compatibility"
-    },
-    {
       "path": "lib/stripe-readiness.js",
       "line": 195,
       "column": 50,
@@ -124709,91 +124632,91 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 124053,
+      "line": 123976,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 124053,
+      "line": 123976,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 17,
+      "line": 30,
       "column": 21,
       "textSha256": "e1bb08aacbd3b33ace9748c9b1dc9c4ff4189fca586c806629a3a04e9ca17ddf",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 17,
+      "line": 30,
       "column": 32,
       "textSha256": "e1bb08aacbd3b33ace9748c9b1dc9c4ff4189fca586c806629a3a04e9ca17ddf",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 17,
+      "line": 30,
       "column": 44,
       "textSha256": "e1bb08aacbd3b33ace9748c9b1dc9c4ff4189fca586c806629a3a04e9ca17ddf",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 19,
+      "line": 32,
       "column": 6,
       "textSha256": "dc7e2d68b1e3cc08b9e0d9ddc9624a495ae12f290a74880804553af96eed4e7d",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 20,
+      "line": 33,
       "column": 6,
       "textSha256": "3ecb8e666c27ec0618e53570ec876c96cd16a1460fecb921ae74da9629de0524",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 21,
+      "line": 34,
       "column": 6,
       "textSha256": "22e6d2d7a08ec0a3d6bbafdb1fc7ff9f5ba1aa25403faeed943084dda6acef05",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 22,
+      "line": 35,
       "column": 6,
       "textSha256": "ba970b0cc1abb02a0a0cde77593db6e440b4b830887f45db95161a611826c221",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 23,
+      "line": 36,
       "column": 6,
       "textSha256": "be1c3ad60f7db330aa15292c622888a371f0531d8c518f281b2421a37c8a9e93",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 1385,
+      "line": 1350,
       "column": 10,
       "textSha256": "70831aa5a19e94c7b2a9c495a38a71729e8c39bfb041a0f848881d06d36d4bce",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 1386,
+      "line": 1351,
       "column": 10,
       "textSha256": "0119da00006b0dbf0183dd48158331dedc56a6804f4403b37d45bb021b19945d",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 1387,
+      "line": 1352,
       "column": 12,
       "textSha256": "00444891010aaa422454b919bbbcc3e75233f9ccb3b7337547e3d45cb2472293",
       "category": "compatibility"
@@ -124803,13 +124726,6 @@
       "line": 38,
       "column": 6,
       "textSha256": "6e6b885138a0b9fcdfff7e7b1c5965ca7d0a7b259adfabf5d590bb4a523c1748",
-      "category": "compatibility"
-    },
-    {
-      "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 19,
-      "column": 33,
-      "textSha256": "b0fda78941e0796fb872f4fb365961e4cd5cec9b2ae495451d13de5f4dfd80f3",
       "category": "compatibility"
     },
     {
@@ -124926,273 +124842,273 @@
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 471,
+      "line": 470,
       "column": 37,
       "textSha256": "f9d48402b755cbb98483e9f7f7120e67f9be873a272e8c5baf9c2e1146be547e",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 472,
+      "line": 471,
       "column": 28,
       "textSha256": "ca34f043148dd7707a128b5a441e3e7869e46624718c26f5bb1959f7d0cef8ba",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 473,
+      "line": 472,
       "column": 28,
       "textSha256": "499bafc47a4a1f15d9bb47a9d26fb893970296884cc097ef6e005852d0bf648a",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 480,
+      "line": 485,
       "column": 28,
       "textSha256": "500b6fc0cf656f2c3853996f629b1aceec9fbf81ea6c22b8140932d286408787",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 490,
+      "line": 495,
       "column": 11,
       "textSha256": "1b81561d43e20ff577521f7793a52434cebb10389d681425769cedc0cea450c3",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 501,
+      "line": 506,
       "column": 28,
       "textSha256": "061f8881bfb3eee4e4d7aa6635711c0797d47bdd407e8315e827ec868afeb57e",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 503,
+      "line": 508,
       "column": 39,
       "textSha256": "09eb052b3d0d607262acb1d42779ba4cf5b16c32c7631e255ae8f0c5292ffd3d",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 504,
+      "line": 509,
       "column": 28,
       "textSha256": "499bafc47a4a1f15d9bb47a9d26fb893970296884cc097ef6e005852d0bf648a",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 505,
+      "line": 510,
       "column": 28,
       "textSha256": "c5f294771f1427eafbc0b051e7b498387274b6c47f3fe200635cb0cc2e1cffc3",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 521,
+      "line": 528,
       "column": 25,
       "textSha256": "a73fd34793f25821562cb7fdb4f3a7017269c003a4faf90bc6455cb271da3aed",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 529,
+      "line": 536,
       "column": 66,
       "textSha256": "b50276df2cc65fa4b2b668b3dd3d58ec5ac0120ffe25a8741b0a7284f622a750",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 534,
+      "line": 541,
       "column": 46,
       "textSha256": "43fb7533b594aa954e09b0b3fc1fd2dc50ebf6d7fdf172a617a76c0d2e6c83c5",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 538,
+      "line": 545,
       "column": 26,
       "textSha256": "07e51e97b60800b876c4cec00249588496e851108f8035e256c21744d8433538",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 713,
+      "line": 720,
       "column": 31,
       "textSha256": "1a69ab76bf8376427dafcf91da09bd5849f1eefbe03285e9b3e953a2ab86fbe3",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 717,
+      "line": 724,
       "column": 11,
       "textSha256": "ab6a232e7b270f7857d5ea17bc9866009df7d0edebe747de6891e2df10025a24",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 721,
+      "line": 728,
       "column": 11,
       "textSha256": "70a825eb9ddf6b178a102f8f8ce532596e47e2d84c24f147a4662978b03844d8",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 731,
+      "line": 738,
       "column": 28,
       "textSha256": "ca34f043148dd7707a128b5a441e3e7869e46624718c26f5bb1959f7d0cef8ba",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 805,
+      "line": 812,
       "column": 33,
       "textSha256": "96db55a2901afcbb3ca5d6253ec774288a109f951bbf3af7af87e77060d7663f",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 816,
+      "line": 823,
       "column": 33,
       "textSha256": "c1fd9265df7f9fa2da4290e858be452c6620180aedd87139803497821402a227",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 888,
+      "line": 895,
       "column": 35,
       "textSha256": "15578b76848248fbb1cb356b9b3162d14e431783bffce29af3a2f5bd5c4b98a1",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 964,
+      "line": 971,
       "column": 14,
       "textSha256": "0a398572daf1ee157aa5ff26b17b6eaba5701a80948659b941e557451b64c98a",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 973,
+      "line": 980,
       "column": 14,
       "textSha256": "000d22ca367e7fc72992252fd86d8381e8ee566dfdd306a44f8cac726e23ac5c",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 989,
+      "line": 996,
       "column": 28,
       "textSha256": "5dba36b9b1e48c76e86a8a1f350a6a3b08c0e80f99e0203b5c8dffa6ddadff9e",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 994,
+      "line": 1001,
       "column": 27,
       "textSha256": "65a8e84527a9c25f59fe2aba43b8b47656dde3db413f1961933c16946135efd9",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1013,
+      "line": 1020,
       "column": 50,
       "textSha256": "a23bc6abefa606bace0014fe9082843df74f3074ab97ab6e63a05de490fcaa69",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1433,
+      "line": 1440,
       "column": 44,
       "textSha256": "8aedc622f330aecdac4446397d8cbd810f2632806aecee526628273bb99f50ca",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1443,
+      "line": 1450,
       "column": 13,
       "textSha256": "20f162d3eded588c3885d2fcdb61569d375287e0e81dccd204702850dbe42f6f",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1444,
+      "line": 1451,
       "column": 7,
       "textSha256": "ddff575bd6cec0df94fc98c45c34800b5302caf4db239db958125d7bdffb4728",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1445,
+      "line": 1452,
       "column": 7,
       "textSha256": "bc304eb5b7632ca2f4a915a64d387fe45d074aee9b6e6440401a06f552334507",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1446,
+      "line": 1453,
       "column": 7,
       "textSha256": "e169a864786a3e3e5902ca17840c49dc70964d29c14dfa3eb30d78fa03dc96e9",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1454,
+      "line": 1461,
       "column": 11,
       "textSha256": "df89d57e3de3af519b745825712f7c0aa345573bfe10c630137827405e0f2b61",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1455,
+      "line": 1462,
       "column": 5,
       "textSha256": "3f7aaed27803f843f62ba3431b81e8385066936f92ee2c7eb5d96ca236615123",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1456,
+      "line": 1463,
       "column": 5,
       "textSha256": "3c3a01fb84c44b4bbdfa41eeafe2898c7896f0fa9b0df2429cf1028719d39bb4",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1457,
+      "line": 1464,
       "column": 5,
       "textSha256": "1d68fdb9864f4c59ad930e3028e4017ad20c91a6ff001a7058bc27445593946f",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1595,
+      "line": 1602,
       "column": 34,
       "textSha256": "5397adf31406fe8a5109c6dccf02374ac6c840e6d63c382487166cf51f5aeaae",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1600,
+      "line": 1607,
       "column": 43,
       "textSha256": "51df9187a283742d4fee609dfd9bc5c77dc22b118772c440aa270a552fc382c4",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1601,
+      "line": 1608,
       "column": 34,
       "textSha256": "eed2b7a06d1b5a47e9ace367394c9b9b8a067d46cdca17c11ace0dde687dc41e",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1602,
+      "line": 1609,
       "column": 34,
       "textSha256": "fe093c31f7130072e99ed8d9b8fb597a1b54de9fcf26c5368b78d13d18b938b6",
       "category": "compatibility"
     },
     {
       "path": "scripts/stripe-supporter-membership-migration.mjs",
-      "line": 1603,
+      "line": 1610,
       "column": 34,
       "textSha256": "5397adf31406fe8a5109c6dccf02374ac6c840e6d63c382487166cf51f5aeaae",
       "category": "compatibility"
@@ -174661,35 +174577,28 @@
     },
     {
       "path": "tests/fixtures/stripe-readiness-stripe-stub.mjs",
-      "line": 53,
-      "column": 14,
-      "textSha256": "fc00558cb60cb5fc09feb48a2f3596cdadb87a4949cd1d3b2af7897aac9f5189",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/fixtures/stripe-readiness-stripe-stub.mjs",
-      "line": 56,
+      "line": 57,
       "column": 15,
       "textSha256": "56a99ce26dc9c4361d53341085f1fae55a92193feea6817fbffc4b55a313ebfa",
       "category": "compatibility"
     },
     {
       "path": "tests/fixtures/stripe-readiness-stripe-stub.mjs",
-      "line": 57,
+      "line": 58,
       "column": 9,
       "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/fixtures/stripe-readiness-stripe-stub.mjs",
-      "line": 58,
+      "line": 59,
       "column": 9,
       "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
       "category": "compatibility"
     },
     {
       "path": "tests/fixtures/stripe-readiness-stripe-stub.mjs",
-      "line": 59,
+      "line": 60,
       "column": 9,
       "textSha256": "eff9f1e1eaadcd3e668c19c20b60ad1c6cdc7234178a0336a3940f7620eeebab",
       "category": "compatibility"
@@ -174755,13 +174664,6 @@
       "line": 96,
       "column": 14,
       "textSha256": "682972611091d203e4156b36e4d01a63efb071e0f24b2bc1b727f324ea09ceea",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/helpers/membership-pricing-cards.mjs",
-      "line": 165,
-      "column": 14,
-      "textSha256": "fc00558cb60cb5fc09feb48a2f3596cdadb87a4949cd1d3b2af7897aac9f5189",
       "category": "compatibility"
     },
     {
@@ -175161,13 +175063,6 @@
       "line": 45,
       "column": 17,
       "textSha256": "15285a6a5404012811329b9b4206e96a3ea6f164e79ea228c905d79f24cd3953",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/membership-pricing.test.mjs",
-      "line": 132,
-      "column": 8,
-      "textSha256": "25c4a6ba6f70460f278e47436505ee1a3a052b14b798c99d7e7b9e4205cd2aef",
       "category": "compatibility"
     },
     {
@@ -175830,21 +175725,14 @@
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 950,
-      "column": 59,
-      "textSha256": "365b60eaeea8a323761d1003c6b4f477dab1cdb6bb9a3a84cfb3a1860f140c55",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/repository-audit.test.mjs",
-      "line": 1108,
+      "line": 1088,
       "column": 35,
       "textSha256": "52867e3f53b14ce24267a3f0db7b887dc7b8ff3f279a4754c2f8692813f8f452",
       "category": "compatibility"
     },
     {
       "path": "tests/repository-audit.test.mjs",
-      "line": 1112,
+      "line": 1092,
       "column": 50,
       "textSha256": "307f1ae341567ab531f68aa99a24e952cd573e66197b1cccc795fb746b2f308b",
       "category": "compatibility"
@@ -176810,1344 +176698,1302 @@
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 38,
-      "column": 12,
-      "textSha256": "bcbba4d37c9ffcc031342257ca2b37fbf41ac50472ce755142b3408d20b7b714",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-readiness.test.mjs",
-      "line": 41,
+      "line": 42,
       "column": 13,
       "textSha256": "20f162d3eded588c3885d2fcdb61569d375287e0e81dccd204702850dbe42f6f",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 42,
+      "line": 43,
       "column": 7,
       "textSha256": "8b389c4b84a68dbdfd1fccd3002930e471f0618dc39b5c3b16a8a02d6b2b0826",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 43,
+      "line": 44,
       "column": 7,
       "textSha256": "bc304eb5b7632ca2f4a915a64d387fe45d074aee9b6e6440401a06f552334507",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 44,
+      "line": 45,
       "column": 7,
       "textSha256": "3b22ab81663580f19571a12b9f4709d5323d9591828edecd588bece52933fdca",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 174,
+      "line": 175,
       "column": 35,
       "textSha256": "604924de4cee9cc576218bf4e08a80897200cbf301c8165ab3db77e63eee73e9",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 293,
+      "line": 294,
       "column": 40,
       "textSha256": "244c6b9caec6a73cb3f4c53725a12bf2e6bf5ab74892bcbe3de14b98c87bdab4",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 381,
+      "line": 382,
       "column": 52,
       "textSha256": "790ae3519ad849ba6720c1e53dd092ef5f68295db5cfeb778e78092fa2ef215e",
-      "category": "historical"
-    },
-    {
-      "path": "tests/stripe-readiness.test.mjs",
-      "line": 382,
-      "column": 47,
-      "textSha256": "f602e2951c151c45c400f1866d5dc54360ff514f7a2cc185e7e2fc88e28957a4",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-readiness.test.mjs",
-      "line": 636,
+      "line": 637,
       "column": 53,
       "textSha256": "a0ddca618e3a9c13d949d63ef7fe9e4a80f2f766aabd5cee732cc138033d15e7",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 41,
-      "column": 5,
-      "textSha256": "d75ee887c057521dce68c80bfe0dc0fa5ccb64256153b348ee9c51beb5a0d02a",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 42,
       "column": 5,
-      "textSha256": "f2cc43943ba0b6b68d1a627b0f02f4d96157169c9a94d9b64b6814fe33ae1e35",
+      "textSha256": "d75ee887c057521dce68c80bfe0dc0fa5ccb64256153b348ee9c51beb5a0d02a",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 43,
       "column": 5,
-      "textSha256": "b57280cb7eb1f7bd26c6d6f3d7913a599ae019aab54c67dd2dbab7d99387f1cd",
+      "textSha256": "f2cc43943ba0b6b68d1a627b0f02f4d96157169c9a94d9b64b6814fe33ae1e35",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 44,
       "column": 5,
-      "textSha256": "864110b433997b8508e940fedf996a19c27e27d048325c2ce57a87fdfda536a4",
+      "textSha256": "b57280cb7eb1f7bd26c6d6f3d7913a599ae019aab54c67dd2dbab7d99387f1cd",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 45,
       "column": 5,
-      "textSha256": "06f4e453542729542022cdca8630f4bebfebc54f2cd564a79f386247eb50897d",
+      "textSha256": "864110b433997b8508e940fedf996a19c27e27d048325c2ce57a87fdfda536a4",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 46,
       "column": 5,
-      "textSha256": "90173fac7f797bde5167fd89bba6d04b169845696b3057c32000ae54f5fb31e0",
+      "textSha256": "06f4e453542729542022cdca8630f4bebfebc54f2cd564a79f386247eb50897d",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 47,
       "column": 5,
-      "textSha256": "0d5a880b66caf2868feb6d6735d59be82536ea65e2a0b34cc3743908aade9c39",
+      "textSha256": "90173fac7f797bde5167fd89bba6d04b169845696b3057c32000ae54f5fb31e0",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 48,
       "column": 5,
-      "textSha256": "8a62d99941f08f9d24c8bd44293e19f3bf5ce4e6fa2943986abe04a2c109abd6",
+      "textSha256": "0d5a880b66caf2868feb6d6735d59be82536ea65e2a0b34cc3743908aade9c39",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 49,
       "column": 5,
-      "textSha256": "2db980158c76789e5767c9f29bd6fd86dd004be8bca548b14a4a215e1ad24e1c",
+      "textSha256": "8a62d99941f08f9d24c8bd44293e19f3bf5ce4e6fa2943986abe04a2c109abd6",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 50,
       "column": 5,
-      "textSha256": "8547e21c18a38d16648a4e1a3a34a822c86dd86fb8ce15576732e6c51b4d2d89",
+      "textSha256": "2db980158c76789e5767c9f29bd6fd86dd004be8bca548b14a4a215e1ad24e1c",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 51,
       "column": 5,
-      "textSha256": "ac8e7ad64d0a7f543aac1ab2f41c8ec0123220e2978715c0c8450d34a394d84a",
+      "textSha256": "8547e21c18a38d16648a4e1a3a34a822c86dd86fb8ce15576732e6c51b4d2d89",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 52,
       "column": 5,
-      "textSha256": "c15b5cd1319d17f1bfb1228a902258b8134450e03e2290ef1fce1ceb60e8431e",
+      "textSha256": "ac8e7ad64d0a7f543aac1ab2f41c8ec0123220e2978715c0c8450d34a394d84a",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 53,
       "column": 5,
-      "textSha256": "830709d8c4b5eff9cf6e7c7ce930eac20dc70936a244d39c7db60c873ac267e8",
+      "textSha256": "c15b5cd1319d17f1bfb1228a902258b8134450e03e2290ef1fce1ceb60e8431e",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 54,
       "column": 5,
-      "textSha256": "bb2c1945d1918c56ff2797ed24d21a976651ddb78b88ee5da085757d4ec9fed6",
+      "textSha256": "830709d8c4b5eff9cf6e7c7ce930eac20dc70936a244d39c7db60c873ac267e8",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 55,
       "column": 5,
-      "textSha256": "c663dd3b92aa68e733ea5fe093a6cab1fecf0a1325394e0e1dc5180abc1de854",
+      "textSha256": "bb2c1945d1918c56ff2797ed24d21a976651ddb78b88ee5da085757d4ec9fed6",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 56,
       "column": 5,
+      "textSha256": "c663dd3b92aa68e733ea5fe093a6cab1fecf0a1325394e0e1dc5180abc1de854",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 57,
+      "column": 5,
       "textSha256": "0106f9efdddede6012df929a4f8c964ed9f2cdcee1be76e9d6562f93cd493f49",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 77,
-      "column": 17,
-      "textSha256": "115df8d357b84f34770220cff255df6dc9b4947f2e201ab36532a3d0e6a30e8e",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 77,
-      "column": 30,
-      "textSha256": "115df8d357b84f34770220cff255df6dc9b4947f2e201ab36532a3d0e6a30e8e",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 78,
       "column": 17,
+      "textSha256": "115df8d357b84f34770220cff255df6dc9b4947f2e201ab36532a3d0e6a30e8e",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 78,
+      "column": 30,
+      "textSha256": "115df8d357b84f34770220cff255df6dc9b4947f2e201ab36532a3d0e6a30e8e",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 79,
+      "column": 17,
       "textSha256": "6fdccb990e29cd658a2f05633b439f408e3b61b4fcfdc55752cba6f7f11fa58c",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 84,
+      "line": 85,
       "column": 11,
       "textSha256": "bb877989b9d7c2bd5b2216c02b8717747c1d4b80200b04de9b48c87e0843c139",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 100,
+      "line": 101,
       "column": 36,
       "textSha256": "71dc158dfeaa9adcbc6242a7ca49b908b7a2a2b1664eb87acdc57ceb4f45cc7d",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 282,
+      "line": 283,
       "column": 51,
       "textSha256": "84180694e26d1612bcb9fa2a460e1d0bc490cc12c24b95c8bac4f7c4e0beb340",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 283,
+      "line": 284,
       "column": 51,
       "textSha256": "c270b950ab05016e7823926f83afd32519a4e86d4c79705a4499081533a51b07",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 284,
+      "line": 285,
       "column": 49,
       "textSha256": "29c3bcb3074cc8a780215335d49c1a897b5a4316234c98432d3b7ca95e5920b6",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 615,
+      "line": 616,
       "column": 25,
       "textSha256": "81a3e5c598d42f6b034dee78cbe850aaf21d2db57c2ee402bb030226edbd26d2",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 622,
+      "line": 623,
       "column": 25,
       "textSha256": "0e82f6e3d190bca504aea0a3fb8b0e25ca4f240994e30eb712689e9e8ae47f07",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 627,
+      "line": 628,
       "column": 5,
       "textSha256": "77e897c25ea1d10cf99263b8898a267a9e2c1206b0ca062812eb97dc476bfac8",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 628,
+      "line": 629,
       "column": 5,
       "textSha256": "c8e1f0ce58049c611a9cab25cc80c945ebaa1e2d3b347f13b89bf0ce9cc850e7",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 629,
+      "line": 630,
       "column": 5,
       "textSha256": "5d21e9dece7b9d1c3d235408f7acc362bd2f0c23179a5a6c15f0541dd390b36b",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 714,
+      "line": 715,
       "column": 14,
       "textSha256": "fc00558cb60cb5fc09feb48a2f3596cdadb87a4949cd1d3b2af7897aac9f5189",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 717,
+      "line": 718,
       "column": 15,
       "textSha256": "56a99ce26dc9c4361d53341085f1fae55a92193feea6817fbffc4b55a313ebfa",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 718,
-      "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 719,
       "column": 9,
-      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 720,
       "column": 9,
+      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 721,
+      "column": 9,
       "textSha256": "3fbcb0ac7812390510d8aeaedabeac3df6893c49f2d26120089ba66257ae2998",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 724,
+      "line": 725,
       "column": 30,
       "textSha256": "1b23612b633ebcfc3b8d4ed8e0b6211df7e1f23a40bea50395c45e30b4c35190",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 734,
+      "line": 735,
       "column": 9,
       "textSha256": "642ffed8f72ca86c4d8153b082a4ad8c1039bdbcfb5622a1cf52d583bc95af23",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 740,
+      "line": 741,
       "column": 36,
       "textSha256": "7ccd01daf44d67e22cdd96b356ef739f48486d8699c9ad0c1833ee22e6c964ff",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 786,
+      "line": 787,
       "column": 36,
       "textSha256": "1029f03875ac9830f2b19fe825aaac017eff0046e4eddb018f2c461b23b1c854",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 881,
+      "line": 882,
       "column": 9,
       "textSha256": "9c0690fad5800e4ed36ae2bb97ce681064542dcc80bdc0c44daf67bef174f3a9",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 882,
+      "line": 883,
       "column": 9,
       "textSha256": "9d312bf025a285bef5b7944019ff86b96c6e49d2446f3afb56c98f486e3e47b6",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 883,
+      "line": 884,
       "column": 9,
       "textSha256": "8cf8e0ebd0fb56dda8cc05b117eb802d67f79181eeecc43f36bd0c28bf7e569a",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 884,
+      "line": 885,
       "column": 9,
       "textSha256": "5fa8e9e1bbbed968133d41a190c798fa383862e30af2a2d4c4b68f772ae98dcf",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 885,
+      "line": 886,
       "column": 9,
       "textSha256": "628e79adaa13147063609cbc2e564cea2644aeb4ca8ce2e83e08304389051974",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 886,
+      "line": 887,
       "column": 9,
       "textSha256": "06f3e05dbf296a0b34cccaf04f4304f77e11a2cdb29c7ab4220f326ff76a984c",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 887,
+      "line": 888,
       "column": 9,
       "textSha256": "75699503faf7a26b90e4da2fe358961f30554992336e62464a37175801eeb96c",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 888,
+      "line": 889,
       "column": 9,
       "textSha256": "14ba5b01180e13eed1fc37be393feec857d191a213aaa803057411d2cc519a9e",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 889,
+      "line": 890,
       "column": 9,
       "textSha256": "a272d566c5375c452aecf61110a0f269d577a83f40395830ae4bc226d1bb0f1c",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 890,
+      "line": 891,
       "column": 9,
       "textSha256": "11e2639771f4a325eb3b3f6bc4e5f67c587763cb575c007daf914fd72d671014",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 891,
+      "line": 892,
       "column": 9,
       "textSha256": "f5833e7e47d3d122930b61c485c92ccecaf4b97039c5549466ca4a202aa2cf5c",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 892,
+      "line": 893,
       "column": 9,
       "textSha256": "b5b3b3a57618668b18fc26a08a8396e25634d9febc46f081acefb865ba390947",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 893,
+      "line": 894,
       "column": 9,
       "textSha256": "d8e5633fa7da0a51bd0a4d1de00e81604504d2740302971873f30f68a1edd985",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 894,
+      "line": 895,
       "column": 9,
       "textSha256": "b3d8026c238f9568f52659e4f7237724ee7f0f84593eaf4d4bb33972d5f9ebde",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 895,
+      "line": 896,
       "column": 9,
       "textSha256": "0639efd14f7da956bf4c2a37936b6a5276fb186482d3757cf1b646e93e441223",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 896,
+      "line": 897,
       "column": 9,
       "textSha256": "c463910e5b887cdf283858b43895b320de6b6eb0465e5aede8fb39fc5a42bdb8",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 925,
+      "line": 926,
       "column": 11,
       "textSha256": "5529a12b270a1d258ade33f1866c9db4892e5b068962e28ebec10d0bfc7577d9",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 926,
+      "line": 927,
       "column": 11,
       "textSha256": "f654b1dfc8fab8cd71841c7aa8453a6e3d48d4b4bd8a945ac86f0e325bbc7886",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 944,
+      "line": 945,
       "column": 9,
       "textSha256": "05bca8bd81b164ef5e25826a19c4537763339340db749f9a9026471709a6f22e",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 945,
+      "line": 946,
       "column": 9,
       "textSha256": "295e37ae8428066ae3dd2e53a38564a794e627e0a14246765864a4aea665427a",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 946,
+      "line": 947,
       "column": 9,
       "textSha256": "bca7d49921725a4379bc596c5d884d39ac09822b3b9785ce467611928d29a476",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 947,
+      "line": 948,
       "column": 9,
       "textSha256": "04360b2bcbb7ada847c318926c0ac661f25f67967d2c62a58d1ce953f971fa61",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 948,
+      "line": 949,
       "column": 9,
       "textSha256": "b3058dbf9be7d0cc9153ccac4d83eb7f77795382dff3281f4c11d8057ad67f19",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 949,
+      "line": 950,
       "column": 9,
       "textSha256": "bc086bf272cac4f16aad42dc13cf6a8c062f10cdb1cf63b1ebc781d7c456c102",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 950,
+      "line": 951,
       "column": 9,
       "textSha256": "527bd1da32397d927336cfde8a1331dd4b9e8259945ef208d75103afa8356986",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 951,
+      "line": 952,
       "column": 9,
       "textSha256": "22cd928ec13e108c082f9a9a2cc53c2eea466f999bca9c53043bb32e06a41aa7",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 952,
+      "line": 953,
       "column": 9,
       "textSha256": "7b5ca08ee39c872d4f5fe2f881f75862a879de75cb70c4b1a2905bd93fea3032",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 988,
+      "line": 989,
       "column": 10,
       "textSha256": "bb297efa21da0f96fd142053f1e21ee281e9e4b0ed465deb09dc9cd4f2cd03c3",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1079,
+      "line": 1080,
       "column": 9,
       "textSha256": "ba10b13119cd480d5a23d0318121d655f1f04901c15d287fb5c948960905ae43",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1107,
-      "column": 35,
-      "textSha256": "9cf7509472203e93466f4e7ad5e383e491e1e0ba0a97e7855f9c5df7a1ce0e48",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1113,
+      "line": 1114,
       "column": 25,
       "textSha256": "1c82fc20442822cbb2e3a052edf91ae911db601fe1c9f871253c02ef737c877b",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1131,
+      "line": 1132,
       "column": 34,
       "textSha256": "0cece5e8427d433508b4554ae2348968355c1e440438b0d8c7a172670b55eec5",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1133,
+      "line": 1134,
       "column": 11,
       "textSha256": "a68e4c07951f9188763846b8a07a5621cdcb3c54cf9411be88cc8e32e37c5bed",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1134,
+      "line": 1135,
       "column": 12,
       "textSha256": "e20127b4e723b7cb60dbfd041aac7c946a49cd59d4f149598a8a6f7e13c7a657",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1140,
+      "line": 1141,
       "column": 29,
       "textSha256": "20073c94a1d13e526f478e0bac4737fc2c102ebb7280a2c179ed05eceb392e25",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1154,
+      "line": 1155,
       "column": 14,
       "textSha256": "6e24814e91825f9c27d430c0c22f138766c6ebdce634f21c1f0404bc41f9d9bb",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1197,
+      "line": 1198,
       "column": 38,
       "textSha256": "c8833aeab0ca5e045b75896b2fa0d18f21fbf5ba9fb819e6fc7b02c5eef3c66e",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1200,
+      "line": 1201,
       "column": 45,
       "textSha256": "5f05f92854741ba221ca42b8be2666165b07ec1b52e92602772f86dbbe29f1f7",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1202,
+      "line": 1203,
       "column": 27,
       "textSha256": "2185bf0c52c2c89217e8787f3098029608f80aae7dfc3d1b7b154727f6fa9b76",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1203,
+      "line": 1204,
       "column": 30,
       "textSha256": "77507deebbec40c0dfea55a7c8edfea80e4ea2ac26e4f450195c51a2dd98def1",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1303,
-      "column": 35,
-      "textSha256": "9cf7509472203e93466f4e7ad5e383e491e1e0ba0a97e7855f9c5df7a1ce0e48",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1347,
+      "line": 1348,
       "column": 15,
       "textSha256": "56a99ce26dc9c4361d53341085f1fae55a92193feea6817fbffc4b55a313ebfa",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1348,
-      "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 1349,
       "column": 9,
-      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 1350,
       "column": 9,
+      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 1351,
+      "column": 9,
       "textSha256": "d0a72fdcd2fabf454405aab54e2eef47c16a4ac63637b32ac237e8015760464b",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1354,
+      "line": 1355,
       "column": 14,
       "textSha256": "fc00558cb60cb5fc09feb48a2f3596cdadb87a4949cd1d3b2af7897aac9f5189",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1357,
+      "line": 1358,
       "column": 15,
       "textSha256": "56a99ce26dc9c4361d53341085f1fae55a92193feea6817fbffc4b55a313ebfa",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1358,
-      "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 1359,
       "column": 9,
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 1360,
+      "column": 9,
       "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1401,
+      "line": 1402,
       "column": 45,
       "textSha256": "f3eea91369c71915ee3246d1c4cc444fe25eadcdb8e29c9365a0e78996b42480",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1425,
+      "line": 1426,
       "column": 17,
       "textSha256": "974e9e82812b2e151c44065bc310bf082b26ea1460e7d30aaf4504df61707e57",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1426,
-      "column": 11,
-      "textSha256": "770e99a3ac76a699f68b0cbcc7030441d4d98f1ea18e8cd490f222582ddad6ea",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 1427,
       "column": 11,
-      "textSha256": "e99776d58256d3d4e067a0f97f1c9b5d76646e4b39e93afba9adb8cf1617005c",
+      "textSha256": "770e99a3ac76a699f68b0cbcc7030441d4d98f1ea18e8cd490f222582ddad6ea",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 1428,
       "column": 11,
+      "textSha256": "e99776d58256d3d4e067a0f97f1c9b5d76646e4b39e93afba9adb8cf1617005c",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 1429,
+      "column": 11,
       "textSha256": "afda5e92389b9213a6fdce1c2b5e0de2670b9fee2cd992be2a085d58de57f793",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1459,
+      "line": 1460,
       "column": 17,
       "textSha256": "974e9e82812b2e151c44065bc310bf082b26ea1460e7d30aaf4504df61707e57",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1460,
-      "column": 11,
-      "textSha256": "770e99a3ac76a699f68b0cbcc7030441d4d98f1ea18e8cd490f222582ddad6ea",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 1461,
       "column": 11,
-      "textSha256": "e99776d58256d3d4e067a0f97f1c9b5d76646e4b39e93afba9adb8cf1617005c",
+      "textSha256": "770e99a3ac76a699f68b0cbcc7030441d4d98f1ea18e8cd490f222582ddad6ea",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 1462,
       "column": 11,
+      "textSha256": "e99776d58256d3d4e067a0f97f1c9b5d76646e4b39e93afba9adb8cf1617005c",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 1463,
+      "column": 11,
       "textSha256": "6e7ef2081e853c6631cb31ef9765dfb942cfdf80c9755c6ba47aff0e2fa7b044",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1563,
+      "line": 1564,
       "column": 50,
       "textSha256": "d82c5a277124b5728f73af56b77d5b986f057923fb64e6e4aaf90a87d55cfc0c",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1601,
+      "line": 1602,
       "column": 29,
       "textSha256": "237258f2887a492d46fd23373d33890132d21306f65012b532534cd9f08301c8",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1642,
+      "line": 1643,
       "column": 30,
       "textSha256": "59a0457b516725663c480a7707d5f39cc2f823515bb7b45372fa3215e2af90fc",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1816,
+      "line": 1817,
       "column": 7,
       "textSha256": "751c8d389735607d1754fd86dccfa4acba46373955d0a6452579aff86cc2232e",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1827,
+      "line": 1828,
       "column": 27,
       "textSha256": "1484bb8c598b47b27d9dfc25ebfe9d505e77e1e38fa6cbdc360f75449b424d04",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1849,
+      "line": 1850,
       "column": 13,
       "textSha256": "20f162d3eded588c3885d2fcdb61569d375287e0e81dccd204702850dbe42f6f",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1850,
+      "line": 1851,
       "column": 7,
       "textSha256": "8b389c4b84a68dbdfd1fccd3002930e471f0618dc39b5c3b16a8a02d6b2b0826",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1851,
+      "line": 1852,
       "column": 7,
       "textSha256": "bc304eb5b7632ca2f4a915a64d387fe45d074aee9b6e6440401a06f552334507",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1854,
+      "line": 1855,
       "column": 14,
       "textSha256": "fc00558cb60cb5fc09feb48a2f3596cdadb87a4949cd1d3b2af7897aac9f5189",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1860,
+      "line": 1861,
       "column": 37,
       "textSha256": "c5742dc26a11233b530e55293f17f7dec21b86937b84e844e93bb6eac82dd1c1",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1865,
+      "line": 1866,
       "column": 9,
       "textSha256": "3fbcb0ac7812390510d8aeaedabeac3df6893c49f2d26120089ba66257ae2998",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1869,
+      "line": 1870,
       "column": 37,
       "textSha256": "9911a5e420a8810903b9af245b5583d8fb74b2ad83f5e9ed92adf3d82fe0ab70",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1874,
+      "line": 1875,
       "column": 9,
       "textSha256": "642ffed8f72ca86c4d8153b082a4ad8c1039bdbcfb5622a1cf52d583bc95af23",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1882,
+      "line": 1883,
       "column": 9,
       "textSha256": "bf5969370963c5aef6b64ff78600d9159fa7e8b7bb2bfb5fd1f5ff0d05fa6eb7",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1888,
+      "line": 1889,
       "column": 55,
       "textSha256": "d107088f2fccfab1b3921891b99ddc3b1253abdbc831ca9e486410a03990f9e0",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 1988,
+      "line": 1989,
       "column": 9,
       "textSha256": "e4de83acc3bf9e25b0ba29f3c7ef32c889b4271a60b6533dad861815a98e09aa",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2005,
+      "line": 2006,
       "column": 11,
       "textSha256": "5529a12b270a1d258ade33f1866c9db4892e5b068962e28ebec10d0bfc7577d9",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2006,
+      "line": 2007,
       "column": 11,
       "textSha256": "91f0a9f3bc367d464260ca78ba8f841269af8027283c486e9109cbd4799ccaea",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2157,
-      "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 2158,
       "column": 9,
-      "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2161,
+      "line": 2159,
       "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
+      "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 2162,
       "column": 9,
-      "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2251,
-      "column": 11,
-      "textSha256": "770e99a3ac76a699f68b0cbcc7030441d4d98f1ea18e8cd490f222582ddad6ea",
+      "line": 2163,
+      "column": 9,
+      "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 2252,
       "column": 11,
-      "textSha256": "7d88b8b015102e7b63c627c4b530a165e05c3edf4f37977e821fb93270440065",
+      "textSha256": "770e99a3ac76a699f68b0cbcc7030441d4d98f1ea18e8cd490f222582ddad6ea",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2284,
-      "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
+      "line": 2253,
+      "column": 11,
+      "textSha256": "7d88b8b015102e7b63c627c4b530a165e05c3edf4f37977e821fb93270440065",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 2285,
       "column": 9,
-      "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2320,
+      "line": 2286,
       "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
+      "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 2321,
       "column": 9,
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 2322,
+      "column": 9,
       "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2325,
+      "line": 2326,
       "column": 28,
       "textSha256": "3e89ed6b70fd4c3972f8c6bca390bc29c74b3b360a92a789b4e7e83989539da7",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2346,
+      "line": 2347,
       "column": 11,
       "textSha256": "6d9c07eb4f6df9988e79d6fa5804e772c91d4bcac41bdefd5c60f993fc4fc6d2",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2383,
+      "line": 2384,
       "column": 9,
       "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2384,
+      "line": 2385,
       "column": 9,
       "textSha256": "985ab1dbd917e0600afafc583e19c3ad823922842a4ce02ba1b01e36b39e5477",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2394,
+      "line": 2395,
       "column": 28,
       "textSha256": "9001f328605a8d8f5b8b72751620edc40c620d9569b07264d1d3a8c48ddbf655",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2417,
+      "line": 2418,
       "column": 10,
       "textSha256": "f0c44e7d37d4015a38367f5accd303da282b9a77d22dd2cafcccb4ce91e912b1",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2451,
+      "line": 2452,
       "column": 8,
       "textSha256": "0f5f970cc4b529e3bc99b04aa9f019a4c5fe4ebe996959cc96d7eeca3c061151",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 2576,
+      "line": 2577,
       "column": 11,
       "textSha256": "5f35c0b9fd5085134c02c3d47a6f47e1af6e1cd0e011506bf4331cb93c49aa66",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3035,
+      "line": 3036,
       "column": 9,
       "textSha256": "bf5969370963c5aef6b64ff78600d9159fa7e8b7bb2bfb5fd1f5ff0d05fa6eb7",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3044,
+      "line": 3045,
       "column": 10,
       "textSha256": "16903d89a33ddf328dd13a9bc7a875365b7b3c8abbab81ead702f52fe818f303",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3045,
+      "line": 3046,
       "column": 10,
       "textSha256": "5fe8360fa817745cade3390e8df377d46056cd550f9353eed38468fc2d2e4879",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3046,
+      "line": 3047,
       "column": 10,
       "textSha256": "f30241589c2605eab6066152aecdf123aba1808bca473bcc2d5509a1ce840e19",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3052,
+      "line": 3053,
       "column": 27,
       "textSha256": "1484bb8c598b47b27d9dfc25ebfe9d505e77e1e38fa6cbdc360f75449b424d04",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3066,
+      "line": 3067,
       "column": 14,
       "textSha256": "fc00558cb60cb5fc09feb48a2f3596cdadb87a4949cd1d3b2af7897aac9f5189",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3069,
+      "line": 3070,
       "column": 15,
       "textSha256": "56a99ce26dc9c4361d53341085f1fae55a92193feea6817fbffc4b55a313ebfa",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3070,
-      "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 3071,
       "column": 9,
-      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 3072,
       "column": 9,
+      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 3073,
+      "column": 9,
       "textSha256": "3fbcb0ac7812390510d8aeaedabeac3df6893c49f2d26120089ba66257ae2998",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3105,
+      "line": 3106,
       "column": 14,
       "textSha256": "fc00558cb60cb5fc09feb48a2f3596cdadb87a4949cd1d3b2af7897aac9f5189",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3109,
+      "line": 3110,
       "column": 15,
       "textSha256": "56a99ce26dc9c4361d53341085f1fae55a92193feea6817fbffc4b55a313ebfa",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3110,
-      "column": 9,
-      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 3111,
       "column": 9,
-      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "textSha256": "3bc7b66d31f9d49bf30bd4c9f506ae262a8405a15d81c1f6f03b312533774925",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
       "line": 3112,
       "column": 9,
+      "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
+      "category": "compatibility"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "line": 3113,
+      "column": 9,
       "textSha256": "3fbcb0ac7812390510d8aeaedabeac3df6893c49f2d26120089ba66257ae2998",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3138,
+      "line": 3143,
       "column": 32,
       "textSha256": "87531efb905b7dd5bc15d2bc3913199f5c120c6933585725e45abb89ee57bf7f",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3186,
+      "line": 3191,
       "column": 10,
       "textSha256": "e6d0db11e91f9547b97ad926f677f841f0de25361ff4f933d9e781bc7aeb4b99",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3187,
+      "line": 3192,
       "column": 10,
       "textSha256": "e6d0db11e91f9547b97ad926f677f841f0de25361ff4f933d9e781bc7aeb4b99",
       "category": "compatibility"
     },
     {
       "path": "tests/stripe-supporter-membership-migration.test.mjs",
-      "line": 3193,
+      "line": 3198,
       "column": 27,
       "textSha256": "1484bb8c598b47b27d9dfc25ebfe9d505e77e1e38fa6cbdc360f75449b424d04",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 236,
+      "line": 237,
       "column": 5,
       "textSha256": "d75ee887c057521dce68c80bfe0dc0fa5ccb64256153b348ee9c51beb5a0d02a",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 237,
+      "line": 238,
       "column": 5,
       "textSha256": "2a91112a1724014ca3e94a35b243de3c7076dc596727e50a23f1c2234819026e",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 238,
+      "line": 239,
       "column": 5,
       "textSha256": "b57280cb7eb1f7bd26c6d6f3d7913a599ae019aab54c67dd2dbab7d99387f1cd",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 239,
+      "line": 240,
       "column": 5,
       "textSha256": "864110b433997b8508e940fedf996a19c27e27d048325c2ce57a87fdfda536a4",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 240,
+      "line": 241,
       "column": 5,
       "textSha256": "06f4e453542729542022cdca8630f4bebfebc54f2cd564a79f386247eb50897d",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 241,
+      "line": 242,
       "column": 5,
       "textSha256": "90173fac7f797bde5167fd89bba6d04b169845696b3057c32000ae54f5fb31e0",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 242,
+      "line": 243,
       "column": 5,
       "textSha256": "0d5a880b66caf2868feb6d6735d59be82536ea65e2a0b34cc3743908aade9c39",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 243,
+      "line": 244,
       "column": 5,
       "textSha256": "8a62d99941f08f9d24c8bd44293e19f3bf5ce4e6fa2943986abe04a2c109abd6",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 244,
+      "line": 245,
       "column": 5,
       "textSha256": "2db980158c76789e5767c9f29bd6fd86dd004be8bca548b14a4a215e1ad24e1c",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 245,
+      "line": 246,
       "column": 5,
       "textSha256": "8547e21c18a38d16648a4e1a3a34a822c86dd86fb8ce15576732e6c51b4d2d89",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 246,
+      "line": 247,
       "column": 5,
       "textSha256": "ac8e7ad64d0a7f543aac1ab2f41c8ec0123220e2978715c0c8450d34a394d84a",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 247,
+      "line": 248,
       "column": 5,
       "textSha256": "c15b5cd1319d17f1bfb1228a902258b8134450e03e2290ef1fce1ceb60e8431e",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 248,
+      "line": 249,
       "column": 5,
       "textSha256": "830709d8c4b5eff9cf6e7c7ce930eac20dc70936a244d39c7db60c873ac267e8",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 249,
+      "line": 250,
       "column": 5,
       "textSha256": "bb2c1945d1918c56ff2797ed24d21a976651ddb78b88ee5da085757d4ec9fed6",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 250,
+      "line": 251,
       "column": 5,
       "textSha256": "c663dd3b92aa68e733ea5fe093a6cab1fecf0a1325394e0e1dc5180abc1de854",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 251,
+      "line": 252,
       "column": 5,
       "textSha256": "0106f9efdddede6012df929a4f8c964ed9f2cdcee1be76e9d6562f93cd493f49",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 287,
+      "line": 288,
       "column": 14,
       "textSha256": "ff0db8d32d2e5ddd4ad6b296a35d1254046ce243806a1d70a0280c57d340ce4e",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 290,
+      "line": 291,
       "column": 15,
       "textSha256": "56a99ce26dc9c4361d53341085f1fae55a92193feea6817fbffc4b55a313ebfa",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 291,
+      "line": 292,
       "column": 9,
       "textSha256": "d89aa943cd51160c3254799bf1895abf58eebe271e5b67a0153cdf5f35a502b2",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 298,
+      "line": 299,
       "column": 14,
       "textSha256": "0a398572daf1ee157aa5ff26b17b6eaba5701a80948659b941e557451b64c98a",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 299,
+      "line": 300,
       "column": 25,
       "textSha256": "3828d4ec62dcf983d0253160d5ed8c6e944a05232ee5fc9919756dabac95668c",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 305,
+      "line": 306,
       "column": 14,
       "textSha256": "000d22ca367e7fc72992252fd86d8381e8ee566dfdd306a44f8cac726e23ac5c",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 306,
+      "line": 307,
       "column": 25,
       "textSha256": "3828d4ec62dcf983d0253160d5ed8c6e944a05232ee5fc9919756dabac95668c",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 352,
-      "column": 54,
-      "textSha256": "150ea3150404eb3136770b9963f265a445e1cb72a0fa7199e5266d217ea5c3f1",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 630,
+      "line": 634,
       "column": 46,
       "textSha256": "59c736e07f8d6e87fc664adca619106107fbe72f911cfa401b52e938571cd72d",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 631,
+      "line": 635,
       "column": 42,
       "textSha256": "89efc889d18cacada208ba3006c7c0638a3f50a96cf92ecb58b187b6f89874ce",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 683,
-      "column": 16,
-      "textSha256": "d2d55e2917a4dab668b91907d43f73ffca4edc23daced9fc71f11bb4dc33f41e",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 686,
+      "line": 690,
       "column": 17,
       "textSha256": "974e9e82812b2e151c44065bc310bf082b26ea1460e7d30aaf4504df61707e57",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 687,
+      "line": 691,
       "column": 11,
       "textSha256": "770e99a3ac76a699f68b0cbcc7030441d4d98f1ea18e8cd490f222582ddad6ea",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 688,
+      "line": 692,
       "column": 11,
       "textSha256": "e99776d58256d3d4e067a0f97f1c9b5d76646e4b39e93afba9adb8cf1617005c",
       "category": "compatibility"
     },
     {
       "path": "tests/supporter-membership-final-review.test.mjs",
-      "line": 689,
+      "line": 693,
       "column": 11,
       "textSha256": "deacc46d2a5851898d28e2dfa3f72cc57dd893b301ab18a85321a0f8b422bd4f",
       "category": "compatibility"

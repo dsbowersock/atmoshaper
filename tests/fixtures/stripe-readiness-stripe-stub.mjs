@@ -5,6 +5,7 @@ import {
 } from "../../lib/stripe-webhook-contract.js"
 import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
 } from "../../lib/stripe-price-contract.js"
 
 function supporterPrice(priceId) {
@@ -50,7 +51,7 @@ function supporterPrice(priceId) {
         ? "prod_support_1"
         : `prod_${amountChoiceId.replace("-", "_")}`,
       active: true,
-      name: "MassageLab Supporter Membership",
+      name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
       tax_code: "txcd_10000000",
       metadata: {
         app: "massagelab",
