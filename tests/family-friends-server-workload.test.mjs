@@ -894,6 +894,16 @@ describe("family-and-friends server workload baseline", () => {
       /PR #19.*open, unmerged provider-readiness record[\s\S]*merge remains separately authorized/i,
       "README must retain the current unmerged provider-readiness boundary",
     )
+    assert.match(
+      normalizedReadmeSource,
+      /Phase 6 replacement stack is merged[\s\S]*PR #19's merge[\s\S]*remain independently gated/i,
+      "README must distinguish the merged Phase 6 stack from the remaining independent gates",
+    )
+    assert.doesNotMatch(
+      normalizedReadmeSource,
+      /Phase 6 replacement delivery plan.*govern the current local branch|local Phase 6 stack remains review work/i,
+      "README must not describe the merged Phase 6 stack as current review work",
+    )
     assert.doesNotMatch(
       normalizedProjectStateSource,
       /Re-freeze the same 43-path classification as v21 and repeat SPEC then QUALITY before staging/i,

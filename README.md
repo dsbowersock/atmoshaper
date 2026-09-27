@@ -37,9 +37,9 @@ Start with:
 4. [Migration lineage](MIGRATION_LINEAGE.md) for the exact source and history boundary.
 5. [Architecture](docs/architecture.md), [decisions](docs/decisions/README.md), and [account security](docs/wiki/account-security.md) for current owners and constraints.
 
-The [migration charter](docs/rebrand/atmoshaper-migration-charter.md) and [Phase 6 replacement delivery plan](docs/superpowers/plans/2026-09-20-phase6-review-sized-prs.md) govern the current local branch. Earlier plans, the [export manifest](docs/rebrand/atmoshaper-export-manifest.json), and the [project log](docs/project-log.md) retain completed and historical contracts.
+The [migration charter](docs/rebrand/atmoshaper-migration-charter.md) remains current policy. The [Phase 6 replacement delivery plan](docs/superpowers/plans/2026-09-20-phase6-review-sized-prs.md), earlier plans, the [export manifest](docs/rebrand/atmoshaper-export-manifest.json), and the [project log](docs/project-log.md) retain the merged stack's implementation history and completed contracts.
 
-The local Phase 6 stack remains review work. Task 8 introduces new current legal-version IDs without rewriting archived v2 documents or existing acceptance rows. The current amendment, merge, old-origin recovery, provider staging, deployment, domain/DNS cutover, production/database/payment/email/media mutation, final-logo integration, and the separate Linux Atmosphere snapshot decision remain independently gated.
+The Phase 6 replacement stack is merged. Task 8 introduced new current legal-version IDs without rewriting archived v2 documents or existing acceptance rows. Old-origin recovery remains a compatibility requirement; PR #19's merge and the staged provider, deployment, domain/DNS, production-database, payment, email, media, final-logo, and separate Linux Atmosphere snapshot decisions remain independently gated.
 
 ## Local Development
 
