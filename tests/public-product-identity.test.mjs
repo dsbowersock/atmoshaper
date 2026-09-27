@@ -79,12 +79,14 @@ describe("public product identity", () => {
     const favicon = readFileSync(new URL("../app/favicon.ico", import.meta.url))
     assert.deepEqual([...favicon.subarray(0, 4)], [0, 0, 1, 0])
     const iconCount = favicon.readUInt16LE(4)
-    const embeddedSizes = Array.from({ length: iconCount }, (_, index) => {
+    /** Decodes one ICO directory entry, including the zero byte that represents 256px. */
+    const icoEntryDimensions = (_, index) => {
       const offset = 6 + (index * 16)
       const width = favicon[offset] || 256
       const height = favicon[offset + 1] || 256
       return [width, height]
-    })
+    }
+    const embeddedSizes = Array.from({ length: iconCount }, icoEntryDimensions)
     assert.deepEqual(embeddedSizes, [[20, 20], [32, 32], [48, 48]])
   })
 
