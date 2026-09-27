@@ -291,6 +291,11 @@ Price-only switching among the six new Supporter Prices across three Products.
 Approved Prices must have no default trial period. Verify reports
 either `PRE_MIGRATION` or `COMPLETED`; mixed states, unrecognized Prices,
 incomplete or malformed pagination, and unknown portal subsets are blockers.
+An otherwise completed catalog whose amount Products retain their exact private
+classification and amount ownership but differ only in public name or
+description also reports `PRE_MIGRATION`. That narrow result permits a
+read-only gate before a separately authorized display-copy repair; metadata,
+Price, Portal, coupon, or retirement drift remains fail-closed.
 
 Only after reviewing the safe PASS checklist, run:
 

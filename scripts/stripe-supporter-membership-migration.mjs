@@ -485,6 +485,12 @@ function targetSupporterProductMatches(candidate, spec) {
     && candidate.metadata?.massagelab_supporter_amount_choice === spec.key
 }
 
+/** Allows only public copy drift on an otherwise exact amount Product. */
+function targetSupporterProductDisplayRepairable(candidate, spec) {
+  return targetSupporterProductClassificationMatches(candidate)
+    && candidate.metadata?.massagelab_supporter_amount_choice === spec.key
+}
+
 /** Resolves the single amount Product contract that owns a target Price slot. */
 function targetProductSpecForPrice(spec) {
   return TARGET_PRODUCT_SPECS.find((candidate) => candidate.priceKeys.includes(spec.key))
@@ -1354,8 +1360,21 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
     && retirementPricesInactive
     && retirementProductsInactive
     && couponsMissing
+  // A previously completed catalog may differ only in Product display copy
+  // after a public rebrand. Treat that exact shape as safe pre-apply input so
+  // read-only verification can gate the separately authorized repair.
+  const isDisplayOnlyRepair = portalIsCompleted
+    && TARGET_PRODUCT_SPECS.every((spec) => (
+      targetSupporterProductDisplayRepairable(products[spec.configKey], spec)
+    ))
+    && !allTargetProductsCompleted
+    && targetPrices.size === config.targetPrices.length
+    && targetPricesAreActive
+    && retirementPricesInactive
+    && retirementProductsInactive
+    && couponsMissing
   let state = "TRANSITIONAL"
-  if (isPreMigration) {
+  if (isPreMigration || isDisplayOnlyRepair) {
     state = "PRE_MIGRATION"
   } else if (isCompleted) {
     state = "COMPLETED"

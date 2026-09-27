@@ -1627,6 +1627,59 @@ describe("Supporter membership Stripe migration", () => {
     )
   })
 
+  it("admits a completed catalog with display-only Product drift through verify", async () => {
+    const fixture = stripeFixture()
+    await runSupporterMembershipMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: migrationEnv(),
+    })
+    const targetProducts = [...fixture.products.values()].filter(
+      (candidate) => (
+        candidate.metadata?.massagelab_catalog
+          === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+      ),
+    )
+    assert.equal(targetProducts.length, 3)
+    for (const candidate of targetProducts) {
+      candidate.name = "MassageLab Supporter Membership"
+    }
+    fixture.calls.length = 0
+
+    const verification = await runSupporterMembershipMigration({
+      stripe: fixture.stripe,
+      mode: "verify",
+      env: migrationEnv(),
+    })
+
+    assert.equal(verification.state, "PRE_MIGRATION")
+    assert.deepEqual(mutationCalls(fixture), [])
+
+    fixture.calls.length = 0
+    const repaired = await runSupporterMembershipMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: migrationEnv(),
+    })
+
+    assert.equal(repaired.state, "COMPLETED")
+    assert.equal(
+      fixture.calls.filter(({ name }) => name === "products.update").length,
+      3,
+    )
+    assert.equal(
+      [...fixture.products.values()].filter(
+        (candidate) => (
+          candidate.metadata?.massagelab_catalog
+            === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+        ),
+      ).every(
+        (candidate) => candidate.name === SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
+      ),
+      true,
+    )
+  })
+
   it("rejects misidentified Therapist and Practice Products before any mutation", async () => {
     const cases = [
       {
