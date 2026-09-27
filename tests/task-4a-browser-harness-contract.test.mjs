@@ -364,11 +364,11 @@ it("rejects a local lifetime owner that replaces the canonical signed-cookie imp
           "  SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
           "  installSignedInSessionCookie,",
           '} from "./signed-in-session-cookie"',
-        ].join("\n")
+        ].join(source.includes("\r\n") ? "\r\n" : "\n")
         const localOwner = [
           'import { installSignedInSessionCookie } from "./signed-in-session-cookie"',
           "const SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS = 60 * 60",
-        ].join("\n")
+        ].join(source.includes("\r\n") ? "\r\n" : "\n")
         const mutated = source.replace(canonicalImport, localOwner)
         assert.notEqual(mutated, source, "the consumer lifetime-owner mutation must alter its actual import")
         return mutated
@@ -387,11 +387,11 @@ it("rejects a whole-clause type-only canonical lifetime import", async () => {
           "  SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
           "  installSignedInSessionCookie,",
           '} from "./signed-in-session-cookie"',
-        ].join("\n")
+        ].join(source.includes("\r\n") ? "\r\n" : "\n")
         const typeOnlyImport = [
           'import type { SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS } from "./signed-in-session-cookie"',
           'import { installSignedInSessionCookie } from "./signed-in-session-cookie"',
-        ].join("\n")
+        ].join(source.includes("\r\n") ? "\r\n" : "\n")
         const mutated = source.replace(canonicalImport, typeOnlyImport)
         assert.notEqual(mutated, source, "the whole-clause type-only mutation must alter the actual import")
         return mutated
@@ -410,13 +410,13 @@ it("rejects an inline type-only canonical lifetime import", async () => {
           "  SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
           "  installSignedInSessionCookie,",
           '} from "./signed-in-session-cookie"',
-        ].join("\n")
+        ].join(source.includes("\r\n") ? "\r\n" : "\n")
         const inlineTypeOnlyImport = [
           "import {",
           "  type SIGNED_IN_BROWSER_SESSION_MAX_AGE_SECONDS,",
           "  installSignedInSessionCookie,",
           '} from "./signed-in-session-cookie"',
-        ].join("\n")
+        ].join(source.includes("\r\n") ? "\r\n" : "\n")
         const mutated = source.replace(canonicalImport, inlineTypeOnlyImport)
         assert.notEqual(mutated, source, "the inline type-only mutation must alter the actual import")
         return mutated

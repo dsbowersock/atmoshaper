@@ -1,34 +1,34 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-25
+Verified: 2026-09-27
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Standalone Migration Live; Data Cutover Pending
+## Current Snapshot — Whole-Site Migration Live; Provider Cutover Staged
 
-- The full site and AtmoShaper rebrand are integrated on `main`, deployed at
-  `atmoshaper.com`, and the user verified audio Play/Stop on the real domain.
-  Production identity and data cutover remain a separate pending operation.
-  The current bounded anatomy branch repairs nine action joint/movement
-  mismatches and one verified extensor carpi radialis longus landmark error,
-  adds recurrence protection, and records broader catalog observations in
-  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
-  Those future content, media, 3D, and MBLEx items are non-blocking for data
-  cutover. No production data, provider configuration, or deployment changes.
-  PR #17 remains subject to exact-head hosted review and strict CI gates.
+- The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
+  home, pricing, support, Privacy, Terms, and signed-out session handling. Current
+  `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`; PR #17's anatomy repair
+  and PR #18's support update are merged; CI `36296398216` passed all seven jobs.
+- Production Google sign-in, the fresh administrator account, domain ownership,
+  SMTP delivery, and support routing are operational; branding review has a
+  one-week follow-up reminder.
+- A read-only Stripe audit found one legacy active monthly subscription that is
+  not attached to the fresh administrator; billing remains unconfigured. See the
+  [provider audit](audits/2026-09-27-atmoshaper-provider-readiness.md); database aggregate readback is pending because the CLI cannot see the destination.
 
-- Task 7 is complete for its own slice at
-  `995fc4f7ce44902002ef2b36c7af1195dbdcb562` on open, unmerged
-  [PR #12](https://github.com/dsbowersock/atmoshaper/pull/12). Independent SPEC
+- Task 7's reviewed head
+  `995fc4f7ce44902002ef2b36c7af1195dbdcb562` merged through
+  [PR #12](https://github.com/dsbowersock/atmoshaper/pull/12) as `cb152b4`. Independent SPEC
   then QUALITY approved the final amendment; Codex and CodeRabbit completed
   clean on that exact head; all seven jobs in strict CI `35578132889` passed;
-  and all four prior inline threads are resolved or outdated. No merge occurred.
-- Task 8 is published as open, unmerged
-  [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13), stacked on that
+  and all four prior inline threads were resolved or outdated before merge.
+- Task 8's legal-identity work was published and later merged through
+  [PR #13](https://github.com/dsbowersock/atmoshaper/pull/13) as `935413c`, stacked on that
   exact Task 7 head. Its initial `4ef561c75125ea3875da236759c10617cfdc8bb1`
   head contained 20 files and passed independent SPEC then QUALITY before
   publication. Both hosted reviewers completed on that exact head. Codex found
-  a credential-sign-in legal-gate bypass and this stale state checkpoint;
+  a credential-sign-in legal-gate bypass and an earlier stale state checkpoint;
   CodeRabbit found an ambiguous source-exact count in the chronological log.
 - The pre-CI legal/session candidate had 33 paths: 12 implementation/test paths
   still
@@ -182,10 +182,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - The published v21 candidate contains 43 paths: 12 recovery-exact, 26 repairs
   and five records. It was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`; CodeRabbit completed product review,
   Codex found only its then-current record issue, and all seven strict CI jobs passed. The post-v21 OAuth amendment is published as `7ad60de8519e4a1d4bcc0bd892583b0c54d80186`;
-  it switches public Google callbacks to the acceptance-filtered session identity while keeping raw access in the legal gate. Current status for the latest PR #13 head is delegated to GitHub and the ignored review handoff;
+  it switches public Google callbacks to the acceptance-filtered session identity while keeping raw access in the legal gate. That work merged through PR #13 as `935413c`;
   its hosted-review and strict-CI gates passed on `5345c7cc2f413e4dfd33def15bff5c8e99151243`
-  before Task 9 started. Combined-source equivalence and the separate Linux
-  Atmosphere snapshot decision remain pending.
+  before Task 9 started. PR #14 later completed combined-source integration;
+  current provider and deployment gates are summarized at the top of this file.
 - Frozen v19 passed independent SPEC, but separate QUALITY proved the two
   mismatched pairs still did not lock exact response-code value and shape.
   Prefix matching accepted `AUTHENTICATION_REQUIRED_LATER`; string coercion
@@ -208,9 +208,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   NFKC and JSON-fallback mutations each fail 0/1 and restore exactly. Frozen v21
   passed independent SPEC then separate QUALITY, retained the 43-path
   classification, and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`.
-- Original PR #5 and replacements #6–#13 remain open and unmerged. No provider,
-  billing, deployment, database, domain/DNS, PNG, frame, threshold, media-byte
-  or production action occurred.
+- Original PR #5 is closed unmerged; replacements #6–#13 are merged. This
+  historical candidate slice itself performed no provider, billing, deployment,
+  database, domain/DNS, PNG, frame, threshold, media-byte, or production action.
 
 ## Historical Snapshot — Phase 6 Background Catalog and Controls
 

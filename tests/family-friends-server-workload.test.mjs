@@ -66,7 +66,7 @@ const normalizedProjectLogSource = normalizeDocumentationWhitespace(projectLogSo
 const normalizedDeploymentSource = normalizeDocumentationWhitespace(deploymentSource)
 const normalizedReleaseChecklistSource = normalizeDocumentationWhitespace(releaseChecklistSource)
 // Advance this review-date ceiling only alongside newly verified project-state evidence.
-const PROJECT_STATE_VERIFIED_DATE_UPPER_BOUND = "2026-09-25"
+const PROJECT_STATE_VERIFIED_DATE_UPPER_BOUND = "2026-09-27"
 
 /** Returns one named function body bounded by the next named owner. */
 function namedFunctionSlice(source, startMarker, endMarker) {
@@ -886,13 +886,23 @@ describe("family-and-friends server workload baseline", () => {
     )
     assert.match(
       normalizedReadmeSource,
-      /The repaired 43-path v21 package passed independent SPEC then QUALITY and was published as `22eb0ef690b354317a74a74bf0318aa6c6f2a733`[\s\S]*Both hosted reviewers completed exact-head review[\s\S]*all seven jobs in strict CI `35682219253` passed/i,
-      "README must record the completed v21 publication, hosted reviews, and strict CI",
+      /PR #5.*closed unmerged[\s\S]*replacement PRs #6–#14[\s\S]*PR #18 are merged[\s\S]*Current `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`/i,
+      "README must record the merged replacement stack and current main",
     )
     assert.match(
       normalizedReadmeSource,
-      /PR #13 remains open and unmerged[\s\S]*Task 9 is underway only in the isolated local worktree; combined-source equivalence, Task 9 reviews and CI, and the separate Linux Atmosphere snapshot decision remain pending/i,
-      "README must retain the unmerged and pending closeout boundaries",
+      /PR #19.*open, unmerged provider-readiness record[\s\S]*merge remains separately authorized/i,
+      "README must retain the current unmerged provider-readiness boundary",
+    )
+    assert.match(
+      normalizedReadmeSource,
+      /Phase 6 replacement stack is merged[\s\S]*PR #19's merge[\s\S]*remain independently gated/i,
+      "README must distinguish the merged Phase 6 stack from the remaining independent gates",
+    )
+    assert.doesNotMatch(
+      normalizedReadmeSource,
+      /Phase 6 replacement delivery plan.*govern the current local branch|local Phase 6 stack remains review work/i,
+      "README must not describe the merged Phase 6 stack as current review work",
     )
     assert.doesNotMatch(
       normalizedProjectStateSource,
@@ -906,8 +916,8 @@ describe("family-and-friends server workload baseline", () => {
     )
     assert.match(
       normalizedProjectStateSource,
-      /post-v21 OAuth amendment.*`7ad60de8519e4a1d4bcc0bd892583b0c54d80186`.*acceptance-filtered session identity.*latest PR #13 head.*hosted-review and strict-CI gates.*Task 9/i,
-      "project state must record the OAuth amendment and preserve its latest-head gates",
+      /post-v21 OAuth amendment.*`7ad60de8519e4a1d4bcc0bd892583b0c54d80186`.*acceptance-filtered session identity.*merged through PR #13 as `935413c`.*hosted-review and strict-CI gates.*Task 9/i,
+      "project state must record the OAuth amendment and its merged PR #13 boundary",
     )
   })
 })

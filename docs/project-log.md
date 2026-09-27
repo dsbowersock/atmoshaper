@@ -2,6 +2,23 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-27 — Production provider-readiness audit after migration merges
+
+- Current `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`; the anatomy repair
+  and support-contact update are merged, and CI `36296398216` passed all seven jobs.
+- Production home, pricing, support, Privacy, Terms, and anonymous session
+  endpoints returned 200; the anonymous session response remained `null`.
+- Read-only Stripe inventory found three customer records, one active two-dollar
+  monthly subscription, and one canceled one-dollar monthly subscription. The
+  active subscription does not belong to the fresh administrator identity.
+- The local Prisma client generated successfully and the schema validated.
+  Production credentials remained non-exportable, while the authenticated Neon
+  CLI still listed only the legacy source project, so no database rows were read.
+- A one-week reminder owns the deferred OAuth branding-verification check. The
+  sanitized receipt lists the remaining billing, Calendar, database, telemetry,
+  realtime, and media decisions. No live payment, database, provider, DNS,
+  deployment, or customer mutation was made during this audit.
+
 ## 2026-09-25 — Bounded anatomy consistency repair prepared before data cutover
 
 - A read-only, isolated audit of the migrated anatomy catalog found nine
