@@ -22,6 +22,12 @@ working production surfaces are evidence of operational milestones, not authorit
 to declare the broader provider and traffic cutover complete. Keeping those facts
 separate preserves the remaining migration gates.
 
+The latest-head review also showed why a current-date header is not enough: the
+canonical snapshot must reconcile every nearby live-status statement with the
+same Git history. Recasting the old PR #12/#13 narrative as historical evidence
+and asserting the current merge topology prevents agents from following a
+contradictory migration baseline.
+
 ## Remaining boundary
 
 Live billing, Calendar, direct destination database readback, telemetry,

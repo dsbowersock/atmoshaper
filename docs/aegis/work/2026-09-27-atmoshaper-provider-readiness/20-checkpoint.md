@@ -44,3 +44,10 @@ operational production and domain milestones as completed cutover despite the
 repository identity boundary. The checklist now distinguishes current operational
 readbacks from the still-staged, separately reviewed production, provider, domain,
 and deployment cutover.
+
+Latest-head Codex review then identified a stale current-state contradiction:
+PRs #12 and #13 were still described as open after their merge commits were
+already part of the recorded `main`. The current snapshot and README now state
+the verified merge topology, while their detailed review narrative remains
+explicitly historical. The companion documentation contract now rejects the
+stale unmerged wording and requires the current PR #19 boundary.
