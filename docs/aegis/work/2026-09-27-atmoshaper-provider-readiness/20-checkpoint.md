@@ -38,3 +38,9 @@ history. The prior entry was restored verbatim and the provider audit remains a
 separate dated entry. Regenerating the deterministic brand-reference baseline
 changed only eight `docs/project-log.md` line numbers by the same 17-line offset;
 entry identities, source commit, and category counts were unchanged.
+
+Codex also correctly identified that the external-account checklist described
+operational production and domain milestones as completed cutover despite the
+repository identity boundary. The checklist now distinguishes current operational
+readbacks from the still-staged, separately reviewed production, provider, domain,
+and deployment cutover.

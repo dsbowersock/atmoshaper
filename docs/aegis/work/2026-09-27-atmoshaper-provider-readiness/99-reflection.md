@@ -17,6 +17,11 @@ log chronological and auditable. The baseline comparison demonstrated that the
 follow-up was a line-location reconciliation only, not a reclassification or a
 change in the set of legacy-brand references.
 
+The second hosted finding exposed an important status-language distinction:
+working production surfaces are evidence of operational milestones, not authority
+to declare the broader provider and traffic cutover complete. Keeping those facts
+separate preserves the remaining migration gates.
+
 ## Remaining boundary
 
 Live billing, Calendar, direct destination database readback, telemetry,

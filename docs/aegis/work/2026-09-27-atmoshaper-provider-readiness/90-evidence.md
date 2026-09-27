@@ -46,6 +46,9 @@ ephemeral and is not a substitute for a current provider readback.
   25,479 entries unchanged; category counts unchanged (`compatibility` 23,737,
   `historical` 1,707, `legal` 35); only eight project-log line numbers moved,
   each by 17 lines.
+- Codex's identity-boundary finding was accepted: the external-account checklist
+  now records current operational readbacks without claiming that production,
+  provider, domain, or deployment cutover is complete.
 
 The PR is intentionally left unmerged for morning review. Hosted check identity
 is external to this committed evidence record and must be read fresh from GitHub.
