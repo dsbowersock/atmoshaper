@@ -966,15 +966,20 @@ async function expectWideMobileSidebarBoundary(
   }).toBeLessThanOrEqual(1)
 }
 
-async function expectTextBrandFits(brand: Locator) {
+/** Requires the approved wide wordmark to load and remain inside its responsive link. */
+async function expectWordmarkBrandFits(brand: Locator) {
   const text = brand.locator(".ml-app-bar-brand-text")
-  await expect(text).toBeVisible()
-  await expect(text).toHaveText("AtmoShaper")
-  await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+  const wordmark = brand.locator(".ml-app-bar-brand-wordmark")
+  await expect(text).toHaveCount(0)
+  await expect(wordmark).toHaveCount(1)
+  await expect(wordmark).toBeVisible()
   await expect(brand.locator(".ml-app-bar-brand-mark")).toBeHidden()
+  await expect.poll(() => wordmark.evaluate((image: HTMLImageElement) => (
+    image.complete && image.naturalWidth > 0
+  )), { message: "AtmoShaper wordmark has loaded" }).toBe(true)
   await expect.poll(async () => brand.evaluate((element) => (
     element.scrollWidth <= element.clientWidth + 1
-  )), { message: "AtmoShaper text fits without clipping" }).toBe(true)
+  )), { message: "AtmoShaper wordmark fits without clipping" }).toBe(true)
 }
 
 async function expectWideMobileShellGeometry(page: Page, shellCase: WideMobileShellCase) {
@@ -987,7 +992,7 @@ async function expectWideMobileShellGeometry(page: Page, shellCase: WideMobileSh
   const backdrop = page.getByTestId("wide-mobile-sidebar-backdrop")
   const appScroll = page.locator(".ml-app-scroll")
   await expectStableMainBarControls(page, shellCase.drawerEdge)
-  await expectTextBrandFits(brand)
+  await expectWordmarkBrandFits(brand)
   const [barBox, drawerBox, brandBox, toolsBox] = await Promise.all([
     bar.boundingBox(),
     drawer.boundingBox(),
@@ -1142,7 +1147,7 @@ test("desktop bar spans the viewport and keeps the brand beside the left drawer 
   const clusterBox = await cluster.boundingBox()
   const drawerBox = await drawerControl(cluster).boundingBox()
   const brand = cluster.getByRole("link", { name: "AtmoShaper home" })
-  await expectTextBrandFits(brand)
+  await expectWordmarkBrandFits(brand)
   const brandBox = await brand.boundingBox()
   expect(barBox?.x).toBeLessThanOrEqual(1)
   expect(barBox?.width).toBeGreaterThanOrEqual(1278)
@@ -1387,7 +1392,7 @@ for (const drawerEdge of ["left", "right"] as const) {
   })
 }
 
-test("narrow mobile keeps every tool and the temporary brand mark visible", async ({ page }, testInfo) => {
+test("narrow mobile keeps every tool and the final brand mark visible", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== mobileProject, "Narrow main-bar behavior is covered in mobile Chromium.")
   await page.setViewportSize({ width: 390, height: 844 })
   await gotoShell(page, "/music")
@@ -1398,7 +1403,7 @@ test("narrow mobile keeps every tool and the temporary brand mark visible", asyn
   const brand = bar.getByRole("link", { name: "AtmoShaper home" })
   expect(barBox?.height).toBeCloseTo(52, 0)
   await expectStableMainBarControls(page, "left")
-  await expectTemporaryMarkBrandFits(brand)
+  await expectFinalMarkBrandFits(brand)
   for (const name of ["Open music", "Open clock", "Open quick actions", "Open calendar"]) {
     await expect(bar.getByLabel(name)).toBeVisible()
   }
@@ -5629,20 +5634,19 @@ test("running alerting and preview capture clear computed shell offsets while ba
 })
 
 /** Requires the approved narrow-container mark without accepting hidden, broken, or clipped branding. */
-async function expectTemporaryMarkBrandFits(brand: Locator) {
+async function expectFinalMarkBrandFits(brand: Locator) {
   const mark = brand.locator(".ml-app-bar-brand-mark")
   const text = brand.locator(".ml-app-bar-brand-text")
   await expect(brand).toBeVisible()
-  await expect(text).toHaveText("AtmoShaper")
-  await expect(text).toBeHidden()
-  await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+  await expect(text).toHaveCount(0)
+  await expect(brand.locator(".ml-app-bar-brand-wordmark")).toBeHidden()
   await expect(mark).toHaveCount(1)
   await expect(mark).toBeVisible()
   await expect(mark).toHaveCSS("width", "36px")
   await expect(mark).toHaveCSS("height", "36px")
   await expect.poll(() => mark.evaluate((image: HTMLImageElement) => (
     image.complete && image.naturalWidth > 0
-  )), { message: "temporary brand mark has loaded" }).toBe(true)
+  )), { message: "final brand mark has loaded" }).toBe(true)
   await expect.poll(() => mark.evaluate((image) => {
     const markBox = image.getBoundingClientRect()
     const brandBox = image.parentElement!.getBoundingClientRect()
@@ -5652,5 +5656,5 @@ async function expectTemporaryMarkBrandFits(brand: Locator) {
       brandBox.top - markBox.top,
       markBox.bottom - brandBox.bottom,
     )
-  }), { message: "temporary brand mark fits without clipping" }).toBeLessThanOrEqual(1)
+  }), { message: "final brand mark fits without clipping" }).toBeLessThanOrEqual(1)
 }

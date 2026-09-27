@@ -1187,8 +1187,16 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
   const identity = await import("../lib/public-product-identity.js")
   const source = await readProjectFile("components/shell/app-bar-brand-link.tsx")
   const css = await readProjectFile("app/globals.css")
-  const mark = identity.PUBLIC_PRODUCT_IDENTITY.assets.appBarMark
-  const imageData = mark ? await readFile(new URL(`../public${mark}`, import.meta.url)) : null
+  const brandAssetData = new Map()
+  for (const assetPath of [
+    identity.PUBLIC_PRODUCT_IDENTITY.assets.appBarWordmark,
+    identity.PUBLIC_PRODUCT_IDENTITY.assets.appBarMark,
+  ].filter(Boolean)) {
+    brandAssetData.set(
+      assetPath,
+      await readFile(new URL(`../public${assetPath}`, import.meta.url)),
+    )
+  }
   const exports = {}
   // Render the actual owner; replace framework transport only, with no server or providers.
   runInNewContext(transpileModule(source, { compilerOptions: { module: 1, jsx: 4, target: 9 } }).outputText, {
@@ -1200,16 +1208,17 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
       if (name === "next/link") return { default: (props) => React.createElement("a", props) }
       if (name === "next/image") return { default: (props) => React.createElement("img", {
         alt: props.alt, width: props.width, height: props.height, className: props.className,
-        sizes: props.sizes, src: `data:image/png;base64,${imageData.toString("base64")}`,
+        sizes: props.sizes,
+        src: `data:image/png;base64,${brandAssetData.get(props.src).toString("base64")}`,
       }) }
       throw new Error(`Unexpected brand dependency: ${name}`)
     },
   })
   const brandMarkup = renderToStaticMarkup(React.createElement(exports.AppBarBrandLink))
-  assert.doesNotMatch(brandMarkup, /ml-app-bar-brand-wordmark/)
+  assert.match(brandMarkup, /ml-app-bar-brand-wordmark/)
   const shell = await readProjectFile("tests/browser/app-shell.spec.ts")
   const parsed = ts.createSourceFile("app-shell.spec.ts", shell, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
-  const helperNames = ["expectTextBrandFits", "expectTemporaryMarkBrandFits"]
+  const helperNames = ["expectWordmarkBrandFits", "expectFinalMarkBrandFits"]
   const helpers = { expect: browserExpect.configure({ timeout: 500 }) }
   for (const name of helperNames) {
     const declarations = parsed.statements.filter((node) => ts.isFunctionDeclaration(node) && node.name?.text === name)
@@ -1227,8 +1236,8 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
     ts.forEachChild(node, visitCalls)
   }
   visitCalls(parsed)
-  assert.deepEqual(calls, ["expectTextBrandFits", "expectTextBrandFits", "expectTemporaryMarkBrandFits"],
-    "both wide consumers remain text-only; only the narrow consumer requires the mark")
+  assert.deepEqual(calls, ["expectWordmarkBrandFits", "expectWordmarkBrandFits", "expectFinalMarkBrandFits"],
+    "both wide consumers require the wordmark; only the narrow consumer requires the mark")
   let narrowMarkFixture = ""
   const browser = await chromium.launch()
   const context = await browser.newContext({ serviceWorkers: "block", viewport: { width: 1000, height: 600 } })
@@ -1259,18 +1268,19 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
             const brand = page.getByTestId("app-bar-brand")
             // Existing controls: four 42px actions, 32px theme, 4px gaps, plus optional cart.
             const available = Math.min(190, width - 12 - (cart ? 262 : 216))
-            const state = available < 42 + 4 + 36 ? "hidden" : available <= 188 ? "mark" : "text"
+            const state = available < 42 + 4 + 36 ? "hidden" : available <= 188 ? "mark" : "wordmark"
             assert.equal(await brand.isVisible(), state !== "hidden", `${state}: brand visibility`)
-            assert.equal(await brand.locator(".ml-app-bar-brand-text").isVisible(), state === "text", `${state}: text visibility`)
+            assert.equal(await brand.locator(".ml-app-bar-brand-text").count(), 0, `${state}: no fallback text`)
+            assert.equal(await brand.locator(".ml-app-bar-brand-wordmark").isVisible(), state === "wordmark", `${state}: wordmark visibility`)
             assert.equal(await brand.locator(".ml-app-bar-brand-mark").isVisible(), state === "mark", `${state}: mark visibility`)
             if (state === "mark") {
-              await helpers.expectTemporaryMarkBrandFits(brand)
-              const box = await brand.locator("img").boundingBox()
+              await helpers.expectFinalMarkBrandFits(brand)
+              const box = await brand.locator(".ml-app-bar-brand-mark").boundingBox()
               assert.equal(box.width, 36)
               assert.equal(box.height, 36)
-              assert.equal(await brand.locator("img").evaluate((image) => image.complete && image.naturalWidth > 0), true)
+              assert.equal(await brand.locator(".ml-app-bar-brand-mark").evaluate((image) => image.complete && image.naturalWidth > 0), true)
             }
-            if (state === "text") await helpers.expectTextBrandFits(brand)
+            if (state === "wordmark") await helpers.expectWordmarkBrandFits(brand)
             if (width === 390 && edge === "left" && !cart) narrowMarkFixture = await page.content()
             const boxes = await page.locator("[data-control]").evaluateAll((elements) => elements.map((element) => ({
               name: element.getAttribute("data-control"), ...element.getBoundingClientRect().toJSON(),
@@ -1289,12 +1299,12 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
             if (state !== "hidden") {
               const box = await brand.boundingBox()
               for (const controlBox of boxes) assert.ok(box.x >= controlBox.right || box.x + box.width <= controlBox.x)
-              if (state === "text") assert.equal(await brand.evaluate((element) => element.scrollWidth <= element.clientWidth), true)
+              if (state === "wordmark") assert.equal(await brand.evaluate((element) => element.scrollWidth <= element.clientWidth), true)
             }
             // The same available container width must behave identically on a wider device.
             await page.setViewportSize({ width: 1000, height: 600 })
             assert.equal(await brand.isVisible(), state !== "hidden")
-            assert.equal(await brand.locator(".ml-app-bar-brand-text").isVisible(), state === "text")
+            assert.equal(await brand.locator(".ml-app-bar-brand-wordmark").isVisible(), state === "wordmark")
             assert.equal(await brand.locator(".ml-app-bar-brand-mark").isVisible(), state === "mark")
             assert.deepEqual(await page.locator("[data-control]").evaluateAll((elements) => elements.map((element) => ({
               name: element.getAttribute("data-control"), ...element.getBoundingClientRect().toJSON(),
@@ -1311,37 +1321,37 @@ test("Phase 6 brand collapse preserves controls at 320px with and without cart",
         }
       }
     }
-    await t.test("tablet top bar retains full text outside the mobile container", async () => {
+    await t.test("tablet top bar retains the full wordmark outside the mobile container", async () => {
       await page.setViewportSize({ width: 768, height: 600 })
       await page.setContent(`<style>${css}</style><header class="ml-app-topbar">${brandMarkup}</header>`)
       const brand = page.getByTestId("app-bar-brand")
-      assert.equal(await brand.locator(".ml-app-bar-brand-text").isVisible(), true)
+      assert.equal(await brand.locator(".ml-app-bar-brand-wordmark").isVisible(), true)
       assert.equal(await brand.locator(".ml-app-bar-brand-mark").isVisible(), false)
       assert.equal(await brand.evaluate((element) => element.scrollWidth <= element.clientWidth), true)
-      await helpers.expectTextBrandFits(brand)
+      await helpers.expectWordmarkBrandFits(brand)
     })
     assert.ok(narrowMarkFixture, "the actual 390px component/CSS fixture was captured")
     for (const [name, mutate, failure] of [
-      ["visible text", (brand) => brand.locator(".ml-app-bar-brand-text").evaluate((element) => { element.style.display = "block" }), /toBeHidden/],
+      ["visible wordmark", (brand) => brand.locator(".ml-app-bar-brand-wordmark").evaluate((element) => { element.style.display = "block" }), /toBeHidden/],
       ["missing mark", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((element) => element.remove()), /toHaveCount/],
       ["hidden mark", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((element) => { element.style.display = "none" }), /toBeVisible/],
       ["wrong width", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((element) => { element.style.width = "35px" }), /toHaveCSS/],
       ["wrong height", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((element) => { element.style.height = "35px" }), /toHaveCSS/],
-      ["broken image", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((image) => { image.src = "data:image/png;base64,invalid" }), /temporary brand mark has loaded/],
-      ["clipped mark", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((element) => { element.style.transform = "translateX(8px)" }), /temporary brand mark fits without clipping/],
+      ["broken image", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((image) => { image.src = "data:image/png;base64,invalid" }), /final brand mark has loaded/],
+      ["clipped mark", (brand) => brand.locator(".ml-app-bar-brand-mark").evaluate((element) => { element.style.transform = "translateX(8px)" }), /final brand mark fits without clipping/],
     ]) {
       await t.test(`narrow mark assertion rejects ${name}`, async () => {
         await page.setViewportSize({ width: 390, height: 844 })
         await page.setContent(narrowMarkFixture)
         const brand = page.getByTestId("app-bar-brand")
-        await helpers.expectTemporaryMarkBrandFits(brand)
+        await helpers.expectFinalMarkBrandFits(brand)
         await mutate(brand)
-        await assert.rejects(helpers.expectTemporaryMarkBrandFits(brand), failure)
+        await assert.rejects(helpers.expectFinalMarkBrandFits(brand), failure)
       })
     }
-    await t.test("wide text assertion rejects the valid narrow mark state", async () => {
+    await t.test("wide wordmark assertion rejects the valid narrow mark state", async () => {
       await page.setContent(narrowMarkFixture)
-      await assert.rejects(helpers.expectTextBrandFits(page.getByTestId("app-bar-brand")), /toBeVisible/)
+      await assert.rejects(helpers.expectWordmarkBrandFits(page.getByTestId("app-bar-brand")), /toBeVisible/)
     })
     assert.equal(requests, 0, "provider-free layout makes no network requests")
   } finally {

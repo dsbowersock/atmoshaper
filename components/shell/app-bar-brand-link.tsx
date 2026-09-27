@@ -3,6 +3,7 @@ import Link from "next/link"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { cn } from "@/lib/utils"
 
+/** Renders the canonical responsive product identity without duplicating asset selection. */
 export function AppBarBrandLink({ className }: { className?: string }) {
   return (
     <Link
@@ -15,8 +16,8 @@ export function AppBarBrandLink({ className }: { className?: string }) {
         <Image
           src={PUBLIC_PRODUCT_IDENTITY.assets.appBarWordmark}
           alt=""
-          width={1518}
-          height={593}
+          width={512}
+          height={147}
           className="ml-app-bar-brand-wordmark"
           sizes="144px"
           priority
@@ -30,8 +31,8 @@ export function AppBarBrandLink({ className }: { className?: string }) {
         <Image
           src={PUBLIC_PRODUCT_IDENTITY.assets.appBarMark}
           alt=""
-          width={500}
-          height={500}
+          width={512}
+          height={512}
           className="ml-app-bar-brand-mark"
           sizes="36px"
           priority
