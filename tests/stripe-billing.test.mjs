@@ -3447,7 +3447,7 @@ describe("Stripe billing helpers", () => {
     assert.equal(capturedPayload.customer_email, "supporter@example.com")
     assert.equal(capturedPayload.line_items[0].price_data.unit_amount, 1500)
     assert.deepEqual(capturedPayload.line_items[0].price_data.product_data, {
-      name: "MassageLab One-time support",
+      name: "AtmoShaper One-time support",
       description: "One-time support does not purchase goods or services, create a membership, or unlock features. It is not a charitable donation and is not tax-deductible.",
       tax_code: "txcd_90000001",
     })

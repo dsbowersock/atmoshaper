@@ -2,7 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
-## 2026-09-27 — Final AtmoShaper presentation assets candidate
+## 2026-09-27 — AtmoShaper Stripe technical-identity candidate
+
+- Began from merged PR #21 at
+  `a5ad3d8f19e648bc626af7c1244fcce77d34740e` in a separate isolated
+  worktree. A bounded read-only check found the dedicated AtmoShaper test
+  environment empty of Products, recurring Prices, webhook endpoints, Portal
+  configurations, and subscriptions.
+- Added one shared Stripe provider-identity owner. New and repaired catalog
+  objects use current AtmoShaper metadata; exact legacy metadata and agreeing
+  dual schemas remain readable, while partial or contradictory ownership
+  evidence fails closed.
+- Readiness, open-Checkout compatibility, and the catalog migration now share
+  that owner. The pinned endpoint is
+  `https://www.atmoshaper.com/api/billing/webhook`, and inline one-time-support
+  Checkout copy derives the AtmoShaper public identity.
+- Historical `massagelab_*` metadata, idempotency families, one-time-support
+  purpose, runtime Price mappings, database fields, and webhook reconciliation
+  remain compatibility inputs. They are eligible for later retirement only
+  after post-cutover inventory proves no dependency remains.
+- This candidate made no Stripe, Vercel, Neon, database, deployment, payment,
+  subscription, DNS, or email mutation.
+
+## 2026-09-27 — Final AtmoShaper presentation assets merged
 
 - Started from merged PR #20 at
   `5e659560ae801d8765de2b6c1190c5c9c0ddb76d` in a separate isolated
@@ -20,8 +42,9 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   responsive contract requires the wordmark where space permits, the logo in
   narrow containers, and a hidden brand link only where neither can fit.
   Focused identity, cache, app-shell, and provider-free browser-harness tests
-  passed. No provider, deployment, domain, OAuth, Stripe, or database setting
-  changed.
+  passed. PR #21 merged as
+  `a5ad3d8f19e648bc626af7c1244fcce77d34740e`. No provider, deployment,
+  domain, OAuth, Stripe, or database setting changed.
 
 ## 2026-09-27 — AtmoShaper Stripe public catalog identity candidate
 

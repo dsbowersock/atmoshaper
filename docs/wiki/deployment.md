@@ -45,7 +45,7 @@ SMTP_HOST=
 SMTP_PORT=465
 SMTP_USER=
 SMTP_PASSWORD=
-SMTP_FROM=MassageLab <no-reply@massagelab.app>
+SMTP_FROM=AtmoShaper <no-reply@atmoshaper.com>
 ```
 
 ## Family-And-Friends Launch Cost Controls
@@ -177,7 +177,7 @@ The app generates public SEO metadata, `robots.txt`, and `sitemap.xml` from `lib
 - Production deployments are allowed to index public marketing, education, tool, wellness, legal, and trust pages.
 - Vercel preview deployments and local development return noindex metadata and disallow all crawling in `robots.txt`.
 - APIs, auth flows, account/admin surfaces, public booking links, shared Anatomime game-code URLs, and local professional-record subroutes stay out of the sitemap and are disallowed by `robots.txt`.
-- The canonical SEO host is `https://www.massagelab.app`, matching the production redirect target recorded in the launch audit.
+- The canonical SEO host is `https://www.atmoshaper.com`, matching the current production host.
 
 ## Stripe
 
@@ -236,10 +236,11 @@ Before enabling subscription checkout, confirm:
   billing address/name/email updates, and invoice history. Cross-Product amount
   changes keep the billing-cycle anchor unchanged, create no proration, and are
   not scheduled for period end.
-- `/api/billing/webhook` is registered with the Stripe webhook signing secret.
+- `https://www.atmoshaper.com/api/billing/webhook` is registered with the
+  Stripe webhook signing secret.
 - Local and Vercel environments contain the same required Stripe keys and Price IDs for their respective test or live mode.
 - Production uses a live `STRIPE_SECRET_KEY`, a live webhook signing secret, and live recurring Price IDs. Test-mode keys or empty production Price IDs are launch blockers.
-- Run `npm run stripe:readiness -- --env-file=/secure/path/massagelab-production.env --live --verify-stripe` with production env values before public paid signup.
+- Run `npm run stripe:readiness -- --env-file=/secure/path/atmoshaper-production.env --live --verify-stripe` with production env values before public paid signup.
 - Keep one-time support fail-closed until its five independent gates are
   explicit, including exact code `txcd_90000001`. After deployment, complete a
   separately authorized live Checkout and verify its Session/line-item tax
@@ -266,6 +267,14 @@ subscription; `none` is allowed only after a complete inventory proves no
 active, trialing, past-due, unpaid, paused, incomplete, or canceling
 subscription exists. Live mode rejects every concrete subscription ID and
 requires `none` after the same empty-inventory proof.
+
+Fresh or repaired target Products and Prices receive current AtmoShaper
+metadata. The command continues to recognize only complete current metadata,
+complete exact legacy MassageLab metadata, or complete agreeing dual schemas;
+partial or contradictory ownership fails closed. Existing lookup-key and
+idempotency namespaces remain unchanged for retry and reconciliation safety.
+They are not eligible for removal until post-cutover provider and database
+inventories prove no historical dependency remains.
 
 Run verification first:
 

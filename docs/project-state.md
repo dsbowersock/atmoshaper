@@ -8,30 +8,30 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `5e659560ae801d8765de2b6c1190c5c9c0ddb76d`; PR #19's
-  provider-readiness record and PR #20's public Stripe catalog identity are
-  merged. Earlier CI evidence remains historical until the next exact-head run.
+  `main` is `a5ad3d8f19e648bc626af7c1244fcce77d34740e`; PR #19's
+  provider-readiness record, PR #20's public Stripe catalog identity, and PR
+  #21's final brand assets are merged. Earlier CI evidence remains historical
+  until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
-  SMTP delivery, and support routing are operational; branding review has a
-  one-week follow-up reminder.
-- A read-only Stripe audit found one legacy active monthly subscription that is
-  not attached to the fresh administrator; billing remains unconfigured. See the
-  [provider audit](audits/2026-09-27-atmoshaper-provider-readiness.md). A later
-  bounded read-only check confirmed the Vercel-managed destination's committed
-  migration state and aggregate application readiness without exposing rows,
-  secrets, connection strings, or provider identifiers. The personal Neon
-  organization still lists only its directly owned projects, as expected.
-- The merged Stripe catalog identity derives the public Product
-  name from `PUBLIC_PRODUCT_IDENTITY`, yielding `AtmoShaper Supporter
-  Membership`. It deliberately preserves the private `massagelab_*`
-  metadata, idempotency, environment, and reconciliation contracts. No Stripe
-  object, Vercel setting, database state, or deployment changed; validation passed.
+  SMTP delivery, support routing, and verified Google branding are operational;
+  the verified branding is being shown to users.
+- The dedicated AtmoShaper Stripe test environment is connected and a bounded
+  read-only inventory found zero Products, recurring Prices, webhook endpoints,
+  Portal configurations, or subscriptions. Billing remains unconfigured. The
+  Vercel-managed destination retains the committed database migration state;
+  the personal Neon organization lists only its directly owned projects, as
+  expected.
+- The current code-only Stripe technical-identity candidate makes AtmoShaper
+  metadata, the AtmoShaper webhook URL, and the AtmoShaper one-time-support name
+  canonical for new provider objects. Exact historical `massagelab_*` metadata,
+  idempotency, purpose, Price mappings, database fields, and reconciliation
+  inputs remain readable until post-cutover inventory proves retirement safe.
+  No Stripe object, Vercel setting, database state, or deployment changed.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
-  treatment, favicon, PWA icons, and Apple touch icon are staged in a focused
-  code-only candidate. The app bar uses the wordmark at wide widths and the
-  square logo at narrow widths. The installed-app assets use the supplied dark
-  variants; no dedicated social-card aspect ratio was supplied, so social image
-  metadata remains unset. No provider setting or deployment changed.
+  treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
+  uses the wordmark at wide widths and the square logo at narrow widths. The
+  installed-app assets use the supplied dark variants; no dedicated social-card
+  aspect ratio was supplied, so social image metadata remains unset.
 
 - Task 7's reviewed head
   `995fc4f7ce44902002ef2b36c7af1195dbdcb562` merged through

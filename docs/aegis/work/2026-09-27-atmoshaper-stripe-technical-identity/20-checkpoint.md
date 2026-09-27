@@ -13,3 +13,7 @@
   catalog migration now use the shared identity. New or repaired provider
   objects receive only current AtmoShaper values; exact legacy records and the
   one audited interrupted support-1 state remain recoverable.
+- Task 3 complete: the pinned webhook owner targets the AtmoShaper production
+  endpoint, inline one-time-support Product copy derives the public AtmoShaper
+  identity, and current docs distinguish the empty dedicated test environment
+  from inherited MassageLab reconciliation history.
