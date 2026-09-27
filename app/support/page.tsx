@@ -10,6 +10,7 @@ import { SupportDiagnosticReport } from "@/app/support/support-diagnostic-report
 import { createPublicPageMetadata } from "@/lib/seo"
 import {
   PURCHASE_SUPPORT_TOPIC,
+  SUPPORT_CONTACT_EMAIL,
   normalizeSupportOrderReference,
 } from "@/lib/support-contact"
 
@@ -61,7 +62,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
           title="Get help with AtmoShaper"
           description={
             <>
-                Send a support request to contactmassagelab@gmail.com. Please avoid sending client PHI or sensitive clinical details.
+                Send a support request to {SUPPORT_CONTACT_EMAIL}. Please avoid sending client PHI or sensitive clinical details.
             </>
           }
           icon={<Mail className="h-5 w-5" aria-hidden="true" />}

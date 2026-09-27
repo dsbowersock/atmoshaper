@@ -74,7 +74,7 @@ Use this checklist before tagging or deploying a private-alpha build. Keep SOAP 
 - Collapsed sidebar section headers show recognizable icons for grouped navigation.
 - The sidebar trigger bar supports top and bottom placement without moving the sidebar itself, and the trigger aligns to the selected left/right sidebar side.
 - The sidebar mini calendar stays inside the expanded sidebar and does not appear in icon-collapsed mode.
-- `/support` loads a contact/help page, and its form creates a valid `mailto:` URL for `contactmassagelab@gmail.com`.
+- `/support` loads a contact/help page, and its form creates a valid `mailto:` URL for `atmoshaper@gmail.com`.
 - `/roadmap` loads the roadmap/support-roadmap content from the sidebar, Home roadmap link, Notes roadmap card, and Account clinical-sync card.
 - Chimer running and alerting states hide the sidebar and top trigger bar.
 - Diagnostic routes such as `/debug-hydration` are absent from the production route manifest.

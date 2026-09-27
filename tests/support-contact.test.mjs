@@ -9,12 +9,17 @@ import {
 import { readFile } from "node:fs/promises"
 
 describe("Support contact mailto helper", () => {
+  it("keeps the rendered support address tied to the mailto owner", async () => {
+    const source = await readFile(new URL("../app/support/page.tsx", import.meta.url), "utf8")
+    assert.match(source, /Send a support request to \{SUPPORT_CONTACT_EMAIL\}/)
+  })
+
   it("resynchronizes the route-derived topic during soft navigation", async () => {
     const source = await readFile(new URL("../app/support/support-contact-form.tsx", import.meta.url), "utf8")
     assert.match(source, /React\.useEffect\(\(\) => \{[\s\S]*setTopic\(initialTopic\)[\s\S]*\}, \[initialTopic\]\)/)
   })
 
-  it("builds a mailto URL for AtmoShaper support requests without changing the support address", () => {
+  it("builds a mailto URL for AtmoShaper support requests using the branded inbox", () => {
     const url = buildSupportMailtoUrl({
       name: "Dana Client",
       contact: "dana@example.com",
@@ -23,7 +28,7 @@ describe("Support contact mailto helper", () => {
     })
 
     assert.equal(url.startsWith(`mailto:${SUPPORT_CONTACT_EMAIL}?`), true)
-    assert.equal(SUPPORT_CONTACT_EMAIL, "contactmassagelab@gmail.com")
+    assert.equal(SUPPORT_CONTACT_EMAIL, "atmoshaper@gmail.com")
     assert.equal(url.includes("subject=AtmoShaper%20support%3A%20Calendar%20help"), true)
     assert.equal(url.includes("Name%3A%20Dana%20Client"), true)
     assert.equal(url.includes("Contact%3A%20dana%40example.com"), true)
