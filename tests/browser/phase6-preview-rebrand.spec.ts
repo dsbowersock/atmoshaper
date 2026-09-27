@@ -154,23 +154,25 @@ async function settledBox(locator: Locator) {
   return box!
 }
 
-async function expectTextFits(brand: Locator) {
-  const text = brand.locator(".ml-app-bar-brand-text")
-  await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
+async function expectWordmarkFits(brand: Locator) {
+  const wordmark = brand.locator(".ml-app-bar-brand-wordmark")
+  await expect(brand.locator(".ml-app-bar-brand-text")).toHaveCount(0)
   await expect(brand.locator(".ml-app-bar-brand-mark")).toBeHidden()
   await settledBox(brand)
-  await expect(text).toBeVisible()
-  await expect(text).toHaveText(PRODUCT_NAME)
-  const fit = await text.evaluate((element) => {
-    const textBox = element.getBoundingClientRect()
+  await expect(wordmark).toBeVisible()
+  await expect.poll(() => wordmark.evaluate((image: HTMLImageElement) => (
+    image.complete && image.naturalWidth > 0
+  ))).toBe(true)
+  const fit = await wordmark.evaluate((element) => {
+    const wordmarkBox = element.getBoundingClientRect()
     const brandBox = element.parentElement!.getBoundingClientRect()
     return {
       horizontalOverflow: element.scrollWidth - element.clientWidth,
       outsideBrand: Math.max(
-        brandBox.left - textBox.left,
-        textBox.right - brandBox.right,
-        brandBox.top - textBox.top,
-        textBox.bottom - brandBox.bottom,
+        brandBox.left - wordmarkBox.left,
+        wordmarkBox.right - brandBox.right,
+        brandBox.top - wordmarkBox.top,
+        wordmarkBox.bottom - brandBox.bottom,
       ),
     }
   })
@@ -246,18 +248,22 @@ test("presents the product identity across homepage and responsive app bars", as
   const desktopBar = page.locator("header.ml-app-topbar")
   await expect(desktopBar).toBeVisible()
   const desktopBrand = desktopBar.getByRole("link", { name: "AtmoShaper home", exact: true })
-  await expect(desktopBrand).toHaveText(PRODUCT_NAME)
-  await expectTextFits(desktopBrand)
+  await expectWordmarkFits(desktopBrand)
 
   await page.setViewportSize({ width: 768, height: 1024 })
   await prepareMusicRingCapture(page)
   const tabletBar = page.locator("header.ml-app-topbar")
   await expect(tabletBar).toBeVisible()
   const tabletBrand = tabletBar.getByRole("link", { name: "AtmoShaper home", exact: true })
-  await expect(tabletBrand).toHaveText(PRODUCT_NAME)
-  await expectTextFits(tabletBrand)
+  const tabletWordmark = tabletBrand.locator(".ml-app-bar-brand-wordmark")
+  await expect(tabletWordmark).toBeVisible()
+  await expect(tabletBrand.locator(".ml-app-bar-brand-text")).toHaveCount(0)
+  await expect.poll(() => tabletWordmark.evaluate((image: HTMLImageElement) => (
+    image.complete && image.naturalWidth > 0
+  ))).toBe(true)
+  await expectWordmarkFits(tabletBrand)
   await expect(tabletBar).toHaveScreenshot("app-bar-tablet.png", { animations: "disabled" })
-  await expectTextFits(tabletBrand)
+  await expectWordmarkFits(tabletBrand)
 
   await page.setViewportSize({ width: 320, height: 568 })
   await gotoReady(page, "/music")
@@ -265,9 +271,8 @@ test("presents the product identity across homepage and responsive app bars", as
   const narrowBar = page.getByRole("navigation", { name: "AtmoShaper main navigation" })
   await expect(narrowBar).toBeVisible()
   const narrowBrand = narrowBar.getByRole("link", { name: "AtmoShaper home", exact: true })
-  await expect(narrowBrand).toHaveText(PRODUCT_NAME)
-  await expect(narrowBrand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
-  await expect(narrowBrand.locator(".ml-app-bar-brand-text")).toBeHidden()
+  await expect(narrowBrand.locator(".ml-app-bar-brand-wordmark")).toBeHidden()
+  await expect(narrowBrand.locator(".ml-app-bar-brand-text")).toHaveCount(0)
   await expect(narrowBrand.locator(".ml-app-bar-brand-mark")).toBeVisible()
   await expect(narrowBrand.locator(".ml-app-bar-brand-mark")).toHaveCSS("width", "36px")
   await expect(narrowBrand.locator(".ml-app-bar-brand-mark")).toHaveCSS("height", "36px")
@@ -280,7 +285,7 @@ test("presents the product identity across homepage and responsive app bars", as
 
 for (const drawerEdge of ["left", "right"] as const) {
   for (const cart of [false, true]) {
-    test(`320px ${drawerEdge} brand ${cart ? "hides with cart" : "uses temporary mark"} without moving controls`, async ({ page }) => {
+    test(`320px ${drawerEdge} brand ${cart ? "hides with cart" : "uses final mark"} without moving controls`, async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 568 })
       await page.addInitScript(({ drawerEdge, cart }) => {
         localStorage.setItem("massage-lab-settings", JSON.stringify({
@@ -295,8 +300,8 @@ for (const drawerEdge of ["left", "right"] as const) {
       await expect(cluster).toHaveAttribute("data-drawer-edge", drawerEdge)
       await expect(bar.locator("[data-commerce-cart-trigger]")).toHaveCount(cart ? 1 : 0)
       const brand = bar.getByTestId("app-bar-brand")
-      await expect(brand.locator(".ml-app-bar-brand-wordmark")).toHaveCount(0)
-      await expect(brand.locator(".ml-app-bar-brand-text")).toBeHidden()
+      await expect(brand.locator(".ml-app-bar-brand-wordmark")).toBeHidden()
+      await expect(brand.locator(".ml-app-bar-brand-text")).toHaveCount(0)
       if (cart) {
         await expect(brand).toBeHidden()
         expect(await brand.evaluate((element: HTMLElement) => {

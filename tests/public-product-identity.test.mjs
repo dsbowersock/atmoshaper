@@ -15,8 +15,8 @@ describe("public product identity", () => {
       name: "AtmoShaper",
       shortName: "AtmoShaper",
       assets: {
-        appBarWordmark: null,
-        appBarMark: "/brand/massagelab-mark-final-20260622.png",
+        appBarWordmark: "/brand/atmoshaper-wordmark.png",
+        appBarMark: "/brand/atmoshaper-logo.png",
         socialPreview: null,
       },
     })
@@ -32,7 +32,59 @@ describe("public product identity", () => {
       PUBLIC_PRODUCT_IDENTITY.assets.appBarMark = "/changed.png"
     }, TypeError)
     assert.equal(PUBLIC_PRODUCT_IDENTITY.name, "AtmoShaper")
-    assert.equal(PUBLIC_PRODUCT_IDENTITY.assets.appBarMark, "/brand/massagelab-mark-final-20260622.png")
+    assert.equal(PUBLIC_PRODUCT_IDENTITY.assets.appBarMark, "/brand/atmoshaper-logo.png")
+  })
+
+  it("uses the approved runtime brand variants at their exported dimensions", () => {
+    const pngDimensions = (relativePath) => {
+      const bytes = readFileSync(new URL(relativePath, import.meta.url))
+      assert.equal(bytes.toString("ascii", 1, 4), "PNG")
+      return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)]
+    }
+
+    assert.deepEqual(
+      pngDimensions("../public/brand/atmoshaper-logo.png"),
+      [512, 512],
+    )
+    assert.deepEqual(
+      pngDimensions("../public/brand/atmoshaper-wordmark.png"),
+      [512, 147],
+    )
+    assert.deepEqual(
+      pngDimensions("../public/brand/atmoshaper-word.png"),
+      [512, 147],
+    )
+    assert.deepEqual(
+      pngDimensions("../public/icons/icon-192.png"),
+      [192, 192],
+    )
+    assert.deepEqual(
+      pngDimensions("../public/icons/icon-512.png"),
+      [512, 512],
+    )
+    assert.deepEqual(
+      pngDimensions("../public/icons/maskable-icon-192.png"),
+      [192, 192],
+    )
+    assert.deepEqual(
+      pngDimensions("../public/icons/maskable-icon-512.png"),
+      [512, 512],
+    )
+    assert.deepEqual(
+      pngDimensions("../public/icons/apple-touch-icon.png"),
+      [180, 180],
+    )
+
+    const favicon = readFileSync(new URL("../app/favicon.ico", import.meta.url))
+    assert.deepEqual([...favicon.subarray(0, 4)], [0, 0, 1, 0])
+    const iconCount = favicon.readUInt16LE(4)
+    const embeddedSizes = Array.from({ length: iconCount }, (_, index) => {
+      const offset = 6 + (index * 16)
+      const width = favicon[offset] || 256
+      const height = favicon[offset + 1] || 256
+      return [width, height]
+    })
+    assert.deepEqual(embeddedSizes, [[20, 20], [32, 32], [48, 48]])
   })
 
   it("has no imports, re-exports, or environment and browser dependencies", () => {

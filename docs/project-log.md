@@ -2,6 +2,27 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-27 — Final AtmoShaper presentation assets candidate
+
+- Started from merged PR #20 at
+  `5e659560ae801d8765de2b6c1190c5c9c0ddb76d` in a separate isolated
+  worktree; the Stripe technical-identity work remains on its own branch.
+- Promoted web-ready copies of the user-approved logo, logo-plus-name wordmark,
+  and integrated word treatment into stable `/brand` paths. The full original
+  export library, including oversized masters and light variants, remains
+  untouched in the user's source checkout.
+- Replaced the framework favicon, PWA icons, maskable icons, and Apple touch
+  icon with the supplied exports. The installed-app assets deliberately use the
+  dark variants to match the declared dark PWA theme. The file labeled as a
+  16px favicon export is actually 20px and is not wired separately; the
+  supplied ICO embeds 20px, 32px, and 48px entries.
+- `PUBLIC_PRODUCT_IDENTITY` now selects the final wordmark and square logo. The
+  responsive contract requires the wordmark where space permits, the logo in
+  narrow containers, and a hidden brand link only where neither can fit.
+  Focused identity, cache, app-shell, and provider-free browser-harness tests
+  passed. No provider, deployment, domain, OAuth, Stripe, or database setting
+  changed.
+
 ## 2026-09-27 — AtmoShaper Stripe public catalog identity candidate
 
 - Started from current `origin/main` at

@@ -8,9 +8,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `122dd9f07995f62c758627ea6fc4cd3da4909dfb`; PR #19's provider-readiness
-  record is merged. Earlier CI evidence remains historical until the next
-  exact-head run.
+  `main` is `5e659560ae801d8765de2b6c1190c5c9c0ddb76d`; PR #19's
+  provider-readiness record and PR #20's public Stripe catalog identity are
+  merged. Earlier CI evidence remains historical until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, and support routing are operational; branding review has a
   one-week follow-up reminder.
@@ -21,11 +21,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   migration state and aggregate application readiness without exposing rows,
   secrets, connection strings, or provider identifiers. The personal Neon
   organization still lists only its directly owned projects, as expected.
-- The current code-only Stripe catalog candidate derives the public Product
+- The merged Stripe catalog identity derives the public Product
   name from `PUBLIC_PRODUCT_IDENTITY`, yielding `AtmoShaper Supporter
   Membership`. It deliberately preserves the private `massagelab_*`
   metadata, idempotency, environment, and reconciliation contracts. No Stripe
   object, Vercel setting, database state, or deployment changed; validation passed.
+- The final user-approved logo, logo-plus-name wordmark, integrated word
+  treatment, favicon, PWA icons, and Apple touch icon are staged in a focused
+  code-only candidate. The app bar uses the wordmark at wide widths and the
+  square logo at narrow widths. The installed-app assets use the supplied dark
+  variants; no dedicated social-card aspect ratio was supplied, so social image
+  metadata remains unset. No provider setting or deployment changed.
 
 - Task 7's reviewed head
   `995fc4f7ce44902002ef2b36c7af1195dbdcb562` merged through
