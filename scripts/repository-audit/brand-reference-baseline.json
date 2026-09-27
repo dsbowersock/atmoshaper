@@ -49738,13 +49738,6 @@
       "category": "compatibility"
     },
     {
-      "path": "app/support/page.tsx",
-      "line": 64,
-      "column": 50,
-      "textSha256": "f0ec8326d95b69179c2b8612a4b752678eef0cdf88570b33d7810606a3fce353",
-      "category": "compatibility"
-    },
-    {
       "path": "app/tools/business-planner/add-on-profit/add-on-profit-client.tsx",
       "line": 22,
       "column": 22,
@@ -83611,13 +83604,6 @@
       "category": "historical"
     },
     {
-      "path": "docs/alpha-qa.md",
-      "line": 77,
-      "column": 96,
-      "textSha256": "3263f531a2e2e1b6128b70a3c10596ddc87781fbef2de81f0598ee48d4c6f093",
-      "category": "historical"
-    },
-    {
       "path": "docs/anatomy-media-storage.md",
       "line": 3,
       "column": 1,
@@ -86121,13 +86107,6 @@
       "line": 20,
       "column": 154,
       "textSha256": "e9eda24c8754194399bae060a56ae11c9217741c5a2b08cda54a070c92bfcb53",
-      "category": "historical"
-    },
-    {
-      "path": "docs/rebrand/atmoshaper-external-account-checklist.md",
-      "line": 24,
-      "column": 74,
-      "textSha256": "f458d36c08d9357668f7e3a2559208f81ac73e0dd1750b29aea8f473f7f61560",
       "category": "historical"
     },
     {
@@ -123903,13 +123882,6 @@
       "category": "compatibility"
     },
     {
-      "path": "lib/support-contact.js",
-      "line": 3,
-      "column": 46,
-      "textSha256": "5ce15eaca826fdb2e83e121233f108a13c3fac5a2cf321eb9d44c6695427b285",
-      "category": "compatibility"
-    },
-    {
       "path": "lib/trusted-form-origin.js",
       "line": 17,
       "column": 45,
@@ -124730,21 +124702,21 @@
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 70538,
+      "line": 70531,
       "column": 39,
       "textSha256": "02f68885e1c0ea9541937dfd56cba350ee46dacf310ef1bb92615466495f6ea2",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 124081,
+      "line": 124053,
       "column": 23,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/brand-reference-baseline.json",
-      "line": 124081,
+      "line": 124053,
       "column": 54,
       "textSha256": "a8de9aeed82ba3f1c5f2ffbfab8cbd5e68ca1decba0a98f03b7133ebd93a9095",
       "category": "compatibility"
@@ -124807,21 +124779,21 @@
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 1397,
+      "line": 1385,
       "column": 10,
       "textSha256": "70831aa5a19e94c7b2a9c495a38a71729e8c39bfb041a0f848881d06d36d4bce",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 1398,
+      "line": 1386,
       "column": 10,
       "textSha256": "0119da00006b0dbf0183dd48158331dedc56a6804f4403b37d45bb021b19945d",
       "category": "compatibility"
     },
     {
       "path": "scripts/repository-audit/policy.json",
-      "line": 1399,
+      "line": 1387,
       "column": 12,
       "textSha256": "00444891010aaa422454b919bbbcc3e75233f9ccb3b7337547e3d45cb2472293",
       "category": "compatibility"
@@ -177961,13 +177933,6 @@
       "line": 3193,
       "column": 27,
       "textSha256": "1484bb8c598b47b27d9dfc25ebfe9d505e77e1e38fa6cbdc360f75449b424d04",
-      "category": "compatibility"
-    },
-    {
-      "path": "tests/support-contact.test.mjs",
-      "line": 26,
-      "column": 49,
-      "textSha256": "63d6ad60e70136ea64a683be6c966a706c767021f1ad3dc6a0e15825db27387d",
       "category": "compatibility"
     },
     {

@@ -118,10 +118,6 @@
       "category": "historical"
     },
     {
-      "fingerprint": "10578379f791497158cf3aa4dc9d7fea31edb7be7e402e8e7c2c5509179522bc",
-      "category": "compatibility"
-    },
-    {
       "fingerprint": "113f03a6f9c9a415d1980600d2bb5fd9ff9df5301db7b25f57adc4453dad3264",
       "category": "compatibility"
     },
@@ -502,6 +498,10 @@
       "category": "compatibility"
     },
     {
+      "fingerprint": "561d805ad65c7cb4b4d521779c10ed8bcd85fdd0bb3bb3f367e88e734ce386bb",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "5774ecf4ae57030996d7d12e00ac1164232630cda04355ebc60f9087a123e68d",
       "category": "compatibility"
     },
@@ -554,6 +554,10 @@
       "category": "compatibility"
     },
     {
+      "fingerprint": "5ea2759b03f4c83f248116791cb284eb9466c1458dbe993fe0119323124ebb13",
+      "category": "compatibility"
+    },
+    {
       "fingerprint": "5efc3ac39c4ed6108cbd3d6f7eca761d574fb71db6224f1f9d9ebcf8c4a83780",
       "category": "compatibility"
     },
@@ -586,10 +590,6 @@
       "category": "historical"
     },
     {
-      "fingerprint": "61da6050865ba927d5a89bd9651d46f5a902cdcbf4fc23b9bf5ee60f91f7a19c",
-      "category": "compatibility"
-    },
-    {
       "fingerprint": "61dd771c52cd9585d66d06952268b85bebb7f288e11e759e7224e14fb2b908ee",
       "category": "compatibility"
     },
@@ -615,10 +615,6 @@
     },
     {
       "fingerprint": "686ec9a45212ed044e772a9770ea4e1ff0694bd590d67ed6c84e6439c0bfdaa7",
-      "category": "compatibility"
-    },
-    {
-      "fingerprint": "68e1c268e63f69b26592b2645e1457931684a8b1ac4e3e4df90ca0ab5ac91065",
       "category": "compatibility"
     },
     {
@@ -1018,10 +1014,6 @@
       "category": "historical"
     },
     {
-      "fingerprint": "ba4046fb20b6f66e81813273b014c1868b778c95bf7726f5b49fe5330e58407a",
-      "category": "compatibility"
-    },
-    {
       "fingerprint": "babb7ec8cb82d02ba8281206810af2f90febd26b9f461a7ab7a28b19f3080a4d",
       "category": "historical"
     },
@@ -1148,10 +1140,6 @@
     {
       "fingerprint": "d07c4e199eb0cbc2cbeb2b8db4a0636e9f63c3f2bc9eee56f70f1ea2fc24e7eb",
       "category": "historical"
-    },
-    {
-      "fingerprint": "d1e9f32a0258ea9d35c77c7cf5e652495c065b12381a575b393aac91c2ba11a9",
-      "category": "compatibility"
     },
     {
       "fingerprint": "d265577840e9303ecec985566b82f15d68abb9008fbb4b9c71d821aa37921755",

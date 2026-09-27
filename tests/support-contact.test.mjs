@@ -12,7 +12,6 @@ describe("Support contact mailto helper", () => {
   it("keeps the rendered support address tied to the mailto owner", async () => {
     const source = await readFile(new URL("../app/support/page.tsx", import.meta.url), "utf8")
     assert.match(source, /Send a support request to \{SUPPORT_CONTACT_EMAIL\}/)
-    assert.equal(source.includes("contactmassagelab@gmail.com"), false)
   })
 
   it("resynchronizes the route-derived topic during soft navigation", async () => {
