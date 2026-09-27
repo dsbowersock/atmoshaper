@@ -6,4 +6,3 @@
 - Compatibility reads: exact historical MassageLab metadata and namespaces remain supported.
 - Explicit non-scope: Stripe, Vercel, Neon, deployment, payment, subscription, DNS, and email mutations.
 - Completion gate: focused and full validation, exact-head hosted checks, CodeRabbit coverage, and no unresolved review threads.
-
