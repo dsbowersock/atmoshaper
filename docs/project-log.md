@@ -5,8 +5,7 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 ## 2026-09-27 — Production provider-readiness audit after migration merges
 
 - Current `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`; the anatomy repair
-  corrected nine action mismatches and one landmark error. Its broader observations
-  remain future work; support is updated, and CI `36296398216` passed all seven jobs.
+  and support-contact update are merged, and CI `36296398216` passed all seven jobs.
 - Production home, pricing, support, Privacy, Terms, and anonymous session
   endpoints returned 200; the anonymous session response remained `null`.
 - Read-only Stripe inventory found three customer records, one active two-dollar
@@ -19,6 +18,24 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   sanitized receipt lists the remaining billing, Calendar, database, telemetry,
   realtime, and media decisions. No live payment, database, provider, DNS,
   deployment, or customer mutation was made during this audit.
+
+## 2026-09-25 — Bounded anatomy consistency repair prepared before data cutover
+
+- A read-only, isolated audit of the migrated anatomy catalog found nine
+  muscle-action rows whose referenced movement belonged to a different joint,
+  plus one definite extensor carpi radialis longus origin landmark mapped to a
+  femur landmark despite the attachment bone being the humerus.
+- Regression coverage reproduced all ten findings before the seed repair. The
+  action validator now rejects joint/movement ownership mismatches. The bounded
+  seed correction introduces an explicit metacarpophalangeal-flexion movement,
+  reuses thoracic-cage expansion for thoracic rib mechanics, and adds the proper
+  lateral supracondylar ridge of the humerus. Corrected generated actions retain
+  their existing database slugs so idempotent seeding updates rather than
+  duplicates the five affected rows.
+- The anatomy foundation suite passes after the repair. No database, provider,
+  deployment, production data, or identity cutover action is part of this branch.
+- Larger catalog observations are preserved as non-blocking future work in
+  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
 
 ## 2026-09-22 — PR #13 gated; final Phase 6 integration in progress
 

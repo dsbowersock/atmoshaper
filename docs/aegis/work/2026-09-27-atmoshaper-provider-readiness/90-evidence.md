@@ -37,5 +37,15 @@ ephemeral and is not a substitute for a current provider readback.
 - `npm run repository:inventory`: 2,012 tracked files and zero forbidden paths.
 - `git diff --cached --check`: passed.
 
+## Review reconciliation
+
+- CodeRabbit's documentation-history finding was accepted.
+- The September 25 anatomy-repair log entry was restored verbatim and the
+  September 27 provider audit was retained as a separate entry.
+- Candidate baseline comparison: schema version and source commit unchanged;
+  25,479 entries unchanged; category counts unchanged (`compatibility` 23,737,
+  `historical` 1,707, `legal` 35); only eight project-log line numbers moved,
+  each by 17 lines.
+
 The PR is intentionally left unmerged for morning review. Hosted check identity
 is external to this committed evidence record and must be read fresh from GitHub.

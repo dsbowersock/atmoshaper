@@ -11,6 +11,12 @@ LF-only replacements did not operate on CRLF checkout files. Making those exact
 test mutations line-ending-aware restored the intended negative coverage and a
 subsequent full run passed. No production behavior changed.
 
+The hosted review also caught a documentation-history regression before merge.
+Preserving the earlier dated entry and appending the new audit keeps the project
+log chronological and auditable. The baseline comparison demonstrated that the
+follow-up was a line-location reconciliation only, not a reclassification or a
+change in the set of legacy-brand references.
+
 ## Remaining boundary
 
 Live billing, Calendar, direct destination database readback, telemetry,

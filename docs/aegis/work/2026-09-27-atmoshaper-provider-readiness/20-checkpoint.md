@@ -29,3 +29,12 @@ mutation probes were made line-ending-agnostic after the first full Windows run
 showed that their LF-only replacements did not alter CRLF fixtures. The resulting
 change is test-only and preserves the production contract. Publish the reviewed
 diff as an unmerged PR and use hosted checks as the final independent gate.
+
+## Hosted review follow-up
+
+CodeRabbit correctly identified that the new September 27 provider-audit entry
+had replaced, rather than followed, the canonical September 25 anatomy-repair
+history. The prior entry was restored verbatim and the provider audit remains a
+separate dated entry. Regenerating the deterministic brand-reference baseline
+changed only eight `docs/project-log.md` line numbers by the same 17-line offset;
+entry identities, source commit, and category counts were unchanged.
