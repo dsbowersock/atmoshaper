@@ -1,21 +1,21 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-25
+Verified: 2026-09-27
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Standalone Migration Live; Data Cutover Pending
+## Current Snapshot — Whole-Site Migration Live; Provider Cutover Staged
 
-- The full site and AtmoShaper rebrand are integrated on `main`, deployed at
-  `atmoshaper.com`, and the user verified audio Play/Stop on the real domain.
-  Production identity and data cutover remain a separate pending operation.
-  The current bounded anatomy branch repairs nine action joint/movement
-  mismatches and one verified extensor carpi radialis longus landmark error,
-  adds recurrence protection, and records broader catalog observations in
-  [`audits/2026-09-25-anatomy-catalog-follow-ups.md`](audits/2026-09-25-anatomy-catalog-follow-ups.md).
-  Those future content, media, 3D, and MBLEx items are non-blocking for data
-  cutover. No production data, provider configuration, or deployment changes.
-  PR #17 remains subject to exact-head hosted review and strict CI gates.
+- The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
+  home, pricing, support, Privacy, Terms, and signed-out session handling. Current
+  `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`; PR #17's anatomy repair
+  and PR #18's support update are merged; CI `36296398216` passed all seven jobs.
+- Production Google sign-in, the fresh administrator account, domain ownership,
+  SMTP delivery, and support routing are operational; branding review has a
+  one-week follow-up reminder.
+- A read-only Stripe audit found one legacy active monthly subscription that is
+  not attached to the fresh administrator; billing remains unconfigured. See the
+  [provider audit](audits/2026-09-27-atmoshaper-provider-readiness.md); database aggregate readback is pending because the CLI cannot see the destination.
 
 - Task 7 is complete for its own slice at
   `995fc4f7ce44902002ef2b36c7af1195dbdcb562` on open, unmerged

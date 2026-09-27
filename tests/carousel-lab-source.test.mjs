@@ -188,8 +188,8 @@ describe("Carousel Lab source boundaries", () => {
     }
 
     const broadRouteMutation = controlBrowserSource.replace(
-      "      expectedUrl,\n      createExactLocalPreviewRouteHandler(expectedUrl, hitCounts),",
-      '      "**/*",\n      createExactLocalPreviewRouteHandler(expectedUrl, hitCounts),',
+      ["      expectedUrl,", "      createExactLocalPreviewRouteHandler(expectedUrl, hitCounts),"].join(controlBrowserSource.includes("\r\n") ? "\r\n" : "\n"),
+      ['      "**/*",', "      createExactLocalPreviewRouteHandler(expectedUrl, hitCounts),"].join(controlBrowserSource.includes("\r\n") ? "\r\n" : "\n"),
     )
     assert.notEqual(broadRouteMutation, controlBrowserSource)
     assert.throws(() => assertExactLocalPreviewFixtureConsumer(broadRouteMutation))
@@ -198,7 +198,7 @@ describe("Carousel Lab source boundaries", () => {
       controlBrowserSource,
       "Carousel Lab supports keyboard, reduced motion, cleanup, and phone width",
       (testSource) => testSource.replace(
-        "    const previewFixtureHits = await installExactLocalCarouselPreviewFixtures(page)\n",
+        "    const previewFixtureHits = await installExactLocalCarouselPreviewFixtures(page)" + (testSource.includes("\r\n") ? "\r\n" : "\n"),
         "",
       ),
     )
