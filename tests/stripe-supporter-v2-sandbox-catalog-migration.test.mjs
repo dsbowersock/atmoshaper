@@ -296,10 +296,16 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
     billingPortal: {
       configurations: {
         list: async (params) => {
+          if (params?.expand !== undefined) {
+            throw new Error("Portal list must not request unsupported expansions")
+          }
           log("portal.list", params, {})
           return paged(portals.values(), params, pageSize)
         },
         retrieve: async (id, params) => {
+          if (params !== undefined) {
+            throw new Error("Portal retrieval must not request unsupported expansions")
+          }
           log("portal.retrieve", { id, ...params }, {})
           return clone(portals.get(id))
         },
@@ -425,10 +431,7 @@ describe("Supporter v2 sandbox catalog migration", () => {
     assert.equal(
       fixture.calls
         .filter(({ operation }) => operation === "portal.list")
-        .every(({ payload }) => (
-          JSON.stringify(payload.expand)
-            === JSON.stringify(["data.features.subscription_update.products"])
-        )),
+        .every(({ payload }) => payload.expand === undefined),
       true,
     )
   })

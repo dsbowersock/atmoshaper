@@ -30,10 +30,6 @@ const APPLY_CONFIRMATION = "CREATE_SUPPORTER_V2_SANDBOX_CATALOG"
 const MAX_LIST_PAGES = 10_000
 const MAX_MANAGED_OBJECTS = 1_000
 const TERMINAL_SUBSCRIPTION_STATUSES = new Set(["canceled", "incomplete_expired"])
-const PORTAL_EXPANSIONS = Object.freeze(["features.subscription_update.products"])
-const PORTAL_LIST_EXPANSIONS = Object.freeze(
-  PORTAL_EXPANSIONS.map((path) => `data.${path}`),
-)
 const PORTAL_METADATA_KEYS = Object.freeze([
   "app",
   "atmoshaper_catalog",
@@ -645,9 +641,7 @@ async function collectInventory(stripe, config) {
     sessions = await scanAll((params) => stripe.checkout.sessions.list(params), {
       status: "open",
     })
-    portals = await scanAll((params) => stripe.billingPortal.configurations.list(params), {
-      expand: [...PORTAL_LIST_EXPANSIONS],
-    })
+    portals = await scanAll((params) => stripe.billingPortal.configurations.list(params))
     endpoints = await scanAll((params) => stripe.webhookEndpoints.list(params))
   } catch (error) {
     if (error instanceof SupporterV2MigrationError) throw error
@@ -835,9 +829,7 @@ async function applyMigration(stripe, inventory) {
         idempotencyKey: portalIdempotencyKey(supporterUse),
       })
       await retrieveAndRequire(
-        (id) => stripe.billingPortal.configurations.retrieve(id, {
-          expand: [...PORTAL_EXPANSIONS],
-        }),
+        (id) => stripe.billingPortal.configurations.retrieve(id),
         created.id,
         (candidate) => portalMatches(candidate, payload, supporterUse),
         "v2_portal_mutation_unverified",
@@ -847,9 +839,7 @@ async function applyMigration(stripe, inventory) {
     if (portalMatches(current, payload, supporterUse)) continue
     await stripe.billingPortal.configurations.update(current.id, payload)
     await retrieveAndRequire(
-      (id) => stripe.billingPortal.configurations.retrieve(id, {
-        expand: [...PORTAL_EXPANSIONS],
-      }),
+      (id) => stripe.billingPortal.configurations.retrieve(id),
       current.id,
       (candidate) => portalMatches(candidate, payload, supporterUse),
       "v2_portal_mutation_unverified",

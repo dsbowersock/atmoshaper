@@ -27,8 +27,9 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   Portal, and readiness verifies the complete Price-only, unchanged-cycle,
   non-prorated, immediate trial-ending transition behavior.
 - CodeRabbit then identified an unsupported nested Portal expansion in the
-  readiness lookup. The check now retrieves each Portal configuration without
-  expansion and validates the Product/Price IDs returned directly by Stripe.
+  readiness lookup plus the migration's Portal list and mutation-verification
+  lookups. All Portal reads now omit that expansion and validate the
+  Product/Price IDs returned directly by Stripe.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 
