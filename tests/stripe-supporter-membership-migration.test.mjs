@@ -769,6 +769,19 @@ describe("Supporter membership Stripe migration", () => {
     }
     const ambiguousLegacySupporter = product("prod_supporter", "MassageLab Supporter")
     ambiguousLegacySupporter.metadata.atmoshaper_catalog = SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+    const legacySupporterWithPriceKey = product(
+      "prod_supporter",
+      "MassageLab Supporter",
+    )
+    legacySupporterWithPriceKey.metadata.massagelab_supporter_price_key =
+      "support-1-month"
+    const unstampedSupporterWithPriceKey = {
+      ...unstampedSupporter,
+      metadata: {
+        ...unstampedMetadata,
+        massagelab_supporter_price_key: "support-1-month",
+      },
+    }
     const support5Product = {
       ...classifiedProduct,
       id: "prod_support_5",
@@ -823,6 +836,17 @@ describe("Supporter membership Stripe migration", () => {
     )
     assert.equal(
       targetSupporterProductReusable(ambiguousLegacySupporter, support1Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(legacySupporterWithPriceKey, support1Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(
+        unstampedSupporterWithPriceKey,
+        support1Spec,
+      ),
       false,
     )
     assert.equal(

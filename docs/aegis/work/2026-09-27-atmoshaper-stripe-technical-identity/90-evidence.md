@@ -59,3 +59,20 @@
     initialization fallback appeared during page-data collection.
 - External-state receipt remains unchanged: this repair performed no provider,
   database, deployment, payment, subscription, DNS, or email mutation.
+
+## Second review repair
+
+- Verified the exact-head CodeRabbit finding that both exceptional legacy
+  Product-reuse paths still accepted the legacy Price identity key.
+- Added fail-closed guards and regression assertions for the normal and
+  interrupted legacy Product shapes.
+- `node --test tests/stripe-provider-identity.test.mjs tests/stripe-supporter-membership-migration.test.mjs`
+  - Result: 77 tests passed, 0 failed.
+- Broader nine-file Stripe contract run
+  - Result: 261 tests passed, 0 failed.
+- `npm run typecheck`
+  - Result: passed.
+- `npm run lint`
+  - Result: passed with only the known informational Babel large-file notice.
+- External-state receipt remains unchanged: no provider or deployment mutation
+  was performed.

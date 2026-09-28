@@ -520,6 +520,7 @@ function legacySupporterProductMatches(candidate) {
     && (app === undefined || app === "massagelab")
     && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
     && candidate.metadata?.massagelab_catalog == null
+    && candidate.metadata?.massagelab_supporter_price_key == null
     && !hasCurrentSupporterSchemaMetadata(candidate.metadata)
 }
 
@@ -535,6 +536,7 @@ function legacyUnstampedSupporterProductMatches(candidate) {
     && candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
     && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
     && candidate.metadata?.massagelab_supporter_amount_choice == null
+    && candidate.metadata?.massagelab_supporter_price_key == null
     && !hasCurrentSupporterSchemaMetadata(candidate.metadata)
 }
 
