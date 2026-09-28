@@ -43,6 +43,11 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   retrieves that default without unsupported expansions and compares its
   headline, policy URLs, and return URL with both managed Portals. The hosted
   compiled-module regression was updated for the new production dependency.
+- The next exact-head review found that readiness used the retained default only
+  as a profile template. Readiness now retrieves all six configured v1 Prices
+  and independently requires the default Portal's complete three-Product/six-
+  Price allowlist, billing-management features, and reviewed transition policy.
+  Regressions fail closed on drift in each contract class.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 

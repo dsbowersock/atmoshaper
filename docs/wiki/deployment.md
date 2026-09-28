@@ -243,7 +243,9 @@ reserved for historical v1 compatibility and must retain its exact three-
 Product/six-Price v1 allowlist under the same reviewed Price-only transition
 policy. Both managed Portals must inherit the retained default's headline,
 privacy and terms URLs, and return URL; readiness retrieves the default Portal
-to prove that relationship before activation.
+and all six retained v1 Prices to prove both that relationship and the default
+Portal's own topology, transition-policy, and billing-management contracts
+before activation.
 
 Before enabling subscription checkout, confirm:
 
@@ -292,7 +294,9 @@ v1 three-Product/six-Price transition topology, with quantity adjustment off,
 and the reviewed Price-only, unchanged-cycle, non-prorated, unscheduled,
 trial-ending transition policy. The two managed v2 Portals inherit its business
 profile and default return URL, which readiness verifies after retrieving all
-Portal configurations without unsupported expansion parameters.
+Portal configurations without unsupported expansion parameters. Readiness also
+retrieves each configured retained v1 Price so the default allowlist is checked
+against provider-owned Product and Price identities rather than only its shape.
 
 Run the read-only modes first with the expected test-account ID supplied only
 in the operator shell:

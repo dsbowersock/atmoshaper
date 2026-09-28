@@ -18,10 +18,12 @@ import {
   getSupporterRecurringTaxReadiness,
   isExplicitTrue,
   REQUIRED_SUPPORTER_PRICE_CONTRACT,
+  validateRetrievedDefaultSupporterPortalConfiguration,
   validateRetrievedMembershipPrice,
   validateRetrievedSupporterPortalConfiguration,
   validateSupporterProductTopology,
 } from "../lib/stripe-readiness.js"
+import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
   STRIPE_API_VERSION,
   STRIPE_BACKGROUND_COMMERCE_WEBHOOK_EVENTS,
@@ -40,6 +42,7 @@ const noDotenv = args.has("--no-dotenv")
 const failures = []
 const warnings = []
 const priceIds = new Map()
+const legacyPriceIds = new Map()
 const portalConfigurationIds = new Map()
 const verifiedPortalConfigurations = new Map([
   ["personal", false],
@@ -143,6 +146,22 @@ function checkPriceIds() {
 
     priceIds.set(priceId, expected)
   }
+  for (const expected of LEGACY_TARGET_PRICE_SPECS) {
+    const priceId = envValue(expected.envKey)
+    if (!priceId) {
+      addFailure(`${expected.envKey} is missing.`)
+      continue
+    }
+    if (!priceId.startsWith("price_")) {
+      addFailure(`${expected.envKey} must be a Stripe Price ID.`)
+      continue
+    }
+    if (legacyPriceIds.has(priceId)) {
+      addFailure(`${expected.envKey} duplicates a retained v1 Price mapping.`)
+      continue
+    }
+    legacyPriceIds.set(priceId, expected)
+  }
   const reconciliationCounts = new Map()
   for (const { priceId } of getConfiguredMembershipReconciliationOptions(process.env)) {
     reconciliationCounts.set(priceId, (reconciliationCounts.get(priceId) ?? 0) + 1)
@@ -156,6 +175,7 @@ function checkPriceIds() {
   }
 
   priceIdInventoryComplete = priceIds.size === REQUIRED_SUPPORTER_PRICE_CONTRACT.length
+    && legacyPriceIds.size === LEGACY_TARGET_PRICE_SPECS.length
     && reconciliationIdsUnique
 }
 
@@ -400,6 +420,16 @@ async function verifyStripePrices() {
   if (topologyFailures.length > 0) {
     for (const failure of topologyFailures) addFailure(failure)
   }
+  const retrievedLegacyMembershipPrices = []
+  for (const [priceId, expected] of legacyPriceIds) {
+    try {
+      const price = await stripe.prices.retrieve(priceId, { expand: ["product"] })
+      retrievedLegacyMembershipPrices.push({ expected, price })
+    } catch {
+      allPricesRetrieved = false
+      addFailure(`${expected.envKey} could not be retrieved from Stripe.`)
+    }
+  }
   stripeRetrievalPerformed = allPricesRetrieved
 
   const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
@@ -415,6 +445,10 @@ async function verifyStripePrices() {
       addFailure("The retained default Stripe Portal configuration could not be uniquely verified.")
     } else {
       defaultConfiguration = defaults[0]
+      for (const failure of validateRetrievedDefaultSupporterPortalConfiguration(
+        defaultConfiguration,
+        { retrievedLegacyMembershipPrices, livemode: expectedLivemode },
+      )) addFailure(failure)
     }
   } catch {
     addFailure("The retained default Stripe Portal configuration could not be retrieved.")

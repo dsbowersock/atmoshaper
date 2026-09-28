@@ -735,6 +735,9 @@ describe("Supporter membership final-review contracts", () => {
           normalizeSupporterPortalProfile,
           supporterPortalAllowlistMatches,
         },
+        "./stripe-supporter-membership-migration-contract.js": {
+          LEGACY_TARGET_PRICE_SPECS,
+        },
       },
     )
 

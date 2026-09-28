@@ -7,6 +7,7 @@ import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
 } from "../../lib/stripe-price-contract.js"
+import { LEGACY_TARGET_PRICE_SPECS } from "../../lib/stripe-supporter-membership-migration-contract.js"
 
 function supporterPrice(priceId) {
   const configuredPrice = SUPPORTER_MEMBERSHIP_PRICE_CONTRACT.find(
@@ -59,6 +60,18 @@ function supporterPrice(priceId) {
         atmoshaper_supporter_amount_choice: productKey,
       },
     },
+  }
+}
+
+/** Returns minimal retained v1 Price evidence for default-Portal topology. */
+function legacySupporterPrice(priceId) {
+  const expected = LEGACY_TARGET_PRICE_SPECS.find(
+    ({ envKey }) => process.env[envKey] === priceId,
+  )
+  if (!expected) throw new Error("Unexpected retained v1 Price fixture")
+  return {
+    id: priceId,
+    product: { id: `prod_v1_${expected.productKey}` },
   }
 }
 
@@ -149,7 +162,17 @@ function supporterPortal(supporterUse) {
 
 /** Builds the retained default Portal profile inherited by managed Portals. */
 function defaultPortal() {
-  return {
+  const products = new Map()
+  for (const expected of LEGACY_TARGET_PRICE_SPECS) {
+    const entry = products.get(expected.productKey) ?? {
+      product: `prod_v1_${expected.productKey}`,
+      prices: [],
+      adjustable_quantity: { enabled: false },
+    }
+    entry.prices.push(process.env[expected.envKey])
+    products.set(expected.productKey, entry)
+  }
+  const configuration = {
     id: "bpc_default",
     active: true,
     is_default: true,
@@ -160,7 +183,49 @@ function defaultPortal() {
       terms_of_service_url: "https://www.atmoshaper.com/legal/terms",
     },
     default_return_url: "https://www.atmoshaper.com/account?tab=membership",
+    features: {
+      customer_update: {
+        enabled: true,
+        allowed_updates: ["address", "email", "name"],
+      },
+      invoice_history: { enabled: true },
+      payment_method_update: { enabled: true },
+      subscription_cancel: {
+        enabled: true,
+        mode: "at_period_end",
+        proration_behavior: "none",
+        cancellation_reason: {
+          enabled: true,
+          options: [
+            "missing_features",
+            "other",
+            "switched_service",
+            "too_expensive",
+            "unused",
+          ],
+        },
+      },
+      subscription_update: {
+        enabled: true,
+        default_allowed_updates: ["price"],
+        billing_cycle_anchor: "unchanged",
+        proration_behavior: "none",
+        schedule_at_period_end: { conditions: [] },
+        trial_update_behavior: "end_trial",
+        products: [...products.values()],
+      },
+    },
   }
+  if (process.env.STRIPE_READINESS_STUB_INVALID_DEFAULT_PORTAL === "management") {
+    configuration.features.invoice_history.enabled = false
+  }
+  if (process.env.STRIPE_READINESS_STUB_INVALID_DEFAULT_PORTAL === "transition") {
+    configuration.features.subscription_update.proration_behavior = "create_prorations"
+  }
+  if (process.env.STRIPE_READINESS_STUB_INVALID_DEFAULT_PORTAL === "allowlist") {
+    configuration.features.subscription_update.products[0].prices = ["price_unrelated"]
+  }
+  return configuration
 }
 
 /** Hermetic Stripe client used only by readiness CLI child-process tests. */
@@ -172,7 +237,11 @@ export default class StripeReadinessStub {
       apiVersion: config.apiVersion ?? STRIPE_API_VERSION,
     }
     this.prices = {
-      retrieve: async (priceId) => supporterPrice(priceId),
+      retrieve: async (priceId) => (
+        LEGACY_TARGET_PRICE_SPECS.some(({ envKey }) => process.env[envKey] === priceId)
+          ? legacySupporterPrice(priceId)
+          : supporterPrice(priceId)
+      ),
     }
     this.billingPortal = {
       configurations: {

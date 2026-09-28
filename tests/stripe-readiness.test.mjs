@@ -22,6 +22,7 @@ import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
 } from "../lib/stripe-price-contract.js"
 import StripeReadinessStub from "./fixtures/stripe-readiness-stripe-stub.mjs"
+import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 
 const readinessScriptPath = fileURLToPath(
   new URL("../scripts/stripe-readiness-check.mjs", import.meta.url),
@@ -53,6 +54,12 @@ const membershipPrices = Object.fromEntries(
   REQUIRED_SUPPORTER_PRICE_CONTRACT.map(({ key }) => [
     key,
     `price_${key.toLowerCase().replaceAll("stripe_supporter_", "supporter_").replaceAll("_price_id", "")}`,
+  ]),
+)
+const legacyMembershipPrices = Object.fromEntries(
+  LEGACY_TARGET_PRICE_SPECS.map(({ envKey }) => [
+    envKey,
+    `price_v1_${envKey.toLowerCase().replaceAll("stripe_supporter_", "supporter_").replaceAll("_price_id", "")}`,
   ]),
 )
 
@@ -181,6 +188,7 @@ function readinessEnvironment(overrides = {}) {
     STRIPE_ONE_TIME_SUPPORT_TAX_REGISTRATIONS_READY: "true",
     STRIPE_ONE_TIME_SUPPORT_TAX_CLASSIFICATION_CONFIRMED: "true",
     ...membershipPrices,
+    ...legacyMembershipPrices,
     ...overrides,
   }
   // Delete undefined overrides so spawned tests receive an unset environment key.
@@ -987,6 +995,21 @@ describe("Stripe readiness background-commerce contract", () => {
       result.stdout,
       /Supporter personal Portal configuration verified: false/,
     )
+  })
+
+  it("fails Stripe verification for every retained default Portal contract drift", () => {
+    const cases = [
+      ["management", /must preserve the reviewed customer, invoice, payment-method, and cancellation-management behavior/],
+      ["transition", /must preserve the reviewed Price-only, unchanged-cycle, non-prorated subscription-update behavior/],
+      ["allowlist", /Product and Price allowlist must match the complete v1 Supporter catalog/],
+    ]
+    for (const [drift, failure] of cases) {
+      const result = runReadinessWithStripeStub({
+        STRIPE_READINESS_STUB_INVALID_DEFAULT_PORTAL: drift,
+      }, ["--verify-stripe"])
+      assert.equal(result.status, 1, drift)
+      assert.match(result.stderr, failure, drift)
+    }
   })
 
   it("rejects default Portals and every managed subscription-update behavior drift", () => {
