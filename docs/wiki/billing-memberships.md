@@ -13,8 +13,8 @@ are explicitly authorized and completed.
 ## Dedicated AtmoShaper Provider Sequence
 
 After this code-only technical-identity change is reviewed and merged, the next
-provider stage is test mode only: create or verify three AtmoShaper Supporter
-Products and six recurring Prices, configure one Portal allowlist, create the
+provider stage is test mode only: create or verify six AtmoShaper Supporter
+amount/use Products and twelve recurring Prices, configure one Portal allowlist, create the
 exact 15-event webhook at
 `https://www.atmoshaper.com/api/billing/webhook`, store test credentials and
 Price mappings through approved secret management, deploy, and run controlled
@@ -52,9 +52,9 @@ if (features.includes("premium_backgrounds")) {
   non-PHI feature set as an explicit administrative source. It does not create
   a Stripe Customer or subscription, does not change `level` or `paidLevel`,
   and never bypasses the separate cloud-storage or PHI compliance gates.
-- Public enrollment accepts only the six approved amount-specific Supporter
-  Prices: $1, $2, and $5 monthly, plus $10, $20, and $50 annually. Every one of
-  those Price IDs grants the same `SUPPORTER` membership and feature set.
+- Public enrollment requires the buyer to choose personal non-business use or
+  work/business use, then accepts the matching one of twelve classified Prices.
+  Every Price grants the same `SUPPORTER` membership and feature set.
 - The legacy Supporter monthly and yearly Price mappings are retained only to
   reconcile pre-migration Supporter subscriptions and webhooks. They are
   historical compatibility inputs, not public catalog choices, and must not
@@ -71,7 +71,7 @@ if (features.includes("premium_backgrounds")) {
 - Therapist note-taking tools use the `therapist_documentation_tools` feature key and are unlocked only by active Therapist or Practice memberships.
 - External provider calendar sync uses the `external_calendar_sync` feature key and is unlocked only by active Therapist or Practice memberships.
 - Stripe subscription records grant membership only when their Price ID matches
-  one of the six current Supporter mappings or an explicitly retained legacy
+  one of the twelve current classified Supporter mappings or an explicitly retained legacy
   reconciliation mapping.
 - Student, donation, unknown, archived, or otherwise unmapped Stripe products and prices must not grant a paid membership.
 
@@ -157,8 +157,8 @@ Pricing and legal copy should also say that AtmoShaper does not sell user data a
 ## Inherited MassageLab Catalog Reference
 
 This section records the completed source-account topology and recovery
-behavior. The dedicated AtmoShaper test environment begins empty and must prove
-the same intended topology through its own test-mode setup and readiness gates.
+behavior as historical evidence. It does not define the current AtmoShaper
+buyer-use topology, which is documented after this reference.
 
 The target AtmoShaper catalog uses one **AtmoShaper Supporter Membership** with identical
 current benefits, including access to all premium backgrounds, at fixed support
@@ -498,3 +498,31 @@ idempotency boundary for an unresolved pending refund; ownership and aggregate
 drift remain operator-review findings rather than heuristic repairs. Audit JSON
 must never contain raw Stripe objects, secrets, email addresses, IP addresses,
 user-agent strings, or card/payment-method data.
+
+## Current AtmoShaper Buyer-Use Catalog
+
+New Supporter enrollment asks the buyer to choose one of two statements:
+
+- the membership is for the buyer's own non-business use; or
+- the membership is for use in the buyer's work or business.
+
+The choice does not change price, Supporter entitlement, benefits, or roadmap
+access. It selects one of two fixed Stripe Product classifications owned by the
+application: personal SaaS uses `txcd_10103000`, and business SaaS uses
+`txcd_10103001`. Each $1/$2/$5 support amount therefore has one Product per use,
+and each Product has monthly and annual Prices, for six Products and twelve
+Prices total. Request input supplies only the canonical use value; it never
+supplies a tax code or Product ID.
+
+An amount/interval is advertised only when both use-specific Prices are
+configured, readable, and equal in amount, currency, and interval. New Checkout
+requires the use to match the configured Price and records it in Session and
+subscription metadata. The existing generic-code v1 catalog remains readable
+for webhook and subscription reconciliation but cannot be selected by new v2
+Checkout.
+
+The dedicated sandbox's v1 catalog is preparation evidence only. Production
+Checkout stays paused, Automatic Tax stays disabled, and the readiness gates
+stay false until the v2 provider catalog, Portal allowlist, webhook, active tax
+registration, classified codes, secure environment configuration, deployment,
+and controlled synthetic tests are all separately completed.

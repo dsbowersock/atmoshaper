@@ -8,16 +8,20 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `a5ad3d8f19e648bc626af7c1244fcce77d34740e`; PR #19's
+  `main` is `fe66328c3c47ff2321654eea1749334f347bb1ce`; PR #19's
   provider-readiness record, PR #20's public Stripe catalog identity, and PR
-  #21's final brand assets are merged. Earlier CI evidence remains historical
-  until the next exact-head run.
+  #21's final brand assets, and PR #22's Stripe technical identity are merged.
+  Earlier CI evidence remains historical until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, support routing, and verified Google branding are operational;
   the verified branding is being shown to users.
-- The dedicated AtmoShaper Stripe test environment is connected and a bounded
-  read-only inventory found zero Products, recurring Prices, webhook endpoints,
-  Portal configurations, or subscriptions. Billing remains unconfigured. The
+- The dedicated AtmoShaper Stripe test environment is connected. Its first
+  sandbox catalog has three amount-specific Products and six recurring Prices,
+  while new Production Checkout remains paused. Stripe Tax has the home origin
+  but no registrations. The buyer-use candidate expands the next catalog to six
+  amount/use Products and twelve Prices so each buyer can declare personal or
+  business use without changing price or benefits; it performs no provider
+  mutation or deployment. The
   Vercel-managed destination retains the committed database migration state;
   the personal Neon organization lists only its directly owned projects, as
   expected.
@@ -26,7 +30,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   canonical for new provider objects. Exact historical `massagelab_*` metadata,
   idempotency, purpose, Price mappings, database fields, and reconciliation
   inputs remain readable until post-cutover inventory proves retirement safe.
-  No Stripe object, Vercel setting, database state, or deployment changed.
+  No Stripe object, Vercel setting, database state, or deployment changed in
+  that candidate or this buyer-use candidate.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
   uses the wordmark at wide widths and the square logo at narrow widths. The

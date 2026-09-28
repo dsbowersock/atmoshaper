@@ -186,6 +186,19 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_DONATION_URL=
 # Public enrollment Price IDs:
+STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_1_PERSONAL_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_2_PERSONAL_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_5_PERSONAL_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_5_PERSONAL_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID=
+# Pre-classification reconciliation-only Price IDs:
 STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID=
 STRIPE_SUPPORTER_1_YEARLY_PRICE_ID=
 STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID=
@@ -213,26 +226,26 @@ Student is not a Stripe-backed subscription tier. If a Student product or price 
 Legacy runtime Price mappings remain webhook-only compatibility inputs and cannot satisfy public catalog readiness.
 Keep them configured until the database and Stripe subscriber inventories prove
 no historical subscription remains and signed webhook reconciliation is final.
-`stripe:readiness` validates only the six amount-specific Supporter IDs for new
+`stripe:readiness` validates only the twelve amount/use Supporter IDs for new
 public enrollment.
 
 Before enabling subscription checkout, confirm:
 
 - `AtmoShaper Supporter Membership` is the only user-facing membership. Stripe
-  represents it as three amount-specific Products, each with tax code
-  `txcd_10000000`, identical Supporter entitlement metadata, and one monthly
-  plus one annual Price.
-- The six exclusive USD recurring Prices are exactly $1, $2, or $5 monthly and
-  $10, $20, or $50 yearly, with `interval_count=1`, no trial, licensed usage,
+  represents it as six amount/use Products. Personal Products use
+  `txcd_10103000`; business Products use `txcd_10103001`; each has identical
+  Supporter entitlement metadata and one monthly plus one annual Price.
+- The twelve exclusive USD recurring Prices are exactly $1, $2, or $5 monthly
+  and $10, $20, or $50 yearly for both use choices, with `interval_count=1`, no trial, licensed usage,
   per-unit billing, no quantity transform, and no additional currencies.
 - Repeated or concurrent enrollment requests reuse only an exact
-  `supporter_membership_v1_checkout_v1` Session whose current configured Price,
+  `supporter_membership_v2_checkout_v1` Session whose current configured Price,
   classified Product, Automatic Tax, and billing-address contract verify.
   Recognized incompatible historical open Sessions must be confirmed expired;
   completed historical Sessions with a relevant subscription still block with
   billing-management guidance until webhook persistence catches up.
 - The Stripe Customer Portal permits subscription Price changes only among
-  those six Prices while preserving cancellation, payment-method updates,
+  approved compatible Prices while preserving cancellation, payment-method updates,
   billing address/name/email updates, and invoice history. Cross-Product amount
   changes keep the billing-cycle anchor unchanged, create no proration, and are
   not scheduled for period end.

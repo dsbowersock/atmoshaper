@@ -8,7 +8,7 @@ import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_CATALOG,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME as SUPPORTER_PRODUCT_NAME,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
-  SUPPORTER_RECURRING_TAX_CODE as EXPECTED_TAX_CODE,
+  LEGACY_SUPPORTER_RECURRING_TAX_CODE as EXPECTED_TAX_CODE,
 } from "../lib/stripe-price-contract.js"
 import {
   buildCurrentSupporterPriceMetadata,
@@ -18,7 +18,9 @@ import {
   hasAnySupporterSchemaMetadata,
   hasCurrentSupporterSchemaMetadata,
 } from "../lib/stripe-provider-identity.js"
-import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
+import {
+  LEGACY_TARGET_PRICE_SPECS as TARGET_PRICE_SPECS,
+} from "../lib/stripe-supporter-membership-migration-contract.js"
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
 
 export { TARGET_PRICE_SPECS }

@@ -8,7 +8,10 @@ import {
   hasAnySupporterSchemaMetadata,
   hasCurrentSupporterSchemaMetadata,
 } from "../lib/stripe-provider-identity.js"
-import { SUPPORTER_MEMBERSHIP_CATALOG_VERSION } from "../lib/stripe-price-contract.js"
+import {
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+} from "../lib/stripe-price-contract.js"
 
 const currentProduct = {
   app: "atmoshaper",
@@ -36,6 +39,23 @@ const legacyPrice = {
 }
 
 describe("Stripe provider identity", () => {
+  it("continues to classify the deployed v1 catalog for reconciliation", () => {
+    assert.deepEqual(classifySupporterProductMetadata({
+      ...currentProduct,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), {
+      schema: "current",
+      amountChoiceId: "support-2",
+    })
+    assert.deepEqual(classifySupporterPriceMetadata({
+      ...currentPrice,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), {
+      schema: "current",
+      priceKey: "support-2-month",
+    })
+  })
+
   it("classifies exact current and legacy Product metadata", () => {
     assert.deepEqual(classifySupporterProductMetadata(currentProduct), {
       schema: "current",

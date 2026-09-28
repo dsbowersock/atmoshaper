@@ -84,6 +84,12 @@ const pricingCards = loadCompiledModule(
     "@/lib/public-launch-controls": {
       SUPPORTER_CHECKOUT_PAUSED_MESSAGE,
     },
+    "@/lib/supporter-use": {
+      SUPPORTER_USE_OPTIONS: Object.freeze([
+        Object.freeze({ id: "personal", label: "Personal use", description: "I am buying this membership for my own non-business use." }),
+        Object.freeze({ id: "business", label: "Business use", description: "I am buying this membership for use in my work or business." }),
+      ]),
+    },
     "@/lib/utils": {
       cn: (...classes) => classes.filter(Boolean).join(" "),
     },

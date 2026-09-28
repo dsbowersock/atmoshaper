@@ -1,0 +1,17 @@
+# Supporter Buyer-Use Classification Evidence
+
+- Baseline: local `origin/main` at `fe66328`, the merge of PR #22.
+- Isolation: new clean worktree `.worktrees/buyer-use-classification` on `codex/atmoshaper-buyer-use-classification`.
+- Ownership safety: original checkout's untracked `public/images` remains outside this worktree.
+- Behavior: Checkout requires the buyer to choose personal/non-business or work/business use; both choices expose the same price and benefits.
+- Contract: public v2 Checkout resolves only one of 12 use-specific Price variables, validates the selected Price against the declared use, and records that use in Stripe metadata. Six v1 variables remain reconciliation-only.
+- Fail-closed pricing: public pricing is available only when both personal and business variants are configured, readable, and semantically equal.
+- Focused regression matrix: `383` tests passed across membership, Checkout, pricing-card, billing, webhook, readiness, migration, provider-identity, final-review, browser-QA environment, and family-and-friends workload suites. The workload slice caught and verified the fixture's six-to-twelve-Price update.
+- Focused billing suite: `89` tests passed.
+- Static validation: `npm run typecheck` passed; `npm run lint` passed with only the existing Babel large-file informational note.
+- Production build: `npm run build` passed and generated `115` static pages. The expected optional Anatomime poll-shedder warning appeared during static collection.
+- Full-suite residual: `npm run test` advanced through many passing suites but then produced no output while leaving long-lived test workers; it was terminated and is not claimed as a pass.
+- Brand-audit residual: `npm run brand:audit` fails because exact GitHub `main` already has a stale line-based baseline and this branch intentionally moves private compatibility/test occurrences. A zero-context diff audit found no new public MassageLab branding. Baseline regeneration was deliberately excluded from this billing slice.
+- Dependency receipt: an isolated `npm ci` was required for the build and reported the repository lockfile's existing audit total of 9 findings (3 moderate, 5 high, 1 critical); no dependency or lockfile changes were made.
+- Provider boundary: no Stripe, Vercel, Neon, database, deployment, payment, subscription, DNS, email-provider, or tax-registration mutation occurred.
+- Complexity/retirement: canonical new logic is isolated in `lib/supporter-use.js`; existing large Stripe owners received wiring-only compatibility changes. Legacy v1 identity remains only until provider and database inventory proves that no historical reconciliation references remain.

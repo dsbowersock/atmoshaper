@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-27 — Buyer-selected Supporter use classification candidate
+
+- Started from merged PR #22 at
+  `fe66328c3c47ff2321654eea1749334f347bb1ce` in a separate isolated
+  worktree. The buyer now must identify whether the Supporter membership is for
+  personal non-business use or work/business use before new Checkout.
+- Both choices retain the same $1/$2/$5 monthly and $10/$20/$50 yearly
+  amounts, Supporter level, and benefits. The server maps the normalized choice
+  to a fixed classification-specific Price; request input never supplies a tax
+  code.
+- The v2 target contract contains six amount/use Products and twelve Prices,
+  using `txcd_10103000` for personal SaaS and `txcd_10103001` for business
+  SaaS. The existing v1 generic catalog remains reconciliation-compatible but
+  cannot satisfy a new public Checkout selection after cutover.
+- Existing subscriptions, historical Price mappings, webhooks, and database
+  rows remain readable. This candidate makes no Stripe, Vercel, database,
+  deployment, payment, subscription, registration, or tax-setting mutation;
+  Production Checkout remains paused.
+
 ## 2026-09-27 — AtmoShaper Stripe technical-identity candidate
 
 - Began from merged PR #21 at

@@ -3,7 +3,7 @@ import { buildAccountCapabilities, normalizeRoleAssignments } from "../account-p
 import {
   SUPPORTER_AMOUNT_CHOICES,
   buildEntitlements,
-  getConfiguredMembershipOptions,
+  getConfiguredMembershipReconciliationOptions,
   loadActiveTemporaryGrants,
 } from "../membership.js"
 import { isAdminEmailIntentRetryEligible } from "./email-intents.ts"
@@ -148,7 +148,7 @@ export async function loadAdminUserAccess(input: { prismaClient: DetailPrismaCli
 export async function loadAdminUserBilling(input: { prismaClient: DetailPrismaClient; userId: string; environment?: NodeJS.ProcessEnv }): Promise<AdminUserDetailSectionResult | null> {
   const user = await input.prismaClient.user.findUnique({ where: { id: input.userId }, select: BILLING_SELECT })
   if (!user) return null
-  const configuredOptions = getConfiguredMembershipOptions(input.environment ?? process.env)
+  const configuredOptions = getConfiguredMembershipReconciliationOptions(input.environment ?? process.env)
   return result("billing", user, {
     subscriptions: boundedCollection(user.membershipSubscriptions.map((subscription) => ({
       membershipLevel: subscription.membershipLevel,
@@ -437,7 +437,7 @@ function normalizeRoleEvidence(roles: Array<{
 
 function supporterPricingEvidence(
   stripePriceId: string | null,
-  configuredOptions: ReturnType<typeof getConfiguredMembershipOptions>,
+  configuredOptions: ReturnType<typeof getConfiguredMembershipReconciliationOptions>,
 ) {
   const option = stripePriceId
     ? configuredOptions.find((candidate) => candidate.priceId === stripePriceId && candidate.membershipLevel === "SUPPORTER")

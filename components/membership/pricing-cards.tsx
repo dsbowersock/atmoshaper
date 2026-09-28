@@ -15,6 +15,7 @@ import { BILLING_PORTAL_DESTINATIONS } from "@/lib/billing-portal-destinations"
 import { getLegalDocumentByKey, legalDocumentAcceptanceId } from "@/lib/legal-documents"
 import { resolveMembershipPriceForInterval } from "@/lib/membership-pricing"
 import { SUPPORTER_CHECKOUT_PAUSED_MESSAGE } from "@/lib/public-launch-controls"
+import { SUPPORTER_USE_OPTIONS } from "@/lib/supporter-use"
 import { cn } from "@/lib/utils"
 
 type MembershipPlan = {
@@ -438,6 +439,36 @@ function SupporterAmountChoice({
       <input type="hidden" name="supporterAmountChoiceId" value={choiceId} />
       <input type="hidden" name="interval" value={price.interval} />
       <input type="hidden" name="acceptedLegalDocuments" value={billingTermsId} />
+      <fieldset
+        className="space-y-2 rounded-md border border-border/80 bg-background/70 p-3"
+        disabled={!price.isLookupAvailable}
+      >
+        <legend className="px-1 text-xs font-semibold text-foreground">
+          How will you use this membership?
+        </legend>
+        <p className="text-xs text-muted-foreground">
+          This sets the tax classification only. Your price and Supporter features stay the same.
+        </p>
+        {SUPPORTER_USE_OPTIONS.map((option) => {
+          const inputId = `${choiceId}-${price.interval}-${option.id}`
+          return (
+            <label key={option.id} htmlFor={inputId} className="flex items-start gap-2 text-xs text-muted-foreground">
+              <input
+                id={inputId}
+                type="radio"
+                name="supporterUse"
+                value={option.id}
+                className="mt-0.5"
+                required
+              />
+              <span>
+                <span className="font-medium text-foreground">{option.label}</span>
+                {" — "}{option.description}
+              </span>
+            </label>
+          )
+        })}
+      </fieldset>
       <label className="flex gap-3 rounded-md border border-border/80 bg-background/70 p-3 text-xs text-muted-foreground">
         <input type="checkbox" name="billingTermsAccepted" value="true" className="mt-1" required />
         <span>

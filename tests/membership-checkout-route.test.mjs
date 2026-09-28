@@ -642,17 +642,20 @@ describe("Membership Checkout POST route", () => {
       membershipLevel: "SUPPORTER",
       supporterAmountChoiceId: "support-1",
       interval: "month",
+      supporterUse: "personal",
     }])
     assert.deepEqual(calls.priceResolutionInputs, [{
       membershipLevel: "SUPPORTER",
       supporterAmountChoiceId: "support-1",
       interval: "month",
+      supporterUse: "personal",
     }])
     assert.deepEqual(calls.checkoutOptions, {
       customerId: "cus_123",
       priceId: "price_supporter_1_month",
       userId: "user_123",
       membershipLevel: "SUPPORTER",
+      supporterUse: "personal",
       successUrl: "https://massagelab.app/account?tab=membership&checkout=success",
       cancelUrl: "https://massagelab.app/account?tab=membership&checkout=cancelled",
     })
@@ -1099,6 +1102,34 @@ describe("Membership Checkout POST route", () => {
       ]])
     })
   }
+
+  for (const [label, supporterUse] of [
+    ["missing", null],
+    ["unsupported", "mixed"],
+  ]) {
+    it(`rejects a ${label} buyer-use declaration before billing work`, async () => {
+      const calls = checkoutCallCounts()
+      const response = await createMembershipCheckoutPostHandler(
+        checkoutDependencies(calls),
+      )(jsonRequest({
+        membershipLevel: "SUPPORTER",
+        supporterAmountChoiceId: "support-1",
+        interval: "month",
+        supporterUse,
+      }))
+
+      assert.deepEqual(response, {
+        body: { error: "Unsupported membership level" },
+        status: 400,
+      })
+      assert.deepEqual(calls, {
+        ensureCustomer: 0,
+        createCheckout: 0,
+        membershipLookup: 0,
+        sessionReads: 1,
+      })
+    })
+  }
 })
 
 /** Creates the baseline effect counters shared by Checkout route tests. */
@@ -1126,7 +1157,7 @@ function jsonRequest(body) {
   return new Request("https://massagelab.app/api/billing/checkout", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify(withDefaultSupporterUse(body)),
   })
 }
 
@@ -1157,8 +1188,23 @@ function formRequest(
       "sec-fetch-site": "same-origin",
       ...headers,
     },
-    body: new URLSearchParams(body),
+    body: new URLSearchParams(withDefaultSupporterUse(body)),
   })
+
+}
+
+/** Keeps pre-existing route cases focused while new cases override use explicitly. */
+function withDefaultSupporterUse(body) {
+  if (
+    body
+    && typeof body === "object"
+    && !Array.isArray(body)
+    && body.membershipLevel === "SUPPORTER"
+    && !Object.hasOwn(body, "supporterUse")
+  ) {
+    return { ...body, supporterUse: "personal" }
+  }
+  return body
 }
 
 /**
@@ -1233,10 +1279,13 @@ function checkoutDependencies(calls, {
             membershipLevel: input.membershipLevel,
             supporterAmountChoiceId: input.supporterAmountChoiceId,
             interval: input.interval,
+            supporterUse: input.supporterUse,
           },
         ]
       }
-      return input.membershipLevel === "SUPPORTER" && input.supporterAmountChoiceId === "support-1"
+      return input.membershipLevel === "SUPPORTER"
+        && input.supporterAmountChoiceId === "support-1"
+        && ["personal", "business"].includes(input.supporterUse)
     },
     resolveStripePriceId: (input) => {
       if (priceResolutionError) throw priceResolutionError
