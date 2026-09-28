@@ -1012,6 +1012,25 @@ describe("Stripe readiness background-commerce contract", () => {
     }
   })
 
+  it("fails Stripe verification for every retained v1 Price and Product semantic drift", () => {
+    const cases = [
+      ["inactive", /must identify an active retained v1 Stripe Price/],
+      ["amount", /does not match the retained v1 recurring Price contract/],
+      ["interval", /does not match the retained v1 recurring Price contract/],
+      ["product-inactive", /must expand an active retained v1 Stripe Product/],
+      ["product", /Product does not match the retained v1 semantic contract/],
+      ["product-metadata", /Product metadata does not identify the retained v1 Product/],
+      ["price-metadata", /metadata does not identify the retained v1 Price/],
+    ]
+    for (const [drift, failure] of cases) {
+      const result = runReadinessWithStripeStub({
+        STRIPE_READINESS_STUB_INVALID_LEGACY_PRICE: drift,
+      }, ["--verify-stripe"])
+      assert.equal(result.status, 1, drift)
+      assert.match(result.stderr, failure, drift)
+    }
+  })
+
   it("rejects default Portals and every managed subscription-update behavior drift", () => {
     const retrievedMembershipPrices = retrievedMembershipPricesForUse("personal")
     const cases = [

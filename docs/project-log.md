@@ -48,6 +48,14 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   and independently requires the default Portal's complete three-Product/six-
   Price allowlist, billing-management features, and reviewed transition policy.
   Regressions fail closed on drift in each contract class.
+- The following exact-head Codex review found that migration planning could
+  accept archived retained-v1 Products or Prices and readiness trusted the six
+  retrieved IDs without proving their catalog semantics. Migration now requires
+  active retained objects. Readiness validates each Price's mode, recurring
+  amount and interval, v1 metadata identity, and expanded Product's active mode,
+  name, tax code, and v1 identity before using it as Portal evidence. Focused
+  migration, readiness, and final-review validation passed: 58 passed, 0 failed;
+  the adjacent six-suite membership/Portal group passed: 101 passed, 0 failed.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 

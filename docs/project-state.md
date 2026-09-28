@@ -41,10 +41,13 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and cancellation policy and reasons. Readiness also requires both managed
   Portals to inherit the retained default Portal's profile URLs, headline, and
   return URL. Readiness also retrieves the six retained v1 Prices and requires
-  that default Portal to preserve its exact three-Product/six-Price allowlist,
-  reviewed update policy, and billing-management features. The migration
-  refuses to repurpose the retained default v1 Portal as a managed v2 Portal
-  under the same contract. No
+  each Price and expanded Product to remain active in the selected mode with
+  its exact recurring semantics, tax classification, and v1 metadata identity.
+  Their default Portal must preserve its exact three-Product/six-Price
+  allowlist, reviewed update policy, and billing-management features. The
+  migration rejects archived retained-v1 catalog objects and refuses to
+  repurpose the retained default v1 Portal as a managed v2 Portal under the
+  same contract. No
   Stripe object, Vercel setting, database state, or deployment has changed in
   this candidate.
 - The final user-approved logo, logo-plus-name wordmark, integrated word

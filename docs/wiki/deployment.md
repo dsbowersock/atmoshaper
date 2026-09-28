@@ -297,6 +297,9 @@ profile and default return URL, which readiness verifies after retrieving all
 Portal configurations without unsupported expansion parameters. Readiness also
 retrieves each configured retained v1 Price so the default allowlist is checked
 against provider-owned Product and Price identities rather than only its shape.
+Each retained Price and expanded Product must remain active in the selected
+mode and match the exact v1 recurring, Product, tax-code, and metadata contract;
+archived or semantically unrelated catalog objects fail closed.
 
 Run the read-only modes first with the expected test-account ID supplied only
 in the operator shell:

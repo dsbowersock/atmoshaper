@@ -19,6 +19,7 @@ import {
   isExplicitTrue,
   REQUIRED_SUPPORTER_PRICE_CONTRACT,
   validateRetrievedDefaultSupporterPortalConfiguration,
+  validateRetrievedLegacyMembershipPrice,
   validateRetrievedMembershipPrice,
   validateRetrievedSupporterPortalConfiguration,
   validateSupporterProductTopology,
@@ -402,6 +403,7 @@ async function verifyStripePrices() {
   // every successfully fetched Price, while API failures alone make
   // `stripeRetrievalPerformed` false.
   let allPricesRetrieved = true
+  const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
   const retrievedMembershipPrices = []
   for (const [priceId, expected] of priceIds) {
     try {
@@ -423,8 +425,13 @@ async function verifyStripePrices() {
   const retrievedLegacyMembershipPrices = []
   for (const [priceId, expected] of legacyPriceIds) {
     try {
-      const price = await stripe.prices.retrieve(priceId, { expand: ["product"] })
+      const price = await stripe.prices.retrieve(priceId, { expand: ["product", "currency_options"] })
       retrievedLegacyMembershipPrices.push({ expected, price })
+      for (const failure of validateRetrievedLegacyMembershipPrice(
+        price,
+        expected,
+        expectedLivemode,
+      )) addFailure(failure)
     } catch {
       allPricesRetrieved = false
       addFailure(`${expected.envKey} could not be retrieved from Stripe.`)
@@ -432,7 +439,6 @@ async function verifyStripePrices() {
   }
   stripeRetrievalPerformed = allPricesRetrieved
 
-  const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
   let defaultConfiguration = null
   try {
     const configurations = await listPortalConfigurations(stripe)

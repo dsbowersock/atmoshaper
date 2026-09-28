@@ -9,6 +9,7 @@ import {
 import {
   recurringPriceSemanticMismatches,
   recurringPriceSemanticsMatch,
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   LEGACY_SUPPORTER_RECURRING_TAX_CODE,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
@@ -17,7 +18,10 @@ import {
   supporterMembershipProductName,
 } from "../lib/stripe-price-contract.js"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
-import { classifySupporterProductMetadata } from "../lib/stripe-provider-identity.js"
+import {
+  classifySupporterPriceMetadata,
+  classifySupporterProductMetadata,
+} from "../lib/stripe-provider-identity.js"
 import {
   LEGACY_TARGET_PRICE_SPECS,
   TARGET_PRICE_SPECS,
@@ -715,9 +719,11 @@ describe("Supporter membership final-review contracts", () => {
           ONE_TIME_SUPPORT_TAX_CODE: "txcd_90000001",
         },
         "./stripe-provider-identity.js": {
+          classifySupporterPriceMetadata,
           classifySupporterProductMetadata,
         },
         "./stripe-price-contract.js": {
+          LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
           SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,

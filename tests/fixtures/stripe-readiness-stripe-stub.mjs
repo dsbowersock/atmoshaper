@@ -4,9 +4,14 @@ import {
   STRIPE_PINNED_WEBHOOK_URL,
 } from "../../lib/stripe-webhook-contract.js"
 import {
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
 } from "../../lib/stripe-price-contract.js"
+import {
+  buildCurrentSupporterPriceMetadata,
+  buildCurrentSupporterProductMetadata,
+} from "../../lib/stripe-provider-identity.js"
 import { LEGACY_TARGET_PRICE_SPECS } from "../../lib/stripe-supporter-membership-migration-contract.js"
 
 function supporterPrice(priceId) {
@@ -63,16 +68,53 @@ function supporterPrice(priceId) {
   }
 }
 
-/** Returns minimal retained v1 Price evidence for default-Portal topology. */
+/** Returns exact retained v1 Price evidence for semantic and Portal validation. */
 function legacySupporterPrice(priceId) {
   const expected = LEGACY_TARGET_PRICE_SPECS.find(
     ({ envKey }) => process.env[envKey] === priceId,
   )
   if (!expected) throw new Error("Unexpected retained v1 Price fixture")
-  return {
+  const livemode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true
+  const price = {
     id: priceId,
-    product: { id: `prod_v1_${expected.productKey}` },
+    active: true,
+    livemode,
+    billing_scheme: "per_unit",
+    currency: "usd",
+    unit_amount: expected.unitAmount,
+    recurring: {
+      interval: expected.interval,
+      interval_count: 1,
+      trial_period_days: null,
+      usage_type: "licensed",
+    },
+    transform_quantity: null,
+    currency_options: null,
+    metadata: buildCurrentSupporterPriceMetadata({}, expected.key, {
+      catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }),
+    product: {
+      id: `prod_v1_${expected.productKey}`,
+      active: true,
+      livemode,
+      name: expected.productName,
+      tax_code: expected.taxCode,
+      metadata: buildCurrentSupporterProductMetadata({}, expected.productKey, {
+        catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      }),
+    },
   }
+  switch (process.env.STRIPE_READINESS_STUB_INVALID_LEGACY_PRICE) {
+    case "inactive": price.active = false; break
+    case "amount": price.unit_amount += 1; break
+    case "interval": price.recurring.interval = expected.interval === "month" ? "year" : "month"; break
+    case "product-inactive": price.product.active = false; break
+    case "product": price.product.tax_code = "txcd_unrelated"; break
+    case "product-metadata": price.product.metadata = {}; break
+    case "price-metadata": price.metadata = {}; break
+    default: break
+  }
+  return price
 }
 
 /** Builds the exact use-specific Product and Price allowlist for one Portal. */

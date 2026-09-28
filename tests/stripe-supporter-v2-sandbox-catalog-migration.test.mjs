@@ -761,6 +761,12 @@ describe("Supporter v2 sandbox catalog migration", () => {
           metadata: { app: "atmoshaper", atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION },
         })
       }],
+      ["v1_product_semantics_mismatch", (fixture) => {
+        fixture.products.get("prod_v1_support-1").active = false
+      }],
+      ["v1_price_semantics_mismatch", (fixture) => {
+        fixture.prices.get("price_v1_support-1-month").active = false
+      }],
       ["target_price_lookup_key_collision", (fixture) => {
         const spec = V2_TARGET_PRICE_SPECS[0]
         fixture.prices.set("price_unowned_collision", recurringPrice({

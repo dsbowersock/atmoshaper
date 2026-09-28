@@ -210,6 +210,7 @@ function exactProduct(candidate, spec) {
 
 function exactV1Product(candidate, spec) {
   return modeMatches(candidate)
+    && candidate.active === true
     && candidate.name === spec.productName
     && candidate.tax_code === spec.taxCode
 }
@@ -237,6 +238,7 @@ function exactPrice(candidate, spec, productId) {
 
 function exactV1Price(candidate, spec, productId) {
   return modeMatches(candidate)
+    && candidate.active === true
     && idOf(candidate.product) === productId
     && recurringPriceSemanticsMatch(candidate, {
       unitAmount: spec.unitAmount,
