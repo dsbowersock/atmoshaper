@@ -5,19 +5,13 @@ import {
 } from "../../lib/stripe-webhook-contract.js"
 import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-  SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
+  SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
 } from "../../lib/stripe-price-contract.js"
 
 function supporterPrice(priceId) {
-  const configuredPrices = [
-    [process.env.STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID, 100, "month", "support-1"],
-    [process.env.STRIPE_SUPPORTER_1_YEARLY_PRICE_ID, 1000, "year", "support-1"],
-    [process.env.STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID, 200, "month", "support-2"],
-    [process.env.STRIPE_SUPPORTER_2_YEARLY_PRICE_ID, 2000, "year", "support-2"],
-    [process.env.STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID, 500, "month", "support-5"],
-    [process.env.STRIPE_SUPPORTER_5_YEARLY_PRICE_ID, 5000, "year", "support-5"],
-  ]
-  const configuredPrice = configuredPrices.find(([candidateId]) => candidateId === priceId)
+  const configuredPrice = SUPPORTER_MEMBERSHIP_PRICE_CONTRACT.find(
+    ({ envKey }) => process.env[envKey] === priceId,
+  )
   if (!configuredPrice) {
     throw new Error("Unexpected readiness Price fixture")
   }
@@ -25,10 +19,15 @@ function supporterPrice(priceId) {
     throw new Error("Simulated Stripe Price retrieval failure")
   }
 
-  const [, unitAmount, interval, amountChoiceId] = configuredPrice
+  const {
+    interval,
+    productKey,
+    productName,
+    taxCode,
+    unitAmount,
+  } = configuredPrice
   const singleSupporterProduct =
     process.env.STRIPE_READINESS_STUB_SINGLE_SUPPORTER_PRODUCT === "true"
-  const productAmountChoiceId = singleSupporterProduct ? "support-1" : amountChoiceId
   return {
     id: priceId,
     active: true,
@@ -49,15 +48,15 @@ function supporterPrice(priceId) {
       // per-slot metadata checks and aggregate topology checks both run.
       id: singleSupporterProduct
         ? "prod_support_1"
-        : `prod_${amountChoiceId.replace("-", "_")}`,
+        : `prod_${productKey.replaceAll("-", "_")}`,
       active: true,
-      name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
-      tax_code: "txcd_10000000",
+      name: productName,
+      tax_code: taxCode,
       metadata: {
         app: "atmoshaper",
         atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
         atmoshaper_membership_level: "SUPPORTER",
-        atmoshaper_supporter_amount_choice: productAmountChoiceId,
+        atmoshaper_supporter_amount_choice: productKey,
       },
     },
   }

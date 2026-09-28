@@ -8,7 +8,10 @@ import {
   hasAnySupporterSchemaMetadata,
   hasCurrentSupporterSchemaMetadata,
 } from "../lib/stripe-provider-identity.js"
-import { SUPPORTER_MEMBERSHIP_CATALOG_VERSION } from "../lib/stripe-price-contract.js"
+import {
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+} from "../lib/stripe-price-contract.js"
 
 const currentProduct = {
   app: "atmoshaper",
@@ -36,6 +39,35 @@ const legacyPrice = {
 }
 
 describe("Stripe provider identity", () => {
+  it("continues to classify the deployed v1 catalog for reconciliation", () => {
+    assert.deepEqual(classifySupporterProductMetadata({
+      ...currentProduct,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), {
+      schema: "current",
+      amountChoiceId: "support-2",
+    })
+    assert.deepEqual(classifySupporterPriceMetadata({
+      ...currentPrice,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), {
+      schema: "current",
+      priceKey: "support-2-month",
+    })
+    assert.equal(classifySupporterProductMetadata({
+      ...currentProduct,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }, {
+      catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), null)
+    assert.equal(classifySupporterPriceMetadata({
+      ...currentPrice,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }, {
+      catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), null)
+  })
+
   it("classifies exact current and legacy Product metadata", () => {
     assert.deepEqual(classifySupporterProductMetadata(currentProduct), {
       schema: "current",
@@ -62,6 +94,12 @@ describe("Stripe provider identity", () => {
       massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
       massagelab_membership_level: "SUPPORTER",
       massagelab_supporter_amount_choice: "support-5",
+    }), null)
+    assert.equal(classifySupporterProductMetadata({
+      ...currentProduct,
+      massagelab_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      massagelab_membership_level: "SUPPORTER",
+      massagelab_supporter_amount_choice: "support-2",
     }), null)
   })
 
@@ -191,6 +229,27 @@ describe("Stripe provider identity", () => {
     assert.throws(
       () => buildCurrentSupporterPriceMetadata({}, null),
       /non-empty string/,
+    )
+  })
+
+  it("allows the retained migration to pin legacy catalog metadata", () => {
+    assert.equal(
+      buildCurrentSupporterProductMetadata({}, "support-1", {
+        catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      }).atmoshaper_catalog,
+      LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    )
+    assert.equal(
+      buildCurrentSupporterPriceMetadata({}, "support-1-month", {
+        catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      }).atmoshaper_catalog,
+      LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    )
+    assert.throws(
+      () => buildCurrentSupporterProductMetadata({}, "support-1", {
+        catalogVersion: "supporter_membership_unknown",
+      }),
+      /supported non-empty string/,
     )
   })
 })

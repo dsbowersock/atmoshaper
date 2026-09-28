@@ -500,12 +500,18 @@ describe("Membership and entitlement helpers", () => {
 
   it("resolves each public Supporter amount choice to its interval-specific Stripe Price", () => {
     const env = {
-      STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: "price_supporter_1_monthly",
-      STRIPE_SUPPORTER_1_YEARLY_PRICE_ID: "price_supporter_1_yearly",
-      STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID: "price_supporter_2_monthly",
-      STRIPE_SUPPORTER_2_YEARLY_PRICE_ID: "price_supporter_2_yearly",
-      STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID: "price_supporter_5_monthly",
-      STRIPE_SUPPORTER_5_YEARLY_PRICE_ID: "price_supporter_5_yearly",
+      STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID: "price_supporter_1_personal_monthly",
+      STRIPE_SUPPORTER_1_PERSONAL_YEARLY_PRICE_ID: "price_supporter_1_personal_yearly",
+      STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: "price_supporter_1_business_monthly",
+      STRIPE_SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID: "price_supporter_1_business_yearly",
+      STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID: "price_supporter_2_personal_monthly",
+      STRIPE_SUPPORTER_2_PERSONAL_YEARLY_PRICE_ID: "price_supporter_2_personal_yearly",
+      STRIPE_SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID: "price_supporter_2_business_monthly",
+      STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID: "price_supporter_2_business_yearly",
+      STRIPE_SUPPORTER_5_PERSONAL_MONTHLY_PRICE_ID: "price_supporter_5_personal_monthly",
+      STRIPE_SUPPORTER_5_PERSONAL_YEARLY_PRICE_ID: "price_supporter_5_personal_yearly",
+      STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID: "price_supporter_5_business_monthly",
+      STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID: "price_supporter_5_business_yearly",
       STRIPE_THERAPIST_YEARLY_PRICE_ID: "price_therapist_yearly",
       STRIPE_PRACTICE_MONTHLY_PRICE_ID: "price_practice_monthly",
     }
@@ -516,27 +522,44 @@ describe("Membership and entitlement helpers", () => {
       { id: "support-5", monthAmountCents: 500, yearAmountCents: 5000 },
     ])
     assert.equal(
-      supporterPriceEnvironmentKey("support-2", "year"),
-      "STRIPE_SUPPORTER_2_YEARLY_PRICE_ID",
+      supporterPriceEnvironmentKey("support-2", "year", "business"),
+      "STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID",
     )
 
     for (const choice of SUPPORTER_AMOUNT_CHOICES) {
       const suffix = choice.id.replace("support-", "")
       for (const interval of ["month", "year"]) {
-        const priceId = `price_supporter_${suffix}_${interval === "month" ? "monthly" : "yearly"}`
-        assert.equal(resolveStripePriceId({
-          membershipLevel: "SUPPORTER",
-          supporterAmountChoiceId: choice.id,
-          interval,
-          env,
-        }), priceId)
-        assert.equal(membership.resolveStripePriceMembershipLevel({ priceId, env }), "SUPPORTER")
+        for (const supporterUse of ["personal", "business"]) {
+          const priceId = `price_supporter_${suffix}_${supporterUse}_${interval === "month" ? "monthly" : "yearly"}`
+          assert.equal(resolveStripePriceId({
+            membershipLevel: "SUPPORTER",
+            supporterAmountChoiceId: choice.id,
+            interval,
+            supporterUse,
+            env,
+          }), priceId)
+          assert.equal(membership.resolveStripePriceMembershipLevel({ priceId, env }), "SUPPORTER")
+        }
       }
     }
 
     assert.equal(resolveStripePriceId({ membershipLevel: "THERAPIST", interval: "year", env }), null)
     assert.equal(resolveStripePriceId({ membershipLevel: "PRACTICE", interval: "month", env }), null)
-    assert.equal(resolveStripePriceId({ membershipLevel: "SUPPORTER", supporterAmountChoiceId: "support-9", interval: "month", env }), null)
+    assert.equal(resolveStripePriceId({ membershipLevel: "SUPPORTER", supporterAmountChoiceId: "support-9", interval: "month", supporterUse: "personal", env }), null)
+    assert.equal(resolveStripePriceId({ membershipLevel: "SUPPORTER", supporterAmountChoiceId: "support-1", interval: "month", supporterUse: "other", env }), null)
+
+    const legacyEnv = { STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: "price_legacy_supporter" }
+    assert.equal(resolveStripePriceId({
+      membershipLevel: "SUPPORTER",
+      supporterAmountChoiceId: "support-1",
+      interval: "month",
+      supporterUse: "personal",
+      env: legacyEnv,
+    }), null)
+    assert.equal(membership.resolveStripePriceMembershipLevel({
+      priceId: "price_legacy_supporter",
+      env: legacyEnv,
+    }), "SUPPORTER")
   })
 
   it("accepts only Supporter amount choices with a supported Checkout interval", () => {
@@ -545,6 +568,13 @@ describe("Membership and entitlement helpers", () => {
         membershipLevel: "SUPPORTER",
         supporterAmountChoiceId: "support-1",
         interval,
+        supporterUse: "personal",
+      }), true)
+      assert.equal(isPublicSupporterCheckoutSelection({
+        membershipLevel: "SUPPORTER",
+        supporterAmountChoiceId: "support-1",
+        interval,
+        supporterUse: "business",
       }), true)
     }
 
@@ -553,6 +583,7 @@ describe("Membership and entitlement helpers", () => {
         membershipLevel: "SUPPORTER",
         supporterAmountChoiceId: "support-1",
         interval,
+        supporterUse: "personal",
       }), false)
     }
 
@@ -560,11 +591,24 @@ describe("Membership and entitlement helpers", () => {
       membershipLevel: "THERAPIST",
       supporterAmountChoiceId: "support-1",
       interval: "month",
+      supporterUse: "personal",
     }), false)
     assert.equal(isPublicSupporterCheckoutSelection({
       membershipLevel: "PRACTICE",
       supporterAmountChoiceId: "support-5",
       interval: "year",
+      supporterUse: "business",
+    }), false)
+    assert.equal(isPublicSupporterCheckoutSelection({
+      membershipLevel: "SUPPORTER",
+      supporterAmountChoiceId: "support-1",
+      interval: "month",
+      supporterUse: "other",
+    }), false)
+    assert.equal(isPublicSupporterCheckoutSelection({
+      membershipLevel: "SUPPORTER",
+      supporterAmountChoiceId: "support-1",
+      interval: "month",
     }), false)
   })
 

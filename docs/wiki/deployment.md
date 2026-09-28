@@ -186,6 +186,19 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_DONATION_URL=
 # Public enrollment Price IDs:
+STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_1_PERSONAL_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_2_PERSONAL_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_5_PERSONAL_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_5_PERSONAL_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID=
+STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID=
+# Pre-classification reconciliation-only Price IDs:
 STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID=
 STRIPE_SUPPORTER_1_YEARLY_PRICE_ID=
 STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID=
@@ -213,26 +226,26 @@ Student is not a Stripe-backed subscription tier. If a Student product or price 
 Legacy runtime Price mappings remain webhook-only compatibility inputs and cannot satisfy public catalog readiness.
 Keep them configured until the database and Stripe subscriber inventories prove
 no historical subscription remains and signed webhook reconciliation is final.
-`stripe:readiness` validates only the six amount-specific Supporter IDs for new
+`stripe:readiness` validates only the twelve amount/use Supporter IDs for new
 public enrollment.
 
 Before enabling subscription checkout, confirm:
 
 - `AtmoShaper Supporter Membership` is the only user-facing membership. Stripe
-  represents it as three amount-specific Products, each with tax code
-  `txcd_10000000`, identical Supporter entitlement metadata, and one monthly
-  plus one annual Price.
-- The six exclusive USD recurring Prices are exactly $1, $2, or $5 monthly and
-  $10, $20, or $50 yearly, with `interval_count=1`, no trial, licensed usage,
+  represents it as six amount/use Products. Personal Products use
+  `txcd_10103000`; business Products use `txcd_10103001`; each has identical
+  Supporter entitlement metadata and one monthly plus one annual Price.
+- The twelve exclusive USD recurring Prices are exactly $1, $2, or $5 monthly
+  and $10, $20, or $50 yearly for both use choices, with `interval_count=1`, no trial, licensed usage,
   per-unit billing, no quantity transform, and no additional currencies.
 - Repeated or concurrent enrollment requests reuse only an exact
-  `supporter_membership_v1_checkout_v1` Session whose current configured Price,
+  `supporter_membership_v2_checkout_v1` Session whose current configured Price,
   classified Product, Automatic Tax, and billing-address contract verify.
   Recognized incompatible historical open Sessions must be confirmed expired;
   completed historical Sessions with a relevant subscription still block with
   billing-management guidance until webhook persistence catches up.
 - The Stripe Customer Portal permits subscription Price changes only among
-  those six Prices while preserving cancellation, payment-method updates,
+  approved compatible Prices while preserving cancellation, payment-method updates,
   billing address/name/email updates, and invoice history. Cross-Product amount
   changes keep the billing-cycle anchor unchanged, create no proration, and are
   not scheduled for period end.
@@ -247,9 +260,15 @@ Before enabling subscription checkout, confirm:
   evidence, `/pricing` return, and absence of any membership or background
   entitlement.
 
-### Supporter catalog migration
+### Retained v1 Supporter catalog migration
 
-The catalog migration is a separately controlled operation. It does not read a
+This historical migration owns only the retained three-Product, six-Price v1
+catalog used for reconciliation. Do not use it to create or authorize the v2
+public enrollment catalog. Follow the separately reviewed
+[`Supporter v2 Sandbox Catalog Migration Plan`](../superpowers/plans/2026-09-27-supporter-v2-sandbox-catalog-migration.md)
+before enabling public Checkout.
+
+The v1 catalog migration is a separately controlled operation. It does not read a
 database or print customer, subscriber, secret, or payment details. Supply every
 legacy Product, Price, coupon, portal-configuration, and allowed test-subscription
 ID through the `MASSAGELAB_STRIPE_MIGRATION_*` variables documented in
@@ -352,9 +371,9 @@ ambiguous accepted request can be retried without creating a duplicate.
 Arbitrary mixed states still fail closed. Do not run apply until the deployed
 Supporter-only application, subscriber decision, recurring-tax classification,
 and migration inputs have all been independently reviewed. Remove the
-migration-only variables after the operation. Keep the six approved runtime
-Price IDs for public enrollment and retain the six legacy runtime Price
-mappings under the separate subscriber-inventory/webhook-reconciliation gate.
+migration-only variables after the operation. Retain its six Price mappings
+only as webhook/reconciliation compatibility inputs under the separate
+subscriber-inventory gate; they cannot satisfy v2 public enrollment readiness.
 
 Portal verification must retrieve
 `features.subscription_update.products` with an explicit expansion; Stripe

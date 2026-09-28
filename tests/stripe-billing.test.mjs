@@ -12,41 +12,65 @@ import {
 } from "../lib/stripe-billing.js"
 import * as stripeBilling from "../lib/stripe-billing.js"
 import {
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
-  SUPPORTER_RECURRING_TAX_CODE,
 } from "../lib/stripe-price-contract.js"
 import { STRIPE_API_VERSION as CENTRAL_STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
 import { safeErrorCode } from "../lib/safe-error-code.js"
 
-const DEFAULT_SUPPORTER_PRICE_ID = "price_supporter_1_monthly"
-const SUPPORTER_1_YEARLY_PRICE_ID = "price_supporter_1_yearly"
-const SUPPORTER_2_MONTHLY_PRICE_ID = "price_supporter_2_monthly"
-const SUPPORTER_2_YEARLY_PRICE_ID = "price_supporter_2_yearly"
-const SUPPORTER_5_MONTHLY_PRICE_ID = "price_supporter_5_monthly"
-const SUPPORTER_5_YEARLY_PRICE_ID = "price_supporter_5_yearly"
+const DEFAULT_SUPPORTER_PRICE_ID = "price_supporter_1_personal_monthly"
+const SUPPORTER_1_YEARLY_PRICE_ID = "price_supporter_1_personal_yearly"
+const SUPPORTER_2_MONTHLY_PRICE_ID = "price_supporter_2_personal_monthly"
+const SUPPORTER_2_YEARLY_PRICE_ID = "price_supporter_2_personal_yearly"
+const SUPPORTER_5_MONTHLY_PRICE_ID = "price_supporter_5_personal_monthly"
+const SUPPORTER_5_YEARLY_PRICE_ID = "price_supporter_5_personal_yearly"
+const SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID = "price_supporter_1_business_monthly"
+const SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID = "price_supporter_1_business_yearly"
+const SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID = "price_supporter_2_business_monthly"
+const SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID = "price_supporter_2_business_yearly"
+const SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID = "price_supporter_5_business_monthly"
+const SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID = "price_supporter_5_business_yearly"
 const DONATION_IDEMPOTENCY_KEY = "massagelab-donation-v1:123e4567-e89b-42d3-a456-426614174000"
 const SECOND_DONATION_IDEMPOTENCY_KEY = "massagelab-donation-v1:123e4567-e89b-42d3-a456-426614174001"
 const AUTHORITY_HANGING_READ_RECONCILIATION_BUDGET_MS = 2_000
 const SUPPORTER_PRICE_ID_BY_ENV_KEY = Object.freeze({
-  STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: DEFAULT_SUPPORTER_PRICE_ID,
-  STRIPE_SUPPORTER_1_YEARLY_PRICE_ID: SUPPORTER_1_YEARLY_PRICE_ID,
-  STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID: SUPPORTER_2_MONTHLY_PRICE_ID,
-  STRIPE_SUPPORTER_2_YEARLY_PRICE_ID: SUPPORTER_2_YEARLY_PRICE_ID,
-  STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID: SUPPORTER_5_MONTHLY_PRICE_ID,
-  STRIPE_SUPPORTER_5_YEARLY_PRICE_ID: SUPPORTER_5_YEARLY_PRICE_ID,
+  STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID: DEFAULT_SUPPORTER_PRICE_ID,
+  STRIPE_SUPPORTER_1_PERSONAL_YEARLY_PRICE_ID: SUPPORTER_1_YEARLY_PRICE_ID,
+  STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID: SUPPORTER_2_MONTHLY_PRICE_ID,
+  STRIPE_SUPPORTER_2_PERSONAL_YEARLY_PRICE_ID: SUPPORTER_2_YEARLY_PRICE_ID,
+  STRIPE_SUPPORTER_5_PERSONAL_MONTHLY_PRICE_ID: SUPPORTER_5_MONTHLY_PRICE_ID,
+  STRIPE_SUPPORTER_5_PERSONAL_YEARLY_PRICE_ID: SUPPORTER_5_YEARLY_PRICE_ID,
+  STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID,
+  STRIPE_SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID: SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID,
+  STRIPE_SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID: SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID,
+  STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID: SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID,
+  STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID: SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID,
+  STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID: SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID,
 })
 const SUPPORTER_PRICE_FIXTURES = Object.freeze(Object.fromEntries(
   SUPPORTER_MEMBERSHIP_PRICE_CONTRACT.map(({
     envKey,
     amountChoiceId,
+    supporterUse,
+    productKey,
+    productName,
+    taxCode,
     interval,
     unitAmount,
   }) => {
     const priceId = SUPPORTER_PRICE_ID_BY_ENV_KEY[envKey]
     assert.ok(priceId, `Missing test Price ID mapping for ${envKey}`)
-    return [priceId, Object.freeze({ amountChoiceId, interval, unitAmount })]
+    return [priceId, Object.freeze({
+      amountChoiceId,
+      supporterUse,
+      productKey,
+      productName,
+      taxCode,
+      interval,
+      unitAmount,
+    })]
   }),
 ))
 
@@ -499,6 +523,7 @@ describe("Stripe billing helpers", () => {
       priceId: DEFAULT_SUPPORTER_PRICE_ID,
       userId: "user_123",
       membershipLevel: "SUPPORTER",
+      supporterUse: "personal",
       successUrl: "https://massagelab.app/account?checkout=success",
       cancelUrl: "https://massagelab.app/account?checkout=cancelled",
       env: supporterTaxEnv(),
@@ -524,8 +549,37 @@ describe("Stripe billing helpers", () => {
     }])
     assert.equal(
       capturedPayload.metadata.checkoutContractVersion,
-      "supporter_membership_v1_checkout_v1",
+      "supporter_membership_v2_checkout_v1",
     )
+    assert.equal(capturedPayload.metadata.supporterUse, "personal")
+    assert.equal(capturedPayload.subscription_data.metadata.supporterUse, "personal")
+  })
+
+  it("routes business use through the business Price and metadata contract", async () => {
+    let capturedPayload = null
+
+    await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      priceId: SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID,
+      supporterUse: "business",
+      stripeClient: {
+        checkout: {
+          sessions: {
+            list: async () => stripeCheckoutSessionList(),
+            create: async (payload) => {
+              capturedPayload = payload
+              return membershipCheckoutSession({ id: "cs_business" })
+            },
+          },
+        },
+      },
+    }))
+
+    assert.deepEqual(capturedPayload.line_items, [{
+      price: SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID,
+      quantity: 1,
+    }])
+    assert.equal(capturedPayload.metadata.supporterUse, "business")
+    assert.equal(capturedPayload.subscription_data.metadata.supporterUse, "business")
   })
 
   it("uses Stripe's supported created.gte filter to bound Session reconciliation", async () => {
@@ -804,7 +858,8 @@ describe("Stripe billing helpers", () => {
   it("fails closed before creating Supporter Checkout when any recurring-tax gate is absent", async () => {
     for (const key of [
       "STRIPE_SUPPORTER_AUTOMATIC_TAX_ENABLED",
-      "STRIPE_SUPPORTER_TAX_PRODUCT_CODE",
+      "STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE",
+      "STRIPE_SUPPORTER_BUSINESS_TAX_PRODUCT_CODE",
       "STRIPE_SUPPORTER_TAX_PROVIDER_READY",
       "STRIPE_SUPPORTER_TAX_REGISTRATIONS_READY",
       "STRIPE_SUPPORTER_TAX_CLASSIFICATION_CONFIRMED",
@@ -816,6 +871,7 @@ describe("Stripe billing helpers", () => {
           priceId: DEFAULT_SUPPORTER_PRICE_ID,
           userId: "user_123",
           membershipLevel: "SUPPORTER",
+          supporterUse: "personal",
           successUrl: "https://massagelab.app/account?checkout=success",
           cancelUrl: "https://massagelab.app/account?checkout=cancelled",
           env: { ...supporterTaxEnv(), [key]: "" },
@@ -860,7 +916,7 @@ describe("Stripe billing helpers", () => {
         overrides: {
           env: {
             ...supporterTaxEnv(),
-            STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID: DEFAULT_SUPPORTER_PRICE_ID,
+            STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID: DEFAULT_SUPPORTER_PRICE_ID,
           },
         },
         expected: /configured in multiple current catalog slots/,
@@ -869,6 +925,11 @@ describe("Stripe billing helpers", () => {
         label: "caller-supplied level contradicts the configured Price",
         overrides: { membershipLevel: "THERAPIST" },
         expected: /does not match the requested membership level/,
+      },
+      {
+        label: "caller-supplied use contradicts the configured Price",
+        overrides: { supporterUse: "business" },
+        expected: /does not match the requested buyer use/,
       },
     ]
 
@@ -923,7 +984,9 @@ describe("Stripe billing helpers", () => {
     assert.equal(result.id, "cs_normalized_price")
     assert.equal(capturedPayload.line_items[0].price, DEFAULT_SUPPORTER_PRICE_ID)
     assert.equal(capturedPayload.metadata.membershipLevel, "SUPPORTER")
+    assert.equal(capturedPayload.metadata.supporterUse, "personal")
     assert.equal(capturedPayload.subscription_data.metadata.membershipLevel, "SUPPORTER")
+    assert.equal(capturedPayload.subscription_data.metadata.supporterUse, "personal")
   })
 
   it("serializes concurrent membership Checkout attempts for the same amount selection", async () => {
@@ -1109,7 +1172,7 @@ describe("Stripe billing helpers", () => {
     assert.equal(createCalls, 0)
   })
 
-  it("keeps exact legacy Product metadata compatible with open Session reuse", async () => {
+  it("keeps the legacy metadata namespace compatible with current open Session reuse", async () => {
     const openSession = membershipCheckoutSession({ id: "cs_open_legacy" })
     let createCalls = 0
     const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
@@ -1124,7 +1187,7 @@ describe("Stripe billing helpers", () => {
                 app: "massagelab",
                 massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
                 massagelab_membership_level: "SUPPORTER",
-                massagelab_supporter_amount_choice: "support-1",
+                massagelab_supporter_amount_choice: "support-1-personal",
               },
             }),
             create: async () => {
@@ -2063,6 +2126,7 @@ describe("Stripe billing helpers", () => {
         billingAddressCollection: "auto",
       }),
       membershipCheckoutSession({ id: "cs_wrong_catalog" }),
+      membershipCheckoutSession({ id: "cs_legacy_catalog" }),
     ]
     const expired = []
     let createCalls = 0
@@ -2076,6 +2140,10 @@ describe("Stripe billing helpers", () => {
                 ? stripeCheckoutLineItemList({
                     productCatalog: null,
                   })
+                : sessionId === "cs_legacy_catalog"
+                  ? stripeCheckoutLineItemList({
+                      productCatalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+                    })
                 : stripeCheckoutLineItemList()
             ),
             expire: async (sessionId) => {
@@ -3184,6 +3252,57 @@ describe("Stripe billing helpers", () => {
     assert.equal(createCalls, 1)
   })
 
+  it("reuses a matching concurrent Checkout during create recovery", async () => {
+    const recoveredSession = membershipCheckoutSession({
+      id: "cs_concurrent_recovery",
+    })
+    let listCalls = 0
+    let createCalls = 0
+    let expireCalls = 0
+
+    const result = await stripeBilling.createStripeCheckoutSession(
+      membershipCheckoutOptions({
+        stripeClient: {
+          checkout: {
+            sessions: {
+              list: async () => {
+                listCalls += 1
+                return stripeCheckoutSessionList(
+                  listCalls === 1 ? [] : [recoveredSession],
+                )
+              },
+              listLineItems: async () => stripeCheckoutLineItemList(),
+              create: async () => {
+                createCalls += 1
+                if (createCalls === 1) {
+                  throw Object.assign(new Error("initial create failed"), {
+                    statusCode: 500,
+                    type: "StripeAPIError",
+                  })
+                }
+                return membershipCheckoutSession({ id: "cs_unnecessary_retry" })
+              },
+              expire: async (sessionId) => {
+                expireCalls += 1
+                return { id: sessionId, object: "checkout.session", status: "expired" }
+              },
+            },
+          },
+          subscriptions: {
+            retrieve: async () => {
+              throw new Error("an open Checkout Session must not retrieve a subscription")
+            },
+          },
+        },
+      }),
+    )
+
+    assert.equal(result.id, "cs_concurrent_recovery")
+    assert.equal(listCalls, 2)
+    assert.equal(createCalls, 1)
+    assert.equal(expireCalls, 0)
+  })
+
   it("does not restart the reconciliation deadline after the initial create fails", async () => {
     const originalCreateError = Object.assign(
       new Error("initial create reached the deadline"),
@@ -3873,14 +3992,21 @@ function donationCheckoutOptions(overrides = {}) {
 /** Returns the complete test-only environment for the current Supporter catalog. */
 function supporterTaxEnv() {
   return {
-    STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: DEFAULT_SUPPORTER_PRICE_ID,
-    STRIPE_SUPPORTER_1_YEARLY_PRICE_ID: SUPPORTER_1_YEARLY_PRICE_ID,
-    STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID: SUPPORTER_2_MONTHLY_PRICE_ID,
-    STRIPE_SUPPORTER_2_YEARLY_PRICE_ID: SUPPORTER_2_YEARLY_PRICE_ID,
-    STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID: SUPPORTER_5_MONTHLY_PRICE_ID,
-    STRIPE_SUPPORTER_5_YEARLY_PRICE_ID: SUPPORTER_5_YEARLY_PRICE_ID,
+    STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID: DEFAULT_SUPPORTER_PRICE_ID,
+    STRIPE_SUPPORTER_1_PERSONAL_YEARLY_PRICE_ID: SUPPORTER_1_YEARLY_PRICE_ID,
+    STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID: SUPPORTER_2_MONTHLY_PRICE_ID,
+    STRIPE_SUPPORTER_2_PERSONAL_YEARLY_PRICE_ID: SUPPORTER_2_YEARLY_PRICE_ID,
+    STRIPE_SUPPORTER_5_PERSONAL_MONTHLY_PRICE_ID: SUPPORTER_5_MONTHLY_PRICE_ID,
+    STRIPE_SUPPORTER_5_PERSONAL_YEARLY_PRICE_ID: SUPPORTER_5_YEARLY_PRICE_ID,
+    STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID,
+    STRIPE_SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID: SUPPORTER_1_BUSINESS_YEARLY_PRICE_ID,
+    STRIPE_SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID: SUPPORTER_2_BUSINESS_MONTHLY_PRICE_ID,
+    STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID: SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID,
+    STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID: SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID,
+    STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID: SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID,
     STRIPE_SUPPORTER_AUTOMATIC_TAX_ENABLED: "true",
-    STRIPE_SUPPORTER_TAX_PRODUCT_CODE: SUPPORTER_RECURRING_TAX_CODE,
+    STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE: "txcd_10103000",
+    STRIPE_SUPPORTER_BUSINESS_TAX_PRODUCT_CODE: "txcd_10103001",
     STRIPE_SUPPORTER_TAX_PROVIDER_READY: "true",
     STRIPE_SUPPORTER_TAX_REGISTRATIONS_READY: "true",
     STRIPE_SUPPORTER_TAX_CLASSIFICATION_CONFIRMED: "true",
@@ -3908,6 +4034,7 @@ function membershipCheckoutOptions(overrides = {}) {
     priceId: DEFAULT_SUPPORTER_PRICE_ID,
     userId: "user_123",
     membershipLevel: "SUPPORTER",
+    supporterUse: "personal",
     successUrl: "https://massagelab.app/account?checkout=success",
     cancelUrl: "https://massagelab.app/account?checkout=cancelled",
     env: supporterTaxEnv(),
@@ -3948,7 +4075,8 @@ function membershipCheckoutSession({
   url = "https://checkout.stripe.com/c/membership",
   membershipLevel = "SUPPORTER",
   purpose = "membership",
-  checkoutContractVersion = "supporter_membership_v1_checkout_v1",
+  checkoutContractVersion = "supporter_membership_v2_checkout_v1",
+  supporterUse = "personal",
   automaticTaxEnabled = true,
   billingAddressCollection = "required",
   expiresAt = 1784916000,
@@ -3962,6 +4090,9 @@ function membershipCheckoutSession({
   }
   if (checkoutContractVersion !== null) {
     metadata.checkoutContractVersion = checkoutContractVersion
+  }
+  if (supporterUse !== null) {
+    metadata.supporterUse = supporterUse
   }
 
   return {
@@ -4008,7 +4139,13 @@ function stripeCheckoutLineItemList({
 } = {}) {
   const priceFixture = SUPPORTER_PRICE_FIXTURES[priceId]
   assert.ok(priceFixture, `Missing Supporter Price fixture for ${priceId}`)
-  const { amountChoiceId, interval, unitAmount } = priceFixture
+  const {
+    interval,
+    productKey,
+    productName,
+    taxCode,
+    unitAmount,
+  } = priceFixture
 
   return {
     object: "list",
@@ -4020,7 +4157,7 @@ function stripeCheckoutLineItemList({
       amount_tax: 0,
       amount_total: unitAmount,
       currency: "usd",
-      description: "MassageLab Supporter Membership",
+      description: productName,
       discounts: [],
       price: {
         id: priceId,
@@ -4039,11 +4176,11 @@ function stripeCheckoutLineItemList({
                 app: "atmoshaper",
                 atmoshaper_catalog: productCatalog,
                 atmoshaper_membership_level: "SUPPORTER",
-                atmoshaper_supporter_amount_choice: amountChoiceId,
+                atmoshaper_supporter_amount_choice: productKey,
               }
             : {}),
-          name: "MassageLab Supporter Membership",
-          tax_code: SUPPORTER_RECURRING_TAX_CODE,
+          name: productName,
+          tax_code: taxCode,
         },
         recurring: {
           interval,

@@ -197,10 +197,14 @@ describe("MembershipPricingCards configured price rendering", () => {
         supporterAmountChoiceId: "support-1",
       },
     )
-    const [billingTermsLabel] = findElements(
+    const billingTermsLabel = findElements(
       support1Checkout,
       (element) => element.type === "label",
-    )
+    ).find((label) => findElements(
+      label,
+      (element) => element.type === "input" && element.props.type === "checkbox",
+    ).length === 1)
+    assert.ok(billingTermsLabel, "support-1 must require billing terms")
     const [billingTermsCheckbox] = findElements(
       billingTermsLabel,
       (element) => element.type === "input" && element.props.type === "checkbox",
@@ -218,6 +222,30 @@ describe("MembershipPricingCards configured price rendering", () => {
       { name: "billingTermsAccepted", required: true, value: "true" },
     )
     assert.equal(billingTermsLink.props.href, "/legal/membership-billing-refunds")
+    const [buyerUseFieldset] = findElements(
+      support1Checkout,
+      (element) => element.type === "fieldset",
+    )
+    assert.ok(buyerUseFieldset, "support-1 must require a buyer-use declaration")
+    assert.match(
+      elementText(buyerUseFieldset),
+      /How will you use this membership\?.*tax classification only.*price and Supporter features stay the same/s,
+    )
+    const buyerUseInputs = findElements(
+      buyerUseFieldset,
+      (element) => element.type === "input" && element.props.type === "radio",
+    )
+    assert.deepEqual(
+      buyerUseInputs.map((input) => ({
+        name: input.props.name,
+        required: input.props.required,
+        value: input.props.value,
+      })),
+      [
+        { name: "supporterUse", required: true, value: "personal" },
+        { name: "supporterUse", required: true, value: "business" },
+      ],
+    )
     const [support1Button] = findElements(
       support1Checkout,
       (element) => element.type === "button" && /Support with/.test(elementText(element)),

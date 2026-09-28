@@ -16,9 +16,9 @@ import {
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
 import { SUPPORTER_AMOUNT_CHOICES } from "../lib/membership.js"
 import {
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   recurringPriceSemanticMismatches,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-  SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
 } from "../lib/stripe-price-contract.js"
 import StripeReadinessStub from "./fixtures/stripe-readiness-stripe-stub.mjs"
 
@@ -29,33 +29,31 @@ const readinessHookUrl =
   new URL("./fixtures/stripe-readiness-hook.mjs", import.meta.url).href
 
 /**
- * Creates a valid expanded Product for one Supporter amount choice.
+ * Creates a valid expanded Product for one Supporter amount-and-use slot.
  * Top-level overrides intentionally model isolated invalid Product states.
  */
-function supporterProduct(amountChoiceId = "support-1", overrides = {}) {
+function supporterProduct(expected = REQUIRED_SUPPORTER_PRICE_CONTRACT[0], overrides = {}) {
   return {
-    id: `prod_${amountChoiceId.replace("-", "_")}`,
+    id: `prod_${expected.productKey.replaceAll("-", "_")}`,
     active: true,
-    name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
-    tax_code: "txcd_10000000",
+    name: expected.productName,
+    tax_code: expected.taxCode,
     metadata: {
       app: "atmoshaper",
       atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
       atmoshaper_membership_level: "SUPPORTER",
-      atmoshaper_supporter_amount_choice: amountChoiceId,
+      atmoshaper_supporter_amount_choice: expected.productKey,
     },
     ...overrides,
   }
 }
 
-const membershipPrices = {
-  STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: "price_supporter_1_monthly",
-  STRIPE_SUPPORTER_1_YEARLY_PRICE_ID: "price_supporter_1_yearly",
-  STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID: "price_supporter_2_monthly",
-  STRIPE_SUPPORTER_2_YEARLY_PRICE_ID: "price_supporter_2_yearly",
-  STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID: "price_supporter_5_monthly",
-  STRIPE_SUPPORTER_5_YEARLY_PRICE_ID: "price_supporter_5_yearly",
-}
+const membershipPrices = Object.fromEntries(
+  REQUIRED_SUPPORTER_PRICE_CONTRACT.map(({ key }) => [
+    key,
+    `price_${key.toLowerCase().replaceAll("stripe_supporter_", "supporter_").replaceAll("_price_id", "")}`,
+  ]),
+)
 
 /**
  * Returns the complete hermetic child environment for readiness checks.
@@ -80,7 +78,8 @@ function readinessEnvironment(overrides = {}) {
     BACKGROUND_COMMERCE_TAX_PROVIDER_READY: "true",
     BACKGROUND_COMMERCE_TAX_REGISTRATIONS_READY: "true",
     STRIPE_SUPPORTER_AUTOMATIC_TAX_ENABLED: "true",
-    STRIPE_SUPPORTER_TAX_PRODUCT_CODE: "txcd_10000000",
+    STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE: "txcd_10103000",
+    STRIPE_SUPPORTER_BUSINESS_TAX_PRODUCT_CODE: "txcd_10103001",
     STRIPE_SUPPORTER_TAX_PROVIDER_READY: "true",
     STRIPE_SUPPORTER_TAX_REGISTRATIONS_READY: "true",
     STRIPE_SUPPORTER_TAX_CLASSIFICATION_CONFIRMED: "true",
@@ -181,6 +180,8 @@ describe("Stripe readiness background-commerce contract", () => {
     const runtimeAmounts = SUPPORTER_AMOUNT_CHOICES.flatMap((choice) => [
       [choice.monthAmountCents, "month"],
       [choice.yearAmountCents, "year"],
+      [choice.monthAmountCents, "month"],
+      [choice.yearAmountCents, "year"],
     ])
 
     assert.deepEqual(
@@ -193,14 +194,10 @@ describe("Stripe readiness background-commerce contract", () => {
     )
     assert.deepEqual(
       REQUIRED_SUPPORTER_PRICE_CONTRACT.map(({ key, unitAmount }) => [key, unitAmount]),
-      [
-        ["STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID", 100],
-        ["STRIPE_SUPPORTER_1_YEARLY_PRICE_ID", 1000],
-        ["STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID", 200],
-        ["STRIPE_SUPPORTER_2_YEARLY_PRICE_ID", 2000],
-        ["STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID", 500],
-        ["STRIPE_SUPPORTER_5_YEARLY_PRICE_ID", 5000],
-      ],
+      Object.entries(membershipPrices).map(([key]) => [
+        key,
+        REQUIRED_SUPPORTER_PRICE_CONTRACT.find((entry) => entry.key === key).unitAmount,
+      ]),
     )
 
     const expected = REQUIRED_SUPPORTER_PRICE_CONTRACT[2]
@@ -219,16 +216,16 @@ describe("Stripe readiness background-commerce contract", () => {
         tax_behavior: "exclusive",
         transform_quantity: null,
         currency_options: null,
-        product: supporterProduct(expected.amountChoiceId),
+        product: supporterProduct(expected),
       }, expected),
       [`${expected.key} must have unit_amount ${expected.unitAmount}; received 201.`],
     )
   })
-  it("requires exactly three amount-specific Products across the six Prices", () => {
+  it("requires exactly six amount-and-use Products across the twelve Prices", () => {
     const entries = REQUIRED_SUPPORTER_PRICE_CONTRACT.map((expected) => ({
       expected,
       price: {
-        product: supporterProduct(expected.amountChoiceId),
+        product: supporterProduct(expected),
       },
     }))
 
@@ -238,13 +235,13 @@ describe("Stripe readiness background-commerce contract", () => {
       expected,
       price: {
         ...price,
-        product: supporterProduct("support-1"),
+        product: supporterProduct(REQUIRED_SUPPORTER_PRICE_CONTRACT[0]),
       },
     }))
     assert.deepEqual(
       validateSupporterProductTopology(oneProduct),
       [
-        "The Supporter catalog must use 3 distinct amount-specific Stripe Products; found 1 (prod_support_1).",
+        "The Supporter catalog must use 6 distinct amount-and-use Stripe Products; found 1 (prod_support_1_personal).",
       ],
     )
 
@@ -252,18 +249,18 @@ describe("Stripe readiness background-commerce contract", () => {
       expected,
       // Replace only the yearly support-1 owner to model one amount choice
       // incorrectly spanning two Products while every other slot stays valid.
-      price: expected.key === "STRIPE_SUPPORTER_1_YEARLY_PRICE_ID"
+      price: expected.key === "STRIPE_SUPPORTER_1_PERSONAL_YEARLY_PRICE_ID"
         ? {
             ...candidate,
-            product: supporterProduct("support-1", { id: "prod_support_1_alt" }),
+            product: supporterProduct(expected, { id: "prod_support_1_personal_alt" }),
           }
         : candidate,
     }))
     assert.deepEqual(
       validateSupporterProductTopology(splitChoice),
       [
-        "Supporter amount choice support-1 must use exactly one Stripe Product; found 2 (prod_support_1, prod_support_1_alt).",
-        "The Supporter catalog must use 3 distinct amount-specific Stripe Products; found 4 (prod_support_1, prod_support_1_alt, prod_support_2, prod_support_5).",
+        "Supporter Product key support-1-personal must use exactly one Stripe Product; found 2 (prod_support_1_personal, prod_support_1_personal_alt).",
+        "The Supporter catalog must use 6 distinct amount-and-use Stripe Products; found 7 (prod_support_1_business, prod_support_1_personal, prod_support_1_personal_alt, prod_support_2_business, prod_support_2_personal, prod_support_5_business, prod_support_5_personal).",
       ],
     )
   })
@@ -283,39 +280,51 @@ describe("Stripe readiness background-commerce contract", () => {
       tax_behavior: "exclusive",
       transform_quantity: null,
       currency_options: null,
-      product: supporterProduct(),
+      product: supporterProduct(expected),
     }
 
     assert.deepEqual(validateRetrievedMembershipPrice(basePrice, expected), [])
 
     assert.deepEqual(validateRetrievedMembershipPrice({
       ...basePrice,
-      product: supporterProduct(expected.amountChoiceId, {
+      product: supporterProduct(expected, {
+        metadata: {
+          ...basePrice.product.metadata,
+          atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+        },
+      }),
+    }, expected), [
+      `${expected.key} Product must identify Product key ${expected.productKey}.`,
+    ])
+
+    assert.deepEqual(validateRetrievedMembershipPrice({
+      ...basePrice,
+      product: supporterProduct(expected, {
         metadata: {
           app: "massagelab",
           massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           massagelab_membership_level: "SUPPORTER",
-          massagelab_supporter_amount_choice: expected.amountChoiceId,
+          massagelab_supporter_amount_choice: expected.productKey,
         },
       }),
     }, expected), [])
 
     assert.deepEqual(validateRetrievedMembershipPrice({
       ...basePrice,
-      product: supporterProduct(expected.amountChoiceId, {
+      product: supporterProduct(expected, {
         metadata: {
           ...basePrice.product.metadata,
           massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           massagelab_membership_level: "SUPPORTER",
-          massagelab_supporter_amount_choice: "support-5",
+          massagelab_supporter_amount_choice: "support-5-business",
         },
       }),
     }, expected), [
-      `${expected.key} Product must identify amount choice ${expected.amountChoiceId}.`,
+      `${expected.key} Product must identify Product key ${expected.productKey}.`,
     ])
 
-    const expectedWithoutAmountChoice = { ...expected }
-    delete expectedWithoutAmountChoice.amountChoiceId
+    const expectedWithoutProductKey = { ...expected }
+    delete expectedWithoutProductKey.productKey
     const metadataWithoutAmountChoice = { ...basePrice.product.metadata }
     delete metadataWithoutAmountChoice.atmoshaper_supporter_amount_choice
     assert.deepEqual(
@@ -325,9 +334,9 @@ describe("Stripe readiness background-commerce contract", () => {
           ...basePrice.product,
           metadata: metadataWithoutAmountChoice,
         },
-      }, expectedWithoutAmountChoice),
+      }, expectedWithoutProductKey),
       [
-        `${expected.key} Price contract must identify a string amount choice.`,
+        `${expected.key} Price contract must identify a string Product key.`,
       ],
     )
 
@@ -335,13 +344,13 @@ describe("Stripe readiness background-commerce contract", () => {
       validateRetrievedMembershipPrice({
         ...basePrice,
         tax_behavior: "inclusive",
-        product: supporterProduct(expected.amountChoiceId, {
+        product: supporterProduct(expected, {
           tax_code: "txcd_10202003",
         }),
       }, expected),
       [
         `${expected.key} must use exclusive tax behavior.`,
-        `${expected.key} Product must use tax code txcd_10000000.`,
+        `${expected.key} Product must use tax code ${expected.taxCode}.`,
       ],
     )
   })
@@ -380,7 +389,7 @@ describe("Stripe readiness background-commerce contract", () => {
       tax_behavior: "exclusive",
       transform_quantity: null,
       currency_options: null,
-      product: supporterProduct(),
+      product: supporterProduct(expected),
     }
     assert.deepEqual(
       validateRetrievedMembershipPrice({
@@ -406,7 +415,7 @@ describe("Stripe readiness background-commerce contract", () => {
       ],
       [
         (candidate) => { candidate.product.name = "MassageLab Supporter" },
-        `${expected.key} Product name must be ${SUPPORTER_MEMBERSHIP_PRODUCT_NAME}.`,
+        `${expected.key} Product name must be ${expected.productName}.`,
       ],
       [
         (candidate) => { candidate.currency = "cad" },
@@ -541,14 +550,14 @@ describe("Stripe readiness background-commerce contract", () => {
       "the current Supporter catalog must require its explicit tax behavior",
     )
   })
-  it("requires six unique Supporter amount Prices and ignores legacy catalog variables", () => {
-    const missing = runReadiness({ STRIPE_SUPPORTER_2_YEARLY_PRICE_ID: "" })
+  it("requires twelve unique Supporter amount-and-use Prices and ignores legacy catalog variables", () => {
+    const missing = runReadiness({ STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID: "" })
     assert.equal(missing.status, 1)
-    assert.match(missing.stderr, /STRIPE_SUPPORTER_2_YEARLY_PRICE_ID is missing/)
+    assert.match(missing.stderr, /STRIPE_SUPPORTER_2_BUSINESS_YEARLY_PRICE_ID is missing/)
 
-    const duplicate = runReadiness({ STRIPE_SUPPORTER_5_YEARLY_PRICE_ID: membershipPrices.STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID })
+    const duplicate = runReadiness({ STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID: membershipPrices.STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID })
     assert.equal(duplicate.status, 1)
-    assert.match(duplicate.stderr, /STRIPE_SUPPORTER_5_YEARLY_PRICE_ID duplicates STRIPE_SUPPORTER_5_MONTHLY_PRICE_ID/)
+    assert.match(duplicate.stderr, /STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID duplicates STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID/)
 
     const legacyOnly = runReadiness({
       ...Object.fromEntries(Object.keys(membershipPrices).map((key) => [key, ""])),
@@ -560,7 +569,7 @@ describe("Stripe readiness background-commerce contract", () => {
       STRIPE_PRACTICE_YEARLY_PRICE_ID: "price_practice_yearly",
     })
     assert.equal(legacyOnly.status, 1)
-    assert.match(legacyOnly.stderr, /STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID is missing/)
+    assert.match(legacyOnly.stderr, /STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID is missing/)
   })
   it("reports the complete fail-closed commerce configuration without changing membership readiness output", () => {
     const result = runReadiness()
@@ -621,8 +630,10 @@ describe("Stripe readiness background-commerce contract", () => {
   it("fails closed on every Supporter recurring-tax deployment gate", () => {
     const cases = [
       ["enablement", { STRIPE_SUPPORTER_AUTOMATIC_TAX_ENABLED: "false" }],
-      ["tax code", { STRIPE_SUPPORTER_TAX_PRODUCT_CODE: "" }],
-      ["wrong tax code", { STRIPE_SUPPORTER_TAX_PRODUCT_CODE: "txcd_10202003" }],
+      ["personal tax code", { STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE: "" }],
+      ["wrong personal tax code", { STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE: "txcd_10202003" }],
+      ["business tax code", { STRIPE_SUPPORTER_BUSINESS_TAX_PRODUCT_CODE: "" }],
+      ["wrong business tax code", { STRIPE_SUPPORTER_BUSINESS_TAX_PRODUCT_CODE: "txcd_10202003" }],
       ["provider", { STRIPE_SUPPORTER_TAX_PROVIDER_READY: "false" }],
       ["registrations", { STRIPE_SUPPORTER_TAX_REGISTRATIONS_READY: "false" }],
       ["classification", { STRIPE_SUPPORTER_TAX_CLASSIFICATION_CONFIRMED: "false" }],
@@ -664,7 +675,8 @@ describe("Stripe readiness background-commerce contract", () => {
     const envFile = join(directory, "supporter-tax.env")
     const supporterTaxKeys = [
       "STRIPE_SUPPORTER_AUTOMATIC_TAX_ENABLED",
-      "STRIPE_SUPPORTER_TAX_PRODUCT_CODE",
+      "STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE",
+      "STRIPE_SUPPORTER_BUSINESS_TAX_PRODUCT_CODE",
       "STRIPE_SUPPORTER_TAX_PROVIDER_READY",
       "STRIPE_SUPPORTER_TAX_REGISTRATIONS_READY",
       "STRIPE_SUPPORTER_TAX_CLASSIFICATION_CONFIRMED",
@@ -679,7 +691,7 @@ describe("Stripe readiness background-commerce contract", () => {
       delete environment[key]
     }
     assert.equal(
-      Object.hasOwn(environment, "STRIPE_SUPPORTER_TAX_PRODUCT_CODE"),
+      Object.hasOwn(environment, "STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE"),
       false,
       "the valid tax code must exist only in the temporary env file",
     )
@@ -687,7 +699,8 @@ describe("Stripe readiness background-commerce contract", () => {
     try {
       await writeFile(envFile, [
         "STRIPE_SUPPORTER_AUTOMATIC_TAX_ENABLED=true",
-        "STRIPE_SUPPORTER_TAX_PRODUCT_CODE=\" txcd_10000000 \"",
+        "STRIPE_SUPPORTER_PERSONAL_TAX_PRODUCT_CODE=\" txcd_10103000 \"",
+        "STRIPE_SUPPORTER_BUSINESS_TAX_PRODUCT_CODE=\" txcd_10103001 \"",
         "STRIPE_SUPPORTER_TAX_PROVIDER_READY=true",
         "STRIPE_SUPPORTER_TAX_REGISTRATIONS_READY=true",
         "STRIPE_SUPPORTER_TAX_CLASSIFICATION_CONFIRMED=true",
@@ -794,7 +807,7 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.equal(result.status, 1, result.stderr || result.stdout)
     assert.match(
       result.stderr,
-      /FAIL The Supporter catalog must use 3 distinct amount-specific Stripe Products; found 1 \(prod_support_1\)\./,
+      /FAIL The Supporter catalog must use 6 distinct amount-and-use Stripe Products; found 1 \(prod_support_1\)\./,
     )
     assert.match(result.stdout, /Stripe API retrieval performed: true/)
   })
@@ -802,14 +815,14 @@ describe("Stripe readiness background-commerce contract", () => {
   it("reports partial Stripe Price verification as incomplete", () => {
     const result = runReadinessWithStripeStub({
       STRIPE_READINESS_STUB_FAIL_PRICE_ID:
-        membershipPrices.STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID,
+        membershipPrices.STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID,
     }, ["--verify-stripe"])
 
     assert.equal(result.status, 1, result.stderr || result.stdout)
     assert.match(result.stdout, /Stripe API retrieval performed: false/)
     assert.match(
       result.stderr,
-      /STRIPE_SUPPORTER_2_MONTHLY_PRICE_ID could not be retrieved from Stripe/,
+      /STRIPE_SUPPORTER_2_PERSONAL_MONTHLY_PRICE_ID could not be retrieved from Stripe/,
     )
     assert.doesNotMatch(
       result.stderr,
@@ -826,7 +839,7 @@ describe("Stripe readiness background-commerce contract", () => {
       ...Object.fromEntries(Object.keys(membershipPrices).map((key) => [key, ""])),
     }, ["--verify-stripe"])
     assert.equal(result.status, 1)
-    assert.match(result.stderr, /STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID is missing/)
+    assert.match(result.stderr, /STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID is missing/)
     assert.match(result.stdout, /Stripe API retrieval requested: true/)
     assert.match(result.stdout, /Stripe API retrieval performed: false/)
   })

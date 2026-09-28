@@ -9,15 +9,19 @@ import {
 import {
   recurringPriceSemanticMismatches,
   recurringPriceSemanticsMatch,
+  LEGACY_SUPPORTER_RECURRING_TAX_CODE,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
   SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
-  SUPPORTER_RECURRING_TAX_CODE,
+  supporterMembershipProductName,
 } from "../lib/stripe-price-contract.js"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { classifySupporterProductMetadata } from "../lib/stripe-provider-identity.js"
-import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
+import {
+  LEGACY_TARGET_PRICE_SPECS,
+  TARGET_PRICE_SPECS,
+} from "../lib/stripe-supporter-membership-migration-contract.js"
 import { safeErrorCode } from "../lib/safe-error-code.js"
 import { REGISTRATION_PAUSED_MESSAGE } from "../lib/public-launch-controls.js"
 import {
@@ -674,24 +678,21 @@ describe("Supporter membership final-review contracts", () => {
       new URL("../lib/stripe-readiness.js", import.meta.url),
       "utf8",
     )
-    const expected = {
-      key: "STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID",
-      amountChoiceId: "support-1",
-      interval: "month",
-      unitAmount: 100,
-    }
+    const expected = TARGET_PRICE_SPECS.find(({ key }) => (
+      key === "support-1-personal-month"
+    ))
     const readinessCandidate = migrationPrice(
       "price_target_support_1_month",
       {
         id: "prod_supporter",
         active: true,
-        name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
-        tax_code: "txcd_10000000",
+        name: supporterMembershipProductName("personal"),
+        tax_code: "txcd_10103000",
         metadata: {
-          app: "massagelab",
-          massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-          massagelab_membership_level: "SUPPORTER",
-          massagelab_supporter_amount_choice: "support-1",
+          app: "atmoshaper",
+          atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+          atmoshaper_membership_level: "SUPPORTER",
+          atmoshaper_supporter_amount_choice: "support-1-personal",
         },
       },
       expected.unitAmount,
@@ -714,7 +715,6 @@ describe("Supporter membership final-review contracts", () => {
           SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
           SUPPORTER_RECURRING_TAX_BEHAVIOR,
-          SUPPORTER_RECURRING_TAX_CODE,
           recurringPriceSemanticMismatches(candidate, contract) {
             const mismatches = recurringPriceSemanticMismatches(candidate, contract)
             readinessCalls.push({ candidate, contract, mismatches })
@@ -774,9 +774,10 @@ describe("Supporter membership final-review contracts", () => {
         stripe: class TestStripe {},
         "../lib/stripe-price-contract.js": {
           SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+          SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
           SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
           SUPPORTER_RECURRING_TAX_BEHAVIOR,
-          SUPPORTER_RECURRING_TAX_CODE,
+          LEGACY_SUPPORTER_RECURRING_TAX_CODE,
           recurringPriceSemanticsMatch(candidate, contract) {
             const matches = recurringPriceSemanticsMatch(candidate, contract)
             if (contract.taxBehavior === SUPPORTER_RECURRING_TAX_BEHAVIOR) {
@@ -790,7 +791,7 @@ describe("Supporter membership final-review contracts", () => {
           STRIPE_API_VERSION: "test-api-version",
         },
         "../lib/stripe-supporter-membership-migration-contract.js": {
-          TARGET_PRICE_SPECS,
+          LEGACY_TARGET_PRICE_SPECS,
         },
       },
     )

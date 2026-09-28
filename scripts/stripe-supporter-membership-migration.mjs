@@ -5,10 +5,11 @@ import { pathToFileURL } from "node:url"
 import Stripe from "stripe"
 import {
   recurringPriceSemanticsMatch,
-  SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_CATALOG,
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_CATALOG,
+  SUPPORTER_MEMBERSHIP_CATALOG_VERSION as CURRENT_SUPPORTER_CATALOG,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME as SUPPORTER_PRODUCT_NAME,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
-  SUPPORTER_RECURRING_TAX_CODE as EXPECTED_TAX_CODE,
+  LEGACY_SUPPORTER_RECURRING_TAX_CODE as EXPECTED_TAX_CODE,
 } from "../lib/stripe-price-contract.js"
 import {
   buildCurrentSupporterPriceMetadata,
@@ -18,7 +19,9 @@ import {
   hasAnySupporterSchemaMetadata,
   hasCurrentSupporterSchemaMetadata,
 } from "../lib/stripe-provider-identity.js"
-import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
+import {
+  LEGACY_TARGET_PRICE_SPECS as TARGET_PRICE_SPECS,
+} from "../lib/stripe-supporter-membership-migration-contract.js"
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
 
 export { TARGET_PRICE_SPECS }
@@ -244,6 +247,27 @@ export class MigrationError extends Error {
     this.failureCodes = [...new Set(failureCodes)]
     this.checks = checks
   }
+}
+
+/** Classifies only Products owned by the retained v1 migration. */
+function classifyMigrationSupporterProductMetadata(metadata) {
+  return classifySupporterProductMetadata(metadata, {
+    catalogVersion: SUPPORTER_CATALOG,
+  })
+}
+
+/** Classifies only Prices owned by the retained v1 migration. */
+function classifyMigrationSupporterPriceMetadata(metadata) {
+  return classifySupporterPriceMetadata(metadata, {
+    catalogVersion: SUPPORTER_CATALOG,
+  })
+}
+
+/** Identifies complete v2 Products so the v1 inventory leaves them untouched. */
+function isCurrentSupporterProduct(candidate) {
+  return Boolean(classifySupporterProductMetadata(candidate?.metadata, {
+    catalogVersion: CURRENT_SUPPORTER_CATALOG,
+  }))
 }
 
 function envValue(env, key) {
@@ -475,7 +499,7 @@ function targetSupporterProductClassificationMatches(candidate) {
   return Boolean(candidate)
     && candidate.active === true
     && candidate.tax_code === EXPECTED_TAX_CODE
-    && Boolean(classifySupporterProductMetadata(candidate.metadata))
+    && Boolean(classifyMigrationSupporterProductMetadata(candidate.metadata))
 }
 
 /** Verifies private classification plus the current public Product name. */
@@ -488,13 +512,13 @@ function targetSupporterProductCoreMatches(candidate) {
 function targetSupporterProductMatches(candidate, spec) {
   return targetSupporterProductCoreMatches(candidate)
     && candidate.description === spec.description
-    && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId === spec.key
+    && classifyMigrationSupporterProductMetadata(candidate.metadata)?.amountChoiceId === spec.key
 }
 
 /** Allows only public copy drift on an otherwise exact amount Product. */
 function targetSupporterProductDisplayRepairable(candidate, spec) {
   return targetSupporterProductClassificationMatches(candidate)
-    && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId === spec.key
+    && classifyMigrationSupporterProductMetadata(candidate.metadata)?.amountChoiceId === spec.key
 }
 
 /** Resolves the single amount Product contract that owns a target Price slot. */
@@ -542,8 +566,9 @@ function legacyUnstampedSupporterProductMatches(candidate) {
 
 /** Retains every named, valid, or partial Supporter Product for fail-closed validation. */
 function isTargetSupporterProductCandidate(candidate) {
+  if (isCurrentSupporterProduct(candidate)) return false
   return candidate?.name === SUPPORTER_PRODUCT_NAME
-    || Boolean(classifySupporterProductMetadata(candidate?.metadata))
+    || Boolean(classifyMigrationSupporterProductMetadata(candidate?.metadata))
     || hasCurrentSupporterSchemaMetadata(candidate?.metadata)
     || (
       hasAnySupporterSchemaMetadata(candidate?.metadata)
@@ -571,7 +596,7 @@ export function targetSupporterProductReusable(candidate, spec) {
   // private catalog classification must remain exact before reuse is safe.
   if (!targetSupporterProductClassificationMatches(candidate)) return false
 
-  return classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+  return classifyMigrationSupporterProductMetadata(candidate.metadata)?.amountChoiceId
     === spec.key
 }
 
@@ -763,7 +788,7 @@ function portalTopologyMatches(features, expectedProducts) {
 
 /** Returns a trusted managed Price key or its migration-owned lookup fallback. */
 function managedPriceKey(candidate) {
-  return classifySupporterPriceMetadata(candidate?.metadata)?.priceKey
+  return classifyMigrationSupporterPriceMetadata(candidate?.metadata)?.priceKey
     || candidate?.lookup_key
     || ""
 }
@@ -783,7 +808,7 @@ function findTargetCandidate({ allPrices, configuredId, spec, productId }) {
 
   const managed = allPrices.filter((candidate) => (
     priceProductId(candidate) === productId
-    && Boolean(classifySupporterPriceMetadata(candidate.metadata))
+    && Boolean(classifyMigrationSupporterPriceMetadata(candidate.metadata))
     && (
       managedPriceKey(candidate) === spec.key
       || candidate.lookup_key === lookupKeyFor(spec)
@@ -1042,7 +1067,7 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
   for (const spec of TARGET_PRODUCT_SPECS) {
     if (config.productIds[spec.configKey] !== CREATE_NEW_PRODUCT) continue
     const matches = targetProductCandidates.filter((candidate) => (
-      classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+      classifyMigrationSupporterProductMetadata(candidate.metadata)?.amountChoiceId
         === spec.key
     ))
     if (matches.length > 1) {
@@ -1503,7 +1528,10 @@ function targetProductPayload(current, spec) {
     metadata: buildCurrentSupporterProductMetadata(
       current?.metadata,
       spec.key,
-      { forUpdate: Boolean(current) },
+      {
+        catalogVersion: SUPPORTER_CATALOG,
+        forUpdate: Boolean(current),
+      },
     ),
   }
 }
@@ -1513,7 +1541,10 @@ function targetPriceMetadata(spec, current = {}) {
   return buildCurrentSupporterPriceMetadata(
     current.metadata,
     spec.key,
-    { forUpdate: Boolean(current.id) },
+    {
+      catalogVersion: SUPPORTER_CATALOG,
+      forUpdate: Boolean(current.id),
+    },
   )
 }
 
@@ -1651,13 +1682,13 @@ async function discoverTargetProductBeforeCreate(stripe, spec, livemode) {
         if (!modeMatches(candidate, livemode)) return
         if (
           targetSupporterProductReusable(candidate, spec)
-          && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+          && classifyMigrationSupporterProductMetadata(candidate.metadata)?.amountChoiceId
             === spec.key
         ) {
           matches.push(candidate)
         } else if (
           candidate.active === false
-          && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+          && classifyMigrationSupporterProductMetadata(candidate.metadata)?.amountChoiceId
             === spec.key
         ) {
           archivedMatches.push(candidate)

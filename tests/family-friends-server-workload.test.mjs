@@ -13,9 +13,10 @@ import {
   hasSubscriptionBlockingNewCheckout,
 } from "../lib/membership.js"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
-import { SIX_PRICE_ENVIRONMENT } from "./helpers/membership-pricing-environment.mjs"
+import { TWELVE_PRICE_ENVIRONMENT } from "./helpers/membership-pricing-environment.mjs"
 import { MEMBERSHIP_PRICING_IMPORT_PATTERN } from "./helpers/membership-pricing-import-guard.mjs"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
+import { SUPPORTER_USE_OPTIONS } from "../lib/supporter-use.js"
 
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const HISTORICAL_BROWSER_QA_RECEIPT_PATTERN =
@@ -103,7 +104,7 @@ function assertBoundedEitherOrder(source, left, right, maxCharacters = 120) {
  * and helper invocations receive independent module and cache state.
  */
 function sharedMembershipPricingWorkload(priceReads, {
-  configuredEnvironment = SIX_PRICE_ENVIRONMENT,
+  configuredEnvironment = TWELVE_PRICE_ENVIRONMENT,
   clientConstructions = [],
   constructClient,
   providerKey = "test-provider-key",
@@ -118,6 +119,7 @@ function sharedMembershipPricingWorkload(priceReads, {
         getConfiguredMembershipOptions: () => getConfiguredMembershipOptions(configuredEnvironment),
       },
       "./public-product-identity.js": { PUBLIC_PRODUCT_IDENTITY },
+      "./supporter-use.js": { SUPPORTER_USE_OPTIONS },
       "./stripe-billing.js": {
         getStripeSecretKey: () => providerKey,
         getStripeClient(apiKey) {
@@ -670,7 +672,7 @@ describe("family-and-friends server workload baseline", () => {
     assert.match(rscSessionSource, /NEXT_PUBLIC_RSC_SESSION_PROOF\s*===\s*["']1["']/)
   })
 
-  it("shares six public display Price reads across concurrent cold and warm callers", async () => {
+  it("shares twelve use-classified display Price reads across concurrent cold and warm callers", async () => {
     const priceReads = []
     const clientConstructions = []
     const { getMembershipPricingCatalog } = sharedMembershipPricingWorkload(priceReads, {
@@ -682,7 +684,7 @@ describe("family-and-friends server workload baseline", () => {
     await getMembershipPricingCatalog()
     const warmLogicalPriceReads = priceReads.length - concurrentColdLogicalPriceReads
 
-    assert.equal(concurrentColdLogicalPriceReads, 6)
+    assert.equal(concurrentColdLogicalPriceReads, 12)
     assert.equal(warmLogicalPriceReads, 0)
     assert.equal(clientConstructions.length, 1)
     assert.equal(clientConstructions[0].apiKey, "test-provider-key")

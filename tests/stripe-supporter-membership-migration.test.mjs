@@ -13,8 +13,10 @@ import {
   targetSupporterProductReusable,
 } from "../scripts/stripe-supporter-membership-migration.mjs"
 import {
-  SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  SUPPORTER_MEMBERSHIP_CATALOG_VERSION as CURRENT_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
+  supporterProductKey,
 } from "../lib/stripe-price-contract.js"
 import {
   classifySupporterPriceMetadata,
@@ -141,6 +143,53 @@ function price(
       : null,
     lookup_key: managedPriceKey ? supporterLookupKeyFor(managedPriceKey) : null,
     metadata,
+  }
+}
+
+/** Adds the complete v2 topology that the retained v1 migration must ignore. */
+function addCurrentCatalog(fixture) {
+  const uses = [
+    ["personal", "txcd_10103000"],
+    ["business", "txcd_10103001"],
+  ]
+  for (const amountChoice of ["support-1", "support-2", "support-5"]) {
+    for (const [supporterUse, taxCode] of uses) {
+      const productId = `prod_v2_${amountChoice}_${supporterUse}`
+      fixture.products.set(productId, {
+        id: productId,
+        object: "product",
+        active: true,
+        livemode: false,
+        name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
+        tax_code: taxCode,
+        metadata: {
+          app: "atmoshaper",
+          atmoshaper_catalog: CURRENT_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+          atmoshaper_membership_level: "SUPPORTER",
+          atmoshaper_supporter_amount_choice: supporterProductKey(amountChoice, supporterUse),
+        },
+      })
+      for (const [interval, unitAmount] of [
+        ["month", Number(amountChoice.at(-1)) * 100],
+        ["year", Number(amountChoice.at(-1)) * 1000],
+      ]) {
+        const priceKey = `${amountChoice}-${supporterUse}-${interval}`
+        const priceId = `price_v2_${priceKey}`
+        fixture.prices.set(priceId, price(
+          priceId,
+          productId,
+          unitAmount,
+          interval,
+          true,
+          {
+            app: "atmoshaper",
+            atmoshaper_catalog: CURRENT_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+            atmoshaper_membership_level: "SUPPORTER",
+            atmoshaper_supporter_price_key: priceKey,
+          },
+        ))
+      }
+    }
   }
 }
 
@@ -1102,6 +1151,29 @@ describe("Supporter membership Stripe migration", () => {
     )
   })
 
+  it("ignores a coexisting complete v2 catalog during retained v1 verification", async () => {
+    const fixture = stripeFixture()
+    addCurrentCatalog(fixture)
+
+    const result = await runSupporterMembershipMigration({
+      stripe: fixture.stripe,
+      mode: "verify",
+      env: migrationEnv(),
+    })
+
+    assert.equal(result.ok, true)
+    assert.equal(result.state, "PRE_MIGRATION")
+    assert.deepEqual(mutationCalls(fixture), [])
+    assert.deepEqual(
+      new Set(
+        fixture.calls
+          .filter(({ name }) => name === "prices.list")
+          .map(({ payload }) => payload.product),
+      ),
+      new Set(["prod_supporter", "prod_therapist", "prod_practice"]),
+    )
+  })
+
   it("formats failed checks and failure codes without printing retained causes", () => {
     const privateCause = new Error("cus_private price_private@example.com")
     const error = new MigrationError(
@@ -1184,6 +1256,10 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(supporter.active, true)
     assert.equal(supporter.metadata.app, "atmoshaper")
     assert.equal(
+      supporter.metadata.atmoshaper_catalog,
+      SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    )
+    assert.equal(
       Object.hasOwn(supporter.metadata, "massagelab_catalog"),
       false,
     )
@@ -1209,6 +1285,7 @@ describe("Supporter membership Stripe migration", () => {
       && entry.currency === "usd"
       && entry.tax_behavior === "exclusive"
       && entry.metadata?.app === "atmoshaper"
+      && entry.metadata?.atmoshaper_catalog === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
       && !Object.hasOwn(entry.metadata, "massagelab_catalog")
       && Boolean(supporterPriceKey(entry.metadata))
       && supporterAmountChoice(fixture.products.get(entry.product)?.metadata)
