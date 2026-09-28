@@ -94,6 +94,27 @@ function supporterPortalConfiguration(supporterUse = "personal") {
       atmoshaper_portal_supporter_use: supporterUse,
     },
     features: {
+      customer_update: {
+        enabled: true,
+        allowed_updates: ["address", "email", "name"],
+      },
+      invoice_history: { enabled: true },
+      payment_method_update: { enabled: true },
+      subscription_cancel: {
+        enabled: true,
+        mode: "at_period_end",
+        proration_behavior: "none",
+        cancellation_reason: {
+          enabled: true,
+          options: [
+            "missing_features",
+            "other",
+            "switched_service",
+            "too_expensive",
+            "unused",
+          ],
+        },
+      },
       subscription_update: {
         enabled: true,
         default_allowed_updates: ["price"],
@@ -855,6 +876,22 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.match(result.stdout, /Supporter business Portal configuration verified: true/)
   })
 
+  it("rejects Price collisions across current and reconciliation mappings", () => {
+    const currentPrice = membershipPrices.STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID
+    for (const reconciliationKey of [
+      "STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID",
+      "STRIPE_THERAPIST_MONTHLY_PRICE_ID",
+    ]) {
+      const result = runReadiness({ [reconciliationKey]: currentPrice })
+      assert.equal(result.status, 1, reconciliationKey)
+      assert.match(
+        result.stderr,
+        /Stripe membership Price mappings must be unique across current and reconciliation namespaces/,
+        reconciliationKey,
+      )
+    }
+  })
+
   it("requires distinct use-specific Portal configuration IDs", () => {
     const missing = runReadiness({
       STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "",
@@ -939,6 +976,51 @@ describe("Stripe readiness background-commerce contract", () => {
       }],
       ["trial behavior", (configuration) => {
         configuration.features.subscription_update.trial_update_behavior = "continue_trial"
+      }],
+    ]
+
+    for (const [label, mutate] of cases) {
+      const configuration = supporterPortalConfiguration()
+      mutate(configuration)
+      const failures = validateRetrievedSupporterPortalConfiguration(configuration, {
+        configurationId: "bpc_personal",
+        supporterUse: "personal",
+        retrievedMembershipPrices,
+        livemode: false,
+      })
+      assert.equal(failures.length > 0, true, label)
+    }
+  })
+
+  it("rejects every managed Portal billing-management feature drift", () => {
+    const retrievedMembershipPrices = retrievedMembershipPricesForUse("personal")
+    const cases = [
+      ["customer update", (configuration) => {
+        configuration.features.customer_update.enabled = false
+      }],
+      ["customer fields", (configuration) => {
+        configuration.features.customer_update.allowed_updates = ["email"]
+      }],
+      ["invoice history", (configuration) => {
+        configuration.features.invoice_history.enabled = false
+      }],
+      ["payment methods", (configuration) => {
+        configuration.features.payment_method_update.enabled = false
+      }],
+      ["cancellation", (configuration) => {
+        configuration.features.subscription_cancel.enabled = false
+      }],
+      ["cancellation timing", (configuration) => {
+        configuration.features.subscription_cancel.mode = "immediately"
+      }],
+      ["cancellation proration", (configuration) => {
+        configuration.features.subscription_cancel.proration_behavior = "create_prorations"
+      }],
+      ["cancellation reasons", (configuration) => {
+        configuration.features.subscription_cancel.cancellation_reason.enabled = false
+      }],
+      ["cancellation reason options", (configuration) => {
+        configuration.features.subscription_cancel.cancellation_reason.options = ["other"]
       }],
     ]
 

@@ -21,6 +21,10 @@ import {
   TARGET_PRICE_SPECS,
 } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
+  hasApprovedSupporterPortalManagementFeatures,
+  normalizeSupporterPortalFeatures,
+} from "../lib/stripe-supporter-portal-contract.js"
+import {
   STRIPE_API_VERSION,
   STRIPE_PINNED_WEBHOOK_URL,
   validatePinnedStripeWebhookEndpoint,
@@ -267,103 +271,19 @@ function classifyPortalMetadata(value) {
   return supporterUse
 }
 
-function normalizePortalProduct(entry) {
-  return {
-    product: idOf(entry?.product),
-    prices: (entry?.prices ?? []).map(idOf).sort(),
-    adjustable_quantity: {
-      enabled: entry?.adjustable_quantity?.enabled === true,
-    },
-  }
-}
-
-function normalizeCancellationReason(value) {
-  return {
-    enabled: value?.enabled === true,
-    options: Array.isArray(value?.options) ? [...value.options].sort() : [],
-  }
-}
-
-/** Canonical comparison shape for the Portal fields this migration owns. */
-function normalizePortalFeatures(features) {
-  return {
-    customer_update: {
-      enabled: features?.customer_update?.enabled === true,
-      allowed_updates: Array.isArray(features?.customer_update?.allowed_updates)
-        ? [...features.customer_update.allowed_updates].sort()
-        : [],
-    },
-    invoice_history: { enabled: features?.invoice_history?.enabled === true },
-    payment_method_update: { enabled: features?.payment_method_update?.enabled === true },
-    subscription_cancel: {
-      enabled: features?.subscription_cancel?.enabled === true,
-      mode: features?.subscription_cancel?.mode ?? null,
-      proration_behavior: features?.subscription_cancel?.proration_behavior ?? null,
-      cancellation_reason: normalizeCancellationReason(
-        features?.subscription_cancel?.cancellation_reason,
-      ),
-    },
-    subscription_update: {
-      enabled: features?.subscription_update?.enabled === true,
-      default_allowed_updates: Array.isArray(
-        features?.subscription_update?.default_allowed_updates,
-      )
-        ? [...features.subscription_update.default_allowed_updates].sort()
-        : [],
-      billing_cycle_anchor: features?.subscription_update?.billing_cycle_anchor ?? null,
-      proration_behavior: features?.subscription_update?.proration_behavior ?? null,
-      schedule_at_period_end: {
-        conditions: Array.isArray(
-          features?.subscription_update?.schedule_at_period_end?.conditions,
-        )
-          ? features.subscription_update.schedule_at_period_end.conditions
-            .map((condition) => condition?.type ?? "")
-            .filter(Boolean)
-            .sort()
-          : [],
-      },
-      trial_update_behavior: features?.subscription_update?.trial_update_behavior ?? null,
-      products: Array.isArray(features?.subscription_update?.products)
-        ? features.subscription_update.products.map(normalizePortalProduct)
-          .sort((left, right) => left.product.localeCompare(right.product))
-        : [],
-    },
-  }
-}
-
 function jsonEqual(left, right) {
   return JSON.stringify(left) === JSON.stringify(right)
 }
 
-const APPROVED_CANCELLATION_REASONS = [
-  "missing_features",
-  "other",
-  "switched_service",
-  "too_expensive",
-  "unused",
-]
-
 function defaultPortalBaseIsSafe(portal) {
-  const normalized = normalizePortalFeatures(portal?.features)
   return modeMatches(portal)
     && portal.active === true
     && portal.is_default === true
-    && normalized.customer_update.enabled
-    && jsonEqual(normalized.customer_update.allowed_updates, ["address", "email", "name"])
-    && normalized.invoice_history.enabled
-    && normalized.payment_method_update.enabled
-    && normalized.subscription_cancel.enabled
-    && normalized.subscription_cancel.mode === "at_period_end"
-    && normalized.subscription_cancel.proration_behavior === "none"
-    && normalized.subscription_cancel.cancellation_reason.enabled
-    && jsonEqual(
-      normalized.subscription_cancel.cancellation_reason.options,
-      APPROVED_CANCELLATION_REASONS,
-    )
+    && hasApprovedSupporterPortalManagementFeatures(portal.features)
 }
 
 function desiredPortalFeatures(defaultPortal, supporterUse, products, prices) {
-  const base = normalizePortalFeatures(defaultPortal.features)
+  const base = normalizeSupporterPortalFeatures(defaultPortal.features)
   const targetProducts = V2_TARGET_PRODUCT_SPECS
     .filter((product) => product.supporterUse === supporterUse)
     .map((product) => ({
@@ -448,8 +368,8 @@ function portalMatches(candidate, payload, supporterUse) {
     && normalizeOptionalPortalText(candidate.default_return_url)
       === normalizeOptionalPortalText(payload.default_return_url)
     && jsonEqual(
-      normalizePortalFeatures(candidate.features),
-      normalizePortalFeatures(payload.features),
+      normalizeSupporterPortalFeatures(candidate.features),
+      normalizeSupporterPortalFeatures(payload.features),
     )
 }
 

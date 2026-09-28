@@ -103,6 +103,27 @@ function supporterPortal(supporterUse) {
       atmoshaper_portal_supporter_use: configuredUse,
     },
     features: {
+      customer_update: {
+        enabled: true,
+        allowed_updates: ["address", "email", "name"],
+      },
+      invoice_history: { enabled: true },
+      payment_method_update: { enabled: true },
+      subscription_cancel: {
+        enabled: true,
+        mode: "at_period_end",
+        proration_behavior: "none",
+        cancellation_reason: {
+          enabled: true,
+          options: [
+            "missing_features",
+            "other",
+            "switched_service",
+            "too_expensive",
+            "unused",
+          ],
+        },
+      },
       subscription_update: {
         enabled: true,
         default_allowed_updates: ["price"],

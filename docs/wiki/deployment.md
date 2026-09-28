@@ -236,7 +236,10 @@ mode, AtmoShaper v2 metadata, and exact personal or business Product/Price
 allowlist before activation. Each managed Portal must be non-default and retain
 Price-only updates, an unchanged billing-cycle anchor, no proration, no
 scheduled-at-period-end conditions, and trial termination on change. The
-retained default Portal remains reserved for historical v1 compatibility.
+Portal must also permit address, email, and name updates, invoice history,
+payment-method updates, and cancel-at-period-end without proration, with the
+exact approved cancellation-reason set. The retained default Portal remains
+reserved for historical v1 compatibility.
 
 Before enabling subscription checkout, confirm:
 

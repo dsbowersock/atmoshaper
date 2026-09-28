@@ -30,6 +30,12 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   readiness lookup plus the migration's Portal list and mutation-verification
   lookups. All Portal reads now omit that expansion and validate the
   Product/Price IDs returned directly by Stripe.
+- The next exact-head Codex pass found two remaining readiness gaps. Readiness
+  now rejects duplicate Price IDs across the same current and reconciliation
+  union used by runtime, and a shared Portal contract verifies customer-profile
+  fields, invoice history, payment-method updates, cancel-at-period-end without
+  proration, and the exact approved cancellation reasons. Focused migration and
+  readiness validation passed: 42 passed, 0 failed.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 

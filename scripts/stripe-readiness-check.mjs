@@ -12,6 +12,7 @@ import Stripe from "stripe"
 import { config as loadDotenv } from "dotenv"
 import { BACKGROUND_COMMERCE_TAX_PRODUCT_CODE } from "../lib/commerce/constants.js"
 import { DIGITAL_PURCHASES_REFUNDS_VERSION } from "../lib/legal-documents.js"
+import { getConfiguredMembershipReconciliationOptions } from "../lib/membership.js"
 import {
   getOneTimeSupportTaxReadiness,
   getSupporterRecurringTaxReadiness,
@@ -142,8 +143,20 @@ function checkPriceIds() {
 
     priceIds.set(priceId, expected)
   }
-  priceIdInventoryComplete =
-    priceIds.size === REQUIRED_SUPPORTER_PRICE_CONTRACT.length
+  const reconciliationCounts = new Map()
+  for (const { priceId } of getConfiguredMembershipReconciliationOptions(process.env)) {
+    reconciliationCounts.set(priceId, (reconciliationCounts.get(priceId) ?? 0) + 1)
+  }
+  const reconciliationIdsUnique = [...reconciliationCounts.values()]
+    .every((count) => count === 1)
+  if (!reconciliationIdsUnique) {
+    addFailure(
+      "Stripe membership Price mappings must be unique across current and reconciliation namespaces.",
+    )
+  }
+
+  priceIdInventoryComplete = priceIds.size === REQUIRED_SUPPORTER_PRICE_CONTRACT.length
+    && reconciliationIdsUnique
 }
 
 /** Validates both use-specific Portal IDs before any Stripe retrieval. */
