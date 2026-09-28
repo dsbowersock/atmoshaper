@@ -16,6 +16,7 @@ import {
   LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION as CURRENT_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
+  supporterProductKey,
 } from "../lib/stripe-price-contract.js"
 import {
   classifySupporterPriceMetadata,
@@ -165,7 +166,7 @@ function addCurrentCatalog(fixture) {
           app: "atmoshaper",
           atmoshaper_catalog: CURRENT_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           atmoshaper_membership_level: "SUPPORTER",
-          atmoshaper_supporter_amount_choice: amountChoice,
+          atmoshaper_supporter_amount_choice: supporterProductKey(amountChoice, supporterUse),
         },
       })
       for (const [interval, unitAmount] of [
