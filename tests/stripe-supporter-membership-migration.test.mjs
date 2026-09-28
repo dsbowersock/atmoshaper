@@ -21,10 +21,12 @@ import {
   classifySupporterProductMetadata,
 } from "../lib/stripe-provider-identity.js"
 
+/** Reads the trusted amount choice from either accepted Product schema. */
 function supporterAmountChoice(metadata) {
   return classifySupporterProductMetadata(metadata)?.amountChoiceId ?? ""
 }
 
+/** Reads the trusted Price key from either accepted Price schema. */
 function supporterPriceKey(metadata) {
   return classifySupporterPriceMetadata(metadata)?.priceKey ?? ""
 }
@@ -758,6 +760,15 @@ describe("Supporter membership Stripe migration", () => {
       ...classifiedProduct,
       metadata: unstampedMetadata,
     }
+    const ambiguousUnstampedSupporter = {
+      ...unstampedSupporter,
+      metadata: {
+        ...unstampedMetadata,
+        atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      },
+    }
+    const ambiguousLegacySupporter = product("prod_supporter", "MassageLab Supporter")
+    ambiguousLegacySupporter.metadata.atmoshaper_catalog = SUPPORTER_MEMBERSHIP_CATALOG_VERSION
     const support5Product = {
       ...classifiedProduct,
       id: "prod_support_5",
@@ -804,6 +815,14 @@ describe("Supporter membership Stripe migration", () => {
     )
     assert.equal(
       targetSupporterProductReusable(unstampedSupporter, support5Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(ambiguousUnstampedSupporter, support1Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(ambiguousLegacySupporter, support1Spec),
       false,
     )
     assert.equal(
@@ -1764,6 +1783,45 @@ describe("Supporter membership Stripe migration", () => {
     }
   })
 
+  it("retains partial Supporter metadata and its Prices before rejecting apply", async () => {
+    const fixture = stripeFixture()
+    fixture.products.set("prod_partial_supporter", {
+      id: "prod_partial_supporter",
+      object: "product",
+      active: true,
+      livemode: false,
+      name: "Renamed partial Product",
+      tax_code: "txcd_10000000",
+      metadata: {
+        app: "atmoshaper",
+        atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      },
+    })
+    fixture.prices.set(
+      "price_partial_supporter",
+      price("price_partial_supporter", "prod_partial_supporter", 100, "month"),
+    )
+
+    await assert.rejects(
+      runSupporterMembershipMigration({
+        stripe: fixture.stripe,
+        mode: "apply",
+        env: migrationEnv(),
+      }),
+      (error) => {
+        assert.equal(error.failureCodes.includes("supporter_product_duplicate"), true)
+        return true
+      },
+    )
+    assert.equal(
+      fixture.calls.some(({ name, payload }) => (
+        name === "prices.list" && payload.product === "prod_partial_supporter"
+      )),
+      true,
+    )
+    assert.deepEqual(mutationCalls(fixture), [])
+  })
+
   it("accepts a fully absent legacy coupon set and keeps deletion guarded", async () => {
     const fixture = stripeFixture()
     fixture.coupons.clear()
@@ -1910,13 +1968,17 @@ describe("Supporter membership Stripe migration", () => {
       mode: "apply",
       env,
     })
+    const classifiedProducts = [...fixture.products.values()].filter(
+      (entry) => Boolean(classifySupporterProductMetadata(entry.metadata)),
+    )
     assert.equal(
-      [...fixture.products.values()].filter(
-        (entry) => (
-          Boolean(classifySupporterProductMetadata(entry.metadata))
-        ),
-      ).length,
+      classifiedProducts.length,
       3,
+      JSON.stringify([...fixture.products.values()].map(({ id, active, metadata }) => ({
+        id,
+        active,
+        metadata,
+      }))),
     )
     assert.equal(
       fixture.calls.filter(({ name }) => name === "products.create").length,

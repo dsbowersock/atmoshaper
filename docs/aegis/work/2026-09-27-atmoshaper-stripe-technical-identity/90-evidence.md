@@ -35,3 +35,27 @@
     initialization fallback appeared during page-data collection.
 - External-state receipt: no Stripe, Vercel, Neon, database, deployment,
   payment, subscription, DNS, or email-provider mutation was performed.
+
+## Review repair
+
+- Verified five actionable hosted-review findings against the current branch:
+  opposite-kind managed metadata, the example sender domain, intent wording,
+  mixed legacy/current Product metadata, and partial-schema Product discovery.
+- Hardened Product and Price classification so partial or opposite-kind managed
+  keys fail closed, and retained ambiguous managed Products for duplicate
+  detection before any migration mutation.
+- `node --test tests/stripe-provider-identity.test.mjs tests/stripe-readiness.test.mjs tests/stripe-billing.test.mjs tests/stripe-supporter-membership-migration.test.mjs tests/supporter-membership-final-review.test.mjs tests/stripe-webhook-contract.test.mjs tests/membership-webhook-route.test.mjs tests/donations.test.mjs tests/user-facing-copy.test.mjs`
+  - Result: 261 tests passed, 0 failed.
+- `npm run test`
+  - Result: 4,972 tests discovered; 4,969 passed, 3 skipped, 0 failed.
+- `npm run typecheck`
+  - Result: passed.
+- `npm run lint`
+  - Result: passed. Babel emitted only its informational large-file styling
+    notice for `app/chimer/running-timer.tsx`.
+- `npm run build`
+  - Result: passed. Next.js compiled successfully, completed TypeScript, and
+    generated 115 static pages. The known non-fatal Anatomime poll-shedder
+    initialization fallback appeared during page-data collection.
+- External-state receipt remains unchanged: this repair performed no provider,
+  database, deployment, payment, subscription, DNS, or email mutation.

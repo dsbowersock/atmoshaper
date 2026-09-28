@@ -15,6 +15,8 @@ import {
   buildCurrentSupporterProductMetadata,
   classifySupporterPriceMetadata,
   classifySupporterProductMetadata,
+  hasAnySupporterSchemaMetadata,
+  hasCurrentSupporterSchemaMetadata,
 } from "../lib/stripe-provider-identity.js"
 import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
@@ -518,6 +520,7 @@ function legacySupporterProductMatches(candidate) {
     && (app === undefined || app === "massagelab")
     && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
     && candidate.metadata?.massagelab_catalog == null
+    && !hasCurrentSupporterSchemaMetadata(candidate.metadata)
 }
 
 /**
@@ -532,12 +535,18 @@ function legacyUnstampedSupporterProductMatches(candidate) {
     && candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
     && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
     && candidate.metadata?.massagelab_supporter_amount_choice == null
+    && !hasCurrentSupporterSchemaMetadata(candidate.metadata)
 }
 
+/** Retains every named, valid, or partial Supporter Product for fail-closed validation. */
 function isTargetSupporterProductCandidate(candidate) {
   return candidate?.name === SUPPORTER_PRODUCT_NAME
     || Boolean(classifySupporterProductMetadata(candidate?.metadata))
-    || legacyUnstampedSupporterProductMatches(candidate)
+    || hasCurrentSupporterSchemaMetadata(candidate?.metadata)
+    || (
+      hasAnySupporterSchemaMetadata(candidate?.metadata)
+      && !legacySupporterProductMatches(candidate)
+    )
 }
 
 /**
@@ -750,6 +759,7 @@ function portalTopologyMatches(features, expectedProducts) {
   )
 }
 
+/** Returns a trusted managed Price key or its migration-owned lookup fallback. */
 function managedPriceKey(candidate) {
   return classifySupporterPriceMetadata(candidate?.metadata)?.priceKey
     || candidate?.lookup_key
@@ -1481,10 +1491,7 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
   }
 }
 
-/**
- * Builds the complete create/update payload for one amount Product while
- * preserving Stripe metadata unrelated to MassageLab's managed contract.
- */
+/** Builds the exact current Product update or create payload for one amount slot. */
 function targetProductPayload(current, spec) {
   return {
     name: SUPPORTER_PRODUCT_NAME,
@@ -1499,6 +1506,7 @@ function targetProductPayload(current, spec) {
   }
 }
 
+/** Builds current Price metadata while retiring any managed legacy keys. */
 function targetPriceMetadata(spec, current = {}) {
   return buildCurrentSupporterPriceMetadata(
     current.metadata,

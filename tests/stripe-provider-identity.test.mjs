@@ -5,6 +5,8 @@ import {
   buildCurrentSupporterProductMetadata,
   classifySupporterPriceMetadata,
   classifySupporterProductMetadata,
+  hasAnySupporterSchemaMetadata,
+  hasCurrentSupporterSchemaMetadata,
 } from "../lib/stripe-provider-identity.js"
 import { SUPPORTER_MEMBERSHIP_CATALOG_VERSION } from "../lib/stripe-price-contract.js"
 
@@ -72,6 +74,14 @@ describe("Stripe provider identity", () => {
       ...currentProduct,
       app: "massagelab",
     }), null)
+    assert.equal(classifySupporterProductMetadata({
+      ...currentProduct,
+      atmoshaper_supporter_price_key: "support-2-month",
+    }), null)
+    assert.equal(classifySupporterProductMetadata({
+      ...currentProduct,
+      massagelab_supporter_price_key: "support-2-month",
+    }), null)
     assert.equal(classifySupporterProductMetadata({ owner: "atmoshaper" }), null)
     assert.equal(classifySupporterProductMetadata([]), null)
     assert.equal(classifySupporterProductMetadata(null), null)
@@ -109,6 +119,25 @@ describe("Stripe provider identity", () => {
       massagelab_membership_level: "SUPPORTER",
       massagelab_supporter_price_key: "support-5-year",
     }), null)
+    assert.equal(classifySupporterPriceMetadata({
+      ...currentPrice,
+      atmoshaper_supporter_amount_choice: "support-2",
+    }), null)
+    assert.equal(classifySupporterPriceMetadata({
+      ...currentPrice,
+      massagelab_supporter_amount_choice: "support-2",
+    }), null)
+  })
+
+  it("detects partial managed schemas without treating app metadata alone as ownership", () => {
+    assert.equal(hasCurrentSupporterSchemaMetadata({
+      atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), true)
+    assert.equal(hasCurrentSupporterSchemaMetadata(legacyProduct), false)
+    assert.equal(hasAnySupporterSchemaMetadata({
+      massagelab_supporter_price_key: "support-2-month",
+    }), true)
+    assert.equal(hasAnySupporterSchemaMetadata({ app: "atmoshaper" }), false)
   })
 
   it("builds current Product metadata without copying managed legacy keys", () => {
