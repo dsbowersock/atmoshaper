@@ -213,4 +213,25 @@ describe("Stripe provider identity", () => {
       /non-empty string/,
     )
   })
+
+  it("allows the retained migration to pin legacy catalog metadata", () => {
+    assert.equal(
+      buildCurrentSupporterProductMetadata({}, "support-1", {
+        catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      }).atmoshaper_catalog,
+      LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    )
+    assert.equal(
+      buildCurrentSupporterPriceMetadata({}, "support-1-month", {
+        catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      }).atmoshaper_catalog,
+      LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    )
+    assert.throws(
+      () => buildCurrentSupporterProductMetadata({}, "support-1", {
+        catalogVersion: "supporter_membership_unknown",
+      }),
+      /supported non-empty string/,
+    )
+  })
 })

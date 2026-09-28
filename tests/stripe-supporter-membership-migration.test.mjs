@@ -13,7 +13,7 @@ import {
   targetSupporterProductReusable,
 } from "../scripts/stripe-supporter-membership-migration.mjs"
 import {
-  SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
 } from "../lib/stripe-price-contract.js"
 import {
@@ -1184,6 +1184,10 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(supporter.active, true)
     assert.equal(supporter.metadata.app, "atmoshaper")
     assert.equal(
+      supporter.metadata.atmoshaper_catalog,
+      SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    )
+    assert.equal(
       Object.hasOwn(supporter.metadata, "massagelab_catalog"),
       false,
     )
@@ -1209,6 +1213,7 @@ describe("Supporter membership Stripe migration", () => {
       && entry.currency === "usd"
       && entry.tax_behavior === "exclusive"
       && entry.metadata?.app === "atmoshaper"
+      && entry.metadata?.atmoshaper_catalog === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
       && !Object.hasOwn(entry.metadata, "massagelab_catalog")
       && Boolean(supporterPriceKey(entry.metadata))
       && supporterAmountChoice(fixture.products.get(entry.product)?.metadata)

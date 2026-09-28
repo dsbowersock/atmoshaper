@@ -3246,6 +3246,57 @@ describe("Stripe billing helpers", () => {
     assert.equal(createCalls, 1)
   })
 
+  it("reuses a matching concurrent Checkout during create recovery", async () => {
+    const recoveredSession = membershipCheckoutSession({
+      id: "cs_concurrent_recovery",
+    })
+    let listCalls = 0
+    let createCalls = 0
+    let expireCalls = 0
+
+    const result = await stripeBilling.createStripeCheckoutSession(
+      membershipCheckoutOptions({
+        stripeClient: {
+          checkout: {
+            sessions: {
+              list: async () => {
+                listCalls += 1
+                return stripeCheckoutSessionList(
+                  listCalls === 1 ? [] : [recoveredSession],
+                )
+              },
+              listLineItems: async () => stripeCheckoutLineItemList(),
+              create: async () => {
+                createCalls += 1
+                if (createCalls === 1) {
+                  throw Object.assign(new Error("initial create failed"), {
+                    statusCode: 500,
+                    type: "StripeAPIError",
+                  })
+                }
+                return membershipCheckoutSession({ id: "cs_unnecessary_retry" })
+              },
+              expire: async (sessionId) => {
+                expireCalls += 1
+                return { id: sessionId, object: "checkout.session", status: "expired" }
+              },
+            },
+          },
+          subscriptions: {
+            retrieve: async () => {
+              throw new Error("an open Checkout Session must not retrieve a subscription")
+            },
+          },
+        },
+      }),
+    )
+
+    assert.equal(result.id, "cs_concurrent_recovery")
+    assert.equal(listCalls, 2)
+    assert.equal(createCalls, 1)
+    assert.equal(expireCalls, 0)
+  })
+
   it("does not restart the reconciliation deadline after the initial create fails", async () => {
     const originalCreateError = Object.assign(
       new Error("initial create reached the deadline"),

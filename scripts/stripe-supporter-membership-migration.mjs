@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url"
 import Stripe from "stripe"
 import {
   recurringPriceSemanticsMatch,
-  SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_CATALOG,
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION as SUPPORTER_CATALOG,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME as SUPPORTER_PRODUCT_NAME,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
   LEGACY_SUPPORTER_RECURRING_TAX_CODE as EXPECTED_TAX_CODE,
@@ -1505,7 +1505,10 @@ function targetProductPayload(current, spec) {
     metadata: buildCurrentSupporterProductMetadata(
       current?.metadata,
       spec.key,
-      { forUpdate: Boolean(current) },
+      {
+        catalogVersion: SUPPORTER_CATALOG,
+        forUpdate: Boolean(current),
+      },
     ),
   }
 }
@@ -1515,7 +1518,10 @@ function targetPriceMetadata(spec, current = {}) {
   return buildCurrentSupporterPriceMetadata(
     current.metadata,
     spec.key,
-    { forUpdate: Boolean(current.id) },
+    {
+      catalogVersion: SUPPORTER_CATALOG,
+      forUpdate: Boolean(current.id),
+    },
   )
 }
 
