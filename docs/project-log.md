@@ -2,6 +2,71 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-28 — Supporter v2 sandbox migration candidate
+
+- PR #23 merged at `b6652e0c2ed0dd5ce5e583cabdc9a8273d71bff2`, making
+  buyer-selected personal or business use part of the reviewed public Checkout
+  contract.
+- Started the next slice from that exact merge in an isolated worktree. The
+  candidate adds a test-only verify/plan/apply command for six amount/use
+  Products, twelve recurring Prices, and two use-specific Customer Portal
+  configurations. It requires a test key, exact expected account ID, safe
+  inventory, and a process-local apply phrase; every write is reread and reruns
+  converge through deterministic keys.
+- Runtime Portal creation now selects the personal or business configuration
+  from the persisted configured Price. Recognized v2 subscriptions fail closed
+  if their required configuration is absent; retained v1 subscriptions keep
+  default-Portal compatibility.
+- Exact-head hosted review found two activation gaps. The candidate now rejects
+  current Price IDs duplicated in any current, pre-classification, or historical
+  reconciliation namespace, and Stripe readiness retrieves both configured
+  Portals to verify their mode, AtmoShaper metadata, and exact use-specific
+  Product/Price allowlists before Checkout can be enabled.
+- A follow-up exact-head review tightened the Portal boundary again: the
+  retained default v1 Portal cannot be classified or updated as a managed v2
+  Portal, and readiness verifies the complete Price-only, unchanged-cycle,
+  non-prorated, immediate trial-ending transition behavior.
+- CodeRabbit then identified an unsupported nested Portal expansion in the
+  readiness lookup plus the migration's Portal list and mutation-verification
+  lookups. All Portal reads now omit that expansion and validate the
+  Product/Price IDs returned directly by Stripe.
+- The next exact-head Codex pass found two remaining readiness gaps. Readiness
+  now rejects duplicate Price IDs across the same current and reconciliation
+  union used by runtime, and a shared Portal contract verifies customer-profile
+  fields, invoice history, payment-method updates, cancel-at-period-end without
+  proration, and the exact approved cancellation reasons. Focused migration and
+  readiness validation passed: 42 passed, 0 failed.
+- The following exact-head Codex pass found that the retained default Portal's
+  v1 transition topology and managed Portal profile inheritance were not yet
+  proven. Migration planning now requires the default Portal's exact three-
+  Product/six-Price v1 allowlist plus the shared transition policy. Readiness
+  retrieves that default without unsupported expansions and compares its
+  headline, policy URLs, and return URL with both managed Portals. The hosted
+  compiled-module regression was updated for the new production dependency.
+- The next exact-head review found that readiness used the retained default only
+  as a profile template. Readiness now retrieves all six configured v1 Prices
+  and independently requires the default Portal's complete three-Product/six-
+  Price allowlist, billing-management features, and reviewed transition policy.
+  Regressions fail closed on drift in each contract class.
+- The following exact-head Codex review found that migration planning could
+  accept archived retained-v1 Products or Prices and readiness trusted the six
+  retrieved IDs without proving their catalog semantics. Migration now requires
+  active retained objects. Readiness validates each Price's mode, recurring
+  amount and interval, v1 metadata identity, and expanded Product's active mode,
+  name, tax code, and v1 identity before using it as Portal evidence. Focused
+  migration, readiness, and final-review validation passed: 58 passed, 0 failed;
+  the adjacent six-suite membership/Portal group passed: 101 passed, 0 failed.
+- Exact-head Codex and CodeRabbit then found two independent fail-closed gaps.
+  Customer Portal creation now classifies every nonterminal subscription for
+  the Stripe Customer and refuses a session when their personal/business Portal
+  configurations disagree. Readiness now skips default-Portal allowlist
+  comparison when any retained v1 Price retrieval failed, preserving the exact
+  retrieval failure instead of adding a misleading drift diagnosis. The focused
+  Portal, readiness, migration, final-review, and workload suites passed: 86
+  passed, 0 failed; typecheck, lint, and diff checks passed.
+- No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
+  DNS, or email-provider mutation occurred in this code-only candidate.
+
 ## 2026-09-27 — Buyer-selected Supporter use classification candidate
 
 - Started from merged PR #22 at

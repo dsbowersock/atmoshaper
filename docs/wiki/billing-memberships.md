@@ -520,6 +520,15 @@ subscription metadata. The existing generic-code v1 catalog remains readable
 for webhook and subscription reconciliation but cannot be selected by new v2
 Checkout.
 
+Stripe Customer Portal uses two managed configurations rather than one shared
+allowlist. The personal configuration exposes only the six personal Prices;
+the business configuration exposes only the six business Prices. Both preserve
+the approved billing-account and cancellation features. AtmoShaper selects the
+configuration from the subscription's persisted configured Price for both the
+general Portal and the focused amount/period flow. A recognized v2 Price with a
+missing use-specific configuration fails closed, while historical v1 Prices
+continue through the retained default Portal for reconciliation compatibility.
+
 The dedicated sandbox's v1 catalog is preparation evidence only. Production
 Checkout stays paused, Automatic Tax stays disabled, and the readiness gates
 stay false until the v2 provider catalog, Portal allowlist, webhook, active tax

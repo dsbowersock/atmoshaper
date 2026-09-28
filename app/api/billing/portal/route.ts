@@ -2,10 +2,16 @@ import { NextResponse } from "next/server"
 import { getCurrentSession } from "@/auth"
 import { getSiteUrl } from "@/lib/auth-env"
 import { BILLING_PORTAL_DESTINATIONS } from "@/lib/billing-portal-destinations"
+import { resolveSupporterPortalForPrice } from "@/lib/supporter-portal"
 import { createStripeCustomerPortalSession } from "@/lib/stripe-billing"
 import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
+
+const PORTAL_SUBSCRIPTION_ORDER = [
+  { currentPeriodEnd: { sort: "desc" as const, nulls: "last" as const } },
+  { updatedAt: "desc" as const },
+]
 
 function accountRedirect(code: string) {
   return NextResponse.redirect(`${getSiteUrl()}/account?portal=${encodeURIComponent(code)}`, 303)
@@ -43,26 +49,28 @@ export async function POST(request: Request) {
 
   try {
     const destination = await requestedPortalDestination(request)
-    // Focused changes admit only active/trialing subscriptions, preferring the
-    // latest current period and using the most recent persisted update as a tie-breaker.
-    const subscription = destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
-      ? await prisma.membershipSubscription.findFirst({
-          where: {
-            userId: session.user.id,
-            stripeCustomerId: stripeCustomer.stripeCustomerId,
-            status: {
-              in: ["active", "trialing"],
-            },
-          },
-          orderBy: [
-            { currentPeriodEnd: "desc" },
-            { updatedAt: "desc" },
-          ],
-          select: {
-            stripeSubscriptionId: true,
-          },
-        })
-      : null
+    // Portal configuration is customer-wide, so every nonterminal subscription
+    // must resolve to the same buyer-use boundary before a session can open.
+    const nonterminalSubscriptions = await prisma.membershipSubscription.findMany({
+      where: {
+        userId: session.user.id,
+        stripeCustomerId: stripeCustomer.stripeCustomerId,
+        status: { notIn: ["canceled", "incomplete_expired"] },
+      },
+      orderBy: PORTAL_SUBSCRIPTION_ORDER,
+      select: {
+        stripeSubscriptionId: true,
+        stripePriceId: true,
+        status: true,
+      },
+    })
+    const currentSubscriptions = nonterminalSubscriptions.filter(
+      ({ status }) => status === "active" || status === "trialing",
+    )
+    const subscription = currentSubscriptions[0]
+      ?? (destination === BILLING_PORTAL_DESTINATIONS.MANAGE
+        ? nonterminalSubscriptions[0]
+        : null)
 
     if (
       destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
@@ -71,10 +79,33 @@ export async function POST(request: Request) {
       return accountRedirect("subscription-not-found")
     }
 
+    // A local empty result can lag Stripe's customer-wide subscription state,
+    // so it cannot safely select the retained default Portal configuration.
+    if (nonterminalSubscriptions.length === 0) {
+      throw new Error("The customer's nonterminal subscription inventory is unavailable.")
+    }
+
+    if (nonterminalSubscriptions.some(({ stripePriceId }) => !stripePriceId?.trim())) {
+      throw new Error("A nonterminal subscription is missing its Stripe Price identity.")
+    }
+
+    const resolvedPortals = nonterminalSubscriptions.map(
+      ({ stripePriceId }) => resolveSupporterPortalForPrice(stripePriceId),
+    )
+    const portalKeys = new Set(resolvedPortals.map(({ supporterUse, configurationId }) => (
+      `${supporterUse ?? "default"}:${configurationId ?? "default"}`
+    )))
+    if (portalKeys.size > 1) {
+      throw new Error("The customer's nonterminal subscriptions require incompatible Portal configurations.")
+    }
+    const portal = resolvedPortals[0]
     const portalSession = await createStripeCustomerPortalSession({
       customerId: stripeCustomer.stripeCustomerId,
       returnUrl: `${getSiteUrl()}/account?tab=membership&portal=returned`,
-      subscriptionId: subscription?.stripeSubscriptionId,
+      subscriptionId: destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
+        ? subscription?.stripeSubscriptionId
+        : undefined,
+      configurationId: portal.configurationId ?? undefined,
     })
 
     if (!portalSession.url) {

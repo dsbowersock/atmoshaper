@@ -11,6 +11,7 @@ import {
   isExplicitTrue,
   REQUIRED_SUPPORTER_PRICE_CONTRACT,
   validateRetrievedMembershipPrice,
+  validateRetrievedSupporterPortalConfiguration,
   validateSupporterProductTopology,
 } from "../lib/stripe-readiness.js"
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
@@ -21,6 +22,7 @@ import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
 } from "../lib/stripe-price-contract.js"
 import StripeReadinessStub from "./fixtures/stripe-readiness-stripe-stub.mjs"
+import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 
 const readinessScriptPath = fileURLToPath(
   new URL("../scripts/stripe-readiness-check.mjs", import.meta.url),
@@ -54,6 +56,101 @@ const membershipPrices = Object.fromEntries(
     `price_${key.toLowerCase().replaceAll("stripe_supporter_", "supporter_").replaceAll("_price_id", "")}`,
   ]),
 )
+const legacyMembershipPrices = Object.fromEntries(
+  LEGACY_TARGET_PRICE_SPECS.map(({ envKey }) => [
+    envKey,
+    `price_v1_${envKey.toLowerCase().replaceAll("stripe_supporter_", "supporter_").replaceAll("_price_id", "")}`,
+  ]),
+)
+
+/** Builds exact retrieved Price evidence for one use-specific Portal contract. */
+function retrievedMembershipPricesForUse(supporterUse) {
+  return REQUIRED_SUPPORTER_PRICE_CONTRACT
+    .filter((expected) => expected.supporterUse === supporterUse)
+    .map((expected) => ({
+      expected,
+      price: {
+        id: membershipPrices[expected.key],
+        product: supporterProduct(expected),
+      },
+    }))
+}
+
+/** Builds a valid managed Portal response for direct readiness validation. */
+function supporterPortalConfiguration(supporterUse = "personal") {
+  const entries = retrievedMembershipPricesForUse(supporterUse)
+  const products = new Map()
+  for (const { expected, price } of entries) {
+    const current = products.get(expected.productKey) ?? {
+      product: price.product.id,
+      prices: [],
+      adjustable_quantity: { enabled: false },
+    }
+    current.prices.push(price.id)
+    products.set(expected.productKey, current)
+  }
+  return {
+    id: `bpc_${supporterUse}`,
+    active: true,
+    is_default: false,
+    livemode: false,
+    business_profile: {
+      headline: "Manage your AtmoShaper Supporter membership.",
+      privacy_policy_url: "https://www.atmoshaper.com/legal/privacy",
+      terms_of_service_url: "https://www.atmoshaper.com/legal/terms",
+    },
+    default_return_url: "https://www.atmoshaper.com/account?tab=membership",
+    metadata: {
+      app: "atmoshaper",
+      atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      atmoshaper_membership_level: "SUPPORTER",
+      atmoshaper_portal_supporter_use: supporterUse,
+    },
+    features: {
+      customer_update: {
+        enabled: true,
+        allowed_updates: ["address", "email", "name"],
+      },
+      invoice_history: { enabled: true },
+      payment_method_update: { enabled: true },
+      subscription_cancel: {
+        enabled: true,
+        mode: "at_period_end",
+        proration_behavior: "none",
+        cancellation_reason: {
+          enabled: true,
+          options: [
+            "missing_features",
+            "other",
+            "switched_service",
+            "too_expensive",
+            "unused",
+          ],
+        },
+      },
+      subscription_update: {
+        enabled: true,
+        default_allowed_updates: ["price"],
+        billing_cycle_anchor: "unchanged",
+        proration_behavior: "none",
+        schedule_at_period_end: { conditions: [] },
+        trial_update_behavior: "end_trial",
+        products: [...products.values()],
+      },
+    },
+  }
+}
+
+/** Builds the retained default Portal profile used by managed Portal validation. */
+function defaultPortalConfiguration() {
+  const configuration = supporterPortalConfiguration()
+  return {
+    ...configuration,
+    id: "bpc_default",
+    is_default: true,
+    metadata: {},
+  }
+}
 
 /**
  * Returns the complete hermetic child environment for readiness checks.
@@ -65,6 +162,8 @@ function readinessEnvironment(overrides = {}) {
     ...(process.env.COMSPEC ? { COMSPEC: process.env.COMSPEC } : {}),
     STRIPE_SECRET_KEY: "sk_test_readiness",
     STRIPE_WEBHOOK_SECRET: "whsec_readiness",
+    STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "bpc_personal",
+    STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID: "bpc_business",
     BACKGROUND_COMMERCE_PURCHASING_ENABLED: "true",
     BACKGROUND_COMMERCE_PRICE_CENTS: "100",
     BACKGROUND_COMMERCE_CURRENCY: "usd",
@@ -89,6 +188,7 @@ function readinessEnvironment(overrides = {}) {
     STRIPE_ONE_TIME_SUPPORT_TAX_REGISTRATIONS_READY: "true",
     STRIPE_ONE_TIME_SUPPORT_TAX_CLASSIFICATION_CONFIRMED: "true",
     ...membershipPrices,
+    ...legacyMembershipPrices,
     ...overrides,
   }
   // Delete undefined overrides so spawned tests receive an unset environment key.
@@ -797,6 +897,221 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.match(result.stdout, /Stripe API retrieval performed: true/)
     assert.match(result.stdout, /Pinned Stripe webhook endpoint enabled: true/)
     assert.match(result.stdout, /Pinned Stripe webhook API version current: true/)
+    assert.match(result.stdout, /Supporter personal Portal configuration verified: true/)
+    assert.match(result.stdout, /Supporter business Portal configuration verified: true/)
+  })
+
+  it("rejects Price collisions across current and reconciliation mappings", () => {
+    const currentPrice = membershipPrices.STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID
+    for (const reconciliationKey of [
+      "STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID",
+      "STRIPE_THERAPIST_MONTHLY_PRICE_ID",
+    ]) {
+      const result = runReadiness({ [reconciliationKey]: currentPrice })
+      assert.equal(result.status, 1, reconciliationKey)
+      assert.match(
+        result.stderr,
+        /Stripe membership Price mappings must be unique across current and reconciliation namespaces/,
+        reconciliationKey,
+      )
+    }
+  })
+
+  it("requires distinct use-specific Portal configuration IDs", () => {
+    const missing = runReadiness({
+      STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "",
+    })
+    assert.equal(missing.status, 1)
+    assert.match(
+      missing.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID is missing/,
+    )
+
+    const duplicate = runReadiness({
+      STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID: "bpc_personal",
+    })
+    assert.equal(duplicate.status, 1)
+    assert.match(
+      duplicate.stderr,
+      /STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID duplicates STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID/,
+    )
+  })
+
+  it("fails Stripe verification for stale or cross-use Portal configurations", () => {
+    const stale = runReadinessWithStripeStub({
+      STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "bpc_stale",
+    }, ["--verify-stripe"])
+    assert.equal(stale.status, 1, stale.stderr || stale.stdout)
+    assert.match(
+      stale.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID could not be retrieved from Stripe/,
+    )
+    assert.match(
+      stale.stdout,
+      /Supporter personal Portal configuration verified: false/,
+    )
+
+    const swapped = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_SWAP_PORTALS: "true",
+    }, ["--verify-stripe"])
+    assert.equal(swapped.status, 1, swapped.stderr || swapped.stdout)
+    assert.match(
+      swapped.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID metadata must identify the personal Supporter Portal/,
+    )
+    assert.match(
+      swapped.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID Product and Price allowlist does not match the personal Supporter catalog/,
+    )
+  })
+
+  it("fails Stripe verification for Portal allowlist drift", () => {
+    const result = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_INVALID_PORTAL_ALLOWLIST: "personal",
+    }, ["--verify-stripe"])
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(
+      result.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID Product and Price allowlist does not match the personal Supporter catalog/,
+    )
+    assert.match(
+      result.stdout,
+      /Supporter personal Portal configuration verified: false/,
+    )
+  })
+
+  it("fails Stripe verification for inherited Portal profile drift", () => {
+    const result = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_INVALID_PORTAL_PROFILE: "personal",
+    }, ["--verify-stripe"])
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(
+      result.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID must inherit the retained default Portal profile and return URL/,
+    )
+    assert.match(
+      result.stdout,
+      /Supporter personal Portal configuration verified: false/,
+    )
+  })
+
+  it("fails Stripe verification for every retained default Portal contract drift", () => {
+    const cases = [
+      ["management", /must preserve the reviewed customer, invoice, payment-method, and cancellation-management behavior/],
+      ["transition", /must preserve the reviewed Price-only, unchanged-cycle, non-prorated subscription-update behavior/],
+      ["allowlist", /Product and Price allowlist must match the complete v1 Supporter catalog/],
+    ]
+    for (const [drift, failure] of cases) {
+      const result = runReadinessWithStripeStub({
+        STRIPE_READINESS_STUB_INVALID_DEFAULT_PORTAL: drift,
+      }, ["--verify-stripe"])
+      assert.equal(result.status, 1, drift)
+      assert.match(result.stderr, failure, drift)
+    }
+  })
+
+  it("fails Stripe verification for every retained v1 Price and Product semantic drift", () => {
+    const cases = [
+      ["inactive", /must identify an active retained v1 Stripe Price/],
+      ["amount", /does not match the retained v1 recurring Price contract/],
+      ["interval", /does not match the retained v1 recurring Price contract/],
+      ["product-inactive", /must expand an active retained v1 Stripe Product/],
+      ["product", /Product does not match the retained v1 semantic contract/],
+      ["product-metadata", /Product metadata does not identify the retained v1 Product/],
+      ["price-metadata", /metadata does not identify the retained v1 Price/],
+    ]
+    for (const [drift, failure] of cases) {
+      const result = runReadinessWithStripeStub({
+        STRIPE_READINESS_STUB_INVALID_LEGACY_PRICE: drift,
+      }, ["--verify-stripe"])
+      assert.equal(result.status, 1, drift)
+      assert.match(result.stderr, failure, drift)
+    }
+  })
+
+  it("rejects default Portals and every managed subscription-update behavior drift", () => {
+    const retrievedMembershipPrices = retrievedMembershipPricesForUse("personal")
+    const cases = [
+      ["default Portal", (configuration) => { configuration.is_default = true }],
+      ["allowed updates", (configuration) => {
+        configuration.features.subscription_update.default_allowed_updates = ["price", "quantity"]
+      }],
+      ["billing anchor", (configuration) => {
+        configuration.features.subscription_update.billing_cycle_anchor = "now"
+      }],
+      ["proration", (configuration) => {
+        configuration.features.subscription_update.proration_behavior = "create_prorations"
+      }],
+      ["scheduled update", (configuration) => {
+        configuration.features.subscription_update.schedule_at_period_end.conditions = [
+          { type: "decreasing_item_amount" },
+        ]
+      }],
+      ["trial behavior", (configuration) => {
+        configuration.features.subscription_update.trial_update_behavior = "continue_trial"
+      }],
+    ]
+
+    for (const [label, mutate] of cases) {
+      const configuration = supporterPortalConfiguration()
+      mutate(configuration)
+      const failures = validateRetrievedSupporterPortalConfiguration(configuration, {
+        configurationId: "bpc_personal",
+        supporterUse: "personal",
+        retrievedMembershipPrices,
+        livemode: false,
+        defaultConfiguration: defaultPortalConfiguration(),
+      })
+      assert.equal(failures.length > 0, true, label)
+    }
+  })
+
+  it("rejects every managed Portal billing-management feature drift", () => {
+    const retrievedMembershipPrices = retrievedMembershipPricesForUse("personal")
+    const cases = [
+      ["customer update", (configuration) => {
+        configuration.features.customer_update.enabled = false
+      }],
+      ["customer fields", (configuration) => {
+        configuration.features.customer_update.allowed_updates = ["email"]
+      }],
+      ["invoice history", (configuration) => {
+        configuration.features.invoice_history.enabled = false
+      }],
+      ["payment methods", (configuration) => {
+        configuration.features.payment_method_update.enabled = false
+      }],
+      ["cancellation", (configuration) => {
+        configuration.features.subscription_cancel.enabled = false
+      }],
+      ["cancellation timing", (configuration) => {
+        configuration.features.subscription_cancel.mode = "immediately"
+      }],
+      ["cancellation proration", (configuration) => {
+        configuration.features.subscription_cancel.proration_behavior = "create_prorations"
+      }],
+      ["cancellation reasons", (configuration) => {
+        configuration.features.subscription_cancel.cancellation_reason.enabled = false
+      }],
+      ["cancellation reason options", (configuration) => {
+        configuration.features.subscription_cancel.cancellation_reason.options = ["other"]
+      }],
+    ]
+
+    for (const [label, mutate] of cases) {
+      const configuration = supporterPortalConfiguration()
+      mutate(configuration)
+      const failures = validateRetrievedSupporterPortalConfiguration(configuration, {
+        configurationId: "bpc_personal",
+        supporterUse: "personal",
+        retrievedMembershipPrices,
+        livemode: false,
+        defaultConfiguration: defaultPortalConfiguration(),
+      })
+      assert.equal(failures.length > 0, true, label)
+    }
   })
 
   it("rejects the retired six-Prices-on-one-Product topology", () => {
@@ -831,6 +1146,25 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.match(
       result.stderr,
       /Stripe Price retrieval did not complete for every required Supporter contract slot/,
+    )
+  })
+
+  it("does not infer default Portal drift from an incomplete retained v1 Price retrieval", () => {
+    const [failedLegacyPrice] = LEGACY_TARGET_PRICE_SPECS
+    const result = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_FAIL_PRICE_ID:
+        legacyMembershipPrices[failedLegacyPrice.envKey],
+    }, ["--verify-stripe"])
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(result.stdout, /Stripe API retrieval performed: false/)
+    assert.match(
+      result.stderr,
+      new RegExp(`${failedLegacyPrice.envKey} could not be retrieved from Stripe`),
+    )
+    assert.doesNotMatch(
+      result.stderr,
+      /retained default Stripe Portal Product and Price allowlist/,
     )
   })
 

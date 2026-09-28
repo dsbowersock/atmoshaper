@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-27
+Verified: 2026-09-28
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -8,10 +8,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `fe66328c3c47ff2321654eea1749334f347bb1ce`; PR #19's
+  `main` is `b6652e0c2ed0dd5ce5e583cabdc9a8273d71bff2`; PR #19's
   provider-readiness record, PR #20's public Stripe catalog identity, and PR
-  #21's final brand assets, and PR #22's Stripe technical identity are merged.
-  Earlier CI evidence remains historical until the next exact-head run.
+  #21's final brand assets, PR #22's Stripe technical identity, and PR #23's
+  buyer-selected Supporter use classification are merged. Earlier CI evidence
+  remains historical until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, support routing, and verified Google branding are operational;
   the verified branding is being shown to users.
@@ -25,13 +26,35 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Vercel-managed destination retains the committed database migration state;
   the personal Neon organization lists only its directly owned projects, as
   expected.
-- The current code-only Stripe technical-identity candidate makes AtmoShaper
-  metadata, the AtmoShaper webhook URL, and the AtmoShaper one-time-support name
-  canonical for new provider objects. Exact historical `massagelab_*` metadata,
+- The active code-only migration candidate adds a bounded verify/plan/apply
+  command for the dedicated AtmoShaper sandbox and separates Customer Portal
+  configuration by persisted personal or business Price identity. It preserves
+  the retained v1 catalog and exact historical `massagelab_*` metadata,
   idempotency, purpose, Price mappings, database fields, and reconciliation
-  inputs remain readable until post-cutover inventory proves retirement safe.
-  No Stripe object, Vercel setting, database state, or deployment changed in
-  that candidate or this buyer-use candidate.
+  inputs until post-cutover inventory proves retirement safe. Runtime Portal
+  routing rejects a current Price duplicated in any current,
+  pre-classification, or historical mapping namespace. The activation readiness
+  command enforces that same full-union Price uniqueness contract, retrieves
+  both configured non-default Portals, and verifies their mode, metadata, exact
+  use-specific Product/Price allowlists, complete Price-only transition
+  behavior, customer-profile fields, invoice history, payment-method updates,
+  and cancellation policy and reasons. Readiness also requires both managed
+  Portals to inherit the retained default Portal's profile URLs, headline, and
+  return URL. Readiness also retrieves the six retained v1 Prices and requires
+  each Price and expanded Product to remain active in the selected mode with
+  its exact recurring semantics, tax classification, and v1 metadata identity.
+  An incomplete retained-v1 retrieval remains a retrieval-specific failure and
+  cannot be misreported as default-Portal allowlist drift. Runtime Portal
+  creation requires every nonterminal subscription for the Stripe Customer to
+  resolve to one compatible personal, business, or retained-default Portal
+  boundary before opening the customer-wide session.
+  Their default Portal must preserve its exact three-Product/six-Price
+  allowlist, reviewed update policy, and billing-management features. The
+  migration rejects archived retained-v1 catalog objects and refuses to
+  repurpose the retained default v1 Portal as a managed v2 Portal under the
+  same contract. No
+  Stripe object, Vercel setting, database state, or deployment has changed in
+  this candidate.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
   uses the wordmark at wide widths and the square logo at narrow widths. The

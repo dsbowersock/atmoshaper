@@ -542,7 +542,10 @@ describe("membership webhook service", () => {
     assert.deepEqual(result, { outcome: "applied", changed: true, userId: "user_123" })
     assert.equal(fixture.subscriptions[0].stripePriceId, "price_supporter_2")
     assert.equal(fixture.subscriptions[0].updatedAt > previousUpdatedAt, true)
-    assert.equal(buildEntitlements({ subscriptions: fixture.subscriptions }).hasFeature(FEATURE_KEYS.premiumBackgrounds), true)
+    assert.equal(buildEntitlements({
+      subscriptions: fixture.subscriptions,
+      now: BASE_TIME,
+    }).hasFeature(FEATURE_KEYS.premiumBackgrounds), true)
   })
 
   it("preserves the membership revision for a direct watermark-only write", async () => {

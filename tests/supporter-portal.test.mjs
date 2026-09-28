@@ -1,0 +1,114 @@
+import assert from "node:assert/strict"
+import { describe, it } from "node:test"
+import {
+  resolveSupporterPortalConfigurationId,
+  resolveSupporterPortalForPrice,
+  supporterPortalConfigurationEnvironmentKey,
+  supporterUseForConfiguredPrice,
+} from "../lib/supporter-portal.js"
+
+function portalEnv(overrides = {}) {
+  return {
+    STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: "price_legacy",
+    STRIPE_SUPPORTER_MONTHLY_PRICE_ID: "price_historical_supporter",
+    STRIPE_THERAPIST_MONTHLY_PRICE_ID: "price_historical_therapist",
+    STRIPE_PRACTICE_YEARLY_PRICE_ID: "price_historical_practice",
+    STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID: "price_personal_month",
+    STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: "price_business_month",
+    STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "bpc_personal",
+    STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID: "bpc_business",
+    ...overrides,
+  }
+}
+
+describe("Supporter Portal configuration selection", () => {
+  it("derives only the two approved Portal environment keys", () => {
+    assert.equal(
+      supporterPortalConfigurationEnvironmentKey("personal"),
+      "STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID",
+    )
+    assert.equal(
+      supporterPortalConfigurationEnvironmentKey("BUSINESS"),
+      "STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID",
+    )
+    assert.equal(supporterPortalConfigurationEnvironmentKey("other"), null)
+  })
+
+  it("maps configured v2 Prices to the matching use-specific Portal", () => {
+    const env = portalEnv()
+    assert.equal(supporterUseForConfiguredPrice("price_personal_month", env), "personal")
+    assert.equal(supporterUseForConfiguredPrice("price_business_month", env), "business")
+    assert.equal(resolveSupporterPortalConfigurationId("personal", env), "bpc_personal")
+    assert.deepEqual(resolveSupporterPortalForPrice("price_personal_month", env), {
+      supporterUse: "personal",
+      configurationId: "bpc_personal",
+    })
+    assert.deepEqual(resolveSupporterPortalForPrice("price_legacy", env), {
+      supporterUse: null,
+      configurationId: null,
+    })
+    assert.deepEqual(resolveSupporterPortalForPrice("", env), {
+      supporterUse: null,
+      configurationId: null,
+    })
+    for (const historicalPriceId of [
+      "price_historical_supporter",
+      "price_historical_therapist",
+      "price_historical_practice",
+    ]) {
+      assert.deepEqual(resolveSupporterPortalForPrice(historicalPriceId, env), {
+        supporterUse: null,
+        configurationId: null,
+      })
+    }
+  })
+
+  it("fails closed for an unknown persisted Price", () => {
+    assert.throws(
+      () => resolveSupporterPortalForPrice("price_unknown", portalEnv()),
+      /Supporter subscription Price is not configured/,
+    )
+  })
+
+  it("fails closed when one current Price is assigned to multiple use slots", () => {
+    const env = portalEnv({
+      STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: "price_personal_month",
+    })
+    assert.throws(
+      () => supporterUseForConfiguredPrice("price_personal_month", env),
+      /Price is configured more than once/,
+    )
+    assert.throws(
+      () => resolveSupporterPortalForPrice("price_personal_month", env),
+      /Price is configured more than once/,
+    )
+  })
+
+  it("fails closed when a current Price is reused by any reconciliation namespace", () => {
+    for (const environmentKey of [
+      "STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID",
+      "STRIPE_SUPPORTER_MONTHLY_PRICE_ID",
+      "STRIPE_THERAPIST_MONTHLY_PRICE_ID",
+      "STRIPE_PRACTICE_YEARLY_PRICE_ID",
+    ]) {
+      assert.throws(
+        () => resolveSupporterPortalForPrice(
+          "price_personal_month",
+          portalEnv({ [environmentKey]: "price_personal_month" }),
+        ),
+        /Price is configured more than once/,
+        environmentKey,
+      )
+    }
+  })
+
+  it("fails closed when a recognized v2 Price lacks its Portal configuration", () => {
+    assert.throws(
+      () => resolveSupporterPortalForPrice(
+        "price_personal_month",
+        portalEnv({ STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "" }),
+      ),
+      /use-specific Supporter Portal is not configured/,
+    )
+  })
+})

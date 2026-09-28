@@ -91,6 +91,7 @@
     "chimer:preview:r2:upload": "node scripts/chimer-preview-generation/upload-r2.mjs upload",
     "stripe:readiness": "node scripts/stripe-readiness-check.mjs --",
     "stripe:migrate-supporter-membership": "node scripts/stripe-supporter-membership-migration.mjs",
+    "stripe:migrate-supporter-v2-sandbox": "node scripts/stripe-supporter-v2-sandbox-catalog-migration.mjs",
     "commerce:backfill-credits": "node scripts/background-credit-backfill.mjs",
     "commerce:reconcile": "node scripts/commerce-reconcile.mjs",
     "backgrounds:branding:audit": "node --experimental-strip-types scripts/background-branding/render-audit.mjs",

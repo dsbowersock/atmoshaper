@@ -198,6 +198,8 @@ STRIPE_SUPPORTER_5_PERSONAL_MONTHLY_PRICE_ID=
 STRIPE_SUPPORTER_5_PERSONAL_YEARLY_PRICE_ID=
 STRIPE_SUPPORTER_5_BUSINESS_MONTHLY_PRICE_ID=
 STRIPE_SUPPORTER_5_BUSINESS_YEARLY_PRICE_ID=
+STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID=
+STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID=
 # Pre-classification reconciliation-only Price IDs:
 STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID=
 STRIPE_SUPPORTER_1_YEARLY_PRICE_ID=
@@ -226,8 +228,24 @@ Student is not a Stripe-backed subscription tier. If a Student product or price 
 Legacy runtime Price mappings remain webhook-only compatibility inputs and cannot satisfy public catalog readiness.
 Keep them configured until the database and Stripe subscriber inventories prove
 no historical subscription remains and signed webhook reconciliation is final.
-`stripe:readiness` validates only the twelve amount/use Supporter IDs for new
-public enrollment.
+`stripe:readiness` validates only the twelve amount/use Supporter Price IDs for
+new public enrollment; a Price duplicated in any current, pre-classification,
+or historical mapping namespace fails closed. With `--verify-stripe`, it also
+retrieves both configured Customer Portals and verifies the selected Stripe
+mode, AtmoShaper v2 metadata, and exact personal or business Product/Price
+allowlist before activation. Each managed Portal must be non-default and retain
+Price-only updates, an unchanged billing-cycle anchor, no proration, no
+scheduled-at-period-end conditions, and trial termination on change. The
+Portal must also permit address, email, and name updates, invoice history,
+payment-method updates, and cancel-at-period-end without proration, with the
+exact approved cancellation-reason set. The retained default Portal remains
+reserved for historical v1 compatibility and must retain its exact three-
+Product/six-Price v1 allowlist under the same reviewed Price-only transition
+policy. Both managed Portals must inherit the retained default's headline,
+privacy and terms URLs, and return URL; readiness retrieves the default Portal
+and all six retained v1 Prices to prove both that relationship and the default
+Portal's own topology, transition-policy, and billing-management contracts
+before activation.
 
 Before enabling subscription checkout, confirm:
 
@@ -245,10 +263,13 @@ Before enabling subscription checkout, confirm:
   completed historical Sessions with a relevant subscription still block with
   billing-management guidance until webhook persistence catches up.
 - The Stripe Customer Portal permits subscription Price changes only among
-  approved compatible Prices while preserving cancellation, payment-method updates,
-  billing address/name/email updates, and invoice history. Cross-Product amount
-  changes keep the billing-cycle anchor unchanged, create no proration, and are
-  not scheduled for period end.
+  approved compatible Prices for the subscription's persisted buyer-use class
+  while preserving cancellation, payment-method updates, billing
+  address/name/email updates, and invoice history. Personal and business use
+  have separate Portal configuration IDs; runtime selection is based on the
+  current configured Price, not request input. Cross-Product amount changes
+  keep the billing-cycle anchor unchanged, create no proration, and are not
+  scheduled for period end.
 - `https://www.atmoshaper.com/api/billing/webhook` is registered with the
   Stripe webhook signing secret.
 - Local and Vercel environments contain the same required Stripe keys and Price IDs for their respective test or live mode.
@@ -259,6 +280,45 @@ Before enabling subscription checkout, confirm:
   separately authorized live Checkout and verify its Session/line-item tax
   evidence, `/pricing` return, and absence of any membership or background
   entitlement.
+
+### Supporter v2 sandbox catalog migration
+
+The reviewed migration command owns only the dedicated AtmoShaper test account.
+It creates or verifies six amount/use Products, twelve recurring Prices, and
+two buyer-use-specific Portal configurations while preserving the retained v1
+catalog. It refuses live keys, a Stripe account mismatch, relevant
+subscriptions, open Checkout Sessions, pinned-webhook drift, partial managed
+metadata, or an unsafe default Portal.
+An acceptable retained default Portal must still expose exactly the complete
+v1 three-Product/six-Price transition topology, with quantity adjustment off,
+and the reviewed Price-only, unchanged-cycle, non-prorated, unscheduled,
+trial-ending transition policy. The two managed v2 Portals inherit its business
+profile and default return URL, which readiness verifies after retrieving all
+Portal configurations without unsupported expansion parameters. Readiness also
+retrieves each configured retained v1 Price so the default allowlist is checked
+against provider-owned Product and Price identities rather than only its shape.
+Each retained Price and expanded Product must remain active in the selected
+mode and match the exact v1 recurring, Product, tax-code, and metadata contract;
+archived or semantically unrelated catalog objects fail closed.
+
+Run the read-only modes first with the expected test-account ID supplied only
+in the operator shell:
+
+```bash
+npm run stripe:migrate-supporter-v2-sandbox -- --mode=plan
+npm run stripe:migrate-supporter-v2-sandbox -- --mode=verify
+```
+
+`plan` inventories and reports only safe checklist/count output. `verify`
+requires the completed target and performs no writes. Do not persist
+`ATMOSHAPER_STRIPE_V2_APPLY_CONFIRMATION`; after reviewing the exact plan and
+receiving separate provider-write authorization, set it only for the apply
+process to `CREATE_SUPPORTER_V2_SANDBOX_CATALOG`, run `--mode=apply`, then rerun
+`--mode=verify`. Apply uses deterministic idempotency and lookup keys, rereads
+every mutation, and is designed to converge safely after an exact partial run.
+Copy the twelve Price IDs and the two Portal configuration IDs into the secure
+sandbox deployment environment only after this command is reviewed and the
+provider state verifies completed.
 
 ### Retained v1 Supporter catalog migration
 

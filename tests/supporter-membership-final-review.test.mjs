@@ -9,6 +9,7 @@ import {
 import {
   recurringPriceSemanticMismatches,
   recurringPriceSemanticsMatch,
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   LEGACY_SUPPORTER_RECURRING_TAX_CODE,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
@@ -17,11 +18,21 @@ import {
   supporterMembershipProductName,
 } from "../lib/stripe-price-contract.js"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
-import { classifySupporterProductMetadata } from "../lib/stripe-provider-identity.js"
+import {
+  classifySupporterPriceMetadata,
+  classifySupporterProductMetadata,
+} from "../lib/stripe-provider-identity.js"
 import {
   LEGACY_TARGET_PRICE_SPECS,
   TARGET_PRICE_SPECS,
 } from "../lib/stripe-supporter-membership-migration-contract.js"
+import {
+  hasApprovedSupporterPortalManagementFeatures,
+  hasApprovedSupporterPortalTransitionPolicy,
+  normalizeSupporterPortalProducts,
+  normalizeSupporterPortalProfile,
+  supporterPortalAllowlistMatches,
+} from "../lib/stripe-supporter-portal-contract.js"
 import { safeErrorCode } from "../lib/safe-error-code.js"
 import { REGISTRATION_PAUSED_MESSAGE } from "../lib/public-launch-controls.js"
 import {
@@ -708,9 +719,11 @@ describe("Supporter membership final-review contracts", () => {
           ONE_TIME_SUPPORT_TAX_CODE: "txcd_90000001",
         },
         "./stripe-provider-identity.js": {
+          classifySupporterPriceMetadata,
           classifySupporterProductMetadata,
         },
         "./stripe-price-contract.js": {
+          LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
           SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
           SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
@@ -720,6 +733,16 @@ describe("Supporter membership final-review contracts", () => {
             readinessCalls.push({ candidate, contract, mismatches })
             return mismatches
           },
+        },
+        "./stripe-supporter-portal-contract.js": {
+          hasApprovedSupporterPortalManagementFeatures,
+          hasApprovedSupporterPortalTransitionPolicy,
+          normalizeSupporterPortalProducts,
+          normalizeSupporterPortalProfile,
+          supporterPortalAllowlistMatches,
+        },
+        "./stripe-supporter-membership-migration-contract.js": {
+          LEGACY_TARGET_PRICE_SPECS,
         },
       },
     )

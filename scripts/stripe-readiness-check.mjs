@@ -12,14 +12,19 @@ import Stripe from "stripe"
 import { config as loadDotenv } from "dotenv"
 import { BACKGROUND_COMMERCE_TAX_PRODUCT_CODE } from "../lib/commerce/constants.js"
 import { DIGITAL_PURCHASES_REFUNDS_VERSION } from "../lib/legal-documents.js"
+import { getConfiguredMembershipReconciliationOptions } from "../lib/membership.js"
 import {
   getOneTimeSupportTaxReadiness,
   getSupporterRecurringTaxReadiness,
   isExplicitTrue,
   REQUIRED_SUPPORTER_PRICE_CONTRACT,
+  validateRetrievedDefaultSupporterPortalConfiguration,
+  validateRetrievedLegacyMembershipPrice,
   validateRetrievedMembershipPrice,
+  validateRetrievedSupporterPortalConfiguration,
   validateSupporterProductTopology,
 } from "../lib/stripe-readiness.js"
+import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
   STRIPE_API_VERSION,
   STRIPE_BACKGROUND_COMMERCE_WEBHOOK_EVENTS,
@@ -38,6 +43,12 @@ const noDotenv = args.has("--no-dotenv")
 const failures = []
 const warnings = []
 const priceIds = new Map()
+const legacyPriceIds = new Map()
+const portalConfigurationIds = new Map()
+const verifiedPortalConfigurations = new Map([
+  ["personal", false],
+  ["business", false],
+])
 let commerceWebhookCoverageComplete = false
 let verifiedWebhookCoverageComplete = !verifyStripe
 let verifiedWebhookEndpointEnabled = !verifyStripe
@@ -136,8 +147,79 @@ function checkPriceIds() {
 
     priceIds.set(priceId, expected)
   }
-  priceIdInventoryComplete =
-    priceIds.size === REQUIRED_SUPPORTER_PRICE_CONTRACT.length
+  for (const expected of LEGACY_TARGET_PRICE_SPECS) {
+    const priceId = envValue(expected.envKey)
+    if (!priceId) {
+      addFailure(`${expected.envKey} is missing.`)
+      continue
+    }
+    if (!priceId.startsWith("price_")) {
+      addFailure(`${expected.envKey} must be a Stripe Price ID.`)
+      continue
+    }
+    if (legacyPriceIds.has(priceId)) {
+      addFailure(`${expected.envKey} duplicates a retained v1 Price mapping.`)
+      continue
+    }
+    legacyPriceIds.set(priceId, expected)
+  }
+  const reconciliationCounts = new Map()
+  for (const { priceId } of getConfiguredMembershipReconciliationOptions(process.env)) {
+    reconciliationCounts.set(priceId, (reconciliationCounts.get(priceId) ?? 0) + 1)
+  }
+  const reconciliationIdsUnique = [...reconciliationCounts.values()]
+    .every((count) => count === 1)
+  if (!reconciliationIdsUnique) {
+    addFailure(
+      "Stripe membership Price mappings must be unique across current and reconciliation namespaces.",
+    )
+  }
+
+  priceIdInventoryComplete = priceIds.size === REQUIRED_SUPPORTER_PRICE_CONTRACT.length
+    && legacyPriceIds.size === LEGACY_TARGET_PRICE_SPECS.length
+    && reconciliationIdsUnique
+}
+
+/** Validates both use-specific Portal IDs before any Stripe retrieval. */
+function checkPortalConfigurationIds() {
+  for (const supporterUse of ["personal", "business"]) {
+    const key = `STRIPE_SUPPORTER_${supporterUse.toUpperCase()}_PORTAL_CONFIGURATION_ID`
+    const configurationId = envValue(key)
+    if (!configurationId) {
+      addFailure(`${key} is missing.`)
+      continue
+    }
+    if (!configurationId.startsWith("bpc_")) {
+      addFailure(`${key} must be a Stripe Portal configuration ID.`)
+      continue
+    }
+    if (portalConfigurationIds.has(configurationId)) {
+      addFailure(`${key} duplicates ${portalConfigurationIds.get(configurationId).key}; each buyer use needs its own Portal configuration.`)
+      continue
+    }
+    portalConfigurationIds.set(configurationId, { key, supporterUse })
+  }
+}
+
+/** Retrieves every Portal configuration without unsupported expansion options. */
+async function listPortalConfigurations(stripe) {
+  const configurations = []
+  let startingAfter = ""
+  for (let pageNumber = 0; pageNumber < 100; pageNumber += 1) {
+    const page = await stripe.billingPortal.configurations.list({
+      limit: 100,
+      ...(startingAfter ? { starting_after: startingAfter } : {}),
+    })
+    if (!Array.isArray(page?.data)) throw new Error("Invalid Portal configuration page")
+    configurations.push(...page.data)
+    if (page.has_more !== true) return configurations
+    const nextCursor = page.data.at(-1)?.id
+    if (!nextCursor || nextCursor === startingAfter) {
+      throw new Error("Portal configuration pagination did not advance")
+    }
+    startingAfter = nextCursor
+  }
+  throw new Error("Portal configuration pagination exceeded its safety bound")
 }
 
 /**
@@ -321,6 +403,7 @@ async function verifyStripePrices() {
   // every successfully fetched Price, while API failures alone make
   // `stripeRetrievalPerformed` false.
   let allPricesRetrieved = true
+  const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
   const retrievedMembershipPrices = []
   for (const [priceId, expected] of priceIds) {
     try {
@@ -339,7 +422,65 @@ async function verifyStripePrices() {
   if (topologyFailures.length > 0) {
     for (const failure of topologyFailures) addFailure(failure)
   }
+  const retrievedLegacyMembershipPrices = []
+  for (const [priceId, expected] of legacyPriceIds) {
+    try {
+      const price = await stripe.prices.retrieve(priceId, { expand: ["product", "currency_options"] })
+      retrievedLegacyMembershipPrices.push({ expected, price })
+      for (const failure of validateRetrievedLegacyMembershipPrice(
+        price,
+        expected,
+        expectedLivemode,
+      )) addFailure(failure)
+    } catch {
+      allPricesRetrieved = false
+      addFailure(`${expected.envKey} could not be retrieved from Stripe.`)
+    }
+  }
+  const allLegacyPricesRetrieved = retrievedLegacyMembershipPrices.length === legacyPriceIds.size
   stripeRetrievalPerformed = allPricesRetrieved
+
+  let defaultConfiguration = null
+  try {
+    const configurations = await listPortalConfigurations(stripe)
+    const defaults = configurations.filter((configuration) => (
+      configuration?.active === true
+      && configuration?.is_default === true
+      && configuration?.livemode === expectedLivemode
+    ))
+    if (defaults.length !== 1) {
+      addFailure("The retained default Stripe Portal configuration could not be uniquely verified.")
+    } else {
+      defaultConfiguration = defaults[0]
+      if (allLegacyPricesRetrieved) {
+        for (const failure of validateRetrievedDefaultSupporterPortalConfiguration(
+          defaultConfiguration,
+          { retrievedLegacyMembershipPrices, livemode: expectedLivemode },
+        )) addFailure(failure)
+      }
+    }
+  } catch {
+    addFailure("The retained default Stripe Portal configuration could not be retrieved.")
+  }
+  for (const [configurationId, { key, supporterUse }] of portalConfigurationIds) {
+    try {
+      const configuration = await stripe.billingPortal.configurations.retrieve(configurationId)
+      const portalFailures = validateRetrievedSupporterPortalConfiguration(
+        configuration,
+        {
+          configurationId,
+          supporterUse,
+          retrievedMembershipPrices,
+          livemode: expectedLivemode,
+          defaultConfiguration,
+        },
+      )
+      for (const failure of portalFailures) addFailure(failure)
+      verifiedPortalConfigurations.set(supporterUse, portalFailures.length === 0)
+    } catch {
+      addFailure(`${key} could not be retrieved from Stripe.`)
+    }
+  }
 
   try {
     const endpoints = await stripe.webhookEndpoints.list({ limit: 100 })
@@ -368,6 +509,8 @@ function printResults(supporterTax, oneTimeTax, commerce) {
   console.log(`Stripe readiness mode: ${liveMode ? "live" : "non-live"}`)
   console.log(`Stripe API retrieval requested: ${verifyStripe}`)
   console.log(`Stripe API retrieval performed: ${stripeRetrievalPerformed}`)
+  console.log(`Supporter personal Portal configuration verified: ${verifiedPortalConfigurations.get("personal")}`)
+  console.log(`Supporter business Portal configuration verified: ${verifiedPortalConfigurations.get("business")}`)
   console.log(`Supporter recurring automatic tax enabled: ${supporterTax.automaticTaxEnabled}`)
   console.log(`Supporter recurring tax product code configured: ${supporterTax.taxProductCodeConfigured}`)
   console.log(`Supporter recurring tax provider ready: ${supporterTax.taxProviderReady}`)
@@ -411,6 +554,7 @@ function printResults(supporterTax, oneTimeTax, commerce) {
 checkSecretKey()
 checkWebhookSecret()
 checkPriceIds()
+checkPortalConfigurationIds()
 if (liveMode && !verifyStripe) {
   addFailure("Live Stripe readiness requires --verify-stripe.")
 }
@@ -420,5 +564,11 @@ const commerce = checkBackgroundCommerceReadiness()
 await verifyStripePrices()
 if (verifyStripe && !stripeRetrievalPerformed) {
   addFailure("Stripe Price retrieval did not complete for every required Supporter contract slot.")
+}
+if (
+  verifyStripe
+  && [...verifiedPortalConfigurations.values()].some((verified) => !verified)
+) {
+  addFailure("Stripe Portal verification did not complete for both Supporter buyer uses.")
 }
 printResults(supporterTax, oneTimeTax, commerce)
