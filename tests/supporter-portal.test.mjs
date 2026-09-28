@@ -10,6 +10,9 @@ import {
 function portalEnv(overrides = {}) {
   return {
     STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: "price_legacy",
+    STRIPE_SUPPORTER_MONTHLY_PRICE_ID: "price_historical_supporter",
+    STRIPE_THERAPIST_MONTHLY_PRICE_ID: "price_historical_therapist",
+    STRIPE_PRACTICE_YEARLY_PRICE_ID: "price_historical_practice",
     STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID: "price_personal_month",
     STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: "price_business_month",
     STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "bpc_personal",
@@ -48,6 +51,16 @@ describe("Supporter Portal configuration selection", () => {
       supporterUse: null,
       configurationId: null,
     })
+    for (const historicalPriceId of [
+      "price_historical_supporter",
+      "price_historical_therapist",
+      "price_historical_practice",
+    ]) {
+      assert.deepEqual(resolveSupporterPortalForPrice(historicalPriceId, env), {
+        supporterUse: null,
+        configurationId: null,
+      })
+    }
   })
 
   it("fails closed for an unknown persisted Price", () => {

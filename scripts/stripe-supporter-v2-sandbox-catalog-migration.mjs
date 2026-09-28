@@ -402,6 +402,19 @@ function portalMatches(candidate, payload, supporterUse) {
     && candidate.active === true
     && classifyPortalMetadata(candidate.metadata) === supporterUse
     && jsonEqual(
+      {
+        headline: candidate.business_profile?.headline ?? null,
+        privacy_policy_url: candidate.business_profile?.privacy_policy_url ?? null,
+        terms_of_service_url: candidate.business_profile?.terms_of_service_url ?? null,
+      },
+      {
+        headline: payload.business_profile?.headline ?? null,
+        privacy_policy_url: payload.business_profile?.privacy_policy_url ?? null,
+        terms_of_service_url: payload.business_profile?.terms_of_service_url ?? null,
+      },
+    )
+    && (candidate.default_return_url ?? null) === (payload.default_return_url ?? null)
+    && jsonEqual(
       normalizePortalFeatures(candidate.features),
       normalizePortalFeatures(payload.features),
     )
@@ -564,9 +577,18 @@ async function collectInventory(stripe, config) {
     account = await stripe.accounts.retrieve()
     balance = await stripe.balance.retrieve()
     products = await scanAll((params) => stripe.products.list(params))
-    prices = await scanAll((params) => stripe.prices.list(params), {
-      expand: ["data.currency_options"],
-    })
+    const priceListParams = { expand: ["data.currency_options"] }
+    const [activePrices, inactivePrices] = await Promise.all([
+      scanAll((params) => stripe.prices.list(params), {
+        ...priceListParams,
+        active: true,
+      }),
+      scanAll((params) => stripe.prices.list(params), {
+        ...priceListParams,
+        active: false,
+      }),
+    ])
+    prices = [...activePrices, ...inactivePrices]
     subscriptions = await scanAll((params) => stripe.subscriptions.list(params), {
       status: "all",
     })

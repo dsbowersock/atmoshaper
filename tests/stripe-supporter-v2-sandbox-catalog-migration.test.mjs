@@ -238,7 +238,10 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
     prices: {
       list: async (params) => {
         log("prices.list", params, {})
-        return paged(prices.values(), params, pageSize)
+        const visiblePrices = [...prices.values()].filter((price) => (
+          typeof params.active === "boolean" ? price.active === params.active : price.active === true
+        ))
+        return paged(visiblePrices, params, pageSize)
       },
       retrieve: async (id, params) => {
         log("prices.retrieve", { id, ...params }, {})
@@ -393,6 +396,12 @@ describe("Supporter v2 sandbox catalog migration", () => {
     })
     assert.equal(mutationCalls(fixture).length, 0)
     assert.equal(fixture.calls.some(({ payload }) => payload.starting_after), true)
+    assert.deepEqual(
+      new Set(fixture.calls
+        .filter(({ operation }) => operation === "prices.list")
+        .map(({ payload }) => payload.active)),
+      new Set([true, false]),
+    )
     assert.equal(
       fixture.calls
         .filter(({ operation }) => operation === "portal.list")
@@ -401,6 +410,75 @@ describe("Supporter v2 sandbox catalog migration", () => {
             === JSON.stringify(["data.features.subscription_update.products"])
         )),
       true,
+    )
+  })
+
+  it("detects an archived managed Price instead of recreating its identity", async () => {
+    const fixture = stripeFixture()
+    await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+    const archived = [...fixture.prices.values()].find(({ id }) => id.startsWith("price_v2_"))
+    archived.active = false
+    fixture.calls.length = 0
+
+    await expectFailure(
+      () => runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "plan",
+        env: migrationEnv(),
+      }),
+      "v2_price_semantics_mismatch",
+    )
+    assert.equal(mutationCalls(fixture).length, 0)
+    assert.equal(
+      fixture.calls.some(({ operation, payload }) => (
+        operation === "prices.list" && payload.active === false
+      )),
+      true,
+    )
+  })
+
+  it("repairs inherited Portal profile and return URL drift", async () => {
+    const fixture = stripeFixture()
+    await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+    const personalPortal = [...fixture.portals.values()].find(
+      ({ metadata }) => metadata.atmoshaper_portal_supporter_use === "personal",
+    )
+    personalPortal.business_profile.headline = "Stale headline"
+    personalPortal.default_return_url = "https://www.atmoshaper.com/stale"
+    fixture.calls.length = 0
+
+    const plan = await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "plan",
+      env: migrationEnv(),
+    })
+    assert.equal(plan.state, "TRANSITIONAL")
+    assert.equal(plan.plan.updatePortals, 1)
+    assert.equal(mutationCalls(fixture).length, 0)
+
+    const applied = await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+    assert.equal(applied.state, "COMPLETED")
+    assert.equal(personalPortal.business_profile.headline, "Stale headline")
+    const repairedPortal = fixture.portals.get(personalPortal.id)
+    assert.equal(
+      repairedPortal.business_profile.headline,
+      "Manage your AtmoShaper Supporter membership.",
+    )
+    assert.equal(
+      repairedPortal.default_return_url,
+      "https://www.atmoshaper.com/account?tab=membership",
     )
   })
 
