@@ -17,6 +17,11 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   from the persisted configured Price. Recognized v2 subscriptions fail closed
   if their required configuration is absent; retained v1 subscriptions keep
   default-Portal compatibility.
+- Exact-head hosted review found two activation gaps. The candidate now rejects
+  current Price IDs duplicated in any current, pre-classification, or historical
+  reconciliation namespace, and Stripe readiness retrieves both configured
+  Portals to verify their mode, AtmoShaper metadata, and exact use-specific
+  Product/Price allowlists before Checkout can be enabled.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 

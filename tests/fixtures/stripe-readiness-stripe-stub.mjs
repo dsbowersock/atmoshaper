@@ -62,6 +62,54 @@ function supporterPrice(priceId) {
   }
 }
 
+/** Builds the exact use-specific Product and Price allowlist for one Portal. */
+function supporterPortal(supporterUse) {
+  const expectedId = process.env[
+    `STRIPE_SUPPORTER_${supporterUse.toUpperCase()}_PORTAL_CONFIGURATION_ID`
+  ]
+  if (!expectedId || expectedId === "bpc_stale") {
+    throw new Error("Simulated Stripe Portal retrieval failure")
+  }
+
+  const configuredUse = process.env.STRIPE_READINESS_STUB_SWAP_PORTALS === "true"
+    ? supporterUse === "personal" ? "business" : "personal"
+    : supporterUse
+  const products = new Map()
+  for (const contract of SUPPORTER_MEMBERSHIP_PRICE_CONTRACT) {
+    if (contract.supporterUse !== configuredUse) continue
+    const productId = `prod_${contract.productKey.replaceAll("-", "_")}`
+    const prices = products.get(productId) ?? []
+    prices.push(process.env[contract.envKey])
+    products.set(productId, prices)
+  }
+  const allowlist = [...products].map(([product, prices]) => ({
+    product,
+    prices,
+    adjustable_quantity: { enabled: false },
+  }))
+  if (process.env.STRIPE_READINESS_STUB_INVALID_PORTAL_ALLOWLIST === supporterUse) {
+    allowlist[0].prices = ["price_unrelated"]
+  }
+
+  return {
+    id: expectedId,
+    active: true,
+    livemode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true,
+    metadata: {
+      app: "atmoshaper",
+      atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      atmoshaper_membership_level: "SUPPORTER",
+      atmoshaper_portal_supporter_use: configuredUse,
+    },
+    features: {
+      subscription_update: {
+        enabled: true,
+        products: allowlist,
+      },
+    },
+  }
+}
+
 /** Hermetic Stripe client used only by readiness CLI child-process tests. */
 export default class StripeReadinessStub {
   constructor(_apiKey, config = {}) {
@@ -72,6 +120,17 @@ export default class StripeReadinessStub {
     }
     this.prices = {
       retrieve: async (priceId) => supporterPrice(priceId),
+    }
+    this.billingPortal = {
+      configurations: {
+        retrieve: async (configurationId) => {
+          const personalId = process.env.STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID
+          const businessId = process.env.STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID
+          if (configurationId === personalId) return supporterPortal("personal")
+          if (configurationId === businessId) return supporterPortal("business")
+          throw new Error("Unexpected readiness Portal fixture")
+        },
+      },
     }
     this.webhookEndpoints = {
       list: async () => ({

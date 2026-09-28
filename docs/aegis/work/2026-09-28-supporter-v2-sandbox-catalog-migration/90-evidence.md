@@ -6,11 +6,13 @@
 - Sanitized read-only Vercel inventory: Production remains on the six legacy Price variables and paused Checkout; no twelve-slot v2 environment mapping is installed.
 - The candidate derives the six v2 Products and twelve v2 Prices from the merged contract, preserves the complete v1 catalog, refuses live or mismatched accounts, inventories all relevant paginated objects, blocks on subscriptions/open Checkout Sessions/webhook drift/partial managed metadata, and rereads every deterministic write.
 - Two managed Customer Portal configurations keep personal and business Price allowlists separate. Runtime selection uses the persisted current Price; recognized v2 Prices fail closed when their configuration is absent, and historical v1 Prices retain the default Portal compatibility path.
+- Exact-head Codex review identified two valid activation gaps. The repaired runtime rejects a current Price duplicated in any current, pre-classification, or historical reconciliation namespace. The repaired readiness command retrieves both configured Portals and verifies their IDs, active mode, AtmoShaper v2 metadata, subscription-update setting, and exact use-specific Product/Price allowlists.
+- Focused regression validation for those repairs passed: 35 passed, 0 failed. The expanded membership, administrator, Portal, and readiness group passed: 84 passed, 0 failed. Lint, typecheck, and diff checks also passed.
 - Focused migration, Portal, route, and Stripe-billing tests passed: 107 passed, 0 failed.
 - The expanded regression group passed after fixture alignment: 123 passed, 0 failed.
 - Browser-QA environment regression passed: 6 passed, 0 failed.
 - Final fresh falsifying check across the migration, Portal resolver/route, Stripe billing, Browser-QA environment, and family-and-friends workload owners passed: 129 passed, 0 failed.
-- Full repository suite passed on the final functional tree: 4,990 total, 4,987 passed, 0 failed, and 3 host-dependent skips.
+- Full repository suite passed after the hosted-review repairs: 5,002 total, 4,999 passed, 0 failed, and 3 host-dependent skips.
 - `npm run lint`, `npm run typecheck`, `npm run build`, and `git diff --check` exited successfully. The production build compiled, typechecked, and generated 115 pages; its existing poll-shedder message remained informational.
 - The isolated worktree required its own `npm ci` before the production build. Installation completed from the committed lockfile. A fresh registry audit later reported 14 advisories (4 moderate, 7 high, and 3 critical), including direct or transitive Next.js, Sharp, Nodemailer, Prisma, and shadcn dependency chains. Several require coordinated version changes, so no automatic dependency or lockfile rewrite was mixed into this migration slice; they are a separate security-update branch before live billing activation.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax, DNS, or email-provider mutation occurred.

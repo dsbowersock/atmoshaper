@@ -228,8 +228,12 @@ Student is not a Stripe-backed subscription tier. If a Student product or price 
 Legacy runtime Price mappings remain webhook-only compatibility inputs and cannot satisfy public catalog readiness.
 Keep them configured until the database and Stripe subscriber inventories prove
 no historical subscription remains and signed webhook reconciliation is final.
-`stripe:readiness` validates only the twelve amount/use Supporter IDs for new
-public enrollment.
+`stripe:readiness` validates only the twelve amount/use Supporter Price IDs for
+new public enrollment; a Price duplicated in any current, pre-classification,
+or historical mapping namespace fails closed. With `--verify-stripe`, it also
+retrieves both configured Customer Portals and verifies the selected Stripe
+mode, AtmoShaper v2 metadata, and exact personal or business Product/Price
+allowlist before activation.
 
 Before enabling subscription checkout, confirm:
 

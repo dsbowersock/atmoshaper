@@ -65,6 +65,8 @@ function readinessEnvironment(overrides = {}) {
     ...(process.env.COMSPEC ? { COMSPEC: process.env.COMSPEC } : {}),
     STRIPE_SECRET_KEY: "sk_test_readiness",
     STRIPE_WEBHOOK_SECRET: "whsec_readiness",
+    STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "bpc_personal",
+    STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID: "bpc_business",
     BACKGROUND_COMMERCE_PURCHASING_ENABLED: "true",
     BACKGROUND_COMMERCE_PRICE_CENTS: "100",
     BACKGROUND_COMMERCE_CURRENCY: "usd",
@@ -797,6 +799,72 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.match(result.stdout, /Stripe API retrieval performed: true/)
     assert.match(result.stdout, /Pinned Stripe webhook endpoint enabled: true/)
     assert.match(result.stdout, /Pinned Stripe webhook API version current: true/)
+    assert.match(result.stdout, /Supporter personal Portal configuration verified: true/)
+    assert.match(result.stdout, /Supporter business Portal configuration verified: true/)
+  })
+
+  it("requires distinct use-specific Portal configuration IDs", () => {
+    const missing = runReadiness({
+      STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "",
+    })
+    assert.equal(missing.status, 1)
+    assert.match(
+      missing.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID is missing/,
+    )
+
+    const duplicate = runReadiness({
+      STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID: "bpc_personal",
+    })
+    assert.equal(duplicate.status, 1)
+    assert.match(
+      duplicate.stderr,
+      /STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID duplicates STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID/,
+    )
+  })
+
+  it("fails Stripe verification for stale or cross-use Portal configurations", () => {
+    const stale = runReadinessWithStripeStub({
+      STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "bpc_stale",
+    }, ["--verify-stripe"])
+    assert.equal(stale.status, 1, stale.stderr || stale.stdout)
+    assert.match(
+      stale.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID could not be retrieved from Stripe/,
+    )
+    assert.match(
+      stale.stdout,
+      /Supporter personal Portal configuration verified: false/,
+    )
+
+    const swapped = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_SWAP_PORTALS: "true",
+    }, ["--verify-stripe"])
+    assert.equal(swapped.status, 1, swapped.stderr || swapped.stdout)
+    assert.match(
+      swapped.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID metadata must identify the personal Supporter Portal/,
+    )
+    assert.match(
+      swapped.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID Product and Price allowlist does not match the personal Supporter catalog/,
+    )
+  })
+
+  it("fails Stripe verification for Portal allowlist drift", () => {
+    const result = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_INVALID_PORTAL_ALLOWLIST: "personal",
+    }, ["--verify-stripe"])
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(
+      result.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID Product and Price allowlist does not match the personal Supporter catalog/,
+    )
+    assert.match(
+      result.stdout,
+      /Supporter personal Portal configuration verified: false/,
+    )
   })
 
   it("rejects the retired six-Prices-on-one-Product topology", () => {

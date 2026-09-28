@@ -84,6 +84,24 @@ describe("Supporter Portal configuration selection", () => {
     )
   })
 
+  it("fails closed when a current Price is reused by any reconciliation namespace", () => {
+    for (const environmentKey of [
+      "STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID",
+      "STRIPE_SUPPORTER_MONTHLY_PRICE_ID",
+      "STRIPE_THERAPIST_MONTHLY_PRICE_ID",
+      "STRIPE_PRACTICE_YEARLY_PRICE_ID",
+    ]) {
+      assert.throws(
+        () => resolveSupporterPortalForPrice(
+          "price_personal_month",
+          portalEnv({ [environmentKey]: "price_personal_month" }),
+        ),
+        /Price is configured more than once/,
+        environmentKey,
+      )
+    }
+  })
+
   it("fails closed when a recognized v2 Price lacks its Portal configuration", () => {
     assert.throws(
       () => resolveSupporterPortalForPrice(

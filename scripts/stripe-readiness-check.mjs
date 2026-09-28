@@ -18,6 +18,7 @@ import {
   isExplicitTrue,
   REQUIRED_SUPPORTER_PRICE_CONTRACT,
   validateRetrievedMembershipPrice,
+  validateRetrievedSupporterPortalConfiguration,
   validateSupporterProductTopology,
 } from "../lib/stripe-readiness.js"
 import {
@@ -38,6 +39,11 @@ const noDotenv = args.has("--no-dotenv")
 const failures = []
 const warnings = []
 const priceIds = new Map()
+const portalConfigurationIds = new Map()
+const verifiedPortalConfigurations = new Map([
+  ["personal", false],
+  ["business", false],
+])
 let commerceWebhookCoverageComplete = false
 let verifiedWebhookCoverageComplete = !verifyStripe
 let verifiedWebhookEndpointEnabled = !verifyStripe
@@ -138,6 +144,27 @@ function checkPriceIds() {
   }
   priceIdInventoryComplete =
     priceIds.size === REQUIRED_SUPPORTER_PRICE_CONTRACT.length
+}
+
+/** Validates both use-specific Portal IDs before any Stripe retrieval. */
+function checkPortalConfigurationIds() {
+  for (const supporterUse of ["personal", "business"]) {
+    const key = `STRIPE_SUPPORTER_${supporterUse.toUpperCase()}_PORTAL_CONFIGURATION_ID`
+    const configurationId = envValue(key)
+    if (!configurationId) {
+      addFailure(`${key} is missing.`)
+      continue
+    }
+    if (!configurationId.startsWith("bpc_")) {
+      addFailure(`${key} must be a Stripe Portal configuration ID.`)
+      continue
+    }
+    if (portalConfigurationIds.has(configurationId)) {
+      addFailure(`${key} duplicates ${portalConfigurationIds.get(configurationId).key}; each buyer use needs its own Portal configuration.`)
+      continue
+    }
+    portalConfigurationIds.set(configurationId, { key, supporterUse })
+  }
 }
 
 /**
@@ -341,6 +368,29 @@ async function verifyStripePrices() {
   }
   stripeRetrievalPerformed = allPricesRetrieved
 
+  const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
+  for (const [configurationId, { key, supporterUse }] of portalConfigurationIds) {
+    try {
+      const configuration = await stripe.billingPortal.configurations.retrieve(
+        configurationId,
+        { expand: ["features.subscription_update.products"] },
+      )
+      const portalFailures = validateRetrievedSupporterPortalConfiguration(
+        configuration,
+        {
+          configurationId,
+          supporterUse,
+          retrievedMembershipPrices,
+          livemode: expectedLivemode,
+        },
+      )
+      for (const failure of portalFailures) addFailure(failure)
+      verifiedPortalConfigurations.set(supporterUse, portalFailures.length === 0)
+    } catch {
+      addFailure(`${key} could not be retrieved from Stripe.`)
+    }
+  }
+
   try {
     const endpoints = await stripe.webhookEndpoints.list({ limit: 100 })
     const endpoint = endpoints.data.find((candidate) => candidate.url === STRIPE_PINNED_WEBHOOK_URL)
@@ -368,6 +418,8 @@ function printResults(supporterTax, oneTimeTax, commerce) {
   console.log(`Stripe readiness mode: ${liveMode ? "live" : "non-live"}`)
   console.log(`Stripe API retrieval requested: ${verifyStripe}`)
   console.log(`Stripe API retrieval performed: ${stripeRetrievalPerformed}`)
+  console.log(`Supporter personal Portal configuration verified: ${verifiedPortalConfigurations.get("personal")}`)
+  console.log(`Supporter business Portal configuration verified: ${verifiedPortalConfigurations.get("business")}`)
   console.log(`Supporter recurring automatic tax enabled: ${supporterTax.automaticTaxEnabled}`)
   console.log(`Supporter recurring tax product code configured: ${supporterTax.taxProductCodeConfigured}`)
   console.log(`Supporter recurring tax provider ready: ${supporterTax.taxProviderReady}`)
@@ -411,6 +463,7 @@ function printResults(supporterTax, oneTimeTax, commerce) {
 checkSecretKey()
 checkWebhookSecret()
 checkPriceIds()
+checkPortalConfigurationIds()
 if (liveMode && !verifyStripe) {
   addFailure("Live Stripe readiness requires --verify-stripe.")
 }
@@ -420,5 +473,11 @@ const commerce = checkBackgroundCommerceReadiness()
 await verifyStripePrices()
 if (verifyStripe && !stripeRetrievalPerformed) {
   addFailure("Stripe Price retrieval did not complete for every required Supporter contract slot.")
+}
+if (
+  verifyStripe
+  && [...verifiedPortalConfigurations.values()].some((verified) => !verified)
+) {
+  addFailure("Stripe Portal verification did not complete for both Supporter buyer uses.")
 }
 printResults(supporterTax, oneTimeTax, commerce)

@@ -31,7 +31,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   configuration by persisted personal or business Price identity. It preserves
   the retained v1 catalog and exact historical `massagelab_*` metadata,
   idempotency, purpose, Price mappings, database fields, and reconciliation
-  inputs until post-cutover inventory proves retirement safe. No Stripe object,
+  inputs until post-cutover inventory proves retirement safe. Runtime Portal
+  routing rejects a current Price duplicated in any current,
+  pre-classification, or historical mapping namespace. The activation readiness
+  command also retrieves both configured Portals and verifies their mode,
+  metadata, and exact use-specific Product/Price allowlists. No Stripe object,
   Vercel setting, database state, or deployment has changed in this candidate.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
