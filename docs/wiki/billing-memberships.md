@@ -2,20 +2,19 @@
 
 AtmoShaper uses feature-based access. Code should ask whether a user has a feature, not whether the user has a named plan.
 
-AtmoShaper's dedicated Stripe account is not configured for enrollment yet. A
-bounded read-only inventory of its test environment found no Products,
-recurring Prices, webhook endpoints, Portal configurations, or subscriptions.
-Statements below about a completed Production catalog describe inherited
-MassageLab provider history and remain compatibility/reference evidence until
-the separate AtmoShaper test-mode setup, readiness checks, and live activation
-are explicitly authorized and completed.
+AtmoShaper's dedicated Stripe account is staged but not configured for public
+enrollment. Its test environment contains the first v1 sandbox catalog: three
+amount-specific Products and six recurring Prices. Production Checkout remains
+paused, and Stripe Tax has no registrations. Preserve that v1 inventory as the
+known transition baseline until the expanded v2 sandbox catalog passes its
+readiness and controlled Checkout, Portal, and webhook tests.
 
 ## Dedicated AtmoShaper Provider Sequence
 
-After this code-only technical-identity change is reviewed and merged, the next
-provider stage is test mode only: create or verify six AtmoShaper Supporter
-amount/use Products and twelve recurring Prices, configure one Portal allowlist, create the
-exact 15-event webhook at
+After this code-only buyer-use change is reviewed and merged, the next provider
+stage remains test mode only: inventory and preserve the existing v1 objects,
+then create or verify six AtmoShaper Supporter amount/use Products and twelve
+recurring Prices, configure one Portal allowlist, create the exact 15-event webhook at
 `https://www.atmoshaper.com/api/billing/webhook`, store test credentials and
 Price mappings through approved secret management, deploy, and run controlled
 Checkout, Portal, and signed-webhook tests with synthetic data. Stripe Tax

@@ -12,6 +12,7 @@ import {
 } from "../lib/stripe-billing.js"
 import * as stripeBilling from "../lib/stripe-billing.js"
 import {
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRICE_CONTRACT,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
@@ -2125,6 +2126,7 @@ describe("Stripe billing helpers", () => {
         billingAddressCollection: "auto",
       }),
       membershipCheckoutSession({ id: "cs_wrong_catalog" }),
+      membershipCheckoutSession({ id: "cs_legacy_catalog" }),
     ]
     const expired = []
     let createCalls = 0
@@ -2138,6 +2140,10 @@ describe("Stripe billing helpers", () => {
                 ? stripeCheckoutLineItemList({
                     productCatalog: null,
                   })
+                : sessionId === "cs_legacy_catalog"
+                  ? stripeCheckoutLineItemList({
+                      productCatalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+                    })
                 : stripeCheckoutLineItemList()
             ),
             expire: async (sessionId) => {

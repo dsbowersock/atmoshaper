@@ -54,6 +54,18 @@ describe("Stripe provider identity", () => {
       schema: "current",
       priceKey: "support-2-month",
     })
+    assert.equal(classifySupporterProductMetadata({
+      ...currentProduct,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }, {
+      catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), null)
+    assert.equal(classifySupporterPriceMetadata({
+      ...currentPrice,
+      atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }, {
+      catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+    }), null)
   })
 
   it("classifies exact current and legacy Product metadata", () => {
@@ -82,6 +94,12 @@ describe("Stripe provider identity", () => {
       massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
       massagelab_membership_level: "SUPPORTER",
       massagelab_supporter_amount_choice: "support-5",
+    }), null)
+    assert.equal(classifySupporterProductMetadata({
+      ...currentProduct,
+      massagelab_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      massagelab_membership_level: "SUPPORTER",
+      massagelab_supporter_amount_choice: "support-2",
     }), null)
   })
 

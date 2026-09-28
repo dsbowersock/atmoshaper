@@ -16,6 +16,7 @@ import {
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
 import { SUPPORTER_AMOUNT_CHOICES } from "../lib/membership.js"
 import {
+  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   recurringPriceSemanticMismatches,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
 } from "../lib/stripe-price-contract.js"
@@ -283,6 +284,18 @@ describe("Stripe readiness background-commerce contract", () => {
     }
 
     assert.deepEqual(validateRetrievedMembershipPrice(basePrice, expected), [])
+
+    assert.deepEqual(validateRetrievedMembershipPrice({
+      ...basePrice,
+      product: supporterProduct(expected, {
+        metadata: {
+          ...basePrice.product.metadata,
+          atmoshaper_catalog: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+        },
+      }),
+    }, expected), [
+      `${expected.key} Product must identify Product key ${expected.productKey}.`,
+    ])
 
     assert.deepEqual(validateRetrievedMembershipPrice({
       ...basePrice,
