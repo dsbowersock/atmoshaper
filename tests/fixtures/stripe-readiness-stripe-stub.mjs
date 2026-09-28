@@ -91,11 +91,17 @@ function supporterPortal(supporterUse) {
     allowlist[0].prices = ["price_unrelated"]
   }
 
-  return {
+  const configuration = {
     id: expectedId,
     active: true,
     is_default: false,
     livemode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true,
+    business_profile: {
+      headline: "Manage your AtmoShaper Supporter membership.",
+      privacy_policy_url: "https://www.atmoshaper.com/legal/privacy",
+      terms_of_service_url: "https://www.atmoshaper.com/legal/terms",
+    },
+    default_return_url: "https://www.atmoshaper.com/account?tab=membership",
     metadata: {
       app: "atmoshaper",
       atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
@@ -135,6 +141,26 @@ function supporterPortal(supporterUse) {
       },
     },
   }
+  if (process.env.STRIPE_READINESS_STUB_INVALID_PORTAL_PROFILE === supporterUse) {
+    configuration.business_profile.headline = "Stale Portal profile"
+  }
+  return configuration
+}
+
+/** Builds the retained default Portal profile inherited by managed Portals. */
+function defaultPortal() {
+  return {
+    id: "bpc_default",
+    active: true,
+    is_default: true,
+    livemode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true,
+    business_profile: {
+      headline: "Manage your AtmoShaper Supporter membership.",
+      privacy_policy_url: "https://www.atmoshaper.com/legal/privacy",
+      terms_of_service_url: "https://www.atmoshaper.com/legal/terms",
+    },
+    default_return_url: "https://www.atmoshaper.com/account?tab=membership",
+  }
 }
 
 /** Hermetic Stripe client used only by readiness CLI child-process tests. */
@@ -150,6 +176,12 @@ export default class StripeReadinessStub {
     }
     this.billingPortal = {
       configurations: {
+        list: async (params) => {
+          if (params?.expand !== undefined) {
+            throw new Error("Portal configuration list must not request unsupported expansions")
+          }
+          return { data: [defaultPortal()], has_more: false }
+        },
         retrieve: async (configurationId, params) => {
           if (params !== undefined) {
             throw new Error("Portal configuration retrieval must not request unsupported expansions")

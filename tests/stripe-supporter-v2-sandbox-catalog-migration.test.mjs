@@ -119,7 +119,23 @@ function defaultPortal() {
         proration_behavior: "none",
         schedule_at_period_end: { conditions: [] },
         trial_update_behavior: "end_trial",
-        products: [],
+        products: [
+          {
+            product: "prod_v1_support-1",
+            prices: ["price_v1_support-1-month", "price_v1_support-1-year"],
+            adjustable_quantity: { enabled: false },
+          },
+          {
+            product: "prod_v1_support-2",
+            prices: ["price_v1_support-2-month", "price_v1_support-2-year"],
+            adjustable_quantity: { enabled: false },
+          },
+          {
+            product: "prod_v1_support-5",
+            prices: ["price_v1_support-5-month", "price_v1_support-5-year"],
+            adjustable_quantity: { enabled: false },
+          },
+        ],
       },
     },
   }
@@ -688,6 +704,43 @@ describe("Supporter v2 sandbox catalog migration", () => {
       ["default_portal_dependency_mismatch", (fixture) => {
         fixture.portals.get("bpc_default_v1")
           .features.subscription_cancel.cancellation_reason.options = ["other"]
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1").features.subscription_update.enabled = false
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_update.default_allowed_updates = ["price", "quantity"]
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_update.billing_cycle_anchor = "now"
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_update.proration_behavior = "create_prorations"
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_update.schedule_at_period_end.conditions = [
+            { type: "decreasing_item_amount" },
+          ]
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_update.trial_update_behavior = "continue_trial"
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_update.products[0].prices = ["price_v1_support-1-month"]
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_update.products.push({
+            product: "prod_unmanaged",
+            prices: ["price_unmanaged"],
+            adjustable_quantity: { enabled: false },
+          })
       }],
       ["managed_portal_default_conflict", (fixture) => {
         fixture.portals.get("bpc_default_v1").metadata = {

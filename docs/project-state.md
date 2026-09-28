@@ -38,9 +38,13 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   both configured non-default Portals, and verifies their mode, metadata, exact
   use-specific Product/Price allowlists, complete Price-only transition
   behavior, customer-profile fields, invoice history, payment-method updates,
-  and cancellation policy and reasons. The migration refuses to repurpose the
-  retained default v1 Portal as a managed v2 Portal. No Stripe object, Vercel
-  setting, database state, or deployment has changed in this candidate.
+  and cancellation policy and reasons. Readiness also requires both managed
+  Portals to inherit the retained default Portal's profile URLs, headline, and
+  return URL. The migration refuses to repurpose the retained default v1 Portal
+  as a managed v2 Portal and requires that default to preserve the exact three-
+  Product/six-Price v1 transition allowlist and reviewed update policy. No
+  Stripe object, Vercel setting, database state, or deployment has changed in
+  this candidate.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
   uses the wordmark at wide widths and the square logo at narrow widths. The

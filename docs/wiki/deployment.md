@@ -239,7 +239,11 @@ scheduled-at-period-end conditions, and trial termination on change. The
 Portal must also permit address, email, and name updates, invoice history,
 payment-method updates, and cancel-at-period-end without proration, with the
 exact approved cancellation-reason set. The retained default Portal remains
-reserved for historical v1 compatibility.
+reserved for historical v1 compatibility and must retain its exact three-
+Product/six-Price v1 allowlist under the same reviewed Price-only transition
+policy. Both managed Portals must inherit the retained default's headline,
+privacy and terms URLs, and return URL; readiness retrieves the default Portal
+to prove that relationship before activation.
 
 Before enabling subscription checkout, confirm:
 
@@ -283,6 +287,12 @@ two buyer-use-specific Portal configurations while preserving the retained v1
 catalog. It refuses live keys, a Stripe account mismatch, relevant
 subscriptions, open Checkout Sessions, pinned-webhook drift, partial managed
 metadata, or an unsafe default Portal.
+An acceptable retained default Portal must still expose exactly the complete
+v1 three-Product/six-Price transition topology, with quantity adjustment off,
+and the reviewed Price-only, unchanged-cycle, non-prorated, unscheduled,
+trial-ending transition policy. The two managed v2 Portals inherit its business
+profile and default return URL, which readiness verifies after retrieving all
+Portal configurations without unsupported expansion parameters.
 
 Run the read-only modes first with the expected test-account ID supplied only
 in the operator shell:

@@ -36,6 +36,13 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   fields, invoice history, payment-method updates, cancel-at-period-end without
   proration, and the exact approved cancellation reasons. Focused migration and
   readiness validation passed: 42 passed, 0 failed.
+- The following exact-head Codex pass found that the retained default Portal's
+  v1 transition topology and managed Portal profile inheritance were not yet
+  proven. Migration planning now requires the default Portal's exact three-
+  Product/six-Price v1 allowlist plus the shared transition policy. Readiness
+  retrieves that default without unsupported expansions and compares its
+  headline, policy URLs, and return URL with both managed Portals. The hosted
+  compiled-module regression was updated for the new production dependency.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 

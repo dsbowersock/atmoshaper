@@ -87,6 +87,12 @@ function supporterPortalConfiguration(supporterUse = "personal") {
     active: true,
     is_default: false,
     livemode: false,
+    business_profile: {
+      headline: "Manage your AtmoShaper Supporter membership.",
+      privacy_policy_url: "https://www.atmoshaper.com/legal/privacy",
+      terms_of_service_url: "https://www.atmoshaper.com/legal/terms",
+    },
+    default_return_url: "https://www.atmoshaper.com/account?tab=membership",
     metadata: {
       app: "atmoshaper",
       atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
@@ -125,6 +131,17 @@ function supporterPortalConfiguration(supporterUse = "personal") {
         products: [...products.values()],
       },
     },
+  }
+}
+
+/** Builds the retained default Portal profile used by managed Portal validation. */
+function defaultPortalConfiguration() {
+  const configuration = supporterPortalConfiguration()
+  return {
+    ...configuration,
+    id: "bpc_default",
+    is_default: true,
+    metadata: {},
   }
 }
 
@@ -956,6 +973,22 @@ describe("Stripe readiness background-commerce contract", () => {
     )
   })
 
+  it("fails Stripe verification for inherited Portal profile drift", () => {
+    const result = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_INVALID_PORTAL_PROFILE: "personal",
+    }, ["--verify-stripe"])
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(
+      result.stderr,
+      /STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID must inherit the retained default Portal profile and return URL/,
+    )
+    assert.match(
+      result.stdout,
+      /Supporter personal Portal configuration verified: false/,
+    )
+  })
+
   it("rejects default Portals and every managed subscription-update behavior drift", () => {
     const retrievedMembershipPrices = retrievedMembershipPricesForUse("personal")
     const cases = [
@@ -987,6 +1020,7 @@ describe("Stripe readiness background-commerce contract", () => {
         supporterUse: "personal",
         retrievedMembershipPrices,
         livemode: false,
+        defaultConfiguration: defaultPortalConfiguration(),
       })
       assert.equal(failures.length > 0, true, label)
     }
@@ -1032,6 +1066,7 @@ describe("Stripe readiness background-commerce contract", () => {
         supporterUse: "personal",
         retrievedMembershipPrices,
         livemode: false,
+        defaultConfiguration: defaultPortalConfiguration(),
       })
       assert.equal(failures.length > 0, true, label)
     }

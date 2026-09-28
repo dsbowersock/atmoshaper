@@ -180,6 +180,27 @@ function checkPortalConfigurationIds() {
   }
 }
 
+/** Retrieves every Portal configuration without unsupported expansion options. */
+async function listPortalConfigurations(stripe) {
+  const configurations = []
+  let startingAfter = ""
+  for (let pageNumber = 0; pageNumber < 100; pageNumber += 1) {
+    const page = await stripe.billingPortal.configurations.list({
+      limit: 100,
+      ...(startingAfter ? { starting_after: startingAfter } : {}),
+    })
+    if (!Array.isArray(page?.data)) throw new Error("Invalid Portal configuration page")
+    configurations.push(...page.data)
+    if (page.has_more !== true) return configurations
+    const nextCursor = page.data.at(-1)?.id
+    if (!nextCursor || nextCursor === startingAfter) {
+      throw new Error("Portal configuration pagination did not advance")
+    }
+    startingAfter = nextCursor
+  }
+  throw new Error("Portal configuration pagination exceeded its safety bound")
+}
+
 /**
  * Validates the non-secret deployment attestations required for recurring
  * Supporter Automatic Tax. Stripe retrieval separately proves Product/Price
@@ -382,6 +403,22 @@ async function verifyStripePrices() {
   stripeRetrievalPerformed = allPricesRetrieved
 
   const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
+  let defaultConfiguration = null
+  try {
+    const configurations = await listPortalConfigurations(stripe)
+    const defaults = configurations.filter((configuration) => (
+      configuration?.active === true
+      && configuration?.is_default === true
+      && configuration?.livemode === expectedLivemode
+    ))
+    if (defaults.length !== 1) {
+      addFailure("The retained default Stripe Portal configuration could not be uniquely verified.")
+    } else {
+      defaultConfiguration = defaults[0]
+    }
+  } catch {
+    addFailure("The retained default Stripe Portal configuration could not be retrieved.")
+  }
   for (const [configurationId, { key, supporterUse }] of portalConfigurationIds) {
     try {
       const configuration = await stripe.billingPortal.configurations.retrieve(configurationId)
@@ -392,6 +429,7 @@ async function verifyStripePrices() {
           supporterUse,
           retrievedMembershipPrices,
           livemode: expectedLivemode,
+          defaultConfiguration,
         },
       )
       for (const failure of portalFailures) addFailure(failure)

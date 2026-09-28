@@ -22,6 +22,13 @@ import {
   LEGACY_TARGET_PRICE_SPECS,
   TARGET_PRICE_SPECS,
 } from "../lib/stripe-supporter-membership-migration-contract.js"
+import {
+  hasApprovedSupporterPortalManagementFeatures,
+  hasApprovedSupporterPortalTransitionPolicy,
+  normalizeSupporterPortalProducts,
+  normalizeSupporterPortalProfile,
+  supporterPortalAllowlistMatches,
+} from "../lib/stripe-supporter-portal-contract.js"
 import { safeErrorCode } from "../lib/safe-error-code.js"
 import { REGISTRATION_PAUSED_MESSAGE } from "../lib/public-launch-controls.js"
 import {
@@ -720,6 +727,13 @@ describe("Supporter membership final-review contracts", () => {
             readinessCalls.push({ candidate, contract, mismatches })
             return mismatches
           },
+        },
+        "./stripe-supporter-portal-contract.js": {
+          hasApprovedSupporterPortalManagementFeatures,
+          hasApprovedSupporterPortalTransitionPolicy,
+          normalizeSupporterPortalProducts,
+          normalizeSupporterPortalProfile,
+          supporterPortalAllowlistMatches,
         },
       },
     )

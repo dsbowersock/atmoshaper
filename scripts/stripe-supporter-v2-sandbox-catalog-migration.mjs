@@ -22,7 +22,9 @@ import {
 } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
   hasApprovedSupporterPortalManagementFeatures,
+  hasApprovedSupporterPortalTransitionPolicy,
   normalizeSupporterPortalFeatures,
+  supporterPortalAllowlistMatches,
 } from "../lib/stripe-supporter-portal-contract.js"
 import {
   STRIPE_API_VERSION,
@@ -275,11 +277,28 @@ function jsonEqual(left, right) {
   return JSON.stringify(left) === JSON.stringify(right)
 }
 
-function defaultPortalBaseIsSafe(portal) {
+/** Builds the exact retained v1 Product and Price allowlist for its default Portal. */
+function retainedV1PortalProducts(products, prices) {
+  return [...new Set(LEGACY_TARGET_PRICE_SPECS.map(({ productKey }) => productKey))]
+    .map((productKey) => ({
+      product: products.get(productKey)?.id ?? null,
+      prices: LEGACY_TARGET_PRICE_SPECS
+        .filter((spec) => spec.productKey === productKey)
+        .map((spec) => prices.get(spec.key)?.id ?? null),
+      adjustable_quantity: { enabled: false },
+    }))
+}
+
+function defaultPortalBaseIsSafe(portal, products, prices) {
   return modeMatches(portal)
     && portal.active === true
     && portal.is_default === true
     && hasApprovedSupporterPortalManagementFeatures(portal.features)
+    && hasApprovedSupporterPortalTransitionPolicy(portal.features)
+    && supporterPortalAllowlistMatches(
+      portal.features,
+      retainedV1PortalProducts(products, prices),
+    )
 }
 
 function desiredPortalFeatures(defaultPortal, supporterUse, products, prices) {
@@ -491,7 +510,7 @@ function classifyCatalog(products, prices) {
   return { failureCodes, v1Products, v1Prices, v2Products, v2Prices }
 }
 
-function classifyPortals(portals) {
+function classifyPortals(portals, v1Products, v1Prices) {
   const failureCodes = []
   const managed = new Map()
   const defaults = portals.filter((portal) => portal.is_default === true && modeMatches(portal))
@@ -509,7 +528,10 @@ function classifyPortals(portals) {
     }
     addUnique(managed, supporterUse, portal, failureCodes, "v2_portal_duplicate")
   }
-  if (defaults.length !== 1 || !defaultPortalBaseIsSafe(defaults[0])) {
+  if (
+    defaults.length !== 1
+    || !defaultPortalBaseIsSafe(defaults[0], v1Products, v1Prices)
+  ) {
     failureCodes.push("default_portal_dependency_mismatch")
   }
   return { failureCodes, defaultPortal, managed }
@@ -583,7 +605,7 @@ async function collectInventory(stripe, config) {
 
   const catalog = classifyCatalog(products, prices)
   failureCodes.push(...catalog.failureCodes)
-  const portal = classifyPortals(portals)
+  const portal = classifyPortals(portals, catalog.v1Products, catalog.v1Prices)
   failureCodes.push(...portal.failureCodes)
 
   const pinnedEndpoints = endpoints.filter((endpoint) => endpoint.url === STRIPE_PINNED_WEBHOOK_URL)
