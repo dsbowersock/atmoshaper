@@ -38,10 +38,15 @@ const SUPPORTER_PRICE_ID_BY_ENV_KEY = Object.freeze({
   STRIPE_SUPPORTER_5_YEARLY_PRICE_ID: SUPPORTER_5_YEARLY_PRICE_ID,
 })
 const SUPPORTER_PRICE_FIXTURES = Object.freeze(Object.fromEntries(
-  SUPPORTER_MEMBERSHIP_PRICE_CONTRACT.map(({ envKey, interval, unitAmount }) => {
+  SUPPORTER_MEMBERSHIP_PRICE_CONTRACT.map(({
+    envKey,
+    amountChoiceId,
+    interval,
+    unitAmount,
+  }) => {
     const priceId = SUPPORTER_PRICE_ID_BY_ENV_KEY[envKey]
     assert.ok(priceId, `Missing test Price ID mapping for ${envKey}`)
-    return [priceId, Object.freeze({ interval, unitAmount })]
+    return [priceId, Object.freeze({ amountChoiceId, interval, unitAmount })]
   }),
 ))
 
@@ -1075,7 +1080,7 @@ describe("Stripe billing helpers", () => {
     ])
   })
 
-  it("reuses an open membership Checkout Session before webhook persistence", async () => {
+  it("reuses an open current AtmoShaper membership Checkout Session before webhook persistence", async () => {
     const openSession = membershipCheckoutSession({ id: "cs_open" })
     let createCalls = 0
     const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
@@ -1101,6 +1106,42 @@ describe("Stripe billing helpers", () => {
     }))
 
     assert.equal(result.id, "cs_open")
+    assert.equal(createCalls, 0)
+  })
+
+  it("keeps exact legacy Product metadata compatible with open Session reuse", async () => {
+    const openSession = membershipCheckoutSession({ id: "cs_open_legacy" })
+    let createCalls = 0
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      reconciliationBudgetMs: 10,
+      reconciliationNowMs: monotonicNowMsSequence(...Array(8).fill(100)),
+      stripeClient: {
+        checkout: {
+          sessions: {
+            list: async () => stripeCheckoutSessionList([openSession]),
+            listLineItems: async () => stripeCheckoutLineItemList({
+              productMetadata: {
+                app: "massagelab",
+                massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+                massagelab_membership_level: "SUPPORTER",
+                massagelab_supporter_amount_choice: "support-1",
+              },
+            }),
+            create: async () => {
+              createCalls += 1
+              return membershipCheckoutSession({ id: "cs_duplicate" })
+            },
+          },
+        },
+        subscriptions: {
+          retrieve: async () => {
+            throw new Error("an open Checkout Session must not retrieve a subscription")
+          },
+        },
+      },
+    }))
+
+    assert.equal(result.id, "cs_open_legacy")
     assert.equal(createCalls, 0)
   })
 
@@ -3406,7 +3447,7 @@ describe("Stripe billing helpers", () => {
     assert.equal(capturedPayload.customer_email, "supporter@example.com")
     assert.equal(capturedPayload.line_items[0].price_data.unit_amount, 1500)
     assert.deepEqual(capturedPayload.line_items[0].price_data.product_data, {
-      name: "MassageLab One-time support",
+      name: "AtmoShaper One-time support",
       description: "One-time support does not purchase goods or services, create a membership, or unlock features. It is not a charitable donation and is not tax-deductible.",
       tax_code: "txcd_90000001",
     })
@@ -3963,10 +4004,11 @@ function stripeCheckoutSessionList(data = []) {
 function stripeCheckoutLineItemList({
   priceId = DEFAULT_SUPPORTER_PRICE_ID,
   productCatalog = SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+  productMetadata,
 } = {}) {
   const priceFixture = SUPPORTER_PRICE_FIXTURES[priceId]
   assert.ok(priceFixture, `Missing Supporter Price fixture for ${priceId}`)
-  const { interval, unitAmount } = priceFixture
+  const { amountChoiceId, interval, unitAmount } = priceFixture
 
   return {
     object: "list",
@@ -3992,9 +4034,14 @@ function stripeCheckoutLineItemList({
           id: "prod_supporter_current",
           object: "product",
           active: true,
-          metadata: productCatalog
-            ? { massagelab_catalog: productCatalog }
-            : {},
+          metadata: productMetadata ?? (productCatalog
+            ? {
+                app: "atmoshaper",
+                atmoshaper_catalog: productCatalog,
+                atmoshaper_membership_level: "SUPPORTER",
+                atmoshaper_supporter_amount_choice: amountChoiceId,
+              }
+            : {}),
           name: "MassageLab Supporter Membership",
           tax_code: SUPPORTER_RECURRING_TAX_CODE,
         },

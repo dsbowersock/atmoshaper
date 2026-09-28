@@ -2,11 +2,30 @@
 
 AtmoShaper uses feature-based access. Code should ask whether a user has a feature, not whether the user has a named plan.
 
-AtmoShaper's dedicated Stripe account is not configured for enrollment yet.
-Statements below about a completed Production catalog describe the inherited
+AtmoShaper's dedicated Stripe account is not configured for enrollment yet. A
+bounded read-only inventory of its test environment found no Products,
+recurring Prices, webhook endpoints, Portal configurations, or subscriptions.
+Statements below about a completed Production catalog describe inherited
 MassageLab provider history and remain compatibility/reference evidence until
 the separate AtmoShaper test-mode setup, readiness checks, and live activation
 are explicitly authorized and completed.
+
+## Dedicated AtmoShaper Provider Sequence
+
+After this code-only technical-identity change is reviewed and merged, the next
+provider stage is test mode only: create or verify three AtmoShaper Supporter
+Products and six recurring Prices, configure one Portal allowlist, create the
+exact 15-event webhook at
+`https://www.atmoshaper.com/api/billing/webhook`, store test credentials and
+Price mappings through approved secret management, deploy, and run controlled
+Checkout, Portal, and signed-webhook tests with synthetic data. Stripe Tax
+registration and live-mode activation remain separate decisions.
+
+New catalog objects use current AtmoShaper metadata. Exact legacy
+`massagelab_*` metadata, `massagelab-*` idempotency keys,
+`massagelab_project_support`, historical Price mappings, database fields, and
+webhook reconciliation remain readable. Retire any one of those only after
+post-cutover database and Stripe inventories prove that no dependency remains.
 
 Do not write access checks like this:
 
@@ -67,8 +86,9 @@ route `/api/billing/donation`.
   change entitlements.
 - Copy must state that the payment is not a charitable donation, is not
   tax-deductible, and provides no goods, services, or membership benefits.
-- Checkout metadata uses `massagelab_project_support` so webhook reconciliation
-  can ignore it for membership grants.
+- Checkout metadata retains `massagelab_project_support` as a historical
+  reconciliation contract so signed webhooks can ignore one-time support for
+  membership grants. The user-visible Checkout Product name is AtmoShaper.
 - The reviewed one-time-support tax code is `txcd_90000001`. Do not infer or
   reuse the separate `txcd_10000000` Supporter/background classification.
 - Checkout enables exclusive Stripe Automatic Tax and requires a billing
@@ -134,7 +154,11 @@ Membership messaging can explain that paid support helps fund future compliance-
 
 Pricing and legal copy should also say that AtmoShaper does not sell user data and does not use advertising to fund the project. The current funding posture is memberships, optional one-time support, and product revenue.
 
-## Completed Supporter Catalog State
+## Inherited MassageLab Catalog Reference
+
+This section records the completed source-account topology and recovery
+behavior. The dedicated AtmoShaper test environment begins empty and must prove
+the same intended topology through its own test-mode setup and readiness gates.
 
 The target AtmoShaper catalog uses one **AtmoShaper Supporter Membership** with identical
 current benefits, including access to all premium backgrounds, at fixed support
@@ -170,8 +194,8 @@ until their controlled retirement gates pass.
 Do not remove the six legacy runtime Price mappings until subscriber inventory proves none remain and webhook reconciliation is final.
 
 New enrollment is serialized at Stripe, not only hidden in the UI. The server
-fully paginates a bounded customer Session inventory, recognizes only
-MassageLab-owned paid-membership Sessions, and reuses an open Session only when
+fully paginates a bounded customer Session inventory, recognizes only exact
+current AtmoShaper or compatible legacy paid-membership Sessions, and reuses an open Session only when
 its explicit checkout-contract version, one configured current Price, expanded
 classified Product, Automatic Tax, and required billing-address fields all
 match. Purpose-less and contradictory open historical Sessions are expired with
@@ -279,15 +303,17 @@ and uses its own `txcd_90000001` fail-closed Automatic Tax contract.
 
 ## Stripe Setup Checklist
 
-- Preserve the completed three-Product/six-Price catalog and keep new Therapist
-  and Practice enrollment unavailable.
+- In the dedicated AtmoShaper test environment, create or verify the exact
+  three-Product/six-Price catalog and keep Therapist and Practice enrollment
+  unavailable.
 - Keep the exact six current Supporter Price mappings in Production. Legacy
   mappings remain reconciliation-only inputs until the documented removal gate
   is explicitly completed.
 - Keep Stripe Customer Portal enabled for switching only among the six current
   Supporter Prices, subscription management, payment method and billing-address
   updates, invoices, and cancellation.
-- Configure the pinned `/api/billing/webhook` endpoint as enabled on the
+- Configure the pinned `https://www.atmoshaper.com/api/billing/webhook`
+  endpoint as enabled on the
   app's `2026-02-25.clover` Stripe API version with exactly the combined
   membership and background-commerce event contract below.
 - Supply Stripe credentials through the approved local and Vercel
@@ -300,7 +326,7 @@ and uses its own `txcd_90000001` fail-closed Automatic Tax contract.
   and explicit authorization.
 - Before public paid signup or after relevant billing configuration changes,
   run
-  `npm run stripe:readiness -- --env-file=/secure/path/massagelab-production.env --live --verify-stripe`
+  `npm run stripe:readiness -- --env-file=/secure/path/atmoshaper-production.env --live --verify-stripe`
   and require complete Stripe, tax, and webhook readiness.
 - Both commands must pass without printing secrets or Stripe identifiers; their
   operator output is limited to safe readiness messages and checklist codes.

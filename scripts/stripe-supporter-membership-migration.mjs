@@ -10,6 +10,14 @@ import {
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
   SUPPORTER_RECURRING_TAX_CODE as EXPECTED_TAX_CODE,
 } from "../lib/stripe-price-contract.js"
+import {
+  buildCurrentSupporterPriceMetadata,
+  buildCurrentSupporterProductMetadata,
+  classifySupporterPriceMetadata,
+  classifySupporterProductMetadata,
+  hasAnySupporterSchemaMetadata,
+  hasCurrentSupporterSchemaMetadata,
+} from "../lib/stripe-provider-identity.js"
 import { TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
 
@@ -467,9 +475,7 @@ function targetSupporterProductClassificationMatches(candidate) {
   return Boolean(candidate)
     && candidate.active === true
     && candidate.tax_code === EXPECTED_TAX_CODE
-    && candidate.metadata?.app === "massagelab"
-    && candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
-    && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
+    && Boolean(classifySupporterProductMetadata(candidate.metadata))
 }
 
 /** Verifies private classification plus the current public Product name. */
@@ -482,13 +488,13 @@ function targetSupporterProductCoreMatches(candidate) {
 function targetSupporterProductMatches(candidate, spec) {
   return targetSupporterProductCoreMatches(candidate)
     && candidate.description === spec.description
-    && candidate.metadata?.massagelab_supporter_amount_choice === spec.key
+    && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId === spec.key
 }
 
 /** Allows only public copy drift on an otherwise exact amount Product. */
 function targetSupporterProductDisplayRepairable(candidate, spec) {
   return targetSupporterProductClassificationMatches(candidate)
-    && candidate.metadata?.massagelab_supporter_amount_choice === spec.key
+    && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId === spec.key
 }
 
 /** Resolves the single amount Product contract that owns a target Price slot. */
@@ -514,6 +520,35 @@ function legacySupporterProductMatches(candidate) {
     && (app === undefined || app === "massagelab")
     && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
     && candidate.metadata?.massagelab_catalog == null
+    && candidate.metadata?.massagelab_supporter_price_key == null
+    && !hasCurrentSupporterSchemaMetadata(candidate.metadata)
+}
+
+/**
+ * Recognizes the one audited interrupted legacy state whose shared Supporter
+ * Product was classified before amount-specific Product stamping existed.
+ */
+function legacyUnstampedSupporterProductMatches(candidate) {
+  return Boolean(candidate)
+    && candidate.active === true
+    && candidate.tax_code === EXPECTED_TAX_CODE
+    && candidate.metadata?.app === "massagelab"
+    && candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
+    && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
+    && candidate.metadata?.massagelab_supporter_amount_choice == null
+    && candidate.metadata?.massagelab_supporter_price_key == null
+    && !hasCurrentSupporterSchemaMetadata(candidate.metadata)
+}
+
+/** Retains every named, valid, or partial Supporter Product for fail-closed validation. */
+function isTargetSupporterProductCandidate(candidate) {
+  return candidate?.name === SUPPORTER_PRODUCT_NAME
+    || Boolean(classifySupporterProductMetadata(candidate?.metadata))
+    || hasCurrentSupporterSchemaMetadata(candidate?.metadata)
+    || (
+      hasAnySupporterSchemaMetadata(candidate?.metadata)
+      && !legacySupporterProductMatches(candidate)
+    )
 }
 
 /**
@@ -526,14 +561,18 @@ export function targetSupporterProductReusable(candidate, spec) {
   if (spec.configKey === "supporter" && legacySupporterProductMatches(candidate)) {
     return true
   }
+  if (
+    spec.configKey === "supporter"
+    && legacyUnstampedSupporterProductMatches(candidate)
+  ) {
+    return true
+  }
   // Display copy can be repaired in place after a public rebrand, but the
   // private catalog classification must remain exact before reuse is safe.
   if (!targetSupporterProductClassificationMatches(candidate)) return false
 
-  const amountChoiceId =
-    candidate.metadata?.massagelab_supporter_amount_choice
-  return amountChoiceId === spec.key
-    || (spec.configKey === "supporter" && amountChoiceId == null)
+  return classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+    === spec.key
 }
 
 /**
@@ -722,8 +761,11 @@ function portalTopologyMatches(features, expectedProducts) {
   )
 }
 
+/** Returns a trusted managed Price key or its migration-owned lookup fallback. */
 function managedPriceKey(candidate) {
-  return candidate?.metadata?.massagelab_supporter_price_key || candidate?.lookup_key || ""
+  return classifySupporterPriceMetadata(candidate?.metadata)?.priceKey
+    || candidate?.lookup_key
+    || ""
 }
 
 function lookupKeyFor(spec) {
@@ -741,7 +783,7 @@ function findTargetCandidate({ allPrices, configuredId, spec, productId }) {
 
   const managed = allPrices.filter((candidate) => (
     priceProductId(candidate) === productId
-    && candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
+    && Boolean(classifySupporterPriceMetadata(candidate.metadata))
     && (
       managedPriceKey(candidate) === spec.key
       || candidate.lookup_key === lookupKeyFor(spec)
@@ -814,8 +856,7 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
     )
     const retainProduct = (candidate) => {
       const candidateId = candidate?.id
-      const isTargetCandidate = candidate?.name === SUPPORTER_PRODUCT_NAME
-        || candidate?.metadata?.massagelab_catalog === SUPPORTER_CATALOG
+      const isTargetCandidate = isTargetSupporterProductCandidate(candidate)
       if (configuredProductIds.has(candidateId)) {
         productsById.set(candidateId, candidate)
       }
@@ -825,8 +866,7 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
       if (isTargetCandidate && !productsById.has(candidateId)) {
         if (targetProductCandidateOverflow) return
         const retainedTargetCount = [...productsById.values()].filter((product) => (
-          product?.name === SUPPORTER_PRODUCT_NAME
-          || product?.metadata?.massagelab_catalog === SUPPORTER_CATALOG
+          isTargetSupporterProductCandidate(product)
         )).length
         if (retainedTargetCount >= TARGET_PRODUCT_SPECS.length) {
           targetProductCandidateOverflow = true
@@ -897,8 +937,7 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
       discoveredLegacySupporterProductId,
       ...allProducts
         .filter((candidate) => (
-          candidate?.name === SUPPORTER_PRODUCT_NAME
-          || candidate?.metadata?.massagelab_catalog === SUPPORTER_CATALOG
+          isTargetSupporterProductCandidate(candidate)
         ))
         .map(({ id }) => id),
     ].filter(Boolean))
@@ -997,14 +1036,14 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
   const legacySupporterProductId = legacySupporterOwnership.ambiguous
     ? null
     : legacySupporterOwnership.productId
-  const targetProductCandidates = allProducts.filter((candidate) => (
-    candidate.name === SUPPORTER_PRODUCT_NAME
-    || candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
-  ))
+  const targetProductCandidates = allProducts.filter(
+    isTargetSupporterProductCandidate,
+  )
   for (const spec of TARGET_PRODUCT_SPECS) {
     if (config.productIds[spec.configKey] !== CREATE_NEW_PRODUCT) continue
     const matches = targetProductCandidates.filter((candidate) => (
-      candidate.metadata?.massagelab_supporter_amount_choice === spec.key
+      classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+        === spec.key
     ))
     if (matches.length > 1) {
       failureCodes.push("supporter_product_duplicate")
@@ -1454,34 +1493,28 @@ async function collectInventory(stripe, config, { allowTransitional = false } = 
   }
 }
 
-/**
- * Builds the complete create/update payload for one amount Product while
- * preserving Stripe metadata unrelated to MassageLab's managed contract.
- */
+/** Builds the exact current Product update or create payload for one amount slot. */
 function targetProductPayload(current, spec) {
   return {
     name: SUPPORTER_PRODUCT_NAME,
     description: spec.description,
     active: true,
     tax_code: EXPECTED_TAX_CODE,
-    metadata: {
-      ...(current?.metadata ?? {}),
-      app: "massagelab",
-      massagelab_catalog: SUPPORTER_CATALOG,
-      massagelab_membership_level: "SUPPORTER",
-      massagelab_supporter_amount_choice: spec.key,
-    },
+    metadata: buildCurrentSupporterProductMetadata(
+      current?.metadata,
+      spec.key,
+      { forUpdate: Boolean(current) },
+    ),
   }
 }
 
+/** Builds current Price metadata while retiring any managed legacy keys. */
 function targetPriceMetadata(spec, current = {}) {
-  return {
-    ...(current.metadata ?? {}),
-    app: "massagelab",
-    massagelab_catalog: SUPPORTER_CATALOG,
-    massagelab_membership_level: "SUPPORTER",
-    massagelab_supporter_price_key: spec.key,
-  }
+  return buildCurrentSupporterPriceMetadata(
+    current.metadata,
+    spec.key,
+    { forUpdate: Boolean(current.id) },
+  )
 }
 
 function targetPricePayload(productId, spec) {
@@ -1618,15 +1651,14 @@ async function discoverTargetProductBeforeCreate(stripe, spec, livemode) {
         if (!modeMatches(candidate, livemode)) return
         if (
           targetSupporterProductReusable(candidate, spec)
-          && candidate.metadata?.massagelab_supporter_amount_choice === spec.key
+          && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+            === spec.key
         ) {
           matches.push(candidate)
         } else if (
           candidate.active === false
-          && candidate.metadata?.app === "massagelab"
-          && candidate.metadata?.massagelab_catalog === SUPPORTER_CATALOG
-          && candidate.metadata?.massagelab_membership_level === "SUPPORTER"
-          && candidate.metadata?.massagelab_supporter_amount_choice === spec.key
+          && classifySupporterProductMetadata(candidate.metadata)?.amountChoiceId
+            === spec.key
         ) {
           archivedMatches.push(candidate)
         }

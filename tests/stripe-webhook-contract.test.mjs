@@ -27,6 +27,13 @@ function endpoint(overrides = {}) {
 }
 
 describe("pinned Stripe webhook endpoint contract", () => {
+  it("pins the dedicated AtmoShaper production webhook", () => {
+    assert.equal(
+      STRIPE_PINNED_WEBHOOK_URL,
+      "https://www.atmoshaper.com/api/billing/webhook",
+    )
+  })
+
   it("combines the five membership events with the ten commerce events exactly", () => {
     assert.equal(STRIPE_MEMBERSHIP_WEBHOOK_EVENTS.length, 5)
     assert.equal(STRIPE_BACKGROUND_COMMERCE_WEBHOOK_EVENTS.length, 10)

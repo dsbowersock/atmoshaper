@@ -16,6 +16,20 @@ import {
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
 } from "../lib/stripe-price-contract.js"
+import {
+  classifySupporterPriceMetadata,
+  classifySupporterProductMetadata,
+} from "../lib/stripe-provider-identity.js"
+
+/** Reads the trusted amount choice from either accepted Product schema. */
+function supporterAmountChoice(metadata) {
+  return classifySupporterProductMetadata(metadata)?.amountChoiceId ?? ""
+}
+
+/** Reads the trusted Price key from either accepted Price schema. */
+function supporterPriceKey(metadata) {
+  return classifySupporterPriceMetadata(metadata)?.priceKey ?? ""
+}
 
 const LEGACY_PRICE_SPECS = Object.freeze([
   ["price_supporter_month", "prod_supporter", 900, "month"],
@@ -98,7 +112,8 @@ function price(
   metadata = {},
   withBaseCurrencyOption = false,
 ) {
-  const managedPriceKey = metadata.massagelab_supporter_price_key
+  const managedPriceKey = metadata.atmoshaper_supporter_price_key
+    ?? metadata.massagelab_supporter_price_key
   return {
     id,
     object: "price",
@@ -361,10 +376,16 @@ function stripeFixture() {
         record("products.update", id, payload)
         const current = products.get(id)
         if (!current) throw missing("product")
+        const metadataUpdate = structuredClone(payload.metadata ?? {})
+        const updatedMetadata = { ...current.metadata }
+        for (const [key, value] of Object.entries(metadataUpdate)) {
+          if (value === "") delete updatedMetadata[key]
+          else updatedMetadata[key] = value
+        }
         const updated = {
           ...current,
           ...structuredClone(payload),
-          metadata: { ...current.metadata, ...structuredClone(payload.metadata ?? {}) },
+          metadata: updatedMetadata,
         }
         products.set(id, updated)
         return structuredClone(updated)
@@ -421,7 +442,19 @@ function stripeFixture() {
           ...storedPayload
         } = structuredClone(payload)
         claimLookupKey(prices, storedPayload.lookup_key, transferLookupKey, id)
-        const updated = { ...current, ...storedPayload }
+        const metadataUpdate = storedPayload.metadata ?? null
+        const updatedMetadata = { ...current.metadata }
+        if (metadataUpdate) {
+          for (const [key, value] of Object.entries(metadataUpdate)) {
+            if (value === "") delete updatedMetadata[key]
+            else updatedMetadata[key] = value
+          }
+        }
+        const updated = {
+          ...current,
+          ...storedPayload,
+          ...(metadataUpdate ? { metadata: updatedMetadata } : {}),
+        }
         prices.set(id, updated)
         return structuredClone(updated)
       },
@@ -613,14 +646,14 @@ async function seedDormantTargetPortalTransition(fixture) {
   const productIdFor = (amountChoice) => (
     [...fixture.products.values()].find(
       (entry) => (
-        entry.metadata?.massagelab_supporter_amount_choice === amountChoice
+        supporterAmountChoice(entry.metadata) === amountChoice
       ),
     )?.id
   )
   const priceIdFor = (priceKey) => (
     [...fixture.prices.values()].find(
       (entry) => (
-        entry.metadata?.massagelab_supporter_price_key === priceKey
+        supporterPriceKey(entry.metadata) === priceKey
       ),
     )?.id
   )
@@ -727,6 +760,28 @@ describe("Supporter membership Stripe migration", () => {
       ...classifiedProduct,
       metadata: unstampedMetadata,
     }
+    const ambiguousUnstampedSupporter = {
+      ...unstampedSupporter,
+      metadata: {
+        ...unstampedMetadata,
+        atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      },
+    }
+    const ambiguousLegacySupporter = product("prod_supporter", "MassageLab Supporter")
+    ambiguousLegacySupporter.metadata.atmoshaper_catalog = SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+    const legacySupporterWithPriceKey = product(
+      "prod_supporter",
+      "MassageLab Supporter",
+    )
+    legacySupporterWithPriceKey.metadata.massagelab_supporter_price_key =
+      "support-1-month"
+    const unstampedSupporterWithPriceKey = {
+      ...unstampedSupporter,
+      metadata: {
+        ...unstampedMetadata,
+        massagelab_supporter_price_key: "support-1-month",
+      },
+    }
     const support5Product = {
       ...classifiedProduct,
       id: "prod_support_5",
@@ -773,6 +828,25 @@ describe("Supporter membership Stripe migration", () => {
     )
     assert.equal(
       targetSupporterProductReusable(unstampedSupporter, support5Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(ambiguousUnstampedSupporter, support1Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(ambiguousLegacySupporter, support1Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(legacySupporterWithPriceKey, support1Spec),
+      false,
+    )
+    assert.equal(
+      targetSupporterProductReusable(
+        unstampedSupporterWithPriceKey,
+        support1Spec,
+      ),
       false,
     )
     assert.equal(
@@ -1108,10 +1182,15 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(supporter.name, SUPPORTER_MEMBERSHIP_PRODUCT_NAME)
     assert.equal(supporter.tax_code, "txcd_10000000")
     assert.equal(supporter.active, true)
+    assert.equal(supporter.metadata.app, "atmoshaper")
+    assert.equal(
+      Object.hasOwn(supporter.metadata, "massagelab_catalog"),
+      false,
+    )
 
     const approved = [...fixture.prices.values()].filter(
       (entry) => (
-        entry.metadata?.massagelab_catalog === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+        Boolean(classifySupporterPriceMetadata(entry.metadata))
       ),
     )
     assert.deepEqual(
@@ -1129,16 +1208,17 @@ describe("Supporter membership Stripe migration", () => {
       entry.active
       && entry.currency === "usd"
       && entry.tax_behavior === "exclusive"
-      && Boolean(entry.metadata?.massagelab_supporter_price_key)
-      && fixture.products.get(entry.product)?.metadata
-        ?.massagelab_supporter_amount_choice === entry.metadata
-          .massagelab_supporter_price_key.replace(/-(month|year)$/, "")
+      && entry.metadata?.app === "atmoshaper"
+      && !Object.hasOwn(entry.metadata, "massagelab_catalog")
+      && Boolean(supporterPriceKey(entry.metadata))
+      && supporterAmountChoice(fixture.products.get(entry.product)?.metadata)
+        === supporterPriceKey(entry.metadata).replace(/-(month|year)$/, "")
     )), true)
     const targetProductIds = new Map(
       ["support-1", "support-2", "support-5"].map((amountChoice) => {
         const productId = [...fixture.products.values()].find(
           (entry) => (
-            entry.metadata?.massagelab_supporter_amount_choice === amountChoice
+            supporterAmountChoice(entry.metadata) === amountChoice
           ),
         )?.id
         assert.ok(productId, `expected a target Product for ${amountChoice}`)
@@ -1195,13 +1275,13 @@ describe("Supporter membership Stripe migration", () => {
       trial_update_behavior: "end_trial",
       products: ["support-1", "support-2", "support-5"].map((amountChoice) => ({
         product: [...fixture.products.values()].find(
-          (entry) => entry.metadata?.massagelab_supporter_amount_choice === amountChoice,
+          (entry) => supporterAmountChoice(entry.metadata) === amountChoice,
         ).id,
         prices: approved
-          .filter((entry) => entry.metadata.massagelab_supporter_price_key.startsWith(amountChoice))
+          .filter((entry) => supporterPriceKey(entry.metadata).startsWith(amountChoice))
           .sort((left, right) => (
-            left.metadata.massagelab_supporter_price_key.localeCompare(
-              right.metadata.massagelab_supporter_price_key,
+            supporterPriceKey(left.metadata).localeCompare(
+              supporterPriceKey(right.metadata),
             )
           ))
           .map((entry) => entry.id),
@@ -1399,7 +1479,7 @@ describe("Supporter membership Stripe migration", () => {
     )
     assert.deepEqual(
       fixture.portal.features.subscription_update.products.map(({ product: id }) => (
-        fixture.products.get(id)?.metadata?.massagelab_supporter_amount_choice
+        supporterAmountChoice(fixture.products.get(id)?.metadata)
       )),
       ["support-1", "support-2", "support-5"],
     )
@@ -1561,7 +1641,7 @@ describe("Supporter membership Stripe migration", () => {
   it("keeps completed-state Product classification and metadata strict", async () => {
     for (const corrupt of [
       (candidate) => { candidate.tax_code = null },
-      (candidate) => { delete candidate.metadata.massagelab_catalog },
+      (candidate) => { delete candidate.metadata.atmoshaper_catalog },
     ]) {
       const fixture = stripeFixture()
       await runSupporterMembershipMigration({
@@ -1599,7 +1679,7 @@ describe("Supporter membership Stripe migration", () => {
     })
     const support2 = [...fixture.products.values()].find(
       (candidate) => (
-        candidate.metadata?.massagelab_supporter_amount_choice === "support-2"
+        supporterAmountChoice(candidate.metadata) === "support-2"
       ),
     )
     const support2Id = support2.id
@@ -1636,8 +1716,7 @@ describe("Supporter membership Stripe migration", () => {
     })
     const targetProducts = [...fixture.products.values()].filter(
       (candidate) => (
-        candidate.metadata?.massagelab_catalog
-          === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+        Boolean(classifySupporterProductMetadata(candidate.metadata))
       ),
     )
     assert.equal(targetProducts.length, 3)
@@ -1670,8 +1749,7 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(
       [...fixture.products.values()].filter(
         (candidate) => (
-          candidate.metadata?.massagelab_catalog
-            === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+          Boolean(classifySupporterProductMetadata(candidate.metadata))
         ),
       ).every(
         (candidate) => candidate.name === SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
@@ -1727,6 +1805,45 @@ describe("Supporter membership Stripe migration", () => {
       )
       assert.deepEqual(mutationCalls(fixture), [], testCase.label)
     }
+  })
+
+  it("retains partial Supporter metadata and its Prices before rejecting apply", async () => {
+    const fixture = stripeFixture()
+    fixture.products.set("prod_partial_supporter", {
+      id: "prod_partial_supporter",
+      object: "product",
+      active: true,
+      livemode: false,
+      name: "Renamed partial Product",
+      tax_code: "txcd_10000000",
+      metadata: {
+        app: "atmoshaper",
+        atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      },
+    })
+    fixture.prices.set(
+      "price_partial_supporter",
+      price("price_partial_supporter", "prod_partial_supporter", 100, "month"),
+    )
+
+    await assert.rejects(
+      runSupporterMembershipMigration({
+        stripe: fixture.stripe,
+        mode: "apply",
+        env: migrationEnv(),
+      }),
+      (error) => {
+        assert.equal(error.failureCodes.includes("supporter_product_duplicate"), true)
+        return true
+      },
+    )
+    assert.equal(
+      fixture.calls.some(({ name, payload }) => (
+        name === "prices.list" && payload.product === "prod_partial_supporter"
+      )),
+      true,
+    )
+    assert.deepEqual(mutationCalls(fixture), [])
   })
 
   it("accepts a fully absent legacy coupon set and keeps deletion guarded", async () => {
@@ -1875,13 +1992,17 @@ describe("Supporter membership Stripe migration", () => {
       mode: "apply",
       env,
     })
+    const classifiedProducts = [...fixture.products.values()].filter(
+      (entry) => Boolean(classifySupporterProductMetadata(entry.metadata)),
+    )
     assert.equal(
-      [...fixture.products.values()].filter(
-        (entry) => (
-          entry.metadata?.massagelab_catalog === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
-        ),
-      ).length,
+      classifiedProducts.length,
       3,
+      JSON.stringify([...fixture.products.values()].map(({ id, active, metadata }) => ({
+        id,
+        active,
+        metadata,
+      }))),
     )
     assert.equal(
       fixture.calls.filter(({ name }) => name === "products.create").length,
@@ -1939,7 +2060,7 @@ describe("Supporter membership Stripe migration", () => {
 
     assert.equal(result.state, "COMPLETED")
     assert.equal(
-      fixture.products.get("prod_supporter").metadata.massagelab_supporter_amount_choice,
+      supporterAmountChoice(fixture.products.get("prod_supporter").metadata),
       "support-1",
     )
     assert.equal(
@@ -2396,8 +2517,9 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(fixture.prices.get("price_approved_duplicate").active, false)
     const activeSupporter = [...fixture.prices.values()].filter((candidate) => (
       candidate.active
-      && fixture.products.get(candidate.product)?.metadata
-        ?.massagelab_catalog === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+      && Boolean(classifySupporterProductMetadata(
+        fixture.products.get(candidate.product)?.metadata,
+      ))
     ))
     assert.equal(activeSupporter.length, 6)
     assert.deepEqual(
@@ -3103,7 +3225,7 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(
       [...fixture.products.values()].filter(
         (entry) => (
-          entry.metadata?.massagelab_catalog === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+          Boolean(classifySupporterProductMetadata(entry.metadata))
         ),
       ).length,
       3,
@@ -3193,7 +3315,7 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(
       fixture.calls.some(
         ({ name, payload }) => name === "products.create"
-          && payload.metadata?.massagelab_supporter_amount_choice === "support-2",
+          && supporterAmountChoice(payload.metadata) === "support-2",
       ),
       false,
     )
@@ -3248,7 +3370,7 @@ describe("Supporter membership Stripe migration", () => {
     assert.equal(
       [...fixture.prices.values()].filter(
         (entry) => (
-          entry.metadata?.massagelab_catalog === SUPPORTER_MEMBERSHIP_CATALOG_VERSION
+          Boolean(classifySupporterPriceMetadata(entry.metadata))
         ),
       ).length,
       6,

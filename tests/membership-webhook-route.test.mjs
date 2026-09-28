@@ -468,7 +468,7 @@ function createWebhookHarness({
 }
 
 function webhookRequest(rawBody, signature = "sig_valid") {
-  return new Request("https://massagelab.app/api/billing/webhook", {
+  return new Request("https://www.atmoshaper.com/api/billing/webhook", {
     method: "POST",
     headers: { "stripe-signature": signature },
     body: rawBody,

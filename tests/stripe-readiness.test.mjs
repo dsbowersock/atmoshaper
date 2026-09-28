@@ -39,10 +39,10 @@ function supporterProduct(amountChoiceId = "support-1", overrides = {}) {
     name: SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
     tax_code: "txcd_10000000",
     metadata: {
-      app: "massagelab",
-      massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-      massagelab_membership_level: "SUPPORTER",
-      massagelab_supporter_amount_choice: amountChoiceId,
+      app: "atmoshaper",
+      atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      atmoshaper_membership_level: "SUPPORTER",
+      atmoshaper_supporter_amount_choice: amountChoiceId,
     },
     ...overrides,
   }
@@ -288,10 +288,36 @@ describe("Stripe readiness background-commerce contract", () => {
 
     assert.deepEqual(validateRetrievedMembershipPrice(basePrice, expected), [])
 
+    assert.deepEqual(validateRetrievedMembershipPrice({
+      ...basePrice,
+      product: supporterProduct(expected.amountChoiceId, {
+        metadata: {
+          app: "massagelab",
+          massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+          massagelab_membership_level: "SUPPORTER",
+          massagelab_supporter_amount_choice: expected.amountChoiceId,
+        },
+      }),
+    }, expected), [])
+
+    assert.deepEqual(validateRetrievedMembershipPrice({
+      ...basePrice,
+      product: supporterProduct(expected.amountChoiceId, {
+        metadata: {
+          ...basePrice.product.metadata,
+          massagelab_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+          massagelab_membership_level: "SUPPORTER",
+          massagelab_supporter_amount_choice: "support-5",
+        },
+      }),
+    }, expected), [
+      `${expected.key} Product must identify amount choice ${expected.amountChoiceId}.`,
+    ])
+
     const expectedWithoutAmountChoice = { ...expected }
     delete expectedWithoutAmountChoice.amountChoiceId
     const metadataWithoutAmountChoice = { ...basePrice.product.metadata }
-    delete metadataWithoutAmountChoice.massagelab_supporter_amount_choice
+    delete metadataWithoutAmountChoice.atmoshaper_supporter_amount_choice
     assert.deepEqual(
       validateRetrievedMembershipPrice({
         ...basePrice,
