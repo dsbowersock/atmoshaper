@@ -99,7 +99,13 @@ function defaultPortal() {
         proration_behavior: "none",
         cancellation_reason: {
           enabled: true,
-          options: ["too_expensive", "unused", "other"],
+          options: [
+            "missing_features",
+            "other",
+            "switched_service",
+            "too_expensive",
+            "unused",
+          ],
         },
       },
       subscription_update: {
@@ -311,9 +317,19 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
         update: async (id, payload) => {
           log("portal.update", { id, ...payload }, {})
           const current = portals.get(id)
+          const businessProfile = payload.business_profile
+            ? Object.fromEntries(Object.entries({
+              ...current.business_profile,
+              ...clone(payload.business_profile),
+            }).map(([key, value]) => [key, value === "" ? null : value]))
+            : current.business_profile
           const updated = {
             ...current,
             ...clone(payload),
+            business_profile: businessProfile,
+            default_return_url: payload.default_return_url === ""
+              ? null
+              : payload.default_return_url ?? current.default_return_url,
             features: canonicalPortalFeatures(payload.features),
           }
           portals.set(id, updated)
@@ -482,6 +498,54 @@ describe("Supporter v2 sandbox catalog migration", () => {
     )
   })
 
+  it("explicitly clears managed Portal profile fields removed from the default", async () => {
+    const fixture = stripeFixture()
+    await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+    const defaultConfiguration = fixture.portals.get("bpc_default_v1")
+    defaultConfiguration.business_profile = {
+      headline: null,
+      privacy_policy_url: null,
+      terms_of_service_url: null,
+    }
+    defaultConfiguration.default_return_url = null
+    fixture.calls.length = 0
+
+    const plan = await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "plan",
+      env: migrationEnv(),
+    })
+    assert.equal(plan.state, "TRANSITIONAL")
+    assert.equal(plan.plan.updatePortals, 2)
+
+    const applied = await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+    assert.equal(applied.state, "COMPLETED")
+    const updates = fixture.calls.filter(({ operation }) => operation === "portal.update")
+    assert.equal(updates.length, 2)
+    assert.equal(updates.every(({ payload }) => (
+      payload.business_profile.headline === ""
+      && payload.business_profile.privacy_policy_url === ""
+      && payload.business_profile.terms_of_service_url === ""
+      && payload.default_return_url === ""
+    )), true)
+    assert.equal([...fixture.portals.values()]
+      .filter(({ metadata }) => metadata.atmoshaper_portal_supporter_use)
+      .every((portal) => (
+        portal.business_profile.headline === null
+        && portal.business_profile.privacy_policy_url === null
+        && portal.business_profile.terms_of_service_url === null
+        && portal.default_return_url === null
+      )), true)
+  })
+
   it("requires completed state for verify and an explicit phrase for apply", async () => {
     const fixture = stripeFixture()
     await expectFailure(
@@ -609,6 +673,14 @@ describe("Supporter v2 sandbox catalog migration", () => {
       }],
       ["webhook_dependency_mismatch", (fixture) => {
         fixture.endpoints.get("we_atmoshaper").enabled_events = ["checkout.session.completed"]
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_cancel.cancellation_reason.enabled = false
+      }],
+      ["default_portal_dependency_mismatch", (fixture) => {
+        fixture.portals.get("bpc_default_v1")
+          .features.subscription_cancel.cancellation_reason.options = ["other"]
       }],
       ["managed_product_metadata_mismatch", (fixture) => {
         fixture.products.set("prod_partial", {

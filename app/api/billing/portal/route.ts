@@ -8,6 +8,11 @@ import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
 
+const PORTAL_SUBSCRIPTION_ORDER = [
+  { currentPeriodEnd: { sort: "desc" as const, nulls: "last" as const } },
+  { updatedAt: "desc" as const },
+]
+
 function accountRedirect(code: string) {
   return NextResponse.redirect(`${getSiteUrl()}/account?portal=${encodeURIComponent(code)}`, 303)
 }
@@ -44,26 +49,38 @@ export async function POST(request: Request) {
 
   try {
     const destination = await requestedPortalDestination(request)
-    // Focused changes admit only active/trialing subscriptions. General
-    // management also keeps nonterminal degraded states on the subscription's
-    // use-specific Portal rather than exposing the legacy default catalog.
-    const subscription = await prisma.membershipSubscription.findFirst({
+    // Prefer a current active/trialing subscription for every destination.
+    // General management falls back to a degraded nonterminal subscription so
+    // those customers can still manage payment, invoice, and cancellation data.
+    const currentSubscription = await prisma.membershipSubscription.findFirst({
       where: {
         userId: session.user.id,
         stripeCustomerId: stripeCustomer.stripeCustomerId,
-        status: destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
-          ? { in: ["active", "trialing"] }
-          : { notIn: ["canceled", "incomplete_expired"] },
+        status: { in: ["active", "trialing"] },
       },
-      orderBy: [
-        { currentPeriodEnd: "desc" },
-        { updatedAt: "desc" },
-      ],
+      orderBy: PORTAL_SUBSCRIPTION_ORDER,
       select: {
         stripeSubscriptionId: true,
         stripePriceId: true,
       },
     })
+    const subscription = currentSubscription
+      ?? (destination === BILLING_PORTAL_DESTINATIONS.MANAGE
+        ? await prisma.membershipSubscription.findFirst({
+          where: {
+            userId: session.user.id,
+            stripeCustomerId: stripeCustomer.stripeCustomerId,
+            status: {
+              notIn: ["active", "trialing", "canceled", "incomplete_expired"],
+            },
+          },
+          orderBy: PORTAL_SUBSCRIPTION_ORDER,
+          select: {
+            stripeSubscriptionId: true,
+            stripePriceId: true,
+          },
+        })
+        : null)
 
     if (
       destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE

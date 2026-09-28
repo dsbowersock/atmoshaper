@@ -334,6 +334,14 @@ function jsonEqual(left, right) {
   return JSON.stringify(left) === JSON.stringify(right)
 }
 
+const APPROVED_CANCELLATION_REASONS = [
+  "missing_features",
+  "other",
+  "switched_service",
+  "too_expensive",
+  "unused",
+]
+
 function defaultPortalBaseIsSafe(portal) {
   const normalized = normalizePortalFeatures(portal?.features)
   return modeMatches(portal)
@@ -346,6 +354,11 @@ function defaultPortalBaseIsSafe(portal) {
     && normalized.subscription_cancel.enabled
     && normalized.subscription_cancel.mode === "at_period_end"
     && normalized.subscription_cancel.proration_behavior === "none"
+    && normalized.subscription_cancel.cancellation_reason.enabled
+    && jsonEqual(
+      normalized.subscription_cancel.cancellation_reason.options,
+      APPROVED_CANCELLATION_REASONS,
+    )
 }
 
 function desiredPortalFeatures(defaultPortal, supporterUse, products, prices) {
@@ -383,18 +396,27 @@ function portalPayload(defaultPortal, supporterUse, products, prices, { create =
     headline: defaultPortal.business_profile?.headline,
     privacy_policy_url: defaultPortal.business_profile?.privacy_policy_url,
     terms_of_service_url: defaultPortal.business_profile?.terms_of_service_url,
-  }).filter(([, value]) => typeof value === "string" && value.length > 0))
+  }).flatMap(([key, value]) => {
+    if (typeof value === "string" && value.length > 0) return [[key, value]]
+    return create ? [] : [[key, ""]]
+  }))
 
   return {
     ...(create ? { name: `AtmoShaper Supporter Portal — ${supporterUse}` } : {}),
     active: true,
     ...(Object.keys(businessProfile).length > 0 ? { business_profile: businessProfile } : {}),
-    ...(defaultPortal.default_return_url
-      ? { default_return_url: defaultPortal.default_return_url }
-      : {}),
+    ...(
+      defaultPortal.default_return_url || !create
+        ? { default_return_url: defaultPortal.default_return_url ?? "" }
+        : {}
+    ),
     features: desiredPortalFeatures(defaultPortal, supporterUse, products, prices),
     metadata: portalMetadata(supporterUse),
   }
+}
+
+function normalizeOptionalPortalText(value) {
+  return typeof value === "string" && value.length > 0 ? value : null
 }
 
 function portalMatches(candidate, payload, supporterUse) {
@@ -403,17 +425,26 @@ function portalMatches(candidate, payload, supporterUse) {
     && classifyPortalMetadata(candidate.metadata) === supporterUse
     && jsonEqual(
       {
-        headline: candidate.business_profile?.headline ?? null,
-        privacy_policy_url: candidate.business_profile?.privacy_policy_url ?? null,
-        terms_of_service_url: candidate.business_profile?.terms_of_service_url ?? null,
+        headline: normalizeOptionalPortalText(candidate.business_profile?.headline),
+        privacy_policy_url: normalizeOptionalPortalText(
+          candidate.business_profile?.privacy_policy_url,
+        ),
+        terms_of_service_url: normalizeOptionalPortalText(
+          candidate.business_profile?.terms_of_service_url,
+        ),
       },
       {
-        headline: payload.business_profile?.headline ?? null,
-        privacy_policy_url: payload.business_profile?.privacy_policy_url ?? null,
-        terms_of_service_url: payload.business_profile?.terms_of_service_url ?? null,
+        headline: normalizeOptionalPortalText(payload.business_profile?.headline),
+        privacy_policy_url: normalizeOptionalPortalText(
+          payload.business_profile?.privacy_policy_url,
+        ),
+        terms_of_service_url: normalizeOptionalPortalText(
+          payload.business_profile?.terms_of_service_url,
+        ),
       },
     )
-    && (candidate.default_return_url ?? null) === (payload.default_return_url ?? null)
+    && normalizeOptionalPortalText(candidate.default_return_url)
+      === normalizeOptionalPortalText(payload.default_return_url)
     && jsonEqual(
       normalizePortalFeatures(candidate.features),
       normalizePortalFeatures(payload.features),

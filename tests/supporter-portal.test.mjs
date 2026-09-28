@@ -70,6 +70,20 @@ describe("Supporter Portal configuration selection", () => {
     )
   })
 
+  it("fails closed when one current Price is assigned to multiple use slots", () => {
+    const env = portalEnv({
+      STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: "price_personal_month",
+    })
+    assert.throws(
+      () => supporterUseForConfiguredPrice("price_personal_month", env),
+      /Price is configured more than once/,
+    )
+    assert.throws(
+      () => resolveSupporterPortalForPrice("price_personal_month", env),
+      /Price is configured more than once/,
+    )
+  })
+
   it("fails closed when a recognized v2 Price lacks its Portal configuration", () => {
     assert.throws(
       () => resolveSupporterPortalForPrice(

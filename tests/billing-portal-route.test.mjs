@@ -46,6 +46,7 @@ function portalPost({
     stripePriceId: "price_supporter_personal",
     status: "active",
   },
+  subscriptions,
 } = {}) {
   const calls = {
     customerQueries: [],
@@ -75,21 +76,19 @@ function portalPost({
           membershipSubscription: {
             findFirst: async (query) => {
               calls.subscriptionQueries.push(query)
-              if (
-                subscription
-                && Array.isArray(query?.where?.status?.in)
-                && !query.where.status.in.includes(subscription.status)
-              ) {
-                return null
-              }
-              if (
-                subscription
-                && Array.isArray(query?.where?.status?.notIn)
-                && query.where.status.notIn.includes(subscription.status)
-              ) {
-                return null
-              }
-              return subscription
+              const candidates = subscriptions ?? (subscription ? [subscription] : [])
+              return candidates.find((candidate) => {
+                if (
+                  Array.isArray(query?.where?.status?.in)
+                  && !query.where.status.in.includes(candidate.status)
+                ) {
+                  return false
+                }
+                return !(
+                  Array.isArray(query?.where?.status?.notIn)
+                  && query.where.status.notIn.includes(candidate.status)
+                )
+              }) ?? null
             },
           },
           stripeCustomer: {
@@ -149,11 +148,11 @@ describe("Customer Portal POST route", () => {
         userId: "user_supporter",
         stripeCustomerId: "cus_supporter",
         status: {
-          notIn: ["canceled", "incomplete_expired"],
+          in: ["active", "trialing"],
         },
       },
       orderBy: [
-        { currentPeriodEnd: "desc" },
+        { currentPeriodEnd: { sort: "desc", nulls: "last" } },
         { updatedAt: "desc" },
       ],
       select: {
@@ -205,9 +204,38 @@ describe("Customer Portal POST route", () => {
       assert.equal(response.url, "https://billing.stripe.com/p/session/supporter")
       assert.equal(calls.portalInputs[0].configurationId, "bpc_personal")
       assert.deepEqual(calls.subscriptionQueries[0].where.status, {
-        notIn: ["canceled", "incomplete_expired"],
+        in: ["active", "trialing"],
+      })
+      assert.deepEqual(calls.subscriptionQueries[1].where.status, {
+        notIn: ["active", "trialing", "canceled", "incomplete_expired"],
       })
     }
+  })
+
+  it("prioritizes an active subscription over a newer degraded subscription", async () => {
+    const { calls, POST } = portalPost({
+      subscriptions: [
+        {
+          stripeSubscriptionId: "sub_paused",
+          stripePriceId: "price_supporter_business",
+          status: "paused",
+        },
+        {
+          stripeSubscriptionId: "sub_active",
+          stripePriceId: "price_supporter_personal",
+          status: "active",
+        },
+      ],
+    })
+
+    const response = await POST(portalRequest("manage"))
+
+    assert.equal(response.url, "https://billing.stripe.com/p/session/supporter")
+    assert.equal(calls.portalInputs[0].configurationId, "bpc_personal")
+    assert.equal(calls.subscriptionQueries.length, 1)
+    assert.deepEqual(calls.subscriptionQueries[0].orderBy[0], {
+      currentPeriodEnd: { sort: "desc", nulls: "last" },
+    })
   })
 
   it("opens Stripe's direct price-selection flow for the current subscription", async () => {
@@ -228,7 +256,7 @@ describe("Customer Portal POST route", () => {
         },
       },
       orderBy: [
-        { currentPeriodEnd: "desc" },
+        { currentPeriodEnd: { sort: "desc", nulls: "last" } },
         { updatedAt: "desc" },
       ],
       select: {
