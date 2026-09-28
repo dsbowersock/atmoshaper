@@ -44,15 +44,16 @@ export async function POST(request: Request) {
 
   try {
     const destination = await requestedPortalDestination(request)
-    // Focused changes admit only active/trialing subscriptions, preferring the
-    // latest current period and using the most recent persisted update as a tie-breaker.
+    // Focused changes admit only active/trialing subscriptions. General
+    // management also keeps nonterminal degraded states on the subscription's
+    // use-specific Portal rather than exposing the legacy default catalog.
     const subscription = await prisma.membershipSubscription.findFirst({
       where: {
         userId: session.user.id,
         stripeCustomerId: stripeCustomer.stripeCustomerId,
-        status: {
-          in: ["active", "trialing"],
-        },
+        status: destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
+          ? { in: ["active", "trialing"] }
+          : { notIn: ["canceled", "incomplete_expired"] },
       },
       orderBy: [
         { currentPeriodEnd: "desc" },

@@ -82,6 +82,13 @@ function portalPost({
               ) {
                 return null
               }
+              if (
+                subscription
+                && Array.isArray(query?.where?.status?.notIn)
+                && query.where.status.notIn.includes(subscription.status)
+              ) {
+                return null
+              }
               return subscription
             },
           },
@@ -94,11 +101,16 @@ function portalPost({
         },
       },
       "@/lib/supporter-portal": {
-        resolveSupporterPortalForPrice: (priceId) => (
-          priceId === "price_supporter_personal"
-            ? { supporterUse: "personal", configurationId: "bpc_personal" }
-            : { supporterUse: null, configurationId: null }
-        ),
+        resolveSupporterPortalForPrice: (priceId) => {
+          if (!priceId) return { supporterUse: null, configurationId: null }
+          if (priceId === "price_supporter_personal") {
+            return { supporterUse: "personal", configurationId: "bpc_personal" }
+          }
+          if (priceId === "price_supporter_business") {
+            return { supporterUse: "business", configurationId: "bpc_business" }
+          }
+          throw new Error("The Supporter subscription Price is not configured.")
+        },
       },
       "@/lib/stripe-billing": {
         createStripeCustomerPortalSession: async (input) => {
@@ -132,13 +144,70 @@ describe("Customer Portal POST route", () => {
     assert.deepEqual(calls.customerQueries, [{
       where: { userId: "user_supporter" },
     }])
-    assert.equal(calls.subscriptionQueries.length, 1)
+    assert.deepEqual(calls.subscriptionQueries, [{
+      where: {
+        userId: "user_supporter",
+        stripeCustomerId: "cus_supporter",
+        status: {
+          notIn: ["canceled", "incomplete_expired"],
+        },
+      },
+      orderBy: [
+        { currentPeriodEnd: "desc" },
+        { updatedAt: "desc" },
+      ],
+      select: {
+        stripeSubscriptionId: true,
+        stripePriceId: true,
+      },
+    }])
     assert.deepEqual(calls.portalInputs, [{
       customerId: "cus_supporter",
       returnUrl: "https://massagelab.app/account?tab=membership&portal=returned",
       subscriptionId: undefined,
       configurationId: "bpc_personal",
     }])
+  })
+
+  it("uses the business Portal for both management destinations", async () => {
+    for (const destination of ["manage", "subscription-update"]) {
+      const { calls, POST } = portalPost({
+        subscription: {
+          stripeSubscriptionId: "sub_supporter_business",
+          stripePriceId: "price_supporter_business",
+          status: "active",
+        },
+      })
+
+      const response = await POST(portalRequest(destination))
+
+      assert.equal(response.url, "https://billing.stripe.com/p/session/supporter")
+      assert.equal(calls.portalInputs[0].configurationId, "bpc_business")
+      assert.equal(
+        calls.portalInputs[0].subscriptionId,
+        destination === "subscription-update" ? "sub_supporter_business" : undefined,
+      )
+    }
+  })
+
+  it("keeps degraded nonterminal subscriptions on their use-specific general Portal", async () => {
+    for (const status of ["past_due", "unpaid", "paused", "incomplete"]) {
+      const { calls, POST } = portalPost({
+        subscription: {
+          stripeSubscriptionId: `sub_${status}`,
+          stripePriceId: "price_supporter_personal",
+          status,
+        },
+      })
+
+      const response = await POST(portalRequest("manage"))
+
+      assert.equal(response.url, "https://billing.stripe.com/p/session/supporter")
+      assert.equal(calls.portalInputs[0].configurationId, "bpc_personal")
+      assert.deepEqual(calls.subscriptionQueries[0].where.status, {
+        notIn: ["canceled", "incomplete_expired"],
+      })
+    }
   })
 
   it("opens Stripe's direct price-selection flow for the current subscription", async () => {

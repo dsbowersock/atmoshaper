@@ -393,6 +393,15 @@ describe("Supporter v2 sandbox catalog migration", () => {
     })
     assert.equal(mutationCalls(fixture).length, 0)
     assert.equal(fixture.calls.some(({ payload }) => payload.starting_after), true)
+    assert.equal(
+      fixture.calls
+        .filter(({ operation }) => operation === "portal.list")
+        .every(({ payload }) => (
+          JSON.stringify(payload.expand)
+            === JSON.stringify(["data.features.subscription_update.products"])
+        )),
+      true,
+    )
   })
 
   it("requires completed state for verify and an explicit phrase for apply", async () => {

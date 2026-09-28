@@ -31,6 +31,9 @@ const MAX_LIST_PAGES = 10_000
 const MAX_MANAGED_OBJECTS = 1_000
 const TERMINAL_SUBSCRIPTION_STATUSES = new Set(["canceled", "incomplete_expired"])
 const PORTAL_EXPANSIONS = Object.freeze(["features.subscription_update.products"])
+const PORTAL_LIST_EXPANSIONS = Object.freeze(
+  PORTAL_EXPANSIONS.map((path) => `data.${path}`),
+)
 const PORTAL_METADATA_KEYS = Object.freeze([
   "app",
   "atmoshaper_catalog",
@@ -571,7 +574,7 @@ async function collectInventory(stripe, config) {
       status: "open",
     })
     portals = await scanAll((params) => stripe.billingPortal.configurations.list(params), {
-      expand: [...PORTAL_EXPANSIONS],
+      expand: [...PORTAL_LIST_EXPANSIONS],
     })
     endpoints = await scanAll((params) => stripe.webhookEndpoints.list(params))
   } catch (error) {

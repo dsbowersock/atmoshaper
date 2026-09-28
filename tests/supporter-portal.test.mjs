@@ -9,6 +9,7 @@ import {
 
 function portalEnv(overrides = {}) {
   return {
+    STRIPE_SUPPORTER_1_MONTHLY_PRICE_ID: "price_legacy",
     STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID: "price_personal_month",
     STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: "price_business_month",
     STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID: "bpc_personal",
@@ -43,6 +44,17 @@ describe("Supporter Portal configuration selection", () => {
       supporterUse: null,
       configurationId: null,
     })
+    assert.deepEqual(resolveSupporterPortalForPrice("", env), {
+      supporterUse: null,
+      configurationId: null,
+    })
+  })
+
+  it("fails closed for an unknown persisted Price", () => {
+    assert.throws(
+      () => resolveSupporterPortalForPrice("price_unknown", portalEnv()),
+      /Supporter subscription Price is not configured/,
+    )
   })
 
   it("fails closed when a recognized v2 Price lacks its Portal configuration", () => {
