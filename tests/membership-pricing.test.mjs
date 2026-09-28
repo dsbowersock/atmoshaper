@@ -215,6 +215,35 @@ describe("Membership pricing catalog", () => {
     assert.equal(yearlyPrice.displayPrice, "Price unavailable")
   })
 
+  it("keeps a use-classified amount unavailable when both slots reuse one Price ID", async () => {
+    const duplicatePriceId = "price_support_1_shared_month"
+    const env = {
+      ...TWELVE_PRICE_ENVIRONMENT,
+      STRIPE_SUPPORTER_1_PERSONAL_MONTHLY_PRICE_ID: duplicatePriceId,
+      STRIPE_SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID: duplicatePriceId,
+    }
+    const prices = configuredStripePrices()
+    prices.set(duplicatePriceId, stripePrice({
+      id: duplicatePriceId,
+      amount: 100,
+      interval: "month",
+    }))
+    const catalog = await loadIsolatedCatalog({
+      env,
+      stripeClient: {
+        prices: {
+          retrieve: async (priceId) => prices.get(priceId),
+        },
+      },
+    })
+    const monthlyPrice = catalog.plans[0].amountChoices[0].prices.month
+
+    assert.equal(monthlyPrice.priceId, duplicatePriceId)
+    assert.equal(monthlyPrice.isConfigured, true)
+    assert.equal(monthlyPrice.isLookupAvailable, false)
+    assert.equal(monthlyPrice.displayPrice, "Price unavailable")
+  })
+
   it("keeps compliance-heavy documentation goals in the single Supporter offering roadmap notes", async () => {
     const catalog = await loadIsolatedCatalog({ env: {} })
     const [supporter] = catalog.plans

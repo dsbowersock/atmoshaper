@@ -260,9 +260,15 @@ Before enabling subscription checkout, confirm:
   evidence, `/pricing` return, and absence of any membership or background
   entitlement.
 
-### Supporter catalog migration
+### Retained v1 Supporter catalog migration
 
-The catalog migration is a separately controlled operation. It does not read a
+This historical migration owns only the retained three-Product, six-Price v1
+catalog used for reconciliation. Do not use it to create or authorize the v2
+public enrollment catalog. Follow the separately reviewed
+[`Supporter v2 Sandbox Catalog Migration Plan`](../superpowers/plans/2026-09-27-supporter-v2-sandbox-catalog-migration.md)
+before enabling public Checkout.
+
+The v1 catalog migration is a separately controlled operation. It does not read a
 database or print customer, subscriber, secret, or payment details. Supply every
 legacy Product, Price, coupon, portal-configuration, and allowed test-subscription
 ID through the `MASSAGELAB_STRIPE_MIGRATION_*` variables documented in
@@ -365,9 +371,9 @@ ambiguous accepted request can be retried without creating a duplicate.
 Arbitrary mixed states still fail closed. Do not run apply until the deployed
 Supporter-only application, subscriber decision, recurring-tax classification,
 and migration inputs have all been independently reviewed. Remove the
-migration-only variables after the operation. Keep the six approved runtime
-Price IDs for public enrollment and retain the six legacy runtime Price
-mappings under the separate subscriber-inventory/webhook-reconciliation gate.
+migration-only variables after the operation. Retain its six Price mappings
+only as webhook/reconciliation compatibility inputs under the separate
+subscriber-inventory gate; they cannot satisfy v2 public enrollment readiness.
 
 Portal verification must retrieve
 `features.subscription_update.products` with an explicit expansion; Stripe
