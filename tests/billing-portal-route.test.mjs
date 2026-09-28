@@ -284,6 +284,27 @@ describe("Customer Portal POST route", () => {
     assert.deepEqual(calls.portalInputs, [])
   })
 
+  it("fails closed when a persisted nonterminal subscription has no Price identity", async () => {
+    for (const stripePriceId of [null, "", "   "]) {
+      const { calls, POST } = portalPost({
+        subscription: {
+          stripeSubscriptionId: "sub_missing_price",
+          stripePriceId,
+          status: "active",
+        },
+      })
+
+      const response = await POST(portalRequest("manage"))
+
+      assert.deepEqual(response, {
+        status: 303,
+        url: "https://massagelab.app/account?portal=error",
+      })
+      assert.equal(calls.subscriptionQueries.length, 1)
+      assert.deepEqual(calls.portalInputs, [])
+    }
+  })
+
   it("opens Stripe's direct price-selection flow for the current subscription", async () => {
     const { calls, POST } = portalPost()
 

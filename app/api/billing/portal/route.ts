@@ -79,6 +79,10 @@ export async function POST(request: Request) {
       return accountRedirect("subscription-not-found")
     }
 
+    if (nonterminalSubscriptions.some(({ stripePriceId }) => !stripePriceId?.trim())) {
+      throw new Error("A nonterminal subscription is missing its Stripe Price identity.")
+    }
+
     const resolvedPortals = nonterminalSubscriptions.map(
       ({ stripePriceId }) => resolveSupporterPortalForPrice(stripePriceId),
     )
