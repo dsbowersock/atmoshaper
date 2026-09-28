@@ -67,7 +67,7 @@ const normalizedProjectLogSource = normalizeDocumentationWhitespace(projectLogSo
 const normalizedDeploymentSource = normalizeDocumentationWhitespace(deploymentSource)
 const normalizedReleaseChecklistSource = normalizeDocumentationWhitespace(releaseChecklistSource)
 // Advance this review-date ceiling only alongside newly verified project-state evidence.
-const PROJECT_STATE_VERIFIED_DATE_UPPER_BOUND = "2026-09-27"
+const PROJECT_STATE_VERIFIED_DATE_UPPER_BOUND = "2026-09-28"
 
 /** Returns one named function body bounded by the next named owner. */
 function namedFunctionSlice(source, startMarker, endMarker) {
@@ -380,6 +380,12 @@ function portalPost(calls) {
     },
     "@/lib/billing-portal-destinations": {
       BILLING_PORTAL_DESTINATIONS,
+    },
+    "@/lib/supporter-portal": {
+      resolveSupporterPortalForPrice: () => ({
+        supporterUse: null,
+        configurationId: null,
+      }),
     },
     "@/lib/prisma": {
       prisma: {

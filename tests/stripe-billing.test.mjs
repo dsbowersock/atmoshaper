@@ -321,6 +321,7 @@ describe("Stripe billing helpers", () => {
       customerId: "cus_123",
       returnUrl: "https://massagelab.app/account?portal=returned",
       subscriptionId: "sub_123",
+      configurationId: "bpc_personal",
       stripeClient: {
         billingPortal: {
           sessions: {
@@ -336,6 +337,7 @@ describe("Stripe billing helpers", () => {
     assert.deepEqual(capturedPayload, {
       customer: "cus_123",
       return_url: "https://massagelab.app/account?portal=returned",
+      configuration: "bpc_personal",
       flow_data: {
         type: "subscription_update",
         subscription_update: {

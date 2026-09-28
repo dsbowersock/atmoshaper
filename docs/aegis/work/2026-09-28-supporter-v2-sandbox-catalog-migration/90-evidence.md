@@ -1,0 +1,17 @@
+# Supporter v2 Sandbox Catalog Migration Evidence
+
+- PR #23 merged at commit `b6652e0c2ed0dd5ce5e583cabdc9a8273d71bff2` after passing hosted checks and zero unresolved review threads.
+- The isolated rollout checkout was clean before branch creation and points at that merge commit.
+- Sanitized read-only Stripe inventory: dedicated sandbox, v1 three-Product/six-Price catalog, one enabled 15-event webhook, one active Portal configuration, zero subscriptions, active head-office tax settings, and zero registrations.
+- Sanitized read-only Vercel inventory: Production remains on the six legacy Price variables and paused Checkout; no twelve-slot v2 environment mapping is installed.
+- The candidate derives the six v2 Products and twelve v2 Prices from the merged contract, preserves the complete v1 catalog, refuses live or mismatched accounts, inventories all relevant paginated objects, blocks on subscriptions/open Checkout Sessions/webhook drift/partial managed metadata, and rereads every deterministic write.
+- Two managed Customer Portal configurations keep personal and business Price allowlists separate. Runtime selection uses the persisted current Price; recognized v2 Prices fail closed when their configuration is absent, and historical v1 Prices retain the default Portal compatibility path.
+- Focused migration, Portal, route, and Stripe-billing tests passed: 107 passed, 0 failed.
+- The expanded regression group passed after fixture alignment: 123 passed, 0 failed.
+- Browser-QA environment regression passed: 6 passed, 0 failed.
+- Final fresh falsifying check across the migration, Portal resolver/route, Stripe billing, Browser-QA environment, and family-and-friends workload owners passed: 129 passed, 0 failed.
+- Full repository suite passed on the final functional tree: 4,990 total, 4,987 passed, 0 failed, and 3 host-dependent skips.
+- `npm run lint`, `npm run typecheck`, `npm run build`, and `git diff --check` exited successfully. The production build compiled, typechecked, and generated 115 pages; its existing poll-shedder message remained informational.
+- The isolated worktree required its own `npm ci` before the production build. Installation completed from the committed lockfile. A fresh registry audit later reported 14 advisories (4 moderate, 7 high, and 3 critical), including direct or transitive Next.js, Sharp, Nodemailer, Prisma, and shadcn dependency chains. Several require coordinated version changes, so no automatic dependency or lockfile rewrite was mixed into this migration slice; they are a separate security-update branch before live billing activation.
+- No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax, DNS, or email-provider mutation occurred.
+- The installed Aegis package exposes no workspace-helper executable, so structural bundle/check commands were unavailable. The work record was reviewed directly; this does not substitute for semantic or test evidence.

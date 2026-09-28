@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getCurrentSession } from "@/auth"
 import { getSiteUrl } from "@/lib/auth-env"
 import { BILLING_PORTAL_DESTINATIONS } from "@/lib/billing-portal-destinations"
+import { resolveSupporterPortalForPrice } from "@/lib/supporter-portal"
 import { createStripeCustomerPortalSession } from "@/lib/stripe-billing"
 import { prisma } from "@/lib/prisma"
 
@@ -45,24 +46,23 @@ export async function POST(request: Request) {
     const destination = await requestedPortalDestination(request)
     // Focused changes admit only active/trialing subscriptions, preferring the
     // latest current period and using the most recent persisted update as a tie-breaker.
-    const subscription = destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
-      ? await prisma.membershipSubscription.findFirst({
-          where: {
-            userId: session.user.id,
-            stripeCustomerId: stripeCustomer.stripeCustomerId,
-            status: {
-              in: ["active", "trialing"],
-            },
-          },
-          orderBy: [
-            { currentPeriodEnd: "desc" },
-            { updatedAt: "desc" },
-          ],
-          select: {
-            stripeSubscriptionId: true,
-          },
-        })
-      : null
+    const subscription = await prisma.membershipSubscription.findFirst({
+      where: {
+        userId: session.user.id,
+        stripeCustomerId: stripeCustomer.stripeCustomerId,
+        status: {
+          in: ["active", "trialing"],
+        },
+      },
+      orderBy: [
+        { currentPeriodEnd: "desc" },
+        { updatedAt: "desc" },
+      ],
+      select: {
+        stripeSubscriptionId: true,
+        stripePriceId: true,
+      },
+    })
 
     if (
       destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
@@ -71,10 +71,14 @@ export async function POST(request: Request) {
       return accountRedirect("subscription-not-found")
     }
 
+    const portal = resolveSupporterPortalForPrice(subscription?.stripePriceId)
     const portalSession = await createStripeCustomerPortalSession({
       customerId: stripeCustomer.stripeCustomerId,
       returnUrl: `${getSiteUrl()}/account?tab=membership&portal=returned`,
-      subscriptionId: subscription?.stripeSubscriptionId,
+      subscriptionId: destination === BILLING_PORTAL_DESTINATIONS.SUBSCRIPTION_UPDATE
+        ? subscription?.stripeSubscriptionId
+        : undefined,
+      configurationId: portal.configurationId ?? undefined,
     })
 
     if (!portalSession.url) {

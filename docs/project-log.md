@@ -2,6 +2,24 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-28 — Supporter v2 sandbox migration candidate
+
+- PR #23 merged at `b6652e0c2ed0dd5ce5e583cabdc9a8273d71bff2`, making
+  buyer-selected personal or business use part of the reviewed public Checkout
+  contract.
+- Started the next slice from that exact merge in an isolated worktree. The
+  candidate adds a test-only verify/plan/apply command for six amount/use
+  Products, twelve recurring Prices, and two use-specific Customer Portal
+  configurations. It requires a test key, exact expected account ID, safe
+  inventory, and a process-local apply phrase; every write is reread and reruns
+  converge through deterministic keys.
+- Runtime Portal creation now selects the personal or business configuration
+  from the persisted configured Price. Recognized v2 subscriptions fail closed
+  if their required configuration is absent; retained v1 subscriptions keep
+  default-Portal compatibility.
+- No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
+  DNS, or email-provider mutation occurred in this code-only candidate.
+
 ## 2026-09-27 — Buyer-selected Supporter use classification candidate
 
 - Started from merged PR #22 at

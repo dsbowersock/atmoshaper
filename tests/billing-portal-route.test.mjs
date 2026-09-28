@@ -43,6 +43,7 @@ function portalPost({
   },
   subscription = {
     stripeSubscriptionId: "sub_supporter",
+    stripePriceId: "price_supporter_personal",
     status: "active",
   },
 } = {}) {
@@ -92,6 +93,13 @@ function portalPost({
           },
         },
       },
+      "@/lib/supporter-portal": {
+        resolveSupporterPortalForPrice: (priceId) => (
+          priceId === "price_supporter_personal"
+            ? { supporterUse: "personal", configurationId: "bpc_personal" }
+            : { supporterUse: null, configurationId: null }
+        ),
+      },
       "@/lib/stripe-billing": {
         createStripeCustomerPortalSession: async (input) => {
           calls.portalInputs.push(input)
@@ -112,7 +120,7 @@ describe("Customer Portal POST route", () => {
     assert.doesNotMatch(portalRouteSource, MEMBERSHIP_PRICING_IMPORT_PATTERN)
   })
 
-  it("opens the general billing-account Portal without querying a subscription", async () => {
+  it("opens the general billing-account Portal with the subscription's use-specific configuration", async () => {
     const { calls, POST } = portalPost()
 
     const response = await POST(portalRequest("manage"))
@@ -124,11 +132,12 @@ describe("Customer Portal POST route", () => {
     assert.deepEqual(calls.customerQueries, [{
       where: { userId: "user_supporter" },
     }])
-    assert.deepEqual(calls.subscriptionQueries, [])
+    assert.equal(calls.subscriptionQueries.length, 1)
     assert.deepEqual(calls.portalInputs, [{
       customerId: "cus_supporter",
       returnUrl: "https://massagelab.app/account?tab=membership&portal=returned",
       subscriptionId: undefined,
+      configurationId: "bpc_personal",
     }])
   })
 
@@ -155,12 +164,14 @@ describe("Customer Portal POST route", () => {
       ],
       select: {
         stripeSubscriptionId: true,
+        stripePriceId: true,
       },
     }])
     assert.deepEqual(calls.portalInputs, [{
       customerId: "cus_supporter",
       returnUrl: "https://massagelab.app/account?tab=membership&portal=returned",
       subscriptionId: "sub_supporter",
+      configurationId: "bpc_personal",
     }])
   })
 
@@ -217,9 +228,10 @@ describe("Customer Portal POST route", () => {
         status: 303,
         url: "https://billing.stripe.com/p/session/supporter",
       })
-      assert.deepEqual(calls.subscriptionQueries, [])
+      assert.equal(calls.subscriptionQueries.length, 1)
       assert.equal(calls.portalInputs.length, 1)
       assert.equal(calls.portalInputs[0].subscriptionId, undefined)
+      assert.equal(calls.portalInputs[0].configurationId, "bpc_personal")
     }
   })
 
