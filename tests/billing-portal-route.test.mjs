@@ -100,6 +100,9 @@ function portalPost({
           if (priceId === "price_supporter_business") {
             return { supporterUse: "business", configurationId: "bpc_business" }
           }
+          if (priceId === "price_supporter_legacy") {
+            return { supporterUse: null, configurationId: null }
+          }
           throw new Error("The Supporter subscription Price is not configured.")
         },
       },
@@ -240,6 +243,32 @@ describe("Customer Portal POST route", () => {
         {
           stripeSubscriptionId: "sub_business",
           stripePriceId: "price_supporter_business",
+          status: "trialing",
+        },
+      ],
+    })
+
+    const response = await POST(portalRequest("manage"))
+
+    assert.deepEqual(response, {
+      status: 303,
+      url: "https://massagelab.app/account?portal=error",
+    })
+    assert.equal(calls.subscriptionQueries.length, 1)
+    assert.deepEqual(calls.portalInputs, [])
+  })
+
+  it("fails closed when retained-default and v2 subscriptions share one customer", async () => {
+    const { calls, POST } = portalPost({
+      subscriptions: [
+        {
+          stripeSubscriptionId: "sub_legacy",
+          stripePriceId: "price_supporter_legacy",
+          status: "active",
+        },
+        {
+          stripeSubscriptionId: "sub_personal",
+          stripePriceId: "price_supporter_personal",
           status: "trialing",
         },
       ],
