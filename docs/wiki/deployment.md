@@ -233,7 +233,10 @@ new public enrollment; a Price duplicated in any current, pre-classification,
 or historical mapping namespace fails closed. With `--verify-stripe`, it also
 retrieves both configured Customer Portals and verifies the selected Stripe
 mode, AtmoShaper v2 metadata, and exact personal or business Product/Price
-allowlist before activation.
+allowlist before activation. Each managed Portal must be non-default and retain
+Price-only updates, an unchanged billing-cycle anchor, no proration, no
+scheduled-at-period-end conditions, and trial termination on change. The
+retained default Portal remains reserved for historical v1 compatibility.
 
 Before enabling subscription checkout, confirm:
 

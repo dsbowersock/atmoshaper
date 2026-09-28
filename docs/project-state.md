@@ -34,9 +34,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   inputs until post-cutover inventory proves retirement safe. Runtime Portal
   routing rejects a current Price duplicated in any current,
   pre-classification, or historical mapping namespace. The activation readiness
-  command also retrieves both configured Portals and verifies their mode,
-  metadata, and exact use-specific Product/Price allowlists. No Stripe object,
-  Vercel setting, database state, or deployment has changed in this candidate.
+  command also retrieves both configured non-default Portals and verifies their
+  mode, metadata, exact use-specific Product/Price allowlists, and complete
+  Price-only transition behavior. The migration refuses to repurpose the
+  retained default v1 Portal as a managed v2 Portal. No Stripe object, Vercel
+  setting, database state, or deployment has changed in this candidate.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
   uses the wordmark at wide widths and the square logo at narrow widths. The

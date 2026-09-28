@@ -22,6 +22,10 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   reconciliation namespace, and Stripe readiness retrieves both configured
   Portals to verify their mode, AtmoShaper metadata, and exact use-specific
   Product/Price allowlists before Checkout can be enabled.
+- A follow-up exact-head review tightened the Portal boundary again: the
+  retained default v1 Portal cannot be classified or updated as a managed v2
+  Portal, and readiness verifies the complete Price-only, unchanged-cycle,
+  non-prorated, immediate trial-ending transition behavior.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 

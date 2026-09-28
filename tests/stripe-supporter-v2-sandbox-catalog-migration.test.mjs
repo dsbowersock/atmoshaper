@@ -686,6 +686,14 @@ describe("Supporter v2 sandbox catalog migration", () => {
         fixture.portals.get("bpc_default_v1")
           .features.subscription_cancel.cancellation_reason.options = ["other"]
       }],
+      ["managed_portal_default_conflict", (fixture) => {
+        fixture.portals.get("bpc_default_v1").metadata = {
+          app: "atmoshaper",
+          atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+          atmoshaper_membership_level: "SUPPORTER",
+          atmoshaper_portal_supporter_use: "personal",
+        }
+      }],
       ["managed_product_metadata_mismatch", (fixture) => {
         fixture.products.set("prod_partial", {
           id: "prod_partial",

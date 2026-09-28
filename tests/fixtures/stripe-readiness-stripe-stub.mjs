@@ -94,6 +94,7 @@ function supporterPortal(supporterUse) {
   return {
     id: expectedId,
     active: true,
+    is_default: false,
     livemode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true,
     metadata: {
       app: "atmoshaper",
@@ -104,6 +105,11 @@ function supporterPortal(supporterUse) {
     features: {
       subscription_update: {
         enabled: true,
+        default_allowed_updates: ["price"],
+        billing_cycle_anchor: "unchanged",
+        proration_behavior: "none",
+        schedule_at_period_end: { conditions: [] },
+        trial_update_behavior: "end_trial",
         products: allowlist,
       },
     },

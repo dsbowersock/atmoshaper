@@ -427,6 +427,7 @@ function normalizeOptionalPortalText(value) {
 function portalMatches(candidate, payload, supporterUse) {
   return modeMatches(candidate)
     && candidate.active === true
+    && candidate.is_default === false
     && classifyPortalMetadata(candidate.metadata) === supporterUse
     && jsonEqual(
       {
@@ -578,6 +579,7 @@ function classifyPortals(portals) {
   const failureCodes = []
   const managed = new Map()
   const defaults = portals.filter((portal) => portal.is_default === true && modeMatches(portal))
+  const defaultPortal = defaults[0] ?? null
   for (const portal of portals) {
     if (!hasAnyPortalMetadata(portal.metadata)) continue
     const supporterUse = classifyPortalMetadata(portal.metadata)
@@ -585,12 +587,16 @@ function classifyPortals(portals) {
       failureCodes.push("managed_portal_metadata_mismatch")
       continue
     }
+    if (portal.is_default !== false || portal.id === defaultPortal?.id) {
+      failureCodes.push("managed_portal_default_conflict")
+      continue
+    }
     addUnique(managed, supporterUse, portal, failureCodes, "v2_portal_duplicate")
   }
   if (defaults.length !== 1 || !defaultPortalBaseIsSafe(defaults[0])) {
     failureCodes.push("default_portal_dependency_mismatch")
   }
-  return { failureCodes, defaultPortal: defaults[0] ?? null, managed }
+  return { failureCodes, defaultPortal, managed }
 }
 
 function openSubscriptionSessions(sessions) {

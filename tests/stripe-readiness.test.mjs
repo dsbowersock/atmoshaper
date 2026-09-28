@@ -11,6 +11,7 @@ import {
   isExplicitTrue,
   REQUIRED_SUPPORTER_PRICE_CONTRACT,
   validateRetrievedMembershipPrice,
+  validateRetrievedSupporterPortalConfiguration,
   validateSupporterProductTopology,
 } from "../lib/stripe-readiness.js"
 import { STRIPE_API_VERSION } from "../lib/stripe-webhook-contract.js"
@@ -54,6 +55,57 @@ const membershipPrices = Object.fromEntries(
     `price_${key.toLowerCase().replaceAll("stripe_supporter_", "supporter_").replaceAll("_price_id", "")}`,
   ]),
 )
+
+/** Builds exact retrieved Price evidence for one use-specific Portal contract. */
+function retrievedMembershipPricesForUse(supporterUse) {
+  return REQUIRED_SUPPORTER_PRICE_CONTRACT
+    .filter((expected) => expected.supporterUse === supporterUse)
+    .map((expected) => ({
+      expected,
+      price: {
+        id: membershipPrices[expected.key],
+        product: supporterProduct(expected),
+      },
+    }))
+}
+
+/** Builds a valid managed Portal response for direct readiness validation. */
+function supporterPortalConfiguration(supporterUse = "personal") {
+  const entries = retrievedMembershipPricesForUse(supporterUse)
+  const products = new Map()
+  for (const { expected, price } of entries) {
+    const current = products.get(expected.productKey) ?? {
+      product: price.product.id,
+      prices: [],
+      adjustable_quantity: { enabled: false },
+    }
+    current.prices.push(price.id)
+    products.set(expected.productKey, current)
+  }
+  return {
+    id: `bpc_${supporterUse}`,
+    active: true,
+    is_default: false,
+    livemode: false,
+    metadata: {
+      app: "atmoshaper",
+      atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
+      atmoshaper_membership_level: "SUPPORTER",
+      atmoshaper_portal_supporter_use: supporterUse,
+    },
+    features: {
+      subscription_update: {
+        enabled: true,
+        default_allowed_updates: ["price"],
+        billing_cycle_anchor: "unchanged",
+        proration_behavior: "none",
+        schedule_at_period_end: { conditions: [] },
+        trial_update_behavior: "end_trial",
+        products: [...products.values()],
+      },
+    },
+  }
+}
 
 /**
  * Returns the complete hermetic child environment for readiness checks.
@@ -865,6 +917,42 @@ describe("Stripe readiness background-commerce contract", () => {
       result.stdout,
       /Supporter personal Portal configuration verified: false/,
     )
+  })
+
+  it("rejects default Portals and every managed subscription-update behavior drift", () => {
+    const retrievedMembershipPrices = retrievedMembershipPricesForUse("personal")
+    const cases = [
+      ["default Portal", (configuration) => { configuration.is_default = true }],
+      ["allowed updates", (configuration) => {
+        configuration.features.subscription_update.default_allowed_updates = ["price", "quantity"]
+      }],
+      ["billing anchor", (configuration) => {
+        configuration.features.subscription_update.billing_cycle_anchor = "now"
+      }],
+      ["proration", (configuration) => {
+        configuration.features.subscription_update.proration_behavior = "create_prorations"
+      }],
+      ["scheduled update", (configuration) => {
+        configuration.features.subscription_update.schedule_at_period_end.conditions = [
+          { type: "decreasing_item_amount" },
+        ]
+      }],
+      ["trial behavior", (configuration) => {
+        configuration.features.subscription_update.trial_update_behavior = "continue_trial"
+      }],
+    ]
+
+    for (const [label, mutate] of cases) {
+      const configuration = supporterPortalConfiguration()
+      mutate(configuration)
+      const failures = validateRetrievedSupporterPortalConfiguration(configuration, {
+        configurationId: "bpc_personal",
+        supporterUse: "personal",
+        retrievedMembershipPrices,
+        livemode: false,
+      })
+      assert.equal(failures.length > 0, true, label)
+    }
   })
 
   it("rejects the retired six-Prices-on-one-Product topology", () => {
