@@ -79,6 +79,12 @@ export async function POST(request: Request) {
       return accountRedirect("subscription-not-found")
     }
 
+    // A local empty result can lag Stripe's customer-wide subscription state,
+    // so it cannot safely select the retained default Portal configuration.
+    if (nonterminalSubscriptions.length === 0) {
+      throw new Error("The customer's nonterminal subscription inventory is unavailable.")
+    }
+
     if (nonterminalSubscriptions.some(({ stripePriceId }) => !stripePriceId?.trim())) {
       throw new Error("A nonterminal subscription is missing its Stripe Price identity.")
     }
@@ -92,7 +98,7 @@ export async function POST(request: Request) {
     if (portalKeys.size > 1) {
       throw new Error("The customer's nonterminal subscriptions require incompatible Portal configurations.")
     }
-    const portal = resolvedPortals[0] ?? resolveSupporterPortalForPrice()
+    const portal = resolvedPortals[0]
     const portalSession = await createStripeCustomerPortalSession({
       customerId: stripeCustomer.stripeCustomerId,
       returnUrl: `${getSiteUrl()}/account?tab=membership&portal=returned`,

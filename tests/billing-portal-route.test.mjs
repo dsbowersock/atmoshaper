@@ -305,6 +305,19 @@ describe("Customer Portal POST route", () => {
     }
   })
 
+  it("fails closed before Stripe when local nonterminal subscription inventory is empty", async () => {
+    const { calls, POST } = portalPost({ subscriptions: [] })
+
+    const response = await POST(portalRequest("manage"))
+
+    assert.deepEqual(response, {
+      status: 303,
+      url: "https://massagelab.app/account?portal=error",
+    })
+    assert.equal(calls.subscriptionQueries.length, 1)
+    assert.deepEqual(calls.portalInputs, [])
+  })
+
   it("opens Stripe's direct price-selection flow for the current subscription", async () => {
     const { calls, POST } = portalPost()
 

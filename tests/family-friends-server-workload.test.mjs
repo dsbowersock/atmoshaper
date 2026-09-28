@@ -393,7 +393,11 @@ function portalPost(calls) {
           findUnique: async () => ({ stripeCustomerId: "cus_workload" }),
         },
         membershipSubscription: {
-          findMany: async () => [],
+          findMany: async () => [{
+            stripeSubscriptionId: "sub_workload",
+            stripePriceId: "price_workload_legacy",
+            status: "active",
+          }],
         },
       },
     },
