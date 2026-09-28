@@ -216,6 +216,11 @@ function lookupKeyFor(spec) {
   return `atmoshaper_supporter_v2_${spec.key.replaceAll("-", "_")}`
 }
 
+/** Returns the one v2 target whose immutable lookup key a Price claims. */
+function v2PriceSpecForLookupKey(lookupKey) {
+  return V2_TARGET_PRICE_SPECS.find((spec) => lookupKeyFor(spec) === lookupKey) ?? null
+}
+
 function exactPrice(candidate, spec, productId) {
   return modeMatches(candidate)
     && candidate.active === true
@@ -507,7 +512,11 @@ function classifyCatalog(products, prices) {
   }
 
   for (const candidate of prices) {
-    if (!hasAnySupporterSchemaMetadata(candidate.metadata)) continue
+    const claimedTarget = v2PriceSpecForLookupKey(candidate.lookup_key)
+    if (!hasAnySupporterSchemaMetadata(candidate.metadata)) {
+      if (claimedTarget) failureCodes.push("target_price_lookup_key_collision")
+      continue
+    }
     managedCount += 1
     const v1 = classifySupporterPriceMetadata(candidate.metadata, {
       catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
@@ -517,6 +526,10 @@ function classifyCatalog(products, prices) {
     })
     if (!v1 && !v2) {
       failureCodes.push("managed_price_metadata_mismatch")
+      continue
+    }
+    if (claimedTarget && (!v2 || v2.priceKey !== claimedTarget.key)) {
+      failureCodes.push("target_price_lookup_key_collision")
       continue
     }
     const classification = v2 ?? v1

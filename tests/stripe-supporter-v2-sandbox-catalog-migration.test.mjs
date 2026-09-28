@@ -71,6 +71,10 @@ function recurringPrice({
   }
 }
 
+function targetLookupKey(spec) {
+  return `atmoshaper_supporter_v2_${spec.key.replaceAll("-", "_")}`
+}
+
 function defaultPortal() {
   return {
     id: "bpc_default_v1",
@@ -692,6 +696,17 @@ describe("Supporter v2 sandbox catalog migration", () => {
           tax_code: "txcd_10103000",
           metadata: { app: "atmoshaper", atmoshaper_catalog: SUPPORTER_MEMBERSHIP_CATALOG_VERSION },
         })
+      }],
+      ["target_price_lookup_key_collision", (fixture) => {
+        const spec = V2_TARGET_PRICE_SPECS[0]
+        fixture.prices.set("price_unowned_collision", recurringPrice({
+          id: "price_unowned_collision",
+          product: "prod_unowned",
+          unitAmount: spec.unitAmount,
+          interval: spec.interval,
+          metadata: {},
+          lookupKey: targetLookupKey(spec),
+        }))
       }],
     ]
 
