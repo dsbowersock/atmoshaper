@@ -26,6 +26,9 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   retained default v1 Portal cannot be classified or updated as a managed v2
   Portal, and readiness verifies the complete Price-only, unchanged-cycle,
   non-prorated, immediate trial-ending transition behavior.
+- CodeRabbit then identified an unsupported nested Portal expansion in the
+  readiness lookup. The check now retrieves each Portal configuration without
+  expansion and validates the Product/Price IDs returned directly by Stripe.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 

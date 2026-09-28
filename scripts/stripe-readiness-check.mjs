@@ -371,10 +371,7 @@ async function verifyStripePrices() {
   const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
   for (const [configurationId, { key, supporterUse }] of portalConfigurationIds) {
     try {
-      const configuration = await stripe.billingPortal.configurations.retrieve(
-        configurationId,
-        { expand: ["features.subscription_update.products"] },
-      )
+      const configuration = await stripe.billingPortal.configurations.retrieve(configurationId)
       const portalFailures = validateRetrievedSupporterPortalConfiguration(
         configuration,
         {

@@ -129,7 +129,10 @@ export default class StripeReadinessStub {
     }
     this.billingPortal = {
       configurations: {
-        retrieve: async (configurationId) => {
+        retrieve: async (configurationId, params) => {
+          if (params !== undefined) {
+            throw new Error("Portal configuration retrieval must not request unsupported expansions")
+          }
           const personalId = process.env.STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID
           const businessId = process.env.STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID
           if (configurationId === personalId) return supporterPortal("personal")
