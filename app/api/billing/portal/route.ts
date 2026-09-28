@@ -49,37 +49,27 @@ export async function POST(request: Request) {
 
   try {
     const destination = await requestedPortalDestination(request)
-    // Prefer a current active/trialing subscription for every destination.
-    // General management falls back to a degraded nonterminal subscription so
-    // those customers can still manage payment, invoice, and cancellation data.
-    const currentSubscription = await prisma.membershipSubscription.findFirst({
+    // Portal configuration is customer-wide, so every nonterminal subscription
+    // must resolve to the same buyer-use boundary before a session can open.
+    const nonterminalSubscriptions = await prisma.membershipSubscription.findMany({
       where: {
         userId: session.user.id,
         stripeCustomerId: stripeCustomer.stripeCustomerId,
-        status: { in: ["active", "trialing"] },
+        status: { notIn: ["canceled", "incomplete_expired"] },
       },
       orderBy: PORTAL_SUBSCRIPTION_ORDER,
       select: {
         stripeSubscriptionId: true,
         stripePriceId: true,
+        status: true,
       },
     })
-    const subscription = currentSubscription
+    const currentSubscriptions = nonterminalSubscriptions.filter(
+      ({ status }) => status === "active" || status === "trialing",
+    )
+    const subscription = currentSubscriptions[0]
       ?? (destination === BILLING_PORTAL_DESTINATIONS.MANAGE
-        ? await prisma.membershipSubscription.findFirst({
-          where: {
-            userId: session.user.id,
-            stripeCustomerId: stripeCustomer.stripeCustomerId,
-            status: {
-              notIn: ["active", "trialing", "canceled", "incomplete_expired"],
-            },
-          },
-          orderBy: PORTAL_SUBSCRIPTION_ORDER,
-          select: {
-            stripeSubscriptionId: true,
-            stripePriceId: true,
-          },
-        })
+        ? nonterminalSubscriptions[0]
         : null)
 
     if (
@@ -89,7 +79,16 @@ export async function POST(request: Request) {
       return accountRedirect("subscription-not-found")
     }
 
-    const portal = resolveSupporterPortalForPrice(subscription?.stripePriceId)
+    const resolvedPortals = nonterminalSubscriptions.map(
+      ({ stripePriceId }) => resolveSupporterPortalForPrice(stripePriceId),
+    )
+    const portalKeys = new Set(resolvedPortals.map(({ supporterUse, configurationId }) => (
+      `${supporterUse ?? "default"}:${configurationId ?? "default"}`
+    )))
+    if (portalKeys.size > 1) {
+      throw new Error("The customer's nonterminal subscriptions require incompatible Portal configurations.")
+    }
+    const portal = resolvedPortals[0] ?? resolveSupporterPortalForPrice()
     const portalSession = await createStripeCustomerPortalSession({
       customerId: stripeCustomer.stripeCustomerId,
       returnUrl: `${getSiteUrl()}/account?tab=membership&portal=returned`,

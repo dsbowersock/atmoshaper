@@ -74,21 +74,13 @@ function portalPost({
       "@/lib/prisma": {
         prisma: {
           membershipSubscription: {
-            findFirst: async (query) => {
+            findMany: async (query) => {
               calls.subscriptionQueries.push(query)
               const candidates = subscriptions ?? (subscription ? [subscription] : [])
-              return candidates.find((candidate) => {
-                if (
-                  Array.isArray(query?.where?.status?.in)
-                  && !query.where.status.in.includes(candidate.status)
-                ) {
-                  return false
-                }
-                return !(
+              return candidates.filter((candidate) => !(
                   Array.isArray(query?.where?.status?.notIn)
                   && query.where.status.notIn.includes(candidate.status)
-                )
-              }) ?? null
+              ))
             },
           },
           stripeCustomer: {
@@ -148,7 +140,7 @@ describe("Customer Portal POST route", () => {
         userId: "user_supporter",
         stripeCustomerId: "cus_supporter",
         status: {
-          in: ["active", "trialing"],
+          notIn: ["canceled", "incomplete_expired"],
         },
       },
       orderBy: [
@@ -158,6 +150,7 @@ describe("Customer Portal POST route", () => {
       select: {
         stripeSubscriptionId: true,
         stripePriceId: true,
+        status: true,
       },
     }])
     assert.deepEqual(calls.portalInputs, [{
@@ -204,20 +197,18 @@ describe("Customer Portal POST route", () => {
       assert.equal(response.url, "https://billing.stripe.com/p/session/supporter")
       assert.equal(calls.portalInputs[0].configurationId, "bpc_personal")
       assert.deepEqual(calls.subscriptionQueries[0].where.status, {
-        in: ["active", "trialing"],
+        notIn: ["canceled", "incomplete_expired"],
       })
-      assert.deepEqual(calls.subscriptionQueries[1].where.status, {
-        notIn: ["active", "trialing", "canceled", "incomplete_expired"],
-      })
+      assert.equal(calls.subscriptionQueries.length, 1)
     }
   })
 
-  it("prioritizes an active subscription over a newer degraded subscription", async () => {
+  it("prioritizes an active subscription over a newer same-use degraded subscription", async () => {
     const { calls, POST } = portalPost({
       subscriptions: [
         {
           stripeSubscriptionId: "sub_paused",
-          stripePriceId: "price_supporter_business",
+          stripePriceId: "price_supporter_personal",
           status: "paused",
         },
         {
@@ -238,6 +229,32 @@ describe("Customer Portal POST route", () => {
     })
   })
 
+  it("fails closed when nonterminal subscriptions span buyer-use Portal boundaries", async () => {
+    const { calls, POST } = portalPost({
+      subscriptions: [
+        {
+          stripeSubscriptionId: "sub_personal",
+          stripePriceId: "price_supporter_personal",
+          status: "active",
+        },
+        {
+          stripeSubscriptionId: "sub_business",
+          stripePriceId: "price_supporter_business",
+          status: "trialing",
+        },
+      ],
+    })
+
+    const response = await POST(portalRequest("manage"))
+
+    assert.deepEqual(response, {
+      status: 303,
+      url: "https://massagelab.app/account?portal=error",
+    })
+    assert.equal(calls.subscriptionQueries.length, 1)
+    assert.deepEqual(calls.portalInputs, [])
+  })
+
   it("opens Stripe's direct price-selection flow for the current subscription", async () => {
     const { calls, POST } = portalPost()
 
@@ -252,7 +269,7 @@ describe("Customer Portal POST route", () => {
         userId: "user_supporter",
         stripeCustomerId: "cus_supporter",
         status: {
-          in: ["active", "trialing"],
+          notIn: ["canceled", "incomplete_expired"],
         },
       },
       orderBy: [
@@ -262,6 +279,7 @@ describe("Customer Portal POST route", () => {
       select: {
         stripeSubscriptionId: true,
         stripePriceId: true,
+        status: true,
       },
     }])
     assert.deepEqual(calls.portalInputs, [{

@@ -437,6 +437,7 @@ async function verifyStripePrices() {
       addFailure(`${expected.envKey} could not be retrieved from Stripe.`)
     }
   }
+  const allLegacyPricesRetrieved = retrievedLegacyMembershipPrices.length === legacyPriceIds.size
   stripeRetrievalPerformed = allPricesRetrieved
 
   let defaultConfiguration = null
@@ -451,10 +452,12 @@ async function verifyStripePrices() {
       addFailure("The retained default Stripe Portal configuration could not be uniquely verified.")
     } else {
       defaultConfiguration = defaults[0]
-      for (const failure of validateRetrievedDefaultSupporterPortalConfiguration(
-        defaultConfiguration,
-        { retrievedLegacyMembershipPrices, livemode: expectedLivemode },
-      )) addFailure(failure)
+      if (allLegacyPricesRetrieved) {
+        for (const failure of validateRetrievedDefaultSupporterPortalConfiguration(
+          defaultConfiguration,
+          { retrievedLegacyMembershipPrices, livemode: expectedLivemode },
+        )) addFailure(failure)
+      }
     }
   } catch {
     addFailure("The retained default Stripe Portal configuration could not be retrieved.")

@@ -74,6 +74,9 @@ function legacySupporterPrice(priceId) {
     ({ envKey }) => process.env[envKey] === priceId,
   )
   if (!expected) throw new Error("Unexpected retained v1 Price fixture")
+  if (process.env.STRIPE_READINESS_STUB_FAIL_PRICE_ID === priceId) {
+    throw new Error("Simulated Stripe Price retrieval failure")
+  }
   const livemode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true
   const price = {
     id: priceId,

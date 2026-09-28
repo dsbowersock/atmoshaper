@@ -1149,6 +1149,25 @@ describe("Stripe readiness background-commerce contract", () => {
     )
   })
 
+  it("does not infer default Portal drift from an incomplete retained v1 Price retrieval", () => {
+    const [failedLegacyPrice] = LEGACY_TARGET_PRICE_SPECS
+    const result = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_FAIL_PRICE_ID:
+        legacyMembershipPrices[failedLegacyPrice.envKey],
+    }, ["--verify-stripe"])
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(result.stdout, /Stripe API retrieval performed: false/)
+    assert.match(
+      result.stderr,
+      new RegExp(`${failedLegacyPrice.envKey} could not be retrieved from Stripe`),
+    )
+    assert.doesNotMatch(
+      result.stderr,
+      /retained default Stripe Portal Product and Price allowlist/,
+    )
+  })
+
   it("checks the complete Price ID inventory before Stripe retrieval", () => {
     const result = runReadiness({
       ...Object.fromEntries(Object.keys(membershipPrices).map((key) => [key, ""])),

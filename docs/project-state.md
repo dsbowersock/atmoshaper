@@ -43,6 +43,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   return URL. Readiness also retrieves the six retained v1 Prices and requires
   each Price and expanded Product to remain active in the selected mode with
   its exact recurring semantics, tax classification, and v1 metadata identity.
+  An incomplete retained-v1 retrieval remains a retrieval-specific failure and
+  cannot be misreported as default-Portal allowlist drift. Runtime Portal
+  creation requires every nonterminal subscription for the Stripe Customer to
+  resolve to one compatible personal, business, or retained-default Portal
+  boundary before opening the customer-wide session.
   Their default Portal must preserve its exact three-Product/six-Price
   allowlist, reviewed update policy, and billing-management features. The
   migration rejects archived retained-v1 catalog objects and refuses to

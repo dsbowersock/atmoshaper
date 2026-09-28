@@ -56,6 +56,14 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   name, tax code, and v1 identity before using it as Portal evidence. Focused
   migration, readiness, and final-review validation passed: 58 passed, 0 failed;
   the adjacent six-suite membership/Portal group passed: 101 passed, 0 failed.
+- Exact-head Codex and CodeRabbit then found two independent fail-closed gaps.
+  Customer Portal creation now classifies every nonterminal subscription for
+  the Stripe Customer and refuses a session when their personal/business Portal
+  configurations disagree. Readiness now skips default-Portal allowlist
+  comparison when any retained v1 Price retrieval failed, preserving the exact
+  retrieval failure instead of adding a misleading drift diagnosis. The focused
+  Portal, readiness, migration, final-review, and workload suites passed: 86
+  passed, 0 failed; typecheck, lint, and diff checks passed.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this code-only candidate.
 
