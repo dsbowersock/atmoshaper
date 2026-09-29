@@ -330,6 +330,12 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
         },
         create: async (payload, options) => {
           log("portal.create", payload, options)
+          if (Object.hasOwn(payload, "active")) {
+            throw new Error("Portal create must not send the response-only active field")
+          }
+          if (payload.features.subscription_update.schedule_at_period_end !== undefined) {
+            throw new Error("Portal create must not send update-only empty-array encoding")
+          }
           const supporterUse = payload.metadata.atmoshaper_portal_supporter_use
           const id = `bpc_v2_${supporterUse}`
           const created = {
@@ -337,6 +343,7 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
             object: "billing_portal.configuration",
             livemode: false,
             is_default: false,
+            active: true,
             ...clone(payload),
             features: canonicalPortalFeatures(payload.features),
           }
@@ -573,6 +580,12 @@ describe("Supporter v2 sandbox catalog migration", () => {
       repairedPortal.default_return_url,
       "https://www.atmoshaper.com/account?tab=membership",
     )
+    const update = fixture.calls.find(({ operation }) => operation === "portal.update")
+    assert.equal(update.payload.active, true)
+    assert.equal(
+      update.payload.features.subscription_update.schedule_at_period_end.conditions,
+      "",
+    )
   })
 
   it("explicitly clears managed Portal profile fields removed from the default", async () => {
@@ -658,6 +671,12 @@ describe("Supporter v2 sandbox catalog migration", () => {
     assert.equal(fixture.calls.filter(({ operation }) => operation === "products.create").length, 6)
     assert.equal(fixture.calls.filter(({ operation }) => operation === "prices.create").length, 12)
     assert.equal(fixture.calls.filter(({ operation }) => operation === "portal.create").length, 2)
+    assert.equal(fixture.calls
+      .filter(({ operation }) => operation === "portal.create")
+      .every(({ payload }) => (
+        !Object.hasOwn(payload, "active")
+        && payload.features.subscription_update.schedule_at_period_end === undefined
+      )), true)
     assert.deepEqual(
       [...fixture.products.values()].slice(0, 3),
       v1ProductsBefore,
