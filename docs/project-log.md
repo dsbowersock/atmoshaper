@@ -22,9 +22,13 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 - Provider-free fixture apply/replay proves the exact six Products, twelve
   Prices, and two use-specific Portals are created once. Omitted Portal
   catalogs require a fresh exact Dashboard inspection before verification.
-  The focused live and sandbox migration suites pass 22/22, and the expanded
-  Stripe/readiness/Checkout/Portal regression group passes 264/264. Typecheck
-  and lint pass. The full suite records 5,031 tests: 5,028 passed, three
+  The first hosted review repair also requires each post-create Product and
+  Price receipt to retain the requested managed identity before any dependent
+  write, with a regression proving mismatches stop before Portal creation.
+  Focused documentation now covers the non-obvious changed helpers. The
+  focused live and sandbox migration suites pass 23/23, and the expanded
+  Stripe/readiness/Checkout/Portal regression group passes 355/355. Typecheck
+  and lint pass. The full suite records 5,032 tests: 5,029 passed, three
   host-dependent skips, and zero failures. The production build compiles,
   completes TypeScript, and generates all 115 static pages; its existing
   Anatomime poll-shedder initialization notice remains non-failing. No Stripe,

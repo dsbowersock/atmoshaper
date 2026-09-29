@@ -372,10 +372,15 @@ npm run stripe:migrate-supporter-v2-live -- --mode=verify
 
 `plan` is read-only and reports only checklist and object-count output.
 `verify` is also read-only and requires the complete target. Do not persist
-`ATMOSHAPER_STRIPE_LIVE_APPLY_CONFIRMATION`; after reviewing the plan and
-receiving fresh authorization for its exact live writes, set it only for the
-apply process to `CREATE_SUPPORTER_V2_LIVE_CATALOG`, run `--mode=apply`, remove
-the confirmation, and rerun `--mode=verify`.
+`ATMOSHAPER_STRIPE_LIVE_APPLY_CONFIRMATION`. After reviewing the plan and
+receiving fresh authorization for its exact live writes, establish an exclusive
+catalog-writer window: no operator or automation may edit Products, Prices,
+lookup keys, or Portal configurations between the final plan and apply. Rerun
+`--mode=plan` inside that window and stop if any inventory changed. Then set the
+confirmation only for the apply process to
+`CREATE_SUPPORTER_V2_LIVE_CATALOG`, run `--mode=apply`, remove the confirmation,
+and rerun `--mode=verify`. Keeping Checkout paused does not replace this
+exclusive-writer requirement.
 
 If Stripe omits each managed Portal's Product catalog from API responses, the
 apply deliberately stops at the final evidence gate. Inspect both live Portal

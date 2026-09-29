@@ -10,6 +10,7 @@ import {
 } from "../lib/stripe-supporter-portal-contract.js"
 import {
   V2_TARGET_PRICE_SPECS,
+  V2_TARGET_PRODUCT_SPECS,
   supporterV2LookupKey,
 } from "../lib/stripe-supporter-v2-catalog-contract.js"
 import {
@@ -18,6 +19,7 @@ import {
   STRIPE_PINNED_WEBHOOK_URL,
 } from "../lib/stripe-webhook-contract.js"
 
+/** Builds a fake live environment whose values are safe to assert in output tests. */
 function liveEnv(overrides = {}) {
   return {
     STRIPE_SECRET_KEY: "sk_live_do_not_print",
@@ -26,6 +28,7 @@ function liveEnv(overrides = {}) {
   }
 }
 
+/** Adds the exact process-local apply confirmation to the fake live environment. */
 function applyEnv(overrides = {}) {
   return liveEnv({
     ATMOSHAPER_STRIPE_LIVE_APPLY_CONFIRMATION: "CREATE_SUPPORTER_V2_LIVE_CATALOG",
@@ -33,10 +36,12 @@ function applyEnv(overrides = {}) {
   })
 }
 
+/** Isolates provider fixture state from the migration's normalization logic. */
 function clone(value) {
   return structuredClone(value)
 }
 
+/** Emulates Stripe cursor pagination for deterministic inventory scans. */
 function paged(values, params, pageSize) {
   const ordered = [...values]
   const cursorIndex = params.starting_after
@@ -48,6 +53,7 @@ function paged(values, params, pageSize) {
   return { data, has_more: start + data.length < ordered.length }
 }
 
+/** Builds a provider-shaped recurring live Price for fixture inventory. */
 function recurringPrice({
   id,
   product,
@@ -80,6 +86,7 @@ function recurringPrice({
   }
 }
 
+/** Emulates Stripe's response normalization for Portal schedule conditions. */
 function canonicalPortalFeatures(features) {
   const result = clone(features)
   if (result.subscription_update?.schedule_at_period_end?.conditions === "") {
@@ -89,7 +96,12 @@ function canonicalPortalFeatures(features) {
 }
 
 /** Creates a deterministic live-mode Stripe fixture with no provider side effects. */
-function stripeFixture({ pageSize = 100, omitManagedPortalProducts = false } = {}) {
+function stripeFixture({
+  pageSize = 100,
+  omitManagedPortalProducts = false,
+  productReceiptIdentityMismatch = false,
+  priceReceiptIdentityMismatch = false,
+} = {}) {
   const calls = []
   const products = new Map()
   const prices = new Map()
@@ -150,7 +162,19 @@ function stripeFixture({ pageSize = 100, omitManagedPortalProducts = false } = {
         log("products.create", payload, options)
         const key = payload.metadata.atmoshaper_supporter_amount_choice
         const id = `prod_live_${key}`
-        const created = { id, object: "product", livemode: true, ...clone(payload) }
+        const metadata = clone(payload.metadata)
+        if (productReceiptIdentityMismatch) {
+          metadata.atmoshaper_supporter_amount_choice = V2_TARGET_PRODUCT_SPECS.find(
+            (candidate) => candidate.key !== key,
+          ).key
+        }
+        const created = {
+          id,
+          object: "product",
+          livemode: true,
+          ...clone(payload),
+          metadata,
+        }
         products.set(id, created)
         return clone(created)
       },
@@ -171,12 +195,18 @@ function stripeFixture({ pageSize = 100, omitManagedPortalProducts = false } = {
         log("prices.create", payload, options)
         const key = payload.metadata.atmoshaper_supporter_price_key
         const id = `price_live_${key}`
+        const metadata = clone(payload.metadata)
+        if (priceReceiptIdentityMismatch) {
+          metadata.atmoshaper_supporter_price_key = V2_TARGET_PRICE_SPECS.find(
+            (candidate) => candidate.key !== key,
+          ).key
+        }
         const created = recurringPrice({
           id,
           product: payload.product,
           unitAmount: payload.unit_amount,
           interval: payload.recurring.interval,
-          metadata: payload.metadata,
+          metadata,
           lookupKey: payload.lookup_key,
         })
         prices.set(id, created)
@@ -264,12 +294,14 @@ function stripeFixture({ pageSize = 100, omitManagedPortalProducts = false } = {
   }
 }
 
+/** Returns only fixture calls that mutate provider-shaped state. */
 function mutationCalls(fixture) {
   return fixture.calls.filter(({ operation }) => (
     operation.endsWith(".create") || operation.endsWith(".update")
   ))
 }
 
+/** Requires one migration failure code while preserving the full error receipt. */
 async function expectFailure(run, code) {
   await assert.rejects(run, (error) => {
     assert.equal(error instanceof SupporterV2LiveMigrationError, true)
@@ -373,6 +405,36 @@ describe("Supporter v2 live catalog migration", () => {
     })
     assert.equal(replay.state, "COMPLETED")
     assert.equal(mutationCalls(fixture).length, writesBeforeReplay)
+  })
+
+  it("rejects mismatched post-create identities before dependent live writes", async () => {
+    const productMismatch = stripeFixture({ productReceiptIdentityMismatch: true })
+    await expectFailure(
+      () => runSupporterV2LiveMigration({
+        stripe: productMismatch.stripe,
+        mode: "apply",
+        env: applyEnv(),
+      }),
+      "v2_product_mutation_unverified",
+    )
+    assert.deepEqual(
+      mutationCalls(productMismatch).map(({ operation }) => operation),
+      ["products.create"],
+    )
+
+    const priceMismatch = stripeFixture({ priceReceiptIdentityMismatch: true })
+    await expectFailure(
+      () => runSupporterV2LiveMigration({
+        stripe: priceMismatch.stripe,
+        mode: "apply",
+        env: applyEnv(),
+      }),
+      "v2_price_mutation_unverified",
+    )
+    assert.equal(
+      mutationCalls(priceMismatch).some(({ operation }) => operation === "portal.create"),
+      false,
+    )
   })
 
   it("requires fresh exact operator evidence after Stripe omits created Portal catalogs", async () => {

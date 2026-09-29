@@ -91,10 +91,12 @@ export class SupporterV2LiveMigrationError extends Error {
   }
 }
 
+/** Builds one fixed-code operator check without embedding provider data. */
 function check(code, passed) {
   return { code, status: passed ? "PASS" : "FAIL" }
 }
 
+/** Returns one trimmed string setting without coercing non-string inputs. */
 function envValue(env, key) {
   return typeof env?.[key] === "string" ? env[key].trim() : ""
 }
@@ -130,10 +132,12 @@ function buildConfig(env, mode) {
   }
 }
 
+/** Reports whether one Stripe resource is explicitly live-mode. */
 function modeMatches(object) {
   return object?.livemode === true
 }
 
+/** Normalizes an expandable Stripe relationship to its stable identifier. */
 function idOf(value) {
   return typeof value === "string" ? value : value?.id ?? ""
 }
@@ -162,6 +166,7 @@ async function scanAll(list, params = {}) {
   throw new SupporterV2LiveMigrationError(["stripe_list_page_limit_exceeded"])
 }
 
+/** Adds one classified object while recording duplicate identities as drift. */
 function addUnique(map, key, value, failureCodes, duplicateCode) {
   if (map.has(key)) {
     failureCodes.push(duplicateCode)
@@ -170,14 +175,17 @@ function addUnique(map, key, value, failureCodes, duplicateCode) {
   map.set(key, value)
 }
 
+/** Resolves an immutable v2 Product target by its managed identity key. */
 function v2ProductSpec(key) {
   return V2_TARGET_PRODUCT_SPECS.find((product) => product.key === key) ?? null
 }
 
+/** Resolves an immutable v2 Price target by its managed identity key. */
 function v2PriceSpec(key) {
   return V2_TARGET_PRICE_SPECS.find((price) => price.key === key) ?? null
 }
 
+/** Verifies the live Product fields that must equal one immutable target. */
 function exactProduct(candidate, spec) {
   return modeMatches(candidate)
     && candidate.active === true
@@ -186,6 +194,7 @@ function exactProduct(candidate, spec) {
     && candidate.tax_code === spec.taxCode
 }
 
+/** Verifies one live Price's Product binding and recurring semantics. */
 function exactPrice(candidate, spec, productId) {
   return modeMatches(candidate)
     && candidate.active === true
@@ -198,10 +207,12 @@ function exactPrice(candidate, spec, productId) {
     })
 }
 
+/** Compares normalized JSON-safe contract values without provider object noise. */
 function jsonEqual(left, right) {
   return JSON.stringify(left) === JSON.stringify(right)
 }
 
+/** Normalizes Stripe's omitted and empty optional Portal text to one value. */
 function normalizeOptionalPortalText(value) {
   return typeof value === "string" && value.length > 0 ? value : null
 }
@@ -241,6 +252,7 @@ function portalBaseMatches(candidate, payload, supporterUse) {
     && jsonEqual(candidateFeatures, payloadFeatures)
 }
 
+/** Verifies a managed Portal including its API-visible or attested catalog. */
 function portalMatches(candidate, payload, supporterUse, catalogConfirmation = "") {
   return portalBaseMatches(candidate, payload, supporterUse)
     && managedSupporterPortalAllowlistIsVerified(
@@ -363,6 +375,7 @@ function classifyPortals(portals) {
   return { failureCodes, managed }
 }
 
+/** Retains only live subscriptions that can still affect billing state. */
 function nonTerminalSubscriptions(subscriptions) {
   return subscriptions.filter((subscription) => (
     modeMatches(subscription)
@@ -370,6 +383,7 @@ function nonTerminalSubscriptions(subscriptions) {
   ))
 }
 
+/** Retains only open live Checkout Sessions capable of creating subscriptions. */
 function openSubscriptionSessions(sessions) {
   return sessions.filter((session) => (
     modeMatches(session)
@@ -506,6 +520,7 @@ async function collectInventory(stripe, config) {
   return { ...catalog, ...portal, checks, portalActions, state }
 }
 
+/** Re-reads one mutation result and rejects it before dependent writes on drift. */
 async function retrieveAndRequire(retrieve, id, validate, failureCode) {
   const candidate = await retrieve(id)
   if (!validate(candidate)) throw new SupporterV2LiveMigrationError([failureCode])
@@ -523,10 +538,14 @@ async function applyMigration(stripe, inventory) {
     const product = await retrieveAndRequire(
       (id) => stripe.products.retrieve(id),
       created.id,
-      (candidate) => exactProduct(candidate, spec)
-        && classifySupporterProductMetadata(candidate.metadata, {
+      (candidate) => {
+        const classification = classifySupporterProductMetadata(candidate.metadata, {
           catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-        })?.schema === "current",
+        })
+        return exactProduct(candidate, spec)
+          && classification?.schema === "current"
+          && classification.amountChoiceId === spec.key
+      },
       "v2_product_mutation_unverified",
     )
     products.set(spec.key, product)
@@ -543,10 +562,14 @@ async function applyMigration(stripe, inventory) {
     const price = await retrieveAndRequire(
       (id) => stripe.prices.retrieve(id, { expand: ["currency_options"] }),
       created.id,
-      (candidate) => exactPrice(candidate, spec, product.id)
-        && classifySupporterPriceMetadata(candidate.metadata, {
+      (candidate) => {
+        const classification = classifySupporterPriceMetadata(candidate.metadata, {
           catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-        })?.schema === "current",
+        })
+        return exactPrice(candidate, spec, product.id)
+          && classification?.schema === "current"
+          && classification.priceKey === spec.key
+      },
       "v2_price_mutation_unverified",
     )
     prices.set(spec.key, price)
@@ -585,6 +608,7 @@ async function applyMigration(stripe, inventory) {
   }
 }
 
+/** Summarizes the bounded writes or confirmations needed by one inventory. */
 function planFor(inventory) {
   return {
     createProducts: V2_TARGET_PRODUCT_SPECS.length - inventory.v2Products.size,
@@ -601,6 +625,7 @@ function planFor(inventory) {
   }
 }
 
+/** Distinguishes a confirmation-only stop from incomplete catalog topology. */
 function completionFailureCode(inventory) {
   const actions = [...inventory.portalActions.values()]
   return actions.every((action) => action === "none" || action === "confirmation")
@@ -676,6 +701,7 @@ export function formatLiveMigrationChecklist(result) {
   ].join("\n")
 }
 
+/** Formats only fixed failure codes and precomputed non-secret checks. */
 export function formatLiveMigrationFailure(error) {
   return [
     ...(error?.checks ?? []).map(({ status, code }) => `${status} ${code}`),
@@ -684,11 +710,13 @@ export function formatLiveMigrationFailure(error) {
   ].join("\n")
 }
 
+/** Reads one exact --name=value command-line argument. */
 function argumentValue(name) {
   const prefix = `${name}=`
   return process.argv.slice(2).find((argument) => argument.startsWith(prefix))?.slice(prefix.length) ?? ""
 }
 
+/** Runs the standalone CLI while keeping provider values out of its receipt. */
 async function main() {
   const mode = argumentValue("--mode")
   try {

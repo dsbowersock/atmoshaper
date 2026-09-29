@@ -54,10 +54,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   retained v1 sandbox baseline. Provider writes, Vercel configuration,
   deployment, tax registration, live payment/refund testing, registration, and
   Checkout activation remain outside this candidate. Provider-free validation
-  passes the 22 focused live/sandbox migration cases, the 264-case expanded
+  passes the 23 focused live/sandbox migration cases, the 355-case expanded
   Stripe regression group, typecheck, lint, the production build, and the full
-  5,031-test suite with 5,028 passed, three host-dependent skips, and zero
-  failures. Exact-head hosted review remains pending.
+  5,032-test suite with 5,029 passed, three host-dependent skips, and zero
+  failures. The first hosted repair requires post-create Product and Price
+  receipts to retain the requested managed identity before any dependent live
+  write. Exact-head hosted review remains pending.
 - The merged migration command adds a bounded verify/plan/apply
   command for the dedicated AtmoShaper sandbox and separates Customer Portal
   configuration by persisted personal or business Price identity. It preserves
