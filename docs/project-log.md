@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-29 — Supporter v2 live cutover candidate
+
+- PR #28 merged as `0695c740f605b75a91d589c831ca236dff4230a2` after its
+  exact-head hosted checks, Codex, CodeRabbit, and review-thread gates passed.
+  The receipt removes the private deployment identifier and records the
+  completed sandbox Checkout, Portal, signed-webhook, database, and cleanup
+  acceptance without changing provider state.
+- The next isolated branch extracts the immutable v2 catalog and managed-Portal
+  request contract from the sandbox-only orchestrator. The accepted sandbox
+  behavior remains covered while the oversized migration and test owners become
+  smaller rather than receiving live responsibilities.
+- A separate live verify/plan/apply command supports the empty dedicated
+  AtmoShaper live account. It accepts live or restricted-live credentials,
+  requires the expected account identity and live mode, blocks on any unowned
+  catalog or non-default Portal, subscription, open subscription Checkout,
+  target lookup-key collision, managed drift, or pinned live-webhook mismatch,
+  and uses deterministic creation plus post-write readback.
+- Provider-free fixture apply/replay proves the exact six Products, twelve
+  Prices, and two use-specific Portals are created once. Omitted Portal
+  catalogs require a fresh exact Dashboard inspection before verification.
+  The focused live and sandbox migration suites pass 22/22, and the expanded
+  Stripe/readiness/Checkout/Portal regression group passes 264/264. Typecheck
+  and lint pass. The full suite records 5,031 tests: 5,028 passed, three
+  host-dependent skips, and zero failures. The production build compiles,
+  completes TypeScript, and generates all 115 static pages; its existing
+  Anatomime poll-shedder initialization notice remains non-failing. No Stripe,
+  Vercel, Neon, database, deployment, payment, subscription, tax, DNS, or
+  email-provider mutation occurred.
+
 ## 2026-09-29 — Supporter v2 deployed sandbox acceptance and cleanup
 
 - PR #27 merged as `9608849d08af3d7f919a6a472117d73baf5b4684` after

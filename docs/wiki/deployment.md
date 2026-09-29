@@ -348,6 +348,51 @@ Copy the twelve Price IDs and the two Portal configuration IDs into the secure
 sandbox deployment environment only after this command is reviewed and the
 provider state verifies completed.
 
+### Supporter v2 live catalog migration
+
+The live command is a separate orchestrator for the dedicated AtmoShaper live
+account. It shares the immutable six-Product/twelve-Price and two-Portal
+contract with the accepted sandbox migration, but it does not require or
+create the retained v1 sandbox catalog. It accepts only `sk_live_` or
+`rk_live_` credentials, proves the expected account through a live-mode
+Balance, and rejects any unowned Product, Price, or non-default Portal, target
+lookup-key collision, nonterminal subscription, open subscription Checkout
+Session, managed metadata drift, or pinned live-webhook mismatch.
+
+The live pinned webhook must exist and match the exact URL, API version, and
+15-event set before even the read-only plan succeeds. After the code is
+reviewed and merged, supply the live key and
+`ATMOSHAPER_STRIPE_LIVE_EXPECTED_ACCOUNT_ID` through approved local secret
+management and run:
+
+```bash
+npm run stripe:migrate-supporter-v2-live -- --mode=plan
+npm run stripe:migrate-supporter-v2-live -- --mode=verify
+```
+
+`plan` is read-only and reports only checklist and object-count output.
+`verify` is also read-only and requires the complete target. Do not persist
+`ATMOSHAPER_STRIPE_LIVE_APPLY_CONFIRMATION`; after reviewing the plan and
+receiving fresh authorization for its exact live writes, set it only for the
+apply process to `CREATE_SUPPORTER_V2_LIVE_CATALOG`, run `--mode=apply`, remove
+the confirmation, and rerun `--mode=verify`.
+
+If Stripe omits each managed Portal's Product catalog from API responses, the
+apply deliberately stops at the final evidence gate. Inspect both live Portal
+configurations in the Dashboard, verify exactly three Products and six Prices
+for the matching personal or business use with quantity changes disabled, then
+set `ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION` to
+`CONFIRM_MANAGED_V2_SUPPORTER_PORTALS_3_PRODUCTS_6_PRICES_EACH` for that single
+verify process. The confirmation cannot override any API-visible empty or
+mismatched catalog and must never be persisted.
+
+Creating live catalog objects does not authorize live Checkout. Configure and
+verify the live Ohio tax registration, live webhook secret, Vercel catalog and
+Portal IDs, deployment, final readiness, and the controlled live
+transaction/refund before public activation. The MassageLab account's tax
+settings may guide the choice, but its Stripe registration object cannot be
+reused in the dedicated AtmoShaper account.
+
 ### Retained v1 Supporter catalog migration
 
 This historical migration owns only the retained three-Product, six-Price v1
