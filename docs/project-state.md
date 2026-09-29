@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-28
+Verified: 2026-09-29
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -8,22 +8,22 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `4b5ef0580668f8abf54a0c6be79008390df3f427`; PR #19's
+  `main` is `27acafb8946ba97b34061ac724b276c2eb74a312`; PR #19's
   provider-readiness record, PR #20's public Stripe catalog identity, and PR
   #21's final brand assets, PR #22's Stripe technical identity, and PR #23's
-  buyer-selected Supporter use classification, and PR #24's reviewed sandbox
-  catalog migration are merged. Earlier CI evidence
+  buyer-selected Supporter use classification, PR #24's reviewed sandbox
+  catalog migration, PR #25's default-Portal omission compatibility, and PR
+  #26's Portal-create request contract are merged. Earlier CI evidence
   remains historical until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, support routing, and verified Google branding are operational;
   the verified branding is being shown to users.
-- The dedicated AtmoShaper Stripe test environment is connected. Its first
-  sandbox catalog has three amount-specific Products and six recurring Prices,
-  while new Production Checkout remains paused. Stripe Tax has the home origin
-  but no registrations. The buyer-use candidate expands the next catalog to six
-  amount/use Products and twelve Prices so each buyer can declare personal or
-  business use without changing price or benefits; it performs no provider
-  mutation or deployment. The
+- The dedicated AtmoShaper Stripe test environment is connected. It retains the
+  three v1 amount-specific Products and six recurring Prices and now also has
+  all six v2 amount/use Products, all twelve v2 recurring Prices, and the
+  managed personal-use Portal. The managed business-use Portal remains to be
+  created while new Production Checkout stays paused. Stripe Tax has the home
+  origin but no registrations. The
   Vercel-managed destination retains the committed database migration state;
   the personal Neon organization lists only its directly owned projects, as
   expected.
@@ -60,8 +60,15 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   before loading dotenv files, and it is intentionally absent from the shared
   environment template. The confirmation is accepted only after all six unique
   expected Price identities resolve to three distinct unsplit Product
-  identities. An API-visible mismatch still fails closed. No Stripe object,
-  Vercel setting, database state, or deployment has changed in this follow-up.
+  identities. An API-visible mismatch still fails closed.
+- Stripe also omits the managed v2 Portal Product allowlists from both list and
+  retrieve responses. The first authorized apply therefore created the
+  personal-use Portal, then failed closed before creating the business-use
+  Portal when its readback could not prove the omitted allowlist. A focused
+  follow-up distinguishes omitted managed catalogs from API-visible drift,
+  prevents a no-op update loop, accepts only an exact process-local confirmation
+  after both use-specific three-Product/six-Price catalogs are checked in the
+  Dashboard, and keeps visible mismatches authoritative.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
   uses the wordmark at wide widths and the square logo at narrow widths. The

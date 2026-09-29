@@ -23,8 +23,10 @@ import {
 import {
   hasApprovedSupporterPortalManagementFeatures,
   hasApprovedSupporterPortalTransitionPolicy,
+  managedSupporterPortalAllowlistIsVerified,
   normalizeSupporterPortalFeatures,
   retainedDefaultSupporterPortalAllowlistIsVerified,
+  supporterPortalAllowlistMatches,
 } from "../lib/stripe-supporter-portal-contract.js"
 import {
   STRIPE_API_VERSION,
@@ -114,6 +116,7 @@ function check(code, passed) {
   return { code, status: passed ? "PASS" : "FAIL" }
 }
 
+/** Returns one trimmed string setting without coercing non-string inputs. */
 function envValue(env, key) {
   return typeof env?.[key] === "string" ? env[key].trim() : ""
 }
@@ -145,6 +148,10 @@ function buildConfig(env, mode) {
     defaultPortalCatalogConfirmation: envValue(
       env,
       "ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION",
+    ),
+    managedPortalCatalogConfirmation: envValue(
+      env,
+      "ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION",
     ),
     expectedAccountId,
     secretKey,
@@ -389,11 +396,17 @@ function portalPayload(defaultPortal, supporterUse, products, prices, { create =
   }
 }
 
+/** Normalizes optional Portal text so absent and empty API values compare alike. */
 function normalizeOptionalPortalText(value) {
   return typeof value === "string" && value.length > 0 ? value : null
 }
 
-function portalMatches(candidate, payload, supporterUse) {
+/** Verifies every managed Portal field Stripe reliably returns except its catalog. */
+function portalBaseMatches(candidate, payload, supporterUse) {
+  const candidateFeatures = normalizeSupporterPortalFeatures(candidate.features)
+  const payloadFeatures = normalizeSupporterPortalFeatures(payload.features)
+  delete candidateFeatures.subscription_update.products
+  delete payloadFeatures.subscription_update.products
   return modeMatches(candidate)
     && candidate.active === true
     && candidate.is_default === false
@@ -420,10 +433,30 @@ function portalMatches(candidate, payload, supporterUse) {
     )
     && normalizeOptionalPortalText(candidate.default_return_url)
       === normalizeOptionalPortalText(payload.default_return_url)
-    && jsonEqual(
-      normalizeSupporterPortalFeatures(candidate.features),
-      normalizeSupporterPortalFeatures(payload.features),
+    && jsonEqual(candidateFeatures, payloadFeatures)
+}
+
+/** Verifies a complete managed Portal using API catalog evidence or fresh attestation. */
+function portalMatches(candidate, payload, supporterUse, catalogConfirmation = "") {
+  return portalBaseMatches(candidate, payload, supporterUse)
+    && managedSupporterPortalAllowlistIsVerified(
+      candidate.features,
+      payload.features?.subscription_update?.products,
+      catalogConfirmation,
     )
+}
+
+/**
+ * Verifies every API-visible write result while permitting only Stripe's
+ * proven omission of the managed Product allowlist to await operator evidence.
+ */
+function portalMutationReceiptMatches(candidate, payload, supporterUse) {
+  if (!portalBaseMatches(candidate, payload, supporterUse)) return false
+  const products = candidate?.features?.subscription_update?.products
+  return products === undefined || supporterPortalAllowlistMatches(
+    candidate.features,
+    payload.features?.subscription_update?.products,
+  )
 }
 
 function addUnique(map, key, value, failureCodes, duplicateCode) {
@@ -699,7 +732,17 @@ async function collectInventory(stripe, config) {
         )
         portalActions.set(
           supporterUse,
-          portalMatches(current, payload, supporterUse) ? "none" : "update",
+          portalMatches(
+            current,
+            payload,
+            supporterUse,
+            config.managedPortalCatalogConfirmation,
+          )
+            ? "none"
+            : portalBaseMatches(current, payload, supporterUse)
+              && current.features?.subscription_update?.products === undefined
+              ? "confirmation"
+              : "update",
         )
       } else {
         portalActions.set(supporterUse, "update")
@@ -826,6 +869,8 @@ async function applyMigration(stripe, inventory) {
 
   for (const supporterUse of ["personal", "business"]) {
     const current = inventory.managed.get(supporterUse)
+    const action = inventory.portalActions.get(supporterUse)
+    if (action === "none" || action === "confirmation") continue
     const payload = portalPayload(
       inventory.defaultPortal,
       supporterUse,
@@ -840,29 +885,40 @@ async function applyMigration(stripe, inventory) {
       await retrieveAndRequire(
         (id) => stripe.billingPortal.configurations.retrieve(id),
         created.id,
-        (candidate) => portalMatches(candidate, payload, supporterUse),
+        (candidate) => portalMutationReceiptMatches(candidate, payload, supporterUse),
         "v2_portal_mutation_unverified",
       )
       continue
     }
-    if (portalMatches(current, payload, supporterUse)) continue
     await stripe.billingPortal.configurations.update(current.id, payload)
     await retrieveAndRequire(
       (id) => stripe.billingPortal.configurations.retrieve(id),
       current.id,
-      (candidate) => portalMatches(candidate, payload, supporterUse),
+      (candidate) => portalMutationReceiptMatches(candidate, payload, supporterUse),
       "v2_portal_mutation_unverified",
     )
   }
 }
 
+/** Summarizes remaining provider writes separately from evidence-only confirmations. */
 function planFor(inventory) {
   return {
     createProducts: V2_TARGET_PRODUCT_SPECS.length - inventory.v2Products.size,
     createPrices: V2_TARGET_PRICE_SPECS.length - inventory.v2Prices.size,
     createPortals: [...inventory.portalActions.values()].filter((action) => action === "create").length,
     updatePortals: [...inventory.portalActions.values()].filter((action) => action === "update").length,
+    confirmPortals: [...inventory.portalActions.values()]
+      .filter((action) => action === "confirmation").length,
   }
+}
+
+/** Distinguishes an evidence-only completion gate from structural catalog drift. */
+function completionFailureCode(inventory) {
+  const actions = [...inventory.portalActions.values()]
+  return actions.every((action) => action === "none" || action === "confirmation")
+    && actions.some((action) => action === "confirmation")
+    ? "managed_portal_catalog_confirmation_required"
+    : "v2_catalog_not_completed"
 }
 
 /** Runs a read-only verify/plan or the explicitly confirmed sandbox apply. */
@@ -876,7 +932,7 @@ export async function runSupporterV2SandboxMigration({
   const plan = planFor(inventory)
 
   if (mode === "verify" && inventory.state !== "COMPLETED") {
-    throw new SupporterV2MigrationError(["v2_catalog_not_completed"], inventory.checks)
+    throw new SupporterV2MigrationError([completionFailureCode(inventory)], inventory.checks)
   }
   if (mode === "apply" && inventory.state !== "COMPLETED") {
     try {
@@ -887,9 +943,15 @@ export async function runSupporterV2SandboxMigration({
         cause: error,
       })
     }
-    inventory = await collectInventory(stripe, config)
+    const wrotePortal = plan.createPortals > 0 || plan.updatePortals > 0
+    inventory = await collectInventory(
+      stripe,
+      wrotePortal
+        ? { ...config, managedPortalCatalogConfirmation: "" }
+        : config,
+    )
     if (inventory.state !== "COMPLETED") {
-      throw new SupporterV2MigrationError(["v2_catalog_not_completed"], inventory.checks)
+      throw new SupporterV2MigrationError([completionFailureCode(inventory)], inventory.checks)
     }
   }
 
@@ -916,6 +978,7 @@ export function formatMigrationChecklist(result) {
     `PLAN prices_create=${result.plan.createPrices}`,
     `PLAN portals_create=${result.plan.createPortals}`,
     `PLAN portals_update=${result.plan.updatePortals}`,
+    `PLAN portals_confirm=${result.plan.confirmPortals}`,
   ].join("\n")
 }
 

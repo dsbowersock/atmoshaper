@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-29 — Managed Portal catalog API-omission compatibility candidate
+
+- PR #26 merged as `27acafb8946ba97b34061ac724b276c2eb74a312` after the
+  exact-head checks, Codex, CodeRabbit, and review-thread gates passed.
+- The authorized sandbox plan required only two managed Portal creations. The
+  apply created the personal-use Portal, then failed closed at readback because
+  Stripe omitted its `features.subscription_update.products` field. The
+  post-failure read-only plan proved all Products and Prices remained complete,
+  the personal Portal existed with exact API-visible settings, the business
+  Portal was still absent, and no subscription or open Checkout inventory was
+  introduced.
+- Direct list and retrieve evidence confirmed Stripe omits the managed catalog
+  just as it omits the retained default catalog. The focused repair keeps
+  API-visible allowlist drift authoritative, classifies an exact omitted field
+  as requiring operator evidence instead of a no-op update, and accepts only an
+  exact process-local confirmation after both managed three-Product/six-Price
+  catalogs are inspected in the Dashboard. Persisted dotenv evidence remains
+  disallowed.
+- The provider-shaped regression creates both managed Portals once despite the
+  omission, requires the confirmation before completed verification, and proves
+  the confirmation cannot override visible drift. Focused migration and
+  readiness validation passes 56/56. Production Checkout remains paused.
+
 ## 2026-09-28 — Default Portal catalog API-omission compatibility candidate
 
 - PR #24 merged as `4b5ef0580668f8abf54a0c6be79008390df3f427` after

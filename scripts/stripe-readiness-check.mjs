@@ -27,6 +27,7 @@ import {
 import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
   DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+  MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
 } from "../lib/stripe-supporter-portal-contract.js"
 import {
   STRIPE_API_VERSION,
@@ -44,6 +45,8 @@ const verifyStripe = args.has("--verify-stripe")
 const noDotenv = args.has("--no-dotenv")
 const processLocalDefaultPortalCatalogConfirmation =
   process.env.ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION
+const processLocalManagedPortalCatalogConfirmation =
+  process.env.ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION
 
 const failures = []
 const warnings = []
@@ -53,6 +56,10 @@ const portalConfigurationIds = new Map()
 const verifiedPortalConfigurations = new Map([
   ["personal", false],
   ["business", false],
+])
+const managedPortalCatalogEvidence = new Map([
+  ["personal", "not_checked"],
+  ["business", "not_checked"],
 ])
 let commerceWebhookCoverageComplete = false
 let verifiedWebhookCoverageComplete = !verifyStripe
@@ -79,7 +86,9 @@ function addWarning(message) {
 function envValue(key) {
   const value = key === "ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION"
     ? processLocalDefaultPortalCatalogConfirmation
-    : process.env[key]
+    : key === "ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION"
+      ? processLocalManagedPortalCatalogConfirmation
+      : process.env[key]
   return value?.trim() ?? ""
 }
 
@@ -495,6 +504,18 @@ async function verifyStripePrices() {
   for (const [configurationId, { key, supporterUse }] of portalConfigurationIds) {
     try {
       const configuration = await stripe.billingPortal.configurations.retrieve(configurationId)
+      const managedPortalCatalogConfirmation = envValue(
+        "ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION",
+      )
+      const productsReturned = configuration?.features?.subscription_update?.products !== undefined
+      managedPortalCatalogEvidence.set(
+        supporterUse,
+        productsReturned
+          ? "stripe_api"
+          : managedPortalCatalogConfirmation === MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION
+            ? "operator_confirmation"
+            : "missing",
+      )
       const portalFailures = validateRetrievedSupporterPortalConfiguration(
         configuration,
         {
@@ -503,6 +524,7 @@ async function verifyStripePrices() {
           retrievedMembershipPrices,
           livemode: expectedLivemode,
           defaultConfiguration,
+          managedPortalCatalogConfirmation,
         },
       )
       for (const failure of portalFailures) addFailure(failure)
@@ -542,6 +564,8 @@ function printResults(supporterTax, oneTimeTax, commerce) {
   console.log(`Stripe API retrieval performed: ${stripeRetrievalPerformed}`)
   console.log(`Supporter personal Portal configuration verified: ${verifiedPortalConfigurations.get("personal")}`)
   console.log(`Supporter business Portal configuration verified: ${verifiedPortalConfigurations.get("business")}`)
+  console.log(`Supporter personal Portal catalog evidence: ${managedPortalCatalogEvidence.get("personal")}`)
+  console.log(`Supporter business Portal catalog evidence: ${managedPortalCatalogEvidence.get("business")}`)
   console.log(`Retained default Portal catalog evidence: ${defaultPortalCatalogEvidence}`)
   console.log(`Supporter recurring automatic tax enabled: ${supporterTax.automaticTaxEnabled}`)
   console.log(`Supporter recurring tax product code configured: ${supporterTax.taxProductCodeConfigured}`)

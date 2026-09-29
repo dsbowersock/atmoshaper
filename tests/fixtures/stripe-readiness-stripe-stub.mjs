@@ -202,6 +202,9 @@ function supporterPortal(supporterUse) {
   if (process.env.STRIPE_READINESS_STUB_INVALID_PORTAL_PROFILE === supporterUse) {
     configuration.business_profile.headline = "Stale Portal profile"
   }
+  if (process.env.STRIPE_READINESS_STUB_OMIT_MANAGED_PORTAL_PRODUCTS === "true") {
+    delete configuration.features.subscription_update.products
+  }
   return configuration
 }
 

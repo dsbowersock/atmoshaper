@@ -26,6 +26,7 @@ import StripeReadinessStub from "./fixtures/stripe-readiness-stripe-stub.mjs"
 import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
   DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+  MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
 } from "../lib/stripe-supporter-portal-contract.js"
 
 const readinessScriptPath = fileURLToPath(
@@ -1051,6 +1052,67 @@ describe("Stripe readiness background-commerce contract", () => {
       confirmed.stdout,
       /Retained default Portal catalog evidence: operator_confirmation/,
     )
+  })
+
+  it("requires exact operator evidence when Stripe omits both managed catalogs", () => {
+    const omitted = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_OMIT_MANAGED_PORTAL_PRODUCTS: "true",
+    }, ["--verify-stripe"])
+    assert.equal(omitted.status, 1, omitted.stderr || omitted.stdout)
+    assert.match(omitted.stderr, /Stripe omitted the managed Portal catalogs/)
+    assert.match(omitted.stdout, /Supporter personal Portal catalog evidence: missing/)
+    assert.match(omitted.stdout, /Supporter business Portal catalog evidence: missing/)
+
+    const confirmed = runReadinessWithStripeStub({
+      ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION:
+        MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+      STRIPE_READINESS_STUB_OMIT_MANAGED_PORTAL_PRODUCTS: "true",
+    }, ["--verify-stripe"])
+    assert.equal(confirmed.status, 0, confirmed.stderr || confirmed.stdout)
+    assert.match(
+      confirmed.stdout,
+      /Supporter personal Portal catalog evidence: operator_confirmation/,
+    )
+    assert.match(
+      confirmed.stdout,
+      /Supporter business Portal catalog evidence: operator_confirmation/,
+    )
+  })
+
+  it("does not accept managed catalog evidence loaded from a dotenv file", async () => {
+    const root = await mkdtemp(join(tmpdir(), "atmoshaper-managed-portal-readiness-"))
+    const envFile = join(root, "confirmation.env")
+    try {
+      await writeFile(
+        envFile,
+        `ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION=${MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION}\n`,
+        "utf8",
+      )
+      const result = spawnSync(
+        process.execPath,
+        [
+          "--import",
+          readinessHookUrl,
+          readinessScriptPath,
+          `--env-file=${envFile}`,
+          "--verify-stripe",
+        ],
+        {
+          cwd: process.cwd(),
+          encoding: "utf8",
+          env: readinessEnvironment({
+            STRIPE_READINESS_STUB_OMIT_MANAGED_PORTAL_PRODUCTS: "true",
+          }),
+        },
+      )
+
+      assert.equal(result.status, 1, result.stderr || result.stdout)
+      assert.match(result.stderr, /Stripe omitted the managed Portal catalogs/)
+      assert.match(result.stdout, /Supporter personal Portal catalog evidence: missing/)
+      assert.match(result.stdout, /Supporter business Portal catalog evidence: missing/)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
   })
 
   it("does not accept default catalog evidence loaded from a dotenv file", async () => {

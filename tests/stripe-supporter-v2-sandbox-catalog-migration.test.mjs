@@ -23,6 +23,7 @@ import {
 import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
   DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+  MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
 } from "../lib/stripe-supporter-portal-contract.js"
 import {
   STRIPE_API_VERSION,
@@ -205,7 +206,11 @@ function canonicalPortalFeatures(features) {
  * Creates a deterministic Stripe sandbox fixture that enforces the provider
  * request contracts exercised by the migration.
  */
-function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
+function stripeFixture({
+  pageSize = 100,
+  failFirstPriceCreate = false,
+  omitManagedPortalProducts = false,
+} = {}) {
   const calls = []
   const catalog = v1Catalog()
   const products = catalog.products
@@ -229,6 +234,17 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
 
   function log(operation, payload, options) {
     calls.push({ operation, payload: clone(payload), options: clone(options ?? {}) })
+  }
+
+  function portalResponse(portal) {
+    const response = clone(portal)
+    if (
+      omitManagedPortalProducts
+      && response?.metadata?.atmoshaper_portal_supporter_use
+    ) {
+      delete response.features.subscription_update.products
+    }
+    return response
   }
 
   const stripe = {
@@ -324,14 +340,14 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
             throw new Error("Portal list must not request unsupported expansions")
           }
           log("portal.list", params, {})
-          return paged(portals.values(), params, pageSize)
+          return paged([...portals.values()].map(portalResponse), params, pageSize)
         },
         retrieve: async (id, params) => {
           if (params !== undefined) {
             throw new Error("Portal retrieval must not request unsupported expansions")
           }
           log("portal.retrieve", { id, ...params }, {})
-          return clone(portals.get(id))
+          return portalResponse(portals.get(id))
         },
         create: async (payload, options) => {
           log("portal.create", payload, options)
@@ -353,7 +369,7 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
             features: canonicalPortalFeatures(payload.features),
           }
           portals.set(id, created)
-          return clone(created)
+          return portalResponse(created)
         },
         update: async (id, payload) => {
           log("portal.update", { id, ...payload }, {})
@@ -374,7 +390,7 @@ function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
             features: canonicalPortalFeatures(payload.features),
           }
           portals.set(id, updated)
-          return clone(updated)
+          return portalResponse(updated)
         },
       },
     },
@@ -450,6 +466,7 @@ describe("Supporter v2 sandbox catalog migration", () => {
       createPrices: 12,
       createPortals: 2,
       updatePortals: 0,
+      confirmPortals: 0,
     })
     assert.equal(mutationCalls(fixture).length, 0)
     assert.equal(fixture.calls.some(({ payload }) => payload.starting_after), true)
@@ -515,6 +532,109 @@ describe("Supporter v2 sandbox catalog migration", () => {
       }),
       "default_portal_dependency_mismatch",
     )
+    assert.equal(mutationCalls(fixture).length, 0)
+  })
+
+  it("creates omitted managed catalogs once and requires exact operator evidence", async () => {
+    const fixture = stripeFixture({ omitManagedPortalProducts: true })
+
+    await expectFailure(
+      () => runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "apply",
+        env: applyEnv({
+          ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION:
+            MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+        }),
+      }),
+      "managed_portal_catalog_confirmation_required",
+    )
+    assert.equal(
+      fixture.calls.filter(({ operation }) => operation === "portal.create").length,
+      2,
+    )
+
+    fixture.calls.length = 0
+    for (const confirmation of [undefined, "CONFIRM_SOMETHING_ELSE"]) {
+      const plan = await runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "plan",
+        env: migrationEnv({
+          ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION: confirmation,
+        }),
+      })
+      assert.equal(plan.state, "TRANSITIONAL")
+      assert.deepEqual(plan.plan, {
+        createProducts: 0,
+        createPrices: 0,
+        createPortals: 0,
+        updatePortals: 0,
+        confirmPortals: 2,
+      })
+    }
+    assert.equal(mutationCalls(fixture).length, 0)
+
+    const verified = await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "verify",
+      env: migrationEnv({
+        ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION:
+          MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+      }),
+    })
+    assert.equal(verified.state, "COMPLETED")
+    assert.equal(verified.plan.confirmPortals, 0)
+    assert.equal(mutationCalls(fixture).length, 0)
+  })
+
+  it("reports structural Portal work before confirmation-only evidence", async () => {
+    const fixture = stripeFixture({ omitManagedPortalProducts: true })
+    await expectFailure(
+      () => runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "apply",
+        env: applyEnv(),
+      }),
+      "managed_portal_catalog_confirmation_required",
+    )
+    const businessPortal = [...fixture.portals.values()].find(
+      ({ metadata }) => metadata.atmoshaper_portal_supporter_use === "business",
+    )
+    fixture.portals.delete(businessPortal.id)
+
+    await expectFailure(
+      () => runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "verify",
+        env: migrationEnv(),
+      }),
+      "v2_catalog_not_completed",
+    )
+  })
+
+  it("does not let managed operator evidence override API-visible drift", async () => {
+    const fixture = stripeFixture()
+    await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+    const personal = fixture.portals.get("bpc_v2_personal")
+    personal.features.subscription_update.products[0].prices = ["price_unrelated"]
+    fixture.calls.length = 0
+
+    const plan = await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "plan",
+      env: migrationEnv({
+        ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION:
+          MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+      }),
+    })
+
+    assert.equal(plan.state, "TRANSITIONAL")
+    assert.equal(plan.plan.updatePortals, 1)
+    assert.equal(plan.plan.confirmPortals, 0)
     assert.equal(mutationCalls(fixture).length, 0)
   })
 
@@ -723,6 +843,7 @@ describe("Supporter v2 sandbox catalog migration", () => {
       createPrices: 0,
       createPortals: 0,
       updatePortals: 0,
+      confirmPortals: 0,
     })
     assert.equal(mutationCalls(fixture).length, 0)
   })
