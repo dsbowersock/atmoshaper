@@ -298,6 +298,7 @@ function retainedV1PortalProducts(products, prices) {
     }))
 }
 
+/** Verifies the retained default Portal and its exact catalog attestation. */
 function defaultPortalBaseIsSafe(portal, products, prices, catalogConfirmation) {
   return modeMatches(portal)
     && portal.active === true
@@ -520,6 +521,7 @@ function classifyCatalog(products, prices) {
   return { failureCodes, v1Products, v1Prices, v2Products, v2Prices }
 }
 
+/** Classifies managed Portals and records how the retained catalog was proven. */
 function classifyPortals(portals, v1Products, v1Prices, catalogConfirmation) {
   const failureCodes = []
   const managed = new Map()
@@ -583,6 +585,7 @@ function nonTerminalSubscriptions(subscriptions) {
   ))
 }
 
+/** Reads every sandbox dependency and returns a mutation-free migration plan. */
 async function collectInventory(stripe, config) {
   let account
   let balance
@@ -880,6 +883,7 @@ export async function runSupporterV2SandboxMigration({
   }
 }
 
+/** Formats a non-secret operator receipt for a successful migration run. */
 export function formatMigrationChecklist(result) {
   return [
     ...result.checks.map(({ status, code }) => `${status} ${code}`),

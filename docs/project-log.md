@@ -18,6 +18,13 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   final Stripe readiness. Focused migration/readiness tests passed 50/50; the
   expanded final-review group passed 63/63. Typecheck, lint, diff validation,
   and the 115-page production build also passed.
+- Exact-head Codex and CodeRabbit review then found that the confirmation could
+  be loaded from a persisted dotenv file and that repeated Price keys/IDs or a
+  split Product identity could satisfy the coarse inventory count. The repair
+  captures the confirmation before dotenv loading, removes it from
+  `.env.example`, and proves all six expected unique Price keys and IDs map as
+  two Prices each to three distinct unsplit Products. Focused migration and
+  readiness validation passes 52/52; lint, typecheck, and diff checks pass.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
   DNS, or email-provider mutation occurred in this compatibility candidate.
 

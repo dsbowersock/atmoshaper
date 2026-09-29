@@ -56,9 +56,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   same contract. Stripe currently omits that Dashboard-managed allowlist from
   the API response even though the Dashboard shows all three retained Products
   and six Prices. A focused follow-up accepts an exact process-local operator
-  confirmation only for that omitted-field case; an API-visible mismatch still
-  fails closed. No Stripe object, Vercel setting, database state, or deployment
-  has changed in this follow-up.
+  confirmation only for that omitted-field case; the readiness CLI captures it
+  before loading dotenv files, and it is intentionally absent from the shared
+  environment template. The confirmation is accepted only after all six unique
+  expected Price identities resolve to three distinct unsplit Product
+  identities. An API-visible mismatch still fails closed. No Stripe object,
+  Vercel setting, database state, or deployment has changed in this follow-up.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
   uses the wordmark at wide widths and the square logo at narrow widths. The

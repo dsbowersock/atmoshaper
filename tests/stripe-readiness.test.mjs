@@ -10,6 +10,7 @@ import {
   getOneTimeSupportTaxReadiness,
   isExplicitTrue,
   REQUIRED_SUPPORTER_PRICE_CONTRACT,
+  validateRetrievedDefaultSupporterPortalConfiguration,
   validateRetrievedMembershipPrice,
   validateRetrievedSupporterPortalConfiguration,
   validateSupporterProductTopology,
@@ -153,6 +154,17 @@ function defaultPortalConfiguration() {
     is_default: true,
     metadata: {},
   }
+}
+
+/** Builds the six retained v1 Price records used to attest the default Portal. */
+function retrievedLegacyMembershipPrices() {
+  return LEGACY_TARGET_PRICE_SPECS.map((expected) => ({
+    expected,
+    price: {
+      id: legacyMembershipPrices[expected.envKey],
+      product: { id: `prod_v1_${expected.productKey}` },
+    },
+  }))
 }
 
 /**
@@ -1039,6 +1051,76 @@ describe("Stripe readiness background-commerce contract", () => {
       confirmed.stdout,
       /Retained default Portal catalog evidence: operator_confirmation/,
     )
+  })
+
+  it("does not accept default catalog evidence loaded from a dotenv file", async () => {
+    const root = await mkdtemp(join(tmpdir(), "atmoshaper-stripe-readiness-"))
+    const envFile = join(root, "confirmation.env")
+    try {
+      await writeFile(
+        envFile,
+        `ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION=${DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION}\n`,
+        "utf8",
+      )
+      const result = spawnSync(
+        process.execPath,
+        [
+          "--import",
+          readinessHookUrl,
+          readinessScriptPath,
+          `--env-file=${envFile}`,
+          "--verify-stripe",
+        ],
+        {
+          cwd: process.cwd(),
+          encoding: "utf8",
+          env: readinessEnvironment({
+            STRIPE_READINESS_STUB_OMIT_DEFAULT_PORTAL_PRODUCTS: "true",
+          }),
+        },
+      )
+
+      assert.equal(result.status, 1, result.stderr || result.stdout)
+      assert.match(result.stderr, /Stripe omitted the retained default Portal catalog/)
+      assert.match(result.stdout, /Retained default Portal catalog evidence: missing/)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  it("requires six unique retained Prices on three unsplit Products before attestation", () => {
+    const cases = [
+      ["duplicate expected Price key", (entries) => {
+        entries[1].expected = entries[0].expected
+      }],
+      ["duplicate Price ID", (entries) => {
+        entries[1].price.id = entries[0].price.id
+      }],
+      ["split Product identity", (entries) => {
+        entries[1].price.product.id = "prod_v1_split"
+      }],
+    ]
+
+    for (const [label, mutate] of cases) {
+      const entries = structuredClone(retrievedLegacyMembershipPrices())
+      mutate(entries)
+      const configuration = defaultPortalConfiguration()
+      delete configuration.features.subscription_update.products
+      const failures = validateRetrievedDefaultSupporterPortalConfiguration(
+        configuration,
+        {
+          defaultPortalCatalogConfirmation:
+            DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+          retrievedLegacyMembershipPrices: entries,
+          livemode: false,
+        },
+      )
+      assert.deepEqual(
+        failures,
+        ["The complete retained v1 Price inventory is required before validating the default Stripe Portal catalog."],
+        label,
+      )
+    }
   })
 
   it("does not let operator evidence override visible default catalog drift", () => {
