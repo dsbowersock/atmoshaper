@@ -322,13 +322,28 @@ catalog still fails closed. The same process-local confirmation is required by
 `stripe:readiness -- --verify-stripe` while Stripe continues omitting the
 field.
 
+Stripe can also omit `features.subscription_update.products` from both managed
+v2 Portal responses. When it does, an apply may create the missing Portal(s)
+and then stop at the final completion gate until the operator checks both
+managed configurations in the Dashboard. Verify that the personal Portal and
+business Portal each contain exactly their three use-specific Products and six
+Prices, with quantity changes disabled. Then set
+`ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION` to
+`CONFIRM_MANAGED_V2_SUPPORTER_PORTALS_3_PRODUCTS_6_PRICES_EACH` for that
+operator process only and rerun `--mode=verify`. Never persist this value in
+Vercel, `.env` files, or a shared environment. The confirmation applies only to
+an omitted field; API-visible empty or mismatched catalogs still fail closed.
+Stripe readiness uses the same process-local evidence boundary.
+
 `plan` inventories and reports only safe checklist/count output. `verify`
 requires the completed target and performs no writes. Do not persist
 `ATMOSHAPER_STRIPE_V2_APPLY_CONFIRMATION`; after reviewing the exact plan and
 receiving separate provider-write authorization, set it only for the apply
 process to `CREATE_SUPPORTER_V2_SANDBOX_CATALOG`, run `--mode=apply`, then rerun
 `--mode=verify`. Apply uses deterministic idempotency and lookup keys, rereads
-every mutation, and is designed to converge safely after an exact partial run.
+every API-visible mutation field, and is designed to converge safely after an
+exact partial run. An omitted managed catalog remains incomplete until the
+Dashboard inspection and process-local confirmation above.
 Copy the twelve Price IDs and the two Portal configuration IDs into the secure
 sandbox deployment environment only after this command is reviewed and the
 provider state verifies completed.
