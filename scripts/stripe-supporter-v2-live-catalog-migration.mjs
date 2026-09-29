@@ -4,7 +4,6 @@ import process from "node:process"
 import { pathToFileURL } from "node:url"
 import Stripe from "stripe"
 import {
-  LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
   SUPPORTER_RECURRING_TAX_BEHAVIOR,
   recurringPriceSemanticsMatch,
@@ -14,28 +13,25 @@ import {
   classifySupporterProductMetadata,
   hasAnySupporterSchemaMetadata,
 } from "../lib/stripe-provider-identity.js"
-import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
-  hasApprovedSupporterPortalManagementFeatures,
-  hasApprovedSupporterPortalTransitionPolicy,
   managedSupporterPortalAllowlistIsVerified,
   normalizeSupporterPortalFeatures,
-  retainedDefaultSupporterPortalAllowlistIsVerified,
   supporterPortalAllowlistMatches,
 } from "../lib/stripe-supporter-portal-contract.js"
 import {
+  SUPPORTER_V2_USES,
   V2_TARGET_PRICE_SPECS,
   V2_TARGET_PRODUCT_SPECS,
-  buildSupporterV2PortalPayload as portalPayload,
-  buildSupporterV2PricePayload as pricePayload,
-  buildSupporterV2ProductPayload as productPayload,
-  classifySupporterV2PortalMetadata as classifyPortalMetadata,
-  hasAnySupporterV2PortalMetadata as hasAnyPortalMetadata,
-  supporterV2LookupKey as lookupKeyFor,
-  supporterV2PortalIdempotencyKey as portalIdempotencyKey,
-  supporterV2PriceIdempotencyKey as priceIdempotencyKey,
-  supporterV2PriceSpecForLookupKey as v2PriceSpecForLookupKey,
-  supporterV2ProductIdempotencyKey as productIdempotencyKey,
+  buildSupporterV2PortalPayload,
+  buildSupporterV2PricePayload,
+  buildSupporterV2ProductPayload,
+  classifySupporterV2PortalMetadata,
+  hasAnySupporterV2PortalMetadata,
+  supporterV2LookupKey,
+  supporterV2PortalIdempotencyKey,
+  supporterV2PriceIdempotencyKey,
+  supporterV2PriceSpecForLookupKey,
+  supporterV2ProductIdempotencyKey,
 } from "../lib/stripe-supporter-v2-catalog-contract.js"
 import {
   STRIPE_API_VERSION,
@@ -43,22 +39,59 @@ import {
   validatePinnedStripeWebhookEndpoint,
 } from "../lib/stripe-webhook-contract.js"
 
-const APPLY_CONFIRMATION = "CREATE_SUPPORTER_V2_SANDBOX_CATALOG"
+const APPLY_CONFIRMATION = "CREATE_SUPPORTER_V2_LIVE_CATALOG"
 const MAX_LIST_PAGES = 10_000
 const MAX_MANAGED_OBJECTS = 1_000
 const TERMINAL_SUBSCRIPTION_STATUSES = new Set(["canceled", "incomplete_expired"])
-export { V2_TARGET_PRICE_SPECS, V2_TARGET_PRODUCT_SPECS }
+
+/**
+ * Public profile and billing-management policy for the dedicated live account.
+ * The use-specific Product allowlists are added from the immutable v2 contract.
+ */
+export const LIVE_SUPPORTER_PORTAL_PROFILE = Object.freeze({
+  business_profile: Object.freeze({
+    headline: "Manage your AtmoShaper Supporter membership.",
+    privacy_policy_url: "https://www.atmoshaper.com/legal/privacy",
+    terms_of_service_url: "https://www.atmoshaper.com/legal/terms",
+  }),
+  default_return_url: "https://www.atmoshaper.com/account?tab=membership",
+  features: Object.freeze({
+    customer_update: Object.freeze({
+      enabled: true,
+      allowed_updates: Object.freeze(["address", "email", "name"]),
+    }),
+    invoice_history: Object.freeze({ enabled: true }),
+    payment_method_update: Object.freeze({ enabled: true }),
+    subscription_cancel: Object.freeze({
+      enabled: true,
+      mode: "at_period_end",
+      proration_behavior: "none",
+      cancellation_reason: Object.freeze({
+        enabled: true,
+        options: Object.freeze([
+          "missing_features",
+          "other",
+          "switched_service",
+          "too_expensive",
+          "unused",
+        ]),
+      }),
+    }),
+    subscription_update: Object.freeze({}),
+  }),
+})
 
 /** Safe operator error carrying only fixed failure codes and retained causes. */
-export class SupporterV2MigrationError extends Error {
+export class SupporterV2LiveMigrationError extends Error {
   constructor(failureCodes, checks = [], options = {}) {
-    super("Stripe Supporter v2 sandbox migration failed.", options)
-    this.name = "SupporterV2MigrationError"
+    super("Stripe Supporter v2 live migration failed.", options)
+    this.name = "SupporterV2LiveMigrationError"
     this.failureCodes = [...new Set(failureCodes)]
     this.checks = checks
   }
 }
 
+/** Builds one fixed-code operator check without embedding provider data. */
 function check(code, passed) {
   return { code, status: passed ? "PASS" : "FAIL" }
 }
@@ -68,45 +101,45 @@ function envValue(env, key) {
   return typeof env?.[key] === "string" ? env[key].trim() : ""
 }
 
-/** Validates the command boundary before any Stripe client or read is created. */
+/** Validates the live CLI boundary before any Stripe client or read is created. */
 function buildConfig(env, mode) {
   const failureCodes = []
   if (!new Set(["verify", "plan", "apply"]).has(mode)) {
     failureCodes.push("migration_mode_invalid")
   }
   const secretKey = envValue(env, "STRIPE_SECRET_KEY")
-  if (!secretKey.startsWith("sk_test_")) {
-    failureCodes.push("sandbox_secret_key_required")
+  if (!secretKey.startsWith("sk_live_") && !secretKey.startsWith("rk_live_")) {
+    failureCodes.push("live_secret_key_required")
   }
-  const expectedAccountId = envValue(env, "ATMOSHAPER_STRIPE_V2_EXPECTED_ACCOUNT_ID")
+  const expectedAccountId = envValue(env, "ATMOSHAPER_STRIPE_LIVE_EXPECTED_ACCOUNT_ID")
   if (!expectedAccountId.startsWith("acct_")) {
-    failureCodes.push("expected_account_id_required")
+    failureCodes.push("expected_live_account_id_required")
   }
   if (
     mode === "apply"
-    && envValue(env, "ATMOSHAPER_STRIPE_V2_APPLY_CONFIRMATION") !== APPLY_CONFIRMATION
+    && envValue(env, "ATMOSHAPER_STRIPE_LIVE_APPLY_CONFIRMATION") !== APPLY_CONFIRMATION
   ) {
-    failureCodes.push("sandbox_apply_confirmation_required")
+    failureCodes.push("live_apply_confirmation_required")
   }
-  if (failureCodes.length > 0) {
-    throw new SupporterV2MigrationError(failureCodes)
-  }
+  if (failureCodes.length > 0) throw new SupporterV2LiveMigrationError(failureCodes)
   return {
-    defaultPortalCatalogConfirmation: envValue(
-      env,
-      "ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION",
-    ),
+    expectedAccountId,
     managedPortalCatalogConfirmation: envValue(
       env,
       "ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION",
     ),
-    expectedAccountId,
     secretKey,
   }
 }
 
+/** Reports whether one Stripe resource is explicitly live-mode. */
 function modeMatches(object) {
-  return object?.livemode === false
+  return object?.livemode === true
+}
+
+/** Normalizes an expandable Stripe relationship to its stable identifier. */
+function idOf(value) {
+  return typeof value === "string" ? value : value?.id ?? ""
 }
 
 /** Fully scans one Stripe list endpoint with bounded, progress-checked cursors. */
@@ -120,47 +153,39 @@ async function scanAll(list, params = {}) {
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     })
     if (!Array.isArray(page?.data) || typeof page?.has_more !== "boolean") {
-      throw new SupporterV2MigrationError(["stripe_list_response_invalid"])
+      throw new SupporterV2LiveMigrationError(["stripe_list_response_invalid"])
     }
     items.push(...page.data)
     if (!page.has_more) return items
     const nextCursor = page.data.at(-1)?.id
     if (!nextCursor || nextCursor === startingAfter) {
-      throw new SupporterV2MigrationError(["stripe_list_pagination_stalled"])
+      throw new SupporterV2LiveMigrationError(["stripe_list_pagination_stalled"])
     }
     startingAfter = nextCursor
   }
-  throw new SupporterV2MigrationError(["stripe_list_page_limit_exceeded"])
+  throw new SupporterV2LiveMigrationError(["stripe_list_page_limit_exceeded"])
 }
 
-function idOf(value) {
-  return typeof value === "string" ? value : value?.id ?? ""
+/** Adds one classified object while recording duplicate identities as drift. */
+function addUnique(map, key, value, failureCodes, duplicateCode) {
+  if (map.has(key)) {
+    failureCodes.push(duplicateCode)
+    return
+  }
+  map.set(key, value)
 }
 
-function v1ProductSpec(key) {
-  const prices = LEGACY_TARGET_PRICE_SPECS.filter((price) => price.productKey === key)
-  return prices.length === 2
-    ? {
-        key,
-        productName: prices[0].productName,
-        taxCode: prices[0].taxCode,
-        priceKeys: prices.map((price) => price.key),
-      }
-    : null
-}
-
+/** Resolves an immutable v2 Product target by its managed identity key. */
 function v2ProductSpec(key) {
   return V2_TARGET_PRODUCT_SPECS.find((product) => product.key === key) ?? null
 }
 
-function v1PriceSpec(key) {
-  return LEGACY_TARGET_PRICE_SPECS.find((price) => price.key === key) ?? null
-}
-
+/** Resolves an immutable v2 Price target by its managed identity key. */
 function v2PriceSpec(key) {
   return V2_TARGET_PRICE_SPECS.find((price) => price.key === key) ?? null
 }
 
+/** Verifies the live Product fields that must equal one immutable target. */
 function exactProduct(candidate, spec) {
   return modeMatches(candidate)
     && candidate.active === true
@@ -169,18 +194,12 @@ function exactProduct(candidate, spec) {
     && candidate.tax_code === spec.taxCode
 }
 
-function exactV1Product(candidate, spec) {
-  return modeMatches(candidate)
-    && candidate.active === true
-    && candidate.name === spec.productName
-    && candidate.tax_code === spec.taxCode
-}
-
+/** Verifies one live Price's Product binding and recurring semantics. */
 function exactPrice(candidate, spec, productId) {
   return modeMatches(candidate)
     && candidate.active === true
     && idOf(candidate.product) === productId
-    && candidate.lookup_key === lookupKeyFor(spec)
+    && candidate.lookup_key === supporterV2LookupKey(spec)
     && recurringPriceSemanticsMatch(candidate, {
       unitAmount: spec.unitAmount,
       interval: spec.interval,
@@ -188,52 +207,17 @@ function exactPrice(candidate, spec, productId) {
     })
 }
 
-function exactV1Price(candidate, spec, productId) {
-  return modeMatches(candidate)
-    && candidate.active === true
-    && idOf(candidate.product) === productId
-    && recurringPriceSemanticsMatch(candidate, {
-      unitAmount: spec.unitAmount,
-      interval: spec.interval,
-    })
-}
-
+/** Compares normalized JSON-safe contract values without provider object noise. */
 function jsonEqual(left, right) {
   return JSON.stringify(left) === JSON.stringify(right)
 }
 
-/** Builds the exact retained v1 Product and Price allowlist for its default Portal. */
-function retainedV1PortalProducts(products, prices) {
-  return [...new Set(LEGACY_TARGET_PRICE_SPECS.map(({ productKey }) => productKey))]
-    .map((productKey) => ({
-      product: products.get(productKey)?.id ?? null,
-      prices: LEGACY_TARGET_PRICE_SPECS
-        .filter((spec) => spec.productKey === productKey)
-        .map((spec) => prices.get(spec.key)?.id ?? null),
-      adjustable_quantity: { enabled: false },
-    }))
-}
-
-/** Verifies the retained default Portal and its exact catalog attestation. */
-function defaultPortalBaseIsSafe(portal, products, prices, catalogConfirmation) {
-  return modeMatches(portal)
-    && portal.active === true
-    && portal.is_default === true
-    && hasApprovedSupporterPortalManagementFeatures(portal.features)
-    && hasApprovedSupporterPortalTransitionPolicy(portal.features)
-    && retainedDefaultSupporterPortalAllowlistIsVerified(
-      portal.features,
-      retainedV1PortalProducts(products, prices),
-      catalogConfirmation,
-    )
-}
-
-/** Normalizes optional Portal text so absent and empty API values compare alike. */
+/** Normalizes Stripe's omitted and empty optional Portal text to one value. */
 function normalizeOptionalPortalText(value) {
   return typeof value === "string" && value.length > 0 ? value : null
 }
 
-/** Verifies every managed Portal field Stripe reliably returns except its catalog. */
+/** Verifies every managed live Portal field Stripe reliably returns except its catalog. */
 function portalBaseMatches(candidate, payload, supporterUse) {
   const candidateFeatures = normalizeSupporterPortalFeatures(candidate.features)
   const payloadFeatures = normalizeSupporterPortalFeatures(payload.features)
@@ -242,7 +226,7 @@ function portalBaseMatches(candidate, payload, supporterUse) {
   return modeMatches(candidate)
     && candidate.active === true
     && candidate.is_default === false
-    && classifyPortalMetadata(candidate.metadata) === supporterUse
+    && classifySupporterV2PortalMetadata(candidate.metadata) === supporterUse
     && jsonEqual(
       {
         headline: normalizeOptionalPortalText(candidate.business_profile?.headline),
@@ -268,7 +252,7 @@ function portalBaseMatches(candidate, payload, supporterUse) {
     && jsonEqual(candidateFeatures, payloadFeatures)
 }
 
-/** Verifies a complete managed Portal using API catalog evidence or fresh attestation. */
+/** Verifies a managed Portal including its API-visible or attested catalog. */
 function portalMatches(candidate, payload, supporterUse, catalogConfirmation = "") {
   return portalBaseMatches(candidate, payload, supporterUse)
     && managedSupporterPortalAllowlistIsVerified(
@@ -278,10 +262,7 @@ function portalMatches(candidate, payload, supporterUse, catalogConfirmation = "
     )
 }
 
-/**
- * Verifies every API-visible write result while permitting only Stripe's
- * proven omission of the managed Product allowlist to await operator evidence.
- */
+/** Accepts an omitted post-write catalog only as pending fresh operator evidence. */
 function portalMutationReceiptMatches(candidate, payload, supporterUse) {
   if (!portalBaseMatches(candidate, payload, supporterUse)) return false
   const products = candidate?.features?.subscription_update?.products
@@ -291,173 +272,118 @@ function portalMutationReceiptMatches(candidate, payload, supporterUse) {
   )
 }
 
-function addUnique(map, key, value, failureCodes, duplicateCode) {
-  if (map.has(key)) {
-    failureCodes.push(duplicateCode)
-    return
-  }
-  map.set(key, value)
-}
-
-/** Classifies every managed catalog object and refuses ambiguous ownership. */
+/** Classifies exact live v2 objects and rejects every hidden catalog conflict. */
 function classifyCatalog(products, prices) {
   const failureCodes = []
-  const v1Products = new Map()
   const v2Products = new Map()
-  const v1Prices = new Map()
   const v2Prices = new Map()
   let managedCount = 0
 
   for (const candidate of products) {
-    if (!hasAnySupporterSchemaMetadata(candidate.metadata)) continue
+    if (!hasAnySupporterSchemaMetadata(candidate.metadata)) {
+      failureCodes.push("unexpected_unmanaged_product_inventory")
+      continue
+    }
     managedCount += 1
-    const v1 = classifySupporterProductMetadata(candidate.metadata, {
-      catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-    })
-    const v2 = classifySupporterProductMetadata(candidate.metadata, {
+    const classification = classifySupporterProductMetadata(candidate.metadata, {
       catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
     })
-    if (!v1 && !v2) {
+    if (!classification || classification.schema !== "current") {
       failureCodes.push("managed_product_metadata_mismatch")
       continue
     }
-    const classification = v2 ?? v1
-    const spec = v2
-      ? v2ProductSpec(classification.amountChoiceId)
-      : v1ProductSpec(classification.amountChoiceId)
+    const spec = v2ProductSpec(classification.amountChoiceId)
     if (!spec) {
       failureCodes.push("unexpected_managed_product")
       continue
     }
-    if (v2 && !exactProduct(candidate, spec)) {
+    if (!exactProduct(candidate, spec)) {
       failureCodes.push("v2_product_semantics_mismatch")
       continue
     }
-    if (v1 && !exactV1Product(candidate, spec)) {
-      failureCodes.push("v1_product_semantics_mismatch")
-      continue
-    }
-    addUnique(
-      v2 ? v2Products : v1Products,
-      spec.key,
-      candidate,
-      failureCodes,
-      v2 ? "v2_product_duplicate" : "v1_product_duplicate",
-    )
+    addUnique(v2Products, spec.key, candidate, failureCodes, "v2_product_duplicate")
   }
 
   for (const candidate of prices) {
-    const claimedTarget = v2PriceSpecForLookupKey(candidate.lookup_key)
+    const claimedTarget = supporterV2PriceSpecForLookupKey(candidate.lookup_key)
     if (!hasAnySupporterSchemaMetadata(candidate.metadata)) {
-      if (claimedTarget) failureCodes.push("target_price_lookup_key_collision")
+      failureCodes.push(
+        claimedTarget
+          ? "target_price_lookup_key_collision"
+          : "unexpected_unmanaged_price_inventory",
+      )
       continue
     }
     managedCount += 1
-    const v1 = classifySupporterPriceMetadata(candidate.metadata, {
-      catalogVersion: LEGACY_SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-    })
-    const v2 = classifySupporterPriceMetadata(candidate.metadata, {
+    const classification = classifySupporterPriceMetadata(candidate.metadata, {
       catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
     })
-    if (!v1 && !v2) {
+    if (!classification || classification.schema !== "current") {
       failureCodes.push("managed_price_metadata_mismatch")
       continue
     }
-    if (claimedTarget && (!v2 || v2.priceKey !== claimedTarget.key)) {
+    if (claimedTarget && classification.priceKey !== claimedTarget.key) {
       failureCodes.push("target_price_lookup_key_collision")
       continue
     }
-    const classification = v2 ?? v1
-    const spec = v2 ? v2PriceSpec(classification.priceKey) : v1PriceSpec(classification.priceKey)
-    const product = spec
-      ? (v2 ? v2Products : v1Products).get(spec.productKey)
-      : null
+    const spec = v2PriceSpec(classification.priceKey)
+    const product = spec ? v2Products.get(spec.productKey) : null
     if (!spec) {
       failureCodes.push("unexpected_managed_price")
       continue
     }
     if (!product) {
-      failureCodes.push(v2 ? "v2_price_product_missing" : "v1_price_product_missing")
+      failureCodes.push("v2_price_product_missing")
       continue
     }
-    if (v2 && !exactPrice(candidate, spec, product.id)) {
+    if (!exactPrice(candidate, spec, product.id)) {
       failureCodes.push("v2_price_semantics_mismatch")
       continue
     }
-    if (v1 && !exactV1Price(candidate, spec, product.id)) {
-      failureCodes.push("v1_price_semantics_mismatch")
-      continue
-    }
-    addUnique(
-      v2 ? v2Prices : v1Prices,
-      spec.key,
-      candidate,
-      failureCodes,
-      v2 ? "v2_price_duplicate" : "v1_price_duplicate",
-    )
+    addUnique(v2Prices, spec.key, candidate, failureCodes, "v2_price_duplicate")
   }
 
   if (managedCount > MAX_MANAGED_OBJECTS) {
     failureCodes.push("managed_object_limit_exceeded")
   }
-  if (
-    v1Products.size !== 3
-    || v1Prices.size !== LEGACY_TARGET_PRICE_SPECS.length
-  ) {
-    failureCodes.push("v1_catalog_incomplete")
-  }
-  return { failureCodes, v1Products, v1Prices, v2Products, v2Prices }
+  return { failureCodes, v2Products, v2Prices }
 }
 
-/** Classifies managed Portals and records how the retained catalog was proven. */
-function classifyPortals(portals, v1Products, v1Prices, catalogConfirmation) {
+/** Classifies only the two managed live Portals and rejects unknown non-default Portals. */
+function classifyPortals(portals) {
   const failureCodes = []
   const managed = new Map()
   const defaults = portals.filter((portal) => portal.is_default === true && modeMatches(portal))
-  const defaultPortal = defaults[0] ?? null
   for (const portal of portals) {
-    if (!hasAnyPortalMetadata(portal.metadata)) continue
-    const supporterUse = classifyPortalMetadata(portal.metadata)
+    if (portal.is_default === true) continue
+    if (!hasAnySupporterV2PortalMetadata(portal.metadata)) {
+      failureCodes.push("unexpected_unmanaged_portal_inventory")
+      continue
+    }
+    const supporterUse = classifySupporterV2PortalMetadata(portal.metadata)
     if (!supporterUse) {
       failureCodes.push("managed_portal_metadata_mismatch")
       continue
     }
-    if (portal.is_default !== false || portal.id === defaultPortal?.id) {
-      failureCodes.push("managed_portal_default_conflict")
+    if (!modeMatches(portal) || portal.is_default !== false) {
+      failureCodes.push("managed_portal_mode_mismatch")
       continue
     }
     addUnique(managed, supporterUse, portal, failureCodes, "v2_portal_duplicate")
   }
-  const defaultPortalCatalogVerified = Boolean(defaultPortal) && (
-    retainedDefaultSupporterPortalAllowlistIsVerified(
-      defaultPortal.features,
-      retainedV1PortalProducts(v1Products, v1Prices),
-      catalogConfirmation,
-    )
-  )
-  const defaultPortalCatalogEvidence = defaultPortal?.features
-    ?.subscription_update?.products !== undefined
-    ? defaultPortalCatalogVerified ? "stripe_api" : "invalid"
-    : defaultPortalCatalogVerified ? "operator_confirmation" : "missing"
-  if (
-    defaults.length !== 1
-    || !defaultPortalBaseIsSafe(
-      defaults[0],
-      v1Products,
-      v1Prices,
-      catalogConfirmation,
-    )
-  ) {
-    failureCodes.push("default_portal_dependency_mismatch")
-  }
-  return {
-    defaultPortal,
-    defaultPortalCatalogEvidence,
-    failureCodes,
-    managed,
-  }
+  if (defaults.length > 1) failureCodes.push("default_portal_inventory_ambiguous")
+  return { failureCodes, managed }
 }
 
+/** Retains only live subscriptions that can still affect billing state. */
+function nonTerminalSubscriptions(subscriptions) {
+  return subscriptions.filter((subscription) => (
+    modeMatches(subscription)
+    && !TERMINAL_SUBSCRIPTION_STATUSES.has(String(subscription.status ?? "").toLowerCase())
+  ))
+}
+
+/** Retains only open live Checkout Sessions capable of creating subscriptions. */
 function openSubscriptionSessions(sessions) {
   return sessions.filter((session) => (
     modeMatches(session)
@@ -466,14 +392,7 @@ function openSubscriptionSessions(sessions) {
   ))
 }
 
-function nonTerminalSubscriptions(subscriptions) {
-  return subscriptions.filter((subscription) => (
-    modeMatches(subscription)
-    && !TERMINAL_SUBSCRIPTION_STATUSES.has(String(subscription.status ?? "").toLowerCase())
-  ))
-}
-
-/** Reads every sandbox dependency and returns a mutation-free migration plan. */
+/** Reads every live dependency and returns a mutation-free migration plan. */
 async function collectInventory(stripe, config) {
   let account
   let balance
@@ -487,15 +406,14 @@ async function collectInventory(stripe, config) {
     account = await stripe.accounts.retrieve()
     balance = await stripe.balance.retrieve()
     products = await scanAll((params) => stripe.products.list(params))
-    const priceListParams = { expand: ["data.currency_options"] }
     const [activePrices, inactivePrices] = await Promise.all([
       scanAll((params) => stripe.prices.list(params), {
-        ...priceListParams,
         active: true,
+        expand: ["data.currency_options"],
       }),
       scanAll((params) => stripe.prices.list(params), {
-        ...priceListParams,
         active: false,
+        expand: ["data.currency_options"],
       }),
     ])
     prices = [...activePrices, ...inactivePrices]
@@ -508,15 +426,16 @@ async function collectInventory(stripe, config) {
     portals = await scanAll((params) => stripe.billingPortal.configurations.list(params))
     endpoints = await scanAll((params) => stripe.webhookEndpoints.list(params))
   } catch (error) {
-    if (error instanceof SupporterV2MigrationError) throw error
-    throw new SupporterV2MigrationError(["stripe_dependency_read_failed"], [], { cause: error })
+    if (error instanceof SupporterV2LiveMigrationError) throw error
+    throw new SupporterV2LiveMigrationError(
+      ["stripe_dependency_read_failed"],
+      [],
+      { cause: error },
+    )
   }
 
   const failureCodes = []
-  // Stripe's Account object does not carry `livemode`; the account identity
-  // and the mode-bearing Balance together prove the exact sandbox boundary.
-  const accountMatches = account?.id === config.expectedAccountId
-    && modeMatches(balance)
+  const accountMatches = account?.id === config.expectedAccountId && modeMatches(balance)
   if (!accountMatches) failureCodes.push("stripe_account_mode_mismatch")
   if (nonTerminalSubscriptions(subscriptions).length > 0) {
     failureCodes.push("unexpected_subscription_inventory")
@@ -527,12 +446,7 @@ async function collectInventory(stripe, config) {
 
   const catalog = classifyCatalog(products, prices)
   failureCodes.push(...catalog.failureCodes)
-  const portal = classifyPortals(
-    portals,
-    catalog.v1Products,
-    catalog.v1Prices,
-    config.defaultPortalCatalogConfirmation,
-  )
+  const portal = classifyPortals(portals)
   failureCodes.push(...portal.failureCodes)
 
   const pinnedEndpoints = endpoints.filter((endpoint) => endpoint.url === STRIPE_PINNED_WEBHOOK_URL)
@@ -545,96 +459,93 @@ async function collectInventory(stripe, config) {
   }
 
   const portalActions = new Map()
-  if (portal.defaultPortal) {
-    for (const supporterUse of ["personal", "business"]) {
-      const current = portal.managed.get(supporterUse)
-      if (!current) {
-        portalActions.set(supporterUse, "create")
-        continue
-      }
-      if (
-        catalog.v2Products.size === V2_TARGET_PRODUCT_SPECS.length
-        && catalog.v2Prices.size === V2_TARGET_PRICE_SPECS.length
-      ) {
-        const payload = portalPayload(
-          portal.defaultPortal,
+  for (const supporterUse of SUPPORTER_V2_USES) {
+    const current = portal.managed.get(supporterUse)
+    if (!current) {
+      portalActions.set(supporterUse, "create")
+      continue
+    }
+    if (
+      catalog.v2Products.size === V2_TARGET_PRODUCT_SPECS.length
+      && catalog.v2Prices.size === V2_TARGET_PRICE_SPECS.length
+    ) {
+      const payload = buildSupporterV2PortalPayload(
+        LIVE_SUPPORTER_PORTAL_PROFILE,
+        supporterUse,
+        catalog.v2Products,
+        catalog.v2Prices,
+      )
+      portalActions.set(
+        supporterUse,
+        portalMatches(
+          current,
+          payload,
           supporterUse,
-          catalog.v2Products,
-          catalog.v2Prices,
+          config.managedPortalCatalogConfirmation,
         )
-        portalActions.set(
-          supporterUse,
-          portalMatches(
-            current,
-            payload,
-            supporterUse,
-            config.managedPortalCatalogConfirmation,
-          )
-            ? "none"
-            : portalBaseMatches(current, payload, supporterUse)
-              && current.features?.subscription_update?.products === undefined
-              ? "confirmation"
-              : "update",
-        )
-      } else {
-        portalActions.set(supporterUse, "update")
-      }
+          ? "none"
+          : portalBaseMatches(current, payload, supporterUse)
+            && current.features?.subscription_update?.products === undefined
+            ? "confirmation"
+            : "update",
+      )
+    } else {
+      portalActions.set(supporterUse, "update")
     }
   }
 
   const complete = catalog.v2Products.size === V2_TARGET_PRODUCT_SPECS.length
     && catalog.v2Prices.size === V2_TARGET_PRICE_SPECS.length
-    && portal.managed.size === 2
+    && portal.managed.size === SUPPORTER_V2_USES.length
     && [...portalActions.values()].every((action) => action === "none")
-  const empty = catalog.v2Products.size === 0
-    && catalog.v2Prices.size === 0
+  const empty = products.length === 0
+    && prices.length === 0
     && portal.managed.size === 0
   const state = complete ? "COMPLETED" : empty ? "PRE_MIGRATION" : "TRANSITIONAL"
 
   const checks = [
-    check("sandbox_account", accountMatches),
+    check("live_account", accountMatches),
     check("subscriber_inventory", !failureCodes.includes("unexpected_subscription_inventory")),
     check("open_checkout_inventory", !failureCodes.includes("unexpected_open_checkout_session")),
-    check("v1_catalog_preserved", !failureCodes.some((code) => code.startsWith("v1_"))),
+    check("dedicated_catalog", !failureCodes.some((code) => code.includes("inventory"))),
     check("managed_catalog_consistent", !failureCodes.some((code) => (
-      code.includes("managed_") || code.startsWith("v2_")
+      code.includes("managed_") || code.startsWith("v2_") || code.includes("lookup_key")
     ))),
-    check(
-      "default_portal_catalog_evidence",
-      new Set(["stripe_api", "operator_confirmation"])
-        .has(portal.defaultPortalCatalogEvidence),
-    ),
     check("portal_dependencies", !failureCodes.some((code) => code.includes("portal_"))),
     check("webhook_dependency", !failureCodes.includes("webhook_dependency_mismatch")),
   ]
   if (failureCodes.length > 0) {
-    throw new SupporterV2MigrationError(failureCodes, checks)
+    throw new SupporterV2LiveMigrationError(failureCodes, checks)
   }
   return { ...catalog, ...portal, checks, portalActions, state }
 }
 
+/** Re-reads one mutation result and rejects it before dependent writes on drift. */
 async function retrieveAndRequire(retrieve, id, validate, failureCode) {
   const candidate = await retrieve(id)
-  if (!validate(candidate)) {
-    throw new SupporterV2MigrationError([failureCode])
-  }
+  if (!validate(candidate)) throw new SupporterV2LiveMigrationError([failureCode])
   return candidate
 }
 
+/** Applies only the exact live objects proven safe by the preceding inventory. */
 async function applyMigration(stripe, inventory) {
   const products = new Map(inventory.v2Products)
   for (const spec of V2_TARGET_PRODUCT_SPECS) {
     if (products.has(spec.key)) continue
-    const created = await stripe.products.create(productPayload(spec), {
-      idempotencyKey: productIdempotencyKey(spec),
+    const created = await stripe.products.create(buildSupporterV2ProductPayload(spec), {
+      idempotencyKey: supporterV2ProductIdempotencyKey(spec),
     })
     const product = await retrieveAndRequire(
       (id) => stripe.products.retrieve(id),
       created.id,
-      (candidate) => exactProduct(candidate, spec)
-        && classifySupporterProductMetadata(candidate.metadata, {
+      (candidate) => {
+        const classification = classifySupporterProductMetadata(candidate.metadata, {
           catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-        })?.amountChoiceId === spec.key,
+        })
+        return exactProduct(candidate, spec)
+          && classification?.schema === "current"
+          && classification.amountChoiceId === spec.key
+      },
       "v2_product_mutation_unverified",
     )
     products.set(spec.key, product)
@@ -644,27 +555,32 @@ async function applyMigration(stripe, inventory) {
   for (const spec of V2_TARGET_PRICE_SPECS) {
     if (prices.has(spec.key)) continue
     const product = products.get(spec.productKey)
-    const created = await stripe.prices.create(pricePayload(spec, product.id), {
-      idempotencyKey: priceIdempotencyKey(spec),
-    })
+    const created = await stripe.prices.create(
+      buildSupporterV2PricePayload(spec, product.id),
+      { idempotencyKey: supporterV2PriceIdempotencyKey(spec) },
+    )
     const price = await retrieveAndRequire(
       (id) => stripe.prices.retrieve(id, { expand: ["currency_options"] }),
       created.id,
-      (candidate) => exactPrice(candidate, spec, product.id)
-        && classifySupporterPriceMetadata(candidate.metadata, {
+      (candidate) => {
+        const classification = classifySupporterPriceMetadata(candidate.metadata, {
           catalogVersion: SUPPORTER_MEMBERSHIP_CATALOG_VERSION,
-        })?.priceKey === spec.key,
+        })
+        return exactPrice(candidate, spec, product.id)
+          && classification?.schema === "current"
+          && classification.priceKey === spec.key
+      },
       "v2_price_mutation_unverified",
     )
     prices.set(spec.key, price)
   }
 
-  for (const supporterUse of ["personal", "business"]) {
+  for (const supporterUse of SUPPORTER_V2_USES) {
     const current = inventory.managed.get(supporterUse)
     const action = inventory.portalActions.get(supporterUse)
     if (action === "none" || action === "confirmation") continue
-    const payload = portalPayload(
-      inventory.defaultPortal,
+    const payload = buildSupporterV2PortalPayload(
+      LIVE_SUPPORTER_PORTAL_PROFILE,
       supporterUse,
       products,
       prices,
@@ -672,7 +588,7 @@ async function applyMigration(stripe, inventory) {
     )
     if (!current) {
       const created = await stripe.billingPortal.configurations.create(payload, {
-        idempotencyKey: portalIdempotencyKey(supporterUse),
+        idempotencyKey: supporterV2PortalIdempotencyKey(supporterUse),
       })
       await retrieveAndRequire(
         (id) => stripe.billingPortal.configurations.retrieve(id),
@@ -692,29 +608,34 @@ async function applyMigration(stripe, inventory) {
   }
 }
 
-/** Summarizes remaining provider writes separately from evidence-only confirmations. */
+/** Summarizes the bounded writes or confirmations needed by one inventory. */
 function planFor(inventory) {
   return {
     createProducts: V2_TARGET_PRODUCT_SPECS.length - inventory.v2Products.size,
     createPrices: V2_TARGET_PRICE_SPECS.length - inventory.v2Prices.size,
-    createPortals: [...inventory.portalActions.values()].filter((action) => action === "create").length,
-    updatePortals: [...inventory.portalActions.values()].filter((action) => action === "update").length,
-    confirmPortals: [...inventory.portalActions.values()]
-      .filter((action) => action === "confirmation").length,
+    createPortals: [...inventory.portalActions.values()].filter(
+      (action) => action === "create",
+    ).length,
+    updatePortals: [...inventory.portalActions.values()].filter(
+      (action) => action === "update",
+    ).length,
+    confirmPortals: [...inventory.portalActions.values()].filter(
+      (action) => action === "confirmation",
+    ).length,
   }
 }
 
-/** Distinguishes an evidence-only completion gate from structural catalog drift. */
+/** Distinguishes a confirmation-only stop from incomplete catalog topology. */
 function completionFailureCode(inventory) {
   const actions = [...inventory.portalActions.values()]
   return actions.every((action) => action === "none" || action === "confirmation")
     && actions.some((action) => action === "confirmation")
     ? "managed_portal_catalog_confirmation_required"
-    : "v2_catalog_not_completed"
+    : "v2_live_catalog_not_completed"
 }
 
-/** Runs a read-only verify/plan or the explicitly confirmed sandbox apply. */
-export async function runSupporterV2SandboxMigration({
+/** Runs a read-only verify/plan or the explicitly confirmed live apply. */
+export async function runSupporterV2LiveMigration({
   stripe,
   mode,
   env = process.env,
@@ -724,16 +645,21 @@ export async function runSupporterV2SandboxMigration({
   const plan = planFor(inventory)
 
   if (mode === "verify" && inventory.state !== "COMPLETED") {
-    throw new SupporterV2MigrationError([completionFailureCode(inventory)], inventory.checks)
+    throw new SupporterV2LiveMigrationError(
+      [completionFailureCode(inventory)],
+      inventory.checks,
+    )
   }
   if (mode === "apply" && inventory.state !== "COMPLETED") {
     try {
       await applyMigration(stripe, inventory)
     } catch (error) {
-      if (error instanceof SupporterV2MigrationError) throw error
-      throw new SupporterV2MigrationError(["stripe_mutation_failed"], inventory.checks, {
-        cause: error,
-      })
+      if (error instanceof SupporterV2LiveMigrationError) throw error
+      throw new SupporterV2LiveMigrationError(
+        ["stripe_mutation_failed"],
+        inventory.checks,
+        { cause: error },
+      )
     }
     const wrotePortal = plan.createPortals > 0 || plan.updatePortals > 0
     inventory = await collectInventory(
@@ -743,7 +669,10 @@ export async function runSupporterV2SandboxMigration({
         : config,
     )
     if (inventory.state !== "COMPLETED") {
-      throw new SupporterV2MigrationError([completionFailureCode(inventory)], inventory.checks)
+      throw new SupporterV2LiveMigrationError(
+        [completionFailureCode(inventory)],
+        inventory.checks,
+      )
     }
   }
 
@@ -756,15 +685,13 @@ export async function runSupporterV2SandboxMigration({
       ...inventory.checks,
       check(mode === "apply" ? "post_apply_verification" : "read_only_inventory", true),
     ],
-    defaultPortalCatalogEvidence: inventory.defaultPortalCatalogEvidence,
   }
 }
 
-/** Formats a non-secret operator receipt for a successful migration run. */
-export function formatMigrationChecklist(result) {
+/** Formats a non-secret operator receipt for a successful live migration run. */
+export function formatLiveMigrationChecklist(result) {
   return [
     ...result.checks.map(({ status, code }) => `${status} ${code}`),
-    `EVIDENCE default_portal_catalog=${result.defaultPortalCatalogEvidence}`,
     `STATE ${result.state}`,
     `PLAN products_create=${result.plan.createProducts}`,
     `PLAN prices_create=${result.plan.createPrices}`,
@@ -774,7 +701,8 @@ export function formatMigrationChecklist(result) {
   ].join("\n")
 }
 
-export function formatMigrationFailure(error) {
+/** Formats only fixed failure codes and precomputed non-secret checks. */
+export function formatLiveMigrationFailure(error) {
   return [
     ...(error?.checks ?? []).map(({ status, code }) => `${status} ${code}`),
     ...(error?.failureCodes ?? ["unexpected_migration_failure"])
@@ -782,20 +710,22 @@ export function formatMigrationFailure(error) {
   ].join("\n")
 }
 
+/** Reads one exact --name=value command-line argument. */
 function argumentValue(name) {
   const prefix = `${name}=`
   return process.argv.slice(2).find((argument) => argument.startsWith(prefix))?.slice(prefix.length) ?? ""
 }
 
+/** Runs the standalone CLI while keeping provider values out of its receipt. */
 async function main() {
   const mode = argumentValue("--mode")
   try {
     const config = buildConfig(process.env, mode)
     const stripe = new Stripe(config.secretKey, { apiVersion: STRIPE_API_VERSION })
-    const result = await runSupporterV2SandboxMigration({ stripe, mode, env: process.env })
-    console.log(formatMigrationChecklist(result))
+    const result = await runSupporterV2LiveMigration({ stripe, mode, env: process.env })
+    console.log(formatLiveMigrationChecklist(result))
   } catch (error) {
-    console.error(formatMigrationFailure(error))
+    console.error(formatLiveMigrationFailure(error))
     process.exitCode = 1
   }
 }

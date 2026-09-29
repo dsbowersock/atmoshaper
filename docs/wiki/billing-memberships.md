@@ -3,22 +3,25 @@
 AtmoShaper uses feature-based access. Code should ask whether a user has a feature, not whether the user has a named plan.
 
 AtmoShaper's dedicated Stripe account is staged but not configured for public
-enrollment. Its test environment contains the first v1 sandbox catalog: three
-amount-specific Products and six recurring Prices. Production Checkout remains
-paused, and Stripe Tax has no registrations. Preserve that v1 inventory as the
-known transition baseline until the expanded v2 sandbox catalog passes its
-readiness and controlled Checkout, Portal, and webhook tests.
+enrollment. Its sandbox contains the retained v1 three-Product/six-Price
+catalog plus the accepted v2 six-Product/twelve-Price catalog, separate
+personal and business Portal configurations, the exact webhook, and the Ohio
+sandbox tax registration. Controlled Checkout, Portal, webhook, database, and
+cleanup testing passed. Production registration and Checkout remain paused;
+live catalog, webhook, tax-registration, deployment, transaction, and refund
+gates are still incomplete.
 
 ## Dedicated AtmoShaper Provider Sequence
 
-After this code-only buyer-use change is reviewed and merged, the next provider
-stage remains test mode only: inventory and preserve the existing v1 objects,
-then create or verify six AtmoShaper Supporter amount/use Products and twelve
-recurring Prices, configure one Portal allowlist, create the exact 15-event webhook at
-`https://www.atmoshaper.com/api/billing/webhook`, store test credentials and
-Price mappings through approved secret management, deploy, and run controlled
-Checkout, Portal, and signed-webhook tests with synthetic data. Stripe Tax
-registration and live-mode activation remain separate decisions.
+The current provider stage is live preparation while public registration and
+Checkout remain paused. First review and merge the fail-closed live migration
+command. Then create the exact live 15-event webhook at
+`https://www.atmoshaper.com/api/billing/webhook`, supply a restricted live key
+and the dedicated live account identity through approved secret management,
+and run the reviewed command in read-only plan mode. Live catalog apply,
+Portal creation, Stripe Tax registration, Vercel configuration, deployment,
+and any controlled live purchase/refund each remain separately authorized
+provider boundaries.
 
 New catalog objects use current AtmoShaper metadata. Exact legacy
 `massagelab_*` metadata, `massagelab-*` idempotency keys,

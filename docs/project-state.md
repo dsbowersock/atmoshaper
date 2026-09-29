@@ -8,13 +8,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `9608849d08af3d7f919a6a472117d73baf5b4684`; PR #19's
+  `main` is `0695c740f605b75a91d589c831ca236dff4230a2`; PR #19's
   provider-readiness record, PR #20's public Stripe catalog identity, and PR
   #21's final brand assets, PR #22's Stripe technical identity, and PR #23's
   buyer-selected Supporter use classification, PR #24's reviewed sandbox
   catalog migration, PR #25's default-Portal omission compatibility, and PR
-  #26's Portal-create request contract, and PR #27's omitted managed-Portal
-  compatibility repair are merged. Earlier CI evidence
+  #26's Portal-create request contract, PR #27's omitted managed-Portal
+  compatibility repair, and PR #28's sandbox acceptance receipt are merged.
+  Earlier CI evidence
   remains historical until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, support routing, and verified Google branding are operational;
@@ -43,6 +44,22 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and no owned nonterminal subscription or synthetic database row remains.
   Stripe's completed test Session and event history is immutable sandbox audit
   history, not live billing state.
+- The active code-only cutover candidate starts from PR #28's merge. It extracts
+  the immutable Supporter v2 Product, Price, Portal, metadata, and idempotency
+  contract from the sandbox-only orchestrator and adds a separate live
+  verify/plan/apply owner. The live command accepts only live or restricted-live
+  credentials, proves the dedicated account and live mode, requires the exact
+  pinned live webhook, rejects hidden catalog/subscription/Checkout/Portal
+  conflicts, and supports a truly empty dedicated live catalog rather than the
+  retained v1 sandbox baseline. Provider writes, Vercel configuration,
+  deployment, tax registration, live payment/refund testing, registration, and
+  Checkout activation remain outside this candidate. Provider-free validation
+  passes the 23 focused live/sandbox migration cases, the 355-case expanded
+  Stripe regression group, typecheck, lint, the production build, and the full
+  5,032-test suite with 5,029 passed, three host-dependent skips, and zero
+  failures. The first hosted repair requires post-create Product and Price
+  receipts to retain the requested managed identity before any dependent live
+  write. Exact-head hosted review remains pending.
 - The merged migration command adds a bounded verify/plan/apply
   command for the dedicated AtmoShaper sandbox and separates Customer Portal
   configuration by persisted personal or business Price identity. It preserves
