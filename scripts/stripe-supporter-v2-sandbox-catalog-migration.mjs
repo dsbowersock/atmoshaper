@@ -312,7 +312,17 @@ function defaultPortalBaseIsSafe(portal, products, prices, catalogConfirmation) 
     )
 }
 
-function desiredPortalFeatures(defaultPortal, supporterUse, products, prices) {
+/**
+ * Builds use-specific Portal features while preserving Stripe's distinct
+ * create and update representations for cleared scheduling conditions.
+ */
+function desiredPortalFeatures(
+  defaultPortal,
+  supporterUse,
+  products,
+  prices,
+  { create = false } = {},
+) {
   const base = normalizeSupporterPortalFeatures(defaultPortal.features)
   const targetProducts = V2_TARGET_PRODUCT_SPECS
     .filter((product) => product.supporterUse === supporterUse)
@@ -333,15 +343,20 @@ function desiredPortalFeatures(defaultPortal, supporterUse, products, prices) {
       default_allowed_updates: ["price"],
       billing_cycle_anchor: "unchanged",
       proration_behavior: "none",
-      // The Stripe form encoder needs an explicit empty scalar to clear this
-      // nested array; response normalization treats it as an empty list.
-      schedule_at_period_end: { conditions: "" },
+      // Creation starts without scheduled-update conditions. Updates need an
+      // explicit empty scalar because Stripe's form encoder otherwise cannot
+      // clear this nested array.
+      ...(create ? {} : { schedule_at_period_end: { conditions: "" } }),
       trial_update_behavior: "end_trial",
       products: targetProducts,
     },
   }
 }
 
+/**
+ * Builds a Portal request without sending response-only or update-only fields
+ * to Stripe's configuration-create endpoint.
+ */
 function portalPayload(defaultPortal, supporterUse, products, prices, { create = false } = {}) {
   const businessProfile = Object.fromEntries(Object.entries({
     headline: defaultPortal.business_profile?.headline,
@@ -354,14 +369,22 @@ function portalPayload(defaultPortal, supporterUse, products, prices, { create =
 
   return {
     ...(create ? { name: `AtmoShaper Supporter Portal — ${supporterUse}` } : {}),
-    active: true,
+    // Stripe creates Portal configurations as active and does not accept the
+    // response-only `active` field on the create endpoint.
+    ...(create ? {} : { active: true }),
     ...(Object.keys(businessProfile).length > 0 ? { business_profile: businessProfile } : {}),
     ...(
       defaultPortal.default_return_url || !create
         ? { default_return_url: defaultPortal.default_return_url ?? "" }
         : {}
     ),
-    features: desiredPortalFeatures(defaultPortal, supporterUse, products, prices),
+    features: desiredPortalFeatures(
+      defaultPortal,
+      supporterUse,
+      products,
+      prices,
+      { create },
+    ),
     metadata: portalMetadata(supporterUse),
   }
 }
