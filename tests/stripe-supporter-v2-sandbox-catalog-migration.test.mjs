@@ -542,7 +542,10 @@ describe("Supporter v2 sandbox catalog migration", () => {
       () => runSupporterV2SandboxMigration({
         stripe: fixture.stripe,
         mode: "apply",
-        env: applyEnv(),
+        env: applyEnv({
+          ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION:
+            MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+        }),
       }),
       "managed_portal_catalog_confirmation_required",
     )
@@ -582,6 +585,31 @@ describe("Supporter v2 sandbox catalog migration", () => {
     assert.equal(verified.state, "COMPLETED")
     assert.equal(verified.plan.confirmPortals, 0)
     assert.equal(mutationCalls(fixture).length, 0)
+  })
+
+  it("reports structural Portal work before confirmation-only evidence", async () => {
+    const fixture = stripeFixture({ omitManagedPortalProducts: true })
+    await expectFailure(
+      () => runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "apply",
+        env: applyEnv(),
+      }),
+      "managed_portal_catalog_confirmation_required",
+    )
+    const businessPortal = [...fixture.portals.values()].find(
+      ({ metadata }) => metadata.atmoshaper_portal_supporter_use === "business",
+    )
+    fixture.portals.delete(businessPortal.id)
+
+    await expectFailure(
+      () => runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "verify",
+        env: migrationEnv(),
+      }),
+      "v2_catalog_not_completed",
+    )
   })
 
   it("does not let managed operator evidence override API-visible drift", async () => {

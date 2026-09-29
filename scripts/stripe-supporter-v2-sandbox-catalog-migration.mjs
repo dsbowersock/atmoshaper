@@ -116,6 +116,7 @@ function check(code, passed) {
   return { code, status: passed ? "PASS" : "FAIL" }
 }
 
+/** Returns one trimmed string setting without coercing non-string inputs. */
 function envValue(env, key) {
   return typeof env?.[key] === "string" ? env[key].trim() : ""
 }
@@ -395,10 +396,12 @@ function portalPayload(defaultPortal, supporterUse, products, prices, { create =
   }
 }
 
+/** Normalizes optional Portal text so absent and empty API values compare alike. */
 function normalizeOptionalPortalText(value) {
   return typeof value === "string" && value.length > 0 ? value : null
 }
 
+/** Verifies every managed Portal field Stripe reliably returns except its catalog. */
 function portalBaseMatches(candidate, payload, supporterUse) {
   const candidateFeatures = normalizeSupporterPortalFeatures(candidate.features)
   const payloadFeatures = normalizeSupporterPortalFeatures(payload.features)
@@ -433,6 +436,7 @@ function portalBaseMatches(candidate, payload, supporterUse) {
     && jsonEqual(candidateFeatures, payloadFeatures)
 }
 
+/** Verifies a complete managed Portal using API catalog evidence or fresh attestation. */
 function portalMatches(candidate, payload, supporterUse, catalogConfirmation = "") {
   return portalBaseMatches(candidate, payload, supporterUse)
     && managedSupporterPortalAllowlistIsVerified(
@@ -896,6 +900,7 @@ async function applyMigration(stripe, inventory) {
   }
 }
 
+/** Summarizes remaining provider writes separately from evidence-only confirmations. */
 function planFor(inventory) {
   return {
     createProducts: V2_TARGET_PRODUCT_SPECS.length - inventory.v2Products.size,
@@ -909,7 +914,9 @@ function planFor(inventory) {
 
 /** Distinguishes an evidence-only completion gate from structural catalog drift. */
 function completionFailureCode(inventory) {
-  return [...inventory.portalActions.values()].some((action) => action === "confirmation")
+  const actions = [...inventory.portalActions.values()]
+  return actions.every((action) => action === "none" || action === "confirmation")
+    && actions.some((action) => action === "confirmation")
     ? "managed_portal_catalog_confirmation_required"
     : "v2_catalog_not_completed"
 }
@@ -936,7 +943,13 @@ export async function runSupporterV2SandboxMigration({
         cause: error,
       })
     }
-    inventory = await collectInventory(stripe, config)
+    const wrotePortal = plan.createPortals > 0 || plan.updatePortals > 0
+    inventory = await collectInventory(
+      stripe,
+      wrotePortal
+        ? { ...config, managedPortalCatalogConfirmation: "" }
+        : config,
+    )
     if (inventory.state !== "COMPLETED") {
       throw new SupporterV2MigrationError([completionFailureCode(inventory)], inventory.checks)
     }
