@@ -24,4 +24,14 @@
 - `npm run lint`, `npm run typecheck`, `npm run build`, and `git diff --check` exited successfully. The production build compiled, typechecked, and generated 115 pages; its existing poll-shedder message remained informational.
 - The isolated worktree required its own `npm ci` before the production build. Installation completed from the committed lockfile. A fresh registry audit later reported 14 advisories (4 moderate, 7 high, and 3 critical), including direct or transitive Next.js, Sharp, Nodemailer, Prisma, and shadcn dependency chains. Several require coordinated version changes, so no automatic dependency or lockfile rewrite was mixed into this migration slice; they are a separate security-update branch before live billing activation.
 - No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax, DNS, or email-provider mutation occurred.
+- After merge, the pinned Stripe API and a newer preview response both omitted
+  the Dashboard-managed default Portal's Product catalog while the Dashboard
+  showed the exact retained three Products and six Prices. A focused follow-up
+  distinguishes omission from an API-visible mismatch: only omission may use
+  the exact process-local operator confirmation, while visible empty, extra,
+  or mismatched entries still fail closed. Migration/readiness regression
+  suites passed 50/50; the expanded final-review group passed 63/63.
+- The follow-up candidate also passed typecheck, lint, diff validation, and a
+  production build that generated 115 pages. The existing Anatomime
+  poll-shedder initialization message remained informational.
 - The installed Aegis package exposes no workspace-helper executable, so structural bundle/check commands were unavailable. The work record was reviewed directly; this does not substitute for semantic or test evidence.

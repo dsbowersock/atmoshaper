@@ -270,6 +270,9 @@ function defaultPortal() {
   if (process.env.STRIPE_READINESS_STUB_INVALID_DEFAULT_PORTAL === "allowlist") {
     configuration.features.subscription_update.products[0].prices = ["price_unrelated"]
   }
+  if (process.env.STRIPE_READINESS_STUB_OMIT_DEFAULT_PORTAL_PRODUCTS === "true") {
+    delete configuration.features.subscription_update.products
+  }
   return configuration
 }
 

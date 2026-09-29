@@ -3,8 +3,10 @@
 The code-preparation slice reached its authorized stop: a locally validated,
 review-ready candidate with no provider or deployment mutation. The migration
 command owns exact sandbox inventory, safe planning, deterministic creation,
-post-write readback, and repeatable completion checks rather than leaving a
-manual dashboard procedure as the source of truth.
+post-write readback, and repeatable completion checks. The one bounded
+exception is the retained default Portal catalog when Stripe omits that field
+from its API response: a process-local operator confirmation may attest the
+exact Dashboard-visible v1 allowlist, but it cannot override API-visible drift.
 
 The main design correction was separating personal and business Customer Portal
 allowlists. A shared Portal would have allowed a buyer to cross the use boundary

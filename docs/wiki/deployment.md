@@ -309,6 +309,19 @@ npm run stripe:migrate-supporter-v2-sandbox -- --mode=plan
 npm run stripe:migrate-supporter-v2-sandbox -- --mode=verify
 ```
 
+Stripe can omit the Dashboard-managed default Portal's
+`features.subscription_update.products` field even though the Dashboard shows
+the saved catalog. If that field is absent, manually verify that the default
+Portal shows exactly the retained v1 three Products and six Prices with
+quantity changes disabled, then set
+`ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION` to
+`CONFIRM_RETAINED_V1_SUPPORTER_CATALOG_3_PRODUCTS_6_PRICES` for that operator
+process only. Never persist this value in Vercel or a shared environment. It is
+accepted only when the field is absent; an API-visible empty or mismatched
+catalog still fails closed. The same process-local confirmation is required by
+`stripe:readiness -- --verify-stripe` while Stripe continues omitting the
+field.
+
 `plan` inventories and reports only safe checklist/count output. `verify`
 requires the completed target and performs no writes. Do not persist
 `ATMOSHAPER_STRIPE_V2_APPLY_CONFIRMATION`; after reviewing the exact plan and

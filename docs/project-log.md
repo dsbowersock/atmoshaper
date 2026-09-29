@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-28 — Default Portal catalog API-omission compatibility candidate
+
+- PR #24 merged as `4b5ef0580668f8abf54a0c6be79008390df3f427` after
+  exact-head hosted checks, Codex, CodeRabbit, and review-thread gates passed.
+- The first reviewed read-only provider plan exposed a Stripe response gap:
+  both the pinned API and a newer preview response omitted the
+  Dashboard-managed default Portal Product catalog. The Dashboard itself shows
+  the intended retained v1 three Products and six Prices, with plan switching
+  enabled and quantity changes disabled; no Dashboard edit was needed.
+- A narrow follow-up now treats an omitted field separately from an empty or
+  mismatched field. Only omission can use the exact process-local
+  `ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION`; API-visible drift
+  always fails closed. The same shared boundary covers migration planning and
+  final Stripe readiness. Focused migration/readiness tests passed 50/50; the
+  expanded final-review group passed 63/63. Typecheck, lint, diff validation,
+  and the 115-page production build also passed.
+- No Stripe, Vercel, Neon, database, deployment, payment, subscription, tax,
+  DNS, or email-provider mutation occurred in this compatibility candidate.
+
 ## 2026-09-28 — Supporter v2 sandbox migration candidate
 
 - PR #23 merged at `b6652e0c2ed0dd5ce5e583cabdc9a8273d71bff2`, making

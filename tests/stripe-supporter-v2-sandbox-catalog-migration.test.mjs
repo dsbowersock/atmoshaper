@@ -22,6 +22,9 @@ import {
 } from "../lib/stripe-provider-identity.js"
 import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
+  DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+} from "../lib/stripe-supporter-portal-contract.js"
+import {
   STRIPE_API_VERSION,
   STRIPE_PINNED_WEBHOOK_EVENTS,
   STRIPE_PINNED_WEBHOOK_URL,
@@ -450,6 +453,57 @@ describe("Supporter v2 sandbox catalog migration", () => {
         .every(({ payload }) => payload.expand === undefined),
       true,
     )
+  })
+
+  it("requires exact operator evidence only when Stripe omits the default catalog", async () => {
+    const fixture = stripeFixture()
+    delete fixture.portals.get("bpc_default_v1")
+      .features.subscription_update.products
+
+    for (const confirmation of [undefined, "CONFIRM_SOMETHING_ELSE"]) {
+      await expectFailure(
+        () => runSupporterV2SandboxMigration({
+          stripe: fixture.stripe,
+          mode: "plan",
+          env: migrationEnv({
+            ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION: confirmation,
+          }),
+        }),
+        "default_portal_dependency_mismatch",
+      )
+    }
+
+    const result = await runSupporterV2SandboxMigration({
+      stripe: fixture.stripe,
+      mode: "plan",
+      env: migrationEnv({
+        ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION:
+          DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+      }),
+    })
+
+    assert.equal(result.state, "PRE_MIGRATION")
+    assert.equal(result.defaultPortalCatalogEvidence, "operator_confirmation")
+    assert.equal(mutationCalls(fixture).length, 0)
+  })
+
+  it("does not let operator evidence override an API-visible catalog mismatch", async () => {
+    const fixture = stripeFixture()
+    fixture.portals.get("bpc_default_v1")
+      .features.subscription_update.products[0].prices = ["price_unrelated"]
+
+    await expectFailure(
+      () => runSupporterV2SandboxMigration({
+        stripe: fixture.stripe,
+        mode: "plan",
+        env: migrationEnv({
+          ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION:
+            DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+        }),
+      }),
+      "default_portal_dependency_mismatch",
+    )
+    assert.equal(mutationCalls(fixture).length, 0)
   })
 
   it("detects an archived managed Price instead of recreating its identity", async () => {

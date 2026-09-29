@@ -23,6 +23,9 @@ import {
 } from "../lib/stripe-price-contract.js"
 import StripeReadinessStub from "./fixtures/stripe-readiness-stripe-stub.mjs"
 import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
+import {
+  DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+} from "../lib/stripe-supporter-portal-contract.js"
 
 const readinessScriptPath = fileURLToPath(
   new URL("../scripts/stripe-readiness-check.mjs", import.meta.url),
@@ -1010,6 +1013,46 @@ describe("Stripe readiness background-commerce contract", () => {
       assert.equal(result.status, 1, drift)
       assert.match(result.stderr, failure, drift)
     }
+  })
+
+  it("requires exact operator evidence when Stripe omits the default catalog", () => {
+    const omitted = runReadinessWithStripeStub({
+      STRIPE_READINESS_STUB_OMIT_DEFAULT_PORTAL_PRODUCTS: "true",
+    }, ["--verify-stripe"])
+    assert.equal(omitted.status, 1, omitted.stderr || omitted.stdout)
+    assert.match(
+      omitted.stderr,
+      /Stripe omitted the retained default Portal catalog/,
+    )
+    assert.match(
+      omitted.stdout,
+      /Retained default Portal catalog evidence: missing/,
+    )
+
+    const confirmed = runReadinessWithStripeStub({
+      ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION:
+        DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+      STRIPE_READINESS_STUB_OMIT_DEFAULT_PORTAL_PRODUCTS: "true",
+    }, ["--verify-stripe"])
+    assert.equal(confirmed.status, 0, confirmed.stderr || confirmed.stdout)
+    assert.match(
+      confirmed.stdout,
+      /Retained default Portal catalog evidence: operator_confirmation/,
+    )
+  })
+
+  it("does not let operator evidence override visible default catalog drift", () => {
+    const result = runReadinessWithStripeStub({
+      ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION:
+        DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+      STRIPE_READINESS_STUB_INVALID_DEFAULT_PORTAL: "allowlist",
+    }, ["--verify-stripe"])
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(
+      result.stderr,
+      /Product and Price allowlist must match the complete v1 Supporter catalog/,
+    )
   })
 
   it("fails Stripe verification for every retained v1 Price and Product semantic drift", () => {
