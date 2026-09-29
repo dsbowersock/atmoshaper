@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-29 — Supporter v2 deployed sandbox acceptance and cleanup
+
+- PR #27 merged as `9608849d08af3d7f919a6a472117d73baf5b4684` after
+  exact-head hosted checks, Codex, CodeRabbit, and review-thread gates passed.
+  The merged repair requires a fresh operator inspection after a managed Portal
+  write and keeps API-visible catalog drift authoritative.
+- The reviewed sandbox migration now has the complete retained v1 catalog,
+  complete use-specific v2 catalog, separate personal and business Portals, the
+  exact enabled test webhook, an active Ohio sandbox tax registration, and the
+  required test identities in Vercel Production. Public registration and new
+  Supporter Checkout remained paused outside the controlled test window.
+- A bounded deployed acceptance used two exact owned `.example.test` users.
+  The real hosted Checkout completed one personal and one business one-dollar
+  monthly sandbox subscription with automatic tax. Signed webhook delivery
+  created two active local subscriptions, and authenticated normal-management
+  plus subscription-update Portal sessions preserved the expected catalog
+  boundary for both users.
+- Cleanup canceled both sandbox subscriptions and observed both signed deletion
+  events applied locally before deleting the two sandbox Customers. It then
+  deleted both synthetic users, six owned membership webhook receipts, and six
+  owned legal acceptances. Closing proof found zero owned nonterminal Stripe
+  subscriptions and zero owned database rows. Completed Stripe test Sessions
+  and events remain only as immutable sandbox audit history.
+- The final production deployment is ready at `atmoshaper.com` with both public
+  registration and Supporter Checkout paused.
+  The production build passed the migration gate, Prisma generation, Next.js
+  compilation, and TypeScript. The public registration endpoint returned the
+  expected `503`; the pre-existing missing Sentry source-map token warning
+  remained non-failing.
+
 ## 2026-09-29 — Managed Portal catalog API-omission compatibility candidate
 
 - PR #26 merged as `27acafb8946ba97b34061ac724b276c2eb74a312` after the

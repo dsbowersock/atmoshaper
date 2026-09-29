@@ -8,25 +8,41 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `27acafb8946ba97b34061ac724b276c2eb74a312`; PR #19's
+  `main` is `9608849d08af3d7f919a6a472117d73baf5b4684`; PR #19's
   provider-readiness record, PR #20's public Stripe catalog identity, and PR
   #21's final brand assets, PR #22's Stripe technical identity, and PR #23's
   buyer-selected Supporter use classification, PR #24's reviewed sandbox
   catalog migration, PR #25's default-Portal omission compatibility, and PR
-  #26's Portal-create request contract are merged. Earlier CI evidence
+  #26's Portal-create request contract, and PR #27's omitted managed-Portal
+  compatibility repair are merged. Earlier CI evidence
   remains historical until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, support routing, and verified Google branding are operational;
   the verified branding is being shown to users.
-- The dedicated AtmoShaper Stripe test environment is connected. It retains the
-  three v1 amount-specific Products and six recurring Prices and now also has
-  all six v2 amount/use Products, all twelve v2 recurring Prices, and the
-  managed personal-use Portal. The managed business-use Portal remains to be
-  created while new Production Checkout stays paused. Stripe Tax has the home
-  origin but no registrations. The
-  Vercel-managed destination retains the committed database migration state;
-  the personal Neon organization lists only its directly owned projects, as
-  expected.
+- The dedicated AtmoShaper Stripe sandbox is connected and complete for the
+  reviewed Supporter v2 contract. It retains the three v1 amount-specific
+  Products and six recurring Prices, has all six v2 amount/use Products and all
+  twelve v2 recurring Prices, and has separate managed personal-use and
+  business-use Portals. The exact test webhook is enabled for the reviewed
+  event set, Stripe Tax uses the home origin with an active Ohio sandbox
+  registration, and Vercel Production holds only the corresponding test-mode
+  Stripe identities and secrets. Public registration and new Supporter Checkout
+  are both paused. The Vercel-managed destination retains the committed
+  database migration state; the personal Neon organization lists only its
+  directly owned projects, as expected.
+- Controlled deployed sandbox QA passed on merged commit
+  `9608849d08af3d7f919a6a472117d73baf5b4684`. Two exact owned
+  `.example.test` users completed the real hosted personal and business
+  one-dollar monthly Checkout paths with automatic tax, the signed production
+  webhook converged both subscriptions into the database, and both the normal
+  and subscription-update Portal routes preserved their personal/business
+  catalog boundaries. Cleanup then canceled both sandbox subscriptions, deleted
+  both sandbox Customers, and removed both synthetic users plus their owned
+  webhook receipts and legal acceptances. The final paused production deployment
+  is ready at `atmoshaper.com`; the public registration endpoint returns `503`,
+  and no owned nonterminal subscription or synthetic database row remains.
+  Stripe's completed test Session and event history is immutable sandbox audit
+  history, not live billing state.
 - The merged migration command adds a bounded verify/plan/apply
   command for the dedicated AtmoShaper sandbox and separates Customer Portal
   configuration by persisted personal or business Price identity. It preserves
