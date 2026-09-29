@@ -39,10 +39,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   catalog boundaries. Cleanup then canceled both sandbox subscriptions, deleted
   both sandbox Customers, and removed both synthetic users plus their owned
   webhook receipts and legal acceptances. The final paused production deployment
-  is `dpl_CEbGPrShBvCLNY4Xx5upyZCMUi3r`; the public registration endpoint
-  returns `503`, and no owned nonterminal subscription or synthetic database row
-  remains. Stripe's completed test Session and event history is immutable
-  sandbox audit history, not live billing state.
+  is ready at `atmoshaper.com`; the public registration endpoint returns `503`,
+  and no owned nonterminal subscription or synthetic database row remains.
+  Stripe's completed test Session and event history is immutable sandbox audit
+  history, not live billing state.
 - The merged migration command adds a bounded verify/plan/apply
   command for the dedicated AtmoShaper sandbox and separates Customer Portal
   configuration by persisted personal or business Price identity. It preserves

@@ -25,8 +25,8 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   owned legal acceptances. Closing proof found zero owned nonterminal Stripe
   subscriptions and zero owned database rows. Completed Stripe test Sessions
   and events remain only as immutable sandbox audit history.
-- Final production deployment `dpl_CEbGPrShBvCLNY4Xx5upyZCMUi3r` is ready at
-  `atmoshaper.com` with both public registration and Supporter Checkout paused.
+- The final production deployment is ready at `atmoshaper.com` with both public
+  registration and Supporter Checkout paused.
   The production build passed the migration gate, Prisma generation, Next.js
   compilation, and TypeScript. The public registration endpoint returned the
   expected `503`; the pre-existing missing Sentry source-map token warning
