@@ -192,6 +192,7 @@ function paged(values, params, pageSize) {
   }
 }
 
+/** Mirrors Stripe's normalized empty-condition response for fixture assertions. */
 function canonicalPortalFeatures(features) {
   const result = clone(features)
   if (result.subscription_update?.schedule_at_period_end?.conditions === "") {
@@ -200,6 +201,10 @@ function canonicalPortalFeatures(features) {
   return result
 }
 
+/**
+ * Creates a deterministic Stripe sandbox fixture that enforces the provider
+ * request contracts exercised by the migration.
+ */
 function stripeFixture({ pageSize = 100, failFirstPriceCreate = false } = {}) {
   const calls = []
   const catalog = v1Catalog()

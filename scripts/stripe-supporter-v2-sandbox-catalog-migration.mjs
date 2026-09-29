@@ -312,6 +312,10 @@ function defaultPortalBaseIsSafe(portal, products, prices, catalogConfirmation) 
     )
 }
 
+/**
+ * Builds use-specific Portal features while preserving Stripe's distinct
+ * create and update representations for cleared scheduling conditions.
+ */
 function desiredPortalFeatures(
   defaultPortal,
   supporterUse,
@@ -349,6 +353,10 @@ function desiredPortalFeatures(
   }
 }
 
+/**
+ * Builds a Portal request without sending response-only or update-only fields
+ * to Stripe's configuration-create endpoint.
+ */
 function portalPayload(defaultPortal, supporterUse, products, prices, { create = false } = {}) {
   const businessProfile = Object.fromEntries(Object.entries({
     headline: defaultPortal.business_profile?.headline,
