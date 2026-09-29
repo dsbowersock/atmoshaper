@@ -24,7 +24,7 @@ import {
   hasApprovedSupporterPortalManagementFeatures,
   hasApprovedSupporterPortalTransitionPolicy,
   normalizeSupporterPortalFeatures,
-  supporterPortalAllowlistMatches,
+  retainedDefaultSupporterPortalAllowlistIsVerified,
 } from "../lib/stripe-supporter-portal-contract.js"
 import {
   STRIPE_API_VERSION,
@@ -141,7 +141,14 @@ function buildConfig(env, mode) {
   if (failureCodes.length > 0) {
     throw new SupporterV2MigrationError(failureCodes)
   }
-  return { expectedAccountId, secretKey }
+  return {
+    defaultPortalCatalogConfirmation: envValue(
+      env,
+      "ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION",
+    ),
+    expectedAccountId,
+    secretKey,
+  }
 }
 
 function modeMatches(object) {
@@ -291,15 +298,17 @@ function retainedV1PortalProducts(products, prices) {
     }))
 }
 
-function defaultPortalBaseIsSafe(portal, products, prices) {
+/** Verifies the retained default Portal and its exact catalog attestation. */
+function defaultPortalBaseIsSafe(portal, products, prices, catalogConfirmation) {
   return modeMatches(portal)
     && portal.active === true
     && portal.is_default === true
     && hasApprovedSupporterPortalManagementFeatures(portal.features)
     && hasApprovedSupporterPortalTransitionPolicy(portal.features)
-    && supporterPortalAllowlistMatches(
+    && retainedDefaultSupporterPortalAllowlistIsVerified(
       portal.features,
       retainedV1PortalProducts(products, prices),
+      catalogConfirmation,
     )
 }
 
@@ -512,7 +521,8 @@ function classifyCatalog(products, prices) {
   return { failureCodes, v1Products, v1Prices, v2Products, v2Prices }
 }
 
-function classifyPortals(portals, v1Products, v1Prices) {
+/** Classifies managed Portals and records how the retained catalog was proven. */
+function classifyPortals(portals, v1Products, v1Prices, catalogConfirmation) {
   const failureCodes = []
   const managed = new Map()
   const defaults = portals.filter((portal) => portal.is_default === true && modeMatches(portal))
@@ -530,13 +540,34 @@ function classifyPortals(portals, v1Products, v1Prices) {
     }
     addUnique(managed, supporterUse, portal, failureCodes, "v2_portal_duplicate")
   }
+  const defaultPortalCatalogVerified = Boolean(defaultPortal) && (
+    retainedDefaultSupporterPortalAllowlistIsVerified(
+      defaultPortal.features,
+      retainedV1PortalProducts(v1Products, v1Prices),
+      catalogConfirmation,
+    )
+  )
+  const defaultPortalCatalogEvidence = defaultPortal?.features
+    ?.subscription_update?.products !== undefined
+    ? defaultPortalCatalogVerified ? "stripe_api" : "invalid"
+    : defaultPortalCatalogVerified ? "operator_confirmation" : "missing"
   if (
     defaults.length !== 1
-    || !defaultPortalBaseIsSafe(defaults[0], v1Products, v1Prices)
+    || !defaultPortalBaseIsSafe(
+      defaults[0],
+      v1Products,
+      v1Prices,
+      catalogConfirmation,
+    )
   ) {
     failureCodes.push("default_portal_dependency_mismatch")
   }
-  return { failureCodes, defaultPortal, managed }
+  return {
+    defaultPortal,
+    defaultPortalCatalogEvidence,
+    failureCodes,
+    managed,
+  }
 }
 
 function openSubscriptionSessions(sessions) {
@@ -554,6 +585,7 @@ function nonTerminalSubscriptions(subscriptions) {
   ))
 }
 
+/** Reads every sandbox dependency and returns a mutation-free migration plan. */
 async function collectInventory(stripe, config) {
   let account
   let balance
@@ -607,7 +639,12 @@ async function collectInventory(stripe, config) {
 
   const catalog = classifyCatalog(products, prices)
   failureCodes.push(...catalog.failureCodes)
-  const portal = classifyPortals(portals, catalog.v1Products, catalog.v1Prices)
+  const portal = classifyPortals(
+    portals,
+    catalog.v1Products,
+    catalog.v1Prices,
+    config.defaultPortalCatalogConfirmation,
+  )
   failureCodes.push(...portal.failureCodes)
 
   const pinnedEndpoints = endpoints.filter((endpoint) => endpoint.url === STRIPE_PINNED_WEBHOOK_URL)
@@ -664,6 +701,11 @@ async function collectInventory(stripe, config) {
     check("managed_catalog_consistent", !failureCodes.some((code) => (
       code.includes("managed_") || code.startsWith("v2_")
     ))),
+    check(
+      "default_portal_catalog_evidence",
+      new Set(["stripe_api", "operator_confirmation"])
+        .has(portal.defaultPortalCatalogEvidence),
+    ),
     check("portal_dependencies", !failureCodes.some((code) => code.includes("portal_"))),
     check("webhook_dependency", !failureCodes.includes("webhook_dependency_mismatch")),
   ]
@@ -837,12 +879,15 @@ export async function runSupporterV2SandboxMigration({
       ...inventory.checks,
       check(mode === "apply" ? "post_apply_verification" : "read_only_inventory", true),
     ],
+    defaultPortalCatalogEvidence: inventory.defaultPortalCatalogEvidence,
   }
 }
 
+/** Formats a non-secret operator receipt for a successful migration run. */
 export function formatMigrationChecklist(result) {
   return [
     ...result.checks.map(({ status, code }) => `${status} ${code}`),
+    `EVIDENCE default_portal_catalog=${result.defaultPortalCatalogEvidence}`,
     `STATE ${result.state}`,
     `PLAN products_create=${result.plan.createProducts}`,
     `PLAN prices_create=${result.plan.createPrices}`,

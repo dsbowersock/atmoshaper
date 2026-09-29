@@ -8,10 +8,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
-  `main` is `b6652e0c2ed0dd5ce5e583cabdc9a8273d71bff2`; PR #19's
+  `main` is `4b5ef0580668f8abf54a0c6be79008390df3f427`; PR #19's
   provider-readiness record, PR #20's public Stripe catalog identity, and PR
   #21's final brand assets, PR #22's Stripe technical identity, and PR #23's
-  buyer-selected Supporter use classification are merged. Earlier CI evidence
+  buyer-selected Supporter use classification, and PR #24's reviewed sandbox
+  catalog migration are merged. Earlier CI evidence
   remains historical until the next exact-head run.
 - Production Google sign-in, the fresh administrator account, domain ownership,
   SMTP delivery, support routing, and verified Google branding are operational;
@@ -26,7 +27,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Vercel-managed destination retains the committed database migration state;
   the personal Neon organization lists only its directly owned projects, as
   expected.
-- The active code-only migration candidate adds a bounded verify/plan/apply
+- The merged migration command adds a bounded verify/plan/apply
   command for the dedicated AtmoShaper sandbox and separates Customer Portal
   configuration by persisted personal or business Price identity. It preserves
   the retained v1 catalog and exact historical `massagelab_*` metadata,
@@ -52,9 +53,15 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   allowlist, reviewed update policy, and billing-management features. The
   migration rejects archived retained-v1 catalog objects and refuses to
   repurpose the retained default v1 Portal as a managed v2 Portal under the
-  same contract. No
-  Stripe object, Vercel setting, database state, or deployment has changed in
-  this candidate.
+  same contract. Stripe currently omits that Dashboard-managed allowlist from
+  the API response even though the Dashboard shows all three retained Products
+  and six Prices. A focused follow-up accepts an exact process-local operator
+  confirmation only for that omitted-field case; the readiness CLI captures it
+  before loading dotenv files, and it is intentionally absent from the shared
+  environment template. The confirmation is accepted only after all six unique
+  expected Price identities resolve to three distinct unsplit Product
+  identities. An API-visible mismatch still fails closed. No Stripe object,
+  Vercel setting, database state, or deployment has changed in this follow-up.
 - The final user-approved logo, logo-plus-name wordmark, integrated word
   treatment, favicon, PWA icons, and Apple touch icon are merged. The app bar
   uses the wordmark at wide widths and the square logo at narrow widths. The

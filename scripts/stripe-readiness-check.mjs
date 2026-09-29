@@ -26,6 +26,9 @@ import {
 } from "../lib/stripe-readiness.js"
 import { LEGACY_TARGET_PRICE_SPECS } from "../lib/stripe-supporter-membership-migration-contract.js"
 import {
+  DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+} from "../lib/stripe-supporter-portal-contract.js"
+import {
   STRIPE_API_VERSION,
   STRIPE_BACKGROUND_COMMERCE_WEBHOOK_EVENTS,
   STRIPE_PINNED_WEBHOOK_URL,
@@ -39,6 +42,8 @@ const explicitEnvFile = envFileArg ? envFileArg.slice("--env-file=".length) : ""
 const liveMode = args.has("--live")
 const verifyStripe = args.has("--verify-stripe")
 const noDotenv = args.has("--no-dotenv")
+const processLocalDefaultPortalCatalogConfirmation =
+  process.env.ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION
 
 const failures = []
 const warnings = []
@@ -56,6 +61,7 @@ let verifiedWebhookApiVersionCurrent = !verifyStripe
 let stripeRetrievalPerformed = false
 let stripeSecretReady = false
 let priceIdInventoryComplete = false
+let defaultPortalCatalogEvidence = "not_checked"
 
 if (!noDotenv) {
   loadEnvironment(explicitEnvFile)
@@ -69,8 +75,12 @@ function addWarning(message) {
   warnings.push(message)
 }
 
+/** Reads the catalog attestation only from the inherited process environment. */
 function envValue(key) {
-  return process.env[key]?.trim() ?? ""
+  const value = key === "ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION"
+    ? processLocalDefaultPortalCatalogConfirmation
+    : process.env[key]
+  return value?.trim() ?? ""
 }
 
 function loadEnvironment(envFile) {
@@ -390,6 +400,7 @@ function checkBackgroundCommerceReadiness() {
   }
 }
 
+/** Retrieves and validates every configured Stripe dependency without mutation. */
 async function verifyStripePrices() {
   if (!verifyStripe || !stripeSecretReady || !priceIdInventoryComplete) {
     return
@@ -453,9 +464,28 @@ async function verifyStripePrices() {
     } else {
       defaultConfiguration = defaults[0]
       if (allLegacyPricesRetrieved) {
+        const defaultPortalCatalogConfirmation = envValue(
+          "ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION",
+        )
+        const productsReturned = defaultConfiguration?.features
+          ?.subscription_update?.products !== undefined
+        if (productsReturned) {
+          defaultPortalCatalogEvidence = "stripe_api"
+        } else if (
+          defaultPortalCatalogConfirmation
+          === DEFAULT_SUPPORTER_PORTAL_CATALOG_CONFIRMATION
+        ) {
+          defaultPortalCatalogEvidence = "operator_confirmation"
+        } else {
+          defaultPortalCatalogEvidence = "missing"
+        }
         for (const failure of validateRetrievedDefaultSupporterPortalConfiguration(
           defaultConfiguration,
-          { retrievedLegacyMembershipPrices, livemode: expectedLivemode },
+          {
+            defaultPortalCatalogConfirmation,
+            retrievedLegacyMembershipPrices,
+            livemode: expectedLivemode,
+          },
         )) addFailure(failure)
       }
     }
@@ -505,12 +535,14 @@ async function verifyStripePrices() {
   }
 }
 
+/** Prints non-secret readiness evidence and every accumulated diagnostic. */
 function printResults(supporterTax, oneTimeTax, commerce) {
   console.log(`Stripe readiness mode: ${liveMode ? "live" : "non-live"}`)
   console.log(`Stripe API retrieval requested: ${verifyStripe}`)
   console.log(`Stripe API retrieval performed: ${stripeRetrievalPerformed}`)
   console.log(`Supporter personal Portal configuration verified: ${verifiedPortalConfigurations.get("personal")}`)
   console.log(`Supporter business Portal configuration verified: ${verifiedPortalConfigurations.get("business")}`)
+  console.log(`Retained default Portal catalog evidence: ${defaultPortalCatalogEvidence}`)
   console.log(`Supporter recurring automatic tax enabled: ${supporterTax.automaticTaxEnabled}`)
   console.log(`Supporter recurring tax product code configured: ${supporterTax.taxProductCodeConfigured}`)
   console.log(`Supporter recurring tax provider ready: ${supporterTax.taxProviderReady}`)
