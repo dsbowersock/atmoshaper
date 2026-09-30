@@ -68,7 +68,8 @@ let verifiedWebhookApiVersionCurrent = !verifyStripe
 let stripeRetrievalPerformed = false
 let stripeSecretReady = false
 let priceIdInventoryComplete = false
-let defaultPortalCatalogEvidence = "not_checked"
+let defaultPortalCatalogEvidence = liveMode ? "not_applicable" : "not_checked"
+let liveDefaultPortalVerified = false
 
 if (!noDotenv) {
   loadEnvironment(explicitEnvFile)
@@ -166,21 +167,23 @@ function checkPriceIds() {
 
     priceIds.set(priceId, expected)
   }
-  for (const expected of LEGACY_TARGET_PRICE_SPECS) {
-    const priceId = envValue(expected.envKey)
-    if (!priceId) {
-      addFailure(`${expected.envKey} is missing.`)
-      continue
+  if (!liveMode) {
+    for (const expected of LEGACY_TARGET_PRICE_SPECS) {
+      const priceId = envValue(expected.envKey)
+      if (!priceId) {
+        addFailure(`${expected.envKey} is missing.`)
+        continue
+      }
+      if (!priceId.startsWith("price_")) {
+        addFailure(`${expected.envKey} must be a Stripe Price ID.`)
+        continue
+      }
+      if (legacyPriceIds.has(priceId)) {
+        addFailure(`${expected.envKey} duplicates a retained v1 Price mapping.`)
+        continue
+      }
+      legacyPriceIds.set(priceId, expected)
     }
-    if (!priceId.startsWith("price_")) {
-      addFailure(`${expected.envKey} must be a Stripe Price ID.`)
-      continue
-    }
-    if (legacyPriceIds.has(priceId)) {
-      addFailure(`${expected.envKey} duplicates a retained v1 Price mapping.`)
-      continue
-    }
-    legacyPriceIds.set(priceId, expected)
   }
   const reconciliationCounts = new Map()
   for (const { priceId } of getConfiguredMembershipReconciliationOptions(process.env)) {
@@ -195,7 +198,7 @@ function checkPriceIds() {
   }
 
   priceIdInventoryComplete = priceIds.size === REQUIRED_SUPPORTER_PRICE_CONTRACT.length
-    && legacyPriceIds.size === LEGACY_TARGET_PRICE_SPECS.length
+    && (liveMode || legacyPriceIds.size === LEGACY_TARGET_PRICE_SPECS.length)
     && reconciliationIdsUnique
 }
 
@@ -443,21 +446,24 @@ async function verifyStripePrices() {
     for (const failure of topologyFailures) addFailure(failure)
   }
   const retrievedLegacyMembershipPrices = []
-  for (const [priceId, expected] of legacyPriceIds) {
-    try {
-      const price = await stripe.prices.retrieve(priceId, { expand: ["product", "currency_options"] })
-      retrievedLegacyMembershipPrices.push({ expected, price })
-      for (const failure of validateRetrievedLegacyMembershipPrice(
-        price,
-        expected,
-        expectedLivemode,
-      )) addFailure(failure)
-    } catch {
-      allPricesRetrieved = false
-      addFailure(`${expected.envKey} could not be retrieved from Stripe.`)
+  if (!liveMode) {
+    for (const [priceId, expected] of legacyPriceIds) {
+      try {
+        const price = await stripe.prices.retrieve(priceId, { expand: ["product", "currency_options"] })
+        retrievedLegacyMembershipPrices.push({ expected, price })
+        for (const failure of validateRetrievedLegacyMembershipPrice(
+          price,
+          expected,
+          expectedLivemode,
+        )) addFailure(failure)
+      } catch {
+        allPricesRetrieved = false
+        addFailure(`${expected.envKey} could not be retrieved from Stripe.`)
+      }
     }
   }
-  const allLegacyPricesRetrieved = retrievedLegacyMembershipPrices.length === legacyPriceIds.size
+  const allLegacyPricesRetrieved = !liveMode
+    && retrievedLegacyMembershipPrices.length === legacyPriceIds.size
   stripeRetrievalPerformed = allPricesRetrieved
 
   let defaultConfiguration = null
@@ -469,10 +475,23 @@ async function verifyStripePrices() {
       && configuration?.livemode === expectedLivemode
     ))
     if (defaults.length !== 1) {
-      addFailure("The retained default Stripe Portal configuration could not be uniquely verified.")
+      addFailure(
+        liveMode
+          ? "The live default Stripe Portal configuration could not be uniquely verified."
+          : "The retained default Stripe Portal configuration could not be uniquely verified.",
+      )
     } else {
       defaultConfiguration = defaults[0]
-      if (allLegacyPricesRetrieved) {
+      if (liveMode) {
+        const personalPortalId = [...portalConfigurationIds]
+          .find(([, value]) => value.supporterUse === "personal")?.[0]
+        liveDefaultPortalVerified = defaultConfiguration.id === personalPortalId
+        if (!liveDefaultPortalVerified) {
+          addFailure(
+            "The live default Stripe Portal must be the configured personal Supporter Portal.",
+          )
+        }
+      } else if (allLegacyPricesRetrieved) {
         const defaultPortalCatalogConfirmation = envValue(
           "ATMOSHAPER_STRIPE_DEFAULT_PORTAL_CATALOG_CONFIRMATION",
         )
@@ -499,7 +518,11 @@ async function verifyStripePrices() {
       }
     }
   } catch {
-    addFailure("The retained default Stripe Portal configuration could not be retrieved.")
+    addFailure(
+      liveMode
+        ? "The live default Stripe Portal configuration could not be retrieved."
+        : "The retained default Stripe Portal configuration could not be retrieved.",
+    )
   }
   for (const [configurationId, { key, supporterUse }] of portalConfigurationIds) {
     try {
@@ -524,6 +547,10 @@ async function verifyStripePrices() {
           retrievedMembershipPrices,
           livemode: expectedLivemode,
           defaultConfiguration,
+          personalMayBeDefault: liveMode,
+          defaultProfileDescription: liveMode
+            ? "managed personal default Portal"
+            : "retained default Portal",
           managedPortalCatalogConfirmation,
         },
       )
@@ -567,6 +594,7 @@ function printResults(supporterTax, oneTimeTax, commerce) {
   console.log(`Supporter personal Portal catalog evidence: ${managedPortalCatalogEvidence.get("personal")}`)
   console.log(`Supporter business Portal catalog evidence: ${managedPortalCatalogEvidence.get("business")}`)
   console.log(`Retained default Portal catalog evidence: ${defaultPortalCatalogEvidence}`)
+  console.log(`Live default personal Portal topology verified: ${liveMode ? liveDefaultPortalVerified : "not_applicable"}`)
   console.log(`Supporter recurring automatic tax enabled: ${supporterTax.automaticTaxEnabled}`)
   console.log(`Supporter recurring tax product code configured: ${supporterTax.taxProductCodeConfigured}`)
   console.log(`Supporter recurring tax provider ready: ${supporterTax.taxProviderReady}`)

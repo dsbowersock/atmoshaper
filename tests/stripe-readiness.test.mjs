@@ -214,6 +214,17 @@ function readinessEnvironment(overrides = {}) {
   return environment
 }
 
+/** Removes sandbox-only retained v1 mappings for a dedicated live account. */
+function liveV2OnlyOverrides(overrides = {}) {
+  return {
+    STRIPE_SECRET_KEY: "sk_live_readiness",
+    ...Object.fromEntries(
+      LEGACY_TARGET_PRICE_SPECS.map(({ envKey }) => [envKey, undefined]),
+    ),
+    ...overrides,
+  }
+}
+
 /**
  * Runs readiness in a hermetic child process so repository dotenv files cannot
  * satisfy or alter an individual deployment-contract test.
@@ -903,6 +914,36 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.match(result.stdout, /Stripe API retrieval performed: false/)
   })
 
+  it("verifies the dedicated live v2 topology without retained v1 mappings", () => {
+    const result = runReadinessWithStripeStub(
+      liveV2OnlyOverrides(),
+      ["--live", "--verify-stripe"],
+    )
+
+    assert.equal(result.status, 0, result.stderr || result.stdout)
+    assert.match(result.stdout, /Supporter personal Portal configuration verified: true/)
+    assert.match(result.stdout, /Supporter business Portal configuration verified: true/)
+    assert.match(result.stdout, /Retained default Portal catalog evidence: not_applicable/)
+    assert.match(result.stdout, /Live default personal Portal topology verified: true/)
+    assert.doesNotMatch(result.stderr, /retained v1/)
+  })
+
+  it("rejects a live business Portal in the single account-default slot", () => {
+    const result = runReadinessWithStripeStub(
+      liveV2OnlyOverrides({
+        STRIPE_READINESS_STUB_LIVE_DEFAULT_USE: "business",
+      }),
+      ["--live", "--verify-stripe"],
+    )
+
+    assert.equal(result.status, 1, result.stderr || result.stdout)
+    assert.match(
+      result.stderr,
+      /The live default Stripe Portal must be the configured personal Supporter Portal/,
+    )
+    assert.match(result.stdout, /Live default personal Portal topology verified: false/)
+  })
+
   it("does not use unrelated readiness failures to suppress Stripe verification", () => {
     const result = runReadinessWithStripeStub({
       BACKGROUND_COMMERCE_RECONCILIATION_READY: "false",
@@ -1218,7 +1259,7 @@ describe("Stripe readiness background-commerce contract", () => {
     }
   })
 
-  it("rejects default Portals and every managed subscription-update behavior drift", () => {
+  it("rejects default Portals in retained-v1 mode and every managed update drift", () => {
     const retrievedMembershipPrices = retrievedMembershipPricesForUse("personal")
     const cases = [
       ["default Portal", (configuration) => { configuration.is_default = true }],

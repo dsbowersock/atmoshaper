@@ -18,11 +18,21 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   exact managed personal Portal as the single default, and still requires the
   managed business Portal to be non-default. Regressions prove a resumed plan
   preserves the existing personal Portal, requests only the missing business
-  Portal, and rejects a business Portal promoted to default. This branch makes
-  no provider or deployment change. The adjacent Stripe, Portal, and readiness
-  group passes 88/88; typecheck, lint, and diff checks pass; and the full suite
-  records 5,035 tests with 5,032 passed, three host-dependent skips, and zero
-  failures.
+  Portal, and rejects a business Portal promoted to default.
+- CodeRabbit then identified that final readiness still enforced the sandbox
+  retained-v1/non-default topology under `--live`. The shared default-status
+  contract now permits only the managed personal Portal in Stripe's single live
+  default slot. Dedicated live readiness uses the twelve v2 Price mappings,
+  requires that exact personal default, keeps the business Portal non-default,
+  and neither requires nor retrieves retained v1 sandbox mappings. Sandbox
+  readiness preserves its retained-v1/default behavior. Integrated regressions
+  prove a v2-only live account passes and a business default fails closed.
+- This branch makes no Stripe, Vercel, Neon, database, deployment, payment,
+  subscription, tax, DNS, or email-provider change. The adjacent Stripe,
+  Portal, and readiness group passes 90/90; the compiled-module final-review
+  contract passes 13/13; typecheck, lint, and diff checks pass; and the full
+  suite records 5,037 tests with 5,034 passed, three host-dependent skips, and
+  zero failures.
 
 ## 2026-09-29 — Supporter v2 live cutover candidate
 

@@ -47,7 +47,11 @@ Prepare a reviewed, fail-closed live-mode Stripe rollout for the dedicated AtmoS
 5. Create the live Products, Prices, and managed Portal configurations with the reviewed migrator, then verify the resulting inventory. On a fresh account, Stripe may make the first managed personal-use Portal the account default; accept only that exact personal topology, keep the business-use Portal non-default, and resume without recreating the accepted Portal.
 6. Configure live catalog IDs and restricted keys in Vercel while registration and Checkout remain paused, then redeploy.
 7. Configure and verify the AtmoShaper live tax registration separately. The MassageLab account's settings may guide the choice, but its Stripe registration object is not reusable.
-8. Run final readiness, then request separate authorization for one controlled live transaction and refund.
+8. Run final readiness in dedicated live mode. It must use only the twelve v2
+   Price mappings, require the configured personal Portal as Stripe's single
+   account default, keep the business Portal non-default, and avoid requiring
+   or retrieving any retained v1 sandbox identity. Then request separate
+   authorization for one controlled live transaction and refund.
 9. Open registration and Checkout only after all live readiness and cleanup gates pass.
 
 ## Validation and Evidence

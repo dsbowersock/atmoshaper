@@ -149,11 +149,14 @@ function supporterPortal(supporterUse) {
     allowlist[0].prices = ["price_unrelated"]
   }
 
+  const livemode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true
+  const liveDefaultSupporterUse = process.env.STRIPE_READINESS_STUB_LIVE_DEFAULT_USE
+    ?? "personal"
   const configuration = {
     id: expectedId,
     active: true,
-    is_default: false,
-    livemode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true,
+    is_default: livemode && supporterUse === liveDefaultSupporterUse,
+    livemode,
     business_profile: {
       headline: "Manage your AtmoShaper Supporter membership.",
       privacy_policy_url: "https://www.atmoshaper.com/legal/privacy",
@@ -300,7 +303,13 @@ export default class StripeReadinessStub {
           if (params?.expand !== undefined) {
             throw new Error("Portal configuration list must not request unsupported expansions")
           }
-          return { data: [defaultPortal()], has_more: false }
+          const livemode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true
+          const liveDefaultSupporterUse = process.env.STRIPE_READINESS_STUB_LIVE_DEFAULT_USE
+            ?? "personal"
+          return {
+            data: [livemode ? supporterPortal(liveDefaultSupporterUse) : defaultPortal()],
+            has_more: false,
+          }
         },
         retrieve: async (configurationId, params) => {
           if (params !== undefined) {

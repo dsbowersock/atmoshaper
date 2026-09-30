@@ -228,24 +228,32 @@ Student is not a Stripe-backed subscription tier. If a Student product or price 
 Legacy runtime Price mappings remain webhook-only compatibility inputs and cannot satisfy public catalog readiness.
 Keep them configured until the database and Stripe subscriber inventories prove
 no historical subscription remains and signed webhook reconciliation is final.
-`stripe:readiness` validates only the twelve amount/use Supporter Price IDs for
-new public enrollment; a Price duplicated in any current, pre-classification,
-or historical mapping namespace fails closed. With `--verify-stripe`, it also
+`stripe:readiness` validates the twelve amount/use Supporter Price IDs for new
+public enrollment; a Price duplicated in any current, pre-classification, or
+historical mapping namespace fails closed. With `--verify-stripe`, it also
 retrieves both configured Customer Portals and verifies the selected Stripe
 mode, AtmoShaper v2 metadata, and exact personal or business Product/Price
-allowlist before activation. Each managed Portal must be non-default and retain
-Price-only updates, an unchanged billing-cycle anchor, no proration, no
-scheduled-at-period-end conditions, and trial termination on change. The
-Portal must also permit address, email, and name updates, invoice history,
-payment-method updates, and cancel-at-period-end without proration, with the
-exact approved cancellation-reason set. The retained default Portal remains
-reserved for historical v1 compatibility and must retain its exact three-
-Product/six-Price v1 allowlist under the same reviewed Price-only transition
-policy. Both managed Portals must inherit the retained default's headline,
-privacy and terms URLs, and return URL; readiness retrieves the default Portal
-and all six retained v1 Prices to prove both that relationship and the default
-Portal's own topology, transition-policy, and billing-management contracts
-before activation.
+allowlist before activation. Each managed Portal must retain Price-only
+updates, an unchanged billing-cycle anchor, no proration, no scheduled-at-
+period-end conditions, and trial termination on change. The Portal must also
+permit address, email, and name updates, invoice history, payment-method
+updates, and cancel-at-period-end without proration, with the exact approved
+cancellation-reason set.
+
+In sandbox/test-mode readiness, both managed v2 Portals must remain non-default
+and inherit the retained v1 default Portal's headline, privacy and terms URLs,
+and return URL. The retained default remains reserved for historical v1
+compatibility and must preserve its exact three-Product/six-Price allowlist
+under the same reviewed transition policy. Readiness retrieves that default and
+all six retained v1 Prices to prove the catalog identities, topology, profile,
+transition policy, and billing-management contract.
+
+In dedicated live readiness (`--live`), retained v1 Price mappings are neither
+required nor read. The configured managed personal Portal must occupy Stripe's
+single account-default slot, the configured managed business Portal must remain
+non-default, and the business Portal must inherit the personal default's
+headline, privacy and terms URLs, and return URL. Any other default topology
+fails closed before activation.
 
 Before enabling subscription checkout, confirm:
 
@@ -355,7 +363,8 @@ account. It shares the immutable six-Product/twelve-Price and two-Portal
 contract with the accepted sandbox migration, but it does not require or
 create the retained v1 sandbox catalog. It accepts only `sk_live_` or
 `rk_live_` credentials, proves the expected account through a live-mode
-Balance, and rejects any unowned Product, Price, or non-default Portal, target
+Balance, and rejects any unowned Product or Price, any unowned Portal that is
+not the single account default, target
 lookup-key collision, nonterminal subscription, open subscription Checkout
 Session, managed metadata drift, or pinned live-webhook mismatch.
 

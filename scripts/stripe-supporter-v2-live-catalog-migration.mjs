@@ -27,6 +27,7 @@ import {
   buildSupporterV2ProductPayload,
   classifySupporterV2PortalMetadata,
   hasAnySupporterV2PortalMetadata,
+  managedSupporterPortalDefaultStatusMatches,
   supporterV2LookupKey,
   supporterV2PortalIdempotencyKey,
   supporterV2PriceIdempotencyKey,
@@ -217,12 +218,6 @@ function normalizeOptionalPortalText(value) {
   return typeof value === "string" && value.length > 0 ? value : null
 }
 
-/** Accepts Stripe's first managed personal Portal as the account default. */
-function managedPortalDefaultStatusMatches(candidate, supporterUse) {
-  return candidate.is_default === false
-    || (supporterUse === "personal" && candidate.is_default === true)
-}
-
 /** Verifies every managed live Portal field Stripe reliably returns except its catalog. */
 function portalBaseMatches(candidate, payload, supporterUse) {
   const candidateFeatures = normalizeSupporterPortalFeatures(candidate.features)
@@ -231,7 +226,9 @@ function portalBaseMatches(candidate, payload, supporterUse) {
   delete payloadFeatures.subscription_update.products
   return modeMatches(candidate)
     && candidate.active === true
-    && managedPortalDefaultStatusMatches(candidate, supporterUse)
+    && managedSupporterPortalDefaultStatusMatches(candidate, supporterUse, {
+      personalMayBeDefault: true,
+    })
     && classifySupporterV2PortalMetadata(candidate.metadata) === supporterUse
     && jsonEqual(
       {
@@ -371,7 +368,11 @@ function classifyPortals(portals) {
       failureCodes.push("managed_portal_metadata_mismatch")
       continue
     }
-    if (!modeMatches(portal) || !managedPortalDefaultStatusMatches(portal, supporterUse)) {
+    if (!modeMatches(portal) || !managedSupporterPortalDefaultStatusMatches(
+      portal,
+      supporterUse,
+      { personalMayBeDefault: true },
+    )) {
       failureCodes.push("managed_portal_mode_mismatch")
       continue
     }
