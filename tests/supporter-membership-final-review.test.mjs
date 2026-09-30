@@ -26,6 +26,7 @@ import {
   LEGACY_TARGET_PRICE_SPECS,
   TARGET_PRICE_SPECS,
 } from "../lib/stripe-supporter-membership-migration-contract.js"
+import { managedSupporterPortalDefaultStatusMatches } from "../lib/stripe-supporter-v2-catalog-contract.js"
 import {
   hasApprovedSupporterPortalManagementFeatures,
   hasApprovedSupporterPortalTransitionPolicy,
@@ -743,6 +744,9 @@ describe("Supporter membership final-review contracts", () => {
         },
         "./stripe-supporter-membership-migration-contract.js": {
           LEGACY_TARGET_PRICE_SPECS,
+        },
+        "./stripe-supporter-v2-catalog-contract.js": {
+          managedSupporterPortalDefaultStatusMatches,
         },
       },
     )

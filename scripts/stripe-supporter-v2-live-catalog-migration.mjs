@@ -27,6 +27,7 @@ import {
   buildSupporterV2ProductPayload,
   classifySupporterV2PortalMetadata,
   hasAnySupporterV2PortalMetadata,
+  managedSupporterPortalDefaultStatusMatches,
   supporterV2LookupKey,
   supporterV2PortalIdempotencyKey,
   supporterV2PriceIdempotencyKey,
@@ -225,7 +226,9 @@ function portalBaseMatches(candidate, payload, supporterUse) {
   delete payloadFeatures.subscription_update.products
   return modeMatches(candidate)
     && candidate.active === true
-    && candidate.is_default === false
+    && managedSupporterPortalDefaultStatusMatches(candidate, supporterUse, {
+      personalMayBeDefault: true,
+    })
     && classifySupporterV2PortalMetadata(candidate.metadata) === supporterUse
     && jsonEqual(
       {
@@ -349,14 +352,14 @@ function classifyCatalog(products, prices) {
   return { failureCodes, v2Products, v2Prices }
 }
 
-/** Classifies only the two managed live Portals and rejects unknown non-default Portals. */
+/** Classifies the two managed live Portals, including Stripe's first default Portal. */
 function classifyPortals(portals) {
   const failureCodes = []
   const managed = new Map()
   const defaults = portals.filter((portal) => portal.is_default === true && modeMatches(portal))
   for (const portal of portals) {
-    if (portal.is_default === true) continue
     if (!hasAnySupporterV2PortalMetadata(portal.metadata)) {
+      if (portal.is_default === true) continue
       failureCodes.push("unexpected_unmanaged_portal_inventory")
       continue
     }
@@ -365,7 +368,11 @@ function classifyPortals(portals) {
       failureCodes.push("managed_portal_metadata_mismatch")
       continue
     }
-    if (!modeMatches(portal) || portal.is_default !== false) {
+    if (!modeMatches(portal) || !managedSupporterPortalDefaultStatusMatches(
+      portal,
+      supporterUse,
+      { personalMayBeDefault: true },
+    )) {
       failureCodes.push("managed_portal_mode_mismatch")
       continue
     }
