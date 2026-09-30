@@ -13,6 +13,12 @@ import {
   buildCurrentSupporterProductMetadata,
 } from "../../lib/stripe-provider-identity.js"
 import { LEGACY_TARGET_PRICE_SPECS } from "../../lib/stripe-supporter-membership-migration-contract.js"
+import { getStripeSecretKeyMode } from "../../lib/stripe-secret-key.js"
+
+/** Mirrors runtime live-mode recognition for standard and restricted secret keys. */
+function usesLiveStripeKey() {
+  return getStripeSecretKeyMode(process.env.STRIPE_SECRET_KEY) === "live"
+}
 
 function supporterPrice(priceId) {
   const configuredPrice = SUPPORTER_MEMBERSHIP_PRICE_CONTRACT.find(
@@ -77,7 +83,7 @@ function legacySupporterPrice(priceId) {
   if (process.env.STRIPE_READINESS_STUB_FAIL_PRICE_ID === priceId) {
     throw new Error("Simulated Stripe Price retrieval failure")
   }
-  const livemode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true
+  const livemode = usesLiveStripeKey()
   const price = {
     id: priceId,
     active: true,
@@ -149,7 +155,7 @@ function supporterPortal(supporterUse) {
     allowlist[0].prices = ["price_unrelated"]
   }
 
-  const livemode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true
+  const livemode = usesLiveStripeKey()
   const liveDefaultSupporterUse = process.env.STRIPE_READINESS_STUB_LIVE_DEFAULT_USE
     ?? "personal"
   const configuration = {
@@ -227,7 +233,7 @@ function defaultPortal() {
     id: "bpc_default",
     active: true,
     is_default: true,
-    livemode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true,
+    livemode: usesLiveStripeKey(),
     business_profile: {
       headline: "Manage your AtmoShaper Supporter membership.",
       privacy_policy_url: "https://www.atmoshaper.com/legal/privacy",
@@ -303,7 +309,7 @@ export default class StripeReadinessStub {
           if (params?.expand !== undefined) {
             throw new Error("Portal configuration list must not request unsupported expansions")
           }
-          const livemode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true
+          const livemode = usesLiveStripeKey()
           const liveDefaultSupporterUse = process.env.STRIPE_READINESS_STUB_LIVE_DEFAULT_USE
             ?? "personal"
           return {
