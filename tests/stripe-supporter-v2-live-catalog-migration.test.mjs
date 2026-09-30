@@ -253,7 +253,7 @@ function stripeFixture({
             id,
             object: "billing_portal.configuration",
             livemode: true,
-            is_default: false,
+            is_default: ![...portals.values()].some((portal) => portal.is_default === true),
             active: true,
             ...clone(payload),
             features: canonicalPortalFeatures(payload.features),
@@ -390,6 +390,8 @@ describe("Supporter v2 live catalog migration", () => {
     assert.equal(fixture.products.size, 6)
     assert.equal(fixture.prices.size, 12)
     assert.equal(fixture.portals.size, 2)
+    assert.equal(fixture.portals.get("bpc_live_personal").is_default, true)
+    assert.equal(fixture.portals.get("bpc_live_business").is_default, false)
     assert.equal(mutationCalls(fixture).length, 20)
     const lookupKeys = new Set([...fixture.prices.values()].map(({ lookup_key }) => lookup_key))
     assert.deepEqual(
@@ -405,6 +407,79 @@ describe("Supporter v2 live catalog migration", () => {
     })
     assert.equal(replay.state, "COMPLETED")
     assert.equal(mutationCalls(fixture).length, writesBeforeReplay)
+  })
+
+  it("preserves an unrelated account default and creates non-default managed Portals", async () => {
+    const fixture = stripeFixture()
+    fixture.portals.set("bpc_live_unrelated_default", {
+      id: "bpc_live_unrelated_default",
+      object: "billing_portal.configuration",
+      livemode: true,
+      is_default: true,
+      active: true,
+      metadata: {},
+    })
+
+    const applied = await runSupporterV2LiveMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+
+    assert.equal(applied.state, "COMPLETED")
+    assert.equal(fixture.portals.get("bpc_live_personal").is_default, false)
+    assert.equal(fixture.portals.get("bpc_live_business").is_default, false)
+    assert.equal(mutationCalls(fixture).length, 20)
+  })
+
+  it("resumes from Stripe's default personal Portal without recreating it", async () => {
+    const fixture = stripeFixture({ omitManagedPortalProducts: true })
+    await expectFailure(
+      () => runSupporterV2LiveMigration({
+        stripe: fixture.stripe,
+        mode: "apply",
+        env: applyEnv(),
+      }),
+      "managed_portal_catalog_confirmation_required",
+    )
+    fixture.portals.delete("bpc_live_business")
+
+    const writesBeforePlan = mutationCalls(fixture).length
+    const result = await runSupporterV2LiveMigration({
+      stripe: fixture.stripe,
+      mode: "plan",
+      env: liveEnv(),
+    })
+
+    assert.equal(result.state, "TRANSITIONAL")
+    assert.deepEqual(result.plan, {
+      createProducts: 0,
+      createPrices: 0,
+      createPortals: 1,
+      updatePortals: 0,
+      confirmPortals: 1,
+    })
+    assert.equal(mutationCalls(fixture).length, writesBeforePlan)
+  })
+
+  it("rejects a managed business Portal promoted to account default", async () => {
+    const fixture = stripeFixture()
+    await runSupporterV2LiveMigration({
+      stripe: fixture.stripe,
+      mode: "apply",
+      env: applyEnv(),
+    })
+    fixture.portals.get("bpc_live_personal").is_default = false
+    fixture.portals.get("bpc_live_business").is_default = true
+
+    await expectFailure(
+      () => runSupporterV2LiveMigration({
+        stripe: fixture.stripe,
+        mode: "plan",
+        env: liveEnv(),
+      }),
+      "managed_portal_mode_mismatch",
+    )
   })
 
   it("rejects mismatched post-create identities before dependent live writes", async () => {

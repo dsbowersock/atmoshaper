@@ -359,6 +359,13 @@ Balance, and rejects any unowned Product, Price, or non-default Portal, target
 lookup-key collision, nonterminal subscription, open subscription Checkout
 Session, managed metadata drift, or pinned live-webhook mismatch.
 
+Stripe can make the first API-created Portal configuration the account default
+when a fresh account has no existing default. The live migrator therefore
+accepts one exact managed personal-use Portal in the single default slot; the
+managed business-use Portal must remain non-default. It never treats a default
+business Portal as valid and never recreates the accepted personal Portal when
+resuming an interrupted apply.
+
 The live pinned webhook must exist and match the exact URL, API version, and
 15-event set before even the read-only plan succeeds. After the code is
 reviewed and merged, supply the live key and

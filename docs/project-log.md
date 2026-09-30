@@ -2,6 +2,28 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-09-29 — Live default-Portal topology repair
+
+- PR #29 merged as `ee932ef2c33a8c28bf7dd6cdce612955d81413ee` after its
+  exact-head hosted checks and CodeRabbit review completed without actionable
+  comments. The user explicitly treated hosted Codex review as a bonus rather
+  than a merge gate while that separate quota was exhausted.
+- The authorized live migration created all six Products, all twelve Prices,
+  and the personal-use Portal, then stopped fail-closed before creating the
+  business-use Portal. Stripe made the first API-created Portal the account
+  default, but the reviewed migrator had modeled both managed Portals as
+  non-default. No Customer, subscription, open Checkout Session, payment, or
+  refund exists, and public registration and Checkout remain paused.
+- The focused repair models Stripe's fresh-account behavior, accepts only the
+  exact managed personal Portal as the single default, and still requires the
+  managed business Portal to be non-default. Regressions prove a resumed plan
+  preserves the existing personal Portal, requests only the missing business
+  Portal, and rejects a business Portal promoted to default. This branch makes
+  no provider or deployment change. The adjacent Stripe, Portal, and readiness
+  group passes 88/88; typecheck, lint, and diff checks pass; and the full suite
+  records 5,035 tests with 5,032 passed, three host-dependent skips, and zero
+  failures.
+
 ## 2026-09-29 — Supporter v2 live cutover candidate
 
 - PR #28 merged as `0695c740f605b75a91d589c831ca236dff4230a2` after its
