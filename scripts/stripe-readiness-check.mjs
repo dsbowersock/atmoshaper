@@ -94,6 +94,7 @@ function envValue(key) {
   return value?.trim() ?? ""
 }
 
+/** Loads readiness configuration without overriding values already supplied by the operator. */
 function loadEnvironment(envFile) {
   const candidates = envFile
     ? [envFile]
@@ -126,6 +127,11 @@ function checkSecretKey() {
   const keyMode = getStripeSecretKeyMode(key)
   if (liveMode && keyMode !== "live") {
     addFailure("STRIPE_SECRET_KEY must be a live sk_live_ or rk_live_ key for production readiness.")
+    return
+  }
+
+  if (!liveMode && keyMode === "live") {
+    addFailure("STRIPE_SECRET_KEY must be a test sk_test_ or rk_test_ key unless --live is selected.")
     return
   }
 

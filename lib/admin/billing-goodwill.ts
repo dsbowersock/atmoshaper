@@ -992,6 +992,7 @@ function unresolvedReplayResult(operation: BillingGoodwillOperation): BillingGoo
   }
 }
 
+/** Converts only terminal operation states into the public mutation result shape. */
 function operationResult(
   operation: BillingGoodwillOperation,
   replayed: boolean,

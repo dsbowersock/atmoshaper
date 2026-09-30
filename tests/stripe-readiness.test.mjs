@@ -720,6 +720,15 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.equal(result.status, 0, result.stderr || result.stdout)
     assert.match(result.stdout, /PASS Stripe membership environment is ready for the selected mode\./)
     assert.doesNotMatch(result.stderr, /does not use an expected/)
+
+    for (const liveKey of ["sk_live_readiness", "rk_live_readiness"]) {
+      const liveResult = runReadiness({ STRIPE_SECRET_KEY: liveKey })
+      assert.equal(liveResult.status, 1)
+      assert.match(
+        liveResult.stderr,
+        /STRIPE_SECRET_KEY must be a test sk_test_ or rk_test_ key unless --live is selected\./,
+      )
+    }
   }
 
   it("accepts a restricted test key without weakening readiness checks", verifyRestrictedTestKeyReadiness)
