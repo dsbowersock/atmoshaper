@@ -127,6 +127,7 @@ function legacySupporterPrice(priceId) {
 }
 
 /** Builds the exact use-specific Product and Price allowlist for one Portal. */
+/** Builds one managed Portal fixture with the exact catalog for its supporter-use boundary. */
 function supporterPortal(supporterUse) {
   const expectedId = process.env[
     `STRIPE_SUPPORTER_${supporterUse.toUpperCase()}_PORTAL_CONFIGURATION_ID`
@@ -305,6 +306,7 @@ export default class StripeReadinessStub {
     }
     this.billingPortal = {
       configurations: {
+        /** Returns the account-default Portal without relying on unsupported expansions. */
         list: async (params) => {
           if (params?.expand !== undefined) {
             throw new Error("Portal configuration list must not request unsupported expansions")
