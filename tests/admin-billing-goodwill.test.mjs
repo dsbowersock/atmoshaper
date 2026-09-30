@@ -1105,7 +1105,7 @@ describe("Admin invoice-credit mutation and reconciliation", () => {
   })
 
   /** Proves restricted credentials cannot bypass the existing test/live mutation gates. */
-  it("applies the same test and live safety gates to restricted keys", async () => {
+  async function verifyRestrictedKeyMutationGates() {
     const testMode = createMutationFixture()
     const testResult = await apply(testMode, {
       env: { STRIPE_SECRET_KEY: "rk_test_example" },
@@ -1130,7 +1130,9 @@ describe("Admin invoice-credit mutation and reconciliation", () => {
       },
     })
     assert.equal(allowedResult.status, "VERIFIED")
-  })
+  }
+
+  it("applies the same test and live safety gates to restricted keys", verifyRestrictedKeyMutationGates)
 
   it("fails a direct stale-form mutation when the authoritative subscription is not USD", async () => {
     const fixture = createMutationFixture({ subscriptionCurrency: "eur" })

@@ -714,13 +714,15 @@ describe("Stripe readiness background-commerce contract", () => {
   })
 
   /** Keeps least-privilege test credentials subject to the complete readiness contract. */
-  it("accepts a restricted test key without weakening readiness checks", () => {
+  function verifyRestrictedTestKeyReadiness() {
     const result = runReadiness({ STRIPE_SECRET_KEY: "rk_test_readiness" })
 
     assert.equal(result.status, 0, result.stderr || result.stdout)
     assert.match(result.stdout, /PASS Stripe membership environment is ready for the selected mode\./)
     assert.doesNotMatch(result.stderr, /does not use an expected/)
-  })
+  }
+
+  it("accepts a restricted test key without weakening readiness checks", verifyRestrictedTestKeyReadiness)
 
   it("fails when any required commerce webhook event is absent", () => {
     const result = runReadiness({
@@ -938,7 +940,7 @@ describe("Stripe readiness background-commerce contract", () => {
   })
 
   /** Exercises restricted-live mode through provider-shaped catalog verification. */
-  it("accepts a restricted live key for verified live readiness", () => {
+  function verifyRestrictedLiveKeyReadiness() {
     const result = runReadinessWithStripeStub(
       liveV2OnlyOverrides({ STRIPE_SECRET_KEY: "rk_live_readiness" }),
       ["--live", "--verify-stripe"],
@@ -947,7 +949,9 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.equal(result.status, 0, result.stderr || result.stdout)
     assert.match(result.stdout, /Supporter personal Portal configuration verified: true/)
     assert.match(result.stdout, /Supporter business Portal configuration verified: true/)
-  })
+  }
+
+  it("accepts a restricted live key for verified live readiness", verifyRestrictedLiveKeyReadiness)
 
   it("rejects a live business Portal in the single account-default slot", () => {
     const result = runReadinessWithStripeStub(
