@@ -1104,6 +1104,36 @@ describe("Admin invoice-credit mutation and reconciliation", () => {
     assert.equal(result.status, "VERIFIED")
   })
 
+  /** Proves restricted credentials cannot bypass the existing test/live mutation gates. */
+  async function verifyRestrictedKeyMutationGates() {
+    const testMode = createMutationFixture()
+    const testResult = await apply(testMode, {
+      env: { STRIPE_SECRET_KEY: "rk_test_example" },
+    })
+    assert.equal(testResult.status, "VERIFIED")
+
+    const blockedLive = createMutationFixture({ livemode: true })
+    const blockedResult = await apply(blockedLive, {
+      env: { STRIPE_SECRET_KEY: "rk_live_example", NODE_ENV: "development" },
+    })
+    assert.equal(blockedResult.status, "FAILED_BEFORE_MUTATION")
+    assert.equal(blockedLive.state.operations.get("billing-op-1").failureCode, "LIVE_STRIPE_DISABLED")
+    assert.equal(blockedLive.stripeRequests.length, 0)
+
+    const allowedLive = createMutationFixture({ livemode: true })
+    const allowedResult = await apply(allowedLive, {
+      env: {
+        STRIPE_SECRET_KEY: "rk_live_example",
+        NODE_ENV: "production",
+        VERCEL_ENV: "production",
+        ADMIN_BILLING_GOODWILL_LIVE_ENABLED: "true",
+      },
+    })
+    assert.equal(allowedResult.status, "VERIFIED")
+  }
+
+  it("applies the same test and live safety gates to restricted keys", verifyRestrictedKeyMutationGates)
+
   it("fails a direct stale-form mutation when the authoritative subscription is not USD", async () => {
     const fixture = createMutationFixture({ subscriptionCurrency: "eur" })
 

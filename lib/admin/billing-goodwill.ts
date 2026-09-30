@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "@prisma/client"
 import type Stripe from "stripe"
 import { normalizeEmail } from "../auth-security.js"
 import { runCommerceTransaction } from "../commerce/transactions.ts"
+import { getStripeSecretKeyMode } from "../stripe-secret-key.js"
 import { AdminAuthorityDeniedError, requireFullAdminUser } from "./access.ts"
 import { validateAdminReason, type AdminReasonCode } from "./operation-contract.ts"
 import {
@@ -991,6 +992,7 @@ function unresolvedReplayResult(operation: BillingGoodwillOperation): BillingGoo
   }
 }
 
+/** Converts only terminal operation states into the public mutation result shape. */
 function operationResult(
   operation: BillingGoodwillOperation,
   replayed: boolean,
@@ -1013,12 +1015,14 @@ function operationResult(
   }
 }
 
+/** Rejects invalid credentials and live mutations outside explicitly enabled production. */
 function liveGateFailureCode(env: BillingGoodwillMutationInput["env"]): string | null {
   const secretKey = env?.STRIPE_SECRET_KEY
-  if (typeof secretKey !== "string" || (!secretKey.startsWith("sk_test_") && !secretKey.startsWith("sk_live_"))) {
+  const keyMode = getStripeSecretKeyMode(secretKey)
+  if (keyMode === null) {
     return "STRIPE_KEY_INVALID"
   }
-  if (isLiveSecretKey(secretKey)
+  if (keyMode === "live"
     && (env?.NODE_ENV !== "production"
       || env?.VERCEL_ENV !== "production"
       || env?.ADMIN_BILLING_GOODWILL_LIVE_ENABLED !== "true")) {
@@ -1027,8 +1031,9 @@ function liveGateFailureCode(env: BillingGoodwillMutationInput["env"]): string |
   return null
 }
 
+/** Returns whether a recognized Stripe secret credential targets live mode. */
 function isLiveSecretKey(value: string | undefined): boolean {
-  return typeof value === "string" && value.startsWith("sk_live_")
+  return getStripeSecretKeyMode(value) === "live"
 }
 
 function captureNow(value?: Date): Date {

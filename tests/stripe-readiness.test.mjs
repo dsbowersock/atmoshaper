@@ -713,6 +713,26 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.doesNotMatch(result.stdout, /sk_test_readiness|whsec_readiness/)
   })
 
+  /** Keeps least-privilege test credentials subject to the complete readiness contract. */
+  function verifyRestrictedTestKeyReadiness() {
+    const result = runReadiness({ STRIPE_SECRET_KEY: "rk_test_readiness" })
+
+    assert.equal(result.status, 0, result.stderr || result.stdout)
+    assert.match(result.stdout, /PASS Stripe membership environment is ready for the selected mode\./)
+    assert.doesNotMatch(result.stderr, /does not use an expected/)
+
+    for (const liveKey of ["sk_live_readiness", "rk_live_readiness"]) {
+      const liveResult = runReadiness({ STRIPE_SECRET_KEY: liveKey })
+      assert.equal(liveResult.status, 1)
+      assert.match(
+        liveResult.stderr,
+        /STRIPE_SECRET_KEY must be a test sk_test_ or rk_test_ key unless --live is selected\./,
+      )
+    }
+  }
+
+  it("accepts a restricted test key without weakening readiness checks", verifyRestrictedTestKeyReadiness)
+
   it("fails when any required commerce webhook event is absent", () => {
     const result = runReadiness({
       BACKGROUND_COMMERCE_WEBHOOK_EVENTS: "checkout.session.completed,refund.created",
@@ -927,6 +947,20 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.match(result.stdout, /Live default personal Portal topology verified: true/)
     assert.doesNotMatch(result.stderr, /retained v1/)
   })
+
+  /** Exercises restricted-live mode through provider-shaped catalog verification. */
+  function verifyRestrictedLiveKeyReadiness() {
+    const result = runReadinessWithStripeStub(
+      liveV2OnlyOverrides({ STRIPE_SECRET_KEY: "rk_live_readiness" }),
+      ["--live", "--verify-stripe"],
+    )
+
+    assert.equal(result.status, 0, result.stderr || result.stdout)
+    assert.match(result.stdout, /Supporter personal Portal configuration verified: true/)
+    assert.match(result.stdout, /Supporter business Portal configuration verified: true/)
+  }
+
+  it("accepts a restricted live key for verified live readiness", verifyRestrictedLiveKeyReadiness)
 
   it("rejects a live business Portal in the single account-default slot", () => {
     const result = runReadinessWithStripeStub(

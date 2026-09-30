@@ -13,6 +13,7 @@ import { config as loadDotenv } from "dotenv"
 import { BACKGROUND_COMMERCE_TAX_PRODUCT_CODE } from "../lib/commerce/constants.js"
 import { DIGITAL_PURCHASES_REFUNDS_VERSION } from "../lib/legal-documents.js"
 import { getConfiguredMembershipReconciliationOptions } from "../lib/membership.js"
+import { getStripeSecretKeyMode } from "../lib/stripe-secret-key.js"
 import {
   getOneTimeSupportTaxReadiness,
   getSupporterRecurringTaxReadiness,
@@ -93,6 +94,7 @@ function envValue(key) {
   return value?.trim() ?? ""
 }
 
+/** Loads readiness configuration without overriding values already supplied by the operator. */
 function loadEnvironment(envFile) {
   const candidates = envFile
     ? [envFile]
@@ -114,6 +116,7 @@ function loadEnvironment(envFile) {
   }
 }
 
+/** Validates credential mode before readiness creates any Stripe client. */
 function checkSecretKey() {
   const key = envValue("STRIPE_SECRET_KEY")
   if (!key) {
@@ -121,13 +124,19 @@ function checkSecretKey() {
     return
   }
 
-  if (liveMode && !key.startsWith("sk_live_")) {
-    addFailure("STRIPE_SECRET_KEY must be a live secret key for production readiness.")
+  const keyMode = getStripeSecretKeyMode(key)
+  if (liveMode && keyMode !== "live") {
+    addFailure("STRIPE_SECRET_KEY must be a live sk_live_ or rk_live_ key for production readiness.")
     return
   }
 
-  if (!liveMode && !key.startsWith("sk_test_") && !key.startsWith("sk_live_")) {
-    addWarning("STRIPE_SECRET_KEY is configured but does not use the expected sk_test_ or sk_live_ prefix.")
+  if (!liveMode && keyMode === "live") {
+    addFailure("STRIPE_SECRET_KEY must be a test sk_test_ or rk_test_ key unless --live is selected.")
+    return
+  }
+
+  if (!liveMode && keyMode === null) {
+    addWarning("STRIPE_SECRET_KEY is configured but does not use an expected sk_test_, rk_test_, sk_live_, or rk_live_ prefix.")
   }
   stripeSecretReady = true
 }
@@ -426,7 +435,7 @@ async function verifyStripePrices() {
   // every successfully fetched Price, while API failures alone make
   // `stripeRetrievalPerformed` false.
   let allPricesRetrieved = true
-  const expectedLivemode = envValue("STRIPE_SECRET_KEY").startsWith("sk_live_")
+  const expectedLivemode = getStripeSecretKeyMode(envValue("STRIPE_SECRET_KEY")) === "live"
   const retrievedMembershipPrices = []
   for (const [priceId, expected] of priceIds) {
     try {
