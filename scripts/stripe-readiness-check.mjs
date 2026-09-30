@@ -115,6 +115,7 @@ function loadEnvironment(envFile) {
   }
 }
 
+/** Validates credential mode before readiness creates any Stripe client. */
 function checkSecretKey() {
   const key = envValue("STRIPE_SECRET_KEY")
   if (!key) {

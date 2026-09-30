@@ -1014,6 +1014,7 @@ function operationResult(
   }
 }
 
+/** Rejects invalid credentials and live mutations outside explicitly enabled production. */
 function liveGateFailureCode(env: BillingGoodwillMutationInput["env"]): string | null {
   const secretKey = env?.STRIPE_SECRET_KEY
   const keyMode = getStripeSecretKeyMode(secretKey)
@@ -1029,6 +1030,7 @@ function liveGateFailureCode(env: BillingGoodwillMutationInput["env"]): string |
   return null
 }
 
+/** Returns whether a recognized Stripe secret credential targets live mode. */
 function isLiveSecretKey(value: string | undefined): boolean {
   return getStripeSecretKeyMode(value) === "live"
 }
