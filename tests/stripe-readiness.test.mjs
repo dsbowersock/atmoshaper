@@ -713,6 +713,7 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.doesNotMatch(result.stdout, /sk_test_readiness|whsec_readiness/)
   })
 
+  /** Keeps least-privilege test credentials subject to the complete readiness contract. */
   it("accepts a restricted test key without weakening readiness checks", () => {
     const result = runReadiness({ STRIPE_SECRET_KEY: "rk_test_readiness" })
 
@@ -936,6 +937,7 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.doesNotMatch(result.stderr, /retained v1/)
   })
 
+  /** Exercises restricted-live mode through provider-shaped catalog verification. */
   it("accepts a restricted live key for verified live readiness", () => {
     const result = runReadinessWithStripeStub(
       liveV2OnlyOverrides({ STRIPE_SECRET_KEY: "rk_live_readiness" }),

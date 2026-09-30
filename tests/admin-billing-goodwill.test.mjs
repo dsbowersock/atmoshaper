@@ -1104,6 +1104,7 @@ describe("Admin invoice-credit mutation and reconciliation", () => {
     assert.equal(result.status, "VERIFIED")
   })
 
+  /** Proves restricted credentials cannot bypass the existing test/live mutation gates. */
   it("applies the same test and live safety gates to restricted keys", async () => {
     const testMode = createMutationFixture()
     const testResult = await apply(testMode, {
