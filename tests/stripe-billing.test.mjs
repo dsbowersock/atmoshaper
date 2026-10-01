@@ -1057,7 +1057,11 @@ describe("Stripe billing helpers", () => {
     ])
   })
 
-  it("preserves the legacy serialization barrier before rotating a cached invalid request", async () => {
+  /**
+   * Proves recovery reaches the legacy serialization barrier before using the
+   * contract-versioned key, including while old and new handlers overlap.
+   */
+  async function preservesLegacyBarrierBeforeRotatingCachedFailure() {
     const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
     const rotatedKey =
       "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
@@ -1112,9 +1116,18 @@ describe("Stripe billing helpers", () => {
     )
     assert.deepEqual(createAttempts, [legacyKey, rotatedKey, legacyKey])
     assert.equal(createdSessions.length, 1)
-  })
+  }
 
-  it("rotates after a completed legacy payload mismatch", async () => {
+  it(
+    "preserves the legacy serialization barrier before rotating a cached invalid request",
+    preservesLegacyBarrierBeforeRotatingCachedFailure,
+  )
+
+  /**
+   * Confirms a completed legacy payload mismatch is safe to recover with the
+   * deterministic contract-versioned key after reconciliation finds no Session.
+   */
+  async function rotatesAfterCompletedLegacyPayloadMismatch() {
     const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
     const rotatedKey =
       "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
@@ -1152,9 +1165,18 @@ describe("Stripe billing helpers", () => {
 
     assert.equal(result.id, "cs_after_payload_mismatch")
     assert.deepEqual(createAttempts, [legacyKey, rotatedKey])
-  })
+  }
 
-  it("does not rotate fresh validation, in-use, or indeterminate idempotency failures", async () => {
+  it(
+    "rotates after a completed legacy payload mismatch",
+    rotatesAfterCompletedLegacyPayloadMismatch,
+  )
+
+  /**
+   * Keeps validation, active-key, and indeterminate provider failures on the
+   * original error path because none proves that a second create is safe.
+   */
+  async function rejectsUnsafeMembershipCheckoutKeyRotation() {
     const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
     const failures = [
       Object.assign(new Error("Fresh validation failure."), {
@@ -1198,7 +1220,12 @@ describe("Stripe billing helpers", () => {
       )
       assert.deepEqual(createAttempts, [legacyKey])
     }
-  })
+  }
+
+  it(
+    "does not rotate fresh validation, in-use, or indeterminate idempotency failures",
+    rejectsUnsafeMembershipCheckoutKeyRotation,
+  )
 
   it("rotates once after concurrent membership Checkout attempts choose different prices", async () => {
     const createdSessions = []
