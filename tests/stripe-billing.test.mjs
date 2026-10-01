@@ -698,7 +698,7 @@ describe("Stripe billing helpers", () => {
     assert.equal(result.id, "cs_after_expired_history")
     assert.deepEqual(listCalls, { mixed: 10, open: 1, complete: 1 })
     assert.deepEqual(createOptions, {
-      idempotencyKey: "massagelab-membership-checkout:user_123:after:cs_expired_page_10",
+      idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_expired_page_10",
     })
   })
 
@@ -1053,7 +1053,7 @@ describe("Stripe billing helpers", () => {
     assert.equal(monthly.id, "cs_serialized")
     assert.equal(duplicateMonthly.id, "cs_serialized")
     assert.deepEqual([...idempotentRequests.keys()], [
-      "massagelab-membership-checkout:user_123:after:initial",
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
     ])
   })
 
@@ -1127,21 +1127,21 @@ describe("Stripe billing helpers", () => {
     assert.deepEqual(expiredSessions, ["cs_concurrent_monthly"])
     assert.deepEqual(createAttempts, [
       {
-        idempotencyKey: "massagelab-membership-checkout:user_123:after:initial",
+        idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
         priceId: SUPPORTER_2_MONTHLY_PRICE_ID,
       },
       {
-        idempotencyKey: "massagelab-membership-checkout:user_123:after:initial",
+        idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
         priceId: SUPPORTER_1_YEARLY_PRICE_ID,
       },
       {
-        idempotencyKey: "massagelab-membership-checkout:user_123:after:cs_concurrent_monthly",
+        idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_concurrent_monthly",
         priceId: SUPPORTER_1_YEARLY_PRICE_ID,
       },
     ])
     assert.deepEqual([...idempotentRequests.keys()], [
-      "massagelab-membership-checkout:user_123:after:initial",
-      "massagelab-membership-checkout:user_123:after:cs_concurrent_monthly",
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_concurrent_monthly",
     ])
   })
 
@@ -2481,7 +2481,7 @@ describe("Stripe billing helpers", () => {
       url: "https://checkout.stripe.com/c/membership",
     })
     assert.deepEqual(createIdempotencyKeys, [
-      "massagelab-membership-checkout:user_123:after:cs_terminal_authority_anchor",
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_terminal_authority_anchor",
     ])
   })
 
@@ -3160,7 +3160,7 @@ describe("Stripe billing helpers", () => {
 
     assert.equal(result.id, "cs_retry")
     assert.deepEqual(capturedOptions, {
-      idempotencyKey: "massagelab-membership-checkout:user_123:after:cs_expired",
+      idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_expired",
     })
   })
 
@@ -3435,8 +3435,8 @@ describe("Stripe billing helpers", () => {
 
     assert.equal(result.id, "cs_recovered_create")
     assert.deepEqual(createAttempts, [
-      "massagelab-membership-checkout:user_123:after:initial",
-      "massagelab-membership-checkout:user_123:after:cs_recovered_anchor",
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_recovered_anchor",
     ])
   })
 
