@@ -1065,7 +1065,7 @@ describe("Stripe billing helpers", () => {
       new Error("Cached pre-readiness Checkout failure."),
       {
         type: "StripeInvalidRequestError",
-        headers: { "idempotent-replayed": "true" },
+        raw: { headers: { "idempotent-replayed": "true" } },
       },
     )
     const createAttempts = []
@@ -1120,7 +1120,7 @@ describe("Stripe billing helpers", () => {
       "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
     const parameterMismatch = Object.assign(
       new Error("The legacy key belongs to different request parameters."),
-      { type: "StripeIdempotencyError" },
+      { type: "StripeIdempotencyError", statusCode: 409 },
     )
     const createAttempts = []
 
@@ -1162,7 +1162,8 @@ describe("Stripe billing helpers", () => {
       }),
       Object.assign(new Error("Another request is using this key."), {
         type: "StripeIdempotencyError",
-        code: "idempotency_key_in_use",
+        raw: { code: "idempotency_key_in_use" },
+        statusCode: 409,
       }),
       Object.assign(new Error("The create outcome is indeterminate."), {
         type: "StripeIdempotencyError",
