@@ -4,6 +4,8 @@
  * Checks the Stripe membership environment without printing secret values.
  * Use `--live` for production readiness and `--verify-stripe` when network
  * access is available to retrieve configured Price records from Stripe.
+ * `--supporter-only` excludes other payment flows only while their runtime
+ * enablement switches are false or unset; the default checks every flow.
  */
 import fs from "node:fs"
 import path from "node:path"
@@ -42,6 +44,7 @@ const args = new Set(rawArgs.filter((arg) => !arg.startsWith("--env-file=")))
 const envFileArg = rawArgs.find((arg) => arg.startsWith("--env-file="))
 const explicitEnvFile = envFileArg ? envFileArg.slice("--env-file=".length) : ""
 const liveMode = args.has("--live")
+const supporterOnly = args.has("--supporter-only")
 const verifyStripe = args.has("--verify-stripe")
 const noDotenv = args.has("--no-dotenv")
 const processLocalDefaultPortalCatalogConfirmation =
@@ -297,6 +300,23 @@ function checkSupporterRecurringTaxReadiness() {
   }
 
   return recurringTax
+}
+
+/**
+ * Requires a durable fail-closed switch for each excluded payment flow.
+ * Missing switches disable the runtime paths; ambiguous values are rejected
+ * rather than treating an incomplete tax/catalog setup as a launch boundary.
+ */
+function checkExcludedPaymentFlowsDisabled() {
+  for (const key of [
+    "STRIPE_ONE_TIME_SUPPORT_AUTOMATIC_TAX_ENABLED",
+    "BACKGROUND_COMMERCE_PURCHASING_ENABLED",
+  ]) {
+    const value = envValue(key).toLowerCase()
+    if (value !== "" && value !== "false") {
+      addFailure(`${key} must be false or unset for --supporter-only.`)
+    }
+  }
 }
 
 /**
@@ -596,6 +616,7 @@ async function verifyStripePrices() {
 /** Prints non-secret readiness evidence and every accumulated diagnostic. */
 function printResults(supporterTax, oneTimeTax, commerce) {
   console.log(`Stripe readiness mode: ${liveMode ? "live" : "non-live"}`)
+  console.log(`Stripe readiness scope: ${supporterOnly ? "supporter-only" : "all-payments"}`)
   console.log(`Stripe API retrieval requested: ${verifyStripe}`)
   console.log(`Stripe API retrieval performed: ${stripeRetrievalPerformed}`)
   console.log(`Supporter personal Portal configuration verified: ${verifiedPortalConfigurations.get("personal")}`)
@@ -609,23 +630,28 @@ function printResults(supporterTax, oneTimeTax, commerce) {
   console.log(`Supporter recurring tax provider ready: ${supporterTax.taxProviderReady}`)
   console.log(`Supporter recurring tax registrations confirmed: ${supporterTax.taxRegistrationsReady}`)
   console.log(`Supporter recurring tax classification confirmed: ${supporterTax.taxClassificationConfirmed}`)
-  console.log(`One-time support automatic tax enabled: ${oneTimeTax.automaticTaxEnabled}`)
-  console.log(`One-time support tax product code configured: ${oneTimeTax.taxProductCodeConfigured}`)
-  console.log(`One-time support tax provider ready: ${oneTimeTax.taxProviderReady}`)
-  console.log(`One-time support tax registrations confirmed: ${oneTimeTax.taxRegistrationsReady}`)
-  console.log(`One-time support tax classification confirmed: ${oneTimeTax.taxClassificationConfirmed}`)
-  console.log(`Background commerce fixed USD price configured: ${commerce.fixedUsdPriceConfigured}`)
-  console.log(`Background commerce purchase-country allowlist configured: ${commerce.purchaseCountryAllowlistConfigured}`)
-  console.log(`Background commerce digital-purchase document current: ${commerce.digitalPurchaseDocumentCurrent}`)
-  console.log(`Background commerce webhook readiness configured: ${commerce.webhookReady}`)
-  console.log(`Background commerce webhook event coverage complete: ${commerceWebhookCoverageComplete && verifiedWebhookCoverageComplete}`)
+  if (oneTimeTax) {
+    console.log(`One-time support automatic tax enabled: ${oneTimeTax.automaticTaxEnabled}`)
+    console.log(`One-time support tax product code configured: ${oneTimeTax.taxProductCodeConfigured}`)
+    console.log(`One-time support tax provider ready: ${oneTimeTax.taxProviderReady}`)
+    console.log(`One-time support tax registrations confirmed: ${oneTimeTax.taxRegistrationsReady}`)
+    console.log(`One-time support tax classification confirmed: ${oneTimeTax.taxClassificationConfirmed}`)
+  }
+  if (commerce) {
+    console.log(`Background commerce fixed USD price configured: ${commerce.fixedUsdPriceConfigured}`)
+    console.log(`Background commerce purchase-country allowlist configured: ${commerce.purchaseCountryAllowlistConfigured}`)
+    console.log(`Background commerce digital-purchase document current: ${commerce.digitalPurchaseDocumentCurrent}`)
+    console.log(`Background commerce webhook readiness configured: ${commerce.webhookReady}`)
+    console.log(`Background commerce webhook event coverage complete: ${commerceWebhookCoverageComplete && verifiedWebhookCoverageComplete}`)
+    console.log(`Background commerce reconciliation configured: ${commerce.reconciliationReady}`)
+    console.log(`Background commerce tax mode: ${commerce.taxMode}`)
+    console.log(`Background commerce tax product code configured: ${commerce.taxProductCodeConfigured}`)
+    console.log(`Background commerce tax provider ready: ${commerce.taxProviderReady}`)
+    console.log(`Background commerce tax registrations confirmed: ${commerce.taxRegistrationsReady}`)
+  }
+  console.log(`Pinned Stripe webhook event coverage complete: ${verifyStripe ? verifiedWebhookCoverageComplete : "not_checked"}`)
   console.log(`Pinned Stripe webhook endpoint enabled: ${verifiedWebhookEndpointEnabled}`)
   console.log(`Pinned Stripe webhook API version current: ${verifiedWebhookApiVersionCurrent}`)
-  console.log(`Background commerce reconciliation configured: ${commerce.reconciliationReady}`)
-  console.log(`Background commerce tax mode: ${commerce.taxMode}`)
-  console.log(`Background commerce tax product code configured: ${commerce.taxProductCodeConfigured}`)
-  console.log(`Background commerce tax provider ready: ${commerce.taxProviderReady}`)
-  console.log(`Background commerce tax registrations confirmed: ${commerce.taxRegistrationsReady}`)
 
   for (const warning of warnings) {
     console.log(`WARN ${warning}`)
@@ -639,8 +665,8 @@ function printResults(supporterTax, oneTimeTax, commerce) {
     return
   }
 
-  console.log("One-time support tax readiness: ready")
-  console.log("Background commerce readiness: ready")
+  console.log(`One-time support tax readiness: ${supporterOnly ? "not_applicable (disabled)" : "ready"}`)
+  console.log(`Background commerce readiness: ${supporterOnly ? "not_applicable (disabled)" : "ready"}`)
   console.log("PASS Stripe membership environment is ready for the selected mode.")
 }
 
@@ -652,8 +678,9 @@ if (liveMode && !verifyStripe) {
   addFailure("Live Stripe readiness requires --verify-stripe.")
 }
 const supporterTax = checkSupporterRecurringTaxReadiness()
-const oneTimeTax = checkOneTimeSupportTaxReadiness()
-const commerce = checkBackgroundCommerceReadiness()
+if (supporterOnly) checkExcludedPaymentFlowsDisabled()
+const oneTimeTax = supporterOnly ? null : checkOneTimeSupportTaxReadiness()
+const commerce = supporterOnly ? null : checkBackgroundCommerceReadiness()
 await verifyStripePrices()
 if (verifyStripe && !stripeRetrievalPerformed) {
   addFailure("Stripe Price retrieval did not complete for every required Supporter contract slot.")

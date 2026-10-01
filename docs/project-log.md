@@ -2,6 +2,42 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-01 — Supporter-only readiness candidate
+
+- Verified the clean existing Stripe rollout worktree and hosted `main` at
+  `fcff28c01ebd545f310679961b7ca0da19e19c13`, then created the focused
+  `codex/atmoshaper-supporter-only-readiness` branch under the existing PR
+  preparation and review approval.
+- The read-only readiness CLI adds `--supporter-only`. It checks false or
+  unset runtime switches for one-time support and background purchases instead
+  of requiring those excluded flows to be configured and enabled. Ambiguous
+  switch values fail closed. Successful output labels both excluded flows
+  `not_applicable (disabled)`; the default full-payment behavior is retained.
+- Recurring tax, secret presence and mode, all twelve Price identities,
+  reconciliation uniqueness, both managed Portals, live default topology, and
+  the complete pinned webhook remain required. The new regression file runs
+  the actual CLI with a hermetic environment and replaces only the Stripe SDK.
+  Four expected missing-mode regressions failed before the repair; the named
+  `test:stripe-readiness` group now passes 60/60 with no failures or skips.
+- Prior controlled live-payment cleanup is complete: subscription cancellation,
+  full refund, and webhook convergence were confirmed before this branch.
+  That completed test is not repeated. Fresh Portal Dashboard evidence and
+  credential verification in a trusted environment remain external launch
+  gates. Vercel's inability to export write-only secrets does not establish
+  that production lacks them.
+- Registration and public Checkout remain paused. No runtime payment path,
+  provider configuration, deployed environment, database, deployment, or
+  payment changes occur. The containing readiness PR owns subsequent exact-head
+  hosted checks and review; merge and activation remain separately authorized.
+- Local verification passes: full tests 5,053 total, 5,050 passed, three
+  documented skips, zero failures; Prisma validation; typecheck; lint; the
+  production build with 115 static pages; and diff hygiene. The existing Babel
+  large-file and Anatomime initialization notes remain non-failing. No local
+  provider lifecycle or live payment test was needed for this CLI-only change.
+- The optional brand audit exposes stale exact rules for earlier Stripe
+  identity changes in unchanged billing, readiness, migration, and test owners.
+  No policy category or baseline was changed to clear that existing failure.
+
 ## 2026-09-29 — Live default-Portal topology repair
 
 - PR #29 merged as `ee932ef2c33a8c28bf7dd6cdce612955d81413ee` after its
