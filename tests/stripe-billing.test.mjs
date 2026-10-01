@@ -1057,6 +1057,176 @@ describe("Stripe billing helpers", () => {
     ])
   })
 
+  /**
+   * Proves recovery reaches the legacy serialization barrier before using the
+   * contract-versioned key, including while old and new handlers overlap.
+   */
+  async function preservesLegacyBarrierBeforeRotatingCachedFailure() {
+    const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
+    const rotatedKey =
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
+    const staleLegacyError = Object.assign(
+      new Error("Cached pre-readiness Checkout failure."),
+      {
+        type: "StripeInvalidRequestError",
+        raw: { headers: { "idempotent-replayed": "true" } },
+      },
+    )
+    const createAttempts = []
+    const createdSessions = []
+    const stripeClient = {
+      checkout: {
+        sessions: {
+          list: async () => stripeCheckoutSessionList(createdSessions),
+          create: async (_payload, requestOptions) => {
+            const idempotencyKey = requestOptions?.idempotencyKey
+            createAttempts.push(idempotencyKey)
+            if (idempotencyKey === legacyKey) {
+              throw staleLegacyError
+            }
+            assert.equal(idempotencyKey, rotatedKey)
+            const session = membershipCheckoutSession({ id: "cs_rotated_after_cached_error" })
+            createdSessions.push(session)
+            return session
+          },
+        },
+      },
+      subscriptions: {
+        retrieve: async () => {
+          throw new Error("no completed membership Checkout should be reconciled")
+        },
+      },
+    }
+
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      reconciliationBudgetMs: 10,
+      reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+      stripeClient,
+    }))
+
+    assert.equal(result.id, "cs_rotated_after_cached_error")
+    assert.deepEqual(createAttempts, [legacyKey, rotatedKey])
+    assert.equal(createdSessions.length, 1)
+
+    // A rolled-back handler still reaches the cached legacy failure instead of
+    // creating alongside the versioned fallback during deployment overlap.
+    await assert.rejects(
+      stripeClient.checkout.sessions.create({}, { idempotencyKey: legacyKey }),
+      (error) => error === staleLegacyError,
+    )
+    assert.deepEqual(createAttempts, [legacyKey, rotatedKey, legacyKey])
+    assert.equal(createdSessions.length, 1)
+  }
+
+  it(
+    "preserves the legacy serialization barrier before rotating a cached invalid request",
+    preservesLegacyBarrierBeforeRotatingCachedFailure,
+  )
+
+  /**
+   * Confirms a completed legacy payload mismatch is safe to recover with the
+   * deterministic contract-versioned key after reconciliation finds no Session.
+   */
+  async function rotatesAfterCompletedLegacyPayloadMismatch() {
+    const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
+    const rotatedKey =
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
+    const parameterMismatch = Object.assign(
+      new Error("The legacy key belongs to different request parameters."),
+      { type: "StripeIdempotencyError", statusCode: 409 },
+    )
+    const createAttempts = []
+
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      reconciliationBudgetMs: 10,
+      reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+      stripeClient: {
+        checkout: {
+          sessions: {
+            list: async () => stripeCheckoutSessionList([]),
+            create: async (_payload, requestOptions) => {
+              const idempotencyKey = requestOptions?.idempotencyKey
+              createAttempts.push(idempotencyKey)
+              if (idempotencyKey === legacyKey) {
+                throw parameterMismatch
+              }
+              assert.equal(idempotencyKey, rotatedKey)
+              return membershipCheckoutSession({ id: "cs_after_payload_mismatch" })
+            },
+          },
+        },
+        subscriptions: {
+          retrieve: async () => {
+            throw new Error("no completed membership Checkout should be reconciled")
+          },
+        },
+      },
+    }))
+
+    assert.equal(result.id, "cs_after_payload_mismatch")
+    assert.deepEqual(createAttempts, [legacyKey, rotatedKey])
+  }
+
+  it(
+    "rotates after a completed legacy payload mismatch",
+    rotatesAfterCompletedLegacyPayloadMismatch,
+  )
+
+  /**
+   * Keeps validation, active-key, and indeterminate provider failures on the
+   * original error path because none proves that a second create is safe.
+   */
+  async function rejectsUnsafeMembershipCheckoutKeyRotation() {
+    const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
+    const failures = [
+      Object.assign(new Error("Fresh validation failure."), {
+        type: "StripeInvalidRequestError",
+      }),
+      Object.assign(new Error("Another request is using this key."), {
+        type: "StripeIdempotencyError",
+        raw: { code: "idempotency_key_in_use" },
+        statusCode: 409,
+      }),
+      Object.assign(new Error("The create outcome is indeterminate."), {
+        type: "StripeIdempotencyError",
+        statusCode: 500,
+      }),
+    ]
+
+    for (const failure of failures) {
+      const createAttempts = []
+      await assert.rejects(
+        stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+          reconciliationBudgetMs: 10,
+          reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+          stripeClient: {
+            checkout: {
+              sessions: {
+                list: async () => stripeCheckoutSessionList([]),
+                create: async (_payload, requestOptions) => {
+                  createAttempts.push(requestOptions?.idempotencyKey)
+                  throw failure
+                },
+              },
+            },
+            subscriptions: {
+              retrieve: async () => {
+                throw new Error("no completed membership Checkout should be reconciled")
+              },
+            },
+          },
+        })),
+        (error) => error === failure,
+      )
+      assert.deepEqual(createAttempts, [legacyKey])
+    }
+  }
+
+  it(
+    "does not rotate fresh validation, in-use, or indeterminate idempotency failures",
+    rejectsUnsafeMembershipCheckoutKeyRotation,
+  )
+
   it("rotates once after concurrent membership Checkout attempts choose different prices", async () => {
     const createdSessions = []
     const createAttempts = []
