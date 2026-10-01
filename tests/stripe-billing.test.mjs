@@ -1063,7 +1063,10 @@ describe("Stripe billing helpers", () => {
       "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
     const staleLegacyError = Object.assign(
       new Error("Cached pre-readiness Checkout failure."),
-      { type: "StripeInvalidRequestError" },
+      {
+        type: "StripeInvalidRequestError",
+        headers: { "idempotent-replayed": "true" },
+      },
     )
     const createAttempts = []
     const createdSessions = []
@@ -1109,6 +1112,87 @@ describe("Stripe billing helpers", () => {
     )
     assert.deepEqual(createAttempts, [legacyKey, rotatedKey, legacyKey])
     assert.equal(createdSessions.length, 1)
+  })
+
+  it("rotates after a completed legacy payload mismatch", async () => {
+    const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
+    const rotatedKey =
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
+    const parameterMismatch = Object.assign(
+      new Error("The legacy key belongs to different request parameters."),
+      { type: "StripeIdempotencyError" },
+    )
+    const createAttempts = []
+
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      reconciliationBudgetMs: 10,
+      reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+      stripeClient: {
+        checkout: {
+          sessions: {
+            list: async () => stripeCheckoutSessionList([]),
+            create: async (_payload, requestOptions) => {
+              const idempotencyKey = requestOptions?.idempotencyKey
+              createAttempts.push(idempotencyKey)
+              if (idempotencyKey === legacyKey) {
+                throw parameterMismatch
+              }
+              assert.equal(idempotencyKey, rotatedKey)
+              return membershipCheckoutSession({ id: "cs_after_payload_mismatch" })
+            },
+          },
+        },
+        subscriptions: {
+          retrieve: async () => {
+            throw new Error("no completed membership Checkout should be reconciled")
+          },
+        },
+      },
+    }))
+
+    assert.equal(result.id, "cs_after_payload_mismatch")
+    assert.deepEqual(createAttempts, [legacyKey, rotatedKey])
+  })
+
+  it("does not rotate fresh validation or in-use idempotency failures", async () => {
+    const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
+    const failures = [
+      Object.assign(new Error("Fresh validation failure."), {
+        type: "StripeInvalidRequestError",
+      }),
+      Object.assign(new Error("Another request is using this key."), {
+        type: "StripeIdempotencyError",
+        code: "idempotency_key_in_use",
+      }),
+    ]
+
+    for (const failure of failures) {
+      const createAttempts = []
+      await assert.rejects(
+        stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+          reconciliationBudgetMs: 10,
+          reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+          stripeClient: {
+            checkout: {
+              sessions: {
+                list: async () => stripeCheckoutSessionList([]),
+                create: async (_payload, requestOptions) => {
+                  createAttempts.push(requestOptions?.idempotencyKey)
+                  throw failure
+                },
+              },
+            },
+            subscriptions: {
+              retrieve: async () => {
+                throw new Error("no completed membership Checkout should be reconciled")
+              },
+            },
+          },
+        })),
+        (error) => error === failure,
+      )
+      assert.deepEqual(createAttempts, [legacyKey])
+    }
   })
 
   it("rotates once after concurrent membership Checkout attempts choose different prices", async () => {
