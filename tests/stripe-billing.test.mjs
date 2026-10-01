@@ -1154,7 +1154,7 @@ describe("Stripe billing helpers", () => {
     assert.deepEqual(createAttempts, [legacyKey, rotatedKey])
   })
 
-  it("does not rotate fresh validation or in-use idempotency failures", async () => {
+  it("does not rotate fresh validation, in-use, or indeterminate idempotency failures", async () => {
     const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
     const failures = [
       Object.assign(new Error("Fresh validation failure."), {
@@ -1163,6 +1163,10 @@ describe("Stripe billing helpers", () => {
       Object.assign(new Error("Another request is using this key."), {
         type: "StripeIdempotencyError",
         code: "idempotency_key_in_use",
+      }),
+      Object.assign(new Error("The create outcome is indeterminate."), {
+        type: "StripeIdempotencyError",
+        statusCode: 500,
       }),
     ]
 
