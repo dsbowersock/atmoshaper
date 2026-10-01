@@ -698,7 +698,7 @@ describe("Stripe billing helpers", () => {
     assert.equal(result.id, "cs_after_expired_history")
     assert.deepEqual(listCalls, { mixed: 10, open: 1, complete: 1 })
     assert.deepEqual(createOptions, {
-      idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_expired_page_10",
+      idempotencyKey: "massagelab-membership-checkout:user_123:after:cs_expired_page_10",
     })
   })
 
@@ -1053,8 +1053,62 @@ describe("Stripe billing helpers", () => {
     assert.equal(monthly.id, "cs_serialized")
     assert.equal(duplicateMonthly.id, "cs_serialized")
     assert.deepEqual([...idempotentRequests.keys()], [
-      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
+      "massagelab-membership-checkout:user_123:after:initial",
     ])
+  })
+
+  it("preserves the legacy serialization barrier before rotating a cached invalid request", async () => {
+    const legacyKey = "massagelab-membership-checkout:user_123:after:initial"
+    const rotatedKey =
+      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial"
+    const staleLegacyError = Object.assign(
+      new Error("Cached pre-readiness Checkout failure."),
+      { type: "StripeInvalidRequestError" },
+    )
+    const createAttempts = []
+    const createdSessions = []
+    const stripeClient = {
+      checkout: {
+        sessions: {
+          list: async () => stripeCheckoutSessionList(createdSessions),
+          create: async (_payload, requestOptions) => {
+            const idempotencyKey = requestOptions?.idempotencyKey
+            createAttempts.push(idempotencyKey)
+            if (idempotencyKey === legacyKey) {
+              throw staleLegacyError
+            }
+            assert.equal(idempotencyKey, rotatedKey)
+            const session = membershipCheckoutSession({ id: "cs_rotated_after_cached_error" })
+            createdSessions.push(session)
+            return session
+          },
+        },
+      },
+      subscriptions: {
+        retrieve: async () => {
+          throw new Error("no completed membership Checkout should be reconciled")
+        },
+      },
+    }
+
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      reconciliationBudgetMs: 10,
+      reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+      stripeClient,
+    }))
+
+    assert.equal(result.id, "cs_rotated_after_cached_error")
+    assert.deepEqual(createAttempts, [legacyKey, rotatedKey])
+    assert.equal(createdSessions.length, 1)
+
+    // A rolled-back handler still reaches the cached legacy failure instead of
+    // creating alongside the versioned fallback during deployment overlap.
+    await assert.rejects(
+      stripeClient.checkout.sessions.create({}, { idempotencyKey: legacyKey }),
+      (error) => error === staleLegacyError,
+    )
+    assert.deepEqual(createAttempts, [legacyKey, rotatedKey, legacyKey])
+    assert.equal(createdSessions.length, 1)
   })
 
   it("rotates once after concurrent membership Checkout attempts choose different prices", async () => {
@@ -1127,21 +1181,21 @@ describe("Stripe billing helpers", () => {
     assert.deepEqual(expiredSessions, ["cs_concurrent_monthly"])
     assert.deepEqual(createAttempts, [
       {
-        idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
+        idempotencyKey: "massagelab-membership-checkout:user_123:after:initial",
         priceId: SUPPORTER_2_MONTHLY_PRICE_ID,
       },
       {
-        idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
+        idempotencyKey: "massagelab-membership-checkout:user_123:after:initial",
         priceId: SUPPORTER_1_YEARLY_PRICE_ID,
       },
       {
-        idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_concurrent_monthly",
+        idempotencyKey: "massagelab-membership-checkout:user_123:after:cs_concurrent_monthly",
         priceId: SUPPORTER_1_YEARLY_PRICE_ID,
       },
     ])
     assert.deepEqual([...idempotentRequests.keys()], [
-      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
-      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_concurrent_monthly",
+      "massagelab-membership-checkout:user_123:after:initial",
+      "massagelab-membership-checkout:user_123:after:cs_concurrent_monthly",
     ])
   })
 
@@ -2481,7 +2535,7 @@ describe("Stripe billing helpers", () => {
       url: "https://checkout.stripe.com/c/membership",
     })
     assert.deepEqual(createIdempotencyKeys, [
-      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_terminal_authority_anchor",
+      "massagelab-membership-checkout:user_123:after:cs_terminal_authority_anchor",
     ])
   })
 
@@ -3160,7 +3214,7 @@ describe("Stripe billing helpers", () => {
 
     assert.equal(result.id, "cs_retry")
     assert.deepEqual(capturedOptions, {
-      idempotencyKey: "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_expired",
+      idempotencyKey: "massagelab-membership-checkout:user_123:after:cs_expired",
     })
   })
 
@@ -3435,8 +3489,8 @@ describe("Stripe billing helpers", () => {
 
     assert.equal(result.id, "cs_recovered_create")
     assert.deepEqual(createAttempts, [
-      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:initial",
-      "massagelab-membership-checkout:supporter_membership_v2_checkout_v1:user_123:after:cs_recovered_anchor",
+      "massagelab-membership-checkout:user_123:after:initial",
+      "massagelab-membership-checkout:user_123:after:cs_recovered_anchor",
     ])
   })
 
