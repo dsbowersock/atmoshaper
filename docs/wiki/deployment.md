@@ -255,6 +255,36 @@ non-default, and the business Portal must inherit the personal default's
 headline, privacy and terms URLs, and return URL. Any other default topology
 fails closed before activation.
 
+For the approved recurring-Supporter-only scope, run the read-only command:
+
+```bash
+npm run stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv
+```
+
+Use a trusted operator process with the exact intended deployment configuration
+and securely injected credentials, or an explicitly selected protected env file
+outside the repository (omit `--no-dotenv` and supply `--env-file=...` for that
+case). Vercel cannot export write-only secret values; an unavailable local
+export does not prove a deployed secret is missing. Do not substitute a key-
+presence assertion for the actual credential and Stripe retrieval checks,
+print secrets, or commit a credential holder. Running this check during a
+deployment still needs separate deployment authorization.
+
+`--supporter-only` requires `STRIPE_ONE_TIME_SUPPORT_AUTOMATIC_TAX_ENABLED` and
+`BACKGROUND_COMMERCE_PURCHASING_ENABLED` to be false or unset. These switches
+disable the corresponding runtime Checkout paths even if other tax/catalog
+settings exist. True or ambiguous values fail; the checker never changes them.
+The excluded sections report `not_applicable (disabled)`, not ready. All
+recurring-tax, Price, Portal, reconciliation, credential, and pinned-webhook
+checks remain required, including all fifteen pinned events. Both Portal
+allowlists still need the process-local Dashboard confirmation described below
+when the API omits them. Without the flag, readiness checks all payment flows.
+
+The scoped check does not activate registration or public Checkout, authorize a
+deployment, or require repetition of the completed controlled live Supporter
+payment/refund test. Keep both public pauses in place until separately
+authorized activation after all remaining applicable gates pass.
+
 Before enabling subscription checkout, confirm:
 
 - `AtmoShaper Supporter Membership` is the only user-facing membership. Stripe

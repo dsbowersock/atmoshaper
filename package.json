@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
+    "test:stripe-readiness": "node --test tests/stripe-readiness.test.mjs tests/stripe-supporter-only-readiness.test.mjs tests/stripe-webhook-contract.test.mjs",
     "legal:verify-archives": "node --test tests/legal-document-archive.test.mjs",
     "repository:inventory": "node scripts/repository-audit/inventory.mjs",
     "brand:audit": "node scripts/repository-audit/brand.mjs",

@@ -231,7 +231,41 @@ Then walk [../alpha-qa.md](../alpha-qa.md) with anonymous test data where it sti
 - Run the focused password-reset confirmation, route, auth-security, auth-session-version, Admin security-service, and Admin security-UI tests before the comprehensive gate. Do not expose reset links, credentials, hashes, tokens, email addresses, database rows, or session artifacts in release evidence.
 - Completed 2026-08-11: Prisma client generation, all 69 focused and adjacent tests, typecheck, lint with only the existing Babel large-file note, the full 2,447-test suite with 2,446 passes and one intentional skip, the 104-page Production build, and `git diff --check` passed.
 
+## Current Supporter-only Readiness Gate
+
+The approved launch scope is recurring Supporter membership while one-time
+support and background purchases remain disabled. Run
+`npm run stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv`
+with the intended deployment configuration in a trusted process that actually
+has the credentials. See [deployment guidance](deployment.md) for a protected
+env-file alternative and the write-only Vercel secret limitation.
+
+- Require false or unset `STRIPE_ONE_TIME_SUPPORT_AUTOMATIC_TAX_ENABLED` and
+  `BACKGROUND_COMMERCE_PURCHASING_ENABLED`. Excluded flows must report
+  `not_applicable (disabled)`; missing unrelated commerce configuration is
+  acceptable only in this explicit scope.
+- Require recurring-tax attestations, live credentials, all twelve exact v2
+  Prices, full-union reconciliation uniqueness, both use-specific Portals,
+  personal-default/business-non-default topology, and all fifteen pinned
+  webhook events. The scope flag does not waive any of these checks.
+- When Stripe omits the managed Portal catalogs, freshly inspect both
+  Dashboard configurations for exactly their three use-specific Products and
+  six Prices, with quantity changes disabled. Supply the exact managed catalog
+  confirmation only in that verification process; never persist it. Visible
+  API drift remains authoritative.
+- Preserve the completed controlled live Supporter payment, cancellation,
+  refund, and webhook convergence receipt. Do not repeat that live payment test
+  for a readiness-only change.
+- Keep public registration and Supporter Checkout paused. A passing CLI check
+  does not authorize activation, deployment, provider writes, or enabling the
+  excluded payment flows.
+
 ## Production Billing Gate
+
+The following broader billing gate and dated receipts retain inherited
+full-payment rollout history. Use the current scoped gate above for the
+Supporter-only launch; the one-time-support and background-purchase launch
+requirements apply when those flows are separately approved for activation.
 
 Before changing the live catalog or running any live paid smoke:
 

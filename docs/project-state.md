@@ -1,10 +1,46 @@
 # AtmoShaper Project State
 
-Verified: 2026-09-29
+Verified: 2026-10-01
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Whole-Site Migration Live; Provider Cutover Staged
+## Current Snapshot — Supporter-only Readiness PR
+
+- Current `main` is `fcff28c01ebd545f310679961b7ca0da19e19c13`.
+  PRs #30–#32 are merged: live default-Portal topology, restricted runtime
+  credentials, and contract-versioned Checkout idempotency are in that base.
+  The clean existing Stripe rollout worktree now hosts
+  `codex/atmoshaper-supporter-only-readiness`. This snapshot records the local
+  candidate; its containing readiness PR owns current exact-head hosted review
+  and CI evidence, which must be checked before any merge decision.
+- The approved readiness scope is recurring Supporter membership only.
+  `stripe:readiness -- --supporter-only --live --verify-stripe` still requires
+  credentials, all twelve unique v2 Prices, recurring-tax attestations, both
+  use-specific Portals, the live personal-default topology, and the complete
+  pinned webhook contract. One-time support and background purchases must have
+  their runtime enablement switches false or unset; their excluded readiness
+  sections report `not_applicable (disabled)`. The default full-payment check
+  remains available and unchanged in scope.
+- The prior controlled live Supporter payment test is complete, including
+  cancellation, full refund, and signed-webhook convergence. This branch does
+  not repeat it. Earlier no-payment/no-subscription cutover statements below
+  describe historical provider checkpoints.
+- Public registration and Supporter Checkout remain paused. This branch makes
+  no runtime, environment, provider, deployment, or payment change and does not
+  authorize public activation. Both Portal catalogs still require fresh
+  Dashboard confirmation when Stripe omits them; Vercel write-only credentials
+  still require verification in a trusted environment that actually has them.
+  Unexportable secrets are not evidence that deployed secrets are missing.
+- Provider-free focused CLI and webhook regressions pass 60/60, with zero
+  failures or skips. Full tests pass with 5,050 passed, three documented skips,
+  and zero failures across 5,053 tests. Prisma validation, typecheck, lint,
+  diff hygiene, and the production build (115 static pages) pass. These are
+  local receipts, not hosted PR acceptance or live activation evidence.
+  The optional brand audit has stale exact occurrence rules from earlier
+  Stripe identity changes; those broader audit receipts are not repaired by
+  this readiness-only branch.
+
+## Historical Snapshot — Whole-Site Migration Live; Provider Cutover Staged
 
 - The full rebranded site is live at `atmoshaper.com`; public smoke checks cover
   home, pricing, support, Privacy, Terms, and signed-out session handling. Current
