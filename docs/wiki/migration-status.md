@@ -45,15 +45,19 @@ or any user's connection or records.
 
 The published [Calendar PR #36](https://github.com/dsbowersock/atmoshaper/pull/36)
 prepares account-bound, marked-calendar discovery and stored-ID reconnects,
-with 70 focused regressions passing. Review repairs preserve inactive history
+with 75 focused regressions passing. Review repairs preserve inactive history
 and bound discovery while retaining serialization. New event inserts keep
 their existing wait behavior to avoid losing accepted POST IDs to local
 timeouts; no event-ID migration or end-to-end idempotency claim is introduced.
 A committed inactive intent also prevents a blind calendar-create retry while
 its earlier outcome is unknown. A discovered valid target can be reconciled
 without another POST. The disconnect action also blocks direct deletion of
-unresolved intents while retaining ordinary resolved disconnects. Local full
-regression, lint, typecheck, build, and documentation checks pass for this repair.
+unresolved intents while retaining ordinary resolved disconnects. This invocation's
+proven pre-POST failure can release only its matching saved intent under the user
+lock; attempted/uncertain creation, changed state, and failed cleanup stay
+conservative. Failed transactions cancel late discovery before cleanup so it
+cannot create afterward. Final complete-regression and hosted-review receipts
+for this retry repair are tracked in PR #36.
 Publication and CodeRabbit shepherding are authorized; required final-head
 hosted checks and follow-up are tracked in PR #36. Merge is separately authorized.
 This source preparation does not identify or configure the Cloud project/client, validate hosted consent,

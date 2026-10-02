@@ -668,31 +668,67 @@ export async function connectGoogleCalendar({ userId, token, adapter = createGoo
       storedCalendarId: existing?.dedicatedCalendarId,
       signal: providerDeadline,
     })
-    if (dedicatedCalendar) return await saveTarget(tx, dedicatedCalendar)
+    if (dedicatedCalendar) return { state: "CONNECTED" as const, connection: await saveTarget(tx, dedicatedCalendar) }
     if (existing?.statusReason === GOOGLE_CALENDAR_CREATION_PENDING_REASON) {
       throw new GoogleCalendarConnectionError("target", "Google calendar creation is unresolved. Reconcile the existing attempt before retrying.")
     }
     // Commit a verified-account, encrypted, inactive intent before any POST.
     // A timeout/rollback in the next transaction must not erase that attempt.
-    await saveGoogleCalendarConnection({ ...credentials, creationPending: true, db: tx })
+    const intent = await saveGoogleCalendarConnection({ ...credentials, creationPending: true, db: tx })
     providerDeadline.throwIfAborted()
-    return null
+    return { state: "CREATION_READY" as const, intent: { id: intent.id, updatedAt: intent.updatedAt } }
   }, { timeout: 45_000 })
-  const connection = prepared ?? await prisma.$transaction(async (tx) => {
+  let postAttempted = false
+  let targetResolved = false
+  const creationAbort = new AbortController()
+  const connection = prepared.state === "CONNECTED" ? prepared.connection : await prisma.$transaction(async (tx) => {
     const intent = await readConnection(tx)
-    if (intent?.statusReason !== GOOGLE_CALENDAR_CREATION_PENDING_REASON || intent.dedicatedCalendarId) {
+    if (!intent || intent.id !== prepared.intent.id || intent.updatedAt.getTime() !== prepared.intent.updatedAt.getTime()
+      || intent.status !== "ERROR" || intent.statusReason !== GOOGLE_CALENDAR_CREATION_PENDING_REASON || intent.dedicatedCalendarId) {
       throw new GoogleCalendarConnectionError("target", "Google calendar creation state changed. Reconnect to validate its target.")
     }
     // Only the invocation that committed a new intent reaches this phase.
     // Other callbacks may discover a completed target, but never issue a POST.
     const dedicatedCalendar = await adapter.ensureDedicatedCalendar(token.access_token, {
-      providerAccountId, signal: providerDeadline,
+      providerAccountId, signal: AbortSignal.any([providerDeadline, creationAbort.signal]), onCreateAttempt: () => { postAttempted = true },
     })
+    targetResolved = true
     return await saveTarget(tx, dedicatedCalendar)
   }, { timeout: 45_000 }).catch((error: unknown) => {
-    if (error instanceof GoogleCalendarConnectionError) throw error
-    throw new GoogleCalendarConnectionError("target", "Google calendar creation is unresolved. Reconcile the existing attempt before retrying.")
+    // A transaction can reject before its callback settles. Stop late discovery
+    // before releasing the intent, so that callback can never dispatch a POST.
+    creationAbort.abort()
+    return handleGoogleCalendarCreationFailure({ error, userId, providerAccountId, intent: prepared.intent, postAttempted, targetResolved })
   })
   await syncGoogleConnectionSources({ connectionId: connection.id, adapter })
   return connection
+}
+
+/**
+ * Release only this invocation's saved intent when no POST was dispatched and no
+ * target was resolved. Reacquire the user lock after rollback and match the saved
+ * row/version. A failed release or any uncertain provider outcome stays pending.
+ */
+async function handleGoogleCalendarCreationFailure({ error, userId, providerAccountId, intent, postAttempted, targetResolved }: {
+  error: unknown
+  userId: string
+  providerAccountId: string
+  intent: { id: string; updatedAt: Date }
+  postAttempted: boolean
+  targetResolved: boolean
+}): Promise<never> {
+  const released = !postAttempted && !targetResolved && await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`
+    const result = await tx.calendarConnection.updateMany({
+      where: {
+        id: intent.id, updatedAt: intent.updatedAt, userId, provider: GOOGLE_CALENDAR_PROVIDER,
+        providerAccountId, status: "ERROR", statusReason: GOOGLE_CALENDAR_CREATION_PENDING_REASON, dedicatedCalendarId: null,
+      },
+      data: { statusReason: null },
+    })
+    return result.count === 1
+  }, { timeout: 45_000 }).catch(() => false)
+  if (error instanceof GoogleCalendarConnectionError) throw error
+  if (released) throw new Error("Google calendar connection failed before creation. Retry connecting.")
+  throw new GoogleCalendarConnectionError("target", "Google calendar creation is unresolved. Reconcile the existing attempt before retrying.")
 }

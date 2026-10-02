@@ -115,18 +115,29 @@ direction is outside this AtmoShaper migration work.
   user/provider-scoped deletion. Pending rows cannot be erased by a direct
   action request; ordinary active/null-reason and resolved historical rows
   remain removable. Rejected requests do not report a successful disconnect.
+- A transient second-phase read failure before POST can release this invocation's
+  saved intent. The adapter reports dispatch only after its abort check, immediately
+  before fetch. After rollback, cleanup reacquires the user lock and matches the
+  saved row/version, user/provider/account, pending state, and absent target before
+  clearing only the reason. Attempted POSTs, resolved targets, changed rows, and
+  failed cleanup retain conservative recovery. This is positive invocation-local
+  boundary evidence, not inference from error labels or an empty inventory.
+  Failed transactions cancel late discovery before cleanup; a still-running
+  callback therefore cannot issue a POST after release.
 - Provider-free tests exercise the actual adapter, callback, and service.
   Provider consent, scope behavior, transaction timeouts, interrupted creation,
   and isolated acceptance still require the separately authorized QA stage.
-- Current local receipt: the named Calendar group passes 70/70, including
+- Current local receipt: the named Calendar group passes 75/75, including
   inactive-history, provider deadlines, deferred event inserts, accepted but
   invisible calendar creation, final-transaction rollback, and direct disconnect
-  protection. The transaction
+  protection, proven pre-POST retry/release safeguards, and late-discovery
+  cancellation. The transaction
   double models rollback; it does not prove live PostgreSQL concurrency.
   Initial CI and the first local repair run found the stale project-state date
-  ceiling; its bound now matches the October 2 evidence. The final full suite
-  passes 5,094 of 5,097 tests with three skips and no failures. Lint, typecheck,
-  build, diff checks, and all 65 relative documentation links pass. Required
+  ceiling; its bound now matches the October 2 evidence. The preceding runtime
+  full suite passed 5,094 of 5,097 tests with three skips and no failures.
+  The final pre-POST retry's lint, typecheck, build, diff checks, and all 65
+  documentation links pass; its complete-regression receipt is tracked in PR #36. Required
   final-head hosted follow-up is tracked in PR #36. Local builds skip the
   Vercel Production migration gate and do not deploy. Historical
   pre-publication validation remains in the dated project log.

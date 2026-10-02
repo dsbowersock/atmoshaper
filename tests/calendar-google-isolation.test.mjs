@@ -20,7 +20,9 @@ const token = { access_token: "fixture-access", refresh_token: "fixture-refresh"
 function matchesConnectionWhere(row, where) {
   return Object.entries(where).every(([key, value]) => {
     if (key === "OR") return value.some((branch) => matchesConnectionWhere(row, branch))
+    if (value instanceof Date) return row[key] instanceof Date && row[key].getTime() === value.getTime()
     if (value && typeof value === "object" && Object.hasOwn(value, "not")) return row[key] != null && row[key] !== value.not
+    if (value === null) return row[key] == null
     return row[key] === value
   })
 }
@@ -77,7 +79,7 @@ function googleFixture({ calendars = [], subject = "subject-a", pages, metadataS
     init.signal?.throwIfAborted()
     const url = new URL(String(input))
     calls.push({ url, method: init.method ?? "GET", body: init.body })
-    beforeResponse(url)
+    await beforeResponse(url)
     if (url.hostname === "oauth2.googleapis.com") return json({ access_token: "fixture-access", expires_in: 3600, scope: refreshScope })
     assert.equal(init.headers?.Authorization, "Bearer fixture-access")
     if (url.hostname === "openidconnect.googleapis.com") return json({ sub: subject })
@@ -195,6 +197,7 @@ describe("AtmoShaper Google calendar discovery", () => {
 function serviceFixture(fixture, existing = null, historical = []) {
   const calls = []
   const state = { connection: existing, historical, sources: [], eventLinks: [], existingEventLinks: [], busyBlocks: [], transactions: [] }
+  let revision = 0
   const db = {
     $queryRaw: async () => { calls.push("user-lock") },
     calendarConnection: {
@@ -203,10 +206,15 @@ function serviceFixture(fixture, existing = null, historical = []) {
       findFirst: async () => state.connection,
       upsert: async ({ create, update }) => {
         calls.push("save-connection")
-        state.connection = { id: "connection-a", ...(state.connection ? { ...state.connection, ...update } : create) }
+        state.connection = { id: "connection-a", ...(state.connection ? { ...state.connection, ...update } : create), updatedAt: new Date(1_800_000_000_000 + revision++) }
         return state.connection
       },
       update: async ({ data }) => { calls.push("update-connection"); Object.assign(state.connection, data); return state.connection },
+      updateMany: async ({ where, data }) => {
+        if (!state.connection || !matchesConnectionWhere(state.connection, where)) return { count: 0 }
+        state.connection = { ...state.connection, ...data, updatedAt: new Date(1_800_000_000_000 + revision++) }
+        return { count: 1 }
+      },
     },
     externalCalendarSource: {
       deleteMany: async ({ where }) => { calls.push({ excluded: where.providerCalendarId.in }); return { count: 0 } },
@@ -244,7 +252,7 @@ function serviceFixture(fixture, existing = null, historical = []) {
     "./calendar-sync-normalization.ts": normalization,
     "./prisma.ts": { prisma: db },
   })
-  return { service, calls, state }
+  return { service, calls, state, db }
 }
 
 function storedConnection(overrides = {}) {
@@ -266,6 +274,90 @@ function callbackFixture(service, adapter, { session = { user: { id: "user-a" } 
 }
 
 describe("Google callback and service coexistence seam", () => {
+  it("cancels late discovery before releasing an intent after transaction rejection", async () => {
+    let reads = 0
+    let resumeRead
+    let readStarted
+    const paused = new Promise((resolve) => { resumeRead = resolve })
+    const started = new Promise((resolve) => { readStarted = resolve })
+    const fixture = googleFixture({ beforeResponse: async (url) => {
+      if (url.hostname === "openidconnect.googleapis.com" && ++reads === 2) {
+        readStarted()
+        await paused
+      }
+    } })
+    const { service, state, db } = serviceFixture(fixture)
+    const transaction = db.$transaction
+    let transactions = 0
+    let lateOperation
+    db.$transaction = async (operation) => {
+      if (++transactions !== 2) return transaction(operation)
+      // Model the database rejecting while its read-only callback still waits.
+      // Its rollback is complete before the independent release transaction.
+      state.transactions.push("start")
+      lateOperation = operation(db)
+      lateOperation.catch(() => {})
+      await started
+      state.transactions.push("rollback")
+      throw new Error("fixture transaction expired")
+    }
+    await assert.rejects(() => service.connectGoogleCalendar({ userId: "user-a", token }), /before creation/)
+    assert.equal(state.connection.statusReason, null)
+    resumeRead()
+    await assert.rejects(() => lateOperation)
+    assert.equal(fixture.writes().length, 0)
+    assert.equal(state.connection.status, "ERROR")
+  })
+
+  for (const endpoint of ["userinfo", "calendarList"]) {
+    it(`retries a transient second-phase ${endpoint} failure before any calendar POST`, async () => {
+      let reads = 0
+      const fixture = googleFixture({ beforeResponse: (url) => {
+        const matches = endpoint === "userinfo" ? url.hostname === "openidconnect.googleapis.com" : url.pathname.endsWith("/users/me/calendarList")
+        if (matches && ++reads === 2) throw new Error("fixture read timeout")
+      } })
+      const { service, state } = serviceFixture(fixture)
+      await assert.rejects(() => service.connectGoogleCalendar({ userId: "user-a", token }), /before creation/)
+      assert.equal(fixture.writes().length, 0)
+      assert.equal(state.connection.status, "ERROR")
+      assert.equal(state.connection.statusReason, null)
+      assert.equal(state.connection.encryptedRefreshToken, "encrypted:fixture-refresh")
+      assert.deepEqual(state.transactions, ["start", "commit", "start", "rollback", "start", "commit"])
+      await service.connectGoogleCalendar({ userId: "user-a", token })
+      assert.equal(state.connection.status, "ACTIVE")
+      assert.equal(fixture.writes().filter((call) => call.url.pathname === "/calendar/v3/calendars").length, 1)
+    })
+  }
+
+  it("retains the intent when the known-no-POST release cannot commit", async () => {
+    let reads = 0
+    const fixture = googleFixture({ beforeResponse: (url) => {
+      if (url.hostname === "openidconnect.googleapis.com" && ++reads === 2) throw new Error("fixture read timeout")
+    } })
+    const { service, state, db } = serviceFixture(fixture)
+    db.calendarConnection.updateMany = async () => { throw new Error("fixture database failure") }
+    await assert.rejects(() => service.connectGoogleCalendar({ userId: "user-a", token }), /unresolved/)
+    assert.equal(state.connection.statusReason, constants.GOOGLE_CALENDAR_CREATION_PENDING_REASON)
+    await assert.rejects(() => service.connectGoogleCalendar({ userId: "user-a", token }), /unresolved/)
+    assert.equal(fixture.writes().length, 0)
+  })
+
+  it("does not release a changed intent version after a pre-POST read failure", async () => {
+    let reads = 0
+    let state
+    const fixture = googleFixture({ beforeResponse: (url) => {
+      if (url.hostname === "openidconnect.googleapis.com" && ++reads === 2) {
+        state.connection.updatedAt = new Date(state.connection.updatedAt.getTime() + 1_000)
+        throw new Error("fixture read timeout")
+      }
+    } })
+    const loaded = serviceFixture(fixture)
+    state = loaded.state
+    await assert.rejects(() => loaded.service.connectGoogleCalendar({ userId: "user-a", token }), /unresolved/)
+    assert.equal(state.connection.statusReason, constants.GOOGLE_CALENDAR_CREATION_PENDING_REASON)
+    assert.equal(fixture.writes().length, 0)
+  })
+
   it("waits for a late event insert ID while keeping existing-ID updates bounded", async (t) => {
     const timeout = AbortSignal.timeout.bind(AbortSignal)
     const deadlines = []

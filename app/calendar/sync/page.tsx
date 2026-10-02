@@ -32,6 +32,7 @@ const GOOGLE_SYNC_STATUS_MESSAGES = {
   unconfigured: "Google Calendar sync is not configured for this environment.",
 } as const
 
+/** Render owned active connections; unresolved creation stays outside the normal Disconnect form. */
 export default async function CalendarSyncPage({
   searchParams,
 }: {

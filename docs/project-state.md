@@ -34,13 +34,22 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   The disconnect action protects unresolved intents in its atomic, owned-row
   deletion and fails without a success redirect; resolved connections remain
   removable. This guard also covers direct server-action requests.
+  A final Codex finding adds safe retry for this invocation's proven pre-POST
+  failure: the adapter marks dispatch immediately before fetch, and cleanup
+  reacquires the user lock to clear only the matching saved intent's reason.
+  Failed transactions cancel late discovery before cleanup, preventing their
+  outstanding callbacks from dispatching a later POST.
+  Any attempted POST, resolved target, changed row, or failed cleanup retains
+  conservative recovery. Generic errors and empty listings alone remain
+  insufficient evidence for clearing an intent.
   Existing fields carry this additive state; no schema migration is added.
-  Provider-free adapter/callback/service/action regressions pass 70/70.
+  Provider-free adapter/callback/service/action regressions pass 75/75.
   Initial CI also
   found a stale project-state date ceiling; its bound now matches this verified
-  date. The final full suite passes 5,094 of 5,097 tests with three skips and
-  no failures; lint, typecheck, build, diff checks, and all 65 relative
-  documentation links pass.
+  date. The preceding runtime full suite passed 5,094 of 5,097 tests with three
+  skips and no failures. The final pre-POST retry's lint, typecheck, build,
+  diff checks, and all 65 relative documentation links pass. Its complete
+  regression and hosted-review receipts are tracked in PR #36.
   Required final-head hosted checks and reviews are
   tracked in PR #36;
   merge remains separately authorized. This is source preparation,

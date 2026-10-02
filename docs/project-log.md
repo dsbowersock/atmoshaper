@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 retries proven pre-POST failures
+
+- A valid Codex thread on the intermediate documentation head identified a
+  transient second-phase read failure leaving a newly committed intent blocked
+  even though no calendar POST had occurred. It also applies to the current code.
+- The adapter reports the dispatch boundary after its abort check and before
+  fetch. This invocation also records whether a target was resolved. After a
+  proven pre-POST failure, cleanup reacquires the user lock and clears only the
+  pending reason on its matching saved row/version. Credentials/history stay
+  encrypted and inactive. Failed transactions cancel outstanding discovery
+  before cleanup so a late callback cannot dispatch after the intent is released.
+  A failed cleanup, changed row, attempted POST, or
+  resolved target retains conservative recovery and cannot authorize new creation.
+- Two retry regressions first failed against the published implementation, then
+  passed after this repair. Five new cases cover UserInfo/inventory failures,
+  successful retry, failed cleanup, changed-version protection, and cancellation
+  of late discovery after transaction rejection. Existing
+  accepted-but-invisible POST and source-rollback regressions remain green.
+  The focused group passes 75/75; lint, typecheck, build, diff checks, and all
+  65 relative documentation links pass. Complete regression and hosted
+  follow-up are tracked in PR #36. No schema or provider identifier changed;
+  no live action occurred.
+
 ## 2026-10-02 — Calendar PR #36 full review and action documentation
 
 - Full CodeRabbit review admitted at its next included window covered all

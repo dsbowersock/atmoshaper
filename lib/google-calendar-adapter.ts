@@ -122,12 +122,14 @@ export function decodeGoogleCalendarIdTokenClaims(idToken?: string | null): Goog
  */
 export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?: FetchImpl } = {}) {
   /** Bound transport and parsing together, except new-event inserts whose ID must not be discarded. */
-  async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200], { timeoutRequest = true } = {}) {
+  async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200], { timeoutRequest = true, onAttempt }: { timeoutRequest?: boolean; onAttempt?: () => void } = {}) {
     // Bound ordinary requests and honor the callback's shared discovery deadline:
     // many short paginated requests must not outlive the transaction lock.
     const requestDeadline = timeoutRequest ? AbortSignal.timeout(GOOGLE_REQUEST_TIMEOUT_MS) : undefined
     const signal = init.signal && requestDeadline ? AbortSignal.any([init.signal, requestDeadline]) : init.signal ?? requestDeadline
     signal?.throwIfAborted()
+    // Mark the uncertainty boundary after the abort check, immediately before dispatch.
+    onAttempt?.()
     const response = await fetchImpl(url, { ...init, signal })
     if (!expectedStatuses.includes(response.status)) {
       throw new Error(googleCalendarApiErrorMessage(response.status))
@@ -283,8 +285,9 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
    * Creates only after validated discovery finds no target. The service must
    * durably record creation intent first, because Google inserts are not atomic
    * with our transaction and may complete after a local abort.
+   * The optional hook reports the POST dispatch boundary for safe pre-POST release.
    */
-  async function ensureDedicatedCalendar(accessToken: string, options: { providerAccountId: string; storedCalendarId?: string | null; signal?: AbortSignal }) {
+  async function ensureDedicatedCalendar(accessToken: string, options: { providerAccountId: string; storedCalendarId?: string | null; signal?: AbortSignal; onCreateAttempt?: () => void }) {
     const found = await findDedicatedCalendar(accessToken, options)
     if (found) return found
     const { signal } = options
@@ -293,7 +296,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
       headers: authHeaders(accessToken, true),
       body: JSON.stringify({ summary: MASSAGELAB_GOOGLE_CALENDAR_SUMMARY, description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }),
       signal,
-    }, [200, 201])
+    }, [200, 201], { onAttempt: options.onCreateAttempt })
     if (!created.id) throw new Error("Google did not return a dedicated calendar identity.")
     // Verify creation before activation or sending events; the service's durable
     // intent permits rediscovery of this marker without another calendar POST.
