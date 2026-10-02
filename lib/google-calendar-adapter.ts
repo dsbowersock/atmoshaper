@@ -121,24 +121,24 @@ export function decodeGoogleCalendarIdTokenClaims(idToken?: string | null): Goog
  * generic outbound event writes.
  */
 export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?: FetchImpl } = {}) {
-  async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200]) {
-    // Bound each request and honor the callback's shared discovery deadline:
+  async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200], { timeoutRequest = true } = {}) {
+    // Bound ordinary requests and honor the callback's shared discovery deadline:
     // many short paginated requests must not outlive the transaction lock.
-    const requestDeadline = AbortSignal.timeout(GOOGLE_REQUEST_TIMEOUT_MS)
-    const signal = init.signal ? AbortSignal.any([init.signal, requestDeadline]) : requestDeadline
-    signal.throwIfAborted()
+    const requestDeadline = timeoutRequest ? AbortSignal.timeout(GOOGLE_REQUEST_TIMEOUT_MS) : undefined
+    const signal = init.signal && requestDeadline ? AbortSignal.any([init.signal, requestDeadline]) : init.signal ?? requestDeadline
+    signal?.throwIfAborted()
     const response = await fetchImpl(url, { ...init, signal })
     if (!expectedStatuses.includes(response.status)) {
       throw new Error(googleCalendarApiErrorMessage(response.status))
     }
 
-    signal.throwIfAborted()
+    signal?.throwIfAborted()
     if (response.status === 204) {
       return null as T
     }
 
     const data = await response.json() as T
-    signal.throwIfAborted()
+    signal?.throwIfAborted()
     return data
   }
 
@@ -344,11 +344,14 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
   }) {
     const base = `${GOOGLE_CALENDAR_API}/calendars/${encodeURIComponent(calendarId)}/events`
     const url = eventId ? `${base}/${encodeURIComponent(eventId)}` : base
+    // New inserts use provider-generated IDs. Locally timing out an accepted
+    // POST would lose its ID and turn the next retry into a duplicate. Preserve
+    // the existing wait behavior until a separate idempotency migration.
     return googleJson<{ id: string; etag?: string }>(url, {
       method: eventId ? "PATCH" : "POST",
       headers: authHeaders(accessToken, true),
       body: JSON.stringify(payload),
-    }, eventId ? [200] : [200, 201])
+    }, eventId ? [200] : [200, 201], { timeoutRequest: Boolean(eventId) })
   }
 
   async function deleteEvent({

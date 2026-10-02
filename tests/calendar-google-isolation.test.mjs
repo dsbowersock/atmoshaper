@@ -198,6 +198,35 @@ function callbackFixture(service, adapter, { session = { user: { id: "user-a" } 
 }
 
 describe("Google callback and service coexistence seam", () => {
+  it("waits for a late event insert ID while keeping existing-ID updates bounded", async (t) => {
+    const timeout = AbortSignal.timeout.bind(AbortSignal)
+    const deadlines = []
+    t.mock.method(AbortSignal, "timeout", (duration) => {
+      deadlines.push(duration)
+      return timeout(duration)
+    })
+    const calls = []
+    let finishInsert
+    const adapter = createGoogleCalendarAdapter({ fetchImpl: async (_input, init) => {
+      calls.push(init)
+      if (init.method === "POST") return new Promise((resolve) => { finishInsert = resolve })
+      return json({ id: "accepted-event" })
+    } })
+    const payload = normalization.buildGoogleOutboundEventPayload({
+      calendarEventId: "event-a", kind: "APPOINTMENT", startsAt: new Date("2026-10-02T13:00:00Z"),
+      endsAt: new Date("2026-10-02T14:00:00Z"), timezone: "UTC",
+    })
+    const pending = adapter.upsertEvent({ accessToken: "fixture-access", calendarId: "atmo-calendar", eventId: null, payload })
+    assert.deepEqual(deadlines, [])
+    assert.equal(calls[0].signal, undefined)
+    finishInsert(json({ id: "accepted-event" }, 201))
+    const inserted = await pending
+    assert.equal(inserted.id, "accepted-event")
+    await adapter.upsertEvent({ accessToken: "fixture-access", calendarId: "atmo-calendar", eventId: inserted.id, payload })
+    assert.equal(calls[1].method, "PATCH")
+    assert.ok(calls[1].signal instanceof AbortSignal)
+    assert.deepEqual(deadlines, [8_000])
+  })
   it("bounds and sanitizes an aborted provider request before persistence", async (t) => {
     const timeout = AbortSignal.timeout.bind(AbortSignal)
     t.mock.method(AbortSignal, "timeout", (duration) => {

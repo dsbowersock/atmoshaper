@@ -45,8 +45,10 @@ or any user's connection or records.
 
 The published [Calendar PR #36](https://github.com/dsbowersock/atmoshaper/pull/36)
 prepares account-bound, marked-calendar discovery and stored-ID reconnects,
-with 62 focused regressions passing. Initial review repairs preserve inactive
-history and bound provider requests while retaining serialized discovery.
+with 63 focused regressions passing. Review repairs preserve inactive history
+and bound discovery while retaining serialization. New event inserts keep
+their existing wait behavior to avoid losing accepted POST IDs to local
+timeouts; no event-ID migration or end-to-end idempotency claim is introduced.
 Local full regression, lint, typecheck, build, and documentation checks pass.
 Publication and CodeRabbit shepherding are authorized; required final-head
 hosted checks and follow-up are tracked in PR #36. Merge is separately authorized.

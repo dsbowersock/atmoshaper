@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 event-insert timeout compatibility
+
+- The second Codex review identified an introduced retry hazard: Google may
+  accept a new-event POST before a local eight-second deadline expires, leaving
+  no stored provider event ID and causing the next sync to insert a duplicate.
+- Kept the existing wait behavior for new event inserts, one of the review's
+  proposed remedies. Reads, existing-ID updates, and lock-held calendar
+  discovery/creation remain bounded. This focused repair does not introduce
+  deterministic provider event IDs or change the existing reconciliation keys.
+- Added an actual-adapter regression that defers an insert response, retains
+  its returned ID without creating a local timeout, and uses a bounded PATCH
+  for the next update. The focused Calendar group passes 63/63. The final full
+  suite passes 5,087 of 5,090 tests with three expected skips and no failures.
+  Lint, typecheck, build, diff checks, and all 65 relative documentation links
+  pass. Final-head hosted follow-up is tracked in PR #36.
+- Existing transport failure and duplicate-retry acceptance still require
+  isolated provider QA before public Calendar activation; preserving prior
+  behavior is not a claim of end-to-end event-insert idempotency.
+
 ## 2026-10-02 — Calendar PR #36 initial review repairs
 
 - Published [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36) under the

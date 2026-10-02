@@ -96,17 +96,22 @@ direction is outside this AtmoShaper migration work.
   a shared 30-second provider deadline start before lock acquisition and stop
   further paginated requests before the 45-second transaction expires.
   Read-only target validation also precedes inbound and outbound sync.
+- New event inserts preserve the existing provider-generated ID and wait
+  behavior. An introduced local timeout could discard an accepted POST's ID
+  and cause a duplicate retry. Reads and existing-ID updates remain bounded;
+  do not introduce a durable event-ID contract without its own compatibility
+  proof. End-to-end duplicate/transport-failure acceptance remains in provider QA.
 - A failed provider operation can leave an owned, marked calendar before the
   database transaction commits. The next connection discovers that calendar;
   this code does not delete it or rename an existing calendar during recovery.
 - Provider-free tests exercise the actual adapter, callback, and service.
   Provider consent, scope behavior, transaction timeouts, interrupted creation,
   and isolated acceptance still require the separately authorized QA stage.
-- Current local receipt: the named Calendar group passes 62/62, including
-  inactive-history and provider-deadline regressions added after initial review.
+- Current local receipt: the named Calendar group passes 63/63, including
+  inactive-history, provider-deadline, and deferred event-insert regressions.
   Initial CI and the first local repair run found the stale project-state date
   ceiling; its bound now matches the October 2 evidence. The final full suite
-  passes 5,086 of 5,089 tests with three skips and no failures. Lint, typecheck,
+  passes 5,087 of 5,090 tests with three skips and no failures. Lint, typecheck,
   build, diff checks, and all 65 relative documentation links pass. Required
   final-head hosted follow-up is tracked in PR #36. Local builds skip the
   Vercel Production migration gate and do not deploy. Historical

@@ -22,11 +22,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   new account and unbounded Google requests. Repairs preserve inactive history,
   validate a returning account's saved target, and keep discovery under the lock
   with eight-second request limits and a shared 30-second provider deadline.
-  Provider-free adapter/callback/service regressions pass 62/62. Initial CI also
+  A subsequent Codex finding limits the new timeout policy: new event inserts
+  retain their existing wait behavior so an accepted POST's provider-generated
+  ID is not lost to a local deadline and retried as a duplicate. Discovery,
+  reads, and existing-ID updates remain bounded; no identifier migration is
+  introduced. Provider-free adapter/callback/service regressions pass 63/63.
+  Initial CI also
   found a stale project-state date ceiling; its bound now matches this verified
-  date. The final full suite passes 5,086 tests with three skips and no failures;
-  lint, typecheck, build, diff checks, and all 65 relative documentation links
-  pass. Required final-head hosted checks and reviews are tracked in PR #36;
+  date. The final full suite passes 5,087 of 5,090 tests with three skips and
+  no failures; lint, typecheck, build, diff checks, and all 65 relative
+  documentation links pass. Required final-head hosted checks and reviews are
+  tracked in PR #36;
   merge remains separately authorized. This is source preparation,
   not integration readiness. No provider configuration, calendar creation,
   hosted database write, deployment, or Calendar activation occurred.
