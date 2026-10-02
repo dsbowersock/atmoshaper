@@ -4,6 +4,12 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 
 ## 2026-10-02 — Production Supporter build gate prepared for Git integration
 
+- The user subsequently approved publishing this source PR and shepherding
+  reviews. Current Dashboard screenshots show Production has no branch
+  configuration and its `Auto-assign Custom Production Domains` control is
+  present and enabled. The read-only check is satisfied; do not ask again.
+  No hosting write, source merge, remote build, or promotion is authorized by
+  this publication/review approval.
 - Continued read-only access checks confirm the project-detail connector still
   fails its argument contract and browser use cannot verify its required policy.
   No bypass was attempted. Fresh project listing contains five projects, confirms
@@ -12,8 +18,8 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   Production deployment. No new Git connection or deployment occurred.
 - Asked for one new read-only Dashboard observation: whether Production Branch
   Tracking offers `Auto-assign Custom Production Domains` and its current state.
-  This is not a repeat of the satisfied Git-status check. While that observation
-  is pending, repository preparation continues independently.
+  This was not a repeat of the satisfied Git-status check. The user's subsequent
+  Production-detail screenshot establishes that the control is enabled.
 - Standard `npm run build` now prepares a Production-only Supporter readiness
   gate between migration status and Prisma generation. It runs the existing
   read-only CLI with fixed live Supporter scope and `--no-dotenv`, preserves

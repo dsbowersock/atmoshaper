@@ -78,6 +78,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   manual promotion. Current settings and rollback assignments must be read
   before requesting exact provider-write/build authority; none is granted by
   the source-only merge. The screenshot satisfies the earlier Git-status check.
+  Subsequent screenshots show Production's `No branch configuration` overview
+  and its Branch Tracking detail with `Auto-assign Custom Production Domains`
+  present and enabled. This satisfies the read-only promotion-control check;
+  no toggle or provider setting was changed. The plan must disable that control
+  under exact authority before connecting Git. Complete Build Command and
+  rollback-assignment readback are still required before provider execution.
 
 - Local source preparation for Vercel Git integration adds a Production-only
   Supporter prebuild gate after the existing read-only migration-status gate.
@@ -87,8 +93,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Checker failures, launch errors, signals, and timeouts fail the build.
   This closes the need for a separate manual readiness command in each approved
   `npm run build` candidate, provided Vercel's actual Build Command uses that
-  entrypoint. The change is local and unpublished; no live readiness request,
-  build, deployment, provider write, or payment test occurred in preparing it.
+  entrypoint. Source publication and review on
+  `codex/atmoshaper-vercel-integration-plan` are now authorized; merge and hosting
+  changes remain separate. No live readiness request, remote build, deployment,
+  provider write, or payment test occurred in preparing it.
   Provider-free tests exercise the real nested CLI against synthetic Stripe
   fixtures, including missing credentials, both Portal catalogs, and forbidden
   purchase enablement. Public activation and disabled purchase boundaries remain.

@@ -1,7 +1,8 @@
 # AtmoShaper existing-project Vercel integration
 
-Status: local source and documentation proposal, 2026-10-02. PR #36's source-only merge
-is complete. This plan has not been executed and grants no provider-write,
+Status: source publication and review authorized, 2026-10-02, on
+`codex/atmoshaper-vercel-integration-plan`. PR #36's source-only merge
+is complete. The hosting plan has not been executed and grants no provider-write,
 build, deployment, or public promotion authority.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
@@ -17,6 +18,11 @@ provider ownership to repair a name or Git connection.
   `Connect Git Repository`. Its Git connection is currently absent. This
   satisfies the earlier manual observation request; do not request it again
   or infer that the repository was never connected historically.
+- Subsequent user screenshots show Production's `No branch configuration`
+  overview and its Branch Tracking detail. `Auto-assign Custom Production
+  Domains` is present and enabled. This read-only check is satisfied; do not
+  request it again. No setting was changed. The screenshot's domain section
+  is not a complete deployment/alias rollback inventory.
 - Hosting, Google sign-in, administration, SMTP/support routing, and recurring
   Supporter billing already have operational receipts. Public registration
   and recurring Supporter Checkout are open. One-time support and background
@@ -172,7 +178,9 @@ readiness/webhook tests 62/62, lint, typecheck, and standard local build pass.
 Both Production gates visibly skip locally. The new child CLI tests use only
 synthetic credentials and a read-only provider fixture. No live readiness
 request, payment test, remote build, or provider configuration was performed.
-Source publication and hosted review have not occurred for this change.
+Source publication and hosted review are authorized; their exact-head outcomes
+must be verified before a merge request. This authority excludes merging,
+provider writes, remote builds, and public promotion.
 
 - Record the source/merge and deployment distinction in project state/log.
 - Record sanitized name/connection/branch/control outcomes and actual candidate

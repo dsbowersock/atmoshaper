@@ -76,6 +76,10 @@ not mean hosting, sign-in, or Supporter activation must be repeated. Fresh
 post-merge deployment reads showed the same latest Production/CLI deployment.
 The [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
 owns the remaining naming, repository connection, and manual promotion proposal.
+The subsequent Production-detail screenshot confirms that `Auto-assign Custom
+Production Domains` is present and enabled. That read-only check is complete.
+The user approved source publication and review of the Production build gate;
+hosting writes and public promotion remain separate approvals.
 
 ## Remaining migration ledger
 

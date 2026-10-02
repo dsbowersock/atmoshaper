@@ -24,7 +24,10 @@ controls and alias assignments before requesting provider-write authority.
 The proposed default is staged Production builds with manual promotion.
 No connection, rename, control change, build, or promotion is authorized by the
 Calendar source merge. Do not create a replacement project or ask the user to
-repeat the satisfied Git-status observation.
+repeat the satisfied Git-status observation. Subsequent Production screenshots
+confirm the custom-domain auto-assignment control is present and enabled.
+Disable it only under the exact hosting approval, before connecting Git;
+the read-only control check is complete.
 
 ## Production Readiness In The Standard Build
 
@@ -33,7 +36,8 @@ between migration status and Prisma generation in `npm run build`. In Vercel
 Production it runs the existing read-only live Supporter checker using inherited
 configuration and `--no-dotenv`, with a two-minute child deadline. Rejected or
 unverified readiness fails the build. Local/development/Preview builds skip
-provider access. This source change is unpublished and has not run in Vercel.
+provider access. Source publication/review is authorized; the new Production
+gate has not run in Vercel and no hosting operation is authorized by that approval.
 
 Before connecting Git, verify that the actual Build Command uses `npm run build`
 so both gates execute. A custom `next build` command bypasses npm's prebuild;
