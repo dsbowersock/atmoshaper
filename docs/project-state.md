@@ -26,12 +26,19 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   retain their existing wait behavior so an accepted POST's provider-generated
   ID is not lost to a local deadline and retried as a duplicate. Discovery,
   reads, and existing-ID updates remain bounded; no identifier migration is
-  introduced. Provider-free adapter/callback/service regressions pass 63/63.
+  introduced. Another Codex finding closes the calendar-create retry gap: a
+  verified account's encrypted, inactive creation intent is committed before
+  the Google POST. Later callbacks may activate a discovered, validated target,
+  but cannot create again while the first attempt is unresolved. The final
+  target/source transaction cannot erase that prior intent on rollback.
+  Existing fields carry this additive state; no schema migration is added.
+  Provider-free adapter/callback/service regressions pass 65/65.
   Initial CI also
   found a stale project-state date ceiling; its bound now matches this verified
-  date. The final full suite passes 5,087 of 5,090 tests with three skips and
+  date. The final full suite passes 5,089 of 5,092 tests with three skips and
   no failures; lint, typecheck, build, diff checks, and all 65 relative
-  documentation links pass. Required final-head hosted checks and reviews are
+  documentation links pass.
+  Required final-head hosted checks and reviews are
   tracked in PR #36;
   merge remains separately authorized. This is source preparation,
   not integration readiness. No provider configuration, calendar creation,

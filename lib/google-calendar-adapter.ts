@@ -262,11 +262,8 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     return validateCalendar(accessToken, calendarId, await listCalendars(accessToken))
   }
 
-  /**
-   * Resolves only this project's dedicated calendar. Names alone are insufficient;
-   * ambiguous discovery stops before creation, and a stored ID stays authoritative.
-   */
-  async function ensureDedicatedCalendar(accessToken: string, { providerAccountId, storedCalendarId, signal }: { providerAccountId: string; storedCalendarId?: string | null; signal?: AbortSignal }) {
+  /** Read-only discovery: absence is distinct from an invalid or ambiguous target. */
+  async function findDedicatedCalendar(accessToken: string, { providerAccountId, storedCalendarId, signal }: { providerAccountId: string; storedCalendarId?: string | null; signal?: AbortSignal }) {
     await validateAccount(accessToken, providerAccountId, signal)
     const calendars = await listCalendars(accessToken, signal)
     if (storedCalendarId) return validateCalendar(accessToken, storedCalendarId, calendars, signal)
@@ -275,7 +272,18 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
       || calendar.description === ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION)
     if (candidates.length > 1) throw new GoogleCalendarConnectionError("target", "AtmoShaper calendar selection is ambiguous.")
     if (candidates.length === 1) return validateCalendar(accessToken, candidates[0].id, calendars, signal)
+    return null
+  }
 
+  /**
+   * Creates only after validated discovery finds no target. The service must
+   * durably record creation intent first, because Google inserts are not atomic
+   * with our transaction and may complete after a local abort.
+   */
+  async function ensureDedicatedCalendar(accessToken: string, options: { providerAccountId: string; storedCalendarId?: string | null; signal?: AbortSignal }) {
+    const found = await findDedicatedCalendar(accessToken, options)
+    if (found) return found
+    const { signal } = options
     const created = await googleJson<GoogleCalendarListItem>(`${GOOGLE_CALENDAR_API}/calendars`, {
       method: "POST",
       headers: authHeaders(accessToken, true),
@@ -376,6 +384,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
   return {
     deleteEvent,
     ensureDedicatedCalendar,
+    findDedicatedCalendar,
     exchangeCode,
     listCalendars,
     listEvents,

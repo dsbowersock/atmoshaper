@@ -16,7 +16,7 @@ const legacy = { id: "legacy-calendar", summary: "MassageLab", accessRole: "owne
 const token = { access_token: "fixture-access", refresh_token: "fixture-refresh", expires_in: 3600, scope: scopes, googleUserId: "subject-a" }
 
 /** Fake Google transport only; discovery and validation use the real adapter. */
-function googleFixture({ calendars = [], subject = "subject-a", pages, metadataStatus = 200, metadata, failCreation = false, refreshScope = scopes, beforeResponse = () => {} } = {}) {
+function googleFixture({ calendars = [], subject = "subject-a", pages, metadataStatus = 200, metadata, failCreation = false, creationVisible = true, refreshScope = scopes, beforeResponse = () => {} } = {}) {
   const inventory = [...calendars]
   const calls = []
   const adapter = createGoogleCalendarAdapter({ fetchImpl: async (input, init = {}) => {
@@ -35,7 +35,7 @@ function googleFixture({ calendars = [], subject = "subject-a", pages, metadataS
     if (url.pathname === "/calendar/v3/calendars" && init.method === "POST") {
       if (failCreation) return json({ error: "private provider details" }, 503)
       const created = managed({ ...JSON.parse(init.body), id: "created-calendar" })
-      inventory.push(created)
+      if (creationVisible) inventory.push(created)
       return json(created, 201)
     }
     if (url.pathname.endsWith("/events")) {
@@ -140,7 +140,7 @@ describe("AtmoShaper Google calendar discovery", () => {
  */
 function serviceFixture(fixture, existing = null, historical = []) {
   const calls = []
-  const state = { connection: existing, historical, sources: [], eventLinks: [], existingEventLinks: [], busyBlocks: [] }
+  const state = { connection: existing, historical, sources: [], eventLinks: [], existingEventLinks: [], busyBlocks: [], transactions: [] }
   const db = {
     $queryRaw: async () => { calls.push("user-lock") },
     calendarConnection: {
@@ -167,7 +167,21 @@ function serviceFixture(fixture, existing = null, historical = []) {
       startsAt: new Date("2026-10-02T13:00:00Z"), endsAt: new Date("2026-10-02T14:00:00Z"), timezone: "America/New_York", clientName: "Private client", notes: "Clinical details" }) },
     externalCalendarEventLink: { upsert: async (input) => { state.eventLinks.push(input) } },
   }
-  db.$transaction = async (operation) => operation(db)
+  db.$transaction = async (operation) => {
+    // Model rollback of writes while retaining the separately committed intent.
+    // This is not a substitute for isolated PostgreSQL concurrency acceptance.
+    const snapshot = { connection: state.connection, sources: structuredClone(state.sources), busyBlocks: structuredClone(state.busyBlocks), eventLinks: structuredClone(state.eventLinks) }
+    state.transactions.push("start")
+    try {
+      const result = await operation(db)
+      state.transactions.push("commit")
+      return result
+    } catch (error) {
+      Object.assign(state, snapshot)
+      state.transactions.push("rollback")
+      throw error
+    }
+  }
   const service = load(serviceSource, "lib/calendar-sync-service.isolation.test.ts", {
     "./calendar-sync-constants.ts": constants,
     "./calendar-sync-env.ts": { getGoogleCalendarSyncConfig: () => ({ clientId: "fixture-client", clientSecret: "fixture-secret" }) },
@@ -355,20 +369,72 @@ describe("Google callback and service coexistence seam", () => {
     assert.equal(state.eventLinks[0].create.providerCalendarId, "atmo-calendar")
   })
 
-  it("saves no tokens on provider failure and can discover an interrupted creation", async () => {
+  it("retains inactive creation intent on provider failure and reconciles an interrupted creation", async () => {
     const failed = googleFixture({ calendars: [legacy], failCreation: true })
     const failedService = serviceFixture(failed)
-    await assert.rejects(() => failedService.service.connectGoogleCalendar({ userId: "user-a", token, adapter: failed.adapter }), /status 503/)
-    assert.equal(failedService.state.connection, null)
+    await assert.rejects(() => failedService.service.connectGoogleCalendar({ userId: "user-a", token, adapter: failed.adapter }), /creation is unresolved/)
+    assert.equal(failedService.state.connection.status, "ERROR")
+    assert.equal(failedService.state.connection.statusReason, "GOOGLE_CALENDAR_CREATION_PENDING")
+    assert.equal(failedService.state.connection.encryptedRefreshToken, "encrypted:fixture-refresh")
+    await assert.rejects(() => failedService.service.connectGoogleCalendar({ userId: "user-a", token, adapter: failed.adapter }), /creation is unresolved/)
+    assert.equal(failed.writes().length, 1)
     const interrupted = googleFixture({ calendars: [legacy], metadataStatus: 403 })
     const interruptedService = serviceFixture(interrupted)
-    await assert.rejects(() => interruptedService.service.connectGoogleCalendar({ userId: "user-a", token, adapter: interrupted.adapter }), /status 403/)
-    assert.equal(interruptedService.state.connection, null)
+    await assert.rejects(() => interruptedService.service.connectGoogleCalendar({ userId: "user-a", token, adapter: interrupted.adapter }), /creation is unresolved/)
+    assert.equal(interruptedService.state.connection.status, "ERROR")
+    assert.equal(interruptedService.state.connection.statusReason, "GOOGLE_CALENDAR_CREATION_PENDING")
     assert.equal(interrupted.writes().length, 1)
     const retry = googleFixture({ calendars: interrupted.inventory })
     await interruptedService.service.connectGoogleCalendar({ userId: "user-a", token, adapter: retry.adapter })
     assert.equal(retry.writes().length, 0)
     assert.equal(interruptedService.state.connection.dedicatedCalendarId, "created-calendar")
+    assert.equal(interruptedService.state.connection.statusReason, null)
+  })
+
+  it("does not repeat an aborted accepted create while the calendar listing is still empty", async (t) => {
+    const timeout = AbortSignal.timeout.bind(AbortSignal)
+    const requestDeadline = new AbortController()
+    let useControlledDeadline = true
+    t.mock.method(AbortSignal, "timeout", (duration) => duration === 8_000 && useControlledDeadline ? requestDeadline.signal : timeout(duration))
+    let state
+    const google = googleFixture({ creationVisible: false, beforeResponse: (url) => {
+      if (url.pathname === "/calendar/v3/calendars") {
+        assert.equal(state.connection.statusReason, "GOOGLE_CALENDAR_CREATION_PENDING")
+        assert.deepEqual(state.transactions, ["start", "commit", "start"])
+        requestDeadline.abort(new Error("private accepted-create timeout"))
+      }
+    } })
+    const fixture = serviceFixture(google)
+    state = fixture.state
+    const callback = callbackFixture(fixture.service, google.adapter)
+    assert.equal(new URL((await callback.route.GET(callback.request())).url).searchParams.get("google"), "target")
+    assert.equal(state.connection.status, "ERROR")
+    assert.equal(state.connection.dedicatedCalendarId ?? null, null)
+    assert.deepEqual(state.transactions, ["start", "commit", "start", "rollback"])
+    useControlledDeadline = false
+    assert.equal(new URL((await callback.route.GET(callback.request())).url).searchParams.get("google"), "target")
+    assert.equal(google.writes().length, 1)
+    google.inventory.push(managed({ id: "created-calendar" }))
+    assert.equal(new URL((await callback.route.GET(callback.request())).url).searchParams.get("google"), "connected")
+    assert.equal(google.writes().length, 1)
+    assert.equal(state.connection.status, "ACTIVE")
+    assert.equal(state.connection.statusReason, null)
+  })
+
+  it("retains the committed intent when source inventory fails after a target save", async () => {
+    let listings = 0
+    const google = googleFixture({ beforeResponse: (url) => {
+      if (url.pathname.endsWith("/calendarList") && ++listings === 4) throw new Error("private inventory failure")
+    } })
+    const { service, state } = serviceFixture(google)
+    await assert.rejects(() => service.connectGoogleCalendar({ userId: "user-a", token, adapter: google.adapter }), /creation is unresolved/)
+    assert.equal(state.connection.status, "ERROR")
+    assert.equal(state.connection.statusReason, "GOOGLE_CALENDAR_CREATION_PENDING")
+    assert.equal(state.connection.dedicatedCalendarId ?? null, null)
+    assert.equal(state.sources.length, 0)
+    await service.connectGoogleCalendar({ userId: "user-a", token, adapter: google.adapter })
+    assert.equal(google.writes().length, 1)
+    assert.equal(state.connection.status, "ACTIVE")
   })
 
   it("preserves callback state, authentication, entitlement and token prerequisites", async () => {

@@ -88,8 +88,7 @@ direction is outside this AtmoShaper migration work.
   alone never authorize adoption. An unmarked namesake or multiple candidates
   fails closed. A validated stored ID remains authoritative after a rename.
 - The Google UserInfo subject must match the current token/connection account.
-  Callback discovery and persistence share the existing user-row lock;
-  concurrent reconnects serialize. A different active account or saved target
+  Each callback phase holds the user-row lock. A different active account or saved target
   requires explicit disconnect instead of silently deleting its sync state.
   Inactive rows for other accounts remain preserved history; a returning
   account still validates its stored target. Eight-second request limits and
@@ -101,17 +100,27 @@ direction is outside this AtmoShaper migration work.
   and cause a duplicate retry. Reads and existing-ID updates remain bounded;
   do not introduce a durable event-ID contract without its own compatibility
   proof. End-to-end duplicate/transport-failure acceptance remains in provider QA.
-- A failed provider operation can leave an owned, marked calendar before the
-  database transaction commits. The next connection discovers that calendar;
-  this code does not delete it or rename an existing calendar during recovery.
+- Creation has two transaction phases. Read-only discovery first validates the
+  account and target. If no target exists, commit encrypted credentials as an
+  inactive `ERROR` connection with `GOOGLE_CALENDAR_CREATION_PENDING` reason
+  before the Google POST. Only the invocation that committed this intent can
+  create; its next lock-held transaction verifies the target before activating
+  and saving sources. Existing fields, encryption, IDs, and markers are retained.
+- A failed or interrupted provider operation can leave an owned, marked calendar
+  before the final transaction commits. That rollback cannot erase the prior
+  intent. A later callback may reconcile a discovered verified target, but a
+  pending intent with no target cannot issue another POST, even if the provider
+  listing is temporarily empty. No calendar is automatically deleted or renamed.
 - Provider-free tests exercise the actual adapter, callback, and service.
   Provider consent, scope behavior, transaction timeouts, interrupted creation,
   and isolated acceptance still require the separately authorized QA stage.
-- Current local receipt: the named Calendar group passes 63/63, including
-  inactive-history, provider-deadline, and deferred event-insert regressions.
+- Current local receipt: the named Calendar group passes 65/65, including
+  inactive-history, provider deadlines, deferred event inserts, accepted but
+  invisible calendar creation, and final-transaction rollback. The transaction
+  double models rollback; it does not prove live PostgreSQL concurrency.
   Initial CI and the first local repair run found the stale project-state date
   ceiling; its bound now matches the October 2 evidence. The final full suite
-  passes 5,087 of 5,090 tests with three skips and no failures. Lint, typecheck,
+  passes 5,089 of 5,092 tests with three skips and no failures. Lint, typecheck,
   build, diff checks, and all 65 relative documentation links pass. Required
   final-head hosted follow-up is tracked in PR #36. Local builds skip the
   Vercel Production migration gate and do not deploy. Historical
@@ -157,6 +166,15 @@ integration approval before the target and operations are reviewable.
 
 ## Isolated acceptance and rollout
 
+Pending-intent recovery is fail-closed. First obtain authorized read-only
+identity, scope, complete hidden/paginated inventory, and metadata evidence.
+One validated target can be reconciled by reconnecting without a new POST.
+An empty listing, elapsed time, or a generic provider error does not prove the
+previous insert was never accepted. Unresolved/ambiguous outcomes require exact
+provider/row authority and a reviewable reconciliation proposal; do not clear
+the reason, delete rows, or repeat creation automatically. An interrupted
+invocation may also have committed its intent before submitting the POST.
+
 Prepare a separate, explicitly authorized QA scope with an owned synthetic
 account and calendar, approved callback, non-production database, and no real
 appointments, client data, or browser records. Its authorization must state
@@ -172,5 +190,7 @@ and never includes pre-existing calendars or events.
 Public activation follows separate reviewed code, provider readiness, QA, and
 exact deployment authorization. Rollback disables only the new integration's
 approved configuration and restores its saved deployment/configuration.
+Disable the integration before restoring older code that does not recognize
+the pending intent; otherwise it could blindly retry the uncertain creation.
 Preserve existing calendar contents, mappings, tokens, and both projects' data;
 calendar deletion or token revocation is not an implied rollback operation.

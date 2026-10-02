@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 durable creation intent
+
+- CodeRabbit's next full review was triggered when its hourly window opened;
+  it covered all sixteen files at `2311d61` and finished with no actionable
+  comments. Codex identified a remaining valid creation retry gap: an accepted
+  calendar POST could remain invisible in the listing after a local abort.
+- Split read-only discovery from creation. Under the user-row lock, verified
+  identity/scopes and target absence now precede a committed inactive intent.
+  It stores encrypted credentials in existing fields with `ERROR` status and
+  `GOOGLE_CALENDAR_CREATION_PENDING` reason. Only the invocation that committed
+  a new intent may enter the lock-held creation phase. Activation and source
+  persistence remain transactional after target readback.
+- Retries may reconcile a discovered marked target; they cannot issue another
+  POST when a pending intent has no discoverable target. A second-phase rollback
+  retains the prior intent. This additive state changes no Prisma schema,
+  encryption contract, existing target ID, or Google marker. Old inactive rows
+  without that reason retain their previous continuity rules.
+- Provider-free regressions model an accepted but invisible creation after
+  abort, eventual readback, and source-inventory failure after a target save.
+  The focused group passes 65/65. The final full suite passes 5,089 of 5,092
+  tests with three expected skips and no failures. Lint, typecheck, build,
+  diff checks, and all 65 relative documentation links pass. Latest-head hosted
+  follow-up remains tracked in PR #36. The transaction double models rollback, not live
+  PostgreSQL contention or provider consistency.
+- Operator reconciliation must not clear the intent from elapsed time or an
+  empty listing alone. Exact provider/row evidence and write approval are needed
+  for an unresolved attempt. Rollback must disable the integration before
+  restoring code that does not honor this pending reason; preserve the rows.
+
 ## 2026-10-02 — Calendar PR #36 event-insert timeout compatibility
 
 - The second Codex review identified an introduced retry hazard: Google may
