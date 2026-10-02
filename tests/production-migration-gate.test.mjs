@@ -128,7 +128,7 @@ describe("Production migration deployment gate", () => {
     )
     assert.match(
       packageJson.scripts.prebuild,
-      /^npm run production:migrations:check && prisma generate$/,
+      /^npm run production:migrations:check && npm run production:stripe-readiness:check && prisma generate$/,
     )
   })
 })

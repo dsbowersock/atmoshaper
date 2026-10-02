@@ -26,6 +26,21 @@ No connection, rename, control change, build, or promotion is authorized by the
 Calendar source merge. Do not create a replacement project or ask the user to
 repeat the satisfied Git-status observation.
 
+## Production Readiness In The Standard Build
+
+Local source preparation wires `npm run production:stripe-readiness:check`
+between migration status and Prisma generation in `npm run build`. In Vercel
+Production it runs the existing read-only live Supporter checker using inherited
+configuration and `--no-dotenv`, with a two-minute child deadline. Rejected or
+unverified readiness fails the build. Local/development/Preview builds skip
+provider access. This source change is unpublished and has not run in Vercel.
+
+Before connecting Git, verify that the actual Build Command uses `npm run build`
+so both gates execute. A custom `next build` command bypasses npm's prebuild;
+reconcile that concrete setting before approving a candidate. A passing readiness
+build never grants public promotion, activates Calendar, enables other purchase
+flows, or repeats the live transaction test.
+
 ## Core Environment
 
 Use Neon's pooled connection string for runtime Prisma Client connections:

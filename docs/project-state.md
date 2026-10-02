@@ -79,6 +79,23 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   before requesting exact provider-write/build authority; none is granted by
   the source-only merge. The screenshot satisfies the earlier Git-status check.
 
+- Local source preparation for Vercel Git integration adds a Production-only
+  Supporter prebuild gate after the existing read-only migration-status gate.
+  It invokes the existing checker with fixed `--supporter-only --live
+  --verify-stripe --no-dotenv` arguments and inherited build configuration.
+  Local and Preview builds skip it; provider reads are bounded to two minutes.
+  Checker failures, launch errors, signals, and timeouts fail the build.
+  This closes the need for a separate manual readiness command in each approved
+  `npm run build` candidate, provided Vercel's actual Build Command uses that
+  entrypoint. The change is local and unpublished; no live readiness request,
+  build, deployment, provider write, or payment test occurred in preparing it.
+  Provider-free tests exercise the real nested CLI against synthetic Stripe
+  fixtures, including missing credentials, both Portal catalogs, and forbidden
+  purchase enablement. Public activation and disabled purchase boundaries remain.
+  The Production group passes 14/14 and existing Stripe coverage passes 62/62;
+  lint, typecheck, and the local build pass. The local build visibly skips both
+  Production gates, so this is not remote provider-readiness proof.
+
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
   `896c6d3edd369ca13c8140f22f37c4ee239c84da`, with exact-head Codex and

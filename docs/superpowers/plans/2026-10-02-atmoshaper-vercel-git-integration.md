@@ -1,6 +1,6 @@
 # AtmoShaper existing-project Vercel integration
 
-Status: local documentation proposal, 2026-10-02. PR #36's source-only merge
+Status: local source and documentation proposal, 2026-10-02. PR #36's source-only merge
 is complete. This plan has not been executed and grants no provider-write,
 build, deployment, or public promotion authority.
 
@@ -80,8 +80,11 @@ Sources: [Git deployments](https://vercel.com/docs/git),
    GitHub integration can access this repository. Identify required app access
    privately. Do not broaden installation permissions to unrelated repositories.
 5. Verify install/build/root settings against this source's package scripts.
-   Preserve the Production prebuild's read-only migration-status gate; never
-   substitute automatic schema application for a failed status check.
+   Require the standard `npm run build` entrypoint so its Production prebuild
+   runs read-only migration status, live Supporter readiness, then Prisma
+   generation. A direct `next build` bypasses that npm lifecycle. Reconcile any
+   actual override before approval; never substitute automatic schema application
+   for a failed migration-status check.
 6. Read the Preview configuration boundary. Do not give ordinary branch/PR
    deployments Production database or service credentials. If existing Preview
    configuration cannot safely build, keep that behavior gated until appropriate
@@ -124,13 +127,20 @@ protection and apply only the explicitly authorized recovery operations.
 
 ## Candidate and public-promotion gates
 
-The approved candidate must resolve to the reviewed PR #36 merge or a later
-explicitly approved reviewed source; never build a local dirty checkout.
-Require a successful read-only migration-status check and the actual remote
-command `npm run stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv`
-using the existing deployed credentials without exporting them. Require the app
-build to reach `READY`. This reads provider configuration; it does not repeat
-the live transaction test or authorize billing mutations.
+Publish, review, and separately approve the source gate before merging it while
+Git remains disconnected. The first connected candidate must use that reviewed
+source, not the earlier PR #36 merge alone or a dirty local checkout. A gate
+merge is still source-only until the provider connection/build is authorized.
+
+Require successful read-only migration status and the standard build's actual
+Production Supporter gate. It invokes
+`stripe-readiness-check.mjs --supporter-only --live --verify-stripe --no-dotenv`
+with the inherited remote credentials, without exporting them. A two-minute
+deadline or any checker/start failure rejects the build. Local/Preview skips
+and synthetic tests are not remote Production receipts. Require both gates'
+actual successful logs and the app build reaching `READY`; a custom command
+that bypasses prebuild does not pass. These provider reads do not repeat the
+live transaction test or authorize billing mutations.
 
 Read back that registration/Supporter pause controls remain `false` and that
 one-time support/background enablement remains false or unset. Require Calendar
@@ -156,6 +166,13 @@ rollback scope. Do not retire generated URLs, change DNS, or activate Calendar
 as collateral work.
 
 ## Acceptance receipt and handoff
+
+Local preparation receipt: Production gate tests 14/14, existing Stripe
+readiness/webhook tests 62/62, lint, typecheck, and standard local build pass.
+Both Production gates visibly skip locally. The new child CLI tests use only
+synthetic credentials and a read-only provider fixture. No live readiness
+request, payment test, remote build, or provider configuration was performed.
+Source publication and hosted review have not occurred for this change.
 
 - Record the source/merge and deployment distinction in project state/log.
 - Record sanitized name/connection/branch/control outcomes and actual candidate

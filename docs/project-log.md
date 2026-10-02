@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Production Supporter build gate prepared for Git integration
+
+- Continued read-only access checks confirm the project-detail connector still
+  fails its argument contract and browser use cannot verify its required policy.
+  No bypass was attempted. Fresh project listing contains five projects, confirms
+  the existing preview-named target, and shows the proposed `atmoshaper` name is
+  unused in that scope. Fresh deployment listing reports the same latest `READY`
+  Production deployment. No new Git connection or deployment occurred.
+- Asked for one new read-only Dashboard observation: whether Production Branch
+  Tracking offers `Auto-assign Custom Production Domains` and its current state.
+  This is not a repeat of the satisfied Git-status check. While that observation
+  is pending, repository preparation continues independently.
+- Standard `npm run build` now prepares a Production-only Supporter readiness
+  gate between migration status and Prisma generation. It runs the existing
+  read-only CLI with fixed live Supporter scope and `--no-dotenv`, preserves
+  inherited build credentials, and fails closed on rejection, launch failure,
+  signal, or a two-minute timeout. Local, development, and Preview builds skip
+  provider access. No new provider owner, payment flow, or configuration is added.
+- The focused Production group passes 14/14; existing Stripe readiness/webhook
+  coverage passes 62/62 using synthetic provider fixtures. Real nested CLI cases
+  prove rejection of missing credentials, drift in either Portal, and enablement
+  of either excluded purchase flow. Lint, typecheck, and the standard local build
+  pass. Its prebuild visibly skips both Production gates outside Vercel
+  Production; this is not a new live readiness receipt.
+- Publication/review, Vercel naming/connection/control writes, a remote candidate,
+  and public promotion remain distinct checkpoints. The source gate alone does
+  not read the unavailable hosting settings, configure Google, activate Calendar,
+  change billing switches, or repeat the completed live payment test.
+
 ## 2026-10-02 — Calendar source merged; Vercel integration gap confirmed
 
 - The user explicitly approved merging PR #36. The merge used the unchanged
