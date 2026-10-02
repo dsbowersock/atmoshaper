@@ -2,6 +2,107 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-01 — Public registration and recurring Supporter activation
+
+- Review identified stale pre-launch wording in the stable billing and release
+  runbooks. Reconciled their current sections with the completed activation,
+  exact v2 topology, scoped read-only verification, disabled purchase flows,
+  and preserved historical receipts. This repair changes documentation only;
+  it does not rerun provider setup, catalog migration, or the live payment test.
+  A follow-up review corrected the v2 bootstrap verifier's placement: its empty
+  subscription/Checkout prerequisites make it unsuitable for routine post-launch
+  checks. Expected active enrollment does not imply catalog damage or authorize
+  recovery; Supporter-only readiness is the routine current verification owner.
+  Reconciled the indexed deployment runbook as well: its current gate preserves
+  both open pause flags, its bootstrap sequences are historical, and any future
+  one-time-support proof remains a separate disabled-flow launch requirement.
+- The user clarified that MassageLab will continue after the migration as a
+  separate project. The user then kept its future direction outside this work; the
+  current AtmoShaper platform migration keeps its approved scope. Preserve the
+  existing full legacy service and continue focusing on AtmoShaper.
+- The user selected a separate Google calendar named `AtmoShaper`, rather than
+  adopting or renaming the old project's calendar. Added the
+  [Calendar preparation plan](superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md)
+  with source owners, configuration evidence, compatibility tests, provider
+  gates, and rollback boundaries. No Calendar runtime or provider change occurred.
+- Read-only Production environment-name inventory still lacks Calendar OAuth
+  credentials and its token-encryption key, Ably's server key, Sentry's DSN,
+  and R2 upload credentials. Presence inventory is not credential validation
+  or a playback/realtime test. The old production project remains `READY` at
+  the preserved export source; a vault-source comparison changes only invalid
+  format error copy and adds the public identity import, not the envelope or
+  storage identifiers. This is source evidence, not encrypted browser recovery.
+- After the read-only legacy routing check, the user chose to keep the full
+  MassageLab site available alongside AtmoShaper. No old-domain deployment or
+  routing change is authorized by that preference. Preserve the full existing
+  service, local records, authentication, and legacy billing; migration to the
+  new site does not authorize redirects, cancellations, transfer, or retirement.
+
+- The user explicitly authorized the prepared two-flag activation, one build,
+  conditional promotion, and bounded rollback. That approval replaced the
+  earlier instruction to keep public registration and Checkout paused; excluded
+  one-time support and background purchases remained disabled.
+- Updated only `MASSAGELAB_PUBLIC_REGISTRATION_PAUSED` and
+  `MASSAGELAB_SUPPORTER_CHECKOUT_PAUSED` to `false` in Production. Their exact
+  readback passed; both excluded purchase switches remained unset.
+- One activation candidate packaged only tracked source from reviewed merge
+  `7756080c3bc650bdbcff33013ff67728a3f97efa`. Actual live Supporter-only
+  readiness passed at `2026-10-02T01:21:04Z`, both managed catalogs reported
+  `stripe_api`, and the read-only migration-status gate passed. The app build
+  reached `READY`; the authorized promotion then moved the existing project
+  aliases to that exact candidate. The pre-promotion convenience-alias side
+  effect was restored before the promotion, preserving the saved live release.
+- Final readback confirms all four original aliases point to the approved
+  candidate. Apex `/register` returns `308` to the canonical matching route.
+  GETs of home, Pricing, registration, support, Privacy, Terms, and anonymous
+  session return `200`. Registration includes email/password inputs and no
+  pause message; Pricing has no Supporter pause; the session response is `null`.
+- Smoke-check assumptions were corrected to the actual `/legal/privacy` and
+  `/legal/terms` routes and controlled registration inputs' IDs. Those were
+  operator-check corrections, not application changes. Browser automation's
+  policy check was unavailable, so no visual or interactive browser claim is
+  made and no browser-policy workaround was attempted.
+- No repeat live test, account submission, Checkout creation, payment, refund,
+  email, migration application, catalog mutation, or private database-row write
+  occurred. Existing credentials and compatibility contracts are unchanged.
+  Temporary exports and the exact source staging directory were removed; the
+  paused rollback deployment remains available.
+- Canonical closeout documentation now links the
+  [migration status guide](wiki/migration-status.md), which separates completed
+  milestones from remaining old-origin/PWA proof, deferred provider decisions,
+  compatibility retirement, and optional audit/refactor work.
+
+## 2026-10-01 — Supporter live readiness passed; public activation prepared
+
+- PR #34 merged as `7756080c3bc650bdbcff33013ff67728a3f97efa` after all seven
+  hosted CI jobs passed at `896c6d3edd369ca13c8140f22f37c4ee239c84da`.
+  Codex and CodeRabbit covered that head; the sole review thread was resolved.
+  The hosted suite passed 5,053 tests with two skips and zero failures.
+- Under separate authorization, one unpromoted Vercel Production-target build
+  packaged only tracked files from the exact merge. Existing write-only
+  credentials supplied to the remote build passed the live Supporter-only CLI
+  at `2026-10-02T00:56:43Z`. Both exact Portal catalogs reported `stripe_api`;
+  the twelve Prices, six-Product topology, recurring-tax attestations, and
+  complete pinned webhook contract passed. Both excluded flows reported
+  `not_applicable (disabled)`. The read-only migration-status gate passed,
+  followed by a successful app build and `READY` deployment.
+- The public domains remained on the previous deployment. Vercel assigned one
+  convenience alias despite `--skip-domain`; the exact alias was restored and
+  all four original assignments verified. Both public pauses remained `true`,
+  both excluded purchasing switches remained unset, and public `/register`
+  still displayed its pause message. Candidate application-page smoke remains
+  unclaimed because the direct URL requires Vercel authentication.
+- No secrets were replaced, permissions expanded, migration applied, catalog
+  mutated, or live payment/refund test repeated. Temporary environment exports
+  and the exact temporary source copy were removed. A sanitized receipt was
+  retained locally and recorded in the merged PR's validation description.
+- Continued from verified clean `main` in the existing rollout worktree on
+  `codex/atmoshaper-supporter-launch-closeout`. Updated the canonical record and
+  prepared the [public-activation plan](superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md).
+  This follow-up is documentation only. Public activation still needs explicit
+  authorization overriding the current pause instruction; the plan itself
+  changes no environment, deployment, domain, account, or payment state.
+
 ## 2026-10-01 — Supporter-only readiness merged; Portal readback follow-up
 
 - PR #33 merged as `26413ee091e960a24a0eb3d67c25cfa0caafbf89` after a fresh

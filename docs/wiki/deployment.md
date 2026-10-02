@@ -1,5 +1,14 @@
 # Deployment And Environment
 
+Read [project state](../project-state.md) and the
+[activation receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md)
+for current AtmoShaper deployment evidence. Public registration and recurring
+Supporter Checkout are open under the 2026-10-01 approval; both pause flags are
+`false`. One-time support and background purchases remain disabled. The
+completed provider bootstrap, controlled live payment/refund, and activation
+receipts below are not instructions to repeat those operations. A new build,
+deployment, provider write, or pause change requires its own exact authority.
+
 ## Core Environment
 
 Use Neon's pooled connection string for runtime Prisma Client connections:
@@ -283,10 +292,13 @@ from an ordinary response. Without the flag, readiness checks all payment flows.
 
 The scoped check does not activate registration or public Checkout, authorize a
 deployment, or require repetition of the completed controlled live Supporter
-payment/refund test. Keep both public pauses in place until separately
-authorized activation after all remaining applicable gates pass.
+payment/refund test. The separately authorized activation has completed; both
+public pause flags are `false`. Preserve that open state. Readiness alone does
+not authorize changing either pause flag or enabling excluded purchasing flows.
 
-Before enabling subscription checkout, confirm:
+The completed launch verified the following recurring Supporter contract.
+Use these requirements for routine read-only checks or an approved future
+billing change; do not treat activation or the live Supporter test as pending:
 
 - `AtmoShaper Supporter Membership` is the only user-facing membership. Stripe
   represents it as six amount/use Products. Personal Products use
@@ -313,14 +325,22 @@ Before enabling subscription checkout, confirm:
   Stripe webhook signing secret.
 - Local and Vercel environments contain the same required Stripe keys and Price IDs for their respective test or live mode.
 - Production uses a live `STRIPE_SECRET_KEY`, a live webhook signing secret, and live recurring Price IDs. Test-mode keys or empty production Price IDs are launch blockers.
-- Run `npm run stripe:readiness -- --env-file=/secure/path/atmoshaper-production.env --live --verify-stripe` with production env values before public paid signup.
+- Use `npm run stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv`
+  with actual Production configuration in a trusted process. The protected
+  env-file alternative above remains available; a new deployment is a separate
+  operation. The full-payment checker is for a separately approved wider scope.
 - Keep one-time support fail-closed until its five independent gates are
-  explicit, including exact code `txcd_90000001`. After deployment, complete a
-  separately authorized live Checkout and verify its Session/line-item tax
-  evidence, `/pricing` return, and absence of any membership or background
-  entitlement.
+  explicit, including exact code `txcd_90000001`. Only a future separately
+  approved one-time-support launch may authorize its deployment and live
+  Checkout proof, including Session/line-item tax evidence, `/pricing` return,
+  and absence of membership or background entitlement. That excluded flow
+  remains disabled; this requirement does not repeat the completed Supporter test.
 
 ### Supporter v2 sandbox catalog migration
+
+The dedicated sandbox bootstrap and controlled QA are complete. Preserve this
+sequence as setup/history reference; it does not authorize another apply or
+test transaction. Current verification is owned by scoped readiness above.
 
 The reviewed migration command owns only the dedicated AtmoShaper test account.
 It creates or verifies six amount/use Products, twelve recurring Prices, and
@@ -394,6 +414,15 @@ sandbox deployment environment only after this command is reviewed and the
 provider state verifies completed.
 
 ### Supporter v2 live catalog migration
+
+The dedicated live bootstrap, tax/provider configuration, actual-credential
+readiness, controlled payment/refund, and separately approved public activation
+are complete. The following sequence is historical bootstrap mechanics, not
+routine post-launch verification or authority to repeat those operations.
+Its `plan` and `verify` inventory guards reject nonterminal subscriptions and
+open subscription Checkout Sessions, which can be normal after launch.
+Expected enrollment inventory does not imply catalog damage or authorize
+recovery/`apply`; routine checks use the Supporter-only readiness command above.
 
 The live command is a separate orchestrator for the dedicated AtmoShaper live
 account. It shares the immutable six-Product/twelve-Price and two-Portal

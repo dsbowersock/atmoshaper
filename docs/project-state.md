@@ -4,15 +4,15 @@ Verified: 2026-10-01
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Supporter Portal Catalog Readback
+## Current Snapshot — Registration and Supporter Checkout Open
 
-- Current `main` is `26413ee091e960a24a0eb3d67c25cfa0caafbf89`.
-  PR #33 merged after all seven hosted CI jobs and exact-head Codex and
-  CodeRabbit reviews passed, with no actionable review threads. PRs #30–#32's
-  live default topology, restricted runtime credentials, and Checkout
-  idempotency contracts remain in that base. The existing rollout worktree now
-  hosts `codex/stripe-portal-catalog-readback`; its containing PR owns current
-  exact-head checks and review before any separate merge decision.
+- Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+  PR #34 merged after all seven hosted CI jobs passed at reviewed head
+  `896c6d3edd369ca13c8140f22f37c4ee239c84da`, with exact-head Codex and
+  CodeRabbit coverage and no unresolved actionable review threads. The full
+  hosted suite passed 5,053 tests with two skips and zero failures. PRs #30–#33's
+  live default topology, restricted runtime credentials, Checkout idempotency,
+  and Supporter-only readiness contracts remain in that base.
 - The approved readiness scope is recurring Supporter membership only.
   `stripe:readiness -- --supporter-only --live --verify-stripe` still requires
   credentials, all twelve unique v2 Prices, recurring-tax attestations, both
@@ -22,9 +22,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   sections report `not_applicable (disabled)`. The default full-payment check
   remains available and unchanged in scope.
 - The prior controlled live Supporter payment test is complete, including
-  cancellation, full refund, and signed-webhook convergence. This branch does
-  not repeat it. Earlier no-payment/no-subscription cutover statements below
-  describe historical provider checkpoints.
+  cancellation, full refund, and signed-webhook convergence. It was not repeated.
+  Earlier no-payment/no-subscription cutover statements below describe
+  historical provider checkpoints.
 - The read-only checker explicitly expands
   `features.subscription_update.products` when retrieving each managed Portal.
   Live API readback then exposes both exact three-Product/six-Price catalogs;
@@ -33,17 +33,63 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   webhook without operator catalog confirmation. Stripe's Dashboard manages
   only the default personal Portal; the non-default business Portal uses the
   API. Ordinary list calls retain their existing no-expansion contract.
-- Fresh production configuration confirms both public pauses are `true` and
-  the one-time support and background-purchase switches are unset. The current
-  production deployment remains `READY`. No runtime, environment, provider,
-  deployment, or payment change occurs. Vercel's write-only Stripe credentials
-  still require full CLI verification in a trusted process that actually has
-  them. A temporary config export contained secret placeholders and was
-  removed; its failed credential checks do not prove deployed secrets missing.
+- One separately authorized, unpromoted Vercel Production-target build used
+  only tracked source from the exact PR #34 merge. The actual
+  `stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv`
+  command passed at `2026-10-02T00:56:43Z` using the existing write-only
+  credentials. Both Portal catalogs reported `stripe_api`; all twelve Prices,
+  six-Product topology, recurring-tax attestations, and the pinned webhook
+  passed. The read-only migration-status gate passed, and the app build reached
+  `READY`. No credential replacement, environment change, catalog mutation,
+  migration application, or payment test was required.
+- The public domains stayed on the prior deployment. Vercel moved one
+  convenience alias despite `--skip-domain`; its exact assignment was restored.
+  Final readback confirmed all four original aliases matched their pre-build
+  deployment, both public pauses remained `true`, and one-time support and
+  background-purchase switches remained unset. The public registration page
+  showed its pause message. The candidate's direct URL requires Vercel sign-in;
+  its anonymous request did not verify an application page.
+- The user subsequently authorized public registration and recurring Supporter
+  activation, replacing the earlier pause instruction. Only the two Production
+  pause controls changed to `false`. One authorized activation build used the
+  same reviewed merge, passed actual live Supporter readiness at
+  `2026-10-02T01:21:04Z`, passed read-only migration status, and reached `READY`.
+  After those gates passed, that exact candidate was promoted. All four original
+  aliases resolve to the approved candidate; the apex still redirects to
+  canonical `www` with the route preserved. One-time support and background
+  purchasing remain disabled with both enablement switches unset.
+- GET-only public checks passed for home, Pricing, registration, support,
+  Privacy, Terms, and signed-out session handling. Registration renders its
+  email/password inputs without the pause message; Pricing no longer displays
+  the Supporter pause; the signed-out session body remains `null`. No account,
+  Checkout Session, payment, refund, test email, or database write was created
+  by the verification. Browser automation was unavailable because its policy
+  check could not be verified; no visual or interactive browser smoke is claimed.
+- The [activation plan and execution receipt](superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md)
+  records the bounded scope, rollback, and public readback. The
+  [migration status guide](wiki/migration-status.md) indexes remaining work,
+  missing evidence, and decisions. This Supporter milestone does not complete
+  old-origin recovery/PWA work, deferred providers, or legacy retirement.
+- The user selected keeping the full MassageLab site available alongside
+  AtmoShaper and clarified that MassageLab will continue as a separate project
+  after the migration. Its future product direction is outside this work; the current
+  platform migration to AtmoShaper retains its approved feature scope. Preserve
+  the existing MassageLab deployment, routing, local-data access,
+  authentication, and billing endpoints. The observed old-apex-to-www redirect
+  is existing behavior; do not introduce an old-to-AtmoShaper redirect or infer
+  account, record, membership, or endpoint retirement from the new site's launch.
+- The user selected a separate Google calendar named `AtmoShaper` for the new
+  site's Calendar sync. The [Calendar preparation plan](superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md)
+  preserves the old project's `MassageLab` calendar and compatibility contracts.
+  This decision authorizes preparation, not OAuth/provider writes, calendar
+  creation, user-data transfer, a deployment, or public Calendar activation.
 - Provider-free focused CLI and webhook regressions pass 62/62, with zero
   failures or skips. Two new expansion regressions first failed as expected.
-  PR #33's full-suite, build, Prisma, typecheck, and lint receipts remain
-  historical supporting evidence; this branch's hosted CI must pass separately.
+  PR #34's hosted CI and remote verification receipts cover their exact source,
+  not this documentation follow-up. The existing clean rollout worktree now
+  hosts `codex/atmoshaper-supporter-launch-closeout` for the executed receipt,
+  current operator runbooks, and separate Calendar preparation plan; it changes
+  no runtime or provider configuration.
   The optional brand audit has stale exact occurrence rules from earlier
   Stripe identity changes; those broader audit receipts are not repaired by
   this readiness-only branch.

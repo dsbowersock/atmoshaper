@@ -1,5 +1,11 @@
 # AtmoShaper Domain Cutover Plan
 
+Use [project state](../project-state.md) and the [remaining migration ledger](../wiki/migration-status.md)
+for current host and activation receipts. The original host matrix below is
+historical planning evidence; its unverified statements do not override later
+readbacks. Old-origin recovery, protective-domain behavior, and retirement still
+need their own proof and authority before any change.
+
 Historical Phase 1 baseline: `fa78ca01a42179329cc223df77c76f308e76320b`, inspected 2026-09-06. It is not the Phase 2 export source; the [export manifest](atmoshaper-export-manifest.json) and [charter](atmoshaper-migration-charter.md) own the current source lock. This documents later Phases 7-10. Task 2 changes no host, DNS record, provider, redirect or runtime. The charter, [external checklist](atmoshaper-external-account-checklist.md), and [rollback plan](atmoshaper-rollback-plan.md) govern execution.
 
 ## Final host matrix

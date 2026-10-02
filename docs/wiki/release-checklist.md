@@ -2,6 +2,14 @@
 
 Use this checklist before inviting real users or tagging/deploying an alpha build. Keep SOAP notes, intake forms, journals, ROM sessions, and other professional-record workflows local-first in all testing.
 
+Current AtmoShaper registration and recurring Supporter Checkout are open after
+the separately authorized 2026-10-01 activation. Read [project state](../project-state.md)
+and the [activation receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md)
+before interpreting inherited or dated rollout instructions below. One-time
+support and background purchases remain disabled. Completed migrations,
+provider setup, and the live payment/refund test are preserved evidence, not
+instructions to repeat those operations for a later documentation release.
+
 ## Automated Gate
 
 See [CI and PR checks](ci-pr-checks.md) for the repository-owned workflow,
@@ -258,9 +266,12 @@ env-file alternative and the write-only Vercel secret limitation.
 - Preserve the completed controlled live Supporter payment, cancellation,
   refund, and webhook convergence receipt. Do not repeat that live payment test
   for a readiness-only change.
-- Keep public registration and Supporter Checkout paused. A passing CLI check
-  does not authorize activation, deployment, provider writes, or enabling the
-  excluded payment flows.
+- Public registration and recurring Supporter Checkout are now open under the
+  explicit activation approval; both pause flags are `false`. Preserve that
+  current state. A future readiness check does not itself authorize a new
+  activation, pause, deployment, provider write, or enabling excluded flows.
+  Verify any future change against its exact separate approval and rollback
+  plan rather than applying the earlier pre-launch pause instruction.
 
 ## Production Billing Gate
 
@@ -268,6 +279,9 @@ The following broader billing gate and dated receipts retain inherited
 full-payment rollout history. Use the current scoped gate above for the
 Supporter-only launch; the one-time-support and background-purchase launch
 requirements apply when those flows are separately approved for activation.
+Do not run the inherited source-account migration or repeat its completed live
+Supporter test against the dedicated v2 account. Current dedicated-account
+verification is documented in [billing guidance](billing-memberships.md).
 
 Before changing the live catalog or running any live paid smoke:
 

@@ -2,26 +2,31 @@
 
 AtmoShaper uses feature-based access. Code should ask whether a user has a feature, not whether the user has a named plan.
 
-AtmoShaper's dedicated Stripe account is staged but not configured for public
-enrollment. Its sandbox contains the retained v1 three-Product/six-Price
-catalog plus the accepted v2 six-Product/twelve-Price catalog, separate
-personal and business Portal configurations, the exact webhook, and the Ohio
-sandbox tax registration. Controlled Checkout, Portal, webhook, database, and
-cleanup testing passed. Production registration and Checkout remain paused;
-live catalog, webhook, tax-registration, deployment, transaction, and refund
-gates are still incomplete.
+Public registration and recurring Supporter Checkout are open as of the
+2026-10-01 authorized activation. The dedicated live account's six v2 Products,
+twelve Prices, personal/business Portal allowlists, recurring-tax setup, and
+pinned webhook passed actual-credential readiness in the approved build.
+Both Production pause flags are `false`; one-time support and background
+purchases remain disabled. See [project state](../project-state.md) and the
+[activation receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md)
+for current evidence and rollback scope.
+
+The sandbox retains its v1 catalog plus the accepted v2 catalog. Controlled
+sandbox QA and the separately authorized live payment, cancellation, full
+refund, and signed-webhook convergence are complete. Preserve those receipts;
+do not repeat the completed live payment test or provider bootstrap as a
+requirement of this documentation closeout.
 
 ## Dedicated AtmoShaper Provider Sequence
 
-The current provider stage is live preparation while public registration and
-Checkout remain paused. First review and merge the fail-closed live migration
-command. Then create the exact live 15-event webhook at
-`https://www.atmoshaper.com/api/billing/webhook`, supply a restricted live key
-and the dedicated live account identity through approved secret management,
-and run the reviewed command in read-only plan mode. Live catalog apply,
-Portal creation, Stripe Tax registration, Vercel configuration, deployment,
-and any controlled live purchase/refund each remain separately authorized
-provider boundaries.
+The reviewed live migration command, exact fifteen-event webhook at
+`https://www.atmoshaper.com/api/billing/webhook`, restricted runtime
+credentials, live catalog, use-specific Portals, tax registration, and
+authorized deployment/activation are complete. The [migration status guide](migration-status.md)
+owns the remaining work; the old preparation sequence is historical.
+Future catalog, Portal, tax, environment, deployment, or payment changes need
+their own concrete plan and exact authorization. Readiness alone does not
+authorize changing the current open state or enabling excluded purchase flows.
 
 New catalog objects use current AtmoShaper metadata. Exact legacy
 `massagelab_*` metadata, `massagelab-*` idempotency keys,
@@ -160,7 +165,9 @@ Pricing and legal copy should also say that AtmoShaper does not sell user data a
 
 This section records the completed source-account topology and recovery
 behavior as historical evidence. It does not define the current AtmoShaper
-buyer-use topology, which is documented after this reference.
+buyer-use topology, which is documented after this reference. Its recovery and
+tax subsections retain source-account receipts and wording; they do not
+authorize rerunning that migration against the dedicated v2 account.
 
 The target AtmoShaper catalog uses one **AtmoShaper Supporter Membership** with identical
 current benefits, including access to all premium backgrounds, at fixed support
@@ -303,34 +310,38 @@ Any future material change to the paid app offering requires a new
 classification review. One-time support remains outside this classification
 and uses its own `txcd_90000001` fail-closed Automatic Tax contract.
 
-## Stripe Setup Checklist
+## Current AtmoShaper Stripe Verification Checklist
 
-- In the dedicated AtmoShaper test environment, create or verify the exact
-  three-Product/six-Price catalog and keep Therapist and Practice enrollment
+- Preserve the dedicated sandbox's accepted v2 six-Product/twelve-Price catalog
+  and retained v1 compatibility catalog. Keep Therapist and Practice enrollment
   unavailable.
-- Keep the exact six current Supporter Price mappings in Production. Legacy
+- Keep all twelve exact current v2 Supporter Price mappings in Production. Legacy
   mappings remain reconciliation-only inputs until the documented removal gate
   is explicitly completed.
-- Keep Stripe Customer Portal enabled for switching only among the six current
-  Supporter Prices, subscription management, payment method and billing-address
-  updates, invoices, and cancellation.
-- Configure the pinned `https://www.atmoshaper.com/api/billing/webhook`
+- Preserve two use-specific Portals, each exposing only its three Products and
+  six Prices, with the personal default and business non-default topology.
+  Preserve subscription management, payment method/billing-address updates,
+  invoices, and cancellation.
+- Verify the pinned `https://www.atmoshaper.com/api/billing/webhook`
   endpoint as enabled on the
   app's `2026-02-25.clover` Stripe API version with exactly the combined
   membership and background-commerce event contract below.
-- Supply Stripe credentials through the approved local and Vercel
-  secret-management/deployment process, and keep the exact six non-secret
-  Supporter Price ID mappings configured in both environments.
-- Use the Stripe CLI in test mode to forward webhooks during local checkout testing.
-- Treat `npm run stripe:migrate-supporter-membership -- --mode=verify` as the
-  GET-only current authority and require `COMPLETED`. Do not run `apply`; any
-  other state requires a separately reviewed, incident-specific recovery plan
-  and explicit authorization.
-- Before public paid signup or after relevant billing configuration changes,
-  run
-  `npm run stripe:readiness -- --env-file=/secure/path/atmoshaper-production.env --live --verify-stripe`
-  and require complete Stripe, tax, and webhook readiness.
-- Both commands must pass without printing secrets or Stripe identifiers; their
+- Keep the existing credentials in approved secret management; repository
+  receipts contain no values or provider identifiers.
+- Retain `npm run stripe:migrate-supporter-v2-live -- --mode=verify` as a
+  bootstrap verifier with empty-inventory prerequisites: no nonterminal
+  subscription and no open subscription Checkout Session. It is not a routine
+  post-launch gate. Expected enrollment inventory can fail those guards without
+  establishing catalog damage; that result does not authorize recovery or
+  `apply`. Do not rerun the completed bootstrap during ordinary verification.
+- For routine post-launch verification or a future approved billing change, use
+  `npm run stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv`
+  in a trusted process that holds the actual credentials. Require complete
+  recurring Stripe, tax, and webhook readiness and false or unset
+  `STRIPE_ONE_TIME_SUPPORT_AUTOMATIC_TAX_ENABLED` and
+  `BACKGROUND_COMMERCE_PURCHASING_ENABLED`. The default full-payment checker
+  retains its broader scope for separately approved purchasing work.
+- These read-only commands must not print secrets or Stripe identifiers; their
   operator output is limited to safe readiness messages and checklist codes.
 
 ## Permanent Background Commerce
@@ -532,8 +543,11 @@ general Portal and the focused amount/period flow. A recognized v2 Price with a
 missing use-specific configuration fails closed, while historical v1 Prices
 continue through the retained default Portal for reconciliation compatibility.
 
-The dedicated sandbox's v1 catalog is preparation evidence only. Production
-Checkout stays paused, Automatic Tax stays disabled, and the readiness gates
-stay false until the v2 provider catalog, Portal allowlist, webhook, active tax
-registration, classified codes, secure environment configuration, deployment,
-and controlled synthetic tests are all separately completed.
+The dedicated sandbox's v1 catalog remains compatibility evidence. The v2
+catalog, both Portal allowlists, pinned webhook, active recurring-tax setup,
+restricted configuration, controlled tests, and actual-credential readiness
+are complete. The separately approved Production activation opened registration
+and recurring Supporter Checkout; recurring Automatic Tax is enabled. One-time
+support and background purchases remain disabled. Use the activation receipt
+above for the exact source and evidence limits; no new provider work is
+authorized by this current-state description.
