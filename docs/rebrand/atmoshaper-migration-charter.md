@@ -1,16 +1,23 @@
 # AtmoShaper Migration Charter
 
+Current execution status is owned by [project state](../project-state.md),
+[project log](../project-log.md), and the [remaining migration ledger](../wiki/migration-status.md).
+The dated phase snapshots below are historical evidence, not instructions to
+repeat completed integration, provider setup, or payment tests. This charter's
+compatibility and exact-authorization rules continue to apply.
+
 ## Authority
 
 - Approved design: [AtmoShaper repository migration and modernization design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md) (approved design commit `14f60fc1bc63e12b65b28c353b83e5f159247645`).
 - Approved bootstrap plan: [AtmoShaper repository migration Phase 1-2 implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md).
 - Completed local plan: [Phase 3 documentation consolidation](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), limited to documentation and deterministic documentation-occurrence audit-baseline reconciliation.
 - Completed Phase 5 plan: [public product identity](../superpowers/plans/2026-09-13-atmoshaper-public-product-identity.md), merged in PR #4.
-- Active approved plan: [Phase 6 preview rebrand](../superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md). The reviewed recovery source is preserved as PR #5; the smaller replacement sequence has reached final Task 9 integration, whose source-equivalence, review and hosted gates remain pending.
+- Historical Phase 6 plan: [preview rebrand](../superpowers/plans/2026-09-14-atmoshaper-phase6-preview-rebrand.md). The recovery source is preserved as PR #5; current integration and provider receipts belong to project state/log rather than this older snapshot.
+- Current Supporter execution receipt: [public activation](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md). Remaining migration work and missing decisions are indexed in the ledger above; the Supporter milestone does not authorize other provider or retirement operations.
 - Superseded handoff: Derrick's 2026-09-06 AtmoShaper migration handoff supersedes the earlier Stage 1 handoff that kept this work inside `dsbowersock/massagelab`.
 - This charter governs source selection for Phases 1-2. The old repository remains the historical archive, evidence source, and rollback source unless separately authorized otherwise.
 
-## Current Status — Phase 6 Replacement Integration, 2026-09-22
+## Historical Status — Phase 6 Replacement Integration, 2026-09-22
 
 - Bootstrap [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged at `2026-09-09T09:36:44Z` by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. It joins sole fresh root `7e89f7ba9508a1ad715c1824ea6099432e6a4ccd` and reviewed head `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`. The bootstrap review branch `codex/bootstrap-atmoshaper` is retained.
 - Phase 3 [PR #2](https://github.com/dsbowersock/atmoshaper/pull/2), Phase 4 PR #3 and Phase 5 PR #4 are merged. PR #4 merged as `cdfa99e49cebf100fac1a5080d60514806eb17db`; its reviewed feature parent was `b25b817da126359c5ffc15954182cc9573413735`.
