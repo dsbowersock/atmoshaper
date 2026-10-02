@@ -276,9 +276,10 @@ disable the corresponding runtime Checkout paths even if other tax/catalog
 settings exist. True or ambiguous values fail; the checker never changes them.
 The excluded sections report `not_applicable (disabled)`, not ready. All
 recurring-tax, Price, Portal, reconciliation, credential, and pinned-webhook
-checks remain required, including all fifteen pinned events. Both Portal
-allowlists still need the process-local Dashboard confirmation described below
-when the API omits them. Without the flag, readiness checks all payment flows.
+checks remain required, including all fifteen pinned events. Readiness retrieves
+both managed Portals with `expand: ["features.subscription_update.products"]`
+so their exact allowlists can be validated from Stripe rather than inferred
+from an ordinary response. Without the flag, readiness checks all payment flows.
 
 The scoped check does not activate registration or public Checkout, authorize a
 deployment, or require repetition of the completed controlled live Supporter
@@ -363,15 +364,21 @@ field.
 Stripe can also omit `features.subscription_update.products` from both managed
 v2 Portal responses. When it does, an apply may create the missing Portal(s)
 and then stop at the final completion gate until the operator checks both
-managed configurations in the Dashboard. Verify that the personal Portal and
-business Portal each contain exactly their three use-specific Products and six
-Prices, with quantity changes disabled. Then set
+managed configurations independently. Retrieve each configuration with
+`expand: ["features.subscription_update.products"]` and verify that the
+personal and business Portals each contain exactly their three use-specific
+Products and six Prices, with quantity changes disabled. Stripe's Dashboard
+only manages the default configuration; it cannot verify the non-default
+business Portal. Then set
 `ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION` to
 `CONFIRM_MANAGED_V2_SUPPORTER_PORTALS_3_PRODUCTS_6_PRICES_EACH` for that
 operator process only and rerun `--mode=verify`. Never persist this value in
 Vercel, `.env` files, or a shared environment. The confirmation applies only to
 an omitted field; API-visible empty or mismatched catalogs still fail closed.
-Stripe readiness uses the same process-local evidence boundary.
+Stripe readiness requests the expansion itself and uses API evidence when
+returned. Its existing omission-only confirmation boundary remains unchanged;
+never confirm an unverified catalog or use a default-only Dashboard view as
+evidence for both managed Portals.
 
 `plan` inventories and reports only safe checklist/count output. `verify`
 requires the completed target and performs no writes. Do not persist
@@ -381,7 +388,7 @@ process to `CREATE_SUPPORTER_V2_SANDBOX_CATALOG`, run `--mode=apply`, then rerun
 `--mode=verify`. Apply uses deterministic idempotency and lookup keys, rereads
 every API-visible mutation field, and is designed to converge safely after an
 exact partial run. An omitted managed catalog remains incomplete until the
-Dashboard inspection and process-local confirmation above.
+independent expanded inspection and process-local confirmation above.
 Copy the twelve Price IDs and the two Portal configuration IDs into the secure
 sandbox deployment environment only after this command is reviewed and the
 provider state verifies completed.
@@ -429,9 +436,10 @@ and rerun `--mode=verify`. Keeping Checkout paused does not replace this
 exclusive-writer requirement.
 
 If Stripe omits each managed Portal's Product catalog from API responses, the
-apply deliberately stops at the final evidence gate. Inspect both live Portal
-configurations in the Dashboard, verify exactly three Products and six Prices
-for the matching personal or business use with quantity changes disabled, then
+apply deliberately stops at the final evidence gate. Retrieve both live Portal
+configurations with `expand: ["features.subscription_update.products"]`, verify
+exactly three Products and six Prices for the matching personal or business use
+with quantity changes disabled, then
 set `ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION` to
 `CONFIRM_MANAGED_V2_SUPPORTER_PORTALS_3_PRODUCTS_6_PRICES_EACH` for that single
 verify process. The confirmation cannot override any API-visible empty or

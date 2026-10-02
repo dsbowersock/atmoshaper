@@ -126,9 +126,8 @@ function legacySupporterPrice(priceId) {
   return price
 }
 
-/** Builds the exact use-specific Product and Price allowlist for one Portal. */
-/** Builds one managed Portal fixture with the exact catalog for its supporter-use boundary. */
-function supporterPortal(supporterUse) {
+/** Models catalog omission on ordinary retrieval and readback on explicit expansion. */
+function supporterPortal(supporterUse, { expandedCatalog = false } = {}) {
   const expectedId = process.env[
     `STRIPE_SUPPORTER_${supporterUse.toUpperCase()}_PORTAL_CONFIGURATION_ID`
   ]
@@ -212,7 +211,9 @@ function supporterPortal(supporterUse) {
   if (process.env.STRIPE_READINESS_STUB_INVALID_PORTAL_PROFILE === supporterUse) {
     configuration.business_profile.headline = "Stale Portal profile"
   }
-  if (process.env.STRIPE_READINESS_STUB_OMIT_MANAGED_PORTAL_PRODUCTS === "true") {
+  if (process.env.STRIPE_READINESS_STUB_OMIT_MANAGED_PORTAL_PRODUCTS === "true"
+    || (process.env.STRIPE_READINESS_STUB_MANAGED_PRODUCTS_REQUIRE_EXPANSION === "true"
+      && !expandedCatalog)) {
     delete configuration.features.subscription_update.products
   }
   return configuration
@@ -320,13 +321,17 @@ export default class StripeReadinessStub {
           }
         },
         retrieve: async (configurationId, params) => {
-          if (params !== undefined) {
+          // Accept only the provider-verified catalog expansion, preserving the
+          // list endpoint's separate no-expansion contract.
+          const expandedCatalog = JSON.stringify(params)
+            === JSON.stringify({ expand: ["features.subscription_update.products"] })
+          if (params !== undefined && !expandedCatalog) {
             throw new Error("Portal configuration retrieval must not request unsupported expansions")
           }
           const personalId = process.env.STRIPE_SUPPORTER_PERSONAL_PORTAL_CONFIGURATION_ID
           const businessId = process.env.STRIPE_SUPPORTER_BUSINESS_PORTAL_CONFIGURATION_ID
-          if (configurationId === personalId) return supporterPortal("personal")
-          if (configurationId === businessId) return supporterPortal("business")
+          if (configurationId === personalId) return supporterPortal("personal", { expandedCatalog })
+          if (configurationId === businessId) return supporterPortal("business", { expandedCatalog })
           throw new Error("Unexpected readiness Portal fixture")
         },
       },

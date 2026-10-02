@@ -2,6 +2,37 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-01 — Supporter-only readiness merged; Portal readback follow-up
+
+- PR #33 merged as `26413ee091e960a24a0eb3d67c25cfa0caafbf89` after a fresh
+  clean-worktree and hosted-head check. All seven hosted CI jobs passed;
+  Codex and CodeRabbit covered `c0e88e26f8fe524328ff1047c91b6719c5d3172a`
+  without actionable findings, and hosted review threads were empty.
+- Continued from that merged commit in the existing clean rollout worktree on
+  `codex/stripe-portal-catalog-readback`. Explicit retrieval expansion of
+  `features.subscription_update.products` returns both live managed catalogs.
+  The checker now requests it rather than relying on an ordinary response.
+  Default-topology list calls preserve their existing request contract.
+- Independent read-only Stripe evidence, compared with the actual production
+  billing configuration through repository validators, passes all twelve
+  Price mappings, six-Product topology, both three-Product/six-Price Portal
+  allowlists and management policies, tax attestations, and the exact pinned
+  webhook. Ohio's live registration remains active. Dashboard supports the
+  default personal Portal; non-default business settings are API-managed.
+- Both public pause flags remain `true`; one-time support and background
+  purchase enablement switches remain unset. Production is `READY`. Vercel
+  secrets remain write-only: the full CLI run on a temporary config export
+  fails because exported Stripe secrets are placeholders. The export was
+  removed. Actual credential verification still requires a trusted process
+  with those values and cannot be replaced with connector evidence.
+- Focused CLI and webhook regressions pass 62/62. Two new tests first failed
+  for the expected missing expansion and hidden drift, then passed with the
+  explicit readback. Empty, mismatched, or cross-use catalogs still fail;
+  operator confirmation cannot override returned drift. Hosted checks and
+  reviews belong to the containing follow-up PR.
+- No public activation, provider write, deployment, database write, or repeat
+  of the completed live payment/refund test occurred.
+
 ## 2026-10-01 — Supporter-only readiness candidate
 
 - Verified the clean existing Stripe rollout worktree and hosted `main` at
