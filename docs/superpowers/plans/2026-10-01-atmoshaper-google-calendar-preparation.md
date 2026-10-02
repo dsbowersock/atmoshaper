@@ -1,10 +1,11 @@
 # AtmoShaper Google Calendar preparation
 
-Status: published as PR #36; CodeRabbit shepherding authorized,
-2026-10-02. The user selected
+Status: PR #36 merged under the user's source-only approval on 2026-10-02 as
+`154f9b6d440e0842892b96e185190c5be1ed2e22`. The user selected
 a separate calendar named `AtmoShaper`. Repository preparation is authorized by
 the migration continuation; provider configuration and public activation remain
-separate gates. This branch applies no hosted changes.
+separate gates. This source preparation changed no provider configuration and
+did not deploy.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [remaining migration ledger](../../wiki/migration-status.md) first.
@@ -142,25 +143,28 @@ direction is outside this AtmoShaper migration work.
   after read-budget exhaustion. The transaction
   double models rollback; it does not prove live PostgreSQL concurrency.
   Initial CI and the first local repair run found the stale project-state date
-  ceiling; its bound now matches the October 2 evidence. The preceding runtime
-  full suite passed 5,094 of 5,097 tests with three skips and no failures.
-  The final pre-POST retry's lint, typecheck, build, diff checks, and all 65
-  documentation links pass. The aggregate-pagination follow-up also passes lint,
-  typecheck, build, diff checks, and all 90 relative links in the current migration
-  docs; its complete-regression receipt is tracked in PR #36. Required
-  final-head hosted follow-up is tracked in PR #36. Local builds skip the
+  ceiling; its bound now matches the October 2 evidence. The final full suite
+  passed 5,105 of 5,108 tests with three expected skips and no failures. Final
+  lint, typecheck, build, diff checks, and all 90 relative links in the reviewed
+  migration docs pass. All seven hosted CI jobs pass at reviewed head
+  `0c3241cb3052877f07453d31b97b71ae4337e3eb`. Full CodeRabbit review covers
+  all eighteen files without actionable comments or retained architecture
+  concerns; Codex reports no findings and no review threads remain unresolved.
+  Local builds skip the
   Vercel Production migration gate and do not deploy. Historical
   pre-publication validation remains in the dated project log.
-- Completion boundary: local preparation only. The existing source owners
+- Completion boundary: reviewed, merged source preparation only. The existing source owners
   remain below the 800-line pressure signal; the callback is smaller and no
   schema, parallel provider owner, or dependency was added. Compatibility
   identifiers are retained for both projects and require a separate proven
   migration before retirement. No provider behavior is claimed from fixtures.
-- Next steps: complete final-head hosted checks and reviews in the
-  user-authorized [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36),
-  triggering CodeRabbit when eligible. Merge requires separate approval.
-  Then identify the
-  authorized Cloud/OAuth target and prepare the exact provider/QA proposal.
+- Next steps: identify the existing Cloud/OAuth targets and prepare the exact
+  provider/QA proposal; technical target identification is operator work, not
+  an unexplained project-choice question for the user. Source-only PR #36 is
+  merged and its final reviews are complete. The separate
+  [Vercel integration plan](2026-10-02-atmoshaper-vercel-git-integration.md)
+  owns project naming, repository linkage, and deployment controls. Neither
+  source merge nor a future Git connection authorizes Calendar activation.
 
 API contract sources: [Calendar metadata retrieval and authorized scopes](https://developers.google.com/workspace/calendar/api/v3/reference/calendars/get),
 [calendar inventory pagination](https://developers.google.com/workspace/calendar/api/v3/reference/calendarList/list),

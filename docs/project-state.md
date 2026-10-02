@@ -10,10 +10,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review
   covered all twelve files with no actionable comments; all seven hosted CI
   jobs passed and all review threads were resolved. This merge did not deploy.
-- Published [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36) prepares
-  the selected separate AtmoShaper Google calendar on
-  `codex/atmoshaper-calendar-isolation`, based on that merge
-  in the existing clean migration worktree. Discovery validates Google's account
+- [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36) merged as
+  `154f9b6d440e0842892b96e185190c5be1ed2e22` at `2026-10-02T18:17:55Z`
+  under the user's exact source-only merge approval. Its unchanged reviewed
+  head is `0c3241cb3052877f07453d31b97b71ae4337e3eb`. The change prepares
+  the selected separate AtmoShaper Google calendar. Discovery validates Google's account
   subject, an owned secondary calendar's project marker, narrow Calendar
   permissions, and API metadata. Reconnects preserve validated stored IDs after
   renames; unexpected accounts, targets, and ambiguous names fail closed.
@@ -51,20 +52,57 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   records failure, and stops later sources. New-event inserts still retain their
   returned IDs when the read deadline expires after dispatch. These are provider
   read budgets, not database-commit or new-event POST time limits.
-  Provider-free adapter/callback/service/action regressions pass 81/81.
-  Initial CI also
-  found a stale project-state date ceiling; its bound now matches this verified
-  date. The preceding runtime full suite passed 5,094 of 5,097 tests with three
-  skips and no failures. The final pre-POST retry's lint, typecheck, build,
-  diff checks, and all 65 relative documentation links pass. The aggregate-pagination
-  follow-up also passes lint, typecheck, build, diff checks, and all 90 relative
-  links in the current migration docs. Its complete regression and hosted-review
-  receipts are tracked in PR #36.
-  Required final-head hosted checks and reviews are
-  tracked in PR #36;
-  merge remains separately authorized. This is source preparation,
+  Final provider-free adapter/callback/service/action regressions pass 81/81;
+  the full suite passes 5,105 of 5,108 tests with three expected skips and no
+  failures. Lint, typecheck, build, diff checks, and all 90 relative links in
+  the reviewed migration docs pass. All seven exact-head hosted CI jobs pass.
+  CodeRabbit's final full review covers all eighteen files with no actionable
+  comments or retained architecture concerns; Codex reports no findings and
+  no review threads remain unresolved. Initial CI's stale project-state date
+  ceiling was repaired before these final receipts.
+  This is merged source preparation,
   not integration readiness. No provider configuration, calendar creation,
   hosted database write, deployment, or Calendar activation occurred.
+
+- The user's current Vercel Dashboard screenshot confirms that the existing
+  project serving `www.atmoshaper.com` still has its preview-era project name
+  and shows `Connect Git Repository`. The Git connection is currently absent;
+  this observation does not establish its entire history. The completed hosting
+  and Supporter launch used explicit CLI deployments. After PR #36 merged,
+  fresh deployment reads showed the same latest `READY` Production/CLI
+  deployment, with no new deployment triggered by the merge. No fresh complete
+  alias inventory is claimed from those deployment summaries. Project naming
+  and Git integration are unfinished provider steps, not missing hosting.
+  The [Vercel integration plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+  proposes renaming the existing project and connecting this repository with
+  manual promotion. Current settings and rollback assignments must be read
+  before requesting exact provider-write/build authority; none is granted by
+  the source-only merge. The screenshot satisfies the earlier Git-status check.
+  Subsequent screenshots show Production's `No branch configuration` overview
+  and its Branch Tracking detail with `Auto-assign Custom Production Domains`
+  present and enabled. This satisfies the read-only promotion-control check;
+  no toggle or provider setting was changed. The plan must disable that control
+  under exact authority before connecting Git. Complete Build Command and
+  rollback-assignment readback are still required before provider execution.
+
+- Local source preparation for Vercel Git integration adds a Production-only
+  Supporter prebuild gate after the existing read-only migration-status gate.
+  It invokes the existing checker with fixed `--supporter-only --live
+  --verify-stripe --no-dotenv` arguments and inherited build configuration.
+  Local and Preview builds skip it; provider reads are bounded to two minutes.
+  Checker failures, launch errors, signals, and timeouts fail the build.
+  This closes the need for a separate manual readiness command in each approved
+  `npm run build` candidate, provided Vercel's actual Build Command uses that
+  entrypoint. Source publication and review on
+  `codex/atmoshaper-vercel-integration-plan` are now authorized; merge and hosting
+  changes remain separate. No live readiness request, remote build, deployment,
+  provider write, or payment test occurred in preparing it.
+  Provider-free tests exercise the real nested CLI against synthetic Stripe
+  fixtures, including missing credentials, both Portal catalogs, and forbidden
+  purchase enablement. Public activation and disabled purchase boundaries remain.
+  The Production group passes 14/14 and existing Stripe coverage passes 62/62;
+  lint, typecheck, and the local build pass. The local build visibly skips both
+  Production gates, so this is not remote provider-readiness proof.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head

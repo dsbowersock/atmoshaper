@@ -14,6 +14,7 @@ owners or authorize provider changes. Verified: 2026-10-02.
 | Existing production site | The rebranded site is operational on the canonical AtmoShaper host; Google sign-in, administrator access, SMTP delivery, and support routing have dated operational receipts | Project state, [historical provider audit](../audits/2026-09-27-atmoshaper-provider-readiness.md) |
 | Recurring Supporter billing | Dedicated live catalog and tax setup, use-specific Portals, pinned webhook, restricted credentials, idempotency, and live readiness passed; public registration and Supporter Checkout are now open | [Activation receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md), project state/log |
 | Controlled live test | Payment, cancellation, full refund, and signed-webhook convergence completed before activation | Project state/log; do not repeat this completed gate |
+| Separate Calendar source | PR #36 merged at its unchanged reviewed head after all seven CI jobs, full CodeRabbit coverage, and Codex review passed; provider acceptance and activation remain pending | [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md), project state/log |
 
 These are bounded milestones. They do not establish that every provider was
 migrated or that old-origin recovery and compatibility retirement are complete.
@@ -43,7 +44,7 @@ Ably's server key, Sentry's DSN, and R2 upload credentials. This inventory does
 not verify existing media playback, polling behavior, provider permissions,
 or any user's connection or records.
 
-The published [Calendar PR #36](https://github.com/dsbowersock/atmoshaper/pull/36)
+The merged [Calendar PR #36](https://github.com/dsbowersock/atmoshaper/pull/36)
 prepares account-bound, marked-calendar discovery and stored-ID reconnects,
 with 81 focused regressions passing. Review repairs preserve inactive history
 and bound discovery while retaining serialization. New event inserts keep
@@ -59,20 +60,35 @@ conservative. Failed transactions cancel late discovery before cleanup so it
 cannot create afterward. Separate aggregate read budgets also cover inbound
 validation/event pagination (60 seconds) and outbound validation (30 seconds).
 They preserve failed cursors and stop later source reads without timing out
-new-event POST responses. Final complete-regression, static-check, and hosted-review
-receipts for the aggregate-pagination follow-up are tracked in PR #36.
-Publication and CodeRabbit shepherding are authorized; required final-head
-hosted checks and follow-up are tracked in PR #36. Merge is separately authorized.
+new-event POST responses. Its reviewed head is
+`0c3241cb3052877f07453d31b97b71ae4337e3eb`; the separately approved source-only
+merge is `154f9b6d440e0842892b96e185190c5be1ed2e22`. Final full regression
+passes 5,105 of 5,108 tests with three expected skips and no failures. All seven
+CI jobs, full CodeRabbit coverage of all eighteen files, Codex review, and
+static checks pass; no actionable review threads remain. The merge did not deploy.
 This source preparation does not identify or configure the Cloud project/client, validate hosted consent,
 create a calendar, or activate Calendar sync.
+
+The user's current Vercel Dashboard screenshot confirms that the existing live
+project retains its preview-era name and has no Git connection (`Connect Git
+Repository`). This completes the earlier manual observation request. It does
+not mean hosting, sign-in, or Supporter activation must be repeated. Fresh
+post-merge deployment reads showed the same latest Production/CLI deployment.
+The [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+owns the remaining naming, repository connection, and manual promotion proposal.
+The subsequent Production-detail screenshot confirms that `Auto-assign Custom
+Production Domains` is present and enabled. That read-only check is complete.
+The user approved source publication and review of the Production build gate;
+hosting writes and public promotion remain separate approvals.
 
 ## Remaining migration ledger
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |
+| Vercel project name and Git integration | Current Dashboard screenshot confirms the preview-era name and no Git connection; the live site uses explicit CLI deployments. Full settings/alias readback is not yet available | Follow the [existing-project integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md); read current settings and rollback assignments before execution | Exact authority for naming/connection/control writes and a possible first unpromoted build; public promotion remains a later approval. Do not reimport the app or repeat the Git-status question |
 | Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
 | Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
-| Google Calendar | A separate `AtmoShaper` calendar is selected; OAuth/client/callback readiness and safe discovery remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); prepare a focused provider-free compatibility change | Ask before client/callback writes, calendar creation/sync, token or row migration, a deployment, or public activation |
+| Google Calendar | A separate `AtmoShaper` calendar is selected and its source preparation is merged; OAuth/client/callback readiness and actual provider behavior remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); identify the existing technical targets and prepare isolated provider acceptance | Ask before client/callback writes, QA resource or calendar creation/sync, token or row migration, a deployment, or public activation |
 | Ably realtime | The historical provider audit documents polling fallback; no hosted isolated-realtime parity receipt is added by this launch | Verify fallback configuration and prepare an isolated connectivity plan if realtime is wanted | Ask whether to retain fallback or authorize a scoped Ably setup; no room publication, presence mutation, channel rename, or key rotation |
 | Sentry | Public activation adds no monitoring-project or credential configuration; build-plugin telemetry is not evidence of application monitoring | Inventory sanitized runtime configuration and the existing privacy boundary | Ask before enabling a project or DSN. Session Replay, screenshots, attachments, logs, and broader feedback remain gated |
 | Media provider administration | Existing playback/immutable media identities are preserved; missing upload credentials alone do not prove playback failure | Read known public media headers and reconcile R2/CORS/cache owners | Ask before upload, object move/delete, host retirement, CORS/configuration write, or provenance promotion |

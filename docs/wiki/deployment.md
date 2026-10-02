@@ -9,6 +9,42 @@ completed provider bootstrap, controlled live payment/refund, and activation
 receipts below are not instructions to repeat those operations. A new build,
 deployment, provider write, or pause change requires its own exact authority.
 
+## Current Project Name And Repository Connection
+
+The user's 2026-10-02 Dashboard screenshot confirms that the existing project
+serving `www.atmoshaper.com` retains its preview-era name and shows `Connect Git
+Repository`. The completed live launch used CLI deployments. PR #36's
+source-only merge did not trigger a new deployment; the deployed runtime remains
+reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+
+Follow the [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+to prepare the existing project's name and Git connection. Connecting Git can
+trigger builds automatically, so read the actual Production branch/promotion
+controls and alias assignments before requesting provider-write authority.
+The proposed default is staged Production builds with manual promotion.
+No connection, rename, control change, build, or promotion is authorized by the
+Calendar source merge. Do not create a replacement project or ask the user to
+repeat the satisfied Git-status observation. Subsequent Production screenshots
+confirm the custom-domain auto-assignment control is present and enabled.
+Disable it only under the exact hosting approval, before connecting Git;
+the read-only control check is complete.
+
+## Production Readiness In The Standard Build
+
+Local source preparation wires `npm run production:stripe-readiness:check`
+between migration status and Prisma generation in `npm run build`. In Vercel
+Production it runs the existing read-only live Supporter checker using inherited
+configuration and `--no-dotenv`, with a two-minute child deadline. Rejected or
+unverified readiness fails the build. Local/development/Preview builds skip
+provider access. Source publication/review is authorized; the new Production
+gate has not run in Vercel and no hosting operation is authorized by that approval.
+
+Before connecting Git, verify that the actual Build Command uses `npm run build`
+so both gates execute. A custom `next build` command bypasses npm's prebuild;
+reconcile that concrete setting before approving a candidate. A passing readiness
+build never grants public promotion, activates Calendar, enables other purchase
+flows, or repeats the live transaction test.
+
 ## Core Environment
 
 Use Neon's pooled connection string for runtime Prisma Client connections:
