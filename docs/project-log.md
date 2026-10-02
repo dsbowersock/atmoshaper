@@ -2,6 +2,48 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Production Supporter gate merged; hosting settings verified
+
+- The user approved merging [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37).
+  The expected-head merge preserved reviewed
+  `fa3e2f9081b37630584c979b92114379ba093e95` and completed at
+  `22:54:54Z` as `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`.
+  All seven hosted CI jobs passed; the Linux suite passed 5,113 of 5,115 tests,
+  with two skips and zero failures. CodeRabbit's final full review covered all
+  ten files with zero actionable comments, no retained architecture concerns,
+  and 100% touched-function docstring coverage. Codex was clean and both prior
+  threads were resolved. The final full review was triggered promptly after
+  its included allowance reset. These counts do not replace PR #36's receipts.
+- Review fixes clarified the hosting plan and classified build failures using
+  four fixed messages without raw error or signal values. Production gate
+  tests passed 14/14 and lint passed after those repairs. No live readiness
+  request or payment test was performed by source validation.
+- Fresh post-merge deployment reads confirm no build or deployment was
+  triggered. The user then restored normal Vercel CLI login and approved
+  read-only checks. Authenticated settings match the saved existing target:
+  Next.js, Node 24, repository root, no Build/Install/Output override, no Git
+  link, and enabled custom-domain auto-assignment. All four current aliases
+  point to the approved `READY` live artifact. Both custom domains are verified;
+  the apex retains its `308` redirect to canonical `www`.
+- The canonical auth origin and both open public launch controls were read
+  without recording their values. Excluded purchase switches and Calendar
+  credentials remain absent. The 56 project variables target only Production;
+  Preview/Development have none. Preview and direct Production deployment
+  URLs require Vercel sign-in. No secret export occurred.
+- Vercel's exact-owner repository query reports `Vercel App is not installed`.
+  The general namespace endpoint cannot run through this CLI's automatic team
+  scope, and the GitHub CLI credential cannot list App installations. These
+  tool limits do not establish historical installation state. Use the normal
+  GitHub App access flow for only AtmoShaper, preserve existing grants, and
+  verify repository visibility before connection. The updated
+  [hosting plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+  makes the execution and recovery request concrete.
+- This continuation merged source and prepared local documentation only.
+  Hosting writes, a remote candidate build, public promotion, Calendar provider
+  work, database writes, and old-site changes remain separately gated.
+  Registration and recurring Supporter Checkout remain open; one-time support
+  and background purchases remain disabled. Do not repeat the live payment test.
+
 ## 2026-10-02 — Production Supporter build gate prepared for Git integration
 
 - The user subsequently approved publishing this source PR and shepherding

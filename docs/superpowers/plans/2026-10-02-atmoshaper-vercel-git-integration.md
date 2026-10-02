@@ -1,8 +1,10 @@
 # AtmoShaper existing-project Vercel integration
 
-Status: source publication and review authorized, 2026-10-02, on
-`codex/atmoshaper-vercel-integration-plan`. PR #36's source-only merge
-is complete. The hosting plan has not been executed and grants no provider-write,
+Status: PR #37's separately approved source merge is complete, 2026-10-02,
+as `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; its reviewed gate is on `main`.
+PR #36's Calendar source-only merge is also complete. Current settings and all
+four live alias assignments are now verified through normal authenticated CLI
+reads. The hosting plan has not been executed and grants no provider-write,
 build, deployment, or public promotion authority.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
@@ -36,12 +38,27 @@ provider ownership to repair a name or Git connection.
   provider preparation, not activated integration. Keep Calendar configuration
   inactive during this hosting stage; its acceptance follows the separate
   [Calendar plan](2026-10-01-atmoshaper-google-calendar-preparation.md).
-- Project/deployment reads work, but the project-detail connector's advertised
-  argument differs from its server requirement. The local CLI has no usable
-  login; browser navigation could not satisfy its required policy check.
-  These limits prevent full settings/alias readback. Obtain an ordinary working
-  access path before execution; do not extract credentials or bypass the check.
-  An empty or omitted alias array in a deployment summary is not an inventory.
+- The project-detail connector's argument mismatch and the browser policy
+  limitation remain tool issues. The user restored normal CLI login and approved
+  read-only checks; authenticated API reads now verify the saved existing target
+  and scope. All four aliases point to the approved `READY` deployment at
+  `7756080c3bc650bdbcff33013ff67728a3f97efa`; both custom domains are verified
+  and the apex retains its `308` redirect to canonical `www`. Private rollback
+  metadata is captured without recording provider IDs or secret values here.
+- Settings are Next.js, Node 24, repository root, and no Build/Install/Output
+  override. Git is absent and custom Production domain auto-assignment is enabled.
+  Production auth uses the canonical custom origin; both public pauses remain
+  `false`. Excluded purchase switches and Calendar credentials are absent. All
+  56 project variables target only Production; Preview/Development have none.
+  Direct Production URLs and Preview deployments require Vercel sign-in.
+- Vercel's owner-specific repository search reports `Vercel App is not installed`.
+  Its namespace listing cannot run through this CLI's automatic team scope;
+  the GitHub CLI credential cannot list App installations. Do not infer the
+  owner's entire installation history from those limits. The remaining access
+  step is the normal GitHub App flow for only `dsbowersock/atmoshaper`, preserving
+  existing repository grants, followed by a successful Vercel visibility read.
+  See [Vercel's repository-access guide](https://vercel.com/kb/guide/unable-to-find-github-repository)
+  and the [Vercel GitHub App](https://github.com/apps/vercel).
 
 ## Proposed result
 
@@ -86,6 +103,11 @@ Sources: [Git deployments](https://vercel.com/docs/git),
 4. Check the proposed name is available in the existing scope, and verify the
    GitHub integration can access this repository. Identify required app access
    privately. Do not broaden installation permissions to unrelated repositories.
+   The current scope has no project named `atmoshaper`; repository visibility
+   still needs the App access step above. If an existing installation is present,
+   add only this repository while retaining its other grants. If installation or
+   account association requires a human confirmation, supply the exact normal
+   screen and wait; do not replace the project or alter unrelated installations.
 5. Verify install/build/root settings against this source's package scripts.
    Require the standard `npm run build` entrypoint so its Production prebuild
    runs read-only migration status, live Supporter readiness, then Prisma
@@ -111,8 +133,12 @@ Source: [Vercel project rename behavior](https://vercel.com/kb/guide/how-do-i-ch
 Request one concrete authorization for the verified existing target that names:
 
 - the rename to `atmoshaper`;
+- normal Vercel GitHub App access to only `dsbowersock/atmoshaper`, preserving
+  existing grants, with any required human installation/account confirmation;
 - disabling automatic assignment of custom Production domains and reading back
   that setting before repository connection;
+- setting the existing project's Build Command explicitly to `npm run build`,
+  without changing install, root, runtime, environment, or protection settings;
 - connecting only `dsbowersock/atmoshaper` with Production branch `main`;
 - a possible first unpromoted Production candidate build from the approved
   reviewed source, including read-only migration and Supporter readiness checks;
@@ -124,8 +150,9 @@ provider callbacks, database migrations, Calendar activation, payments, emails,
 or changes to MassageLab. If the reference audit finds additional necessary
 operations, make those concrete before asking; do not assume them approved.
 
-After approval, set and verify the promotion control first. Apply the rename
-and verify its identity/custom-domain readback, then connect the approved
+After approval, verify the App grant and repository visibility. Set and verify
+the promotion control and explicit standard Build Command before connecting.
+Apply the rename and verify its identity/custom-domain readback, then connect the approved
 repository/branch. Read back the connection and control after each write.
 Observe any build started by the connection; do not start a duplicate build
 merely to recreate evidence. Record its actual source commit and environment.
@@ -134,8 +161,8 @@ protection and apply only the explicitly authorized recovery operations.
 
 ## Candidate and public-promotion gates
 
-Publish, review, and separately approve the source gate before merging it while
-Git remains disconnected. The first connected candidate must use that reviewed
+The source gate's publication, full review, and separately approved merge through
+PR #37 are complete. The first connected candidate must use that reviewed
 source, not the earlier PR #36 merge alone or a dirty local checkout. A gate
 merge is still source-only until the provider connection/build is authorized.
 
@@ -179,9 +206,14 @@ readiness/webhook tests 62/62, lint, typecheck, and standard local build pass.
 Both Production gates visibly skip locally. The new child CLI tests use only
 synthetic credentials and a read-only provider fixture. No live readiness
 request, payment test, remote build, or provider configuration was performed.
-Source publication and hosted review are authorized; their exact-head outcomes
-must be verified before a merge request. This authority excludes merging,
-provider writes, remote builds, and public promotion.
+Source publication, full hosted review, and the separately approved merge are
+complete. Reviewed head `fa3e2f9081b37630584c979b92114379ba093e95` passed all
+seven CI jobs, with 5,113 of 5,115 Linux unit tests passing and two skips.
+CodeRabbit's final full review covered all ten files with zero actionable
+comments or retained architecture concerns. Codex was clean; both prior threads
+were resolved. Merge `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e` triggered no
+Vercel build or deployment. Provider writes, remote builds, and public promotion
+remain outside that source approval.
 
 - Record the source/merge and deployment distinction in project state/log.
 - Record sanitized name/connection/branch/control outcomes and actual candidate
@@ -193,6 +225,7 @@ provider writes, remote builds, and public promotion.
 - Preserve public registration/Supporter activation, disabled one-time/background
   purchasing, the completed payment-test boundary, and both projects' data.
 
-Execution remains pending full current settings access and exact authorization.
+Execution remains pending narrowly scoped GitHub App access and exact hosting
+authorization; current settings and live rollback assignments have been read.
 The user does not need to repeat hosting setup, choose an unexplained Google
 project, or supply the already established Git-status observation.

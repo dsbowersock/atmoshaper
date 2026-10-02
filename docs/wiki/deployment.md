@@ -13,9 +13,9 @@ deployment, provider write, or pause change requires its own exact authority.
 
 The user's 2026-10-02 Dashboard screenshot confirms that the existing project
 serving `www.atmoshaper.com` retains its preview-era name and shows `Connect Git
-Repository`. The completed live launch used CLI deployments. PR #36's
-source-only merge did not trigger a new deployment; the deployed runtime remains
-reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+Repository`. The completed live launch used CLI deployments. PR #36's and
+PR #37's source-only merges did not trigger a new deployment; the deployed
+runtime remains reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
 
 Follow the [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
 to prepare the existing project's name and Git connection. Connecting Git can
@@ -31,13 +31,25 @@ the read-only control check is complete.
 
 ## Production Readiness In The Standard Build
 
-Local source preparation wires `npm run production:stripe-readiness:check`
+[PR #37](https://github.com/dsbowersock/atmoshaper/pull/37), merged as
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, wires
+`npm run production:stripe-readiness:check`
 between migration status and Prisma generation in `npm run build`. In Vercel
 Production it runs the existing read-only live Supporter checker using inherited
 configuration and `--no-dotenv`, with a two-minute child deadline. Rejected or
 unverified readiness fails the build. Local/development/Preview builds skip
-provider access. Source publication/review is authorized; the new Production
-gate has not run in Vercel and no hosting operation is authorized by that approval.
+provider access. All seven hosted CI jobs and final full CodeRabbit/Codex reviews
+passed at the unchanged reviewed head. The new Production gate has not run in
+Vercel; its source merge does not authorize hosting operations.
+
+Normal CLI authentication is now restored. Current settings have no Build
+Command override, use Next.js/Node 24 at the repository root, and retain enabled
+automatic custom-domain assignment with no Git link. All four current aliases
+point to the approved live deployment. Project environment variables target
+only Production; Preview and Development have none. Direct Production URLs and
+Preview deployments require Vercel sign-in. Vercel reports missing GitHub App
+access for the repository owner; grant only AtmoShaper through the normal App
+flow, preserve existing grants, and verify visibility before connecting.
 
 Before connecting Git, verify that the actual Build Command uses `npm run build`
 so both gates execute. A custom `next build` command bypasses npm's prebuild;

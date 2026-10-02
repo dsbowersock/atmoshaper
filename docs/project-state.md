@@ -70,22 +70,32 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   this observation does not establish its entire history. The completed hosting
   and Supporter launch used explicit CLI deployments. After PR #36 merged,
   fresh deployment reads showed the same latest `READY` Production/CLI
-  deployment, with no new deployment triggered by the merge. No fresh complete
-  alias inventory is claimed from those deployment summaries. Project naming
+  deployment, with no new deployment triggered by the merge. Those summaries
+  did not establish a complete alias inventory; the later authenticated readback
+  below does. Project naming
   and Git integration are unfinished provider steps, not missing hosting.
   The [Vercel integration plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
   proposes renaming the existing project and connecting this repository with
-  manual promotion. Current settings and rollback assignments must be read
-  before requesting exact provider-write/build authority; none is granted by
+  manual promotion. Settings and rollback assignments are now read as recorded
+  below; exact provider-write/build authority remains pending and is not granted by
   the source-only merge. The screenshot satisfies the earlier Git-status check.
   Subsequent screenshots show Production's `No branch configuration` overview
   and its Branch Tracking detail with `Auto-assign Custom Production Domains`
   present and enabled. This satisfies the read-only promotion-control check;
   no toggle or provider setting was changed. The plan must disable that control
   under exact authority before connecting Git. Complete Build Command and
-  rollback-assignment readback are still required before provider execution.
+  rollback-assignment readback followed through the restored CLI login below.
 
-- Local source preparation for Vercel Git integration adds a Production-only
+- [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37) merged under the
+  user's separate source approval at `2026-10-02T22:54:54Z` as
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`. Its unchanged reviewed head is
+  `fa3e2f9081b37630584c979b92114379ba093e95`. All seven hosted CI jobs passed;
+  the Linux unit receipt is 5,113 passes of 5,115 tests, two skips, zero failures.
+  CodeRabbit's final full review covered all ten files with zero actionable
+  comments and no retained architecture concerns; Codex was clean and both
+  earlier threads were resolved. Fresh post-merge reads confirm the same latest
+  `READY` Production deployment. No Vercel build or deployment was triggered.
+  The merged source for Vercel Git integration adds a Production-only
   Supporter prebuild gate after the existing read-only migration-status gate.
   It invokes the existing checker with fixed `--supporter-only --live
   --verify-stripe --no-dotenv` arguments and inherited build configuration.
@@ -93,16 +103,34 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Checker failures, launch errors, signals, and timeouts fail the build.
   This closes the need for a separate manual readiness command in each approved
   `npm run build` candidate, provided Vercel's actual Build Command uses that
-  entrypoint. Source publication and review on
-  `codex/atmoshaper-vercel-integration-plan` are now authorized; merge and hosting
-  changes remain separate. No live readiness request, remote build, deployment,
-  provider write, or payment test occurred in preparing it.
+  entrypoint. Failure messages distinguish rejection, launch failure, signal,
+  and timeout using fixed text without raw error or signal values. Hosting
+  changes remain separately gated. No live readiness request, remote build,
+  deployment, provider write, or payment test occurred in preparing it.
   Provider-free tests exercise the real nested CLI against synthetic Stripe
   fixtures, including missing credentials, both Portal catalogs, and forbidden
   purchase enablement. Public activation and disabled purchase boundaries remain.
   The Production group passes 14/14 and existing Stripe coverage passes 62/62;
   lint, typecheck, and the local build pass. The local build visibly skips both
   Production gates, so this is not remote provider-readiness proof.
+
+- The user restored normal Vercel CLI login and authorized read-only checks.
+  Authenticated API readback confirms the same existing project and scope:
+  Next.js, Node 24, repository root, no Build/Install/Output override, no Git
+  link, and custom Production domain auto-assignment enabled. All four aliases
+  still point to the approved `READY` live artifact; the verified apex retains
+  its `308` redirect to canonical `www`. Production auth uses the canonical
+  custom origin. Both public pause controls remain `false`; the two excluded
+  purchase switches and Calendar credentials remain absent. All 56 project
+  variables target Production; Preview and Development have none. Preview and
+  direct Production deployment URLs require Vercel sign-in. No secret values
+  were exported or recorded.
+  Vercel's repository-access read reports `Vercel App is not installed` for the
+  AtmoShaper GitHub owner. Establish access to only this repository through the
+  normal GitHub App flow, preserving any existing grants, then verify Vercel
+  can list it before connecting. The current remaining input is exact authority
+  for that access and the prepared existing-project hosting stage, not another
+  settings screenshot or login. Public promotion remains a later approval.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
