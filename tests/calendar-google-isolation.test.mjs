@@ -72,7 +72,7 @@ describe("Google disconnect creation-intent boundary", () => {
 })
 
 /** Fake Google transport only; discovery and validation use the real adapter. */
-function googleFixture({ calendars = [], subject = "subject-a", pages, metadataStatus = 200, metadata, failCreation = false, creationVisible = true, refreshScope = scopes, beforeResponse = () => {} } = {}) {
+function googleFixture({ calendars = [], subject = "subject-a", pages, eventPages, metadataStatus = 200, metadata, failCreation = false, creationVisible = true, refreshScope = scopes, beforeResponse = () => {} } = {}) {
   const inventory = [...calendars]
   const calls = []
   const adapter = createGoogleCalendarAdapter({ fetchImpl: async (input, init = {}) => {
@@ -96,6 +96,7 @@ function googleFixture({ calendars = [], subject = "subject-a", pages, metadataS
     }
     if (url.pathname.endsWith("/events")) {
       if (init.method === "POST") return json({ id: "outbound-event" }, 201)
+      if (eventPages) return json(eventPages[url.searchParams.get("pageToken") ?? "first"])
       return json({ items: [{
         id: "busy-event", start: { dateTime: "2026-10-02T13:00:00Z" }, end: { dateTime: "2026-10-02T14:00:00Z" },
         summary: "Private client name", description: "Clinical notes", location: "Private address",
@@ -196,7 +197,7 @@ describe("AtmoShaper Google calendar discovery", () => {
  */
 function serviceFixture(fixture, existing = null, historical = []) {
   const calls = []
-  const state = { connection: existing, historical, sources: [], eventLinks: [], existingEventLinks: [], busyBlocks: [], transactions: [] }
+  const state = { connection: existing, historical, sources: [], eventLinks: [], existingEventLinks: [], busyBlocks: [], transactions: [], runs: [] }
   let revision = 0
   const db = {
     $queryRaw: async () => { calls.push("user-lock") },
@@ -224,7 +225,10 @@ function serviceFixture(fixture, existing = null, historical = []) {
       update: async ({ where, data }) => Object.assign(state.sources.find((item) => item.id === where.id), data),
     },
     externalCalendarBusyBlock: { upsert: async ({ create }) => state.busyBlocks.push(create) },
-    calendarSyncRun: { create: async () => ({ id: "run-a" }), update: async () => {} },
+    calendarSyncRun: {
+      create: async ({ data }) => { const run = { id: `run-${state.runs.length}`, ...data }; state.runs.push(run); return run },
+      update: async ({ where, data }) => Object.assign(state.runs.find((run) => run.id === where.id), data),
+    },
     calendarEvent: { findUnique: async () => ({ id: "event-a", ownerUserId: "user-a", kind: "APPOINTMENT", status: "CONFIRMED", externalCalendarLinks: state.existingEventLinks,
       startsAt: new Date("2026-10-02T13:00:00Z"), endsAt: new Date("2026-10-02T14:00:00Z"), timezone: "America/New_York", clientName: "Private client", notes: "Clinical details" }) },
     externalCalendarEventLink: { upsert: async (input) => { state.eventLinks.push(input) } },
@@ -274,6 +278,66 @@ function callbackFixture(service, adapter, { session = { user: { id: "user-a" } 
 }
 
 describe("Google callback and service coexistence seam", () => {
+  for (const workload of ["inbound", "outbound"]) {
+    for (const expired of [false, true]) {
+      it(`bounds ${workload} validation pagination with a ${expired ? "refreshed" : "cached"} token`, async (t) => {
+        const timeout = AbortSignal.timeout.bind(AbortSignal)
+        const deadline = new AbortController()
+        t.mock.method(AbortSignal, "timeout", (duration) => duration === (workload === "inbound" ? 60_000 : 30_000) ? deadline.signal : timeout(duration))
+        const google = googleFixture({ calendars: [managed()], pages: {
+          first: { items: [managed()], nextPageToken: "second" },
+          second: { items: [], nextPageToken: "third" }, third: { items: [] },
+        }, beforeResponse: (url) => {
+          if (url.searchParams.get("pageToken") === "second") deadline.abort(new Error("fixture aggregate deadline"))
+        } })
+        const { service, state, calls } = serviceFixture(google, storedConnection(expired ? { accessTokenExpiresAt: new Date(0) } : {}))
+        const operation = workload === "inbound"
+          ? () => service.syncGoogleConnectionSources({ connectionId: "connection-a", adapter: google.adapter })
+          : () => service.pushCalendarEventToGoogle("event-a", google.adapter)
+        await assert.rejects(operation, /fixture aggregate deadline/)
+        assert.equal(google.calls.filter((call) => call.url.pathname.endsWith("/calendarList")).length, 2)
+        assert.equal(google.calls.some((call) => call.url.pathname.endsWith("/events")), false)
+        assert.equal(calls.includes("update-connection"), false)
+        assert.deepEqual(state.busyBlocks, [])
+        assert.deepEqual(state.eventLinks, [])
+      })
+    }
+  }
+
+  it("stops inbound event pagination and later sources without advancing a failed cursor", async (t) => {
+    const timeout = AbortSignal.timeout.bind(AbortSignal)
+    const deadline = new AbortController()
+    t.mock.method(AbortSignal, "timeout", (duration) => duration === 60_000 ? deadline.signal : timeout(duration))
+    const google = googleFixture({ calendars: [managed()], eventPages: {
+      first: { items: [], nextPageToken: "second" },
+      second: { items: [], nextPageToken: "third" }, third: { items: [], nextSyncToken: "new-cursor" },
+    }, beforeResponse: (url) => {
+      if (url.pathname.endsWith("/events") && url.searchParams.get("pageToken") === "second") deadline.abort(new Error("fixture read budget exhausted"))
+    } })
+    const { service, state } = serviceFixture(google, storedConnection())
+    state.sources.push(...["first-source", "later-source"].map((id) => ({ id, providerCalendarId: id, selectedForBusySync: true, syncToken: "saved-cursor" })))
+    await assert.rejects(() => service.syncGoogleConnectionSources({ connectionId: "connection-a", adapter: google.adapter }), /fixture read budget exhausted/)
+    assert.equal(google.calls.filter((call) => call.url.pathname.endsWith("/events")).length, 2)
+    assert.deepEqual(state.sources.map((source) => source.syncToken), ["saved-cursor", "saved-cursor"])
+    assert.equal(state.runs.length, 1)
+    assert.equal(state.runs[0].status, "FAILED")
+    assert.equal(state.connection.lastSyncedAt, undefined)
+    assert.deepEqual(state.busyBlocks, [])
+  })
+
+  it("retains a new outbound event ID when the read deadline expires after POST dispatch", async (t) => {
+    const timeout = AbortSignal.timeout.bind(AbortSignal)
+    const deadline = new AbortController()
+    t.mock.method(AbortSignal, "timeout", (duration) => duration === 30_000 ? deadline.signal : timeout(duration))
+    const google = googleFixture({ calendars: [managed()], beforeResponse: (url) => {
+      if (url.pathname.endsWith("/events")) deadline.abort(new Error("fixture read deadline after insert"))
+    } })
+    const { service, state } = serviceFixture(google, storedConnection())
+    assert.deepEqual(await service.pushCalendarEventToGoogle("event-a", google.adapter), { pushed: true })
+    assert.equal(state.eventLinks[0].create.providerEventId, "outbound-event")
+    assert.equal(google.writes().length, 1)
+  })
+
   it("cancels late discovery before releasing an intent after transaction rejection", async () => {
     let reads = 0
     let resumeRead

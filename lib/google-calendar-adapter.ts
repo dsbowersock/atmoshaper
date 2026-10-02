@@ -123,8 +123,8 @@ export function decodeGoogleCalendarIdTokenClaims(idToken?: string | null): Goog
 export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?: FetchImpl } = {}) {
   /** Bound transport and parsing together, except new-event inserts whose ID must not be discarded. */
   async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200], { timeoutRequest = true, onAttempt }: { timeoutRequest?: boolean; onAttempt?: () => void } = {}) {
-    // Bound ordinary requests and honor the callback's shared discovery deadline:
-    // many short paginated requests must not outlive the transaction lock.
+    // Bound ordinary requests and honor the caller's shared provider deadline;
+    // many successful pages must not extend the aggregate read budget.
     const requestDeadline = timeoutRequest ? AbortSignal.timeout(GOOGLE_REQUEST_TIMEOUT_MS) : undefined
     const signal = init.signal && requestDeadline ? AbortSignal.any([init.signal, requestDeadline]) : init.signal ?? requestDeadline
     signal?.throwIfAborted()
@@ -195,10 +195,12 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     clientId,
     clientSecret,
     refreshToken,
+    signal,
   }: {
     clientId: string
     clientSecret: string
     refreshToken: string
+    signal?: AbortSignal
   }) {
     return googleJson<{ access_token: string; expires_in?: number; scope?: string; token_type?: string }>(GOOGLE_TOKEN_URL, {
       method: "POST",
@@ -209,6 +211,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
         refresh_token: refreshToken,
         grant_type: "refresh_token",
       }),
+      signal,
     })
   }
 
@@ -262,10 +265,10 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     return calendar
   }
 
-  /** Read-only target check used before either inbound or outbound sync. */
-  async function validateDedicatedCalendar(accessToken: string, { providerAccountId, calendarId }: { providerAccountId: string; calendarId: string }) {
-    await validateAccount(accessToken, providerAccountId)
-    return validateCalendar(accessToken, calendarId, await listCalendars(accessToken))
+  /** Read-only target check; all account, inventory, and metadata calls share the caller's deadline. */
+  async function validateDedicatedCalendar(accessToken: string, { providerAccountId, calendarId, signal }: { providerAccountId: string; calendarId: string; signal?: AbortSignal }) {
+    await validateAccount(accessToken, providerAccountId, signal)
+    return validateCalendar(accessToken, calendarId, await listCalendars(accessToken, signal), signal)
   }
 
   /** Read-only discovery: absence is distinct from an invalid or ambiguous target. */
@@ -303,19 +306,21 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     return validateCalendar(accessToken, created.id, await listCalendars(accessToken, signal), signal)
   }
 
-  /** Read every event page using either a saved sync token or the bounded initial import window. */
+  /** Read every event page in the caller's aggregate budget, without returning a partial cursor on abort. */
   async function listEvents({
     accessToken,
     calendarId,
     timeMin,
     timeMax,
     syncToken,
+    signal,
   }: {
     accessToken: string
     calendarId: string
     timeMin?: string
     timeMax?: string
     syncToken?: string | null
+    signal?: AbortSignal
   }) {
     const url = new URL(`${GOOGLE_CALENDAR_API}/calendars/${encodeURIComponent(calendarId)}/events`)
     url.searchParams.set("singleEvents", "true")
@@ -338,6 +343,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
 
       const page = await googleJson<GoogleCalendarEventsPage>(pageUrl.toString(), {
         headers: authHeaders(accessToken),
+        signal,
       })
       items.push(...(page.items ?? []))
       pageToken = page.nextPageToken

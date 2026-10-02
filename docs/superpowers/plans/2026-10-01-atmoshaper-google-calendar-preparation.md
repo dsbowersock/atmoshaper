@@ -95,6 +95,13 @@ direction is outside this AtmoShaper migration work.
   a shared 30-second provider deadline start before lock acquisition and stop
   further paginated requests before the 45-second transaction expires.
   Read-only target validation also precedes inbound and outbound sync.
+- Outside the callback, inbound token refresh, target validation, and all selected
+  sources' event pages share a 60-second provider read budget. Outbound target
+  validation has a separate 30-second read budget. Cached and refreshed tokens
+  forward the deadline through account, paginated inventory, and metadata checks.
+  An exhausted inbound source records failure without advancing its old cursor,
+  stops later sources, and does not mark the refresh completed. Database commits
+  and already-dispatched new-event POST responses are outside these read budgets.
 - New event inserts preserve the existing provider-generated ID and wait
   behavior. An introduced local timeout could discard an accepted POST's ID
   and cause a duplicate retry. Reads and existing-ID updates remain bounded;
@@ -127,17 +134,20 @@ direction is outside this AtmoShaper migration work.
 - Provider-free tests exercise the actual adapter, callback, and service.
   Provider consent, scope behavior, transaction timeouts, interrupted creation,
   and isolated acceptance still require the separately authorized QA stage.
-- Current local receipt: the named Calendar group passes 75/75, including
+- Current local receipt: the named Calendar group passes 81/81, including
   inactive-history, provider deadlines, deferred event inserts, accepted but
   invisible calendar creation, final-transaction rollback, and direct disconnect
   protection, proven pre-POST retry/release safeguards, and late-discovery
-  cancellation. The transaction
+  cancellation, aggregate validation/event pagination, and outbound ID retention
+  after read-budget exhaustion. The transaction
   double models rollback; it does not prove live PostgreSQL concurrency.
   Initial CI and the first local repair run found the stale project-state date
   ceiling; its bound now matches the October 2 evidence. The preceding runtime
   full suite passed 5,094 of 5,097 tests with three skips and no failures.
   The final pre-POST retry's lint, typecheck, build, diff checks, and all 65
-  documentation links pass; its complete-regression receipt is tracked in PR #36. Required
+  documentation links pass. The aggregate-pagination follow-up also passes lint,
+  typecheck, build, diff checks, and all 90 relative links in the current migration
+  docs; its complete-regression receipt is tracked in PR #36. Required
   final-head hosted follow-up is tracked in PR #36. Local builds skip the
   Vercel Production migration gate and do not deploy. Historical
   pre-publication validation remains in the dated project log.

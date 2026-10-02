@@ -12,6 +12,11 @@ import { prisma } from "./prisma.ts"
 
 type CalendarDb = typeof prisma | Prisma.TransactionClient
 const GOOGLE_API_STATUS_ERROR_PATTERN = /^Google Calendar request failed with status (\d+)\.$/
+// Inbound reads include every selected source; outbound reads only validate one
+// target. These aggregate provider budgets do not bound database commit time or
+// new-event POSTs, whose generated IDs must survive their existing wait contract.
+const GOOGLE_INBOUND_READ_BUDGET_MS = 60_000
+const GOOGLE_OUTBOUND_READ_BUDGET_MS = 30_000
 
 /**
  * Keep Calendar metadata/write access limited to calendars created by this app.
@@ -112,10 +117,12 @@ export function cancelledGoogleEventIds(
  * Returns a usable access token for an active Google connection.
  * Cached encrypted access tokens are reused until near expiry; otherwise the
  * stored refresh token is exchanged and the refreshed token is persisted.
+ * Both paths validate the target within the caller's aggregate provider budget.
  */
 export async function refreshGoogleAccessToken(
   connectionId: string,
   adapter: GoogleCalendarAdapter = createGoogleCalendarAdapter(),
+  signal: AbortSignal = AbortSignal.timeout(GOOGLE_OUTBOUND_READ_BUDGET_MS),
 ) {
   const config = getGoogleCalendarSyncConfig()
   if (!config) throw new Error("Google calendar sync is not configured.")
@@ -129,7 +136,7 @@ export async function refreshGoogleAccessToken(
 
   if (connection.encryptedAccessToken && connection.accessTokenExpiresAt && connection.accessTokenExpiresAt.getTime() > Date.now() + 60_000) {
     const accessToken = decryptCalendarSyncSecret(connection.encryptedAccessToken)
-    await adapter.validateDedicatedCalendar(accessToken, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId })
+    await adapter.validateDedicatedCalendar(accessToken, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId, signal })
     return accessToken
   }
 
@@ -138,9 +145,10 @@ export async function refreshGoogleAccessToken(
     clientId: config.clientId,
     clientSecret: config.clientSecret,
     refreshToken,
+    signal,
   })
   assertGoogleCalendarSyncScopes(token.scope ?? connection.grantedScopes)
-  await adapter.validateDedicatedCalendar(token.access_token, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId })
+  await adapter.validateDedicatedCalendar(token.access_token, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId, signal })
   const accessTokenExpiresAt = token.expires_in ? new Date(Date.now() + token.expires_in * 1000) : null
 
   await prisma.calendarConnection.update({
@@ -161,6 +169,7 @@ export async function refreshGoogleAccessToken(
  * Imports selected Google calendars into generic busy blocks for one connection.
  * It locks the parent connection row while writing busy data so scheduling
  * transactions can coordinate against concurrent inbound sync writes.
+ * One shared read budget covers validation and every source's event pagination.
  */
 export async function syncGoogleConnectionSources({
   connectionId,
@@ -171,7 +180,8 @@ export async function syncGoogleConnectionSources({
   adapter?: GoogleCalendarAdapter
   now?: Date
 }) {
-  const accessToken = await refreshGoogleAccessToken(connectionId, adapter)
+  const providerDeadline = AbortSignal.timeout(GOOGLE_INBOUND_READ_BUDGET_MS)
+  const accessToken = await refreshGoogleAccessToken(connectionId, adapter, providerDeadline)
   const connection = await prisma.calendarConnection.findUnique({
     where: { id: connectionId },
     include: { sources: true },
@@ -183,6 +193,7 @@ export async function syncGoogleConnectionSources({
   let itemsChanged = 0
 
   for (const source of connection.sources.filter((item) => item.selectedForBusySync)) {
+    providerDeadline.throwIfAborted()
     const run = await prisma.calendarSyncRun.create({
       data: {
         connectionId: connection.id,
@@ -201,6 +212,7 @@ export async function syncGoogleConnectionSources({
         timeMin: source.syncToken ? undefined : window.startsAt.toISOString(),
         timeMax: source.syncToken ? undefined : window.endsAt.toISOString(),
         syncToken: source.syncToken,
+        signal: providerDeadline,
       })
       const events = payload.items ?? []
       const deletedProviderEventIds = cancelledGoogleEventIds(events)
@@ -285,6 +297,8 @@ export async function syncGoogleConnectionSources({
         where: { id: source.id },
         data: syncSourceFailurePatch(error),
       })
+      // Preserve this source's old cursor and stop starting more provider work.
+      providerDeadline.throwIfAborted()
     }
   }
 
@@ -370,6 +384,7 @@ export function outboundSyncFailurePatch(error: unknown) {
 /**
  * Pushes one eligible MassageLab calendar event into the dedicated Google
  * calendar and stores the Google event link for future reconciliation.
+ * Target reads have a separate budget; new inserts still await their returned ID.
  */
 export async function pushCalendarEventToGoogle(
   calendarEventId: string,
@@ -392,7 +407,8 @@ export async function pushCalendarEventToGoogle(
   })
   if (!connection?.dedicatedCalendarId) return { skipped: true }
 
-  const accessToken = await refreshGoogleAccessToken(connection.id, adapter)
+  const providerDeadline = AbortSignal.timeout(GOOGLE_OUTBOUND_READ_BUDGET_MS)
+  const accessToken = await refreshGoogleAccessToken(connection.id, adapter, providerDeadline)
   const existingLink = event.externalCalendarLinks.find((link) => link.connectionId === connection.id) ?? null
   // A provider event ID is meaningful only within its original calendar.
   // Never PATCH or DELETE a stale mapping through a different target.
@@ -402,6 +418,7 @@ export async function pushCalendarEventToGoogle(
   const action = outboundSyncActionForStatus(event.status)
 
   if (action === "SKIP") return { skipped: true }
+  providerDeadline.throwIfAborted()
 
   if (action === "DELETE" && existingLink?.providerEventId) {
     await adapter.deleteEvent({

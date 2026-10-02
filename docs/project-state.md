@@ -43,13 +43,23 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   conservative recovery. Generic errors and empty listings alone remain
   insufficient evidence for clearing an intent.
   Existing fields carry this additive state; no schema migration is added.
-  Provider-free adapter/callback/service/action regressions pass 75/75.
+  CodeRabbit's full review found a remaining aggregate pagination gap outside
+  the callback. Inbound validation and all selected sources' event reads now
+  share a 60-second provider budget; outbound validation has its own 30-second
+  read budget. Cached and refreshed tokens forward that deadline through account,
+  inventory, and metadata checks. An exhausted inbound run keeps its old cursor,
+  records failure, and stops later sources. New-event inserts still retain their
+  returned IDs when the read deadline expires after dispatch. These are provider
+  read budgets, not database-commit or new-event POST time limits.
+  Provider-free adapter/callback/service/action regressions pass 81/81.
   Initial CI also
   found a stale project-state date ceiling; its bound now matches this verified
   date. The preceding runtime full suite passed 5,094 of 5,097 tests with three
   skips and no failures. The final pre-POST retry's lint, typecheck, build,
-  diff checks, and all 65 relative documentation links pass. Its complete
-  regression and hosted-review receipts are tracked in PR #36.
+  diff checks, and all 65 relative documentation links pass. The aggregate-pagination
+  follow-up also passes lint, typecheck, build, diff checks, and all 90 relative
+  links in the current migration docs. Its complete regression and hosted-review
+  receipts are tracked in PR #36.
   Required final-head hosted checks and reviews are
   tracked in PR #36;
   merge remains separately authorized. This is source preparation,

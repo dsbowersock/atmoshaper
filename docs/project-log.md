@@ -2,6 +2,26 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 aggregate read budgets
+
+- Full CodeRabbit review of `9759195` covered all eighteen files and found a
+  valid remaining gap: ordinary inbound/outbound target validation paginated
+  without a shared deadline, unlike the callback's lock-held discovery.
+- Inbound token refresh, identity/target validation, and selected event pages
+  now share a 60-second provider read budget. Outbound target validation uses
+  a separate 30-second budget. Eight-second per-request limits remain. Inbound
+  exhaustion records the failed source without advancing its cursor, stops
+  later sources, and does not report a completed refresh. Database commits are
+  not limited by these provider signals. New-event POSTs retain their existing
+  wait contract so an accepted provider-generated ID cannot be discarded.
+- Five regressions first failed against the published source. Six new cases
+  cover cached/refreshed validation in both directions, aborted event pagination,
+  and an accepted outbound ID returned after its read deadline expires. The
+  focused Calendar group passes 81/81; lint, typecheck, local build, diff checks,
+  and all 90 relative links in the current migration docs pass. Complete regression and
+  required final-head hosted follow-up are tracked in PR #36. No provider,
+  deployment, database, billing, or Calendar activation action occurred.
+
 ## 2026-10-02 — Calendar PR #36 retries proven pre-POST failures
 
 - A valid Codex thread on the intermediate documentation head identified a
