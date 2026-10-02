@@ -9,6 +9,23 @@ completed provider bootstrap, controlled live payment/refund, and activation
 receipts below are not instructions to repeat those operations. A new build,
 deployment, provider write, or pause change requires its own exact authority.
 
+## Current Project Name And Repository Connection
+
+The user's 2026-10-02 Dashboard screenshot confirms that the existing project
+serving `www.atmoshaper.com` retains its preview-era name and shows `Connect Git
+Repository`. The completed live launch used CLI deployments. PR #36's
+source-only merge did not trigger a new deployment; the deployed runtime remains
+reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+
+Follow the [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+to prepare the existing project's name and Git connection. Connecting Git can
+trigger builds automatically, so read the actual Production branch/promotion
+controls and alias assignments before requesting provider-write authority.
+The proposed default is staged Production builds with manual promotion.
+No connection, rename, control change, build, or promotion is authorized by the
+Calendar source merge. Do not create a replacement project or ask the user to
+repeat the satisfied Git-status observation.
+
 ## Core Environment
 
 Use Neon's pooled connection string for runtime Prisma Client connections:

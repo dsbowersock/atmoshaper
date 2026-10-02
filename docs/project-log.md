@@ -2,6 +2,38 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar source merged; Vercel integration gap confirmed
+
+- The user explicitly approved merging PR #36. The merge used the unchanged
+  reviewed head `0c3241cb3052877f07453d31b97b71ae4337e3eb` as its expected
+  head and completed at `18:17:55Z` as
+  `154f9b6d440e0842892b96e185190c5be1ed2e22`. Fresh GitHub readback confirms
+  it is merged. All seven exact-head CI jobs pass; full CodeRabbit coverage of
+  all eighteen files has no actionable comments or retained architecture
+  concerns, Codex reports no findings, and no review threads remain unresolved.
+- Final local receipts for that reviewed source: 81 focused Calendar passes;
+  5,108 full-suite tests, 5,105 passed, three expected skips, zero failures;
+  lint, typecheck, build, diff checks, and 90 relative migration-doc links pass.
+  These are the completed source receipts, not new provider acceptance.
+- The user's current Vercel Dashboard screenshot shows the existing live
+  AtmoShaper project's preview-era name and `Connect Git Repository`.
+  It resolves the earlier manual Git-status question: currently disconnected.
+  Existing hosting and sign-in were already operational; the live launch used
+  explicit CLI deployments. Fresh post-merge deployment reads report the same
+  latest `READY` Production/CLI deployment. PR #36 did not deploy, and the
+  public runtime remains reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+- Prepared the [existing-project Vercel integration plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+  for the project name, Git connection, manual promotion control, configuration
+  readback, and rollback. The project-detail connector's argument mismatch,
+  unavailable local CLI login, and unavailable browser policy check still
+  prevent a full current settings read. Do not bypass those access limits.
+  The screenshot need not be requested again.
+- This continuation performed the authorized source merge and local
+  documentation preparation only. No Vercel rename/connection, build, promotion,
+  provider configuration, database write, Calendar activation, old-site change,
+  or repeated live payment test occurred. Registration and recurring Supporter
+  Checkout remain open; one-time support and background purchases remain disabled.
+
 ## 2026-10-02 — Calendar PR #36 aggregate read budgets
 
 - Full CodeRabbit review of `9759195` covered all eighteen files and found a
