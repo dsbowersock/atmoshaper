@@ -6,7 +6,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 ## Current Snapshot — Registration and Supporter Checkout Open
 
-- Current `main` is `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+- Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
   `896c6d3edd369ca13c8140f22f37c4ee239c84da`, with exact-head Codex and
   CodeRabbit coverage and no unresolved actionable review threads. The full
@@ -87,8 +87,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   failures or skips. Two new expansion regressions first failed as expected.
   PR #34's hosted CI and remote verification receipts cover their exact source,
   not this documentation follow-up. The existing clean rollout worktree now
-  hosts `codex/atmoshaper-supporter-launch-closeout` for the receipt and proposed
-  activation plan; it changes no runtime or provider configuration.
+  hosts `codex/atmoshaper-supporter-launch-closeout` for the executed receipt,
+  current operator runbooks, and separate Calendar preparation plan; it changes
+  no runtime or provider configuration.
   The optional brand audit has stale exact occurrence rules from earlier
   Stripe identity changes; those broader audit receipts are not repaired by
   this readiness-only branch.

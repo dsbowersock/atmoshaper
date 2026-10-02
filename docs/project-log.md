@@ -4,6 +4,11 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 
 ## 2026-10-01 — Public registration and recurring Supporter activation
 
+- Review identified stale pre-launch wording in the stable billing and release
+  runbooks. Reconciled their current sections with the completed activation,
+  exact v2 topology, scoped read-only verification, disabled purchase flows,
+  and preserved historical receipts. This repair changes documentation only;
+  it does not rerun provider setup, catalog migration, or the live payment test.
 - The user clarified that MassageLab will continue after the migration as a
   separate project. The user then kept its future direction outside this work; the
   current AtmoShaper platform migration keeps its approved scope. Preserve the
