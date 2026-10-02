@@ -4,15 +4,15 @@ Verified: 2026-10-01
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Supporter-only Readiness PR
+## Current Snapshot — Supporter Portal Catalog Readback
 
-- Current `main` is `fcff28c01ebd545f310679961b7ca0da19e19c13`.
-  PRs #30–#32 are merged: live default-Portal topology, restricted runtime
-  credentials, and contract-versioned Checkout idempotency are in that base.
-  The clean existing Stripe rollout worktree now hosts
-  `codex/atmoshaper-supporter-only-readiness`. This snapshot records the local
-  candidate; its containing readiness PR owns current exact-head hosted review
-  and CI evidence, which must be checked before any merge decision.
+- Current `main` is `26413ee091e960a24a0eb3d67c25cfa0caafbf89`.
+  PR #33 merged after all seven hosted CI jobs and exact-head Codex and
+  CodeRabbit reviews passed, with no actionable review threads. PRs #30–#32's
+  live default topology, restricted runtime credentials, and Checkout
+  idempotency contracts remain in that base. The existing rollout worktree now
+  hosts `codex/stripe-portal-catalog-readback`; its containing PR owns current
+  exact-head checks and review before any separate merge decision.
 - The approved readiness scope is recurring Supporter membership only.
   `stripe:readiness -- --supporter-only --live --verify-stripe` still requires
   credentials, all twelve unique v2 Prices, recurring-tax attestations, both
@@ -25,17 +25,25 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   cancellation, full refund, and signed-webhook convergence. This branch does
   not repeat it. Earlier no-payment/no-subscription cutover statements below
   describe historical provider checkpoints.
-- Public registration and Supporter Checkout remain paused. This branch makes
-  no runtime, environment, provider, deployment, or payment change and does not
-  authorize public activation. Both Portal catalogs still require fresh
-  Dashboard confirmation when Stripe omits them; Vercel write-only credentials
-  still require verification in a trusted environment that actually has them.
-  Unexportable secrets are not evidence that deployed secrets are missing.
-- Provider-free focused CLI and webhook regressions pass 60/60, with zero
-  failures or skips. Full tests pass with 5,050 passed, three documented skips,
-  and zero failures across 5,053 tests. Prisma validation, typecheck, lint,
-  diff hygiene, and the production build (115 static pages) pass. These are
-  local receipts, not hosted PR acceptance or live activation evidence.
+- The read-only checker explicitly expands
+  `features.subscription_update.products` when retrieving each managed Portal.
+  Live API readback then exposes both exact three-Product/six-Price catalogs;
+  the repository validators confirm those catalogs, twelve deployed Price
+  mappings, six-Product topology, recurring-tax attestations, and the pinned
+  webhook without operator catalog confirmation. Stripe's Dashboard manages
+  only the default personal Portal; the non-default business Portal uses the
+  API. Ordinary list calls retain their existing no-expansion contract.
+- Fresh production configuration confirms both public pauses are `true` and
+  the one-time support and background-purchase switches are unset. The current
+  production deployment remains `READY`. No runtime, environment, provider,
+  deployment, or payment change occurs. Vercel's write-only Stripe credentials
+  still require full CLI verification in a trusted process that actually has
+  them. A temporary config export contained secret placeholders and was
+  removed; its failed credential checks do not prove deployed secrets missing.
+- Provider-free focused CLI and webhook regressions pass 62/62, with zero
+  failures or skips. Two new expansion regressions first failed as expected.
+  PR #33's full-suite, build, Prisma, typecheck, and lint receipts remain
+  historical supporting evidence; this branch's hosted CI must pass separately.
   The optional brand audit has stale exact occurrence rules from earlier
   Stripe identity changes; those broader audit receipts are not repaired by
   this readiness-only branch.

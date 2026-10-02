@@ -248,11 +248,13 @@ env-file alternative and the write-only Vercel secret limitation.
   Prices, full-union reconciliation uniqueness, both use-specific Portals,
   personal-default/business-non-default topology, and all fifteen pinned
   webhook events. The scope flag does not waive any of these checks.
-- When Stripe omits the managed Portal catalogs, freshly inspect both
-  Dashboard configurations for exactly their three use-specific Products and
-  six Prices, with quantity changes disabled. Supply the exact managed catalog
-  confirmation only in that verification process; never persist it. Visible
-  API drift remains authoritative.
+- Retrieve each managed Portal with the explicit
+  `features.subscription_update.products` expansion and require exactly three
+  use-specific Products and six Prices with quantity changes disabled. The
+  checker requests this expansion; API-visible drift remains authoritative.
+  Dashboard only manages the default personal Portal, so its view cannot
+  attest the non-default business catalog. Never supply the existing
+  omission-only confirmation without independent evidence for both catalogs.
 - Preserve the completed controlled live Supporter payment, cancellation,
   refund, and webhook convergence receipt. Do not repeat that live payment test
   for a readiness-only change.

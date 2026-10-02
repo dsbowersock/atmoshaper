@@ -129,6 +129,30 @@ describe("Supporter-only readiness CLI", () => {
     assert.equal(drift.status, 1)
   })
 
+  it("retrieves both managed catalogs through explicit expansion without operator confirmation", () => {
+    const result = runSupporterReadiness({
+      STRIPE_READINESS_STUB_MANAGED_PRODUCTS_REQUIRE_EXPANSION: "true",
+    })
+    assert.equal(result.status, 0, result.stderr || result.stdout)
+    for (const supporterUse of ["personal", "business"]) {
+      assert.match(result.stdout, new RegExp(`Supporter ${supporterUse} Portal catalog evidence: stripe_api`))
+      assert.match(result.stdout, new RegExp(`Supporter ${supporterUse} Portal configuration verified: true`))
+    }
+  })
+
+  it("rejects expanded catalog drift for either use even with operator confirmation", () => {
+    for (const supporterUse of ["personal", "business"]) {
+      const result = runSupporterReadiness({
+        STRIPE_READINESS_STUB_MANAGED_PRODUCTS_REQUIRE_EXPANSION: "true",
+        STRIPE_READINESS_STUB_INVALID_PORTAL_ALLOWLIST: supporterUse,
+        ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION: MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+      })
+      assert.equal(result.status, 1, supporterUse)
+      assert.match(result.stderr, new RegExp(`Product and Price allowlist does not match the ${supporterUse} Supporter catalog`))
+      assert.match(result.stdout, new RegExp(`Supporter ${supporterUse} Portal catalog evidence: stripe_api`))
+    }
+  })
+
   it("keeps the complete pinned webhook contract even with background purchases disabled", () => {
     for (const drift of ["missing", "disabled", "api-version", "events"]) {
       const result = runSupporterReadiness({ STRIPE_READINESS_STUB_INVALID_WEBHOOK: drift })

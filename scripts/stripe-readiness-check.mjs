@@ -555,7 +555,11 @@ async function verifyStripePrices() {
   }
   for (const [configurationId, { key, supporterUse }] of portalConfigurationIds) {
     try {
-      const configuration = await stripe.billingPortal.configurations.retrieve(configurationId)
+      // Stripe omits this catalog unless explicitly expanded. Read both managed
+      // allowlists from the API; the Dashboard only manages the default Portal.
+      const configuration = await stripe.billingPortal.configurations.retrieve(configurationId, {
+        expand: ["features.subscription_update.products"],
+      })
       const managedPortalCatalogConfirmation = envValue(
         "ATMOSHAPER_STRIPE_MANAGED_PORTAL_CATALOG_CONFIRMATION",
       )
