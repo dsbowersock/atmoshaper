@@ -8,6 +8,7 @@ import { GOOGLE_CALENDAR_CREATION_PENDING_REASON } from "@/lib/calendar-sync-con
 import { syncGoogleConnectionSources } from "@/lib/calendar-sync-service"
 import { prisma } from "@/lib/prisma"
 
+/** Require the authenticated application user before any connection or source mutation. */
 async function currentUserId() {
   const session = await getCurrentSession()
   if (!session?.user?.id) throw new Error("Sign in before managing calendar sync.")
@@ -33,6 +34,7 @@ export async function disconnectGoogleCalendarAction(formData: FormData) {
   redirect("/calendar/sync?google=disconnected")
 }
 
+/** Import busy time only for an owned active connection after checking external-sync access. */
 export async function refreshGoogleCalendarAction(formData: FormData) {
   const userId = await currentUserId()
   await assertGoogleCalendarSyncAccess(userId)
@@ -49,6 +51,7 @@ export async function refreshGoogleCalendarAction(formData: FormData) {
   redirect("/calendar/sync?google=refreshed")
 }
 
+/** Save the owned connection's source selection, reset cursors, then import its selected busy time. */
 export async function saveGoogleCalendarSourceSelectionAction(formData: FormData) {
   const userId = await currentUserId()
   await assertGoogleCalendarSyncAccess(userId)

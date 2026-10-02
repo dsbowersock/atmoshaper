@@ -2,6 +2,18 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 full review and action documentation
+
+- Full CodeRabbit review admitted at its next included window covered all
+  seventeen files through `2cb9a0a` and finished with no actionable comments.
+  Codex also reviewed that head without findings; all original threads resolved.
+- Its non-blocking documentation metric was 78.79%, below the configured 80%
+  threshold. Added focused JSDoc for shared action authentication, active
+  connection refresh, and source-selection/cursor rules. This follow-up changes
+  documentation only; runtime behavior and the 70/70 focused and 5,094/5,097
+  full-suite receipts are unchanged. Current-head hosted follow-up is tracked
+  in PR #36; this entry does not authorize a merge or deployment.
+
 ## 2026-10-02 — Calendar PR #36 protects creation intent during disconnect
 
 - Codex reviewed `34e5e09` without findings. CodeRabbit independently inspected
