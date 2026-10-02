@@ -4,6 +4,12 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 
 ## 2026-10-01 — Public registration and recurring Supporter activation
 
+- After the read-only legacy routing check, the user chose to keep the full
+  MassageLab site available alongside AtmoShaper. No old-domain deployment or
+  routing change is authorized by that preference. Preserve the full existing
+  service, local records, authentication, and legacy billing; migration to the
+  new site does not authorize redirects, cancellations, transfer, or retirement.
+
 - The user explicitly authorized the prepared two-flag activation, one build,
   conditional promotion, and bounded rollback. That approval replaced the
   earlier instruction to keep public registration and Checkout paused; excluded

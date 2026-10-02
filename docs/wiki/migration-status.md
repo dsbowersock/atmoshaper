@@ -25,12 +25,18 @@ proves current public routing, not access to browser records on the apex origin,
 encrypted export/import, old-origin authentication, or installed-PWA recovery.
 The Phase 8 proof must distinguish those origins before any retirement decision.
 
+The user chose to keep the full MassageLab site available alongside AtmoShaper.
+Preserve its current deployment and routing, local-data access, authentication,
+and billing endpoints. Do not prepare an old-to-AtmoShaper redirect or retire
+the old service by default. Account, record, membership, and endpoint transfers
+or retirement remain separate decisions with their own evidence and approval.
+
 ## Remaining migration ledger
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |
 | Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
-| Legacy Stripe and endpoint retirement | The 2026-09-27 audit recorded legacy subscriptions; that inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence without creating a Session or changing objects; preserve both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
+| Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
 | Google Calendar | Separate OAuth/client/callback readiness and a generated-calendar-name compatibility decision remain unverified here | Inventory current callback/scopes and the stable calendar summary lookup; prepare the exact provider setup and readback | Ask before client/callback writes, calendar creation/sync, or renaming the discovery summary |
 | Ably realtime | The historical provider audit documents polling fallback; no hosted isolated-realtime parity receipt is added by this launch | Verify fallback configuration and prepare an isolated connectivity plan if realtime is wanted | Ask whether to retain fallback or authorize a scoped Ably setup; no room publication, presence mutation, channel rename, or key rotation |
 | Sentry | Public activation adds no monitoring-project or credential configuration; build-plugin telemetry is not evidence of application monitoring | Inventory sanitized runtime configuration and the existing privacy boundary | Ask before enabling a project or DSN. Session Replay, screenshots, attachments, logs, and broader feedback remain gated |
