@@ -29,8 +29,8 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   predates the final two focused refresh/mapping regressions. The last mapping
   guard and those regressions pass in the current focused group. Local lint,
   typecheck, production build, diff checks, and all 65 relative documentation
-  links pass. Publication/hosted review awaits separate authorization; the new
-  implementation is not deployed or activated.
+  links pass. The user authorized publication and CodeRabbit shepherding;
+  hosted review is pending. The new implementation is not deployed or activated.
 - The exact Google Cloud/OAuth target remains a provider-stage input. No provider
   setting, calendar, token/row migration, environment, deployment, payment, or
   old-site mutation was performed. The prior live payment test remains complete.

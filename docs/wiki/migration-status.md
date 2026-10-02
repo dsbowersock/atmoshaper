@@ -46,8 +46,8 @@ or any user's connection or records.
 The provider-free Calendar branch now prepares account-bound, marked-calendar
 discovery and stored-ID reconnects, with 55 focused regressions passing. Its
 local regression, lint, typecheck, build, and documentation checks pass;
-publication and hosted review await authorization. This source preparation
-does not identify or configure the Cloud project/client, validate hosted consent,
+publication and CodeRabbit shepherding are authorized; hosted review is pending.
+This source preparation does not identify or configure the Cloud project/client, validate hosted consent,
 create a calendar, or activate Calendar sync.
 
 ## Remaining migration ledger

@@ -1,6 +1,6 @@
 # AtmoShaper Google Calendar preparation
 
-Status: locally prepared; publication and hosted review pending authorization,
+Status: locally prepared; publication and CodeRabbit shepherding authorized,
 2026-10-02. The user selected
 a separate calendar named `AtmoShaper`. Repository preparation is authorized by
 the migration continuation; provider configuration and public activation remain
@@ -111,7 +111,7 @@ direction is outside this AtmoShaper migration work.
   schema, parallel provider owner, or dependency was added. Compatibility
   identifiers are retained for both projects and require a separate proven
   migration before retirement. No provider behavior is claimed from fixtures.
-- Next steps: obtain permission to publish this focused branch/PR, trigger
+- Next steps: publish this user-authorized focused branch/PR, trigger
   CodeRabbit when eligible and shepherd the reviewed head, then identify the
   authorized Cloud/OAuth target and prepare the exact provider/QA proposal.
 

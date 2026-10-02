@@ -20,10 +20,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Provider-free adapter/callback/service regressions pass 55/55. The full
   regression run passed 5,077 tests with three skips and no failures; the final
   added refresh/mapping checks pass in the focused group. Local lint, typecheck,
-  build, and documentation-link checks pass. Publication and hosted review are
-  pending authorization; this is local preparation, not integration readiness.
-  No provider configuration, calendar
-  creation, hosted database write, deployment, or Calendar activation occurred.
+  build, and documentation-link checks pass. Publication and CodeRabbit review
+  are authorized; hosted checks/reviews remain pending. This is local preparation,
+  not integration readiness. No provider configuration, calendar creation,
+  hosted database write, deployment, or Calendar activation occurred.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
