@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 initial review repairs
+
+- Published [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36) under the
+  user's explicit source-publication and CodeRabbit shepherding approval.
+  The initial full CodeRabbit review covered all fifteen files; Codex also
+  reviewed the published head. Both returned one valid finding.
+- Inactive connections for another Google account remain historical rows and
+  no longer block a new connection. An active account still requires explicit
+  disconnect before replacement; a returning account's stored target remains
+  authoritative and must pass validation, even when its row is inactive.
+- Google requests now have an eight-second limit. A shared 30-second deadline
+  starts before lock acquisition and covers discovery, creation/readback, and
+  source inventory, leaving room within the 45-second transaction budget.
+  Paginated responses cannot start another provider request after that deadline.
+  These limits retain discovery and creation under the user-row lock; they do
+  not make a Google write atomic with the database transaction.
+- Added regressions for all three inactive statuses, valid and invalid returning
+  targets, single-request aborts, and paginated deadline exhaustion. The focused
+  Calendar group passes 62/62. Initial CI and the first local repair run found
+  only the stale project-state date ceiling; aligned it with October 2 evidence.
+  The final full suite passes 5,086 of 5,089 tests with three expected skips and
+  no failures. Lint, typecheck, build, diff checks, and all 65 relative links in
+  changed docs pass. The local build skipped the Vercel Production migration
+  gate and did not deploy. Required final-head hosted follow-up is tracked in
+  PR #36.
+- Merge, provider setup, live acceptance, deployment, and public Calendar
+  activation are outside this approval. No old-site, payment, or provider change
+  was performed.
+
 ## 2026-10-02 — Separate AtmoShaper Calendar compatibility preparation
 
 - Verified hosted `main` at PR #35 merge

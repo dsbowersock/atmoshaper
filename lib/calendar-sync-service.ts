@@ -567,8 +567,8 @@ export async function saveGoogleCalendarConnection({
       FOR UPDATE
     `
     const existing = await tx.calendarConnection.findMany({ where: { userId, provider: GOOGLE_CALENDAR_PROVIDER } })
-    if (existing.some((connection) => connection.providerAccountId !== providerAccountId
-      || (connection.dedicatedCalendarId && connection.dedicatedCalendarId !== dedicatedCalendarId))) {
+    if (existing.some((connection) => (connection.status === "ACTIVE" && connection.providerAccountId !== providerAccountId)
+      || (connection.providerAccountId === providerAccountId && connection.dedicatedCalendarId && connection.dedicatedCalendarId !== dedicatedCalendarId))) {
       throw new GoogleCalendarConnectionError("target", "Disconnect the existing Google calendar connection before changing accounts or targets.")
     }
 
@@ -625,15 +625,20 @@ export async function connectGoogleCalendar({ userId, token, adapter = createGoo
   assertGoogleCalendarSyncScopes(token.scope)
   const providerAccountId = token.googleUserId
   const refreshToken = token.refresh_token
+  // Start before lock acquisition; leave 15 seconds of the transaction budget
+  // for database work, and stop paginated provider calls before lock expiry.
+  const providerDeadline = AbortSignal.timeout(30_000)
   const connection = await prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`
     const existing = await tx.calendarConnection.findMany({ where: { userId, provider: GOOGLE_CALENDAR_PROVIDER } })
-    if (existing.some((item) => item.providerAccountId !== providerAccountId)) {
+    // Superseded/inactive rows are retained history, not a second active account.
+    if (existing.some((item) => item.status === "ACTIVE" && item.providerAccountId !== providerAccountId)) {
       throw new GoogleCalendarConnectionError("account", "Disconnect the existing Google calendar connection before changing accounts.")
     }
     const dedicatedCalendar = await adapter.ensureDedicatedCalendar(token.access_token, {
       providerAccountId,
-      storedCalendarId: existing[0]?.dedicatedCalendarId,
+      storedCalendarId: existing.find((item) => item.providerAccountId === providerAccountId)?.dedicatedCalendarId,
+      signal: providerDeadline,
     })
     const saved = await saveGoogleCalendarConnection({
       userId, providerAccountId, accountEmail: token.googleUserEmail ?? null,
@@ -642,9 +647,10 @@ export async function connectGoogleCalendar({ userId, token, adapter = createGoo
       dedicatedCalendarId: dedicatedCalendar.id, dedicatedCalendarSummary: dedicatedCalendar.summary, db: tx,
     })
     await upsertGoogleCalendarSources({
-      connectionId: saved.id, calendars: await adapter.listCalendars(token.access_token),
+      connectionId: saved.id, calendars: await adapter.listCalendars(token.access_token, providerDeadline),
       excludedProviderCalendarIds: [dedicatedCalendar.id], db: tx,
     })
+    providerDeadline.throwIfAborted()
     return saved
   }, { timeout: 45_000 })
   await syncGoogleConnectionSources({ connectionId: connection.id, adapter })

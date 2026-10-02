@@ -43,10 +43,13 @@ Ably's server key, Sentry's DSN, and R2 upload credentials. This inventory does
 not verify existing media playback, polling behavior, provider permissions,
 or any user's connection or records.
 
-The provider-free Calendar branch now prepares account-bound, marked-calendar
-discovery and stored-ID reconnects, with 55 focused regressions passing. Its
-local regression, lint, typecheck, build, and documentation checks pass;
-publication and CodeRabbit shepherding are authorized; hosted review is pending.
+The published [Calendar PR #36](https://github.com/dsbowersock/atmoshaper/pull/36)
+prepares account-bound, marked-calendar discovery and stored-ID reconnects,
+with 62 focused regressions passing. Initial review repairs preserve inactive
+history and bound provider requests while retaining serialized discovery.
+Local full regression, lint, typecheck, build, and documentation checks pass.
+Publication and CodeRabbit shepherding are authorized; required final-head
+hosted checks and follow-up are tracked in PR #36. Merge is separately authorized.
 This source preparation does not identify or configure the Cloud project/client, validate hosted consent,
 create a calendar, or activate Calendar sync.
 

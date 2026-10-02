@@ -1,6 +1,6 @@
 # AtmoShaper Google Calendar preparation
 
-Status: locally prepared; publication and CodeRabbit shepherding authorized,
+Status: published as PR #36; CodeRabbit shepherding authorized,
 2026-10-02. The user selected
 a separate calendar named `AtmoShaper`. Repository preparation is authorized by
 the migration continuation; provider configuration and public activation remain
@@ -89,8 +89,12 @@ direction is outside this AtmoShaper migration work.
   fails closed. A validated stored ID remains authoritative after a rename.
 - The Google UserInfo subject must match the current token/connection account.
   Callback discovery and persistence share the existing user-row lock;
-  concurrent reconnects serialize. A different existing account or target
+  concurrent reconnects serialize. A different active account or saved target
   requires explicit disconnect instead of silently deleting its sync state.
+  Inactive rows for other accounts remain preserved history; a returning
+  account still validates its stored target. Eight-second request limits and
+  a shared 30-second provider deadline start before lock acquisition and stop
+  further paginated requests before the 45-second transaction expires.
   Read-only target validation also precedes inbound and outbound sync.
 - A failed provider operation can leave an owned, marked calendar before the
   database transaction commits. The next connection discovers that calendar;
@@ -98,21 +102,24 @@ direction is outside this AtmoShaper migration work.
 - Provider-free tests exercise the actual adapter, callback, and service.
   Provider consent, scope behavior, transaction timeouts, interrupted creation,
   and isolated acceptance still require the separately authorized QA stage.
-- Local receipt: the full 5,080-test run passed 5,077 with three skips and no
-  failures. Two final focused regressions subsequently added refreshed-token
-  drift and stale outbound-mapping protection; the final named Calendar group
-  passes 55/55. Lint, typecheck, the local production build, diff checks, and
-  all 65 relative links in changed documentation pass. The full run predates
-  the final mapping guard; its current call-site regression is in the focused
-  group. The local build skipped the Vercel Production migration gate and did
-  not deploy. Required final-head hosted checks and reviews remain pending.
+- Current local receipt: the named Calendar group passes 62/62, including
+  inactive-history and provider-deadline regressions added after initial review.
+  Initial CI and the first local repair run found the stale project-state date
+  ceiling; its bound now matches the October 2 evidence. The final full suite
+  passes 5,086 of 5,089 tests with three skips and no failures. Lint, typecheck,
+  build, diff checks, and all 65 relative documentation links pass. Required
+  final-head hosted follow-up is tracked in PR #36. Local builds skip the
+  Vercel Production migration gate and do not deploy. Historical
+  pre-publication validation remains in the dated project log.
 - Completion boundary: local preparation only. The existing source owners
   remain below the 800-line pressure signal; the callback is smaller and no
   schema, parallel provider owner, or dependency was added. Compatibility
   identifiers are retained for both projects and require a separate proven
   migration before retirement. No provider behavior is claimed from fixtures.
-- Next steps: publish this user-authorized focused branch/PR, trigger
-  CodeRabbit when eligible and shepherd the reviewed head, then identify the
+- Next steps: complete final-head hosted checks and reviews in the
+  user-authorized [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36),
+  triggering CodeRabbit when eligible. Merge requires separate approval.
+  Then identify the
   authorized Cloud/OAuth target and prepare the exact provider/QA proposal.
 
 API contract sources: [Calendar metadata retrieval and authorized scopes](https://developers.google.com/workspace/calendar/api/v3/reference/calendars/get),

@@ -16,12 +16,14 @@ const legacy = { id: "legacy-calendar", summary: "MassageLab", accessRole: "owne
 const token = { access_token: "fixture-access", refresh_token: "fixture-refresh", expires_in: 3600, scope: scopes, googleUserId: "subject-a" }
 
 /** Fake Google transport only; discovery and validation use the real adapter. */
-function googleFixture({ calendars = [], subject = "subject-a", pages, metadataStatus = 200, metadata, failCreation = false, refreshScope = scopes } = {}) {
+function googleFixture({ calendars = [], subject = "subject-a", pages, metadataStatus = 200, metadata, failCreation = false, refreshScope = scopes, beforeResponse = () => {} } = {}) {
   const inventory = [...calendars]
   const calls = []
   const adapter = createGoogleCalendarAdapter({ fetchImpl: async (input, init = {}) => {
+    init.signal?.throwIfAborted()
     const url = new URL(String(input))
     calls.push({ url, method: init.method ?? "GET", body: init.body })
+    beforeResponse(url)
     if (url.hostname === "oauth2.googleapis.com") return json({ access_token: "fixture-access", expires_in: 3600, scope: refreshScope })
     assert.equal(init.headers?.Authorization, "Bearer fixture-access")
     if (url.hostname === "openidconnect.googleapis.com") return json({ sub: subject })
@@ -136,13 +138,13 @@ describe("AtmoShaper Google calendar discovery", () => {
  * Loads the real service with database/encryption boundaries replaced. Each
  * callback uses the real adapter; no provider or database connection is opened.
  */
-function serviceFixture(fixture, existing = null) {
+function serviceFixture(fixture, existing = null, historical = []) {
   const calls = []
-  const state = { connection: existing, sources: [], eventLinks: [], existingEventLinks: [], busyBlocks: [] }
+  const state = { connection: existing, historical, sources: [], eventLinks: [], existingEventLinks: [], busyBlocks: [] }
   const db = {
     $queryRaw: async () => { calls.push("user-lock") },
     calendarConnection: {
-      findMany: async () => state.connection ? [state.connection] : [],
+      findMany: async () => [...state.historical, ...(state.connection ? [state.connection] : [])],
       findUnique: async () => state.connection ? { ...state.connection, sources: state.sources } : null,
       findFirst: async () => state.connection,
       upsert: async ({ create, update }) => {
@@ -196,6 +198,41 @@ function callbackFixture(service, adapter, { session = { user: { id: "user-a" } 
 }
 
 describe("Google callback and service coexistence seam", () => {
+  it("bounds and sanitizes an aborted provider request before persistence", async (t) => {
+    const timeout = AbortSignal.timeout.bind(AbortSignal)
+    t.mock.method(AbortSignal, "timeout", (duration) => {
+      if (duration === 30_000) return timeout(duration)
+      assert.equal(duration, 8_000)
+      return AbortSignal.abort(new Error("private provider timeout details"))
+    })
+    const google = googleFixture({ calendars: [legacy] })
+    const { service, state } = serviceFixture(google)
+    const callback = callbackFixture(service, google.adapter)
+    const result = await callback.route.GET(callback.request())
+    assert.equal(new URL(result.url).searchParams.get("google"), "error")
+    assert.equal(state.connection, null)
+    assert.equal(google.writes().length, 0)
+    assert.equal(result.url.includes("private"), false)
+  })
+  it("aborts paginated discovery under a shared deadline before calendar creation", async (t) => {
+    const timeout = AbortSignal.timeout.bind(AbortSignal)
+    const deadline = new AbortController()
+    t.mock.method(AbortSignal, "timeout", (duration) => duration === 30_000 ? deadline.signal : timeout(duration))
+    const google = googleFixture({
+      pages: { first: { items: [legacy], nextPageToken: "second" }, second: { items: [] } },
+      beforeResponse: (url) => {
+        if (url.searchParams.get("pageToken") === "second") deadline.abort(new Error("private aggregate timeout"))
+      },
+    })
+    const { service, state } = serviceFixture(google)
+    const callback = callbackFixture(service, google.adapter)
+    const result = await callback.route.GET(callback.request())
+    assert.equal(new URL(result.url).searchParams.get("google"), "error")
+    assert.equal(state.connection, null)
+    assert.equal(google.writes().length, 0)
+    assert.equal(google.calls.filter((call) => call.url.pathname.endsWith("/calendarList")).length, 2)
+    assert.equal(result.url.includes("private"), false)
+  })
   it("creates the selected target once, stores encrypted tokens, and reconnects using its ID", async () => {
     const google = googleFixture({ calendars: [legacy] })
     const { service, calls, state } = serviceFixture(google)
@@ -237,6 +274,39 @@ describe("Google callback and service coexistence seam", () => {
     assert.equal(google.calls.length, 0)
     const callback = callbackFixture(service, google.adapter, { callbackToken: { ...token, scope: `${scopes} https://www.googleapis.com/auth/calendar` } })
     assert.equal(new URL((await callback.route.GET(callback.request())).url).searchParams.get("google"), "permissions")
+  })
+
+  for (const status of ["DISCONNECTED", "NEEDS_REAUTH", "ERROR"]) {
+    it(`preserves ${status} history for another account without blocking a new connection`, async () => {
+      const google = googleFixture({ calendars: [legacy] })
+      const history = [storedConnection({ id: "historical-connection", providerAccountId: "subject-b", dedicatedCalendarId: legacy.id, status })]
+      const before = structuredClone(history)
+      const { service, state } = serviceFixture(google, null, history)
+      await service.connectGoogleCalendar({ userId: "user-a", token, adapter: google.adapter })
+      assert.equal(state.connection.providerAccountId, "subject-a")
+      assert.equal(state.connection.dedicatedCalendarId, "created-calendar")
+      assert.deepEqual(history, before)
+    })
+  }
+
+  it("reuses a validated inactive target for the returning account", async () => {
+    const google = googleFixture({ calendars: [managed({ summary: "Renamed inactive target" })] })
+    const { service, state } = serviceFixture(google, storedConnection({ status: "NEEDS_REAUTH" }))
+    await service.connectGoogleCalendar({ userId: "user-a", token, adapter: google.adapter })
+    assert.equal(state.connection.id, "connection-a")
+    assert.equal(state.connection.status, "ACTIVE")
+    assert.equal(state.connection.dedicatedCalendarSummary, "Renamed inactive target")
+    assert.equal(google.writes().length, 0)
+  })
+
+  it("does not adopt an unverified inactive target for the returning account", async () => {
+    const google = googleFixture({ calendars: [legacy, managed()] })
+    const existing = storedConnection({ status: "DISCONNECTED", dedicatedCalendarId: legacy.id })
+    const { service, state } = serviceFixture(google, existing)
+    await assert.rejects(() => service.connectGoogleCalendar({ userId: "user-a", token, adapter: google.adapter }), /verified AtmoShaper/)
+    assert.equal(state.connection, existing)
+    assert.equal(state.connection.status, "DISCONNECTED")
+    assert.equal(google.writes().length, 0)
   })
 
   it("imports minimal busy rows and exports generic events through the validated target", async () => {

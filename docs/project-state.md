@@ -10,18 +10,24 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review
   covered all twelve files with no actionable comments; all seven hosted CI
   jobs passed and all review threads were resolved. This merge did not deploy.
-- The next repository-only slice prepares the selected separate AtmoShaper
-  Google calendar on `codex/atmoshaper-calendar-isolation`, based on that merge
+- Published [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36) prepares
+  the selected separate AtmoShaper Google calendar on
+  `codex/atmoshaper-calendar-isolation`, based on that merge
   in the existing clean migration worktree. Discovery validates Google's account
   subject, an owned secondary calendar's project marker, narrow Calendar
   permissions, and API metadata. Reconnects preserve validated stored IDs after
   renames; unexpected accounts, targets, and ambiguous names fail closed.
   Generic outbound titles use AtmoShaper while stable private identifiers remain.
-  Provider-free adapter/callback/service regressions pass 55/55. The full
-  regression run passed 5,077 tests with three skips and no failures; the final
-  added refresh/mapping checks pass in the focused group. Local lint, typecheck,
-  build, and documentation-link checks pass. Publication and CodeRabbit review
-  are authorized; hosted checks/reviews remain pending. This is local preparation,
+  The initial hosted reviews identified inactive connection history blocking a
+  new account and unbounded Google requests. Repairs preserve inactive history,
+  validate a returning account's saved target, and keep discovery under the lock
+  with eight-second request limits and a shared 30-second provider deadline.
+  Provider-free adapter/callback/service regressions pass 62/62. Initial CI also
+  found a stale project-state date ceiling; its bound now matches this verified
+  date. The final full suite passes 5,086 tests with three skips and no failures;
+  lint, typecheck, build, diff checks, and all 65 relative documentation links
+  pass. Required final-head hosted checks and reviews are tracked in PR #36;
+  merge remains separately authorized. This is source preparation,
   not integration readiness. No provider configuration, calendar creation,
   hosted database write, deployment, or Calendar activation occurred.
 
