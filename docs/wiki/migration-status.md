@@ -3,7 +3,7 @@
 Read [project state](../project-state.md) first for the active snapshot and
 [project log](../project-log.md) for dated receipts. This guide connects the
 original migration scope with the work still needed; it does not replace those
-owners or authorize provider changes. Verified: 2026-10-01.
+owners or authorize provider changes. Verified: 2026-10-02.
 
 ## Completed milestones
 
@@ -37,11 +37,34 @@ or retirement remain separate decisions with their own evidence and approval.
 The user selected a separate Google calendar named `AtmoShaper`; the old
 project's `MassageLab` calendar remains intact. The
 [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md)
-records implementation and provider gates. A fresh Production variable-name
-inventory lacks Calendar OAuth credentials and its token-encryption key,
+records implementation and provider gates. The Production variable-name
+inventory on 2026-10-01 lacks Calendar OAuth credentials and its token-encryption key,
 Ably's server key, Sentry's DSN, and R2 upload credentials. This inventory does
 not verify existing media playback, polling behavior, provider permissions,
 or any user's connection or records.
+
+The published [Calendar PR #36](https://github.com/dsbowersock/atmoshaper/pull/36)
+prepares account-bound, marked-calendar discovery and stored-ID reconnects,
+with 81 focused regressions passing. Review repairs preserve inactive history
+and bound discovery while retaining serialization. New event inserts keep
+their existing wait behavior to avoid losing accepted POST IDs to local
+timeouts; no event-ID migration or end-to-end idempotency claim is introduced.
+A committed inactive intent also prevents a blind calendar-create retry while
+its earlier outcome is unknown. A discovered valid target can be reconciled
+without another POST. The disconnect action also blocks direct deletion of
+unresolved intents while retaining ordinary resolved disconnects. This invocation's
+proven pre-POST failure can release only its matching saved intent under the user
+lock; attempted/uncertain creation, changed state, and failed cleanup stay
+conservative. Failed transactions cancel late discovery before cleanup so it
+cannot create afterward. Separate aggregate read budgets also cover inbound
+validation/event pagination (60 seconds) and outbound validation (30 seconds).
+They preserve failed cursors and stop later source reads without timing out
+new-event POST responses. Final complete-regression, static-check, and hosted-review
+receipts for the aggregate-pagination follow-up are tracked in PR #36.
+Publication and CodeRabbit shepherding are authorized; required final-head
+hosted checks and follow-up are tracked in PR #36. Merge is separately authorized.
+This source preparation does not identify or configure the Cloud project/client, validate hosted consent,
+create a calendar, or activate Calendar sync.
 
 ## Remaining migration ledger
 

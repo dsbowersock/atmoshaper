@@ -3,19 +3,17 @@ import { getCurrentSession } from "@/auth"
 import { getSiteUrl } from "@/lib/auth-env"
 import { getGoogleCalendarSyncAccess } from "@/lib/calendar-sync-access"
 import { getGoogleCalendarSyncConfig } from "@/lib/calendar-sync-env"
-import { createGoogleCalendarAdapter } from "@/lib/google-calendar-adapter"
-import {
-  saveGoogleCalendarConnection,
-  syncGoogleConnectionSources,
-  upsertGoogleCalendarSources,
-} from "@/lib/calendar-sync-service"
+import { createGoogleCalendarAdapter, GoogleCalendarConnectionError } from "@/lib/google-calendar-adapter"
+import { connectGoogleCalendar } from "@/lib/calendar-sync-service"
 
+/** Clear the one-use state cookie and return only a safe connection outcome to the sync page. */
 function redirectToCalendarSync(baseUrl: string, status: string) {
   const response = NextResponse.redirect(new URL(`/calendar/sync?google=${status}`, baseUrl))
   response.cookies.delete("massagelab_google_calendar_state")
   return response
 }
 
+/** Authorize the callback, consume its state, and delegate verified account/target persistence. */
 export async function GET(request: NextRequest) {
   const session = await getCurrentSession()
   const baseUrl = getSiteUrl()
@@ -60,28 +58,15 @@ export async function GET(request: NextRequest) {
       return redirectToCalendarSync(baseUrl, "identity")
     }
 
-    const calendars = await adapter.listCalendars(token.access_token)
-    const dedicatedCalendar = await adapter.ensureDedicatedCalendar(token.access_token)
-    const connection = await saveGoogleCalendarConnection({
+    // The service validates provider identity and stored target before any
+    // Calendar creation or token persistence, including on reconnect.
+    await connectGoogleCalendar({
       userId: session.user.id,
-      providerAccountId: token.googleUserId,
-      accountEmail: token.googleUserEmail ?? null,
-      accessToken: token.access_token,
-      refreshToken: token.refresh_token,
-      expiresIn: token.expires_in,
-      grantedScopes: token.scope,
-      dedicatedCalendarId: dedicatedCalendar.id,
-      dedicatedCalendarSummary: dedicatedCalendar.summary,
+      token,
+      adapter,
     })
-
-    await upsertGoogleCalendarSources({
-      connectionId: connection.id,
-      calendars,
-      excludedProviderCalendarIds: [dedicatedCalendar.id],
-    })
-    await syncGoogleConnectionSources({ connectionId: connection.id, adapter })
-  } catch {
-    return redirectToCalendarSync(baseUrl, "error")
+  } catch (error) {
+    return redirectToCalendarSync(baseUrl, error instanceof GoogleCalendarConnectionError ? error.reason : "error")
   }
 
   const response = NextResponse.redirect(new URL("/calendar/sync?google=connected", baseUrl))

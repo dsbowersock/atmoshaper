@@ -13,8 +13,8 @@ export type GoogleCalendarSyncAccess = {
 /**
  * Checks whether a signed-in user can manage provider-side external calendar sync.
  * Access requires at least one provider practice role plus the external sync
- * feature entitlement; disconnect flows are intentionally checked separately so
- * users can always remove their own stored credentials.
+ * feature entitlement. Disconnect authorization is separate from entitlement;
+ * its action preserves unresolved creation intents until scoped reconciliation.
  */
 export async function getGoogleCalendarSyncAccess(userId: string): Promise<GoogleCalendarSyncAccess> {
   const [providerMembership, entitlements] = await Promise.all([

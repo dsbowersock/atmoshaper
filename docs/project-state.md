@@ -1,10 +1,70 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-01
+Verified: 2026-10-02
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
 ## Current Snapshot — Registration and Supporter Checkout Open
+
+- PR #35's documentation closeout merged as
+  `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review
+  covered all twelve files with no actionable comments; all seven hosted CI
+  jobs passed and all review threads were resolved. This merge did not deploy.
+- Published [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36) prepares
+  the selected separate AtmoShaper Google calendar on
+  `codex/atmoshaper-calendar-isolation`, based on that merge
+  in the existing clean migration worktree. Discovery validates Google's account
+  subject, an owned secondary calendar's project marker, narrow Calendar
+  permissions, and API metadata. Reconnects preserve validated stored IDs after
+  renames; unexpected accounts, targets, and ambiguous names fail closed.
+  Generic outbound titles use AtmoShaper while stable private identifiers remain.
+  The initial hosted reviews identified inactive connection history blocking a
+  new account and unbounded Google requests. Repairs preserve inactive history,
+  validate a returning account's saved target, and keep discovery under the lock
+  with eight-second request limits and a shared 30-second provider deadline.
+  A subsequent Codex finding limits the new timeout policy: new event inserts
+  retain their existing wait behavior so an accepted POST's provider-generated
+  ID is not lost to a local deadline and retried as a duplicate. Discovery,
+  reads, and existing-ID updates remain bounded; no identifier migration is
+  introduced. Another Codex finding closes the calendar-create retry gap: a
+  verified account's encrypted, inactive creation intent is committed before
+  the Google POST. Later callbacks may activate a discovered, validated target,
+  but cannot create again while the first attempt is unresolved. The final
+  target/source transaction cannot erase that prior intent on rollback.
+  The disconnect action protects unresolved intents in its atomic, owned-row
+  deletion and fails without a success redirect; resolved connections remain
+  removable. This guard also covers direct server-action requests.
+  A final Codex finding adds safe retry for this invocation's proven pre-POST
+  failure: the adapter marks dispatch immediately before fetch, and cleanup
+  reacquires the user lock to clear only the matching saved intent's reason.
+  Failed transactions cancel late discovery before cleanup, preventing their
+  outstanding callbacks from dispatching a later POST.
+  Any attempted POST, resolved target, changed row, or failed cleanup retains
+  conservative recovery. Generic errors and empty listings alone remain
+  insufficient evidence for clearing an intent.
+  Existing fields carry this additive state; no schema migration is added.
+  CodeRabbit's full review found a remaining aggregate pagination gap outside
+  the callback. Inbound validation and all selected sources' event reads now
+  share a 60-second provider budget; outbound validation has its own 30-second
+  read budget. Cached and refreshed tokens forward that deadline through account,
+  inventory, and metadata checks. An exhausted inbound run keeps its old cursor,
+  records failure, and stops later sources. New-event inserts still retain their
+  returned IDs when the read deadline expires after dispatch. These are provider
+  read budgets, not database-commit or new-event POST time limits.
+  Provider-free adapter/callback/service/action regressions pass 81/81.
+  Initial CI also
+  found a stale project-state date ceiling; its bound now matches this verified
+  date. The preceding runtime full suite passed 5,094 of 5,097 tests with three
+  skips and no failures. The final pre-POST retry's lint, typecheck, build,
+  diff checks, and all 65 relative documentation links pass. The aggregate-pagination
+  follow-up also passes lint, typecheck, build, diff checks, and all 90 relative
+  links in the current migration docs. Its complete regression and hosted-review
+  receipts are tracked in PR #36.
+  Required final-head hosted checks and reviews are
+  tracked in PR #36;
+  merge remains separately authorized. This is source preparation,
+  not integration readiness. No provider configuration, calendar creation,
+  hosted database write, deployment, or Calendar activation occurred.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
@@ -86,10 +146,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - Provider-free focused CLI and webhook regressions pass 62/62, with zero
   failures or skips. Two new expansion regressions first failed as expected.
   PR #34's hosted CI and remote verification receipts cover their exact source,
-  not this documentation follow-up. The existing clean rollout worktree now
-  hosts `codex/atmoshaper-supporter-launch-closeout` for the executed receipt,
-  current operator runbooks, and separate Calendar preparation plan; it changes
-  no runtime or provider configuration.
+  not the subsequent Calendar preparation. PR #35 merged the executed receipt,
+  current operator runbooks, and separate Calendar preparation plan without
+  runtime or provider changes. The existing rollout worktree is now reused for
+  the provider-free Calendar slice described above.
   The optional brand audit has stale exact occurrence rules from earlier
   Stripe identity changes; those broader audit receipts are not repaired by
   this readiness-only branch.

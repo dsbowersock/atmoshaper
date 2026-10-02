@@ -1,12 +1,13 @@
 import { Buffer } from "node:buffer"
 
-import { GOOGLE_CALENDAR_SCOPES, MASSAGELAB_GOOGLE_CALENDAR_SUMMARY } from "./calendar-sync-constants.ts"
+import { ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION, GOOGLE_CALENDAR_SCOPES, MASSAGELAB_GOOGLE_CALENDAR_SUMMARY } from "./calendar-sync-constants.ts"
 
 type FetchImpl = typeof fetch
 
 export type GoogleCalendarListItem = {
   id: string
   summary?: string
+  description?: string
   timeZone?: string
   primary?: boolean
   accessRole?: string
@@ -48,9 +49,21 @@ export type GoogleCalendarIdTokenClaims = {
   email?: string
 }
 
+/** Safe connection outcomes for the callback UI; no provider payload is exposed. */
+export class GoogleCalendarConnectionError extends Error {
+  readonly reason: "account" | "target" | "permissions"
+
+  constructor(reason: GoogleCalendarConnectionError["reason"], message: string) {
+    super(message)
+    this.reason = reason
+  }
+}
+
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 const GOOGLE_CALENDAR_API = "https://www.googleapis.com/calendar/v3"
+const GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo"
+const GOOGLE_REQUEST_TIMEOUT_MS = 8_000
 
 /**
  * Builds the explicit Google OAuth URL for provider calendar sync.
@@ -108,17 +121,28 @@ export function decodeGoogleCalendarIdTokenClaims(idToken?: string | null): Goog
  * generic outbound event writes.
  */
 export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?: FetchImpl } = {}) {
-  async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200]) {
-    const response = await fetchImpl(url, init)
+  /** Bound transport and parsing together, except new-event inserts whose ID must not be discarded. */
+  async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200], { timeoutRequest = true, onAttempt }: { timeoutRequest?: boolean; onAttempt?: () => void } = {}) {
+    // Bound ordinary requests and honor the caller's shared provider deadline;
+    // many successful pages must not extend the aggregate read budget.
+    const requestDeadline = timeoutRequest ? AbortSignal.timeout(GOOGLE_REQUEST_TIMEOUT_MS) : undefined
+    const signal = init.signal && requestDeadline ? AbortSignal.any([init.signal, requestDeadline]) : init.signal ?? requestDeadline
+    signal?.throwIfAborted()
+    // Mark the uncertainty boundary after the abort check, immediately before dispatch.
+    onAttempt?.()
+    const response = await fetchImpl(url, { ...init, signal })
     if (!expectedStatuses.includes(response.status)) {
       throw new Error(googleCalendarApiErrorMessage(response.status))
     }
 
+    signal?.throwIfAborted()
     if (response.status === 204) {
       return null as T
     }
 
-    return await response.json() as T
+    const data = await response.json() as T
+    signal?.throwIfAborted()
+    return data
   }
 
   function authHeaders(accessToken: string, contentType = false) {
@@ -128,6 +152,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     }
   }
 
+  /** Exchange a callback code; decoded subject claims still require live UserInfo verification. */
   async function exchangeCode({
     clientId,
     clientSecret,
@@ -165,14 +190,17 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     }
   }
 
+  /** Refresh credentials without assuming that returned scopes or account continuity are unchanged. */
   async function refreshAccessToken({
     clientId,
     clientSecret,
     refreshToken,
+    signal,
   }: {
     clientId: string
     clientSecret: string
     refreshToken: string
+    signal?: AbortSignal
   }) {
     return googleJson<{ access_token: string; expires_in?: number; scope?: string; token_type?: string }>(GOOGLE_TOKEN_URL, {
       method: "POST",
@@ -183,40 +211,116 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
         refresh_token: refreshToken,
         grant_type: "refresh_token",
       }),
+      signal,
     })
   }
 
-  async function listCalendars(accessToken: string) {
-    const payload = await googleJson<{ items?: GoogleCalendarListItem[] }>(`${GOOGLE_CALENDAR_API}/users/me/calendarList`, {
+  /** Read every inventory page, including hidden targets, within the caller's optional shared deadline. */
+  async function listCalendars(accessToken: string, signal?: AbortSignal) {
+    const items: GoogleCalendarListItem[] = []
+    let pageToken: string | undefined
+    do {
+      const url = new URL(`${GOOGLE_CALENDAR_API}/users/me/calendarList`)
+      // Hidden calendars still count for identity and ambiguity checks.
+      url.searchParams.set("showHidden", "true")
+      if (pageToken) url.searchParams.set("pageToken", pageToken)
+      const page = await googleJson<{ items?: GoogleCalendarListItem[]; nextPageToken?: string }>(url.toString(), {
+        headers: authHeaders(accessToken),
+        signal,
+      })
+      items.push(...(page.items ?? []))
+      pageToken = page.nextPageToken
+    } while (pageToken)
+    return items
+  }
+
+  /** Binds Calendar access to Google's subject, never a mutable email or title. */
+  async function validateAccount(accessToken: string, providerAccountId: string, signal?: AbortSignal) {
+    if (!providerAccountId) throw new GoogleCalendarConnectionError("account", "Google calendar account identity is required.")
+    const identity = await googleJson<{ sub?: string }>(GOOGLE_USERINFO_URL, {
       headers: authHeaders(accessToken),
+      signal,
     })
-    return payload.items ?? []
+    if (identity.sub !== providerAccountId) throw new GoogleCalendarConnectionError("account", "Google calendar account identity changed.")
   }
 
-  async function ensureDedicatedCalendar(accessToken: string) {
-    const calendars = await listCalendars(accessToken)
-    const existing = calendars.find((calendar) => calendar.summary === MASSAGELAB_GOOGLE_CALENDAR_SUMMARY)
-    if (existing) return existing
+  /**
+   * Requires an owned, secondary, app-marked calendar and reads its metadata.
+   * With the existing narrow scopes, calendars.get is authorized by app.created;
+   * the marker also separates this project from a calendar created by the old app.
+   * Stored IDs survive renames, but inaccessible or unmarked IDs never fall back.
+   */
+  async function validateCalendar(accessToken: string, calendarId: string, calendars: GoogleCalendarListItem[], signal?: AbortSignal) {
+    const entry = calendars.find((calendar) => calendar.id === calendarId)
+    if (!entry || entry.primary || entry.accessRole !== "owner" || entry.description !== ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION) {
+      throw new GoogleCalendarConnectionError("target", "Choose a verified AtmoShaper calendar.")
+    }
+    const calendar = await googleJson<GoogleCalendarListItem>(`${GOOGLE_CALENDAR_API}/calendars/${encodeURIComponent(calendarId)}`, {
+      headers: authHeaders(accessToken),
+      signal,
+    })
+    if (calendar.id !== calendarId || calendar.description !== ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION) {
+      throw new GoogleCalendarConnectionError("target", "Choose a verified AtmoShaper calendar.")
+    }
+    return calendar
+  }
 
-    return googleJson<GoogleCalendarListItem>(`${GOOGLE_CALENDAR_API}/calendars`, {
+  /** Read-only target check; all account, inventory, and metadata calls share the caller's deadline. */
+  async function validateDedicatedCalendar(accessToken: string, { providerAccountId, calendarId, signal }: { providerAccountId: string; calendarId: string; signal?: AbortSignal }) {
+    await validateAccount(accessToken, providerAccountId, signal)
+    return validateCalendar(accessToken, calendarId, await listCalendars(accessToken, signal), signal)
+  }
+
+  /** Read-only discovery: absence is distinct from an invalid or ambiguous target. */
+  async function findDedicatedCalendar(accessToken: string, { providerAccountId, storedCalendarId, signal }: { providerAccountId: string; storedCalendarId?: string | null; signal?: AbortSignal }) {
+    await validateAccount(accessToken, providerAccountId, signal)
+    const calendars = await listCalendars(accessToken, signal)
+    if (storedCalendarId) return validateCalendar(accessToken, storedCalendarId, calendars, signal)
+
+    const candidates = calendars.filter((calendar) => calendar.summary === MASSAGELAB_GOOGLE_CALENDAR_SUMMARY
+      || calendar.description === ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION)
+    if (candidates.length > 1) throw new GoogleCalendarConnectionError("target", "AtmoShaper calendar selection is ambiguous.")
+    if (candidates.length === 1) return validateCalendar(accessToken, candidates[0].id, calendars, signal)
+    return null
+  }
+
+  /**
+   * Creates only after validated discovery finds no target. The service must
+   * durably record creation intent first, because Google inserts are not atomic
+   * with our transaction and may complete after a local abort.
+   * The optional hook reports the POST dispatch boundary for safe pre-POST release.
+   */
+  async function ensureDedicatedCalendar(accessToken: string, options: { providerAccountId: string; storedCalendarId?: string | null; signal?: AbortSignal; onCreateAttempt?: () => void }) {
+    const found = await findDedicatedCalendar(accessToken, options)
+    if (found) return found
+    const { signal } = options
+    const created = await googleJson<GoogleCalendarListItem>(`${GOOGLE_CALENDAR_API}/calendars`, {
       method: "POST",
       headers: authHeaders(accessToken, true),
-      body: JSON.stringify({ summary: MASSAGELAB_GOOGLE_CALENDAR_SUMMARY }),
-    }, [200, 201])
+      body: JSON.stringify({ summary: MASSAGELAB_GOOGLE_CALENDAR_SUMMARY, description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }),
+      signal,
+    }, [200, 201], { onAttempt: options.onCreateAttempt })
+    if (!created.id) throw new Error("Google did not return a dedicated calendar identity.")
+    // Verify creation before activation or sending events; the service's durable
+    // intent permits rediscovery of this marker without another calendar POST.
+    return validateCalendar(accessToken, created.id, await listCalendars(accessToken, signal), signal)
   }
 
+  /** Read every event page in the caller's aggregate budget, without returning a partial cursor on abort. */
   async function listEvents({
     accessToken,
     calendarId,
     timeMin,
     timeMax,
     syncToken,
+    signal,
   }: {
     accessToken: string
     calendarId: string
     timeMin?: string
     timeMax?: string
     syncToken?: string | null
+    signal?: AbortSignal
   }) {
     const url = new URL(`${GOOGLE_CALENDAR_API}/calendars/${encodeURIComponent(calendarId)}/events`)
     url.searchParams.set("singleEvents", "true")
@@ -239,6 +343,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
 
       const page = await googleJson<GoogleCalendarEventsPage>(pageUrl.toString(), {
         headers: authHeaders(accessToken),
+        signal,
       })
       items.push(...(page.items ?? []))
       pageToken = page.nextPageToken
@@ -248,6 +353,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     return { items, nextSyncToken }
   }
 
+  /** Return the provider's event identity; only known-ID updates receive the local request deadline. */
   async function upsertEvent({
     accessToken,
     calendarId,
@@ -261,13 +367,17 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
   }) {
     const base = `${GOOGLE_CALENDAR_API}/calendars/${encodeURIComponent(calendarId)}/events`
     const url = eventId ? `${base}/${encodeURIComponent(eventId)}` : base
+    // New inserts use provider-generated IDs. Locally timing out an accepted
+    // POST would lose its ID and turn the next retry into a duplicate. Preserve
+    // the existing wait behavior until a separate idempotency migration.
     return googleJson<{ id: string; etag?: string }>(url, {
       method: eventId ? "PATCH" : "POST",
       headers: authHeaders(accessToken, true),
       body: JSON.stringify(payload),
-    }, eventId ? [200] : [200, 201])
+    }, eventId ? [200] : [200, 201], { timeoutRequest: Boolean(eventId) })
   }
 
+  /** Delete a known event ID; an already-missing event is a successful reconciliation outcome. */
   async function deleteEvent({
     accessToken,
     calendarId,
@@ -290,10 +400,12 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
   return {
     deleteEvent,
     ensureDedicatedCalendar,
+    findDedicatedCalendar,
     exchangeCode,
     listCalendars,
     listEvents,
     refreshAccessToken,
     upsertEvent,
+    validateDedicatedCalendar,
   }
 }

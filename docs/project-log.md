@@ -2,6 +2,191 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 aggregate read budgets
+
+- Full CodeRabbit review of `9759195` covered all eighteen files and found a
+  valid remaining gap: ordinary inbound/outbound target validation paginated
+  without a shared deadline, unlike the callback's lock-held discovery.
+- Inbound token refresh, identity/target validation, and selected event pages
+  now share a 60-second provider read budget. Outbound target validation uses
+  a separate 30-second budget. Eight-second per-request limits remain. Inbound
+  exhaustion records the failed source without advancing its cursor, stops
+  later sources, and does not report a completed refresh. Database commits are
+  not limited by these provider signals. New-event POSTs retain their existing
+  wait contract so an accepted provider-generated ID cannot be discarded.
+- Five regressions first failed against the published source. Six new cases
+  cover cached/refreshed validation in both directions, aborted event pagination,
+  and an accepted outbound ID returned after its read deadline expires. The
+  focused Calendar group passes 81/81; lint, typecheck, local build, diff checks,
+  and all 90 relative links in the current migration docs pass. Complete regression and
+  required final-head hosted follow-up are tracked in PR #36. No provider,
+  deployment, database, billing, or Calendar activation action occurred.
+
+## 2026-10-02 — Calendar PR #36 retries proven pre-POST failures
+
+- A valid Codex thread on the intermediate documentation head identified a
+  transient second-phase read failure leaving a newly committed intent blocked
+  even though no calendar POST had occurred. It also applies to the current code.
+- The adapter reports the dispatch boundary after its abort check and before
+  fetch. This invocation also records whether a target was resolved. After a
+  proven pre-POST failure, cleanup reacquires the user lock and clears only the
+  pending reason on its matching saved row/version. Credentials/history stay
+  encrypted and inactive. Failed transactions cancel outstanding discovery
+  before cleanup so a late callback cannot dispatch after the intent is released.
+  A failed cleanup, changed row, attempted POST, or
+  resolved target retains conservative recovery and cannot authorize new creation.
+- Two retry regressions first failed against the published implementation, then
+  passed after this repair. Five new cases cover UserInfo/inventory failures,
+  successful retry, failed cleanup, changed-version protection, and cancellation
+  of late discovery after transaction rejection. Existing
+  accepted-but-invisible POST and source-rollback regressions remain green.
+  The focused group passes 75/75; lint, typecheck, build, diff checks, and all
+  65 relative documentation links pass. Complete regression and hosted
+  follow-up are tracked in PR #36. No schema or provider identifier changed;
+  no live action occurred.
+
+## 2026-10-02 — Calendar PR #36 full review and action documentation
+
+- Full CodeRabbit review admitted at its next included window covered all
+  seventeen files through `2cb9a0a` and finished with no actionable comments.
+  Codex also reviewed that head without findings; all original threads resolved.
+- Its non-blocking documentation metric was 78.79%, below the configured 80%
+  threshold. Added focused JSDoc for shared action authentication, active
+  connection refresh, and source-selection/cursor rules. This follow-up changes
+  documentation only; runtime behavior and the 70/70 focused and 5,094/5,097
+  full-suite receipts are unchanged. Current-head hosted follow-up is tracked
+  in PR #36; this entry does not authorize a merge or deployment.
+- The access helper's existing comment now states the unresolved-intent
+  exception instead of promising unconditional credential-row deletion.
+
+## 2026-10-02 — Calendar PR #36 protects creation intent during disconnect
+
+- Codex reviewed `34e5e09` without findings. CodeRabbit independently inspected
+  the eight-file creation-intent repair and resolved its retry finding, then
+  identified a related direct-action deletion gap outside that repair diff.
+- The disconnect action now excludes pending creation intents in the atomic
+  user/provider-scoped deletion. Nullable historical reasons and ordinary
+  resolved connections remain removable; a rejected request cannot erase an
+  unresolved intent or redirect as disconnected. The pending reason is shared
+  by connection persistence and this guard without changing its value.
+- Five real-action regressions cover pending, active/null, historical-error,
+  other-user, and other-provider rows. The focused Calendar group passes 70/70;
+  the full suite passes 5,094 of 5,097 tests with three expected skips and no
+  failures. Lint, typecheck, build, diff checks, and all 65 relative documentation
+  links pass. Latest-head hosted follow-up remains tracked in PR #36.
+- This remains source-only preparation. No provider, database, deployment, or
+  Calendar activation action occurred.
+
+## 2026-10-02 — Calendar PR #36 durable creation intent
+
+- CodeRabbit's next full review was triggered when its hourly window opened;
+  it covered all sixteen files at `2311d61` and finished with no actionable
+  comments. Codex identified a remaining valid creation retry gap: an accepted
+  calendar POST could remain invisible in the listing after a local abort.
+- Split read-only discovery from creation. Under the user-row lock, verified
+  identity/scopes and target absence now precede a committed inactive intent.
+  It stores encrypted credentials in existing fields with `ERROR` status and
+  `GOOGLE_CALENDAR_CREATION_PENDING` reason. Only the invocation that committed
+  a new intent may enter the lock-held creation phase. Activation and source
+  persistence remain transactional after target readback.
+- Retries may reconcile a discovered marked target; they cannot issue another
+  POST when a pending intent has no discoverable target. A second-phase rollback
+  retains the prior intent. This additive state changes no Prisma schema,
+  encryption contract, existing target ID, or Google marker. Old inactive rows
+  without that reason retain their previous continuity rules.
+- Provider-free regressions model an accepted but invisible creation after
+  abort, eventual readback, and source-inventory failure after a target save.
+  The focused group passes 65/65. The final full suite passes 5,089 of 5,092
+  tests with three expected skips and no failures. Lint, typecheck, build,
+  diff checks, and all 65 relative documentation links pass. Latest-head hosted
+  follow-up remains tracked in PR #36. The transaction double models rollback, not live
+  PostgreSQL contention or provider consistency.
+- Operator reconciliation must not clear the intent from elapsed time or an
+  empty listing alone. Exact provider/row evidence and write approval are needed
+  for an unresolved attempt. Rollback must disable the integration before
+  restoring code that does not honor this pending reason; preserve the rows.
+
+## 2026-10-02 — Calendar PR #36 event-insert timeout compatibility
+
+- The second Codex review identified an introduced retry hazard: Google may
+  accept a new-event POST before a local eight-second deadline expires, leaving
+  no stored provider event ID and causing the next sync to insert a duplicate.
+- Kept the existing wait behavior for new event inserts, one of the review's
+  proposed remedies. Reads, existing-ID updates, and lock-held calendar
+  discovery/creation remain bounded. This focused repair does not introduce
+  deterministic provider event IDs or change the existing reconciliation keys.
+- Added an actual-adapter regression that defers an insert response, retains
+  its returned ID without creating a local timeout, and uses a bounded PATCH
+  for the next update. The focused Calendar group passes 63/63. The final full
+  suite passes 5,087 of 5,090 tests with three expected skips and no failures.
+  Lint, typecheck, build, diff checks, and all 65 relative documentation links
+  pass. Final-head hosted follow-up is tracked in PR #36.
+- Existing transport failure and duplicate-retry acceptance still require
+  isolated provider QA before public Calendar activation; preserving prior
+  behavior is not a claim of end-to-end event-insert idempotency.
+
+## 2026-10-02 — Calendar PR #36 initial review repairs
+
+- Published [PR #36](https://github.com/dsbowersock/atmoshaper/pull/36) under the
+  user's explicit source-publication and CodeRabbit shepherding approval.
+  The initial full CodeRabbit review covered all fifteen files; Codex also
+  reviewed the published head. Both returned one valid finding.
+- Inactive connections for another Google account remain historical rows and
+  no longer block a new connection. An active account still requires explicit
+  disconnect before replacement; a returning account's stored target remains
+  authoritative and must pass validation, even when its row is inactive.
+- Google requests now have an eight-second limit. A shared 30-second deadline
+  starts before lock acquisition and covers discovery, creation/readback, and
+  source inventory, leaving room within the 45-second transaction budget.
+  Paginated responses cannot start another provider request after that deadline.
+  These limits retain discovery and creation under the user-row lock; they do
+  not make a Google write atomic with the database transaction.
+- Added regressions for all three inactive statuses, valid and invalid returning
+  targets, single-request aborts, and paginated deadline exhaustion. The focused
+  Calendar group passes 62/62. Initial CI and the first local repair run found
+  only the stale project-state date ceiling; aligned it with October 2 evidence.
+  The final full suite passes 5,086 of 5,089 tests with three expected skips and
+  no failures. Lint, typecheck, build, diff checks, and all 65 relative links in
+  changed docs pass. The local build skipped the Vercel Production migration
+  gate and did not deploy. Required final-head hosted follow-up is tracked in
+  PR #36.
+- Merge, provider setup, live acceptance, deployment, and public Calendar
+  activation are outside this approval. No old-site, payment, or provider change
+  was performed.
+
+## 2026-10-02 — Separate AtmoShaper Calendar compatibility preparation
+
+- Verified hosted `main` at PR #35 merge
+  `572691aad5e48e01089097d59799aea19d92ba83` and the clean existing migration
+  worktree before creating `codex/atmoshaper-calendar-isolation`. The original
+  root checkout and its unrelated untracked artwork remain intact.
+- PR #35's full CodeRabbit review covered all twelve documentation files with
+  no actionable comments; all seven CI jobs passed and all threads were resolved.
+  The user explicitly authorized its merge. It did not deploy.
+- Continued the selected separate-calendar plan with provider-free source
+  changes. Discovery now requires Google subject identity, owner/non-primary
+  evidence, an AtmoShaper marker, complete hidden/paginated inventory, limited
+  Calendar grants, and API metadata. A stored target remains authoritative after
+  a rename. Unmarked namesakes, ambiguity, inaccessible targets, and account
+  mismatches stop before creation or persistence.
+- Callback discovery and token persistence share the user-row lock. Account
+  changes require explicit disconnect instead of deleting the old connection
+  implicitly. Both inbound and outbound sync validate their target; generic
+  display summaries use AtmoShaper while `GOOGLE`, the state cookie, Prisma
+  fields, and `massagelabEventId` remain unchanged.
+- Added the named `test:calendar-sync` group and actual adapter/callback/service
+  regressions for reconnects, old-calendar coexistence, failures, scope limits,
+  and privacy. The final focused group passes 55/55. The full regression run
+  passed 5,077 tests with three skips and no failures; its 5,080-test snapshot
+  predates the final two focused refresh/mapping regressions. The last mapping
+  guard and those regressions pass in the current focused group. Local lint,
+  typecheck, production build, diff checks, and all 65 relative documentation
+  links pass. The user authorized publication and CodeRabbit shepherding;
+  hosted review is pending. The new implementation is not deployed or activated.
+- The exact Google Cloud/OAuth target remains a provider-stage input. No provider
+  setting, calendar, token/row migration, environment, deployment, payment, or
+  old-site mutation was performed. The prior live payment test remains complete.
+
 ## 2026-10-01 — Public registration and recurring Supporter activation
 
 - Review identified stale pre-launch wording in the stable billing and release

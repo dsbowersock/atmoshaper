@@ -84,7 +84,7 @@ describe("calendar sync normalization", () => {
     assert.equal(block.endsAt.toISOString(), "2026-07-02T04:00:00.000Z")
   })
 
-  it("builds safe outbound MassageLab payloads", () => {
+  it("builds safe outbound AtmoShaper payloads with the stable private event key", () => {
     const payload = buildGoogleOutboundEventPayload({
       calendarEventId: "event_1",
       kind: "APPOINTMENT",
@@ -93,7 +93,7 @@ describe("calendar sync normalization", () => {
       timezone: "America/New_York",
     })
 
-    assert.equal(payload.summary, "MassageLab appointment")
+    assert.equal(payload.summary, "AtmoShaper appointment")
     assert.equal(payload.description, undefined)
     assert.equal(payload.location, undefined)
     assert.equal(payload.attendees, undefined)

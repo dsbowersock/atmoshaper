@@ -1,8 +1,8 @@
 import type { Prisma } from "@prisma/client"
-import { calendarSyncWindow, GOOGLE_CALENDAR_PROVIDER } from "./calendar-sync-constants.ts"
+import { calendarSyncWindow, GOOGLE_CALENDAR_CREATION_PENDING_REASON, GOOGLE_CALENDAR_PROVIDER, GOOGLE_CALENDAR_SCOPES } from "./calendar-sync-constants.ts"
 import { getGoogleCalendarSyncConfig } from "./calendar-sync-env.ts"
 import { decryptCalendarSyncSecret, encryptCalendarSyncSecret } from "./calendar-sync-secrets.ts"
-import { createGoogleCalendarAdapter, type GoogleCalendarAdapter } from "./google-calendar-adapter.ts"
+import { createGoogleCalendarAdapter, GoogleCalendarConnectionError, type GoogleCalendarAdapter } from "./google-calendar-adapter.ts"
 import {
   buildGoogleOutboundEventPayload,
   normalizeGoogleBusyBlock,
@@ -12,6 +12,25 @@ import { prisma } from "./prisma.ts"
 
 type CalendarDb = typeof prisma | Prisma.TransactionClient
 const GOOGLE_API_STATUS_ERROR_PATTERN = /^Google Calendar request failed with status (\d+)\.$/
+// Inbound reads include every selected source; outbound reads only validate one
+// target. These aggregate provider budgets do not bound database commit time or
+// new-event POSTs, whose generated IDs must survive their existing wait contract.
+const GOOGLE_INBOUND_READ_BUDGET_MS = 60_000
+const GOOGLE_OUTBOUND_READ_BUDGET_MS = 30_000
+
+/**
+ * Keep Calendar metadata/write access limited to calendars created by this app.
+ * Extra Calendar grants could make the read-only ownership check accept an
+ * unrelated calendar; unrelated identity scopes do not widen Calendar access.
+ */
+export function assertGoogleCalendarSyncScopes(grantedScopes?: string | null) {
+  const scopes = new Set((grantedScopes ?? "").split(/\s+/).filter(Boolean))
+  const expected = new Set<string>(GOOGLE_CALENDAR_SCOPES.filter((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar")))
+  if ([...expected].some((scope) => !scopes.has(scope))
+    || [...scopes].some((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar") && !expected.has(scope))) {
+    throw new GoogleCalendarConnectionError("permissions", "Reconnect Google Calendar with the required limited permissions.")
+  }
+}
 
 /**
  * Produces source selection updates without deleting source rows.
@@ -98,10 +117,12 @@ export function cancelledGoogleEventIds(
  * Returns a usable access token for an active Google connection.
  * Cached encrypted access tokens are reused until near expiry; otherwise the
  * stored refresh token is exchanged and the refreshed token is persisted.
+ * Both paths validate the target within the caller's aggregate provider budget.
  */
 export async function refreshGoogleAccessToken(
   connectionId: string,
   adapter: GoogleCalendarAdapter = createGoogleCalendarAdapter(),
+  signal: AbortSignal = AbortSignal.timeout(GOOGLE_OUTBOUND_READ_BUDGET_MS),
 ) {
   const config = getGoogleCalendarSyncConfig()
   if (!config) throw new Error("Google calendar sync is not configured.")
@@ -110,9 +131,13 @@ export async function refreshGoogleAccessToken(
   if (!connection || connection.provider !== GOOGLE_CALENDAR_PROVIDER || connection.status !== "ACTIVE") {
     throw new Error("Choose an active Google calendar connection.")
   }
+  assertGoogleCalendarSyncScopes(connection.grantedScopes)
+  if (!connection.dedicatedCalendarId) throw new GoogleCalendarConnectionError("target", "Choose a verified AtmoShaper calendar.")
 
   if (connection.encryptedAccessToken && connection.accessTokenExpiresAt && connection.accessTokenExpiresAt.getTime() > Date.now() + 60_000) {
-    return decryptCalendarSyncSecret(connection.encryptedAccessToken)
+    const accessToken = decryptCalendarSyncSecret(connection.encryptedAccessToken)
+    await adapter.validateDedicatedCalendar(accessToken, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId, signal })
+    return accessToken
   }
 
   const refreshToken = decryptCalendarSyncSecret(connection.encryptedRefreshToken)
@@ -120,7 +145,10 @@ export async function refreshGoogleAccessToken(
     clientId: config.clientId,
     clientSecret: config.clientSecret,
     refreshToken,
+    signal,
   })
+  assertGoogleCalendarSyncScopes(token.scope ?? connection.grantedScopes)
+  await adapter.validateDedicatedCalendar(token.access_token, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId, signal })
   const accessTokenExpiresAt = token.expires_in ? new Date(Date.now() + token.expires_in * 1000) : null
 
   await prisma.calendarConnection.update({
@@ -141,6 +169,7 @@ export async function refreshGoogleAccessToken(
  * Imports selected Google calendars into generic busy blocks for one connection.
  * It locks the parent connection row while writing busy data so scheduling
  * transactions can coordinate against concurrent inbound sync writes.
+ * One shared read budget covers validation and every source's event pagination.
  */
 export async function syncGoogleConnectionSources({
   connectionId,
@@ -151,7 +180,8 @@ export async function syncGoogleConnectionSources({
   adapter?: GoogleCalendarAdapter
   now?: Date
 }) {
-  const accessToken = await refreshGoogleAccessToken(connectionId, adapter)
+  const providerDeadline = AbortSignal.timeout(GOOGLE_INBOUND_READ_BUDGET_MS)
+  const accessToken = await refreshGoogleAccessToken(connectionId, adapter, providerDeadline)
   const connection = await prisma.calendarConnection.findUnique({
     where: { id: connectionId },
     include: { sources: true },
@@ -163,6 +193,7 @@ export async function syncGoogleConnectionSources({
   let itemsChanged = 0
 
   for (const source of connection.sources.filter((item) => item.selectedForBusySync)) {
+    providerDeadline.throwIfAborted()
     const run = await prisma.calendarSyncRun.create({
       data: {
         connectionId: connection.id,
@@ -181,6 +212,7 @@ export async function syncGoogleConnectionSources({
         timeMin: source.syncToken ? undefined : window.startsAt.toISOString(),
         timeMax: source.syncToken ? undefined : window.endsAt.toISOString(),
         syncToken: source.syncToken,
+        signal: providerDeadline,
       })
       const events = payload.items ?? []
       const deletedProviderEventIds = cancelledGoogleEventIds(events)
@@ -265,6 +297,8 @@ export async function syncGoogleConnectionSources({
         where: { id: source.id },
         data: syncSourceFailurePatch(error),
       })
+      // Preserve this source's old cursor and stop starting more provider work.
+      providerDeadline.throwIfAborted()
     }
   }
 
@@ -350,6 +384,7 @@ export function outboundSyncFailurePatch(error: unknown) {
 /**
  * Pushes one eligible MassageLab calendar event into the dedicated Google
  * calendar and stores the Google event link for future reconciliation.
+ * Target reads have a separate budget; new inserts still await their returned ID.
  */
 export async function pushCalendarEventToGoogle(
   calendarEventId: string,
@@ -372,11 +407,18 @@ export async function pushCalendarEventToGoogle(
   })
   if (!connection?.dedicatedCalendarId) return { skipped: true }
 
-  const accessToken = await refreshGoogleAccessToken(connection.id, adapter)
+  const providerDeadline = AbortSignal.timeout(GOOGLE_OUTBOUND_READ_BUDGET_MS)
+  const accessToken = await refreshGoogleAccessToken(connection.id, adapter, providerDeadline)
   const existingLink = event.externalCalendarLinks.find((link) => link.connectionId === connection.id) ?? null
+  // A provider event ID is meaningful only within its original calendar.
+  // Never PATCH or DELETE a stale mapping through a different target.
+  if (existingLink && (existingLink.provider !== GOOGLE_CALENDAR_PROVIDER || existingLink.providerCalendarId !== connection.dedicatedCalendarId)) {
+    throw new GoogleCalendarConnectionError("target", "The saved Google event belongs to a different calendar.")
+  }
   const action = outboundSyncActionForStatus(event.status)
 
   if (action === "SKIP") return { skipped: true }
+  providerDeadline.throwIfAborted()
 
   if (action === "DELETE" && existingLink?.providerEventId) {
     await adapter.deleteEvent({
@@ -505,9 +547,11 @@ async function recordGoogleCalendarEventPushFailure({
 }
 
 /**
- * Persists a single active Google connection for the provider.
- * Connecting another Google account deletes older Google sync state so outbound
- * sync never chooses between multiple active calendars.
+ * Persists an active Google connection or a verified-account creation intent.
+ * A reconnect may refresh tokens, but cannot silently replace an account or
+ * target and invalidate its event links. Changing accounts requires disconnect.
+ * Pending creation stores encrypted credentials with ERROR status and no
+ * target; it cannot sync until readback succeeds and activation clears the reason.
  */
 export async function saveGoogleCalendarConnection({
   userId,
@@ -519,6 +563,8 @@ export async function saveGoogleCalendarConnection({
   grantedScopes,
   dedicatedCalendarId,
   dedicatedCalendarSummary,
+  creationPending = false,
+  db,
 }: {
   userId: string
   providerAccountId: string
@@ -529,23 +575,23 @@ export async function saveGoogleCalendarConnection({
   grantedScopes?: string | null
   dedicatedCalendarId?: string | null
   dedicatedCalendarSummary?: string | null
+  creationPending?: boolean
+  db?: Prisma.TransactionClient
 }) {
   const accessTokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000) : null
 
-  return prisma.$transaction(async (tx) => {
+  const save = async (tx: Prisma.TransactionClient) => {
     await tx.$queryRaw`
       SELECT id
       FROM "User"
       WHERE id = ${userId}
       FOR UPDATE
     `
-    await tx.calendarConnection.deleteMany({
-      where: {
-        userId,
-        provider: GOOGLE_CALENDAR_PROVIDER,
-        providerAccountId: { not: providerAccountId },
-      },
-    })
+    const existing = await tx.calendarConnection.findMany({ where: { userId, provider: GOOGLE_CALENDAR_PROVIDER } })
+    if (existing.some((connection) => (connection.status === "ACTIVE" && connection.providerAccountId !== providerAccountId)
+      || (connection.providerAccountId === providerAccountId && connection.dedicatedCalendarId && connection.dedicatedCalendarId !== dedicatedCalendarId))) {
+      throw new GoogleCalendarConnectionError("target", "Disconnect the existing Google calendar connection before changing accounts or targets.")
+    }
 
     return tx.calendarConnection.upsert({
       where: {
@@ -564,8 +610,8 @@ export async function saveGoogleCalendarConnection({
         encryptedAccessToken: encryptCalendarSyncSecret(accessToken),
         accessTokenExpiresAt,
         grantedScopes: grantedScopes ?? "",
-        status: "ACTIVE",
-        statusReason: null,
+        status: creationPending ? "ERROR" : "ACTIVE",
+        statusReason: creationPending ? GOOGLE_CALENDAR_CREATION_PENDING_REASON : null,
         dedicatedCalendarId,
         dedicatedCalendarSummary,
       },
@@ -575,11 +621,131 @@ export async function saveGoogleCalendarConnection({
         encryptedAccessToken: encryptCalendarSyncSecret(accessToken),
         accessTokenExpiresAt,
         grantedScopes: grantedScopes ?? "",
-        status: "ACTIVE",
-        statusReason: null,
+        status: creationPending ? "ERROR" : "ACTIVE",
+        statusReason: creationPending ? GOOGLE_CALENDAR_CREATION_PENDING_REASON : null,
         dedicatedCalendarId,
         dedicatedCalendarSummary,
       },
     })
+  }
+  return db ? save(db) : prisma.$transaction(save)
+}
+
+/**
+ * Completes the callback using this user's existing account-bound target.
+ * A committed inactive intent precedes Google creation. Later callbacks can
+ * reconcile a discovered target but cannot blindly repeat an uncertain POST.
+ * Each phase retains the user-row lock; existing targets are never adopted
+ * across accounts, reset, renamed, deleted, or copied.
+ */
+export async function connectGoogleCalendar({ userId, token, adapter = createGoogleCalendarAdapter() }: {
+  userId: string
+  token: Awaited<ReturnType<GoogleCalendarAdapter["exchangeCode"]>>
+  adapter?: GoogleCalendarAdapter
+}) {
+  if (!token.googleUserId || !token.refresh_token) throw new Error("Google calendar connection identity and refresh token are required.")
+  assertGoogleCalendarSyncScopes(token.scope)
+  const providerAccountId = token.googleUserId
+  const refreshToken = token.refresh_token
+  const credentials = {
+    userId, providerAccountId, accountEmail: token.googleUserEmail ?? null,
+    accessToken: token.access_token, refreshToken,
+    expiresIn: token.expires_in, grantedScopes: token.scope,
+  }
+  // Start before lock acquisition; leave 15 seconds of the transaction budget
+  // for database work, and stop paginated provider calls before lock expiry.
+  const providerDeadline = AbortSignal.timeout(30_000)
+  /** Serialize account continuity and return this account's history in either phase. */
+  const readConnection = async (tx: Prisma.TransactionClient) => {
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`
+    const existing = await tx.calendarConnection.findMany({ where: { userId, provider: GOOGLE_CALENDAR_PROVIDER } })
+    // Superseded/inactive rows are retained history, not a second active account.
+    if (existing.some((item) => item.status === "ACTIVE" && item.providerAccountId !== providerAccountId)) {
+      throw new GoogleCalendarConnectionError("account", "Disconnect the existing Google calendar connection before changing accounts.")
+    }
+    return existing.find((item) => item.providerAccountId === providerAccountId)
+  }
+  /** Activate only a validated target and commit its source inventory together. */
+  const saveTarget = async (tx: Prisma.TransactionClient, dedicatedCalendar: Awaited<ReturnType<GoogleCalendarAdapter["ensureDedicatedCalendar"]>>) => {
+    const saved = await saveGoogleCalendarConnection({
+      ...credentials,
+      dedicatedCalendarId: dedicatedCalendar.id, dedicatedCalendarSummary: dedicatedCalendar.summary, db: tx,
+    })
+    await upsertGoogleCalendarSources({
+      connectionId: saved.id, calendars: await adapter.listCalendars(token.access_token, providerDeadline),
+      excludedProviderCalendarIds: [dedicatedCalendar.id], db: tx,
+    })
+    providerDeadline.throwIfAborted()
+    return saved
+  }
+  const prepared = await prisma.$transaction(async (tx) => {
+    const existing = await readConnection(tx)
+    const dedicatedCalendar = await adapter.findDedicatedCalendar(token.access_token, {
+      providerAccountId,
+      storedCalendarId: existing?.dedicatedCalendarId,
+      signal: providerDeadline,
+    })
+    if (dedicatedCalendar) return { state: "CONNECTED" as const, connection: await saveTarget(tx, dedicatedCalendar) }
+    if (existing?.statusReason === GOOGLE_CALENDAR_CREATION_PENDING_REASON) {
+      throw new GoogleCalendarConnectionError("target", "Google calendar creation is unresolved. Reconcile the existing attempt before retrying.")
+    }
+    // Commit a verified-account, encrypted, inactive intent before any POST.
+    // A timeout/rollback in the next transaction must not erase that attempt.
+    const intent = await saveGoogleCalendarConnection({ ...credentials, creationPending: true, db: tx })
+    providerDeadline.throwIfAborted()
+    return { state: "CREATION_READY" as const, intent: { id: intent.id, updatedAt: intent.updatedAt } }
+  }, { timeout: 45_000 })
+  let postAttempted = false
+  let targetResolved = false
+  const creationAbort = new AbortController()
+  const connection = prepared.state === "CONNECTED" ? prepared.connection : await prisma.$transaction(async (tx) => {
+    const intent = await readConnection(tx)
+    if (!intent || intent.id !== prepared.intent.id || intent.updatedAt.getTime() !== prepared.intent.updatedAt.getTime()
+      || intent.status !== "ERROR" || intent.statusReason !== GOOGLE_CALENDAR_CREATION_PENDING_REASON || intent.dedicatedCalendarId) {
+      throw new GoogleCalendarConnectionError("target", "Google calendar creation state changed. Reconnect to validate its target.")
+    }
+    // Only the invocation that committed a new intent reaches this phase.
+    // Other callbacks may discover a completed target, but never issue a POST.
+    const dedicatedCalendar = await adapter.ensureDedicatedCalendar(token.access_token, {
+      providerAccountId, signal: AbortSignal.any([providerDeadline, creationAbort.signal]), onCreateAttempt: () => { postAttempted = true },
+    })
+    targetResolved = true
+    return await saveTarget(tx, dedicatedCalendar)
+  }, { timeout: 45_000 }).catch((error: unknown) => {
+    // A transaction can reject before its callback settles. Stop late discovery
+    // before releasing the intent, so that callback can never dispatch a POST.
+    creationAbort.abort()
+    return handleGoogleCalendarCreationFailure({ error, userId, providerAccountId, intent: prepared.intent, postAttempted, targetResolved })
   })
+  await syncGoogleConnectionSources({ connectionId: connection.id, adapter })
+  return connection
+}
+
+/**
+ * Release only this invocation's saved intent when no POST was dispatched and no
+ * target was resolved. Reacquire the user lock after rollback and match the saved
+ * row/version. A failed release or any uncertain provider outcome stays pending.
+ */
+async function handleGoogleCalendarCreationFailure({ error, userId, providerAccountId, intent, postAttempted, targetResolved }: {
+  error: unknown
+  userId: string
+  providerAccountId: string
+  intent: { id: string; updatedAt: Date }
+  postAttempted: boolean
+  targetResolved: boolean
+}): Promise<never> {
+  const released = !postAttempted && !targetResolved && await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`
+    const result = await tx.calendarConnection.updateMany({
+      where: {
+        id: intent.id, updatedAt: intent.updatedAt, userId, provider: GOOGLE_CALENDAR_PROVIDER,
+        providerAccountId, status: "ERROR", statusReason: GOOGLE_CALENDAR_CREATION_PENDING_REASON, dedicatedCalendarId: null,
+      },
+      data: { statusReason: null },
+    })
+    return result.count === 1
+  }, { timeout: 45_000 }).catch(() => false)
+  if (error instanceof GoogleCalendarConnectionError) throw error
+  if (released) throw new Error("Google calendar connection failed before creation. Retry connecting.")
+  throw new GoogleCalendarConnectionError("target", "Google calendar creation is unresolved. Reconcile the existing attempt before retrying.")
 }
