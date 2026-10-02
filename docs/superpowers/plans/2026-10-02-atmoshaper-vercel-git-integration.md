@@ -4,8 +4,10 @@ Status: PR #37's separately approved source merge is complete, 2026-10-02,
 as `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; its reviewed gate is on `main`.
 PR #36's Calendar source-only merge is also complete. Current settings and all
 four live alias assignments are now verified through normal authenticated CLI
-reads. The hosting plan has not been executed and grants no provider-write,
-build, deployment, or public promotion authority.
+reads. The user subsequently approved the bounded hosting stage below, including
+narrow App access and one unpromoted candidate, while excluding public promotion.
+The same project's rename, manual promotion control, and explicit Build Command
+are applied; Git connection and the candidate remain pending verified App access.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [migration ledger](../../wiki/migration-status.md) first. Preserve the
@@ -225,7 +227,29 @@ remain outside that source approval.
 - Preserve public registration/Supporter activation, disabled one-time/background
   purchasing, the completed payment-test boundary, and both projects' data.
 
-Execution remains pending narrowly scoped GitHub App access and exact hosting
-authorization; current settings and live rollback assignments have been read.
+## Approved execution progress — 2026-10-02
+
+The user's approval covers this prepared hosting stage and normal App access to
+only AtmoShaper, preserving existing grants. Fresh preflight matched the saved
+existing target/scope, unchanged reviewed `main`, and all four original live
+aliases. Applied and read back custom-domain auto-assignment off and explicit
+Build Command `npm run build` before renaming the same project to `atmoshaper`.
+All four aliases retain the original approved live artifact; the three project
+domains, apex `308` redirect, and protection remain intact. Correct-path public
+GET checks passed for all seven approved routes with a `null` signed-out session.
+
+Browser automation could not verify its required admin policy for GitHub and
+was denied. The user completed the App grant and reported access granted.
+Vercel's repository lookup still reports the App as not installed, while this
+CLI cannot list namespaces without adding unsupported team scope. Automatic
+approval review rejected the connection command before execution because that
+access prerequisite was unverified. The normal App Configure-page address is
+requested to identify the exact installation for the supported read-only API
+check. Do not retry the consequential command without resolving the rejection's
+stated prerequisite. No Git connection, candidate build, or promotion occurred.
+
+Continue the already authorized connection/build once access is verified; do
+not request the same hosting approval again. Public promotion still requires
+its later exact approval. Use only approved owned rollback operations if needed.
 The user does not need to repeat hosting setup, choose an unexplained Google
 project, or supply the already established Git-status observation.

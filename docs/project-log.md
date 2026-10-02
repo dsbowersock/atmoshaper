@@ -2,6 +2,42 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Hosting stage approved; project rename and build safeguards applied
+
+- The user authorized the prepared existing-project rename, Git connection,
+  and one unpromoted build, plus normal narrowly scoped GitHub App access.
+  Public promotion, Calendar activation, database writes, and repeated live
+  payment tests remain excluded. The current source candidate is merged PR #37
+  at `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; its remote `main` is unchanged.
+- Fresh preflight confirmed the saved existing target/scope, available proposed
+  name, absent Git link, prior live artifact, all four unchanged alias
+  assignments, and empty Preview project-variable inventory. Applied and read
+  back custom-domain auto-assignment `false` and explicit Build Command
+  `npm run build`, then renamed the same project to `atmoshaper`. Both writes
+  preserved the approved live artifact. All four aliases, three verified
+  project domains, apex `308` redirect, and deployment protection remain intact.
+  Updated only the ignored local hosting-link name, preserving its target/scope.
+- Correct-path GET-only checks of `/`, `/pricing`, `/register`, `/support`,
+  `/legal/privacy`, `/legal/terms`, and `/api/auth/session` all returned `200`;
+  the signed-out session body is `null`. An initial smoke command used obsolete
+  `/privacy` and `/terms` paths and reused a prior response after their errors;
+  that output is invalid and was discarded. The corrected independent status
+  reads above are the actual receipt. No account, payment, email, or fixture was
+  created by these public checks.
+- Chrome automation cannot start its app-server; in-app browser access to
+  GitHub is denied because the admin-enforced policy cannot be verified. No
+  bypass was attempted. The user completed the normal GitHub App grant and
+  reported access granted. Vercel's owner-specific lookup still reports
+  `Vercel App is not installed`; its namespace listing remains incompatible
+  with this CLI's automatic team scope. Account metadata does not expose App
+  connections and cannot prove whether the grant is missing.
+- Automatic approval review rejected `vercel git connect` because App access
+  was still unverified. The command did not execute. Requested the normal App
+  Configure-page address to identify the exact installation for a supported
+  read-only check before retrying. No new Git link or build is claimed. Continue
+  from the approved partial settings, or use only the approved owned recovery
+  operations if needed; do not create another project or broaden App grants.
+
 ## 2026-10-02 — Production Supporter gate merged; hosting settings verified
 
 - The user approved merging [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37).

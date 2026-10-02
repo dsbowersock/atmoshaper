@@ -86,14 +86,19 @@ the existing project has no build override, no Git link, and enabled automatic
 custom-domain assignment. All four aliases retain the approved live target.
 Production configuration preserves the launch boundaries; Preview/Development
 have no project variables. Vercel's owner-specific repository read reports its
-GitHub App is not installed. Normal App access to only AtmoShaper and exact
-hosting-stage authority are the remaining input; public promotion is separate.
+GitHub App is not installed. The user subsequently authorized the bounded
+hosting stage and reported granting App access. The existing project is now
+named `atmoshaper`, custom-domain auto-assignment is off, and the explicit Build
+Command is `npm run build`; all four aliases retain the prior live artifact.
+Git connection and one unpromoted candidate still await verified App access.
+The connection command was rejected before execution by automatic approval
+review while Vercel still reported missing access. Public promotion is separate.
 
 ## Remaining migration ledger
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |
-| Vercel project name and Git integration | Authenticated CLI readback verifies current build settings, all four live alias assignments, launch boundaries, and Production-only project variables. Git is absent; Vercel reports missing App access for the repository owner | Follow the [existing-project integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md); establish narrowly scoped App access and verify visibility before connecting | Exact authority for App access, naming/connection/control/Build Command writes and one unpromoted candidate; public promotion remains a later approval. Do not reimport the app or repeat satisfied settings/login questions |
+| Vercel project name and Git integration | Approved rename and build/promotion safeguards are applied to the same project; all four aliases retain the prior live artifact. User reported App grant, but Vercel access lookup remains unresolved and Git is absent | Follow the [existing-project integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md); verify the exact App installation through supported reads, then retry the authorized connection and one unpromoted candidate | Hosting stage already authorized; exact App Configure-page reference requested for access verification. Public promotion remains a later approval. Do not reimport the app or repeat satisfied settings/login questions |
 | Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
 | Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
 | Google Calendar | A separate `AtmoShaper` calendar is selected and its source preparation is merged; OAuth/client/callback readiness and actual provider behavior remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); identify the existing technical targets and prepare isolated provider acceptance | Ask before client/callback writes, QA resource or calendar creation/sync, token or row migration, a deployment, or public activation |

@@ -11,8 +11,8 @@ deployment, provider write, or pause change requires its own exact authority.
 
 ## Current Project Name And Repository Connection
 
-The user's 2026-10-02 Dashboard screenshot confirms that the existing project
-serving `www.atmoshaper.com` retains its preview-era name and shows `Connect Git
+The user's earlier 2026-10-02 Dashboard screenshot showed that the existing
+project serving `www.atmoshaper.com` retained its preview-era name and `Connect Git
 Repository`. The completed live launch used CLI deployments. PR #36's and
 PR #37's source-only merges did not trigger a new deployment; the deployed
 runtime remains reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
@@ -25,9 +25,13 @@ The proposed default is staged Production builds with manual promotion.
 No connection, rename, control change, build, or promotion is authorized by the
 Calendar source merge. Do not create a replacement project or ask the user to
 repeat the satisfied Git-status observation. Subsequent Production screenshots
-confirm the custom-domain auto-assignment control is present and enabled.
-Disable it only under the exact hosting approval, before connecting Git;
-the read-only control check is complete.
+confirmed the custom-domain auto-assignment control was present and enabled.
+The user subsequently approved the hosting stage. The same project is now named
+`atmoshaper`, its custom-domain auto-assignment is disabled, and its Build
+Command is explicitly `npm run build`. All four aliases still point to the prior
+live artifact. Git connection and the unpromoted candidate remain pending
+verified App access; the first connection command was rejected before execution
+by automatic approval review. Public promotion is not authorized.
 
 ## Production Readiness In The Standard Build
 
@@ -42,14 +46,15 @@ provider access. All seven hosted CI jobs and final full CodeRabbit/Codex review
 passed at the unchanged reviewed head. The new Production gate has not run in
 Vercel; its source merge does not authorize hosting operations.
 
-Normal CLI authentication is now restored. Current settings have no Build
-Command override, use Next.js/Node 24 at the repository root, and retain enabled
+Normal CLI authentication is restored. Current settings use the explicit
+standard Build Command, Next.js/Node 24 at the repository root, and disabled
 automatic custom-domain assignment with no Git link. All four current aliases
 point to the approved live deployment. Project environment variables target
 only Production; Preview and Development have none. Direct Production URLs and
-Preview deployments require Vercel sign-in. Vercel reports missing GitHub App
-access for the repository owner; grant only AtmoShaper through the normal App
-flow, preserve existing grants, and verify visibility before connecting.
+Preview deployments require Vercel sign-in. The user reports granting GitHub App
+access, but Vercel's lookup still reports missing access. Verify the exact normal
+App installation and repository visibility before connecting; preserve existing
+grants and do not infer historical installation state from this tool response.
 
 Before connecting Git, verify that the actual Build Command uses `npm run build`
 so both gates execute. A custom `next build` command bypasses npm's prebuild;
