@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client"
-import { calendarSyncWindow, GOOGLE_CALENDAR_PROVIDER, GOOGLE_CALENDAR_SCOPES } from "./calendar-sync-constants.ts"
+import { calendarSyncWindow, GOOGLE_CALENDAR_CREATION_PENDING_REASON, GOOGLE_CALENDAR_PROVIDER, GOOGLE_CALENDAR_SCOPES } from "./calendar-sync-constants.ts"
 import { getGoogleCalendarSyncConfig } from "./calendar-sync-env.ts"
 import { decryptCalendarSyncSecret, encryptCalendarSyncSecret } from "./calendar-sync-secrets.ts"
 import { createGoogleCalendarAdapter, GoogleCalendarConnectionError, type GoogleCalendarAdapter } from "./google-calendar-adapter.ts"
@@ -12,7 +12,6 @@ import { prisma } from "./prisma.ts"
 
 type CalendarDb = typeof prisma | Prisma.TransactionClient
 const GOOGLE_API_STATUS_ERROR_PATTERN = /^Google Calendar request failed with status (\d+)\.$/
-const GOOGLE_CALENDAR_CREATION_PENDING_REASON = "GOOGLE_CALENDAR_CREATION_PENDING"
 
 /**
  * Keep Calendar metadata/write access limited to calendars created by this app.
@@ -639,6 +638,7 @@ export async function connectGoogleCalendar({ userId, token, adapter = createGoo
   // Start before lock acquisition; leave 15 seconds of the transaction budget
   // for database work, and stop paginated provider calls before lock expiry.
   const providerDeadline = AbortSignal.timeout(30_000)
+  /** Serialize account continuity and return this account's history in either phase. */
   const readConnection = async (tx: Prisma.TransactionClient) => {
     await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`
     const existing = await tx.calendarConnection.findMany({ where: { userId, provider: GOOGLE_CALENDAR_PROVIDER } })
@@ -648,6 +648,7 @@ export async function connectGoogleCalendar({ userId, token, adapter = createGoo
     }
     return existing.find((item) => item.providerAccountId === providerAccountId)
   }
+  /** Activate only a validated target and commit its source inventory together. */
   const saveTarget = async (tx: Prisma.TransactionClient, dedicatedCalendar: Awaited<ReturnType<GoogleCalendarAdapter["ensureDedicatedCalendar"]>>) => {
     const saved = await saveGoogleCalendarConnection({
       ...credentials,

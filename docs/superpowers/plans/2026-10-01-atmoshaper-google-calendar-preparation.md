@@ -111,16 +111,21 @@ direction is outside this AtmoShaper migration work.
   intent. A later callback may reconcile a discovered verified target, but a
   pending intent with no target cannot issue another POST, even if the provider
   listing is temporarily empty. No calendar is automatically deleted or renamed.
+- The disconnect action excludes unresolved creation intents in the atomic
+  user/provider-scoped deletion. Pending rows cannot be erased by a direct
+  action request; ordinary active/null-reason and resolved historical rows
+  remain removable. Rejected requests do not report a successful disconnect.
 - Provider-free tests exercise the actual adapter, callback, and service.
   Provider consent, scope behavior, transaction timeouts, interrupted creation,
   and isolated acceptance still require the separately authorized QA stage.
-- Current local receipt: the named Calendar group passes 65/65, including
+- Current local receipt: the named Calendar group passes 70/70, including
   inactive-history, provider deadlines, deferred event inserts, accepted but
-  invisible calendar creation, and final-transaction rollback. The transaction
+  invisible calendar creation, final-transaction rollback, and direct disconnect
+  protection. The transaction
   double models rollback; it does not prove live PostgreSQL concurrency.
   Initial CI and the first local repair run found the stale project-state date
   ceiling; its bound now matches the October 2 evidence. The final full suite
-  passes 5,089 of 5,092 tests with three skips and no failures. Lint, typecheck,
+  passes 5,094 of 5,097 tests with three skips and no failures. Lint, typecheck,
   build, diff checks, and all 65 relative documentation links pass. Required
   final-head hosted follow-up is tracked in PR #36. Local builds skip the
   Vercel Production migration gate and do not deploy. Historical

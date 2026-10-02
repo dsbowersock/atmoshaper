@@ -6,12 +6,14 @@ import { getGoogleCalendarSyncConfig } from "@/lib/calendar-sync-env"
 import { createGoogleCalendarAdapter, GoogleCalendarConnectionError } from "@/lib/google-calendar-adapter"
 import { connectGoogleCalendar } from "@/lib/calendar-sync-service"
 
+/** Clear the one-use state cookie and return only a safe connection outcome to the sync page. */
 function redirectToCalendarSync(baseUrl: string, status: string) {
   const response = NextResponse.redirect(new URL(`/calendar/sync?google=${status}`, baseUrl))
   response.cookies.delete("massagelab_google_calendar_state")
   return response
 }
 
+/** Authorize the callback, consume its state, and delegate verified account/target persistence. */
 export async function GET(request: NextRequest) {
   const session = await getCurrentSession()
   const baseUrl = getSiteUrl()

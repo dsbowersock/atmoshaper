@@ -9,11 +9,65 @@ import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 const load = createCompiledModuleLoader(import.meta.url)
 const serviceSource = await readFile(new URL("../lib/calendar-sync-service.ts", import.meta.url), "utf8")
 const routeSource = await readFile(new URL("../app/api/calendar/google/callback/route.ts", import.meta.url), "utf8")
+const actionsSource = await readFile(new URL("../app/calendar/sync/actions.ts", import.meta.url), "utf8")
 const marker = constants.ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION
 const scopes = constants.GOOGLE_CALENDAR_SCOPES.join(" ")
 const managed = (overrides = {}) => ({ id: "atmo-calendar", summary: "AtmoShaper", description: marker, accessRole: "owner", ...overrides })
 const legacy = { id: "legacy-calendar", summary: "MassageLab", accessRole: "owner" }
 const token = { access_token: "fixture-access", refresh_token: "fixture-refresh", expires_in: 3600, scope: scopes, googleUserId: "subject-a" }
+
+/** Minimal nullable equality/NOT/OR semantics for the real disconnect action's atomic delete. */
+function matchesConnectionWhere(row, where) {
+  return Object.entries(where).every(([key, value]) => {
+    if (key === "OR") return value.some((branch) => matchesConnectionWhere(row, branch))
+    if (value && typeof value === "object" && Object.hasOwn(value, "not")) return row[key] != null && row[key] !== value.not
+    return row[key] === value
+  })
+}
+
+describe("Google disconnect creation-intent boundary", () => {
+  for (const [label, overrides, removable] of [
+    ["pending creation", { status: "ERROR", statusReason: constants.GOOGLE_CALENDAR_CREATION_PENDING_REASON }, false],
+    ["active connection with a null reason", { status: "ACTIVE", statusReason: null }, true],
+    ["resolved historical error", { status: "ERROR", statusReason: "OLD_ERROR" }, true],
+    ["another user's connection", { userId: "user-b", statusReason: null }, false],
+    ["another provider's connection", { provider: "OTHER", statusReason: null }, false],
+  ]) {
+    it(`${removable ? "disconnects" : "preserves"} ${label}`, async () => {
+      const row = { id: "connection-a", userId: "user-a", provider: "GOOGLE", ...overrides }
+      const rows = [row]
+      const paths = []
+      const redirects = []
+      const actions = load(actionsSource, "app/calendar/sync/actions.isolation.test.ts", {
+        "next/cache": { revalidatePath: (path) => paths.push(path) },
+        "next/navigation": { redirect: (path) => redirects.push(path) },
+        "@/auth": { getCurrentSession: async () => ({ user: { id: "user-a" } }) },
+        "@/lib/calendar-sync-access": {},
+        "@/lib/calendar-sync-constants": constants,
+        "@/lib/calendar-sync-service": {},
+        "@/lib/prisma": { prisma: { calendarConnection: { deleteMany: async ({ where }) => {
+          const index = rows.findIndex((item) => matchesConnectionWhere(item, where))
+          if (index < 0) return { count: 0 }
+          rows.splice(index, 1)
+          return { count: 1 }
+        } } } },
+      })
+      const form = new FormData()
+      form.set("connectionId", row.id)
+      if (removable) {
+        await actions.disconnectGoogleCalendarAction(form)
+        assert.deepEqual(rows, [])
+        assert.deepEqual(paths, ["/calendar/sync", "/calendar"])
+        assert.deepEqual(redirects, ["/calendar/sync?google=disconnected"])
+      } else {
+        await assert.rejects(() => actions.disconnectGoogleCalendarAction(form), /requires reconciliation/)
+        assert.deepEqual(rows, [row])
+        assert.deepEqual(paths, [])
+        assert.deepEqual(redirects, [])
+      }
+    })
+  }
+})
 
 /** Fake Google transport only; discovery and validation use the real adapter. */
 function googleFixture({ calendars = [], subject = "subject-a", pages, metadataStatus = 200, metadata, failCreation = false, creationVisible = true, refreshScope = scopes, beforeResponse = () => {} } = {}) {

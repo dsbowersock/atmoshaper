@@ -31,11 +31,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   the Google POST. Later callbacks may activate a discovered, validated target,
   but cannot create again while the first attempt is unresolved. The final
   target/source transaction cannot erase that prior intent on rollback.
+  The disconnect action protects unresolved intents in its atomic, owned-row
+  deletion and fails without a success redirect; resolved connections remain
+  removable. This guard also covers direct server-action requests.
   Existing fields carry this additive state; no schema migration is added.
-  Provider-free adapter/callback/service regressions pass 65/65.
+  Provider-free adapter/callback/service/action regressions pass 70/70.
   Initial CI also
   found a stale project-state date ceiling; its bound now matches this verified
-  date. The final full suite passes 5,089 of 5,092 tests with three skips and
+  date. The final full suite passes 5,094 of 5,097 tests with three skips and
   no failures; lint, typecheck, build, diff checks, and all 65 relative
   documentation links pass.
   Required final-head hosted checks and reviews are

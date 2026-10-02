@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentSession } from "@/auth"
 import { assertGoogleCalendarSyncAccess } from "@/lib/calendar-sync-access"
+import { GOOGLE_CALENDAR_CREATION_PENDING_REASON } from "@/lib/calendar-sync-constants"
 import { syncGoogleConnectionSources } from "@/lib/calendar-sync-service"
 import { prisma } from "@/lib/prisma"
 
@@ -13,13 +14,19 @@ async function currentUserId() {
   return session.user.id
 }
 
+/** Disconnect only owned, resolved attempts; deleting an uncertain intent permits duplicate creation. */
 export async function disconnectGoogleCalendarAction(formData: FormData) {
   const userId = await currentUserId()
   const connectionId = String(formData.get("connectionId") ?? "")
 
-  await prisma.calendarConnection.deleteMany({
-    where: { id: connectionId, userId, provider: "GOOGLE" },
+  const deleted = await prisma.calendarConnection.deleteMany({
+    // Apply the pending guard in the mutation itself, including nullable historical reasons.
+    where: {
+      id: connectionId, userId, provider: "GOOGLE",
+      OR: [{ statusReason: null }, { statusReason: { not: GOOGLE_CALENDAR_CREATION_PENDING_REASON } }],
+    },
   })
+  if (!deleted.count) throw new Error("Choose a removable Google calendar connection. Unresolved creation requires reconciliation.")
 
   revalidatePath("/calendar/sync")
   revalidatePath("/calendar")

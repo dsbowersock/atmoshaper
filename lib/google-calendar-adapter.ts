@@ -121,6 +121,7 @@ export function decodeGoogleCalendarIdTokenClaims(idToken?: string | null): Goog
  * generic outbound event writes.
  */
 export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?: FetchImpl } = {}) {
+  /** Bound transport and parsing together, except new-event inserts whose ID must not be discarded. */
   async function googleJson<T>(url: string, init: RequestInit, expectedStatuses = [200], { timeoutRequest = true } = {}) {
     // Bound ordinary requests and honor the callback's shared discovery deadline:
     // many short paginated requests must not outlive the transaction lock.
@@ -149,6 +150,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     }
   }
 
+  /** Exchange a callback code; decoded subject claims still require live UserInfo verification. */
   async function exchangeCode({
     clientId,
     clientSecret,
@@ -186,6 +188,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     }
   }
 
+  /** Refresh credentials without assuming that returned scopes or account continuity are unchanged. */
   async function refreshAccessToken({
     clientId,
     clientSecret,
@@ -207,6 +210,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     })
   }
 
+  /** Read every inventory page, including hidden targets, within the caller's optional shared deadline. */
   async function listCalendars(accessToken: string, signal?: AbortSignal) {
     const items: GoogleCalendarListItem[] = []
     let pageToken: string | undefined
@@ -291,11 +295,12 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
       signal,
     }, [200, 201])
     if (!created.id) throw new Error("Google did not return a dedicated calendar identity.")
-    // Verify creation before saving tokens or sending events; an interrupted
-    // connection can rediscover this marker without creating another calendar.
+    // Verify creation before activation or sending events; the service's durable
+    // intent permits rediscovery of this marker without another calendar POST.
     return validateCalendar(accessToken, created.id, await listCalendars(accessToken, signal), signal)
   }
 
+  /** Read every event page using either a saved sync token or the bounded initial import window. */
   async function listEvents({
     accessToken,
     calendarId,
@@ -339,6 +344,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     return { items, nextSyncToken }
   }
 
+  /** Return the provider's event identity; only known-ID updates receive the local request deadline. */
   async function upsertEvent({
     accessToken,
     calendarId,
@@ -362,6 +368,7 @@ export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?:
     }, eventId ? [200] : [200, 201], { timeoutRequest: Boolean(eventId) })
   }
 
+  /** Delete a known event ID; an already-missing event is a successful reconciliation outcome. */
   async function deleteEvent({
     accessToken,
     calendarId,

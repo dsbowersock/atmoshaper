@@ -1,4 +1,6 @@
 export const GOOGLE_CALENDAR_PROVIDER = "GOOGLE" as const
+/** A durable unresolved creation intent must survive reconnects and disconnect requests. */
+export const GOOGLE_CALENDAR_CREATION_PENDING_REASON = "GOOGLE_CALENDAR_CREATION_PENDING"
 // Keep the exported compatibility identifier; only the new calendar's public name changes.
 export const MASSAGELAB_GOOGLE_CALENDAR_SUMMARY = "AtmoShaper"
 export const ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION = "Dedicated AtmoShaper calendar for generic events."

@@ -2,6 +2,24 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar PR #36 protects creation intent during disconnect
+
+- Codex reviewed `34e5e09` without findings. CodeRabbit independently inspected
+  the eight-file creation-intent repair and resolved its retry finding, then
+  identified a related direct-action deletion gap outside that repair diff.
+- The disconnect action now excludes pending creation intents in the atomic
+  user/provider-scoped deletion. Nullable historical reasons and ordinary
+  resolved connections remain removable; a rejected request cannot erase an
+  unresolved intent or redirect as disconnected. The pending reason is shared
+  by connection persistence and this guard without changing its value.
+- Five real-action regressions cover pending, active/null, historical-error,
+  other-user, and other-provider rows. The focused Calendar group passes 70/70;
+  the full suite passes 5,094 of 5,097 tests with three expected skips and no
+  failures. Lint, typecheck, build, diff checks, and all 65 relative documentation
+  links pass. Latest-head hosted follow-up remains tracked in PR #36.
+- This remains source-only preparation. No provider, database, deployment, or
+  Calendar activation action occurred.
+
 ## 2026-10-02 — Calendar PR #36 durable creation intent
 
 - CodeRabbit's next full review was triggered when its hourly window opened;
