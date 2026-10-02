@@ -9,6 +9,10 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   exact v2 topology, scoped read-only verification, disabled purchase flows,
   and preserved historical receipts. This repair changes documentation only;
   it does not rerun provider setup, catalog migration, or the live payment test.
+  A follow-up review corrected the v2 bootstrap verifier's placement: its empty
+  subscription/Checkout prerequisites make it unsuitable for routine post-launch
+  checks. Expected active enrollment does not imply catalog damage or authorize
+  recovery; Supporter-only readiness is the routine current verification owner.
 - The user clarified that MassageLab will continue after the migration as a
   separate project. The user then kept its future direction outside this work; the
   current AtmoShaper platform migration keeps its approved scope. Preserve the

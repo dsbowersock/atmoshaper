@@ -328,12 +328,13 @@ and uses its own `txcd_90000001` fail-closed Automatic Tax contract.
   membership and background-commerce event contract below.
 - Keep the existing credentials in approved secret management; repository
   receipts contain no values or provider identifiers.
-- For separately scoped live catalog verification, use
-  `npm run stripe:migrate-supporter-v2-live -- --mode=verify` with the actual
-  intended configuration and require `COMPLETED`. Do not run `apply`; any
-  other state requires a separately reviewed, incident-specific recovery plan
-  and explicit authorization.
-- For a future approved billing release or relevant configuration change, use
+- Retain `npm run stripe:migrate-supporter-v2-live -- --mode=verify` as a
+  bootstrap verifier with empty-inventory prerequisites: no nonterminal
+  subscription and no open subscription Checkout Session. It is not a routine
+  post-launch gate. Expected enrollment inventory can fail those guards without
+  establishing catalog damage; that result does not authorize recovery or
+  `apply`. Do not rerun the completed bootstrap during ordinary verification.
+- For routine post-launch verification or a future approved billing change, use
   `npm run stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv`
   in a trusted process that holds the actual credentials. Require complete
   recurring Stripe, tax, and webhook readiness and false or unset
