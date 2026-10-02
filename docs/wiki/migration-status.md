@@ -18,6 +18,13 @@ owners or authorize provider changes. Verified: 2026-10-01.
 These are bounded milestones. They do not establish that every provider was
 migrated or that old-origin recovery and compatibility retirement are complete.
 
+Read-only old-origin checks on 2026-10-01 returned `200` for the legacy www
+home, Notes, manifest, service worker, and signed-out session (`null`). Requests
+to the old apex followed its configured `308` redirect to legacy www. This
+proves current public routing, not access to browser records on the apex origin,
+encrypted export/import, old-origin authentication, or installed-PWA recovery.
+The Phase 8 proof must distinguish those origins before any retirement decision.
+
 ## Remaining migration ledger
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
