@@ -41,8 +41,15 @@ export function runProductionStripeReadinessGate({
   })
 
   if (result.error || result.status !== 0) {
+    const cause = result.error?.code === "ETIMEDOUT"
+      ? "checker timed out"
+      : result.signal
+        ? "checker ended by a signal"
+        : result.error
+          ? "checker could not start"
+          : "checker rejected readiness"
     throw new Error(
-      "Production Supporter readiness failed or could not be verified; refusing this build. Reconcile the read-only readiness failures before retrying.",
+      `Production Supporter readiness failed: ${cause}; refusing this build. Reconcile the read-only readiness failures before retrying.`,
     )
   }
 

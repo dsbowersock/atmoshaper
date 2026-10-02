@@ -80,8 +80,9 @@ Sources: [Git deployments](https://vercel.com/docs/git),
 3. Audit name-based references without exporting secret values: generated-host
    origins, environment settings, callbacks, webhook endpoints, deploy hooks,
    CI and local links. Existing canonical-domain sign-in and billing endpoints
-   should need no change if they do not reference the preview-era generated
-   host. Explain any actual exception before expanding the requested scope.
+   should need no change if they do not reference the generated host for the
+   preview-era project. Explain any actual exception before expanding the
+   requested scope.
 4. Check the proposed name is available in the existing scope, and verify the
    GitHub integration can access this repository. Identify required app access
    privately. Do not broaden installation permissions to unrelated repositories.

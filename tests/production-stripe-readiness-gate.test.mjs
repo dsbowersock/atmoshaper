@@ -77,11 +77,11 @@ describe("Production Supporter build gate", () => {
   })
 
   it("fails closed on checker rejection, a signal, spawn failure or timeout without echoing credentials", () => {
-    for (const result of [
-      { status: 1 },
-      { status: null, signal: "SIGTERM" },
-      { status: null, error: new Error("private-sentinel spawn failure") },
-      { status: null, error: Object.assign(new Error("private-sentinel"), { code: "ETIMEDOUT" }) },
+    for (const [result, cause] of [
+      [{ status: 1 }, "checker rejected readiness"],
+      [{ status: null, signal: "private-sentinel" }, "checker ended by a signal"],
+      [{ status: null, error: new Error("private-sentinel spawn failure") }, "checker could not start"],
+      [{ status: null, error: Object.assign(new Error("private-sentinel"), { code: "ETIMEDOUT" }) }, "checker timed out"],
     ]) {
       assert.throws(() => runProductionStripeReadinessGate({
         env: { VERCEL_ENV: "production", STRIPE_SECRET_KEY: "private-sentinel" },
@@ -89,6 +89,7 @@ describe("Production Supporter build gate", () => {
         log: () => {},
       }), (error) => {
         assert.match(error.message, /refusing this build/)
+        assert.ok(error.message.includes(cause), error.message)
         assert.doesNotMatch(error.message, /private-sentinel/)
         return true
       })
