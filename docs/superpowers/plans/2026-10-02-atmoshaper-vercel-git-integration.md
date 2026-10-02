@@ -243,9 +243,12 @@ was denied. The user completed the App grant and reported access granted.
 Vercel's repository lookup still reports the App as not installed, while this
 CLI cannot list namespaces without adding unsupported team scope. Automatic
 approval review rejected the connection command before execution because that
-access prerequisite was unverified. The normal App Configure-page address is
-requested to identify the exact installation for the supported read-only API
-check. Do not retry the consequential command without resolving the rejection's
+access prerequisite was unverified. The user supplied the normal App Configure
+reference; supported installation-scoped reads still cannot verify repository
+access. The existing MassageLab Git link was read without mutation and remains
+GitHub/`main`. A normal AtmoShaper Vercel repository-selector readback is requested
+to distinguish account association from API discovery failure. Do not retry the
+consequential command without resolving the rejection's
 stated prerequisite. No Git connection, candidate build, or promotion occurred.
 
 Continue the already authorized connection/build once access is verified; do

@@ -146,8 +146,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   be verified. The user performed the App grant, but Vercel's repository lookup
   still reports the App is not installed. Automatic approval review rejected
   `vercel git connect` until that prerequisite is verified; the command never
-  executed. Obtain the exact normal App installation reference and verify access
-  through the supported API before retrying. No Git connection, candidate build,
+  executed. The user supplied the exact normal App installation reference, but
+  supported repository lookups still cannot verify access. The existing
+  MassageLab Git link was read without mutation and remains GitHub/`main`.
+  A normal Vercel repository-selector visibility check is requested to distinguish
+  account association from discovery-tool failure before retrying. No Git connection, candidate build,
   deployment, or public promotion has occurred in this hosting stage.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.

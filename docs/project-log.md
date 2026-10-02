@@ -37,6 +37,13 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   read-only check before retrying. No new Git link or build is claimed. Continue
   from the approved partial settings, or use only the approved owned recovery
   operations if needed; do not create another project or broaden App grants.
+- The user provided the exact App installation reference. Installation-scoped
+  repository reads still return missing access or no matching repositories.
+  A read-only check confirms the existing MassageLab project retains its
+  GitHub/`main` link; no old-project setting changed. Requested a normal
+  AtmoShaper Vercel Git-selector check to distinguish account association from
+  API discovery failure. The user should stop before Connect; the original
+  hosting approval remains operative once the prerequisite is verified.
 
 ## 2026-10-02 — Production Supporter gate merged; hosting settings verified
 
