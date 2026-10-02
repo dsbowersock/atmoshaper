@@ -26,10 +26,22 @@ encrypted export/import, old-origin authentication, or installed-PWA recovery.
 The Phase 8 proof must distinguish those origins before any retirement decision.
 
 The user chose to keep the full MassageLab site available alongside AtmoShaper.
+MassageLab will continue after the migration as a separate project. Its future
+product direction is outside this work. The current platform migration to
+AtmoShaper retains its approved feature scope.
 Preserve its current deployment and routing, local-data access, authentication,
 and billing endpoints. Do not prepare an old-to-AtmoShaper redirect or retire
 the old service by default. Account, record, membership, and endpoint transfers
 or retirement remain separate decisions with their own evidence and approval.
+
+The user selected a separate Google calendar named `AtmoShaper`; the old
+project's `MassageLab` calendar remains intact. The
+[Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md)
+records implementation and provider gates. A fresh Production variable-name
+inventory lacks Calendar OAuth credentials and its token-encryption key,
+Ably's server key, Sentry's DSN, and R2 upload credentials. This inventory does
+not verify existing media playback, polling behavior, provider permissions,
+or any user's connection or records.
 
 ## Remaining migration ledger
 
@@ -37,7 +49,7 @@ or retirement remain separate decisions with their own evidence and approval.
 | --- | --- | --- | --- |
 | Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
 | Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
-| Google Calendar | Separate OAuth/client/callback readiness and a generated-calendar-name compatibility decision remain unverified here | Inventory current callback/scopes and the stable calendar summary lookup; prepare the exact provider setup and readback | Ask before client/callback writes, calendar creation/sync, or renaming the discovery summary |
+| Google Calendar | A separate `AtmoShaper` calendar is selected; OAuth/client/callback readiness and safe discovery remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); prepare a focused provider-free compatibility change | Ask before client/callback writes, calendar creation/sync, token or row migration, a deployment, or public activation |
 | Ably realtime | The historical provider audit documents polling fallback; no hosted isolated-realtime parity receipt is added by this launch | Verify fallback configuration and prepare an isolated connectivity plan if realtime is wanted | Ask whether to retain fallback or authorize a scoped Ably setup; no room publication, presence mutation, channel rename, or key rotation |
 | Sentry | Public activation adds no monitoring-project or credential configuration; build-plugin telemetry is not evidence of application monitoring | Inventory sanitized runtime configuration and the existing privacy boundary | Ask before enabling a project or DSN. Session Replay, screenshots, attachments, logs, and broader feedback remain gated |
 | Media provider administration | Existing playback/immutable media identities are preserved; missing upload credentials alone do not prove playback failure | Read known public media headers and reconcile R2/CORS/cache owners | Ask before upload, object move/delete, host retirement, CORS/configuration write, or provenance promotion |

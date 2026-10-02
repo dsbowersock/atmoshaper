@@ -4,6 +4,22 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 
 ## 2026-10-01 — Public registration and recurring Supporter activation
 
+- The user clarified that MassageLab will continue after the migration as a
+  separate project. The user then kept its future direction outside this work; the
+  current AtmoShaper platform migration keeps its approved scope. Preserve the
+  existing full legacy service and continue focusing on AtmoShaper.
+- The user selected a separate Google calendar named `AtmoShaper`, rather than
+  adopting or renaming the old project's calendar. Added the
+  [Calendar preparation plan](superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md)
+  with source owners, configuration evidence, compatibility tests, provider
+  gates, and rollback boundaries. No Calendar runtime or provider change occurred.
+- Read-only Production environment-name inventory still lacks Calendar OAuth
+  credentials and its token-encryption key, Ably's server key, Sentry's DSN,
+  and R2 upload credentials. Presence inventory is not credential validation
+  or a playback/realtime test. The old production project remains `READY` at
+  the preserved export source; a vault-source comparison changes only invalid
+  format error copy and adds the public identity import, not the envelope or
+  storage identifiers. This is source evidence, not encrypted browser recovery.
 - After the read-only legacy routing check, the user chose to keep the full
   MassageLab site available alongside AtmoShaper. No old-domain deployment or
   routing change is authorized by that preference. Preserve the full existing

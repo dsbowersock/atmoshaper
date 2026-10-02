@@ -71,10 +71,18 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   missing evidence, and decisions. This Supporter milestone does not complete
   old-origin recovery/PWA work, deferred providers, or legacy retirement.
 - The user selected keeping the full MassageLab site available alongside
-  AtmoShaper. Preserve its existing deployment, routing, local-data access,
+  AtmoShaper and clarified that MassageLab will continue as a separate project
+  after the migration. Its future product direction is outside this work; the current
+  platform migration to AtmoShaper retains its approved feature scope. Preserve
+  the existing MassageLab deployment, routing, local-data access,
   authentication, and billing endpoints. The observed old-apex-to-www redirect
   is existing behavior; do not introduce an old-to-AtmoShaper redirect or infer
   account, record, membership, or endpoint retirement from the new site's launch.
+- The user selected a separate Google calendar named `AtmoShaper` for the new
+  site's Calendar sync. The [Calendar preparation plan](superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md)
+  preserves the old project's `MassageLab` calendar and compatibility contracts.
+  This decision authorizes preparation, not OAuth/provider writes, calendar
+  creation, user-data transfer, a deployment, or public Calendar activation.
 - Provider-free focused CLI and webhook regressions pass 62/62, with zero
   failures or skips. Two new expansion regressions first failed as expected.
   PR #34's hosted CI and remote verification receipts cover their exact source,
