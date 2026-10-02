@@ -13,6 +13,8 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   documentation only; runtime behavior and the 70/70 focused and 5,094/5,097
   full-suite receipts are unchanged. Current-head hosted follow-up is tracked
   in PR #36; this entry does not authorize a merge or deployment.
+- The access helper's existing comment now states the unresolved-intent
+  exception instead of promising unconditional credential-row deletion.
 
 ## 2026-10-02 — Calendar PR #36 protects creation intent during disconnect
 
