@@ -1,10 +1,29 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-01
+Verified: 2026-10-02
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
 ## Current Snapshot — Registration and Supporter Checkout Open
+
+- PR #35's documentation closeout merged as
+  `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review
+  covered all twelve files with no actionable comments; all seven hosted CI
+  jobs passed and all review threads were resolved. This merge did not deploy.
+- The next repository-only slice prepares the selected separate AtmoShaper
+  Google calendar on `codex/atmoshaper-calendar-isolation`, based on that merge
+  in the existing clean migration worktree. Discovery validates Google's account
+  subject, an owned secondary calendar's project marker, narrow Calendar
+  permissions, and API metadata. Reconnects preserve validated stored IDs after
+  renames; unexpected accounts, targets, and ambiguous names fail closed.
+  Generic outbound titles use AtmoShaper while stable private identifiers remain.
+  Provider-free adapter/callback/service regressions pass 55/55. The full
+  regression run passed 5,077 tests with three skips and no failures; the final
+  added refresh/mapping checks pass in the focused group. Local lint, typecheck,
+  build, and documentation-link checks pass. Publication and hosted review are
+  pending authorization; this is local preparation, not integration readiness.
+  No provider configuration, calendar
+  creation, hosted database write, deployment, or Calendar activation occurred.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
@@ -86,10 +105,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - Provider-free focused CLI and webhook regressions pass 62/62, with zero
   failures or skips. Two new expansion regressions first failed as expected.
   PR #34's hosted CI and remote verification receipts cover their exact source,
-  not this documentation follow-up. The existing clean rollout worktree now
-  hosts `codex/atmoshaper-supporter-launch-closeout` for the executed receipt,
-  current operator runbooks, and separate Calendar preparation plan; it changes
-  no runtime or provider configuration.
+  not the subsequent Calendar preparation. PR #35 merged the executed receipt,
+  current operator runbooks, and separate Calendar preparation plan without
+  runtime or provider changes. The existing rollout worktree is now reused for
+  the provider-free Calendar slice described above.
   The optional brand audit has stale exact occurrence rules from earlier
   Stripe identity changes; those broader audit receipts are not repaired by
   this readiness-only branch.

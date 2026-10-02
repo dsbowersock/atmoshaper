@@ -3,7 +3,7 @@
 Read [project state](../project-state.md) first for the active snapshot and
 [project log](../project-log.md) for dated receipts. This guide connects the
 original migration scope with the work still needed; it does not replace those
-owners or authorize provider changes. Verified: 2026-10-01.
+owners or authorize provider changes. Verified: 2026-10-02.
 
 ## Completed milestones
 
@@ -37,11 +37,18 @@ or retirement remain separate decisions with their own evidence and approval.
 The user selected a separate Google calendar named `AtmoShaper`; the old
 project's `MassageLab` calendar remains intact. The
 [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md)
-records implementation and provider gates. A fresh Production variable-name
-inventory lacks Calendar OAuth credentials and its token-encryption key,
+records implementation and provider gates. The Production variable-name
+inventory on 2026-10-01 lacks Calendar OAuth credentials and its token-encryption key,
 Ably's server key, Sentry's DSN, and R2 upload credentials. This inventory does
 not verify existing media playback, polling behavior, provider permissions,
 or any user's connection or records.
+
+The provider-free Calendar branch now prepares account-bound, marked-calendar
+discovery and stored-ID reconnects, with 55 focused regressions passing. Its
+local regression, lint, typecheck, build, and documentation checks pass;
+publication and hosted review await authorization. This source preparation
+does not identify or configure the Cloud project/client, validate hosted consent,
+create a calendar, or activate Calendar sync.
 
 ## Remaining migration ledger
 

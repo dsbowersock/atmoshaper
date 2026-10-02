@@ -1,8 +1,10 @@
 # AtmoShaper Google Calendar preparation
 
-Status: prepared, 2026-10-01. The user selected a separate calendar named
-`AtmoShaper`. This plan records the next integration work; no runtime, OAuth,
-calendar, database, environment, or deployment change is implemented here.
+Status: locally prepared; publication and hosted review pending authorization,
+2026-10-02. The user selected
+a separate calendar named `AtmoShaper`. Repository preparation is authorized by
+the migration continuation; provider configuration and public activation remain
+separate gates. This branch applies no hosted changes.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [remaining migration ledger](../../wiki/migration-status.md) first.
@@ -23,7 +25,7 @@ direction is outside this AtmoShaper migration work.
   its callback defaults from the configured auth origin when no explicit URI
   is set. Google sign-in's operational receipt does not establish Calendar
   callback permission or scope approval.
-- `lib/google-calendar-adapter.ts` currently discovers a calendar by the
+- In the deployed source, `lib/google-calendar-adapter.ts` discovers a calendar by the
   `MassageLab` summary before creating one. A display-copy replacement alone
   would change that discovery contract. The user chose separate calendars;
   do not reuse, rename, delete, or copy the old project's calendar.
@@ -63,6 +65,59 @@ direction is outside this AtmoShaper migration work.
    and required hosted checks for the resulting branch.
 
 ## Provider preparation and missing authority
+
+### Repository implementation checkpoint
+
+- Baseline: PR #35 merged as `572691aad5e48e01089097d59799aea19d92ba83`;
+  the reused migration worktree was clean with no active Git operation. The
+  unrelated root checkout and its untracked artwork are preserved.
+- Change necessity: the old adapter selects the first `MassageLab` title and
+  ignores the stored target on reconnect. Configuration alone cannot supply the
+  selected separate-calendar contract. Change only discovery, callback/service
+  wiring, generic outbound display summaries, and focused regressions.
+- TDD route: `Mode: off / Decision: skipped`; no strict TDD authority is assumed.
+  Provider-free regression tests and required checks remain mandatory.
+- Complexity: adapter and service are cohesive existing owners below the
+  800-line pressure signal. Edit in place for this compatibility repair;
+  the callback gets smaller, and no schema or parallel provider owner is added.
+- Discovery uses an exact AtmoShaper description marker, owner/non-primary
+  CalendarList evidence, complete paginated/hidden inventory, and Calendar API
+  metadata readback. The service rejects broader Calendar grants so the
+  metadata read uses the existing `calendar.app.created` permission. The marker
+  distinguishes this project's calendar from old app-created calendars; names
+  alone never authorize adoption. An unmarked namesake or multiple candidates
+  fails closed. A validated stored ID remains authoritative after a rename.
+- The Google UserInfo subject must match the current token/connection account.
+  Callback discovery and persistence share the existing user-row lock;
+  concurrent reconnects serialize. A different existing account or target
+  requires explicit disconnect instead of silently deleting its sync state.
+  Read-only target validation also precedes inbound and outbound sync.
+- A failed provider operation can leave an owned, marked calendar before the
+  database transaction commits. The next connection discovers that calendar;
+  this code does not delete it or rename an existing calendar during recovery.
+- Provider-free tests exercise the actual adapter, callback, and service.
+  Provider consent, scope behavior, transaction timeouts, interrupted creation,
+  and isolated acceptance still require the separately authorized QA stage.
+- Local receipt: the full 5,080-test run passed 5,077 with three skips and no
+  failures. Two final focused regressions subsequently added refreshed-token
+  drift and stale outbound-mapping protection; the final named Calendar group
+  passes 55/55. Lint, typecheck, the local production build, diff checks, and
+  all 65 relative links in changed documentation pass. The full run predates
+  the final mapping guard; its current call-site regression is in the focused
+  group. The local build skipped the Vercel Production migration gate and did
+  not deploy. Required final-head hosted checks and reviews remain pending.
+- Completion boundary: local preparation only. The existing source owners
+  remain below the 800-line pressure signal; the callback is smaller and no
+  schema, parallel provider owner, or dependency was added. Compatibility
+  identifiers are retained for both projects and require a separate proven
+  migration before retirement. No provider behavior is claimed from fixtures.
+- Next steps: obtain permission to publish this focused branch/PR, trigger
+  CodeRabbit when eligible and shepherd the reviewed head, then identify the
+  authorized Cloud/OAuth target and prepare the exact provider/QA proposal.
+
+API contract sources: [Calendar metadata retrieval and authorized scopes](https://developers.google.com/workspace/calendar/api/v3/reference/calendars/get),
+[calendar inventory pagination](https://developers.google.com/workspace/calendar/api/v3/reference/calendarList/list),
+[Google UserInfo](https://developers.google.com/identity/openid-connect/openid-connect#obtaininguserprofileinformation).
 
 Before any provider write, identify the exact authorized AtmoShaper Google
 Cloud project, Calendar OAuth client, deployment tier, and callback. Do not

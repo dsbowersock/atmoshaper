@@ -17,15 +17,18 @@ import {
 } from "./actions"
 
 const GOOGLE_SYNC_STATUS_MESSAGES = {
+  account: "Disconnect the current Google Calendar connection before choosing a different account.",
   access: "Calendar sync is available to provider accounts with external sync access.",
   connected: "Google Calendar is connected.",
   disconnected: "Google Calendar was disconnected.",
   error: "Google Calendar could not be connected. Try again from this page.",
   identity: "Google did not return the account identity needed to store this connection.",
+  permissions: "Google Calendar permissions need attention. Contact support before reconnecting.",
   refresh: "Google did not return a refresh token. Reconnect and approve offline calendar access.",
   refreshed: "Google Calendar busy time was refreshed.",
   saved: "Blocking calendar selections saved.",
   state: "Google Calendar connection expired. Start the connection again.",
+  target: "The AtmoShaper calendar could not be verified. Contact support before reconnecting.",
   unconfigured: "Google Calendar sync is not configured for this environment.",
 } as const
 
@@ -75,7 +78,7 @@ export default async function CalendarSyncPage({
                   Google Calendar
                 </CardTitle>
                 <CardDescription>
-                  Checked calendars are read as busy time only. AtmoShaper events are written to the dedicated MassageLab calendar.
+                  Checked calendars are read as busy time only. AtmoShaper events are written to its separate dedicated AtmoShaper calendar.
                 </CardDescription>
               </div>
               <Badge variant={connection?.status === "ACTIVE" ? "default" : "outline"}>
@@ -120,7 +123,7 @@ export default async function CalendarSyncPage({
               <>
                 <div className="grid gap-2 text-sm">
                   <p><span className="font-medium">Account:</span> {connection.accountEmail ?? "Google account"}</p>
-                  <p><span className="font-medium">Dedicated calendar:</span> {connection.dedicatedCalendarSummary ?? "MassageLab"}</p>
+                  <p><span className="font-medium">Dedicated calendar:</span> {connection.dedicatedCalendarSummary ?? "AtmoShaper"}</p>
                   <p><span className="font-medium">Last sync:</span> {connection.lastSyncedAt ? connection.lastSyncedAt.toLocaleString() : "Not synced yet"}</p>
                 </div>
 

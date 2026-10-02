@@ -1,6 +1,6 @@
 # Calendar Creation Flows
 
-MassageLab calendar creation uses a shared `CalendarEvent` index with specialized detail records for appointments, personal blocks, classes, and reminders.
+AtmoShaper calendar creation uses a shared `CalendarEvent` index with specialized detail records for appointments, personal blocks, classes, and reminders.
 
 ## Flow Rules
 
@@ -58,7 +58,8 @@ Appointment requests are reviewed at `/calendar/requests`. Confirming or declini
 
 - Code checks feature keys, not plan names. Free users receive `calendar_basic_scheduling`; Therapist and Practice receive full service/scheduling access; Practice additionally receives team scheduling.
 - Frontend copy uses `Team/Practice` for the paid team tier while the internal Prisma enum remains `PRACTICE`.
-- Google Calendar provider sync is implemented as provider-side availability sync. Providers connect Google from `/calendar/sync`, select calendars to read as busy blocks, and MassageLab writes MassageLab-originated appointment, class, and personal block events to a dedicated `MassageLab` Google calendar.
+- Google Calendar provider sync is implemented as provider-side availability sync. Providers connect Google from `/calendar/sync`, select calendars to read as busy blocks, and AtmoShaper writes generic appointment, class, and personal block events to its own dedicated Google calendar. The repository preparation uses the selected `AtmoShaper` name, validates account identity and project ownership, and preserves a verified stored target after renames. The old project's calendar is not adopted, renamed, or copied. This preparation is not deployed; provider setup, isolated acceptance, and activation remain pending in the [Calendar plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md).
+- Unexpected stored targets, ambiguous discovery, and changed accounts fail closed. Account changes require explicit disconnect; target or permission failures direct users to support. Do not manually replace saved IDs, edit markers to adopt an unrelated calendar, or broaden OAuth grants as a workaround. Existing connections need authorized evidence before any migration is proposed.
 - Client calendar connection, Outlook, Apple/iCloud, CalDAV, ICS, and full two-way personal event mirroring remain deferred.
 - Stripe Connect marketplace payouts and booking payment collection are deferred; existing Stripe Billing memberships only gate access.
 
@@ -66,6 +67,6 @@ Appointment requests are reviewed at `/calendar/requests`. Confirming or declini
 
 Calendar sync stores scheduling metadata only. PHI-bearing documentation, intake, journal, transcript, pain-map, ROM, and SOAP content remain local-first unless future hosted clinical storage passes the compliance gates documented in the privacy wiki.
 
-Imported Google events are stored and displayed as generic busy windows only. MassageLab does not persist Google event summaries, descriptions, locations, attendees, organizer data, reminders, attachments, or recurrence text, and practice-wide views display the blocks as `Google busy`.
+Imported Google events are stored and displayed as generic busy windows only. AtmoShaper does not persist Google event summaries, descriptions, locations, attendees, organizer data, reminders, attachments, or recurrence text, and practice-wide views display the blocks as `Google busy`. Outbound generic titles use AtmoShaper; the private `massagelabEventId` reconciliation key remains unchanged.
 
 Reusable clinical template references on services are allowed only as non-PHI IDs/labels and generic prompts. Client-specific clinical content must stay in local-first documentation, not calendar events, appointment notes, reminders, service records, audit payloads, or notification payloads.

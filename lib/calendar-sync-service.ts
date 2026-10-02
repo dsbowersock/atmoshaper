@@ -1,8 +1,8 @@
 import type { Prisma } from "@prisma/client"
-import { calendarSyncWindow, GOOGLE_CALENDAR_PROVIDER } from "./calendar-sync-constants.ts"
+import { calendarSyncWindow, GOOGLE_CALENDAR_PROVIDER, GOOGLE_CALENDAR_SCOPES } from "./calendar-sync-constants.ts"
 import { getGoogleCalendarSyncConfig } from "./calendar-sync-env.ts"
 import { decryptCalendarSyncSecret, encryptCalendarSyncSecret } from "./calendar-sync-secrets.ts"
-import { createGoogleCalendarAdapter, type GoogleCalendarAdapter } from "./google-calendar-adapter.ts"
+import { createGoogleCalendarAdapter, GoogleCalendarConnectionError, type GoogleCalendarAdapter } from "./google-calendar-adapter.ts"
 import {
   buildGoogleOutboundEventPayload,
   normalizeGoogleBusyBlock,
@@ -12,6 +12,20 @@ import { prisma } from "./prisma.ts"
 
 type CalendarDb = typeof prisma | Prisma.TransactionClient
 const GOOGLE_API_STATUS_ERROR_PATTERN = /^Google Calendar request failed with status (\d+)\.$/
+
+/**
+ * Keep Calendar metadata/write access limited to calendars created by this app.
+ * Extra Calendar grants could make the read-only ownership check accept an
+ * unrelated calendar; unrelated identity scopes do not widen Calendar access.
+ */
+export function assertGoogleCalendarSyncScopes(grantedScopes?: string | null) {
+  const scopes = new Set((grantedScopes ?? "").split(/\s+/).filter(Boolean))
+  const expected = new Set<string>(GOOGLE_CALENDAR_SCOPES.filter((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar")))
+  if ([...expected].some((scope) => !scopes.has(scope))
+    || [...scopes].some((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar") && !expected.has(scope))) {
+    throw new GoogleCalendarConnectionError("permissions", "Reconnect Google Calendar with the required limited permissions.")
+  }
+}
 
 /**
  * Produces source selection updates without deleting source rows.
@@ -110,9 +124,13 @@ export async function refreshGoogleAccessToken(
   if (!connection || connection.provider !== GOOGLE_CALENDAR_PROVIDER || connection.status !== "ACTIVE") {
     throw new Error("Choose an active Google calendar connection.")
   }
+  assertGoogleCalendarSyncScopes(connection.grantedScopes)
+  if (!connection.dedicatedCalendarId) throw new GoogleCalendarConnectionError("target", "Choose a verified AtmoShaper calendar.")
 
   if (connection.encryptedAccessToken && connection.accessTokenExpiresAt && connection.accessTokenExpiresAt.getTime() > Date.now() + 60_000) {
-    return decryptCalendarSyncSecret(connection.encryptedAccessToken)
+    const accessToken = decryptCalendarSyncSecret(connection.encryptedAccessToken)
+    await adapter.validateDedicatedCalendar(accessToken, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId })
+    return accessToken
   }
 
   const refreshToken = decryptCalendarSyncSecret(connection.encryptedRefreshToken)
@@ -121,6 +139,8 @@ export async function refreshGoogleAccessToken(
     clientSecret: config.clientSecret,
     refreshToken,
   })
+  assertGoogleCalendarSyncScopes(token.scope ?? connection.grantedScopes)
+  await adapter.validateDedicatedCalendar(token.access_token, { providerAccountId: connection.providerAccountId, calendarId: connection.dedicatedCalendarId })
   const accessTokenExpiresAt = token.expires_in ? new Date(Date.now() + token.expires_in * 1000) : null
 
   await prisma.calendarConnection.update({
@@ -374,6 +394,11 @@ export async function pushCalendarEventToGoogle(
 
   const accessToken = await refreshGoogleAccessToken(connection.id, adapter)
   const existingLink = event.externalCalendarLinks.find((link) => link.connectionId === connection.id) ?? null
+  // A provider event ID is meaningful only within its original calendar.
+  // Never PATCH or DELETE a stale mapping through a different target.
+  if (existingLink && (existingLink.provider !== GOOGLE_CALENDAR_PROVIDER || existingLink.providerCalendarId !== connection.dedicatedCalendarId)) {
+    throw new GoogleCalendarConnectionError("target", "The saved Google event belongs to a different calendar.")
+  }
   const action = outboundSyncActionForStatus(event.status)
 
   if (action === "SKIP") return { skipped: true }
@@ -506,8 +531,8 @@ async function recordGoogleCalendarEventPushFailure({
 
 /**
  * Persists a single active Google connection for the provider.
- * Connecting another Google account deletes older Google sync state so outbound
- * sync never chooses between multiple active calendars.
+ * A reconnect may refresh tokens, but cannot silently replace an account or
+ * target and invalidate its event links. Changing accounts requires disconnect.
  */
 export async function saveGoogleCalendarConnection({
   userId,
@@ -519,6 +544,7 @@ export async function saveGoogleCalendarConnection({
   grantedScopes,
   dedicatedCalendarId,
   dedicatedCalendarSummary,
+  db,
 }: {
   userId: string
   providerAccountId: string
@@ -529,23 +555,22 @@ export async function saveGoogleCalendarConnection({
   grantedScopes?: string | null
   dedicatedCalendarId?: string | null
   dedicatedCalendarSummary?: string | null
+  db?: Prisma.TransactionClient
 }) {
   const accessTokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000) : null
 
-  return prisma.$transaction(async (tx) => {
+  const save = async (tx: Prisma.TransactionClient) => {
     await tx.$queryRaw`
       SELECT id
       FROM "User"
       WHERE id = ${userId}
       FOR UPDATE
     `
-    await tx.calendarConnection.deleteMany({
-      where: {
-        userId,
-        provider: GOOGLE_CALENDAR_PROVIDER,
-        providerAccountId: { not: providerAccountId },
-      },
-    })
+    const existing = await tx.calendarConnection.findMany({ where: { userId, provider: GOOGLE_CALENDAR_PROVIDER } })
+    if (existing.some((connection) => connection.providerAccountId !== providerAccountId
+      || (connection.dedicatedCalendarId && connection.dedicatedCalendarId !== dedicatedCalendarId))) {
+      throw new GoogleCalendarConnectionError("target", "Disconnect the existing Google calendar connection before changing accounts or targets.")
+    }
 
     return tx.calendarConnection.upsert({
       where: {
@@ -581,5 +606,47 @@ export async function saveGoogleCalendarConnection({
         dedicatedCalendarSummary,
       },
     })
-  })
+  }
+  return db ? save(db) : prisma.$transaction(save)
+}
+
+/**
+ * Completes the callback using this user's existing account-bound target.
+ * The user-row lock serializes discovery and persistence for concurrent
+ * callbacks, so reconnects do not both create a calendar. No existing target
+ * is adopted across accounts, reset, renamed, deleted, or copied.
+ */
+export async function connectGoogleCalendar({ userId, token, adapter = createGoogleCalendarAdapter() }: {
+  userId: string
+  token: Awaited<ReturnType<GoogleCalendarAdapter["exchangeCode"]>>
+  adapter?: GoogleCalendarAdapter
+}) {
+  if (!token.googleUserId || !token.refresh_token) throw new Error("Google calendar connection identity and refresh token are required.")
+  assertGoogleCalendarSyncScopes(token.scope)
+  const providerAccountId = token.googleUserId
+  const refreshToken = token.refresh_token
+  const connection = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`
+    const existing = await tx.calendarConnection.findMany({ where: { userId, provider: GOOGLE_CALENDAR_PROVIDER } })
+    if (existing.some((item) => item.providerAccountId !== providerAccountId)) {
+      throw new GoogleCalendarConnectionError("account", "Disconnect the existing Google calendar connection before changing accounts.")
+    }
+    const dedicatedCalendar = await adapter.ensureDedicatedCalendar(token.access_token, {
+      providerAccountId,
+      storedCalendarId: existing[0]?.dedicatedCalendarId,
+    })
+    const saved = await saveGoogleCalendarConnection({
+      userId, providerAccountId, accountEmail: token.googleUserEmail ?? null,
+      accessToken: token.access_token, refreshToken,
+      expiresIn: token.expires_in, grantedScopes: token.scope,
+      dedicatedCalendarId: dedicatedCalendar.id, dedicatedCalendarSummary: dedicatedCalendar.summary, db: tx,
+    })
+    await upsertGoogleCalendarSources({
+      connectionId: saved.id, calendars: await adapter.listCalendars(token.access_token),
+      excludedProviderCalendarIds: [dedicatedCalendar.id], db: tx,
+    })
+    return saved
+  }, { timeout: 45_000 })
+  await syncGoogleConnectionSources({ connectionId: connection.id, adapter })
+  return connection
 }

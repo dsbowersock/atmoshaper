@@ -14,7 +14,7 @@ const SAFE_SYNC_ERROR_MESSAGES = new Set([
 ])
 
 /**
- * Converts one Google event into the minimal busy-block shape MassageLab stores.
+ * Converts one Google event into the minimal busy-block shape AtmoShaper stores.
  * Personal event details are intentionally dropped; status is reduced to
  * BUSY/FREE/CANCELLED, with transparent events treated as non-blocking.
  */
@@ -82,7 +82,7 @@ function googleEventUpdatedAt(value?: string | null) {
 
 /**
  * Builds a generic outbound Google event without client, note, location, or
- * clinical fields. The private property is only a MassageLab event identifier
+ * clinical fields. The private property is a stable compatibility event identifier
  * used to reconcile future pushes.
  */
 export function buildGoogleOutboundEventPayload({
@@ -99,10 +99,10 @@ export function buildGoogleOutboundEventPayload({
   timezone: string
 }): GoogleOutboundEventPayload {
   const summary = kind === "CLASS"
-    ? "MassageLab class"
+    ? "AtmoShaper class"
     : kind === "PERSONAL"
-      ? "MassageLab blocked time"
-      : "MassageLab appointment"
+      ? "AtmoShaper blocked time"
+      : "AtmoShaper appointment"
 
   return {
     summary,

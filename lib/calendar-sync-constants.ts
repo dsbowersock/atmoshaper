@@ -1,5 +1,7 @@
 export const GOOGLE_CALENDAR_PROVIDER = "GOOGLE" as const
-export const MASSAGELAB_GOOGLE_CALENDAR_SUMMARY = "MassageLab"
+// Keep the exported compatibility identifier; only the new calendar's public name changes.
+export const MASSAGELAB_GOOGLE_CALENDAR_SUMMARY = "AtmoShaper"
+export const ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION = "Dedicated AtmoShaper calendar for generic events."
 export const GOOGLE_BUSY_EVENT_TITLE = "Google busy"
 export const EXTERNAL_BUSY_BACKGROUND_COLOR = "#64748b"
 export const EXTERNAL_BUSY_BORDER_COLOR = "#475569"

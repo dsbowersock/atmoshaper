@@ -2,6 +2,39 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Separate AtmoShaper Calendar compatibility preparation
+
+- Verified hosted `main` at PR #35 merge
+  `572691aad5e48e01089097d59799aea19d92ba83` and the clean existing migration
+  worktree before creating `codex/atmoshaper-calendar-isolation`. The original
+  root checkout and its unrelated untracked artwork remain intact.
+- PR #35's full CodeRabbit review covered all twelve documentation files with
+  no actionable comments; all seven CI jobs passed and all threads were resolved.
+  The user explicitly authorized its merge. It did not deploy.
+- Continued the selected separate-calendar plan with provider-free source
+  changes. Discovery now requires Google subject identity, owner/non-primary
+  evidence, an AtmoShaper marker, complete hidden/paginated inventory, limited
+  Calendar grants, and API metadata. A stored target remains authoritative after
+  a rename. Unmarked namesakes, ambiguity, inaccessible targets, and account
+  mismatches stop before creation or persistence.
+- Callback discovery and token persistence share the user-row lock. Account
+  changes require explicit disconnect instead of deleting the old connection
+  implicitly. Both inbound and outbound sync validate their target; generic
+  display summaries use AtmoShaper while `GOOGLE`, the state cookie, Prisma
+  fields, and `massagelabEventId` remain unchanged.
+- Added the named `test:calendar-sync` group and actual adapter/callback/service
+  regressions for reconnects, old-calendar coexistence, failures, scope limits,
+  and privacy. The final focused group passes 55/55. The full regression run
+  passed 5,077 tests with three skips and no failures; its 5,080-test snapshot
+  predates the final two focused refresh/mapping regressions. The last mapping
+  guard and those regressions pass in the current focused group. Local lint,
+  typecheck, production build, diff checks, and all 65 relative documentation
+  links pass. Publication/hosted review awaits separate authorization; the new
+  implementation is not deployed or activated.
+- The exact Google Cloud/OAuth target remains a provider-stage input. No provider
+  setting, calendar, token/row migration, environment, deployment, payment, or
+  old-site mutation was performed. The prior live payment test remains complete.
+
 ## 2026-10-01 — Public registration and recurring Supporter activation
 
 - Review identified stale pre-launch wording in the stable billing and release

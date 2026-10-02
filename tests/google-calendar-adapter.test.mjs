@@ -48,7 +48,7 @@ describe("Google Calendar adapter", () => {
 
     const calendars = await adapter.listCalendars("access-token")
 
-    assert.equal(calls[0].url, "https://www.googleapis.com/calendar/v3/users/me/calendarList")
+    assert.equal(calls[0].url, "https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true")
     assert.equal(calls[0].init.headers.Authorization, "Bearer access-token")
     assert.deepEqual(calendars, [{
       id: "primary",
@@ -98,7 +98,7 @@ describe("Google Calendar adapter", () => {
       calendarId: "calendar-id",
       eventId: null,
       payload: {
-        summary: "MassageLab appointment",
+        summary: "AtmoShaper appointment",
         start: { dateTime: "2026-07-01T13:00:00.000Z", timeZone: "America/New_York" },
         end: { dateTime: "2026-07-01T14:00:00.000Z", timeZone: "America/New_York" },
         extendedProperties: { private: { massagelabEventId: "event_1" } },
@@ -106,7 +106,7 @@ describe("Google Calendar adapter", () => {
     })
 
     const body = JSON.parse(calls[0].init.body)
-    assert.equal(body.summary, "MassageLab appointment")
+    assert.equal(body.summary, "AtmoShaper appointment")
     assert.equal(body.description, undefined)
     assert.equal(body.location, undefined)
     assert.equal(body.attendees, undefined)
