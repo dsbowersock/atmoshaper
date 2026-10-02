@@ -13,6 +13,9 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   subscription/Checkout prerequisites make it unsuitable for routine post-launch
   checks. Expected active enrollment does not imply catalog damage or authorize
   recovery; Supporter-only readiness is the routine current verification owner.
+  Reconciled the indexed deployment runbook as well: its current gate preserves
+  both open pause flags, its bootstrap sequences are historical, and any future
+  one-time-support proof remains a separate disabled-flow launch requirement.
 - The user clarified that MassageLab will continue after the migration as a
   separate project. The user then kept its future direction outside this work; the
   current AtmoShaper platform migration keeps its approved scope. Preserve the
