@@ -9,6 +9,11 @@ Its final-head reviews and separately approved merge and automatic unpromoted
 build are complete. The exact Google declaration is separately approved;
 user save and classification/Verification Center readback, applicable
 verification, provider acceptance, and test targets remain pending. The earlier
+selection/save guide omitted justification and video preparation. Subsequent
+draft UI screenshots classify event-read access as sensitive and request a
+usage explanation and demonstration link. Leave the draft unsaved while
+checking the narrower availability grant; no saved declaration is claimed.
+The earlier
 implementation merged in PR #36 and is included in the approved public PR #37
 artifact; the narrower PR #39 candidate is verified but unpromoted. Working sign-in and Vercel integration remain
 complete. Do not repeat them or the completed live payment test.
@@ -261,6 +266,71 @@ This is separate from the PR #39 merge/build approval and satisfies authority
 for only the operation above. Do not ask for the same declaration approval
 again. Guide the user save and collect the non-secret outcome; no execution or
 verification result is claimed until that receipt arrives.
+
+## Draft justification and video checkpoint; declaration remains unsaved
+
+The user's subsequent screenshots show the event-read grant in the sensitive
+section with approval required, a justification field limited to 1,000
+characters, and a demonstration-video section. The visible restricted section
+has no rows. Neither screenshot proves all six entries saved or establishes a
+Verification Center decision. The demo warning prohibits exposing unverified
+permissions to Production users and asks for a staged/test demonstration. The
+video must cover the OAuth clients assigned to the project. Do not infer that
+the video link is optional for Save, invent a link, delete a client to avoid
+coverage, or treat Save as a completed verification submission.
+
+The following 650-character text is an accurate usage draft, not a final
+justification that all narrower permissions are insufficient:
+
+> AtmoShaper's optional Calendar sync reads calendars selected by the user to create generic busy blocks and prevent scheduling conflicts. It uses event IDs, start/end times, time zones, busy/free status and cancellation changes for incremental synchronization. Imported event titles, descriptions, locations and attendees are not stored or displayed. App-created-calendar access alone cannot read existing selected calendars. Imported calendars are read-only; writes use a separate app-created-calendar permission. We are evaluating whether narrower availability-only access can preserve this behavior before public rollout or verification submission.
+
+The actual adapter calls `events.list` with single-event expansion, deleted
+events, paging, and a sync cursor. Normalization persists provider event ID,
+etag, time window/time zone, all-day/transparency and busy/free/cancelled status;
+cancelled tombstones remove stale blocks. It drops personal event text. The
+adapter does not currently use a response-field mask; TypeScript response
+types do not filter Google's payload. Do not claim only time/status reaches
+the server or that the event-read grant cannot expose personal event details.
+
+Google's [event-list authorization reference](https://developers.google.com/workspace/calendar/api/v3/reference/events/list)
+also accepts `calendar.events.freebusy`. The
+[Freebusy query](https://developers.google.com/workspace/calendar/api/v3/reference/freebusy/query)
+returns time ranges without per-event identities/cursors, but that fact does
+not establish which fields event-list reads return under the narrower grant.
+The merged duplicate-grant reduction does not prove least-access necessity.
+Keep the current source unchanged until the comparison establishes a concrete
+compatible alternative or a documented missing capability.
+
+Extend the bounded isolated acceptance proposal below with these comparisons
+before requesting execution authority:
+
+| Comparison | Evidence needed |
+| --- | --- |
+| Availability grant vs event-read grant | Real event-list responses for the same owned synthetic fixtures; confirm IDs, times/time zones, transparency, cancellations, etags, paging and incremental cursors without collecting real event data |
+| Recurring/change handling | Expanded instances, changed times, transparent events and cancelled/deleted instances preserve busy-block updates and removal under each grant |
+| Selected sources | Distinguish owned and explicitly shared synthetic source access; app-created-only or owned-only access must not silently exclude allowed selected sources |
+| Decision | Prefer a narrower compatible grant if proven; otherwise identify the exact missing fields/operations and explain the feature need. Source mocks and scope validators are not provider proof |
+
+No provider-backed comparison or test-resource creation is authorized by the
+declaration approval. Keep the existing fixture ceilings and settle exact
+targets/callbacks, grants, operations, data ownership, and cleanup first. A
+changed declaration set needs a new exact proposal, not a silent substitution.
+
+If a sensitive grant remains necessary, prepare an English recording of actual
+Google sign-in and the isolated Calendar grant/use flow, app branding, the
+required OAuth address-bar/client context, user-selected source import,
+synthetic change/cancellation reconciliation, and generic busy blocks. Include
+all applicable project clients as the Console requires. Preserve Production
+sign-in/publishing and do not put unverified Calendar grants in public traffic.
+No Production credentials or real calendars/events belong in this demo.
+Uploading the real video as Unlisted and submitting a verification request are
+separate future operations requiring exact authority. A storyboard is not
+evidence of a working consent flow.
+
+Primary [sensitive-scope review guidance](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification)
+checked October 3 requires the least necessary permissions, a narrower-scope
+justification, and a real consent/functionality video for sensitive-scope review.
+Saved classifications, the scope comparison, demo, and verification remain open.
 
 ## Resolve exact targets before configuration approval
 

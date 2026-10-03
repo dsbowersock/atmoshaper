@@ -103,6 +103,15 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   no saved-settings or verification-outcome receipt is available yet. Do not ask
   again for this declaration approval. Isolated provider acceptance, verification
   submission, credentials, and Calendar activation remain separately gated.
+  Subsequent user screenshots show the draft event-read grant classified as
+  sensitive with approval required, a required usage-justification field, and
+  a demonstration-video section warning against unverified scopes in live
+  traffic. The earlier selection/save guide omitted these preparations.
+  Leave this draft unsaved while resolving the least-access justification:
+  Google's event-list reference also accepts the narrower availability grant,
+  so the API choice alone does not prove full event-read access is necessary.
+  A truthful usage draft and bounded comparison/video preparation are in the
+  provider checkpoint. No save, verification submission, or real demo occurred.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider QA, database write, Calendar

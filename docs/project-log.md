@@ -2,6 +2,33 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Google draft requires justification; demo preparation and minimum-access proof remain open
+
+- The user's Data Access screenshots show `calendar.events.readonly` under
+  sensitive scopes with approval required and a usage-justification field.
+  A second screenshot shows no restricted-scope rows in the visible section,
+  a demonstration-video URL field, and Google's warning against unverified
+  scopes in public traffic. These are unsaved draft UI observations, not a
+  saved scope inventory, Verification Center outcome, or review submission.
+- The earlier operator instructions omitted the explanation/video preparation.
+  Asked the user to leave the draft unsaved while resolving minimum-access proof.
+  Source inspection confirms event IDs, time windows, time zones, transparency,
+  cancellation tombstones, pagination, and incremental cursors support the
+  generic busy-block import. Personal event text is dropped before persistence.
+  The event-list API also permits `calendar.events.freebusy`; using event reads
+  alone therefore cannot prove that narrower scope insufficient. Do not submit
+  a categorical unsupported justification or equate a Freebusy query response
+  with the event-list response under an availability-only grant.
+- Prepared a 650-character truthful usage draft, comparison criteria, and real
+  staged-demo checklist in the
+  [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md).
+  It explicitly keeps narrower-access necessity unresolved. Google requires
+  a real consent/use demonstration for sensitive-scope review; no video, upload,
+  verification request, QA resources, real account grant, provider/database action,
+  new deployment, public Calendar activation, or payment test was performed.
+  Declaration approval remains valid for its exact scope; an altered scope set
+  or provider-backed comparison needs its own concrete authority.
+
 ## 2026-10-03 — Exact Google permission declaration approved; user save pending
 
 - The user annotated the prepared Google permission-declaration approval request
