@@ -3,10 +3,11 @@
 Status: approved existing-project hosting stage and public rollout complete,
 2026-10-02. PR #37's separately approved source merge is complete
 as `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; its reviewed gate is on `main`.
-PR #36's Calendar source-only merge is also complete. Current settings and all
-four live alias assignments are now verified through normal authenticated CLI
-reads. The user subsequently approved the bounded hosting stage below, including
-narrow App access and one unpromoted candidate, while excluding public promotion.
+PR #36's Calendar source-only merge is also complete. Preflight verified the
+settings and all four original live alias assignments through normal
+authenticated CLI reads. The user subsequently approved the bounded hosting
+stage below, including narrow App access and one unpromoted candidate, while
+excluding public promotion.
 The same project's rename, manual promotion control, explicit Build Command, and
 GitHub/`main` connection are verified. One staged Production build reached `READY`
 with both remote readiness gates passing. All seven protected candidate GET
