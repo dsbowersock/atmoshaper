@@ -1,6 +1,7 @@
 # AtmoShaper Calendar provider-stage checkpoint
 
-Status: local preparation; exact Google-console targets remain unverified.
+Status: local preparation; existing Production project/registration identified
+from user readback, with API/consent/scope readiness and test targets unverified.
 Source implementation is reviewed, merged in PR #36, and included in the
 approved public PR #37 artifact. Working sign-in and Vercel integration remain
 complete. Do not repeat them or the completed live payment test.
@@ -25,10 +26,59 @@ and public activation require their own exact, reviewable authorization.
 - Existing Google sign-in works. Calendar needs additional API grants and
   separate configuration. Sign-in branding verification does not establish
   saved Calendar-scope verification or callback permission.
-- Browser inventory fails before console access because its runtime cannot
-  start; no Google Cloud-admin connector or installed Cloud CLI is available.
-  A narrow user question asks whether the existing project's Clients page has
-  a Calendar-specific Web application client. No secret values are requested.
+- The user's Clients screenshot shows the `AtmoShaper Production` project and
+  one visible Web application registration, `AtmoShaper Production Web`, created
+  September 26. No separate Calendar row is shown. This satisfies the original
+  inventory question but does not prove the existing registration's saved
+  redirects or its project's API/scope/consent readiness. Do not infer that
+  another client must be created from its display name. The subsequent user's
+  URL-only readback lists `https://www.atmoshaper.com/api/auth/callback/google`;
+  the Calendar callback is absent from this supplied list.
+- Earlier browser inventory failed during startup. The current read-only
+  Console attempt was denied because the browser security check could not
+  verify its admin-enforced policy. No indirect workaround or alternate browser
+  was used. The client-list and URL-only questions are now satisfied, with no
+  secrets or setting changes. Google Cloud-admin CLI/connector
+  access is unavailable; saved API/consent readiness and test targets remain
+  unverified.
+
+## Exact next registration proposal; approval pending
+
+Prepare one new Web application registration in the user's identified existing
+`AtmoShaper Production` project:
+
+| Setting | Proposed value |
+| --- | --- |
+| Application type | Web application |
+| Name | AtmoShaper Calendar Production Web |
+| Authorized redirect URI | `https://www.atmoshaper.com/api/calendar/google/callback` |
+| JavaScript origins | No additional origin required by this server-side Calendar redirect flow |
+| Existing registration | Preserve `AtmoShaper Production Web` and its sign-in callback unchanged |
+
+This is an operator recommendation to keep Calendar credentials separate from
+the already working sign-in credentials, not a Google requirement to use a
+different client for each API. No project replacement or legacy change is
+proposed. Creating this registration alone does not enable Calendar sync in the
+app, grant a user's Calendar permission, create a calendar, or deploy anything.
+
+Obtain exact creation authority before guiding the user through the Console
+mutation. Automated browser access is denied, so do not attempt another browser
+or indirect control path. The user must perform the approved Google UI step.
+Retain the newly issued credential securely outside chat, source trees, and
+screenshots before closing its creation dialog; Google documents that the
+secret is shown only at creation. Secure hosting provisioning is a separate
+later operation. Do not rotate/export the existing sign-in secret or add the
+new client ID/secret to Vercel as an implied follow-up.
+
+No API enablement, consent audience/publishing/scope edit, verification submission,
+QA resource, database write, Calendar/event operation, or Production activation
+is included in this registration-only proposal. Saved API/consent/scope checks
+and isolated test-project/client identification remain required before those
+later exact proposals. Starting the app integration by provisioning credentials
+would expose its connect route before full acceptance, so defer that operation.
+
+Primary creation/callback/credential-retention reference:
+[Google's server-side OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).
 
 ## Resolve exact targets before configuration approval
 

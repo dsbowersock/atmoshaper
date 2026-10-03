@@ -36,10 +36,19 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   consolidates source readiness, exact configuration/acceptance prerequisites,
   and rollback boundaries. Production Calendar keys remain absent in fresh
   name-only readback. Google sign-in is already operational; its credentials
-  are not Calendar configuration. Google-console target identification is
-  incomplete because browser control cannot start and no Cloud-admin CLI or
-  connector is available. A narrow existing-client inventory question is
-  pending; no project/client choice, creation, credential provisioning, provider
+  are not Calendar configuration. The user's current Clients screenshot shows
+  the `AtmoShaper Production` project and one visible Web application registration,
+  `AtmoShaper Production Web`, created September 26. No separate Calendar row is
+  shown; its name alone does not establish whether Calendar is configured in it.
+  The user's URL-only readback lists
+  `https://www.atmoshaper.com/api/auth/callback/google`; the Calendar return
+  address is absent from that supplied list. Scopes, API enablement, audience,
+  and verification remain unverified. A fresh read-only browser attempt was denied because its
+  security check could not verify the admin-enforced policy; no bypass was
+  attempted. Both client-list and return-address questions are satisfied.
+  A concrete proposal is prepared for a separate Calendar Web registration
+  alongside the working sign-in registration; its creation requires exact
+  provider-write approval. No client creation, credential provisioning, provider
   QA, database write, Calendar activation, or public promotion has occurred.
 
 - PR #35's documentation closeout merged as

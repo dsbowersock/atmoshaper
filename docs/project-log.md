@@ -2,6 +2,30 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Google app registration identified from user screenshot
+
+- The user supplied the existing `AtmoShaper Production` Clients page. It shows
+  one visible Web application registration named `AtmoShaper Production Web`,
+  created September 26. No separate Calendar registration is visible. A display
+  name is not proof that the existing registration lacks Calendar configuration;
+  return addresses and project-level consent/API/scope readiness are still needed.
+  No private project/client identifiers or credential values are recorded here.
+- A fresh read-only browser attempt was denied because the security check could
+  not verify the admin-enforced policy. No alternate browser path or indirect
+  workaround was attempted. Asked the user to open the existing registration
+  and provide only its Authorized redirect URI URLs, leaving settings unchanged
+  and sharing no secrets. This resolves the earlier client-list question without
+  asking for another unnamed infrastructure choice or new setup.
+- The user's reply supplies `https://www.atmoshaper.com/api/auth/callback/google`,
+  the existing sign-in return address. The separate Calendar callback is absent
+  from this supplied list. Prepared a new Calendar-only Web registration proposal
+  in the already identified Production project, preserving sign-in unchanged.
+  Google settings remain untouched; creation, secure credential retention,
+  provisioning, QA, and activation are still separately gated.
+- Updated the canonical snapshot, ledger, and Calendar provider checkpoint.
+  No Google/provider settings, environment values, Calendar contents, database
+  rows, or deployment assignments were changed.
+
 ## 2026-10-02 — Record-transfer scope clarified; Calendar preparation next
 
 - The user clarified that no existing users are expected to have professional
