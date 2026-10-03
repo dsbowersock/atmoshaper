@@ -60,9 +60,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   comments or retained architecture concerns; Codex reports no findings and
   no review threads remain unresolved. Initial CI's stale project-state date
   ceiling was repaired before these final receipts.
-  This is merged source preparation,
-  not integration readiness. No provider configuration, calendar creation,
-  hosted database write, deployment, or Calendar activation occurred.
+  That source-only merge did not establish integration readiness. The later
+  approved hosting promotion includes this code in the live runtime, while
+  Calendar credentials and activation remain absent. No Calendar provider
+  configuration, calendar creation, or hosted Calendar database write occurred.
 
 - Earlier 2026-10-02 Dashboard screenshots established the preview-era project
   name, absent Git connection, and enabled custom-domain auto-assignment at the
@@ -120,16 +121,18 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   including both Portal catalogs through Stripe API evidence. One-time support
   and background commerce remain disabled. Existing write-only credentials were
   used without export or replacement; no payment test was repeated.
-- All four original aliases and the project's live target still point to the
-  prior approved deployment at `7756080c3bc650bdbcff33013ff67728a3f97efa`.
-  All three project domains remain verified, with the apex's `308` redirect to
-  canonical `www` intact. Two newly generated convenience aliases point to the
-  protected candidate; neither changes an original assignment. Deployment
-  protection remains unchanged. The candidate has not been publicly promoted.
+- The user separately approved public promotion of the checked existing build,
+  with restoration of the saved live deployment if verification failed. Normal
+  CLI promotion reused that exact artifact without rebuilding. The live project
+  target and all six aliases now point to
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; all four original alias names
+  remain present. All three project domains remain verified, with the apex's
+  `308` redirect to canonical `www` intact. Deployment protection is unchanged
+  and automatic custom-domain assignment remains off for future builds.
   Fresh non-secret setting reads confirm canonical Production auth and both
   pause flags `false`; metadata confirms all 56 variables are Production-only,
   excluded purchase switches are absent, and Calendar credentials remain absent.
-- Post-build signed-out GET checks of the existing public site's home, Pricing,
+- Post-promotion signed-out GET checks of the public site's home, Pricing,
   registration, support, Privacy, Terms, and session all returned `200`; the
   registration form is present, pause copy is absent, and the session is `null`.
   The apex still returns `308` to canonical `www`.
@@ -142,13 +145,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Registration inputs are present, registration/Checkout pause copy is absent,
   and the session response is `null`. This is GET/HTML evidence plus the user's
   registration screenshot; no account creation or Checkout interaction was tested.
-  Fresh provider reads preserve the exact `READY` candidate, original live
-  target, and every original alias assignment. The saved rollback deployment
-  remains `READY` in the same project. Public promotion of this existing
-  artifact, without rebuilding, now awaits its separate exact approval; no
-  additional page checks or repeated hosting setup are requested from the user.
+  Post-promotion provider reads confirm the exact `READY` artifact is live.
+  Public Pricing script assets match the checked candidate. The saved previous
+  live deployment remains recoverable; no rollback was needed because every
+  approved public check passed. No additional page checks or repeated hosting
+  setup are requested from the user. The hosting execution is complete; these
+  updated operator receipts are local pending documentation publication.
 
-- Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+- Deployed runtime source is reviewed merge `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`.
+  The prior Supporter activation runtime and saved rollback source is
+  `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
   `896c6d3edd369ca13c8140f22f37c4ee239c84da`, with exact-head Codex and
   CodeRabbit coverage and no unresolved actionable review threads. The full

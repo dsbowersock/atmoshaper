@@ -2,6 +2,33 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Checked build promoted; public rollout verified
+
+- The user explicitly approved promotion of the checked existing build to the
+  live site, with rollback if verification failed. Fresh preflight verified the
+  exact candidate and saved rollback were `READY` in the same immutable project,
+  all original live assignments were unchanged, both remote readiness gates and
+  all seven candidate GETs passed, and purchase/Calendar boundaries were intact.
+- Normal CLI promotion reused the checked artifact from reviewed PR #37 merge
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, without rebuilding. The live
+  project target and all six aliases now point to that deployment; all four
+  original alias names remain present. All three project domains remain verified,
+  and the apex's `308` redirect to canonical `www` is preserved. Existing
+  deployment protection and disabled custom-domain auto-assignment remain intact.
+- Post-promotion signed-out GET checks of home, Pricing, registration, support,
+  Privacy, Terms, and session all returned `200`. Registration inputs are
+  present, registration/Checkout pause copy is absent, Supporter Pricing content
+  is present, and the session body is `null`. Public Pricing script assets match
+  the checked candidate. Fresh non-secret auth/pause-setting reads pass; all
+  56 variables remain Production-only, with excluded purchase switches and
+  Calendar credentials absent. No rollback was needed.
+- Hosting execution is complete. No secret replacement, schema application,
+  DNS change, Calendar activation, repeated payment test, or old MassageLab
+  change occurred. Future Production builds remain staged until separately
+  approved for promotion. These five updated operator-doc receipts are saved
+  locally; publishing the documentation branch/PR and its reviews is the next
+  source step, separate from this completed live promotion.
+
 ## 2026-10-02 — Candidate page checks passed; public promotion prepared
 
 - The user reported that the candidate pages they checked worked, but did not

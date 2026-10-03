@@ -14,8 +14,10 @@ deployment, provider write, or pause change requires its own exact authority.
 The user's earlier 2026-10-02 Dashboard screenshot showed that the existing
 project serving `www.atmoshaper.com` retained its preview-era name and `Connect Git
 Repository`. The completed live launch used CLI deployments. PR #36's and
-PR #37's source-only merges did not trigger a new deployment; the deployed
-runtime remains reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+PR #37's source-only merges did not trigger a deployment. The later separately
+approved build and promotion now serve reviewed merge
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; the earlier activation runtime
+`7756080c3bc650bdbcff33013ff67728a3f97efa` is the saved rollback source.
 
 Follow the [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
 to prepare the existing project's name and Git connection. Connecting Git can
@@ -33,14 +35,17 @@ verifies GitHub repository `dsbowersock/atmoshaper` and Production branch `main`
 after the user's normal Dashboard connection. The earlier repository-discovery
 response is superseded; do not reconnect or request another App grant. Connection
 triggered no build. One approved staged Production candidate from merged PR #37
-reached `READY` at `2026-10-02T23:56:01Z`. All four original aliases and the live
-project target still point to the prior live artifact. Two new generated
-convenience aliases serve the protected candidate without moving old assignments.
+reached `READY` at `2026-10-02T23:56:01Z`. After separate exact promotion
+approval, that existing artifact was promoted without rebuilding. The live
+project target and all six aliases now use it, preserving every original alias
+name, all verified project domains, and the apex redirect.
 All seven protected candidate GET checks now pass with application content,
 open registration inputs, no pause copy, and a `null` signed-out session.
 The user also supplied a screenshot of the candidate's registration form and
-reported successful partial browser checks. Public promotion remains pending
-its separate exact approval; no further manual page check is needed.
+reported successful partial browser checks. All seven post-promotion public GET
+checks also pass, with the same open-registration and signed-out-session
+results. Public Pricing assets match the checked candidate. No rollback or
+further manual page check was needed; hosting execution is complete.
 
 ## Production Readiness In The Standard Build
 
@@ -66,9 +71,9 @@ only Production; Preview and Development have none. Direct Production URLs and
 Preview deployments require Vercel sign-in. The initial authenticated fetch
 was rejected, but a later normal authenticated retry succeeded and all seven
 candidate GET checks passed. Do not treat the earlier fetch failure as a current
-block or repeat hosting setup. The exact candidate and saved rollback both
-remain `READY`; promote the existing artifact only after its separate approval,
-then verify public pages and assignments without rebuilding.
+block or repeat hosting setup. The checked artifact is now live after separate
+approval and verified public readback. Keep the previous live artifact as saved
+rollback; future builds remain staged until separately approved for promotion.
 
 Before connecting Git, verify that the actual Build Command uses `npm run build`
 so both gates execute. A custom `next build` command bypasses npm's prebuild;
