@@ -2,6 +2,55 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Record-transfer scope clarified; Calendar preparation next
+
+- The user clarified that no existing users are expected to have professional
+  records needing transfer. Old/new vault contracts match; the finding concerned
+  the ordinary file-import operation replacing a populated destination, not a
+  format mismatch or evidence of actual users losing records. Removed this
+  turn's unpublished generic import UI/test-script draft and kept runtime
+  source unchanged. No user storage, account, or database rows were inspected.
+- Saved a [local-record/PWA scope checkpoint](superpowers/plans/2026-10-02-atmoshaper-local-record-recovery.md)
+  distinguishing retained compatibility from unnecessary existing-user transfer.
+  General import/cache/offline improvements remain separate product work, not
+  implied migration blockers. The full old service remains available.
+- Consolidated the prepared Calendar provider proposal into a
+  [checked-in checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md).
+  Fresh Production name-only inventory still lacks Calendar credentials and
+  its encryption key. Browser control fails before console access because its
+  runtime cannot start; the Cloud CLI/admin connector is unavailable. Asked
+  only whether the existing project's Clients page contains a Calendar client.
+  Sign-in setup is operational and is not being repeated. Provider/client
+  writes, QA resources, Calendar/database activity, and activation are unapproved.
+
+## 2026-10-02 — PR #38 merged; automatic candidate verified and aliases restored
+
+- The user explicitly approved source merge and automatic unpromoted Production
+  build verification, including restoration of saved live assignments that moved.
+  Fresh preflight preserved the exact reviewed head, clean merge state, all
+  successful checks, resolved threads, manual promotion, and saved live artifact.
+  Merged [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) at
+  `2026-10-03T02:55:51Z` as `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`.
+  Reviewed head `3558ff4a81e03f347818acf6f14980c64a008118` has full
+  CodeRabbit coverage of five files, clean Codex review, three resolved threads,
+  and all seven CI jobs passing. Linux unit totals: 5,113 passes, two skips,
+  zero failures from 5,115 tests.
+- Git integration automatically built that exact merged main once. Actual logs
+  prove migration status and live Supporter readiness passed; the candidate is
+  `READY`. Seven normal authenticated GETs return application content with `200`:
+  home, Pricing, registration, support, Privacy, Terms, and signed-out session.
+  Registration is open and the session body is `null`. No forms were submitted.
+- The build moved only `atmoshaper-dsbteam.vercel.app` and
+  `atmoshaper-git-main-dsbteam.vercel.app` among the six saved live assignments.
+  Both moves were positively attributed to this candidate and restored under
+  the user's approval. Final readback preserves all six saved live assignments
+  on `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, the unchanged live project
+  target, verified domains, apex redirect, protection, and manual promotion.
+  No public promotion or second manual build was performed.
+- Environment-name inventory remains Production-only. Excluded purchase switches
+  and Calendar keys are absent. No secret export/replacement, migration
+  application, payment test, provider catalog change, or old-site write occurred.
+
 ## 2026-10-02 — Hosting closeout documentation published as PR #38
 
 - Under the user's source publication/review approval, published the five

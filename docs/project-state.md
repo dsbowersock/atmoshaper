@@ -6,6 +6,42 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 ## Current Snapshot — Registration and Supporter Checkout Open
 
+- [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
+  user's exact approval at `2026-10-03T02:55:51Z` as
+  `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
+  `3558ff4a81e03f347818acf6f14980c64a008118` passed all seven CI jobs,
+  Vercel, full CodeRabbit coverage of all five files, and clean Codex review;
+  all three review threads are resolved. The automatic main Production build
+  reached `READY`, with actual migration-status and live Supporter gates passing.
+  All seven normal authenticated candidate GETs pass, including open
+  registration and a signed-out session of `null`. This is an unpromoted,
+  documentation-only candidate, not a new public rollout.
+  The build moved two convenience aliases to itself. Under the user's explicit
+  saved-assignment restoration approval, both were restored to the saved public
+  artifact. Final readback verifies all six recorded live assignments, public
+  project target, domains/apex redirect, protection, and manual promotion intact.
+  Public source remains `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`.
+- The user clarified that no existing users are expected to have professional
+  records needing migration. This is user-provided scope information, not a
+  browser-storage or database audit. No vault-format mismatch was found: old
+  and new source retain the established encrypted-bundle/storage contracts.
+  Existing-user record transfer and a migration warning are not launch
+  prerequisites on that basis. A briefly prepared generic import-replacement
+  UI change was removed without publication; runtime remains unchanged.
+  The [local-record/PWA scope checkpoint](superpowers/plans/2026-10-02-atmoshaper-local-record-recovery.md)
+  preserves compatibility findings and proof limits without scheduling
+  unnecessary user recovery or old-site changes.
+- Next migration focus is the already-selected separate AtmoShaper Calendar.
+  The [provider-stage checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md)
+  consolidates source readiness, exact configuration/acceptance prerequisites,
+  and rollback boundaries. Production Calendar keys remain absent in fresh
+  name-only readback. Google sign-in is already operational; its credentials
+  are not Calendar configuration. Google-console target identification is
+  incomplete because browser control cannot start and no Cloud-admin CLI or
+  connector is available. A narrow existing-client inventory question is
+  pending; no project/client choice, creation, credential provisioning, provider
+  QA, database write, Calendar activation, or public promotion has occurred.
+
 - PR #35's documentation closeout merged as
   `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review
   covered all twelve files with no actionable comments; all seven hosted CI
@@ -152,9 +188,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   setup are requested from the user. The approved settings and exact-artifact
   promotion are verified; Calendar, old-origin recovery, and other migration
   gates remain open. The five
-  updated operator receipts are published in
-  [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38); final-head checks,
-  reviews, and the separately approved source merge remain pending. Publication
+  updated operator receipts were published in
+  [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38); its final-head checks,
+  reviews, and separately approved merge are now recorded above. That merge
   does not authorize another public promotion or Calendar activation. Git
   publication added an ordinary Preview branch alias; fresh readback preserves
   the six recorded live assignments and the approved live artifact. Additional

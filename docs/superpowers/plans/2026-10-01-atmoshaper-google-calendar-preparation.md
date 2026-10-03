@@ -7,13 +7,20 @@ the migration continuation; provider configuration and public activation remain
 separate gates. This source preparation changed no provider configuration and
 did not deploy.
 
+Current continuation: the later approved PR #37 artifact promotion includes
+this source in the live runtime; Calendar configuration and activation remain
+absent. The [provider-stage checkpoint](2026-10-02-atmoshaper-calendar-provider-stage.md)
+owns the next configuration/acceptance preparation. Source-stage baseline
+observations below are historical and do not require repeating implemented code
+or working Google sign-in setup.
+
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [remaining migration ledger](../../wiki/migration-status.md) first.
 MassageLab will continue as a separate project after the platform migration.
 Preserve its current full service and existing calendars. Its future product
 direction is outside this AtmoShaper migration work.
 
-## Evidence and boundaries
+## Historical source-stage evidence and continuing boundaries
 
 - Reviewed AtmoShaper runtime source is merge
   `7756080c3bc650bdbcff33013ff67728a3f97efa`. The public Supporter launch

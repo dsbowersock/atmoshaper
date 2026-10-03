@@ -41,11 +41,16 @@ further manual page check was needed. These receipts verify the approved
 settings and exact-artifact promotion. Calendar, old-origin recovery, and other
 migration gates remain open.
 
-The five operator closeout docs are published in
-[PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), pending final-head
-checks/reviews and separate merge approval. Publication may trigger an ordinary
-Preview build; preserve its existing configuration and keep Production
-credentials out of Preview. No additional public promotion is authorized.
+The five operator closeout docs merged in
+[PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) after final-head
+checks and full reviews passed. Its separately approved automatic Production
+candidate from `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed` passed both actual
+readiness gates and seven authenticated GETs. It moved two saved convenience
+aliases; both were restored under explicit approval. All six saved live
+assignments, public target, domains/apex redirect, protection, and manual
+promotion remain intact on PR #37. PR #38's documentation-only candidate is
+unpromoted. Preserve Preview's existing configuration; no Production
+credentials were copied and no additional public promotion is authorized.
 Git publication added an ordinary Preview branch alias. These Preview aliases
 are outside the promotion receipt's six recorded live assignments.
 
