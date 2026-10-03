@@ -42,17 +42,22 @@ and public activation require their own exact, reviewable authorization.
   access is unavailable; saved API/consent readiness and test targets remain
   unverified.
 
-## Exact registration setup; approved, execution pending
+## Exact registration setup; user reports created
 
-The user approved this exact registration-only scope. Automated browser access
-remains denied; the user will perform the Google UI step. Creation and saved
-return-URI verification are not yet confirmed. Do not create a duplicate if a
-submission's outcome is uncertain; first inspect the Clients list.
+The user approved this exact registration-only scope and subsequently replied
+`created` after following the user-guided instructions. Creation is recorded
+from that user receipt; saved return settings and API/consent/scope readiness
+are not independently verified. Do not repeat Create. Automated browser access
+remains denied. Read back the saved non-secret callback, Data Access scope list,
+and Audience publishing status before proposing the next settings operation.
+The user also reports downloading the credential JSON issued at creation.
+Its location and contents were not accessed, and no values are recorded here.
+Retain it privately outside source trees; provisioning remains separately gated.
 
-Prepare one new Web application registration in the user's identified existing
-`AtmoShaper Production` project:
+The approved, user-reported registration in the identified existing
+`AtmoShaper Production` project has this intended configuration:
 
-| Setting | Proposed value |
+| Setting | Approved intended value; saved readback pending |
 | --- | --- |
 | Application type | Web application |
 | Name | AtmoShaper Calendar Production Web |
@@ -75,7 +80,7 @@ secret is shown only at creation. Secure hosting provisioning is a separate
 later operation. Do not rotate/export the existing sign-in secret or add the
 new client ID/secret to Vercel as an implied follow-up.
 
-User-guided steps: in the existing project, choose Create client, select Web
+Historical user-guided creation steps (completed by user report): in the existing project, choose Create client, select Web
 application, enter the approved name, leave JavaScript origins empty for this
 server-side flow, add the single approved redirect URI, and choose Create.
 Securely retain the issued credential outside the source tree before closing

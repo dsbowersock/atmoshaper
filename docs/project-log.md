@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — User reports Calendar registration created
+
+- After the exact registration-only approval and user-guided instructions, the
+  user replied `created`. Record this as their execution receipt for
+  `AtmoShaper Calendar Production Web` in the existing Production project,
+  not an independent saved-settings or API/consent/scope verification.
+  Do not repeat Create or ask the user to redo the finished registration.
+- The user also reports downloading the credential JSON from client creation.
+  No file location, secret, client identifier, or file contents were accessed or
+  recorded. Retain it privately outside source; hosting provisioning still
+  requires separate approval and is not implied by the downloaded credential.
+- Next read-only evidence is the new registration's saved Calendar callback,
+  the existing project's Data Access scope list, and Audience publishing status.
+  These are settings readbacks, not permission changes or a real Calendar flow.
+  Keep credentials outside chat/source and leave sign-in unchanged.
+- Registration creation does not provision hosting settings or activate sync.
+  Consent/API changes, QA resources, tokens/database activity, Calendar/events,
+  deployment, and public activation remain separately gated.
+
 ## 2026-10-02 — Calendar registration creation approved; user execution pending
 
 - The user explicitly approved one Web application registration named

@@ -49,10 +49,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   The user approved creation of `AtmoShaper Calendar Production Web` alongside
   the working sign-in registration, using only
   `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI.
-  User-guided Console execution is pending; client creation is not yet
-  confirmed. This approval excludes hosting credential provisioning, consent/API
+  The user reports that creation is complete. This is a user execution receipt;
+  they also report downloading the issued credential JSON. Its contents and
+  location were not accessed; no credential values entered chat or source.
+  Saved callback settings and API/consent/scope readiness are not independently
+  verified. Do not create a duplicate or ask to repeat the completed setup.
+  This approval excludes hosting credential provisioning, consent/API
   changes, QA resources, Calendar/event activity, deployment, and activation.
-  No confirmed client creation, credential provisioning, provider
+  No hosting credential provisioning, provider
   QA, database write, Calendar activation, or public promotion has occurred.
 
 - PR #35's documentation closeout merged as
