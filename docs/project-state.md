@@ -67,7 +67,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - Earlier 2026-10-02 Dashboard screenshots established the preview-era project
   name, absent Git connection, and enabled custom-domain auto-assignment at the
-  start of this hosting stage. The completed hosting and Supporter launch used
+  start of this hosting stage. The earlier Supporter activation used
   explicit CLI deployments. The user subsequently approved the existing-project
   rename, Git connection, and one unpromoted Production build with narrowly
   scoped normal GitHub App access. The
@@ -149,7 +149,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Public Pricing script assets match the checked candidate. The saved previous
   live deployment remains recoverable; no rollback was needed because every
   approved public check passed. No additional page checks or repeated hosting
-  setup are requested from the user. Hosting execution is complete. The five
+  setup are requested from the user. The approved settings and exact-artifact
+  promotion are verified; Calendar, old-origin recovery, and other migration
+  gates remain open. The five
   updated operator receipts are published in
   [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38); final-head checks,
   reviews, and the separately approved source merge remain pending. Publication

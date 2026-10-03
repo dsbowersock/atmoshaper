@@ -7,7 +7,7 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 - Under the user's source publication/review approval, published the five
   prepared operator-doc updates in
   [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38). It records the
-  completed existing-project Vercel integration, actual readiness gates,
+  verified existing-project Vercel integration, actual readiness gates,
   reviewed live source, candidate/public checks, saved rollback, and remaining
   migration boundaries. No runtime code or provider credentials are changed.
 - Final-head CI, full CodeRabbit coverage, and review-thread closure remain
@@ -18,7 +18,7 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e` for all six aliases, with manual
   promotion preserved and excluded purchase/Calendar boundaries intact.
 
-## 2026-10-02 — Checked build promoted; public rollout verified
+## 2026-10-02 — Checked artifact promoted; public GET checks verified
 
 - The user explicitly approved promotion of the checked existing build to the
   live site, with rollback if verification failed. Fresh preflight verified the
@@ -38,12 +38,14 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   the checked candidate. Fresh non-secret auth/pause-setting reads pass; all
   56 variables remain Production-only, with excluded purchase switches and
   Calendar credentials absent. No rollback was needed.
-- Hosting execution is complete. No secret replacement, schema application,
+- The approved settings and exact-artifact promotion are verified; Calendar,
+  old-origin recovery, and other migration gates remain open. No secret
+  replacement, schema application,
   DNS change, Calendar activation, repeated payment test, or old MassageLab
   change occurred. Future Production builds remain staged until separately
   approved for promotion. These five updated operator-doc receipts are saved
   locally; publishing the documentation branch/PR and its reviews is the next
-  source step, separate from this completed live promotion.
+  source step, separate from this approved live artifact promotion.
 
 ## 2026-10-02 — Candidate page checks passed; public promotion prepared
 

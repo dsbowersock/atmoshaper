@@ -1,7 +1,8 @@
 # AtmoShaper existing-project Vercel integration
 
-Status: approved existing-project hosting stage and public rollout complete,
-2026-10-02. PR #37's separately approved source merge is complete
+Status: existing-project settings, exact-artifact promotion, and public GET
+checks verified under separate approvals, 2026-10-02. Remaining migration gates
+are still open. PR #37's separately approved source merge is complete
 as `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; its reviewed gate is on `main`.
 PR #36's Calendar source-only merge is also complete. Preflight verified the
 settings and all four original live alias assignments through normal
@@ -296,7 +297,9 @@ candidate. Fresh non-secret auth/pause reads pass; excluded purchase switches an
 Calendar credentials remain absent. No rollback was needed. Preserve the saved
 prior live artifact and do not repeat the completed build or payment test.
 
-Hosting execution is complete. These five sanitized operator-doc receipts are
+The approved settings and exact-artifact promotion are verified; Calendar,
+old-origin recovery, and other migration gates remain open. These five
+sanitized operator-doc receipts are
 published in PR #38 under source publication/review authority. Git publication may
 start a Preview build using its existing configuration; do not copy Production
 credentials into Preview to repair a failure. Source merge and any later public

@@ -93,14 +93,15 @@ normal authenticated retry succeeded and all seven candidate GET checks now
 pass. The user supplied an open-registration screenshot and reported successful
 partial browser checks. No additional manual page readback is needed. The
 [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
-records the completed approval, promotion, and saved rollback. Hosting execution
-is complete; future builds retain manual public promotion.
+records the exact approval, verified artifact promotion, and saved rollback.
+Calendar, old-origin recovery, and other migration gates remain open; future
+builds retain manual public promotion.
 
 ## Remaining migration ledger
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |
-| Hosting closeout documentation | Vercel setup and the approved live rollout are complete; five current operator docs are published in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), with checks/reviews pending | Shepherd final-head reviews and retain the [integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md) as the execution receipt | Source merge needs separate approval after checks/reviews pass. No hosting setup, App grant, manual page readback, or public promotion is needed; Preview uses its existing configuration |
+| Hosting closeout documentation | Vercel settings and the approved artifact promotion are verified; five current operator docs are published in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), with checks/reviews pending | Shepherd final-head reviews and retain the [integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md) as the execution receipt | Source merge needs separate approval after checks/reviews pass. No hosting setup, App grant, manual page readback, or public promotion is needed; Preview uses its existing configuration |
 | Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
 | Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
 | Google Calendar | A separate `AtmoShaper` calendar is selected and its source preparation is merged; OAuth/client/callback readiness and actual provider behavior remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); identify the existing technical targets and prepare isolated provider acceptance | Ask before client/callback writes, QA resource or calendar creation/sync, token or row migration, a deployment, or public activation |

@@ -11,41 +11,35 @@ deployment, provider write, or pause change requires its own exact authority.
 
 ## Current Project Name And Repository Connection
 
-The user's earlier 2026-10-02 Dashboard screenshot showed that the existing
-project serving `www.atmoshaper.com` retained its preview-era name and `Connect Git
-Repository`. The completed live launch used CLI deployments. PR #36's and
-PR #37's source-only merges did not trigger a deployment. The later separately
-approved build and promotion now serve reviewed merge
-`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; the earlier activation runtime
-`7756080c3bc650bdbcff33013ff67728a3f97efa` is the saved rollback source.
+The existing project is named `atmoshaper`, its custom-domain auto-assignment is
+disabled, and its Build Command is explicitly `npm run build`. Direct
+authenticated project readback verifies GitHub repository `dsbowersock/atmoshaper`
+and Production branch `main`. The user's earlier screenshots and the superseded
+repository-discovery response are historical preflight evidence in the
+[Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md).
+Do not reconnect, request another App grant or Git-status observation, or create
+a replacement project. Future Git pushes/merges may trigger builds; preserve
+manual public promotion and verify assignments before any separately approved
+hosting change.
 
-Follow the [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
-to prepare the existing project's name and Git connection. Connecting Git can
-trigger builds automatically, so read the actual Production branch/promotion
-controls and alias assignments before requesting provider-write authority.
-The proposed default is staged Production builds with manual promotion.
-No connection, rename, control change, build, or promotion is authorized by the
-Calendar source merge. Do not create a replacement project or ask the user to
-repeat the satisfied Git-status observation. Subsequent Production screenshots
-confirmed the custom-domain auto-assignment control was present and enabled.
-The user subsequently approved the hosting stage. The same project is now named
-`atmoshaper`, its custom-domain auto-assignment is disabled, and its Build
-Command is explicitly `npm run build`. Direct authenticated project readback
-verifies GitHub repository `dsbowersock/atmoshaper` and Production branch `main`
-after the user's normal Dashboard connection. The earlier repository-discovery
-response is superseded; do not reconnect or request another App grant. Connection
-triggered no build. One approved staged Production candidate from merged PR #37
+The earlier Supporter activation used CLI deployments. PR #36's and PR #37's
+source-only merges and the subsequent Dashboard Git connection triggered no
+build. One separately approved staged Production candidate from merged PR #37
 reached `READY` at `2026-10-02T23:56:01Z`. After separate exact promotion
 approval, that existing artifact was promoted without rebuilding. The live
 project target and all six aliases now use it, preserving every original alias
-name, all verified project domains, and the apex redirect.
+name, all verified project domains, and the apex redirect. Its reviewed source is
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; the earlier activation runtime
+`7756080c3bc650bdbcff33013ff67728a3f97efa` is the saved rollback source.
 All seven protected candidate GET checks now pass with application content,
 open registration inputs, no pause copy, and a `null` signed-out session.
 The user also supplied a screenshot of the candidate's registration form and
 reported successful partial browser checks. All seven post-promotion public GET
 checks also pass, with the same open-registration and signed-out-session
 results. Public Pricing assets match the checked candidate. No rollback or
-further manual page check was needed; hosting execution is complete.
+further manual page check was needed. These receipts verify the approved
+settings and exact-artifact promotion. Calendar, old-origin recovery, and other
+migration gates remain open.
 
 The five operator closeout docs are published in
 [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), pending final-head
@@ -81,9 +75,10 @@ block or repeat hosting setup. The checked artifact is now live after separate
 approval and verified public readback. Keep the previous live artifact as saved
 rollback; future builds remain staged until separately approved for promotion.
 
-Before connecting Git, verify that the actual Build Command uses `npm run build`
-so both gates execute. A custom `next build` command bypasses npm's prebuild;
-reconcile that concrete setting before approving a candidate. A passing readiness
+Before each new Production candidate, verify that the already-connected
+project's Build Command still uses `npm run build` so both gates execute. A
+custom `next build` command bypasses npm's prebuild; reconcile any concrete drift
+before approving a candidate. A passing readiness
 build never grants public promotion, activates Calendar, enables other purchase
 flows, or repeats the live transaction test.
 
