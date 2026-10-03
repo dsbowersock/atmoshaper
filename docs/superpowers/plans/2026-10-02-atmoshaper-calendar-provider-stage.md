@@ -3,12 +3,13 @@
 Status: local preparation; registration created by user report. October 3
 screenshots establish External / In production and empty declared scope lists;
 branding is verified/shown. After the separately approved API-only step, the user
-reports `Enabled`; independent provider readback is not claimed. A local candidate
+reports `Enabled`; independent provider readback is not claimed. PR #39
 removes one redundant requested grant while preserving prior-token compatibility.
-Its publication/reviews, minimum-access permission review, provider acceptance,
+Its publication is approved and complete; final-head reviews, minimum-access
+permission review, provider acceptance,
 and test targets remain pending. The earlier implementation merged in PR #36
 and is included in the approved public PR #37 artifact; the narrower candidate
-is unpublished. Working sign-in and Vercel integration remain
+is published for review. Working sign-in and Vercel integration remain
 complete. Do not repeat them or the completed live payment test.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
@@ -121,7 +122,7 @@ Primary creation/callback/credential-retention reference:
 ## October 3 declared-permission checkpoint
 
 The screenshots establish publishing and audience configuration, with no
-declared permissions. The local candidate and unchanged sign-in provider
+declared permissions. The PR #39 candidate and unchanged sign-in provider
 defaults use the following six semantic permissions. The Console uses the full
 `userinfo` URLs for the `email`/`profile` aliases. This is the exact proposed
 declaration set after source review, not approval to edit Google settings or a
@@ -207,23 +208,28 @@ confirm the project-level prerequisite. Only that subsection is relevant here;
 its desktop-client sample, credential-file placement, and live Calendar reads
 are not the approved Web integration workflow.
 
-## Next source operation; publication approval pending
+## Published source operation; final-head checks/reviews pending
 
-Publish the focused local scope-reduction candidate and accumulated Calendar
-setup receipts on `codex/atmoshaper-migration-next-stage`, open a PR against
-`main`, and shepherd CodeRabbit reviews. Trigger review whenever its window
+The user answered `Yes` to publishing the scope-reduction candidate and
+accumulated Calendar receipts and shepherding reviews. The branch
+`codex/atmoshaper-migration-next-stage` is published as
+[PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) against `main`.
+Shepherd CodeRabbit reviews. Its initial response skips automatic review for
+this repository, so an explicit trigger is required. Trigger whenever its window
 opens, repair valid findings, and require coverage of the final head, passing
 CI, and no actionable unresolved comments before proposing merge. Local
 Calendar tests pass 83/83; lint/typecheck pass; the full suite passes with
 5,114 passed, three skipped, and zero failures. These are synthetic/local
 checks, not provider acceptance. The project log records the completed checks.
 
-The proposed publication authorizes source push, PR creation, and review
+The received approval authorizes source push, PR creation, and review
 comments only. It does not authorize merge, Production deployment/promotion,
 Google permissions, credentials, QA resources, or Calendar activation. The
 existing Git connection may create an ordinary Preview candidate; preserve
 the recorded live assignments and do not copy Production secrets to Preview.
-Earlier PR-specific approvals do not publish this new candidate.
+Fresh readback after publication verifies all six saved live alias assignments
+on the approved PR #37 artifact, unchanged apex redirect, manual promotion,
+and no Preview credentials. No hosting configuration was changed.
 
 After source review, prepare a separate Google Data Access edit using exactly
 the six table entries above in the existing Production project. Preserve the
@@ -257,7 +263,7 @@ Provisioning the four settings is a later exact operation; never paste secrets
 into chat or commit them. The presence helper alone does not prove encryption
 key validity, consent readiness, or provider acceptance.
 
-The unpublished candidate requests `openid`, `email`, `calendar.app.created`,
+The PR #39 candidate requests `openid`, `email`, `calendar.app.created`,
 `calendar.calendarlist.readonly`, and `calendar.events.readonly`, using Google's
 full URI prefix for Calendar scopes. Published/live source additionally requests
 `calendar.events.freebusy`; see the compatibility boundary above.

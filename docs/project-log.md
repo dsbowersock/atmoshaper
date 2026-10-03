@@ -2,6 +2,27 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Calendar permission PR published under exact approval
+
+- The user answered `Yes` to publishing the prepared permission change and
+  migration receipts and shepherding reviews. Published branch
+  `codex/atmoshaper-migration-next-stage` and opened
+  [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) against `main`,
+  initially at validated `d841709701d2abbf2b5b692fd2dfb70eae087972`.
+  The PR is attached to this chat. No merge, Google permission edit, credential
+  provisioning, provider acceptance, or public Calendar rollout is authorized.
+- Rechecked main at `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`, clean
+  local branch identity, manual custom-domain promotion, and empty Preview
+  credentials. A fresh name-only assignment read after publication verifies
+  all six saved live aliases on the approved PR #37 artifact, including the
+  unchanged apex-to-www redirect. No hosting settings or aliases were changed.
+- CodeRabbit's initial response says automatic reviews are skipped because
+  the repository has fewer than ten stars; an explicit review trigger is
+  necessary. Update this publication receipt before triggering full coverage
+  of the latest head. CI and final-head reviews remain pending. The existing
+  local source receipt below covers the unchanged runtime/tests; the additional
+  publication receipt changes documentation only.
+
 ## 2026-10-03 — User reports Calendar API enabled; redundant grant removed locally
 
 - The user replied `Enabled` after the exact API-only approval and guided step.

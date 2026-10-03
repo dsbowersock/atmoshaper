@@ -68,15 +68,18 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   lists as broken sign-in or the publishing state as Calendar approval.
   All requested Data Access, Audience, Verification Center, and API-state
   readbacks are now received; do not ask to repeat them or registration creation.
-  A local source candidate removes the redundant `calendar.events.freebusy`
+  [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) removes the redundant `calendar.events.freebusy`
   request while retaining the three other Calendar grants and event-read import.
   Existing tokens may retain that optional read-only grant; it never substitutes
   for a required grant, and broader Calendar grants still fail before provider
   access or token persistence. Calendar tests pass 83/83; typecheck and lint pass.
   Full unit validation passes with 5,114 passed, three skipped, and zero failures.
-  This candidate is unpublished and does not change the live request. Next is
-  publication approval for its focused PR and reviews, then a separate exact
-  Google permission-declaration proposal. Isolated provider acceptance and
+  The user approved publication and shepherding reviews; the branch and PR are
+  published, with final-head checks/reviews pending. All six saved live alias
+  assignments still resolve to the approved PR #37 artifact; manual promotion
+  and empty Preview credentials are verified. This does not change the live
+  request. Next is review convergence, then a separate exact Google
+  permission-declaration proposal. Isolated provider acceptance and
   credential provisioning remain pending; no permission changes are approved.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
