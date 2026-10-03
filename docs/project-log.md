@@ -2,6 +2,42 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Calendar permission PR merged; automatic candidate verified
+
+- The user answered `Yes` to merging PR #39, verifying its automatic unpromoted
+  build, and restoring any saved live aliases it moved. Fresh preflight verified
+  the unchanged reviewed head, passing checks, no unresolved review threads,
+  and all six saved live assignments. Merged
+  [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) at
+  `2026-10-03T17:02:47Z` as `2e01e8509b42ab73c85d286f2725c824770aeeec`,
+  guarded by reviewed head `7064a6fb63340fabc29adfd695e0824a1d21c2ed`.
+- All seven CI jobs and Vercel passed. CodeRabbit's explicitly triggered full
+  review covered all thirteen files with zero actionable comments; Codex
+  reported no major issues. The unchanged head needed no additional review.
+- The automatic main Production candidate reached `READY` at
+  `2026-10-03T17:05:28.696Z`. Actual build logs verify the migration-status gate
+  and live Supporter readiness gate passed before the standard app build.
+  The build-log connector was unavailable; normal authenticated CLI log reads
+  supplied these receipts. No manual build, schema migration, or payment test
+  was performed. All seven normal authenticated candidate GETs pass: home,
+  Pricing, registration, support, Privacy, Terms, and signed-out session.
+  Registration inputs are present, pause copy is absent, and session is `null`.
+  This is page-response proof, not new interactive or live Calendar acceptance.
+- Post-build assignment reads preserve all six saved live aliases on the
+  approved PR #37 artifact and the apex-to-www `308` redirect. No restoration
+  was needed and no alias write occurred. The public target, manual promotion,
+  standard build command, protection, and empty Preview configuration remain
+  intact. Both public pause flags read `false`; one-time support/background
+  switches remain unset and all four Calendar configuration keys remain absent.
+  PR #39's candidate remains unpromoted; the public source is unchanged.
+- Fast-forwarded only the clean task-owned branch to the merged source.
+  Prepared the exact Google Data Access proposal in the
+  [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md):
+  declare the three existing sign-in identity permissions and three reviewed
+  Calendar permissions, then inspect saved categories and required verification
+  actions. Google settings, credentials, QA resources, provider/database activity,
+  verification submission, and public Calendar activation remain unapproved.
+
 ## 2026-10-03 — Calendar permission PR published under exact approval
 
 - The user answered `Yes` to publishing the prepared permission change and

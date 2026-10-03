@@ -6,6 +6,25 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 ## Current Snapshot — Registration and Supporter Checkout Open
 
+- [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
+  user's exact approval at `2026-10-03T17:02:47Z` as
+  `2e01e8509b42ab73c85d286f2725c824770aeeec`. Reviewed head
+  `7064a6fb63340fabc29adfd695e0824a1d21c2ed` passed all seven CI jobs and
+  Vercel. CodeRabbit's explicitly triggered full review covered all thirteen
+  files with zero actionable comments; Codex reported no major issues and no
+  inline review threads remained. Its automatic Production candidate reached
+  `READY` at `2026-10-03T17:05:28.696Z`, with actual migration-status and live
+  Supporter readiness gates passing. All seven normal authenticated candidate
+  GETs pass, including open registration, no Checkout pause copy, and a `null`
+  signed-out session. This candidate remains unpromoted. All six saved live
+  assignments and the public project target still use the approved PR #37
+  artifact; no alias restoration was needed. Manual custom-domain promotion,
+  apex redirect, deployment protection, and empty Preview credentials remain
+  intact. Public registration/recurring Supporter flags remain `false` for
+  pause, excluded purchase switches remain unset, and all four Calendar keys
+  remain absent. No live payment test was repeated. The exact next Google
+  permission-declaration proposal is prepared in the provider checkpoint;
+  its settings edit still needs separate approval.
 - [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
   user's exact approval at `2026-10-03T02:55:51Z` as
   `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
@@ -62,8 +81,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   The user reports that creation is complete. This is a user execution receipt;
   they also report downloading the issued credential JSON. Its contents and
   location were not accessed; no credential values entered chat or source.
-  The new callback's saved readback is still pending. Published/live source
-  requests four Calendar scopes plus `openid`/`email`; working sign-in uses
+  The new callback's saved readback is still pending. The current public PR #37
+  artifact requests four Calendar scopes plus `openid`/`email`; working sign-in uses
   the provider's `openid profile email` defaults. Do not treat empty declared
   lists as broken sign-in or the publishing state as Calendar approval.
   All requested Data Access, Audience, Verification Center, and API-state
@@ -74,12 +93,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   for a required grant, and broader Calendar grants still fail before provider
   access or token persistence. Calendar tests pass 83/83; typecheck and lint pass.
   Full unit validation passes with 5,114 passed, three skipped, and zero failures.
-  The user approved publication and shepherding reviews; the branch and PR are
-  published, with final-head checks/reviews pending. All six saved live alias
-  assignments still resolve to the approved PR #37 artifact; manual promotion
-  and empty Preview credentials are verified. This does not change the live
-  request. Next is review convergence, then a separate exact Google
-  permission-declaration proposal. Isolated provider acceptance and
+  Final-head checks/full reviews and the separately approved merge and automatic
+  unpromoted build are complete, as recorded above. The merged source requests
+  three Calendar grants plus `openid`/`email`; the live request is unchanged.
+  Next is the prepared, separately gated Google permission declaration for the
+  three identity and three Calendar entries. Isolated provider acceptance and
   credential provisioning remain pending; no permission changes are approved.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.

@@ -5,11 +5,11 @@ screenshots establish External / In production and empty declared scope lists;
 branding is verified/shown. After the separately approved API-only step, the user
 reports `Enabled`; independent provider readback is not claimed. PR #39
 removes one redundant requested grant while preserving prior-token compatibility.
-Its publication is approved and complete; final-head reviews, minimum-access
-permission review, provider acceptance,
-and test targets remain pending. The earlier implementation merged in PR #36
-and is included in the approved public PR #37 artifact; the narrower candidate
-is published for review. Working sign-in and Vercel integration remain
+Its final-head reviews and separately approved merge and automatic unpromoted
+build are complete. Google permission declaration/classification, applicable
+verification, provider acceptance, and test targets remain pending. The earlier
+implementation merged in PR #36 and is included in the approved public PR #37
+artifact; the narrower PR #39 candidate is verified but unpromoted. Working sign-in and Vercel integration remain
 complete. Do not repeat them or the completed live payment test.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
@@ -208,37 +208,55 @@ confirm the project-level prerequisite. Only that subsection is relevant here;
 its desktop-client sample, credential-file placement, and live Calendar reads
 are not the approved Web integration workflow.
 
-## Published source operation; final-head checks/reviews pending
+## Completed source review, merge, and unpromoted candidate
 
-The user answered `Yes` to publishing the scope-reduction candidate and
-accumulated Calendar receipts and shepherding reviews. The branch
-`codex/atmoshaper-migration-next-stage` is published as
-[PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) against `main`.
-Shepherd CodeRabbit reviews. Its initial response skips automatic review for
-this repository, so an explicit trigger is required. Trigger whenever its window
-opens, repair valid findings, and require coverage of the final head, passing
-CI, and no actionable unresolved comments before proposing merge. Local
-Calendar tests pass 83/83; lint/typecheck pass; the full suite passes with
-5,114 passed, three skipped, and zero failures. These are synthetic/local
-checks, not provider acceptance. The project log records the completed checks.
+[PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) passed all seven CI
+jobs and Vercel at reviewed head `7064a6fb63340fabc29adfd695e0824a1d21c2ed`.
+CodeRabbit's explicitly triggered full review covered all thirteen files with
+zero actionable comments; Codex reported no major issues and no unresolved
+inline threads remained. Local Calendar tests pass 83/83; lint/typecheck pass;
+the full unit suite passes with 5,114 passed, three skipped, and zero failures.
+These Calendar tests use synthetic provider and transaction doubles.
 
-The received approval authorizes source push, PR creation, and review
-comments only. It does not authorize merge, Production deployment/promotion,
-Google permissions, credentials, QA resources, or Calendar activation. The
-existing Git connection may create an ordinary Preview candidate; preserve
-the recorded live assignments and do not copy Production secrets to Preview.
-Fresh readback after publication verifies all six saved live alias assignments
-on the approved PR #37 artifact, unchanged apex redirect, manual promotion,
-and no Preview credentials. No hosting configuration was changed.
+After separate exact approval, PR #39 merged at `2026-10-03T17:02:47Z` as
+`2e01e8509b42ab73c85d286f2725c824770aeeec`. Its automatic Production candidate
+reached `READY` at `2026-10-03T17:05:28.696Z`, with actual migration-status and
+live Supporter readiness gates and all seven normal authenticated GET checks
+passing. Registration remains open and the signed-out session is `null`.
+All six saved live assignments and the public target remain on PR #37; no
+restoration was needed. Manual promotion, apex redirect, protection, empty
+Preview configuration, and absent Calendar keys remain verified. The candidate
+is unpromoted. No manual build or completed live payment test was repeated.
 
-After source review, prepare a separate Google Data Access edit using exactly
-the six table entries above in the existing Production project. Preserve the
-sign-in client, verified branding, and External / In production audience.
-Capture the saved non-secret scope categories and Verification Center required
-actions. A separate reviewable approval is required before that edit; no
-verification submission, publishing change, consent grant, or credential
-provisioning is implied. Do not direct the user to declare the obsolete
-duplicate permission while this narrower candidate is under review.
+## Exact next Google Data Access proposal; approval pending
+
+The existing project already has working sign-in, verified branding, the
+user-created Calendar registration, and completed API enablement. Its supplied
+Data Access lists are empty. This step declares what the reviewed app needs;
+it does not repeat client creation or API enablement.
+
+| Boundary | Prepared operation |
+| --- | --- |
+| Target | Existing AtmoShaper Production project, Google Auth Platform > Data Access |
+| Exact declaration | The six entries in the proposed permission table above: three identity entries and three Calendar entries; omit the redundant `calendar.events.freebusy` grant |
+| Operator action after approval | Use Add or Remove Scopes, select only those six entries, update the selection, and save the declaration |
+| Readback | Copy only the saved scope URLs and their non-sensitive/sensitive/restricted categories; inspect Verification Center and report required actions |
+| Preserved settings | Working sign-in registration/callback, verified branding, and External / In production audience |
+| Execution | User-guided Console step because automated access remains denied; no alternate control path |
+| Excluded | Verification submission, audience/publishing changes, client/secret edits, real user consent, hosting credentials, QA resources, calendar/event/database activity, deployment/promotion, and public activation |
+
+The sign-in identity entries preserve its existing defaults; Calendar does not
+request profile access. App-created-calendar access supports the dedicated
+target, calendar-list read access supports discovery/source selection, and
+event-read access preserves event-page/incremental import. Event-read access is
+broader than the minimal busy-block fields retained by AtmoShaper. This proposal
+does not claim that an alternative availability-only implementation could not
+use narrower access. Inspect Google's actual saved classifications and required
+verification actions before planning the subsequent provider acceptance stage.
+
+The migration charter requires exact separate authority for provider settings
+changes. The PR #39 merge/build approval does not authorize this edit. Prepare
+and request that authority once; do not guide the write until received.
 
 ## Resolve exact targets before configuration approval
 

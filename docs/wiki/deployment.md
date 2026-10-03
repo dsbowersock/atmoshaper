@@ -54,6 +54,19 @@ credentials were copied and no additional public promotion is authorized.
 Git publication added an ordinary Preview branch alias. These Preview aliases
 are outside the promotion receipt's six recorded live assignments.
 
+The separately approved [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39)
+merge is `2e01e8509b42ab73c85d286f2725c824770aeeec`. Final-head full reviews,
+all seven CI jobs, and Vercel passed. Its automatic Production candidate reached
+`READY` at `2026-10-03T17:05:28.696Z`, with actual migration-status and Supporter
+readiness gates and all seven normal authenticated GET checks passing. The
+registration form is open, Checkout pause copy is absent, and signed-out session
+is `null`. All six saved live assignments and public target remain on PR #37;
+no alias restoration or public promotion occurred. Manual promotion, standard
+build command, apex redirect, protection, empty Preview configuration, and
+absent Calendar keys remain verified. Both pause flags read `false`; excluded
+purchase switches remain unset. This build does not establish Calendar provider
+acceptance or authorize Google settings, credentials, or activation.
+
 ## Production Readiness In The Standard Build
 
 [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37), merged as
