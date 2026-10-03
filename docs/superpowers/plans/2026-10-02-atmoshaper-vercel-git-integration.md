@@ -6,8 +6,10 @@ PR #36's Calendar source-only merge is also complete. Current settings and all
 four live alias assignments are now verified through normal authenticated CLI
 reads. The user subsequently approved the bounded hosting stage below, including
 narrow App access and one unpromoted candidate, while excluding public promotion.
-The same project's rename, manual promotion control, and explicit Build Command
-are applied; Git connection and the candidate remain pending verified App access.
+The same project's rename, manual promotion control, explicit Build Command, and
+GitHub/`main` connection are verified. One staged Production build reached `READY`
+with both remote readiness gates passing. Protected candidate page checks and
+separate exact public-promotion approval remain pending.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [migration ledger](../../wiki/migration-status.md) first. Preserve the
@@ -19,7 +21,7 @@ provider ownership to repair a name or Git connection.
 
 - The user's current Dashboard screenshot shows the existing AtmoShaper
   project serving `www.atmoshaper.com`, a preview-era project name, and
-  `Connect Git Repository`. Its Git connection is currently absent. This
+  `Connect Git Repository`. Its Git connection was absent at preflight. This
   satisfies the earlier manual observation request; do not request it again
   or infer that the repository was never connected historically.
 - Subsequent user screenshots show Production's `No branch configuration`
@@ -47,18 +49,20 @@ provider ownership to repair a name or Git connection.
   `7756080c3bc650bdbcff33013ff67728a3f97efa`; both custom domains are verified
   and the apex retains its `308` redirect to canonical `www`. Private rollback
   metadata is captured without recording provider IDs or secret values here.
-- Settings are Next.js, Node 24, repository root, and no Build/Install/Output
-  override. Git is absent and custom Production domain auto-assignment is enabled.
+- Starting settings were Next.js, Node 24, repository root, and no
+  Build/Install/Output override. Git was absent and custom-domain auto-assignment
+  enabled. Approved execution changes are recorded below.
   Production auth uses the canonical custom origin; both public pauses remain
   `false`. Excluded purchase switches and Calendar credentials are absent. All
   56 project variables target only Production; Preview/Development have none.
   Direct Production URLs and Preview deployments require Vercel sign-in.
-- Vercel's owner-specific repository search reports `Vercel App is not installed`.
+- Vercel's owner-specific repository search initially reported `Vercel App is not installed`.
   Its namespace listing cannot run through this CLI's automatic team scope;
   the GitHub CLI credential cannot list App installations. Do not infer the
-  owner's entire installation history from those limits. The remaining access
-  step is the normal GitHub App flow for only `dsbowersock/atmoshaper`, preserving
-  existing repository grants, followed by a successful Vercel visibility read.
+  owner's entire installation history from those limits. The user completed
+  normal App access and the Dashboard connection; direct project readback now
+  verifies the repository/branch. That evidence supersedes repository discovery.
+  Do not repeat the grant or connection. Preserve existing repository grants.
   See [Vercel's repository-access guide](https://vercel.com/kb/guide/unable-to-find-github-repository)
   and the [Vercel GitHub App](https://github.com/apps/vercel).
 
@@ -107,7 +111,8 @@ Sources: [Git deployments](https://vercel.com/docs/git),
    privately. Do not broaden installation permissions to unrelated repositories.
    The current scope has no project named `atmoshaper`; repository visibility
    still needs the App access step above. If an existing installation is present,
-   add only this repository while retaining its other grants. If installation or
+  add only this repository while retaining its other grants. This step has now
+  completed under the hosting approval. If future installation or
    account association requires a human confirmation, supply the exact normal
    screen and wait; do not replace the project or alter unrelated installations.
 5. Verify install/build/root settings against this source's package scripts.
@@ -239,20 +244,35 @@ domains, apex `308` redirect, and protection remain intact. Correct-path public
 GET checks passed for all seven approved routes with a `null` signed-out session.
 
 Browser automation could not verify its required admin policy for GitHub and
-was denied. The user completed the App grant and reported access granted.
-Vercel's repository lookup still reports the App as not installed, while this
-CLI cannot list namespaces without adding unsupported team scope. Automatic
-approval review rejected the connection command before execution because that
-access prerequisite was unverified. The user supplied the normal App Configure
-reference; supported installation-scoped reads still cannot verify repository
-access. The existing MassageLab Git link was read without mutation and remains
-GitHub/`main`. A normal AtmoShaper Vercel repository-selector readback is requested
-to distinguish account association from API discovery failure. Do not retry the
-consequential command without resolving the rejection's
-stated prerequisite. No Git connection, candidate build, or promotion occurred.
+was denied. The user completed the normal App grant and Dashboard Git connection.
+Earlier repository-discovery responses misleadingly reported absent access;
+automatic approval review stopped the CLI connection attempt before execution.
+The user's connected-project screenshot prompted a direct project read, which
+verifies GitHub repository `dsbowersock/atmoshaper` and Production branch `main`.
+The rejected command is no longer needed; no duplicate connection was attempted.
+Connection itself triggered no build. The old MassageLab Git link was read
+without mutation and remains intact.
 
-Continue the already authorized connection/build once access is verified; do
-not request the same hosting approval again. Public promotion still requires
-its later exact approval. Use only approved owned rollback operations if needed.
-The user does not need to repeat hosting setup, choose an unexplained Google
-project, or supply the already established Git-status observation.
+Exactly one authorized staged Production candidate from pinned merged PR #37,
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, reached `READY` at
+`2026-10-02T23:56:01Z`. Actual standard-build logs show migration status passing
+and the live Supporter-only gate passing with both Portal catalogs API-verified.
+One-time support and background purchases remain disabled. No schema was applied,
+credential exported/replaced, Calendar configured, or payment test repeated.
+
+Final readback preserves all four original alias assignments and the live project
+target at `7756080c3bc650bdbcff33013ff67728a3f97efa`. All three project domains
+remain verified, with the apex `308` redirect intact. Two new generated
+convenience aliases point to the candidate under unchanged deployment protection.
+Fresh non-secret reads confirm canonical auth and both public pause flags `false`;
+all 56 project variables remain Production-only, with excluded purchase switches
+and Calendar credentials absent. No public promotion occurred.
+
+Protected candidate GET verification remains pending: the authenticated provider
+fetch was rejected by Vercel Authentication and returned no application content.
+The user has been asked to check the exact candidate in a normal browser, signed
+out of AtmoShaper, without creating an account, Checkout, or Calendar connection.
+Do not substitute public-live GETs or build logs for candidate page evidence.
+After that receipt passes, request the later exact approval for promoting this
+same artifact with the saved rollback deployment. Do not rebuild it or request
+hosting setup, App grants, or the completed Git observation again.

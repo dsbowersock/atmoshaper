@@ -2,6 +2,48 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Git connection verified; one staged Production build passed
+
+- The user's new Dashboard screenshot shows the existing renamed project
+  connected to `dsbowersock/atmoshaper`. A direct authenticated project read
+  verifies GitHub, that repository, and Production branch `main`, with the same
+  immutable project/scope, explicit `npm run build`, and custom-domain
+  auto-assignment off. The user completed the normal App grant and Dashboard
+  connection. Earlier repository-discovery responses incorrectly reported
+  missing App access and are superseded by direct project evidence. The rejected
+  CLI connection command never ran; no duplicate connection was attempted.
+  Fresh deployment inventory confirms connection triggered no build.
+- Remote `main` remained merged PR #37 at
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`. Under the existing hosting-stage
+  approval, created exactly one staged Production build from that pinned Git
+  source. It reached `READY` at `23:56:01Z`. Authenticated CLI logs prove the
+  actual standard prebuild ran: read-only migration status reported the database
+  schema up to date, and live Supporter-only readiness passed with both Portal
+  catalogs verified through Stripe API evidence. The app build then completed.
+  The build-log connector was unavailable; the normal authenticated CLI supplied
+  the receipt. No secret was exported or replaced, schema applied, or payment
+  transaction repeated.
+- Final readback preserves every original alias assignment and the prior live
+  project target at `7756080c3bc650bdbcff33013ff67728a3f97efa`. All three
+  project domains remain verified and the apex's `308` redirect is unchanged.
+  Two newly generated convenience aliases point to the candidate under the
+  existing deployment protection; they do not move an original alias. No public
+  promotion occurred. Fresh non-secret reads confirm canonical auth and both
+  public pause flags `false`. All 56 project variables remain Production-only;
+  excluded purchase switches and Calendar credentials are absent.
+- Post-build public GET-only checks pass all seven approved routes with `200`,
+  a present registration form, no registration/Checkout pause copy, and a `null`
+  signed-out session. The apex returns `308` to canonical `www`. These check
+  the preserved live artifact, not the protected candidate.
+- Candidate application GET checks remain pending. The authenticated provider
+  fetch was rejected by Vercel Authentication and returned no application
+  content. Requested a normal browser check of the exact candidate, signed out
+  of AtmoShaper, for home, Pricing, registration, support, Privacy, Terms, and
+  the `null` session response. An incorrect URL in the first request was promptly
+  corrected to the provider-returned candidate URL. Do not use the first URL or
+  claim candidate page verification from existing-site checks. Public promotion
+  needs the page receipt and later exact artifact/rollback approval.
+
 ## 2026-10-02 — Hosting stage approved; project rename and build safeguards applied
 
 - The user authorized the prepared existing-project rename, Git connection,

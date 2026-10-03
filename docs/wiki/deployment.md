@@ -28,10 +28,16 @@ repeat the satisfied Git-status observation. Subsequent Production screenshots
 confirmed the custom-domain auto-assignment control was present and enabled.
 The user subsequently approved the hosting stage. The same project is now named
 `atmoshaper`, its custom-domain auto-assignment is disabled, and its Build
-Command is explicitly `npm run build`. All four aliases still point to the prior
-live artifact. Git connection and the unpromoted candidate remain pending
-verified App access; the first connection command was rejected before execution
-by automatic approval review. Public promotion is not authorized.
+Command is explicitly `npm run build`. Direct authenticated project readback
+verifies GitHub repository `dsbowersock/atmoshaper` and Production branch `main`
+after the user's normal Dashboard connection. The earlier repository-discovery
+response is superseded; do not reconnect or request another App grant. Connection
+triggered no build. One approved staged Production candidate from merged PR #37
+reached `READY` at `2026-10-02T23:56:01Z`. All four original aliases and the live
+project target still point to the prior live artifact. Two new generated
+convenience aliases serve the protected candidate without moving old assignments.
+Public promotion is not authorized, and protected candidate page checks remain
+pending normal browser verification.
 
 ## Production Readiness In The Standard Build
 
@@ -43,18 +49,21 @@ Production it runs the existing read-only live Supporter checker using inherited
 configuration and `--no-dotenv`, with a two-minute child deadline. Rejected or
 unverified readiness fails the build. Local/development/Preview builds skip
 provider access. All seven hosted CI jobs and final full CodeRabbit/Codex reviews
-passed at the unchanged reviewed head. The new Production gate has not run in
-Vercel; its source merge does not authorize hosting operations.
+passed at the unchanged reviewed head. The separately approved staged Production
+build now provides actual remote execution evidence: migration status passed,
+both live Portal catalogs were API-verified, and the Supporter gate passed before
+the app build reached `READY`. This read-only check did not repeat a transaction
+test or apply a schema migration.
 
 Normal CLI authentication is restored. Current settings use the explicit
 standard Build Command, Next.js/Node 24 at the repository root, and disabled
-automatic custom-domain assignment with no Git link. All four current aliases
-point to the approved live deployment. Project environment variables target
+automatic custom-domain assignment and a verified GitHub/`main` link. All four
+original aliases point to the approved live deployment. Project variables target
 only Production; Preview and Development have none. Direct Production URLs and
-Preview deployments require Vercel sign-in. The user reports granting GitHub App
-access, but Vercel's lookup still reports missing access. Verify the exact normal
-App installation and repository visibility before connecting; preserve existing
-grants and do not infer historical installation state from this tool response.
+Preview deployments require Vercel sign-in. The authenticated candidate fetch
+was rejected by Vercel Authentication; no application page content was verified.
+The user has been asked for normal browser GET-only checks of the exact candidate.
+Keep public promotion pending those checks and its separate exact approval.
 
 Before connecting Git, verify that the actual Build Command uses `npm run build`
 so both gates execute. A custom `next build` command bypasses npm's prebuild;

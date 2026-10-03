@@ -64,29 +64,15 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   not integration readiness. No provider configuration, calendar creation,
   hosted database write, deployment, or Calendar activation occurred.
 
-- The user's earlier 2026-10-02 Vercel Dashboard screenshot established that the
-  existing project serving `www.atmoshaper.com` had its preview-era project name
-  and shows `Connect Git Repository`. The Git connection is currently absent;
-  this observation does not establish its entire history. The completed hosting
-  and Supporter launch used explicit CLI deployments. After PR #36 merged,
-  fresh deployment reads showed the same latest `READY` Production/CLI
-  deployment, with no new deployment triggered by the merge. Those summaries
-  did not establish a complete alias inventory; the later authenticated readback
-  below does. Project naming
-  and Git integration were unfinished provider steps, not missing hosting. The
-  approved rename has since completed as recorded below; Git remains pending.
-  The [Vercel integration plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
-  proposes renaming the existing project and connecting this repository with
-  manual promotion. Settings and rollback assignments are now read as recorded
-  below. The user subsequently approved the bounded hosting stage separately
-  from the source merge, as recorded below. The screenshot satisfies the earlier
-  Git-status check.
-  Subsequent screenshots show Production's `No branch configuration` overview
-  and its Branch Tracking detail with `Auto-assign Custom Production Domains`
-  present and enabled. This satisfies the read-only promotion-control check;
-  that observation did not change a setting. The approved hosting stage has now
-  disabled that control before Git connection. Complete Build Command and
-  rollback-assignment readback followed through the restored CLI login below.
+- Earlier 2026-10-02 Dashboard screenshots established the preview-era project
+  name, absent Git connection, and enabled custom-domain auto-assignment at the
+  start of this hosting stage. The completed hosting and Supporter launch used
+  explicit CLI deployments. The user subsequently approved the existing-project
+  rename, Git connection, and one unpromoted Production build with narrowly
+  scoped normal GitHub App access. The
+  [Vercel integration plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+  owns that stage and the later, separate public-promotion gate. Current provider
+  outcomes are recorded below; the earlier screenshots are historical evidence.
 
 - [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37) merged under the
   user's separate source approval at `2026-10-02T22:54:54Z` as
@@ -116,42 +102,42 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   lint, typecheck, and the local build pass. The local build visibly skips both
   Production gates, so this is not remote provider-readiness proof.
 
-- The user restored normal Vercel CLI login and authorized read-only checks.
-  Authenticated API readback confirms the same existing project and scope:
-  Next.js, Node 24, repository root, no Build/Install/Output override, no Git
-  link, and custom Production domain auto-assignment enabled. All four aliases
-  still point to the approved `READY` live artifact; the verified apex retains
-  its `308` redirect to canonical `www`. Production auth uses the canonical
-  custom origin. Both public pause controls remain `false`; the two excluded
-  purchase switches and Calendar credentials remain absent. All 56 project
-  variables target Production; Preview and Development have none. Preview and
-  direct Production deployment URLs require Vercel sign-in. No secret values
-  were exported or recorded.
-  Vercel's repository-access read reports `Vercel App is not installed` for the
-  AtmoShaper GitHub owner. The user separately authorized the normal App grant
-  and bounded hosting stage, and then reported granting App access. Repository
-  visibility still needs verification; do not infer missing historical access
-  or substitute another project. Public promotion remains a later approval.
-
-- The approved existing-project hosting stage is partially executed. API
-  readback verifies the name `atmoshaper` with the same immutable target/scope,
-  custom Production domain auto-assignment off, and Build Command explicitly
-  `npm run build`. All four original aliases still point to the prior approved
-  `READY` deployment. Custom-domain verification, apex `308` redirect, and
-  deployment protection are unchanged. The local hosting link retains its
-  original target/scope and now reflects the approved project name.
-  Correct-path public GETs of home, Pricing, registration, support, Privacy,
-  Terms, and signed-out session returned `200`; the session remains `null`.
-  GitHub browser access is denied because its admin-enforced policy could not
-  be verified. The user performed the App grant, but Vercel's repository lookup
-  still reports the App is not installed. Automatic approval review rejected
-  `vercel git connect` until that prerequisite is verified; the command never
-  executed. The user supplied the exact normal App installation reference, but
-  supported repository lookups still cannot verify access. The existing
-  MassageLab Git link was read without mutation and remains GitHub/`main`.
-  A normal Vercel repository-selector visibility check is requested to distinguish
-  account association from discovery-tool failure before retrying. No Git connection, candidate build,
-  deployment, or public promotion has occurred in this hosting stage.
+- The approved hosting stage now has a renamed, connected project and one
+  successful staged Production candidate. Direct authenticated API readback
+  verifies the same immutable project/scope, name `atmoshaper`, GitHub repository
+  `dsbowersock/atmoshaper`, Production branch `main`, explicit Build Command
+  `npm run build`, and custom-domain auto-assignment off. The user completed the
+  normal App grant and Git connection in the Dashboard; no duplicate connection
+  was attempted. Earlier repository-discovery responses were misleading and
+  are superseded by this direct project read. Automatic approval review had
+  rejected the CLI connection attempt before execution while access was
+  unverified; that attempt is no longer needed. Connection itself triggered no
+  build. The ignored local hosting link preserves its original target/scope.
+- Exactly one separately authorized Production candidate from merged PR #37,
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, reached `READY` at
+  `2026-10-02T23:56:01Z`. Actual remote `npm run build` logs show read-only
+  migration status passing and the live Supporter-only readiness gate passing,
+  including both Portal catalogs through Stripe API evidence. One-time support
+  and background commerce remain disabled. Existing write-only credentials were
+  used without export or replacement; no payment test was repeated.
+- All four original aliases and the project's live target still point to the
+  prior approved deployment at `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+  All three project domains remain verified, with the apex's `308` redirect to
+  canonical `www` intact. Two newly generated convenience aliases point to the
+  protected candidate; neither changes an original assignment. Deployment
+  protection remains unchanged. The candidate has not been publicly promoted.
+  Fresh non-secret setting reads confirm canonical Production auth and both
+  pause flags `false`; metadata confirms all 56 variables are Production-only,
+  excluded purchase switches are absent, and Calendar credentials remain absent.
+- Post-build signed-out GET checks of the existing public site's home, Pricing,
+  registration, support, Privacy, Terms, and session all returned `200`; the
+  registration form is present, pause copy is absent, and the session is `null`.
+  The apex still returns `308` to canonical `www`. Protected candidate verification is
+  still pending: Vercel's authenticated fetch was rejected by Vercel
+  Authentication without returning application content. A normal browser
+  GET-only check is requested from the user; no visual or interactive candidate
+  verification is claimed. Public promotion requires that receipt and a later
+  exact approval for this artifact and the saved rollback deployment.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
