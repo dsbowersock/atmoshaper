@@ -126,17 +126,29 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   normalization, in-memory tokens, bounded reads, and test-grant cleanup.
   Provider-free regression and loopback transport checks pass 22/22; existing
   Calendar regressions pass 83/83; typecheck and lint pass.
-  The user supplied the local test-credential JSON path. A metadata-only check
-  confirms an existing, nonempty file; its contents remain unopened. The
-  comparison plan now specifies manual secondary-calendar preparation, bounded
-  synthetic fixtures, connector assistance, consent, restoration, and cleanup.
-  Whether a second user-owned account is available for the shared-source check
-  is requested; one-account coverage must remain explicitly partial if needed.
+  The user supplied the local test-credential JSON path and now explicitly replies
+  `Approved; I have a second account` to the concrete isolated-run proposal.
+  This approves its credential use, up to two user-owned accounts/two temporary
+  secondary calendars/six synthetic event resources, dedicated test consents,
+  fixture changes/deletion/restoration and test-grant revocation. Do not repeat
+  this approval request. A private local credential check verifies the exact
+  test project, Web client, nonempty secret, sole loopback callback and absent
+  JavaScript origins. No credential values or private identifiers are recorded
+  here. The Calendar connector's profile was read to establish its account;
+  verify that it matches the user's configured test account before fixture reads
+  or writes. A private preparation manifest holds operational inputs outside
+  tracked source without copying credential contents.
+  The next action is user creation of two empty UTC secondary calendars and a
+  reader-only share from the second owner to the first, followed by their exact
+  IDs. The connector has no calendar-create/delete/share operation. The
+  comparison plan owns the exact setup and cleanup sequence.
   A fixture-expectation correction accepts both ID-only deletions and retained
   CANCELLED rows as removal from active conflicts, matching the real sync and
   conflict query. The focused comparison tests pass 23/23.
-  Provider execution and fixture activity remain unapproved; no real consent
-  listener or credential use has started.
+  Real OAuth consent, fixture event reads/writes and the comparison have not
+  started; no real consent listener is running. Private fixture IDs and account
+  confirmation remain necessary before executing the approved run. Production
+  settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider QA, database write, Calendar

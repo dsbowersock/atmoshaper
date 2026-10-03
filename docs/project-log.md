@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Isolated Calendar comparison approved; private credential preflight passes
+
+- The user replies `Approved; I have a second account` to the two directly stated
+  questions. This approves the bounded Calendar comparison using their downloaded
+  test JSON, up to two user-owned accounts/two temporary calendars/six synthetic
+  event resources, controlled event changes/deletion, and dedicated test-permission
+  revocation. User-created calendar setup/removal and genuine consent prompts
+  remain manual steps. Preserve this authority; do not repeat completed approval.
+- Verified the clean task-owned branch at `97623f6` before proceeding. A private
+  local read validates the supplied downloaded Web JSON against the exact chosen
+  test project, a nonempty secret, the sole localhost callback and no JavaScript
+  origins. All checks pass; no credential values or private provider identifiers
+  enter documentation. No token exchange or real consent occurred. Read only
+  the connected Calendar user's profile and retain that account reference in
+  private preparation state. A preparation manifest outside source records run
+  bounds and input references without copying the downloaded credentials.
+- The next user action is to create two empty UTC secondary calendars with the
+  provided run-specific names, share only the second to the first account with
+  reader access, add it to the first calendar list, and provide their exact IDs.
+  Confirm the connected account is the configured test user before event
+  reads/writes. The connector cannot create/delete/share calendars. Primary
+  calendars and existing real appointments are excluded. Google's current
+  creation/sharing/Calendar-ID instructions were checked for the manual guide.
+- No Calendar events, sharing rule or test grants were created by the agent,
+  no comparison listener is running, and no provider-backed result is claimed.
+  Production declaration save, verification submission, Vercel provisioning,
+  database activity, deployment and public Calendar activation remain outside
+  this run. No source push or completed payment test was performed.
+
 ## 2026-10-03 — Credential-path receipt and concrete Calendar comparison proposal
 
 - Reverified the clean task-owned branch at `a3f2fcc` before changes. The user

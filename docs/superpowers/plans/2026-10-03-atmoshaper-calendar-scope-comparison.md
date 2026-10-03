@@ -1,8 +1,10 @@
 # AtmoShaper Calendar permission comparison
 
 Status: test configuration reported complete under `AtmoShaper Calendar Verify`.
-Local runner implemented and mock/loopback checks passing; provider execution
-authority and exact private fixture/credential inputs remain pending.
+Local runner implemented and mock/loopback checks passing. The concrete provider
+comparison is now approved with two user-owned accounts. Credential preflight
+passes; user-created secondary calendars, exact fixture IDs and test-account
+confirmation are pending before real consent or event activity.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -21,11 +23,19 @@ not an independently authenticated project inventory or explicit discard receipt
 Automated Console access remains denied; no alternate control path is authorized.
 The separate test setup is subsequently reported complete under the shortened
 name below. Do not repeat this inventory or completed setup. The user supplied
-the new test-credential JSON's local path. A metadata-only check confirms an
-existing, nonempty file; its contents remain unopened. Settle second-account
-availability and record the exact private fixture/account targets using the
-concrete preparation sequence below. Path disclosure is not authority to
-read/use credential contents; provider execution remains gated.
+the new test-credential JSON's local path and subsequently replies
+`Approved; I have a second account` to the concrete test request. This authorizes
+the bounded runtime and fixture operations below; do not request the same
+approval again. The downloaded JSON was validated privately after that approval:
+exact test project, Web registration, present secret, sole prepared callback and
+no JavaScript origins all pass. The connected Calendar profile was read; its
+account must match the user's intended test account before event activity.
+An operational preparation manifest outside tracked source retains the run
+marker and private references without copying credential values. It is not
+launchable comparison configuration while sources are empty. Next the user
+creates the two temporary calendars, shares only the second read-only with the
+first account, and supplies their exact IDs. No real consent or event operation
+has started.
 
 The existing Production registration, API enablement, working sign-in, and
 declaration approval remain recorded. Do not repeat those operations. The
@@ -59,10 +69,10 @@ Port 3317 was unused at the local preparation check and remains unused after
 local validation. It is not reserved; recheck before starting an approved run.
 The callback listener and comparison runner are now implemented. Provider-free
 listener tests use ephemeral loopback ports and close their owned listeners.
-No real credential was accessed or consent flow started. The downloaded JSON
-will verify the exact test target and saved callback only after credential-use
-authority is obtained. Configuration approval does not authorize consent or
-Calendar activity.
+The downloaded JSON has now been accessed only for the separately approved
+private credential preflight and passes the exact-target/callback checks above.
+No real OAuth consent flow has started. The original configuration approval alone
+did not authorize consent or Calendar activity; the subsequent run approval does.
 
 The user replied `Yes` to the exact configuration-only approval request for this
 new project,
@@ -198,23 +208,25 @@ creation outcome must be reconciled before retry or cleanup; never sweep an
 account by name. A passing standalone comparison does not prove database
 serialization, outbound target isolation, or full app consent/activation.
 
-## Concrete provider-run proposal — not yet authorized
+## Approved concrete provider-run procedure
 
 The purpose is to establish whether the narrower availability permission can
 perform the current busy-block import. The following bounded workflow uses the
 already configured test registration; no further Cloud settings or permissions
-are proposed. Request one exact approval covering credential inspection, the
-dedicated test consents and revocations, and only these synthetic fixture actions.
+are proposed. The user's `Approved; I have a second account` reply approves
+credential inspection, dedicated test consents and revocations, and only these
+synthetic fixture actions. It also confirms availability of a second account
+they own. Do not repeat this approval or availability question.
 Before dispatch, record the chosen account and source IDs in private local
-configuration. The user has been asked whether a second account they own is
-available; do not infer ownership, obtain another person's account, or extend
+configuration. Do not infer an unspecified account's identity, obtain another
+person's account, or extend
 the test-user list. A second account owns the reader fixture but does not grant
 the test app access. If unavailable, use one owned source first, explicitly
 leaving shared-source and overall minimum-access proof pending.
 
-1. After approval, validate the supplied JSON against the previously selected
-   test project and exact loopback callback, retaining credentials in memory.
-   Stop on mismatch. Read only the connected Calendar user's profile to establish
+1. Completed: privately validated the supplied JSON against the previously
+   selected test project and exact loopback callback, without copying credentials.
+   All checks pass. Read only the connected Calendar user's profile to establish
    the account for connector assistance. Confirm it is the user's approved test
    account before any calendar read or write; never substitute another account.
 2. The user creates one empty secondary calendar in that account and, if the
@@ -225,6 +237,17 @@ leaving shared-source and overall minimum-access proof pending.
    Calendar IDs privately from settings and verify the owner's execution receipt.
    These manual Calendar operations do not automate the previously denied Cloud
    Console route. The connector has no calendar-create/delete/sharing tool.
+   In Calendar's browser UI use Other calendars > Add > Create new calendar,
+   and set the new calendar's time zone to UTC. In the second calendar's settings
+   share only with the first account using the reader-level `See event details`
+   option. Add it to the first account's calendar list from Google's sharing
+   email. This is a user-performed sharing notification between their own
+   accounts, not an agent-sent email or event invitation. Obtain each ID from
+   Settings and sharing > Integrate calendar > Calendar ID. Do not create any
+   events until the exact IDs and account match are confirmed. See Google's
+   [calendar creation guide](https://support.google.com/calendar/answer/37095?hl=en),
+   [sharing guide](https://support.google.com/calendar/answer/37082?hl=en), and
+   [Calendar ID instructions](https://support.google.com/calendar/answer/44105?hl=en).
 3. Populate each new source with the three resources in the table below. The
    connected Calendar tool may create the first owner's three events, always
    specifying that new secondary ID. The second owner creates the other three
