@@ -2,6 +2,22 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Calendar API-only enablement approved; user execution pending
+
+- The user answered `yes` to guiding the exact API-only enablement step.
+  This separately authorizes enabling Google Calendar API in the identified
+  existing AtmoShaper Production project and checking the enabled/Manage result.
+  Do not ask again for this same approval. Approval is not an execution receipt;
+  the latest supplied API screenshot still shows Enable.
+- Supplied the direct existing-project page and instructions to confirm its
+  display, select Enable once, wait for the normal result, and report enabled
+  or Manage. Automated Console access remains denied; no alternative browser
+  or indirect control path is attempted.
+- Scope/consent/publishing changes, verification submission, credential
+  provisioning, QA resources, Calendar/event/database activity, deployment,
+  and public activation remain outside this approval. No provider execution
+  or enabled-state readback is recorded yet; runtime remains unchanged.
+
 ## 2026-10-03 — Branding verified; Calendar API disabled; enablement proposal prepared
 
 - The user's Verification Center screenshot shows branding verified and shown

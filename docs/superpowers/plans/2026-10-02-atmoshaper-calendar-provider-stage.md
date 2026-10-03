@@ -2,7 +2,8 @@
 
 Status: local preparation; registration created by user report. October 3
 screenshots establish External / In production and empty declared scope lists;
-branding is verified/shown, while Calendar API is disabled. Minimum-access
+branding is verified/shown, while the latest API readback shows disabled.
+API-only enablement is now separately approved; user execution/readback is pending. Minimum-access
 Calendar permission review, provider acceptance, and test targets remain pending.
 Source implementation is reviewed, merged in PR #36, and included in the
 approved public PR #37 artifact. Working sign-in and Vercel integration remain
@@ -144,7 +145,7 @@ The remaining read-only questions were sent together and are now satisfied:
    required for the currently empty declared sensitive/restricted scope lists.
 2. Google Calendar API shows Enable, establishing it is disabled.
 
-Do not repeat those checks. API enablement needs exact approval as proposed
+Do not repeat those checks. API-only enablement now has exact approval as recorded
 below; the missing permission declaration needs a separate scoped settings
 proposal. Changing publishing/audience, submitting verification, granting user
 access, provisioning credentials, and activating Calendar are not implied.
@@ -156,13 +157,13 @@ Primary guidance checked 2026-10-03:
 and [Calendar permission meanings](https://developers.google.com/workspace/calendar/api/auth).
 These are provider requirements, not proof of this project's review outcome.
 
-## Exact next operation: enable Calendar API only; approval pending
+## Exact next operation: enable Calendar API only; approved, execution pending
 
 | Boundary | Proposed operation |
 | --- | --- |
 | Existing target | Identified AtmoShaper Production project, already shown in the user's screenshots |
 | Service | Google Calendar API only |
-| Action | On the observed API page, choose Enable once after exact approval |
+| Action | On the observed API page, choose Enable once under the user's received exact approval |
 | Acceptance | Read back API enabled / Manage in that same project |
 | Execution | User-guided Console step because browser automation remains denied; no alternate control path |
 | Excluded | Scope/consent/publishing edits, verification submission, client/secret changes, hosting provisioning, QA resources, Calendar/event/database activity, deployment, and activation |
@@ -171,11 +172,13 @@ API enablement makes the service available to this project's permitted API
 callers. It does not itself authorize a user's Calendar access, create a
 calendar, store tokens, or activate AtmoShaper sync. Existing working sign-in
 registration/callback and Production publishing configuration remain intact.
-The prior registration-only approval explicitly excluded API changes; approval
-for this specific operation is pending. Do not instruct execution as already
-authorized or infer approval from a screenshot supplied for readback.
+The prior registration-only approval explicitly excluded API changes. The user
+subsequently answered `yes` to guiding this exact API-only operation, supplying
+the separate approval. Do not ask again. That answer is authorization, not
+proof of execution: the latest supplied API page still shows Enable and the
+enabled-state readback is pending.
 
-After approval, use the already observed Google Calendar API page, verify the
+Under that approval, use the already observed Google Calendar API page, verify the
 project display, select Enable, wait for its normal result, and obtain only
 the non-secret enabled-state readback. Finish at that boundary. Follow-on
 permission declaration, minimum-access review, isolated provider acceptance,
