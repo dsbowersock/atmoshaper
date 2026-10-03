@@ -2,6 +2,26 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Exact Google permission declaration approved; user save pending
+
+- The user annotated the prepared Google permission-declaration approval request
+  with `approved`. This authorizes the exact six-entry Data Access declaration
+  in the existing AtmoShaper Production project and read-only saved category /
+  Verification Center required-actions checks. Do not request the same approval
+  again. The [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md)
+  owns the exact entries, preserved settings, and exclusions.
+- Guide the existing Console's Add or Remove Scopes selection, update, and save.
+  The three existing identity permissions and three reviewed Calendar grants
+  preserve working sign-in, verified branding, and External / In production
+  audience. Omit the removed duplicate availability grant. Browser automation
+  remains denied; no alternate control path is attempted.
+- Approval is not an execution receipt. Saved declarations, Google's actual
+  classifications, and required verification actions remain pending. Verification
+  submission, audience/publishing changes, client/secret edits, real user consent,
+  hosting credentials, QA resources, calendar/event/database activity,
+  deployment/promotion, and public Calendar activation remain excluded. No
+  agent-side provider write, payment test, or hosted configuration change occurred.
+
 ## 2026-10-03 — Calendar permission PR merged; automatic candidate verified
 
 - The user answered `Yes` to merging PR #39, verifying its automatic unpromoted

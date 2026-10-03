@@ -6,7 +6,8 @@ branding is verified/shown. After the separately approved API-only step, the use
 reports `Enabled`; independent provider readback is not claimed. PR #39
 removes one redundant requested grant while preserving prior-token compatibility.
 Its final-head reviews and separately approved merge and automatic unpromoted
-build are complete. Google permission declaration/classification, applicable
+build are complete. The exact Google declaration is separately approved;
+user save and classification/Verification Center readback, applicable
 verification, provider acceptance, and test targets remain pending. The earlier
 implementation merged in PR #36 and is included in the approved public PR #37
 artifact; the narrower PR #39 candidate is verified but unpromoted. Working sign-in and Vercel integration remain
@@ -124,11 +125,12 @@ Primary creation/callback/credential-retention reference:
 The screenshots establish publishing and audience configuration, with no
 declared permissions. The PR #39 candidate and unchanged sign-in provider
 defaults use the following six semantic permissions. The Console uses the full
-`userinfo` URLs for the `email`/`profile` aliases. This is the exact proposed
-declaration set after source review, not approval to edit Google settings or a
-completed least-access/verification review.
+`userinfo` URLs for the `email`/`profile` aliases. The user separately approved
+this exact declaration after source review. Saved Console classifications and
+applicable verification remain pending; approval is not an execution receipt
+or a completed least-access/verification review.
 
-| Proposed declared permission | Candidate/current use and access limit |
+| Approved declaration; user save pending | Candidate/current use and access limit |
 | --- | --- |
 | `openid` | Google account identity for sign-in and Calendar account matching |
 | `https://www.googleapis.com/auth/userinfo.email` | The `email` request alias supplies email identity in both flows |
@@ -228,7 +230,7 @@ restoration was needed. Manual promotion, apex redirect, protection, empty
 Preview configuration, and absent Calendar keys remain verified. The candidate
 is unpromoted. No manual build or completed live payment test was repeated.
 
-## Exact next Google Data Access proposal; approval pending
+## Exact Google Data Access operation approved; user save pending
 
 The existing project already has working sign-in, verified branding, the
 user-created Calendar registration, and completed API enablement. Its supplied
@@ -238,8 +240,8 @@ it does not repeat client creation or API enablement.
 | Boundary | Prepared operation |
 | --- | --- |
 | Target | Existing AtmoShaper Production project, Google Auth Platform > Data Access |
-| Exact declaration | The six entries in the proposed permission table above: three identity entries and three Calendar entries; omit the redundant `calendar.events.freebusy` grant |
-| Operator action after approval | Use Add or Remove Scopes, select only those six entries, update the selection, and save the declaration |
+| Exact declaration | The six approved entries in the permission table above: three identity entries and three Calendar entries; omit the redundant `calendar.events.freebusy` grant |
+| Operator action | Use Add or Remove Scopes, select only those six entries, update the selection, and save the declaration |
 | Readback | Copy only the saved scope URLs and their non-sensitive/sensitive/restricted categories; inspect Verification Center and report required actions |
 | Preserved settings | Working sign-in registration/callback, verified branding, and External / In production audience |
 | Execution | User-guided Console step because automated access remains denied; no alternate control path |
@@ -254,9 +256,11 @@ does not claim that an alternative availability-only implementation could not
 use narrower access. Inspect Google's actual saved classifications and required
 verification actions before planning the subsequent provider acceptance stage.
 
-The migration charter requires exact separate authority for provider settings
-changes. The PR #39 merge/build approval does not authorize this edit. Prepare
-and request that authority once; do not guide the write until received.
+The user annotated this prepared Google settings request with `approved`.
+This is separate from the PR #39 merge/build approval and satisfies authority
+for only the operation above. Do not ask for the same declaration approval
+again. Guide the user save and collect the non-secret outcome; no execution or
+verification result is claimed until that receipt arrives.
 
 ## Resolve exact targets before configuration approval
 

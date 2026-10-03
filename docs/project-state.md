@@ -23,8 +23,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   intact. Public registration/recurring Supporter flags remain `false` for
   pause, excluded purchase switches remain unset, and all four Calendar keys
   remain absent. No live payment test was repeated. The exact next Google
-  permission-declaration proposal is prepared in the provider checkpoint;
-  its settings edit still needs separate approval.
+  permission declaration is separately approved, as recorded below; the
+  user-guided Google save and its readback are pending.
 - [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
   user's exact approval at `2026-10-03T02:55:51Z` as
   `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
@@ -96,9 +96,13 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Final-head checks/full reviews and the separately approved merge and automatic
   unpromoted build are complete, as recorded above. The merged source requests
   three Calendar grants plus `openid`/`email`; the live request is unchanged.
-  Next is the prepared, separately gated Google permission declaration for the
-  three identity and three Calendar entries. Isolated provider acceptance and
-  credential provisioning remain pending; no permission changes are approved.
+  The user now separately approves the prepared Google permission declaration
+  for the three identity and three Calendar entries, followed by read-only saved
+  categories and Verification Center required-actions checks. Guide this exact
+  Console step; automated access remains denied. Approval is not execution:
+  no saved-settings or verification-outcome receipt is available yet. Do not ask
+  again for this declaration approval. Isolated provider acceptance, verification
+  submission, credentials, and Calendar activation remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider QA, database write, Calendar
