@@ -27,8 +27,8 @@ source-only merges and the subsequent Dashboard Git connection triggered no
 build. One separately approved staged Production candidate from merged PR #37
 reached `READY` at `2026-10-02T23:56:01Z`. After separate exact promotion
 approval, that existing artifact was promoted without rebuilding. The live
-project target and all six aliases now use it, preserving every original alias
-name, all verified project domains, and the apex redirect. Its reviewed source is
+project target and all six recorded live aliases now use it, preserving every
+original alias name, all verified project domains, and the apex redirect. Its reviewed source is
 `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; the earlier activation runtime
 `7756080c3bc650bdbcff33013ff67728a3f97efa` is the saved rollback source.
 All seven protected candidate GET checks now pass with application content,
@@ -46,6 +46,8 @@ The five operator closeout docs are published in
 checks/reviews and separate merge approval. Publication may trigger an ordinary
 Preview build; preserve its existing configuration and keep Production
 credentials out of Preview. No additional public promotion is authorized.
+Git publication added an ordinary Preview branch alias. These Preview aliases
+are outside the promotion receipt's six recorded live assignments.
 
 ## Production Readiness In The Standard Build
 

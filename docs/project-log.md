@@ -15,8 +15,11 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   build under its existing configuration. Do not copy Production credentials
   into Preview or treat documentation publication as public-promotion authority.
 - Fresh pre-publication readback confirms the approved live source remains
-  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e` for all six aliases, with manual
-  promotion preserved and excluded purchase/Calendar boundaries intact.
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e` for all six recorded live aliases,
+  with manual promotion preserved and excluded purchase/Calendar boundaries intact.
+- Git publication added an ordinary Preview branch alias. Later readback
+  preserves the six recorded live assignments and approved live artifact;
+  additional Preview aliases are outside that promotion receipt's live count.
 
 ## 2026-10-02 — Checked artifact promoted; public GET checks verified
 
@@ -27,8 +30,8 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   all seven candidate GETs passed, and purchase/Calendar boundaries were intact.
 - Normal CLI promotion reused the checked artifact from reviewed PR #37 merge
   `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, without rebuilding. The live
-  project target and all six aliases now point to that deployment; all four
-  original alias names remain present. All three project domains remain verified,
+  project target and all six recorded live aliases now point to that deployment;
+  all four original alias names remain present. All three project domains remain verified,
   and the apex's `308` redirect to canonical `www` is preserved. Existing
   deployment protection and disabled custom-domain auto-assignment remain intact.
 - Post-promotion signed-out GET checks of home, Pricing, registration, support,

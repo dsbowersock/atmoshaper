@@ -83,8 +83,8 @@ repeat setup or reconnect. One approved candidate from merged PR #37,
 `2026-10-02T23:56:01Z` with actual remote migration-status and live Supporter
 readiness gates passing. The user subsequently approved promotion of that exact
 existing artifact with rollback if verification failed. It is now the live
-project target for all six aliases, preserving all four original alias names,
-verified domains, apex redirect, and protection. All seven post-promotion public
+project target for all six recorded live aliases, preserving all four original
+alias names, verified domains, apex redirect, and protection. All seven post-promotion public
 GETs pass and Public Pricing assets match the checked candidate. No rollback
 was needed. Public
 registration/Supporter flags remain open, excluded purchases disabled, and

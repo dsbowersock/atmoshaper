@@ -289,8 +289,8 @@ The user then approved the prepared exact-artifact public promotion with saved
 rollback. Fresh preflight verified the same `READY` candidate, original live
 assignments, and `READY` saved rollback in the same project. Normal CLI promotion
 reused the checked artifact without rebuilding. Final readback verifies the live
-project target and all six aliases now use it, with original alias names,
-verified domains, apex redirect, protection, and manual promotion control intact.
+project target and all six recorded live aliases now use it, with original alias
+names, verified domains, apex redirect, protection, and manual promotion control intact.
 All seven public signed-out GET checks pass; registration inputs are present,
 pause copy is absent, session is `null`, and public Pricing assets match the
 candidate. Fresh non-secret auth/pause reads pass; excluded purchase switches and

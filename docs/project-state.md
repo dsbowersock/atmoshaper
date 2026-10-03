@@ -124,7 +124,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - The user separately approved public promotion of the checked existing build,
   with restoration of the saved live deployment if verification failed. Normal
   CLI promotion reused that exact artifact without rebuilding. The live project
-  target and all six aliases now point to
+  target and all six recorded live alias assignments now point to
   `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; all four original alias names
   remain present. All three project domains remain verified, with the apex's
   `308` redirect to canonical `www` intact. Deployment protection is unchanged
@@ -155,7 +155,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   updated operator receipts are published in
   [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38); final-head checks,
   reviews, and the separately approved source merge remain pending. Publication
-  does not authorize another public promotion or Calendar activation.
+  does not authorize another public promotion or Calendar activation. Git
+  publication added an ordinary Preview branch alias; fresh readback preserves
+  the six recorded live assignments and the approved live artifact. Additional
+  Preview aliases are outside that live-assignment count.
 
 - Deployed runtime source is reviewed merge `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`.
   The prior Supporter activation runtime and saved rollback source is
