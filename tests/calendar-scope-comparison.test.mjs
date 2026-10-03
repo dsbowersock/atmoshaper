@@ -209,6 +209,22 @@ test("a successful HTTP delta which omits changes detects stale rows and timing 
   assert.equal(result.incremental[0].fieldMismatches.startsAt, 1)
 })
 
+test("owner cancellation details and ID-only tombstones both remove active conflicts", async () => {
+  for (const status of ["cancelled", "confirmed"]) {
+    const base = provider()
+    const fetchImpl = async (input, init) => {
+      if (new URL(String(input)).searchParams.has("syncToken")) {
+        return json({ items: [event("busy00001", "opaque", "11:00"), { ...event("delete001"), status }], nextSyncToken: "cursor" })
+      }
+      return base.fetchImpl(input, init)
+    }
+    const result = await probeComparison({ config: config(), accessToken: "token", fetchImpl, changeFixtures: async () => {} })
+    assert.equal(result.compatible, status === "cancelled")
+    assert.equal(result.incremental[0].cancelledRows, status === "cancelled" ? 1 : 0)
+    assert.equal(result.incremental[0].unexpected, status === "cancelled" ? 0 : 1)
+  }
+})
+
 test("all-day and expanded recurrence fixtures use real normalization across paged baseline and delta", async () => {
   const value = config()
   const source = value.sources[0]

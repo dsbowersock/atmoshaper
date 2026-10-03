@@ -166,8 +166,12 @@ function compareExpected(rows, expected) {
     const desired = blockShape(event)
     for (const field of fields) if (actual[field] !== desired[field]) fieldMismatches[field]++
   }
-  const unexpected = [...rows.keys()].filter((id) => !expected.some((event) => event.id === id)).length
-  return { matches: missing === 0 && unexpected === 0 && Object.values(fieldMismatches).every((count) => count === 0), missing, unexpected, fieldMismatches }
+  // Google may retain an owner's deleted-event details. The real sync can then
+  // retain a CANCELLED row, which the conflict query excludes. Treat that shape
+  // and an ID-only tombstone as equivalent removal, without hiding active rows.
+  const unexpected = [...rows.entries()].filter(([id, row]) => row.status !== "CANCELLED" && !expected.some((event) => event.id === id)).length
+  const cancelledRows = [...rows.values()].filter((row) => row.status === "CANCELLED").length
+  return { matches: missing === 0 && unexpected === 0 && Object.values(fieldMismatches).every((count) => count === 0), missing, unexpected, fieldMismatches, cancelledRows }
 }
 
 /** Guard even the real adapter's transport: fixed source, GET-only, bounded pages, no redirects. */

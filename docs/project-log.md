@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Credential-path receipt and concrete Calendar comparison proposal
+
+- Reverified the clean task-owned branch at `a3f2fcc` before changes. The user
+  supplied the downloaded test JSON's local path. A metadata-only check confirms
+  an existing, nonempty file; no contents were opened or credential values
+  accessed. Neither the private path nor its client/project identifiers are
+  recorded in repository documentation.
+- Prepared the concrete provider-run proposal in the
+  [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md):
+  user-created secondary calendars, three synthetic resources per source,
+  connector assistance bounded to exact new fixtures, separate measured
+  consents, identical update/deletion changes, restoration between arms, and
+  explicit owner-side calendar cleanup after token revocation. Asked whether
+  the user has a second account they own for a shared-reader source. If not,
+  one-account coverage is explicitly partial; it does not close shared-source
+  or overall minimum-access proof. No extra Google declaration is proposed.
+- A live-test preparation review found that Google can retain an organizer's
+  deleted-event details. The real sync retains a CANCELLED row when it can
+  normalize those details, and the conflict query excludes it. Corrected only
+  the standalone comparison expectation to accept that removal shape and an
+  ID-only tombstone while still detecting stale active conflicts. A regression
+  exercises both retained cancellation and incorrect active-event responses.
+  The comparison suite passes 23/23 and lint passes; runtime app behavior is unchanged.
+- Configuration approval excludes this provider execution. Credential use,
+  test-account grants, synthetic fixtures and revocation still need exact
+  authority. Issued the concrete provider-run approval request for the bounded
+  comparison, manual calendar operations and connected-account event assistance;
+  the answer remains pending. No actual test consent, Calendar or database action, source push,
+  deployment, public Calendar activation or repeated payment test occurred.
+
 ## 2026-10-03 — Test setup reported complete; local Calendar comparison runner prepared
 
 - The user reports `setup complete` and names the test project

@@ -126,9 +126,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   normalization, in-memory tokens, bounded reads, and test-grant cleanup.
   Provider-free regression and loopback transport checks pass 22/22; existing
   Calendar regressions pass 83/83; typecheck and lint pass.
-  The test credential file path is requested for a concrete execution proposal;
-  no downloaded JSON or live credential was read. Provider execution and fixture
-  activity remain unapproved; no listener is running on the proposed port.
+  The user supplied the local test-credential JSON path. A metadata-only check
+  confirms an existing, nonempty file; its contents remain unopened. The
+  comparison plan now specifies manual secondary-calendar preparation, bounded
+  synthetic fixtures, connector assistance, consent, restoration, and cleanup.
+  Whether a second user-owned account is available for the shared-source check
+  is requested; one-account coverage must remain explicitly partial if needed.
+  A fixture-expectation correction accepts both ID-only deletions and retained
+  CANCELLED rows as removal from active conflicts, matching the real sync and
+  conflict query. The focused comparison tests pass 23/23.
+  Provider execution and fixture activity remain unapproved; no real consent
+  listener or credential use has started.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider QA, database write, Calendar

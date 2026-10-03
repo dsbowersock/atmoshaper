@@ -20,10 +20,12 @@ existing AtmoShaper testing/staging project is reported. This is a user readback
 not an independently authenticated project inventory or explicit discard receipt.
 Automated Console access remains denied; no alternate control path is authorized.
 The separate test setup is subsequently reported complete under the shortened
-name below. Do not repeat this inventory or completed setup. Next obtain only
-the new test-credential JSON's local path and settle the exact fixture/account
-targets and preparation method for one concrete provider-run approval. Path
-disclosure is not authority to read/use credential contents; that remains gated.
+name below. Do not repeat this inventory or completed setup. The user supplied
+the new test-credential JSON's local path. A metadata-only check confirms an
+existing, nonempty file; its contents remain unopened. Settle second-account
+availability and record the exact private fixture/account targets using the
+concrete preparation sequence below. Path disclosure is not authority to
+read/use credential contents; provider execution remains gated.
 
 The existing Production registration, API enablement, working sign-in, and
 declaration approval remain recorded. Do not repeat those operations. The
@@ -115,7 +117,7 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 22 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 23 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
   future approved one-arm execution only. The default with no arguments is offline.
@@ -168,6 +170,10 @@ the exact initial synthetic fixtures before the other arm, retaining their IDs
 where possible. Do not silently change the private expectation file merely to
 make a failing response pass. Etags are optional in current normalization and
 reported as capability evidence rather than an invented necessity gate.
+Google can retain details on an owner's deleted event. The real sync then stores
+a CANCELLED row, which the conflict query excludes. The comparison accepts that
+row or an ID-only tombstone as removal from active conflicts; unexpected active
+rows still fail. Reports count retained cancellations without exposing identities.
 
 Use the same explicitly owned synthetic source fixtures for both arms. Obtain
 separate exact authority before consent, local credential use, provider reads,
@@ -191,6 +197,96 @@ revoke its test tokens, close the listener, and verify absence. An uncertain
 creation outcome must be reconciled before retry or cleanup; never sweep an
 account by name. A passing standalone comparison does not prove database
 serialization, outbound target isolation, or full app consent/activation.
+
+## Concrete provider-run proposal — not yet authorized
+
+The purpose is to establish whether the narrower availability permission can
+perform the current busy-block import. The following bounded workflow uses the
+already configured test registration; no further Cloud settings or permissions
+are proposed. Request one exact approval covering credential inspection, the
+dedicated test consents and revocations, and only these synthetic fixture actions.
+Before dispatch, record the chosen account and source IDs in private local
+configuration. The user has been asked whether a second account they own is
+available; do not infer ownership, obtain another person's account, or extend
+the test-user list. A second account owns the reader fixture but does not grant
+the test app access. If unavailable, use one owned source first, explicitly
+leaving shared-source and overall minimum-access proof pending.
+
+1. After approval, validate the supplied JSON against the previously selected
+   test project and exact loopback callback, retaining credentials in memory.
+   Stop on mismatch. Read only the connected Calendar user's profile to establish
+   the account for connector assistance. Confirm it is the user's approved test
+   account before any calendar read or write; never substitute another account.
+2. The user creates one empty secondary calendar in that account and, if the
+   second account is available, one empty secondary calendar there. The agent
+   supplies a fresh run marker and the exact two synthetic names required by the
+   runner. Use UTC for both calendars. The second owner shares only the second
+   calendar with the first account using reader access. Capture their exact
+   Calendar IDs privately from settings and verify the owner's execution receipt.
+   These manual Calendar operations do not automate the previously denied Cloud
+   Console route. The connector has no calendar-create/delete/sharing tool.
+3. Populate each new source with the three resources in the table below. The
+   connected Calendar tool may create the first owner's three events, always
+   specifying that new secondary ID. The second owner creates the other three
+   manually; no write access is requested for the reader source. Use no attendees,
+   invitations, reminders, Meet link, clinical information, or real appointments.
+   Bound any connector discovery to those exact secondary IDs and the fixed
+   window, with at most 24 expanded results per source. Read only the six known
+   synthetic roots to bind identities, recurrence, timings and transparency.
+   Keep identities outside tracked source, and derive expected times from this
+   table, rather than copying a measured arm's output as its own expectation.
+
+| Fixture in each source | Initial shape in UTC | Controlled change after each arm's baseline |
+| --- | --- | --- |
+| Timed busy event | October 10, 2026, 10:00–11:00; opaque | Move to 10:30–11:30 and mark available/transparent |
+| All-day busy event | October 11 through exclusive October 12; opaque | Delete only this event |
+| Recurring available event | October 10, 2026, 14:00–14:30; daily, two occurrences; transparent | Preserve both occurrences |
+
+Use the fixed October 10–13, 2026 UTC read window. Each source starts with four
+expanded items, exercising page size two within the existing resource ceiling.
+If execution occurs after this window or any fixture cannot match it, stop and
+prepare a new explicit fixture proposal; do not silently widen provider reads.
+
+4. Run the availability arm first. The user confirms the genuine test-app
+   consent in their browser. Validate actual issued scopes and expected account
+   before exact-source metadata and event reads. At the baseline pause, change
+   only the two designated resources in each source. Connector assistance can
+   update/delete the first owner's recorded IDs; the second owner makes their
+   changes manually. Preserve recurring roots. Confirm each write outcome;
+   reconcile uncertain writes before retry. Record sanitized results and revoke
+   only the issued test-app token even if comparison fails.
+5. Restore the exact initial fixtures before the event-read arm: restore the
+   deleted all-day event from that owner's Calendar Trash and reset the timed
+   event. Verify retained event IDs and baseline values using the owner's receipt
+   and bounded connector reads. If restoration changes an ID, retain the original
+   identity mapping and explain the change before another run; never rewrite
+   expectations just to make a failure pass. Run the second arm with its own
+   consent and verified scope set, make the same changes, and revoke its token.
+6. Delete only the two recorded run-owned secondary calendars (one if that is
+   the confirmed scope) using their owners' Calendar UI. This removes their
+   synthetic events and sharing rule. Both measured grants have already been
+   revoked, so obtain an explicit owner-side deletion receipt for each exact
+   calendar. Do not claim independently authenticated API absence from that
+   receipt or initiate an extra grant just to check it. Close the owned
+   callback listener and confirm no run process remains. Unconfirmed cleanup
+   remains an open outcome, not a passing readiness claim.
+
+The run ceiling is two user-owned accounts, two secondary calendars and six
+event resources, with no broad inventory search or default-primary operations.
+It excludes Production settings/grants, Vercel credentials, Prisma/Neon writes,
+deployment, payment testing, verification upload/submission and public activation.
+The separate Google Calendar connector is fixture assistance only; its existing
+grant cannot establish what the AtmoShaper test registration permits. The actual
+two-arm runner is the permission measurement.
+
+Provider-reference check: Google's event documentation permits retained
+organizer-side cancellation details, while calendar creation/deletion and sharing
+use distinct write permissions. Do not broaden either measured read grant to
+automate those fixture operations. See
+[event lifecycle](https://developers.google.com/workspace/calendar/api/v3/reference/events/insert),
+[secondary-calendar creation](https://developers.google.com/workspace/calendar/api/v3/reference/calendars/insert),
+[secondary-calendar deletion](https://developers.google.com/workspace/calendar/api/v3/reference/calendars/delete),
+and [sharing permissions](https://developers.google.com/workspace/calendar/api/v3/reference/acl/insert).
 
 ## Decision and subsequent progress
 
