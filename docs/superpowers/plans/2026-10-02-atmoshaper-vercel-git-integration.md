@@ -1,9 +1,22 @@
 # AtmoShaper existing-project Vercel integration
 
-Status: source publication and review authorized, 2026-10-02, on
-`codex/atmoshaper-vercel-integration-plan`. PR #36's source-only merge
-is complete. The hosting plan has not been executed and grants no provider-write,
-build, deployment, or public promotion authority.
+Status: existing-project settings, exact-artifact promotion, and public GET
+checks verified under separate approvals, 2026-10-02. Remaining migration gates
+are still open. PR #37's separately approved source merge is complete
+as `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; its reviewed gate is on `main`.
+PR #36's Calendar source-only merge is also complete. Preflight verified the
+settings and all four original live alias assignments through normal
+authenticated CLI reads. The user subsequently approved the bounded hosting
+stage below, including narrow App access and one unpromoted candidate, while
+excluding public promotion.
+The same project's rename, manual promotion control, explicit Build Command, and
+GitHub/`main` connection are verified. One staged Production build reached `READY`
+with both remote readiness gates passing. All seven protected candidate GET
+checks pass. The user separately approved promotion of this exact existing
+artifact with rollback if verification failed. Promotion and all public checks
+passed without rebuilding or rollback. Sanitized operator receipts are published
+in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), pending final-head
+checks/reviews and separate source merge approval.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [migration ledger](../../wiki/migration-status.md) first. Preserve the
@@ -11,11 +24,11 @@ existing live AtmoShaper project and the separate full MassageLab service.
 Do not reimport the app, create a replacement hosting project, or transfer
 provider ownership to repair a name or Git connection.
 
-## Verified starting point
+## Verified starting point before approved execution
 
 - The user's current Dashboard screenshot shows the existing AtmoShaper
   project serving `www.atmoshaper.com`, a preview-era project name, and
-  `Connect Git Repository`. Its Git connection is currently absent. This
+  `Connect Git Repository`. Its Git connection was absent at preflight. This
   satisfies the earlier manual observation request; do not request it again
   or infer that the repository was never connected historically.
 - Subsequent user screenshots show Production's `No branch configuration`
@@ -31,27 +44,44 @@ provider ownership to repair a name or Git connection.
   head `0c3241cb3052877f07453d31b97b71ae4337e3eb`. Fresh post-merge reads show
   the same latest `READY` Production deployment with source CLI. No build or
   public deployment was triggered by that source-only merge.
-- The deployed runtime remains reviewed merge
+- The starting live runtime was reviewed merge
   `7756080c3bc650bdbcff33013ff67728a3f97efa`. The newer Calendar source is
   provider preparation, not activated integration. Keep Calendar configuration
   inactive during this hosting stage; its acceptance follows the separate
   [Calendar plan](2026-10-01-atmoshaper-google-calendar-preparation.md).
-- Project/deployment reads work, but the project-detail connector's advertised
-  argument differs from its server requirement. The local CLI has no usable
-  login; browser navigation could not satisfy its required policy check.
-  These limits prevent full settings/alias readback. Obtain an ordinary working
-  access path before execution; do not extract credentials or bypass the check.
-  An empty or omitted alias array in a deployment summary is not an inventory.
+- The project-detail connector's argument mismatch and the browser policy
+  limitation remain tool issues. The user restored normal CLI login and approved
+  read-only checks; authenticated API reads now verify the saved existing target
+  and scope. All four aliases point to the approved `READY` deployment at
+  `7756080c3bc650bdbcff33013ff67728a3f97efa`; both custom domains are verified
+  and the apex retains its `308` redirect to canonical `www`. Private rollback
+  metadata is captured without recording provider IDs or secret values here.
+- Starting settings were Next.js, Node 24, repository root, and no
+  Build/Install/Output override. Git was absent and custom-domain auto-assignment
+  enabled. Approved execution changes are recorded below.
+  Production auth uses the canonical custom origin; both public pauses remain
+  `false`. Excluded purchase switches and Calendar credentials are absent. All
+  56 project variables target only Production; Preview/Development have none.
+  Direct Production URLs and Preview deployments require Vercel sign-in.
+- Vercel's owner-specific repository search initially reported `Vercel App is not installed`.
+  Its namespace listing cannot run through this CLI's automatic team scope;
+  the GitHub CLI credential cannot list App installations. Do not infer the
+  owner's entire installation history from those limits. The user completed
+  normal App access and the Dashboard connection; direct project readback now
+  verifies the repository/branch. That evidence supersedes repository discovery.
+  Do not repeat the grant or connection. Preserve existing repository grants.
+  See [Vercel's repository-access guide](https://vercel.com/kb/guide/unable-to-find-github-repository)
+  and the [Vercel GitHub App](https://github.com/apps/vercel).
 
-## Proposed result
+## Approved hosting result
 
-| Item | Proposed setting / behavior |
+| Item | Verified setting / behavior |
 | --- | --- |
-| Existing project name | `atmoshaper`, subject to availability and reference audit |
+| Existing project name | `atmoshaper`, same immutable project/scope |
 | Git repository | `dsbowersock/atmoshaper`, connected to the existing project |
 | Production branch | `main` |
 | Production promotion | Staged builds with manual promotion; no standing approval to publish every merge |
-| Live site and services | Preserve the canonical custom host, current approved deployment, environment, provider identity, and separate MassageLab service |
+| Live site and services | Checked reviewed PR #37 artifact promoted without rebuilding; canonical host, environment, provider identity, and separate MassageLab service preserved |
 | Calendar | Source may be included in an approved candidate build; provider configuration and activation remain gated |
 
 Vercel Git integration normally builds pushed branches and production-branch
@@ -86,6 +116,12 @@ Sources: [Git deployments](https://vercel.com/docs/git),
 4. Check the proposed name is available in the existing scope, and verify the
    GitHub integration can access this repository. Identify required app access
    privately. Do not broaden installation permissions to unrelated repositories.
+   At preflight the scope had no project named `atmoshaper`; the approved existing
+   project now has that name and verified Git access. If an existing installation is present,
+  add only this repository while retaining its other grants. This step has now
+  completed under the hosting approval. If future installation or
+   account association requires a human confirmation, supply the exact normal
+   screen and wait; do not replace the project or alter unrelated installations.
 5. Verify install/build/root settings against this source's package scripts.
    Require the standard `npm run build` entrypoint so its Production prebuild
    runs read-only migration status, live Supporter readiness, then Prisma
@@ -111,8 +147,12 @@ Source: [Vercel project rename behavior](https://vercel.com/kb/guide/how-do-i-ch
 Request one concrete authorization for the verified existing target that names:
 
 - the rename to `atmoshaper`;
+- normal Vercel GitHub App access to only `dsbowersock/atmoshaper`, preserving
+  existing grants, with any required human installation/account confirmation;
 - disabling automatic assignment of custom Production domains and reading back
   that setting before repository connection;
+- setting the existing project's Build Command explicitly to `npm run build`,
+  without changing install, root, runtime, environment, or protection settings;
 - connecting only `dsbowersock/atmoshaper` with Production branch `main`;
 - a possible first unpromoted Production candidate build from the approved
   reviewed source, including read-only migration and Supporter readiness checks;
@@ -124,8 +164,9 @@ provider callbacks, database migrations, Calendar activation, payments, emails,
 or changes to MassageLab. If the reference audit finds additional necessary
 operations, make those concrete before asking; do not assume them approved.
 
-After approval, set and verify the promotion control first. Apply the rename
-and verify its identity/custom-domain readback, then connect the approved
+After approval, verify the App grant and repository visibility. Set and verify
+the promotion control and explicit standard Build Command before connecting.
+Apply the rename and verify its identity/custom-domain readback, then connect the approved
 repository/branch. Read back the connection and control after each write.
 Observe any build started by the connection; do not start a duplicate build
 merely to recreate evidence. Record its actual source commit and environment.
@@ -134,8 +175,8 @@ protection and apply only the explicitly authorized recovery operations.
 
 ## Candidate and public-promotion gates
 
-Publish, review, and separately approve the source gate before merging it while
-Git remains disconnected. The first connected candidate must use that reviewed
+The source gate's publication, full review, and separately approved merge through
+PR #37 are complete. The first connected candidate must use that reviewed
 source, not the earlier PR #36 merge alone or a dirty local checkout. A gate
 merge is still source-only until the provider connection/build is authorized.
 
@@ -179,9 +220,14 @@ readiness/webhook tests 62/62, lint, typecheck, and standard local build pass.
 Both Production gates visibly skip locally. The new child CLI tests use only
 synthetic credentials and a read-only provider fixture. No live readiness
 request, payment test, remote build, or provider configuration was performed.
-Source publication and hosted review are authorized; their exact-head outcomes
-must be verified before a merge request. This authority excludes merging,
-provider writes, remote builds, and public promotion.
+Source publication, full hosted review, and the separately approved merge are
+complete. Reviewed head `fa3e2f9081b37630584c979b92114379ba093e95` passed all
+seven CI jobs, with 5,113 of 5,115 Linux unit tests passing and two skips.
+CodeRabbit's final full review covered all ten files with zero actionable
+comments or retained architecture concerns. Codex was clean; both prior threads
+were resolved. Merge `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e` triggered no
+Vercel build or deployment. Provider writes, remote builds, and public promotion
+remain outside that source approval.
 
 - Record the source/merge and deployment distinction in project state/log.
 - Record sanitized name/connection/branch/control outcomes and actual candidate
@@ -193,6 +239,70 @@ provider writes, remote builds, and public promotion.
 - Preserve public registration/Supporter activation, disabled one-time/background
   purchasing, the completed payment-test boundary, and both projects' data.
 
-Execution remains pending full current settings access and exact authorization.
-The user does not need to repeat hosting setup, choose an unexplained Google
-project, or supply the already established Git-status observation.
+## Approved execution progress — 2026-10-02
+
+The user's approval covers this prepared hosting stage and normal App access to
+only AtmoShaper, preserving existing grants. Fresh preflight matched the saved
+existing target/scope, unchanged reviewed `main`, and all four original live
+aliases. Applied and read back custom-domain auto-assignment off and explicit
+Build Command `npm run build` before renaming the same project to `atmoshaper`.
+All four aliases retain the original approved live artifact; the three project
+domains, apex `308` redirect, and protection remain intact. Correct-path public
+GET checks passed for all seven approved routes with a `null` signed-out session.
+
+Browser automation could not verify its required admin policy for GitHub and
+was denied. The user completed the normal App grant and Dashboard Git connection.
+Earlier repository-discovery responses misleadingly reported absent access;
+automatic approval review stopped the CLI connection attempt before execution.
+The user's connected-project screenshot prompted a direct project read, which
+verifies GitHub repository `dsbowersock/atmoshaper` and Production branch `main`.
+The rejected command is no longer needed; no duplicate connection was attempted.
+Connection itself triggered no build. The old MassageLab Git link was read
+without mutation and remains intact.
+
+Exactly one authorized staged Production candidate from pinned merged PR #37,
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, reached `READY` at
+`2026-10-02T23:56:01Z`. Actual standard-build logs show migration status passing
+and the live Supporter-only gate passing with both Portal catalogs API-verified.
+One-time support and background purchases remain disabled. No schema was applied,
+credential exported/replaced, Calendar configured, or payment test repeated.
+
+Pre-promotion readback preserved all four original alias assignments and the live project
+target at `7756080c3bc650bdbcff33013ff67728a3f97efa`. All three project domains
+remain verified, with the apex `308` redirect intact. Two new generated
+convenience aliases point to the candidate under unchanged deployment protection.
+Fresh non-secret reads confirm canonical auth and both public pause flags `false`;
+all 56 project variables remain Production-only, with excluded purchase switches
+and Calendar credentials absent. The later approved public rollout is recorded below.
+
+Protected candidate GET verification is now complete. The user supplied the exact
+candidate's open-registration screenshot and reported successful partial browser
+checks, while acknowledging some links were unchecked. A later normal
+authenticated provider fetch succeeded after the initial authentication failure.
+All seven candidate GETs returned application content with `200`; registration
+inputs are present, registration/Checkout pause copy is absent, Pricing includes
+Supporter content, and the signed-out session is `null`. No account, Checkout,
+Calendar connection, email, or fixture was created. These receipts do not claim
+interactive coverage beyond the user's supplied registration screenshot.
+
+The user then approved the prepared exact-artifact public promotion with saved
+rollback. Fresh preflight verified the same `READY` candidate, original live
+assignments, and `READY` saved rollback in the same project. Normal CLI promotion
+reused the checked artifact without rebuilding. Final readback verifies the live
+project target and all six recorded live aliases now use it, with original alias
+names, verified domains, apex redirect, protection, and manual promotion control intact.
+All seven public signed-out GET checks pass; registration inputs are present,
+pause copy is absent, session is `null`, and public Pricing assets match the
+candidate. Fresh non-secret auth/pause reads pass; excluded purchase switches and
+Calendar credentials remain absent. No rollback was needed. Preserve the saved
+prior live artifact and do not repeat the completed build or payment test.
+
+The approved settings and exact-artifact promotion are verified; Calendar,
+old-origin recovery, and other migration gates remain open. These five
+sanitized operator-doc receipts are
+published in PR #38 under source publication/review authority. Git publication may
+start a Preview build using its existing configuration; do not copy Production
+credentials into Preview to repair a failure. Source merge and any later public
+promotion remain separately gated. Continue the migration ledger's local-data/PWA
+recovery and provider preparation after this closeout; the full old site remains
+available and its future separate product direction is outside this work.

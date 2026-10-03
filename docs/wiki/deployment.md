@@ -11,37 +11,76 @@ deployment, provider write, or pause change requires its own exact authority.
 
 ## Current Project Name And Repository Connection
 
-The user's 2026-10-02 Dashboard screenshot confirms that the existing project
-serving `www.atmoshaper.com` retains its preview-era name and shows `Connect Git
-Repository`. The completed live launch used CLI deployments. PR #36's
-source-only merge did not trigger a new deployment; the deployed runtime remains
-reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+The existing project is named `atmoshaper`, its custom-domain auto-assignment is
+disabled, and its Build Command is explicitly `npm run build`. Direct
+authenticated project readback verifies GitHub repository `dsbowersock/atmoshaper`
+and Production branch `main`. The user's earlier screenshots and the superseded
+repository-discovery response are historical preflight evidence in the
+[Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md).
+Do not reconnect, request another App grant or Git-status observation, or create
+a replacement project. Future Git pushes/merges may trigger builds; preserve
+manual public promotion and verify assignments before any separately approved
+hosting change.
 
-Follow the [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
-to prepare the existing project's name and Git connection. Connecting Git can
-trigger builds automatically, so read the actual Production branch/promotion
-controls and alias assignments before requesting provider-write authority.
-The proposed default is staged Production builds with manual promotion.
-No connection, rename, control change, build, or promotion is authorized by the
-Calendar source merge. Do not create a replacement project or ask the user to
-repeat the satisfied Git-status observation. Subsequent Production screenshots
-confirm the custom-domain auto-assignment control is present and enabled.
-Disable it only under the exact hosting approval, before connecting Git;
-the read-only control check is complete.
+The earlier Supporter activation used CLI deployments. PR #36's and PR #37's
+source-only merges and the subsequent Dashboard Git connection triggered no
+build. One separately approved staged Production candidate from merged PR #37
+reached `READY` at `2026-10-02T23:56:01Z`. After separate exact promotion
+approval, that existing artifact was promoted without rebuilding. The live
+project target and all six recorded live aliases now use it, preserving every
+original alias name, all verified project domains, and the apex redirect. Its reviewed source is
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; the earlier activation runtime
+`7756080c3bc650bdbcff33013ff67728a3f97efa` is the saved rollback source.
+All seven protected candidate GET checks now pass with application content,
+open registration inputs, no pause copy, and a `null` signed-out session.
+The user also supplied a screenshot of the candidate's registration form and
+reported successful partial browser checks. All seven post-promotion public GET
+checks also pass, with the same open-registration and signed-out-session
+results. Public Pricing assets match the checked candidate. No rollback or
+further manual page check was needed. These receipts verify the approved
+settings and exact-artifact promotion. Calendar, old-origin recovery, and other
+migration gates remain open.
+
+The five operator closeout docs are published in
+[PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), pending final-head
+checks/reviews and separate merge approval. Publication may trigger an ordinary
+Preview build; preserve its existing configuration and keep Production
+credentials out of Preview. No additional public promotion is authorized.
+Git publication added an ordinary Preview branch alias. These Preview aliases
+are outside the promotion receipt's six recorded live assignments.
 
 ## Production Readiness In The Standard Build
 
-Local source preparation wires `npm run production:stripe-readiness:check`
+[PR #37](https://github.com/dsbowersock/atmoshaper/pull/37), merged as
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, wires
+`npm run production:stripe-readiness:check`
 between migration status and Prisma generation in `npm run build`. In Vercel
 Production it runs the existing read-only live Supporter checker using inherited
 configuration and `--no-dotenv`, with a two-minute child deadline. Rejected or
 unverified readiness fails the build. Local/development/Preview builds skip
-provider access. Source publication/review is authorized; the new Production
-gate has not run in Vercel and no hosting operation is authorized by that approval.
+provider access. All seven hosted CI jobs and final full CodeRabbit/Codex reviews
+passed at the unchanged reviewed head. The separately approved staged Production
+build now provides actual remote execution evidence: migration status passed,
+both live Portal catalogs were API-verified, and the Supporter gate passed before
+the app build reached `READY`. This read-only check did not repeat a transaction
+test or apply a schema migration.
 
-Before connecting Git, verify that the actual Build Command uses `npm run build`
-so both gates execute. A custom `next build` command bypasses npm's prebuild;
-reconcile that concrete setting before approving a candidate. A passing readiness
+Normal CLI authentication is restored. Current settings use the explicit
+standard Build Command, Next.js/Node 24 at the repository root, and disabled
+automatic custom-domain assignment and a verified GitHub/`main` link. All four
+original aliases point to the approved live deployment. Project variables target
+only Production; Preview and Development have none. Direct Production URLs and
+Preview deployments require Vercel sign-in. The initial authenticated fetch
+was rejected, but a later normal authenticated retry succeeded and all seven
+candidate GET checks passed. Do not treat the earlier fetch failure as a current
+block or repeat hosting setup. The checked artifact is now live after separate
+approval and verified public readback. Keep the previous live artifact as saved
+rollback; future builds remain staged until separately approved for promotion.
+
+Before each new Production candidate, verify that the already-connected
+project's Build Command still uses `npm run build` so both gates execute. A
+custom `next build` command bypasses npm's prebuild; reconcile any concrete drift
+before approving a candidate. A passing readiness
 build never grants public promotion, activates Calendar, enables other purchase
 flows, or repeats the live transaction test.
 

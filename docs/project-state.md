@@ -60,32 +60,31 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   comments or retained architecture concerns; Codex reports no findings and
   no review threads remain unresolved. Initial CI's stale project-state date
   ceiling was repaired before these final receipts.
-  This is merged source preparation,
-  not integration readiness. No provider configuration, calendar creation,
-  hosted database write, deployment, or Calendar activation occurred.
+  That source-only merge did not establish integration readiness. The later
+  approved hosting promotion includes this code in the live runtime, while
+  Calendar credentials and activation remain absent. No Calendar provider
+  configuration, calendar creation, or hosted Calendar database write occurred.
 
-- The user's current Vercel Dashboard screenshot confirms that the existing
-  project serving `www.atmoshaper.com` still has its preview-era project name
-  and shows `Connect Git Repository`. The Git connection is currently absent;
-  this observation does not establish its entire history. The completed hosting
-  and Supporter launch used explicit CLI deployments. After PR #36 merged,
-  fresh deployment reads showed the same latest `READY` Production/CLI
-  deployment, with no new deployment triggered by the merge. No fresh complete
-  alias inventory is claimed from those deployment summaries. Project naming
-  and Git integration are unfinished provider steps, not missing hosting.
-  The [Vercel integration plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
-  proposes renaming the existing project and connecting this repository with
-  manual promotion. Current settings and rollback assignments must be read
-  before requesting exact provider-write/build authority; none is granted by
-  the source-only merge. The screenshot satisfies the earlier Git-status check.
-  Subsequent screenshots show Production's `No branch configuration` overview
-  and its Branch Tracking detail with `Auto-assign Custom Production Domains`
-  present and enabled. This satisfies the read-only promotion-control check;
-  no toggle or provider setting was changed. The plan must disable that control
-  under exact authority before connecting Git. Complete Build Command and
-  rollback-assignment readback are still required before provider execution.
+- Earlier 2026-10-02 Dashboard screenshots established the preview-era project
+  name, absent Git connection, and enabled custom-domain auto-assignment at the
+  start of this hosting stage. The earlier Supporter activation used
+  explicit CLI deployments. The user subsequently approved the existing-project
+  rename, Git connection, and one unpromoted Production build with narrowly
+  scoped normal GitHub App access. The
+  [Vercel integration plan](superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+  owns that stage and the later, separate public-promotion gate. Current provider
+  outcomes are recorded below; the earlier screenshots are historical evidence.
 
-- Local source preparation for Vercel Git integration adds a Production-only
+- [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37) merged under the
+  user's separate source approval at `2026-10-02T22:54:54Z` as
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`. Its unchanged reviewed head is
+  `fa3e2f9081b37630584c979b92114379ba093e95`. All seven hosted CI jobs passed;
+  the Linux unit receipt is 5,113 passes of 5,115 tests, two skips, zero failures.
+  CodeRabbit's final full review covered all ten files with zero actionable
+  comments and no retained architecture concerns; Codex was clean and both
+  earlier threads were resolved. Fresh post-merge reads confirm the same latest
+  `READY` Production deployment. No Vercel build or deployment was triggered.
+  The merged source for Vercel Git integration adds a Production-only
   Supporter prebuild gate after the existing read-only migration-status gate.
   It invokes the existing checker with fixed `--supporter-only --live
   --verify-stripe --no-dotenv` arguments and inherited build configuration.
@@ -93,10 +92,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Checker failures, launch errors, signals, and timeouts fail the build.
   This closes the need for a separate manual readiness command in each approved
   `npm run build` candidate, provided Vercel's actual Build Command uses that
-  entrypoint. Source publication and review on
-  `codex/atmoshaper-vercel-integration-plan` are now authorized; merge and hosting
-  changes remain separate. No live readiness request, remote build, deployment,
-  provider write, or payment test occurred in preparing it.
+  entrypoint. Failure messages distinguish rejection, launch failure, signal,
+  and timeout using fixed text without raw error or signal values. Hosting
+  changes remain separately gated. No live readiness request, remote build,
+  deployment, provider write, or payment test occurred in preparing it.
   Provider-free tests exercise the real nested CLI against synthetic Stripe
   fixtures, including missing credentials, both Portal catalogs, and forbidden
   purchase enablement. Public activation and disabled purchase boundaries remain.
@@ -104,7 +103,66 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   lint, typecheck, and the local build pass. The local build visibly skips both
   Production gates, so this is not remote provider-readiness proof.
 
-- Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
+- The approved hosting stage now has a renamed, connected project and one
+  successful staged Production candidate. Direct authenticated API readback
+  verifies the same immutable project/scope, name `atmoshaper`, GitHub repository
+  `dsbowersock/atmoshaper`, Production branch `main`, explicit Build Command
+  `npm run build`, and custom-domain auto-assignment off. The user completed the
+  normal App grant and Git connection in the Dashboard; no duplicate connection
+  was attempted. Earlier repository-discovery responses were misleading and
+  are superseded by this direct project read. Automatic approval review had
+  rejected the CLI connection attempt before execution while access was
+  unverified; that attempt is no longer needed. Connection itself triggered no
+  build. The ignored local hosting link preserves its original target/scope.
+- Exactly one separately authorized Production candidate from merged PR #37,
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, reached `READY` at
+  `2026-10-02T23:56:01Z`. Actual remote `npm run build` logs show read-only
+  migration status passing and the live Supporter-only readiness gate passing,
+  including both Portal catalogs through Stripe API evidence. One-time support
+  and background commerce remain disabled. Existing write-only credentials were
+  used without export or replacement; no payment test was repeated.
+- The user separately approved public promotion of the checked existing build,
+  with restoration of the saved live deployment if verification failed. Normal
+  CLI promotion reused that exact artifact without rebuilding. The live project
+  target and all six recorded live alias assignments now point to
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; all four original alias names
+  remain present. All three project domains remain verified, with the apex's
+  `308` redirect to canonical `www` intact. Deployment protection is unchanged
+  and automatic custom-domain assignment remains off for future builds.
+  Fresh non-secret setting reads confirm canonical Production auth and both
+  pause flags `false`; metadata confirms all 56 variables are Production-only,
+  excluded purchase switches are absent, and Calendar credentials remain absent.
+- Post-promotion signed-out GET checks of the public site's home, Pricing,
+  registration, support, Privacy, Terms, and session all returned `200`; the
+  registration form is present, pause copy is absent, and the session is `null`.
+  The apex still returns `308` to canonical `www`.
+- Candidate page verification is now complete. The user supplied a screenshot
+  of the exact candidate's open registration form and reported that the pages
+  they checked worked, while explicitly leaving some links unchecked. A fresh
+  permitted authenticated fetch succeeded after the earlier authentication
+  failure. All seven candidate GETs returned application content with `200`:
+  home, Pricing, registration, support, Privacy, Terms, and signed-out session.
+  Registration inputs are present, registration/Checkout pause copy is absent,
+  and the session response is `null`. This is GET/HTML evidence plus the user's
+  registration screenshot; no account creation or Checkout interaction was tested.
+  Post-promotion provider reads confirm the exact `READY` artifact is live.
+  Public Pricing script assets match the checked candidate. The saved previous
+  live deployment remains recoverable; no rollback was needed because every
+  approved public check passed. No additional page checks or repeated hosting
+  setup are requested from the user. The approved settings and exact-artifact
+  promotion are verified; Calendar, old-origin recovery, and other migration
+  gates remain open. The five
+  updated operator receipts are published in
+  [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38); final-head checks,
+  reviews, and the separately approved source merge remain pending. Publication
+  does not authorize another public promotion or Calendar activation. Git
+  publication added an ordinary Preview branch alias; fresh readback preserves
+  the six recorded live assignments and the approved live artifact. Additional
+  Preview aliases are outside that live-assignment count.
+
+- Deployed runtime source is reviewed merge `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`.
+  The prior Supporter activation runtime and saved rollback source is
+  `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
   `896c6d3edd369ca13c8140f22f37c4ee239c84da`, with exact-head Codex and
   CodeRabbit coverage and no unresolved actionable review threads. The full

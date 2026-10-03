@@ -15,6 +15,8 @@ owners or authorize provider changes. Verified: 2026-10-02.
 | Recurring Supporter billing | Dedicated live catalog and tax setup, use-specific Portals, pinned webhook, restricted credentials, idempotency, and live readiness passed; public registration and Supporter Checkout are now open | [Activation receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md), project state/log |
 | Controlled live test | Payment, cancellation, full refund, and signed-webhook convergence completed before activation | Project state/log; do not repeat this completed gate |
 | Separate Calendar source | PR #36 merged at its unchanged reviewed head after all seven CI jobs, full CodeRabbit coverage, and Codex review passed; provider acceptance and activation remain pending | [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md), project state/log |
+| Production build safeguard | PR #37 merged after clean reviews and CI; one Production build passed actual migration-status and live Supporter gates, all seven candidate GETs, and the separately approved public rollout | [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md), project state/log |
+| Existing Vercel project and Git integration | Existing project renamed `atmoshaper`, GitHub/`main` verified, standard build configured, and custom-domain auto-assignment disabled; checked PR #37 artifact promoted without rebuilding and all public checks passed | Vercel integration plan, project state/log; operator closeout published in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), under review |
 
 These are bounded milestones. They do not establish that every provider was
 migrated or that old-origin recovery and compatibility retirement are complete.
@@ -69,23 +71,37 @@ static checks pass; no actionable review threads remain. The merge did not deplo
 This source preparation does not identify or configure the Cloud project/client, validate hosted consent,
 create a calendar, or activate Calendar sync.
 
-The user's current Vercel Dashboard screenshot confirms that the existing live
-project retains its preview-era name and has no Git connection (`Connect Git
-Repository`). This completes the earlier manual observation request. It does
-not mean hosting, sign-in, or Supporter activation must be repeated. Fresh
-post-merge deployment reads showed the same latest Production/CLI deployment.
-The [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
-owns the remaining naming, repository connection, and manual promotion proposal.
-The subsequent Production-detail screenshot confirms that `Auto-assign Custom
-Production Domains` is present and enabled. That read-only check is complete.
-The user approved source publication and review of the Production build gate;
-hosting writes and public promotion remain separate approvals.
+Earlier Dashboard screenshots established the hosting stage's starting name,
+absent Git link, and enabled automatic custom-domain assignment. Under the
+user's subsequent hosting approval, the same project is now named `atmoshaper`,
+custom-domain auto-assignment is off, and Build Command is `npm run build`.
+The user completed normal App access and the Dashboard connection; direct
+authenticated project readback verifies `dsbowersock/atmoshaper` on `main`.
+That evidence supersedes misleading repository-discovery responses. Do not
+repeat setup or reconnect. One approved candidate from merged PR #37,
+`f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, reached `READY` at
+`2026-10-02T23:56:01Z` with actual remote migration-status and live Supporter
+readiness gates passing. The user subsequently approved promotion of that exact
+existing artifact with rollback if verification failed. It is now the live
+project target for all six recorded live aliases, preserving all four original
+alias names, verified domains, apex redirect, and protection. All seven post-promotion public
+GETs pass and Public Pricing assets match the checked candidate. No rollback
+was needed. Public
+registration/Supporter flags remain open, excluded purchases disabled, and
+Calendar credentials absent. The initial authenticated fetch failed, but a later
+normal authenticated retry succeeded and all seven candidate GET checks now
+pass. The user supplied an open-registration screenshot and reported successful
+partial browser checks. No additional manual page readback is needed. The
+[Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
+records the exact approval, verified artifact promotion, and saved rollback.
+Calendar, old-origin recovery, and other migration gates remain open; future
+builds retain manual public promotion.
 
 ## Remaining migration ledger
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |
-| Vercel project name and Git integration | Current Dashboard screenshot confirms the preview-era name and no Git connection; the live site uses explicit CLI deployments. Full settings/alias readback is not yet available | Follow the [existing-project integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md); read current settings and rollback assignments before execution | Exact authority for naming/connection/control writes and a possible first unpromoted build; public promotion remains a later approval. Do not reimport the app or repeat the Git-status question |
+| Hosting closeout documentation | Vercel settings and the approved artifact promotion are verified; five current operator docs are published in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), with checks/reviews pending | Shepherd final-head reviews and retain the [integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md) as the execution receipt | Source merge needs separate approval after checks/reviews pass. No hosting setup, App grant, manual page readback, or public promotion is needed; Preview uses its existing configuration |
 | Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
 | Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
 | Google Calendar | A separate `AtmoShaper` calendar is selected and its source preparation is merged; OAuth/client/callback readiness and actual provider behavior remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); identify the existing technical targets and prepare isolated provider acceptance | Ask before client/callback writes, QA resource or calendar creation/sync, token or row migration, a deployment, or public activation |
