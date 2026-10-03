@@ -47,6 +47,12 @@ checks also pass, with the same open-registration and signed-out-session
 results. Public Pricing assets match the checked candidate. No rollback or
 further manual page check was needed; hosting execution is complete.
 
+The five operator closeout docs are published in
+[PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), pending final-head
+checks/reviews and separate merge approval. Publication may trigger an ordinary
+Preview build; preserve its existing configuration and keep Production
+credentials out of Preview. No additional public promotion is authorized.
+
 ## Production Readiness In The Standard Build
 
 [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37), merged as

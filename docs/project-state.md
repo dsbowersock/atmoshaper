@@ -149,8 +149,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Public Pricing script assets match the checked candidate. The saved previous
   live deployment remains recoverable; no rollback was needed because every
   approved public check passed. No additional page checks or repeated hosting
-  setup are requested from the user. The hosting execution is complete; these
-  updated operator receipts are local pending documentation publication.
+  setup are requested from the user. Hosting execution is complete. The five
+  updated operator receipts are published in
+  [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38); final-head checks,
+  reviews, and the separately approved source merge remain pending. Publication
+  does not authorize another public promotion or Calendar activation.
 
 - Deployed runtime source is reviewed merge `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`.
   The prior Supporter activation runtime and saved rollback source is

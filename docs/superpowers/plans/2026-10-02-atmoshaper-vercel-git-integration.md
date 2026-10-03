@@ -12,7 +12,9 @@ GitHub/`main` connection are verified. One staged Production build reached `READ
 with both remote readiness gates passing. All seven protected candidate GET
 checks pass. The user separately approved promotion of this exact existing
 artifact with rollback if verification failed. Promotion and all public checks
-passed without rebuilding or rollback; sanitized receipt publication is pending.
+passed without rebuilding or rollback. Sanitized operator receipts are published
+in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), pending final-head
+checks/reviews and separate source merge approval.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [migration ledger](../../wiki/migration-status.md) first. Preserve the
@@ -293,8 +295,8 @@ candidate. Fresh non-secret auth/pause reads pass; excluded purchase switches an
 Calendar credentials remain absent. No rollback was needed. Preserve the saved
 prior live artifact and do not repeat the completed build or payment test.
 
-Hosting execution is complete. Publish these prepared sanitized operator-doc
-receipts only under source publication/review authority. Git publication may
+Hosting execution is complete. These five sanitized operator-doc receipts are
+published in PR #38 under source publication/review authority. Git publication may
 start a Preview build using its existing configuration; do not copy Production
 credentials into Preview to repair a failure. Source merge and any later public
 promotion remain separately gated. Continue the migration ledger's local-data/PWA

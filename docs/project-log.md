@@ -2,6 +2,22 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Hosting closeout documentation published as PR #38
+
+- Under the user's source publication/review approval, published the five
+  prepared operator-doc updates in
+  [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38). It records the
+  completed existing-project Vercel integration, actual readiness gates,
+  reviewed live source, candidate/public checks, saved rollback, and remaining
+  migration boundaries. No runtime code or provider credentials are changed.
+- Final-head CI, full CodeRabbit coverage, and review-thread closure remain
+  pending. Source merge is separately gated; Git publication may start a Preview
+  build under its existing configuration. Do not copy Production credentials
+  into Preview or treat documentation publication as public-promotion authority.
+- Fresh pre-publication readback confirms the approved live source remains
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e` for all six aliases, with manual
+  promotion preserved and excluded purchase/Calendar boundaries intact.
+
 ## 2026-10-02 — Checked build promoted; public rollout verified
 
 - The user explicitly approved promotion of the checked existing build to the
