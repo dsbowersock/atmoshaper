@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Concrete Calendar test-target discovery and permission comparison plan
+
+- The user asked whether to paste the draft and save, and how to progress.
+  Clarified that the draft remains unsaved while the permission choice is
+  resolved. Asked them to discard only the pending form changes and use the
+  project selector to identify an existing AtmoShaper test/staging project,
+  or report none. The user replied `none`; no existing test project is reported.
+  This user readback does not independently verify project inventory or explicitly
+  confirm the unsaved-form discard.
+- Prepared the [permission comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md)
+  with test-only settings, exact proposed loopback return address, scope-grant
+  isolation, bounded synthetic fixtures, sanitized evidence, and cleanup.
+  A smaller standalone permission comparison requires no application database;
+  it does not replace full app/Neon provider acceptance. The runner is not yet
+  implemented and no credentials, grants, fixtures, or provider execution were
+  accessed. Issued an exact configuration-only approval request for a separate
+  `AtmoShaper Calendar Verification` project, Calendar API, External / Testing
+  access limited initially to the user's own Google account, one Web test client,
+  loopback callback, and comparison scope declarations. The user replied `Yes`,
+  approving that configuration only; setup and non-secret saved readback are
+  pending. Prepared the complete user-guided sequence and an accurate test-only
+  declaration explanation. Production necessity is still unproven;
+  credential use, grants, fixtures, deployment, and verification submission are
+  excluded. Working Production settings and completed setup are preserved.
+- The user also authorizes agent execution if available and offers to perform
+  the step otherwise. This does not resolve the previously denied browser policy
+  check; no bypass, alternate console automation, or provider execution occurred.
+  Provide the complete manual configuration checklist rather than ask again for
+  an already approved operation.
+
 ## 2026-10-03 — Google draft requires justification; demo preparation and minimum-access proof remain open
 
 - The user's Data Access screenshots show `calendar.events.readonly` under

@@ -112,6 +112,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   so the API choice alone does not prove full event-read access is necessary.
   A truthful usage draft and bounded comparison/video preparation are in the
   provider checkpoint. No save, verification submission, or real demo occurred.
+  The [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md)
+  now gives the immediate operator step: discard only the unsaved form changes
+  and inspect the project selector for an existing AtmoShaper test/staging
+  project. The user replies `none`; no existing test project is reported. An
+  exact configuration-only approval request for `AtmoShaper Calendar Verification`
+  received `Yes`; user-guided setup and its saved readback are pending. A test-only
+  loopback callback and bounded standalone comparison
+  are prepared as a proposal, not implemented or authorized provider execution.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider QA, database write, Calendar

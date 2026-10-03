@@ -334,6 +334,16 @@ Saved classifications, the scope comparison, demo, and verification remain open.
 
 ## Resolve exact targets before configuration approval
 
+The [permission comparison plan](2026-10-03-atmoshaper-calendar-scope-comparison.md)
+gives the immediate user action and prepared test settings. Inspect the project
+selector for an existing appropriate AtmoShaper test/staging project before
+proposing creation. The user reports `none`; an exact configuration-only approval
+request for a new isolated test project received `Yes`; user-guided setup and
+non-secret saved readback are pending. The user readback does
+not independently establish inventory or explicitly confirm draft discard. The
+standalone comparison avoids an application database but does not replace the
+full isolated acceptance proposal below.
+
 Use the identified Production project and user-reported separate Calendar
 registration; do not propose another client or repeat its creation. Confirm the
 saved Calendar redirect, applicable new-scope Verification Center outcome,
