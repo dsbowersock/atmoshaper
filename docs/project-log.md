@@ -2,6 +2,33 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Google publishing and declared permissions read back
+
+- The user's Data Access screenshot shows no rows in the non-sensitive,
+  sensitive, or restricted scope lists. Their Audience screenshot shows
+  publishing status `In production` and user type `External` in the identified
+  AtmoShaper Production project. Record these as screenshot readbacks of
+  declared configuration, not actual user grants or Calendar verification.
+- Checked the source and installed sign-in provider defaults: Calendar
+  requests four Calendar scopes plus `openid`/`email`; working Google sign-in
+  separately requests `openid profile email`. The empty declared lists do not
+  establish a failed sign-in flow. Production publishing does not establish
+  approval for new Calendar permissions.
+- Prepared the exact source-requested permission inventory and proof limits
+  in the [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md).
+  Google's primary guidance requires declaring used scopes, reviewing minimum
+  access, and verifying applicable sensitive scopes before public use.
+- Asked for the remaining read-only Verification Center status/required actions
+  and Calendar API Enable-versus-Manage readback. Browser security denial
+  remains in force; no alternate access was attempted. Saved new-client callback
+  readback and isolated acceptance remain pending. Do not ask to repeat
+  registration creation or the satisfied Data Access/Audience questions.
+- Task branch was clean at `aaaef3537f205507ad88b22dcc2258224c7afc38` before
+  recording these screenshots; remote main remains PR #38 merge
+  `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Unrelated root work is preserved.
+  No runtime, Google settings, credentials, database, Calendar/event contents,
+  deployment, purchase gates, or live payment test changed.
+
 ## 2026-10-02 — User reports Calendar registration created
 
 - After the exact registration-only approval and user-guided instructions, the

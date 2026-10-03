@@ -36,14 +36,18 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   consolidates source readiness, exact configuration/acceptance prerequisites,
   and rollback boundaries. Production Calendar keys remain absent in fresh
   name-only readback. Google sign-in is already operational; its credentials
-  are not Calendar configuration. The user's current Clients screenshot shows
+  are not Calendar configuration. The user's earlier Clients screenshot shows
   the `AtmoShaper Production` project and one visible Web application registration,
   `AtmoShaper Production Web`, created September 26. No separate Calendar row is
   shown; its name alone does not establish whether Calendar is configured in it.
   The user's URL-only readback lists
   `https://www.atmoshaper.com/api/auth/callback/google`; the Calendar return
-  address is absent from that supplied list. Scopes, API enablement, audience,
-  and verification remain unverified. A fresh read-only browser attempt was denied because its
+  address is absent from that supplied list. The user's 2026-10-03 Data Access
+  and Audience screenshots show all three declared scope lists empty,
+  publishing status `In production`, and user type `External`. These are saved
+  configuration readbacks, not proof of Calendar API enablement, actual user
+  grants, or Google approval of Calendar permissions. Calendar API and
+  Verification Center status remain unverified. A read-only browser attempt was denied because its
   security check could not verify the admin-enforced policy; no bypass was
   attempted. Both client-list and return-address questions are satisfied.
   The user approved creation of `AtmoShaper Calendar Production Web` alongside
@@ -52,8 +56,13 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   The user reports that creation is complete. This is a user execution receipt;
   they also report downloading the issued credential JSON. Its contents and
   location were not accessed; no credential values entered chat or source.
-  Saved callback settings and API/consent/scope readiness are not independently
-  verified. Do not create a duplicate or ask to repeat the completed setup.
+  The new callback's saved readback is still pending. Current source requests
+  four Calendar scopes plus `openid`/`email`; working sign-in separately uses
+  the provider's `openid profile email` defaults. Do not treat empty declared
+  lists as broken sign-in or the publishing state as Calendar approval.
+  Next read-only inputs are Verification Center status/required actions and
+  the Calendar API's enabled state; do not repeat the completed registration,
+  Data Access, or Audience checks. No permission changes are authorized yet.
   This approval excludes hosting credential provisioning, consent/API
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider

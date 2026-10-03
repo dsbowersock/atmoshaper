@@ -1,7 +1,9 @@
 # AtmoShaper Calendar provider-stage checkpoint
 
-Status: local preparation; existing Production project/registration identified
-from user readback, with API/consent/scope readiness and test targets unverified.
+Status: local preparation; registration created by user report. October 3
+screenshots establish External / In production and empty declared scope lists;
+Calendar API enablement, scope-verification readiness, and test targets remain
+unverified.
 Source implementation is reviewed, merged in PR #36, and included in the
 approved public PR #37 artifact. Working sign-in and Vercel integration remain
 complete. Do not repeat them or the completed live payment test.
@@ -26,6 +28,12 @@ and public activation require their own exact, reviewable authorization.
 - Existing Google sign-in works. Calendar needs additional API grants and
   separate configuration. Sign-in branding verification does not establish
   saved Calendar-scope verification or callback permission.
+- The user's 2026-10-03 Data Access screenshot shows no rows in all three
+  declared scope lists: non-sensitive, sensitive, and restricted. Their Audience
+  screenshot shows `In production` and `External`. This establishes declared
+  configuration only, not actual token grants, Calendar API enablement, or
+  Calendar permission verification. Do not switch this working Production
+  project back to Testing or assume an empty list means sign-in is broken.
 - The user's Clients screenshot shows the `AtmoShaper Production` project and
   one visible Web application registration, `AtmoShaper Production Web`, created
   September 26. No separate Calendar row is shown. This satisfies the original
@@ -39,8 +47,9 @@ and public activation require their own exact, reviewable authorization.
   verify its admin-enforced policy. No indirect workaround or alternate browser
   was used. The client-list and URL-only questions are now satisfied, with no
   secrets or setting changes. Google Cloud-admin CLI/connector
-  access is unavailable; saved API/consent readiness and test targets remain
-  unverified.
+  access is unavailable; saved Calendar API/Verification Center readiness and
+  test targets remain unverified. Data Access and Audience questions are now
+  satisfied by the user's later screenshots; do not ask to repeat them.
 
 ## Exact registration setup; user reports created
 
@@ -48,8 +57,11 @@ The user approved this exact registration-only scope and subsequently replied
 `created` after following the user-guided instructions. Creation is recorded
 from that user receipt; saved return settings and API/consent/scope readiness
 are not independently verified. Do not repeat Create. Automated browser access
-remains denied. Read back the saved non-secret callback, Data Access scope list,
-and Audience publishing status before proposing the next settings operation.
+remains denied. Data Access and Audience readbacks are now received. Next read
+Verification Center status/required actions and Calendar API enabled state;
+the new registration's saved non-secret callback remains pending before
+credential provisioning. Do not repeat the completed setup or scope/audience
+questions.
 The user also reports downloading the credential JSON issued at creation.
 Its location and contents were not accessed, and no values are recorded here.
 Retain it privately outside source trees; provisioning remains separately gated.
@@ -98,20 +110,62 @@ would expose its connect route before full acceptance, so defer that operation.
 Primary creation/callback/credential-retention reference:
 [Google's server-side OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).
 
+## October 3 declared-permission checkpoint
+
+The screenshots establish publishing and audience configuration, with no
+declared permissions. The app's reviewed source and installed provider defaults
+request the following permissions. This inventory is a configuration proposal
+input, not approval to add them or a completed least-access/verification review.
+
+| Requested permission | Current use / access limit |
+| --- | --- |
+| `openid` | Google account identity for sign-in and Calendar account matching |
+| `email` | Email identity in both flows; the Console may display the equivalent `userinfo.email` URL |
+| `profile` | Existing sign-in provider default for name/picture; not requested separately by Calendar. The Console may display the equivalent `userinfo.profile` URL |
+| `https://www.googleapis.com/auth/calendar.app.created` | Create the dedicated secondary calendar and manage its events; validated app-owned target required by the source |
+| `https://www.googleapis.com/auth/calendar.calendarlist.readonly` | Discover the user's calendars and validate/select sync sources |
+| `https://www.googleapis.com/auth/calendar.events.freebusy` | Availability access in the existing Calendar request/validator; review its necessity alongside the event-read permission before a scope edit |
+| `https://www.googleapis.com/auth/calendar.events.readonly` | Read event pages and incremental sync state for busy-block import; this Google grant permits event reads beyond the minimal fields AtmoShaper persists |
+
+The list above comes from `lib/calendar-sync-constants.ts`, `auth.ts`, and the
+installed Auth.js provider defaults. Inbound normalization drops personal event
+details from persisted busy blocks; this must not be described as proof that
+Google grants only time/status access or that the provider response contains no
+event details. Review each permission's necessity and Console classification
+before declaring a final set. No new broad Calendar write scope is proposed.
+
+Remaining read-only questions were sent together:
+
+1. In Verification Center, what status or required actions are displayed?
+2. On the Google Calendar API page, does its action say Enable or Manage?
+
+Leave both pages unchanged. If the API is disabled, its enablement needs exact
+approval; a missing permission declaration needs a separate scoped settings
+proposal. Changing publishing/audience, submitting verification, granting user
+access, provisioning credentials, and activating Calendar are not implied.
+Keep working sign-in and the existing Production publishing state intact.
+
+Primary guidance checked 2026-10-03:
+[declaring permissions](https://developers.google.com/workspace/guides/configure-oauth-consent),
+[minimum access and Production verification](https://developers.google.com/identity/protocols/oauth2/policies),
+and [Calendar permission meanings](https://developers.google.com/workspace/calendar/api/auth).
+These are provider requirements, not proof of this project's review outcome.
+
 ## Resolve exact targets before configuration approval
 
-Privately identify the existing sign-in project's ownership and deployment
-tier, any Calendar Web application client, and shared legacy consent settings.
-Read its saved redirects, Calendar API enablement, consent audience/publishing
-status, Data Access scopes, Verification Center outcome, and test-account access.
+Use the identified Production project and user-reported separate Calendar
+registration; do not propose another client or repeat its creation. Confirm the
+saved Calendar redirect, Calendar API enablement, Verification Center outcome,
+and appropriate isolated test targets before provisioning. Audience/publishing
+and Data Access readbacks are recorded above. Preserve shared consent settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 
-Prefer an appropriate existing Calendar client. If absent, propose a dedicated
-Calendar Web application client in the existing AtmoShaper Production project
-after ownership/tier and shared-consent consequences are known. Preserve the
-working sign-in callback. If this would affect the old service, explain the
-specific consequence and alternative before asking for a decision.
+Keep the existing working sign-in client/callback unchanged. Project-level
+declared-permission changes are shared by the project's clients; they do not
+change the separate permission lists each runtime flow actually requests.
+Review their consequences before asking for a settings change. No legacy
+Google project or client change is proposed.
 
 The proposed Production callback is
 `https://www.atmoshaper.com/api/calendar/google/callback`, distinct from sign-in's
