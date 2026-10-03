@@ -17,17 +17,22 @@ const GOOGLE_API_STATUS_ERROR_PATTERN = /^Google Calendar request failed with st
 // new-event POSTs, whose generated IDs must survive their existing wait contract.
 const GOOGLE_INBOUND_READ_BUDGET_MS = 60_000
 const GOOGLE_OUTBOUND_READ_BUDGET_MS = 30_000
+// Incremental consent or stored tokens may retain this prior read-only grant.
+// Accept it for compatibility, but never require or request it for new consent.
+const GOOGLE_CALENDAR_LEGACY_FREEBUSY_SCOPE = "https://www.googleapis.com/auth/calendar.events.freebusy"
 
 /**
  * Keep Calendar metadata/write access limited to calendars created by this app.
- * Extra Calendar grants could make the read-only ownership check accept an
- * unrelated calendar; unrelated identity scopes do not widen Calendar access.
+ * Reject extra Calendar grants except the previous redundant availability
+ * grant; it cannot widen metadata/write access or substitute for required grants.
+ * Unrelated identity scopes do not widen Calendar access.
  */
 export function assertGoogleCalendarSyncScopes(grantedScopes?: string | null) {
   const scopes = new Set((grantedScopes ?? "").split(/\s+/).filter(Boolean))
   const expected = new Set<string>(GOOGLE_CALENDAR_SCOPES.filter((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar")))
+  const allowed = new Set([...expected, GOOGLE_CALENDAR_LEGACY_FREEBUSY_SCOPE])
   if ([...expected].some((scope) => !scopes.has(scope))
-    || [...scopes].some((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar") && !expected.has(scope))) {
+    || [...scopes].some((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar") && !allowed.has(scope))) {
     throw new GoogleCalendarConnectionError("permissions", "Reconnect Google Calendar with the required limited permissions.")
   }
 }

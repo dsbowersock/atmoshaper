@@ -27,7 +27,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and new source retain the established encrypted-bundle/storage contracts.
   Existing-user record transfer and a migration warning are not launch
   prerequisites on that basis. A briefly prepared generic import-replacement
-  UI change was removed without publication; runtime remains unchanged.
+  UI change was removed without publication; it left runtime unchanged.
   The [local-record/PWA scope checkpoint](superpowers/plans/2026-10-02-atmoshaper-local-record-recovery.md)
   preserves compatibility findings and proof limits without scheduling
   unnecessary user recovery or old-site changes.
@@ -49,8 +49,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   grants, or Google approval of Calendar permissions. Subsequent October 3
   screenshots show branding verified and shown to users. Data-access
   verification is currently not required because no sensitive/restricted
-  scopes are declared. The Calendar API page shows `Enable`, establishing that
-  it is disabled in this project. This does not approve future Calendar scopes.
+  scopes are declared. The earlier Calendar API page showed `Enable`.
+  After the separately approved API-only step, the user now reports `Enabled`.
+  Record API enablement as their execution receipt, not an independent provider
+  read or approval of future Calendar scopes. Do not repeat enablement.
   A read-only browser attempt was denied because its
   security check could not verify the admin-enforced policy; no bypass was
   attempted. Both client-list and return-address questions are satisfied.
@@ -60,19 +62,23 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   The user reports that creation is complete. This is a user execution receipt;
   they also report downloading the issued credential JSON. Its contents and
   location were not accessed; no credential values entered chat or source.
-  The new callback's saved readback is still pending. Current source requests
-  four Calendar scopes plus `openid`/`email`; working sign-in separately uses
+  The new callback's saved readback is still pending. Published/live source
+  requests four Calendar scopes plus `openid`/`email`; working sign-in uses
   the provider's `openid profile email` defaults. Do not treat empty declared
   lists as broken sign-in or the publishing state as Calendar approval.
   All requested Data Access, Audience, Verification Center, and API-state
   readbacks are now received; do not ask to repeat them or registration creation.
-  The user now separately approves enabling only Google Calendar API in the
-  existing AtmoShaper Production project, followed by enabled-state readback.
-  User-guided execution is authorized; execution/readback remains pending.
-  Do not request this same API-only approval again or claim the API enabled yet.
-  Permission declaration/review, isolated acceptance, and credential provisioning
-  follow separately; no permission changes are authorized yet.
-  The API-only approval excludes hosting credential provisioning, consent/scope
+  A local source candidate removes the redundant `calendar.events.freebusy`
+  request while retaining the three other Calendar grants and event-read import.
+  Existing tokens may retain that optional read-only grant; it never substitutes
+  for a required grant, and broader Calendar grants still fail before provider
+  access or token persistence. Calendar tests pass 83/83; typecheck and lint pass.
+  Full unit validation passes with 5,114 passed, three skipped, and zero failures.
+  This candidate is unpublished and does not change the live request. Next is
+  publication approval for its focused PR and reviews, then a separate exact
+  Google permission-declaration proposal. Isolated provider acceptance and
+  credential provisioning remain pending; no permission changes are approved.
+  The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider QA, database write, Calendar
   activation, or public promotion has occurred for this Calendar stage.

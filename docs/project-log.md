@@ -2,6 +2,41 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — User reports Calendar API enabled; redundant grant removed locally
+
+- The user replied `Enabled` after the exact API-only approval and guided step.
+  Record completed enablement in the existing AtmoShaper Production project
+  from that execution receipt. No independent provider read is claimed; browser
+  access remains denied. Do not ask to repeat approval, creation, or enablement.
+- Reviewing the actual inbound adapter shows event-page reads, not calls to the
+  free/busy endpoint. Google's `events.list` reference accepts event-read access
+  without the separate availability grant. A local source candidate removes
+  `calendar.events.freebusy` from new requests and required grants while keeping
+  event-read import behavior and the other three Calendar grants unchanged.
+  Previously granted availability access remains accepted for compatibility;
+  it cannot replace any required grant. Missing or broader grants fail before
+  provider/transaction calls. Stored tokens and provider resources are untouched.
+- Regressions exercise the actual authorization URL, service connection with
+  current and prior grants, rejection of each missing/broader grant, and refresh
+  of prior grants. The focused Calendar suite passes 83/83; lint and typecheck
+  pass. The full unit suite finishes with 5,114 passed, three skipped, and zero
+  failures (5,117 total). All 85 relative documentation links, private-pattern
+  checks, and whitespace checks pass. The task-generated GPU diagnostic log is
+  preserved outside the worktree with its hash verified. Calendar checks use
+  synthetic provider/transaction doubles, not real consent,
+  provider behavior, database locking, or public readiness proof.
+- Updated the [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md)
+  with the narrowed candidate, legacy compatibility, and exact proposed declared
+  permission set. Further availability-only design, minimum-access review,
+  Console classification, applicable verification, and isolated acceptance are
+  not claimed complete. No permission-setting edit is authorized yet.
+- The local branch started clean at `01852a5dd54bf97285870f5a462927c8d184078d`.
+  Publication/reviews require a new exact approval; merge, deployment, provider
+  permissions, credential provisioning, and public Calendar activation are
+  separate steps. Registration and recurring Supporter Checkout remain open;
+  one-time support/background purchases stay disabled. No live payment test,
+  provider access, database activity, or hosted assignment change was performed.
+
 ## 2026-10-03 — Calendar API-only enablement approved; user execution pending
 
 - The user answered `yes` to guiding the exact API-only enablement step.

@@ -517,10 +517,27 @@ describe("Google callback and service coexistence seam", () => {
     })
   }
 
+  it("accepts current Calendar grants and the prior optional availability grant", async () => {
+    const currentScope = "openid email https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.calendarlist.readonly https://www.googleapis.com/auth/calendar.events.readonly"
+    for (const scope of [currentScope, `${currentScope} https://www.googleapis.com/auth/calendar.events.freebusy`]) {
+      const google = googleFixture({ calendars: [managed()] })
+      const { service, state } = serviceFixture(google)
+      await service.connectGoogleCalendar({ userId: "user-a", token: { ...token, scope }, adapter: google.adapter })
+      assert.equal(state.connection.dedicatedCalendarId, "atmo-calendar")
+      assert.equal(state.connection.grantedScopes, scope)
+      assert.equal(google.writes().length, 0)
+    }
+  })
+
   it("rejects broad or incomplete Calendar grants before creation or token persistence", async () => {
     const google = googleFixture()
     const { service, calls } = serviceFixture(google)
-    for (const scope of [undefined, scopes.replace("https://www.googleapis.com/auth/calendar.app.created", ""), `${scopes} https://www.googleapis.com/auth/calendar.readonly`, `${scopes} https://www.googleapis.com/auth/calendar`]) {
+    const requiredCalendarScopes = [
+      "https://www.googleapis.com/auth/calendar.app.created",
+      "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+      "https://www.googleapis.com/auth/calendar.events.readonly",
+    ]
+    for (const scope of [undefined, ...requiredCalendarScopes.map((required) => scopes.replace(required, "")), `${scopes} https://www.googleapis.com/auth/calendar.readonly`, `${scopes} https://www.googleapis.com/auth/calendar`, `${scopes} https://www.googleapis.com/auth/calendar.events`]) {
       await assert.rejects(() => service.connectGoogleCalendar({ userId: "user-a", token: { ...token, scope }, adapter: google.adapter }), /limited permissions/)
     }
     assert.equal(calls.length, 0)
@@ -686,6 +703,16 @@ describe("Google callback and service coexistence seam", () => {
         assert.equal(calls.includes("update-connection"), true)
       }
     }
+  })
+
+  it("refreshes previously granted availability access without requiring it again", async () => {
+    const legacyScope = `${scopes} https://www.googleapis.com/auth/calendar.events.freebusy`
+    const google = googleFixture({ calendars: [managed()], refreshScope: legacyScope })
+    const { service, state } = serviceFixture(google, storedConnection({ accessTokenExpiresAt: new Date(0), grantedScopes: legacyScope }))
+    assert.equal(await service.refreshGoogleAccessToken("connection-a", google.adapter), "fixture-access")
+    assert.equal(state.connection.grantedScopes, legacyScope)
+    assert.equal(state.connection.dedicatedCalendarId, "atmo-calendar")
+    assert.equal(google.writes().some((call) => call.url.hostname === "www.googleapis.com"), false)
   })
 
   it("does not use a stale provider-event mapping in another calendar", async () => {
