@@ -2,6 +2,22 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Calendar registration creation approved; user execution pending
+
+- The user explicitly approved one Web application registration named
+  `AtmoShaper Calendar Production Web` in the identified existing
+  `AtmoShaper Production` project, using only
+  `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI.
+  The existing sign-in registration and callback remain unchanged.
+- Prepared user-guided creation instructions because automated browser access
+  is denied. New credential retention stays outside chat/source/screenshot
+  evidence; Google documents that the secret is shown at creation only.
+  No creation receipt has been supplied yet. Do not repeat Create if the outcome
+  becomes uncertain; read the Clients list before retrying.
+- Approval excludes Vercel provisioning, consent/API/scope/publishing changes,
+  QA resources, Calendar/event/database activity, deployment, and public activation.
+  Updated current owners with the exact approval and pending execution status.
+
 ## 2026-10-02 — Google app registration identified from user screenshot
 
 - The user supplied the existing `AtmoShaper Production` Clients page. It shows

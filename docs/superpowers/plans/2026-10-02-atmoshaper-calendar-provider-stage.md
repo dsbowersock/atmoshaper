@@ -42,7 +42,12 @@ and public activation require their own exact, reviewable authorization.
   access is unavailable; saved API/consent readiness and test targets remain
   unverified.
 
-## Exact next registration proposal; approval pending
+## Exact registration setup; approved, execution pending
+
+The user approved this exact registration-only scope. Automated browser access
+remains denied; the user will perform the Google UI step. Creation and saved
+return-URI verification are not yet confirmed. Do not create a duplicate if a
+submission's outcome is uncertain; first inspect the Clients list.
 
 Prepare one new Web application registration in the user's identified existing
 `AtmoShaper Production` project:
@@ -61,14 +66,22 @@ different client for each API. No project replacement or legacy change is
 proposed. Creating this registration alone does not enable Calendar sync in the
 app, grant a user's Calendar permission, create a calendar, or deploy anything.
 
-Obtain exact creation authority before guiding the user through the Console
-mutation. Automated browser access is denied, so do not attempt another browser
+Creation authority is now received for the scope above. Automated browser access
+is denied, so do not attempt another browser
 or indirect control path. The user must perform the approved Google UI step.
 Retain the newly issued credential securely outside chat, source trees, and
 screenshots before closing its creation dialog; Google documents that the
 secret is shown only at creation. Secure hosting provisioning is a separate
 later operation. Do not rotate/export the existing sign-in secret or add the
 new client ID/secret to Vercel as an implied follow-up.
+
+User-guided steps: in the existing project, choose Create client, select Web
+application, enter the approved name, leave JavaScript origins empty for this
+server-side flow, add the single approved redirect URI, and choose Create.
+Securely retain the issued credential outside the source tree before closing
+the result. Obtain only a creation confirmation and non-secret callback
+readback. Any prompt to change API, consent, publishing, or scopes is outside
+this approval and requires a separate reviewable proposal.
 
 No API enablement, consent audience/publishing/scope edit, verification submission,
 QA resource, database write, Calendar/event operation, or Production activation

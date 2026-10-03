@@ -46,9 +46,13 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and verification remain unverified. A fresh read-only browser attempt was denied because its
   security check could not verify the admin-enforced policy; no bypass was
   attempted. Both client-list and return-address questions are satisfied.
-  A concrete proposal is prepared for a separate Calendar Web registration
-  alongside the working sign-in registration; its creation requires exact
-  provider-write approval. No client creation, credential provisioning, provider
+  The user approved creation of `AtmoShaper Calendar Production Web` alongside
+  the working sign-in registration, using only
+  `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI.
+  User-guided Console execution is pending; client creation is not yet
+  confirmed. This approval excludes hosting credential provisioning, consent/API
+  changes, QA resources, Calendar/event activity, deployment, and activation.
+  No confirmed client creation, credential provisioning, provider
   QA, database write, Calendar activation, or public promotion has occurred.
 
 - PR #35's documentation closeout merged as
