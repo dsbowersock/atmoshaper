@@ -339,8 +339,12 @@ gives the immediate user action and prepared test settings. Inspect the project
 selector for an existing appropriate AtmoShaper test/staging project before
 proposing creation. The user reports `none`; an exact configuration-only approval
 request for a new isolated test project received `Yes`; user-guided setup and
-non-secret saved readback are pending. The user readback does
-not independently establish inventory or explicitly confirm draft discard. The
+non-secret saved readback were requested. The user now reports setup complete,
+using the shortened display name `AtmoShaper Calendar Verify`. This is their
+execution receipt; credentials/settings and actual OAuth grants are not
+independently verified. The local comparison runner and mock/loopback checks are
+prepared; exact private inputs and provider-run authority remain pending. The
+user readback does not explicitly confirm the earlier Production draft discard. The
 standalone comparison avoids an application database but does not replace the
 full isolated acceptance proposal below.
 

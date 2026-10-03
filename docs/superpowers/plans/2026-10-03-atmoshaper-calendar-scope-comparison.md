@@ -1,7 +1,8 @@
 # AtmoShaper Calendar permission comparison
 
-Status: new test configuration approved; user execution pending. Local
-comparison implementation and provider execution authority remain pending.
+Status: test configuration reported complete under `AtmoShaper Calendar Verify`.
+Local runner implemented and mock/loopback checks passing; provider execution
+authority and exact private fixture/credential inputs remain pending.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -9,31 +10,38 @@ Read [project state](../../project-state.md),
 before using this plan. This comparison answers a permission question; it does
 not replace full application, database-lock, or Calendar acceptance.
 
-## Immediate operator action
+## Current next action and completed test-target discovery
 
 Do not paste the usage draft or save the pending Production Data Access form.
-Ask the user to discard only those unsaved changes and open the project selector
-using the `AtmoShaper Production` name at the top of Google Console. Obtain the
-display name of any existing AtmoShaper testing/staging project, or a receipt
-that none is listed. This is a read-only inventory check after abandoning the
-unsubmitted draft. Do not claim the discard or inventory completed until the
-user reports it. The user replied `none` to the project inventory request: no
+The user was asked to discard only those unsaved changes and open the project
+selector using the `AtmoShaper Production` name at the top of Google Console.
+They replied `none` to the project inventory request: no
 existing AtmoShaper testing/staging project is reported. This is a user readback,
 not an independently authenticated project inventory or explicit discard receipt.
 Automated Console access remains denied; no alternate control path is authorized.
+The separate test setup is subsequently reported complete under the shortened
+name below. Do not repeat this inventory or completed setup. Next obtain only
+the new test-credential JSON's local path and settle the exact fixture/account
+targets and preparation method for one concrete provider-run approval. Path
+disclosure is not authority to read/use credential contents; that remains gated.
 
 The existing Production registration, API enablement, working sign-in, and
 declaration approval remain recorded. Do not repeat those operations. The
 draft's video field does not establish whether Save can proceed without a URL;
 never invent one or substitute a storyboard for a real demonstration.
 
-## Test configuration to resolve before approval
+## Approved test configuration and user execution receipt
 
-Prefer an appropriate existing test project after its display name, ownership,
-audience, and unrelated usage are checked. A project's name alone does not prove
-it is isolated. The user's `none` readback supports proposing a separate project
-with display name `AtmoShaper Calendar Verification`. Do not create it merely
-because the local tool cannot list Google projects.
+The earlier proposal preferred an appropriate existing test project after its
+display name, ownership, audience, and unrelated usage were checked. A project's
+name alone does not prove it is isolated. The user's `none` readback supported
+proposing a separate project
+with the originally approved display name `AtmoShaper Calendar Verification`.
+The user reports setup complete and shortened that display name to
+`AtmoShaper Calendar Verify` because it was too long. This is their execution
+receipt, not independently verified settings or OAuth readiness. Use the reported
+name; do not recreate or rename anything. No private project identifier belongs
+in this plan.
 
 | Setting | Prepared value / constraint |
 | --- | --- |
@@ -45,12 +53,14 @@ because the local tool cannot list Google projects.
 | Credentials | Test-only credentials through a local private channel; no Production JSON, chat values, repository values, or Vercel provisioning |
 | Retention | Keep approved test configuration available for subsequent isolated QA; fixture and token cleanup below is mandatory after comparison |
 
-Port 3317 was unused at the local preparation check. It is not reserved; recheck
-before starting the listener. The callback listener and comparison runner are
-not implemented yet. No credential was accessed or listener started. Verify
-Google permits the exact callback and obtain a saved non-secret readback before
-using it. Configuration approval must specify the resolved project and account
-ownership; it does not itself authorize consent or Calendar activity.
+Port 3317 was unused at the local preparation check and remains unused after
+local validation. It is not reserved; recheck before starting an approved run.
+The callback listener and comparison runner are now implemented. Provider-free
+listener tests use ephemeral loopback ports and close their owned listeners.
+No real credential was accessed or consent flow started. The downloaded JSON
+will verify the exact test target and saved callback only after credential-use
+authority is obtained. Configuration approval does not authorize consent or
+Calendar activity.
 
 The user replied `Yes` to the exact configuration-only approval request for this
 new project,
@@ -67,7 +77,11 @@ resolved by that authorization. Do not bypass it through a different browser,
 native UI, shell-driven browser, or indirect console automation. Give the user
 the complete approved checklist; no further approval is needed for those steps.
 
-### Approved user-guided configuration sequence
+### Completed user-guided configuration sequence; reference only
+
+The user reports completion. Preserve this guide as the intended configuration;
+do not ask them to recreate it. Independent saved-value checks remain bounded
+to the later approved credential read/test flow, not another generic Console audit.
 
 1. Create the project named `AtmoShaper Calendar Verification` and select it.
    Use Google's generated project ID; keep private identifiers out of source.
@@ -97,11 +111,47 @@ or evidence that comparison execution has occurred.
 
 ## Local comparison implementation
 
-Prepare a named repository npm command that uses the actual adapter event-list
-and normalization behavior, without starting the public app or connecting to
-Prisma/Neon. Keep the browser callback bound to loopback, validate a fresh
-one-use state, and retain authorization codes/tokens only in process memory.
-Never log them, return them in browser HTML, or write raw provider responses.
+Implemented commands:
+
+- `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
+  credentials, environment settings, or providers.
+- `npm run test:calendar-scope-comparison`: 22 mock/owned-ephemeral-loopback tests;
+  callback HTTP tests never follow external redirects.
+- `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
+  future approved one-arm execution only. The default with no arguments is offline.
+
+The runner uses the actual adapter event-list and normalization behavior without
+starting the public app or connecting to Prisma/Neon. The browser callback binds
+only to IPv4 loopback, validates a fresh one-use state, and retains authorization
+codes/tokens only in process memory. The user opens the local consent link
+manually; this does not automate or bypass the denied Google Console route.
+No secret, raw response, or OAuth code is printed or sent to callback HTML.
+The report includes fixture-match/field-mismatch counts, paging, etag presence,
+cursor presence, and sanitized failure categories, without private identities
+or event values. Missing identities/timings, unsupported permissions, changed
+fixture metadata, and failed cleanup remain explicit non-passing outcomes.
+
+The private config stays outside tracked source. It requires exact test project,
+approved account email and absolute test-credential JSON path; a 32-hex-character
+run marker; a bounded UTC time window of at most fourteen days; and one or two
+explicit secondary sources. Each source provides exact private calendar ID,
+synthetic summary `AtmoShaper scope test <run-marker> <one-based-source-number>`,
+owner/reader role, time zone, known event roots, and expected before/after rows.
+Expected fields are event identity, UTC start/end, time zone, all-day flag, and
+BUSY/FREE/CANCELLED status. At most six event roots and 24 expanded items per
+source are allowed. At least one changed time/status and one removed block must
+be exercised. This schema is not a fixture-creation tool or execution approval.
+
+Production project names and primary calendars are rejected. Credential JSON
+must match the explicitly approved test project and contain exactly the prepared
+callback, with no JavaScript origins. Live UserInfo verifies the expected account
+before Calendar reads. Only the designated calendar-list entries are read; the
+runner does not enumerate unrelated calendars. Event reads use page size two
+(versus Production's 2,500), at most sixteen requests per source/read phase, a
+shared sixty-second budget per baseline/incremental phase, and disabled redirects.
+Only known synthetic event identities/expanded instances are accepted. No Calendar
+or database writes are implemented; the operator performs approved synthetic
+changes after the baseline. Token revocation is the runner's only cleanup write.
 
 Compare two separately consented grants: identity (`openid` and `email`) plus
 `calendar.calendarlist.readonly`, with either `calendar.events.freebusy` or
@@ -111,7 +161,13 @@ Disable inclusion of previously granted scopes for the comparison. Verify the
 actual granted scope set, reject broader Calendar permissions, and stop if grant
 isolation cannot be demonstrated. Separate client names alone are not proof.
 Revoke the dedicated test grant between arms and after completion; never revoke
-a working Production grant.
+a working Production grant. The runner requests online access and revokes its
+issued test token in a `finally` path. Failure to confirm revocation is a hard stop
+requiring dedicated test-app grant cleanup; do not start the other arm. Restore
+the exact initial synthetic fixtures before the other arm, retaining their IDs
+where possible. Do not silently change the private expectation file merely to
+make a failing response pass. Etags are optional in current normalization and
+reported as capability evidence rather than an invented necessity gate.
 
 Use the same explicitly owned synthetic source fixtures for both arms. Obtain
 separate exact authority before consent, local credential use, provider reads,

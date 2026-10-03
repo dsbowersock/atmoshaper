@@ -2,6 +2,40 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Test setup reported complete; local Calendar comparison runner prepared
+
+- The user reports `setup complete` and names the test project
+  `AtmoShaper Calendar Verify`, shortening the approved display name because it
+  was too long. Record this harmless display-name adjustment and completion as
+  their execution receipt. Do not recreate the project or repeat the approved
+  configuration. Its private identifier, credential contents, and actual Google
+  grants were not read or independently verified.
+- Added named offline-plan, comparison, and focused-test npm commands. The
+  standalone runner uses the real event-list adapter and busy normalization,
+  exact private test credentials/account/secondary-calendar fixtures, one
+  measured permission per consent, one-use callback state, GET-only fixture
+  reads, and in-memory tokens. It bounds paging/time and attempts dedicated
+  test-token revocation after success, interruption, or failed scope/account
+  validation. Sanitized reports retain capability counts, not provider identities,
+  event text, tokens, cursors, or private configuration. An unconfirmed revocation
+  blocks success; fixture cleanup remains an explicit operator task.
+- The offline default and 22 provider-free regression checks pass, including
+  real adapter pagination/normalization, recurrence/all-day/free/shared fixtures,
+  ID-only cancellation removal, scope/account drift, and loopback Host/state/
+  interruption/closure checks. The loopback test was corrected to use raw HTTP
+  for custom Host headers and manual redirects after an initial dummy redirect
+  was followed; it used fake client values and produced no real credentials,
+  consent, or Calendar grant. Existing Calendar regressions pass 83/83 and
+  typecheck and lint pass. Corrected the adapter's documentation
+  to distinguish typed fields from actual JSON payload filtering; runtime behavior
+  is unchanged.
+- Requested only the local test-credential JSON path to complete the concrete
+  execution proposal. No credential file was read. The runner's local/mock checks
+  do not prove Google's minimum permission or full application/database acceptance.
+  Fixture/account targets, real consent, reads/changes/cleanup, and credential
+  use need the next exact approval. No source was pushed, deployment or public
+  Calendar activation performed, or completed live payment test repeated.
+
 ## 2026-10-03 — Concrete Calendar test-target discovery and permission comparison plan
 
 - The user asked whether to paste the draft and save, and how to progress.

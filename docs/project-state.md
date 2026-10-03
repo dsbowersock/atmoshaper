@@ -117,9 +117,18 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and inspect the project selector for an existing AtmoShaper test/staging
   project. The user replies `none`; no existing test project is reported. An
   exact configuration-only approval request for `AtmoShaper Calendar Verification`
-  received `Yes`; user-guided setup and its saved readback are pending. A test-only
-  loopback callback and bounded standalone comparison
-  are prepared as a proposal, not implemented or authorized provider execution.
+  received `Yes`. The user now reports setup complete and shortened the display
+  name to `AtmoShaper Calendar Verify` because the proposed name was too long.
+  This is a user execution receipt; no independent credential/settings read or
+  actual Google grant is claimed. No recreation or rename is needed.
+  The local comparison runner is implemented with an offline default, explicit
+  test-project/account/fixture boundaries, the existing event adapter and busy
+  normalization, in-memory tokens, bounded reads, and test-grant cleanup.
+  Provider-free regression and loopback transport checks pass 22/22; existing
+  Calendar regressions pass 83/83; typecheck and lint pass.
+  The test credential file path is requested for a concrete execution proposal;
+  no downloaded JSON or live credential was read. Provider execution and fixture
+  activity remain unapproved; no listener is running on the proposed port.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, provider QA, database write, Calendar
