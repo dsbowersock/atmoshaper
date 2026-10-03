@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-03 — Branding verified; Calendar API disabled; enablement proposal prepared
+
+- The user's Verification Center screenshot shows branding verified and shown
+  to users. Its Data access status says verification is not required because
+  no sensitive or restricted scopes are requested. This is the current declared
+  configuration's outcome; it is not approval of the additional Calendar scopes.
+- The Calendar API screenshot, in the same identified Production project,
+  shows `Enable`. Record the API as disabled. Data Access, Audience,
+  Verification Center, and API-state questions are now satisfied. Do not ask
+  the user to repeat those readbacks or the completed registration creation.
+- Prepared an exact user-guided API-only enablement proposal in the
+  [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md):
+  enable Google Calendar API in the existing AtmoShaper Production project,
+  then read back API enabled / Manage. Approval is pending; the prior exact
+  registration approval explicitly excluded API changes. Browser automation
+  remains denied, so no alternate control path is attempted.
+- The proposal excludes scopes/consent/publishing edits, verification submission,
+  credential provisioning, QA resources, Calendar/event/database activity,
+  deployment, and public activation. Enabling an API alone does not grant a
+  user's Calendar access or activate the app integration. Minimum-access
+  scope review and isolated acceptance remain later prerequisites.
+- The task branch was clean at `fb794c23ee043b5ef41b6cf3dfea6a08803916e1`
+  before these documentation edits. No runtime, Google settings, credentials,
+  Calendar contents, database, deployment, purchase gate, or payment test changed.
+- Advanced the current-state/ledger review date and its existing test ceiling
+  together for these fresh screenshot receipts. The provider-free workload/doc
+  checks pass 16/16; all 78 relative links and whitespace/private-pattern checks
+  pass. No new tests were added and no live provider calls were made by this
+  validation.
+
 ## 2026-10-03 — Google publishing and declared permissions read back
 
 - The user's Data Access screenshot shows no rows in the non-sensitive,

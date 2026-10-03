@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-02
+Verified: 2026-10-03
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -46,8 +46,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   and Audience screenshots show all three declared scope lists empty,
   publishing status `In production`, and user type `External`. These are saved
   configuration readbacks, not proof of Calendar API enablement, actual user
-  grants, or Google approval of Calendar permissions. Calendar API and
-  Verification Center status remain unverified. A read-only browser attempt was denied because its
+  grants, or Google approval of Calendar permissions. Subsequent October 3
+  screenshots show branding verified and shown to users. Data-access
+  verification is currently not required because no sensitive/restricted
+  scopes are declared. The Calendar API page shows `Enable`, establishing that
+  it is disabled in this project. This does not approve future Calendar scopes.
+  A read-only browser attempt was denied because its
   security check could not verify the admin-enforced policy; no bypass was
   attempted. Both client-list and return-address questions are satisfied.
   The user approved creation of `AtmoShaper Calendar Production Web` alongside
@@ -60,13 +64,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   four Calendar scopes plus `openid`/`email`; working sign-in separately uses
   the provider's `openid profile email` defaults. Do not treat empty declared
   lists as broken sign-in or the publishing state as Calendar approval.
-  Next read-only inputs are Verification Center status/required actions and
-  the Calendar API's enabled state; do not repeat the completed registration,
-  Data Access, or Audience checks. No permission changes are authorized yet.
+  All requested Data Access, Audience, Verification Center, and API-state
+  readbacks are now received; do not ask to repeat them or registration creation.
+  The exact next proposal is enabling only Google Calendar API in the existing
+  AtmoShaper Production project, followed by enabled-state readback. This needs
+  separate approval because the registration-only approval excluded API changes.
+  Permission declaration/review, isolated acceptance, and credential provisioning
+  follow separately; no API or permission changes are authorized yet.
   This approval excludes hosting credential provisioning, consent/API
   changes, QA resources, Calendar/event activity, deployment, and activation.
-  No hosting credential provisioning, provider
-  QA, database write, Calendar activation, or public promotion has occurred.
+  No hosting credential provisioning, provider QA, database write, Calendar
+  activation, or public promotion has occurred for this Calendar stage.
 
 - PR #35's documentation closeout merged as
   `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review

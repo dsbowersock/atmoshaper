@@ -2,8 +2,8 @@
 
 Status: local preparation; registration created by user report. October 3
 screenshots establish External / In production and empty declared scope lists;
-Calendar API enablement, scope-verification readiness, and test targets remain
-unverified.
+branding is verified/shown, while Calendar API is disabled. Minimum-access
+Calendar permission review, provider acceptance, and test targets remain pending.
 Source implementation is reviewed, merged in PR #36, and included in the
 approved public PR #37 artifact. Working sign-in and Vercel integration remain
 complete. Do not repeat them or the completed live payment test.
@@ -34,6 +34,11 @@ and public activation require their own exact, reviewable authorization.
   configuration only, not actual token grants, Calendar API enablement, or
   Calendar permission verification. Do not switch this working Production
   project back to Testing or assume an empty list means sign-in is broken.
+- Later October 3 screenshots show branding verified and shown to users, with
+  data-access verification not required because no sensitive/restricted scopes
+  are declared. The Google Calendar API page shows `Enable`: it is disabled in
+  this project. This is proof of those settings only, not approval of future
+  Calendar scopes or a completed user consent/Calendar flow.
 - The user's Clients screenshot shows the `AtmoShaper Production` project and
   one visible Web application registration, `AtmoShaper Production Web`, created
   September 26. No separate Calendar row is shown. This satisfies the original
@@ -47,9 +52,9 @@ and public activation require their own exact, reviewable authorization.
   verify its admin-enforced policy. No indirect workaround or alternate browser
   was used. The client-list and URL-only questions are now satisfied, with no
   secrets or setting changes. Google Cloud-admin CLI/connector
-  access is unavailable; saved Calendar API/Verification Center readiness and
-  test targets remain unverified. Data Access and Audience questions are now
-  satisfied by the user's later screenshots; do not ask to repeat them.
+  access is unavailable; isolated test targets remain unverified. All requested
+  Data Access, Audience, Verification Center, and Calendar API readbacks are
+  satisfied by the user's screenshots; do not ask to repeat them.
 
 ## Exact registration setup; user reports created
 
@@ -57,8 +62,7 @@ The user approved this exact registration-only scope and subsequently replied
 `created` after following the user-guided instructions. Creation is recorded
 from that user receipt; saved return settings and API/consent/scope readiness
 are not independently verified. Do not repeat Create. Automated browser access
-remains denied. Data Access and Audience readbacks are now received. Next read
-Verification Center status/required actions and Calendar API enabled state;
+remains denied. All requested project-level readbacks are now received;
 the new registration's saved non-secret callback remains pending before
 credential provisioning. Do not repeat the completed setup or scope/audience
 questions.
@@ -134,13 +138,14 @@ Google grants only time/status access or that the provider response contains no
 event details. Review each permission's necessity and Console classification
 before declaring a final set. No new broad Calendar write scope is proposed.
 
-Remaining read-only questions were sent together:
+The remaining read-only questions were sent together and are now satisfied:
 
-1. In Verification Center, what status or required actions are displayed?
-2. On the Google Calendar API page, does its action say Enable or Manage?
+1. Verification Center shows branding verified/shown and data-access review not
+   required for the currently empty declared sensitive/restricted scope lists.
+2. Google Calendar API shows Enable, establishing it is disabled.
 
-Leave both pages unchanged. If the API is disabled, its enablement needs exact
-approval; a missing permission declaration needs a separate scoped settings
+Do not repeat those checks. API enablement needs exact approval as proposed
+below; the missing permission declaration needs a separate scoped settings
 proposal. Changing publishing/audience, submitting verification, granting user
 access, provisioning credentials, and activating Calendar are not implied.
 Keep working sign-in and the existing Production publishing state intact.
@@ -150,6 +155,37 @@ Primary guidance checked 2026-10-03:
 [minimum access and Production verification](https://developers.google.com/identity/protocols/oauth2/policies),
 and [Calendar permission meanings](https://developers.google.com/workspace/calendar/api/auth).
 These are provider requirements, not proof of this project's review outcome.
+
+## Exact next operation: enable Calendar API only; approval pending
+
+| Boundary | Proposed operation |
+| --- | --- |
+| Existing target | Identified AtmoShaper Production project, already shown in the user's screenshots |
+| Service | Google Calendar API only |
+| Action | On the observed API page, choose Enable once after exact approval |
+| Acceptance | Read back API enabled / Manage in that same project |
+| Execution | User-guided Console step because browser automation remains denied; no alternate control path |
+| Excluded | Scope/consent/publishing edits, verification submission, client/secret changes, hosting provisioning, QA resources, Calendar/event/database activity, deployment, and activation |
+
+API enablement makes the service available to this project's permitted API
+callers. It does not itself authorize a user's Calendar access, create a
+calendar, store tokens, or activate AtmoShaper sync. Existing working sign-in
+registration/callback and Production publishing configuration remain intact.
+The prior registration-only approval explicitly excluded API changes; approval
+for this specific operation is pending. Do not instruct execution as already
+authorized or infer approval from a screenshot supplied for readback.
+
+After approval, use the already observed Google Calendar API page, verify the
+project display, select Enable, wait for its normal result, and obtain only
+the non-secret enabled-state readback. Finish at that boundary. Follow-on
+permission declaration, minimum-access review, isolated provider acceptance,
+secure credential provisioning, and public activation retain their own scope.
+Do not change audience back to Testing in this working Production project.
+
+[Google's API enablement instructions](https://developers.google.com/workspace/calendar/api/quickstart/nodejs#enable_the_api)
+confirm the project-level prerequisite. Only that subsection is relevant here;
+its desktop-client sample, credential-file placement, and live Calendar reads
+are not the approved Web integration workflow.
 
 ## Resolve exact targets before configuration approval
 
