@@ -8,8 +8,8 @@ reads. The user subsequently approved the bounded hosting stage below, including
 narrow App access and one unpromoted candidate, while excluding public promotion.
 The same project's rename, manual promotion control, explicit Build Command, and
 GitHub/`main` connection are verified. One staged Production build reached `READY`
-with both remote readiness gates passing. Protected candidate page checks and
-separate exact public-promotion approval remain pending.
+with both remote readiness gates passing. All seven protected candidate GET
+checks now pass. Separate exact public-promotion approval remains pending.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [migration ledger](../../wiki/migration-status.md) first. Preserve the
@@ -268,11 +268,19 @@ Fresh non-secret reads confirm canonical auth and both public pause flags `false
 all 56 project variables remain Production-only, with excluded purchase switches
 and Calendar credentials absent. No public promotion occurred.
 
-Protected candidate GET verification remains pending: the authenticated provider
-fetch was rejected by Vercel Authentication and returned no application content.
-The user has been asked to check the exact candidate in a normal browser, signed
-out of AtmoShaper, without creating an account, Checkout, or Calendar connection.
-Do not substitute public-live GETs or build logs for candidate page evidence.
-After that receipt passes, request the later exact approval for promoting this
-same artifact with the saved rollback deployment. Do not rebuild it or request
-hosting setup, App grants, or the completed Git observation again.
+Protected candidate GET verification is now complete. The user supplied the exact
+candidate's open-registration screenshot and reported successful partial browser
+checks, while acknowledging some links were unchecked. A later normal
+authenticated provider fetch succeeded after the initial authentication failure.
+All seven candidate GETs returned application content with `200`; registration
+inputs are present, registration/Checkout pause copy is absent, Pricing includes
+Supporter content, and the signed-out session is `null`. No account, Checkout,
+Calendar connection, email, or fixture was created. These receipts do not claim
+interactive coverage beyond the user's supplied registration screenshot.
+
+Fresh provider reads confirm the same `READY` candidate, unchanged original live
+target and all original alias assignments, and a `READY` saved rollback in the
+same project. Request the later exact approval for promoting this existing
+artifact and verifying public pages/assignments, with restoration of the saved
+prior artifact/assignments if those checks fail. Do not rebuild it, request
+more manual page checks, or repeat hosting setup, App grants, or Git observation.

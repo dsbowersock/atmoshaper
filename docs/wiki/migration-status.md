@@ -15,7 +15,7 @@ owners or authorize provider changes. Verified: 2026-10-02.
 | Recurring Supporter billing | Dedicated live catalog and tax setup, use-specific Portals, pinned webhook, restricted credentials, idempotency, and live readiness passed; public registration and Supporter Checkout are now open | [Activation receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md), project state/log |
 | Controlled live test | Payment, cancellation, full refund, and signed-webhook convergence completed before activation | Project state/log; do not repeat this completed gate |
 | Separate Calendar source | PR #36 merged at its unchanged reviewed head after all seven CI jobs, full CodeRabbit coverage, and Codex review passed; provider acceptance and activation remain pending | [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md), project state/log |
-| Production build safeguard | PR #37 merged after clean reviews and CI; one separately approved staged Production build reached `READY` with actual migration-status and live Supporter gates passing | [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md), project state/log; protected page checks and public promotion remain pending |
+| Production build safeguard | PR #37 merged after clean reviews and CI; one staged Production build is `READY` with actual migration-status and live Supporter gates passing; all seven protected candidate GET checks pass | [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md), project state/log; public promotion awaits its separate approval |
 
 These are bounded milestones. They do not establish that every provider was
 migrated or that old-origin recovery and compatibility retirement are complete.
@@ -84,16 +84,19 @@ readiness gates passing. All four original aliases and the live project target
 retain the prior artifact; domains, apex redirect, and protection are unchanged.
 Two new generated convenience aliases serve the protected candidate. Public
 registration/Supporter flags remain open, excluded purchases disabled, and
-Calendar credentials absent. Vercel Authentication rejected the candidate page
-fetch, so normal browser GET-only checks are requested from the user. The
+Calendar credentials absent. The initial authenticated fetch failed, but a later
+normal authenticated retry succeeded and all seven candidate GET checks now
+pass. The user supplied an open-registration screenshot and reported successful
+partial browser checks. No additional manual page readback is needed. The
 [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
-owns that remaining check and separate exact approval for public promotion.
+owns the separate exact approval for public promotion of this existing artifact
+with its verified saved rollback deployment.
 
 ## Remaining migration ledger
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |
-| Vercel project name and Git integration | Existing project renamed, GitHub/`main` directly verified, one staged Production candidate `READY`, and both remote readiness gates passed; all original live assignments retained. Candidate page fetch was rejected by Vercel Authentication | Complete the requested normal browser GET-only candidate checks, then prepare promotion of this same artifact with saved rollback under the [integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md) | No setup or App grant remains pending. User page readback is needed because authenticated fetching failed; public promotion needs later exact approval |
+| Vercel project name and Git integration | Existing project renamed and GitHub/`main` verified; the staged candidate and rollback are `READY`, both remote readiness gates and all seven candidate GETs pass, and original live assignments remain unchanged | Promote this existing artifact after exact approval, then verify public GETs and assignments with saved rollback under the [integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md) | Public promotion approval is the next input. No further hosting setup, App grant, manual page readback, or build is needed |
 | Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
 | Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
 | Google Calendar | A separate `AtmoShaper` calendar is selected and its source preparation is merged; OAuth/client/callback readiness and actual provider behavior remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); identify the existing technical targets and prepare isolated provider acceptance | Ask before client/callback writes, QA resource or calendar creation/sync, token or row migration, a deployment, or public activation |

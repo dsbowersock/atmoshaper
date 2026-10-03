@@ -2,6 +2,32 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-02 — Candidate page checks passed; public promotion prepared
+
+- The user reported that the candidate pages they checked worked, but did not
+  check every requested link. Their screenshot identifies the exact candidate's
+  registration route and visibly shows the open AtmoShaper account form. This
+  is partial human browser evidence, not an all-pages claim.
+- The authenticated provider fetch now succeeds through the permitted normal
+  access path. Completed all seven candidate signed-out GET checks: home,
+  Pricing, registration, support, Privacy, Terms, and session each returned
+  application content with `200`. Email/password inputs are present, registration
+  and Checkout pause copy is absent, Supporter Pricing content is present, and
+  the session body is `null`. No registration submission, Checkout, Calendar
+  callback, email, fixture write, or repeated payment test occurred. The user
+  does not need to repeat the remaining manual page checks.
+- Fresh provider reads verify the same candidate is `READY` at merged PR #37,
+  `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`, with the original live project
+  target and all four original aliases unchanged. The saved live rollback at
+  `7756080c3bc650bdbcff33013ff67728a3f97efa` remains `READY` in the same
+  project. Custom-domain auto-assignment is still off; GitHub/`main` and standard
+  `npm run build` remain configured. Excluded purchase switches remain absent.
+- Prepared promotion of this already-built artifact with public GET and alias
+  readback, restoring the saved prior artifact/assignments if verification fails.
+  The earlier hosting approval explicitly excluded public promotion, so that
+  exact live change is the next approval request. No promotion or new build has
+  occurred. Calendar stays inactive and the separate MassageLab site is untouched.
+
 ## 2026-10-02 — Git connection verified; one staged Production build passed
 
 - The user's new Dashboard screenshot shows the existing renamed project

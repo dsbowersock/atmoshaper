@@ -36,8 +36,11 @@ triggered no build. One approved staged Production candidate from merged PR #37
 reached `READY` at `2026-10-02T23:56:01Z`. All four original aliases and the live
 project target still point to the prior live artifact. Two new generated
 convenience aliases serve the protected candidate without moving old assignments.
-Public promotion is not authorized, and protected candidate page checks remain
-pending normal browser verification.
+All seven protected candidate GET checks now pass with application content,
+open registration inputs, no pause copy, and a `null` signed-out session.
+The user also supplied a screenshot of the candidate's registration form and
+reported successful partial browser checks. Public promotion remains pending
+its separate exact approval; no further manual page check is needed.
 
 ## Production Readiness In The Standard Build
 
@@ -60,10 +63,12 @@ standard Build Command, Next.js/Node 24 at the repository root, and disabled
 automatic custom-domain assignment and a verified GitHub/`main` link. All four
 original aliases point to the approved live deployment. Project variables target
 only Production; Preview and Development have none. Direct Production URLs and
-Preview deployments require Vercel sign-in. The authenticated candidate fetch
-was rejected by Vercel Authentication; no application page content was verified.
-The user has been asked for normal browser GET-only checks of the exact candidate.
-Keep public promotion pending those checks and its separate exact approval.
+Preview deployments require Vercel sign-in. The initial authenticated fetch
+was rejected, but a later normal authenticated retry succeeded and all seven
+candidate GET checks passed. Do not treat the earlier fetch failure as a current
+block or repeat hosting setup. The exact candidate and saved rollback both
+remain `READY`; promote the existing artifact only after its separate approval,
+then verify public pages and assignments without rebuilding.
 
 Before connecting Git, verify that the actual Build Command uses `npm run build`
 so both gates execute. A custom `next build` command bypasses npm's prebuild;

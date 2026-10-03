@@ -132,12 +132,21 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 - Post-build signed-out GET checks of the existing public site's home, Pricing,
   registration, support, Privacy, Terms, and session all returned `200`; the
   registration form is present, pause copy is absent, and the session is `null`.
-  The apex still returns `308` to canonical `www`. Protected candidate verification is
-  still pending: Vercel's authenticated fetch was rejected by Vercel
-  Authentication without returning application content. A normal browser
-  GET-only check is requested from the user; no visual or interactive candidate
-  verification is claimed. Public promotion requires that receipt and a later
-  exact approval for this artifact and the saved rollback deployment.
+  The apex still returns `308` to canonical `www`.
+- Candidate page verification is now complete. The user supplied a screenshot
+  of the exact candidate's open registration form and reported that the pages
+  they checked worked, while explicitly leaving some links unchecked. A fresh
+  permitted authenticated fetch succeeded after the earlier authentication
+  failure. All seven candidate GETs returned application content with `200`:
+  home, Pricing, registration, support, Privacy, Terms, and signed-out session.
+  Registration inputs are present, registration/Checkout pause copy is absent,
+  and the session response is `null`. This is GET/HTML evidence plus the user's
+  registration screenshot; no account creation or Checkout interaction was tested.
+  Fresh provider reads preserve the exact `READY` candidate, original live
+  target, and every original alias assignment. The saved rollback deployment
+  remains `READY` in the same project. Public promotion of this existing
+  artifact, without rebuilding, now awaits its separate exact approval; no
+  additional page checks or repeated hosting setup are requested from the user.
 
 - Deployed runtime source is reviewed merge `7756080c3bc650bdbcff33013ff67728a3f97efa`.
   PR #34 merged after all seven hosted CI jobs passed at reviewed head
