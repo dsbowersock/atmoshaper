@@ -3,7 +3,7 @@
 Read [project state](../project-state.md) first for the active snapshot and
 [project log](../project-log.md) for dated receipts. This guide connects the
 original migration scope with the work still needed; it does not replace those
-owners or authorize provider changes. Verified: 2026-10-02.
+owners or authorize provider changes. Verified: 2026-10-03.
 
 ## Completed milestones
 
@@ -16,7 +16,7 @@ owners or authorize provider changes. Verified: 2026-10-02.
 | Controlled live test | Payment, cancellation, full refund, and signed-webhook convergence completed before activation | Project state/log; do not repeat this completed gate |
 | Separate Calendar source | PR #36 merged at its unchanged reviewed head after all seven CI jobs, full CodeRabbit coverage, and Codex review passed; provider acceptance and activation remain pending | [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md), project state/log |
 | Production build safeguard | PR #37 merged after clean reviews and CI; one Production build passed actual migration-status and live Supporter gates, all seven candidate GETs, and the separately approved public rollout | [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md), project state/log |
-| Existing Vercel project and Git integration | Existing project renamed `atmoshaper`, GitHub/`main` verified, standard build configured, and custom-domain auto-assignment disabled; checked PR #37 artifact promoted without rebuilding and all public checks passed | Vercel integration plan, project state/log; operator closeout published in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), under review |
+| Existing Vercel project and Git integration | Existing project renamed `atmoshaper`, GitHub/`main` verified, standard build configured, and custom-domain auto-assignment disabled; checked PR #37 artifact promoted without rebuilding and all public checks passed | Vercel integration plan, project state/log; operator closeout [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged; automatic unpromoted build verified and moved convenience aliases restored |
 
 These are bounded milestones. They do not establish that every provider was
 migrated or that old-origin recovery and compatibility retirement are complete.
@@ -26,7 +26,14 @@ home, Notes, manifest, service worker, and signed-out session (`null`). Requests
 to the old apex followed its configured `308` redirect to legacy www. This
 proves current public routing, not access to browser records on the apex origin,
 encrypted export/import, old-origin authentication, or installed-PWA recovery.
-The Phase 8 proof must distinguish those origins before any retirement decision.
+Any future old-record recovery proof must distinguish those origins before
+claiming recovery. The user subsequently clarified that no existing users are
+expected to have professional records needing migration. This is scope input,
+not an audit of private data. Existing-user transfer and a migration warning
+are not current launch prerequisites. Preserve origin-bound storage, matching
+vault contracts, and the full old site. The
+[local-record/PWA checkpoint](../superpowers/plans/2026-10-02-atmoshaper-local-record-recovery.md)
+retains the findings and separates general product improvements from migration.
 
 The user chose to keep the full MassageLab site available alongside AtmoShaper.
 MassageLab will continue after the migration as a separate project. Its future
@@ -101,10 +108,10 @@ builds retain manual public promotion.
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |
-| Hosting closeout documentation | Vercel settings and the approved artifact promotion are verified; five current operator docs are published in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), with checks/reviews pending | Shepherd final-head reviews and retain the [integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md) as the execution receipt | Source merge needs separate approval after checks/reviews pass. No hosting setup, App grant, manual page readback, or public promotion is needed; Preview uses its existing configuration |
-| Old-origin local records and PWA | The inventory and recovery contract exist; no current end-to-end old-origin encrypted export/import or installed-old-PWA receipt is established by the Supporter launch | Reconcile the [local-data/PWA plan](../rebrand/atmoshaper-local-data-and-pwa-plan.md) and [domain plan](../rebrand/atmoshaper-domain-cutover-plan.md) against current code and both old origins; prepare a bounded synthetic recovery matrix | Ask before choosing a new recovery entrypoint, creating QA resources, changing old-origin behavior, or performing user-data access. Never transfer PHI automatically |
+| Hosting closeout documentation | PR #38 merged after final-head checks/reviews; its automatic Production candidate passed actual gates and seven GETs, with both moved convenience aliases restored | Preserve manual promotion and the [integration receipt](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md); public source remains PR #37 | No setup, App grant, manual page readback, or public promotion is needed for this documentation-only candidate |
+| Old-origin local records and PWA | No existing-user record transfer is expected under the user's clarification; stable contracts and both sites are retained. Actual transfer/installed-upgrade acceptance is not claimed | Retain the [scope checkpoint](../superpowers/plans/2026-10-02-atmoshaper-local-record-recovery.md); defer generic import/cache/offline improvements to separate product work | Ask only if real transfer, new recovery entrypoint, QA resources, old-origin behavior, or user-data access becomes needed. Never transfer PHI automatically |
 | Legacy Stripe coexistence and possible later retirement | The old site is to remain fully available. The 2026-09-27 subscription inventory is historical and does not establish current retirement safety | Refresh bounded aggregate/provider evidence only when needed; preserve the existing service and both reconciliation histories | Ask for an exact subscription/endpoint decision after fresh evidence. New-account activation does not authorize legacy cancellation, refund, or deletion |
-| Google Calendar | A separate `AtmoShaper` calendar is selected and its source preparation is merged; OAuth/client/callback readiness and actual provider behavior remain unverified | Follow the [Calendar preparation plan](../superpowers/plans/2026-10-01-atmoshaper-google-calendar-preparation.md); identify the existing technical targets and prepare isolated provider acceptance | Ask before client/callback writes, QA resource or calendar creation/sync, token or row migration, a deployment, or public activation |
+| Google Calendar | Separate-calendar source is merged and live; app keys were absent in the latest name-only read. User reports registration created, credentials downloaded, and approved API enablement completed. Screenshots establish External / In production, empty declared scopes, and branding verified/shown. Approved [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) publication removes the duplicate availability grant while accepting older tokens; checks/reviews remain pending | Shepherd final-head CI and CodeRabbit reviews using the [provider checkpoint](../superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md), then prepare the exact Google declaration step. Do not repeat creation, API enablement, or satisfied Console checks | Publication/reviews are approved. Merge, consent/scope changes, QA/resources, hosting provisioning, database activity, deployment, and activation retain separate authorization; automated Console access remains denied |
 | Ably realtime | The historical provider audit documents polling fallback; no hosted isolated-realtime parity receipt is added by this launch | Verify fallback configuration and prepare an isolated connectivity plan if realtime is wanted | Ask whether to retain fallback or authorize a scoped Ably setup; no room publication, presence mutation, channel rename, or key rotation |
 | Sentry | Public activation adds no monitoring-project or credential configuration; build-plugin telemetry is not evidence of application monitoring | Inventory sanitized runtime configuration and the existing privacy boundary | Ask before enabling a project or DSN. Session Replay, screenshots, attachments, logs, and broader feedback remain gated |
 | Media provider administration | Existing playback/immutable media identities are preserved; missing upload credentials alone do not prove playback failure | Read known public media headers and reconcile R2/CORS/cache owners | Ask before upload, object move/delete, host retirement, CORS/configuration write, or provenance promotion |
