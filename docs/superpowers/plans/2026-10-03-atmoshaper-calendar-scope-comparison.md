@@ -3,8 +3,10 @@
 Status: test configuration reported complete under `AtmoShaper Calendar Verify`.
 Local runner implemented and mock/loopback checks passing. The concrete provider
 comparison is now approved with two user-owned accounts. Credential preflight
-passes; user-created secondary calendars, exact fixture IDs and test-account
-confirmation are pending before real consent or event activity.
+passed October 3. The user identifies the configured test account separately
+from the connected fixture owner; no calendars are created yet. User-created
+secondary calendars and exact fixture identities are pending before real consent
+or event activity.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -28,8 +30,14 @@ the new test-credential JSON's local path and subsequently replies
 the bounded runtime and fixture operations below; do not request the same
 approval again. The downloaded JSON was validated privately after that approval:
 exact test project, Web registration, present secret, sole prepared callback and
-no JavaScript origins all pass. The connected Calendar profile was read; its
-account must match the user's intended test account before event activity.
+no JavaScript origins all passed October 3. The user clarifies October 5 that
+only the account they used to configure Google Cloud was added as a test user;
+no calendars were made. Do not assert a provider-policy cause for their failed
+other-account entry or repeat Console configuration. A fresh connected Calendar
+profile read identifies their other owned account. Use the configured test user
+for real OAuth consent and source 1 ownership, and the connected account for
+source 2 ownership and its reader share to the test user. They need not be the
+same account, and the fixture owner need not authorize the test app.
 An operational preparation manifest outside tracked source retains the run
 marker and private references without copying credential values. It is not
 launchable comparison configuration while sources are empty. Next the user
@@ -219,21 +227,39 @@ synthetic fixture actions. It also confirms availability of a second account
 they own. Do not repeat this approval or availability question.
 Before dispatch, record the chosen account and source IDs in private local
 configuration. Do not infer an unspecified account's identity, obtain another
-person's account, or extend
-the test-user list. A second account owns the reader fixture but does not grant
+person's account, or extend the test-user list. A second account owns the reader fixture but does not grant
 the test app access. If unavailable, use one owned source first, explicitly
 leaving shared-source and overall minimum-access proof pending.
 
-1. Completed: privately validated the supplied JSON against the previously
+The October 5 account correction preserves the already approved two-account
+boundary. It changes the role assignment, not Google configuration or requested
+permissions:
+
+| Role | Account authority | Calendar / permitted operations |
+| --- | --- | --- |
+| OAuth test user | Account successfully added by the user during Cloud setup | Owns source 1; grants both measured permissions separately; reader of source 2 |
+| Connected fixture owner | Other user-owned account verified through the Calendar connector profile | Owns source 2; user shares it with the test user; connector assistance may act only on this exact new source |
+
+Only the OAuth test user grants access to the test registration. The fixture
+owner needs no test-user entry or project-management role. Do not relink the
+connector, add an account, or share source 1 back to the connected account.
+Retain actual addresses only in private operational state. Google's
+[Testing guidance](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification)
+and [Calendar sharing model](https://developers.google.com/workspace/calendar/api/concepts/sharing)
+describe separate app-authorization and calendar-access controls.
+
+1. Completed October 3: privately validated the supplied JSON against the previously
    selected test project and exact loopback callback, without copying credentials.
-   All checks pass. Read only the connected Calendar user's profile to establish
-   the account for connector assistance. Confirm it is the user's approved test
-   account before any calendar read or write; never substitute another account.
-2. The user creates one empty secondary calendar in that account and, if the
-   second account is available, one empty secondary calendar there. The agent
-   supplies a fresh run marker and the exact two synthetic names required by the
-   runner. Use UTC for both calendars. The second owner shares only the second
-   calendar with the first account using reader access. Capture their exact
+   All checks passed. The connected Calendar profile was re-read October 5;
+   it identifies the fixture owner rather than the OAuth test user. Private
+   preparation state now retains these identities separately. Before connector
+   event activity, validate only its owner's new source 2; before test-app reads,
+   validate the OAuth test account and source 1 owner / source 2 reader metadata.
+2. The user creates source 1 in the configured test-user account and source 2
+   in the connected fixture-owner account. Preserve the existing run marker
+   and exact two synthetic names previously supplied, because neither calendar
+   has been made yet. Use UTC for both calendars. The source 2 owner shares
+   only that calendar with the test user using reader access. Capture their exact
    Calendar IDs privately from settings and verify the owner's execution receipt.
    These manual Calendar operations do not automate the previously denied Cloud
    Console route. The connector has no calendar-create/delete/sharing tool.
@@ -249,15 +275,22 @@ leaving shared-source and overall minimum-access proof pending.
    [sharing guide](https://support.google.com/calendar/answer/37082?hl=en), and
    [Calendar ID instructions](https://support.google.com/calendar/answer/44105?hl=en).
 3. Populate each new source with the three resources in the table below. The
-   connected Calendar tool may create the first owner's three events, always
-   specifying that new secondary ID. The second owner creates the other three
-   manually; no write access is requested for the reader source. Use no attendees,
+   connected Calendar tool may create its owner's three events in source 2,
+   always specifying that exact new secondary ID. The test user creates source
+   1's three resources manually. The test app has only reader access to source 2;
+   no write access is requested through its measured grant. Use no attendees,
    invitations, reminders, Meet link, clinical information, or real appointments.
    Bound any connector discovery to those exact secondary IDs and the fixed
    window, with at most 24 expanded results per source. Read only the six known
    synthetic roots to bind identities, recurrence, timings and transparency.
    Keep identities outside tracked source, and derive expected times from this
    table, rather than copying a measured arm's output as its own expectation.
+   The connector cannot discover source 1 while it remains unshared. Prepare a
+   bounded source-1 identity-binding read through the approved test registration
+   or obtain exact fixture identities from its owner before comparison. The
+   current runner requires those known roots; do not launch with guessed IDs,
+   treat iCalUID as an event ID, widen to unrelated calendars, or bypass that
+   requirement. No such preparatory provider read has occurred yet.
 
 | Fixture in each source | Initial shape in UTC | Controlled change after each arm's baseline |
 | --- | --- | --- |
@@ -274,8 +307,8 @@ prepare a new explicit fixture proposal; do not silently widen provider reads.
    consent in their browser. Validate actual issued scopes and expected account
    before exact-source metadata and event reads. At the baseline pause, change
    only the two designated resources in each source. Connector assistance can
-   update/delete the first owner's recorded IDs; the second owner makes their
-   changes manually. Preserve recurring roots. Confirm each write outcome;
+   update/delete its owner's recorded IDs in source 2; the test user makes source
+   1's changes manually. Preserve recurring roots. Confirm each write outcome;
    reconcile uncertain writes before retry. Record sanitized results and revoke
    only the issued test-app token even if comparison fails.
 5. Restore the exact initial fixtures before the event-read arm: restore the
@@ -328,4 +361,3 @@ Primary references checked October 3:
 [event-list permissions](https://developers.google.com/workspace/calendar/api/v3/reference/events/list),
 [testing and verification requirements](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification),
 and [Web OAuth callback rules](https://developers.google.com/identity/protocols/oauth2/web-server).
-

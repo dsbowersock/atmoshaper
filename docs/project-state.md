@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-03
+Verified: 2026-10-05 (repository and Calendar preparation; hosted receipts retain their original dates)
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -134,10 +134,18 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   this approval request. A private local credential check verifies the exact
   test project, Web client, nonempty secret, sole loopback callback and absent
   JavaScript origins. No credential values or private identifiers are recorded
-  here. The Calendar connector's profile was read to establish its account;
-  verify that it matches the user's configured test account before fixture reads
-  or writes. A private preparation manifest holds operational inputs outside
-  tracked source without copying credential contents.
+  here. The user now clarifies that only the account they used for Google Cloud
+  setup was successfully added as a test user, and no calendars have been created.
+  This is a user configuration receipt, not a verified explanation of why the
+  other entry was rejected. The connected Calendar profile was re-read October 5
+  and belongs to the other user-owned account. These roles need not match:
+  the configured test user owns source 1 and grants the test app access; the
+  connected fixture owner owns source 2 and shares it read-only with the test
+  user. Only the former needs to authorize the test registration. Connector
+  event assistance is restricted to its owner's exact source 2; source 1 is
+  prepared manually. Do not add a test user, relink the connector, or assume it
+  can read source 1. Private preparation records now preserve the separate
+  account roles outside tracked source without copying credential contents.
   The next action is user creation of two empty UTC secondary calendars and a
   reader-only share from the second owner to the first, followed by their exact
   IDs. The connector has no calendar-create/delete/share operation. The
@@ -146,8 +154,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   CANCELLED rows as removal from active conflicts, matching the real sync and
   conflict query. The focused comparison tests pass 23/23.
   Real OAuth consent, fixture event reads/writes and the comparison have not
-  started; no real consent listener is running. Private fixture IDs and account
-  confirmation remain necessary before executing the approved run. Production
+  started; no real consent listener is running. Exact private calendar/event IDs
+  and ownership/read-access validation remain necessary before the approved run. Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.

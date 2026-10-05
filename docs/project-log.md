@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-05 — Separate Calendar test-user and fixture-owner roles corrected
+
+- The user reports that only the account used during Google Cloud setup was
+  successfully added as a test user and that neither temporary calendar exists.
+  Accept that as their configuration/execution receipt; the cause of the other
+  account's rejected entry was not independently diagnosed. Do not ask for the
+  same Console operation again or claim it is a general Google restriction.
+- Reverified the clean task-owned branch at `42684ad` and refreshed only the
+  Calendar connector profile. It remains linked to the user's other account.
+  Corrected the approved procedure: the configured test user owns source 1 and
+  grants the test app access; the connected account owns source 2 and shares
+  it read-only with the test user. The fixture owner need not grant the test app
+  access or join the Cloud test-user list. No project, permission, connector-link
+  or existing-calendar change is needed to make this account assignment work.
+- Updated private preparation state with separate test-user and fixture-owner
+  roles, preserving the existing run marker, six-resource/two-calendar bounds,
+  credential reference and fixed read window. No credentials were copied.
+  Connector event assistance is limited to its owner's new source 2. The user
+  prepares source 1 manually; bind its exact synthetic event roots through an
+  approved bounded test-registration read or owner-provided identities before
+  launching the strict comparison. The connector cannot read that unshared source.
+- The next user action remains creation of the two empty UTC calendars, but
+  with corrected owners and source-2 sharing direction. No real OAuth consent,
+  Calendar inventory/event read/write, fixture creation or comparison has started.
+  Production settings, deployment and payment activity remain untouched.
+  Primary Google testing/sharing/creation instructions were refreshed. The
+  prior October 3 credential preflight and local test results retain their dates;
+  this turn makes no fresh hosted-readiness claim.
+
 ## 2026-10-03 — Isolated Calendar comparison approved; private credential preflight passes
 
 - The user replies `Approved; I have a second account` to the two directly stated
