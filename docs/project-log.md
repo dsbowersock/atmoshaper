@@ -2,6 +2,22 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Calendar PR published; full review finds no actionable comments
+
+- Published [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) at
+  `42466ba` after the approved branch push; local/remote heads agree and remote
+  `main` remains the PR #39 merge. Attached the PR and explicitly requested
+  CodeRabbit full review immediately. Its `Action performed` reply confirms the
+  trigger, and completion covers all 20 changed files with zero actionable
+  comments. Codex completes without actionable comments or inline threads.
+- The protected Vercel Preview and CI Browser build pass; Code quality and all
+  four Browser QA lanes remain in progress at this receipt. CodeRabbit reports
+  an informational 72.97% touched-function docstring warning. Added focused
+  comments for the comparison projection, independent fixture expectations,
+  UTC-alias matching, private JSON loader and provider-test contracts. Runtime
+  behavior is unchanged. Final-head review/checks remain pending before a merge
+  request; the source/review approval does not authorize merge or activation.
+
 ## 2026-10-06 — Calendar source publication and review approved
 
 - The user answered `yes` to publishing the prepared Calendar PR and shepherding

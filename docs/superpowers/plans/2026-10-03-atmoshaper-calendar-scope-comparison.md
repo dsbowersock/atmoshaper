@@ -34,9 +34,12 @@ Trash. Fresh exact owner reads and bounded windows verify original IDs and both
 complete initial schedules. The independent availability arm now passes both
 initial and incremental comparisons, with its isolated scope/account checks and
 revocation complete. The user reports both temporary calendars deleted by their
-owners. Narrower inbound source preparation is locally implemented; full
-application acceptance, whole-integration minimum access, provider classification
-and publication remain separate steps.
+owners. Narrower inbound source preparation is locally implemented. Full
+application acceptance, whole-integration minimum access and provider classification
+remain separate steps. Source publication is approved
+and [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) is open. Its first
+explicit full CodeRabbit review covers all 20 files with zero actionable comments;
+final-head coverage and CI after focused helper documentation remain pending.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the

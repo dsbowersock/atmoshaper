@@ -9,6 +9,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 ## Current Snapshot — Registration and Supporter Checkout Open
 
+- [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) is published under
+  the user's October 6 source/review approval. The initial head `42466ba` matches
+  the remote branch and targets the unchanged PR #39 merge. Explicit CodeRabbit
+  full review covers all 20 changed files with zero actionable comments; Codex
+  completes without actionable comments or inline threads. The protected Vercel
+  Preview and CI Browser build pass. Code quality and four Browser QA lanes are
+  still running at this receipt. Focused comments now document the comparison
+  helpers flagged by CodeRabbit's docstring-coverage warning; final-head review
+  and CI remain pending. Merge is not authorized. No Production Google settings,
+  Calendar activation or live promotion occurs.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
   user's exact approval at `2026-10-03T17:02:47Z` as
   `2e01e8509b42ab73c85d286f2725c824770aeeec`. Reviewed head

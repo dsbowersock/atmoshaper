@@ -25,6 +25,7 @@ function expectedRows(roots) {
   return { before, after: [{ ...before[0], startsAt: "2026-10-10T10:30:00.000Z", endsAt: "2026-10-10T11:30:00.000Z", status: "FREE" }, ...before.slice(2)] }
 }
 
+/** Bind roots to the independently prescribed schedule, never to event values learned from Google. */
 function comparisonSource(source, roots) {
   return { calendarId: source.calendarId, summary: source.summary, accessRole: source.accessRole, timezone: "UTC", eventRoots: roots, ...expectedRows(roots) }
 }
@@ -58,10 +59,12 @@ export function validateFixturePreparation(config) {
   return config
 }
 
+/** Reuse production normalization with synthetic ownership while retaining IDs only in private binding state. */
 function fixtureBlock(source, event) {
   return normalizeGoogleBusyBlock({ ownerUserId: "scope-test", connectionId: "scope-test", sourceId: "scope-test", providerCalendarId: source.calendarId, sourceTimezone: source.timezone, event })
 }
 
+/** Permit the fixed schedule's UTC picker aliases while requiring exact timing, all-day and busy status. */
 function matchesShape(source, event, expected) {
   const block = fixtureBlock(source, event)
   return block && block.startsAt.toISOString() === expected.startsAt && block.endsAt.toISOString() === expected.endsAt && UTC_ZONES.has(block.timezone) && block.allDay === expected.allDay && block.status === expected.status

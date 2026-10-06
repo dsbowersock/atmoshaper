@@ -22,6 +22,7 @@ const config = () => ({
 const client = () => ({ project_id: "calendar-test-example", client_id: "fake.apps.googleusercontent.com", client_secret: "PRIVATE_SECRET", redirect_uris: [CALLBACK_URI] })
 const json = (value, status = 200) => new Response(JSON.stringify(value), { status })
 
+/** Fixed source-specific roots and two recurring occurrences keep schedule and identity expectations independent. */
 function events(source, index) {
   const roots = ["timed", "allday", "recurring"].map((kind) => `${kind}0000${index}`)
   const timed = (id, kind, day, start, end) => ({
@@ -39,6 +40,7 @@ function events(source, index) {
   }
 }
 
+/** Mutation hooks create bounded negative provider cases without changing the binder's independent expectations. */
 function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMaster = () => {}, mutateDelta = () => {}, baselineExtra = [], scopeExtra = "", accountEmail, repeatPage = false } = {}) {
   const calls = []
   const value = config()

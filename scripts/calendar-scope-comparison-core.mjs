@@ -121,6 +121,7 @@ function knownFixtureId(source, id) {
   return typeof id === "string" && source.eventRoots.some((root) => id === root || new RegExp(`^${root}_[0-9]{8}T[0-9]{6}Z$`).test(id))
 }
 
+/** Compare canonical busy-block fields only; provider content and identities are not part of the shape. */
 function blockShape(block) {
   return {
     startsAt: new Date(block.startsAt).toISOString(),

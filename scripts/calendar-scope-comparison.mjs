@@ -90,6 +90,7 @@ export async function obtainConsentCode({ client, arm, accountEmail, signal, onR
   }
 }
 
+/** Reject relative paths and oversized decoded JSON; the caller sanitizes all file and parsing errors. */
 async function privateJsonFile(path) {
   requireComparison(typeof path === "string" && isAbsolute(path))
   const data = await readFile(path, "utf8")

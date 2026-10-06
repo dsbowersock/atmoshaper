@@ -2,9 +2,11 @@
 
 Status: local source preparation after both independent permission comparisons
 passed. Temporary test calendars are deleted by owner receipt and both test
-tokens are revoked. The availability replacement is prepared for review; its
-publication, revised Production declaration, full application/provider acceptance
-and public Calendar activation remain pending.
+tokens are revoked. The availability replacement is published in
+[PR #40](https://github.com/dsbowersock/atmoshaper/pull/40); final-head review and
+CI remain pending after its first full review reports zero actionable comments.
+Merge, revised Production declaration, full application/provider acceptance and
+public Calendar activation remain pending.
 
 October 3 screenshots establish External / In production and empty declared
 scope lists; branding is verified/shown. The user reports completed Calendar API

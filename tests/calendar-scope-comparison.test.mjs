@@ -29,9 +29,11 @@ const config = () => ({
   }],
 })
 const client = () => ({ project_id: "calendar-test-example", client_id: "test-client.apps.googleusercontent.com", client_secret: "PRIVATE_SECRET_SENTINEL", redirect_uris: [CALLBACK_URI] })
+/** Independent normalized expectation; provider responses must not determine the expected busy block. */
 function expected(id, status = "BUSY", time = "10:00") {
   return { id, startsAt: `2026-10-10T${time}:00.000Z`, endsAt: `2026-10-10T${time === "11:00" ? "12:00" : "11:00"}:00.000Z`, timezone: "UTC", allDay: false, status }
 }
+/** Encode the synthetic schedule as provider JSON, including private sentinels for disclosure assertions. */
 function event(id, transparency = "opaque", time = "10:00") {
   const row = expected(id, transparency === "transparent" ? "FREE" : "BUSY", time)
   return { id, etag: "PRIVATE_ETAG_SENTINEL", status: "confirmed", transparency, start: { dateTime: row.startsAt, timeZone: "UTC" }, end: { dateTime: row.endsAt, timeZone: "UTC" }, summary: "SYNTHETIC_EVENT_TEXT_SENTINEL" }
@@ -47,6 +49,7 @@ function localStatus(url, headers) {
   })
 }
 
+/** Simulate isolated grants, paginated/delta reads and cleanup faults with transport assertions and no network IO. */
 function provider({ arm = "availability", scope, accountEmail, revokeStatus = 200, omitChanges = false, eventsStatus = 200 } = {}) {
   const calls = []
   const fixture = config().sources[0]
