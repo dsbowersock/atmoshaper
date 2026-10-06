@@ -247,6 +247,19 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   scopes, requests and resource ceilings are preserved. Focused tests pass 37/37
   and focused lint passes; a fresh genuine consent is needed to acquire that
   diagnostic evidence, rather than claiming the remaining mismatch is fixed.
+  The replacement diagnostic consent at `4755dba` identifies the exact rejection:
+  source 1, page 3, entry 1, `retired_fields.title=false`; the recorded ID and
+  optional recurrence-root check pass, as do no-guest/conference checks. Scopes,
+  account and both metadata entries pass again. The token is revoked and the run
+  exits before binding output, strict baseline or controlled changes. The local
+  binder now ignores a recorded cancellation's display title, which is not an
+  identity contract, while retaining its exact private-ID allowlist, cancellation
+  state, validated-master/root match and guest/conference rejection. Active
+  fixture and master titles remain strict; unknown, duplicate, foreign-root or
+  active historical entries still fail. Focused regressions pass 38/38 and lint
+  passes, including arbitrary deleted-title variants through real normalization/
+  comparison and revocation. No event write occurred. Retry the bounded arm with
+  fresh consent; the full measured comparison remains unproven.
   Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope

@@ -19,9 +19,11 @@ corrections and both prescribed schedules are verified. The second real consent
 also passed both exact metadata checks, then stopped at source-1 binding. The
 two recorded retired recurring occurrences are confirmed cancelled and now have
 a bounded local binding repair. The third consent still rejects during source-1
-binding after metadata passes and revokes its token. Acceptance is unchanged;
-fixed predicate diagnostics are implemented for the next fresh consent. No
-measured result or remaining root cause is claimed.
+binding after metadata passes and revokes its token. The next diagnostic consent
+identifies current-title equality on a recorded cancellation as the failed
+predicate. The binder now removes only that deletion-title requirement; identity
+and all active checks remain strict. Fresh consent can retry; no measured result
+is claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -177,10 +179,11 @@ is not excluded by the generic rejection.
 The private preparation input now records only those two exact retired IDs.
 The validator permits this optional list only on source 1, with at most two
 unique IDs and the fixed October 10/11 prior-time suffixes. Binding accepts them
-only as cancellations, rejects duplicate rows, validates any supplied synthetic
-title/recurring root, and checks their root against the independently validated
+only as cancellations, rejects duplicate rows, validates any supplied recurring
+root, and checks their root against the independently validated
 current recurring master after paging. Do not accept arbitrary cancelled events
-or derive active expectations from them. Current four-entry shapes, fixed dates,
+or derive active expectations from them. Deleted titles are not an identity check,
+as confirmed in the diagnostic receipt below. Current four-entry shapes, fixed dates,
 COUNT=2, six-resource limit, metadata/scope validation and request budgets remain.
 The strict comparison already excludes cancellation rows from active conflicts.
 No event writes occurred during this diagnosis. Retry with a fresh genuine
@@ -210,6 +213,33 @@ cover the diagnostic/revocation boundary. The owner-fit decision is edit in plac
 without a new adapter or permission surface. Root/recurrence cause remains open;
 diagnostics are not a claimed behavioral repair. Focused checks pass 37/37 and
 focused lint passes. Obtain one fresh genuine consent for the actionable result.
+
+### Diagnostic consent receipt and deleted-title contract repair
+
+The replacement diagnostic consent at `4755dba` passes actual scopes/account and
+both metadata entries, then rejects source-1 page 3, entry 1 with
+`retired_fields.title=false`. The exact recorded cancellation ID passes, as do
+optional root, no-guest and no-conference predicates. The raw title is not logged.
+Token revocation succeeds; listener/process end before bound output, strict
+baseline or controlled changes. The expired preceding diagnostic wait issued no
+token. Google's [event status contract](https://developers.google.com/workspace/calendar/api/v3/reference/events#status)
+guarantees deleted-event identity without an active summary contract. This actual
+response identifies the extra current-title condition as the observed rejection.
+
+Change Necessity: `code-change` at the existing preparation validator. Its
+display-title requirement for already recorded deletions is invalid responsibility;
+retire that condition instead of adding a particular cancellation-label exception.
+The two exact prior-ID allowlist, cancelled state, supplied recurrence root,
+validated current-master root, duplicate and guest/conference checks remain.
+Active events/master retain exact synthetic titles and schedule. No broad
+inventory, unknown deletion or extra scope is permitted. The existing production
+normalizer/comparison already treats known cancellations by identity and status,
+so no runtime adapter or new owner is needed. This is a sufficient repair of the
+identified predicate, not proof that all later live checks pass. TDD mode stays
+`off` with post-change regression coverage. Focused tests pass 38/38 and focused
+lint passes, including alternate deleted titles and active-title rejection.
+No event write or resource creation occurred. Resume via fresh consent; do not
+claim either measured arm until its actual baseline/delta and revocation complete.
 
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider
@@ -302,7 +332,7 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 37 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 38 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
   approved one-arm execution with previously bound exact fixture identities.

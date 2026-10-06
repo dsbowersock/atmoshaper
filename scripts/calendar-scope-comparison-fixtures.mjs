@@ -82,10 +82,11 @@ function bindPage(source, items, found, roots, retiredSeen, onMismatch) {
     const check = (checks, stage, reason) => requireFixtureChecks(checks, (flags) => onMismatch({ entry: entry + 1, checkStage: stage, checks: flags }), reason)
     if (event?.status === "cancelled") {
       check({ recordedRetirement: Boolean(source.retiredInstanceIds?.includes(event.id)), uniqueRetirement: !retiredSeen.has(event.id) }, "retired_identity")
-      // Deleted events may expose only ID/status. Never derive active timing
-      // expectations from a tombstone, or accept an unrecorded cancelled ID.
+      // Deleted titles are not an identity contract and may differ from the
+      // active master. Bind only the recorded cancellation ID/root; never derive
+      // active expectations from a tombstone or admit an unrecorded deletion.
       const root = event.id.split("_")[0]
-      check({ root: !event.recurringEventId || event.recurringEventId === root, title: !event.summary || event.summary === source.fixtures[2].title, noGuests: !event.attendees?.length, noConference: !event.conferenceData && !event.hangoutLink }, "retired_fields")
+      check({ root: !event.recurringEventId || event.recurringEventId === root, noGuests: !event.attendees?.length, noConference: !event.conferenceData && !event.hangoutLink }, "retired_fields")
       retiredSeen.add(event.id)
       continue
     }

@@ -144,7 +144,7 @@ test("binding diagnostics identify rejected predicates and revoke without exposi
   for (const [options, stage, flag] of [
     [{ mutateItem: (item) => { item.summary = "PRIVATE_TITLE" } }, "active_title", "approvedTitle"],
     [{ mutateItem: (item) => { item.attendees = [{ email: "PRIVATE_EMAIL" }] } }, "active_fields", "noGuests"],
-    [{ baselineExtra: [{ id: value.sources[0].retiredInstanceIds[0], status: "cancelled", summary: "PRIVATE_RETIRED_TITLE" }] }, "retired_fields", "title"],
+    [{ baselineExtra: [{ id: value.sources[0].retiredInstanceIds[0], status: "cancelled", attendees: [{ email: "PRIVATE_EMAIL" }] }] }, "retired_fields", "noGuests"],
     [{ mutateMaster: (master) => { master.recurrence = ["RRULE:FREQ=DAILY;COUNT=3;BYDAY=PRIVATE_RULE"] } }, "recurrence_bound", "countTwo"],
     [{ mutateMaster: (master) => { master.summary = "PRIVATE_MASTER_TITLE" } }, "master_fields", "title"],
     [{ mutateItem: (item) => { if (item.recurringEventId) item.originalStartTime = {} } }, "occurrence_fields", "originalStart"],
@@ -213,7 +213,7 @@ test("only recorded retired occurrences of the bound recurring fixture may be in
     [{ id: `${root}_20261012T180000Z`, status: "cancelled" }],
     [{ id: extra[0].id, status: "confirmed" }],
     [{ ...extra[0], recurringEventId: "differentroot" }],
-    [{ ...extra[0], summary: "An unrelated event" }],
+    [{ ...extra[0], attendees: [{ email: "private@example.invalid" }] }],
     [extra[0], extra[0]],
   ]) {
     const bad = provider({ baselineExtra: invalid })
@@ -222,6 +222,22 @@ test("only recorded retired occurrences of the bound recurring fixture may be in
   const wrongRoot = config()
   wrongRoot.sources[0].retiredInstanceIds = ["differentroot_20261010T180000Z"]
   await assert.rejects(() => bindPreparedFixtures({ config: wrongRoot, accessToken: "fake", fetchImpl: provider().fetchImpl }), /fixture_boundary/)
+})
+
+test("recorded cancellations ignore deleted title variants while active title validation remains strict", async () => {
+  const value = config()
+  const root = events(value.sources[0], 0).roots[2]
+  value.sources[0].retiredInstanceIds = [`${root}_20261010T180000Z`]
+  for (const summary of ["CANCELLED", "A prior synthetic title", "PRIVATE_RETIRED_TITLE"]) {
+    const transport = provider({ baselineExtra: [{ id: value.sources[0].retiredInstanceIds[0], status: "cancelled", summary }] })
+    const progress = []
+    const report = await runComparisonArm({ config: value, client: client(), arm: "event-read", code: "fake", prepareFixtures: true, fetchImpl: transport.fetchImpl, onFixturesBound: async () => {}, onBindingProgress: (item) => progress.push(item), changeFixtures: async () => {} })
+    assert.equal(report.status, "passed")
+    assert.equal(report.tokenRevoked, true)
+    assert.doesNotMatch(JSON.stringify({ report, progress }), /CANCELLED|A prior synthetic title|PRIVATE_/)
+  }
+  const active = provider({ mutateItem: (item) => { item.summary = "CANCELLED" } })
+  await assert.rejects(() => bindPreparedFixtures({ config: value, accessToken: "fake", fetchImpl: active.fetchImpl }), /fixture_boundary/)
 })
 
 test("unexpected names, IDs, invitations or timing cannot become their own passing expectations", async () => {

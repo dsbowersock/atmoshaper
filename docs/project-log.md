@@ -2,6 +2,34 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Test-app diagnostics identify invalid deleted-title requirement
+
+- Reverified clean local head `4755dba`. The first diagnostic wait expired before
+  any issued token; its listener/process ended. Under the same bounded approval,
+  the replacement consent completed. Actual scopes/account and both metadata
+  entries pass. Binding stops at source-1 page 3, entry 1: the recorded cancelled
+  ID is admitted, recurrence root/no-guests/no-conference flags pass, and only
+  `retired_fields.title` is false. No raw deleted title is serialized. The token
+  was revoked and the process ended before private bound output, strict baseline
+  or controlled event changes.
+- Google's event status contract guarantees deletion identity without an active
+  summary contract, and the actual test-app response falsifies current-title
+  equality for this known cancellation. The preparation binder imposed that
+  extra condition; the real sync/strict comparison already uses cancellation
+  identity and active conflict status. Removed only the recorded-deletion title
+  requirement at that canonical validator. Exact two-ID allowlisting, cancellation
+  state, recurrence-root/master binding, duplicate rejection and no guests/
+  conference checks remain. Active entry/master titles and independent timing,
+  role, scope, six-resource and request bounds remain strict. No keyword or
+  specific replacement-title exception was added.
+- Focused checks pass 38/38 and focused lint passes. Regressions cover arbitrary
+  deleted-title variants through binding, real normalization/comparison and
+  revocation, while wrong active titles and unknown/duplicate/foreign/active
+  historical identities still fail. No event writes or resource creation were
+  needed. This isolates the observed validator failure; full measured baseline,
+  controlled changes/restoration and availability comparison are still pending.
+  Fresh genuine consent is the next step because the preceding token was revoked.
+
 ## 2026-10-06 — Remaining Calendar binding rejection isolated for safe diagnostics
 
 - Reverified clean task-owned head `82b4ae7` and resumed its owned run after
