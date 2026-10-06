@@ -2,6 +2,32 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Remaining Calendar binding rejection isolated for safe diagnostics
+
+- Reverified clean task-owned head `82b4ae7` and resumed its owned run after
+  `Consent received`. Scopes/account and both metadata checks pass again.
+  Source-1 binding still rejects with `fixture_boundary`; token revocation
+  succeeds, callback closes and process exits. No bound output, active baseline
+  or controlled changes occur. The preceding retired-occurrence repair is not
+  sufficient evidence that the entire mismatch is resolved.
+- Exact owner connector profile and reads of the three active roots, two
+  current instances and two recorded cancellations were refreshed. The active
+  schedule, COUNT=2 and no-guest/reminder constraints match. The connector
+  summarizes deletions; do not infer the test application's raw API title or
+  missing fields from that representation. The rejecting predicate is unknown.
+- Instrumented the canonical local fixture binder with fixed check-stage labels
+  and boolean flags, plus bounded page/entry positions. It can distinguish
+  page shape/cursor, retired identity/fields, active identity/fields/title/shape/
+  root, occurrence fields and recurrence/master checks. No provider values are
+  serialized and no acceptance predicate, scope or fixture ceiling is relaxed.
+  Missing original-start timing now reports its fixed predicate failure rather
+  than a generic date-format exception. Focused checks pass 37/37 and lint passes;
+  tests cover sanitized diagnostics, fail-closed rejection, no change request
+  and token revocation. No provider event write occurred during diagnosis.
+- Next: fresh consent to acquire precise test-app diagnostic evidence, with
+  revocation on failure. No claimed root cause, permission result, publication,
+  Production setting, deployment or public Calendar activation is added.
+
 ## 2026-10-06 — Both test Calendar metadata checks pass; known retired occurrences bound safely
 
 - Reverified clean task-owned head `0937027` and resumed its owned run after the

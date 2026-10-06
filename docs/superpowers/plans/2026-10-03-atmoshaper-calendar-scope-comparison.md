@@ -18,8 +18,10 @@ connector can read both sources through their owner links; source-1 timed fixtur
 corrections and both prescribed schedules are verified. The second real consent
 also passed both exact metadata checks, then stopped at source-1 binding. The
 two recorded retired recurring occurrences are confirmed cancelled and now have
-a bounded local binding repair. Fresh consent can retry; no measured result is
-claimed.
+a bounded local binding repair. The third consent still rejects during source-1
+binding after metadata passes and revokes its token. Acceptance is unchanged;
+fixed predicate diagnostics are implemented for the next fresh consent. No
+measured result or remaining root cause is claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -184,6 +186,31 @@ The strict comparison already excludes cancellation rows from active conflicts.
 No event writes occurred during this diagnosis. Retry with a fresh genuine
 event-read consent; its preceding token is already revoked.
 
+### Third consent receipt and diagnostic boundary
+
+The third consent at local head `82b4ae7` again passes scopes/account and both
+metadata checks, then stops at source-1 binding with `fixture_boundary`. Its token
+is revoked, listener closed and process exited. No bound output, active baseline
+or controlled fixture change occurs. Exact owner connector readback still matches
+the active fixtures and confirms the two recorded cancellations; its normalized
+deleted-title representation cannot establish the raw test-app response. The
+previous repair did not resolve the whole mismatch; the failing predicate remains
+unknown and no further acceptance change is justified yet.
+
+Change Necessity decision: `code-change` for diagnostic instrumentation only.
+The existing binder owns this validation and is the minimum sufficient boundary;
+connector reads cannot reproduce its raw response, and another generic retry
+would not distinguish the predicates. Fixed check-stage names and boolean flags
+now identify rejected page/cursor, retired, active, occurrence and recurrence/
+master checks; page/entry positions are bounded numeric values. Provider titles,
+IDs, times, URLs, cursors, errors and credential values are not reported. All
+acceptance predicates, actual-scope checks, fixture/resource bounds and lifecycle
+revocation remain. TDD mode is `off`, route `skipped`; post-change regressions
+cover the diagnostic/revocation boundary. The owner-fit decision is edit in place,
+without a new adapter or permission surface. Root/recurrence cause remains open;
+diagnostics are not a claimed behavioral repair. Focused checks pass 37/37 and
+focused lint passes. Obtain one fresh genuine consent for the actionable result.
+
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider
 values and arbitrary error bodies never enter output. These flags make any
@@ -275,7 +302,7 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 36 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 37 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
   approved one-arm execution with previously bound exact fixture identities.

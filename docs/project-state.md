@@ -234,6 +234,19 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   No new event write occurred during this diagnosis; a fresh consent can retry
   binding and the strict comparison using the same grant. Connector activity
   remains fixture assistance; the measured baseline/results remain pending.
+  The third consent at local head `82b4ae7` again passed scopes/account and both
+  metadata entries, then stopped at source-1 binding with `fixture_boundary`.
+  Its token was revoked, listener closed and run exited before an active
+  baseline, private bound output or controlled event change. The recorded
+  cancellation repair did not resolve the entire rejection. Fresh exact owner
+  connector reads still match the three active roots, prescribed schedule,
+  COUNT=2 and no guests/reminders; their deleted-event summaries are connector
+  representations, not raw test-app API evidence. The failing predicate remains
+  unknown. Local preparation diagnostics now report only fixed check-stage names,
+  boolean field matches and bounded page/entry indices. All acceptance rules,
+  scopes, requests and resource ceilings are preserved. Focused tests pass 37/37
+  and focused lint passes; a fresh genuine consent is needed to acquire that
+  diagnostic evidence, rather than claiming the remaining mismatch is fixed.
   Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope

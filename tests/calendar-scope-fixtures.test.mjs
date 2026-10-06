@@ -137,6 +137,33 @@ test("metadata HTTP failures report only a status and allowlisted reason, never 
   }
 })
 
+test("binding diagnostics identify rejected predicates and revoke without exposing provider values", async () => {
+  const value = config()
+  const root = events(value.sources[0], 0).roots[2]
+  value.sources[0].retiredInstanceIds = [`${root}_20261010T180000Z`]
+  for (const [options, stage, flag] of [
+    [{ mutateItem: (item) => { item.summary = "PRIVATE_TITLE" } }, "active_title", "approvedTitle"],
+    [{ mutateItem: (item) => { item.attendees = [{ email: "PRIVATE_EMAIL" }] } }, "active_fields", "noGuests"],
+    [{ baselineExtra: [{ id: value.sources[0].retiredInstanceIds[0], status: "cancelled", summary: "PRIVATE_RETIRED_TITLE" }] }, "retired_fields", "title"],
+    [{ mutateMaster: (master) => { master.recurrence = ["RRULE:FREQ=DAILY;COUNT=3;BYDAY=PRIVATE_RULE"] } }, "recurrence_bound", "countTwo"],
+    [{ mutateMaster: (master) => { master.summary = "PRIVATE_MASTER_TITLE" } }, "master_fields", "title"],
+    [{ mutateItem: (item) => { if (item.recurringEventId) item.originalStartTime = {} } }, "occurrence_fields", "originalStart"],
+  ]) {
+    const transport = provider(options)
+    const progress = []
+    let changed = false
+    const report = await runComparisonArm({ config: value, client: client(), arm: "event-read", code: "fake", prepareFixtures: true, fetchImpl: transport.fetchImpl, onBindingProgress: (item) => progress.push(item), changeFixtures: async () => { changed = true } })
+    assert.equal(report.status, "inconclusive")
+    assert.equal(report.failure, "fixture_boundary")
+    assert.equal(report.tokenRevoked, true)
+    assert.equal(changed, false)
+    assert.equal(report.preparation.checkStage, stage)
+    assert.equal(report.preparation.checks[flag], false)
+    assert.equal(report.preparation.source, 1)
+    assert.doesNotMatch(JSON.stringify({ progress, report }), /PRIVATE_|fixture0@|recurring00000|AtmoShaper scope test|tester@example/)
+  }
+})
+
 test("verified UTC aliases preserve literal normalization fields without accepting another zone", async () => {
   const transport = provider({ mutateMetadata: (metadata) => { metadata.timeZone = "Etc/UTC" }, mutateItem: (item) => { if (item.start.dateTime) item.start.timeZone = item.end.timeZone = "Etc/GMT" } })
   const bound = await bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: transport.fetchImpl })
