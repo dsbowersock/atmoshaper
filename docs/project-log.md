@@ -2,6 +2,19 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Calendar source publication and review approved
+
+- The user answered `yes` to publishing the prepared Calendar PR and shepherding
+  CodeRabbit reviews after local source commit `de04c7b`. This authorizes the
+  prepared branch push, new PR and review/fix loop, including the existing
+  automatic protected Preview build. Merge, revised Production Google settings,
+  credentials, full application acceptance, public promotion and Calendar
+  activation retain their separate boundaries.
+- Reverified the clean local branch/head, remote `main` at the PR #39 merge and
+  the existing remote source branch. GitHub connector reads return no open PR,
+  so publication can proceed without duplicating one. No Calendar grant, fixture
+  setup, cleanup, sign-in setup or completed live payment test is repeated.
+
 ## 2026-10-06 — Availability comparison passes; narrower source prepared
 
 - Reverified clean local head `78f60f6` and resumed the owned independent test

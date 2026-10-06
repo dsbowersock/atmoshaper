@@ -715,9 +715,11 @@ and one documentation date-format failure from loading the pre-repair header.
 The corrected standalone date line and fresh review-date ceiling pass all 16
 affected checks. No fresh full-suite zero-failure result is claimed; no remaining
 failure is identified. Relative links and branch whitespace/privacy checks pass.
-Publication/reviews, merge, the revised Google declaration and any deployment or
-activation remain separate steps. The prior Production declaration approval does
-not authorize saving this replacement. Check actual Console categories/actions
+The user approved source publication and shepherded CodeRabbit reviews on October
+6 after local commit `de04c7b`, including the existing automatic protected Preview
+build. Merge, the revised Google declaration and public deployment/activation
+remain separate steps. The prior Production declaration approval does not
+authorize saving this replacement. Check actual Console categories/actions
 without assuming verification is unnecessary. Keep the draft unsaved meanwhile.
 
 Rollback must retain the compatibility guard if availability-only tokens have

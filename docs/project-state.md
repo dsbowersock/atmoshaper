@@ -319,8 +319,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   zero-failure run is claimed. Relative links and branch whitespace/privacy checks
   pass. The updated declaration and rollback
   boundary are in the [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md).
-  Source publication/reviews and the replacement Google settings operation need
-  their separate authority; the old declaration approval covered event-read.
+  The user approved publishing the prepared Calendar PR and shepherding CodeRabbit
+  reviews on October 6. That covers this source publication and its existing
+  automatic protected Preview build. Merge and the replacement Google settings
+  operation remain separate; the old declaration approval covered event-read.
   GitHub connector reads confirm no open repository PR, and an outside-sandbox
   read verifies remote `main` still at the PR #39 merge. The initial Git read
   failed in Windows TLS credential setup; the exact retry succeeds. The CLI PR
