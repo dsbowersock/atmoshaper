@@ -19,6 +19,7 @@
     "test:production-readiness": "node --test tests/production-migration-gate.test.mjs tests/production-stripe-readiness-gate.test.mjs",
     "test:calendar-sync": "node --test tests/google-calendar-adapter.test.mjs tests/calendar-google-isolation.test.mjs tests/calendar-sync-service.test.mjs tests/calendar-sync-env.test.mjs tests/calendar-sync-secrets.test.mjs tests/calendar-sync-normalization.test.mjs tests/calendar-outbound-sync.test.mjs tests/calendar-external-conflicts.test.mjs",
     "test:calendar-scope-comparison": "node --test tests/calendar-scope-comparison.test.mjs tests/calendar-scope-fixtures.test.mjs",
+    "test:server-workload": "node --test tests/family-friends-server-workload.test.mjs",
     "calendar:scope-comparison": "node scripts/calendar-scope-comparison.mjs",
     "calendar:scope-comparison:plan": "node scripts/calendar-scope-comparison.mjs --plan",
     "legal:verify-archives": "node --test tests/legal-document-archive.test.mjs",

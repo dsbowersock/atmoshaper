@@ -1,6 +1,9 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-06 (repository, test Calendar metadata, synthetic fixtures and event-read comparison; hosted receipts retain their original dates)
+Verified: 2026-10-06
+
+Evidence scope: repository, both independent test Calendar permission comparisons
+and owner cleanup receipts. Hosted receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -22,9 +25,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   apex redirect, deployment protection, and empty Preview credentials remain
   intact. Public registration/recurring Supporter flags remain `false` for
   pause, excluded purchase switches remain unset, and all four Calendar keys
-  remain absent. No live payment test was repeated. The exact next Google
-  permission declaration is separately approved, as recorded below; the
-  user-guided Google save and its readback are pending.
+  remain absent. No live payment test was repeated. The earlier event-read
+  declaration approval is historical; the October 6 comparison supports a
+  prepared availability replacement, recorded below. No replacement declaration
+  has been approved or saved.
 - [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
   user's exact approval at `2026-10-03T02:55:51Z` as
   `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
@@ -292,12 +296,37 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   independently verify the original IDs, initial timed/all-day/recurring shapes,
   four active entries per source, no guests/Meet and disabled owner alerts. No
   fixture was recreated or expectation rewritten. The independently consented
-  narrower availability arm is started using the same bound config and awaits
-  genuine consent. Its own issued scope/account checks and strict initial
-  baselines precede controlled changes. The event-read token is revoked; no new
-  issued token or availability result is claimed while consent remains pending.
-  Production
-  settings and larger application/provider acceptance remain separately gated.
+  narrower availability arm now passes its actual isolated scope/account checks,
+  both strict initial baselines and the same controlled-change incremental reads.
+  All shape mismatches/missing/unexpected entries are zero, and pagination, etags
+  and cursors are present in all four results. Its report is `passed`/`compatible`,
+  token revocation succeeds and the process exits zero. The callback listener is
+  absent in direct socket readback. Both grants are revoked. The user reports
+  `Deleted both` for the two owning accounts' temporary secondary calendars;
+  record completed owner cleanup from that receipt, without claiming independent
+  API absence or obtaining another grant. No repeat restoration/test is needed.
+  The measured availability grant supports this inbound path on owned and
+  shared-reader sources; full event-read access is not necessary for the tested
+  behavior. This is not full application/database acceptance, verification or
+  whole-integration minimum-access proof. Local source now requests availability
+  instead of event-read access, preserving calendar-list/app-created requirements
+  and existing event-read/combined tokens for connect, cached use and refresh.
+  Broader or incomplete Calendar grants still fail before provider work/token
+  persistence. Calendar regressions pass 83/83, comparison checks pass 40/40 and
+  typecheck and lint pass. The full run records 5,153 passed, three skipped and
+  one documentation date-format failure, loaded before the header repair. The
+  corrected header/date ceiling passes all 16 affected checks; no fresh all-suite
+  zero-failure run is claimed. Relative links and branch whitespace/privacy checks
+  pass. The updated declaration and rollback
+  boundary are in the [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md).
+  Source publication/reviews and the replacement Google settings operation need
+  their separate authority; the old declaration approval covered event-read.
+  GitHub connector reads confirm no open repository PR, and an outside-sandbox
+  read verifies remote `main` still at the PR #39 merge. The initial Git read
+  failed in Windows TLS credential setup; the exact retry succeeds. The CLI PR
+  query requires authentication, while connector reads succeed. No new sign-in
+  is needed for the available repository paths.
+  Production settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
   No hosting credential provisioning, application provider QA, database write, Calendar

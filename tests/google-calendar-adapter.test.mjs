@@ -31,7 +31,7 @@ describe("Google Calendar adapter", () => {
       "email",
       "https://www.googleapis.com/auth/calendar.app.created",
       "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
-      "https://www.googleapis.com/auth/calendar.events.readonly",
+      "https://www.googleapis.com/auth/calendar.events.freebusy",
     ])
   })
 

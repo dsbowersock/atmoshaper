@@ -2,6 +2,47 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Availability comparison passes; narrower source prepared
+
+- Reverified clean local head `78f60f6` and resumed the owned independent test
+  after genuine consent. The exact issued availability-only scope set/account
+  and both metadata/strict baselines pass before controlled writes. Refreshed
+  both owner profiles and known root preconditions, then sequentially performed
+  the same timed update/all-day deletion through each exact owner's connector,
+  with private intent/outcome receipts and bounded active/cancelled readback.
+- Both incremental comparisons pass with zero missing/unexpected entries or
+  field mismatches. Baseline page counts are four/three for the two sources;
+  incremental counts are two/two. Pagination, etags and cursors are present in
+  all four reads. Cancellation counts remain two/three for source 1 and zero/one
+  for source 2 across baseline/incremental. The report is `passed`/`compatible`,
+  token revoked, grant cleanup not required, and process exit zero. Direct
+  socket readback finds no callback listener; neither test process remains.
+- The user now reports `Deleted both` after approved owner-side removal of only
+  the two temporary secondary calendars. Record both owner cleanup receipts,
+  without an independent API-absence claim or another grant. Both test tokens
+  are revoked; no repeated test, restoration or fixture setup is required.
+- Under the comparison plan's source-preparation step, replaced new event-read
+  requests with availability access. Calendar-list read/app-created grants remain
+  required. Existing event-read or combined tokens are accepted for inbound
+  access on connect/cached/refresh paths, with no token rewrite or broader write
+  scope. Incomplete/broader grants still fail before provider/persistence calls.
+  Adapter/normalization and durable identities/cursors are unchanged. Prepared
+  the replacement declaration and token-compatible rollback rule; no Google save,
+  submission, provisioning, database write, deployment or activation occurs.
+- Focused Calendar checks pass 83/83; comparison checks pass 40/40; typecheck
+  and lint pass. Advanced the stale October 3 documentation date ceiling alongside
+  fresh October 6 evidence, preserving the required standalone ISO date line.
+  The full unit run records 5,153 passed, three skipped and one documentation
+  date-format failure from loading the earlier header before its repair. All 16
+  affected server-workload/documentation checks pass on the corrected source;
+  no remaining failure is identified, and a fresh all-suite zero-failure run is
+  not claimed. Relative documentation links and branch whitespace/privacy checks
+  pass. The CLI's read-only PR query requires
+  authentication; installed GitHub connector reads return no open repository PR.
+  Remote `main` is independently read at the PR #39 merge after a Windows TLS
+  setup failure is resolved by the exact outside-sandbox retry.
+  Source publication/review approval is still needed; no new sign-in is requested.
+
 ## 2026-10-06 — Original all-day fixtures restored; availability arm started
 
 - The user reports `Restored both`. Reverified clean local head `b464aa5`,

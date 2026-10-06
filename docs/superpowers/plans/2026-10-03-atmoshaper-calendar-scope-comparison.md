@@ -31,9 +31,12 @@ and incremental event-read comparisons pass, including the controlled timed
 update and all-day deletion, and token revocation succeeds. Both timed roots
 are restored. The user now reports both original all-day roots restored from
 Trash. Fresh exact owner reads and bounded windows verify original IDs and both
-complete initial schedules. The independent availability arm is started and
-awaits genuine consent. Minimum access and full application acceptance remain
-unproven.
+complete initial schedules. The independent availability arm now passes both
+initial and incremental comparisons, with its isolated scope/account checks and
+revocation complete. The user reports both temporary calendars deleted by their
+owners. Narrower inbound source preparation is locally implemented; full
+application acceptance, whole-integration minimum access, provider classification
+and publication remain separate steps.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -321,9 +324,41 @@ expectations remain unchanged.
 The availability arm is now started using the existing bound config and its own
 genuine manual consent. Its issued-scope check must allow only identity, calendar-
 list read and availability access; the event-read grant must not accumulate.
-Consent, actual scope/account checks and both strict baselines remain pending;
-only then perform the same approved controlled changes. The approved procedure
-below governs revocation and final owner-side calendar cleanup.
+The next receipt below completes those consent/baseline/change/cleanup steps.
+Retain this restoration sequence as reference rather than a repeat task.
+
+### Independent availability result and cleanup receipt
+
+The availability-only issued scope set/account passes, with the preceding event-
+read token already revoked. Both source metadata entries and strict initial
+baselines pass. Refreshed owner connectors then perform the same designated timed
+updates and all-day deletions; exact cancelled identities and three expected
+remaining active entries per source are verified. The same grant's incremental
+comparison matches both independent after-expectations.
+
+| Measured availability result | Source 1 | Source 2 |
+| --- | --- | --- |
+| Initial baseline | Matches; four pages | Matches; three pages |
+| Incremental after controlled changes | Matches; two pages | Matches; two pages |
+| Missing / unexpected / field mismatches | All zero | All zero |
+| Pagination / etags / sync cursor | Present in both reads | Present in both reads |
+| Retained cancelled rows, baseline / incremental | Two / three | Zero / one |
+
+Final report is `passed`/compatible with token revoked, no grant cleanup required
+and process exit zero. Direct socket readback finds no callback listener. Both
+independently issued test grants are revoked and neither process remains. The
+user reports `Deleted both` after approved owner-side deletion of only the two
+temporary secondary calendars. This supplies both owner cleanup receipts; it
+does not prove independently authenticated API absence. No extra grant is used.
+The runtime report's `fixturesRemoved=false` predates that manual cleanup and
+is retained unchanged. No repeat restoration or test setup is needed.
+
+Both measured arms preserve the same inbound shapes, recurrence, busy/free state,
+deletions, pagination and cursors on owned/shared-reader sources. This supports
+replacing new full event-read requests with availability access for the tested
+path. `providerMinimumAccessProven=false` remains an honest whole-integration
+limit: this standalone probe does not prove database/application acceptance,
+app-created outbound behavior, Production classification or verification.
 
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider
@@ -659,6 +694,39 @@ and [sharing permissions](https://developers.google.com/workspace/calendar/api/v
 If narrower access supports the required import, prepare a focused source change
 and updated declaration proposal. Otherwise document the precise missing Google
 capability and use that evidence in the sensitive-scope justification.
+
+### Prepared source reduction after both measured arms pass
+
+Both independent test grants now pass the same initial and controlled-change
+inbound comparisons on owner and shared-reader sources. Prepare new consent with
+`calendar.events.freebusy` in place of `calendar.events.readonly`; retain identity,
+calendar-list read and app-created-calendar access. Keep the event adapter,
+normalization, persistent identities and cursor behavior unchanged. Require both
+calendar-list and app-created grants, plus either the new availability grant or
+the previously accepted event-read grant. Accept an existing combination of both
+read grants without requesting event-read access again. Broader Calendar grants
+and incomplete grants must still fail before provider work or token persistence.
+
+The exact authorization URL, new/legacy/combined connect and cached/refresh paths,
+missing/broader-grant rejection and unchanged outbound target restrictions are
+covered by the focused Calendar suite, passing 83/83. The comparison suite passes
+40/40, typecheck and lint pass. The full unit run has 5,153 passed, three skipped
+and one documentation date-format failure from loading the pre-repair header.
+The corrected standalone date line and fresh review-date ceiling pass all 16
+affected checks. No fresh full-suite zero-failure result is claimed; no remaining
+failure is identified. Relative links and branch whitespace/privacy checks pass.
+Publication/reviews, merge, the revised Google declaration and any deployment or
+activation remain separate steps. The prior Production declaration approval does
+not authorize saving this replacement. Check actual Console categories/actions
+without assuming verification is unnecessary. Keep the draft unsaved meanwhile.
+
+Rollback must retain the compatibility guard if availability-only tokens have
+been issued; an older artifact requiring event-read access would reject them.
+Returning the request to event-read or reauthorizing users needs a separately
+reviewed provider/rollout decision. No production token migration, rewrite or
+revocation is part of this preparation. Both measured test tokens are revoked;
+the user supplies completed owner-side deletion receipts for both temporary
+calendars, without an independent API-absence claim.
 
 If sensitive access remains necessary, complete isolated app acceptance and a
 real English sign-in/Calendar consent/use recording covering the applicable
