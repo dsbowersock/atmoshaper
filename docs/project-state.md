@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-05 (repository and Calendar preparation; hosted receipts retain their original dates)
+Verified: 2026-10-06 (repository and synthetic Calendar fixture preparation; hosted receipts retain their original dates)
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -135,9 +135,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   test project, Web client, nonempty secret, sole loopback callback and absent
   JavaScript origins. No credential values or private identifiers are recorded
   here. The user now clarifies that only the account they used for Google Cloud
-  setup was successfully added as a test user, and no calendars have been created.
+  setup was successfully added as a test user; neither calendar existed at that
+  October 5 checkpoint.
   This is a user configuration receipt, not a verified explanation of why the
-  other entry was rejected. The connected Calendar profile was re-read October 5
+  other entry was rejected. The connected Calendar profile was re-read October 6
   and belongs to the other user-owned account. These roles need not match:
   the configured test user owns source 1 and grants the test app access; the
   connected fixture owner owns source 2 and shares it read-only with the test
@@ -146,20 +147,30 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   prepared manually. Do not add a test user, relink the connector, or assume it
   can read source 1. Private preparation records now preserve the separate
   account roles outside tracked source without copying credential contents.
-  The next action is user creation of two empty UTC secondary calendars and a
-  reader-only share from the second owner to the first, followed by their exact
-  IDs. The connector has no calendar-create/delete/share operation. The
-  comparison plan owns the exact setup and cleanup sequence.
+  The user supplied both exact secondary-calendar IDs October 6. Those locators
+  are retained only in private preparation state. A bounded source-2 read found
+  no events in the fixed test window. Under the existing fixture approval, the
+  connector created its three synthetic resources; organizer readback matches
+  the designated source-2 name. Expanded readback contains exactly four expected
+  entries with matching UTC times and Busy/Free settings. No guests, reminders
+  or conference links remain. Source 1 still needs its three manually created
+  fixtures. The next user action is to create those events using the
+  [comparison guide](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md#october-6-fixture-preparation-receipt-and-next-user-step).
+  The connector has no calendar-create/delete/share operation and cannot read
+  the unshared source 1. Bind its exact fixture roots through an approved bounded
+  test-registration read or owner-provided identities before strict comparison.
   A fixture-expectation correction accepts both ID-only deletions and retained
   CANCELLED rows as removal from active conflicts, matching the real sync and
   conflict query. The focused comparison tests pass 23/23.
-  Real OAuth consent, fixture event reads/writes and the comparison have not
-  started; no real consent listener is running. Exact private calendar/event IDs
-  and ownership/read-access validation remain necessary before the approved run. Production
+  No real test-app OAuth consent or permission comparison has started, and no
+  consent listener is running. Source-2 connector activity is fixture preparation,
+  not a measured permission result. Test-account owner/reader and UTC calendar
+  metadata, source-1 identities and expected fixtures still need validation
+  before comparison. Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.
-  No hosting credential provisioning, provider QA, database write, Calendar
+  No hosting credential provisioning, application provider QA, database write, Calendar
   activation, or public promotion has occurred for this Calendar stage.
 
 - PR #35's documentation closeout merged as

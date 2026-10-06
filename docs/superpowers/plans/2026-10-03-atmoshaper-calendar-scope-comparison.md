@@ -4,9 +4,11 @@ Status: test configuration reported complete under `AtmoShaper Calendar Verify`.
 Local runner implemented and mock/loopback checks passing. The concrete provider
 comparison is now approved with two user-owned accounts. Credential preflight
 passed October 3. The user identifies the configured test account separately
-from the connected fixture owner; no calendars are created yet. User-created
-secondary calendars and exact fixture identities are pending before real consent
-or event activity.
+from the connected fixture owner. Both temporary calendar IDs are received
+October 6; source 2's three synthetic resources are created and expanded
+readback matches the four expected entries. Source 1's manual fixture creation,
+exact identity binding and test-account calendar metadata validation remain
+before real test-app consent/comparison. No measured permission result is claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -40,15 +42,58 @@ source 2 ownership and its reader share to the test user. They need not be the
 same account, and the fixture owner need not authorize the test app.
 An operational preparation manifest outside tracked source retains the run
 marker and private references without copying credential values. It is not
-launchable comparison configuration while sources are empty. Next the user
-creates the two temporary calendars, shares only the second read-only with the
-first account, and supplies their exact IDs. No real consent or event operation
-has started.
+launchable comparison configuration until all exact fixture roots and expected
+rows are bound. Both IDs are subsequently received and source-2 fixture
+preparation is complete as recorded below. No real test-app consent or measured
+comparison has started.
 
 The existing Production registration, API enablement, working sign-in, and
 declaration approval remain recorded. Do not repeat those operations. The
 draft's video field does not establish whether Save can proceed without a URL;
 never invent one or substitute a storyboard for a real demonstration.
+
+## October 6 fixture preparation receipt and next user step
+
+Both exact secondary-calendar IDs were supplied by the user and retained outside
+tracked source. The connector profile still matches the approved fixture owner.
+A source-2 read restricted to the fixed October 10–13 UTC window was empty.
+Three sequential creates returned recorded synthetic identities and organizer
+metadata matching source 2's exact run-specific name. The timed create initially
+added the connector's own user as an attendee; that self-attendee was removed.
+The other creates explicitly omitted self-attendance. No guests, reminders or
+conference links remain. Expanded source-2 readback has exactly four confirmed
+items with matching initial times and transparency. This is connector fixture
+preparation, not evidence of either measured test-app permission.
+
+Source 1 must be prepared manually in the configured test-user account; it is
+unshared with the connector. Select the temporary calendar whose run-specific
+name ends in `1` in each event's calendar selector. Do not use the account's
+primary calendar. Create these three resources, with no guests, reminders,
+conference links, descriptions or locations:
+
+| Title | Initial event | Availability / repeat |
+| --- | --- | --- |
+| `Test timed` | October 10, 2026, 10:00–11:00 UTC | Busy; does not repeat |
+| `Test all-day` | October 11, 2026 only; one all-day day | Busy; does not repeat |
+| `Test recurring` | October 10, 2026, 14:00–14:30 UTC | Free; custom repeat every one day, ending after two occurrences |
+
+For timed events set the event's time zone to UTC in More options > Time zone;
+the calendar grid may otherwise display local time. The repeating event should
+appear on October 10 and 11 only. Google's
+[time-zone instructions](https://support.google.com/calendar/answer/37064?hl=en)
+and [recurrence instructions](https://support.google.com/calendar/answer/37115?hl=en)
+were checked October 6. Request a simple `events ready` receipt once saved;
+do not ask the user to repeat Google Cloud setup or execution approval.
+
+Before strict comparison, bind source 1's exact roots through the already approved
+bounded test-registration read or owner-provided identities. The current strict
+runner cannot start with unknown roots; no preparatory read or binding extension
+is claimed implemented or executed by this fixture receipt. Validate the test
+account and both exact calendar entries' names, owner/reader roles and UTC metadata
+before event reads. Keep expected timings and transparency independently derived
+from the approved table, not copied from a measured response. No actual test-app
+consent, comparison listener or permission comparison has started. Do not delete
+the temporary calendars yet; cleanup follows the measured arms and revocation.
 
 ## Approved test configuration and user execution receipt
 
@@ -257,8 +302,9 @@ describe separate app-authorization and calendar-access controls.
    validate the OAuth test account and source 1 owner / source 2 reader metadata.
 2. The user creates source 1 in the configured test-user account and source 2
    in the connected fixture-owner account. Preserve the existing run marker
-   and exact two synthetic names previously supplied, because neither calendar
-   has been made yet. Use UTC for both calendars. The source 2 owner shares
+   and exact two synthetic names previously supplied. Both IDs are received
+   October 6; retain this creation guide as reference, not a repeat request.
+   Use UTC for both calendars. The source 2 owner shares
    only that calendar with the test user using reader access. Capture their exact
    Calendar IDs privately from settings and verify the owner's execution receipt.
    These manual Calendar operations do not automate the previously denied Cloud

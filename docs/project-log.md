@@ -2,6 +2,32 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Temporary Calendar IDs received; source-2 fixtures prepared
+
+- Reverified the clean task-owned branch at `ca52d61` and refreshed the connected
+  Calendar profile before writes. It still matches the approved source-2 fixture
+  owner. The user supplied the two created secondary calendars' exact IDs;
+  retain those locators and event identities only in private preparation state.
+- A read limited to source 2 and the fixed October 10–13 UTC window returned no
+  events. Created exactly the three approved synthetic resources sequentially,
+  recording each returned identity before the next write. Organizer readback
+  matches the designated run-specific calendar. The connector initially added
+  its own user as an attendee to the timed event; removed that self-attendee and
+  explicitly omitted self-attendance on the other two creates. All fixtures have
+  no guests, reminders or conference links. No other account was invited.
+- Expanded source-2 readback contains exactly four confirmed entries: the timed
+  Busy event, the all-day Busy event and two recurring Free occurrences. Times
+  and transparency match the independent approved fixture table. This validates
+  connector fixture preparation, not the test app's minimum permission.
+- Source 1 remains unshared with the connector and needs three manually created
+  fixtures in the configured test-user account. Prepared the exact user guide
+  in the [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md#october-6-fixture-preparation-receipt-and-next-user-step).
+  Its event-root binding and test-account calendar metadata validation remain
+  before strict comparison. No real test-app OAuth consent/listener or measured
+  permission run occurred; no Production, hosting, database, deployment, payment
+  or verification-submission activity occurred. Existing execution approval is
+  retained; no repeated approval or Google Cloud setup is needed.
+
 ## 2026-10-05 — Separate Calendar test-user and fixture-owner roles corrected
 
 - The user reports that only the account used during Google Cloud setup was
