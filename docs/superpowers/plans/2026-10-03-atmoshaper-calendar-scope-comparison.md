@@ -22,8 +22,11 @@ a bounded local binding repair. The third consent still rejects during source-1
 binding after metadata passes and revokes its token. The next diagnostic consent
 identifies current-title equality on a recorded cancellation as the failed
 predicate. The binder now removes only that deletion-title requirement; identity
-and all active checks remain strict. Fresh consent can retry; no measured result
-is claimed.
+and all active identity/schedule checks remain strict. The following consent
+passes all source-1 binding, then rejects the reader account's source-2 default
+reminder flag. The binder now resolves effective defaults from that same test
+account's exact calendar entry; configured alerts still fail. Fresh consent is
+needed to validate the actual defaults; no measured result is claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -241,6 +244,32 @@ lint passes, including alternate deleted titles and active-title rejection.
 No event write or resource creation occurred. Resume via fresh consent; do not
 claim either measured arm until its actual baseline/delta and revocation complete.
 
+### Source-1 binding receipt and per-user reminder defaults
+
+At `a0b3aaa`, the next real consent validates scopes/account, both metadata
+entries and complete source-1 active/retired/master binding. It stops at source-2
+page 1, entry 1 with only `noDefaultReminders=false`, because the reader's event
+uses defaults. No guests, conference data or overrides are reported. The token
+is revoked and the process ends before bound output, strict baseline or controlled
+changes. Connector reads through both refreshed account links confirm owner flags
+off and reader timed/recurring flags on. Google documents [event reminders](https://developers.google.com/workspace/calendar/api/v3/reference/events#reminders)
+and [CalendarList defaults](https://developers.google.com/workspace/calendar/api/v3/reference/calendarList#defaultReminders)
+as properties of the authenticated user; owner setup cannot prove reader alerts.
+
+Change Necessity: `code-change` at the existing validator, resolving the no-alert
+condition instead of equating a flag with a configured alert. Use the default
+collection from the same grant's exact CalendarList entry already fetched before
+events. An empty/omitted list permits default flags; configured defaults still
+reject events/masters using them, and explicit overrides remain disallowed.
+Malformed collections fail metadata validation. Private config and the owner
+connector cannot substitute for this truth source. Emit only shape/empty-default
+booleans; methods/times stay in memory and out of bound config. No new endpoint,
+write, permission, owner or adapter is introduced. Identity/title/schedule/resource
+checks remain. The actual list is unknown until fresh consent; do not infer enabled
+alerts or ask for settings changes in advance. TDD mode stays `off` with regression
+verification. Focused tests pass 40/40 and lint passes, covering entry/master and
+owner/reader variants through normalization/comparison/revocation. No settings changed.
+
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider
 values and arbitrary error bodies never enter output. These flags make any
@@ -332,7 +361,7 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 38 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 40 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
   approved one-arm execution with previously bound exact fixture identities.

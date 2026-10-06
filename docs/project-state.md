@@ -260,6 +260,20 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   passes, including arbitrary deleted-title variants through real normalization/
   comparison and revocation. No event write occurred. Retry the bounded arm with
   fresh consent; the full measured comparison remains unproven.
+  The next consent at `a0b3aaa` passes source-1 active/retired/master binding and
+  both metadata checks. It stops at source-2 page 1, entry 1 because the test
+  reader sees `useDefault=true`; no guests/conference/override flags fail. Its
+  token is revoked and process exits before bound output, strict baseline or
+  controlled changes. Exact connector reads through both verified links confirm
+  source-2 owner reminders off and reader timed/recurring default flags on.
+  Google documents reminders per authenticated user; the owner's read cannot
+  establish reader alerts. The binder now resolves that same test user's defaults
+  from its already bounded exact CalendarList entry, accepting a default flag
+  only with an empty/omitted list; malformed defaults, configured alerts and
+  explicit overrides still fail. Only boolean diagnostics are emitted. Focused
+  tests pass 40/40 and lint passes, covering entry/master, empty defaults and
+  explicit opt-out. No event settings changed; actual reader defaults still need
+  validation under fresh consent. No passing measured arm is claimed yet.
   Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope

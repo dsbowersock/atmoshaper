@@ -62,7 +62,7 @@ function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMast
     }
     if (!decoded.endsWith("/events")) {
       assert.equal(decoded.split("/").at(-1), fixture.roots[2])
-      mutateMaster(fixture.master)
+      mutateMaster(fixture.master, index)
       return json(fixture.master)
     }
     assert.equal(url.searchParams.get("maxResults"), "2")
@@ -240,6 +240,47 @@ test("recorded cancellations ignore deleted title variants while active title va
   await assert.rejects(() => bindPreparedFixtures({ config: value, accessToken: "fake", fetchImpl: active.fetchImpl }), /fixture_boundary/)
 })
 
+test("no-reminder validation resolves same-account empty defaults and per-event opt-out", async () => {
+  for (const defaults of [undefined, [], [{ method: "popup", minutes: 10 }]]) {
+    const useDefaults = (event, index) => { if (index === 1) event.reminders = { useDefault: !defaults?.length } }
+    const transport = provider({ mutateMetadata: (calendar) => { if (defaults !== undefined) calendar.defaultReminders = defaults }, mutateItem: useDefaults, mutateMaster: useDefaults })
+    const progress = []
+    let bound
+    const report = await runComparisonArm({ config: config(), client: client(), arm: "event-read", code: "fake", prepareFixtures: true, fetchImpl: transport.fetchImpl, onFixturesBound: async (value) => { bound = value }, onBindingProgress: (item) => progress.push(item), changeFixtures: async () => {} })
+    assert.equal(report.status, "passed")
+    assert.equal(report.tokenRevoked, true)
+    assert.equal(progress.filter((item) => item.checks?.reminderDefaultsShape).every((item) => item.defaultRemindersEmpty === !defaults?.length), true)
+    assert.equal(JSON.stringify(bound).includes("defaultReminders"), false)
+  }
+})
+
+test("configured or malformed same-account reminder defaults still fail closed for entries and masters", async () => {
+  for (const masterOnly of [false, true]) {
+    const transport = provider({
+      mutateMetadata: (calendar, index) => { if (index === 1) calendar.defaultReminders = [{ method: "popup", minutes: 10 }] },
+      mutateItem: (event, index) => { if (index === 1 && !masterOnly) event.reminders = { useDefault: true } },
+      mutateMaster: (event, index) => { if (index === 1) event.reminders = { useDefault: true } },
+    })
+    let changed = false
+    const report = await runComparisonArm({ config: config(), client: client(), arm: "event-read", code: "fake", prepareFixtures: true, fetchImpl: transport.fetchImpl, changeFixtures: async () => { changed = true } })
+    assert.equal(report.failure, "fixture_boundary")
+    assert.equal(report.tokenRevoked, true)
+    assert.equal(report.preparation.source, 2)
+    assert.equal(report.preparation.checkStage, masterOnly ? "master_fields" : "active_fields")
+    assert.equal(report.preparation.checks.noEffectiveDefaultReminders, false)
+    assert.equal(changed, false)
+    assert.doesNotMatch(JSON.stringify(report), /popup|minutes|PRIVATE_/)
+  }
+  for (const defaults of [null, {}, "PRIVATE_DEFAULTS"]) {
+    const transport = provider({ mutateMetadata: (calendar) => { calendar.defaultReminders = defaults } })
+    const progress = []
+    await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: transport.fetchImpl, onProgress: (item) => progress.push(item) }), /fixture_metadata/)
+    assert.equal(transport.calls.some((url) => url.pathname.includes("/events")), false)
+    assert.equal(progress.at(-1).checks.reminderDefaultsShape, false)
+    assert.doesNotMatch(JSON.stringify(progress), /PRIVATE_/)
+  }
+})
+
 test("unexpected names, IDs, invitations or timing cannot become their own passing expectations", async () => {
   for (const mutateItem of [
     (item) => { item.summary = "Unexpected appointment" },
@@ -249,7 +290,7 @@ test("unexpected names, IDs, invitations or timing cannot become their own passi
     (item) => { if (item.start.dateTime) item.start.dateTime = "2026-10-10T09:00:00Z" },
     (item, index) => { if (index === 1 && !item.recurringEventId) item.id = "different0001" },
   ]) {
-    const transport = provider({ mutateItem })
+    const transport = provider({ mutateItem, mutateMetadata: (calendar) => { calendar.defaultReminders = [{ method: "popup", minutes: 10 }] } })
     await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: transport.fetchImpl }))
   }
 })

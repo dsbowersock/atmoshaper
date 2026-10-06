@@ -75,6 +75,11 @@ function requireFixtureChecks(checks, onMismatch, reason = "fixture_boundary") {
   }
 }
 
+/** A per-user default flag schedules no alert when that user's calendar defaults are empty. */
+function noEffectiveDefaultReminders(source, event) {
+  return event.reminders?.useDefault !== true || source.defaultRemindersEmpty === true
+}
+
 /** Resolve only the user's exact synthetic names/shapes, rejecting unrelated or changed events. */
 function bindPage(source, items, found, roots, retiredSeen, onMismatch) {
   const schedule = expectedRows(["pendingtimed", "pendingallday", "pendingrecurring"]).before
@@ -91,7 +96,7 @@ function bindPage(source, items, found, roots, retiredSeen, onMismatch) {
       continue
     }
     check({ identity: typeof event?.id === "string", confirmed: event?.status === "confirmed" }, "active_identity")
-    check({ noGuests: !event.attendees?.length, noConference: !event.conferenceData && !event.hangoutLink, noDefaultReminders: event.reminders?.useDefault !== true, noReminderOverrides: !event.reminders?.overrides?.length }, "active_fields")
+    check({ noGuests: !event.attendees?.length, noConference: !event.conferenceData && !event.hangoutLink, noEffectiveDefaultReminders: noEffectiveDefaultReminders(source, event), noReminderOverrides: !event.reminders?.overrides?.length }, "active_fields")
     const kindIndex = source.fixtures.findIndex((fixture) => event.summary === fixture.title)
     check({ approvedTitle: kindIndex >= 0 }, "active_title")
     const indices = kindIndex === 2 ? [2, 3] : [kindIndex]
@@ -128,21 +133,25 @@ export async function bindPreparedFixtures({ config, accessToken, fetchImpl = fe
     requireComparison(response.status === 200, "fixture_metadata")
     return response.json()
   }
-  const timezones = []
+  const metadata = []
   for (const [index, source] of config.sources.entries()) {
     onProgress({ phase: "calendar_metadata", source: index + 1 })
     const progress = { phase: "calendar_metadata", source: index + 1 }
     const calendar = await get(`${API}/users/me/calendarList/${encodeURIComponent(source.calendarId)}`, (status) => onProgress({ ...progress, ...status }))
     // Field flags distinguish missing access from target drift without logging
     // calendar names, identifiers, arbitrary zones or provider error bodies.
-    const checks = { identity: calendar.id === source.calendarId, secondary: !calendar.primary, name: calendar.summary === source.summary, utcTimezone: UTC_ZONES.has(calendar.timeZone), accessRole: calendar.accessRole === source.accessRole }
-    onProgress({ ...progress, httpStatus: 200, checks })
+    const checks = { identity: calendar.id === source.calendarId, secondary: !calendar.primary, name: calendar.summary === source.summary, utcTimezone: UTC_ZONES.has(calendar.timeZone), accessRole: calendar.accessRole === source.accessRole, reminderDefaultsShape: calendar.defaultReminders === undefined || Array.isArray(calendar.defaultReminders) }
+    // Read defaults from this same authenticated user's exact calendar entry,
+    // never the owner's connector or private config. An omitted list is empty;
+    // malformed data fails before event reads and nonempty defaults remain gated.
+    const defaultRemindersEmpty = checks.reminderDefaultsShape && !calendar.defaultReminders?.length
+    onProgress({ ...progress, httpStatus: 200, checks, defaultRemindersEmpty })
     requireComparison(Object.values(checks).every(Boolean), "fixture_metadata")
-    timezones.push(calendar.timeZone)
+    metadata.push({ timezone: calendar.timeZone, defaultRemindersEmpty })
   }
   const sources = []
   for (const [index, target] of config.sources.entries()) {
-    const source = { ...target, timezone: timezones[index] }
+    const source = { ...target, ...metadata[index] }
     onProgress({ phase: "fixture_binding", source: index + 1 })
     const check = (checks, checkStage, reason) => requireFixtureChecks(checks, (flags) => onProgress({ phase: "fixture_binding", source: index + 1, checkStage, checks: flags }), reason)
     const found = new Map()
@@ -174,7 +183,7 @@ export async function bindPreparedFixtures({ config, accessToken, fetchImpl = fe
     check({ singleRule: typeof rule === "string" && rule.startsWith("RRULE:") }, "recurrence_rule")
     const terms = rule.slice(6).split(";")
     check({ uniqueTerms: new Set(terms).size === terms.length, daily: terms.includes("FREQ=DAILY"), countTwo: terms.includes("COUNT=2"), allowedTerms: terms.every((term) => ["FREQ=DAILY", "COUNT=2", "INTERVAL=1"].includes(term)) }, "recurrence_bound")
-    check({ identity: master.id === roots[2], title: master.summary === source.fixtures[2].title, confirmed: master.status === "confirmed", noGuests: !master.attendees?.length, noConference: !master.conferenceData && !master.hangoutLink, noDefaultReminders: master.reminders?.useDefault !== true, noReminderOverrides: !master.reminders?.overrides?.length, schedule: Boolean(matchesShape(source, master, expectedRows(roots).before[2])) }, "master_fields")
+    check({ identity: master.id === roots[2], title: master.summary === source.fixtures[2].title, confirmed: master.status === "confirmed", noGuests: !master.attendees?.length, noConference: !master.conferenceData && !master.hangoutLink, noEffectiveDefaultReminders: noEffectiveDefaultReminders(source, master), noReminderOverrides: !master.reminders?.overrides?.length, schedule: Boolean(matchesShape(source, master, expectedRows(roots).before[2])) }, "master_fields")
     // UTC aliases are checked against a finite set, not arbitrary provider
     // zones. Preserve their literal representation for later strict equality;
     // timings, status, recurrence and all-day expectations stay independent.

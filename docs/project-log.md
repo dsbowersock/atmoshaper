@@ -2,6 +2,33 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Source-1 binding passes; reader reminder defaults resolved per account
+
+- Reverified clean local head `a0b3aaa`. Genuine consent passes scopes/account,
+  both metadata entries and all source-1 active/retired/master binding checks.
+  Source-2 page 1, entry 1 fails only `noDefaultReminders`: the test reader's
+  event uses defaults, with no guests, conference data or reminder overrides.
+  Token revocation succeeds, callback/process end, and no bound output, strict
+  baseline or controlled changes occur.
+- Refreshed both exact connector profiles and the three known source-2 roots.
+  Owner reminders are disabled; reader timed/recurring resources use defaults.
+  Google reminder fields are user-specific. Neither account's event flag alone
+  proves effective reader alerts; the reader CalendarList default list has not
+  yet been checked under the measured grant.
+- The existing preparation binder now resolves effective default reminders from
+  the same test grant's already-read exact CalendarList entry. Empty/omitted lists
+  permit a default flag without an alert; configured defaults still fail for an
+  event/master using them. Explicit overrides and malformed metadata remain
+  rejected; event-specific opt-out remains valid. Diagnostics emit only booleans.
+  No config/connector substitute, endpoint, permission, provider write, adapter or
+  broad calendar inventory was added. Identity/title/schedule bounds remain.
+- Focused regressions pass 40/40 and lint passes. Coverage includes empty/omitted
+  defaults, explicit opt-out despite configured defaults, entry/master configured-
+  alert rejection, malformed metadata, sanitized diagnostics and revocation.
+  The fixture mock now passes source index to master mutations so both accounts'
+  validation paths are exercised. Fresh consent must check the actual defaults;
+  no measured result or manual settings task is inferred in advance.
+
 ## 2026-10-06 — Test-app diagnostics identify invalid deleted-title requirement
 
 - Reverified clean local head `4755dba`. The first diagnostic wait expired before
