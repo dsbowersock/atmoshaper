@@ -1,7 +1,8 @@
 import { randomBytes, timingSafeEqual } from "node:crypto"
-import { readFile } from "node:fs/promises"
+import { readFile, writeFile } from "node:fs/promises"
 import { createServer } from "node:http"
-import { isAbsolute } from "node:path"
+import { isAbsolute, relative, resolve } from "node:path"
+import { tmpdir } from "node:os"
 import { createInterface } from "node:readline/promises"
 import { pathToFileURL } from "node:url"
 import {
@@ -9,6 +10,7 @@ import {
   comparisonPlan, probeComparison, requireComparison, safeComparisonFailure,
   validateComparisonConfig, validateTestCredential,
 } from "./calendar-scope-comparison-core.mjs"
+import { bindPreparedFixtures, validateFixturePreparation } from "./calendar-scope-comparison-fixtures.mjs"
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token"
 const REVOKE_URL = "https://oauth2.googleapis.com/revoke"
@@ -109,14 +111,18 @@ export async function revokeComparisonToken(token, fetchImpl = fetch) {
 }
 
 /** Shared lifecycle ensures a failed scope/account check still revokes the issued test grant. */
-export async function runComparisonArm({ config, client, arm, code, fetchImpl = fetch, changeFixtures, signal }) {
-  validateComparisonConfig(config)
+export async function runComparisonArm({ config, client, arm, code, fetchImpl = fetch, changeFixtures, signal, prepareFixtures = false, onFixturesBound = async () => {}, onBindingProgress = () => {} }) {
+  if (prepareFixtures) {
+    requireComparison(arm === "event-read")
+    validateFixturePreparation(config)
+  } else validateComparisonConfig(config)
   validateTestCredential({ web: client }, config.projectId)
   requireComparison(Object.hasOwn(COMPARISON_SCOPES, arm) && typeof code === "string" && code.length > 0 && code.length <= 4096)
   let token
   let result
   let failure
   let revoked = false
+  let preparationProgress
   try {
     const response = await fetchImpl(TOKEN_URL, {
       method: "POST",
@@ -137,6 +143,10 @@ export async function runComparisonArm({ config, client, arm, code, fetchImpl = 
     requireComparison(accountResponse.status === 200, "account_mismatch")
     const account = await accountResponse.json()
     requireComparison(typeof account.sub === "string" && account.sub.length > 0 && account.email_verified === true && account.email?.toLowerCase() === config.accountEmail.toLowerCase(), "account_mismatch")
+    if (prepareFixtures) {
+      config = await bindPreparedFixtures({ config, accessToken: token.access_token, fetchImpl, signal, onProgress: (progress) => { preparationProgress = progress; onBindingProgress(progress) } })
+      await onFixturesBound(config)
+    }
     result = await probeComparison({ config, accessToken: token.access_token, fetchImpl, changeFixtures, signal, onProgress: (progress) => { result = progress } })
   } catch (error) {
     failure = safeComparisonFailure(error)
@@ -149,6 +159,7 @@ export async function runComparisonArm({ config, client, arm, code, fetchImpl = 
   }
   return {
     arm,
+    ...(prepareFixtures ? { preparation: preparationProgress ?? { phase: "not_started" } } : {}),
     status: failure ? "inconclusive" : result.compatible ? "passed" : "capability_difference",
     ...(failure ? { failure, ...(result ? { result } : {}) } : { result }),
     tokenRevoked: revoked,
@@ -168,16 +179,32 @@ export async function main(args = process.argv.slice(2)) {
   const controller = new AbortController()
   const interrupt = () => controller.abort()
   try {
-    requireComparison(args.length === 5 && args[0] === "--run" && args[1] === "--arm" && Object.hasOwn(COMPARISON_SCOPES, args[2]) && args[3] === "--config")
-    const config = validateComparisonConfig(await privateJsonFile(args[4]))
+    const prepareFixtures = args[0] === "--prepare"
+    requireComparison(args.length === 5 && (prepareFixtures ? args[1] === "--config" && args[3] === "--output" : args[0] === "--run" && args[1] === "--arm" && Object.hasOwn(COMPARISON_SCOPES, args[2]) && args[3] === "--config"))
+    const arm = prepareFixtures ? "event-read" : args[2]
+    const config = (prepareFixtures ? validateFixturePreparation : validateComparisonConfig)(await privateJsonFile(prepareFixtures ? args[2] : args[4]))
+    // The approved fixture window must still be current; changing it requires
+    // a new concrete schedule rather than silently widening provider reads.
+    requireComparison(Date.now() < Date.parse(config.timeMax), "fixture_boundary")
+    if (prepareFixtures) {
+      const output = relative(resolve(tmpdir()), resolve(args[4]))
+      requireComparison(isAbsolute(args[4]) && output && !isAbsolute(output) && output !== ".." && !output.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`))
+    }
     const client = validateTestCredential(await privateJsonFile(config.credentialFile), config.projectId)
     requireComparison(process.stdin.isTTY, "comparison_input")
     terminal = createInterface({ input: process.stdin, output: process.stderr })
     process.on("SIGINT", interrupt)
     process.on("SIGTERM", interrupt)
-    const code = await obtainConsentCode({ client, arm: args[2], accountEmail: config.accountEmail, signal: controller.signal, onReady: (url) => process.stderr.write(`Open this local consent link manually: ${url}\n`) })
+    const code = await obtainConsentCode({ client, arm, accountEmail: config.accountEmail, signal: controller.signal, onReady: (url) => process.stderr.write(`Open this local consent link manually: ${url}\n`) })
     const report = await runComparisonArm({
-      config, client, arm: args[2], code, signal: controller.signal,
+      config, client, arm, code, signal: controller.signal, prepareFixtures,
+      onBindingProgress: (progress) => process.stderr.write(`${JSON.stringify(progress)}\n`),
+      // Only the exact bound fixture config is saved privately, with exclusive
+      // creation. Tokens, provider bodies, codes and cursors remain in memory.
+      onFixturesBound: async (bound) => {
+        await writeFile(args[4], `${JSON.stringify(bound, null, 2)}\n`, { flag: "wx", mode: 0o600 })
+        process.stderr.write("Synthetic identities bound; strict comparison starting.\n")
+      },
       changeFixtures: async () => {
         const answer = await terminal.question("Apply only the approved synthetic update/deletion. Type changed when the expected after-fixtures are ready: ", { signal: controller.signal })
         requireComparison(answer === "changed", "interrupted")

@@ -6,9 +6,11 @@ comparison is now approved with two user-owned accounts. Credential preflight
 passed October 3. The user identifies the configured test account separately
 from the connected fixture owner. Both temporary calendar IDs are received
 October 6; source 2's three synthetic resources are created and expanded
-readback matches the four expected entries. Source 1's manual fixture creation,
-exact identity binding and test-account calendar metadata validation remain
-before real test-app consent/comparison. No measured permission result is claimed.
+readback matches the four expected entries. The user now replies `events ready`
+for source 1. The bounded identity-binding extension is implemented and locally
+checked, allowing the event-read arm to run first with the same grant used for
+binding. Actual account/metadata validation and comparison remain pending consent.
+No measured permission result is claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -85,15 +87,14 @@ and [recurrence instructions](https://support.google.com/calendar/answer/37115?h
 were checked October 6. Request a simple `events ready` receipt once saved;
 do not ask the user to repeat Google Cloud setup or execution approval.
 
-Before strict comparison, bind source 1's exact roots through the already approved
-bounded test-registration read or owner-provided identities. The current strict
-runner cannot start with unknown roots; no preparatory read or binding extension
-is claimed implemented or executed by this fixture receipt. Validate the test
-account and both exact calendar entries' names, owner/reader roles and UTC metadata
-before event reads. Keep expected timings and transparency independently derived
-from the approved table, not copied from a measured response. No actual test-app
-consent, comparison listener or permission comparison has started. Do not delete
-the temporary calendars yet; cleanup follows the measured arms and revocation.
+The user subsequently replies `events ready`, satisfying manual creation as an
+owner execution receipt. Do not ask them to recreate events. The bounded binding
+extension below is now implemented. It resolves source 1's roots under the
+event-read arm after actual account/scope and both calendar metadata checks,
+then invokes the strict known-ID comparison with the same grant. Source 2's roots
+must still match the previously recorded connector identities. No real grant or
+measured result is claimed by these local checks. Do not delete the temporary
+calendars yet; cleanup follows the measured arms and revocation.
 
 ## Approved test configuration and user execution receipt
 
@@ -180,10 +181,32 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 23 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 33 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
-  future approved one-arm execution only. The default with no arguments is offline.
+  approved one-arm execution with previously bound exact fixture identities.
+- `npm run calendar:scope-comparison -- --prepare --config <absolute-private-preparation-path> --output <absolute-private-bound-config-path>`:
+  bind the approved synthetic roots and run the first event-read comparison with
+  one grant. Output must be a new file within the system temporary directory.
+  The default with no arguments is offline.
+
+The preparation mode fixes the approved October 10–13 UTC window, exactly two
+secondary sources with owner/reader roles, exactly three designated fixture names
+per source, and the owner's ready receipt. It validates those targets before
+consent. After the usual issued-scope/account checks, it validates both calendar
+entries before any event read, then reads only their bounded synthetic window
+at page size two. Unexpected names, guests, reminders, timings, statuses,
+duplicate rows, unknown source-2 IDs or changed recurrences stop binding. Only
+the identified recurring masters are read to confirm daily COUNT=2. Pages are
+bounded to sixteen per source and 24 items, under one sixty-second binding budget.
+The UTC aliases `UTC`, `Etc/UTC`, `Etc/GMT` and `GMT` are explicitly equivalent
+for this UTC fixture schedule; all other zones fail. Their verified literal
+representations are retained for strict comparison, while timings, transparency,
+all-day and recurrence expectations remain independently prescribed. Source-1
+identities are discovered rather than guessed or substituted with iCalUIDs.
+Only the resulting bound configuration is written privately; no token, code,
+raw provider response, event text or cursor is written. Output failure still
+revokes the issued test token and prevents fixture-change dispatch.
 
 The runner uses the actual adapter event-list and normalization behavior without
 starting the public app or connecting to Prisma/Neon. The browser callback binds
@@ -349,7 +372,10 @@ expanded items, exercising page size two within the existing resource ceiling.
 If execution occurs after this window or any fixture cannot match it, stop and
 prepare a new explicit fixture proposal; do not silently widen provider reads.
 
-4. Run the availability arm first. The user confirms the genuine test-app
+4. Run the event-read arm first using preparation mode. This supersedes the
+   original availability-first ordering to bind the manually prepared owner
+   fixtures without requiring an extra consent grant. The scopes and two-account,
+   two-calendar, six-resource boundaries are unchanged. The user confirms the genuine test-app
    consent in their browser. Validate actual issued scopes and expected account
    before exact-source metadata and event reads. At the baseline pause, change
    only the two designated resources in each source. Connector assistance can
@@ -357,7 +383,7 @@ prepare a new explicit fixture proposal; do not silently widen provider reads.
    1's changes manually. Preserve recurring roots. Confirm each write outcome;
    reconcile uncertain writes before retry. Record sanitized results and revoke
    only the issued test-app token even if comparison fails.
-5. Restore the exact initial fixtures before the event-read arm: restore the
+5. Restore the exact initial fixtures before the availability arm: restore the
    deleted all-day event from that owner's Calendar Trash and reset the timed
    event. Verify retained event IDs and baseline values using the owner's receipt
    and bounded connector reads. If restoration changes an ID, retain the original

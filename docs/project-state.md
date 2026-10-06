@@ -153,15 +153,30 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   connector created its three synthetic resources; organizer readback matches
   the designated source-2 name. Expanded readback contains exactly four expected
   entries with matching UTC times and Busy/Free settings. No guests, reminders
-  or conference links remain. Source 1 still needs its three manually created
-  fixtures. The next user action is to create those events using the
+  or conference links remain. The user subsequently replies `events ready` for
+  source 1's three manually created fixtures. Record that owner execution receipt;
+  actual event validation remains pending the test-app grant. Preserve the
   [comparison guide](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md#october-6-fixture-preparation-receipt-and-next-user-step).
   The connector has no calendar-create/delete/share operation and cannot read
-  the unshared source 1. Bind its exact fixture roots through an approved bounded
-  test-registration read or owner-provided identities before strict comparison.
+  the unshared source 1. A bounded preparation extension is now implemented.
+  The user reports connecting the test account to the connector, but this chat's
+  fresh profile still returns the previous fixture owner and source 1's bounded
+  read returns 404. Do not ask for connector setup again; refresh its actual
+  account before later writes and continue the approved test-registration flow.
+  The preparation extension will
+  validate actual issued scopes/account and both exact calendar entries, then
+  identify only the approved named/scheduled synthetic fixtures. Source-2 roots
+  must match the recorded identities; recurrence masters must confirm two daily
+  occurrences. Its fixed dates, owner/reader roles, paging/item/time bounds,
+  finite UTC-alias check and guest/reminder rejection preserve the approved
+  fixture boundary. It writes only a new private bound configuration and then
+  starts the strict known-ID event-read comparison with the same grant. Run this
+  arm first, restore initial fixtures, revoke, then run availability separately;
+  this changes order without adding a third consent or broader permission.
   A fixture-expectation correction accepts both ID-only deletions and retained
   CANCELLED rows as removal from active conflicts, matching the real sync and
-  conflict query. The focused comparison tests pass 23/23.
+  conflict query. The focused comparison tests now pass 33/33; typecheck and
+  full lint pass. Actual binding/permission results remain pending genuine consent.
   No real test-app OAuth consent or permission comparison has started, and no
   consent listener is running. Source-2 connector activity is fixture preparation,
   not a measured permission result. Test-account owner/reader and UTC calendar

@@ -2,6 +2,38 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Owner fixtures reported ready; same-grant identity binding prepared
+
+- The user replies `events ready`. Record source 1's manual creation as an owner
+  execution receipt, not independent event proof. Reverified clean task-owned
+  head `34fd4e2`, private preparation state and connected profile. A fresh bounded
+  source-2 read still contains exactly four entries and no manual source-1 titles.
+- Implemented a standalone preparation extension for the approved comparison.
+  It checks exact secondary targets and the owner receipt before consent; after
+  actual scope/account validation it validates both exact calendar entries before
+  event reads. Binding accepts only the three named synthetic fixtures and four
+  independently scheduled shapes per source, known source-2 roots, and identified
+  recurring masters with daily COUNT=2. It rejects unexpected events, guests,
+  reminders, changed times/recurrence, duplicate pages and non-UTC zones. Four
+  finite UTC aliases are accepted semantically while their literal representation
+  is retained for later strict equality. Paging/item/time limits remain explicit.
+- Preparation writes only a newly created bound config within system temporary
+  storage; tokens, codes, event text and cursors remain in memory. Failure still
+  revokes the issued test token and prevents synthetic change dispatch. Run the
+  event-read arm first with identity binding and strict comparison using that same
+  grant, then restore fixtures and use a separately consented availability arm.
+  This supersedes the previous ordering without adding a third consent or changing
+  approved scopes, targets or fixture operations. The focused suite passes 33/33,
+  typecheck passes and full lint passes; no app runtime or credential provisioning
+  changed. Actual consent and measured provider results are not yet claimed.
+- The user now reports connecting the configured test account to the Calendar
+  connector. A fresh profile read in this chat still returns the previous fixture
+  owner, and a single read confined to source 1's fixed window returns 404. That
+  proves the current tool session cannot read source 1, not why the user's new
+  connection is unavailable. No account replacement or sharing change was made.
+  Continue the approved test-registration flow rather than repeating connector
+  setup; refresh its actual profile before any later fixture write.
+
 ## 2026-10-06 — Temporary Calendar IDs received; source-2 fixtures prepared
 
 - Reverified the clean task-owned branch at `ca52d61` and refreshed the connected
