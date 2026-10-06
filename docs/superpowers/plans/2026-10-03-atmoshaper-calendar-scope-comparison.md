@@ -9,8 +9,11 @@ October 6; source 2's three synthetic resources are created and expanded
 readback matches the four expected entries. The user now replies `events ready`
 for source 1. The bounded identity-binding extension is implemented and locally
 checked, allowing the event-read arm to run first with the same grant used for
-binding. Actual account/metadata validation and comparison remain pending consent.
-No measured permission result is claimed.
+binding. The first real consent passed issued-scope and account checks, then
+stopped at source 1's calendar metadata before event reads. Its token was revoked.
+The user's settings screenshots show source 1's calendar time zone is Eastern
+Time – New York rather than UTC. Both temporary calendars must use UTC before a
+fresh consent retry; no measured permission result is claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -46,8 +49,9 @@ An operational preparation manifest outside tracked source retains the run
 marker and private references without copying credential values. It is not
 launchable comparison configuration until all exact fixture roots and expected
 rows are bound. Both IDs are subsequently received and source-2 fixture
-preparation is complete as recorded below. No real test-app consent or measured
-comparison has started.
+preparation is complete as recorded below. The first real consent and subsequent
+metadata stop are recorded below; event binding and the measured comparison have
+not started.
 
 The existing Production registration, API enablement, working sign-in, and
 declaration approval remain recorded. Do not repeat those operations. The
@@ -96,6 +100,35 @@ must still match the previously recorded connector identities. No real grant or
 measured result is claimed by these local checks. Do not delete the temporary
 calendars yet; cleanup follows the measured arms and revocation.
 
+### First consent receipt and calendar time-zone correction
+
+The user confirms the local page reported `Consent received`. Actual issued
+scopes and configured test-account identity passed before Calendar access.
+Preparation then stopped at source 1's calendar metadata check, before any
+test-app event read or baseline. The original generic failure cannot distinguish
+an HTTP access/API error from a name, zone or role mismatch. The issued test token
+was successfully revoked, the callback listener closed and the owned run exited.
+No bound fixture configuration or permission-comparison result exists yet.
+
+The user's requested settings screenshots match the supplied source-1 ID and
+configured test-user owner. The name's visible prefix matches the intended name,
+but its full value is truncated. Its calendar time zone is Eastern Time – New
+York instead of UTC, confirming one setup mismatch without proving it was the
+only rejected field. Source 2's calendar time zone remains unverified.
+
+The immediate user action is to set both run-owned temporary calendars' calendar
+time zones to UTC in each calendar's Settings and sharing > Time zone. This is
+distinct from a timed event's time zone or the account's display time zone; it
+controls the all-day fixture's interpretation. This completes the existing
+approved UTC setup. Keep the calendars, event identities, dates and recurrence;
+do not recreate fixtures. After the user reports the correction, start a fresh
+consent for the same bounded event-read preparation. The previous link is closed.
+
+Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
+and identity/secondary/name/UTC/role match flags. Tests ensure private provider
+values and arbitrary error bodies never enter output. These flags make any
+remaining mismatch actionable; they do not relax the fixture boundary.
+
 ## Approved test configuration and user execution receipt
 
 The earlier proposal preferred an appropriate existing test project after its
@@ -123,10 +156,11 @@ Port 3317 was unused at the local preparation check and remains unused after
 local validation. It is not reserved; recheck before starting an approved run.
 The callback listener and comparison runner are now implemented. Provider-free
 listener tests use ephemeral loopback ports and close their owned listeners.
-The downloaded JSON has now been accessed only for the separately approved
-private credential preflight and passes the exact-target/callback checks above.
-No real OAuth consent flow has started. The original configuration approval alone
-did not authorize consent or Calendar activity; the subsequent run approval does.
+The downloaded JSON passed the separately approved private credential preflight
+and was subsequently used for the approved first real consent. That attempt
+passed scope/account checks, stopped at calendar metadata and revoked its token
+as recorded above. The original configuration approval alone did not authorize
+consent or Calendar activity; the subsequent run approval does.
 
 The user replied `Yes` to the exact configuration-only approval request for this
 new project,
@@ -181,7 +215,7 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 33 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 34 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
   approved one-arm execution with previously bound exact fixture identities.

@@ -175,13 +175,24 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   this changes order without adding a third consent or broader permission.
   A fixture-expectation correction accepts both ID-only deletions and retained
   CANCELLED rows as removal from active conflicts, matching the real sync and
-  conflict query. The focused comparison tests now pass 33/33; typecheck and
-  full lint pass. Actual binding/permission results remain pending genuine consent.
-  No real test-app OAuth consent or permission comparison has started, and no
-  consent listener is running. Source-2 connector activity is fixture preparation,
-  not a measured permission result. Test-account owner/reader and UTC calendar
-  metadata, source-1 identities and expected fixtures still need validation
-  before comparison. Production
+  conflict query. The focused comparison tests now pass 34/34; typecheck and
+  full lint pass, with focused lint repeated after diagnostic repairs.
+  The first real test-app consent completed. Its actual issued scopes and
+  test-account identity passed validation. Preparation stopped at source 1's
+  calendar metadata check before event reads; the original generic report does
+  not distinguish HTTP access/API failure from name, zone or role mismatch.
+  The issued test token was successfully revoked, the callback listener closed
+  and the owned run exited. No active-event baseline or minimum-permission result
+  is established. Sanitized HTTP/allowlisted-reason and field-match flags now make
+  a retry actionable without exposing provider values. The user's settings
+  screenshots identify source 1's supplied ID and configured test-user owner,
+  but show Eastern Time – New York instead of UTC. This is one confirmed fixture
+  mismatch, not proof that no other check failed. Asked them to set both temporary
+  calendars' calendar-level time zones to UTC under the existing setup approval;
+  source 2's zone is not yet independently checked. Do not recreate the calendars
+  or events. After that receipt, start a fresh consent for the same bounded run.
+  Source-2 connector activity remains fixture preparation; both metadata checks,
+  source-1 identities and expected fixtures still need validation. Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.

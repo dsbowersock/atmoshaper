@@ -113,8 +113,22 @@ test("binding uses only exact metadata targets and independently scheduled four 
 
 test("missing or changed calendar metadata prevents all event reads", async () => {
   const transport = provider({ mutateMetadata: (metadata, index) => { if (index === 1) metadata.accessRole = "writer" } })
-  await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: transport.fetchImpl }), /fixture_metadata/)
+  const progress = []
+  await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: transport.fetchImpl, onProgress: (value) => progress.push(value) }), /fixture_metadata/)
   assert.equal(transport.calls.some((url) => url.pathname.includes("/events")), false)
+  assert.equal(progress.at(-1).checks.accessRole, false)
+  assert.equal(progress.at(-1).checks.name, true)
+  assert.doesNotMatch(JSON.stringify(progress), /fixture1@|AtmoShaper scope test|writer/)
+})
+
+test("metadata HTTP failures report only a status and allowlisted reason, never raw provider content", async () => {
+  for (const reason of ["accessNotConfigured", "PRIVATE_PROVIDER_MESSAGE"]) {
+    const progress = []
+    await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: async () => json({ error: { errors: [{ reason }], message: "PRIVATE_PROJECT_PATH" } }, 403), onProgress: (value) => progress.push(value) }), /fixture_metadata/)
+    assert.equal(progress.at(-1).httpStatus, 403)
+    assert.equal(progress.at(-1).providerReason, reason === "accessNotConfigured" ? reason : "other")
+    assert.doesNotMatch(JSON.stringify(progress), /PRIVATE_/)
+  }
 })
 
 test("verified UTC aliases preserve literal normalization fields without accepting another zone", async () => {

@@ -86,16 +86,31 @@ function bindPage(source, items, found, roots) {
 export async function bindPreparedFixtures({ config, accessToken, fetchImpl = fetch, signal, onProgress = () => {} }) {
   validateFixturePreparation(config)
   const budget = AbortSignal.any([signal ?? new AbortController().signal, AbortSignal.timeout(60_000)])
-  const get = async (url) => {
+  const get = async (url, onResponse = () => {}) => {
     const response = await fetchImpl(url, { method: "GET", headers: { Authorization: `Bearer ${accessToken}` }, redirect: "error", signal: AbortSignal.any([budget, AbortSignal.timeout(8_000)]) })
+    let providerReason
+    if (response.status !== 200) {
+      const reasons = new Set(["accessNotConfigured", "insufficientPermissions", "notFound", "forbidden", "rateLimitExceeded", "quotaExceeded", "unauthenticated"])
+      try {
+        const body = await response.clone().json()
+        const reason = body?.error?.errors?.[0]?.reason
+        providerReason = reasons.has(reason) ? reason : "other"
+      } catch { providerReason = "other" }
+    }
+    onResponse({ httpStatus: response.status, ...(providerReason ? { providerReason } : {}) })
     requireComparison(response.status === 200, "fixture_metadata")
     return response.json()
   }
   const timezones = []
   for (const [index, source] of config.sources.entries()) {
     onProgress({ phase: "calendar_metadata", source: index + 1 })
-    const calendar = await get(`${API}/users/me/calendarList/${encodeURIComponent(source.calendarId)}`)
-    requireComparison(calendar.id === source.calendarId && !calendar.primary && calendar.summary === source.summary && UTC_ZONES.has(calendar.timeZone) && calendar.accessRole === source.accessRole, "fixture_metadata")
+    const progress = { phase: "calendar_metadata", source: index + 1 }
+    const calendar = await get(`${API}/users/me/calendarList/${encodeURIComponent(source.calendarId)}`, (status) => onProgress({ ...progress, ...status }))
+    // Field flags distinguish missing access from target drift without logging
+    // calendar names, identifiers, arbitrary zones or provider error bodies.
+    const checks = { identity: calendar.id === source.calendarId, secondary: !calendar.primary, name: calendar.summary === source.summary, utcTimezone: UTC_ZONES.has(calendar.timeZone), accessRole: calendar.accessRole === source.accessRole }
+    onProgress({ ...progress, httpStatus: 200, checks })
+    requireComparison(Object.values(checks).every(Boolean), "fixture_metadata")
     timezones.push(calendar.timeZone)
   }
   const sources = []

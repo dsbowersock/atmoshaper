@@ -2,6 +2,33 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — First test consent passes; metadata stop and UTC correction identified
+
+- Started the approved event-read preparation at locally checked head `8c3afcd`.
+  The user confirms the local page says `Consent received`. Actual token-response
+  scopes and configured test-account identity passed before Calendar access.
+  Source 1's metadata check then failed; no test-app event read, fixture binding,
+  baseline or synthetic mutation occurred. The original generic failure does not
+  distinguish HTTP access/API failure from a metadata-field mismatch.
+- The issued test token was successfully revoked in the cleanup path, its
+  callback listener closed and the owned process exited. Private preparation
+  retains only a sanitized result and input references; no token, authorization
+  code or raw provider response is retained.
+- Added sanitized HTTP status, fixed allowlisted error reasons and per-field
+  identity/secondary/name/UTC/role flags before metadata rejection. Tests verify
+  that private provider values never enter diagnostics. The focused suite passes
+  34/34 and focused lint passes; earlier full lint/typecheck remain recorded.
+- The user's requested settings screenshots show the supplied source-1 ID and
+  configured test-user owner, with Eastern Time – New York as calendar time zone.
+  This establishes a fixture mismatch with the approved UTC schedule; it does
+  not prove the original metadata rejection had no other cause. Asked the user
+  to set both run-owned temporary calendars' calendar-level zones to UTC, without
+  recreation or a broader permission. Source 2's zone remains unverified. This
+  fixes the already approved setup; the agent made no calendar-settings write.
+  A fresh genuine consent is needed for the same bounded retry because the first
+  token is already revoked. No Production, hosting, payment or publication work
+  occurred, and no permission-comparison result is claimed.
+
 ## 2026-10-06 — Owner fixtures reported ready; same-grant identity binding prepared
 
 - The user replies `events ready`. Record source 1's manual creation as an owner
