@@ -36,6 +36,13 @@ export function validateFixturePreparation(config) {
   requireComparison(Array.isArray(config.sources) && config.sources.length === 2)
   for (const [index, source] of config.sources.entries()) {
     requireComparison(source.accessRole === (index === 0 ? "owner" : "reader") && source.timezone === "UTC")
+    // The owner's recorded time repair left two deleted occurrences. Their
+    // exact private IDs are allowed only as cancellations of the bound master.
+    const retired = source.retiredInstanceIds ?? []
+    requireComparison(Array.isArray(retired) && retired.length <= (index === 0 ? 2 : 0))
+    requireComparison(new Set(retired).size === retired.length)
+    const retiredRoots = retired.map((id) => typeof id === "string" && /^([a-z0-9]{5,64})_(20261010T180000Z|20261011T180000Z)$/.exec(id))
+    requireComparison(retiredRoots.every(Boolean) && new Set(retiredRoots.map((match) => match[1])).size <= 1)
     requireComparison(Array.isArray(source.fixtures) && source.fixtures.length === 3)
     for (const [kindIndex, fixture] of source.fixtures.entries()) {
       requireComparison(fixture.kind === KINDS[kindIndex])
@@ -61,9 +68,20 @@ function matchesShape(source, event, expected) {
 }
 
 /** Resolve only the user's exact synthetic names/shapes, rejecting unrelated or changed events. */
-function bindPage(source, items, found, roots) {
+function bindPage(source, items, found, roots, retiredSeen) {
   const schedule = expectedRows(["pendingtimed", "pendingallday", "pendingrecurring"]).before
   for (const event of items) {
+    if (event?.status === "cancelled") {
+      requireComparison(source.retiredInstanceIds?.includes(event.id) && !retiredSeen.has(event.id), "fixture_boundary")
+      // Deleted events may expose only ID/status. Never derive active timing
+      // expectations from a tombstone, or accept an unrecorded cancelled ID.
+      const root = event.id.split("_")[0]
+      requireComparison(!event.recurringEventId || event.recurringEventId === root, "fixture_boundary")
+      requireComparison(!event.summary || event.summary === source.fixtures[2].title, "fixture_boundary")
+      requireComparison(!event.attendees?.length && !event.conferenceData && !event.hangoutLink, "fixture_boundary")
+      retiredSeen.add(event.id)
+      continue
+    }
     requireComparison(typeof event?.id === "string" && event.status === "confirmed", "fixture_boundary")
     requireComparison(!event.attendees?.length && !event.conferenceData && !event.hangoutLink && event.reminders?.useDefault !== true && !event.reminders?.overrides?.length, "fixture_boundary")
     const kindIndex = source.fixtures.findIndex((fixture) => event.summary === fixture.title)
@@ -122,6 +140,7 @@ export async function bindPreparedFixtures({ config, accessToken, fetchImpl = fe
     onProgress({ phase: "fixture_binding", source: index + 1 })
     const found = new Map()
     const roots = []
+    const retiredSeen = new Set()
     let pageToken
     let requests = 0
     let items = 0
@@ -131,11 +150,12 @@ export async function bindPreparedFixtures({ config, accessToken, fetchImpl = fe
       for (const [key, value] of Object.entries({ timeMin: config.timeMin, timeMax: config.timeMax, timeZone: "UTC", singleEvents: "true", showDeleted: "true", maxResults: "2", fields: "items(id,summary,status,start,end,transparency,recurringEventId,originalStartTime,attendees,reminders,conferenceData,hangoutLink),nextPageToken", ...(pageToken ? { pageToken } : {}) })) url.searchParams.set(key, value)
       const page = await get(url.toString())
       requireComparison(Array.isArray(page.items) && (items += page.items.length) <= 24, "fixture_boundary")
-      bindPage(source, page.items, found, roots)
+      bindPage(source, page.items, found, roots, retiredSeen)
       pageToken = page.nextPageToken
       requireComparison(pageToken === undefined || typeof pageToken === "string" && pageToken.length > 0 && pageToken.length <= 8192, "fixture_boundary")
     } while (pageToken)
     requireComparison(found.size === 4 && roots.length === 3 && new Set(roots).size === 3, "baseline_mismatch")
+    requireComparison((source.retiredInstanceIds ?? []).every((id) => id.startsWith(`${roots[2]}_`)), "fixture_boundary")
     // Expanded instances alone cannot establish COUNT=2. Check only their
     // discovered synthetic master, never another calendar or an iCalUID.
     const masterUrl = new URL(`${API}/calendars/${encodeURIComponent(source.calendarId)}/events/${roots[2]}`)

@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-06 (repository and synthetic Calendar fixture preparation; hosted receipts retain their original dates)
+Verified: 2026-10-06 (repository, test Calendar metadata and synthetic fixtures; hosted receipts retain their original dates)
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -218,8 +218,23 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   write; no new event resources were created. Ready for fresh event-read consent,
   direct metadata validation and same-grant binding/comparison. No permission
   result is inferred from the separate connector.
-  Source-2 connector activity remains fixture preparation; both metadata checks,
-  source-1 identities and expected fixtures still need validation. Production
+  The second real consent passed actual scopes/account and both exact calendar
+  metadata checks: IDs, secondary status, full names, UTC-equivalent zones and
+  owner/reader roles all match. The run stopped at source-1 fixture binding with
+  `fixture_boundary`, before the active baseline or controlled changes. Its token
+  was revoked, listener closed and process exited. The connector readback still
+  matches the four active shapes, while exact reads of the two previously
+  recorded old recurring-occurrence IDs return `cancelled`. Google retains such
+  historical deletions; the generic binding rejection does not prove no other
+  issue exists. The local binder now permits only those explicitly recorded
+  source-1 cancellations, at most two and tied to the validated recurring root;
+  unrecorded/active/duplicate/foreign-root entries still fail. Active expectations,
+  dates, six-resource ceiling and scopes are unchanged. Private config records
+  the exact retired IDs. The focused suite passes 36/36 and focused lint passes.
+  No new event write occurred during this diagnosis; a fresh consent can retry
+  binding and the strict comparison using the same grant. Connector activity
+  remains fixture assistance; the measured baseline/results remain pending.
+  Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
   changes, QA resources, Calendar/event activity, deployment, and activation.

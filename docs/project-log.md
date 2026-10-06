@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Both test Calendar metadata checks pass; known retired occurrences bound safely
+
+- Reverified clean task-owned head `0937027` and resumed its owned run after the
+  user reports `Consent received`. Actual scopes/account and both metadata
+  checks pass: supplied secondary IDs, full names, UTC-equivalent zones and
+  owner/reader roles match. Source-1 fixture binding then stops with
+  `fixture_boundary`; no bound output, active baseline or controlled changes
+  occurred. The token was revoked, callback closed and run exited.
+- Refreshed the source-1 connector profile and bounded active readback. Its
+  four current shapes still match the independent schedule. Exact reads of the
+  two recorded old recurrence-occurrence IDs return `cancelled`; Google's event
+  reference documents retained deletion records with only ID guaranteed. The
+  generic failure does not exclude another issue, but these historical entries
+  violate the previous preparation requirement that every entry be confirmed.
+- The preparation schema now permits at most two explicitly recorded source-1
+  retired occurrence IDs with the fixed prior-date suffixes. Binding accepts
+  those entries only while cancelled, rejects duplicates, checks any supplied
+  title/root against the synthetic recurrence, and requires the IDs' root to
+  match the validated current master. Unrecorded or active entries fail. The
+  strict production-adapter comparison already handles cancellation rows;
+  its active schedule and resource bounds are unchanged. Private operational
+  state records the retired IDs; tracked docs contain no provider identities.
+- Focused regression checks pass 36/36 and focused lint passes, including paged
+  historical deletions through real normalization/strict comparison/revocation
+  and invalid-root/unknown-ID/active/duplicate rejection. No event write or
+  resource creation occurred during diagnosis. A fresh consent is the next
+  bounded retry because the failed attempt's permission is already revoked.
+  No measured minimum-access result or Production/deployment readiness is claimed.
+
 ## 2026-10-06 — Iceland settings reported; source-1 fixture schedule repaired and verified
 
 - The user reports changing both temporary calendars to Iceland. Preserve that

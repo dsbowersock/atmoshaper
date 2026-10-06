@@ -39,7 +39,7 @@ function events(source, index) {
   }
 }
 
-function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMaster = () => {}, mutateDelta = () => {}, scopeExtra = "", accountEmail, repeatPage = false } = {}) {
+function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMaster = () => {}, mutateDelta = () => {}, baselineExtra = [], scopeExtra = "", accountEmail, repeatPage = false } = {}) {
   const calls = []
   const value = config()
   const fetchImpl = async (input, init) => {
@@ -74,10 +74,12 @@ function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMast
     }
     assert.equal(url.searchParams.get("timeMin"), value.timeMin)
     assert.equal(url.searchParams.get("timeMax"), value.timeMax)
-    const pageIndex = url.searchParams.has("pageToken") ? 1 : 0
-    const items = fixture.items.slice(pageIndex * 2, pageIndex * 2 + 2)
+    const requestedPage = Number(url.searchParams.get("pageToken") ?? 0)
+    const pageIndex = repeatPage ? Math.min(requestedPage, 1) : requestedPage
+    const baseline = [...fixture.items, ...(index === 0 ? baselineExtra : [])]
+    const items = baseline.slice(pageIndex * 2, pageIndex * 2 + 2)
     items.forEach((item) => mutateItem(item, index))
-    return json({ items, ...(!pageIndex || repeatPage ? { nextPageToken: "PRIVATE_PAGE" } : { nextSyncToken: "PRIVATE_CURSOR" }) })
+    return json({ items, ...(pageIndex * 2 + 2 < baseline.length || repeatPage ? { nextPageToken: String(pageIndex + 1) } : { nextSyncToken: "PRIVATE_CURSOR" }) })
   }
   return { fetchImpl, calls }
 }
@@ -89,6 +91,9 @@ test("preparation rejects unapproved calendars, dates, roles and missing executi
     (value) => { value.sources[1].accessRole = "writer" },
     (value) => { value.sources[0].summary = "Real appointments" },
     (value) => { value.sources[0].timezone = "America/New_York" },
+    (value) => { value.sources[1].retiredInstanceIds = ["recurring00001_20261010T180000Z"] },
+    (value) => { value.sources[0].retiredInstanceIds = ["recurring00000_20261010T140000Z"] },
+    (value) => { value.sources[0].retiredInstanceIds = ["recurring00000_20261010T180000Z", "recurring00000_20261010T180000Z"] },
     (value) => { value.timeMax = "2026-10-14T00:00:00Z" },
     (value) => { value.sources[0].fixtures[0].title = "A real event" },
     (value) => { value.sources[1].fixtures[0].eventId = undefined },
@@ -165,6 +170,31 @@ test("Iceland picker zones preserve independent UTC instants and all-day boundar
   const wrong = provider({ mutateMetadata: (metadata) => { metadata.timeZone = "Europe/London" } })
   await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: wrong.fetchImpl }), /fixture_metadata/)
   assert.equal(wrong.calls.some((url) => url.pathname.includes("/events")), false)
+})
+
+test("only recorded retired occurrences of the bound recurring fixture may be inactive during baseline", async () => {
+  const value = config()
+  const root = events(value.sources[0], 0).roots[2]
+  value.sources[0].retiredInstanceIds = [10, 11].map((day) => `${root}_202610${day}T180000Z`)
+  const extra = value.sources[0].retiredInstanceIds.map((id) => ({ id, status: "cancelled" }))
+  const transport = provider({ baselineExtra: extra })
+  const report = await runComparisonArm({ config: value, client: client(), arm: "event-read", code: "fake", prepareFixtures: true, fetchImpl: transport.fetchImpl, onFixturesBound: async () => {}, changeFixtures: async () => {} })
+  assert.equal(report.status, "passed")
+  assert.equal(report.tokenRevoked, true)
+  assert.equal(report.preparation.phase, "bound")
+  for (const invalid of [
+    [{ id: `${root}_20261012T180000Z`, status: "cancelled" }],
+    [{ id: extra[0].id, status: "confirmed" }],
+    [{ ...extra[0], recurringEventId: "differentroot" }],
+    [{ ...extra[0], summary: "An unrelated event" }],
+    [extra[0], extra[0]],
+  ]) {
+    const bad = provider({ baselineExtra: invalid })
+    await assert.rejects(() => bindPreparedFixtures({ config: value, accessToken: "fake", fetchImpl: bad.fetchImpl }))
+  }
+  const wrongRoot = config()
+  wrongRoot.sources[0].retiredInstanceIds = ["differentroot_20261010T180000Z"]
+  await assert.rejects(() => bindPreparedFixtures({ config: wrongRoot, accessToken: "fake", fetchImpl: provider().fetchImpl }), /fixture_boundary/)
 })
 
 test("unexpected names, IDs, invitations or timing cannot become their own passing expectations", async () => {

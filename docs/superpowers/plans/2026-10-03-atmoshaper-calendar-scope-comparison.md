@@ -15,8 +15,11 @@ The user's settings screenshots show source 1's calendar time zone is Eastern
 Time – New York rather than UTC. The user now reports both calendars changed to
 UTC-equivalent Iceland / GMT+00:00 in the current city/country picker. The updated
 connector can read both sources through their owner links; source-1 timed fixture
-corrections and both prescribed schedules are verified. Fresh consent and direct
-test-app metadata validation precede comparison. No measured result is claimed.
+corrections and both prescribed schedules are verified. The second real consent
+also passed both exact metadata checks, then stopped at source-1 binding. The
+two recorded retired recurring occurrences are confirmed cancelled and now have
+a bounded local binding repair. Fresh consent can retry; no measured result is
+claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -151,9 +154,35 @@ reminders are disabled and daily COUNT=2/roots are retained. The all-day resourc
 already has no reminders and was unchanged. Private intent/outcome receipts were
 saved around each write. Fresh bounded reads of both sources have exactly four
 expected expanded entries; source-1 detail readback verifies retained identities,
-recurrence and no guests, reminders or conference links. The setup is ready for
-fresh event-read consent. Treat calendar-zone changes as the user's execution
-receipt until the test registration validates both exact metadata entries.
+recurrence and no guests, reminders or conference links. The subsequent second
+real consent validates both exact metadata entries: identity, secondary status,
+full names, UTC-equivalent zones and owner/reader roles all pass. This supersedes
+the previous user-receipt-only limit for those settings on that attempt.
+
+### Second consent receipt and recorded historical deletions
+
+Actual scopes/account and both calendar metadata checks passed, but source-1
+fixture binding stopped with `fixture_boundary` before active baselines or any
+controlled change. The token was revoked, listener closed and owned run exited;
+no bound output or measured result exists. Active connector readback still
+matches the independent schedule. Exact reads of the two previously recorded
+recurring instances at their old, four-hour-later starts now return `cancelled`.
+Google's [event status reference](https://developers.google.com/workspace/calendar/api/v3/reference/events#status)
+documents retained deletions that may expose only their ID. These historical
+entries cannot satisfy the old confirmed-only preparation rule; another cause
+is not excluded by the generic rejection.
+
+The private preparation input now records only those two exact retired IDs.
+The validator permits this optional list only on source 1, with at most two
+unique IDs and the fixed October 10/11 prior-time suffixes. Binding accepts them
+only as cancellations, rejects duplicate rows, validates any supplied synthetic
+title/recurring root, and checks their root against the independently validated
+current recurring master after paging. Do not accept arbitrary cancelled events
+or derive active expectations from them. Current four-entry shapes, fixed dates,
+COUNT=2, six-resource limit, metadata/scope validation and request budgets remain.
+The strict comparison already excludes cancellation rows from active conflicts.
+No event writes occurred during this diagnosis. Retry with a fresh genuine
+event-read consent; its preceding token is already revoked.
 
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider
@@ -246,7 +275,7 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 35 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 36 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
   approved one-arm execution with previously bound exact fixture identities.
