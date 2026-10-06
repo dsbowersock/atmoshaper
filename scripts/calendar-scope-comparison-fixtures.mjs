@@ -4,7 +4,10 @@ import { requireComparison, validateComparisonConfig } from "./calendar-scope-co
 const API = "https://www.googleapis.com/calendar/v3"
 const KINDS = ["timed", "allDay", "recurring"]
 const ROOT = /^[a-z0-9]{5,64}$/
-const UTC_ZONES = new Set(["UTC", "Etc/UTC", "Etc/GMT", "GMT"])
+// Google's city/country picker exposes Iceland rather than a literal UTC entry.
+// IANA links Iceland/Reykjavik to Abidjan; these preserve UTC for the fixed 2026
+// fixture dates. Do not accept arbitrary zones merely because today's offset is 0.
+const UTC_ZONES = new Set(["UTC", "Etc/UTC", "Etc/GMT", "GMT", "Atlantic/Reykjavik", "Africa/Abidjan", "Iceland"])
 
 /** Independent October fixture schedule; provider responses supply identities only. */
 function expectedRows(roots) {

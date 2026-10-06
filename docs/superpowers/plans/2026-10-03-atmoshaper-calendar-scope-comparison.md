@@ -12,8 +12,11 @@ checked, allowing the event-read arm to run first with the same grant used for
 binding. The first real consent passed issued-scope and account checks, then
 stopped at source 1's calendar metadata before event reads. Its token was revoked.
 The user's settings screenshots show source 1's calendar time zone is Eastern
-Time – New York rather than UTC. Both temporary calendars must use UTC before a
-fresh consent retry; no measured permission result is claimed.
+Time – New York rather than UTC. The user now reports both calendars changed to
+UTC-equivalent Iceland / GMT+00:00 in the current city/country picker. The updated
+connector can read both sources through their owner links; source-1 timed fixture
+corrections and both prescribed schedules are verified. Fresh consent and direct
+test-app metadata validation precede comparison. No measured result is claimed.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -71,8 +74,9 @@ conference links remain. Expanded source-2 readback has exactly four confirmed
 items with matching initial times and transparency. This is connector fixture
 preparation, not evidence of either measured test-app permission.
 
-Source 1 must be prepared manually in the configured test-user account; it is
-unshared with the connector. Select the temporary calendar whose run-specific
+Source 1 was prepared manually in the configured test-user account while that
+account link was unavailable. The connector now exposes that verified owner link,
+so future fixture assistance can use it. Select the temporary calendar whose run-specific
 name ends in `1` in each event's calendar selector. Do not use the account's
 primary calendar. Create these three resources, with no guests, reminders,
 conference links, descriptions or locations:
@@ -83,8 +87,8 @@ conference links, descriptions or locations:
 | `Test all-day` | October 11, 2026 only; one all-day day | Busy; does not repeat |
 | `Test recurring` | October 10, 2026, 14:00–14:30 UTC | Free; custom repeat every one day, ending after two occurrences |
 
-For timed events set the event's time zone to UTC in More options > Time zone;
-the calendar grid may otherwise display local time. The repeating event should
+For manual timed-event entry use Iceland / GMT+00:00 in More options > Time zone;
+the calendar grid may display local time. The repeating event should
 appear on October 10 and 11 only. Google's
 [time-zone instructions](https://support.google.com/calendar/answer/37064?hl=en)
 and [recurrence instructions](https://support.google.com/calendar/answer/37115?hl=en)
@@ -117,12 +121,39 @@ York instead of UTC, confirming one setup mismatch without proving it was the
 only rejected field. Source 2's calendar time zone remains unverified.
 
 The immediate user action is to set both run-owned temporary calendars' calendar
-time zones to UTC in each calendar's Settings and sharing > Time zone. This is
+time zones to Iceland / GMT+00:00 in Settings and sharing > Time zone. Search for
+`Iceland`, because the current picker searches cities/countries and the user
+reports no literal `UTC` entry. Google's
+[March 2026 picker announcement](https://workspaceupdates.googleblog.com/2026/03/easily-find-and-set-time-zones-in-Google-Calendar-by-searching-for-city-or-country.html)
+confirms the search behavior. IANA's
+[Iceland/Reykjavik links](https://data.iana.org/time-zones/tzdb/backward) and
+[canonical zone rules](https://data.iana.org/time-zones/tzdb/africa)
+establish the equivalent zero-offset clock for these fixed 2026 dates. This is
 distinct from a timed event's time zone or the account's display time zone; it
 controls the all-day fixture's interpretation. This completes the existing
 approved UTC setup. Keep the calendars, event identities, dates and recurrence;
 do not recreate fixtures. After the user reports the correction, start a fresh
 consent for the same bounded event-read preparation. The previous link is closed.
+
+After the app update, both connector account links are exposed and the selected
+test-user profile matches. An exact source-1/fixed-window read returns four
+expanded synthetic entries. The timed start is 14:00 UTC rather than 10:00 UTC,
+and recurring starts are 18:00 UTC rather than 14:00 UTC. Calendar-zone selection
+does not correct those existing timed instants. The verified owning connector can
+repair these recorded resources under the existing fixture authority after the
+zone correction, preserving IDs and the two-occurrence recurrence. Read back the
+schedule before retry; no repair was made during the account-access check.
+
+The user subsequently reports changing both calendars to Iceland. Both connector
+owner profiles were reverified before sequential source-1 corrections. Its timed
+and recurring starts/ends now match the prescribed UTC schedule; their default
+reminders are disabled and daily COUNT=2/roots are retained. The all-day resource
+already has no reminders and was unchanged. Private intent/outcome receipts were
+saved around each write. Fresh bounded reads of both sources have exactly four
+expected expanded entries; source-1 detail readback verifies retained identities,
+recurrence and no guests, reminders or conference links. The setup is ready for
+fresh event-read consent. Treat calendar-zone changes as the user's execution
+receipt until the test registration validates both exact metadata entries.
 
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider
@@ -215,7 +246,7 @@ Implemented commands:
 
 - `npm run calendar:scope-comparison:plan`: safe offline outline; reads no files,
   credentials, environment settings, or providers.
-- `npm run test:calendar-scope-comparison`: 34 mock/owned-ephemeral-loopback tests;
+- `npm run test:calendar-scope-comparison`: 35 mock/owned-ephemeral-loopback tests;
   callback HTTP tests never follow external redirects.
 - `npm run calendar:scope-comparison -- --run --arm <availability|event-read> --config <absolute-private-config-path>`:
   approved one-arm execution with previously bound exact fixture identities.
@@ -233,8 +264,11 @@ at page size two. Unexpected names, guests, reminders, timings, statuses,
 duplicate rows, unknown source-2 IDs or changed recurrences stop binding. Only
 the identified recurring masters are read to confirm daily COUNT=2. Pages are
 bounded to sixteen per source and 24 items, under one sixty-second binding budget.
-The UTC aliases `UTC`, `Etc/UTC`, `Etc/GMT` and `GMT` are explicitly equivalent
-for this UTC fixture schedule; all other zones fail. Their verified literal
+The UTC names `UTC`, `Etc/UTC`, `Etc/GMT`, `GMT` and the picker-compatible
+`Atlantic/Reykjavik`, `Africa/Abidjan`, `Iceland` identifiers are explicitly
+equivalent for this fixed 2026 UTC fixture schedule; all other zones fail. This
+does not assert identical historical rules or accept arbitrary seasonal zero
+offsets. Their verified literal
 representations are retained for strict comparison, while timings, transparency,
 all-day and recurrence expectations remain independently prescribed. Source-1
 identities are discovered rather than guessed or substituted with iCalUIDs.
@@ -339,8 +373,8 @@ permissions:
 
 | Role | Account authority | Calendar / permitted operations |
 | --- | --- | --- |
-| OAuth test user | Account successfully added by the user during Cloud setup | Owns source 1; grants both measured permissions separately; reader of source 2 |
-| Connected fixture owner | Other user-owned account verified through the Calendar connector profile | Owns source 2; user shares it with the test user; connector assistance may act only on this exact new source |
+| OAuth test user | Account successfully added by the user during Cloud setup; its connector profile now verified after the app update | Owns source 1; grants both measured permissions separately; reader of source 2; owning connector link may assist only with source 1 |
+| Source-2 fixture owner | Other user-owned account verified through the Calendar connector profile | Owns source 2; user shares it with the test user; its owning connector link may assist only with source 2 |
 
 Only the OAuth test user grants access to the test registration. The fixture
 owner needs no test-user entry or project-management role. Do not relink the
@@ -355,19 +389,20 @@ describe separate app-authorization and calendar-access controls.
    All checks passed. The connected Calendar profile was re-read October 5;
    it identifies the fixture owner rather than the OAuth test user. Private
    preparation state now retains these identities separately. Before connector
-   event activity, validate only its owner's new source 2; before test-app reads,
+   event activity, select and verify the link that owns the exact fixture source;
+   both links are now available. Before test-app reads,
    validate the OAuth test account and source 1 owner / source 2 reader metadata.
 2. The user creates source 1 in the configured test-user account and source 2
    in the connected fixture-owner account. Preserve the existing run marker
    and exact two synthetic names previously supplied. Both IDs are received
    October 6; retain this creation guide as reference, not a repeat request.
-   Use UTC for both calendars. The source 2 owner shares
+   Use Iceland / GMT+00:00 for both calendars in the current picker. The source 2 owner shares
    only that calendar with the test user using reader access. Capture their exact
    Calendar IDs privately from settings and verify the owner's execution receipt.
    These manual Calendar operations do not automate the previously denied Cloud
    Console route. The connector has no calendar-create/delete/sharing tool.
    In Calendar's browser UI use Other calendars > Add > Create new calendar,
-   and set the new calendar's time zone to UTC. In the second calendar's settings
+   and select Iceland / GMT+00:00 for its time zone. In the second calendar's settings
    share only with the first account using the reader-level `See event details`
    option. Add it to the first account's calendar list from Google's sharing
    email. This is a user-performed sharing notification between their own
@@ -388,12 +423,11 @@ describe separate app-authorization and calendar-access controls.
    synthetic roots to bind identities, recurrence, timings and transparency.
    Keep identities outside tracked source, and derive expected times from this
    table, rather than copying a measured arm's output as its own expectation.
-   The connector cannot discover source 1 while it remains unshared. Prepare a
-   bounded source-1 identity-binding read through the approved test registration
-   or obtain exact fixture identities from its owner before comparison. The
-   current runner requires those known roots; do not launch with guessed IDs,
+   The source-2 link cannot discover unshared source 1, but the now-available
+   source-1 owner link can. The preparation mode still validates source-1 roots
+   through the measured test grant before strict comparison. Do not launch with guessed IDs,
    treat iCalUID as an event ID, widen to unrelated calendars, or bypass that
-   requirement. No such preparatory provider read has occurred yet.
+   requirement. Connector fixture reads do not establish measured permission.
 
 | Fixture in each source | Initial shape in UTC | Controlled change after each arm's baseline |
 | --- | --- | --- |
@@ -413,8 +447,8 @@ prepare a new explicit fixture proposal; do not silently widen provider reads.
    consent in their browser. Validate actual issued scopes and expected account
    before exact-source metadata and event reads. At the baseline pause, change
    only the two designated resources in each source. Connector assistance can
-   update/delete its owner's recorded IDs in source 2; the test user makes source
-   1's changes manually. Preserve recurring roots. Confirm each write outcome;
+   update/delete only recorded IDs through that source's verified owner link;
+   manual owner changes remain available. Preserve recurring roots. Confirm each write outcome;
    reconcile uncertain writes before retry. Record sanitized results and revoke
    only the issued test-app token even if comparison fails.
 5. Restore the exact initial fixtures before the availability arm: restore the

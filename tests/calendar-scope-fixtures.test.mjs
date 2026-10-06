@@ -39,7 +39,7 @@ function events(source, index) {
   }
 }
 
-function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMaster = () => {}, scopeExtra = "", accountEmail, repeatPage = false } = {}) {
+function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMaster = () => {}, mutateDelta = () => {}, scopeExtra = "", accountEmail, repeatPage = false } = {}) {
   const calls = []
   const value = config()
   const fetchImpl = async (input, init) => {
@@ -69,6 +69,7 @@ function provider({ mutateItem = () => {}, mutateMetadata = () => {}, mutateMast
     assert.equal(url.searchParams.get("singleEvents"), "true")
     if (url.searchParams.has("syncToken")) {
       fixture.delta[0].transparency = "transparent"
+      fixture.delta.forEach(mutateDelta)
       return json({ items: fixture.delta, nextSyncToken: "PRIVATE_DELTA_CURSOR" })
     }
     assert.equal(url.searchParams.get("timeMin"), value.timeMin)
@@ -140,6 +141,30 @@ test("verified UTC aliases preserve literal normalization fields without accepti
   assert.equal(bound.sources[0].after[0].timezone, "Etc/GMT")
   const wrong = provider({ mutateMetadata: (metadata) => { metadata.timeZone = "America/New_York" } })
   await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: wrong.fetchImpl }), /fixture_metadata/)
+})
+
+test("Iceland picker zones preserve independent UTC instants and all-day boundaries through comparison", async () => {
+  for (const zone of ["Atlantic/Reykjavik", "Africa/Abidjan", "Iceland"]) {
+    const format = (timeZone) => new Intl.DateTimeFormat("en", { timeZone, dateStyle: "full", timeStyle: "long" })
+    for (const date of ["2026-01-10T00:00:00Z", "2026-07-10T00:00:00Z", "2026-10-11T00:00:00Z"]) {
+      // Compare clock/date parts, excluding the display name of an equivalent zone.
+      const parts = (timeZone) => format(timeZone).formatToParts(new Date(date)).filter((part) => part.type !== "timeZoneName")
+      assert.deepEqual(parts(zone), parts("UTC"))
+    }
+    const setEventZone = (event) => { if (event.start?.dateTime) event.start.timeZone = event.end.timeZone = zone }
+    const transport = provider({ mutateMetadata: (metadata) => { metadata.timeZone = zone }, mutateItem: setEventZone, mutateMaster: setEventZone, mutateDelta: setEventZone })
+    let bound
+    const report = await runComparisonArm({ config: config(), client: client(), arm: "event-read", code: "fake", prepareFixtures: true, fetchImpl: transport.fetchImpl, onFixturesBound: async (value) => { bound = value }, changeFixtures: async () => {} })
+    assert.equal(report.status, "passed")
+    assert.equal(report.tokenRevoked, true)
+    assert.equal(bound.sources[0].timezone, zone)
+    assert.equal(bound.sources[0].before[1].startsAt, "2026-10-11T00:00:00.000Z")
+    assert.equal(bound.sources[0].before[1].endsAt, "2026-10-12T00:00:00.000Z")
+    assert.equal(bound.sources[0].before[1].timezone, zone)
+  }
+  const wrong = provider({ mutateMetadata: (metadata) => { metadata.timeZone = "Europe/London" } })
+  await assert.rejects(() => bindPreparedFixtures({ config: config(), accessToken: "fake", fetchImpl: wrong.fetchImpl }), /fixture_metadata/)
+  assert.equal(wrong.calls.some((url) => url.pathname.includes("/events")), false)
 })
 
 test("unexpected names, IDs, invitations or timing cannot become their own passing expectations", async () => {

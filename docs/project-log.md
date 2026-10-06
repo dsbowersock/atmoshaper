@@ -2,6 +2,50 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Iceland settings reported; source-1 fixture schedule repaired and verified
+
+- The user reports changing both temporary calendars to Iceland. Preserve that
+  as their settings execution receipt; direct test-registration metadata checks
+  remain before event reads. Refreshed both owning connector profiles and read
+  only the exact recorded source-1 resources before writes.
+- Under the existing synthetic-fixture authority, corrected its timed event and
+  whole recurring series to the independent UTC schedule, explicitly preserved
+  daily COUNT=2, and disabled default reminders on those two resources. Saved
+  private intent/outcome records around each sequential write. The all-day
+  fixture already has no reminders and remains unchanged; no resources were
+  created and no guests or conference links were added.
+- Fresh fixed-window reads of both sources each contain exactly four scheduled
+  entries with prescribed times/transparency. Source-1 detail readback confirms
+  retained timed/recurring roots, two occurrences, and no guests/reminders or
+  conference links. This validates fixture assistance, not either measured
+  permission. The next action is a fresh event-read consent at the checked local
+  source, followed by direct metadata validation and same-grant comparison.
+  Production, publication, database, deployment and payment boundaries remain.
+
+## 2026-10-06 — Connector account access restored; current time-zone picker guide repaired
+
+- Reverified clean task-owned head `4cb52dc`. After the app update, Calendar tool
+  metadata exposes both user-owned links. The explicitly selected test-user
+  profile matches; an exact source-1 read restricted to the approved window
+  returns three resources/four expanded entries. Its timed and recurring starts
+  are four hours later than independently prescribed. This was a read-only
+  connector check; no fixture was changed and no measured test grant is active.
+- The user cannot select a literal `UTC` entry. Refreshed Google's March 2026
+  city/country-picker announcement and IANA zone data. Corrected the guide to
+  search Iceland and select GMT+00:00 for both temporary calendar-level zones.
+  Google storing timed-event instants in UTC does not set the calendar's own
+  zone or change the intended absolute fixture times. All-day normalization uses
+  the calendar zone, so this setup still matters for the fixed UTC expectations.
+- Added only the verified Iceland/Reykjavik/Abidjan equivalents to the local
+  binder's finite UTC-zone set for its fixed 2026 dates. Regression coverage
+  compares winter/summer/test-date clocks and exercises real all-day normalization,
+  binding, strict baseline/delta comparison and revocation with literal zones
+  preserved; a seasonal zone still fails before event reads. Focused tests pass
+  35/35 and focused lint passes. Independent dates, event bounds and scopes remain.
+  The user-performed calendar-zone correction and owned fixture-time repairs
+  precede fresh consent. No calendar-settings write, event write, Production
+  change, source publication, deployment or payment activity occurred.
+
 ## 2026-10-06 — First test consent passes; metadata stop and UTC correction identified
 
 - Started the approved event-read preparation at locally checked head `8c3afcd`.

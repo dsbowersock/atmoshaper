@@ -157,12 +157,19 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   source 1's three manually created fixtures. Record that owner execution receipt;
   actual event validation remains pending the test-app grant. Preserve the
   [comparison guide](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md#october-6-fixture-preparation-receipt-and-next-user-step).
-  The connector has no calendar-create/delete/share operation and cannot read
-  the unshared source 1. A bounded preparation extension is now implemented.
-  The user reports connecting the test account to the connector, but this chat's
-  fresh profile still returns the previous fixture owner and source 1's bounded
-  read returns 404. Do not ask for connector setup again; refresh its actual
-  account before later writes and continue the approved test-registration flow.
+  The connector has no calendar-create/delete/share or calendar-settings operation.
+  Before the app update it could not read unshared source 1: fresh profile reads
+  still returned the fixture owner despite the user's new connection receipt.
+  After the update, both account links are available. An explicitly selected
+  test-user profile matches, and an exact source-1/fixed-window read returns its
+  three synthetic resources/four expanded entries. The timed and recurring
+  fixtures are four hours later than the independent UTC schedule; connector
+  correction is now possible through the owning link under the existing fixture
+  authority, after calendar-zone correction. No event was changed during this
+  read-only check. Do not repeat connector setup; select and verify the owning
+  account before later writes. Its grant remains fixture assistance, not proof
+  of the test registration's permission. A bounded preparation extension is
+  implemented for that separately consented measurement.
   The preparation extension will
   validate actual issued scopes/account and both exact calendar entries, then
   identify only the approved named/scheduled synthetic fixtures. Source-2 roots
@@ -191,6 +198,26 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   calendars' calendar-level time zones to UTC under the existing setup approval;
   source 2's zone is not yet independently checked. Do not recreate the calendars
   or events. After that receipt, start a fresh consent for the same bounded run.
+  The user's next report shows searching `UTC` finds no selectable entry. Google's
+  March 2026 announcement confirms the current picker searches cities/countries;
+  the earlier literal-UTC guide was incomplete. Use the Iceland / GMT+00:00 entry
+  on both temporary calendars. IANA's Iceland/Reykjavik and canonical Abidjan
+  identifiers preserve UTC throughout the fixed 2026 schedule. The local binder
+  now accepts only these finite equivalents alongside its existing UTC names,
+  preserving literal zones and independent times/all-day boundaries; broader
+  zones still fail. Focused comparison tests pass 35/35; focused lint passes.
+  The user now reports both calendars changed to Iceland. This is their settings
+  execution receipt; direct test-app metadata validation remains before event
+  reads. Reverified both owning connector profiles and source-1 roots. Corrected
+  only its timed and recurring fixture starts/ends to the independent schedule,
+  disabled their default reminders, and preserved IDs and daily COUNT=2. The
+  all-day fixture already has no reminders and was unchanged. Fresh bounded
+  reads of both sources contain exactly the four expected entries with prescribed
+  times/transparency. Source-1 detail readback confirms no guests, reminders or
+  conference links. Private intent/outcome receipts precede each sequential
+  write; no new event resources were created. Ready for fresh event-read consent,
+  direct metadata validation and same-grant binding/comparison. No permission
+  result is inferred from the separate connector.
   Source-2 connector activity remains fixture preparation; both metadata checks,
   source-1 identities and expected fixtures still need validation. Production
   settings and larger application/provider acceptance remain separately gated.
