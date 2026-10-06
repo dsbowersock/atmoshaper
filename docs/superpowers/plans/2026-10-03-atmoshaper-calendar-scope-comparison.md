@@ -25,8 +25,13 @@ predicate. The binder now removes only that deletion-title requirement; identity
 and all active identity/schedule checks remain strict. The following consent
 passes all source-1 binding, then rejects the reader account's source-2 default
 reminder flag. The binder now resolves effective defaults from that same test
-account's exact calendar entry; configured alerts still fail. Fresh consent is
-needed to validate the actual defaults; no measured result is claimed.
+account's exact calendar entry; configured alerts still fail. Fresh consent at
+`63c06ce` now confirms empty actual defaults and complete binding. Both initial
+and incremental event-read comparisons pass, including the controlled timed
+update and all-day deletion, and token revocation succeeds. Both timed roots
+are restored. Owner Trash restoration of the two original all-day roots and
+bounded identity/value verification are next, before the independent availability
+arm. Minimum access and full application acceptance remain unproven.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -269,6 +274,46 @@ checks remain. The actual list is unknown until fresh consent; do not infer enab
 alerts or ask for settings changes in advance. TDD mode stays `off` with regression
 verification. Focused tests pass 40/40 and lint passes, covering entry/master and
 owner/reader variants through normalization/comparison/revocation. No settings changed.
+
+### Event-read execution receipt and immediate restoration step
+
+At `63c06ce`, genuine consent validates the issued scope set/account, exact source
+metadata and empty authenticated-user default-reminder lists. Both sources bind
+all active roots/master relationships and the recorded historical cancellations.
+Both strict baselines pass before controlled changes. Each source starts with
+the independent four-entry schedule. Refreshed owner connectors then move only
+the timed root to the prescribed available interval and delete only its all-day
+root. Bounded reads confirm the three remaining active entries and exact cancelled
+all-day IDs; recurring roots/occurrences remain unchanged. Intent/outcome receipts
+and the sanitized result are private operational evidence.
+
+| Measured event-read result | Source 1 | Source 2 |
+| --- | --- | --- |
+| Initial baseline | Matches; four pages | Matches; two pages |
+| Incremental after controlled changes | Matches; two pages | Matches; two pages |
+| Missing / unexpected / field mismatches | All zero | All zero |
+| Pagination / etags / sync cursor | Present in both reads | Present in both reads |
+| Retained cancelled rows, baseline / incremental | Two / three | Zero / one |
+
+Final report: `passed`, compatible, test token revoked, no grant cleanup required,
+process exit zero and callback closed. Fixture removal is still false and
+`providerMinimumAccessProven` remains false. The result proves bounded inbound
+event-read compatibility, not database acceptance or least-access necessity.
+
+Both timed roots are now restored to the initial busy interval with their IDs and
+disabled alerts verified. Restore only the original October 11 all-day root from
+each owning account's Calendar Trash. The source-1 owner uses the calendar ending
+in `1`; the source-2 owner uses the calendar ending in `2`. On desktop Calendar,
+use gear > Trash, select that temporary calendar and click Restore beside the
+designated all-day event. The connector offers no restore operation. Do not empty
+Trash, restore unrelated entries or recreate the roots. See Google's
+[event restoration instructions](https://support.google.com/calendar/answer/37113?hl=en).
+Exact owner identities/event titles were supplied privately to the user. On their
+receipt, verify both original IDs, dates, busy status and alert/guest constraints
+through the exact owner connectors. Then run the availability arm using the
+existing bound config and its own genuine consent; do not accumulate grants or
+start it while either all-day fixture remains cancelled. The approved procedure
+below governs controlled changes and final owner-side calendar cleanup.
 
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider

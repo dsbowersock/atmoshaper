@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-06 (repository, test Calendar metadata and synthetic fixtures; hosted receipts retain their original dates)
+Verified: 2026-10-06 (repository, test Calendar metadata, synthetic fixtures and event-read comparison; hosted receipts retain their original dates)
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
@@ -272,8 +272,26 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   only with an empty/omitted list; malformed defaults, configured alerts and
   explicit overrides still fail. Only boolean diagnostics are emitted. Focused
   tests pass 40/40 and lint passes, covering entry/master, empty defaults and
-  explicit opt-out. No event settings changed; actual reader defaults still need
-  validation under fresh consent. No passing measured arm is claimed yet.
+  explicit opt-out. No event settings changed during that validator repair.
+  Fresh consent at `63c06ce` now validates actual scopes/account, both exact
+  metadata entries and empty effective default-reminder lists for the test user.
+  All six synthetic roots bind, and both strict initial baselines pass. Under the
+  existing execution approval, verified owner connectors move each timed fixture
+  to the prescribed available interval and delete only each designated all-day
+  fixture. Bounded readback confirms three expected active entries per source,
+  unchanged recurring occurrences and the exact two cancelled all-day identities.
+  The same test grant's incremental comparison passes for both sources with zero
+  missing/unexpected entries or field mismatches. Pagination, etags and cursors
+  are present in both baselines and both incremental results. The report is
+  `passed`/`compatible`; token revocation succeeds and the process exits zero.
+  This proves this event-read arm's inbound behavior, not minimum access or
+  database/application acceptance. Both timed roots are restored and verified
+  with their original IDs, busy intervals and disabled alerts. The two deleted
+  all-day roots await their owners' Calendar Trash restoration; the connector
+  has no restore action. The user has received exact account/calendar/event
+  instructions. Verify both original identities and initial values before the
+  independently consented narrower availability arm; do not recreate fixtures
+  or rewrite expectations. No test token or callback listener remains active.
   Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope

@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Event-read comparison passes on both synthetic sources
+
+- Reverified clean task-owned head `63c06ce` and resumed the owned consent run.
+  Actual scopes/account, both exact metadata entries and empty effective defaults
+  pass under the measured test grant. All six roots bind; both strict baselines
+  match before any controlled write. The bound config keeps recorded fixture
+  references and independent expectations outside tracked source; tokens and
+  cursors are never written to it.
+- Refreshed both owning connector profiles and known fixture preconditions.
+  Sequentially moved each timed root to the approved available interval and
+  deleted its designated all-day root, journaling intent/outcome privately.
+  Exact deletion reads return cancelled; bounded active reads contain only the
+  expected three entries per source, preserving both recurring occurrences.
+- The same measured grant passes both incremental comparisons with no missing,
+  unexpected or mismatched active entries. Source-1 baseline/incremental pagination
+  uses four/two pages; source 2 uses two/two. Etags and sync cursors are present in
+  all four results. Retained cancellation counts are two/three for source 1 and
+  zero/one for source 2, accounting for recorded historical and controlled deletes.
+  Final status is `passed`, compatibility true, token revoked, cleanup not required
+  for that grant, and process exit zero. The callback listener is closed.
+- Restored both timed roots to the initial busy interval; exact owner readbacks
+  verify original IDs and disabled reminders. Asked the user to restore only the
+  two original all-day roots from their respective owners' Calendar Trash because
+  the connector cannot restore deleted events. Initial identity/value readbacks
+  remain a prerequisite for the separately consented availability arm. No extra
+  event resource, broader permission, Production setting or publication is added.
+  Minimum-access proof, full application/database acceptance and final temporary-
+  calendar cleanup remain open. Existing focused code validation remains 40/40
+  with lint passing; this stage changes documentation only.
+
 ## 2026-10-06 — Source-1 binding passes; reader reminder defaults resolved per account
 
 - Reverified clean local head `a0b3aaa`. Genuine consent passes scopes/account,
