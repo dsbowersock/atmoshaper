@@ -2,6 +2,22 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Original all-day fixtures restored; availability arm started
+
+- The user reports `Restored both`. Reverified clean local head `b464aa5`,
+  both exact owner profiles, the six known roots and the fixed October 10–13
+  active windows. Original all-day IDs are confirmed, with their initial dates
+  and busy state retained. Both sources exactly match four initial expanded
+  entries; timed/recurring roots, titles, COUNT=2 and disabled owner alerts are
+  preserved, with no guests or Meet links. No fixture was recreated.
+- Private intent/outcome receipts and the existing bound config retain the
+  independently prescribed before/after expectations. The event-read token is
+  already revoked and no preceding callback listener remains. Started the approved
+  availability arm with its own manual genuine-consent link; no accumulated
+  event-read grant, broader scope, provider settings or publication is added.
+  It awaits consent before issued-scope/account checks, strict baselines and any
+  new controlled mutation. No availability capability result is claimed yet.
+
 ## 2026-10-06 — Event-read comparison passes on both synthetic sources
 
 - Reverified clean task-owned head `63c06ce` and resumed the owned consent run.

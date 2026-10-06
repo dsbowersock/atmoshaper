@@ -29,9 +29,11 @@ account's exact calendar entry; configured alerts still fail. Fresh consent at
 `63c06ce` now confirms empty actual defaults and complete binding. Both initial
 and incremental event-read comparisons pass, including the controlled timed
 update and all-day deletion, and token revocation succeeds. Both timed roots
-are restored. Owner Trash restoration of the two original all-day roots and
-bounded identity/value verification are next, before the independent availability
-arm. Minimum access and full application acceptance remain unproven.
+are restored. The user now reports both original all-day roots restored from
+Trash. Fresh exact owner reads and bounded windows verify original IDs and both
+complete initial schedules. The independent availability arm is started and
+awaits genuine consent. Minimum access and full application acceptance remain
+unproven.
 
 Read [project state](../../project-state.md),
 [project log](../../project-log.md), and the
@@ -308,12 +310,20 @@ use gear > Trash, select that temporary calendar and click Restore beside the
 designated all-day event. The connector offers no restore operation. Do not empty
 Trash, restore unrelated entries or recreate the roots. See Google's
 [event restoration instructions](https://support.google.com/calendar/answer/37113?hl=en).
-Exact owner identities/event titles were supplied privately to the user. On their
-receipt, verify both original IDs, dates, busy status and alert/guest constraints
-through the exact owner connectors. Then run the availability arm using the
-existing bound config and its own genuine consent; do not accumulate grants or
-start it while either all-day fixture remains cancelled. The approved procedure
-below governs controlled changes and final owner-side calendar cleanup.
+Exact owner identities/event titles were supplied privately to the user. Their
+`Restored both` receipt is now independently checked through both refreshed owner
+connectors: all original roots are confirmed, with initial IDs, dates, busy/free
+state, titles, daily COUNT=2 and disabled owner alerts retained. Both bounded
+windows contain exactly four expected active entries and no more pages. No
+guests or Meet links are present. No event is recreated and the independent
+expectations remain unchanged.
+
+The availability arm is now started using the existing bound config and its own
+genuine manual consent. Its issued-scope check must allow only identity, calendar-
+list read and availability access; the event-read grant must not accumulate.
+Consent, actual scope/account checks and both strict baselines remain pending;
+only then perform the same approved controlled changes. The approved procedure
+below governs revocation and final owner-side calendar cleanup.
 
 Metadata diagnostics now report only HTTP status, fixed allowlisted error reasons
 and identity/secondary/name/UTC/role match flags. Tests ensure private provider

@@ -286,12 +286,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   `passed`/`compatible`; token revocation succeeds and the process exits zero.
   This proves this event-read arm's inbound behavior, not minimum access or
   database/application acceptance. Both timed roots are restored and verified
-  with their original IDs, busy intervals and disabled alerts. The two deleted
-  all-day roots await their owners' Calendar Trash restoration; the connector
-  has no restore action. The user has received exact account/calendar/event
-  instructions. Verify both original identities and initial values before the
-  independently consented narrower availability arm; do not recreate fixtures
-  or rewrite expectations. No test token or callback listener remains active.
+  with their original IDs, busy intervals and disabled alerts. The user now
+  reports `Restored both` after owner-side Calendar Trash restoration. Refreshed
+  owner profiles, exact reads of all six roots and bounded active readbacks
+  independently verify the original IDs, initial timed/all-day/recurring shapes,
+  four active entries per source, no guests/Meet and disabled owner alerts. No
+  fixture was recreated or expectation rewritten. The independently consented
+  narrower availability arm is started using the same bound config and awaits
+  genuine consent. Its own issued scope/account checks and strict initial
+  baselines precede controlled changes. The event-read token is revoked; no new
+  issued token or availability result is claimed while consent remains pending.
   Production
   settings and larger application/provider acceptance remain separately gated.
   The completed API-only approval excludes hosting provisioning, consent/scope
