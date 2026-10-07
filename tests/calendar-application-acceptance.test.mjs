@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import { mkdtemp, rm, readFile, writeFile, stat, mkdir, rmdir } from "node:fs/promises"
+import { mkdtemp, rm, readFile, writeFile, stat, mkdir, rmdir, symlink, realpath } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { createServer } from "node:http"
@@ -9,7 +9,7 @@ import { once } from "node:events"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
 import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
-import { writeAcceptanceDiagnostic } from "../scripts/calendar-application-acceptance.mjs"
+import { writeAcceptanceDiagnostic, acceptancePrivatePaths } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
@@ -43,6 +43,27 @@ test("child diagnostics protect both new files and previously permissive files b
     await writeAcceptanceDiagnostic(directory, "new synthetic failure")
     assert.equal(await readFile(path, "utf8"), "new synthetic failure")
     if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("private paths accept canonical siblings and reject dot-prefixed children or symlinks into the checkout", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-private-path-unit-"))
+  const root = join(directory, "atmoshaper")
+  const sibling = root + "-private"
+  const inside = join(root, "..private")
+  const alias = join(directory, "outside-alias")
+  try {
+    for (const path of [root, sibling, inside]) await mkdir(path, { recursive: true })
+    for (const path of [sibling, inside]) for (const name of ["run.json", "client.json"]) await writeFile(join(path, name), "{}")
+    const config = join(sibling, "run.json")
+    const credential = join(sibling, "client.json")
+    assert.deepEqual(await acceptancePrivatePaths(root, config, credential), { config: await realpath(config), credential: await realpath(credential) })
+    await assert.rejects(acceptancePrivatePaths(root, join(inside, "run.json"), credential), /private_file_location/)
+    await assert.rejects(acceptancePrivatePaths(root, config, join(inside, "client.json")), /private_file_location/)
+    await symlink(inside, alias, process.platform === "win32" ? "junction" : "dir")
+    await assert.rejects(acceptancePrivatePaths(root, config, join(alias, "client.json")), /private_file_location/)
+    await assert.rejects(acceptancePrivatePaths(root, join(alias, "run.json"), credential), /private_file_location/)
+    assert.deepEqual(await acceptancePrivatePaths(root, config), { config: await realpath(config), credential: null })
   } finally { await rm(directory, { recursive: true, force: true }) }
 })
 
@@ -489,6 +510,35 @@ test("a newly issued wrong grant is encrypted and retained solely for owned revo
     assert.equal((await store.vault())[0].access_token, token)
     assert.equal((await readFile(join(directory, "token-vault.json"), "utf8")).includes(token), false)
     assert.equal((await store.journal()).some((item) => item.kind === "exchange" && item.phase === "accepted"), false)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("cleanup recovers capture from the encrypted vault after a worker stops before the journal append", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-capture-crash-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const interrupted = { ...store, record: async (item) => {
+      if (item.kind === "exchange" && item.phase === "captured") throw new Error("synthetic stop after vault replacement")
+      return store.record(item)
+    } }
+    const token = "invented-vault-captured-access-token"
+    const guarded = createAcceptanceFetch({ manifest, client, store: interrupted, fetchImpl: async () => Response.json({ access_token: token, refresh_token: "invented-refresh-token", id_token: "invented-identity-token", scope: GOOGLE_CALENDAR_SCOPES.join(" ") }) })
+    await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+    const captured = (await store.vault())[0]
+    assert.match(captured.tokenAttempt, /^[a-f0-9]{32}$/)
+    assert.equal(captured.tokenKind, "exchange")
+    assert.equal(captured.acceptedForUse, false)
+    assert.equal((await store.journal()).some((item) => item.phase === "captured"), false)
+    await store.saveVault([{ ...captured, tokenKind: "refresh" }])
+    await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)
+    await store.saveVault([captured])
+    await assertAcceptanceTokenCaptureComplete(store)
+    assert.equal((await store.journal()).filter((item) => item.phase === "captured" && item.recoveredFromVault).length, 1)
+    let revoked = false
+    const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => { revoked = new URLSearchParams(await request.text()).get("token") === token; return Response.json({}) } })
+    await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+    assert.equal(revoked, true)
   } finally { await rm(directory, { recursive: true, force: true }) }
 })
 

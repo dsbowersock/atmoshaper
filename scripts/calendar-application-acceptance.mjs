@@ -1,5 +1,5 @@
 import { readFile, readdir, realpath, open } from "node:fs/promises"
-import { dirname, join, resolve, relative } from "node:path"
+import { dirname, join, resolve, relative, isAbsolute, sep } from "node:path"
 import { spawn, execFileSync } from "node:child_process"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { acceptanceEnvironment, requireAcceptance, validateAcceptanceCredential, validateAcceptanceManifest, ACCEPTANCE_BASE } from "./calendar-application-acceptance-core.mjs"
@@ -14,6 +14,19 @@ export async function writeAcceptanceDiagnostic(directory, text) {
   } finally { await file.close() }
 }
 
+/** Canonical file ancestry rejects in-checkout symlinks and dot-prefixed children without rejecting siblings. */
+export async function acceptancePrivatePaths(appRoot, configPath, credentialFile = null) {
+  const root = await realpath(appRoot)
+  const config = await realpath(configPath)
+  const credential = credentialFile ? await realpath(credentialFile) : null
+  const outside = (path) => {
+    const components = relative(root, path)
+    return isAbsolute(components) || components === ".." || components.startsWith(".." + sep)
+  }
+  requireAcceptance(outside(config) && (!credential || outside(credential)), "private_file_location")
+  return { config, credential }
+}
+
 /** A receipt-bound launcher avoids dotenv/credential inheritance and hides private framework logs. */
 export async function loadAcceptanceConfig(path, { database = true, cleanup = false } = {}) {
   const configPath = await realpath(path)
@@ -21,14 +34,13 @@ export async function loadAcceptanceConfig(path, { database = true, cleanup = fa
   validateAcceptanceManifest(manifest, { requireDatabase: database, cleanup })
   const appRoot = await realpath(manifest.appRoot)
   requireAcceptance(resolve(appRoot) === resolve(dirname(dirname(fileURLToPath(import.meta.url)))), "checkout_ownership")
-  const outside = relative(appRoot, configPath)
-  requireAcceptance(outside.startsWith("..") && (manifest.pendingActionOnly || !resolve(manifest.credentialFile).startsWith(resolve(appRoot))), "private_file_location")
+  const privatePaths = await acceptancePrivatePaths(appRoot, configPath, manifest.pendingActionOnly ? null : manifest.credentialFile)
   requireAcceptance(!(await readdir(appRoot)).some((name) => name.startsWith(".env") && name !== ".env.example"), "dotenv_boundary")
   requireAcceptance(execFileSync("git", ["rev-parse", "HEAD"], { cwd: appRoot, encoding: "utf8", windowsHide: true }).trim() === ACCEPTANCE_BASE, "source_boundary")
   // Task scripts may differ. The application, schema and committed migrations must remain exact.
   requireAcceptance(execFileSync("git", ["diff", ACCEPTANCE_BASE, "--", "app", "lib", "auth.ts", "prisma", "prisma.config.ts", "next.config.mjs"], { cwd: appRoot, encoding: "utf8", windowsHide: true }).trim() === "", "source_boundary")
   requireAcceptance(execFileSync("git", ["status", "--porcelain", "--untracked-files=all", "--", "app", "lib", "auth.ts", "prisma", "prisma.config.ts", "next.config.mjs"], { cwd: appRoot, encoding: "utf8", windowsHide: true }).trim() === "", "source_boundary")
-  const client = manifest.pendingActionOnly ? {} : validateAcceptanceCredential(JSON.parse(await readFile(manifest.credentialFile, "utf8")), manifest)
+  const client = manifest.pendingActionOnly ? {} : validateAcceptanceCredential(JSON.parse(await readFile(privatePaths.credential, "utf8")), manifest)
   return { manifest, client, configPath, directory: dirname(configPath) }
 }
 

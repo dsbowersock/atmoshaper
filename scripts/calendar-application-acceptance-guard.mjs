@@ -15,15 +15,19 @@ async function releaseAcceptanceLock(lock, ownerName) {
       await new Promise((resolve) => setTimeout(resolve, 25))
     }
   }
-  try { await rmdir(lock) } catch (error) {
-    if (!["ENOENT", "ENOTEMPTY", "EEXIST"].includes(error.code)) throw error
+  while (true) {
+    try { await rmdir(lock); return } catch (error) {
+      if (["ENOENT", "ENOTEMPTY", "EEXIST"].includes(error.code)) return
+      if (!["EPERM", "EACCES"].includes(error.code) || Date.now() >= deadline) throw error
+      await new Promise((resolve) => setTimeout(resolve, 25))
+    }
   }
 }
 
 /** PID liveness is fail-closed: only ESRCH proves a recorded owner is dead, never age or EPERM. */
 async function reclaimAcceptanceLock(lock) {
   let entries
-  try { entries = await readdir(lock) } catch (error) { if (error.code === "ENOENT") return; throw error }
+  try { entries = await readdir(lock) } catch (error) { if (["ENOENT", "EPERM", "EACCES"].includes(error.code)) return; throw error }
   if (entries.length !== 1 || !/^owner-[1-9][0-9]*-[a-f0-9]{32}\.json$/.test(entries[0])) return
   let owner
   try { owner = JSON.parse(await readFile(join(lock, entries[0]), "utf8")) } catch { return }
@@ -46,7 +50,7 @@ export async function acceptanceLock(directory, action, { timeoutMs = 5000 } = {
     while (true) {
       // Leave pre-existing empty/unrecognized locks alone; POSIX rename could otherwise replace an empty directory.
       let occupied = true
-      try { await readdir(lock) } catch (error) { if (error.code === "ENOENT") occupied = false; else throw error }
+      try { await readdir(lock) } catch (error) { if (error.code === "ENOENT") occupied = false; else if (!["EPERM", "EACCES"].includes(error.code)) throw error }
       if (occupied) {
         requireAcceptance(Date.now() < deadline, "journal_lock")
         await reclaimAcceptanceLock(lock)
@@ -171,6 +175,15 @@ export async function assertAcceptanceTokenCaptureComplete(store, complete = asy
   return store.locked(async () => {
     const journal = await store.journal()
     const intents = journal.filter((item) => ["exchange", "refresh"].includes(item.kind) && item.phase === "intent")
+    const tokens = await store.vault()
+    // Vault replacement can finish before its journal append. Bind recovery to the encrypted attempt identity.
+    for (const intent of intents) {
+      if (intent.tokenAttempt && !journal.some((item) => item.kind === intent.kind && item.tokenAttempt === intent.tokenAttempt && ["captured", "not-issued"].includes(item.phase)) && tokens.some((token) => token.tokenAttempt === intent.tokenAttempt && token.tokenKind === intent.kind && typeof token.access_token === "string" && token.access_token.length > 10)) {
+        const recovered = { ...intent, phase: "captured", recoveredFromVault: true }
+        await store.record(recovered)
+        journal.push(recovered)
+      }
+    }
     requireAcceptance(intents.every((intent) => intent.tokenAttempt && journal.some((item) => item.kind === intent.kind && item.tokenAttempt === intent.tokenAttempt && ["captured", "not-issued"].includes(item.phase))), "uncaptured_token_attempt")
     return complete()
   })
@@ -245,7 +258,7 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         // can revoke it even when the callback must stop without activating a connection.
         await store.locked(async () => {
           const tokens = await store.vault()
-          const captured = { ...data, scope: effectiveScope, capturedAt: Date.now(), acceptedForUse: false }
+          const captured = { ...data, scope: effectiveScope, capturedAt: Date.now(), acceptedForUse: false, tokenAttempt: decision.tokenAttempt, tokenKind: decision.kind }
           tokens.push(captured)
           await store.saveVault(tokens)
           await store.record({ ...decision, phase: "captured" })

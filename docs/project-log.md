@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review fixes capture recovery and canonical private paths
+
+- Codex's latest review completes at `2026-10-07T23:19:33Z` on `efd9b19`.
+  Both valid operator findings are fixed. Every encrypted token capture retains
+  its attempt identity and operation kind; cleanup can reconstruct a missing
+  captured journal entry after vault replacement succeeds but a worker stops
+  before the journal append. Recovery requires that exact identity/kind and
+  preserves the token's rejected-for-use state while allowing owned revocation.
+- The private-path helper canonicalizes both configuration and credential files
+  and checks ancestry by path components. Ordinary sibling scratch directories
+  are accepted; dot-prefixed in-checkout children and outside symlinks resolving
+  inside the checkout are rejected. The loader reads the canonical credential.
+- Local regression also exposed Windows pending-directory-delete contention;
+  lock directory probes and removal now retry or defer within their bounds
+  without interpreting permission failures as dead-owner proof.
+- All 28 provider-free harness checks pass in three consecutive local runs,
+  including interrupted capture/recovery/revocation, kind mismatch, canonical
+  siblings, config/credential symlinks, and concurrent lock reuse. Lint,
+  typecheck, documentation/workload checks 16/16 and whitespace pass; relative
+  targets are unchanged. Latest-head hosted checks/reviews remain pending.
+  No provider resource or completed
+  acceptance/public operation is repeated.
+
 ## 2026-10-07 — Review closes uncaptured-token cleanup receipt gap
 
 - Codex's review completes at `2026-10-07T23:10:02Z` on `83f5b33` with one
