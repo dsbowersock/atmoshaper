@@ -137,14 +137,19 @@ different client for each API. No project replacement or legacy change is
 proposed. Creating this registration alone does not enable Calendar sync in the
 app, grant a user's Calendar permission, create a calendar, or deploy anything.
 
-Creation authority is now received for the scope above. Automated browser access
-is denied, so do not attempt another browser
-or indirect control path. The user must perform the approved Google UI step.
-Retain the newly issued credential securely outside chat, source trees, and
-screenshots before closing its creation dialog; Google documents that the
-secret is shown only at creation. Secure hosting provisioning is a separate
-later operation. Do not rotate/export the existing sign-in secret or add the
-new client ID/secret to Vercel as an implied follow-up.
+### Historical registration-only guidance (completed)
+
+The instructions below record the earlier registration-only approval; they
+are not a current setup handoff. The user completed creation, and the later
+separately approved credential provisioning and public activation are complete
+as recorded in the [Production receipt](2026-10-07-atmoshaper-calendar-production-credentials.md).
+Do not repeat client creation, credential export or any completed provider test.
+
+At that earlier checkpoint, automated browser access was denied and the user
+performed the approved Google UI step. The issued credential was retained
+securely outside chat, source trees and screenshots. Hosting provisioning then
+required its separate later approval; registration alone did not authorize
+rotating/exporting the existing sign-in secret or adding credentials to Vercel.
 
 Historical user-guided creation steps (completed by user report): in the existing project, choose Create client, select Web
 application, enter the approved name, leave JavaScript origins empty for this
@@ -154,12 +159,12 @@ the result. Obtain only a creation confirmation and non-secret callback
 readback. Any prompt to change API, consent, publishing, or scopes is outside
 this approval and requires a separate reviewable proposal.
 
-No API enablement, consent audience/publishing/scope edit, verification submission,
-QA resource, database write, Calendar/event operation, or Production activation
-is included in this registration-only proposal. Saved API/consent/scope checks
-and isolated test-project/client identification remain required before those
-later exact proposals. Starting the app integration by provisioning credentials
-would expose its connect route before full acceptance, so defer that operation.
+That registration-only approval excluded API enablement, consent changes,
+verification submission, QA resources, database writes, Calendar operations
+and Production activation. Later exact approvals and their completed receipts
+supersede those preparatory gates. The completed provisioning/public rollout
+requires no new client file or setup; future provider activity retains its own
+exact scope, and no completed test is authorized to repeat.
 
 Primary creation/callback/credential-retention reference:
 [Google's server-side OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).

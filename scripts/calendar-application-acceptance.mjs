@@ -5,6 +5,28 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 import { acceptanceEnvironment, requireAcceptance, validateAcceptanceCredential, validateAcceptanceManifest, ACCEPTANCE_BASE } from "./calendar-application-acceptance-core.mjs"
 import { acceptanceStore } from "./calendar-application-acceptance-guard.mjs"
 
+/** POSIX descendants inherit this owned group; Windows teardown retains its PID-scoped tree operation. */
+export function spawnAcceptanceCommand(command, args, { cwd, env, shell = false } = {}) {
+  return spawn(command, args, { cwd, env, shell, detached: process.platform !== "win32", windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+}
+
+/** Terminate only the launcher's owned tree, escalating the POSIX group after a short grace period. */
+export async function stopAcceptanceCommand(child, { graceMs = 1000 } = {}) {
+  if (!child.pid) return
+  if (process.platform === "win32") {
+    const killer = spawn("taskkill", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" })
+    await new Promise((done, fail) => { killer.once("error", fail); killer.once("exit", done) })
+    return
+  }
+  const signalGroup = (signal) => {
+    try { process.kill(-child.pid, signal); return true } catch (error) { if (error.code === "ESRCH") return false; throw error }
+  }
+  if (!signalGroup("SIGTERM")) return
+  // The leader can exit before an ignoring descendant; keep the group bound alive until escalation.
+  await new Promise((done) => setTimeout(done, graceMs))
+  signalGroup("SIGKILL")
+}
+
 /** Protect new and existing POSIX diagnostics before writing raw stderr; Windows retains the run folder's ACL. */
 export async function writeAcceptanceDiagnostic(directory, text) {
   const file = await open(join(directory, "owned-command-error.txt"), "w", 0o600)
@@ -63,19 +85,23 @@ async function main() {
   if (["generate", "migrate"].includes(mode)) {
     const script = mode === "generate" ? "prisma:generate" : "prisma:migrate:deploy"
     const npm = process.platform === "win32" ? "npm.cmd" : "npm"
-    child = spawn(npm, ["run", script], { cwd: loaded.manifest.appRoot, env, shell: process.platform === "win32", windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+    child = spawnAcceptanceCommand(npm, ["run", script], { cwd: loaded.manifest.appRoot, env, shell: process.platform === "win32" })
   } else {
     requireAcceptance(!stage || /^[a-z-]+$/.test(stage), "command_boundary")
     const server = mode === "server" || mode === "pending-server"
     const runner = join(loaded.manifest.appRoot, "scripts", server ? "calendar-application-acceptance-server.mjs" : "calendar-application-acceptance-worker.mjs")
-    child = spawn(process.execPath, [...(server ? [] : ["--conditions=react-server", "--import", pathToFileURL(join(loaded.manifest.appRoot, "scripts", "calendar-application-acceptance-node-loader.mjs")).href]), runner, mode, ...(stage ? [stage] : [])], { cwd: loaded.manifest.appRoot, env, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+    child = spawnAcceptanceCommand(process.execPath, [...(server ? [] : ["--conditions=react-server", "--import", pathToFileURL(join(loaded.manifest.appRoot, "scripts", "calendar-application-acceptance-node-loader.mjs")).href]), runner, mode, ...(stage ? [stage] : [])], { cwd: loaded.manifest.appRoot, env })
   }
+  // Attach immediately: a failed or short-lived command must not exit before its receipt is written.
+  const childResult = new Promise((done) => { child.once("error", () => done(1)); child.once("close", (code) => done(code ?? 1)) })
   const store = acceptanceStore(loaded.directory, loaded.manifest.encryptionKey)
-  await store.locked(() => store.record({ kind: "owned-child", phase: "started", mode, pid: child.pid }))
-  /** The bound applies to owned descendants too; no name-wide process termination is used. */
+  try { await store.locked(() => store.record({ kind: "owned-child", phase: "started", mode, pid: child.pid })) }
+  catch (error) { await stopAcceptanceCommand(child); throw error }
+  let stopping
+  /** Repeated deadline/operator signals share one owned-tree teardown. */
   const stopChild = () => {
-    if (process.platform === "win32" && child.pid) spawn("taskkill", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" })
-    else child.kill("SIGTERM")
+    stopping ??= stopAcceptanceCommand(child)
+    stopping.catch(() => {})
   }
   const watchdog = cleanup ? null : setTimeout(stopChild, Math.max(1, loaded.manifest.database.createdAt + (loaded.manifest.pendingActionOnly ? 15 : 90) * 60_000 - Date.now()))
   let pending = ""
@@ -97,8 +123,11 @@ async function main() {
   })
   process.on("SIGINT", stopChild)
   process.on("SIGTERM", stopChild)
-  const result = await new Promise((done) => { child.once("error", () => done(1)); child.once("exit", (code) => done(code ?? 1)) })
+  const result = await childResult
   if (watchdog) clearTimeout(watchdog)
+  if (stopping) await stopping
+  process.off("SIGINT", stopChild)
+  process.off("SIGTERM", stopChild)
   if (result !== 0 && privateError) await writeAcceptanceDiagnostic(loaded.directory, privateError)
   requireAcceptance(result === 0, "owned_command_failed")
   console.log("ACCEPTANCE: owned command completed")

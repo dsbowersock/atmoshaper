@@ -42,7 +42,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   accounts; no Production OAuth exchange or live sync was initiated. The operator
   and guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41)
   under the owner's source publication/review approval. Its provider-free harness
-  checks pass 29/29, documentation/workload
+  checks pass 30 with one POSIX-only test skipped on Windows; documentation/workload
   checks 16/16, lint and typecheck pass, and branch private-data/link checks pass.
   Initial published head is `577298385fa1f387e91e3e98f3fb5e1398a38847`; hosted CI
   and exact-latest-head full CodeRabbit/Codex reviews remain pending. Merge and
@@ -73,6 +73,18 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   create intents. Matching parsed Calendar client errors now record non-creation,
   so cleanup can revoke tokens without inventory when every create was rejected;
   ambiguous responses retain reconciliation requirements.
+  Codex's review at `8a12567` identifies POSIX descendant termination and
+  direct cleanup request bounds. The launcher now owns and stops its POSIX
+  process group, including escalation for ignoring descendants. Every cleanup
+  provider request combines an eight-second deadline with its existing signal;
+  interrupted requests retain intent/token evidence for scoped retries.
+  Latest-head Linux CI must still verify the POSIX process/permission cases.
+  The explicit full CodeRabbit review completes at `2026-10-07T23:40:57Z`,
+  covering all eighteen files at `8a12567` with one minor stale-handoff finding.
+  Both affected plans now identify completed setup as historical and point to
+  the current published PR/provisioning/public-activation receipts. Its five
+  pre-merge checks pass, including 86.67% touched-function docstring coverage;
+  that review does not cover the subsequent source/documentation fixes.
   No further setup, file or completed-test rerun is needed.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as

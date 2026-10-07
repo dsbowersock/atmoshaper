@@ -2,6 +2,32 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review bounds process descendants and all cleanup requests
+
+- Codex's review completes at `2026-10-07T23:36:32Z` on `8a12567` with two
+  valid operator findings. POSIX children now start in an owned process group;
+  deadline/interruption teardown signals the group and escalates after a short
+  grace period, even if its leader exits first. The launcher observes completion
+  immediately and waits for inherited pipes to close; Windows retains PID-scoped
+  tree termination. Failed receipt writes also stop the owned child.
+- Every cleanup provider dispatch combines an eight-second timeout with any
+  existing adapter/operator signal. Direct DELETE and token revocation now have
+  the same bounded transport as inventory/refresh. A timeout retains intents and
+  captured tokens rather than emitting a false cleanup receipt, permitting a
+  future authorized retry to reconcile absence/revocation.
+- CodeRabbit's explicit full review completes at `2026-10-07T23:40:57Z` on
+  `8a12567`, covers all eighteen files and passes its five pre-merge checks with
+  86.67% touched-function docstring coverage. Its one minor stale-handoff finding
+  is valid: both affected plans now mark completed registration guidance as
+  historical and identify PR #41 as published with latest-head reviews/checks
+  pending, linking the completed provisioning/public-activation receipt.
+- Provider-free harness checks pass 30 with one POSIX-only process test skipped
+  on Windows. Fresh latest-head Linux CI is still required for that test and the
+  POSIX diagnostic permission assertions. Documentation/workload checks pass
+  16/16; lint, typecheck and whitespace pass. Latest-head hosted results remain
+  pending; the completed full review above does not cover this follow-up.
+  Completed provider tests, cleanup, settings and public rollout are not repeated.
+
 ## 2026-10-07 — Review resolves definitively rejected create intents
 
 - Codex's review completes at `2026-10-07T23:28:06Z` on `bc24073` with one

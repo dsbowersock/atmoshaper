@@ -196,7 +196,8 @@ export async function assertAcceptanceTokenCaptureComplete(store, complete = asy
 }
 
 /** Intercepts only this local task process; permits no unjournaled credential or fixture write. */
-export function createAcceptanceFetch({ manifest, client, store, fetchImpl = globalThis.fetch, control = async () => ({}), cleanup = false }) {
+export function createAcceptanceFetch({ manifest, client, store, fetchImpl = globalThis.fetch, control = async () => ({}), cleanup = false, cleanupTimeoutMs = 8000 }) {
+  requireAcceptance(Number.isSafeInteger(cleanupTimeoutMs) && cleanupTimeoutMs > 0 && cleanupTimeoutMs <= 8000, "cleanup_request_timeout")
   return async function acceptanceFetch(input, init) {
     try {
       validateAcceptanceManifest(manifest, { cleanup })
@@ -228,10 +229,13 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       const fault = await control()
       if (decision.kind === "event-read" && fault.mode === "inbound-503") return new Response("{}", { status: 503 })
       if (decision.kind === "event-read" && fault.mode === "inbound-410") return new Response("{}", { status: 410 })
-      const providerRequest = decision.kind === "calendar-create" ? new Request(request, {
+      let providerRequest = decision.kind === "calendar-create" ? new Request(request, {
         body: JSON.stringify({ ...JSON.parse(body), description: decision.calendarMarker }),
       }) : request
       if (decision.kind === "calendar-create") providerRequest.headers.delete("content-length")
+      // Cleanup outlives the run deadline, but every provider request/body remains bounded and retryable.
+      // Preserve an adapter's shorter deadline or an operator abort instead of replacing its signal.
+      if (cleanup) providerRequest = new Request(providerRequest, { signal: AbortSignal.any([providerRequest.signal, AbortSignal.timeout(cleanupTimeoutMs)]) })
       const response = await fetchImpl(providerRequest, { redirect: "error" })
       if (!response.ok) {
         if (decision.kind === "calendar-create" && [400, 401, 403].includes(response.status)) {

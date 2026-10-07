@@ -9,7 +9,7 @@ import { once } from "node:events"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
 import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
-import { writeAcceptanceDiagnostic, acceptancePrivatePaths } from "../scripts/calendar-application-acceptance.mjs"
+import { writeAcceptanceDiagnostic, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
@@ -30,6 +30,51 @@ function fixture() {
   const client = { project_id: manifest.googleProjectId, client_id: "synthetic.apps.googleusercontent.com", client_secret: "invented-secret-for-tests", redirect_uris: ["http://localhost:3317/oauth/callback"] }
   return { manifest, client }
 }
+
+test("POSIX teardown terminates an ignoring descendant even after its process-group leader exits", { skip: process.platform === "win32" }, async () => {
+  const descendant = "process.on('SIGTERM', () => {}); process.stdout.write('ready\\n'); setInterval(() => process.stdout.write('.'), 20)"
+  const parent = `import { spawn } from 'node:child_process'; spawn(process.execPath, ['-e', ${JSON.stringify(descendant)}], { stdio: ['ignore', 'inherit', 'inherit'] }); setInterval(() => {}, 1000)`
+  const child = spawnAcceptanceCommand(process.execPath, ["--input-type=module", "-e", parent])
+  const closed = once(child, "close")
+  try {
+    await new Promise((done, fail) => {
+      const timer = setTimeout(() => fail(new Error("synthetic descendant startup timed out")), 5000)
+      child.once("error", (error) => { clearTimeout(timer); fail(error) })
+      child.stdout.once("data", () => { clearTimeout(timer); done() })
+    })
+    await stopAcceptanceCommand(child, { graceMs: 40 })
+    await Promise.race([closed, new Promise((_, fail) => { const timer = setTimeout(() => fail(new Error("owned descendant survived teardown")), 5000); timer.unref() })])
+    assert.equal(child.signalCode, "SIGTERM")
+  } finally { await stopAcceptanceCommand(child, { graceMs: 1 }); await closed }
+})
+
+test("cleanup bounds direct DELETE and revocation requests while retaining retry evidence", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-cleanup-timeout-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const token = "invented-cleanup-timeout-token"
+    const calendarId = "owned-timeout@group.calendar.google.com"
+    await store.saveVault([{ access_token: token, acceptedForUse: true }])
+    await store.record({ kind: "calendar-create", phase: "accepted", calendarId })
+    await store.record({ kind: "case", phase: "passed", caseName: "owned-targets-verified-absent", calendarMarkers: [] })
+    const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, cleanupTimeoutMs: 20, fetchImpl: async (request) => {
+      await new Promise((_, fail) => {
+        const timer = setTimeout(() => fail(new Error("cleanup failed to bound the request")), 1000)
+        const abort = () => { clearTimeout(timer); fail(request.signal.reason) }
+        if (request.signal.aborted) abort(); else request.signal.addEventListener("abort", abort, { once: true })
+      })
+    } })
+    await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/calendars/" + calendarId, { method: "DELETE", headers: { authorization: "Bearer " + token } }), /acceptance_transport_stopped/)
+    await assert.rejects(guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) }), /acceptance_transport_stopped/)
+    const journal = await store.journal()
+    for (const kind of ["calendar-delete", "revoke"]) {
+      assert.ok(journal.some((item) => item.kind === kind && item.phase === "intent"))
+      assert.equal(journal.some((item) => item.kind === kind && item.phase === "accepted"), false)
+    }
+    assert.equal((await store.vault())[0].access_token, token)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
 
 test("child diagnostics protect both new files and previously permissive files before writing", async () => {
   const directory = await mkdtemp(join(tmpdir(), "calendar-diagnostic-unit-"))

@@ -208,10 +208,11 @@ No Google settings, consent, calendar/event/database writes, payment test,
 verification upload/submission or old-site changes were performed.
 
 Public optional Calendar configuration is now available to eligible users.
-No new setup, client file or completed-test rerun is needed. The remaining
-source step is publication/review of the local operator and guarded-harness
-closeout; that branch is not the promoted runtime. Future provider work and
-hosting changes retain their own exact scope.
+No new setup, client file or completed-test rerun is needed. The operator and
+guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41).
+Latest-head hosted checks and full CodeRabbit/Codex reviews remain pending;
+the closeout branch is not the promoted runtime. Its merge and any future
+provider or hosting operation require their own exact approval.
 
 ## Failure recovery boundaries
 
