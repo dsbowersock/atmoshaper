@@ -2,6 +2,30 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Production Calendar download validated; credential/build approval ready
+
+- The owner supplies the existing Production client JSON path. Private reads
+  validate a Web registration in the intended Production project, a correctly
+  formed client ID matching the download, a non-placeholder secret, Google
+  endpoints and only the canonical www Calendar callback. It is distinct from
+  the known test client. A private source fingerprint and sanitized receipt are
+  retained; no secret is printed, copied into source or used for a token exchange.
+  Existing sign-in credentials are write-only; comparison of their raw ID is
+  unavailable and is not claimed. No Google setup or consent is repeated.
+- Fresh readbacks verify remote `main` and READY/unpromoted PR #40 source at
+  `38d0ded`, PR #37's READY public artifact/all six aliases, manual custom-domain
+  promotion, normal build/Git/protection and 56 Production-only settings. Calendar
+  and excluded purchase keys are absent; both public pause flags read false.
+- The [credential/build proposal](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  now specifies four Production-only settings, a new stable privately recoverable
+  encryption key, one fresh Git build pinned to the reviewed SHA and saved-alias
+  restoration if needed. Its private request is prepared without sending it.
+  Exact approval is still required; public promotion/Calendar activation remain
+  separate. The local receipt/harness branch is not deployment source.
+- Documentation/server-workload checks pass 16/16; all 115 relative links and
+  six Markdown fragments across these six documents resolve. Whitespace and
+  added-document private-data scans pass. No provider write or build was run.
+
 ## 2026-10-07 — Final native Disconnect check passed; bounded Calendar acceptance closed
 
 - The separately approved database-only follow-up passes against exact merged

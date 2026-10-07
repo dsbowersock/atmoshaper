@@ -98,20 +98,18 @@ and public activation require their own exact, reviewable authorization.
 
 The user approved this exact registration-only scope and subsequently replied
 `created` after following the user-guided instructions. Creation is recorded
-from that user receipt; saved return settings and API/consent/scope readiness
-are not independently verified. Do not repeat Create. Automated browser access
-remains denied. All requested project-level readbacks are now received;
-the new registration's saved non-secret callback remains pending before
-credential provisioning. Do not repeat the completed setup or scope/audience
-questions.
-The user also reports downloading the credential JSON issued at creation.
-Its location and contents were not accessed, and no values are recorded here.
-Retain it privately outside source trees; provisioning remains separately gated.
+from that user receipt. The owner later supplies the existing downloaded JSON
+path; private inspection verifies the intended Production project, Web/client
+format and sole exact Calendar callback. The private source fingerprint binds
+future use. This is a saved-download receipt, not live credential authentication
+or independent Console readiness proof. No values/paths are recorded here.
+Automated browser access remains denied; do not repeat creation or the completed
+scope/audience questions. Credential provisioning remains separately gated.
 
 The approved, user-reported registration in the identified existing
 `AtmoShaper Production` project has this intended configuration:
 
-| Setting | Approved intended value; saved readback pending |
+| Setting | Approved intended value; downloaded callback/project validated |
 | --- | --- |
 | Application type | Web application |
 | Name | AtmoShaper Calendar Production Web |
@@ -450,11 +448,11 @@ not request their resource/run authority again or repeat completed cases.
 
 Use the identified Production project and user-reported separate Calendar
 registration; do not propose another client or repeat its creation. Its saved
-Calendar redirect remains pending before Production credential provisioning.
+Calendar redirect now passes private downloaded-JSON validation.
 The replacement Verification Center outcome is satisfied by the October 7 owner
 readback above. The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
-needs only the already-downloaded Production JSON path for private saved-client/
-callback validation before an exact provisioning/build approval. Preserve shared consent settings.
+has its private client/callback input validated and is ready for exact four-setting/
+unpromoted-build approval. Preserve shared consent settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 

@@ -92,8 +92,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   rollback boundaries. Google sign-in is operational. The user reports creating
   the separate Production Calendar Web registration with only
   `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI,
-  and enabling Calendar API under separate approvals. The saved Production
-  Calendar-return readback remains pending before hosting credential provisioning.
+  and enabling Calendar API under separate approvals. The owner supplies the
+  downloaded Production JSON path; private inspection validates the Web/client
+  format, Production project and sole exact Calendar callback. This is a saved
+  download receipt, not a new live token exchange or Console readback.
   The October 7 owner save/category/status receipts close the replacement
   declaration gate; do not repeat scope selection, save or the completed
   Verification Center question. Preserve identity/client/audience settings.
@@ -129,9 +131,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   56 Production-only variables, absent Calendar settings and disabled excluded
   purchase switches. Both public pause flags remain false. The
   [Production credential/build proposal](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
-  is prepared without provider writes. The only current private input needed is
-  the path of the owner's already-downloaded Production Calendar client JSON;
-  it allows saved callback/client validation without another Console setup.
+  is ready for exact approval without provider writes. The supplied Production
+  JSON passes private validation; a private file fingerprint binds later use.
+  Fresh remote main and the READY/unpromoted candidate retain exact `38d0ded`.
+  No further setup/file input is needed. The next requested scope is four
+  Production-only settings and one source-pinned unpromoted candidate build,
+  including restoration of saved live aliases if moved. Public promotion and
+  Calendar activation remain separate. Current sign-in credentials are
+  write-only, so their raw client ID was not independently compared or changed.
   The completed run exposed fixture-only source inventory after complete target
   metadata checks; ordinary primary-calendar defaults are outside its proof.
   Production provisioning/promotion/activation remain separate. Do not

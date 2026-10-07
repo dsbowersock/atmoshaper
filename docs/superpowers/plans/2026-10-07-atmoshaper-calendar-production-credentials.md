@@ -1,7 +1,7 @@
 # AtmoShaper Production Calendar credentials and candidate build
 
-Status: prepared locally; private validation of the already-downloaded Production
-Calendar client JSON is pending. Credential provisioning, a new candidate build,
+Status: ready for exact credential/build approval. The existing Production
+Calendar client JSON passes private validation. Credential provisioning, a new candidate build,
 public promotion and Calendar activation are not authorized by this proposal.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md)
@@ -26,31 +26,34 @@ Fresh October 7 read-only hosting evidence verifies:
 - The READY public artifact and all six live aliases retain PR #37 source
   `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`.
 - The READY, unpromoted PR #40 artifact contains reviewed merge
-  `38d0deddea484938e13df61927d07a7b21f92071`.
+  `38d0deddea484938e13df61927d07a7b21f92071`; fresh remote `main` matches.
 - The complete private API inventory has 56 Production-only variables, none in
   Preview/Development, and none of the four Calendar settings below. A truncated
   connector inventory does not establish complete key/target coverage.
 - Both public pause flags are false: registration and recurring Supporter
   Checkout stay open. One-time support and background purchases stay disabled.
 
-## Only missing input: the existing Production client download
+## Validated existing Production client download
 
-The user reports creating `AtmoShaper Calendar Production Web`, enabling Calendar
-API and downloading its JSON. Ask only for that local file path; do not request
-raw credentials in chat or another project/client/Console setup. The separately
-known Calendar Verify JSON belongs to testing and must not supply Production.
+The owner supplied the path of the JSON already downloaded for `AtmoShaper
+Calendar Production Web`. Private inspection passes: Web registration, intended
+Production project, correctly formed client matching the download, non-placeholder
+secret, Google OAuth endpoints and sole exact Calendar callback. It differs from
+the known Calendar Verify client; test credentials must not supply Production.
 
-Privately inspect the `web` registration, its Production project context, usable
-client ID/secret and saved redirect list. Require the sole Calendar callback:
+The saved download contains only:
 
 `https://www.atmoshaper.com/api/calendar/google/callback`
 
 The separate working sign-in callback `/api/auth/callback/google` stays unchanged.
-Validate the expected registration against existing private context; if the
-download cannot establish a required fact, request only that exact missing
-readback. Console automation remains denied; do not bypass that restriction.
-Retain a sanitized pass/fail receipt, never IDs, secret contents or the download
-path in tracked files. Read authorization does not authorize provisioning.
+Vercel's existing sign-in client ID is sensitive/write-only; its raw comparison
+was unavailable and is not claimed. A private source-file fingerprint and
+sanitized receipt bind later provisioning to this validated download; recheck
+the fingerprint before use. This is a downloaded settings/format receipt, not
+proof of a live credential exchange or later Console changes. No credential copy
+or new token exchange was made. No additional file/setup input is needed.
+Console automation remains denied. Keep IDs, secret contents and download paths
+out of tracked files. Read authorization does not authorize provisioning.
 
 ## Proposed exact credential and build operation
 
@@ -61,10 +64,10 @@ any saved live aliases moved by the build in that approval.
 
 | Setting | Source and constraint |
 | --- | --- |
-| `GOOGLE_CALENDAR_CLIENT_ID` | Validated existing Production Calendar Web registration |
-| `GOOGLE_CALENDAR_CLIENT_SECRET` | Same registration's private downloaded secret |
-| `GOOGLE_CALENDAR_REDIRECT_URI` | Exact canonical www Calendar callback above |
-| `CALENDAR_SYNC_ENCRYPTION_KEY` | New cryptographically random, stable Calendar-only key; never the test or TOTP key |
+| `GOOGLE_CALENDAR_CLIENT_ID` | Validated existing Production Calendar Web registration; encrypted configuration |
+| `GOOGLE_CALENDAR_CLIENT_SECRET` | Same registration's private downloaded secret; sensitive/write-only |
+| `GOOGLE_CALENDAR_REDIRECT_URI` | Exact canonical www Calendar callback above; encrypted configuration |
+| `CALENDAR_SYNC_ENCRYPTION_KEY` | New cryptographically random, stable Calendar-only key; sensitive/write-only, never the test or TOTP key |
 
 Generate a 32-byte random key only after provisioning approval. Keep a privately
 recoverable copy outside source before writing it, with no value/path in tracked
@@ -80,6 +83,23 @@ Change no Google settings, sign-in credentials, auth host, Stripe configuration,
 legal versions, database schema or excluded purchase gate. Copy no credentials
 to Preview/Development. No separate migration or database-write operation is
 proposed; retain the normal migration-status/readiness gates in `npm run build`.
+
+The expected complete inventory becomes 60 Production-only entries, with no
+changes to the original 56 and no Preview/Development settings. Use one fresh
+Git-connected deployment request for the existing project, `target: production`,
+`gitSource.type: github`, the privately verified repository ID, `ref: main` and
+exact `sha: 38d0deddea484938e13df61927d07a7b21f92071`, with `forceNew: 1`.
+The private request is prepared but unsent. Use the project's current settings;
+omit source files, inline environment values, `deploymentId`, latest-commit
+selection and custom build settings. This avoids inheriting an older deployment's
+environment snapshot or uploading the local harness/receipt tree.
+Vercel documents the Git deployment request in its
+[REST deployment API](https://vercel.com/docs/rest-api/deployments/create-a-new-deployment)
+and [official OpenAPI schema](https://openapi.vercel.sh). Changed environment
+settings apply to new deployments, as described in its
+[environment guidance](https://vercel.com/docs/environment-variables/managing-environment-variables).
+Refresh these controls immediately before the approved operation and verify the
+actual resulting source and configuration rather than assuming request success.
 
 Check candidate source/READY state and actual migration/Supporter build gates,
 complete configuration presence without logging secrets, normal signed-out GETs
