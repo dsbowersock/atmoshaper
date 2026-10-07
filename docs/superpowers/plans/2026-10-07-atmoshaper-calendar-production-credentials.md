@@ -1,8 +1,9 @@
 # AtmoShaper Production Calendar credentials and candidate build
 
-Status: approved credential provisioning and the single source-pinned candidate
-build are complete and verified on October 7. The candidate is unpromoted;
-public promotion and Calendar activation still need their separate exact approval.
+Status: approved credential provisioning, the single source-pinned candidate
+build and the separately approved public promotion/optional Calendar activation
+are complete and verified on October 7. Public source is reviewed PR #40 merge
+`38d0ded`; no rebuild or rollback was needed.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md)
 and the [provider checkpoint](2026-10-02-atmoshaper-calendar-provider-stage.md).
@@ -163,13 +164,14 @@ identity and rollback assignments are retained privately. No public promotion,
 Production OAuth exchange, calendar/event activity, database test or completed
 payment test was performed. Provisioning/build authority is now exhausted.
 
-## Prepared exact public rollout; approval pending
+## Approved and completed exact public rollout
 
-The next proposed operation is promotion of this already checked artifact,
-without rebuilding, to the canonical AtmoShaper site and its six saved live
-assignments. This would expose the reviewed optional Calendar integration to
-eligible provider accounts. It does not grant Supporter-only accounts Calendar
-access or authorize the agent to start consent, create records or run live sync.
+The owner approved promotion of the exact checked artifact, without rebuilding,
+to the canonical AtmoShaper site and its six saved live assignments, enabling
+optional Calendar sync for eligible provider accounts and bounded rollback if
+immediate checks failed. The following sequence records that completed scope;
+it does not authorize another promotion or provider test. Supporter-only
+accounts gain no Calendar access from this rollout.
 
 1. Refresh the candidate's exact source/READY state and the saved public target,
    all six assignments, manual-promotion/protection controls and configuration.
@@ -190,10 +192,26 @@ access or authorize the agent to start consent, create records or run live sync.
    intents, connections, sources, mappings and provider contents. Do not use
    older request code to operate the newly narrowed grants.
 
-Only the owner’s exact promotion/activation and bounded rollback approval is
-needed for this prepared step. No new setup, client file, provider test or
-verification upload/submission is requested. The migration charter separates
-public rollout from credential/build authority.
+The final `2026-10-07T21:50:03Z` authenticated readback verifies that exact
+artifact as the READY public target and all six saved live aliases assigned to
+it. Manual promotion, standard build, GitHub/`main`, protection, all 60
+Production-only variables and their metadata remain intact. Both pause flags
+are false; excluded purchase switches remain absent. Stable private key recovery
+is retained. No rebuild, additional alias repair or rollback was needed.
+
+Anonymous public GETs to the seven standard paths above all return `200`, with
+open registration, absent Checkout pause copy and a `null` session. The Calendar
+page returns its sign-in guard without a connect form. Apex routing still returns
+`308` to canonical www. These are public-page/source/configuration receipts,
+not a real Production OAuth exchange, signed-in eligibility test or live sync.
+No Google settings, consent, calendar/event/database writes, payment test,
+verification upload/submission or old-site changes were performed.
+
+Public optional Calendar configuration is now available to eligible users.
+No new setup, client file or completed-test rerun is needed. The remaining
+source step is publication/review of the local operator and guarded-harness
+closeout; that branch is not the promoted runtime. Future provider work and
+hosting changes retain their own exact scope.
 
 ## Failure recovery boundaries
 
@@ -203,11 +221,11 @@ encrypted token or durable intent has used them; retain the private key until
 that absence is established. Do not revoke Google grants or delete provider
 contents, connection rows, pending intents or mappings as rollback.
 
-After successful checks, present the exact new artifact and request separate
-public promotion/Calendar activation approval. If later traffic uses Calendar,
+The exact public promotion/Calendar activation approval above is complete.
+If later traffic uses Calendar,
 disable the new integration and drain in-flight work before an older-code
 rollback; preserve the encryption key, encrypted tokens and pending intent/data.
 Restore only the saved approved artifact/assignments under explicit rollout
 rollback authority. The existing provider checkpoint owns these compatibility
-constraints. No upload, verification submission or public activation is approved
-by this local plan.
+constraints. Upload, verification submission and new provider tests remain
+outside the completed rollout approval.

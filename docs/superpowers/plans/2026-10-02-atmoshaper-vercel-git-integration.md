@@ -1,13 +1,24 @@
 # AtmoShaper existing-project Vercel integration
 
-Latest hosting continuation: the separately approved October 7
+Latest hosting continuation: the separately approved exact Calendar artifact
+promotion is complete. Final `2026-10-07T21:50:03Z` readback verifies reviewed
+`38d0ded` as the READY public target with all six saved live aliases. Seven
+anonymous public GETs, the Calendar sign-in guard and canonical apex redirect
+pass. Both pause flags remain false, excluded purchases stay disabled, and all
+60 Production-only settings/manual promotion/build/Git/protection are retained.
+No rebuild or rollback was needed; no Production OAuth or completed provider
+test was repeated. The [rollout receipt](2026-10-07-atmoshaper-calendar-production-credentials.md)
+preserves exact approval, key recovery, proof limits and saved rollback.
+
+Earlier credential-stage continuation: the separately approved October 7
 [Production Calendar credential/build stage](2026-10-07-atmoshaper-calendar-production-credentials.md)
 created exactly four Production-only settings and one fresh candidate at reviewed
 `38d0ded`. It reached `READY` at `2026-10-07T21:03:42.652Z`; actual build gates,
 seven ordinary GETs and the signed-out Calendar guard pass. All 60 settings are
 Production-only; original 56 metadata, public PR #37 target, all six aliases and
 manual promotion/build/Git/protection remain intact. No restoration was needed.
-This candidate is unpromoted; public Calendar activation needs separate approval.
+That candidate was unpromoted at the credential-stage checkpoint; its later
+separately approved public activation is recorded above.
 No Production OAuth or completed provider test was repeated.
 
 Earlier source-merge continuation receipt: [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40)

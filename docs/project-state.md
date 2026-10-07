@@ -5,8 +5,8 @@ Verified: 2026-10-07
 Evidence scope: repository, PR #40's final reviews/CI and approved merge,
 automatic unpromoted candidate, dated authenticated hosting readbacks, the owner's
 replacement Google declaration/status receipts, the bounded application tests
-and completed cleanup, and approved Production Calendar provisioning/candidate
-verification on October 7. Completed
+and completed cleanup, approved Production Calendar provisioning/candidate
+verification and separately approved public rollout on October 7. Completed
 Calendar comparisons and other historical receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
@@ -30,9 +30,20 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   live aliases, manual promotion, normal build/Git/protection, both pause flags
   false and absent excluded purchase switches. No alias restoration was needed.
   Temporary credential request files are removed; stable recovery is retained.
-  The checked candidate is unpromoted. The next concrete step is its separately
-  approved public promotion/Calendar activation with the prepared rollback;
-  no further setup, file or completed-test rerun is needed.
+  The owner subsequently approved exact-artifact promotion and optional Calendar
+  activation with bounded rollback. Final `21:50:03Z` readback verifies reviewed
+  `38d0ded` as the READY public target and all six saved aliases on it, with
+  configuration/build/Git/protection/manual promotion and key recovery retained.
+  All seven anonymous public GETs and the Calendar sign-in guard pass; the apex
+  retains its `308` redirect to canonical www. Registration and recurring
+  Supporter Checkout stay open; the two other purchase flows stay disabled.
+  No rebuild or rollback was needed. Calendar is available to eligible provider
+  accounts; no Production OAuth exchange or live sync was initiated. The next
+  source step is publication/review of the local operator and guarded-harness
+  closeout. Its provider-free harness checks pass 18/18, documentation/workload
+  checks 16/16, lint and typecheck pass, and branch private-data/link checks pass.
+  This closeout is locally prepared but not published or hosted-reviewed.
+  No further setup, file or completed-test rerun is needed.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head
@@ -59,8 +70,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   This completes the declaration/status gate by owner receipt, not independent
   Console/API readback or inspection of every saved scope URL. No verification
   material or submission is currently required on that evidence. Bounded application/provider
-  acceptance subsequently passed as recorded below; public Calendar activation
-  remains pending. That initial merge operation ran no manual build or completed
+  acceptance subsequently passed as recorded below; the later separate public
+  activation is recorded above. That initial merge operation ran no manual build or completed
   live payment/Calendar comparison test; the later single credential build is
   separately approved and recorded above.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
@@ -151,17 +162,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   active. Runtime source remains unchanged. The subsequently approved
   [Production credential/build stage](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
   now passes with 60 Production-only settings and one new exact-`38d0ded` READY
-  candidate; the PR #37 public target and all six aliases remain unchanged.
-  Public promotion and Calendar activation are the next separately authorized
-  operation. The supplied Production JSON and private key recovery are
+  candidate. The subsequent separately approved promotion now makes that exact
+  artifact the public target for all six saved live aliases. The supplied
+  Production JSON and private key recovery are
   validated; no further setup/file input is needed. Current sign-in credentials are
   write-only, so their raw client ID was not independently compared or changed.
   The completed run exposed fixture-only source inventory after complete target
   metadata checks; ordinary primary-calendar defaults are outside its proof.
   Production live grant acceptance is not claimed. Do not
   repeat client creation, API enablement or the completed saved identity checks.
-  Earlier absent-key readbacks are historical; the checked candidate has the
-  four settings while the public PR #37 snapshot keeps Calendar inactive.
+  Earlier absent-key readbacks are historical; public PR #40 now has the four
+  settings. The retained PR #37 rollback snapshot has no Calendar configuration.
 - Both independently consented test permission arms passed the same strict
   initial and controlled-change comparisons on owned and shared-reader synthetic
   sources. All missing/unexpected entries and shape mismatches were zero;
@@ -181,13 +192,26 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
   whole-integration minimum access. The subsequent two bounded application runs
-  now pass with their documented fixture limitations; Production acceptance and
-  public Calendar activation remain pending. The approved declaration has owner save/category/status receipts;
+  now pass with their documented fixture limitations; real Production OAuth/sync
+  acceptance is not claimed by the separately approved public activation.
+  The approved declaration has owner save/category/status receipts;
   Google reports verification unnecessary for that saved state. Credential
-  provisioning and the single candidate are complete; additional isolated
-  application/provider resources, public promotion and Calendar activation
-  remain separately gated. Preserve the legacy-token-compatible rollback in
+  provisioning, the single candidate and exact public promotion/activation are
+  complete. Additional isolated application/provider resources and future
+  hosting changes remain separately gated. Preserve the legacy-token-compatible rollback in
   the provider checkpoint.
+
+- Fresh remaining-provider name inventory confirms no Ably, Sentry or R2/upload
+  configuration in Production. Reviewed source retains the existing polling
+  fallback and disables Sentry when its DSN is absent. New realtime, monitoring
+  and upload administration are separately scoped provider decisions, not
+  failed or repeated Calendar setup. Four representative existing public media
+  HEADs pass with expected types, byte-range support, cache policy and CORS for
+  the AtmoShaper origin; bodies were not downloaded. This is bounded header
+  evidence, not full playback/catalog proof or provider ownership. Legacy
+  project's authenticated configuration read was unavailable; current legacy
+  configuration parity is not claimed. Preserve the existing media host and
+  immutable identities until a dedicated migration is reviewed and approved.
 
 - PR #35's documentation closeout merged as
   `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review

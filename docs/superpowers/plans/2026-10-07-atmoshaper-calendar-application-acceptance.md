@@ -260,12 +260,10 @@ and ephemeral credential removal are confirmed. Teardown began after 4.72 minute
 This does not erase the original transport failure or repeat any completed
 Google consent/provider operation.
 
-The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
-now prepares a separate exact Production
-credential proposal, including the already-created Calendar client's saved
-callback readback, stable encryption-key recovery and rollback controls. Then prepare
-one checked unpromoted build and request promotion/activation only for a reviewed
-artifact. No source publication, merge, hosting credential write, deployment,
-verification upload/submission or public Calendar activation is granted by this
-local proposal. Registration/recurring Supporter Checkout remain open; one-time
+The [Production credential/build and rollout receipt](2026-10-07-atmoshaper-calendar-production-credentials.md)
+now records separately approved provisioning, stable key recovery, the single
+checked candidate and exact-artifact public promotion. Those later approvals
+do not authorize repeating this completed acceptance run. Operator/harness source
+publication/review is the next closeout step; no additional provider test or
+verification upload/submission is granted here. Registration/recurring Supporter Checkout remain open; one-time
 support/background purchases and hosted clinical storage remain disabled.

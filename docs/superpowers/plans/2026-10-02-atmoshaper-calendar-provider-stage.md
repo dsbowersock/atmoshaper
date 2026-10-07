@@ -20,11 +20,15 @@ The separately approved Production credential/build stage now passes: exactly
 four settings, 60 Production-only entries with the original 56 unchanged, stable
 private key recovery and one exact-`38d0ded` candidate READY at
 `2026-10-07T21:03:42.652Z`. Actual migration-status/Supporter gates and seven
-ordinary candidate GETs pass. All six live aliases and the public target retain
-PR #37; no restoration was needed. No real Production OAuth exchange is claimed.
-Public promotion/Calendar activation remain pending; the
-[completed credential stage and prepared rollout](2026-10-07-atmoshaper-calendar-production-credentials.md)
-own that next decision.
+ordinary candidate GETs pass. That candidate was subsequently promoted under
+the owner's separate exact approval. Final `2026-10-07T21:50:03Z` readback
+verifies exact reviewed `38d0ded` as the READY public target with all six saved
+aliases, unchanged configuration/manual promotion/protection and retained key
+recovery. Seven anonymous public GETs, the Calendar sign-in guard and canonical
+apex redirect pass. No rebuild or rollback was needed. Public optional Calendar
+is available to eligible accounts; no real Production OAuth exchange is claimed.
+The [completed credential and rollout receipt](2026-10-07-atmoshaper-calendar-production-credentials.md)
+owns the saved rollback and next operator/harness source closeout.
 
 October 3 screenshots establish External / In production and empty declared
 scope lists; branding is verified/shown. The user reports completed Calendar API
@@ -36,7 +40,8 @@ was left unsaved; it is not the current owner-saved availability declaration.
 The October 7 replacement status below supersedes that unsaved proposal. No
 verification material/submission is currently required on the owner readback.
 The implementation merged in PR #36 is included in the approved public PR #37
-artifact; the PR #39 and PR #40 candidates are verified but unpromoted. Working sign-in and
+artifact; PR #39 remains an unpromoted historical candidate, while the later
+credential-equipped PR #40 artifact is now live. Working sign-in and
 Vercel integration remain complete. Do not repeat them or the live payment test.
 
 October 6 continuation supersedes the event-read declaration proposal below for
@@ -64,8 +69,8 @@ and public activation require their own exact, reviewable authorization.
 - Final October 7 authenticated Vercel readback has exactly the four approved
   Calendar settings, with sensitive/write-only secret and key, encrypted client
   ID and callback, and all 60 entries Production-only. No values were copied
-  into Preview/Development. The checked candidate snapshot has all four keys;
-  the existing public PR #37 artifact still has no Calendar configuration.
+  into Preview/Development. The promoted exact PR #40 snapshot has all four keys;
+  the saved PR #37 rollback artifact has no Calendar configuration.
   This is configuration/build evidence, not a live Production token exchange.
 - Existing Google sign-in works. Calendar needs additional API grants and
   separate configuration. Sign-in branding verification does not establish
@@ -112,7 +117,8 @@ future use. This is a saved-download receipt, not live credential authentication
 or independent Console readiness proof. No values/paths are recorded here.
 Automated browser access remains denied; do not repeat creation or the completed
 scope/audience questions. The later exact credential provisioning approval is
-complete as recorded in the linked Production plan; public activation is separate.
+complete as recorded in the linked Production plan. Its later separately
+approved public activation is complete; new provider tests remain separate.
 
 The approved, user-reported registration in the identified existing
 `AtmoShaper Production` project has this intended configuration:
@@ -431,7 +437,8 @@ justification, and a real consent/functionality video for sensitive-scope review
 The two-arm scope comparison is complete. The October 7 owner status/category
 readback closes the Production declaration dependency and reports verification
 unnecessary; the later bounded application acceptance and cleanup are complete.
-Public Calendar remains inactive. Do not prepare the
+Public Calendar was inactive at that declaration checkpoint; the later separate
+approved promotion is recorded at the top. Do not prepare the
 historical sensitive-scope demo for the current saved declaration by default.
 
 ## Completed comparison setup and pending application targets
@@ -460,8 +467,9 @@ Calendar redirect now passes private downloaded-JSON validation.
 The replacement Verification Center outcome is satisfied by the October 7 owner
 readback above. The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
 now records the approved four-setting provisioning and verified unpromoted
-candidate. Its next step is exact public promotion/activation approval, with no
-new setup or completed-test rerun. Preserve shared consent settings.
+candidate and the subsequently approved public promotion/activation. Its next
+source step is operator/harness closeout publication/review, with no new setup
+or completed-test rerun. Preserve shared consent settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 
@@ -549,7 +557,7 @@ Transaction/transport doubles do not establish real locks or provider consistenc
 Isolated acceptance and scope readiness now pass within their recorded limits.
 The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
 records completed configuration, reviewed source, the single checked unpromoted
-build and a prepared separate public-promotion decision. Keep manual promotion and registration/Supporter
+build and the completed separate public promotion. Keep manual promotion and registration/Supporter
 Checkout open; one-time support and background purchases remain disabled.
 
 Disable only the new integration and drain its in-flight work before restoring

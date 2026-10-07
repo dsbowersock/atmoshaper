@@ -2,6 +2,51 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Approved Calendar artifact promoted; public checks pass
+
+- The owner approved promotion of the exact checked PR #40 artifact, optional
+  Calendar activation for eligible provider accounts, public checks and bounded
+  rollback. Fresh preflight verified the exact READY source, unchanged 60-entry
+  Production configuration, prior PR #37 target/all six aliases and normal
+  build/Git/protection/manual-promotion controls before the single promotion.
+- Final `2026-10-07T21:50:03Z` readback verifies reviewed merge
+  `38d0deddea484938e13df61927d07a7b21f92071` as the READY public target and all
+  six saved aliases on it. No rebuild, alias repair or rollback was needed.
+  Both pause flags remain false; one-time support/background purchase switches
+  remain absent. The stable key recovery copy and all 60 Production-only
+  settings retain their verified metadata.
+- All seven anonymous public GETs return `200`: home, Pricing, registration,
+  support, Privacy, Terms and session. Registration is open, Checkout pause copy
+  absent and session `null`. The Calendar GET shows only its signed-out guard;
+  the apex still returns `308` to canonical www. This does not claim a real
+  Production OAuth exchange, signed-in entitlement test or live sync. No consent,
+  calendar/event/database activity, payment test, Google settings, credential
+  rotation, verification submission or old-site change was performed.
+- The [completed rollout/rollback receipt](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  preserves the saved PR #37 rollback and compatibility boundaries. The next
+  source step is publishing/reviewing the local operator and guarded-acceptance
+  closeout, which is not deployment source. No further setup/file input or
+  completed provider test is needed.
+- A read-only remaining-provider pass confirms no Ably, Sentry or R2/upload
+  configuration names. Source keeps polling fallback and DSN-gated monitoring;
+  SMTP names remain configured. Four representative public media HEADs return
+  `200` with expected JSON/video types, byte-range support, cache policy and
+  `Access-Control-Allow-Origin: *` for requests from the AtmoShaper origin.
+  No media bodies were downloaded or provider settings changed. Full playback,
+  whole-catalog availability and provider ownership are not proved. The legacy
+  project's authenticated configuration read was unavailable; no current legacy
+  parity claim or request to redo its setup is made. Preserve the existing host
+  and immutable media identities until a dedicated migration is approved.
+- Local source closeout checks pass: guarded provider-free harness 18/18,
+  documentation/server-workload 16/16, lint and typecheck. All 137 relative links
+  and six fragments across the branch's changed documents resolve; private-data
+  and whitespace scans pass. The only connection-string-shaped match is the
+  explicit invented ownership-test fixture, not a provider credential. No actual
+  downloaded client secret/ID or stable encryption key occurs in branch additions.
+  The source PR is concretely prepared but unpublished; its hosted CI and reviews
+  remain pending. It contains guarded operator tools and receipts, not new app
+  runtime changes, and its publication/reviews are the next requested scope.
+
 ## 2026-10-07 — Approved Production Calendar provisioning and candidate verified
 
 - The owner authorized the concrete four-Production-setting, recoverable-key,

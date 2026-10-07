@@ -87,6 +87,7 @@ closed with its documented fixture limitations. The
 [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
 records the existing Calendar client's validated private download/callback,
 subsequently approved provisioning and checked candidate, and concrete public
-rollout/rollback boundaries. Public promotion/activation still need their exact
-separate approval; do not repeat this completed database test. Registration and recurring Supporter Checkout
+rollout/rollback boundaries. The subsequent separately approved public promotion
+and optional activation are complete; the next source step is operator/harness
+closeout publication/review. Do not repeat this completed database test. Registration and recurring Supporter Checkout
 remain open; one-time support/background purchases stay disabled.
