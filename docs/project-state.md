@@ -6,7 +6,8 @@ Evidence scope: repository, PR #40's final reviews/CI and approved merge,
 automatic unpromoted candidate, dated authenticated hosting readbacks, the owner's
 replacement Google declaration/status receipts, the bounded application tests
 and completed cleanup, approved Production Calendar provisioning/candidate
-verification and separately approved public rollout on October 7. Completed
+verification, separately approved public rollout, and approved PR #41 source
+publication on October 7. Completed
 Calendar comparisons and other historical receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
@@ -38,11 +39,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   retains its `308` redirect to canonical www. Registration and recurring
   Supporter Checkout stay open; the two other purchase flows stay disabled.
   No rebuild or rollback was needed. Calendar is available to eligible provider
-  accounts; no Production OAuth exchange or live sync was initiated. The next
-  source step is publication/review of the local operator and guarded-harness
-  closeout. Its provider-free harness checks pass 18/18, documentation/workload
+  accounts; no Production OAuth exchange or live sync was initiated. The operator
+  and guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41)
+  under the owner's source publication/review approval. Its provider-free harness
+  checks pass 18/18, documentation/workload
   checks 16/16, lint and typecheck pass, and branch private-data/link checks pass.
-  This closeout is locally prepared but not published or hosted-reviewed.
+  Initial published head is `577298385fa1f387e91e3e98f3fb5e1398a38847`; hosted CI
+  and exact-latest-head full CodeRabbit/Codex reviews remain pending. Merge and
+  any future Production operation require separate approval.
   No further setup, file or completed-test rerun is needed.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as

@@ -2,6 +2,24 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Calendar source closeout published for hosted review
+
+- The owner approves publication of the prepared operator/guarded-acceptance
+  closeout and shepherding hosted reviews. Fresh remote truth confirms `main`
+  remains `38d0deddea484938e13df61927d07a7b21f92071`, the owned branch was absent,
+  and no open PR duplicates it. Normal push publishes exact prepared head
+  `577298385fa1f387e91e3e98f3fb5e1398a38847`; the hosted branch matches.
+- [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41) opens against `main`
+  at `2026-10-07T22:28:33Z` and is attached to this task. Its eighteen changed
+  files contain operator scripts/tests and migration receipts; application
+  runtime remains unchanged. This publication receipt joins the source review
+  before explicit full CodeRabbit and Codex requests. Hosted CI and latest-head
+  coverage remain pending; carried statuses are not review coverage.
+- The approved loop covers valid source fixes, normal pushes and renewed
+  reviews/checks. It does not authorize merge or another Production operation.
+  The completed Calendar/payment tests, credentials and public artifact are
+  preserved; no new provider activity or cleanup is performed.
+
 ## 2026-10-07 — Approved Calendar artifact promoted; public checks pass
 
 - The owner approved promotion of the exact checked PR #40 artifact, optional
