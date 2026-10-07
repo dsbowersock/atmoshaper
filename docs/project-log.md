@@ -2,6 +2,24 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review resolves definitively rejected create intents
+
+- Codex's review completes at `2026-10-07T23:28:06Z` on `bc24073` with one
+  valid finding: cleanup could stop before token revocation after a rejected
+  Calendar-create request that produced no resource.
+- A matching parsed Calendar client-error response at 400/401/403, with no
+  resource ID, records non-creation for that exact marked intent. Cleanup accepts
+  that terminal outcome alongside accepted/reconciled targets. When every create
+  is positively rejected, it needs no inventory permission before revoking the
+  captured tokens. Malformed, transport and server failures stay unresolved and
+  require reconciliation; status alone is not treated as non-creation proof.
+- The provider-free regression covers all three explicit rejection statuses,
+  absence of inventory calls, owned-token revocation, and rejection of ambiguous
+  responses without a success receipt. Harness checks pass 29/29; lint,
+  typecheck, documentation/workload checks 16/16 and whitespace pass. Relative
+  targets are unchanged. Latest-head hosted checks/reviews remain pending.
+  No completed provider activity or cleanup is repeated.
+
 ## 2026-10-07 — Review fixes capture recovery and canonical private paths
 
 - Codex's latest review completes at `2026-10-07T23:19:33Z` on `efd9b19`.

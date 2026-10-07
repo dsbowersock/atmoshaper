@@ -5,7 +5,7 @@ all owned resources cleaned. Callback, access, PostgreSQL, reconnect, sync,
 resolved Disconnect and uncertain-create/reconciliation cases pass. The missing
 native pending-Disconnect rejection subsequently passed in a separately approved
 database-only follow-up. The completed-run harness checkpoint passed 18 checks;
-the later source-review follow-up below passes 28 provider-free checks. The
+the later source-review follow-up below passes 29 provider-free checks. The
 [one-case follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
 and its cleanup are now complete, closing this bounded application acceptance
 gate. No Google consent or fixture work was repeated. The execution sequence
@@ -54,8 +54,12 @@ exact capture and retains its rejected-for-use state for owned revocation.
 Configuration and credential paths are canonicalized and checked by ancestry
 components; sibling scratch directories pass, while dot-prefixed children and
 outside symlinks pointing inside the checkout fail.
+An exact create intent may also terminate with non-creation after a parsed
+matching Calendar 400/401/403 error with no resource ID. When every create is
+positively rejected, cleanup needs no inventory permission before owned-token
+revocation. Ambiguous response/transport failures still require reconciliation.
 
-All 28 provider-free checks pass locally; exact POSIX permission assertions
+All 29 provider-free checks pass locally; exact POSIX permission assertions
 still require latest-head Linux CI. The original real run used the earlier
 unmodified description and injected response loss after ID capture; the new
 pre-parse recovery and delayed-refresh proofs are provider-free. They do not

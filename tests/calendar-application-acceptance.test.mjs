@@ -439,6 +439,43 @@ test("cleanup retries a lost DELETE by proving paged absence, then permits token
   } finally { await rm(directory, { recursive: true, force: true }) }
 })
 
+test("definitively rejected creates permit token revocation without inventory; ambiguous failures remain unresolved", async () => {
+  for (const status of [400, 401, 403, 500, "malformed"]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-rejected-create-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const accessToken = "invented-owned-access-token"
+      await store.saveVault([{ access_token: accessToken, capturedAt: Date.now(), expires_in: 3600, acceptedForUse: true }])
+      let inventoryCalls = 0
+      let revoked = false
+      const provider = async (request) => {
+        if (request.url.endsWith("/revoke")) { revoked = true; return Response.json({}) }
+        if (request.method === "POST") return status === "malformed" ? new Response("{", { status: 400 }) : Response.json({ error: { code: status, message: "synthetic Calendar rejection" } }, { status })
+        inventoryCalls++
+        return Response.json({ items: [] })
+      }
+      const active = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider })
+      const response = await active("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer " + accessToken }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) })
+      assert.equal(response.ok, false)
+      const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider, cleanup: true })
+      const adapter = createGoogleCalendarAdapter({ fetchImpl: guarded })
+      const cleanup = () => acceptanceCleanupCalendars({ client, store, adapter, fetchImpl: guarded })
+      if ([400, 401, 403].includes(status)) {
+        await cleanup()
+        assert.equal(inventoryCalls, 0)
+        await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token: accessToken }) })
+        assert.equal(revoked, true)
+        assert.equal((await store.journal()).some((item) => item.allCreatesRejected), true)
+      } else {
+        await assert.rejects(cleanup(), /unresolved_cleanup_creation/)
+        assert.equal(revoked, false)
+        assert.equal((await store.journal()).some((item) => item.caseName === "owned-targets-verified-absent"), false)
+      }
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
 test("cleanup refuses new exchange/write work and unowned token revocation", async () => {
   const { manifest, client } = fixture()
   const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))

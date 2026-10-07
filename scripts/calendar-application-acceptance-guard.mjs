@@ -155,12 +155,18 @@ export async function acceptanceCleanupCalendars({ client, store, adapter, fetch
   const journal = await store.journal()
   const intents = journal.filter((item) => item.kind === "calendar-create" && item.phase === "intent")
   if (!intents.length || journal.some((item) => item.kind === "case" && item.phase === "passed" && item.caseName === "owned-targets-verified-absent" && item.calendarMarkers?.length === intents.length && intents.every((intent) => item.calendarMarkers.includes(intent.calendarMarker)))) return
+  const unresolved = intents.filter((intent) => !journal.some((item) => intent.calendarMarker && item.kind === "calendar-create" && item.phase === "not-created" && item.calendarMarker === intent.calendarMarker))
+  if (!unresolved.length) {
+    // A positively rejected create needs no Calendar permission to list a resource that never existed.
+    await store.locked(() => store.record({ kind: "case", phase: "passed", caseName: "owned-targets-verified-absent", calendarMarkers: intents.map((item) => item.calendarMarker), allCreatesRejected: true }))
+    return
+  }
   const accessToken = await acceptanceCleanupAccessToken({ client, store, fetchImpl })
   // Complete paging recovers marked uncertain creates before identifying which IDs still exist.
   const activeIds = new Set((await adapter.listCalendars(accessToken)).map((item) => item.id))
   const current = await store.journal()
   const created = current.filter((item) => item.kind === "calendar-create" && item.phase === "accepted")
-  requireAcceptance(intents.every((intent) => intent.calendarMarker && created.some((item) => item.calendarMarker === intent.calendarMarker)), "unresolved_cleanup_creation")
+  requireAcceptance(unresolved.every((intent) => intent.calendarMarker && created.some((item) => item.calendarMarker === intent.calendarMarker)), "unresolved_cleanup_creation")
   const deleted = current.filter((item) => item.kind === "calendar-delete" && item.phase === "accepted").map((item) => item.calendarId)
   for (const item of created) if (!deleted.includes(item.calendarId) && activeIds.has(item.calendarId)) {
     requireAcceptance((await fetchImpl("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(item.calendarId), { method: "DELETE", headers: { authorization: "Bearer " + accessToken } })).ok, "target_cleanup")
@@ -228,6 +234,13 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       if (decision.kind === "calendar-create") providerRequest.headers.delete("content-length")
       const response = await fetchImpl(providerRequest, { redirect: "error" })
       if (!response.ok) {
+        if (decision.kind === "calendar-create" && [400, 401, 403].includes(response.status)) {
+          const error = await response.json().catch(() => null)
+          // Only an explicit matching Calendar client-error body proves this marked attempt did not create.
+          if (error?.error?.code === response.status && !Object.hasOwn(error, "id")) {
+            await store.locked(() => store.record({ ...decision, phase: "not-created", status: response.status }))
+          }
+        }
         if (["exchange", "refresh"].includes(decision.kind) && [400, 401].includes(response.status)) {
           const error = await response.json().catch(() => null)
           // RFC 6749 section 5.2 validation/authentication errors establish no token issuance.
