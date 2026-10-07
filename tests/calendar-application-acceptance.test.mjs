@@ -6,7 +6,7 @@ import { join, resolve } from "node:path"
 import { createServer } from "node:http"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
-import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupAccessToken } from "../scripts/calendar-application-acceptance-guard.mjs"
+import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars } from "../scripts/calendar-application-acceptance-guard.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
@@ -288,6 +288,82 @@ test("raw provider exceptions and malformed bodies never escape with secrets", a
     for (const body of ["{private-secret", JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION })]) await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer invented-owned-access-token" }, body }), { message: "acceptance_transport_stopped" })
     assert.equal(calls, 1)
     assert.equal((await readFile(join(directory, "journal.jsonl"), "utf8")).includes("private-provider-secret"), false)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("refresh omission inherits only the captured validated grant; explicit empty or broader scopes fail", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-refresh-scope-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const refresh = "invented-original-refresh-token"
+    const scopes = GOOGLE_CALENDAR_SCOPES.join(" ")
+    await store.saveVault([{ access_token: "invented-expired-access-token", refresh_token: refresh, scope: scopes, acceptedForUse: true, capturedAt: Date.now() - 3_600_000, expires_in: 60 }])
+    let returnedScope
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async () => {
+      calls++
+      return Response.json({ access_token: "invented-refreshed-access-token", expires_in: 3600, ...(returnedScope === undefined ? {} : { scope: returnedScope }) })
+    } })
+    const request = () => guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "refresh_token", refresh_token: refresh }) })
+    const data = await (await request()).json()
+    assert.equal(Object.hasOwn(data, "scope"), false)
+    assert.equal((await store.vault()).at(-1).scope, scopes)
+    assert.equal((await store.vault()).at(-1).acceptedForUse, true)
+    for (const invalid of ["", "openid email https://www.googleapis.com/auth/calendar"]) {
+      returnedScope = invalid
+      await assert.rejects(request())
+      assert.equal((await store.vault()).at(-1).acceptedForUse, false)
+      const beforeRejectedUse = calls
+      await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer invented-refreshed-access-token" } }))
+      assert.equal(calls, beforeRejectedUse)
+    }
+    returnedScope = undefined
+    assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: guarded }), "invented-refreshed-access-token")
+    assert.equal((await store.vault()).at(-1).acceptedForUse, true)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("cleanup retries a lost DELETE by proving paged absence, then permits token revocation", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-delete-response-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const accessToken = "invented-owned-access-token"
+    await store.saveVault([{ access_token: accessToken, acceptedForUse: true, capturedAt: Date.now(), expires_in: 3600 }])
+    const calendarId = "owned-delete@group.calendar.google.com"
+    let marker
+    let deleted = false
+    let deleteCalls = 0
+    let revoked = false
+    let calls = 0
+    const provider = async (request) => {
+      calls++
+      const url = new URL(request.url)
+      if (url.pathname === "/revoke") { revoked = true; return Response.json({}) }
+      if (request.method === "POST") { marker = (await request.json()).description; return Response.json({ id: calendarId, description: marker }) }
+      if (request.method === "DELETE") { deleted = true; deleteCalls++; throw new Error("synthetic-delete-response-lost") }
+      assert.ok(url.pathname.endsWith("calendarList"))
+      return url.searchParams.has("pageToken")
+        ? Response.json({ items: deleted ? [] : [{ id: calendarId, summary: "AtmoShaper", description: marker, accessRole: "owner" }] })
+        : Response.json({ items: [{ id: "unrelated@example.test", primary: true }], nextPageToken: "synthetic-page-two" })
+    }
+    const active = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider })
+    await active("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer " + accessToken }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) })
+    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider, cleanup: true })
+    const adapter = createGoogleCalendarAdapter({ fetchImpl: guarded })
+    const cleanup = () => acceptanceCleanupCalendars({ client, store, adapter, fetchImpl: guarded })
+    await assert.rejects(cleanup())
+    assert.equal((await store.journal()).some((item) => item.kind === "calendar-delete" && item.phase === "accepted"), false)
+    await cleanup()
+    assert.equal(deleteCalls, 1)
+    assert.equal((await store.journal()).some((item) => item.caseName === "owned-targets-verified-absent"), true)
+    await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token: accessToken }) })
+    assert.equal(revoked, true)
+    await store.saveVault([])
+    const beforeRetry = calls
+    await cleanup()
+    assert.equal(calls, beforeRetry)
   } finally { await rm(directory, { recursive: true, force: true }) }
 })
 

@@ -3,7 +3,7 @@ import { join } from "node:path"
 import { randomBytes } from "node:crypto"
 import { chromium } from "@playwright/test"
 import { loadAcceptanceConfig } from "./calendar-application-acceptance.mjs"
-import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupAccessToken } from "./calendar-application-acceptance-guard.mjs"
+import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupCalendars } from "./calendar-application-acceptance-guard.mjs"
 import { requireAcceptance, encodeAcceptanceActionForm, ACCEPTANCE_ORIGIN } from "./calendar-application-acceptance-core.mjs"
 import { createBrowserUserFixtureIdentity, createBrowserUserFixtureRecord, removeBrowserUserFixtureRecord } from "../lib/auth/browser-user-fixture.ts"
 import { installSignedInSessionCookie } from "../tests/browser/signed-in-session-cookie.ts"
@@ -327,22 +327,7 @@ async function main() {
     await receipt("real-durable-intent-injected-lost-response-no-repost-reconciliation")
   } else if (mode === "cleanup") {
     await setFault()
-    const journal = await store.journal()
-    const intents = journal.filter((item) => item.kind === "calendar-create" && item.phase === "intent")
-    if (intents.length && !journal.some((item) => item.kind === "case" && item.phase === "passed" && item.caseName === "owned-targets-verified-absent")) {
-      const accessToken = await acceptanceCleanupAccessToken({ client, store, fetchImpl: guardedFetch })
-      // Full paging recovers uniquely marked uncertain creates before any owned deletion.
-      await adapter.listCalendars(accessToken)
-      const created = await calendarCreates()
-      requireAcceptance(intents.every((intent) => intent.calendarMarker && created.some((item) => item.calendarMarker === intent.calendarMarker)), "unresolved_cleanup_creation")
-      const deleted = (await store.journal()).filter((item) => item.kind === "calendar-delete" && item.phase === "accepted").map((item) => item.calendarId)
-      for (const item of created) if (!deleted.includes(item.calendarId)) {
-        requireAcceptance((await guardedFetch("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(item.calendarId), { method: "DELETE", headers: { authorization: "Bearer " + accessToken } })).ok, "target_cleanup")
-      }
-      const createdIds = (await calendarCreates()).map((item) => item.calendarId)
-      requireAcceptance(!(await adapter.listCalendars(accessToken)).some((item) => createdIds.includes(item.id)), "target_cleanup_absence")
-      await receipt("owned-targets-verified-absent")
-    }
+    await acceptanceCleanupCalendars({ client, store, adapter, fetchImpl: guardedFetch })
     // Revoking each distinct grant token can make sibling tokens invalid; Google's already-revoked
     // response is accepted only for a token positively captured from this run's test exchange.
     const revokeTokens = [...new Set((await store.vault()).flatMap((token) => [token.refresh_token, token.access_token].filter(Boolean)))]

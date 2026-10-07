@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Follow-up review fixes refresh omission and cleanup retry
+
+- Codex's follow-up review completes at `2026-10-07T22:47:57Z` on `c7de5c9`.
+  Both valid operator-harness findings are fixed: a refresh response may omit
+  unchanged scope, and a successful DELETE may lose its response before the
+  accepted journal receipt. Application runtime remains unchanged.
+- Refresh omission inherits only the validated grant captured for that exact
+  refresh credential; explicit empty or broader scopes still fail. Token
+  capture, validation and acceptance share one store lock. A later rejected
+  response quarantines the same credential value even if an earlier copy was
+  accepted; rejected credentials remain available only for owned revocation.
+- Cleanup reconciles complete paged inventory before deleting only still-active
+  owned targets. A lost DELETE response can therefore resume with absence proof
+  rather than retrying an absent resource. Final absence receipts identify the
+  current create intents, allowing partial token-revocation cleanup to resume.
+- The latest provider-free harness checks pass 23/23. These regressions exercise
+  the actual guarded adapter/cleanup helper and make no additional live
+  acceptance claim. Lint, typecheck, documentation/workload checks 16/16,
+  all 84 relative targets in the three updated documents, and whitespace checks
+  pass. Final-head hosted checks and renewed reviews remain pending.
+  No consent, fixture, provider
+  configuration, database, payment test, deployment or completed cleanup is rerun.
+
 ## 2026-10-07 — Source-review fixes for guarded recovery and delayed cleanup
 
 - The explicit full CodeRabbit review completes at `2026-10-07T22:35:16Z`,

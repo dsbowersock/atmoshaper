@@ -69,12 +69,23 @@ async function reconcileAcceptanceCalendarPage(items, store) {
   })
 }
 
+/** A later rejected response quarantines the same credential value even if an earlier copy was accepted. */
+function usableCapturedToken(tokens, field) {
+  const rejected = new Set()
+  for (let index = tokens.length - 1; index >= 0; index--) {
+    const token = tokens[index]
+    if (!token[field] || rejected.has(token[field])) continue
+    if (token.acceptedForUse !== false) return token
+    rejected.add(token[field])
+  }
+}
+
 /** Delayed teardown uses the cleanup-guarded fetch; rejected grants stay captured solely for revocation. */
 export async function acceptanceCleanupAccessToken({ client, store, fetchImpl, now = Date.now() }) {
   const tokens = await store.locked(() => store.vault())
-  const current = tokens.findLast((token) => token.access_token && token.acceptedForUse !== false)
+  const current = usableCapturedToken(tokens, "access_token")
   if (Number.isFinite(current?.capturedAt) && Number.isFinite(current.expires_in) && now + 30_000 < current.capturedAt + current.expires_in * 1000) return current.access_token
-  const refresh = tokens.findLast((token) => token.refresh_token && token.acceptedForUse !== false)?.refresh_token
+  const refresh = usableCapturedToken(tokens, "refresh_token")?.refresh_token
   requireAcceptance(refresh, "cleanup_refresh_unavailable")
   const response = await fetchImpl("https://oauth2.googleapis.com/token", {
     method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -85,6 +96,26 @@ export async function acceptanceCleanupAccessToken({ client, store, fetchImpl, n
   const token = await response.json()
   requireAcceptance(typeof token.access_token === "string" && token.access_token.length > 10, "token_response")
   return token.access_token
+}
+
+/** Teardown uses the guarded adapter's complete active inventory; an absent owned ID needs no second DELETE. */
+export async function acceptanceCleanupCalendars({ client, store, adapter, fetchImpl }) {
+  const journal = await store.journal()
+  const intents = journal.filter((item) => item.kind === "calendar-create" && item.phase === "intent")
+  if (!intents.length || journal.some((item) => item.kind === "case" && item.phase === "passed" && item.caseName === "owned-targets-verified-absent" && item.calendarMarkers?.length === intents.length && intents.every((intent) => item.calendarMarkers.includes(intent.calendarMarker)))) return
+  const accessToken = await acceptanceCleanupAccessToken({ client, store, fetchImpl })
+  // Complete paging recovers marked uncertain creates before identifying which IDs still exist.
+  const activeIds = new Set((await adapter.listCalendars(accessToken)).map((item) => item.id))
+  const current = await store.journal()
+  const created = current.filter((item) => item.kind === "calendar-create" && item.phase === "accepted")
+  requireAcceptance(intents.every((intent) => intent.calendarMarker && created.some((item) => item.calendarMarker === intent.calendarMarker)), "unresolved_cleanup_creation")
+  const deleted = current.filter((item) => item.kind === "calendar-delete" && item.phase === "accepted").map((item) => item.calendarId)
+  for (const item of created) if (!deleted.includes(item.calendarId) && activeIds.has(item.calendarId)) {
+    requireAcceptance((await fetchImpl("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(item.calendarId), { method: "DELETE", headers: { authorization: "Bearer " + accessToken } })).ok, "target_cleanup")
+  }
+  const createdIds = created.map((item) => item.calendarId)
+  requireAcceptance(!(await adapter.listCalendars(accessToken)).some((item) => createdIds.includes(item.id)), "target_cleanup_absence")
+  await store.locked(() => store.record({ kind: "case", phase: "passed", caseName: "owned-targets-verified-absent", calendarMarkers: intents.map((item) => item.calendarMarker) }))
 }
 
 /** Intercepts only this local task process; permits no unjournaled credential or fixture write. */
@@ -101,8 +132,12 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         if (result.kind === "local") return result
         const tokens = await store.vault()
         const bearer = request.headers.get("authorization")?.replace(/^Bearer /, "")
-        if (bearer) requireAcceptance(tokens.some((token) => token.access_token === bearer && token.acceptedForUse !== false), "token_ownership")
-        if (result.kind === "refresh") requireAcceptance(tokens.some((token) => token.refresh_token === new URLSearchParams(body).get("refresh_token") && token.acceptedForUse !== false), "token_ownership")
+        if (bearer) requireAcceptance(tokens.findLast((token) => token.access_token === bearer)?.acceptedForUse !== false && tokens.some((token) => token.access_token === bearer), "token_ownership")
+        if (result.kind === "refresh") {
+          const grant = tokens.findLast((token) => token.refresh_token === new URLSearchParams(body).get("refresh_token"))
+          requireAcceptance(grant && grant.acceptedForUse !== false, "token_ownership")
+          result.capturedScope = grant.scope
+        }
         if (result.kind === "revoke") requireAcceptance(tokens.some((token) => [token.access_token, token.refresh_token].filter(Boolean).includes(new URLSearchParams(body).get("token"))), "token_ownership")
         // A transport loss may hide the returned ID. A task-only marker binds later recovery
         // to this exact create attempt; the synthetic app sees its ordinary marker instead.
@@ -137,23 +172,21 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       const data = await response.json()
       if (["exchange", "refresh"].includes(decision.kind)) {
         requireAcceptance(typeof data.access_token === "string" && data.access_token.length > 10, "token_response")
+        // RFC 6749 permits an unchanged refresh grant to omit scope; explicit drift is still rejected.
+        const effectiveScope = decision.kind === "refresh" && data.scope === undefined ? decision.capturedScope : data.scope
         // Capture the newly issued token before rejecting a wrong/missing grant so teardown
         // can revoke it even when the callback must stop without activating a connection.
         await store.locked(async () => {
           const tokens = await store.vault()
-          tokens.push({ ...data, capturedAt: Date.now(), acceptedForUse: false })
+          const captured = { ...data, scope: effectiveScope, capturedAt: Date.now(), acceptedForUse: false }
+          tokens.push(captured)
           await store.saveVault(tokens)
           await store.record({ ...decision, phase: "captured" })
-        })
-        validateAcceptanceScopes(data.scope)
-        if (decision.kind === "exchange") requireAcceptance(data.refresh_token && data.id_token, "token_response")
-        await store.locked(async () => {
-          const tokens = await store.vault()
-          const captured = tokens.findLast((token) => token.access_token === data.access_token)
-          requireAcceptance(captured, "token_response")
+          validateAcceptanceScopes(effectiveScope)
+          if (decision.kind === "exchange") requireAcceptance(data.refresh_token && data.id_token, "token_response")
           captured.acceptedForUse = true
           await store.saveVault(tokens)
-          await store.record({ ...decision, phase: "accepted", scope: data.scope })
+          await store.record({ ...decision, phase: "accepted", scope: effectiveScope })
         })
       } else if (decision.kind === "identity") {
         requireAcceptance(data.email === manifest.accountEmail && data.email_verified === true && typeof data.sub === "string", "account_identity")
