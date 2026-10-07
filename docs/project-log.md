@@ -2,6 +2,44 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — PR #40 merged; automatic candidate verified and unpromoted
+
+- The user approved merging PR #40, verifying its automatic unpromoted build,
+  and restoring any saved live aliases it moves. Fresh preflight verified clean
+  local/hosted head `0f486e554c9b3104dee70a3f2c00c33ffe031c7a`, unchanged base,
+  all seven CI jobs, ready Vercel Preview and clean Codex review. CI records
+  5,155 unit passes, two skips and zero failures.
+- The explicit final full CodeRabbit review covers all 20 changed files at that
+  exact head. Its action reply confirms full review finished and its summary
+  records the covered commit; no new actionable comments remain. Both earlier
+  minor threads are fixed/resolved. All five pre-merge checks pass, with 100%
+  touched-function docstring coverage. A carried successful check alone was
+  not treated as final-head coverage.
+- PR #40 merged at `2026-10-07T05:14:22Z` as
+  `38d0deddea484938e13df61927d07a7b21f92071`. Its one automatic main Production
+  candidate reached `READY` at `2026-10-07T05:17:34.607Z`. Actual remote logs
+  confirm `npm run build`, all committed migrations applied, and live Supporter
+  readiness passed. No duplicate manual build or migration write was run.
+- All seven normal authenticated candidate GETs pass: home, pricing,
+  registration, support, Privacy, Terms and signed-out session. They return real
+  application content; registration inputs are open, Checkout pause copy is
+  absent, and session is `null`. This is HTTP/HTML evidence, not a claim of
+  interactive Calendar or full application/provider acceptance.
+- All six saved live aliases and the public project target stayed on PR #37's
+  approved artifact, `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; no restoration
+  was needed or performed. Post-build readback preserves verified domains/apex
+  redirect, protection, manual custom-domain promotion, standard build and
+  GitHub/`main`. Fresh inventory has 56 Production-only variables and none in
+  Preview/Development. Both public pause flags are false; excluded purchase
+  switches and all four Calendar keys remain absent.
+- The review heartbeat remains paused. The candidate is unpromoted and public
+  Calendar remains inactive. The replacement Production Google declaration,
+  credentials, larger application/provider acceptance, any required truthful
+  demo/submission, public promotion and activation retain separate approval
+  gates. Completed Calendar comparisons, consent/fixtures/cleanup and the live
+  payment test were not repeated. Next is the prepared availability declaration
+  in the existing Production project, after its exact approval.
+
 ## 2026-10-06 — Calendar acceptance gate made explicit after full review
 
 - Explicit CodeRabbit full review at `c2c51ab` completed at

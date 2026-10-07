@@ -1,11 +1,14 @@
 # AtmoShaper Calendar provider-stage checkpoint
 
-Status: local source preparation after both independent permission comparisons
+Status: merged source preparation after both independent permission comparisons
 passed. Temporary test calendars are deleted by owner receipt and both test
-tokens are revoked. The availability replacement is published in
-[PR #40](https://github.com/dsbowersock/atmoshaper/pull/40); final-head review and
-CI remain pending after its first full review reports zero actionable comments.
-Merge, revised Production declaration, full application/provider acceptance and
+tokens are revoked. The availability replacement merged in
+[PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) on October 7 after
+exact-head full review of all 20 files found no new actionable comments and all
+seven CI jobs, Vercel Preview and Codex review passed. Its automatic Production
+candidate passed actual readiness gates and seven authenticated GETs and remains
+unpromoted. All six saved live assignments retain PR #37; no restoration was
+needed. The revised Production declaration, full application/provider acceptance and
 public Calendar activation remain pending.
 
 October 3 screenshots establish External / In production and empty declared
@@ -16,13 +19,13 @@ Its event-read declaration approval remains historical: the unsaved draft showed
 sensitive access with justification/video requirements. Keep that draft unsaved
 until the replacement operation is authorized and actual classifications are read.
 The implementation merged in PR #36 is included in the approved public PR #37
-artifact; the PR #39 candidate is verified but unpromoted. Working sign-in and
+artifact; the PR #39 and PR #40 candidates are verified but unpromoted. Working sign-in and
 Vercel integration remain complete. Do not repeat them or the live payment test.
 
 October 6 continuation supersedes the event-read declaration proposal below for
 future preparation: both independently consented inbound comparison arms pass
 on owned/shared-reader synthetic calendars. Their tokens are revoked and the
-user reports both temporary calendars deleted. Local source now replaces new
+user reports both temporary calendars deleted. Merged source now replaces new
 event-read requests with availability access while preserving accepted legacy
 tokens. The replacement proposal below is prepared, not approved/saved. Earlier
 sections retain their dated PR #39 and Google approval receipts; they do not
@@ -155,7 +158,7 @@ app-created outbound behavior or Google's Production verification decision.
 | `https://www.googleapis.com/auth/calendar.events.freebusy` | Measured inbound availability/event-page and incremental busy-block import |
 
 Do not newly request or declare `calendar.events.readonly` for this candidate.
-The local validator still accepts that previously permitted read grant, alone
+The merged validator still accepts that previously permitted read grant, alone
 or combined with availability, while requiring calendar-list/app-created access
 and rejecting broader Calendar grants. Cached and refreshed legacy tokens remain
 usable without rewriting stored identities/grants or weakening the validated
@@ -175,10 +178,11 @@ and [event-list permissions](https://developers.google.com/workspace/calendar/ap
 support the requested capability; Console outcomes remain project-specific.
 
 This replacement needs separate approval: the earlier exact declaration approval
-covered event-read. Source publication/reviews, merge, this provider operation,
+covered event-read. PR #40's source publication/reviews, merge and automatic
+unpromoted candidate verification are complete. This provider operation,
 verification upload/submission if applicable, credentials, application/provider
-acceptance, deployment and public activation remain separate steps. No provider
-settings are changed by the local source preparation or this proposal.
+acceptance, public promotion and activation remain separate steps. No Google
+settings are changed by the merged source or this proposal.
 
 ## October 3 declared-permission checkpoint; historical event-read proposal
 

@@ -1,24 +1,36 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-06
+Verified: 2026-10-07
 
-Evidence scope: repository, both independent test Calendar permission comparisons
-and owner cleanup receipts. Hosted receipts retain their original dates.
+Evidence scope: repository, PR #40's final reviews/CI and approved merge,
+automatic unpromoted candidate, and authenticated hosting readbacks. Completed
+Calendar comparisons and other historical receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
 ## Current Snapshot — Registration and Supporter Checkout Open
 
-- [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) is published under
-  the user's October 6 source/review approval. Full CodeRabbit review of
-  `c2c51ab` covers all 20 changed files and reports one minor acceptance-gate
-  clarification; all five pre-merge checks pass, with 100% docstring coverage.
-  Full application/provider acceptance is now explicitly marked pending below.
-  The earlier completed-comparison instruction is fixed. All seven CI jobs,
-  Vercel Preview and Codex review pass at `c2c51ab`; this wording follow-up needs final-head
-  checks and another eligible manual review before a merge request. Merge is
-  not authorized. No Production Google settings, Calendar activation or live
-  promotion occurs.
+- [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
+  user's exact approval at `2026-10-07T05:14:22Z` as
+  `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head
+  `0f486e554c9b3104dee70a3f2c00c33ffe031c7a` passes all seven CI jobs,
+  Vercel Preview and clean Codex review. The completed explicit CodeRabbit full
+  review covers all 20 changed files at that head with no new actionable
+  comments; both earlier minor threads are fixed/resolved. All five pre-merge
+  checks pass, including 100% touched-function docstring coverage. Its one
+  automatic Production candidate reached `READY` at
+  `2026-10-07T05:17:34.607Z`; actual migration-status and live Supporter readiness
+  gates and all seven normal authenticated candidate GETs pass. Registration
+  is open, Checkout pause copy is absent, and signed-out session is `null`.
+  The candidate remains unpromoted. All six saved live aliases and the public
+  target remain on PR #37; no alias restoration was needed. Fresh hosting
+  readbacks retain manual custom-domain promotion, standard `npm run build`,
+  GitHub/`main`, protection, verified domains/apex redirect, and 56 Production-only
+  variables with none in Preview/Development. Both public pause flags are
+  `false`; excluded purchase switches and all four Calendar keys remain absent.
+  The replacement Google declaration, full application/provider acceptance and
+  public Calendar activation remain pending. No manual build or completed live
+  payment/Calendar comparison test was repeated.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
   user's exact approval at `2026-10-03T17:02:47Z` as
   `2e01e8509b42ab73c85d286f2725c824770aeeec`. Reviewed head
@@ -84,17 +96,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   needed. Detailed setup, diagnostic and execution history remains in the
   [project log](project-log.md) and
   [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md).
-- Prepared source requests availability instead of event-read access, retaining
+- Merged source requests availability instead of event-read access, retaining
   required calendar-list/app-created grants and compatibility with existing
   event-read/combined tokens on connect, cached use and refresh. Incomplete or
   broader Calendar grants still fail before provider work/token persistence.
   Calendar regressions pass 83/83, comparison checks 40/40 and documentation
-  checks 16/16; the reviewed `c2c51ab` CI run passes all seven jobs, including
+  checks 16/16; the reviewed `0f486e5` CI run passes all seven jobs, including
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
   whole-integration minimum access. Full application/provider acceptance remains
-  pending. Source merge, the changed Production
-  declaration, credentials, isolated application/provider resources, any required
+  pending. The changed Production declaration, credentials, isolated
+  application/provider resources, any required
   demo/submission, public promotion and Calendar activation remain separately
   gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.
 

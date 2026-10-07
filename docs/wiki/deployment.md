@@ -67,6 +67,22 @@ absent Calendar keys remain verified. Both pause flags read `false`; excluded
 purchase switches remain unset. This build does not establish Calendar provider
 acceptance or authorize Google settings, credentials, or activation.
 
+The separately approved [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40)
+merge is `38d0deddea484938e13df61927d07a7b21f92071`, after exact-head full
+CodeRabbit coverage of all 20 files, clean Codex review, all seven CI jobs and
+Vercel Preview passed. Its one automatic Production candidate reached `READY`
+at `2026-10-07T05:17:34.607Z`. Actual migration-status and live Supporter gates
+and all seven normal authenticated candidate GETs pass; registration is open,
+Checkout pause copy is absent, and signed-out session is `null`. All six saved
+live aliases and the public target remain on PR #37, so no restoration was
+needed. Post-build readbacks preserve manual promotion, standard build,
+GitHub/`main`, verified domains/apex redirect and protection. Fresh inventory has
+56 Production-only variables and none in Preview/Development; both public
+pause flags remain false, excluded purchase switches are unset and all four
+Calendar keys are absent. The candidate is unpromoted. Production Google
+settings, Calendar provider acceptance, credentials and activation remain
+separate gates; no manual build or completed live test was repeated.
+
 ## Production Readiness In The Standard Build
 
 [PR #37](https://github.com/dsbowersock/atmoshaper/pull/37), merged as

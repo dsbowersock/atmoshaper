@@ -1,6 +1,21 @@
 # AtmoShaper existing-project Vercel integration
 
-Latest continuation receipt: [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39)
+Latest continuation receipt: [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40)
+merged under exact approval at `2026-10-07T05:14:22Z` as
+`38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head
+`0f486e554c9b3104dee70a3f2c00c33ffe031c7a` passes all seven CI jobs, Vercel,
+clean Codex review and completed explicit full CodeRabbit coverage of all 20
+files with no new actionable comments. Its one automatic Production candidate
+reached `READY` at `2026-10-07T05:17:34.607Z`; actual migration-status and live
+Supporter gates and all seven normal authenticated GETs pass. Post-build
+readbacks retain all six saved live aliases and the public target on PR #37,
+verified domains/apex redirect, protection, manual custom-domain promotion,
+standard build and GitHub/`main`. No alias restoration was needed. The candidate
+remains unpromoted, all four Calendar keys remain absent, both public pause
+flags remain false, and excluded purchase switches remain unset. No duplicate
+manual build, completed Calendar comparison or live payment test was repeated.
+
+Earlier continuation receipt: [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39)
 merged under exact approval at `2026-10-03T17:02:47Z` as
 `2e01e8509b42ab73c85d286f2725c824770aeeec`. Reviewed head
 `7064a6fb63340fabc29adfd695e0824a1d21c2ed` passed all seven CI jobs, Vercel,
@@ -40,8 +55,8 @@ with both remote readiness gates passing. All seven protected candidate GET
 checks pass. The user separately approved promotion of this exact existing
 artifact with rollback if verification failed. Promotion and all public checks
 passed without rebuilding or rollback. Sanitized operator receipts are published
-in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), pending final-head
-checks/reviews and separate source merge approval.
+in [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38), reviewed and merged
+under its separate approval as recorded above.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 and the [migration ledger](../../wiki/migration-status.md) first. Preserve the
