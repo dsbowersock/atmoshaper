@@ -4,7 +4,7 @@ Verified: 2026-10-07
 
 Evidence scope: repository, PR #40's final reviews/CI and approved merge,
 automatic unpromoted candidate, authenticated hosting readbacks, and the owner's
-replacement Google declaration save receipt. Completed
+replacement Google declaration save and Verification Center readback receipts. Completed
 Calendar comparisons and other historical receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
@@ -30,9 +30,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   variables with none in Preview/Development. Both public pause flags are
   `false`; excluded purchase switches and all four Calendar keys remain absent.
   The owner reports `saved` after the approved six-entry replacement Google
-  declaration guidance. This is a save receipt, not independent scope readback,
-  classification or verification proof. Actual categories and Verification
-  Center status remain pending. Full application/provider
+  declaration guidance, then supplies Verification Center's exact message:
+  verification is not required because the app requests no sensitive or
+  restricted scopes. The owner also reports no entries in either category.
+  This completes the declaration/status gate by owner receipt, not independent
+  Console/API readback or inspection of every saved scope URL. No verification
+  material or submission is currently required on that evidence. Full application/provider
   acceptance and public Calendar activation remain pending. No manual build or completed live
   payment/Calendar comparison test was repeated.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
@@ -87,14 +90,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   rollback boundaries. Google sign-in is operational. The user reports creating
   the separate Production Calendar Web registration with only
   `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI,
-  and enabling Calendar API under separate approvals. The saved Calendar-return
-  readback and replacement permission classifications remain pending. The user
-  approved the exact six-entry availability declaration on October 7 and now
-  reports it saved. Obtain only the current saved categories and Verification
-  Center Data access status/required actions before deciding whether materials
-  are needed; preserve identity/client/audience settings and do not repeat
-  scope selection or save. Prepare the remaining isolated application acceptance
-  proposal before requesting its exact resource/run authority. Do not
+  and enabling Calendar API under separate approvals. The saved Production
+  Calendar-return readback remains pending before hosting credential provisioning.
+  The October 7 owner save/category/status receipts close the replacement
+  declaration gate; do not repeat scope selection, save or the completed
+  Verification Center question. Preserve identity/client/audience settings.
+  The [isolated application acceptance plan](superpowers/plans/2026-10-07-atmoshaper-calendar-application-acceptance.md)
+  prepares reuse of Calendar Verify, one empty temporary Neon project, synthetic
+  application/provider fixtures, and mandatory cleanup. Authenticated Neon CLI
+  organization metadata reads now work. The identified unmanaged organization
+  uses Launch, so this proposed database can incur usage charges; no resource
+  has been created. Its exact settings/resource/run/cleanup authority is pending. Do not
   repeat client creation, API enablement or the completed saved identity checks.
   Dated hosting readbacks retain absent Calendar keys and inactive configuration.
 - Both independently consented test permission arms passed the same strict
@@ -116,9 +122,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
   whole-integration minimum access. Full application/provider acceptance remains
-  pending. The approved declaration has an owner save receipt; credentials, isolated
-  application/provider resources, any required
-  demo/submission, public promotion and Calendar activation remain separately
+  pending. The approved declaration has owner save/category/status receipts;
+  Google reports verification unnecessary for that saved state. Credentials, isolated
+  application/provider resources, public promotion and Calendar activation remain separately
   gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.
 
 - PR #35's documentation closeout merged as

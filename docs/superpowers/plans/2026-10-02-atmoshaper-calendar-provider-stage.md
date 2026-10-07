@@ -9,8 +9,11 @@ seven CI jobs, Vercel Preview and Codex review passed. Its automatic Production
 candidate passed actual readiness gates and seven authenticated GETs and remains
 unpromoted. All six saved live assignments retain PR #37; no restoration was
 needed. The user approved the revised Production declaration's guided setup on
-October 7 and subsequently reports `saved`. This is an owner execution receipt;
-actual saved categories and Verification Center status remain pending. Full
+October 7 and subsequently reports `saved`. The owner then supplies Verification
+Center's message that verification is not required because the app requests no
+sensitive or restricted scopes, and reports no entries in either category.
+This closes the declaration/status gate by owner readback; independent Console/API
+inspection of every saved URL is not claimed. Full
 application/provider acceptance and public Calendar activation remain pending.
 
 October 3 screenshots establish External / In production and empty declared
@@ -20,8 +23,8 @@ claimed. PR #39's review, merge and automatic unpromoted candidate are complete.
 Its event-read declaration approval remains historical: the unsaved draft showed
 sensitive access with justification/video requirements. That historical draft
 was left unsaved; it is not the current owner-saved availability declaration.
-Check actual replacement categories and Verification Center required actions
-before preparing any additional materials.
+The October 7 replacement status below supersedes that unsaved proposal. No
+verification material/submission is currently required on the owner readback.
 The implementation merged in PR #36 is included in the approved public PR #37
 artifact; the PR #39 and PR #40 candidates are verified but unpromoted. Working sign-in and
 Vercel integration remain complete. Do not repeat them or the live payment test.
@@ -81,7 +84,8 @@ and public activation require their own exact, reviewable authorization.
   verify its admin-enforced policy. No indirect workaround or alternate browser
   was used. The client-list and URL-only questions are now satisfied, with no
   secrets or setting changes. Google Cloud-admin CLI/connector
-  access is unavailable; isolated test targets remain unverified. All requested
+  access is unavailable; the subsequent Calendar Verify comparison setup is
+  complete, while new application resources/run remain unapproved. All requested
   Data Access, Audience, Verification Center, and Calendar API readbacks are
   satisfied by the user's screenshots; do not ask to repeat them.
 
@@ -172,13 +176,14 @@ availability-only tokens; retain this guard in any reviewed rollback.
 
 The approved user-guided operation targeted these six entries in the existing
 Production project's Data Access declaration, replacing event-read with
-availability if present. The owner reports `saved`; exact scope/category
-readback is not independently established by that reply. Preserve working sign-in,
-client/callback registrations, verified branding and External / In production
-audience. Inspect and record actual scope categories, justification/demo fields
-and Verification Center actions; do not assume verification becomes unnecessary
-from the narrower scope name or standalone test. Prepare any required truthful
-materials before saving or submitting. No invented demo link or claim is allowed.
+availability if present. After reporting `saved`, the owner supplies Verification
+Center's exact Data access status: verification is not required since the app is
+not requesting any sensitive or restricted scopes. They also report no entries
+in either category. The declaration/status gate is complete by owner readback;
+independent Console/API inspection of every saved URL is not claimed. Preserve
+working sign-in, client/callback registrations, verified branding and External /
+In production audience. No verification material/submission is currently required
+on that evidence; it is not inferred solely from a scope name or the comparison.
 Google's [scope reference](https://developers.google.com/workspace/calendar/api/auth)
 and [event-list permissions](https://developers.google.com/workspace/calendar/api/v3/reference/events/list)
 support the requested capability; Console outcomes remain project-specific.
@@ -193,9 +198,10 @@ and required fields first; keep the draft unsaved while missing truthful
 materials are prepared. Unexpected existing saved scopes require reconciliation
 before removing them. Approval alone does not establish selection, save or
 verification. Those selection/save steps are historical guidance, not a repeat
-request. Next obtain only the saved Sensitive/Restricted categories and current
-Verification Center Data access status/required actions. No alternate
-browser/control path is authorized by this receipt.
+request. The later owner category/status readback now satisfies the remaining
+question; do not request it again. Next is the separately gated
+[isolated application acceptance](2026-10-07-atmoshaper-calendar-application-acceptance.md).
+No alternate browser/control path is authorized by these receipts.
 
 PR #40's source publication/reviews, merge and automatic
 unpromoted candidate verification are complete. Verification upload/submission
@@ -411,8 +417,10 @@ evidence of a working consent flow.
 Primary [sensitive-scope review guidance](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification)
 checked October 3 requires the least necessary permissions, a narrower-scope
 justification, and a real consent/functionality video for sensitive-scope review.
-The two-arm scope comparison is complete. Saved Production classifications,
-full application acceptance, any required demo, and verification remain open.
+The two-arm scope comparison is complete. The October 7 owner status/category
+readback closes the Production declaration dependency and reports verification
+unnecessary; full application acceptance remains open. Do not prepare the
+historical sensitive-scope demo for the current saved declaration by default.
 
 ## Completed comparison setup and pending application targets
 
@@ -427,16 +435,17 @@ repeat project/client creation, consent, fixture setup, restoration or cleanup.
 
 PR #40's source merge/build verification and the owner's approved
 [replacement-declaration save](#availability-declaration-october-7-owner-save-receipt)
-are complete. Its actual saved classification/Verification Center readback
-remains pending. The standalone comparison avoided an application database and does
+and owner category/Verification Center status readback are complete. The
+standalone comparison avoided an application database and does
 not replace the full isolated application acceptance proposal below. Prepare
 its remaining targets and operation boundaries before requesting that authority.
 
 Use the identified Production project and user-reported separate Calendar
-registration; do not propose another client or repeat its creation. Confirm the
-saved Calendar redirect, applicable new-scope Verification Center outcome,
-and appropriate isolated test targets before provisioning. Audience/publishing
-and Data Access readbacks are recorded above. Preserve shared consent settings.
+registration; do not propose another client or repeat its creation. Its saved
+Calendar redirect remains pending before Production credential provisioning.
+The replacement Verification Center outcome is satisfied by the October 7 owner
+readback above. Appropriate isolated application targets are specified in the
+new plan and await exact execution approval. Preserve shared consent settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 
@@ -471,6 +480,15 @@ and [OAuth project policy](https://developers.google.com/identity/protocols/oaut
 These explain requirements, not this project's saved state.
 
 ## Bounded isolated acceptance proposal
+
+The [October 7 application acceptance plan](2026-10-07-atmoshaper-calendar-application-acceptance.md)
+now specifies the existing test registration change, local app callback, exact
+empty Neon target ownership, synthetic fixture limits, fault-observation boundaries
+and mandatory cleanup. Neon CLI metadata access is authenticated; the identified
+unmanaged organization uses Launch. No resource or connection was created/read.
+This is a reviewable proposal, not a completed harness or execution approval.
+Use its current targets rather than repeating provider discovery or the completed
+permission-comparison setup.
 
 Prepare an owned local app and explicit Google-permitted test callback; choose
 the exact loopback port after availability and cookie/origin checks. Do not

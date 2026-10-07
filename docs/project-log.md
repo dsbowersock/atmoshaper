@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Owner verification readback closes Calendar declaration gate
+
+- After reporting the approved replacement declaration saved, the owner supplies
+  Verification Center's Data access status: verification is not required because
+  the app requests no sensitive or restricted scopes. They also report no entries
+  under either category. This closes the declaration/status dependency by owner
+  readback; no independent Console/API inspection of all saved URLs is claimed.
+  No verification material/submission is currently required on this evidence.
+- Prepared the [isolated application acceptance plan](superpowers/plans/2026-10-07-atmoshaper-calendar-application-acceptance.md)
+  for real role/feature checks, dedicated target creation, PostgreSQL transactions,
+  reconnect, generic sync and disconnect. It reuses the existing Calendar Verify
+  setup with a proposed app callback/narrow declaration, one empty independent
+  Neon project, one synthetic app account and bounded new provider fixtures.
+  Mandatory token/process/calendar/database cleanup is part of the proposal.
+- Read-only preparation verified clean owned branch `a33b00c`, merged PR #40
+  hosted truth, the actual Neon adapter and free loopback ports. Neon CLI 6.1.0
+  metadata reads work through its existing authenticated OAuth profile. Exactly
+  one returned organization is unmanaged by Vercel and uses Launch, so the
+  proposed short-lived database can incur usage charges. Private target identity
+  stays outside source. No database connections/rows, new login or credentials,
+  resources, consent, fixtures, provider settings or deployments were changed.
+- Settings/resource/run/cleanup approval for the proposed application stage is
+  still pending. Production credentials, public promotion and Calendar activation
+  remain separate gates. Do not repeat Google bootstrap, declaration/save/status
+  questions, completed permission comparisons/cleanup or the live payment test.
+- Documentation/server-workload checks pass 16/16; all 99 relative links and
+  referenced fragments across the five changed documents resolve, and whitespace
+  and private-data scans pass. These are local documentation checks, not a
+  provider acceptance receipt or publication/merge authorization.
+
 ## 2026-10-07 — Owner reports replacement Calendar declaration saved
 
 - The owner replied `saved` after the approved six-entry Production declaration
