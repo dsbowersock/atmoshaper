@@ -1,11 +1,44 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-03
+Verified: 2026-10-06
+
+Evidence scope: repository, both independent test Calendar permission comparisons
+and owner cleanup receipts. Hosted receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
 ## Current Snapshot — Registration and Supporter Checkout Open
 
+- [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) is published under
+  the user's October 6 source/review approval. Full CodeRabbit review of
+  `c2c51ab` covers all 20 changed files and reports one minor acceptance-gate
+  clarification; all five pre-merge checks pass, with 100% docstring coverage.
+  Full application/provider acceptance is now explicitly marked pending below.
+  The earlier completed-comparison instruction is fixed. All seven CI jobs,
+  Vercel Preview and Codex review pass at `c2c51ab`; this wording follow-up needs final-head
+  checks and another eligible manual review before a merge request. Merge is
+  not authorized. No Production Google settings, Calendar activation or live
+  promotion occurs.
+- [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
+  user's exact approval at `2026-10-03T17:02:47Z` as
+  `2e01e8509b42ab73c85d286f2725c824770aeeec`. Reviewed head
+  `7064a6fb63340fabc29adfd695e0824a1d21c2ed` passed all seven CI jobs and
+  Vercel. CodeRabbit's explicitly triggered full review covered all thirteen
+  files with zero actionable comments; Codex reported no major issues and no
+  inline review threads remained. Its automatic Production candidate reached
+  `READY` at `2026-10-03T17:05:28.696Z`, with actual migration-status and live
+  Supporter readiness gates passing. All seven normal authenticated candidate
+  GETs pass, including open registration, no Checkout pause copy, and a `null`
+  signed-out session. This candidate remains unpromoted. All six saved live
+  assignments and the public project target still use the approved PR #37
+  artifact; no alias restoration was needed. Manual custom-domain promotion,
+  apex redirect, deployment protection, and empty Preview credentials remain
+  intact. Public registration/recurring Supporter flags remain `false` for
+  pause, excluded purchase switches remain unset, and all four Calendar keys
+  remain absent. No live payment test was repeated. The earlier event-read
+  declaration approval is historical; the October 6 comparison supports a
+  prepared availability replacement, recorded below. No replacement declaration
+  has been approved or saved.
 - [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
   user's exact approval at `2026-10-03T02:55:51Z` as
   `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
@@ -33,58 +66,37 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   unnecessary user recovery or old-site changes.
 - Next migration focus is the already-selected separate AtmoShaper Calendar.
   The [provider-stage checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md)
-  consolidates source readiness, exact configuration/acceptance prerequisites,
-  and rollback boundaries. Production Calendar keys remain absent in fresh
-  name-only readback. Google sign-in is already operational; its credentials
-  are not Calendar configuration. The user's earlier Clients screenshot shows
-  the `AtmoShaper Production` project and one visible Web application registration,
-  `AtmoShaper Production Web`, created September 26. No separate Calendar row is
-  shown; its name alone does not establish whether Calendar is configured in it.
-  The user's URL-only readback lists
-  `https://www.atmoshaper.com/api/auth/callback/google`; the Calendar return
-  address is absent from that supplied list. The user's 2026-10-03 Data Access
-  and Audience screenshots show all three declared scope lists empty,
-  publishing status `In production`, and user type `External`. These are saved
-  configuration readbacks, not proof of Calendar API enablement, actual user
-  grants, or Google approval of Calendar permissions. Subsequent October 3
-  screenshots show branding verified and shown to users. Data-access
-  verification is currently not required because no sensitive/restricted
-  scopes are declared. The earlier Calendar API page showed `Enable`.
-  After the separately approved API-only step, the user now reports `Enabled`.
-  Record API enablement as their execution receipt, not an independent provider
-  read or approval of future Calendar scopes. Do not repeat enablement.
-  A read-only browser attempt was denied because its
-  security check could not verify the admin-enforced policy; no bypass was
-  attempted. Both client-list and return-address questions are satisfied.
-  The user approved creation of `AtmoShaper Calendar Production Web` alongside
-  the working sign-in registration, using only
-  `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI.
-  The user reports that creation is complete. This is a user execution receipt;
-  they also report downloading the issued credential JSON. Its contents and
-  location were not accessed; no credential values entered chat or source.
-  The new callback's saved readback is still pending. Published/live source
-  requests four Calendar scopes plus `openid`/`email`; working sign-in uses
-  the provider's `openid profile email` defaults. Do not treat empty declared
-  lists as broken sign-in or the publishing state as Calendar approval.
-  All requested Data Access, Audience, Verification Center, and API-state
-  readbacks are now received; do not ask to repeat them or registration creation.
-  [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) removes the redundant `calendar.events.freebusy`
-  request while retaining the three other Calendar grants and event-read import.
-  Existing tokens may retain that optional read-only grant; it never substitutes
-  for a required grant, and broader Calendar grants still fail before provider
-  access or token persistence. Calendar tests pass 83/83; typecheck and lint pass.
-  Full unit validation passes with 5,114 passed, three skipped, and zero failures.
-  The user approved publication and shepherding reviews; the branch and PR are
-  published, with final-head checks/reviews pending. All six saved live alias
-  assignments still resolve to the approved PR #37 artifact; manual promotion
-  and empty Preview credentials are verified. This does not change the live
-  request. Next is review convergence, then a separate exact Google
-  permission-declaration proposal. Isolated provider acceptance and
-  credential provisioning remain pending; no permission changes are approved.
-  The completed API-only approval excludes hosting provisioning, consent/scope
-  changes, QA resources, Calendar/event activity, deployment, and activation.
-  No hosting credential provisioning, provider QA, database write, Calendar
-  activation, or public promotion has occurred for this Calendar stage.
+  owns the exact replacement declaration, remaining application acceptance and
+  rollback boundaries. Google sign-in is operational. The user reports creating
+  the separate Production Calendar Web registration with only
+  `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI,
+  and enabling Calendar API under separate approvals. The saved Calendar-return
+  readback and replacement permission classifications remain pending; do not
+  repeat client creation, API enablement or the completed saved identity checks.
+  Dated hosting readbacks retain absent Calendar keys and inactive configuration.
+- Both independently consented test permission arms passed the same strict
+  initial and controlled-change comparisons on owned and shared-reader synthetic
+  sources. All missing/unexpected entries and shape mismatches were zero;
+  pagination, etags and incremental cursors were present. Both test tokens were
+  revoked, the callback listener exited, and the user reports `Deleted both`
+  temporary calendars. Calendar absence is an owner receipt, not an independent
+  API-absence claim. No repeated consent, fixtures, restoration or cleanup is
+  needed. Detailed setup, diagnostic and execution history remains in the
+  [project log](project-log.md) and
+  [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md).
+- Prepared source requests availability instead of event-read access, retaining
+  required calendar-list/app-created grants and compatibility with existing
+  event-read/combined tokens on connect, cached use and refresh. Incomplete or
+  broader Calendar grants still fail before provider work/token persistence.
+  Calendar regressions pass 83/83, comparison checks 40/40 and documentation
+  checks 16/16; the reviewed `c2c51ab` CI run passes all seven jobs, including
+  5,155 unit passes, two skips and zero failures. The measured inbound result
+  does not establish full application/database acceptance, verification or
+  whole-integration minimum access. Full application/provider acceptance remains
+  pending. Source merge, the changed Production
+  declaration, credentials, isolated application/provider resources, any required
+  demo/submission, public promotion and Calendar activation remain separately
+  gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.
 
 - PR #35's documentation closeout merged as
   `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review

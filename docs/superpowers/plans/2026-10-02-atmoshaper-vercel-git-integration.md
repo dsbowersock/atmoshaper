@@ -1,5 +1,18 @@
 # AtmoShaper existing-project Vercel integration
 
+Latest continuation receipt: [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39)
+merged under exact approval at `2026-10-03T17:02:47Z` as
+`2e01e8509b42ab73c85d286f2725c824770aeeec`. Reviewed head
+`7064a6fb63340fabc29adfd695e0824a1d21c2ed` passed all seven CI jobs, Vercel,
+full CodeRabbit coverage of thirteen files with no actionable comments, and
+clean Codex review. Its automatic Production candidate reached `READY` at
+`2026-10-03T17:05:28.696Z`; both actual readiness gates and all seven normal
+authenticated GETs pass. All six saved live assignments and the public project
+target remain on PR #37, with the same apex redirect, protection, standard
+build command, manual promotion, and empty Preview configuration. No alias
+restoration was needed. The candidate remains unpromoted, Calendar keys remain
+absent, and no manual build or live payment test was repeated.
+
 Continuation receipt: PR #38 merged under exact approval at
 `2026-10-03T02:55:51Z` as `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`.
 Reviewed head `3558ff4a81e03f347818acf6f14980c64a008118` passed all seven

@@ -2,6 +2,639 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Calendar acceptance gate made explicit after full review
+
+- Explicit CodeRabbit full review at `c2c51ab` completed at
+  `2026-10-07T02:01:54Z`, covering all twenty changed files. It confirms the
+  earlier comparison-instruction fix and identifies one minor wording gap:
+  the current snapshot should explicitly say full application/provider
+  acceptance remains pending. Added that sentence without changing the gate,
+  runtime code, provider settings or test expectations.
+- The wording follow-up passes all 16 server-workload/documentation checks and
+  branch whitespace checks. The existing relative links are unchanged.
+- At `c2c51ab`, all seven CI jobs pass, including 5,155 unit passes, two skips
+  and zero failures; Vercel Preview is ready and Codex reports no major issues.
+  Fresh connector readbacks retain the approved live artifact and six live
+  assignments, both public pause flags false, 56 Production-only variables,
+  absent Calendar keys and excluded purchase switches. This wording follow-up
+  needs final-head checks and another eligible full review. Merge and all
+  provider/application acceptance and activation operations remain separately
+  gated; no completed comparison or payment test is repeated.
+
+## 2026-10-06 — Final-head Calendar review completed; stale operator instructions corrected
+
+- After the included window opened, explicitly requested CodeRabbit full review
+  of `34cea53`. Its completed review at `2026-10-07T00:54:29Z` covers all
+  twenty changed files. All five pre-merge checks pass, including 100% touched-
+  function docstring coverage. One valid minor comment identifies stale guidance
+  to prepare/request authority for the completed permission comparison.
+- Replaced that guidance with the completed setup/run/cleanup outcome and the
+  pending replacement-declaration approval and isolated application acceptance.
+  Marked the earlier event-read comparison instructions as historical. Condensed
+  duplicated diagnostic history in the current-state file; the detailed dated
+  receipts remain here and in the comparison plan.
+- The documentation follow-up passes all 16 server-workload/documentation
+  checks, all 73 relative links across its three changed files, whitespace and
+  the private-preparation-data scan. No runtime code or test expectations change.
+- At reviewed head `34cea53`, all seven CI jobs pass, including 5,155 unit
+  passes, two skips and zero failures, and all four Browser QA lanes. The Vercel
+  Preview is ready and Codex reports no major issues. Fresh hosting reads retain
+  the approved public PR #37 artifact, six live assignments, manual promotion,
+  standard build command and deployment protection. This documentation follow-up
+  still requires final-head checks and the next eligible full review. Merge,
+  changed Google settings, provider acceptance and activation remain gated;
+  no completed provider comparison or payment test is repeated.
+
+## 2026-10-06 — Calendar PR published; full review finds no actionable comments
+
+- Published [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) at
+  `42466ba` after the approved branch push; local/remote heads agree and remote
+  `main` remains the PR #39 merge. Attached the PR and explicitly requested
+  CodeRabbit full review immediately. Its `Action performed` reply confirms the
+  trigger, and completion covers all 20 changed files with zero actionable
+  comments. Codex completes without actionable comments or inline threads.
+- The protected Vercel Preview and CI Browser build pass; Code quality and all
+  four Browser QA lanes remain in progress at this receipt. CodeRabbit reports
+  an informational 72.97% touched-function docstring warning. Added focused
+  comments for the comparison projection, independent fixture expectations,
+  UTC-alias matching, private JSON loader and provider-test contracts. Runtime
+  behavior is unchanged. Final-head review/checks remain pending before a merge
+  request; the source/review approval does not authorize merge or activation.
+
+## 2026-10-06 — Calendar source publication and review approved
+
+- The user answered `yes` to publishing the prepared Calendar PR and shepherding
+  CodeRabbit reviews after local source commit `de04c7b`. This authorizes the
+  prepared branch push, new PR and review/fix loop, including the existing
+  automatic protected Preview build. Merge, revised Production Google settings,
+  credentials, full application acceptance, public promotion and Calendar
+  activation retain their separate boundaries.
+- Reverified the clean local branch/head, remote `main` at the PR #39 merge and
+  the existing remote source branch. GitHub connector reads return no open PR,
+  so publication can proceed without duplicating one. No Calendar grant, fixture
+  setup, cleanup, sign-in setup or completed live payment test is repeated.
+
+## 2026-10-06 — Availability comparison passes; narrower source prepared
+
+- Reverified clean local head `78f60f6` and resumed the owned independent test
+  after genuine consent. The exact issued availability-only scope set/account
+  and both metadata/strict baselines pass before controlled writes. Refreshed
+  both owner profiles and known root preconditions, then sequentially performed
+  the same timed update/all-day deletion through each exact owner's connector,
+  with private intent/outcome receipts and bounded active/cancelled readback.
+- Both incremental comparisons pass with zero missing/unexpected entries or
+  field mismatches. Baseline page counts are four/three for the two sources;
+  incremental counts are two/two. Pagination, etags and cursors are present in
+  all four reads. Cancellation counts remain two/three for source 1 and zero/one
+  for source 2 across baseline/incremental. The report is `passed`/`compatible`,
+  token revoked, grant cleanup not required, and process exit zero. Direct
+  socket readback finds no callback listener; neither test process remains.
+- The user now reports `Deleted both` after approved owner-side removal of only
+  the two temporary secondary calendars. Record both owner cleanup receipts,
+  without an independent API-absence claim or another grant. Both test tokens
+  are revoked; no repeated test, restoration or fixture setup is required.
+- Under the comparison plan's source-preparation step, replaced new event-read
+  requests with availability access. Calendar-list read/app-created grants remain
+  required. Existing event-read or combined tokens are accepted for inbound
+  access on connect/cached/refresh paths, with no token rewrite or broader write
+  scope. Incomplete/broader grants still fail before provider/persistence calls.
+  Adapter/normalization and durable identities/cursors are unchanged. Prepared
+  the replacement declaration and token-compatible rollback rule; no Google save,
+  submission, provisioning, database write, deployment or activation occurs.
+- Focused Calendar checks pass 83/83; comparison checks pass 40/40; typecheck
+  and lint pass. Advanced the stale October 3 documentation date ceiling alongside
+  fresh October 6 evidence, preserving the required standalone ISO date line.
+  The full unit run records 5,153 passed, three skipped and one documentation
+  date-format failure from loading the earlier header before its repair. All 16
+  affected server-workload/documentation checks pass on the corrected source;
+  no remaining failure is identified, and a fresh all-suite zero-failure run is
+  not claimed. Relative documentation links and branch whitespace/privacy checks
+  pass. The CLI's read-only PR query requires
+  authentication; installed GitHub connector reads return no open repository PR.
+  Remote `main` is independently read at the PR #39 merge after a Windows TLS
+  setup failure is resolved by the exact outside-sandbox retry.
+  Source publication/review approval is still needed; no new sign-in is requested.
+
+## 2026-10-06 — Original all-day fixtures restored; availability arm started
+
+- The user reports `Restored both`. Reverified clean local head `b464aa5`,
+  both exact owner profiles, the six known roots and the fixed October 10–13
+  active windows. Original all-day IDs are confirmed, with their initial dates
+  and busy state retained. Both sources exactly match four initial expanded
+  entries; timed/recurring roots, titles, COUNT=2 and disabled owner alerts are
+  preserved, with no guests or Meet links. No fixture was recreated.
+- Private intent/outcome receipts and the existing bound config retain the
+  independently prescribed before/after expectations. The event-read token is
+  already revoked and no preceding callback listener remains. Started the approved
+  availability arm with its own manual genuine-consent link; no accumulated
+  event-read grant, broader scope, provider settings or publication is added.
+  It awaits consent before issued-scope/account checks, strict baselines and any
+  new controlled mutation. No availability capability result is claimed yet.
+
+## 2026-10-06 — Event-read comparison passes on both synthetic sources
+
+- Reverified clean task-owned head `63c06ce` and resumed the owned consent run.
+  Actual scopes/account, both exact metadata entries and empty effective defaults
+  pass under the measured test grant. All six roots bind; both strict baselines
+  match before any controlled write. The bound config keeps recorded fixture
+  references and independent expectations outside tracked source; tokens and
+  cursors are never written to it.
+- Refreshed both owning connector profiles and known fixture preconditions.
+  Sequentially moved each timed root to the approved available interval and
+  deleted its designated all-day root, journaling intent/outcome privately.
+  Exact deletion reads return cancelled; bounded active reads contain only the
+  expected three entries per source, preserving both recurring occurrences.
+- The same measured grant passes both incremental comparisons with no missing,
+  unexpected or mismatched active entries. Source-1 baseline/incremental pagination
+  uses four/two pages; source 2 uses two/two. Etags and sync cursors are present in
+  all four results. Retained cancellation counts are two/three for source 1 and
+  zero/one for source 2, accounting for recorded historical and controlled deletes.
+  Final status is `passed`, compatibility true, token revoked, cleanup not required
+  for that grant, and process exit zero. The callback listener is closed.
+- Restored both timed roots to the initial busy interval; exact owner readbacks
+  verify original IDs and disabled reminders. Asked the user to restore only the
+  two original all-day roots from their respective owners' Calendar Trash because
+  the connector cannot restore deleted events. Initial identity/value readbacks
+  remain a prerequisite for the separately consented availability arm. No extra
+  event resource, broader permission, Production setting or publication is added.
+  Minimum-access proof, full application/database acceptance and final temporary-
+  calendar cleanup remain open. Existing focused code validation remains 40/40
+  with lint passing; this stage changes documentation only.
+
+## 2026-10-06 — Source-1 binding passes; reader reminder defaults resolved per account
+
+- Reverified clean local head `a0b3aaa`. Genuine consent passes scopes/account,
+  both metadata entries and all source-1 active/retired/master binding checks.
+  Source-2 page 1, entry 1 fails only `noDefaultReminders`: the test reader's
+  event uses defaults, with no guests, conference data or reminder overrides.
+  Token revocation succeeds, callback/process end, and no bound output, strict
+  baseline or controlled changes occur.
+- Refreshed both exact connector profiles and the three known source-2 roots.
+  Owner reminders are disabled; reader timed/recurring resources use defaults.
+  Google reminder fields are user-specific. Neither account's event flag alone
+  proves effective reader alerts; the reader CalendarList default list has not
+  yet been checked under the measured grant.
+- The existing preparation binder now resolves effective default reminders from
+  the same test grant's already-read exact CalendarList entry. Empty/omitted lists
+  permit a default flag without an alert; configured defaults still fail for an
+  event/master using them. Explicit overrides and malformed metadata remain
+  rejected; event-specific opt-out remains valid. Diagnostics emit only booleans.
+  No config/connector substitute, endpoint, permission, provider write, adapter or
+  broad calendar inventory was added. Identity/title/schedule bounds remain.
+- Focused regressions pass 40/40 and lint passes. Coverage includes empty/omitted
+  defaults, explicit opt-out despite configured defaults, entry/master configured-
+  alert rejection, malformed metadata, sanitized diagnostics and revocation.
+  The fixture mock now passes source index to master mutations so both accounts'
+  validation paths are exercised. Fresh consent must check the actual defaults;
+  no measured result or manual settings task is inferred in advance.
+
+## 2026-10-06 — Test-app diagnostics identify invalid deleted-title requirement
+
+- Reverified clean local head `4755dba`. The first diagnostic wait expired before
+  any issued token; its listener/process ended. Under the same bounded approval,
+  the replacement consent completed. Actual scopes/account and both metadata
+  entries pass. Binding stops at source-1 page 3, entry 1: the recorded cancelled
+  ID is admitted, recurrence root/no-guests/no-conference flags pass, and only
+  `retired_fields.title` is false. No raw deleted title is serialized. The token
+  was revoked and the process ended before private bound output, strict baseline
+  or controlled event changes.
+- Google's event status contract guarantees deletion identity without an active
+  summary contract, and the actual test-app response falsifies current-title
+  equality for this known cancellation. The preparation binder imposed that
+  extra condition; the real sync/strict comparison already uses cancellation
+  identity and active conflict status. Removed only the recorded-deletion title
+  requirement at that canonical validator. Exact two-ID allowlisting, cancellation
+  state, recurrence-root/master binding, duplicate rejection and no guests/
+  conference checks remain. Active entry/master titles and independent timing,
+  role, scope, six-resource and request bounds remain strict. No keyword or
+  specific replacement-title exception was added.
+- Focused checks pass 38/38 and focused lint passes. Regressions cover arbitrary
+  deleted-title variants through binding, real normalization/comparison and
+  revocation, while wrong active titles and unknown/duplicate/foreign/active
+  historical identities still fail. No event writes or resource creation were
+  needed. This isolates the observed validator failure; full measured baseline,
+  controlled changes/restoration and availability comparison are still pending.
+  Fresh genuine consent is the next step because the preceding token was revoked.
+
+## 2026-10-06 — Remaining Calendar binding rejection isolated for safe diagnostics
+
+- Reverified clean task-owned head `82b4ae7` and resumed its owned run after
+  `Consent received`. Scopes/account and both metadata checks pass again.
+  Source-1 binding still rejects with `fixture_boundary`; token revocation
+  succeeds, callback closes and process exits. No bound output, active baseline
+  or controlled changes occur. The preceding retired-occurrence repair is not
+  sufficient evidence that the entire mismatch is resolved.
+- Exact owner connector profile and reads of the three active roots, two
+  current instances and two recorded cancellations were refreshed. The active
+  schedule, COUNT=2 and no-guest/reminder constraints match. The connector
+  summarizes deletions; do not infer the test application's raw API title or
+  missing fields from that representation. The rejecting predicate is unknown.
+- Instrumented the canonical local fixture binder with fixed check-stage labels
+  and boolean flags, plus bounded page/entry positions. It can distinguish
+  page shape/cursor, retired identity/fields, active identity/fields/title/shape/
+  root, occurrence fields and recurrence/master checks. No provider values are
+  serialized and no acceptance predicate, scope or fixture ceiling is relaxed.
+  Missing original-start timing now reports its fixed predicate failure rather
+  than a generic date-format exception. Focused checks pass 37/37 and lint passes;
+  tests cover sanitized diagnostics, fail-closed rejection, no change request
+  and token revocation. No provider event write occurred during diagnosis.
+- Next: fresh consent to acquire precise test-app diagnostic evidence, with
+  revocation on failure. No claimed root cause, permission result, publication,
+  Production setting, deployment or public Calendar activation is added.
+
+## 2026-10-06 — Both test Calendar metadata checks pass; known retired occurrences bound safely
+
+- Reverified clean task-owned head `0937027` and resumed its owned run after the
+  user reports `Consent received`. Actual scopes/account and both metadata
+  checks pass: supplied secondary IDs, full names, UTC-equivalent zones and
+  owner/reader roles match. Source-1 fixture binding then stops with
+  `fixture_boundary`; no bound output, active baseline or controlled changes
+  occurred. The token was revoked, callback closed and run exited.
+- Refreshed the source-1 connector profile and bounded active readback. Its
+  four current shapes still match the independent schedule. Exact reads of the
+  two recorded old recurrence-occurrence IDs return `cancelled`; Google's event
+  reference documents retained deletion records with only ID guaranteed. The
+  generic failure does not exclude another issue, but these historical entries
+  violate the previous preparation requirement that every entry be confirmed.
+- The preparation schema now permits at most two explicitly recorded source-1
+  retired occurrence IDs with the fixed prior-date suffixes. Binding accepts
+  those entries only while cancelled, rejects duplicates, checks any supplied
+  title/root against the synthetic recurrence, and requires the IDs' root to
+  match the validated current master. Unrecorded or active entries fail. The
+  strict production-adapter comparison already handles cancellation rows;
+  its active schedule and resource bounds are unchanged. Private operational
+  state records the retired IDs; tracked docs contain no provider identities.
+- Focused regression checks pass 36/36 and focused lint passes, including paged
+  historical deletions through real normalization/strict comparison/revocation
+  and invalid-root/unknown-ID/active/duplicate rejection. No event write or
+  resource creation occurred during diagnosis. A fresh consent is the next
+  bounded retry because the failed attempt's permission is already revoked.
+  No measured minimum-access result or Production/deployment readiness is claimed.
+
+## 2026-10-06 — Iceland settings reported; source-1 fixture schedule repaired and verified
+
+- The user reports changing both temporary calendars to Iceland. Preserve that
+  as their settings execution receipt; direct test-registration metadata checks
+  remain before event reads. Refreshed both owning connector profiles and read
+  only the exact recorded source-1 resources before writes.
+- Under the existing synthetic-fixture authority, corrected its timed event and
+  whole recurring series to the independent UTC schedule, explicitly preserved
+  daily COUNT=2, and disabled default reminders on those two resources. Saved
+  private intent/outcome records around each sequential write. The all-day
+  fixture already has no reminders and remains unchanged; no resources were
+  created and no guests or conference links were added.
+- Fresh fixed-window reads of both sources each contain exactly four scheduled
+  entries with prescribed times/transparency. Source-1 detail readback confirms
+  retained timed/recurring roots, two occurrences, and no guests/reminders or
+  conference links. This validates fixture assistance, not either measured
+  permission. The next action is a fresh event-read consent at the checked local
+  source, followed by direct metadata validation and same-grant comparison.
+  Production, publication, database, deployment and payment boundaries remain.
+
+## 2026-10-06 — Connector account access restored; current time-zone picker guide repaired
+
+- Reverified clean task-owned head `4cb52dc`. After the app update, Calendar tool
+  metadata exposes both user-owned links. The explicitly selected test-user
+  profile matches; an exact source-1 read restricted to the approved window
+  returns three resources/four expanded entries. Its timed and recurring starts
+  are four hours later than independently prescribed. This was a read-only
+  connector check; no fixture was changed and no measured test grant is active.
+- The user cannot select a literal `UTC` entry. Refreshed Google's March 2026
+  city/country-picker announcement and IANA zone data. Corrected the guide to
+  search Iceland and select GMT+00:00 for both temporary calendar-level zones.
+  Google storing timed-event instants in UTC does not set the calendar's own
+  zone or change the intended absolute fixture times. All-day normalization uses
+  the calendar zone, so this setup still matters for the fixed UTC expectations.
+- Added only the verified Iceland/Reykjavik/Abidjan equivalents to the local
+  binder's finite UTC-zone set for its fixed 2026 dates. Regression coverage
+  compares winter/summer/test-date clocks and exercises real all-day normalization,
+  binding, strict baseline/delta comparison and revocation with literal zones
+  preserved; a seasonal zone still fails before event reads. Focused tests pass
+  35/35 and focused lint passes. Independent dates, event bounds and scopes remain.
+  The user-performed calendar-zone correction and owned fixture-time repairs
+  precede fresh consent. No calendar-settings write, event write, Production
+  change, source publication, deployment or payment activity occurred.
+
+## 2026-10-06 — First test consent passes; metadata stop and UTC correction identified
+
+- Started the approved event-read preparation at locally checked head `8c3afcd`.
+  The user confirms the local page says `Consent received`. Actual token-response
+  scopes and configured test-account identity passed before Calendar access.
+  Source 1's metadata check then failed; no test-app event read, fixture binding,
+  baseline or synthetic mutation occurred. The original generic failure does not
+  distinguish HTTP access/API failure from a metadata-field mismatch.
+- The issued test token was successfully revoked in the cleanup path, its
+  callback listener closed and the owned process exited. Private preparation
+  retains only a sanitized result and input references; no token, authorization
+  code or raw provider response is retained.
+- Added sanitized HTTP status, fixed allowlisted error reasons and per-field
+  identity/secondary/name/UTC/role flags before metadata rejection. Tests verify
+  that private provider values never enter diagnostics. The focused suite passes
+  34/34 and focused lint passes; earlier full lint/typecheck remain recorded.
+- The user's requested settings screenshots show the supplied source-1 ID and
+  configured test-user owner, with Eastern Time – New York as calendar time zone.
+  This establishes a fixture mismatch with the approved UTC schedule; it does
+  not prove the original metadata rejection had no other cause. Asked the user
+  to set both run-owned temporary calendars' calendar-level zones to UTC, without
+  recreation or a broader permission. Source 2's zone remains unverified. This
+  fixes the already approved setup; the agent made no calendar-settings write.
+  A fresh genuine consent is needed for the same bounded retry because the first
+  token is already revoked. No Production, hosting, payment or publication work
+  occurred, and no permission-comparison result is claimed.
+
+## 2026-10-06 — Owner fixtures reported ready; same-grant identity binding prepared
+
+- The user replies `events ready`. Record source 1's manual creation as an owner
+  execution receipt, not independent event proof. Reverified clean task-owned
+  head `34fd4e2`, private preparation state and connected profile. A fresh bounded
+  source-2 read still contains exactly four entries and no manual source-1 titles.
+- Implemented a standalone preparation extension for the approved comparison.
+  It checks exact secondary targets and the owner receipt before consent; after
+  actual scope/account validation it validates both exact calendar entries before
+  event reads. Binding accepts only the three named synthetic fixtures and four
+  independently scheduled shapes per source, known source-2 roots, and identified
+  recurring masters with daily COUNT=2. It rejects unexpected events, guests,
+  reminders, changed times/recurrence, duplicate pages and non-UTC zones. Four
+  finite UTC aliases are accepted semantically while their literal representation
+  is retained for later strict equality. Paging/item/time limits remain explicit.
+- Preparation writes only a newly created bound config within system temporary
+  storage; tokens, codes, event text and cursors remain in memory. Failure still
+  revokes the issued test token and prevents synthetic change dispatch. Run the
+  event-read arm first with identity binding and strict comparison using that same
+  grant, then restore fixtures and use a separately consented availability arm.
+  This supersedes the previous ordering without adding a third consent or changing
+  approved scopes, targets or fixture operations. The focused suite passes 33/33,
+  typecheck passes and full lint passes; no app runtime or credential provisioning
+  changed. Actual consent and measured provider results are not yet claimed.
+- The user now reports connecting the configured test account to the Calendar
+  connector. A fresh profile read in this chat still returns the previous fixture
+  owner, and a single read confined to source 1's fixed window returns 404. That
+  proves the current tool session cannot read source 1, not why the user's new
+  connection is unavailable. No account replacement or sharing change was made.
+  Continue the approved test-registration flow rather than repeating connector
+  setup; refresh its actual profile before any later fixture write.
+
+## 2026-10-06 — Temporary Calendar IDs received; source-2 fixtures prepared
+
+- Reverified the clean task-owned branch at `ca52d61` and refreshed the connected
+  Calendar profile before writes. It still matches the approved source-2 fixture
+  owner. The user supplied the two created secondary calendars' exact IDs;
+  retain those locators and event identities only in private preparation state.
+- A read limited to source 2 and the fixed October 10–13 UTC window returned no
+  events. Created exactly the three approved synthetic resources sequentially,
+  recording each returned identity before the next write. Organizer readback
+  matches the designated run-specific calendar. The connector initially added
+  its own user as an attendee to the timed event; removed that self-attendee and
+  explicitly omitted self-attendance on the other two creates. All fixtures have
+  no guests, reminders or conference links. No other account was invited.
+- Expanded source-2 readback contains exactly four confirmed entries: the timed
+  Busy event, the all-day Busy event and two recurring Free occurrences. Times
+  and transparency match the independent approved fixture table. This validates
+  connector fixture preparation, not the test app's minimum permission.
+- Source 1 remains unshared with the connector and needs three manually created
+  fixtures in the configured test-user account. Prepared the exact user guide
+  in the [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md#october-6-fixture-preparation-receipt-and-next-user-step).
+  Its event-root binding and test-account calendar metadata validation remain
+  before strict comparison. No real test-app OAuth consent/listener or measured
+  permission run occurred; no Production, hosting, database, deployment, payment
+  or verification-submission activity occurred. Existing execution approval is
+  retained; no repeated approval or Google Cloud setup is needed.
+
+## 2026-10-05 — Separate Calendar test-user and fixture-owner roles corrected
+
+- The user reports that only the account used during Google Cloud setup was
+  successfully added as a test user and that neither temporary calendar exists.
+  Accept that as their configuration/execution receipt; the cause of the other
+  account's rejected entry was not independently diagnosed. Do not ask for the
+  same Console operation again or claim it is a general Google restriction.
+- Reverified the clean task-owned branch at `42684ad` and refreshed only the
+  Calendar connector profile. It remains linked to the user's other account.
+  Corrected the approved procedure: the configured test user owns source 1 and
+  grants the test app access; the connected account owns source 2 and shares
+  it read-only with the test user. The fixture owner need not grant the test app
+  access or join the Cloud test-user list. No project, permission, connector-link
+  or existing-calendar change is needed to make this account assignment work.
+- Updated private preparation state with separate test-user and fixture-owner
+  roles, preserving the existing run marker, six-resource/two-calendar bounds,
+  credential reference and fixed read window. No credentials were copied.
+  Connector event assistance is limited to its owner's new source 2. The user
+  prepares source 1 manually; bind its exact synthetic event roots through an
+  approved bounded test-registration read or owner-provided identities before
+  launching the strict comparison. The connector cannot read that unshared source.
+- The next user action remains creation of the two empty UTC calendars, but
+  with corrected owners and source-2 sharing direction. No real OAuth consent,
+  Calendar inventory/event read/write, fixture creation or comparison has started.
+  Production settings, deployment and payment activity remain untouched.
+  Primary Google testing/sharing/creation instructions were refreshed. The
+  prior October 3 credential preflight and local test results retain their dates;
+  this turn makes no fresh hosted-readiness claim.
+
+## 2026-10-03 — Isolated Calendar comparison approved; private credential preflight passes
+
+- The user replies `Approved; I have a second account` to the two directly stated
+  questions. This approves the bounded Calendar comparison using their downloaded
+  test JSON, up to two user-owned accounts/two temporary calendars/six synthetic
+  event resources, controlled event changes/deletion, and dedicated test-permission
+  revocation. User-created calendar setup/removal and genuine consent prompts
+  remain manual steps. Preserve this authority; do not repeat completed approval.
+- Verified the clean task-owned branch at `97623f6` before proceeding. A private
+  local read validates the supplied downloaded Web JSON against the exact chosen
+  test project, a nonempty secret, the sole localhost callback and no JavaScript
+  origins. All checks pass; no credential values or private provider identifiers
+  enter documentation. No token exchange or real consent occurred. Read only
+  the connected Calendar user's profile and retain that account reference in
+  private preparation state. A preparation manifest outside source records run
+  bounds and input references without copying the downloaded credentials.
+- The next user action is to create two empty UTC secondary calendars with the
+  provided run-specific names, share only the second to the first account with
+  reader access, add it to the first calendar list, and provide their exact IDs.
+  Confirm the connected account is the configured test user before event
+  reads/writes. The connector cannot create/delete/share calendars. Primary
+  calendars and existing real appointments are excluded. Google's current
+  creation/sharing/Calendar-ID instructions were checked for the manual guide.
+- No Calendar events, sharing rule or test grants were created by the agent,
+  no comparison listener is running, and no provider-backed result is claimed.
+  Production declaration save, verification submission, Vercel provisioning,
+  database activity, deployment and public Calendar activation remain outside
+  this run. No source push or completed payment test was performed.
+
+## 2026-10-03 — Credential-path receipt and concrete Calendar comparison proposal
+
+- Reverified the clean task-owned branch at `a3f2fcc` before changes. The user
+  supplied the downloaded test JSON's local path. A metadata-only check confirms
+  an existing, nonempty file; no contents were opened or credential values
+  accessed. Neither the private path nor its client/project identifiers are
+  recorded in repository documentation.
+- Prepared the concrete provider-run proposal in the
+  [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md):
+  user-created secondary calendars, three synthetic resources per source,
+  connector assistance bounded to exact new fixtures, separate measured
+  consents, identical update/deletion changes, restoration between arms, and
+  explicit owner-side calendar cleanup after token revocation. Asked whether
+  the user has a second account they own for a shared-reader source. If not,
+  one-account coverage is explicitly partial; it does not close shared-source
+  or overall minimum-access proof. No extra Google declaration is proposed.
+- A live-test preparation review found that Google can retain an organizer's
+  deleted-event details. The real sync retains a CANCELLED row when it can
+  normalize those details, and the conflict query excludes it. Corrected only
+  the standalone comparison expectation to accept that removal shape and an
+  ID-only tombstone while still detecting stale active conflicts. A regression
+  exercises both retained cancellation and incorrect active-event responses.
+  The comparison suite passes 23/23 and lint passes; runtime app behavior is unchanged.
+- Configuration approval excludes this provider execution. Credential use,
+  test-account grants, synthetic fixtures and revocation still need exact
+  authority. Issued the concrete provider-run approval request for the bounded
+  comparison, manual calendar operations and connected-account event assistance;
+  the answer remains pending. No actual test consent, Calendar or database action, source push,
+  deployment, public Calendar activation or repeated payment test occurred.
+
+## 2026-10-03 — Test setup reported complete; local Calendar comparison runner prepared
+
+- The user reports `setup complete` and names the test project
+  `AtmoShaper Calendar Verify`, shortening the approved display name because it
+  was too long. Record this harmless display-name adjustment and completion as
+  their execution receipt. Do not recreate the project or repeat the approved
+  configuration. Its private identifier, credential contents, and actual Google
+  grants were not read or independently verified.
+- Added named offline-plan, comparison, and focused-test npm commands. The
+  standalone runner uses the real event-list adapter and busy normalization,
+  exact private test credentials/account/secondary-calendar fixtures, one
+  measured permission per consent, one-use callback state, GET-only fixture
+  reads, and in-memory tokens. It bounds paging/time and attempts dedicated
+  test-token revocation after success, interruption, or failed scope/account
+  validation. Sanitized reports retain capability counts, not provider identities,
+  event text, tokens, cursors, or private configuration. An unconfirmed revocation
+  blocks success; fixture cleanup remains an explicit operator task.
+- The offline default and 22 provider-free regression checks pass, including
+  real adapter pagination/normalization, recurrence/all-day/free/shared fixtures,
+  ID-only cancellation removal, scope/account drift, and loopback Host/state/
+  interruption/closure checks. The loopback test was corrected to use raw HTTP
+  for custom Host headers and manual redirects after an initial dummy redirect
+  was followed; it used fake client values and produced no real credentials,
+  consent, or Calendar grant. Existing Calendar regressions pass 83/83 and
+  typecheck and lint pass. Corrected the adapter's documentation
+  to distinguish typed fields from actual JSON payload filtering; runtime behavior
+  is unchanged.
+- Requested only the local test-credential JSON path to complete the concrete
+  execution proposal. No credential file was read. The runner's local/mock checks
+  do not prove Google's minimum permission or full application/database acceptance.
+  Fixture/account targets, real consent, reads/changes/cleanup, and credential
+  use need the next exact approval. No source was pushed, deployment or public
+  Calendar activation performed, or completed live payment test repeated.
+
+## 2026-10-03 — Concrete Calendar test-target discovery and permission comparison plan
+
+- The user asked whether to paste the draft and save, and how to progress.
+  Clarified that the draft remains unsaved while the permission choice is
+  resolved. Asked them to discard only the pending form changes and use the
+  project selector to identify an existing AtmoShaper test/staging project,
+  or report none. The user replied `none`; no existing test project is reported.
+  This user readback does not independently verify project inventory or explicitly
+  confirm the unsaved-form discard.
+- Prepared the [permission comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md)
+  with test-only settings, exact proposed loopback return address, scope-grant
+  isolation, bounded synthetic fixtures, sanitized evidence, and cleanup.
+  A smaller standalone permission comparison requires no application database;
+  it does not replace full app/Neon provider acceptance. The runner is not yet
+  implemented and no credentials, grants, fixtures, or provider execution were
+  accessed. Issued an exact configuration-only approval request for a separate
+  `AtmoShaper Calendar Verification` project, Calendar API, External / Testing
+  access limited initially to the user's own Google account, one Web test client,
+  loopback callback, and comparison scope declarations. The user replied `Yes`,
+  approving that configuration only; setup and non-secret saved readback are
+  pending. Prepared the complete user-guided sequence and an accurate test-only
+  declaration explanation. Production necessity is still unproven;
+  credential use, grants, fixtures, deployment, and verification submission are
+  excluded. Working Production settings and completed setup are preserved.
+- The user also authorizes agent execution if available and offers to perform
+  the step otherwise. This does not resolve the previously denied browser policy
+  check; no bypass, alternate console automation, or provider execution occurred.
+  Provide the complete manual configuration checklist rather than ask again for
+  an already approved operation.
+
+## 2026-10-03 — Google draft requires justification; demo preparation and minimum-access proof remain open
+
+- The user's Data Access screenshots show `calendar.events.readonly` under
+  sensitive scopes with approval required and a usage-justification field.
+  A second screenshot shows no restricted-scope rows in the visible section,
+  a demonstration-video URL field, and Google's warning against unverified
+  scopes in public traffic. These are unsaved draft UI observations, not a
+  saved scope inventory, Verification Center outcome, or review submission.
+- The earlier operator instructions omitted the explanation/video preparation.
+  Asked the user to leave the draft unsaved while resolving minimum-access proof.
+  Source inspection confirms event IDs, time windows, time zones, transparency,
+  cancellation tombstones, pagination, and incremental cursors support the
+  generic busy-block import. Personal event text is dropped before persistence.
+  The event-list API also permits `calendar.events.freebusy`; using event reads
+  alone therefore cannot prove that narrower scope insufficient. Do not submit
+  a categorical unsupported justification or equate a Freebusy query response
+  with the event-list response under an availability-only grant.
+- Prepared a 650-character truthful usage draft, comparison criteria, and real
+  staged-demo checklist in the
+  [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md).
+  It explicitly keeps narrower-access necessity unresolved. Google requires
+  a real consent/use demonstration for sensitive-scope review; no video, upload,
+  verification request, QA resources, real account grant, provider/database action,
+  new deployment, public Calendar activation, or payment test was performed.
+  Declaration approval remains valid for its exact scope; an altered scope set
+  or provider-backed comparison needs its own concrete authority.
+
+## 2026-10-03 — Exact Google permission declaration approved; user save pending
+
+- The user annotated the prepared Google permission-declaration approval request
+  with `approved`. This authorizes the exact six-entry Data Access declaration
+  in the existing AtmoShaper Production project and read-only saved category /
+  Verification Center required-actions checks. Do not request the same approval
+  again. The [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md)
+  owns the exact entries, preserved settings, and exclusions.
+- Guide the existing Console's Add or Remove Scopes selection, update, and save.
+  The three existing identity permissions and three reviewed Calendar grants
+  preserve working sign-in, verified branding, and External / In production
+  audience. Omit the removed duplicate availability grant. Browser automation
+  remains denied; no alternate control path is attempted.
+- Approval is not an execution receipt. Saved declarations, Google's actual
+  classifications, and required verification actions remain pending. Verification
+  submission, audience/publishing changes, client/secret edits, real user consent,
+  hosting credentials, QA resources, calendar/event/database activity,
+  deployment/promotion, and public Calendar activation remain excluded. No
+  agent-side provider write, payment test, or hosted configuration change occurred.
+
+## 2026-10-03 — Calendar permission PR merged; automatic candidate verified
+
+- The user answered `Yes` to merging PR #39, verifying its automatic unpromoted
+  build, and restoring any saved live aliases it moved. Fresh preflight verified
+  the unchanged reviewed head, passing checks, no unresolved review threads,
+  and all six saved live assignments. Merged
+  [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) at
+  `2026-10-03T17:02:47Z` as `2e01e8509b42ab73c85d286f2725c824770aeeec`,
+  guarded by reviewed head `7064a6fb63340fabc29adfd695e0824a1d21c2ed`.
+- All seven CI jobs and Vercel passed. CodeRabbit's explicitly triggered full
+  review covered all thirteen files with zero actionable comments; Codex
+  reported no major issues. The unchanged head needed no additional review.
+- The automatic main Production candidate reached `READY` at
+  `2026-10-03T17:05:28.696Z`. Actual build logs verify the migration-status gate
+  and live Supporter readiness gate passed before the standard app build.
+  The build-log connector was unavailable; normal authenticated CLI log reads
+  supplied these receipts. No manual build, schema migration, or payment test
+  was performed. All seven normal authenticated candidate GETs pass: home,
+  Pricing, registration, support, Privacy, Terms, and signed-out session.
+  Registration inputs are present, pause copy is absent, and session is `null`.
+  This is page-response proof, not new interactive or live Calendar acceptance.
+- Post-build assignment reads preserve all six saved live aliases on the
+  approved PR #37 artifact and the apex-to-www `308` redirect. No restoration
+  was needed and no alias write occurred. The public target, manual promotion,
+  standard build command, protection, and empty Preview configuration remain
+  intact. Both public pause flags read `false`; one-time support/background
+  switches remain unset and all four Calendar configuration keys remain absent.
+  PR #39's candidate remains unpromoted; the public source is unchanged.
+- Fast-forwarded only the clean task-owned branch to the merged source.
+  Prepared the exact Google Data Access proposal in the
+  [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md):
+  declare the three existing sign-in identity permissions and three reviewed
+  Calendar permissions, then inspect saved categories and required verification
+  actions. Google settings, credentials, QA resources, provider/database activity,
+  verification submission, and public Calendar activation remain unapproved.
+
 ## 2026-10-03 — Calendar permission PR published under exact approval
 
 - The user answered `Yes` to publishing the prepared permission change and

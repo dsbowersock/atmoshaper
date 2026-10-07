@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client"
-import { calendarSyncWindow, GOOGLE_CALENDAR_CREATION_PENDING_REASON, GOOGLE_CALENDAR_PROVIDER, GOOGLE_CALENDAR_SCOPES } from "./calendar-sync-constants.ts"
+import { calendarSyncWindow, GOOGLE_CALENDAR_CREATION_PENDING_REASON, GOOGLE_CALENDAR_INBOUND_SCOPE, GOOGLE_CALENDAR_PROVIDER, GOOGLE_CALENDAR_SCOPES } from "./calendar-sync-constants.ts"
 import { getGoogleCalendarSyncConfig } from "./calendar-sync-env.ts"
 import { decryptCalendarSyncSecret, encryptCalendarSyncSecret } from "./calendar-sync-secrets.ts"
 import { createGoogleCalendarAdapter, GoogleCalendarConnectionError, type GoogleCalendarAdapter } from "./google-calendar-adapter.ts"
@@ -17,21 +17,24 @@ const GOOGLE_API_STATUS_ERROR_PATTERN = /^Google Calendar request failed with st
 // new-event POSTs, whose generated IDs must survive their existing wait contract.
 const GOOGLE_INBOUND_READ_BUDGET_MS = 60_000
 const GOOGLE_OUTBOUND_READ_BUDGET_MS = 30_000
-// Incremental consent or stored tokens may retain this prior read-only grant.
-// Accept it for compatibility, but never require or request it for new consent.
-const GOOGLE_CALENDAR_LEGACY_FREEBUSY_SCOPE = "https://www.googleapis.com/auth/calendar.events.freebusy"
+// Stored or incrementally granted event-read access remains usable for inbound
+// sync. New consent requests availability instead; no token rewrite is needed.
+const GOOGLE_CALENDAR_LEGACY_EVENT_READ_SCOPE = "https://www.googleapis.com/auth/calendar.events.readonly"
 
 /**
  * Keep Calendar metadata/write access limited to calendars created by this app.
- * Reject extra Calendar grants except the previous redundant availability
- * grant; it cannot widen metadata/write access or substitute for required grants.
+ * Inbound availability or the existing event-read grant is required separately.
+ * Neither can replace calendar-list/app-created access or permit broader writes.
+ * Accept retained read grants for reconnect/refresh; reject other Calendar grants.
  * Unrelated identity scopes do not widen Calendar access.
  */
 export function assertGoogleCalendarSyncScopes(grantedScopes?: string | null) {
   const scopes = new Set((grantedScopes ?? "").split(/\s+/).filter(Boolean))
   const expected = new Set<string>(GOOGLE_CALENDAR_SCOPES.filter((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar")))
-  const allowed = new Set([...expected, GOOGLE_CALENDAR_LEGACY_FREEBUSY_SCOPE])
-  if ([...expected].some((scope) => !scopes.has(scope))
+  const required = [...expected].filter((scope) => scope !== GOOGLE_CALENDAR_INBOUND_SCOPE)
+  const allowed = new Set([...expected, GOOGLE_CALENDAR_LEGACY_EVENT_READ_SCOPE])
+  const inboundGranted = scopes.has(GOOGLE_CALENDAR_INBOUND_SCOPE) || scopes.has(GOOGLE_CALENDAR_LEGACY_EVENT_READ_SCOPE)
+  if (!inboundGranted || required.some((scope) => !scopes.has(scope))
     || [...scopes].some((scope) => scope.startsWith("https://www.googleapis.com/auth/calendar") && !allowed.has(scope))) {
     throw new GoogleCalendarConnectionError("permissions", "Reconnect Google Calendar with the required limited permissions.")
   }

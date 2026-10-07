@@ -183,11 +183,12 @@ infer these from the legacy client or from a public hostname. Prepare the
 canonical callback `https://www.atmoshaper.com/api/calendar/google/callback`
 and reconcile it against the actual auth host before configuring it.
 
-The published PR #36/37 source requests `openid`, `email`, `calendar.app.created`,
+The current public PR #37 artifact requests `openid`, `email`, `calendar.app.created`,
 `calendar.calendarlist.readonly`, `calendar.events.freebusy`, and
 `calendar.events.readonly` (Calendar scopes use Google's full URI prefix).
-The October 3 candidate published as PR #39 removes the redundant free/busy request
-while accepting that optional grant on older tokens. The
+PR #39 merged on October 3 and its automatic unpromoted candidate passed build
+gates and page checks. It removes the redundant free/busy request while
+accepting that optional grant on older tokens. Public source remains PR #37. The
 [provider-stage checkpoint](2026-10-02-atmoshaper-calendar-provider-stage.md)
 owns its current proposal, compatibility limits, and validation receipts.
 Google documents the scope permissions and calls for the narrowest required

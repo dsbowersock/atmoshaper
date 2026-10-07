@@ -10,13 +10,16 @@ export const EXTERNAL_BUSY_BORDER_COLOR = "#475569"
 export const CALENDAR_SYNC_WINDOW_PAST_DAYS = 30
 export const CALENDAR_SYNC_WINDOW_FUTURE_DAYS = 180
 
-/** Event reads already cover busy import; do not request the redundant free/busy grant. */
+/** The measured availability grant supports inbound busy import without requesting event-read access. */
+export const GOOGLE_CALENDAR_INBOUND_SCOPE = "https://www.googleapis.com/auth/calendar.events.freebusy"
+
+/** New consent combines narrow inbound access with writes limited to app-created calendars. */
 export const GOOGLE_CALENDAR_SCOPES = [
   "openid",
   "email",
   "https://www.googleapis.com/auth/calendar.app.created",
   "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
-  "https://www.googleapis.com/auth/calendar.events.readonly",
+  GOOGLE_CALENDAR_INBOUND_SCOPE,
 ] as const
 
 /**

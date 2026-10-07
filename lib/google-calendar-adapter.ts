@@ -116,9 +116,9 @@ export function decodeGoogleCalendarIdTokenClaims(idToken?: string | null): Goog
 
 /**
  * Creates a small Google Calendar REST adapter.
- * Methods throw sanitized status errors for non-expected responses and return
- * only the fields AtmoShaper needs for token storage, busy-time import, and
- * generic outbound event writes.
+ * Methods throw sanitized status errors for non-expected responses. Response
+ * types describe consumed fields; they do not filter Google's JSON payload.
+ * Busy-time normalization drops personal event text before persistence.
  */
 export function createGoogleCalendarAdapter({ fetchImpl = fetch }: { fetchImpl?: FetchImpl } = {}) {
   /** Bound transport and parsing together, except new-event inserts whose ID must not be discarded. */
