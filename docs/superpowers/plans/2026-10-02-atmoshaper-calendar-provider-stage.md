@@ -9,7 +9,8 @@ seven CI jobs, Vercel Preview and Codex review passed. Its automatic Production
 candidate passed actual readiness gates and seven authenticated GETs and remains
 unpromoted. All six saved live assignments retain PR #37; no restoration was
 needed. The user approved the revised Production declaration's guided setup on
-October 7; execution and actual classifications remain pending. Full
+October 7 and subsequently reports `saved`. This is an owner execution receipt;
+actual saved categories and Verification Center status remain pending. Full
 application/provider acceptance and public Calendar activation remain pending.
 
 October 3 screenshots establish External / In production and empty declared
@@ -17,9 +18,10 @@ scope lists; branding is verified/shown. The user reports completed Calendar API
 enablement under its separate approval; independent provider readback is not
 claimed. PR #39's review, merge and automatic unpromoted candidate are complete.
 Its event-read declaration approval remains historical: the unsaved draft showed
-sensitive access with justification/video requirements. Keep that draft unsaved
-until actual replacement classifications and required materials are checked
-under the October 7 approval.
+sensitive access with justification/video requirements. That historical draft
+was left unsaved; it is not the current owner-saved availability declaration.
+Check actual replacement categories and Verification Center required actions
+before preparing any additional materials.
 The implementation merged in PR #36 is included in the approved public PR #37
 artifact; the PR #39 and PR #40 candidates are verified but unpromoted. Working sign-in and
 Vercel integration remain complete. Do not repeat them or the live payment test.
@@ -29,8 +31,8 @@ future preparation: both independently consented inbound comparison arms pass
 on owned/shared-reader synthetic calendars. Their tokens are revoked and the
 user reports both temporary calendars deleted. Merged source now replaces new
 event-read requests with availability access while preserving accepted legacy
-tokens. The replacement below is now approved for guided declaration setup but
-has no save receipt. Earlier
+tokens. The replacement below now has an approved guided-setup and owner save
+receipt. Earlier
 sections retain their dated PR #39 and Google approval receipts; they do not
 authorize this different declaration or public Calendar activation.
 
@@ -141,7 +143,7 @@ would expose its connect route before full acceptance, so defer that operation.
 Primary creation/callback/credential-retention reference:
 [Google's server-side OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).
 
-## Availability declaration; October 7 guidance approval, save receipt pending
+## Availability declaration; October 7 owner save receipt
 
 The [two-arm comparison](2026-10-03-atmoshaper-calendar-scope-comparison.md)
 passes event identity/timing, recurrence, all-day bounds, transparency,
@@ -151,7 +153,7 @@ and normalization on owner/shared-reader sources. Availability supports the
 tested path; this does not prove complete application/database acceptance,
 app-created outbound behavior or Google's Production verification decision.
 
-| Proposed replacement declaration | Runtime purpose |
+| Approved declaration; owner reports saved | Runtime purpose |
 | --- | --- |
 | `openid` | Existing sign-in and Calendar account matching |
 | `https://www.googleapis.com/auth/userinfo.email` | Existing identity email; Calendar requests its `email` alias |
@@ -168,9 +170,10 @@ usable without rewriting stored identities/grants or weakening the validated
 outbound target. An older artifact requiring event-read would reject new
 availability-only tokens; retain this guard in any reviewed rollback.
 
-The exact approved user-guided operation is to select these six entries in the
-existing Production project's Data Access declaration, replacing event-read
-with availability if present in the unsaved draft. Preserve working sign-in,
+The approved user-guided operation targeted these six entries in the existing
+Production project's Data Access declaration, replacing event-read with
+availability if present. The owner reports `saved`; exact scope/category
+readback is not independently established by that reply. Preserve working sign-in,
 client/callback registrations, verified branding and External / In production
 audience. Inspect and record actual scope categories, justification/demo fields
 and Verification Center actions; do not assume verification becomes unnecessary
@@ -180,8 +183,8 @@ Google's [scope reference](https://developers.google.com/workspace/calendar/api/
 and [event-list permissions](https://developers.google.com/workspace/calendar/api/v3/reference/events/list)
 support the requested capability; Console outcomes remain project-specific.
 
-The user separately approved this replacement on October 7; the earlier exact
-declaration approval covered event-read. This approval covers selection and
+The user separately approved this replacement on October 7 and now reports it
+saved; the earlier exact declaration approval covered event-read. The approval covers selection and
 saving only when required fields can be truthfully completed. Confirm the draft
 contains exactly these six entries before saving. If no sensitive/restricted
 entries or required explanation/video fields appear, the owner may save and
@@ -189,7 +192,10 @@ report the saved entries/categories. Otherwise obtain the actual categories
 and required fields first; keep the draft unsaved while missing truthful
 materials are prepared. Unexpected existing saved scopes require reconciliation
 before removing them. Approval alone does not establish selection, save or
-verification. No alternate browser/control path is authorized by this receipt.
+verification. Those selection/save steps are historical guidance, not a repeat
+request. Next obtain only the saved Sensitive/Restricted categories and current
+Verification Center Data access status/required actions. No alternate
+browser/control path is authorized by this receipt.
 
 PR #40's source publication/reviews, merge and automatic
 unpromoted candidate verification are complete. Verification upload/submission
@@ -419,10 +425,10 @@ tokens were revoked, and the user reports deletion of both temporary calendars.
 Those operations are complete. Do not request comparison authority again or
 repeat project/client creation, consent, fixture setup, restoration or cleanup.
 
-After the pending source merge/build approval, the next Google operation is the
-exact [replacement-declaration proposal](#october-6-replacement-declaration-proposal-no-settings-change-yet),
-which needs its own approval and saved classification/Verification Center
-readback. The standalone comparison avoided an application database and does
+PR #40's source merge/build verification and the owner's approved
+[replacement-declaration save](#availability-declaration-october-7-owner-save-receipt)
+are complete. Its actual saved classification/Verification Center readback
+remains pending. The standalone comparison avoided an application database and does
 not replace the full isolated application acceptance proposal below. Prepare
 its remaining targets and operation boundaries before requesting that authority.
 
@@ -447,10 +453,12 @@ Provisioning the four settings is a later exact operation; never paste secrets
 into chat or commit them. The presence helper alone does not prove encryption
 key validity, consent readiness, or provider acceptance.
 
-The PR #39 candidate requests `openid`, `email`, `calendar.app.created`,
+The earlier PR #39 candidate requests `openid`, `email`, `calendar.app.created`,
 `calendar.calendarlist.readonly`, and `calendar.events.readonly`, using Google's
-full URI prefix for Calendar scopes. Published/live source additionally requests
-`calendar.events.freebusy`; see the compatibility boundary above.
+full URI prefix for Calendar scopes. The merged unpromoted PR #40 candidate
+replaces new event-read requests with `calendar.events.freebusy`, retaining
+legacy-token compatibility; see the boundary above. The live PR #37 artifact
+retains its earlier combined request until separate public promotion.
 Review each grant's necessity and saved classification/verification; do not
 substitute broader Calendar write grants. Use separate testing and Production
 projects under Google's policy; locate an appropriate existing test project

@@ -3,7 +3,8 @@
 Verified: 2026-10-07
 
 Evidence scope: repository, PR #40's final reviews/CI and approved merge,
-automatic unpromoted candidate, and authenticated hosting readbacks. Completed
+automatic unpromoted candidate, authenticated hosting readbacks, and the owner's
+replacement Google declaration save receipt. Completed
 Calendar comparisons and other historical receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
@@ -28,9 +29,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   GitHub/`main`, protection, verified domains/apex redirect, and 56 Production-only
   variables with none in Preview/Development. Both public pause flags are
   `false`; excluded purchase switches and all four Calendar keys remain absent.
-  The replacement Google declaration is approved for user-guided setup and
-  saving only when required fields can be truthfully completed; execution and
-  actual scope classifications remain pending. Full application/provider
+  The owner reports `saved` after the approved six-entry replacement Google
+  declaration guidance. This is a save receipt, not independent scope readback,
+  classification or verification proof. Actual categories and Verification
+  Center status remain pending. Full application/provider
   acceptance and public Calendar activation remain pending. No manual build or completed live
   payment/Calendar comparison test was repeated.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
@@ -53,7 +55,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   declaration approval is historical; the October 6 comparison supports a
   prepared availability replacement, recorded below. At that earlier checkpoint
   no replacement declaration had been approved or saved; the October 7 approval
-  above supersedes its approval status, not its execution status.
+  and subsequent owner save receipt above supersede that earlier status.
 - [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
   user's exact approval at `2026-10-03T02:55:51Z` as
   `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
@@ -87,11 +89,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI,
   and enabling Calendar API under separate approvals. The saved Calendar-return
   readback and replacement permission classifications remain pending. The user
-  approved the exact six-entry availability declaration on October 7. Guide
-  selection in the existing Production project's Data Access page; preserve
-  identity/client/audience settings, and obtain an owner save/classification
-  receipt. If required verification materials are missing, retain the unsaved
-  draft and prepare the actual next dependency. Do not
+  approved the exact six-entry availability declaration on October 7 and now
+  reports it saved. Obtain only the current saved categories and Verification
+  Center Data access status/required actions before deciding whether materials
+  are needed; preserve identity/client/audience settings and do not repeat
+  scope selection or save. Prepare the remaining isolated application acceptance
+  proposal before requesting its exact resource/run authority. Do not
   repeat client creation, API enablement or the completed saved identity checks.
   Dated hosting readbacks retain absent Calendar keys and inactive configuration.
 - Both independently consented test permission arms passed the same strict
@@ -113,7 +116,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
   whole-integration minimum access. Full application/provider acceptance remains
-  pending. The approved declaration's execution is pending; credentials, isolated
+  pending. The approved declaration has an owner save receipt; credentials, isolated
   application/provider resources, any required
   demo/submission, public promotion and Calendar activation remain separately
   gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.

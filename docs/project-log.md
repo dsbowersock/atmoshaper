@@ -2,6 +2,23 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Owner reports replacement Calendar declaration saved
+
+- The owner replied `saved` after the approved six-entry Production declaration
+  guidance. Record that execution receipt without claiming independently read
+  scope URLs/categories or completed Google verification. Current Sensitive /
+  Restricted entries and Verification Center Data access status remain pending.
+- Repository readback verifies clean task-owned branch head `aa1ff9d`, and hosted
+  PR #40 remains merged as `38d0ded`. Its existing candidate/live receipts keep
+  their dates; no new deployment, credential write, consent, fixture or payment
+  test was performed.
+- Requested only read-only current category/Verification Center status. The
+  next dependency is any required verification material and the remaining
+  isolated application/provider acceptance, not another declaration setup/save.
+  Corrected the provider checkpoint's stale completed-merge instruction and
+  replacement-section anchor before continuing. Credentials, test resources,
+  verification upload/submission, public promotion and activation remain gated.
+
 ## 2026-10-07 — Replacement Calendar declaration guidance approved
 
 - The user answered `yes` to guidance for the prepared replacement Google
