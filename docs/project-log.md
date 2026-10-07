@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Calendar acceptance gate made explicit after full review
+
+- Explicit CodeRabbit full review at `c2c51ab` completed at
+  `2026-10-07T02:01:54Z`, covering all twenty changed files. It confirms the
+  earlier comparison-instruction fix and identifies one minor wording gap:
+  the current snapshot should explicitly say full application/provider
+  acceptance remains pending. Added that sentence without changing the gate,
+  runtime code, provider settings or test expectations.
+- The wording follow-up passes all 16 server-workload/documentation checks and
+  branch whitespace checks. The existing relative links are unchanged.
+- At `c2c51ab`, all seven CI jobs pass, including 5,155 unit passes, two skips
+  and zero failures; Vercel Preview is ready and Codex reports no major issues.
+  Fresh connector readbacks retain the approved live artifact and six live
+  assignments, both public pause flags false, 56 Production-only variables,
+  absent Calendar keys and excluded purchase switches. This wording follow-up
+  needs final-head checks and another eligible full review. Merge and all
+  provider/application acceptance and activation operations remain separately
+  gated; no completed comparison or payment test is repeated.
+
 ## 2026-10-06 — Final-head Calendar review completed; stale operator instructions corrected
 
 - After the included window opened, explicitly requested CodeRabbit full review

@@ -11,11 +11,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
 
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) is published under
   the user's October 6 source/review approval. Full CodeRabbit review of
-  `34cea53` covers all 20 changed files and reports one valid stale comparison
-  instruction; all five pre-merge checks pass, with 100% docstring coverage.
-  That instruction is corrected and duplicated comparison history is condensed
-  into current outcomes/open gates below. All seven CI jobs, Vercel Preview and
-  Codex review pass at `34cea53`; the documentation follow-up needs final-head
+  `c2c51ab` covers all 20 changed files and reports one minor acceptance-gate
+  clarification; all five pre-merge checks pass, with 100% docstring coverage.
+  Full application/provider acceptance is now explicitly marked pending below.
+  The earlier completed-comparison instruction is fixed. All seven CI jobs,
+  Vercel Preview and Codex review pass at `c2c51ab`; this wording follow-up needs final-head
   checks and another eligible manual review before a merge request. Merge is
   not authorized. No Production Google settings, Calendar activation or live
   promotion occurs.
@@ -89,10 +89,11 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   event-read/combined tokens on connect, cached use and refresh. Incomplete or
   broader Calendar grants still fail before provider work/token persistence.
   Calendar regressions pass 83/83, comparison checks 40/40 and documentation
-  checks 16/16; the reviewed `34cea53` CI run passes all seven jobs, including
+  checks 16/16; the reviewed `c2c51ab` CI run passes all seven jobs, including
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
-  whole-integration minimum access. Source merge, the changed Production
+  whole-integration minimum access. Full application/provider acceptance remains
+  pending. Source merge, the changed Production
   declaration, credentials, isolated application/provider resources, any required
   demo/submission, public promotion and Calendar activation remain separately
   gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.
