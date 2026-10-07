@@ -1,12 +1,15 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import { mkdtemp, rm, readFile } from "node:fs/promises"
+import { mkdtemp, rm, readFile, writeFile, stat, mkdir, rmdir } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { createServer } from "node:http"
+import { spawn } from "node:child_process"
+import { once } from "node:events"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
-import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars } from "../scripts/calendar-application-acceptance-guard.mjs"
+import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars } from "../scripts/calendar-application-acceptance-guard.mjs"
+import { writeAcceptanceDiagnostic } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
@@ -27,6 +30,54 @@ function fixture() {
   const client = { project_id: manifest.googleProjectId, client_id: "synthetic.apps.googleusercontent.com", client_secret: "invented-secret-for-tests", redirect_uris: ["http://localhost:3317/oauth/callback"] }
   return { manifest, client }
 }
+
+test("child diagnostics protect both new files and previously permissive files before writing", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-diagnostic-unit-"))
+  const path = join(directory, "owned-command-error.txt")
+  try {
+    await writeAcceptanceDiagnostic(directory, "synthetic failure")
+    assert.equal(await readFile(path, "utf8"), "synthetic failure")
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+    await rm(path)
+    await writeFile(path, "old synthetic failure", { mode: 0o644 })
+    await writeAcceptanceDiagnostic(directory, "new synthetic failure")
+    assert.equal(await readFile(path, "utf8"), "new synthetic failure")
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("journal locks preserve live owners and recover only after an owned worker has exited", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-lock-unit-"))
+  const guardUrl = new URL("../scripts/calendar-application-acceptance-guard.mjs", import.meta.url).href
+  const code = `import { acceptanceLock } from ${JSON.stringify(guardUrl)}; setTimeout(() => process.exit(1), 10000); await acceptanceLock(${JSON.stringify(directory)}, async () => { process.stdout.write('held\\n'); await new Promise(() => {}); });`
+  const child = spawn(process.execPath, ["--input-type=module", "-e", code], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+  const exit = once(child, "exit")
+  try {
+    await new Promise((done, fail) => {
+      const timer = setTimeout(() => fail(new Error("synthetic lock startup timed out")), 5000)
+      child.once("error", (error) => { clearTimeout(timer); fail(error) })
+      child.stdout.once("data", () => { clearTimeout(timer); done() })
+    })
+    await assert.rejects(acceptanceLock(directory, () => assert.fail("live lock was stolen"), { timeoutMs: 60 }), /journal_lock/)
+    child.kill("SIGTERM")
+    await exit
+    let active = 0
+    await Promise.all(Array.from({ length: 12 }, () => acceptanceLock(directory, async () => {
+      assert.equal(++active, 1)
+      await new Promise((done) => setTimeout(done, 2))
+      active--
+    })))
+    assert.equal(active, 0)
+    await assert.rejects(stat(join(directory, "journal.lock")), { code: "ENOENT" })
+    await mkdir(join(directory, "journal.lock"))
+    await assert.rejects(acceptanceLock(directory, () => assert.fail("unowned empty lock was stolen"), { timeoutMs: 60 }), /journal_lock/)
+    await rmdir(join(directory, "journal.lock"))
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) child.kill("SIGTERM")
+    await exit
+    await rm(directory, { recursive: true, force: true })
+  }
+})
 
 test("actual loopback multipart transport preserves Next's empty action selector", async () => {
   const selector = "$ACTION_ID_40" + "a".repeat(40)

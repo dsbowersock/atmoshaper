@@ -5,7 +5,7 @@ all owned resources cleaned. Callback, access, PostgreSQL, reconnect, sync,
 resolved Disconnect and uncertain-create/reconciliation cases pass. The missing
 native pending-Disconnect rejection subsequently passed in a separately approved
 database-only follow-up. The completed-run harness checkpoint passed 18 checks;
-the later source-review follow-up below passes 23 provider-free checks. The
+the later source-review follow-up below passes 25 provider-free checks. The
 [one-case follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
 and its cleanup are now complete, closing this bounded application acceptance
 gate. No Google consent or fixture work was repeated. The execution sequence
@@ -34,8 +34,13 @@ Capture and acceptance share one lock, and later rejected credential values
 cannot reuse an earlier accepted copy. Cleanup skips owned IDs already absent
 from complete inventory after a lost DELETE response, then proves final absence.
 An absence receipt covers the current create intents before tokens are revoked.
+Diagnostic writes use owner-only POSIX mode before raw stderr is written, while
+Windows keeps the protected run directory's access controls. Atomic populated
+lock directories identify their PID/nonce owner; recovery requires that PID to
+be absent and never steals a live or unowned lock.
 
-All 23 provider-free checks pass. The original real run used the earlier
+All 25 provider-free checks pass locally; exact POSIX permission assertions
+still require latest-head Linux CI. The original real run used the earlier
 unmodified description and injected response loss after ID capture; the new
 pre-parse recovery and delayed-refresh proofs are provider-free. They do not
 retroactively broaden the completed real acceptance claim or authorize a rerun.

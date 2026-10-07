@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review fixes protected diagnostics and terminated-worker locks
+
+- Codex's next review completes at `2026-10-07T23:00:47Z` on `17e08e6`.
+  Both valid operator findings are fixed. Raw child stderr is written only after
+  applying owner-only POSIX file mode, including when an older diagnostic file
+  exists; Windows retains the protected run directory's access controls.
+- Journal locks publish a prepopulated PID/nonce ownership directory atomically.
+  Recovery requires the recorded PID to be absent; age, denied process probes,
+  live owners and unknown/empty lock directories never establish dead ownership.
+  Cleanup removes only the exact owner entry, preserving any nonempty replacement
+  lock. Windows pending-delete contention is retried within a bounded interval.
+- All 25 provider-free harness checks pass, including a terminated owned local
+  worker, live/unowned-lock rejection, concurrent reuse and diagnostic rewrites.
+  Exact POSIX mode assertions await latest-head Linux CI. Lint, typecheck,
+  documentation/workload checks 16/16 and whitespace pass; existing relative
+  targets are unchanged. Latest-head hosted checks/reviews remain pending.
+  This local process/filesystem test creates no
+  provider resources and repeats no completed acceptance or public operation.
+
 ## 2026-10-07 — Follow-up review fixes refresh omission and cleanup retry
 
 - Codex's follow-up review completes at `2026-10-07T22:47:57Z` on `c7de5c9`.

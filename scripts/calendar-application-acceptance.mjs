@@ -1,9 +1,18 @@
-import { readFile, readdir, realpath, writeFile } from "node:fs/promises"
+import { readFile, readdir, realpath, open } from "node:fs/promises"
 import { dirname, join, resolve, relative } from "node:path"
 import { spawn, execFileSync } from "node:child_process"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { acceptanceEnvironment, requireAcceptance, validateAcceptanceCredential, validateAcceptanceManifest, ACCEPTANCE_BASE } from "./calendar-application-acceptance-core.mjs"
 import { acceptanceStore } from "./calendar-application-acceptance-guard.mjs"
+
+/** Protect new and existing POSIX diagnostics before writing raw stderr; Windows retains the run folder's ACL. */
+export async function writeAcceptanceDiagnostic(directory, text) {
+  const file = await open(join(directory, "owned-command-error.txt"), "w", 0o600)
+  try {
+    await file.chmod(0o600)
+    await file.writeFile(text)
+  } finally { await file.close() }
+}
 
 /** A receipt-bound launcher avoids dotenv/credential inheritance and hides private framework logs. */
 export async function loadAcceptanceConfig(path, { database = true, cleanup = false } = {}) {
@@ -78,8 +87,8 @@ async function main() {
   process.on("SIGTERM", stopChild)
   const result = await new Promise((done) => { child.once("error", () => done(1)); child.once("exit", (code) => done(code ?? 1)) })
   if (watchdog) clearTimeout(watchdog)
-  if (result !== 0 && privateError) await writeFile(join(loaded.directory, "owned-command-error.txt"), privateError)
+  if (result !== 0 && privateError) await writeAcceptanceDiagnostic(loaded.directory, privateError)
   requireAcceptance(result === 0, "owned_command_failed")
   console.log("ACCEPTANCE: owned command completed")
 }
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(() => { console.error("ACCEPTANCE: stopped; inspect the private sanitized stage receipt"); process.exitCode = 1 })
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(() => { console.error("ACCEPTANCE: stopped; inspect the protected private stage receipt"); process.exitCode = 1 })

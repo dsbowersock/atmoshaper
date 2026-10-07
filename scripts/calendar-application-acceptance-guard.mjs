@@ -1,20 +1,68 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto"
-import { readFile, writeFile, rename, mkdir, rmdir, appendFile } from "node:fs/promises"
+import { readFile, writeFile, rename, mkdir, rmdir, appendFile, readdir, unlink } from "node:fs/promises"
 import { join } from "node:path"
 import { authorizeAcceptanceRequest, requireAcceptance, validateAcceptanceScopes, validateAcceptanceManifest } from "./calendar-application-acceptance-core.mjs"
 import { ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 
-/** Short cross-process critical sections reserve lifetime budgets before network writes. */
-export async function acceptanceLock(directory, action) {
-  const lock = join(directory, "journal.lock")
+/** Remove only this exact owner's entry; a replacement lock is always nonempty and survives rmdir. */
+async function releaseAcceptanceLock(lock, ownerName) {
   const deadline = Date.now() + 5000
   while (true) {
-    try { await mkdir(lock); break } catch (error) {
-      requireAcceptance(error.code === "EEXIST" && Date.now() < deadline, "journal_lock")
+    try { await unlink(join(lock, ownerName)); break } catch (error) {
+      if (error.code === "ENOENT") return
+      // Windows can report EPERM while another reclaimer's delete is still pending.
+      if (!["EPERM", "EACCES"].includes(error.code) || Date.now() >= deadline) throw error
       await new Promise((resolve) => setTimeout(resolve, 25))
     }
   }
-  try { return await action() } finally { await rmdir(lock) }
+  try { await rmdir(lock) } catch (error) {
+    if (!["ENOENT", "ENOTEMPTY", "EEXIST"].includes(error.code)) throw error
+  }
+}
+
+/** PID liveness is fail-closed: only ESRCH proves a recorded owner is dead, never age or EPERM. */
+async function reclaimAcceptanceLock(lock) {
+  let entries
+  try { entries = await readdir(lock) } catch (error) { if (error.code === "ENOENT") return; throw error }
+  if (entries.length !== 1 || !/^owner-[1-9][0-9]*-[a-f0-9]{32}\.json$/.test(entries[0])) return
+  let owner
+  try { owner = JSON.parse(await readFile(join(lock, entries[0]), "utf8")) } catch { return }
+  if (!Number.isSafeInteger(owner.pid) || owner.pid < 1 || owner.pid > 2_147_483_647 || entries[0] !== `owner-${owner.pid}-${owner.nonce}.json`) return
+  try { process.kill(owner.pid, 0) } catch (error) {
+    if (error.code === "ESRCH") await releaseAcceptanceLock(lock, entries[0])
+  }
+}
+
+/** Publish a prepopulated lock atomically so dead-owner recovery never removes a new empty live lock. */
+export async function acceptanceLock(directory, action, { timeoutMs = 5000 } = {}) {
+  const lock = join(directory, "journal.lock")
+  const nonce = randomBytes(16).toString("hex")
+  const ownerName = `owner-${process.pid}-${nonce}.json`
+  const candidate = join(directory, `journal.lock-candidate-${process.pid}-${nonce}`)
+  const deadline = Date.now() + timeoutMs
+  await mkdir(candidate, { mode: 0o700 })
+  try {
+    await writeFile(join(candidate, ownerName), JSON.stringify({ pid: process.pid, nonce }), { mode: 0o600, flag: "wx" })
+    while (true) {
+      // Leave pre-existing empty/unrecognized locks alone; POSIX rename could otherwise replace an empty directory.
+      let occupied = true
+      try { await readdir(lock) } catch (error) { if (error.code === "ENOENT") occupied = false; else throw error }
+      if (occupied) {
+        requireAcceptance(Date.now() < deadline, "journal_lock")
+        await reclaimAcceptanceLock(lock)
+        await new Promise((resolve) => setTimeout(resolve, 25))
+        continue
+      }
+      try { await rename(candidate, lock); break } catch (error) {
+        requireAcceptance(["EEXIST", "ENOTEMPTY", "EPERM", "EACCES"].includes(error.code) && Date.now() < deadline, "journal_lock")
+        await reclaimAcceptanceLock(lock)
+        await new Promise((resolve) => setTimeout(resolve, 25))
+      }
+    }
+    try { return await action() } finally { await releaseAcceptanceLock(lock, ownerName) }
+  } finally {
+    await releaseAcceptanceLock(candidate, ownerName)
+  }
 }
 
 /** Private stores never place tokens, resource identities or rejected payloads in console output. */
