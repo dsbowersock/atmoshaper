@@ -47,6 +47,46 @@ export function acceptanceStore(directory, key) {
   return { journal, vault, saveVault, record, locked: (action) => acceptanceLock(directory, action) }
 }
 
+/** Recover only a uniquely run-marked owned secondary target; names alone never establish ownership. */
+async function reconcileAcceptanceCalendarPage(items, store) {
+  return store.locked(async () => {
+    const journal = await store.journal()
+    const accepted = journal.filter((item) => item.kind === "calendar-create" && item.phase === "accepted")
+    const recovered = []
+    for (const intent of journal.filter((item) => item.kind === "calendar-create" && item.phase === "intent" && item.calendarMarker)) {
+      const matches = items.filter((item) => item.description === intent.calendarMarker)
+      const known = accepted.find((item) => item.calendarMarker === intent.calendarMarker)
+      requireAcceptance(matches.length <= 1 && (!known || matches.every((item) => item.id === known.calendarId)), "ambiguous_owned_target")
+      if (!known && matches.length) {
+        const target = matches[0]
+        requireAcceptance(!target.primary && target.accessRole === "owner" && /^[a-zA-Z0-9_-]+@group\.calendar\.google\.com$/.test(target.id ?? ""), "reconciled_target_ownership")
+        recovered.push({ ...intent, phase: "accepted", calendarId: target.id, recoveredFromInventory: true })
+      }
+    }
+    // Validate the whole page before accepting any newly discovered identity.
+    for (const item of recovered) await store.record(item)
+    return [...accepted, ...recovered]
+  })
+}
+
+/** Delayed teardown uses the cleanup-guarded fetch; rejected grants stay captured solely for revocation. */
+export async function acceptanceCleanupAccessToken({ client, store, fetchImpl, now = Date.now() }) {
+  const tokens = await store.locked(() => store.vault())
+  const current = tokens.findLast((token) => token.access_token && token.acceptedForUse !== false)
+  if (Number.isFinite(current?.capturedAt) && Number.isFinite(current.expires_in) && now + 30_000 < current.capturedAt + current.expires_in * 1000) return current.access_token
+  const refresh = tokens.findLast((token) => token.refresh_token && token.acceptedForUse !== false)?.refresh_token
+  requireAcceptance(refresh, "cleanup_refresh_unavailable")
+  const response = await fetchImpl("https://oauth2.googleapis.com/token", {
+    method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, refresh_token: refresh, grant_type: "refresh_token" }),
+    signal: AbortSignal.timeout(8000),
+  })
+  requireAcceptance(response.ok, "cleanup_refresh_failed")
+  const token = await response.json()
+  requireAcceptance(typeof token.access_token === "string" && token.access_token.length > 10, "token_response")
+  return token.access_token
+}
+
 /** Intercepts only this local task process; permits no unjournaled credential or fixture write. */
 export function createAcceptanceFetch({ manifest, client, store, fetchImpl = globalThis.fetch, control = async () => ({}), cleanup = false }) {
   return async function acceptanceFetch(input, init) {
@@ -57,13 +97,16 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       const decision = await store.locked(async () => {
         const journal = await store.journal()
         const result = authorizeAcceptanceRequest({ request, body, manifest, client, journal })
-        requireAcceptance(!cleanup || ["revoke", "calendar-delete", "inventory", "metadata"].includes(result.kind), "cleanup_only")
+        requireAcceptance(!cleanup || ["refresh", "revoke", "calendar-delete", "inventory", "metadata"].includes(result.kind), "cleanup_only")
         if (result.kind === "local") return result
         const tokens = await store.vault()
         const bearer = request.headers.get("authorization")?.replace(/^Bearer /, "")
-        if (bearer) requireAcceptance(tokens.some((token) => token.access_token === bearer), "token_ownership")
-        if (result.kind === "refresh") requireAcceptance(tokens.some((token) => token.refresh_token === new URLSearchParams(body).get("refresh_token")), "token_ownership")
+        if (bearer) requireAcceptance(tokens.some((token) => token.access_token === bearer && token.acceptedForUse !== false), "token_ownership")
+        if (result.kind === "refresh") requireAcceptance(tokens.some((token) => token.refresh_token === new URLSearchParams(body).get("refresh_token") && token.acceptedForUse !== false), "token_ownership")
         if (result.kind === "revoke") requireAcceptance(tokens.some((token) => [token.access_token, token.refresh_token].filter(Boolean).includes(new URLSearchParams(body).get("token"))), "token_ownership")
+        // A transport loss may hide the returned ID. A task-only marker binds later recovery
+        // to this exact create attempt; the synthetic app sees its ordinary marker instead.
+        if (result.kind === "calendar-create") result.calendarMarker = ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION + " Acceptance run " + manifest.runId + " attempt " + randomBytes(16).toString("hex")
         await store.record({ ...result, phase: "intent" })
         return result
       })
@@ -71,7 +114,11 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       const fault = await control()
       if (decision.kind === "event-read" && fault.mode === "inbound-503") return new Response("{}", { status: 503 })
       if (decision.kind === "event-read" && fault.mode === "inbound-410") return new Response("{}", { status: 410 })
-      const response = await fetchImpl(request, { redirect: "error" })
+      const providerRequest = decision.kind === "calendar-create" ? new Request(request, {
+        body: JSON.stringify({ ...JSON.parse(body), description: decision.calendarMarker }),
+      }) : request
+      if (decision.kind === "calendar-create") providerRequest.headers.delete("content-length")
+      const response = await fetchImpl(providerRequest, { redirect: "error" })
       if (!response.ok) {
         if (decision.kind === "revoke" && response.status === 400) {
           const error = await response.json()
@@ -94,13 +141,20 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         // can revoke it even when the callback must stop without activating a connection.
         await store.locked(async () => {
           const tokens = await store.vault()
-          tokens.push(data)
+          tokens.push({ ...data, capturedAt: Date.now(), acceptedForUse: false })
           await store.saveVault(tokens)
           await store.record({ ...decision, phase: "captured" })
         })
         validateAcceptanceScopes(data.scope)
         if (decision.kind === "exchange") requireAcceptance(data.refresh_token && data.id_token, "token_response")
-        await store.locked(() => store.record({ ...decision, phase: "accepted", scope: data.scope }))
+        await store.locked(async () => {
+          const tokens = await store.vault()
+          const captured = tokens.findLast((token) => token.access_token === data.access_token)
+          requireAcceptance(captured, "token_response")
+          captured.acceptedForUse = true
+          await store.saveVault(tokens)
+          await store.record({ ...decision, phase: "accepted", scope: data.scope })
+        })
       } else if (decision.kind === "identity") {
         requireAcceptance(data.email === manifest.accountEmail && data.email_verified === true && typeof data.sub === "string", "account_identity")
         const prior = (await store.journal()).find((item) => item.kind === "identity" && item.phase === "accepted")
@@ -109,6 +163,7 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       } else if (decision.kind === "calendar-create") {
         requireAcceptance(/^[a-zA-Z0-9_-]+@group\.calendar\.google\.com$/.test(data.id ?? ""), "accepted_calendar_identity")
         await store.locked(() => store.record({ ...decision, phase: "accepted", calendarId: data.id }))
+        if (data.description === decision.calendarMarker) data.description = ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION
         if (fault.mode === "lose-calendar-response") throw new Error("injected_uncertain_creation")
       } else if (decision.kind === "event-create") {
         requireAcceptance(/^[a-z0-9]{5,128}$/.test(data.id ?? ""), "accepted_event_identity")
@@ -116,15 +171,20 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       } else if (decision.kind === "inventory") {
         // Preserve complete paging for discovery, but expose only this run's sources/targets to
         // the synthetic account. Ordinary primary calendars otherwise auto-select for reads.
-        const created = (await store.journal()).filter((item) => item.kind === "calendar-create" && item.phase === "accepted").map((item) => item.calendarId)
+        const accepted = await reconcileAcceptanceCalendarPage(data.items ?? [], store)
+        const created = accepted.map((item) => item.calendarId)
         const allowed = new Set([...created, ...manifest.sources.map((source) => source.calendarId)])
         for (const item of data.items ?? []) {
           if (!cleanup && (item.summary === "AtmoShaper" || item.description === ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION)) requireAcceptance(created.includes(item.id), "preexisting_target")
         }
         data.items = (data.items ?? []).filter((item) => allowed.has(item.id) && !(fault.mode === "hide-targets" && created.includes(item.id)))
+        data.items = data.items.map((item) => accepted.some((record) => record.calendarId === item.id && record.calendarMarker && record.calendarMarker === item.description) ? { ...item, description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } : item)
         if (fault.mode === "primary-target") data.items = data.items.map((item) => created.includes(item.id) ? { ...item, primary: true } : item)
         if (fault.mode === "shared-target") data.items = data.items.map((item) => created.includes(item.id) ? { ...item, accessRole: "reader" } : item)
         if (fault.mode === "ambiguous-targets") data.items = data.items.map((item) => ({ ...item, summary: "AtmoShaper" }))
+      } else if (decision.kind === "metadata") {
+        const accepted = (await store.journal()).find((item) => item.kind === "calendar-create" && item.phase === "accepted" && item.calendarId === decision.calendarId)
+        if (accepted?.calendarMarker && accepted.calendarMarker === data.description) data.description = ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION
       } else if (decision.kind === "event-read") {
         const source = manifest.sources.find((item) => item.calendarId === decision.calendarId)
         const allowed = source?.eventIds ?? (await store.journal()).filter((item) => item.kind === "event-create" && item.phase === "accepted" && item.calendarId === decision.calendarId).map((item) => item.eventId)

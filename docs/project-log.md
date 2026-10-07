@@ -2,6 +2,34 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Source-review fixes for guarded recovery and delayed cleanup
+
+- The explicit full CodeRabbit review completes at `2026-10-07T22:35:16Z`,
+  covering all eighteen files at `45bfb7805bea913cc04c5c686852bcdc62306881`.
+  All five pre-merge checks pass, including 80.95% touched-function docstrings.
+  Its valid launcher finding is repaired with platform-specific npm/shell
+  selection. Codex's two valid findings identify transport-loss recovery and
+  expired-token cleanup gaps in the operator harness, not deployed runtime.
+- A future guarded create now adds a unique run/attempt description marker.
+  Full inventory paging can recover only its uniquely marked owned secondary
+  target; ordinary application metadata is restored at the task boundary.
+  Duplicate markers, shared/primary targets and names alone remain fail-closed.
+  Teardown reconciles before deletion, rejects unresolved intent and verifies
+  active absence through every inventory page before revocation.
+- Delayed cleanup may refresh only an already captured usable grant. Newly
+  issued tokens are encrypted before validation so rejected grants can still
+  be revoked; only accepted tokens are reused. Refreshed tokens join final
+  revocation, and an absence receipt prevents a cleanup retry from needing a
+  grant already revoked during partial teardown.
+- Provider-free harness checks pass 21/21, including pre-parse transport loss,
+  paged reconnect/cleanup, ambiguous ownership and delayed refresh/revocation.
+  Documentation/workload checks pass 16/16, lint and typecheck pass, and
+  whitespace checks pass. Existing relative link targets are unchanged.
+  These are source-regression proofs, not additional live acceptance receipts.
+  Exact-latest-head hosted checks and renewed full reviews remain required.
+  No completed consent, fixtures, database/payment test, cleanup or public
+  operation is repeated.
+
 ## 2026-10-07 — Calendar source closeout published for hosted review
 
 - The owner approves publication of the prepared operator/guarded-acceptance

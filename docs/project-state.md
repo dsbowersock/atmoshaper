@@ -42,11 +42,16 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   accounts; no Production OAuth exchange or live sync was initiated. The operator
   and guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41)
   under the owner's source publication/review approval. Its provider-free harness
-  checks pass 18/18, documentation/workload
+  checks pass 21/21, documentation/workload
   checks 16/16, lint and typecheck pass, and branch private-data/link checks pass.
   Initial published head is `577298385fa1f387e91e3e98f3fb5e1398a38847`; hosted CI
   and exact-latest-head full CodeRabbit/Codex reviews remain pending. Merge and
   any future Production operation require separate approval.
+  The initial full CodeRabbit review covers all eighteen files at `45bfb78`
+  and finds one valid platform-command issue; Codex finds two valid operator
+  cleanup gaps. The source follow-up fixes platform selection, run-marked lost
+  response recovery and owned-token refresh after expiry. These improvements
+  have provider-free regression coverage; the completed real tests are not rerun.
   No further setup, file or completed-test rerun is needed.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
@@ -159,7 +164,8 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   credential removal complete cleanup. Teardown began after 4.72 minutes, within
   the approved 15-minute ceiling. No Google credentials, grants or fixtures were
   used or repeated. The two runs close the bounded application acceptance gate.
-  The local harness now passes 18/18 provider-free checks, including blank Google
+  At that completed-run checkpoint, the local harness passed 18/18 provider-free
+  checks, including blank Google
   credentials, no external fetch and a 15-minute bound for the completed
   [pending-action follow-up](superpowers/plans/2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md).
   Both exact database authorizations are exhausted; no test resource remains

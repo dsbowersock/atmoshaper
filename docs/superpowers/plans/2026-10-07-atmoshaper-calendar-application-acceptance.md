@@ -4,7 +4,8 @@ Status: the original approved October 7 run completed with partial acceptance an
 all owned resources cleaned. Callback, access, PostgreSQL, reconnect, sync,
 resolved Disconnect and uncertain-create/reconciliation cases pass. The missing
 native pending-Disconnect rejection subsequently passed in a separately approved
-database-only follow-up. All 18 provider-free harness boundary checks pass. The
+database-only follow-up. The completed-run harness checkpoint passed 18 checks;
+the later source-review follow-up below passes 21 provider-free checks. The
 [one-case follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
 and its cleanup are now complete, closing this bounded application acceptance
 gate. No Google consent or fixture work was repeated. The execution sequence
@@ -13,6 +14,27 @@ below is historical; both exact database authorizations are exhausted.
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 the [provider checkpoint](2026-10-02-atmoshaper-calendar-provider-stage.md), and
 the [migration charter](../../rebrand/atmoshaper-migration-charter.md).
+
+## Source-only review follow-up
+
+Published [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41) records these
+completed operations and improves the operator harness after hosted review.
+The launcher selects npm and shell use by platform. Future task-only Calendar
+creates carry a unique run/attempt description marker, normalized to the
+ordinary application description in guarded responses. This permits recovery
+when transport fails before the returned ID is parsed, without treating a
+calendar name as ownership. Inventory recovery requires one marked owned
+secondary target; duplicates, primary/shared targets and unresolved intent stop
+cleanup. Teardown uses complete inventory paging before deletion and absence
+proof, and may refresh only this run's captured usable grant after expiry.
+Every newly issued token remains encrypted for revocation even if its scope is
+rejected; rejected tokens are not reused for Calendar work.
+
+All 21 provider-free checks pass. The original real run used the earlier
+unmodified description and injected response loss after ID capture; the new
+pre-parse recovery and delayed-refresh proofs are provider-free. They do not
+retroactively broaden the completed real acceptance claim or authorize a rerun.
+Future execution of the updated harness needs its own exact resource approval.
 
 ## Purpose and current evidence
 

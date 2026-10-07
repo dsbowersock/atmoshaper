@@ -41,7 +41,8 @@ async function main() {
   let child
   if (["generate", "migrate"].includes(mode)) {
     const script = mode === "generate" ? "prisma:generate" : "prisma:migrate:deploy"
-    child = spawn("npm.cmd", ["run", script], { cwd: loaded.manifest.appRoot, env, shell: true, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+    const npm = process.platform === "win32" ? "npm.cmd" : "npm"
+    child = spawn(npm, ["run", script], { cwd: loaded.manifest.appRoot, env, shell: process.platform === "win32", windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
   } else {
     requireAcceptance(!stage || /^[a-z-]+$/.test(stage), "command_boundary")
     const server = mode === "server" || mode === "pending-server"
