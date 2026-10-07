@@ -13,8 +13,12 @@ October 7 and subsequently reports `saved`. The owner then supplies Verification
 Center's message that verification is not required because the app requests no
 sensitive or restricted scopes, and reports no entries in either category.
 This closes the declaration/status gate by owner readback; independent Console/API
-inspection of every saved URL is not claimed. Full
-application/provider acceptance and public Calendar activation remain pending.
+inspection of every saved URL is not claimed. The bounded application/provider
+acceptance subsequently passed in the October 7 application run and its native
+Disconnect follow-up, with completed cleanup and explicit proof limits.
+Production credential provisioning and public Calendar activation remain pending;
+the [credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
+owns the next step.
 
 October 3 screenshots establish External / In production and empty declared
 scope lists; branding is verified/shown. The user reports completed Calendar API
@@ -85,7 +89,8 @@ and public activation require their own exact, reviewable authorization.
   was used. The client-list and URL-only questions are now satisfied, with no
   secrets or setting changes. Google Cloud-admin CLI/connector
   access is unavailable; the subsequent Calendar Verify comparison setup is
-  complete, while new application resources/run remain unapproved. All requested
+  complete. Both separately approved application database runs and their cleanup
+  are now complete; their authorizations are exhausted. All requested
   Data Access, Audience, Verification Center, and Calendar API readbacks are
   satisfied by the user's screenshots; do not ask to repeat them.
 
@@ -419,7 +424,8 @@ checked October 3 requires the least necessary permissions, a narrower-scope
 justification, and a real consent/functionality video for sensitive-scope review.
 The two-arm scope comparison is complete. The October 7 owner status/category
 readback closes the Production declaration dependency and reports verification
-unnecessary; full application acceptance remains open. Do not prepare the
+unnecessary; the later bounded application acceptance and cleanup are complete.
+Public Calendar remains inactive. Do not prepare the
 historical sensitive-scope demo for the current saved declaration by default.
 
 ## Completed comparison setup and pending application targets
@@ -436,16 +442,19 @@ repeat project/client creation, consent, fixture setup, restoration or cleanup.
 PR #40's source merge/build verification and the owner's approved
 [replacement-declaration save](#availability-declaration-october-7-owner-save-receipt)
 and owner category/Verification Center status readback are complete. The
-standalone comparison avoided an application database and does
-not replace the full isolated application acceptance proposal below. Prepare
-its remaining targets and operation boundaries before requesting that authority.
+standalone comparison avoided an application database. The later separately
+approved [application run](2026-10-07-atmoshaper-calendar-application-acceptance.md)
+and [native Disconnect follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
+close the bounded application gate with cleanup and explicit proof limits. Do
+not request their resource/run authority again or repeat completed cases.
 
 Use the identified Production project and user-reported separate Calendar
 registration; do not propose another client or repeat its creation. Its saved
 Calendar redirect remains pending before Production credential provisioning.
 The replacement Verification Center outcome is satisfied by the October 7 owner
-readback above. Appropriate isolated application targets are specified in the
-new plan and await exact execution approval. Preserve shared consent settings.
+readback above. The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
+needs only the already-downloaded Production JSON path for private saved-client/
+callback validation before an exact provisioning/build approval. Preserve shared consent settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 
@@ -482,13 +491,18 @@ These explain requirements, not this project's saved state.
 ## Bounded isolated acceptance proposal
 
 The [October 7 application acceptance plan](2026-10-07-atmoshaper-calendar-application-acceptance.md)
-now specifies the existing test registration change, local app callback, exact
-empty Neon target ownership, synthetic fixture limits, fault-observation boundaries
-and mandatory cleanup. Neon CLI metadata access is authenticated; the identified
-unmanaged organization uses Launch. No resource or connection was created/read.
-This is a reviewable proposal, not a completed harness or execution approval.
-Use its current targets rather than repeating provider discovery or the completed
-permission-comparison setup.
+records a completed run against exact merged runtime `38d0ded`. Callback,
+encryption, persisted access, PostgreSQL rollback/locks, reconnect, inbound and
+generic outbound sync, and uncertain-create/reconciliation checks pass. Its
+original native pending Disconnect case was incomplete; the separately approved
+database-only follow-up proves that guard without Google credentials or activity.
+All test grants/fixtures, both exact empty Neon projects and owned processes are
+cleaned up. Teardown began within each approved ceiling. Both resource approvals
+are exhausted; no new resource or consent is authorized by this checkpoint.
+
+The following preparation sequence and proof table are historical acceptance
+requirements. Use the completed plans' receipts and limits, not these instructions
+as a request to repeat provider discovery, fixtures or execution.
 
 Prepare an owned local app and explicit Google-permitted test callback; choose
 the exact loopback port after availability and cookie/origin checks. Do not
@@ -525,8 +539,9 @@ Transaction/transport doubles do not establish real locks or provider consistenc
 
 ## Activation and rollback
 
-After isolated acceptance and scope readiness pass, prepare exact Production
-configuration, reviewed source, one staged build, verification, and a separate
+Isolated acceptance and scope readiness now pass within their recorded limits.
+The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
+prepares exact configuration, reviewed source, one unpromoted build, checks, and a separate
 public-promotion decision. Keep manual promotion and registration/Supporter
 Checkout open; one-time support and background purchases remain disabled.
 

@@ -1,15 +1,14 @@
 # AtmoShaper isolated Calendar application acceptance
 
-Status: approved October 7 run completed with partial acceptance and all owned
-resources cleaned. Callback, access, PostgreSQL, reconnect, sync, resolved
-Disconnect and uncertain-create/reconciliation cases pass. Native pending
-Disconnect rejection remains unproven because the test transport omitted the
-empty action selector. The harness repair passes an actual loopback regression;
-all 18 provider-free boundary checks pass. A separate
+Status: the original approved October 7 run completed with partial acceptance and
+all owned resources cleaned. Callback, access, PostgreSQL, reconnect, sync,
+resolved Disconnect and uncertain-create/reconciliation cases pass. The missing
+native pending-Disconnect rejection subsequently passed in a separately approved
+database-only follow-up. All 18 provider-free harness boundary checks pass. The
 [one-case follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
-is prepared but needs exact additional-resource approval. No Google consent or
-fixture work will be repeated. The execution sequence below is historical;
-its approval permits no second database project.
+and its cleanup are now complete, closing this bounded application acceptance
+gate. No Google consent or fixture work was repeated. The execution sequence
+below is historical; both exact database authorizations are exhausted.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 the [provider checkpoint](2026-10-02-atmoshaper-calendar-provider-stage.md), and
@@ -231,12 +230,13 @@ resolved Disconnect clears app state while preserving provider contents.
 Injected lost-create response leaves an inactive durable intent, hidden discovery
 does not issue another create, and reconciliation reuses the known second target.
 
-The pending Disconnect POST returned a framework error before the action because
+In this original run, the pending Disconnect POST returned a framework error before the action because
 the client dropped Next's empty hidden selector. Row preservation and HTTP 500
 are insufficient proof of the action's guard. Native multipart bytes now preserve
-that selector in an actual loopback test. The prepared follow-up must establish
-the native reconciliation rejection from the current owned server, the correct
-session/form identity, no success redirect and an unchanged pending row.
+that selector in an actual loopback test. The separately approved follow-up
+subsequently establishes the native reconciliation rejection from the current
+owned server, correct session/form identity, no success redirect and an unchanged
+pending row, as recorded below.
 
 Task-only repairs also corrected Windows loader URL handling, a missing JSON
 header/unchecked rename response, and an outbound interval that overlapped its
@@ -252,9 +252,18 @@ calendars are permanently deleted by owner receipt and independently absent from
 their owners' active lists. Neon active absence retains its documented recovery
 period limitation. No resources remain active from this approved run.
 
-After the missing native action case and its cleanup pass, prepare a separate exact Production
+The separately approved database-only follow-up now proves the native action's
+pending rejection with correct session/form identity, a current-server error
+receipt, no success redirect and unchanged pending row. All seven touched tables
+were emptied before exact project deletion; active absence, server/port release
+and ephemeral credential removal are confirmed. Teardown began after 4.72 minutes.
+This does not erase the original transport failure or repeat any completed
+Google consent/provider operation.
+
+The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
+now prepares a separate exact Production
 credential proposal, including the already-created Calendar client's saved
-callback readback, ephemeral-key handling and rollback controls. Then prepare
+callback readback, stable encryption-key recovery and rollback controls. Then prepare
 one checked unpromoted build and request promotion/activation only for a reviewed
 artifact. No source publication, merge, hosting credential write, deployment,
 verification upload/submission or public Calendar activation is granted by this

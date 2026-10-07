@@ -36,8 +36,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   restricted scopes. The owner also reports no entries in either category.
   This completes the declaration/status gate by owner receipt, not independent
   Console/API readback or inspection of every saved scope URL. No verification
-  material or submission is currently required on that evidence. Full application/provider
-  acceptance and public Calendar activation remain pending. No manual build or completed live
+  material or submission is currently required on that evidence. Bounded application/provider
+  acceptance subsequently passed as recorded below; public Calendar activation
+  remains pending. No manual build or completed live
   payment/Calendar comparison test was repeated.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
   user's exact approval at `2026-10-03T17:02:47Z` as
@@ -87,7 +88,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   unnecessary user recovery or old-site changes.
 - Next migration focus is the already-selected separate AtmoShaper Calendar.
   The [provider-stage checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md)
-  owns the exact replacement declaration, remaining application acceptance and
+  owns the exact replacement declaration, completed bounded acceptance and
   rollback boundaries. Google sign-in is operational. The user reports creating
   the separate Production Calendar Web registration with only
   `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI,
@@ -109,17 +110,28 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   removed. The owner reports both source calendars permanently deleted; independent
   active-list reads confirm absence in both owning accounts. No resources remain
   active from this run.
-  One required case remains unproven: the native Disconnect action's refusal to
-  remove a pending creation intent. The test client's multipart encoder omitted
-  Next's empty hidden action selector; its HTTP error occurred before the action.
-  Native multipart encoding is repaired and an actual loopback regression passes.
+  The remaining native pending-Disconnect case now passes in its separately
+  approved database-only follow-up. The corrected native multipart request reaches
+  the actual action, whose exact current-server reconciliation error, correct
+  session/form identity, absent success redirect and unchanged pending row are
+  verified. All seven touched tables are empty before exact project deletion;
+  independent active-list absence, stopped server/released port and ephemeral
+  credential removal complete cleanup. Teardown began after 4.72 minutes, within
+  the approved 15-minute ceiling. No Google credentials, grants or fixtures were
+  used or repeated. The two runs close the bounded application acceptance gate.
   The local harness now passes 18/18 provider-free checks, including blank Google
-  credentials, no external fetch and a 15-minute bound for the prepared
+  credentials, no external fetch and a 15-minute bound for the completed
   [pending-action follow-up](superpowers/plans/2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md).
-  That one-case proposal uses a new empty Neon project and invented pending data;
-  it needs separate exact resource approval because the previous one-project
-  authorization is exhausted. It requires no Google credentials, consent or
-  fixtures, and does not repeat completed cases. Runtime source remains unchanged.
+  Both exact database authorizations are exhausted; no test resource remains
+  active. Runtime source remains unchanged. Fresh hosting readbacks retain the
+  PR #37 public artifact and all six live aliases, the unpromoted READY PR #40
+  candidate, manual custom-domain promotion, standard build/Git connection,
+  56 Production-only variables, absent Calendar settings and disabled excluded
+  purchase switches. Both public pause flags remain false. The
+  [Production credential/build proposal](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  is prepared without provider writes. The only current private input needed is
+  the path of the owner's already-downloaded Production Calendar client JSON;
+  it allows saved callback/client validation without another Console setup.
   The completed run exposed fixture-only source inventory after complete target
   metadata checks; ordinary primary-calendar defaults are outside its proof.
   Production provisioning/promotion/activation remain separate. Do not
@@ -143,8 +155,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   checks 16/16; the reviewed `0f486e5` CI run passes all seven jobs, including
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
-  whole-integration minimum access. Full application/provider acceptance remains
-  pending. The approved declaration has owner save/category/status receipts;
+  whole-integration minimum access. The subsequent two bounded application runs
+  now pass with their documented fixture limitations; Production acceptance and
+  public Calendar activation remain pending. The approved declaration has owner save/category/status receipts;
   Google reports verification unnecessary for that saved state. Credentials, isolated
   additional application/provider resources, public promotion and Calendar activation remain separately
   gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.

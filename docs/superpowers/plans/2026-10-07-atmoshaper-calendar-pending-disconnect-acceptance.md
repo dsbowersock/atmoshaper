@@ -1,7 +1,11 @@
 # AtmoShaper pending Disconnect acceptance follow-up
 
-Status: prepared locally; additional resource/run/deletion approval pending.
-No new database project, server or provider fixture has been started.
+Status: approved October 7 follow-up passed against exact merged runtime
+`38d0ded`; owned row/process/project cleanup is complete. The real action rejects
+pending removal and leaves the row unchanged. All seven touched tables are empty
+before deletion, the exact project is independently absent, the server/port are
+released and ephemeral files removed. Teardown began after 4.72 minutes, within
+the approved 15-minute ceiling. No Google credentials, consent or fixtures were used.
 
 Read [current state](../../project-state.md), [project log](../../project-log.md),
 the [completed application run](2026-10-07-atmoshaper-calendar-application-acceptance.md)
@@ -17,10 +21,11 @@ not prove the removal guard. A native FormData/Request byte encoder fixes that
 transport, and a real loopback HTTP regression passes. Product runtime is unchanged.
 
 This follow-up exercises only that native action against real PostgreSQL. It
-does not repeat callback, consent, Google fixtures, sync, permission comparisons
-or payment tests. It must not be represented as a completed check before execution.
+did not repeat callback, consent, Google fixtures, sync, permission comparisons
+or payment tests. The sequence below is the completed execution record, not
+authority to create another test project.
 
-## Exact additional scope needing approval
+## Exact approved additional scope
 
 | Operation | Limit |
 | --- | --- |
@@ -32,12 +37,14 @@ or payment tests. It must not be represented as a completed check before executi
 | Time | At most 15 minutes from database creation to teardown beginning; cleanup continues until confirmed even after the ceiling |
 | Cleanup | Stop owned processes, delete exactly the new project, verify active absence, remove ephemeral database/auth files; preserve unrelated work and receipts |
 
-The previous one-project approval is exhausted and its project deleted. This is
-a new exact resource/run/cleanup request, with possible Launch usage charges.
+The previous one-project approval is exhausted and its project deleted. This
+new exact resource/run/cleanup scope was separately approved, including the
+disclosed possible Launch usage charges. Execution and cleanup are complete;
+this additional resource authorization is also exhausted.
 No Google credentials or downloaded JSON are read; no Google consent, calendars,
 events, tokens, settings, Production resources or public deployment are involved.
 
-## Prepared harness and execution
+## Completed harness and execution
 
 1. Reverify owned checkout/runtime SHA, no runtime diff/dotenv, available port
    and current Launch organization metadata. Save a private fresh run manifest
@@ -75,9 +82,10 @@ Google credentials. Preserve the failure receipt and complete owned cleanup.
 
 ## Subsequent step
 
-If this one case passes and cleanup is complete, close the bounded application
-acceptance gate with its documented fixture limitations. Prepare the existing
-Production Calendar client's callback readback and a concrete credential/build/
-promotion rollback proposal. Those provider and launch operations still need
+This one case and its cleanup pass. The bounded application acceptance gate is
+closed with its documented fixture limitations. The
+[Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
+records the existing Calendar client's pending private file/callback readback
+and concrete provisioning, candidate and rollback boundaries. Those operations still need
 their exact separate approvals. Registration and recurring Supporter Checkout
 remain open; one-time support/background purchases stay disabled.

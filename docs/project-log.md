@@ -2,6 +2,61 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Final native Disconnect check passed; bounded Calendar acceptance closed
+
+- The separately approved database-only follow-up passes against exact merged
+  runtime `38d0ded`. The native multipart request preserves Next's hidden action
+  selector, validates the real signed-in fixture, reaches the actual Disconnect
+  action, and observes its exact reconciliation rejection from the current owned
+  server. No success redirect occurs; the same ERROR/pending row and update time
+  survive unchanged. This closes the missing native guard case rather than
+  treating an arbitrary HTTP error as proof.
+- Owned cleanup removes run-bound synthetic data and independently verifies all
+  seven touched tables empty. The owned server is stopped and its port released.
+  The exact additional empty Neon project is deleted and absent from the active
+  organization listing. Ephemeral database/auth files are removed; private
+  ownership/result receipts remain. Teardown began after 4.72 minutes, inside
+  the approved 15-minute ceiling. No Google credential, token, consent, fixture,
+  provider setting, payment or Production write was involved.
+- Together with the prior completed application run, this passes the bounded
+  Calendar acceptance gate. Fixture-only inventory, injected failures and ordinary
+  primary-calendar/public-auth/Production proof limits remain explicit. Both
+  database authorizations are exhausted; no test resources remain active.
+- Fresh read-only hosting evidence retains PR #37's READY public target and all
+  six live aliases, READY/unpromoted PR #40 candidate, manual custom-domain
+  promotion, standard build and GitHub/main. The complete private API inventory
+  verifies 56 Production-only variables and no Calendar settings or excluded
+  purchase switches; both public pause flags read back false. A shortened
+  connector inventory was not treated as complete name/target coverage.
+- Prepared the [Production Calendar credential/build proposal](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md).
+  The owner's already-downloaded Production client JSON path is needed for
+  private saved-callback/client validation. No further Google bootstrap, test
+  consent or fixture work is requested. Credential writes, a build and public
+  promotion retain their exact separate gates. No source was published.
+- Documentation/server-workload checks pass 16/16. All 120 relative links,
+  including six Markdown fragments across the seven changed documents, resolve;
+  whitespace and added-document private-data scans pass. This receipt changes
+  documentation only; the previously verified harness/runtime checks were not
+  repeated.
+
+## 2026-10-07 — Final pending Disconnect database test approved
+
+This setup checkpoint is historical; the completed result and cleanup above
+supersede its pending statements.
+
+- The owner approves the prepared 15-minute database test. This separately
+  authorizes one additional independent empty Neon project in the previously
+  verified console-managed Launch organization, synthetic pending/access data,
+  the exact merged runtime, and mandatory owned row/process/project cleanup.
+  Possible Launch usage charges were disclosed. Google credentials, consent,
+  fixtures and Production operations remain outside this bounded test.
+- Fresh reads verify clean receipt head `9b9299d`, exact isolated runtime
+  `38d0ded`, no dotenv files, free loopback port and the unchanged Launch target.
+  Database-free setup passes; one fresh project is verified at PostgreSQL 17,
+  fixed 0.25 CU with idle suspension. Private pooled/direct ownership and
+  fingerprint checks pass before committed migration preparation. Native action
+  acceptance and mandatory cleanup remain pending; no second project is permitted.
+
 ## 2026-10-07 — Calendar application run partial; all owned resources cleaned
 
 - The approved run exercised merged runtime `38d0ded` with one independent empty
