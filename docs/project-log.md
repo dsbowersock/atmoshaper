@@ -2,6 +2,44 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Isolated Calendar application acceptance authorized
+
+- The user states `You are authorized to continue` in response to the prepared
+  isolated test setup/run/cleanup request. This covers the existing Calendar
+  Verify callback/narrow declaration edits, private test credential use locally,
+  one empty independent Neon project and synthetic app data, at most four new
+  secondary calendars/six event resources, the 90-minute database run limit,
+  and mandatory owned token/process/calendar/database cleanup. Possible Launch
+  usage charges were disclosed in the request.
+- Clean owned receipt branch `af0eb5e` and hosted PR #40's merged source
+  `38d0ded` are reverified before action. Prepare the guarded harness and obtain
+  the new test callback/declaration save receipt before database creation. The
+  owner performs Console edits because the earlier browser-policy verification
+  denial remains unresolved; no retry or alternate control path is used.
+- This does not grant source publication, merge, Production credential writes,
+  deployment/promotion, verification submission or public Calendar activation.
+  Preserve completed comparison/payment tests, unrelated work and the old service.
+- The owner subsequently reports `Test setup saved`. Reuse that receipt for the
+  existing test callback/narrow declaration; do not ask for another save or client.
+  Created a fresh task-owned isolated checkout of merged runtime `38d0ded`, with
+  no dotenv files. Installed locked dependencies without lifecycle scripts, then
+  applied the named patch step and generated Prisma without a database connection.
+- Implemented local-only launcher/transport/worker boundaries for exact source,
+  stripped child environment, disposable database fingerprint/ownership, fresh
+  scopes, encrypted token retention, cross-process lifetime write reservations,
+  controlled faults, real callback/transaction/sync/action cases and scoped cleanup.
+  The synthetic app sees fixture-only source inventory after complete metadata
+  checks; ordinary primary-calendar defaults are explicitly outside this proof.
+- Provider-free harness checks pass 14/14, Calendar regression checks 83/83,
+  documentation/workload checks 16/16, lint and isolated typecheck.
+  The retained test Web credential validates privately; both connector accounts
+  match the intended owners. No database, event fixture or new consent started.
+  Requested creation/sharing of only the two new empty source calendars while
+  final harness validation continues. No source publication or hosting change.
+- An auxiliary all-unit invocation did not terminate after the focused receipts;
+  its positively identified root was stopped without touching another process.
+  Its artifact is preserved privately and no fresh whole-suite pass is claimed.
+
 ## 2026-10-07 — Owner verification readback closes Calendar declaration gate
 
 - After reporting the approved replacement declaration saved, the owner supplies

@@ -1,9 +1,14 @@
 # AtmoShaper isolated Calendar application acceptance
 
-Status: prepared local proposal; exact settings, resource, execution and cleanup
-approval is pending. No resources, credentials or provider fixtures have been
-created or used for this stage. The execution harness still needs provider-free
-implementation and validation before any approved run starts.
+Status: exact settings/resource/run/cleanup scope authorized on October 7 by the
+user's `You are authorized to continue` reply to the prepared request, including
+the disclosed possible Launch usage charges. The owner subsequently reports
+`Test setup saved` for the test callback and narrow declaration update. The
+retained test Web credential is validated privately. The local-only harness
+passes fourteen provider-free boundary checks; Calendar regressions pass 83/83,
+documentation/workload checks 16/16, lint and isolated typecheck pass. No provider
+resources, fixtures or new consent have started. Two new empty source calendars
+are requested from the owners before the database's bounded run window begins.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 the [provider checkpoint](2026-10-02-atmoshaper-calendar-provider-stage.md), and
@@ -74,7 +79,7 @@ through the documentation connector on October 7.
    Data Access declaration retain existing identity defaults and set Calendar
    entries to `calendar.app.created`, `calendar.calendarlist.readonly`, and
    `calendar.events.freebusy`; remove the former event-read comparison entry.
-   These edits need the new approval. The owner operates the Console because
+   These edits are now approved. The owner operates the Console because
    the earlier automated browser security review was denied; do not retry or
    bypass that path. Obtain a non-secret callback/scope save receipt.
 3. Validate the existing privately retained test credential JSON locally only
@@ -127,17 +132,41 @@ only reference this run's known event IDs.
 Calendar-list metadata for the test account is needed for real target discovery;
 existing names/IDs stay private, and their event contents are not read. Source
 reads and all event/calendar mutations are allowlisted to new owned fixtures.
+The task transport reads complete inventory pages for pre-existing target checks,
+then exposes only its source/created calendars to the synthetic app account.
+This explicit fixture-only inventory mapping prevents the app's default primary
+source selection from importing ordinary event contents. It is a test limitation,
+not proof of the ordinary primary-calendar default or a runtime product change.
 If a pre-existing marked/named candidate prevents fresh creation, preserve it
 and stop that case. Do not rename/delete it or claim a new-calendar proof.
 
 ## Acceptance sequence and evidence
+
+The local npm launcher supports `preflight`, `generate`, `migrate`, `seed`,
+`server`, stage-specific `check`, and `cleanup` modes, with its configuration
+held privately outside the checkout. `calendar:application-acceptance:plan`
+prints a provider-free outline; `test:calendar-application-acceptance` tests the
+resource/credential dispatch boundaries without reading real settings. Native
+worker imports map only Next's `server-only` marker to its server implementation;
+the access, entitlement, session, service and Prisma logic remain real.
+The local server and descendants have an owned-process deadline. Its one-use
+loopback bridge installs the persisted synthetic user's session, then delegates
+to the actual app connect/callback routes. Google consent remains owner-operated.
+No special route or fault switch is added to the deployed application.
+
+Run checks in this order: `access-http` before fresh consent; `connected` after
+the real callback; `transactions`; one fresh real reconnect and `reconnected`;
+`inbound`; connector updates/deletes only the known synthetic source events;
+`incremental`; `outbound`; `disconnect`; `uncertain`; then scoped cleanup.
+Each pass receives a private dated case receipt. This is the execution plan,
+not a claim that application/provider cases have already run.
 
 | Case | Execution and pass criterion |
 | --- | --- |
 | Access and callback | With real persisted data, absent practice role and absent feature grant each deny before provider activity; OWNER plus `external_calendar_sync` permits connection. Invalid/replayed state is rejected and its one-use cookie cleared. The real callback validates the newly returned grant and encrypts stored credentials |
 | Fresh target | Actual discovery validates account subject and an owned non-primary marked target. A verified absence permits one create POST; validate the accepted provider ID before activation. Record create counts privately |
 | Reconnect and rejected targets | Rename only the newly created dedicated fixture, reconnect and prove the same stored ID is reused with zero create POSTs. Use QA-only state/fault setup to reject mismatched subject, primary/shared target and ambiguous task-owned candidates; never mutate a real account or pre-existing calendar |
-| PostgreSQL serialization | Run concurrent real connection work against the approved Neon database with controlled provider barriers. Prove advisory-lock ordering, rollback and a committed inactive intent; a transaction double is not this proof |
+| PostgreSQL serialization | Run concurrent real connection work against the approved Neon database with controlled provider barriers. Prove user-row lock ordering, rollback and a committed inactive intent; a transaction double is not this proof |
 | Uncertain creation | In the reserved fixture case, deliberately lose only the response/activation after a positively journaled create attempt. Preserve the inactive intent, prove an empty/interrupted discovery cannot trigger a second POST, then reconcile only that known fixture. Stop on unknown identity; do not create again |
 | Inbound/outbound sync | Select only the two synthetic sources. Prove generic busy-block create/update/cancellation and cursor handling, plus two generic outbound events with accepted IDs retained. Imported titles/descriptions/locations/attendees are not persisted or rendered. Observe bounded reads without timing out new-event POST responses |
 | Disconnect | An unresolved intent cannot be deleted through ordinary disconnect. After reconciliation, disconnect clears app connection state while preserving the provider fixture/calendar contents until separately approved cleanup |
@@ -167,6 +196,10 @@ review before another separately authorized resource run if needed.
    scoped revocation, even if ordinary disconnect removed database records.
    Revoke only the new test-client tokens. Preserve the connector grant,
    Production/sign-in grants, existing CLI profile and original credential JSON.
+   Delete the positively journaled app-created targets and prove active absence
+   before revoking the narrow token needed for that cleanup. The first target is
+   deleted only after resolved disconnect proves its provider contents preserved,
+   establishing genuine absence for the separately reserved uncertain-create case.
 2. Stop only the recorded owned server/harness processes and verify the local
    ports/listener are released. Remove task-owned ephemeral credential copies
    and scratch environment files after their resolved workspace paths are checked.

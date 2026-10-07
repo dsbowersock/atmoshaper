@@ -100,7 +100,20 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   application/provider fixtures, and mandatory cleanup. Authenticated Neon CLI
   organization metadata reads now work. The identified unmanaged organization
   uses Launch, so this proposed database can incur usage charges; no resource
-  has been created. Its exact settings/resource/run/cleanup authority is pending. Do not
+  has been created. The user now authorizes continuing the exact prepared
+  settings/resource/run/cleanup scope, including the disclosed possible Launch
+  usage charges. The owner now reports `Test setup saved` for Calendar Verify's
+  application callback and narrow declaration. A fresh isolated checkout of
+  `38d0ded` has locked dependencies, applied patches and a generated Prisma client;
+  no dotenv file or provider resource is present. The local harness currently
+  passes 14 provider-free boundary checks and the unchanged Calendar suite 83/83;
+  documentation/workload checks 16/16, lint and isolated typecheck also pass.
+  The retained test credential is validated privately, without another download.
+  Await creation/sharing of the two new empty source calendars and finish harness
+  readbacks before starting the database's 90-minute window. The harness exposes
+  fixture-only source inventory after checking complete metadata for pre-existing
+  targets, so ordinary primary-calendar defaults are outside this bounded proof.
+  Production provisioning/promotion/activation remain separate. Do not
   repeat client creation, API enablement or the completed saved identity checks.
   Dated hosting readbacks retain absent Calendar keys and inactive configuration.
 - Both independently consented test permission arms passed the same strict
