@@ -3,7 +3,9 @@ import assert from "node:assert/strict"
 import { mkdtemp, rm, readFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
-import { acceptanceEnvironment, authorizeAcceptanceRequest, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
+import { createServer } from "node:http"
+import { request as playwrightRequest } from "@playwright/test"
+import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
 import { acceptanceStore, createAcceptanceFetch } from "../scripts/calendar-application-acceptance-guard.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
@@ -25,6 +27,29 @@ function fixture() {
   return { manifest, client }
 }
 
+test("actual loopback multipart transport preserves Next's empty action selector", async () => {
+  const selector = "$ACTION_ID_40" + "a".repeat(40)
+  const server = createServer(async (incoming, response) => {
+    const chunks = []
+    for await (const chunk of incoming) chunks.push(chunk)
+    const parsed = await new Request("http://localhost/", { method: "POST", headers: { "content-type": incoming.headers["content-type"] }, body: Buffer.concat(chunks) }).formData()
+    response.setHeader("content-type", "application/json")
+    response.end(JSON.stringify({ actionPresent: parsed.has(selector), actionValue: parsed.get(selector), connectionId: parsed.get("connectionId"), count: [...parsed.keys()].length }))
+  })
+  await new Promise((done) => server.listen(0, "127.0.0.1", done))
+  const context = await playwrightRequest.newContext()
+  try {
+    const payload = await encodeAcceptanceActionForm({ [selector]: "", connectionId: "synthetic-connection" })
+    const response = await context.post("http://127.0.0.1:" + server.address().port, payload)
+    assert.deepEqual(await response.json(), { actionPresent: true, actionValue: "", connectionId: "synthetic-connection", count: 2 })
+    await assert.rejects(() => encodeAcceptanceActionForm({ connectionId: "synthetic-connection" }))
+    await assert.rejects(() => encodeAcceptanceActionForm({ [selector]: "", connectionId: "synthetic-connection", unexpected: "value" }))
+  } finally {
+    await context.dispose()
+    await new Promise((done) => server.close(done))
+  }
+})
+
 test("database ownership cannot be substituted by matching environment aliases alone", () => {
   const { manifest } = fixture()
   assert.equal(validateAcceptanceManifest(manifest), manifest)
@@ -43,6 +68,45 @@ test("child environment discards inherited provider secrets, URLs, options and h
   assert.equal(environment.MASSAGELAB_ENABLE_HOSTED_PHI_SYNC, "false")
   assert.equal(environment.NODE_OPTIONS, undefined)
   assert.equal(environment.GOOGLE_CLIENT_SECRET, "")
+})
+
+test("pending-only follow-up excludes credentials and keeps its database ownership guard", () => {
+  const { manifest } = fixture()
+  const pending = { ...manifest, pendingActionOnly: true, sources: [] }
+  for (const key of ["credentialFile", "googleProjectId", "accountEmail"]) delete pending[key]
+  assert.equal(validateAcceptanceManifest(pending), pending)
+  const environment = acceptanceEnvironment(pending, {}, { GOOGLE_CALENDAR_CLIENT_ID: "inherited", GOOGLE_CALENDAR_CLIENT_SECRET: "inherited", GOOGLE_CALENDAR_REDIRECT_URI: "https://production.example" })
+  for (const key of ["GOOGLE_CALENDAR_CLIENT_ID", "GOOGLE_CALENDAR_CLIENT_SECRET", "GOOGLE_CALENDAR_REDIRECT_URI"]) assert.equal(environment[key], "")
+  for (const change of [{ credentialFile: manifest.credentialFile }, { googleProjectId: manifest.googleProjectId }, { accountEmail: manifest.accountEmail }, { sources: manifest.sources }]) assert.throws(() => validateAcceptanceManifest({ ...pending, ...change }))
+  assert.throws(() => acceptanceEnvironment({ ...pending, database: { ...pending.database, fingerprint: "0".repeat(64) } }, {}))
+})
+
+test("pending-only follow-up expires at fifteen minutes and permits ownership-bound teardown", () => {
+  const { manifest } = fixture()
+  Object.assign(manifest, { pendingActionOnly: true, sources: [] })
+  for (const key of ["credentialFile", "googleProjectId", "accountEmail"]) delete manifest[key]
+  const deadline = manifest.database.createdAt + 15 * 60_000
+  assert.doesNotThrow(() => validateAcceptanceManifest(manifest, { now: deadline - 1 }))
+  assert.throws(() => validateAcceptanceManifest(manifest, { now: deadline }))
+  assert.doesNotThrow(() => validateAcceptanceManifest(manifest, { now: deadline, cleanup: true }))
+  assert.throws(() => validateAcceptanceManifest({ ...manifest, database: { ...manifest.database, createdForRun: "other" } }, { now: deadline, cleanup: true }))
+})
+
+test("pending-only transport refuses every external provider request before dispatch", async () => {
+  const { manifest } = fixture()
+  Object.assign(manifest, { pendingActionOnly: true, sources: [] })
+  for (const key of ["credentialFile", "googleProjectId", "accountEmail"]) delete manifest[key]
+  const directory = await mkdtemp(join(tmpdir(), "calendar-pending-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client: {}, store, fetchImpl: async () => { calls++; return Response.json({}) } })
+    for (const url of ["https://oauth2.googleapis.com/token", "https://www.googleapis.com/calendar/v3/calendars", "https://private.example/"]) await assert.rejects(guarded(url))
+    assert.equal(calls, 0)
+    assert.equal((await store.journal()).length, 0)
+    await guarded(ACCEPTANCE_ORIGIN + "/calendar/sync")
+    assert.equal(calls, 1)
+  } finally { await rm(directory, { recursive: true, force: true }) }
 })
 
 test("an expired run cannot dispatch new work; scoped cleanup keeps ownership checks", () => {

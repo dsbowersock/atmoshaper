@@ -26,6 +26,7 @@ async function main() {
       requireAcceptance(request.headers.host === "localhost:3318", "loopback_host")
       const url = new URL(request.url, ACCEPTANCE_ORIGIN)
       if (url.pathname.startsWith("/__calendar_acceptance/")) {
+        requireAcceptance(!manifest.pendingActionOnly, "pending_only_bridge")
         const current = JSON.parse(await readFile(join(directory, "bridge.json"), "utf8"))
         requireAcceptance(request.method === "GET" && url.pathname === "/__calendar_acceptance/start/" + current.nonce && !current.used, "bridge_nonce")
         current.used = true
@@ -39,8 +40,8 @@ async function main() {
   await new Promise((done, reject) => { server.once("error", reject); server.listen(3318, "127.0.0.1", done) })
   await store.locked(() => store.record({ kind: "owned-server", phase: "ready", pid: process.pid }))
   console.log("ACCEPTANCE: server ready at http://localhost:3318")
-  console.log("ACCEPTANCE: start at " + ACCEPTANCE_ORIGIN + "/__calendar_acceptance/start/" + manifest.startNonce)
-  const remaining = manifest.database.createdAt + 90 * 60_000 - Date.now()
+  if (!manifest.pendingActionOnly) console.log("ACCEPTANCE: start at " + ACCEPTANCE_ORIGIN + "/__calendar_acceptance/start/" + manifest.startNonce)
+  const remaining = manifest.database.createdAt + (manifest.pendingActionOnly ? 15 : 90) * 60_000 - Date.now()
   const stop = async () => { server.close(); await app.close(); process.exit(0) }
   setTimeout(stop, Math.max(1, remaining)).unref()
   process.on("SIGTERM", stop); process.on("SIGINT", stop)

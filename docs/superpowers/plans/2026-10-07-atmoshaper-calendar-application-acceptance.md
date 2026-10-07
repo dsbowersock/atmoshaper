@@ -1,14 +1,15 @@
 # AtmoShaper isolated Calendar application acceptance
 
-Status: exact settings/resource/run/cleanup scope authorized on October 7 by the
-user's `You are authorized to continue` reply to the prepared request, including
-the disclosed possible Launch usage charges. The owner subsequently reports
-`Test setup saved` for the test callback and narrow declaration update. The
-retained test Web credential is validated privately. The local-only harness
-passes fourteen provider-free boundary checks; Calendar regressions pass 83/83,
-documentation/workload checks 16/16, lint and isolated typecheck pass. No provider
-resources, fixtures or new consent have started. Two new empty source calendars
-are requested from the owners before the database's bounded run window begins.
+Status: approved October 7 run completed with partial acceptance and all owned
+resources cleaned. Callback, access, PostgreSQL, reconnect, sync, resolved
+Disconnect and uncertain-create/reconciliation cases pass. Native pending
+Disconnect rejection remains unproven because the test transport omitted the
+empty action selector. The harness repair passes an actual loopback regression;
+all 18 provider-free boundary checks pass. A separate
+[one-case follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
+is prepared but needs exact additional-resource approval. No Google consent or
+fixture work will be repeated. The execution sequence below is historical;
+its approval permits no second database project.
 
 Read [project state](../../project-state.md), [project log](../../project-log.md),
 the [provider checkpoint](2026-10-02-atmoshaper-calendar-provider-stage.md), and
@@ -42,7 +43,7 @@ is unmanaged by Vercel, and its plan is Launch. Its identity is recorded only
 in the private preparation journal. No new login, API key or account change is
 needed. No database connection or rows were read during this preparation.
 
-## Exact proposed scope
+## Exact approved scope of the completed run
 
 | Resource / operation | Limit and ownership |
 | --- | --- |
@@ -142,7 +143,7 @@ and stop that case. Do not rename/delete it or claim a new-calendar proof.
 
 ## Acceptance sequence and evidence
 
-The local npm launcher supports `preflight`, `generate`, `migrate`, `seed`,
+The local npm launcher supports database-free `setup`, full `preflight`, `generate`, `migrate`, `seed`,
 `server`, stage-specific `check`, and `cleanup` modes, with its configuration
 held privately outside the checkout. `calendar:application-acceptance:plan`
 prints a provider-free outline; `test:calendar-application-acceptance` tests the
@@ -218,7 +219,40 @@ review before another separately authorized resource run if needed.
 
 ## Result and subsequent migration steps
 
-After bounded acceptance and cleanup pass, prepare a separate exact Production
+The run used exactly one empty Neon project, four calendar resources, six event
+resources and three fresh consents. Real callback/state-cookie/encryption and
+persisted practice/feature gates pass. Dedicated target creation, wrong-subject
+and injected primary/shared/ambiguous-target rejection, PostgreSQL rollback and
+user-row serialization pass. The corrected rename and final reconnect preserve
+the accepted target ID. Actual source-selection import, incremental busy update/
+cancellation, injected 503 cursor preservation and 410 reset/recovery pass.
+Two generic outbound accepted IDs are retained through update/cancellation;
+resolved Disconnect clears app state while preserving provider contents.
+Injected lost-create response leaves an inactive durable intent, hidden discovery
+does not issue another create, and reconciliation reuses the known second target.
+
+The pending Disconnect POST returned a framework error before the action because
+the client dropped Next's empty hidden selector. Row preservation and HTTP 500
+are insufficient proof of the action's guard. Native multipart bytes now preserve
+that selector in an actual loopback test. The prepared follow-up must establish
+the native reconciliation rejection from the current owned server, the correct
+session/form identity, no success redirect and an unchanged pending row.
+
+Task-only repairs also corrected Windows loader URL handling, a missing JSON
+header/unchecked rename response, and an outbound interval that overlapped its
+second fixture. The earlier rename receipt is invalidated privately; the final
+allowed reconnect proves the corrected rename. Outbound recovery uses the two
+already accepted IDs, with no extra insertion. Product runtime remains exact.
+
+Teardown began about 38 minutes after the database creation window started at
+`2026-10-07T17:34:25.785Z`. Both app targets are absent and all new test grants
+revoked. The exact temporary Neon project is absent from active listings, owned
+processes/listeners are stopped and ephemeral credentials removed. Both source
+calendars are permanently deleted by owner receipt and independently absent from
+their owners' active lists. Neon active absence retains its documented recovery
+period limitation. No resources remain active from this approved run.
+
+After the missing native action case and its cleanup pass, prepare a separate exact Production
 credential proposal, including the already-created Calendar client's saved
 callback readback, ephemeral-key handling and rollback controls. Then prepare
 one checked unpromoted build and request promotion/activation only for a reviewed

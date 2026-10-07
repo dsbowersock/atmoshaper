@@ -1,7 +1,7 @@
-import { readFile, readdir, realpath } from "node:fs/promises"
+import { readFile, readdir, realpath, writeFile } from "node:fs/promises"
 import { dirname, join, resolve, relative } from "node:path"
 import { spawn, execFileSync } from "node:child_process"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
 import { acceptanceEnvironment, requireAcceptance, validateAcceptanceCredential, validateAcceptanceManifest, ACCEPTANCE_BASE } from "./calendar-application-acceptance-core.mjs"
 import { acceptanceStore } from "./calendar-application-acceptance-guard.mjs"
 
@@ -13,13 +13,13 @@ export async function loadAcceptanceConfig(path, { database = true, cleanup = fa
   const appRoot = await realpath(manifest.appRoot)
   requireAcceptance(resolve(appRoot) === resolve(dirname(dirname(fileURLToPath(import.meta.url)))), "checkout_ownership")
   const outside = relative(appRoot, configPath)
-  requireAcceptance(outside.startsWith("..") && !resolve(manifest.credentialFile).startsWith(resolve(appRoot)), "private_file_location")
+  requireAcceptance(outside.startsWith("..") && (manifest.pendingActionOnly || !resolve(manifest.credentialFile).startsWith(resolve(appRoot))), "private_file_location")
   requireAcceptance(!(await readdir(appRoot)).some((name) => name.startsWith(".env") && name !== ".env.example"), "dotenv_boundary")
   requireAcceptance(execFileSync("git", ["rev-parse", "HEAD"], { cwd: appRoot, encoding: "utf8", windowsHide: true }).trim() === ACCEPTANCE_BASE, "source_boundary")
   // Task scripts may differ. The application, schema and committed migrations must remain exact.
   requireAcceptance(execFileSync("git", ["diff", ACCEPTANCE_BASE, "--", "app", "lib", "auth.ts", "prisma", "prisma.config.ts", "next.config.mjs"], { cwd: appRoot, encoding: "utf8", windowsHide: true }).trim() === "", "source_boundary")
   requireAcceptance(execFileSync("git", ["status", "--porcelain", "--untracked-files=all", "--", "app", "lib", "auth.ts", "prisma", "prisma.config.ts", "next.config.mjs"], { cwd: appRoot, encoding: "utf8", windowsHide: true }).trim() === "", "source_boundary")
-  const client = validateAcceptanceCredential(JSON.parse(await readFile(manifest.credentialFile, "utf8")), manifest)
+  const client = manifest.pendingActionOnly ? {} : validateAcceptanceCredential(JSON.parse(await readFile(manifest.credentialFile, "utf8")), manifest)
   return { manifest, client, configPath, directory: dirname(configPath) }
 }
 
@@ -30,9 +30,12 @@ async function main() {
     console.log("ACCEPTANCE: isolated loopback application; one receipt-bound empty database; two sources; at most two created targets, two outbound events and three consents; mandatory scoped cleanup.")
     return
   }
-  requireAcceptance(["preflight", "generate", "migrate", "seed", "server", "check", "cleanup"].includes(mode), "command_boundary")
-  const loaded = await loadAcceptanceConfig(configPath, { cleanup: mode === "cleanup" })
-  const env = acceptanceEnvironment(loaded.manifest, loaded.client, process.env, { cleanup: mode === "cleanup" })
+  requireAcceptance(["setup", "preflight", "generate", "migrate", "seed", "server", "check", "cleanup", "pending-seed", "pending-server", "pending-check", "pending-cleanup"].includes(mode), "command_boundary")
+  const cleanup = mode === "cleanup" || mode === "pending-cleanup"
+  const loaded = await loadAcceptanceConfig(configPath, { database: mode !== "setup", cleanup })
+  requireAcceptance(["setup", "preflight", "generate", "migrate"].includes(mode) || Boolean(loaded.manifest.pendingActionOnly) === mode.startsWith("pending-"), "command_variant")
+  if (mode === "setup") { console.log("ACCEPTANCE: source fixtures and local setup guards passed before resource creation"); return }
+  const env = acceptanceEnvironment(loaded.manifest, loaded.client, process.env, { cleanup })
   if (mode === "preflight") { console.log("ACCEPTANCE: receipt, source, credential and database guards passed"); return }
   env.ATMOSHAPER_CALENDAR_ACCEPTANCE_CONFIG = loaded.configPath
   let child
@@ -41,8 +44,9 @@ async function main() {
     child = spawn("npm.cmd", ["run", script], { cwd: loaded.manifest.appRoot, env, shell: true, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
   } else {
     requireAcceptance(!stage || /^[a-z-]+$/.test(stage), "command_boundary")
-    const runner = join(loaded.manifest.appRoot, "scripts", mode === "server" ? "calendar-application-acceptance-server.mjs" : "calendar-application-acceptance-worker.mjs")
-    child = spawn(process.execPath, [...(mode === "server" ? [] : ["--conditions=react-server", "--import", join(loaded.manifest.appRoot, "scripts", "calendar-application-acceptance-node-loader.mjs")]), runner, mode, ...(stage ? [stage] : [])], { cwd: loaded.manifest.appRoot, env, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+    const server = mode === "server" || mode === "pending-server"
+    const runner = join(loaded.manifest.appRoot, "scripts", server ? "calendar-application-acceptance-server.mjs" : "calendar-application-acceptance-worker.mjs")
+    child = spawn(process.execPath, [...(server ? [] : ["--conditions=react-server", "--import", pathToFileURL(join(loaded.manifest.appRoot, "scripts", "calendar-application-acceptance-node-loader.mjs")).href]), runner, mode, ...(stage ? [stage] : [])], { cwd: loaded.manifest.appRoot, env, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
   }
   const store = acceptanceStore(loaded.directory, loaded.manifest.encryptionKey)
   await store.locked(() => store.record({ kind: "owned-child", phase: "started", mode, pid: child.pid }))
@@ -51,7 +55,7 @@ async function main() {
     if (process.platform === "win32" && child.pid) spawn("taskkill", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" })
     else child.kill("SIGTERM")
   }
-  const watchdog = mode === "cleanup" ? null : setTimeout(stopChild, Math.max(1, loaded.manifest.database.createdAt + 90 * 60_000 - Date.now()))
+  const watchdog = cleanup ? null : setTimeout(stopChild, Math.max(1, loaded.manifest.database.createdAt + (loaded.manifest.pendingActionOnly ? 15 : 90) * 60_000 - Date.now()))
   let pending = ""
   child.stdout.on("data", (chunk) => {
     pending += chunk.toString()
@@ -59,11 +63,21 @@ async function main() {
     for (const line of lines) if (/^ACCEPTANCE: [a-zA-Z0-9 .:/_-]+$/.test(line)) console.log(line)
   })
   // Never forward request URLs, OAuth codes, tokens, raw database errors or provider payloads.
-  child.stderr.resume()
+  let privateError = ""
+  let observedNativeRejection = false
+  child.stderr.on("data", (chunk) => {
+    privateError = (privateError + chunk.toString()).slice(-32_768)
+    // Next emits this exact action error only after the owned database mutation rejects removal.
+    if (["server", "pending-server"].includes(mode) && !observedNativeRejection && privateError.includes("Choose a removable Google calendar connection. Unresolved creation requires reconciliation.")) {
+      observedNativeRejection = true
+      store.locked(() => store.record({ kind: "case", phase: "observed", caseName: "native-pending-disconnect-rejection", pid: child.pid })).catch(() => {})
+    }
+  })
   process.on("SIGINT", stopChild)
   process.on("SIGTERM", stopChild)
   const result = await new Promise((done) => { child.once("error", () => done(1)); child.once("exit", (code) => done(code ?? 1)) })
   if (watchdog) clearTimeout(watchdog)
+  if (result !== 0 && privateError) await writeFile(join(loaded.directory, "owned-command-error.txt"), privateError)
   requireAcceptance(result === 0, "owned_command_failed")
   console.log("ACCEPTANCE: owned command completed")
 }

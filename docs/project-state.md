@@ -3,8 +3,9 @@
 Verified: 2026-10-07
 
 Evidence scope: repository, PR #40's final reviews/CI and approved merge,
-automatic unpromoted candidate, authenticated hosting readbacks, and the owner's
-replacement Google declaration save and Verification Center readback receipts. Completed
+automatic unpromoted candidate, dated authenticated hosting readbacks, the owner's
+replacement Google declaration/status receipts, and the bounded application test
+and completed cleanup on October 7. Completed
 Calendar comparisons and other historical receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
@@ -96,23 +97,31 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   declaration gate; do not repeat scope selection, save or the completed
   Verification Center question. Preserve identity/client/audience settings.
   The [isolated application acceptance plan](superpowers/plans/2026-10-07-atmoshaper-calendar-application-acceptance.md)
-  prepares reuse of Calendar Verify, one empty temporary Neon project, synthetic
-  application/provider fixtures, and mandatory cleanup. Authenticated Neon CLI
-  organization metadata reads now work. The identified unmanaged organization
-  uses Launch, so this proposed database can incur usage charges; no resource
-  has been created. The user now authorizes continuing the exact prepared
-  settings/resource/run/cleanup scope, including the disclosed possible Launch
-  usage charges. The owner now reports `Test setup saved` for Calendar Verify's
-  application callback and narrow declaration. A fresh isolated checkout of
-  `38d0ded` has locked dependencies, applied patches and a generated Prisma client;
-  no dotenv file or provider resource is present. The local harness currently
-  passes 14 provider-free boundary checks and the unchanged Calendar suite 83/83;
-  documentation/workload checks 16/16, lint and isolated typecheck also pass.
-  The retained test credential is validated privately, without another download.
-  Await creation/sharing of the two new empty source calendars and finish harness
-  readbacks before starting the database's 90-minute window. The harness exposes
-  fixture-only source inventory after checking complete metadata for pre-existing
-  targets, so ordinary primary-calendar defaults are outside this bounded proof.
+  now records a completed, partial application run against exact merged runtime
+  `38d0ded`. Real callback/encryption, persisted access, PostgreSQL rollback/locks,
+  rename/reconnect, source selection, inbound changes/cursors, generic outbound
+  events, resolved Disconnect, and durable uncertain-create/no-repost/reconciliation
+  checks pass. All three approved consents and the four-calendar/six-event lifetime
+  budget were used. Teardown began about 38 minutes after database creation,
+  within the approved 90-minute ceiling. Both app targets are absent, all new
+  test tokens are revoked, the exact temporary Neon project is absent from its
+  active organization list, owned processes are stopped and ephemeral credentials
+  removed. The owner reports both source calendars permanently deleted; independent
+  active-list reads confirm absence in both owning accounts. No resources remain
+  active from this run.
+  One required case remains unproven: the native Disconnect action's refusal to
+  remove a pending creation intent. The test client's multipart encoder omitted
+  Next's empty hidden action selector; its HTTP error occurred before the action.
+  Native multipart encoding is repaired and an actual loopback regression passes.
+  The local harness now passes 18/18 provider-free checks, including blank Google
+  credentials, no external fetch and a 15-minute bound for the prepared
+  [pending-action follow-up](superpowers/plans/2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md).
+  That one-case proposal uses a new empty Neon project and invented pending data;
+  it needs separate exact resource approval because the previous one-project
+  authorization is exhausted. It requires no Google credentials, consent or
+  fixtures, and does not repeat completed cases. Runtime source remains unchanged.
+  The completed run exposed fixture-only source inventory after complete target
+  metadata checks; ordinary primary-calendar defaults are outside its proof.
   Production provisioning/promotion/activation remain separate. Do not
   repeat client creation, API enablement or the completed saved identity checks.
   Dated hosting readbacks retain absent Calendar keys and inactive configuration.
@@ -137,7 +146,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   whole-integration minimum access. Full application/provider acceptance remains
   pending. The approved declaration has owner save/category/status receipts;
   Google reports verification unnecessary for that saved state. Credentials, isolated
-  application/provider resources, public promotion and Calendar activation remain separately
+  additional application/provider resources, public promotion and Calendar activation remain separately
   gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.
 
 - PR #35's documentation closeout merged as

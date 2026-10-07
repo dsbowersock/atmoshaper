@@ -13,7 +13,24 @@ const SYSTEM_ENV_KEYS = ["PATH", "Path", "PATHEXT", "SystemRoot", "WINDIR", "COM
 
 /** Fixed failure labels deliberately omit rejected private values and underlying exceptions. */
 export function requireAcceptance(condition, label = "acceptance_boundary") {
-  if (!condition) throw new Error(label)
+  if (!condition) {
+    const error = new Error(label)
+    // Only this boundary's fixed labels may be exposed by the task worker's diagnostics.
+    error.acceptanceLabel = label
+    throw error
+  }
+}
+
+/** Preserves Next's empty action selector; Playwright's multipart-object path drops it. */
+export async function encodeAcceptanceActionForm(values) {
+  const names = Object.keys(values)
+  requireAcceptance(names.length === 2 && names.includes("connectionId"), "action_form_boundary")
+  const selector = names.find((name) => /^\$ACTION_ID_[a-f0-9]{42}$/.test(name))
+  requireAcceptance(selector && values[selector] === "" && typeof values.connectionId === "string" && values.connectionId.length > 0, "action_form_boundary")
+  const form = new FormData()
+  for (const [name, value] of Object.entries(values)) form.append(name, value)
+  const request = new Request(ACCEPTANCE_ORIGIN + "/calendar/sync", { method: "POST", body: form })
+  return { data: Buffer.from(await request.arrayBuffer()), headers: { "content-type": request.headers.get("content-type"), origin: ACCEPTANCE_ORIGIN } }
 }
 
 /** Authorizes this one approved run; database identity comes from its new-project receipt. */
@@ -21,15 +38,21 @@ export function validateAcceptanceManifest(value, { requireDatabase = true, clea
   requireAcceptance(value?.version === 1 && value.approved === true)
   requireAcceptance(/^[a-f0-9]{32}$/.test(value.runId ?? ""))
   requireAcceptance(value.sourceSha === ACCEPTANCE_BASE && value.origin === ACCEPTANCE_ORIGIN)
-  requireAcceptance(isAbsolute(value.appRoot ?? "") && isAbsolute(value.credentialFile ?? ""))
-  requireAcceptance(typeof value.googleProjectId === "string" && /^[a-z][a-z0-9-]{5,62}$/.test(value.googleProjectId))
-  requireAcceptance(!/(?:^|-)(?:prod|production)(?:-|$)/.test(value.googleProjectId), "production_project")
-  requireAcceptance(value.testSetupSaved === true, "test_setup_pending")
-  requireAcceptance(typeof value.accountEmail === "string" && /^[^\s@]+@[^\s@]+$/.test(value.accountEmail))
+  requireAcceptance(isAbsolute(value.appRoot ?? ""))
+  const pendingOnly = value.pendingActionOnly === true
+  if (pendingOnly) {
+    requireAcceptance(!value.credentialFile && !value.googleProjectId && !value.accountEmail && value.sources?.length === 0, "pending_only_boundary")
+  } else {
+    requireAcceptance(isAbsolute(value.credentialFile ?? ""))
+    requireAcceptance(typeof value.googleProjectId === "string" && /^[a-z][a-z0-9-]{5,62}$/.test(value.googleProjectId))
+    requireAcceptance(!/(?:^|-)(?:prod|production)(?:-|$)/.test(value.googleProjectId), "production_project")
+    requireAcceptance(value.testSetupSaved === true, "test_setup_pending")
+    requireAcceptance(typeof value.accountEmail === "string" && /^[^\s@]+@[^\s@]+$/.test(value.accountEmail))
+  }
   requireAcceptance(/^[a-f0-9]{64}$/.test(value.authSecret ?? "") && /^[a-f0-9]{64}$/.test(value.encryptionKey ?? ""))
   requireAcceptance(/^[a-f0-9]{64}$/.test(value.startNonce ?? ""))
-  requireAcceptance(Array.isArray(value.sources) && value.sources.length === 2)
-  requireAcceptance(new Set(value.sources.map((source) => source.calendarId)).size === 2)
+  requireAcceptance(Array.isArray(value.sources) && value.sources.length === (pendingOnly ? 0 : 2))
+  requireAcceptance(new Set(value.sources.map((source) => source.calendarId)).size === value.sources.length)
   for (const [index, source] of value.sources.entries()) {
     requireAcceptance(/^[a-zA-Z0-9_-]+@group\.calendar\.google\.com$/.test(source.calendarId ?? ""))
     requireAcceptance(source.role === (index === 0 ? "owner" : "reader"))
@@ -41,7 +64,7 @@ export function validateAcceptanceManifest(value, { requireDatabase = true, clea
     const db = value.database
     requireAcceptance(db?.createdForRun === value.runId && db.emptyProjectReceipt === true, "database_ownership")
     requireAcceptance(db.plan === "launch" && db.managedByVercel === false && db.pgVersion === 17 && db.region === "aws-us-east-2" && db.compute === 0.25, "database_ownership")
-    requireAcceptance(Number.isFinite(db.createdAt) && now >= db.createdAt && (cleanup || now < db.createdAt + 90 * 60_000), "run_expired")
+    requireAcceptance(Number.isFinite(db.createdAt) && now >= db.createdAt && (cleanup || now < db.createdAt + (pendingOnly ? 15 : 90) * 60_000), "run_expired")
     let runtime
     let direct
     try { runtime = new URL(db.runtimeUrl); direct = new URL(db.directUrl) } catch { requireAcceptance(false, "database_ownership") }
@@ -78,8 +101,8 @@ export function acceptanceEnvironment(manifest, client, inherited = process.env,
     AUTH_LEGACY_ATTEMPT_CLEANUP: "0", AUTH_SECURITY_NOTICE_RETRY_DATABASE: "0",
     AUTH_URL: ACCEPTANCE_ORIGIN, NEXTAUTH_URL: ACCEPTANCE_ORIGIN, AUTH_TRUST_HOST: "true",
     AUTH_SECRET: manifest.authSecret, NEXTAUTH_SECRET: manifest.authSecret,
-    GOOGLE_CALENDAR_CLIENT_ID: client.client_id, GOOGLE_CALENDAR_CLIENT_SECRET: client.client_secret,
-    GOOGLE_CALENDAR_REDIRECT_URI: ACCEPTANCE_CALLBACK, CALENDAR_SYNC_ENCRYPTION_KEY: manifest.encryptionKey,
+    GOOGLE_CALENDAR_CLIENT_ID: manifest.pendingActionOnly ? "" : client.client_id, GOOGLE_CALENDAR_CLIENT_SECRET: manifest.pendingActionOnly ? "" : client.client_secret,
+    GOOGLE_CALENDAR_REDIRECT_URI: manifest.pendingActionOnly ? "" : ACCEPTANCE_CALLBACK, CALENDAR_SYNC_ENCRYPTION_KEY: manifest.encryptionKey,
     DATABASE_URL: db.runtimeUrl, DIRECT_URL: db.directUrl,
     MASSAGELAB_BROWSER_QA_DATABASE: "1",
     MASSAGELAB_BROWSER_QA_DATABASE_URL: db.runtimeUrl, MASSAGELAB_BROWSER_QA_DIRECT_URL: db.directUrl,
@@ -104,6 +127,7 @@ export function authorizeAcceptanceRequest({ request, body, manifest, client, jo
   const method = request.method
   requireAcceptance(!url.username && !url.password && !url.hash)
   if (url.origin === ACCEPTANCE_ORIGIN) return { kind: "local" }
+  requireAcceptance(!manifest.pendingActionOnly, "pending_only_provider_boundary")
   requireAcceptance(url.protocol === "https:" && !url.port, "provider_boundary")
   if (url.href === "https://oauth2.googleapis.com/token" && method === "POST") {
     const values = new URLSearchParams(body)

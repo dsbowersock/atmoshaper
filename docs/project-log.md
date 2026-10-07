@@ -2,7 +2,76 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Calendar application run partial; all owned resources cleaned
+
+- The approved run exercised merged runtime `38d0ded` with one independent empty
+  Neon project, synthetic persisted access data, four secondary calendars, six
+  event resources and three fresh application consents. The database window
+  began at `2026-10-07T17:34:25.785Z`; teardown began about 38 minutes later,
+  before the 90-minute ceiling. No Production settings, credentials or deployment
+  changed, and completed permission comparisons/payment tests were not repeated.
+- Actual callback/state-cookie/encryption, role/feature gates, target creation,
+  PostgreSQL rollback and user-row lock serialization pass. The successful rename
+  and final reconnect preserve the saved target ID. Real source-selection import,
+  incremental update/cancellation, injected cursor failures/recovery, two generic
+  outbound insert/update/cancellation cases and resolved Disconnect all pass.
+  Lost-create-response injection retains a durable inactive intent; hidden-target
+  discovery cannot dispatch a further create, and reconciliation reuses its known
+  target. Provider failures are labelled injected, not observed Google outages.
+- The pending Disconnect request did not establish acceptance: its HTTP 500 came
+  from missing action dispatch, not the expected reconciliation rejection. A
+  loopback wire probe found that Playwright's multipart-object encoder drops the
+  empty hidden action field. Native FormData bytes preserve it; the new actual
+  HTTP transport regression passes. The follow-up now also requires a current
+  owned-server receipt of the exact native action error and unchanged pending row,
+  rather than accepting HTTP failure alone. No application runtime code changed.
+- Other task-only repairs used a Windows file-URL loader, checked JSON rename
+  headers/returned metadata, and kept an outbound interval inside its fixture's
+  own day. An earlier false rename receipt was explicitly invalidated; corrected
+  rename/reconnect passed using the third and final approved consent. The two
+  outbound accepted IDs were preserved across the interval correction.
+- Both app-created targets have active-absence receipts; all three new test
+  grants are revoked and the encrypted vault cleared. The owned server/listener
+  is stopped. The exact Neon project was deleted and verified absent from the
+  active organization list. The owner reports both source calendars permanently
+  deleted, and independent active-list reads confirm absence in both accounts.
+  Ephemeral credentials/configuration were removed; the original download and
+  connector/Production grants remain intact. Private ownership receipts are retained.
+- Prepared a [pending Disconnect follow-up](superpowers/plans/2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
+  for only the missing native action/database case: one additional independent
+  empty Neon project, invented unusable token strings, blank Google credentials,
+  no external fetch and a 15-minute ceiling with mandatory deletion. It remains
+  unapproved; the prior exact one-project authorization is exhausted. Provider-free
+  harness checks pass 18/18 in both owned checkouts; documentation/workload
+  checks pass 16/16, lint and isolated typecheck pass, all 81 relative links in
+  the four changed documents resolve, and whitespace/private-data scans pass.
+  Full application acceptance and public Calendar
+  activation remain pending. No source publication or hosting operation occurred.
+
 ## 2026-10-07 — Isolated Calendar application acceptance authorized
+
+This entry records the initial setup checkpoint; the result and completed
+cleanup above supersede its mid-run pending statements.
+
+- The owner reports `Sources ready`. Both new secondary sources were verified
+  against the run-bound names, intended owning accounts and shared-reader role;
+  neither held events in the application import window. Created exactly four
+  synthetic source events without guests, reminders, meeting links or recurrence.
+- Created exactly one independent empty Neon project in the already approved
+  console-managed Launch organization. PostgreSQL 17, region and one fixed
+  0.25 CU read-write endpoint match the authorization. Current API schema confirms
+  idle timeout `0` means enabled plan default; `-1` disables scale-to-zero.
+  No compute, plan or idle-setting mutation was needed. Connection identities
+  and credentials are retained privately, never in source or these receipts.
+- The conservative database window starts at `2026-10-07T17:34:25.785Z`, with
+  teardown beginning no later than `2026-10-07T19:04:25.785Z`. Committed migrations
+  pass. Fixed the task launcher's Windows `--import` path with a proper file URL
+  and retained failed child diagnostics privately. Synthetic persisted access
+  gates and real local connect-route membership/feature denials pass; no provider
+  activity occurred during those access checks. Harness boundary checks pass 14/14.
+- The owned loopback application is ready and the first actual application
+  consent link was sent to the owner. Callback, target, transaction and sync
+  cases remain pending; do not treat setup as full provider acceptance.
 
 - The user states `You are authorized to continue` in response to the prepared
   isolated test setup/run/cleanup request. This covers the existing Calendar
