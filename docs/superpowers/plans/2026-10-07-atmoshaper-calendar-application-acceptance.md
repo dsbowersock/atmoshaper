@@ -5,7 +5,7 @@ all owned resources cleaned. Callback, access, PostgreSQL, reconnect, sync,
 resolved Disconnect and uncertain-create/reconciliation cases pass. The missing
 native pending-Disconnect rejection subsequently passed in a separately approved
 database-only follow-up. The completed-run harness checkpoint passed 18 checks;
-the later source-review follow-up below passes 25 provider-free checks. The
+the later source-review follow-up below passes 26 provider-free checks. The
 [one-case follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
 and its cleanup are now complete, closing this bounded application acceptance
 gate. No Google consent or fixture work was repeated. The execution sequence
@@ -38,8 +38,18 @@ Diagnostic writes use owner-only POSIX mode before raw stderr is written, while
 Windows keeps the protected run directory's access controls. Atomic populated
 lock directories identify their PID/nonce owner; recovery requires that PID to
 be absent and never steals a live or unowned lock.
+Every token intent has a unique attempt identity. Cleanup starts only when each
+exchange/refresh has an exact captured or explicit non-issued outcome; a later
+captured retry cannot cover a lost response. Parsed validation/authentication
+errors without token fields can establish non-issuance; malformed/server-error
+or lost responses remain unresolved. Cleanup freezes new provider activity from
+the application and verifies outcomes again under the same lock as its final vault clear
+and success receipt. If a future response is unresolved, stop without claiming
+revocation, retain evidence and prepare independently verified provider grant
+removal under a new exact approval. This does not request recovery or repetition
+of any completed run.
 
-All 25 provider-free checks pass locally; exact POSIX permission assertions
+All 26 provider-free checks pass locally; exact POSIX permission assertions
 still require latest-head Linux CI. The original real run used the earlier
 unmodified description and injected response loss after ID capture; the new
 pre-parse recovery and delayed-refresh proofs are provider-free. They do not

@@ -166,6 +166,16 @@ export async function acceptanceCleanupCalendars({ client, store, adapter, fetch
   await store.locked(() => store.record({ kind: "case", phase: "passed", caseName: "owned-targets-verified-absent", calendarMarkers: intents.map((item) => item.calendarMarker) }))
 }
 
+/** Verify every token attempt; optional cleanup transitions run in the same lock as that final snapshot. */
+export async function assertAcceptanceTokenCaptureComplete(store, complete = async () => {}) {
+  return store.locked(async () => {
+    const journal = await store.journal()
+    const intents = journal.filter((item) => ["exchange", "refresh"].includes(item.kind) && item.phase === "intent")
+    requireAcceptance(intents.every((intent) => intent.tokenAttempt && journal.some((item) => item.kind === intent.kind && item.tokenAttempt === intent.tokenAttempt && ["captured", "not-issued"].includes(item.phase))), "uncaptured_token_attempt")
+    return complete()
+  })
+}
+
 /** Intercepts only this local task process; permits no unjournaled credential or fixture write. */
 export function createAcceptanceFetch({ manifest, client, store, fetchImpl = globalThis.fetch, control = async () => ({}), cleanup = false }) {
   return async function acceptanceFetch(input, init) {
@@ -178,6 +188,7 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         const result = authorizeAcceptanceRequest({ request, body, manifest, client, journal })
         requireAcceptance(!cleanup || ["refresh", "revoke", "calendar-delete", "inventory", "metadata"].includes(result.kind), "cleanup_only")
         if (result.kind === "local") return result
+        requireAcceptance(cleanup || !journal.some((item) => item.kind === "cleanup" && item.phase === "started"), "cleanup_only")
         const tokens = await store.vault()
         const bearer = request.headers.get("authorization")?.replace(/^Bearer /, "")
         if (bearer) requireAcceptance(tokens.findLast((token) => token.access_token === bearer)?.acceptedForUse !== false && tokens.some((token) => token.access_token === bearer), "token_ownership")
@@ -190,6 +201,7 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         // A transport loss may hide the returned ID. A task-only marker binds later recovery
         // to this exact create attempt; the synthetic app sees its ordinary marker instead.
         if (result.kind === "calendar-create") result.calendarMarker = ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION + " Acceptance run " + manifest.runId + " attempt " + randomBytes(16).toString("hex")
+        if (["exchange", "refresh"].includes(result.kind)) result.tokenAttempt = randomBytes(16).toString("hex")
         await store.record({ ...result, phase: "intent" })
         return result
       })
@@ -203,6 +215,13 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
       if (decision.kind === "calendar-create") providerRequest.headers.delete("content-length")
       const response = await fetchImpl(providerRequest, { redirect: "error" })
       if (!response.ok) {
+        if (["exchange", "refresh"].includes(decision.kind) && [400, 401].includes(response.status)) {
+          const error = await response.json().catch(() => null)
+          // RFC 6749 section 5.2 validation/authentication errors establish no token issuance.
+          if (["invalid_request", "invalid_client", "invalid_grant", "unauthorized_client", "unsupported_grant_type", "invalid_scope"].includes(error?.error) && !["access_token", "refresh_token", "id_token"].some((key) => Object.hasOwn(error, key))) {
+            await store.locked(() => store.record({ ...decision, phase: "not-issued", status: response.status, errorCode: error.error }))
+          }
+        }
         if (decision.kind === "revoke" && response.status === 400) {
           const error = await response.json()
           if (error.error === "invalid_token") {

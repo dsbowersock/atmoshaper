@@ -42,7 +42,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   accounts; no Production OAuth exchange or live sync was initiated. The operator
   and guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41)
   under the owner's source publication/review approval. Its provider-free harness
-  checks pass 25/25, documentation/workload
+  checks pass 26/26, documentation/workload
   checks 16/16, lint and typecheck pass, and branch private-data/link checks pass.
   Initial published head is `577298385fa1f387e91e3e98f3fb5e1398a38847`; hosted CI
   and exact-latest-head full CodeRabbit/Codex reviews remain pending. Merge and
@@ -61,6 +61,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   terminated-worker lock recovery. Source fixes protect diagnostic writes and
   reclaim only a recorded dead owner's lock while preserving live/unowned locks.
   POSIX permission assertions still require latest-head Linux CI.
+  The following Codex review at `83f5b33` identifies a possible false token
+  cleanup receipt after an uncaptured response. Unique token-attempt outcomes
+  now gate cleanup start and completion; unresolved issuance cannot report
+  revocation. Cleanup freezes new provider activity from the application before teardown.
   No further setup, file or completed-test rerun is needed.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as

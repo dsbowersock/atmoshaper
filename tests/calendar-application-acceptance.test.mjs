@@ -8,7 +8,7 @@ import { spawn } from "node:child_process"
 import { once } from "node:events"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
-import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars } from "../scripts/calendar-application-acceptance-guard.mjs"
+import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
 import { writeAcceptanceDiagnostic } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
@@ -429,6 +429,53 @@ test("cleanup refuses new exchange/write work and unowned token revocation", asy
     await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
     assert.equal(calls, 0)
   } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("cleanup cannot claim revocation for an uncaptured exchange or refresh, even after a captured retry", async () => {
+  for (const grant of ["authorization_code", "refresh_token"]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-token-outcome-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const scope = GOOGLE_CALENDAR_SCOPES.join(" ")
+      if (grant === "refresh_token") await store.saveVault([{ refresh_token: "invented-owned-refresh", scope, acceptedForUse: true }])
+      let outcome = "lost"
+      const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async () => {
+        if (outcome === "lost") throw new Error("synthetic response lost after issuing token")
+        if (outcome === "malformed") return new Response("{", { status: 200 })
+        if (outcome === "server-error") return Response.json({ error: "server_error" }, { status: 500 })
+        if (outcome === "not-issued") return Response.json({ error: "invalid_grant" }, { status: 400 })
+        return Response.json({ access_token: "invented-captured-access-token", refresh_token: "invented-captured-refresh-token", id_token: "invented-identity-token", scope })
+      } })
+      const request = () => guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: grant, redirect_uri: ACCEPTANCE_CALLBACK, refresh_token: "invented-owned-refresh" }) })
+      for (const unknown of ["lost", "malformed", "server-error"]) {
+        // Each isolated scenario uses its own journal to preserve the three-consent lifetime cap.
+        await store.locked(() => writeFile(join(directory, "journal.jsonl"), ""))
+        outcome = unknown
+        await request().catch(() => {})
+        await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)
+        let recordedSuccess = false
+        await assert.rejects(assertAcceptanceTokenCaptureComplete(store, () => { recordedSuccess = true }), /uncaptured_token_attempt/)
+        assert.equal(recordedSuccess, false)
+        outcome = "captured"
+        await request()
+        await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)
+        const intents = (await store.journal()).filter((item) => item.phase === "intent")
+        assert.equal(new Set(intents.map((item) => item.tokenAttempt)).size, 2)
+      }
+      await store.locked(() => writeFile(join(directory, "journal.jsonl"), ""))
+      outcome = "not-issued"
+      assert.equal((await request()).status, 400)
+      await assertAcceptanceTokenCaptureComplete(store)
+      outcome = "captured"
+      await request()
+      await assertAcceptanceTokenCaptureComplete(store)
+      await assertAcceptanceTokenCaptureComplete(store, () => store.record({ kind: "cleanup", phase: "started" }))
+      const prior = (await store.journal()).length
+      await assert.rejects(request())
+      assert.equal((await store.journal()).length, prior)
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
 })
 
 test("a newly issued wrong grant is encrypted and retained solely for owned revocation", async () => {

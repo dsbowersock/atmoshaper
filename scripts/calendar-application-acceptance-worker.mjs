@@ -3,7 +3,7 @@ import { join } from "node:path"
 import { randomBytes } from "node:crypto"
 import { chromium } from "@playwright/test"
 import { loadAcceptanceConfig } from "./calendar-application-acceptance.mjs"
-import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupCalendars } from "./calendar-application-acceptance-guard.mjs"
+import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "./calendar-application-acceptance-guard.mjs"
 import { requireAcceptance, encodeAcceptanceActionForm, ACCEPTANCE_ORIGIN } from "./calendar-application-acceptance-core.mjs"
 import { createBrowserUserFixtureIdentity, createBrowserUserFixtureRecord, removeBrowserUserFixtureRecord } from "../lib/auth/browser-user-fixture.ts"
 import { installSignedInSessionCookie } from "../tests/browser/signed-in-session-cookie.ts"
@@ -327,6 +327,7 @@ async function main() {
     await receipt("real-durable-intent-injected-lost-response-no-repost-reconciliation")
   } else if (mode === "cleanup") {
     await setFault()
+    await assertAcceptanceTokenCaptureComplete(store, () => store.record({ kind: "cleanup", phase: "started" }))
     await acceptanceCleanupCalendars({ client, store, adapter, fetchImpl: guardedFetch })
     // Revoking each distinct grant token can make sibling tokens invalid; Google's already-revoked
     // response is accepted only for a token positively captured from this run's test exchange.
@@ -335,8 +336,11 @@ async function main() {
       const response = await guardedFetch("https://oauth2.googleapis.com/revoke", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ token }) })
       requireAcceptance(response.status === 200 || response.status === 400 && (await response.json()).error === "invalid_token", "token_revocation")
     }
-    await store.locked(() => store.saveVault([]))
-    await receipt("owned-targets-absent-new-test-tokens-revoked")
+    await assertAcceptanceTokenCaptureComplete(store, async () => {
+      await store.saveVault([])
+      await store.record({ kind: "case", phase: "passed", caseName: "owned-targets-absent-new-test-tokens-revoked" })
+    })
+    console.log("ACCEPTANCE: owned-targets-absent-new-test-tokens-revoked passed")
   } else throw new Error("stage_boundary")
   await prisma.$disconnect()
 }

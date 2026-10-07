@@ -2,6 +2,30 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review closes uncaptured-token cleanup receipt gap
+
+- Codex's review completes at `2026-10-07T23:10:02Z` on `83f5b33` with one
+  valid operator finding: an accepted token exchange with a lost response can
+  leave an active grant outside the vault, yet cleanup could report revocation.
+- Every future exchange/refresh intent now carries its own attempt identity.
+  Cleanup requires an exact captured or explicit non-issued outcome for every
+  attempt; a captured retry cannot cover an earlier unknown response. Only
+  parsed standard validation/authentication errors without token fields establish
+  non-issuance; transport loss, malformed responses and server failures remain
+  unresolved. Raw provider errors/credentials are not copied into journal receipts.
+- Cleanup start freezes new provider activity from the application under the journal lock.
+  Final outcome verification, vault clearing and success receipt share that lock,
+  preventing a concurrent unfinished token request from producing a false receipt.
+  Unresolved outcomes stop cleanup and retain evidence; any future independent
+  provider grant-removal recovery needs exact approval. No current grant or
+  completed run requires recovery or repetition on the recorded evidence.
+- All 26 provider-free harness checks pass, including exchange and refresh loss,
+  malformed/server-error responses, distinct captured retries, explicit rejection,
+  completion refusal and the cleanup freeze. Lint, typecheck,
+  documentation/workload checks 16/16 and whitespace pass; relative targets
+  are unchanged. Latest-head hosted checks/reviews remain pending.
+  Application runtime and all completed provider operations remain unchanged.
+
 ## 2026-10-07 — Review fixes protected diagnostics and terminated-worker locks
 
 - Codex's next review completes at `2026-10-07T23:00:47Z` on `17e08e6`.
