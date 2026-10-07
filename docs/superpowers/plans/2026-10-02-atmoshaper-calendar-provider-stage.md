@@ -16,9 +16,15 @@ This closes the declaration/status gate by owner readback; independent Console/A
 inspection of every saved URL is not claimed. The bounded application/provider
 acceptance subsequently passed in the October 7 application run and its native
 Disconnect follow-up, with completed cleanup and explicit proof limits.
-Production credential provisioning and public Calendar activation remain pending;
-the [credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
-owns the next step.
+The separately approved Production credential/build stage now passes: exactly
+four settings, 60 Production-only entries with the original 56 unchanged, stable
+private key recovery and one exact-`38d0ded` candidate READY at
+`2026-10-07T21:03:42.652Z`. Actual migration-status/Supporter gates and seven
+ordinary candidate GETs pass. All six live aliases and the public target retain
+PR #37; no restoration was needed. No real Production OAuth exchange is claimed.
+Public promotion/Calendar activation remain pending; the
+[completed credential stage and prepared rollout](2026-10-07-atmoshaper-calendar-production-credentials.md)
+own that next decision.
 
 October 3 screenshots establish External / In production and empty declared
 scope lists; branding is verified/shown. The user reports completed Calendar API
@@ -55,11 +61,12 @@ and public activation require their own exact, reviewable authorization.
 - The user selected a separate calendar named `AtmoShaper`. Keep the existing
   MassageLab calendars, full service, sign-in client, and histories intact.
   This naming choice alone does not require a new Google Cloud project.
-- Fresh authenticated Vercel name-only inventory lacks
-  `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`,
-  `GOOGLE_CALENDAR_REDIRECT_URI`, and `CALENDAR_SYNC_ENCRYPTION_KEY`.
-  Existing variables remain Production-only; none were copied into Preview.
-  This proves incomplete app configuration, not absence of a Google-side client.
+- Final October 7 authenticated Vercel readback has exactly the four approved
+  Calendar settings, with sensitive/write-only secret and key, encrypted client
+  ID and callback, and all 60 entries Production-only. No values were copied
+  into Preview/Development. The checked candidate snapshot has all four keys;
+  the existing public PR #37 artifact still has no Calendar configuration.
+  This is configuration/build evidence, not a live Production token exchange.
 - Existing Google sign-in works. Calendar needs additional API grants and
   separate configuration. Sign-in branding verification does not establish
   saved Calendar-scope verification or callback permission.
@@ -104,7 +111,8 @@ format and sole exact Calendar callback. The private source fingerprint binds
 future use. This is a saved-download receipt, not live credential authentication
 or independent Console readiness proof. No values/paths are recorded here.
 Automated browser access remains denied; do not repeat creation or the completed
-scope/audience questions. Credential provisioning remains separately gated.
+scope/audience questions. The later exact credential provisioning approval is
+complete as recorded in the linked Production plan; public activation is separate.
 
 The approved, user-reported registration in the identified existing
 `AtmoShaper Production` project has this intended configuration:
@@ -451,8 +459,9 @@ registration; do not propose another client or repeat its creation. Its saved
 Calendar redirect now passes private downloaded-JSON validation.
 The replacement Verification Center outcome is satisfied by the October 7 owner
 readback above. The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
-has its private client/callback input validated and is ready for exact four-setting/
-unpromoted-build approval. Preserve shared consent settings.
+now records the approved four-setting provisioning and verified unpromoted
+candidate. Its next step is exact public promotion/activation approval, with no
+new setup or completed-test rerun. Preserve shared consent settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 
@@ -539,8 +548,8 @@ Transaction/transport doubles do not establish real locks or provider consistenc
 
 Isolated acceptance and scope readiness now pass within their recorded limits.
 The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
-prepares exact configuration, reviewed source, one unpromoted build, checks, and a separate
-public-promotion decision. Keep manual promotion and registration/Supporter
+records completed configuration, reviewed source, the single checked unpromoted
+build and a prepared separate public-promotion decision. Keep manual promotion and registration/Supporter
 Checkout open; one-time support and background purchases remain disabled.
 
 Disable only the new integration and drain its in-flight work before restoring

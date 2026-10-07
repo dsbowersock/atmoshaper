@@ -85,7 +85,8 @@ Google credentials. Preserve the failure receipt and complete owned cleanup.
 This one case and its cleanup pass. The bounded application acceptance gate is
 closed with its documented fixture limitations. The
 [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
-records the existing Calendar client's validated private download/callback
-and concrete provisioning, candidate and rollback boundaries. Those operations still need
-their exact separate approvals. Registration and recurring Supporter Checkout
+records the existing Calendar client's validated private download/callback,
+subsequently approved provisioning and checked candidate, and concrete public
+rollout/rollback boundaries. Public promotion/activation still need their exact
+separate approval; do not repeat this completed database test. Registration and recurring Supporter Checkout
 remain open; one-time support/background purchases stay disabled.

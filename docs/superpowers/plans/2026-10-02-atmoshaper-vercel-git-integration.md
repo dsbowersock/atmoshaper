@@ -1,6 +1,16 @@
 # AtmoShaper existing-project Vercel integration
 
-Latest continuation receipt: [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40)
+Latest hosting continuation: the separately approved October 7
+[Production Calendar credential/build stage](2026-10-07-atmoshaper-calendar-production-credentials.md)
+created exactly four Production-only settings and one fresh candidate at reviewed
+`38d0ded`. It reached `READY` at `2026-10-07T21:03:42.652Z`; actual build gates,
+seven ordinary GETs and the signed-out Calendar guard pass. All 60 settings are
+Production-only; original 56 metadata, public PR #37 target, all six aliases and
+manual promotion/build/Git/protection remain intact. No restoration was needed.
+This candidate is unpromoted; public Calendar activation needs separate approval.
+No Production OAuth or completed provider test was repeated.
+
+Earlier source-merge continuation receipt: [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40)
 merged under exact approval at `2026-10-07T05:14:22Z` as
 `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head
 `0f486e554c9b3104dee70a3f2c00c33ffe031c7a` passes all seven CI jobs, Vercel,

@@ -2,6 +2,44 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Approved Production Calendar provisioning and candidate verified
+
+- The owner authorized the concrete four-Production-setting, recoverable-key,
+  single-unpromoted-build operation and restoration of saved aliases if moved.
+  Fresh remote/source/configuration/alias preflight passed before writes.
+  Exactly four settings were created with their specified encrypted or
+  sensitive/write-only types. Complete final inventory has 60 Production-only
+  entries; the original 56 IDs/types/targets/update timestamps are unchanged.
+  Client/callback readbacks match the privately validated download. Both pause
+  flags remain false; excluded purchase switches remain absent.
+- The new cryptographically random stable key has an owner/SYSTEM-protected
+  recovery copy outside Git, with a matching private fingerprint. Actual app
+  encryption/decryption helpers pass a synthetic round trip. Temporary credential
+  request files were removed and their private scratch area checked for raw
+  secret/key remnants. No credentials or private identifiers enter source.
+- One fresh Git-connected Production candidate uses exact reviewed merge
+  `38d0deddea484938e13df61927d07a7b21f92071` and reached `READY` at
+  `2026-10-07T21:03:42.652Z`. All four keys are present in its environment
+  snapshot. The standard build passed actual migration-status/live Supporter
+  gates, compilation and all 115 static pages; existing nonblocking Sentry
+  release/source-map warnings remain outside Calendar readiness.
+- All seven ordinary authenticated signed-out GETs return `200`; registration
+  is open, Checkout pause copy absent and session `null`. The signed-out Calendar
+  page shows its sign-in guard without a connect form. Final `21:09:12Z` readback
+  retains PR #37 as public target and all six aliases, manual promotion, normal
+  build/Git/protection, and disabled excluded purchases. No restoration was
+  needed. The candidate remains unpromoted.
+- The [completed stage and prepared rollout](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  retain exact artifact/rollback receipts privately. Public promotion/activation
+  still need separate approval. Sensitive remote values remain write-only;
+  configuration plus the local helper check does not prove Production OAuth.
+  No Google settings, consent, calendar/event work, database test, completed
+  payment test, source push or new PR was performed.
+- The documentation/server-workload suite passes 16/16; 122 relative links and
+  six Markdown fragments across the seven updated documents resolve. Added-doc
+  private-data and whitespace checks pass. Runtime source is unchanged; these
+  local operator receipts are not a new deployed or published source revision.
+
 ## 2026-10-07 — Production Calendar download validated; credential/build approval ready
 
 - The owner supplies the existing Production client JSON path. Private reads
