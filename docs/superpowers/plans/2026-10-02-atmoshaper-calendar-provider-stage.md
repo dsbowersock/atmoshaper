@@ -8,8 +8,9 @@ exact-head full review of all 20 files found no new actionable comments and all
 seven CI jobs, Vercel Preview and Codex review passed. Its automatic Production
 candidate passed actual readiness gates and seven authenticated GETs and remains
 unpromoted. All six saved live assignments retain PR #37; no restoration was
-needed. The revised Production declaration, full application/provider acceptance and
-public Calendar activation remain pending.
+needed. The user approved the revised Production declaration's guided setup on
+October 7; execution and actual classifications remain pending. Full
+application/provider acceptance and public Calendar activation remain pending.
 
 October 3 screenshots establish External / In production and empty declared
 scope lists; branding is verified/shown. The user reports completed Calendar API
@@ -17,7 +18,8 @@ enablement under its separate approval; independent provider readback is not
 claimed. PR #39's review, merge and automatic unpromoted candidate are complete.
 Its event-read declaration approval remains historical: the unsaved draft showed
 sensitive access with justification/video requirements. Keep that draft unsaved
-until the replacement operation is authorized and actual classifications are read.
+until actual replacement classifications and required materials are checked
+under the October 7 approval.
 The implementation merged in PR #36 is included in the approved public PR #37
 artifact; the PR #39 and PR #40 candidates are verified but unpromoted. Working sign-in and
 Vercel integration remain complete. Do not repeat them or the live payment test.
@@ -27,7 +29,8 @@ future preparation: both independently consented inbound comparison arms pass
 on owned/shared-reader synthetic calendars. Their tokens are revoked and the
 user reports both temporary calendars deleted. Merged source now replaces new
 event-read requests with availability access while preserving accepted legacy
-tokens. The replacement proposal below is prepared, not approved/saved. Earlier
+tokens. The replacement below is now approved for guided declaration setup but
+has no save receipt. Earlier
 sections retain their dated PR #39 and Google approval receipts; they do not
 authorize this different declaration or public Calendar activation.
 
@@ -138,7 +141,7 @@ would expose its connect route before full acceptance, so defer that operation.
 Primary creation/callback/credential-retention reference:
 [Google's server-side OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).
 
-## October 6 replacement declaration proposal; no settings change yet
+## Availability declaration; October 7 guidance approval, save receipt pending
 
 The [two-arm comparison](2026-10-03-atmoshaper-calendar-scope-comparison.md)
 passes event identity/timing, recurrence, all-day bounds, transparency,
@@ -165,7 +168,7 @@ usable without rewriting stored identities/grants or weakening the validated
 outbound target. An older artifact requiring event-read would reject new
 availability-only tokens; retain this guard in any reviewed rollback.
 
-The exact future user-guided operation is to select these six entries in the
+The exact approved user-guided operation is to select these six entries in the
 existing Production project's Data Access declaration, replacing event-read
 with availability if present in the unsaved draft. Preserve working sign-in,
 client/callback registrations, verified branding and External / In production
@@ -177,10 +180,20 @@ Google's [scope reference](https://developers.google.com/workspace/calendar/api/
 and [event-list permissions](https://developers.google.com/workspace/calendar/api/v3/reference/events/list)
 support the requested capability; Console outcomes remain project-specific.
 
-This replacement needs separate approval: the earlier exact declaration approval
-covered event-read. PR #40's source publication/reviews, merge and automatic
-unpromoted candidate verification are complete. This provider operation,
-verification upload/submission if applicable, credentials, application/provider
+The user separately approved this replacement on October 7; the earlier exact
+declaration approval covered event-read. This approval covers selection and
+saving only when required fields can be truthfully completed. Confirm the draft
+contains exactly these six entries before saving. If no sensitive/restricted
+entries or required explanation/video fields appear, the owner may save and
+report the saved entries/categories. Otherwise obtain the actual categories
+and required fields first; keep the draft unsaved while missing truthful
+materials are prepared. Unexpected existing saved scopes require reconciliation
+before removing them. Approval alone does not establish selection, save or
+verification. No alternate browser/control path is authorized by this receipt.
+
+PR #40's source publication/reviews, merge and automatic
+unpromoted candidate verification are complete. Verification upload/submission
+if applicable, credentials, application/provider
 acceptance, public promotion and activation remain separate steps. No Google
 settings are changed by the merged source or this proposal.
 

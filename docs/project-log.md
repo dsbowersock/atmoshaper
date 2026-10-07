@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Replacement Calendar declaration guidance approved
+
+- The user answered `yes` to guidance for the prepared replacement Google
+  declaration after PR #40's merge/candidate verification. This approval covers
+  the six entries in the [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md):
+  existing identity entries plus app-created Calendar, calendar-list read access
+  and event availability, replacing the earlier event-read proposal. It covers
+  declaration setup and saving only when required fields can be truthfully
+  completed. Actual Console selection, classification and save receipt remain
+  pending; approval is not an execution or verification claim.
+- The task-owned receipt branch is clean at `0cc2521`, based on PR #40's verified
+  merge. Hosted PR truth confirms merge `38d0ded`; merged source requests
+  `calendar.events.freebusy`. Public Google documentation confirms the Data
+  Access selection flow and that event listing accepts this grant, without
+  establishing this project's actual classification or verification outcome.
+- Continue through the owner-operated Console path because its earlier
+  automated browser security review was denied. No retry/bypass, new client,
+  API enablement, consent, fixture or payment test is needed. Preserve existing
+  sign-in, client/callback registrations, branding and audience. If Google asks
+  for missing justification/video materials, keep the draft unsaved and prepare
+  those dependencies. Video upload/submission, credentials, application/provider
+  acceptance, public promotion and Calendar activation remain separate gates.
+
 ## 2026-10-07 — PR #40 merged; automatic candidate verified and unpromoted
 
 - The user approved merging PR #40, verifying its automatic unpromoted build,

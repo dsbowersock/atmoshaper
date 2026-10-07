@@ -28,8 +28,10 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   GitHub/`main`, protection, verified domains/apex redirect, and 56 Production-only
   variables with none in Preview/Development. Both public pause flags are
   `false`; excluded purchase switches and all four Calendar keys remain absent.
-  The replacement Google declaration, full application/provider acceptance and
-  public Calendar activation remain pending. No manual build or completed live
+  The replacement Google declaration is approved for user-guided setup and
+  saving only when required fields can be truthfully completed; execution and
+  actual scope classifications remain pending. Full application/provider
+  acceptance and public Calendar activation remain pending. No manual build or completed live
   payment/Calendar comparison test was repeated.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
   user's exact approval at `2026-10-03T17:02:47Z` as
@@ -49,8 +51,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   pause, excluded purchase switches remain unset, and all four Calendar keys
   remain absent. No live payment test was repeated. The earlier event-read
   declaration approval is historical; the October 6 comparison supports a
-  prepared availability replacement, recorded below. No replacement declaration
-  has been approved or saved.
+  prepared availability replacement, recorded below. At that earlier checkpoint
+  no replacement declaration had been approved or saved; the October 7 approval
+  above supersedes its approval status, not its execution status.
 - [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
   user's exact approval at `2026-10-03T02:55:51Z` as
   `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
@@ -83,7 +86,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   the separate Production Calendar Web registration with only
   `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI,
   and enabling Calendar API under separate approvals. The saved Calendar-return
-  readback and replacement permission classifications remain pending; do not
+  readback and replacement permission classifications remain pending. The user
+  approved the exact six-entry availability declaration on October 7. Guide
+  selection in the existing Production project's Data Access page; preserve
+  identity/client/audience settings, and obtain an owner save/classification
+  receipt. If required verification materials are missing, retain the unsaved
+  draft and prepare the actual next dependency. Do not
   repeat client creation, API enablement or the completed saved identity checks.
   Dated hosting readbacks retain absent Calendar keys and inactive configuration.
 - Both independently consented test permission arms passed the same strict
@@ -105,7 +113,7 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
   whole-integration minimum access. Full application/provider acceptance remains
-  pending. The changed Production declaration, credentials, isolated
+  pending. The approved declaration's execution is pending; credentials, isolated
   application/provider resources, any required
   demo/submission, public promotion and Calendar activation remain separately
   gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.
