@@ -2,6 +2,30 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-06 — Final-head Calendar review completed; stale operator instructions corrected
+
+- After the included window opened, explicitly requested CodeRabbit full review
+  of `34cea53`. Its completed review at `2026-10-07T00:54:29Z` covers all
+  twenty changed files. All five pre-merge checks pass, including 100% touched-
+  function docstring coverage. One valid minor comment identifies stale guidance
+  to prepare/request authority for the completed permission comparison.
+- Replaced that guidance with the completed setup/run/cleanup outcome and the
+  pending replacement-declaration approval and isolated application acceptance.
+  Marked the earlier event-read comparison instructions as historical. Condensed
+  duplicated diagnostic history in the current-state file; the detailed dated
+  receipts remain here and in the comparison plan.
+- The documentation follow-up passes all 16 server-workload/documentation
+  checks, all 73 relative links across its three changed files, whitespace and
+  the private-preparation-data scan. No runtime code or test expectations change.
+- At reviewed head `34cea53`, all seven CI jobs pass, including 5,155 unit
+  passes, two skips and zero failures, and all four Browser QA lanes. The Vercel
+  Preview is ready and Codex reports no major issues. Fresh hosting reads retain
+  the approved public PR #37 artifact, six live assignments, manual promotion,
+  standard build command and deployment protection. This documentation follow-up
+  still requires final-head checks and the next eligible full review. Merge,
+  changed Google settings, provider acceptance and activation remain gated;
+  no completed provider comparison or payment test is repeated.
+
 ## 2026-10-06 — Calendar PR published; full review finds no actionable comments
 
 - Published [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) at

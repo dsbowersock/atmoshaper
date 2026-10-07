@@ -324,7 +324,7 @@ UI exposed verification preparation. The October 6 availability replacement
 above is a different operation and needs its own approval. No saved declaration
 or verification result is claimed from either proposal.
 
-## Draft justification and video checkpoint; declaration remains unsaved
+## Historical event-read justification checkpoint; declaration remains unsaved
 
 The user's subsequent screenshots show the event-read grant in the sensitive
 section with approval required, a justification field limited to 1,000
@@ -336,8 +336,9 @@ video must cover the OAuth clients assigned to the project. Do not infer that
 the video link is optional for Save, invent a link, delete a client to avoid
 coverage, or treat Save as a completed verification submission.
 
-The following 650-character text is an accurate usage draft, not a final
-justification that all narrower permissions are insufficient:
+The following 650-character text records the earlier usage draft, before the
+completed comparison established a compatible availability alternative. It is
+not the justification for the October 6 replacement declaration:
 
 > AtmoShaper's optional Calendar sync reads calendars selected by the user to create generic busy blocks and prevent scheduling conflicts. It uses event IDs, start/end times, time zones, busy/free status and cancellation changes for incremental synchronization. Imported event titles, descriptions, locations and attendees are not stored or displayed. App-created-calendar access alone cannot read existing selected calendars. Imported calendars are read-only; writes use a separate app-created-calendar permission. We are evaluating whether narrower availability-only access can preserve this behavior before public rollout or verification submission.
 
@@ -354,12 +355,12 @@ also accepts `calendar.events.freebusy`. The
 [Freebusy query](https://developers.google.com/workspace/calendar/api/v3/reference/freebusy/query)
 returns time ranges without per-event identities/cursors, but that fact does
 not establish which fields event-list reads return under the narrower grant.
-The merged duplicate-grant reduction does not prove least-access necessity.
-Keep the current source unchanged until the comparison establishes a concrete
-compatible alternative or a documented missing capability.
+The merged duplicate-grant reduction alone did not prove least-access necessity.
+The subsequently approved comparison established a compatible availability
+alternative for the tested inbound path; the prepared source now requests it.
 
-Extend the bounded isolated acceptance proposal below with these comparisons
-before requesting execution authority:
+The following comparison requirements are historical. Both independent arms
+have passed; retain their evidence without repeating setup, consent or fixtures:
 
 | Comparison | Evidence needed |
 | --- | --- |
@@ -368,10 +369,10 @@ before requesting execution authority:
 | Selected sources | Distinguish owned and explicitly shared synthetic source access; app-created-only or owned-only access must not silently exclude allowed selected sources |
 | Decision | Prefer a narrower compatible grant if proven; otherwise identify the exact missing fields/operations and explain the feature need. Source mocks and scope validators are not provider proof |
 
-No provider-backed comparison or test-resource creation is authorized by the
-declaration approval. Keep the existing fixture ceilings and settle exact
-targets/callbacks, grants, operations, data ownership, and cleanup first. A
-changed declaration set needs a new exact proposal, not a silent substitution.
+The earlier declaration approval did not authorize these provider comparisons.
+They ran under a separate bounded execution approval and completed with both
+tokens revoked and owner-reported fixture-calendar deletion. A changed
+Production declaration still needs its own exact approval.
 
 If a sensitive grant remains necessary, prepare an English recording of actual
 Google sign-in and the isolated Calendar grant/use flow, app branding, the
@@ -390,21 +391,23 @@ justification, and a real consent/functionality video for sensitive-scope review
 The two-arm scope comparison is complete. Saved Production classifications,
 full application acceptance, any required demo, and verification remain open.
 
-## Resolve exact targets before configuration approval
+## Completed comparison setup and pending application targets
 
 The [permission comparison plan](2026-10-03-atmoshaper-calendar-scope-comparison.md)
-gives the immediate user action and prepared test settings. Inspect the project
-selector for an existing appropriate AtmoShaper test/staging project before
-proposing creation. The user reports `none`; an exact configuration-only approval
-request for a new isolated test project received `Yes`; user-guided setup and
-non-secret saved readback were requested. The user now reports setup complete,
-using the shortened display name `AtmoShaper Calendar Verify`. This is their
-execution receipt; credentials/settings and actual OAuth grants are not
-independently verified. The local comparison runner and mock/loopback checks are
-prepared; exact private inputs and provider-run authority remain pending. The
-user readback does not explicitly confirm the earlier Production draft discard. The
-standalone comparison avoids an application database but does not replace the
-full isolated acceptance proposal below.
+retains the historical setup, configuration approval and separately approved
+provider-run receipts. The isolated test registration and private inputs were
+validated before the measured runs. Both event-read and availability arms passed
+strict initial/incremental comparisons on owned and shared-reader sources; both
+tokens were revoked, and the user reports deletion of both temporary calendars.
+Those operations are complete. Do not request comparison authority again or
+repeat project/client creation, consent, fixture setup, restoration or cleanup.
+
+After the pending source merge/build approval, the next Google operation is the
+exact [replacement-declaration proposal](#october-6-replacement-declaration-proposal-no-settings-change-yet),
+which needs its own approval and saved classification/Verification Center
+readback. The standalone comparison avoided an application database and does
+not replace the full isolated application acceptance proposal below. Prepare
+its remaining targets and operation boundaries before requesting that authority.
 
 Use the identified Production project and user-reported separate Calendar
 registration; do not propose another client or repeat its creation. Confirm the
