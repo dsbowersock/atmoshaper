@@ -52,13 +52,23 @@ export function acceptanceCommandWatchdog({ mode, manifest, store, stopChild, pi
   }
 }
 
-/** Protect new and existing POSIX diagnostics before writing raw stderr; Windows retains the run folder's ACL. */
-export async function writeAcceptanceDiagnostic(directory, text) {
-  const file = await open(join(directory, "owned-command-error.txt"), "w", 0o600)
+/** Restrict new and existing private artifacts before writing; Windows retains the run folder's ACL. */
+async function writeAcceptancePrivateText(path, text) {
+  const file = await open(path, "w", 0o600)
   try {
     await file.chmod(0o600)
     await file.writeFile(text)
   } finally { await file.close() }
+}
+
+/** Raw child errors stay in the protected operation directory, never console output. */
+export async function writeAcceptanceDiagnostic(directory, text) {
+  await writeAcceptancePrivateText(join(directory, "owned-command-error.txt"), text)
+}
+
+/** Native action fields contain a private connection ID; repair existing permissions before persisting them. */
+export async function writeAcceptanceDisconnectForm(directory, values) {
+  await writeAcceptancePrivateText(join(directory, "disconnect-form.json"), JSON.stringify(values))
 }
 
 /** Record every new native rejection, including split markers, without recounting buffered private stderr. */

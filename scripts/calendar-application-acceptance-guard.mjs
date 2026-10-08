@@ -127,8 +127,9 @@ export function acceptanceStore(directory, key) {
     await writeFile(temporary, JSON.stringify({ iv: iv.toString("hex"), tag: cipher.getAuthTag().toString("hex"), data: data.toString("base64") }), { mode: 0o600 })
     await rename(temporary, vaultPath)
   }
+  /** Append time belongs to this receipt, even when recovery spreads an older intent. */
   async function record(item) {
-    await appendFile(journalPath, JSON.stringify({ at: Date.now(), ...item }) + "\n", { mode: 0o600 })
+    await appendFile(journalPath, JSON.stringify({ ...item, at: Date.now() }) + "\n", { mode: 0o600 })
   }
   return { journal, vault, saveVault, record, locked: (action) => acceptanceLock(directory, action) }
 }

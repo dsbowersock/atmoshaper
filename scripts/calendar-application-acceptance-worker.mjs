@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { randomBytes } from "node:crypto"
 import { chromium } from "@playwright/test"
-import { loadAcceptanceConfig } from "./calendar-application-acceptance.mjs"
+import { loadAcceptanceConfig, writeAcceptanceDisconnectForm } from "./calendar-application-acceptance.mjs"
 import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "./calendar-application-acceptance-guard.mjs"
 import { requireAcceptance, assertAcceptancePreservedCursors, encodeAcceptanceActionForm, ACCEPTANCE_ORIGIN } from "./calendar-application-acceptance-core.mjs"
 import { createBrowserUserFixtureIdentity, createBrowserUserFixtureRecord, removeBrowserUserFixtureRecord } from "../lib/auth/browser-user-fixture.ts"
@@ -56,7 +56,7 @@ async function main() {
     const button = page.getByRole("button", { name: "Disconnect", exact: true })
     await button.waitFor({ timeout: 45_000 })
     const values = await button.locator("..", {}).evaluate((form) => Object.fromEntries(new FormData(form).entries()))
-    await writeFile(join(directory, "disconnect-form.json"), JSON.stringify(values))
+    await writeAcceptanceDisconnectForm(directory, values)
     return values
   })
   /** A framework error is insufficient: prove this current server executed the real guarded action. */

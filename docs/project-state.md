@@ -140,6 +140,13 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   rejected. Framework/session dependencies are replaced and no real listener,
   application, provider or database starts. Live PR #41 remains the source for
   fresh exact-head validation and review status.
+- Subsequent Codex findings protect the persisted Disconnect form, including
+  rewrites of previously permissive files, and assign each recovery receipt its
+  actual append time rather than an inherited intent time. The same private-file
+  writer protects form fields and diagnostics. Provider-free cases cover new and
+  existing files plus delayed calendar-inventory and encrypted-token recovery.
+  Fresh Linux checks must independently prove POSIX permissions; live PR #41
+  retains exact-head checks/reviews and the separate merge approval boundary.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

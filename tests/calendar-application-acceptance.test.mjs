@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, assertAcceptancePreservedCursors, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
 import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
-import { writeAcceptanceDiagnostic, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand, acceptanceCommandWatchdog, acceptanceNativeRejectionObserver } from "../scripts/calendar-application-acceptance.mjs"
+import { writeAcceptanceDiagnostic, writeAcceptanceDisconnectForm, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand, acceptanceCommandWatchdog, acceptanceNativeRejectionObserver } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
@@ -239,6 +239,22 @@ test("child diagnostics protect both new files and previously permissive files b
     await writeFile(path, "old synthetic failure", { mode: 0o644 })
     await writeAcceptanceDiagnostic(directory, "new synthetic failure")
     assert.equal(await readFile(path, "utf8"), "new synthetic failure")
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("persisted native Disconnect fields restrict new and previously permissive files before writing", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-disconnect-form-unit-"))
+  const path = join(directory, "disconnect-form.json")
+  const values = { connectionId: "invented-connection-row", "$ACTION_ID_40synthetic": "" }
+  try {
+    await writeAcceptanceDisconnectForm(directory, values)
+    assert.deepEqual(JSON.parse(await readFile(path, "utf8")), values)
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+    await rm(path)
+    await writeFile(path, JSON.stringify({ connectionId: "invented-old-row" }), { mode: 0o644 })
+    await writeAcceptanceDisconnectForm(directory, values)
+    assert.deepEqual(JSON.parse(await readFile(path, "utf8")), values)
     if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
   } finally { await rm(directory, { recursive: true, force: true }) }
 })
@@ -602,12 +618,17 @@ test("transport loss before parsing recovers a marked target through paged recon
       await assert.rejects(active("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer " + accessToken }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) }))
       assert.match(marker, new RegExp(manifest.runId))
       assert.equal((await store.journal()).some((item) => item.phase === "accepted"), false)
+      // Recreate an older interrupted intent; recovery must timestamp the new append, not the original dispatch.
+      const oldJournal = (await store.journal()).map((item) => ({ ...item, at: 1 }))
+      await writeFile(join(directory, "journal.jsonl"), oldJournal.map((item) => JSON.stringify(item)).join("\n") + "\n", { mode: 0o600 })
+      const recoveryStarted = Date.now()
       if (cleanup) manifest.database.createdAt -= 91 * 60_000
       const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider, cleanup })
       const adapter = createGoogleCalendarAdapter({ fetchImpl: guarded })
       if (cleanup) assert.equal((await adapter.listCalendars(accessToken))[0].id, calendarId)
       else assert.equal((await adapter.findDedicatedCalendar(accessToken, { providerAccountId: "synthetic-subject" })).id, calendarId)
       assert.equal((await store.journal()).filter((item) => item.kind === "calendar-create" && item.phase === "accepted").length, 1)
+      assert.ok((await store.journal()).find((item) => item.recoveredFromInventory).at >= recoveryStarted)
       assert.equal(creates, 1)
       await guarded("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(calendarId), { method: "DELETE", headers: { authorization: "Bearer " + accessToken } })
       assert.equal(deletes, 1)
@@ -899,8 +920,12 @@ test("cleanup recovers capture from the encrypted vault after a worker stops bef
     await store.saveVault([{ ...captured, tokenKind: "refresh" }])
     await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)
     await store.saveVault([captured])
+    const oldJournal = (await store.journal()).map((item) => ({ ...item, at: 1 }))
+    await writeFile(join(directory, "journal.jsonl"), oldJournal.map((item) => JSON.stringify(item)).join("\n") + "\n", { mode: 0o600 })
+    const recoveryStarted = Date.now()
     await assertAcceptanceTokenCaptureComplete(store)
     assert.equal((await store.journal()).filter((item) => item.phase === "captured" && item.recoveredFromVault).length, 1)
+    assert.ok((await store.journal()).find((item) => item.recoveredFromVault).at >= recoveryStarted)
     let revoked = false
     const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => { revoked = new URLSearchParams(await request.text()).get("token") === token; return Response.json({}) } })
     await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })

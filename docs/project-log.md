@@ -2,6 +2,23 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Codex protects form evidence and recovery chronology
+
+- Persisted Disconnect form fields contain a private connection ID. A shared
+  private artifact writer restricts new and existing files before writing;
+  the form and raw diagnostics retain their protected operation-directory scope.
+- Journal append time now overrides an inherited timestamp when recovery spreads
+  an earlier intent. Provider-free cases recreate older interrupted calendar and
+  token intents and verify that actual recovery receipts have fresh append times.
+  New/permissive form files are checked through the writer used by the worker;
+  fresh Linux CI supplies the independent POSIX permission proof.
+- No application, provider or database acceptance is repeated. PR #41 owns fresh
+  source publication/checks/reviews; final receipts remain private, and merge and
+  future Production activity retain separate approval.
+- Local harness checks pass 39 with one POSIX-only Windows skip. Lint,
+  typecheck and documentation/workload checks 16/16 pass; all 137 relative
+  targets resolve, with no added-documentation private-data or whitespace findings.
+
 ## 2026-10-08 — Codex makes bridge nonce claims single-use
 
 - Concurrent bridge GETs could both read an unused nonce before either persisted
