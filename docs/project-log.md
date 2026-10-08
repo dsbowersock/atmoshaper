@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Codex recovers completed temporary token captures
+
+- A stop after encrypted temporary-file writing and before replacement could
+  strand a captured grant. Recovery now authenticates the temporary vault,
+  verifies preserved token history and the exact pending journal intent, and
+  promotes it privately under the ownership lock. Rejected scopes remain
+  quarantined for revocation; partial, corrupted and mismatched files remain
+  intact and stop dispatch. New writes cannot truncate stranded evidence.
+- An interrupted empty-vault clear retains canonical tokens so owned cleanup
+  can repeat revocation rather than prematurely discard grant ownership.
+- Provider-free regressions pause the actual writer before rename, stop only
+  the owned synthetic child, and recover valid/rejected exchange and refresh
+  captures. Invalid replacement and interrupted-clear cases preserve prior
+  grants. Local harness checks pass 43 with one POSIX-only Windows skip; all
+  synthetic children and scratch are cleaned by ownership-bound finalizers.
+- Live PR #41 retains fresh exact-head validation/reviews. Final receipts stay
+  private, merge remains separately approved, and no completed provider or
+  database acceptance is repeated.
+
 ## 2026-10-08 — Review dates the initial PR #41 publication checkpoint
 
 - The current snapshot explicitly labels initial publication checks and pending

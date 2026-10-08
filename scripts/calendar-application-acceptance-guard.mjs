@@ -1,5 +1,5 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto"
-import { readFile, writeFile, rename, mkdir, rmdir, appendFile, readdir, unlink } from "node:fs/promises"
+import { readFile, writeFile, rename, mkdir, rmdir, appendFile, readdir, unlink, chmod } from "node:fs/promises"
 import { join } from "node:path"
 import { authorizeAcceptanceRequest, requireAcceptance, validateAcceptanceScopes, validateAcceptanceManifest } from "./calendar-application-acceptance-core.mjs"
 import { ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
@@ -106,26 +106,56 @@ export async function acceptanceLock(directory, action, { timeoutMs = 5000 } = {
 /** Private stores never place tokens, resource identities or rejected payloads in console output. */
 export function acceptanceStore(directory, key) {
   const vaultPath = join(directory, "token-vault.json")
+  const temporaryVaultPath = vaultPath + ".next"
   const journalPath = join(directory, "journal.jsonl")
   async function journal() {
     try { return (await readFile(journalPath, "utf8")).split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line)) }
     catch (error) { if (error.code === "ENOENT") return []; throw new Error("journal_read") }
   }
-  async function vault() {
+  /** Authenticate each file before trusting its contents; absence is distinct from an invalid capture. */
+  async function readVault(path) {
     try {
-      const document = JSON.parse(await readFile(vaultPath, "utf8"))
+      const document = JSON.parse(await readFile(path, "utf8"))
       const decipher = createDecipheriv("aes-256-gcm", Buffer.from(key, "hex"), Buffer.from(document.iv, "hex"))
       decipher.setAuthTag(Buffer.from(document.tag, "hex"))
-      return JSON.parse(Buffer.concat([decipher.update(Buffer.from(document.data, "base64")), decipher.final()]).toString("utf8"))
-    } catch (error) { if (error.code === "ENOENT") return []; throw new Error("vault_read") }
+      const values = JSON.parse(Buffer.concat([decipher.update(Buffer.from(document.data, "base64")), decipher.final()]).toString("utf8"))
+      requireAcceptance(Array.isArray(values), "vault_shape")
+      return values
+    } catch (error) { if (error.code === "ENOENT") return undefined; throw new Error("vault_read") }
+  }
+  /** Recovery callers hold the journal lock: promote only an authenticated, pending append that preserves all grants. */
+  async function vault({ recover = false } = {}) {
+    try {
+      const values = await readVault(vaultPath) ?? []
+      if (!recover) return values
+      const pending = await readVault(temporaryVaultPath)
+      if (pending === undefined) return values
+      if (pending.length === 0) {
+        // A stopped final clear is safe to retry; keep every canonical token until revocation runs again.
+        await unlink(temporaryVaultPath)
+        return values
+      }
+      requireAcceptance(pending.length === values.length + 1 && values.every((value, index) => JSON.stringify(value) === JSON.stringify(pending[index])), "vault_history")
+      const captured = pending.at(-1)
+      requireAcceptance(captured && /^[a-f0-9]{32}$/.test(captured.tokenAttempt ?? "") && ["exchange", "refresh"].includes(captured.tokenKind) && typeof captured.access_token === "string" && captured.access_token.length > 10 && Number.isFinite(captured.capturedAt) && typeof captured.acceptedForUse === "boolean" && !values.some((value) => value.tokenAttempt === captured.tokenAttempt), "vault_capture")
+      const receipts = await journal()
+      requireAcceptance(receipts.filter((item) => item.kind === captured.tokenKind && item.phase === "intent" && item.tokenAttempt === captured.tokenAttempt).length === 1 && !receipts.some((item) => item.tokenAttempt === captured.tokenAttempt && ["captured", "not-issued"].includes(item.phase)), "vault_attempt")
+      if (captured.acceptedForUse) {
+        validateAcceptanceScopes(captured.scope)
+        if (captured.tokenKind === "exchange") requireAcceptance(captured.refresh_token && captured.id_token, "token_response")
+      }
+      await chmod(temporaryVaultPath, 0o600)
+      await rename(temporaryVaultPath, vaultPath)
+      return pending
+    } catch { throw new Error("vault_read") }
   }
   async function saveVault(values) {
     const iv = randomBytes(12)
     const cipher = createCipheriv("aes-256-gcm", Buffer.from(key, "hex"), iv)
     const data = Buffer.concat([cipher.update(JSON.stringify(values)), cipher.final()])
-    const temporary = vaultPath + ".next"
-    await writeFile(temporary, JSON.stringify({ iv: iv.toString("hex"), tag: cipher.getAuthTag().toString("hex"), data: data.toString("base64") }), { mode: 0o600 })
-    await rename(temporary, vaultPath)
+    // Never truncate a stranded capture, even if a caller failed to recover it before writing.
+    await writeFile(temporaryVaultPath, JSON.stringify({ iv: iv.toString("hex"), tag: cipher.getAuthTag().toString("hex"), data: data.toString("base64") }), { mode: 0o600, flag: "wx" })
+    await rename(temporaryVaultPath, vaultPath)
   }
   /** Append time belongs to this receipt, even when recovery spreads an older intent. */
   async function record(item) {
@@ -169,7 +199,7 @@ function usableCapturedToken(tokens, field) {
 
 /** Delayed teardown uses the cleanup-guarded fetch; rejected grants stay captured solely for revocation. */
 export async function acceptanceCleanupAccessToken({ client, store, fetchImpl, now = Date.now() }) {
-  const tokens = await store.locked(() => store.vault())
+  const tokens = await store.locked(() => store.vault({ recover: true }))
   const current = usableCapturedToken(tokens, "access_token")
   if (Number.isFinite(current?.capturedAt) && Number.isFinite(current.expires_in) && now + 30_000 < current.capturedAt + current.expires_in * 1000) return current.access_token
   const refresh = usableCapturedToken(tokens, "refresh_token")?.refresh_token
@@ -216,7 +246,7 @@ export async function assertAcceptanceTokenCaptureComplete(store, complete = asy
   return store.locked(async () => {
     const journal = await store.journal()
     const intents = journal.filter((item) => ["exchange", "refresh"].includes(item.kind) && item.phase === "intent")
-    const tokens = await store.vault()
+    const tokens = await store.vault({ recover: true })
     // Vault replacement can finish before its journal append. Bind recovery to the encrypted attempt identity.
     for (const intent of intents) {
       if (intent.tokenAttempt && !journal.some((item) => item.kind === intent.kind && item.tokenAttempt === intent.tokenAttempt && ["captured", "not-issued"].includes(item.phase)) && tokens.some((token) => token.tokenAttempt === intent.tokenAttempt && token.tokenKind === intent.kind && typeof token.access_token === "string" && token.access_token.length > 10)) {
@@ -244,7 +274,7 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         requireAcceptance(!cleanup || ["refresh", "revoke", "calendar-delete", "inventory", "metadata"].includes(result.kind), "cleanup_only")
         if (result.kind === "local") return result
         requireAcceptance(cleanup || !journal.some((item) => item.kind === "cleanup" && item.phase === "started"), "cleanup_only")
-        const tokens = await store.vault()
+        const tokens = await store.vault({ recover: true })
         const bearer = request.headers.get("authorization")?.replace(/^Bearer /, "")
         if (bearer) requireAcceptance(tokens.findLast((token) => token.access_token === bearer)?.acceptedForUse !== false && tokens.some((token) => token.access_token === bearer), "token_ownership")
         if (result.kind === "refresh") {
@@ -309,7 +339,7 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         // Persist validation with the first encrypted capture: interrupted valid grants stay usable
         // for owned cleanup, while wrong/missing grants remain captured solely for revocation.
         await store.locked(async () => {
-          const tokens = await store.vault()
+          const tokens = await store.vault({ recover: true })
           const captured = { ...data, scope: effectiveScope, capturedAt: Date.now(), acceptedForUse: false, tokenAttempt: decision.tokenAttempt, tokenKind: decision.kind }
           let validationError
           try {

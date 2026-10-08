@@ -427,7 +427,7 @@ test("interrupted lock release preserves ownership before retirement and never l
     const directory = await mkdtemp(join(tmpdir(), "calendar-lock-release-unit-"))
     // Pause the actual guard at either release boundary; only filesystem calls in this synthetic directory run.
     const replacement = `
-      export { readFile, writeFile, mkdir, rmdir, appendFile, readdir } from 'node:fs/promises';
+      export { readFile, writeFile, mkdir, rmdir, appendFile, readdir, chmod } from 'node:fs/promises';
       import { rename as actualRename, unlink as actualUnlink } from 'node:fs/promises';
       const directory = ${JSON.stringify(directory)}, stage = ${JSON.stringify(stage)};
       async function pause() { process.stdout.write('release-paused\\n'); await new Promise(() => {}); }
@@ -993,6 +993,120 @@ test("validated encrypted grants survive interruption at the first vault write o
       assert.ok((await store.journal()).some((item) => item.caseName === "owned-targets-verified-absent"))
       await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
       assert.equal(revoked, true)
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("cleanup recovers actual encrypted temporary captures after an owned worker stops before rename", async () => {
+  const guardUrl = new URL("../scripts/calendar-application-acceptance-guard.mjs", import.meta.url).href
+  for (const kind of ["exchange", "refresh"]) for (const valid of [true, false]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-temporary-vault-unit-"))
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const scope = GOOGLE_CALENDAR_SCOPES.join(" ")
+    const token = "invented-temporary-captured-access"
+    const vaultPath = join(directory, "token-vault.json")
+    const temporary = vaultPath + ".next"
+    let child, closed, timer
+    try {
+      if (kind === "refresh") await store.saveVault([{ access_token: "invented-expired-prior-access", refresh_token: "invented-prior-refresh", scope, acceptedForUse: true, capturedAt: Date.now() - 3_600_000, expires_in: 1 }])
+      if (valid) {
+        await store.record({ kind: "calendar-create", phase: "intent", calendarMarker: "invented-owned-marker" })
+        await store.record({ kind: "calendar-create", phase: "accepted", calendarMarker: "invented-owned-marker", calendarId: "invented-owned@group.calendar.google.com" })
+      }
+      // The actual writer completes its encrypted write; only its final rename is paused in this synthetic child.
+      const replacement = `
+        export { readFile, writeFile, mkdir, rmdir, appendFile, readdir, unlink, chmod } from 'node:fs/promises';
+        import { rename as actualRename } from 'node:fs/promises';
+        export async function rename(source, target) {
+          if (String(source) === ${JSON.stringify(temporary)} && String(target) === ${JSON.stringify(vaultPath)}) {
+            process.stdout.write('vault-paused' + String.fromCharCode(10)); await new Promise(() => {});
+          }
+          return actualRename(source, target);
+        }
+      `
+      const hook = `import { registerHooks } from 'node:module'; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(guardUrl)} && specifier === 'node:fs/promises') return { url: 'data:text/javascript,' + encodeURIComponent(${JSON.stringify(replacement)}), shortCircuit: true }; return nextResolve(specifier, context) } })`
+      const response = { access_token: token, refresh_token: "invented-new-refresh", id_token: "invented-identity", expires_in: 3600, ...(!valid ? { scope: scope + " https://www.googleapis.com/auth/drive.readonly" } : kind === "exchange" ? { scope } : {}) }
+      const fields = { client_id: client.client_id, client_secret: client.client_secret, grant_type: kind === "exchange" ? "authorization_code" : "refresh_token", refresh_token: "invented-prior-refresh", redirect_uri: ACCEPTANCE_CALLBACK }
+      const code = `import { acceptanceStore, createAcceptanceFetch } from ${JSON.stringify(guardUrl)}; setTimeout(() => process.exit(1), 10000); const store = acceptanceStore(${JSON.stringify(directory)}, ${JSON.stringify(manifest.encryptionKey)}); const guarded = createAcceptanceFetch({ manifest: ${JSON.stringify(manifest)}, client: ${JSON.stringify(client)}, store, fetchImpl: async () => Response.json(${JSON.stringify(response)}) }); await guarded('https://oauth2.googleapis.com/token', { method: 'POST', body: new URLSearchParams(${JSON.stringify(fields)}) });`
+      child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), "--input-type=module", "-e", code])
+      closed = once(child, "close")
+      await Promise.race([once(child.stdout, "data"), closed.then(() => assert.fail("capture child exited before rename")), new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("temporary capture boundary timed out")), 5000) })])
+      clearTimeout(timer)
+      assert.equal((await readFile(temporary, "utf8")).includes(token), false)
+      assert.equal((await store.vault()).length, kind === "refresh" ? 1 : 0)
+      await assert.rejects(acceptanceLock(directory, () => assert.fail("live capture lock was stolen"), { timeoutMs: 60 }), /journal_lock/)
+      await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      const recoveryStarted = Date.now()
+      await assertAcceptanceTokenCaptureComplete(store, () => store.record({ kind: "cleanup", phase: "started" }))
+      const captured = (await store.vault()).at(-1)
+      assert.equal(captured.access_token, token)
+      assert.equal(captured.tokenKind, kind)
+      assert.equal(captured.acceptedForUse, valid)
+      assert.ok((await store.journal()).find((item) => item.recoveredFromVault).at >= recoveryStarted)
+      await assert.rejects(stat(temporary), { code: "ENOENT" })
+      if (process.platform !== "win32") assert.equal((await stat(vaultPath)).mode & 0o777, 0o600)
+      let calls = 0, revoked = false
+      const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => {
+        calls++
+        if (request.url.endsWith("/revoke")) { revoked = new URLSearchParams(await request.text()).get("token") === token; return Response.json({}) }
+        assert.equal(request.headers.get("authorization"), "Bearer " + token)
+        return Response.json({ items: [] })
+      } })
+      if (valid) {
+        assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: () => assert.fail("recovered access needs no refresh") }), token)
+        await acceptanceCleanupCalendars({ client, store, adapter: createGoogleCalendarAdapter({ fetchImpl: cleanup }), fetchImpl: cleanup })
+        assert.equal(calls, 2)
+      } else {
+        await assert.rejects(cleanup("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer " + token } }))
+        assert.equal(calls, 0, "recovery cannot make a rejected grant usable")
+      }
+      await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(revoked, true)
+    } finally {
+      clearTimeout(timer)
+      if (child && child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      if (closed) await closed
+      await rm(directory, { recursive: true, force: true })
+    }
+  }
+})
+
+test("temporary vault recovery rejects unauthenticated or unbound replacements and preserves interrupted clears", async () => {
+  const { manifest, client } = fixture()
+  const prior = { access_token: "invented-prior-access-token", acceptedForUse: true }
+  const capture = { access_token: "invented-next-access-token", refresh_token: "invented-next-refresh", id_token: "invented-next-identity", scope: GOOGLE_CALENDAR_SCOPES.join(" "), acceptedForUse: true, capturedAt: Date.now(), tokenAttempt: "a".repeat(32), tokenKind: "exchange" }
+  for (const fault of ["history", "attempt", "kind", "scope", "receipt", "partial", "authentication", "shape", "clear"]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-invalid-temporary-vault-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const vaultPath = join(directory, "token-vault.json"), temporary = vaultPath + ".next"
+      await store.saveVault([prior])
+      const original = await readFile(vaultPath, "utf8")
+      await store.record({ kind: "exchange", phase: "intent", tokenAttempt: capture.tokenAttempt })
+      if (fault === "receipt") await store.record({ kind: "exchange", phase: "captured", tokenAttempt: capture.tokenAttempt })
+      const next = { ...capture, ...(fault === "attempt" ? { tokenAttempt: "b".repeat(32) } : fault === "kind" ? { tokenKind: "refresh" } : fault === "scope" ? { scope: capture.scope + " https://www.googleapis.com/auth/drive.readonly" } : {}) }
+      await store.saveVault(fault === "clear" ? [] : fault === "shape" ? next : [fault === "history" ? { ...prior, access_token: "invented-replaced-history" } : prior, next])
+      let pending = await readFile(vaultPath, "utf8")
+      if (fault === "partial") pending = "{"
+      if (fault === "authentication") pending = JSON.stringify({ ...JSON.parse(pending), tag: "0".repeat(32) })
+      await writeFile(temporary, pending, { mode: 0o600 })
+      await writeFile(vaultPath, original, { mode: 0o600 })
+      if (fault === "clear") {
+        assert.deepEqual(await store.locked(() => store.vault({ recover: true })), [prior])
+        await assert.rejects(stat(temporary), { code: "ENOENT" })
+      } else {
+        await assert.rejects(store.locked(() => store.vault({ recover: true })), /vault_read/)
+        assert.equal(await readFile(temporary, "utf8"), pending, "invalid capture evidence must remain intact")
+        await assert.rejects(store.saveVault([]), { code: "EEXIST" })
+        assert.equal(await readFile(temporary, "utf8"), pending, "a new write cannot truncate stranded evidence")
+        let calls = 0
+        const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async () => { calls++; return Response.json({}) } })
+        await assert.rejects(cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token: prior.access_token }) }))
+        assert.equal(calls, 0)
+      }
+      assert.equal(await readFile(vaultPath, "utf8"), original, "rejected replacements and interrupted clears retain every canonical grant")
     } finally { await rm(directory, { recursive: true, force: true }) }
   }
 })

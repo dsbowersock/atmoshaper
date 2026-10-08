@@ -164,6 +164,15 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   for revocation. Invented-token regressions cover both capture crash points,
   scope drift and cleanup after an expired prior grant. Live PR #41 retains
   fresh exact-head validation/review status and separate merge approval.
+- The next Codex finding covers a stop after the encrypted temporary vault
+  write but before its final rename. Recovery authenticates that file, checks
+  the complete preserved history and matching pending token intent, and promotes
+  the capture under the ownership lock. Rejected grants remain revocable only;
+  partial, corrupted or mismatched replacements stay intact and stop dispatch.
+  An interrupted empty-vault clear retains canonical grants for revocation.
+  Provider-free regressions pause the actual writer and stop only its owned
+  synthetic child. Local checks pass 43 with one POSIX-only Windows skip; live
+  PR #41 carries fresh exact-head validation/reviews before separate merge approval.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head
