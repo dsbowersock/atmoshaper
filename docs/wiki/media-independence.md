@@ -62,6 +62,9 @@ declarations and runtime owners are unchanged against the recorded public
 ## Provider read gate and exact operation
 
 The owner-requested Cloudflare login begins with account/user/zone read scopes.
+The owner completed login on October 8. Wrangler identifies one account, but
+the actual R2 bucket-list read is denied with authentication code `10000`.
+This is a storage-access gap, not a failed sign-in, empty inventory or media outage.
 After identifying the actual account, confirm that the approved read credential
 also has the endpoint's required R2 metadata permission; account/zone access
 alone is not bucket inventory proof. Cloudflare's

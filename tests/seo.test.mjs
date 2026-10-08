@@ -14,7 +14,6 @@ import {
   getRobotsRouteConfig,
   publicSeoIndexingEnabled,
 } from "../lib/seo.js"
-import { MASSAGELAB_SOCIAL_LINKS, MASSAGELAB_SOCIAL_URLS } from "../lib/social-links.js"
 
 const productionEnv = Object.freeze({ NODE_ENV: "production", VERCEL_ENV: "production" })
 const previewEnv = Object.freeze({ NODE_ENV: "production", VERCEL_ENV: "preview" })
@@ -34,6 +33,9 @@ describe("SEO route contract", () => {
     assert.equal(metadata.title, "AtmoShaper | Massage anatomy flashcards, session timer, and practice tools")
     assert.equal(metadata.applicationName, "AtmoShaper")
     assert.equal(metadata.openGraph.siteName, "AtmoShaper")
+    assert.equal(metadata.metadataBase.toString(), "https://www.atmoshaper.com/")
+    assert.equal(metadata.alternates.canonical, "https://www.atmoshaper.com/")
+    assert.equal(metadata.openGraph.url, "https://www.atmoshaper.com/")
     assert.equal("images" in metadata.openGraph, false)
     assert.equal(metadata.twitter.card, "summary")
     assert.equal("images" in metadata.twitter, false)
@@ -46,8 +48,8 @@ describe("SEO route contract", () => {
   })
 
   it("builds canonical URLs on the production redirect target", () => {
-    assert.equal(buildCanonicalUrl("/about/"), "https://www.massagelab.app/about")
-    assert.equal(buildCanonicalUrl("education/flashcards"), "https://www.massagelab.app/education/flashcards")
+    assert.equal(buildCanonicalUrl("/about/"), "https://www.atmoshaper.com/about")
+    assert.equal(buildCanonicalUrl("education/flashcards"), "https://www.atmoshaper.com/education/flashcards")
   })
 
   it("keeps legal documents and starter study routes in the public sitemap contract", () => {
@@ -103,7 +105,7 @@ describe("SEO route contract", () => {
       const entry = entries[index]
 
       assert.equal(url.search, "")
-      assert.equal(url.hostname, "www.massagelab.app")
+      assert.equal(url.hostname, "www.atmoshaper.com")
       assert.equal(url.pathname.startsWith("/api/"), false)
       assert.equal(url.pathname.startsWith("/account"), false)
       assert.equal(url.pathname.startsWith("/admin"), false)
@@ -120,7 +122,8 @@ describe("SEO route contract", () => {
     const robots = getRobotsRouteConfig(productionEnv)
     const disallow = robots.rules[0].disallow
 
-    assert.equal(robots.sitemap, "https://www.massagelab.app/sitemap.xml")
+    assert.equal(robots.sitemap, "https://www.atmoshaper.com/sitemap.xml")
+    assert.equal(robots.host, "https://www.atmoshaper.com")
     assert.deepEqual(disallow, [...ROBOTS_PRIVATE_DISALLOW_PATHS])
     assert.ok(disallow.includes("/api/"))
     assert.ok(disallow.includes("/account"))
@@ -130,23 +133,19 @@ describe("SEO route contract", () => {
     assert.ok(disallow.includes("/notes/soap"))
   })
 
-  it("publishes social profiles as organization sameAs links", () => {
-    const organization = createSeoJsonLd()["@graph"].find((node) => node["@type"] === "Organization")
+  it("identifies only the independent product origin without claiming unverified social profiles", () => {
+    const graph = createSeoJsonLd()["@graph"]
+    const organization = graph.find((node) => node["@type"] === "Organization")
     assert.ok(organization, "Organization node missing from SEO JSON-LD graph")
 
     assert.equal(organization.name, "AtmoShaper")
     assert.equal("logo" in organization, false)
-    assert.deepEqual(organization.sameAs, [...MASSAGELAB_SOCIAL_URLS])
-    assert.deepEqual([...MASSAGELAB_SOCIAL_URLS], [
-      "https://www.instagram.com/massagelab/",
-      "https://www.youtube.com/@massagelabtv",
-      "https://www.facebook.com/massagewithderrick",
-    ])
-    assert.deepEqual(MASSAGELAB_SOCIAL_LINKS.map((link) => link.description), [
-      "AtmoShaper photos, updates, and behind-the-scenes work.",
-      "AtmoShaper demos, education clips, and video updates.",
-      "Derrick's massage practice updates and community posts.",
-    ])
+    assert.equal("sameAs" in organization, false)
+    for (const node of graph) {
+      assert.equal(new URL(node["@id"]).origin, "https://www.atmoshaper.com")
+      assert.equal(new URL(node.url).origin, "https://www.atmoshaper.com")
+      if (node.publisher) assert.equal(new URL(node.publisher["@id"]).origin, "https://www.atmoshaper.com")
+    }
   })
 
   it("disallows all crawling outside production", () => {

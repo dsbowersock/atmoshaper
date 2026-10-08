@@ -33,13 +33,16 @@ actions, or as popularity, conversion, user-history or product analytics.
   A reference is not a confirmed provider-delivery receipt.
 - Initial October 8 `sentry-cli info --no-defaults` could not authenticate because
   no release-tool token was configured. At the owner's request, the separately
-  installed official Sentry OAuth CLI now has an interactive sign-in started
-  with `org:read`, `project:read` and `alerts:read` scopes; owner completion is
-  pending at this checkpoint. Credentials stay in owner/SYSTEM-only local
-  storage, outside Git and chat. This does not configure the SDK or authorize
-  release uploads. Provider identity, privacy settings, quotas, retention,
-  source maps and alerts remain unverified. Pending access is not evidence of
-  an outage or permission to create a guessed project.
+  installed official Sentry OAuth CLI is now authenticated after owner completion.
+  Readback verifies one organization, one existing team and one legacy Next.js
+  project, with no AtmoShaper project and no remaining project-list page. A dry
+  run for one separate AtmoShaper Next.js project under that explicit team passes.
+  Exact references remain in the protected operation journal, outside Git/chat.
+  No project, setting, DSN binding, release upload, event or alert changed.
+  The [project-only setup packet](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md#3-enable-useful-privacy-safe-sentry-operations)
+  needs its exact approval; effective new-destination privacy, quotas, retention,
+  source maps and alerts still require proof before collection. Legacy settings
+  do not prove readiness of the new independent destination.
 - The [August 17 provider audit](../audits/2026-08-17-anonymous-sentry-provider-settings.md)
   belongs to its named historical source/environment. It does not verify a new
   independent AtmoShaper destination. Do not repeat its completed diagnostic.

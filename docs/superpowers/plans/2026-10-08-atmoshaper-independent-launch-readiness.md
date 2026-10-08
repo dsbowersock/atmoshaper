@@ -75,9 +75,12 @@ Completion requires:
 - Keep private resource references/credential recovery in owner-protected
   storage outside Git. Tracked records contain public outcomes only.
 - Obtain only the precise missing read access. Initial CLI checks lacked
-  authentication. Owner-requested Cloudflare and Sentry read-scope sign-ins are
-  started and await completion; no authenticated provider inventory is claimed.
-  Identify Ably/Sentry owner apps/projects before selecting or creating them.
+  authentication. The owner subsequently completed Cloudflare and Sentry login.
+  Current readback identifies one Cloudflare account; R2 bucket listing is denied
+  with `10000`, requiring the exact storage-read permission. Sentry has one
+  organization/team and one legacy Next.js project, with no AtmoShaper project.
+  Provider references and status receipts remain private. Identify Ably owner
+  apps before selecting or creating them; neither login activates an integration.
 - Ably's dashboard read is blocked because the browser cannot verify the
   admin-enforced policy. Do not bypass browser controls or retry until resolved.
   Continue source preparation while obtaining the exact missing owner/read
@@ -127,10 +130,32 @@ Owners: [deployment privacy contract](../../wiki/deployment.md#sentry) and
 October 8 local preparation excludes the SDK's separate process-session pipeline
 as well as browser sessions, preserves sanitized errors and gates error references
 on the current enabled SDK/error. Provider-free SDK/privacy/diagnostic/fallback
-checks pass 55/55. Initial release-CLI authentication was absent. The separately
-installed official OAuth CLI's owner-requested read-scope sign-in is started and
-awaits completion; destination settings, source maps and alerts remain unread.
+checks pass 55/55. The owner subsequently completed OAuth CLI authentication.
+Fresh metadata identifies one organization, one existing team with owner admin
+membership, and one legacy Next.js project; no AtmoShaper project exists and
+the project/team inventories have no further page. The project-creation dry run
+passes with the existing team explicitly selected; no DSN is returned or bound.
+Exact references and source/read receipts are kept in the protected journal.
 Do not infer provider readiness from source checks or the historical audit.
+
+The next concrete provider packet is **initial project creation only**:
+
+- Create exactly one `atmoshaper` project with platform `javascript-nextjs` under
+  the privately identified existing organization and team. Recheck the baseline
+  immediately before applying; if a matching project already exists or the
+  selected owner/team changes, stop and reconcile rather than creating duplicates.
+- Preserve the existing legacy project/team and their settings. Do not create
+  another organization/team, start a trial, change a plan or increase a quota.
+  This operation has no event, span, session, source-map or attachment ingestion.
+- Read back the new project's name/platform/team association and record its
+  exact owned identifier privately. SDK collection and hosted environment
+  bindings remain disabled/absent, with zero synthetic events or notifications.
+- Inspect the new effective privacy, retention, quota and billing controls
+  before preparing the later configuration/upload/alert/acceptance packet.
+  Legacy settings and missing fields do not establish the new project's readiness.
+- On any failure, stop, keep collection disabled and retain the private receipt;
+  no legacy resource or new project is automatically deleted. This packet needs
+  exact owner approval before its first write, despite completed authentication.
 
 - Identify an independent AtmoShaper project/environment and appropriate quotas,
   source-map/release linkage, retention and alert ownership.
@@ -229,6 +254,13 @@ continues unchanged.
 
 ### 7. Finish independent mail, domains and legacy separation
 
+October 8 Resend metadata readback identifies one verified AtmoShaper sending
+subdomain, with sending enabled, receiving disabled and click/open tracking off.
+Provider DKIM/SPF-labeled record statuses are verified; no DNS values, provider
+identifiers, recipients or messages are stored in tracked evidence. This does
+not prove the current Production SMTP binding, DMARC alignment, plan ownership,
+actual delivery, or an inbound support route; no mail or verification was sent.
+
 - Reconcile the actual AtmoShaper database/admin/backup ownership, Google auth and
   Calendar clients, SMTP sender/support destination, DNS, domains, build service,
   scheduled jobs and credentials. Prior success is dated evidence, not a new
@@ -248,6 +280,15 @@ Acceptance: documented independent ownership/recovery, usable branded support,
 no unexplained legacy dependency, and observed working legacy tools throughout.
 
 ### 8. Final offered-feature verification and marketing handoff
+
+October 8 public `robots.txt` and `sitemap.xml` still point to old www. Local source
+now fixes the common canonical/metadata/structured-data owner to AtmoShaper www
+and omits unverified legacy Organization social equivalence. Focused checks pass
+17/17; the isolated build emits all 36 sitemap URLs and robots host/sitemap on the
+new canonical with private-route exclusions intact. Existing visible social
+links still require an ownership/branding decision; no profile is invented,
+reserved or renamed. Public output changes only after source review and the
+later exact-artifact rollout; old callbacks, media and legal dates remain intact.
 
 - Run appropriate final-source CI/reviews and targeted offered-feature browser
   checks. Keep skips and retries visible; never rerun success to erase flakes.

@@ -2,6 +2,44 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Verify provider access and correct independent search identity
+
+- The owner completed Wrangler and Sentry authorization. Read-only inventory
+  verifies one Sentry organization/team and one legacy Next.js project, with no
+  AtmoShaper project and no remaining project/team page. The team reports owner
+  admin membership; a dry run selects that explicit team for one separate
+  AtmoShaper Next.js project. No project, setting, DSN, release or event changed.
+- Prepared the exact [initial project-only packet](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md#3-enable-useful-privacy-safe-sentry-operations).
+  Creation still needs its exact approval; collection, source maps, alert delivery
+  and the final hosted binding remain later gates. Legacy resources stay intact.
+- Wrangler account authentication verifies one account. R2 bucket listing is
+  denied with provider code `10000`; it needs the exact storage-read credential,
+  rather than another ordinary sign-in. No bucket absence, ownership transfer or
+  media outage is inferred. No object content or storage configuration changed.
+- Resend metadata verifies the AtmoShaper sending subdomain with sending enabled,
+  receiving disabled and click/open tracking disabled; provider DKIM/SPF-labeled
+  record statuses are verified. Actual Production SMTP binding, billing/admin,
+  alignment/delivery and branded inbound routing remain open. No message sent.
+  Provider references stay in the existing owner/SYSTEM-protected operation
+  journal; mail evidence is status-only and excludes DNS values/identifiers.
+- Public robots/sitemap readback still reports two/36 old-host references. The
+  local common SEO owner now points canonical, metadata, robots, sitemap and
+  structured-data identity to AtmoShaper www and omits unverified legacy social
+  equivalence. Existing visible social links/account decisions remain open;
+  callbacks, media contracts, legal text/dates and legacy tools are unchanged.
+- Focused SEO/public-identity checks pass 17/17; lint and typecheck pass. The
+  isolated provider-free build compiles and generates all 115 pages, with 36 new
+  canonical sitemap URLs, zero old sitemap URLs and correct robots host/sitemap
+  and private-route exclusions. No public artifact or hosted setting changed.
+- Documentation/workload checks pass 16/16; all 228 relative file targets across
+  the branch's 14 changed documents resolve, with zero added private indicators
+  and clean whitespace checks. Hosted main still matches the branch's merge base.
+- Prepared a visible owner-controlled R2 storage-read prompt using protected
+  local storage and Windows user-bound encryption. It requests only a fresh
+  exact-account read token; no credential is accepted through chat or printed.
+  Until the owner supplies it and the bucket read passes, storage inventory stays
+  open. Source publication/review and initial Sentry creation await exact approval.
+
 ## 2026-10-08 — Inventory media declarations and separate the remaining cutover paths
 
 - Added a [media independence map](wiki/media-independence.md) covering Signature
