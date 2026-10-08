@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import { mkdtemp, rm, readFile, writeFile, stat, mkdir, rmdir, symlink, realpath } from "node:fs/promises"
+import { mkdtemp, rm, readFile, writeFile, stat, mkdir, rmdir, symlink, realpath, readdir } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { createServer } from "node:http"
@@ -294,6 +294,71 @@ test("journal locks preserve live owners and recover only after an owned worker 
     if (child.exitCode === null && child.signalCode === null) child.kill("SIGTERM")
     await exit
     await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test("interrupted lock release preserves ownership before retirement and never leaves an empty canonical lock", async () => {
+  const guardUrl = new URL("../scripts/calendar-application-acceptance-guard.mjs", import.meta.url).href
+  for (const stage of ["claimed", "retired"]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-lock-release-unit-"))
+    // Pause the actual guard at either release boundary; only filesystem calls in this synthetic directory run.
+    const replacement = `
+      export { readFile, writeFile, mkdir, rmdir, appendFile, readdir } from 'node:fs/promises';
+      import { rename as actualRename, unlink as actualUnlink } from 'node:fs/promises';
+      const directory = ${JSON.stringify(directory)}, stage = ${JSON.stringify(stage)};
+      async function pause() { process.stdout.write('release-paused\\n'); await new Promise(() => {}); }
+      export async function rename(source, target) {
+        await actualRename(source, target);
+        if (stage === 'claimed' && String(target) === ${JSON.stringify(join(directory, "journal.lock", "release"))}) await pause();
+      }
+      export async function unlink(target) {
+        if (stage === 'retired' && String(target).startsWith(directory) && String(target).includes('journal.lock-released-')) await pause();
+        return actualUnlink(target);
+      }
+    `
+    const hook = `import { registerHooks } from 'node:module'; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(guardUrl)} && specifier === 'node:fs/promises') return { url: 'data:text/javascript,' + encodeURIComponent(${JSON.stringify(replacement)}), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const code = `import { acceptanceLock } from ${JSON.stringify(guardUrl)}; setTimeout(() => process.exit(1), 10000); await acceptanceLock(${JSON.stringify(directory)}, async () => {});`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), "--input-type=module", "-e", code])
+    const closed = once(child, "close")
+    let timer
+    try {
+      await Promise.race([once(child.stdout, "data"), closed.then(() => assert.fail("release child exited before the boundary")), new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("release boundary timed out")), 5000) })])
+      clearTimeout(timer)
+      if (stage === "claimed") {
+        const entries = await readdir(join(directory, "journal.lock"))
+        assert.equal(entries.length, 2)
+        assert.ok(entries.includes("release"))
+        const claims = await readdir(join(directory, "journal.lock", "release"))
+        assert.equal(claims.length, 1)
+        assert.match(claims[0], new RegExp(`^owner-${child.pid}-`))
+        assert.equal(JSON.parse(await readFile(join(directory, "journal.lock", "release", claims[0]), "utf8")).pid, child.pid)
+        await assert.rejects(acceptanceLock(directory, () => assert.fail("live release claim was stolen"), { timeoutMs: 60 }), /journal_lock/)
+      } else {
+        await assert.rejects(stat(join(directory, "journal.lock")), { code: "ENOENT" })
+        assert.equal((await readdir(directory)).filter((name) => name.startsWith("journal.lock-released-")).length, 1)
+        await acceptanceLock(directory, async () => {
+          assert.equal((await readdir(join(directory, "journal.lock"))).length, 1)
+          await stopAcceptanceCommand(child, { graceMs: 1 })
+          await closed
+          assert.equal((await readdir(join(directory, "journal.lock"))).length, 1, "the replacement owner's lock survives interrupted retirement")
+        })
+      }
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      let active = 0
+      await Promise.all(Array.from({ length: 12 }, () => acceptanceLock(directory, async () => {
+        assert.equal(++active, 1)
+        await new Promise((done) => setTimeout(done, 2))
+        active--
+      })))
+      assert.equal(active, 0)
+      await assert.rejects(stat(join(directory, "journal.lock")), { code: "ENOENT" })
+    } finally {
+      clearTimeout(timer)
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      await rm(directory, { recursive: true, force: true })
+    }
   }
 })
 

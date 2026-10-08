@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Codex closes interrupted lock release
+
+- Fresh Codex review identifies an unlink-before-rmdir crash window: an empty
+  canonical journal lock could prevent later owned cleanup. Release now claims
+  the lock with a prepopulated PID-owned directory, verifies the original owner
+  while holding that claim, and atomically retires the directory before deleting
+  evidence. Dead claims use the same ownership proof for recovery; live and
+  unrecognized locks are preserved. Directory claims also serialize competing
+  releasers when Windows file renames resolve through stale handles.
+- A provider-free regression pauses the actual guard before and after retirement,
+  terminates only its synthetic child, and verifies recovery, concurrent exclusion
+  and preservation of a replacement owner's lock. No application, provider or
+  database acceptance is repeated. Source publication and exact-head checks and
+  reviews remain under PR #41; merge and future Production activity retain their
+  separate approval boundary, and final review receipts remain private.
+- Local harness checks pass 37 with one POSIX-only Windows skip. Lint,
+  typecheck and documentation/workload checks 16/16 pass; all 137 relative
+  targets resolve, with no added-documentation private-data or whitespace findings.
+
 ## 2026-10-08 — Review makes cursor proof independent of source order
 
 - The `2bd0d4c` checkpoint passes all seven CI jobs at `03:28:05Z`: 5,191 unit

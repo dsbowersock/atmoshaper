@@ -124,6 +124,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   status; final receipts stay private so recording them does not change the head.
   Later source fixes require their own checks and reviews. Merge remains separately
   authorized. No completed provider activity is repeated.
+- The subsequent Codex finding closes an interrupted lock-release gap in the
+  operator harness. A prepopulated PID-owned release claim serializes competing
+  releasers, and the ownership-verified directory moves out of the canonical
+  lock path before any owner record is deleted. Dead release claims remain
+  recoverable; live and unrecognized locks stay protected. The provider-free
+  regression interrupts the actual release before and after retirement and
+  checks concurrent recovery and replacement-owner preservation. Live PR #41
+  checks and reviews must cover this source fix before merge is proposed.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

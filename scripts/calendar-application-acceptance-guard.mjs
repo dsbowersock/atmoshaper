@@ -4,36 +4,70 @@ import { join } from "node:path"
 import { authorizeAcceptanceRequest, requireAcceptance, validateAcceptanceScopes, validateAcceptanceManifest } from "./calendar-application-acceptance-core.mjs"
 import { ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 
-/** Remove only this exact owner's entry; a replacement lock is always nonempty and survives rmdir. */
-async function releaseAcceptanceLock(lock, ownerName) {
+/** Claim release with a prepopulated directory, then retire the verified lock before deleting any evidence. */
+async function releaseAcceptanceLock(lock, ownerName, directory) {
+  const nonce = randomBytes(16).toString("hex")
+  const claimName = `owner-${process.pid}-${nonce}.json`
+  const candidate = join(directory, `journal.lock-release-candidate-${process.pid}-${nonce}`)
+  const claim = join(lock, "release")
+  const retired = join(directory, `journal.lock-released-${process.pid}-${nonce}`)
   const deadline = Date.now() + 5000
-  while (true) {
-    try { await unlink(join(lock, ownerName)); break } catch (error) {
-      if (error.code === "ENOENT") return
-      // Windows can report EPERM while another reclaimer's delete is still pending.
-      if (!["EPERM", "EACCES"].includes(error.code) || Date.now() >= deadline) throw error
-      await new Promise((resolve) => setTimeout(resolve, 25))
+  // Windows can resolve concurrent file renames through stale handles; nonempty directory claims exclude them.
+  await mkdir(candidate, { mode: 0o700 })
+  try {
+    await writeFile(join(candidate, claimName), JSON.stringify({ pid: process.pid, nonce }), { mode: 0o600, flag: "wx" })
+    while (true) {
+      try { await rename(candidate, claim); break } catch (error) {
+        if (error.code === "ENOENT") return
+        if (!["EEXIST", "ENOTEMPTY", "EPERM", "EACCES"].includes(error.code) || Date.now() >= deadline) throw error
+        await reclaimAcceptanceLock(claim, directory)
+        await new Promise((resolve) => setTimeout(resolve, 25))
+      }
     }
-  }
-  while (true) {
-    try { await rmdir(lock); return } catch (error) {
-      if (["ENOENT", "ENOTEMPTY", "EEXIST"].includes(error.code)) return
-      if (!["EPERM", "EACCES"].includes(error.code) || Date.now() >= deadline) throw error
-      await new Promise((resolve) => setTimeout(resolve, 25))
+    const entries = await readdir(lock)
+    if (entries.length !== 2 || !entries.includes(ownerName) || !entries.includes("release")) {
+      // A stale contender may have claimed a replacement directory; relinquish its own claim without moving it.
+      await rename(claim, candidate)
+      return
     }
+    while (true) {
+      try { await rename(lock, retired); break } catch (error) {
+        if (!["EPERM", "EACCES"].includes(error.code) || Date.now() >= deadline) throw error
+        await new Promise((resolve) => setTimeout(resolve, 25))
+      }
+    }
+    // A crash before retirement retains both PID records; a crash after retirement cannot block the canonical path.
+    for (const [remove, path] of [[unlink, join(retired, ownerName)], [unlink, join(retired, "release", claimName)], [rmdir, join(retired, "release")], [rmdir, retired]]) {
+      while (true) {
+        try { await remove(path); break } catch (error) {
+          if (error.code === "ENOENT") break
+          if (!["EPERM", "EACCES"].includes(error.code) || Date.now() >= deadline) throw error
+          await new Promise((resolve) => setTimeout(resolve, 25))
+        }
+      }
+    }
+  } finally {
+    try { await unlink(join(candidate, claimName)) } catch (error) { if (error.code !== "ENOENT") throw error }
+    try { await rmdir(candidate) } catch (error) { if (error.code !== "ENOENT") throw error }
   }
 }
 
 /** PID liveness is fail-closed: only ESRCH proves a recorded owner is dead, never age or EPERM. */
-async function reclaimAcceptanceLock(lock) {
+async function reclaimAcceptanceLock(lock, directory) {
   let entries
   try { entries = await readdir(lock) } catch (error) { if (["ENOENT", "EPERM", "EACCES"].includes(error.code)) return; throw error }
-  if (entries.length !== 1 || !/^owner-[1-9][0-9]*-[a-f0-9]{32}\.json$/.test(entries[0])) return
+  const ownerName = entries.find((entry) => /^owner-[1-9][0-9]*-[a-f0-9]{32}\.json$/.test(entry))
+  if (!ownerName || (entries.length !== 1 && !(entries.length === 2 && entries.includes("release")))) return
   let owner
-  try { owner = JSON.parse(await readFile(join(lock, entries[0]), "utf8")) } catch { return }
-  if (!Number.isSafeInteger(owner.pid) || owner.pid < 1 || owner.pid > 2_147_483_647 || entries[0] !== `owner-${owner.pid}-${owner.nonce}.json`) return
+  try { owner = JSON.parse(await readFile(join(lock, ownerName), "utf8")) } catch { return }
+  if (!Number.isSafeInteger(owner.pid) || owner.pid < 1 || owner.pid > 2_147_483_647 || ownerName !== `owner-${owner.pid}-${owner.nonce}.json`) return
+  if (entries.includes("release")) {
+    // Release claims use the same dead-PID proof and protocol, including an interrupted claim recovery.
+    await reclaimAcceptanceLock(join(lock, "release"), directory)
+    return
+  }
   try { process.kill(owner.pid, 0) } catch (error) {
-    if (error.code === "ESRCH") await releaseAcceptanceLock(lock, entries[0])
+    if (error.code === "ESRCH") await releaseAcceptanceLock(lock, ownerName, directory)
   }
 }
 
@@ -53,19 +87,19 @@ export async function acceptanceLock(directory, action, { timeoutMs = 5000 } = {
       try { await readdir(lock) } catch (error) { if (error.code === "ENOENT") occupied = false; else if (!["EPERM", "EACCES"].includes(error.code)) throw error }
       if (occupied) {
         requireAcceptance(Date.now() < deadline, "journal_lock")
-        await reclaimAcceptanceLock(lock)
+        await reclaimAcceptanceLock(lock, directory)
         await new Promise((resolve) => setTimeout(resolve, 25))
         continue
       }
       try { await rename(candidate, lock); break } catch (error) {
         requireAcceptance(["EEXIST", "ENOTEMPTY", "EPERM", "EACCES"].includes(error.code) && Date.now() < deadline, "journal_lock")
-        await reclaimAcceptanceLock(lock)
+        await reclaimAcceptanceLock(lock, directory)
         await new Promise((resolve) => setTimeout(resolve, 25))
       }
     }
-    try { return await action() } finally { await releaseAcceptanceLock(lock, ownerName) }
+    try { return await action() } finally { await releaseAcceptanceLock(lock, ownerName, directory) }
   } finally {
-    await releaseAcceptanceLock(candidate, ownerName)
+    await releaseAcceptanceLock(candidate, ownerName, directory)
   }
 }
 
