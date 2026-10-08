@@ -103,6 +103,15 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   Calendar rollout from remaining old-origin and other gates, preserving manual
   public promotion and the Production acceptance limits. This documentation-only
   follow-up still needs renewed latest-head hosted validation and reviews.
+  The next full CodeRabbit review completes at `2026-10-08T02:55:47Z`,
+  covering all eighteen files at `cf889a0` with four valid findings. Historical
+  pre-rollout handoffs are now dated and completed source publication points to
+  latest-head reviews/checks. Server setup failures terminate the owned child;
+  each new native pending-Disconnect rejection records its own current-server
+  receipt, including markers split across stderr chunks. Provider-free checks
+  pass 35 with one POSIX-only skip on Windows; lint, typecheck and documentation/
+  workload checks 16/16 pass. Fresh hosted validation/reviews
+  are required after these fixes. No completed provider activity is repeated.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

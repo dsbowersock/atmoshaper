@@ -6,8 +6,9 @@ tokens are revoked. The availability replacement merged in
 [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) on October 7 after
 exact-head full review of all 20 files found no new actionable comments and all
 seven CI jobs, Vercel Preview and Codex review passed. Its automatic Production
-candidate passed actual readiness gates and seven authenticated GETs and remains
-unpromoted. All six saved live assignments retain PR #37; no restoration was
+candidate passed actual readiness gates and seven authenticated GETs. At that
+pre-rollout checkpoint it was unpromoted and all six saved live assignments
+retained PR #37; no restoration was
 needed. The user approved the revised Production declaration's guided setup on
 October 7 and subsequently reports `saved`. The owner then supplies Verification
 Center's message that verification is not required because the app requests no
@@ -28,7 +29,9 @@ recovery. Seven anonymous public GETs, the Calendar sign-in guard and canonical
 apex redirect pass. No rebuild or rollback was needed. Public optional Calendar
 is available to eligible accounts; no real Production OAuth exchange is claimed.
 The [completed credential and rollout receipt](2026-10-07-atmoshaper-calendar-production-credentials.md)
-owns the saved rollback and next operator/harness source closeout.
+owns the saved rollback. Operator/harness source is published in PR #41 and its
+latest-head reviews/checks remain the source closeout step; merge requires
+separate approval.
 
 October 3 screenshots establish External / In production and empty declared
 scope lists; branding is verified/shown. The user reports completed Calendar API
@@ -221,15 +224,18 @@ materials are prepared. Unexpected existing saved scopes require reconciliation
 before removing them. Approval alone does not establish selection, save or
 verification. Those selection/save steps are historical guidance, not a repeat
 request. The later owner category/status readback now satisfies the remaining
-question; do not request it again. Next is the separately gated
-[isolated application acceptance](2026-10-07-atmoshaper-calendar-application-acceptance.md).
+question; do not request it again. At this pre-acceptance checkpoint, the next
+separately gated step was
+[isolated application acceptance](2026-10-07-atmoshaper-calendar-application-acceptance.md),
+now completed with its documented cleanup and limits.
 No alternate browser/control path is authorized by these receipts.
 
-PR #40's source publication/reviews, merge and automatic
-unpromoted candidate verification are complete. Verification upload/submission
-if applicable, credentials, application/provider
-acceptance, public promotion and activation remain separate steps. No Google
-settings are changed by the merged source or this proposal.
+Historical October 7 pre-rollout gate boundaries: PR #40's source
+publication/reviews, merge and automatic unpromoted candidate verification were
+complete. Verification upload/submission if applicable, credentials,
+application/provider acceptance, public promotion and activation required
+separate approval. The later completed receipts above supersede this handoff;
+no Google settings were changed by the merged source or this proposal.
 
 ## October 3 declared-permission checkpoint; historical event-read proposal
 
@@ -446,7 +452,7 @@ Public Calendar was inactive at that declaration checkpoint; the later separate
 approved promotion is recorded at the top. Do not prepare the
 historical sensitive-scope demo for the current saved declaration by default.
 
-## Completed comparison setup and pending application targets
+## Completed comparison and application acceptance
 
 The [permission comparison plan](2026-10-03-atmoshaper-calendar-scope-comparison.md)
 retains the historical setup, configuration approval and separately approved
@@ -472,9 +478,10 @@ Calendar redirect now passes private downloaded-JSON validation.
 The replacement Verification Center outcome is satisfied by the October 7 owner
 readback above. The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
 now records the approved four-setting provisioning and verified unpromoted
-candidate and the subsequently approved public promotion/activation. Its next
-source step is operator/harness closeout publication/review, with no new setup
-or completed-test rerun. Preserve shared consent settings.
+candidate and the subsequently approved public promotion/activation. The
+operator/harness closeout is published in PR #41; its latest-head reviews and
+checks remain, with no new setup or completed-test rerun. Preserve shared consent
+settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 
@@ -484,19 +491,21 @@ change the separate permission lists each runtime flow actually requests.
 Review their consequences before asking for a settings change. No legacy
 Google project or client change is proposed.
 
-The proposed Production callback is
+Historical October 7 pre-provisioning boundary: the proposed Production callback was
 `https://www.atmoshaper.com/api/calendar/google/callback`, distinct from sign-in's
 `/api/auth/callback/google`. Reconcile it with the saved canonical auth host.
-Provisioning the four settings is a later exact operation; never paste secrets
+Provisioning the four settings required a later exact operation, now completed
+in the linked receipt; never paste secrets
 into chat or commit them. The presence helper alone does not prove encryption
 key validity, consent readiness, or provider acceptance.
 
 The earlier PR #39 candidate requests `openid`, `email`, `calendar.app.created`,
 `calendar.calendarlist.readonly`, and `calendar.events.readonly`, using Google's
-full URI prefix for Calendar scopes. The merged unpromoted PR #40 candidate
-replaces new event-read requests with `calendar.events.freebusy`, retaining
-legacy-token compatibility; see the boundary above. The live PR #37 artifact
-retains its earlier combined request until separate public promotion.
+full URI prefix for Calendar scopes. At the October 7 pre-promotion checkpoint,
+the merged unpromoted PR #40 candidate replaced new event-read requests with
+`calendar.events.freebusy`, retaining legacy-token compatibility; see the boundary
+above. The then-live PR #37 artifact retained its earlier combined request until
+the later separately approved public promotion of PR #40.
 Review each grant's necessity and saved classification/verification; do not
 substitute broader Calendar write grants. Use separate testing and Production
 projects under Google's policy; locate an appropriate existing test project

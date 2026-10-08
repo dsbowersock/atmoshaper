@@ -5,7 +5,7 @@ all owned resources cleaned. Callback, access, PostgreSQL, reconnect, sync,
 resolved Disconnect and uncertain-create/reconciliation cases pass. The missing
 native pending-Disconnect rejection subsequently passed in a separately approved
 database-only follow-up. The completed-run harness checkpoint passed 18 checks;
-the later source-review follow-up below passes 29 provider-free checks. The
+the earlier source-review recovery checkpoint below passed 29 provider-free checks. The
 [one-case follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
 and its cleanup are now complete, closing this bounded application acceptance
 gate. No Google consent or fixture work was repeated. The execution sequence
@@ -59,8 +59,13 @@ matching Calendar 400/401/403 error with no resource ID. When every create is
 positively rejected, cleanup needs no inventory permission before owned-token
 revocation. Ambiguous response/transport failures still require reconciliation.
 
-All 29 provider-free checks pass locally; exact POSIX permission assertions
-still require latest-head Linux CI. The original real run used the earlier
+The earlier recovery checkpoint passed all 29 provider-free checks locally.
+Subsequent review fixes terminate the owned server child on setup failure and
+record every new native pending-Disconnect rejection, including markers split
+across stderr chunks, without recounting buffered text. The current local suite
+passes 35 with one POSIX-only skip on Windows. Synthetic entrypoint failures and
+repeated rejection receipts are covered; fresh Linux CI and latest-head reviews
+remain required. The original real run used the earlier
 unmodified description and injected response loss after ID capture; the new
 pre-parse recovery and delayed-refresh proofs are provider-free. They do not
 retroactively broaden the completed real acceptance claim or authorize a rerun.
@@ -74,8 +79,9 @@ connection, practice/feature gates, dedicated target creation, PostgreSQL locks,
 outbound events, reconnect or disconnect. This is a new application acceptance
 stage; do not repeat that comparison or the completed live payment test.
 
-PR #40 merged as `38d0deddea484938e13df61927d07a7b21f92071`. Its checked
-automatic candidate is unpromoted. The owner reports saving the approved
+At the October 7 pre-rollout checkpoint, PR #40 had merged as
+`38d0deddea484938e13df61927d07a7b21f92071` and its checked automatic candidate
+was unpromoted. The owner reported saving the approved
 replacement Production declaration and supplies Verification Center's message:
 
 > Verification is not required since your app is not requesting any sensitive or restricted scopes.
@@ -84,7 +90,8 @@ The owner also reports no Sensitive or Restricted entries. This closes the
 declaration/status gate by owner readback, not independent Console/API inspection
 of every saved URL. No verification submission is currently required on that
 evidence. Production Calendar credentials, public promotion and activation
-remain separate future operations.
+were separate future operations at that checkpoint; their later completed
+receipts are linked in the result section below.
 
 Read-only preparation on October 7 verified a clean owned receipt branch,
 merged hosted PR truth, the real Neon Prisma adapter, and available loopback
@@ -322,6 +329,7 @@ The [Production credential/build and rollout receipt](2026-10-07-atmoshaper-cale
 now records separately approved provisioning, stable key recovery, the single
 checked candidate and exact-artifact public promotion. Those later approvals
 do not authorize repeating this completed acceptance run. Operator/harness source
-publication/review is the next closeout step; no additional provider test or
+is published in PR #41; latest-head reviews and checks remain the source closeout
+step, with merge requiring separate approval. No additional provider test or
 verification upload/submission is granted here. Registration/recurring Supporter Checkout remain open; one-time
 support/background purchases and hosted clinical storage remain disabled.

@@ -61,6 +61,22 @@ export async function writeAcceptanceDiagnostic(directory, text) {
   } finally { await file.close() }
 }
 
+/** Record every new native rejection, including split markers, without recounting buffered private stderr. */
+export function acceptanceNativeRejectionObserver({ mode, store, pid }) {
+  const marker = "Choose a removable Google calendar connection. Unresolved creation requires reconciliation."
+  let tail = ""
+  return async (text) => {
+    if (!["server", "pending-server"].includes(mode)) return
+    const window = tail + text
+    const occurrences = window.split(marker).length - 1
+    // A tail shorter than the marker cannot contain an already counted full occurrence.
+    tail = window.slice(-(marker.length - 1))
+    for (let index = 0; index < occurrences; index++) {
+      await store.locked(() => store.record({ kind: "case", phase: "observed", caseName: "native-pending-disconnect-rejection", pid }))
+    }
+  }
+}
+
 /** Canonical file ancestry rejects in-checkout symlinks and dot-prefixed children without rejecting siblings. */
 export async function acceptancePrivatePaths(appRoot, configPath, credentialFile = null) {
   const root = await realpath(appRoot)
@@ -137,14 +153,12 @@ async function main() {
   })
   // Never forward request URLs, OAuth codes, tokens, raw database errors or provider payloads.
   let privateError = ""
-  let observedNativeRejection = false
+  const observeNativeRejection = acceptanceNativeRejectionObserver({ mode, store, pid: child.pid })
   child.stderr.on("data", (chunk) => {
-    privateError = (privateError + chunk.toString()).slice(-32_768)
+    const text = chunk.toString()
+    privateError = (privateError + text).slice(-32_768)
     // Next emits this exact action error only after the owned database mutation rejects removal.
-    if (["server", "pending-server"].includes(mode) && !observedNativeRejection && privateError.includes("Choose a removable Google calendar connection. Unresolved creation requires reconciliation.")) {
-      observedNativeRejection = true
-      store.locked(() => store.record({ kind: "case", phase: "observed", caseName: "native-pending-disconnect-rejection", pid: child.pid })).catch(() => {})
-    }
+    observeNativeRejection(text).catch(() => {})
   })
   process.on("SIGINT", stopChild)
   process.on("SIGTERM", stopChild)

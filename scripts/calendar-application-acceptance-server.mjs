@@ -46,4 +46,5 @@ async function main() {
   setTimeout(stop, Math.max(1, remaining)).unref()
   process.on("SIGTERM", stop); process.on("SIGINT", stop)
 }
-main().catch(() => { console.error("ACCEPTANCE: server setup stopped"); process.exitCode = 1 })
+// Failed preparation/readiness can leave framework or listening handles alive; fail the owned child immediately.
+main().catch(() => { console.error("ACCEPTANCE: server setup stopped"); process.exit(1) })

@@ -6,10 +6,11 @@ import { join, resolve } from "node:path"
 import { createServer } from "node:http"
 import { spawn } from "node:child_process"
 import { once } from "node:events"
+import { fileURLToPath } from "node:url"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
 import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
-import { writeAcceptanceDiagnostic, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand, acceptanceCommandWatchdog } from "../scripts/calendar-application-acceptance.mjs"
+import { writeAcceptanceDiagnostic, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand, acceptanceCommandWatchdog, acceptanceNativeRejectionObserver } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
@@ -30,6 +31,66 @@ function fixture() {
   const client = { project_id: manifest.googleProjectId, client_id: "synthetic.apps.googleusercontent.com", client_secret: "invented-secret-for-tests", redirect_uris: ["http://localhost:3317/oauth/callback"] }
   return { manifest, client }
 }
+
+test("native rejection receipts cover repeated attempts and split markers without recounting old stderr", async () => {
+  const { manifest } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-native-rejection-unit-"))
+  const marker = "Choose a removable Google calendar connection. Unresolved creation requires reconciliation."
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    for (const [index, mode] of ["server", "pending-server"].entries()) {
+      const pid = 100 + index
+      const observe = acceptanceNativeRejectionObserver({ mode, store, pid })
+      await observe(marker.slice(0, 30))
+      assert.equal((await store.journal()).filter((item) => item.pid === pid).length, 0)
+      await observe(marker.slice(30) + "\n")
+      await new Promise((done) => setTimeout(done, 2))
+      const requestedAt = Date.now()
+      await observe("unrelated synthetic private payload\n")
+      await observe(marker + "\n" + marker.slice(0, 45))
+      await observe(marker.slice(45) + "\n")
+      await observe("later unrelated chunk\n")
+      const receipts = (await store.journal()).filter((item) => item.pid === pid)
+      assert.equal(receipts.length, 3)
+      assert.equal(receipts.filter((item) => item.at >= requestedAt).length, 2, "resumed worker attempts need fresh current-server evidence")
+      assert.ok(receipts.every((item) => item.caseName === "native-pending-disconnect-rejection" && item.phase === "observed"))
+    }
+    await acceptanceNativeRejectionObserver({ mode: "check", store, pid: 999 })(marker)
+    assert.equal((await store.journal()).some((item) => item.pid === 999), false)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("server setup failures exit the actual entrypoint despite live synthetic framework handles", async () => {
+  const serverUrl = new URL("../scripts/calendar-application-acceptance-server.mjs", import.meta.url).href
+  for (const failure of ["listen", "readiness"]) {
+    // Only this entrypoint's dependencies are replaced; no app, provider, database or real listener starts.
+    const replacements = {
+      "node:http": `import { EventEmitter } from 'node:events'; export function createServer() { const server = new EventEmitter(); server.listen = (_port, _host, done) => queueMicrotask(() => ${failure === "listen" ? "server.emit('error', new Error('synthetic unavailable port'))" : "done()"}); return server }`,
+      "next-auth/jwt": "export async function encode() { return 'synthetic-cookie' }",
+      "next": "export default function next() { return { async prepare() { setInterval(() => {}, 1000) }, getRequestHandler() { return async () => {} } } }",
+      "./calendar-application-acceptance.mjs": "export async function loadAcceptanceConfig() { return { manifest: { encryptionKey: 'synthetic', appRoot: 'synthetic', runId: 'synthetic', authSecret: 'synthetic' }, client: {}, directory: 'synthetic' } }",
+      "./calendar-application-acceptance-guard.mjs": "export function acceptanceStore() { return { locked: async (action) => action(), record: async () => { throw new Error('synthetic readiness write failure') } } }; export function createAcceptanceFetch() { return () => { throw new Error('synthetic provider access forbidden') } }",
+      "./calendar-application-acceptance-core.mjs": "export function requireAcceptance() {}; export const ACCEPTANCE_ORIGIN = 'http://localhost:3318'",
+      "../lib/auth/browser-user-fixture.ts": "export function createBrowserUserFixtureIdentity() { return { user: {} } }",
+      "../tests/browser/signed-in-session-cookie.ts": "export function signedInSessionToken() { return {} }",
+    }
+    const hook = `import { registerHooks } from 'node:module'; const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(serverUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), fileURLToPath(serverUrl)])
+    const closed = once(child, "close")
+    let stderr = ""
+    child.stderr.on("data", (chunk) => { stderr += chunk.toString() })
+    let timer
+    try {
+      const [code] = await Promise.race([closed, new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("setup failure left the owned child alive")), 5000) })])
+      assert.equal(code, 1)
+      assert.equal(stderr.trim(), "ACCEPTANCE: server setup stopped")
+    } finally {
+      clearTimeout(timer)
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+    }
+  }
+})
 
 test("POSIX teardown terminates an ignoring descendant even after its process-group leader exits", { skip: process.platform === "win32" }, async () => {
   const descendant = "process.on('SIGTERM', () => {}); process.stdout.write('ready\\n'); setInterval(() => process.stdout.write('.'), 20)"

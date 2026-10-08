@@ -2,6 +2,28 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review closes setup failures and repeated rejection evidence
+
+- The explicit full CodeRabbit review completes at `2026-10-08T02:55:47Z`,
+  covering all eighteen files at `cf889a0`; all five pre-merge checks pass with
+  87.88% touched-function docstring coverage. Four findings are valid: two stale
+  operator handoffs and two harness lifecycle/evidence gaps.
+- Pre-rollout and pre-provisioning passages are explicitly historical. The
+  completed operator/harness publication now points to PR #41's latest-head
+  checks and reviews; merge and future Production work retain separate approval.
+  Setup failures exit the owned server child immediately, even when framework
+  or listener handles are active. Each new native rejection writes a receipt;
+  a short tail catches split markers without recounting earlier stderr.
+- Provider-free checks pass 35 with one POSIX-only skip on Windows. Regressions
+  cover resumed rejection attempts and split/multiple markers, plus the actual
+  server entrypoint's listen/readiness failure paths using synthetic dependency
+  replacements and a retained framework handle. No real listener, app, provider
+  or database starts in those regressions. Lint, typecheck and documentation/
+  workload checks 16/16 pass; all 137 relative targets resolve, and added-doc
+  private-data/whitespace scans pass. Fresh latest-head hosted validation
+  and reviews remain required; completed acceptance, cleanup and public rollout
+  are not repeated.
+
 ## 2026-10-07 — Review aligns the migration handoff with the completed Calendar rollout
 
 - The explicit full CodeRabbit review completes at `2026-10-08T01:47:58Z`,
