@@ -84,6 +84,16 @@ if (features.includes("premium_backgrounds")) {
 
 ## One-Time Support
 
+October 8 activation scope: the completed public rollout enabled recurring
+Supporter billing only. One-time support and background purchasing are required
+readiness work in the [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md),
+with no automatic activation date. Their own readiness and scoped acceptance
+must pass before exact activation approval. The currently deployed Production
+prebuild requires both flows disabled. The independent-launch source branch
+prepares an explicit `STRIPE_PRODUCTION_READINESS_SCOPE=all-payments` mode;
+an unset scope retains Supporter-only checks. Review and validate that source
+and all corresponding readiness gates before changing any hosted setting.
+
 The `/pricing` page offers fixed one-time support amounts through the legacy
 route `/api/billing/donation`.
 

@@ -8,6 +8,7 @@ import { PageHeading } from "@/components/ui/page-heading"
 import { MovingBackground } from "@/components/moving-background"
 import { AnatomimeActionButton } from "./anatomime-action-button"
 import { fetchJsonResponseWithTimeout, fetchJsonWithTimeout } from "@/lib/client-fetch"
+import { createAnatomimeRealtimeAuthCallback } from "./anatomime-realtime-auth"
 import {
   ANATOMIME_ACTION_REQUEST_TIMEOUT_MS,
   ANATOMIME_ACTION_RETRY_FALLBACK_SECONDS,
@@ -171,6 +172,7 @@ function ablyScript(signal: AbortSignal) {
   return ready
 }
 
+/** Owns one joined room's polling, player actions and optional realtime client, with credentials and teardown scoped to that room. */
 export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode?: string }) {
   const normalizedInitialCode = normalizeAnatomimeClientRoomCode(initialCode)
   const [code, setCode] = useState(normalizedInitialCode)
@@ -332,6 +334,7 @@ export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode
       setupTimer = null
     }
 
+    /** Obtains the setup grant and installs an effect-owned SDK client whose later grants share the same cancellation boundary. */
     async function connectRealtime() {
       try {
         const { response: tokenResponse, json: tokenRequest } = await fetchJsonWithTimeout(
@@ -354,9 +357,13 @@ export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode
         if (!window.Ably) throw new Error("Realtime unavailable")
 
         ablyClient = new window.Ably.Realtime({
-          authCallback(_tokenParams, callback) {
-            callback(null, tokenRequest)
-          },
+          authCallback: createAnatomimeRealtimeAuthCallback({
+            code: lookupCode,
+            playerId: realtimePlayerId,
+            playerToken: realtimePlayerToken,
+            initialTokenRequest: tokenRequest,
+            signal: controller.signal,
+          }),
         })
         const channel = ablyClient.channels.get(`anatomime:${lookupCode}`)
         channel.subscribe(() => {

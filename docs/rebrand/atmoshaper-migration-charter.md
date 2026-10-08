@@ -8,6 +8,7 @@ compatibility and exact-authorization rules continue to apply.
 
 ## Authority
 
+- Current goal: [independent AtmoShaper marketing readiness](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md), clarified by the user on October 8. Required provider/realtime/monitoring/media and remaining purchasing work must be completed; preserve working MassageLab tools during the transition and defer broad refactors. This direction supersedes earlier optional-provider/permanent-coexistence assumptions, without authorizing unspecified provider writes or retirement.
 - Approved design: [AtmoShaper repository migration and modernization design](../superpowers/specs/2026-09-06-atmoshaper-repository-migration-design.md) (approved design commit `14f60fc1bc63e12b65b28c353b83e5f159247645`).
 - Approved bootstrap plan: [AtmoShaper repository migration Phase 1-2 implementation plan](../superpowers/plans/2026-09-06-atmoshaper-repository-migration.md).
 - Completed local plan: [Phase 3 documentation consolidation](../superpowers/plans/2026-09-09-atmoshaper-phase3-documentation-consolidation.md), limited to documentation and deterministic documentation-occurrence audit-baseline reconciliation.

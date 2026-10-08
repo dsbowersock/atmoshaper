@@ -22,6 +22,7 @@ describe("anonymous Sentry options", () => {
   it("removes session, replay, and console-capture integrations", () => {
     const integrations = [
       { name: "BrowserSession" },
+      { name: "ProcessSession" },
       { name: "Replay" },
       { name: "ReplayCanvas" },
       { name: "CaptureConsole" },

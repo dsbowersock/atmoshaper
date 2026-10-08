@@ -2,17 +2,63 @@
 
 Verified: 2026-10-08
 
-Evidence scope: repository, PR #40's final reviews/CI and approved merge,
-automatic unpromoted candidate, dated authenticated hosting readbacks, the owner's
-replacement Google declaration/status receipts, the bounded application tests
-and completed cleanup, approved Production Calendar provisioning/candidate
-verification, separately approved public rollout, and approved PR #41 source
-publication on October 7. Completed
-Calendar comparisons and other historical receipts retain their original dates.
+Evidence scope: October 8 hosted main/PR #41 merge truth, authenticated hosting
+and environment-name readbacks, and current source inspection. Earlier payment,
+Calendar, public-page, and provider receipts retain their original dates. A name
+inventory does not verify secret values or live feature acceptance.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Registration and Supporter Checkout Open
+## Current Goal — Independent AtmoShaper Ready for Marketing
+
+The user clarified the finish line on October 8: complete the surrounding service
+migration so AtmoShaper can operate independently and be marketed with working
+functionality. Ably-backed remote Anatomime is required; polling fallback alone
+does not close it. Include privacy-safe operational Sentry, media administration
+and branding, independent mail/support/provider ownership, and the remaining
+purchase activation gates. Broader refactors stay deferred.
+
+The user's working MassageLab clock and tools must remain available during the
+transition. Useful legacy resources may be assigned or migrated to AtmoShaper
+after their consumers and rollback are known. Do not infer permanent shared
+infrastructure or blanket old-site retirement from this scope. The future
+MassageLab product remains separate. No automatic account, billing, or PHI
+transfer is authorized.
+
+The [independent launch plan](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
+owns the remaining work, acceptance evidence, and exact provider-change packets.
+This goal is active; the narrower public launch is complete, while independent
+marketing readiness is not yet proved.
+
+| Area | Current state | Remaining gate |
+| --- | --- | --- |
+| Source and review closeout | PR #41 merged on October 8 as `acd05b07fb67e2af1e49965ce3d2c11b97947d3f`; hosted main matches. Reviewed source passed all seven jobs, 5,199 unit passes/two skips and 596 browser passes/178 gated skips, clean Codex/full CodeRabbit, and all 32 valid threads resolved | These results cover that source; later changes need their own applicable validation/reviews |
+| Independent launch source | Draft PR #42 is published. The source follow-up aligns the stale inventory/SEO assertions and adds focused JSDoc without changing runtime logic; focused contracts 6/6, documentation/workload 16/16, lint and typecheck pass. Its dated `c1b0ce6` checkpoint has a READY Preview, successful 115-page Browser build and clean Codex; full CI was still running. Initial `3ee84fd` CI failures and 65.38% docstring warning remain historical | Current provider-record corrections need fresh exact-head CI, Preview, Codex and full CodeRabbit coverage. Keep final receipts private once the head passes; PR #42 merge and Production release remain separate |
+| Public release and hosting | PR #40's reviewed `38d0ded` artifact remains READY and assigned to all six saved live aliases; PR #41's automatic main candidate is READY and unpromoted | Keep standard build, GitHub/main, manual custom-domain promotion, protection, and saved alias recovery; future release is a separate exact-artifact operation |
+| Environment inventory | October 8 readback has 60 Production-only settings and none in Preview/Development; no Ably, Sentry, or R2/upload configuration | Identify exact independent provider resources without exposing values; absence of upload settings does not prove media playback absent |
+| Registration and recurring Supporter | Open; completed dedicated billing/readiness and controlled payment/refund receipts retained | Preserve existing purchases and reconciliation; do not repeat the completed bootstrap/payment test |
+| One-time support and permanent backgrounds | Disabled under the completed Supporter-only launch, rather than permanently excluded from the product design; source preparation adds an explicit all-payment build scope with an unchanged Supporter-only default | Review/validate the new build selector, exact tax/payment/fulfillment prerequisites and new-flow acceptance before any hosted activation |
+| Calendar | Separate credentials and approved public rollout complete; bounded provider/application tests and teardown complete | A separately scoped real signed-in Production connection/sync is still needed for the broader readiness goal; do not redo setup or earlier tests |
+| Anatomime realtime | Local source preparation fixes SDK renewal to obtain a fresh room-authorized grant rather than replaying setup; provider-free renewal/polling/route checks pass. Current Production still lacks Ably configuration | Source review, dedicated resource binding and bounded real multi-device game/reconnect proof |
+| Sentry | Approved separate Next.js project creation is complete after the policy-required OAuth access. Exact project/team and unchanged legacy project are verified. Creation requests default issue alerts disabled; the old alert-list endpoint returns 404, so its inventory is unverified. No app binding or ingestion was added; readback has no first event, sessions, replays, profiles or logs | Effective privacy/IP prevention, retention/quota, current alert inventory, source maps and useful owner alerts require proof before collection. No organization policy or legacy setting changed; follow the [operational runbook](wiki/sentry-operations.md) |
+| Media, mail, domains and other providers | Dated operational/limited media receipts exist; the [media consumer map](wiki/media-independence.md) and local source inventory distinguish each cutover path. Full independent ownership and remaining bindings are not established | Provider inventory, branded delivery and administration, compatible transition, and observed legacy-tool continuity |
+| Cloudflare storage access | Repaired capture stores/decrypts the token, and Cloudflare verifies it as an active User API Token. The owner's screenshot confirms Workers R2 Storage Read, all-account inclusion and no IP restriction; the owner confirms the media account matches. A standard GET against the same verified account still returns HTTP 401/code `10000` | Resolve the remaining provider access denial through a precise read-only account/bucket check; do not request another token or broader permissions without new evidence. Jurisdiction/pagination inventory remains open; no bucket absence or media outage is inferred |
+| Mail/support identity | Resend readback verifies `account.atmoshaper.com`, sending enabled, receiving disabled and click/open tracking disabled; advertised support remains the branded Gmail inbox | Actual Production SMTP binding, independent administration/billing, DNS alignment/delivery proof and any separately approved inbound domain routing |
+| Search identity | Public robots/sitemap still point to old www. Local SEO correction uses canonical AtmoShaper www for metadata, all 36 sitemap URLs and structured-data identity, omitting unverified legacy social equivalence | Source review and exact-artifact rollout; social-account ownership/link decisions remain separate and legacy callbacks/media are preserved |
+
+PR #41's final receipts remain private; its review heartbeat is paused. The
+historical publication/review checkpoints below explain the completed work and
+do not reopen PR #41 or override its merged status. Current source work begins
+from the merged main above. Repository preparation and this clarified goal do
+not identify an exact provider mutation, charge, database target, or retirement
+operation; prepare those concrete packets before the applicable approval gate.
+
+Current Anatomime test inventory registers 174 focused Node cases and 52
+intercepted desktop/mobile browser cases. These inventory counts are separate
+from the locked bootstrap's inherited 174/174 and 42/42 receipts below; added
+renewal cases do not rewrite historical acceptance evidence.
+
+## Historical Launch Receipt — Registration and Supporter Checkout Open
 
 - The separately approved [Production Calendar credential/build stage](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
   is complete. Exactly four Calendar settings were added to the existing

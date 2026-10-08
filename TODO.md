@@ -2,6 +2,8 @@
 
 Current project state now lives in [docs/project-state.md](docs/project-state.md), and chronological progress tracking lives in [docs/project-log.md](docs/project-log.md). Keep this file as source evidence and a detailed historical checkbox list, but mirror meaningful status changes in the project state and project log.
 
+October 8 current work is the [independent AtmoShaper launch plan](docs/superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md). The reviewed public rollout and PR #41 operator closeout are complete; required realtime, monitoring, media/provider independence, actual Production Calendar acceptance and remaining purchase-readiness gates belong to that active plan. The branch checklist below is historical, rather than the remaining migration list.
+
 ## Current Branch
 
 - [x] Add feature-based entitlement helpers with `chimer_custom_colors`.

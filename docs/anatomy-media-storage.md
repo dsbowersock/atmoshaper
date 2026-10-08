@@ -1,6 +1,12 @@
 # Anatomy Media Storage
 
-MassageLab stores anatomy media files in Cloudflare R2 and stores the media catalog, provenance, license review, entity links, and R2 object keys in Postgres.
+AtmoShaper inherits the anatomy media storage contract: media files use Cloudflare
+R2 while catalog/provenance, license review, entity links and object keys use
+Postgres. The existing storage-variable names remain compatibility identifiers.
+Read [project state](project-state.md) and the
+[independent media cutover map](wiki/media-independence.md) for current migration
+scope. Counts and setup/publication details below are inherited evidence, not
+a fresh provider/database readback or authority to repeat upload/seed operations.
 
 ## Why R2
 

@@ -4,6 +4,8 @@ This file captures product-direction source evidence after the May 8-13, 2026 al
 
 Current project state now lives in [project-state.md](project-state.md), and chronological progress tracking lives in [project-log.md](project-log.md). Keep this roadmap as product-direction source evidence and mirror meaningful status changes in the project state and project log.
 
+October 8 current migration priority is [independent AtmoShaper launch readiness](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md). The historical Sentry implementation receipt below proves source wiring, not an enabled AtmoShaper Production project; realtime and monitoring remain required hosted-readiness work in the active plan.
+
 ## Recently Completed
 
 - Sentry error monitoring and performance traces are wired with privacy scrubbing for diagnostic messages. Keep Session Replay, User Feedback, and Logs disabled until MassageLab has route-by-route privacy review, Sentry project scrubbing rules, and a written policy for clinical/local-first pages.

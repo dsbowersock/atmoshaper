@@ -2,6 +2,281 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Complete approved Sentry project setup and verify the R2 token
+
+- The source follow-up is published in draft PR #42. At the dated `c1b0ce6`
+  checkpoint, the exact Preview is READY and Codex reports no major issues.
+  Browser build binds the branch to merged main, generates all 115 pages and
+  uploads that artifact. Full units and all four Browser QA lanes are running;
+  initial failures remain historical. Full CodeRabbit coverage is still pending.
+- The owner cannot find the prior Sentry window, so the prepared interactive
+  authorization is reopened. Readback confirms the policy-required OAuth scope,
+  unchanged organization policy and the exact approved organization/team/project
+  baseline. The single approved project-only POST returns 201 with explicit
+  `default_rules: false`. Fresh complete inventory confirms one new AtmoShaper
+  Next.js project and the unchanged legacy project; the exact team matches.
+- New-project readback has no first event and no sessions, replays, profiles or
+  logs. No app/Production binding, event, upload, organization setting or legacy
+  resource changed. The old issue-alert list returns 404, so disabled-default
+  creation is an accepted request, not verified alert-inventory absence. Effective
+  privacy/IP prevention, retention/quota, current alerts, source maps and hosted
+  monitoring acceptance remain open before collection.
+- Cloudflare's current token format and read-only self-verification confirm the
+  saved credential is an active User API Token. The encrypted local capture is
+  usable; no re-entry is needed. Storage listing still returns 401/code `10000`,
+  initially requiring the owner's permission/account check. The owner confirms
+  the match and supplies a screenshot showing storage Read, all-account inclusion
+  and no IP restriction. A standard GET against the same verified account still
+  returns 401/code `10000`; this is an unresolved provider access denial, not a
+  reason to request token re-entry or broader permissions. No object content or
+  provider setting changed.
+- Current administrative records now distinguish completed setup from activation
+  and retain earlier denied writes as dated history. This documentation-only
+  checkpoint needs renewed exact-head hosted proof; subsequent final receipts
+  stay private to keep the passing head stable. PR #42 remains draft/unmerged.
+
+## 2026-10-08 — Publish independent launch source and reconcile setup approvals
+
+- The owner approved publication of `3ee84fd` as draft PR #42 with automatic
+  Preview/CI and the review/fix loop. Hosted main remains the PR #41 merge base.
+  The exact initial Preview is READY; Browser build, lint and typecheck pass.
+  Codex reports no major issues, and the explicit CodeRabbit full review finishes
+  with all 34 changed files covered and no actionable inline comments.
+- CodeRabbit's initial pre-merge docstring check reports 65.38% against the 80%
+  threshold. Added focused JSDoc for touched auth ownership/cancellation,
+  root-error reporting, SDK sanitization hooks, public SEO identity and synthetic
+  test helpers. These JSDoc edits leave runtime logic unchanged. These source
+  comments and current-record corrections require fresh exact-head hosted proof;
+  the initial head's reviews and checks become historical after publication.
+- The initial head's Linux unit run reports 5,225 total, 5,221 passed, two skips
+  and two failures, with no cancellations. Both failures are stale Anatomime
+  inventory/receipt assertions: the clock guard still expects 16 instead of 20
+  authored bodies, and the receipt check incorrectly grows the locked bootstrap's
+  historical browser result when new cases are registered. Updated the single
+  authored-body guard and separated current inventory from inherited receipts.
+  Current Anatomime test inventory registers 174 focused Node cases and 52
+  intercepted desktop/mobile browser cases. Historical 174/174 and 42/42 remain
+  intact; inventory is not a passing current-head acceptance receipt.
+- Initial Browser QA reports 604 passed, 178 gated skips and two final failures;
+  no recovered flake is reported. Both failures are the desktop/mobile SEO test
+  still expecting the legacy canonical/OG host after the approved source identity
+  correction. Updated those expectations to AtmoShaper without changing runtime,
+  retries, screenshots or historical results. The aggregate is failed at this
+  initial head; the correction requires fresh complete hosted checks.
+- Separate Sentry project-only creation is approved. The first API write uses
+  explicit `default_rules: false` and returns 403. Fresh project reconciliation
+  confirms no AtmoShaper project was created. Opened a separate minimal
+  project-write OAuth setup window while preserving the existing read-only login.
+  Collection, events, uploads, plan/quota settings and legacy resources stay
+  untouched; do not repeat the failed write before authorization and readback.
+- The owner completes the separate project-write login. Fresh readback matches
+  the approved organization/team, member authority and unchanged legacy project,
+  with complete pagination and no AtmoShaper project. Creation remains denied:
+  the provider explicitly says member project creation is disabled. Read-only
+  policy confirms the authenticated owner role and missing OAuth organization
+  write scope. Prepared the additional access helper for this approved project
+  only; no organization policy or legacy resource changes are authorized.
+- The owner supplied the requested R2 read token, but the original local capture
+  exited with an empty file. The next interactive capture reports missing
+  `ConvertFrom-SecureString`; the owner confirms that command name without
+  exposing token values. The prepared retry explicitly imports the built-in
+  security module and can reuse the existing in-memory SecureString. Its actual
+  native PowerShell invented-token round trip passes, and only its owned scratch
+  is removed. The owner runs the retry and confirms successful encrypted capture.
+  Actual R2 bucket reads then return HTTP 401/code `10000`; trimming/quote checks
+  find no formatting defect, and no object content or provider setting changes.
+  Token type/status and exact-account read authority still need owner readback;
+  bucket/domain inventory remains open. No request used the failed captures.
+- Focused inventory/clock contracts pass 6/6 and documentation/workload checks
+  pass 16/16; lint and typecheck pass. The five commented runtime files retain
+  identical parsed code after normalizing Windows newlines. All 231 relative
+  file targets across the branch's 15 changed Markdown documents resolve against
+  current/base source, with zero added private indicators and clean whitespace.
+  Full hosted units, all browser lanes, Preview and both reviews remain required
+  for the resulting head; the initial failed run is preserved, not rerun away.
+- Setup receipts and exact provider references remain in the protected private
+  journal. PR #42 remains draft/unmerged; no Production or media cutover occurs.
+
+## 2026-10-08 — Verify provider access and correct independent search identity
+
+- The owner completed Wrangler and Sentry authorization. Read-only inventory
+  verifies one Sentry organization/team and one legacy Next.js project, with no
+  AtmoShaper project and no remaining project/team page. The team reports owner
+  admin membership; a dry run selects that explicit team for one separate
+  AtmoShaper Next.js project. No project, setting, DSN, release or event changed.
+- Prepared the exact [initial project-only packet](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md#3-enable-useful-privacy-safe-sentry-operations).
+  Creation still needs its exact approval; collection, source maps, alert delivery
+  and the final hosted binding remain later gates. Legacy resources stay intact.
+- Wrangler account authentication verifies one account. R2 bucket listing is
+  denied with provider code `10000`; it needs the exact storage-read credential,
+  rather than another ordinary sign-in. No bucket absence, ownership transfer or
+  media outage is inferred. No object content or storage configuration changed.
+- Resend metadata verifies the AtmoShaper sending subdomain with sending enabled,
+  receiving disabled and click/open tracking disabled; provider DKIM/SPF-labeled
+  record statuses are verified. Actual Production SMTP binding, billing/admin,
+  alignment/delivery and branded inbound routing remain open. No message sent.
+  Provider references stay in the existing owner/SYSTEM-protected operation
+  journal; mail evidence is status-only and excludes DNS values/identifiers.
+- Public robots/sitemap readback still reports two/36 old-host references. The
+  local common SEO owner now points canonical, metadata, robots, sitemap and
+  structured-data identity to AtmoShaper www and omits unverified legacy social
+  equivalence. Existing visible social links/account decisions remain open;
+  callbacks, media contracts, legal text/dates and legacy tools are unchanged.
+- Focused SEO/public-identity checks pass 17/17; lint and typecheck pass. The
+  isolated provider-free build compiles and generates all 115 pages, with 36 new
+  canonical sitemap URLs, zero old sitemap URLs and correct robots host/sitemap
+  and private-route exclusions. No public artifact or hosted setting changed.
+- Documentation/workload checks pass 16/16; all 228 relative file targets across
+  the branch's 14 changed documents resolve, with zero added private indicators
+  and clean whitespace checks. Hosted main still matches the branch's merge base.
+- Prepared a visible owner-controlled R2 storage-read prompt using protected
+  local storage and Windows user-bound encryption. It requests only a fresh
+  exact-account read token; no credential is accepted through chat or printed.
+  Until the owner supplies it and the bucket read passes, storage inventory stays
+  open. Source publication/review and initial Sentry creation await exact approval.
+
+## 2026-10-08 — Inventory media declarations and separate the remaining cutover paths
+
+- Added a [media independence map](wiki/media-independence.md) covering Signature
+  audio, generative indexes and samples, published Chimer previews, the earlier
+  preview fallback, reviewed anatomy images and other rendered assets. A branded
+  delivery domain can reuse existing payloads, but absolute audio URLs, nested
+  sample destinations and existing anatomy records need their own binding work.
+- The named `migration:media:inventory` command reads local public declarations
+  and pure metadata helpers. It validates duplicate checksum/size declarations,
+  audio summary counts and published/runtime background identity without
+  credentials, provider requests, database reads, media downloads or file writes.
+  The command passes and reports 51 audio concepts with 1,640 distinct format
+  objects, 84 published preview backgrounds with 1,728 distinct objects and 57
+  source-enabled generative stations. Declared bytes and source-enabled status
+  are not current storage, ownership or hosted-playback proof.
+- Updated deployment, anatomy-storage, migration-ledger and launch-plan guidance
+  to distinguish historical examples from current configuration. Provider
+  ownership, exact branded bindings, nested hosted metadata, anatomy URL evidence
+  and legacy-tool continuity remain open. No application behavior, hosted
+  setting, media payload, database row or legacy delivery changed.
+- Lint and documentation/workload checks pass 16/16. All 226 relative file
+  targets across the branch's 14 changed documents resolve; added-documentation
+  private-indicator and whitespace checks pass. This inventory/documentation
+  change does not require repeating the completed live tests or media publication.
+- At 15:14 UTC, redacted status checks still show both CLI sign-ins incomplete.
+  The first Sentry login command had ended. Opened a Sentry window that waits for
+  the owner to press Enter before starting its read-only OAuth flow, matching the
+  waiting Cloudflare window. Protected local credential storage remains intact;
+  these windows are authentication preparation, not provider activation.
+
+## 2026-10-08 — Prepare session-free operational Sentry and accurate error fallback
+
+- The installed SDK's Node defaults include process-session reporting in a
+  separate envelope pipeline outside the event sanitizer. Local source now
+  excludes that integration alongside browser sessions, while retaining runtime
+  error handlers and anonymous operational traces.
+- The actual error fallback avoids capture when Sentry is disabled, binds a
+  reference to its current error, makes no delivery claim and preserves support
+  if capture fails. Existing diagnostic taxonomy and compatibility identifiers
+  remain intact; no additional application capture site is introduced.
+- Provider-free SDK/privacy/diagnostic/fallback checks pass 55/55. Actual installed
+  browser/Node/edge defaults and in-memory SDK envelopes prove the session gap,
+  retained release/stack utility, sanitized private fields and absent transport
+  without an application DSN. All tokens, identity and clinical values in the
+  regressions are invented test data; no provider, application or database starts.
+- Added an [operational runbook](wiki/sentry-operations.md) explaining practical
+  use, exact destination/privacy/source-map/alert gates and bounded acceptance.
+  Lint, typecheck and the isolated 115-page Browser-QA build pass, along with
+  documentation/workload checks 16/16. All 206 relative file targets across the
+  branch's 13 changed documents resolve; added-documentation private indicators
+  and whitespace checks pass.
+- Initial read-only CLI checks lacked authentication. At the user's request,
+  opened interactive Cloudflare and Sentry sign-in windows. The official Sentry
+  OAuth CLI uses organization/project/alert read scopes and owner/SYSTEM-only
+  local credential storage; Cloudflare uses account/user/zone read scopes.
+  Both sign-ins still await owner completion at this checkpoint. Provider
+  settings and alert delivery remain unverified. No provider configuration,
+  source-map upload, synthetic hosted event or notification was submitted.
+
+## 2026-10-08 — Prepare fresh Anatomime realtime authentication renewal
+
+- The player previously returned its original signed setup request for every SDK
+  authentication callback. Local source now consumes that request once and
+  obtains each renewal from the joined-player endpoint with opaque player
+  credentials in headers. SDK parameters cannot widen room authority.
+- Every renewal bounds transport and successful JSON consumption at ten seconds,
+  follows the owning room effect's cancellation, rejects late grants and returns
+  sanitized errors. A transient failure permits a later fresh renewal, while
+  existing polling and its server cooldown remain intact.
+- Provider-free renewal, polling, actual-route and traffic checks pass 150/150.
+  The isolated Browser-QA build compiles and generates all 115 pages; lint and
+  typecheck pass. All 52 desktop/mobile Chromium traffic cases pass with local
+  retries disabled, including ten new renewal cases and the prior recovery,
+  cadence, cooldown, stalled setup/action and subscription-lifetime cases.
+  Documentation/workload checks pass 16/16; all 196 relative file targets across
+  the branch's 12 changed documents resolve, with no added private indicators.
+- The browser harness exercises the actual player component's SDK callback with
+  invented grants and intercepted provider traffic. This is local source proof,
+  not live Ably authentication, publishing or a real host-and-phone game.
+  Dedicated binding, exact provider-change scope and hosted acceptance remain
+  pending; no provider, database, public release or legacy tool changed.
+
+## 2026-10-08 — Prepare explicit all-payment Production build readiness
+
+- The independent-launch source branch adds exact
+  `STRIPE_PRODUCTION_READINESS_SCOPE=all-payments` selection to the existing
+  Production build wrapper. An unset value retains Supporter-only checks;
+  explicit Supporter-only remains supported. Empty or unknown values stop
+  the build before checker dispatch without printing the invalid value.
+- Full scope invokes the existing read-only checker with live retrieval,
+  inherited build configuration, no dotenv fallback and the same two-minute
+  deadline. Both additional purchasing paths must pass their existing gates;
+  enabling runtime switches alone cannot widen the default scope. All recurring
+  tax, Price, managed Portal, credential and pinned-webhook checks stay required.
+- Provider-free actual-entrypoint regressions pass: Production readiness 20/20,
+  Stripe readiness/webhook contracts 62/62, documentation/workload 16/16;
+  lint and typecheck also pass. Tests use invented credentials and a replacement
+  Stripe client, without provider requests, charges or database operations.
+- The source and environment example are prepared for review. No hosted scope,
+  purchase switch, provider configuration, public artifact or live alias changed.
+  Real new-flow acceptance, exact activation settings and source review remain
+  pending in the [independent launch plan](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md).
+
+## 2026-10-08 — Independent marketing-readiness goal replaces optional closeout
+
+- The user wants all surrounding services independently usable by AtmoShaper
+  before marketing, including required Ably-backed remote Anatomime. Sentry,
+  media/provider ownership and branded support are completion work; generic
+  refactors remain deferred. Preserve the working MassageLab clock and tools
+  during the transition, with any later resource assignment or retirement
+  limited to a concrete, dependency-verified operation.
+- Added the [independent launch plan](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
+  and reconciled the current-state/wiki handoff. One-time support/background
+  purchases have readiness gates but no automatic activation stage in the prior
+  Supporter-only rollout. Current Production prebuild hardcodes that narrower
+  check, so enabling either requires a reviewed build-gate change as well as
+  the corresponding payment/tax/fulfillment proof.
+- Refreshed hosted main and PR #41: the owner's clarified merge/verification/
+  preservation approval was completed at `2026-10-08T12:09:07Z`, merge
+  `acd05b07fb67e2af1e49965ce3d2c11b97947d3f`. Reviewed source has all seven CI
+  jobs passing, clean Codex and completed full CodeRabbit coverage of all 18
+  files; all 32 valid findings are resolved. Final receipts remain private.
+  Its automatic candidate is READY and unpromoted; all six live aliases remain
+  on the approved PR #40 public artifact. No alias repair was needed; the review
+  heartbeat is paused. This closes source review, not the broader new goal.
+- October 8 authenticated read-only hosting keeps standard `npm run build`,
+  GitHub/main, manual custom-domain promotion and deployment protection. The
+  complete name/target inventory has 60 Production-only settings and none in
+  Preview/Development, with no Ably, Sentry or R2/upload configuration. No secret
+  values, user records, production sync, provider changes or completed tests
+  were accessed or repeated by this documentation/planning pass.
+- Installed Wrangler's read-only identity check cannot authenticate; actual
+  Cloudflare ownership/bucket configuration remains unread. Do not interpret
+  this as a media outage or retry through a denied provider-admin path.
+- Ably dashboard access was denied because the browser could not verify the
+  admin-enforced policy. Do not bypass that control or retry until resolved;
+  this is an access limitation, not a verified provider configuration failure.
+- Local documentation/workload checks pass 16/16. All relative file targets
+  in the changed documents resolve, and whitespace checks pass. Locked local
+  test dependencies were installed with lifecycle scripts disabled; no hosted
+  service, listener, database or real payment was started by these checks.
+
 ## 2026-10-08 — Codex recovers completed temporary token captures
 
 - A stop after encrypted temporary-file writing and before replacement could
