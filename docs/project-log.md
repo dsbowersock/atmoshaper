@@ -2,6 +2,36 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Inventory media declarations and separate the remaining cutover paths
+
+- Added a [media independence map](wiki/media-independence.md) covering Signature
+  audio, generative indexes and samples, published Chimer previews, the earlier
+  preview fallback, reviewed anatomy images and other rendered assets. A branded
+  delivery domain can reuse existing payloads, but absolute audio URLs, nested
+  sample destinations and existing anatomy records need their own binding work.
+- The named `migration:media:inventory` command reads local public declarations
+  and pure metadata helpers. It validates duplicate checksum/size declarations,
+  audio summary counts and published/runtime background identity without
+  credentials, provider requests, database reads, media downloads or file writes.
+  The command passes and reports 51 audio concepts with 1,640 distinct format
+  objects, 84 published preview backgrounds with 1,728 distinct objects and 57
+  source-enabled generative stations. Declared bytes and source-enabled status
+  are not current storage, ownership or hosted-playback proof.
+- Updated deployment, anatomy-storage, migration-ledger and launch-plan guidance
+  to distinguish historical examples from current configuration. Provider
+  ownership, exact branded bindings, nested hosted metadata, anatomy URL evidence
+  and legacy-tool continuity remain open. No application behavior, hosted
+  setting, media payload, database row or legacy delivery changed.
+- Lint and documentation/workload checks pass 16/16. All 226 relative file
+  targets across the branch's 14 changed documents resolve; added-documentation
+  private-indicator and whitespace checks pass. This inventory/documentation
+  change does not require repeating the completed live tests or media publication.
+- At 15:14 UTC, redacted status checks still show both CLI sign-ins incomplete.
+  The first Sentry login command had ended. Opened a Sentry window that waits for
+  the owner to press Enter before starting its read-only OAuth flow, matching the
+  waiting Cloudflare window. Protected local credential storage remains intact;
+  these windows are authentication preparation, not provider activation.
+
 ## 2026-10-08 — Prepare session-free operational Sentry and accurate error fallback
 
 - The installed SDK's Node defaults include process-session reporting in a

@@ -25,6 +25,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 - [Admin user operations](admin-user-operations.md)
 - [Deployment and environment](deployment.md)
 - [Operational Sentry readiness and use](sentry-operations.md)
+- [Independent media delivery and legacy continuity](media-independence.md)
 - [Release checklist](release-checklist.md)
 - [Dependency security notes](dependency-security.md)
 

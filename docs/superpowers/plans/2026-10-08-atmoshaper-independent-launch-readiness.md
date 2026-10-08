@@ -152,7 +152,11 @@ independently verified privacy controls and no copied personal/clinical data.
 
 Owners: [media deployment](../../wiki/deployment.md#public-media-r2),
 [domain plan](../../rebrand/atmoshaper-domain-cutover-plan.md), existing manifests
-and publication receipts. Use the Cloudflare skill and current provider docs.
+and publication receipts. The [source consumer/cutover map](../../wiki/media-independence.md)
+and `npm run migration:media:inventory` distinguish absolute audio URLs,
+generative hosted/nested indexes, relative published previews, their earlier
+fallback, and database-controlled anatomy URLs. Source declarations are not
+provider storage or playback proof. Use the Cloudflare skill and current provider docs.
 
 - Read exact account/bucket/domain/CORS/cache/usage bindings and classify their
   AtmoShaper and legacy consumers. Do not list private object content or download

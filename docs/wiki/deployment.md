@@ -829,6 +829,12 @@ standard Sentry User Feedback, screenshots/attachments, or Logs requires a separ
 
 ## Public Media R2
 
+The [independent media cutover map](media-independence.md) owns the current
+AtmoShaper migration. The existing names, defaults and commands below describe
+compatibility/publication contracts; they are not current provider ownership
+proof or authority to rerun setup/upload. Preserve legacy delivery until the
+user's working Clock/tools and rollback have been verified.
+
 Use separate Cloudflare R2 buckets for media classes:
 
 - `massagelab-anatomy-media`: anatomy image/media workflow.
