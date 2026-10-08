@@ -2,6 +2,760 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Codex recovers completed temporary token captures
+
+- A stop after encrypted temporary-file writing and before replacement could
+  strand a captured grant. Recovery now authenticates the temporary vault,
+  verifies preserved token history and the exact pending journal intent, and
+  promotes it privately under the ownership lock. Rejected scopes remain
+  quarantined for revocation; partial, corrupted and mismatched files remain
+  intact and stop dispatch. New writes cannot truncate stranded evidence.
+- An interrupted empty-vault clear retains canonical tokens so owned cleanup
+  can repeat revocation rather than prematurely discard grant ownership.
+- Provider-free regressions pause the actual writer before rename, stop only
+  the owned synthetic child, and recover valid/rejected exchange and refresh
+  captures. Invalid replacement and interrupted-clear cases preserve prior
+  grants. Local harness checks pass 43 with one POSIX-only Windows skip; all
+  synthetic children and scratch are cleaned by ownership-bound finalizers.
+- Live PR #41 retains fresh exact-head validation/reviews. Final receipts stay
+  private, merge remains separately approved, and no completed provider or
+  database acceptance is repeated.
+
+## 2026-10-08 — Review dates the initial PR #41 publication checkpoint
+
+- The current snapshot explicitly labels initial publication checks and pending
+  hosted reviews as the October 7 checkpoint. Later dated results remain below,
+  and PR #41 carries live exact-head validation and review status. Historical
+  pending status no longer reads as the current gate.
+- Merge and future Production activity retain separate approval. This correction
+  changes only documentation; final check/review receipts stay private, and no
+  completed acceptance, cleanup or public operation is repeated.
+
+## 2026-10-08 — Codex binds full grant scope and durable token validation
+
+- Scope validation now rejects every permission outside the approved Calendar
+  and identity grant, while accepting Google's equivalent email-scope alias.
+  Unrelated Drive or profile permissions cannot count as narrow acceptance.
+- The first encrypted token capture persists its scope/exchange validation
+  status. A stop after vault replacement or before the capture journal receipt
+  no longer quarantines a valid grant needed for owned inventory/teardown.
+  Invalid scopes or missing exchange fields remain encrypted solely for
+  revocation and cannot dispatch Calendar requests.
+- Provider-free cases interrupt both exchange and refresh captures, recover
+  the encrypted attempt, and complete owned-target absence and revocation with
+  invented responses after the prior access grant expires. They also verify
+  rejected grants remain unusable but revocable. No provider, database or
+  completed acceptance operation is repeated.
+- Local harness checks pass 41 with one POSIX-only Windows skip. Fresh exact-head
+  hosted validation and reviews remain on PR #41; final receipts stay private,
+  and merge and future Production activity retain separate approval.
+
+## 2026-10-08 — Codex closes cancellation before the first journal receipt
+
+- The launcher previously installed signal handlers only after awaiting its
+  initial child receipt. Handlers now own teardown before any awaited setup;
+  cancellation and setup errors drain the same owned-tree stop, remove handlers
+  on every exit path, and cannot claim command success.
+- The actual-entrypoint provider-free regression cancels during journal waiting
+  for both SIGINT and SIGTERM, including a subsequent setup failure. Windows
+  delivers the synthetic signal event; Linux delivers the actual process signal.
+  The real teardown stops only a synthetic worker, without starting a listener,
+  application, provider or database. Ownership-bound finally blocks clean all
+  synthetic children and temporary files. Fresh Linux CI must verify this path.
+- Local harness checks pass 40 with one POSIX-only Windows skip. Exact-head hosted
+  validation and reviews remain on PR #41; final receipts stay private. No
+  completed provider operation is repeated; merge retains separate approval.
+
+## 2026-10-08 — Codex protects form evidence and recovery chronology
+
+- Persisted Disconnect form fields contain a private connection ID. A shared
+  private artifact writer restricts new and existing files before writing;
+  the form and raw diagnostics retain their protected operation-directory scope.
+- Journal append time now overrides an inherited timestamp when recovery spreads
+  an earlier intent. Provider-free cases recreate older interrupted calendar and
+  token intents and verify that actual recovery receipts have fresh append times.
+  New/permissive form files are checked through the writer used by the worker;
+  fresh Linux CI supplies the independent POSIX permission proof.
+- No application, provider or database acceptance is repeated. PR #41 owns fresh
+  source publication/checks/reviews; final receipts remain private, and merge and
+  future Production activity retain separate approval.
+- Local harness checks pass 39 with one POSIX-only Windows skip. Lint,
+  typecheck and documentation/workload checks 16/16 pass; all 137 relative
+  targets resolve, with no added-documentation private-data or whitespace findings.
+
+## 2026-10-08 — Codex makes bridge nonce claims single-use
+
+- Concurrent bridge GETs could both read an unused nonce before either persisted
+  the claim. The bridge now locks read/validation/persistence before issuing the
+  synthetic session redirect; seed and reconnect writers share the same lock.
+- The provider-free regression runs the actual server entrypoint with synthetic
+  HTTP objects and replaced framework/session dependencies. Twelve simultaneous
+  normal starts yield exactly one session redirect; invalid method/path/host,
+  repeated requests and the pending-only variant yield no session. Invalid
+  requests preserve the unused nonce. No real listener, application, provider
+  or database starts. Source publication and fresh checks/reviews remain on
+  PR #41; merge and future Production activity retain separate approval.
+- Local harness checks pass 38 with one POSIX-only Windows skip. Lint,
+  typecheck and documentation/workload checks 16/16 pass; all 137 relative
+  targets resolve, with no added-documentation private-data or whitespace findings.
+
+## 2026-10-08 — Codex closes interrupted lock release
+
+- Fresh Codex review identifies an unlink-before-rmdir crash window: an empty
+  canonical journal lock could prevent later owned cleanup. Release now claims
+  the lock with a prepopulated PID-owned directory, verifies the original owner
+  while holding that claim, and atomically retires the directory before deleting
+  evidence. Dead claims use the same ownership proof for recovery; live and
+  unrecognized locks are preserved. Directory claims also serialize competing
+  releasers when Windows file renames resolve through stale handles.
+- A provider-free regression pauses the actual guard before and after retirement,
+  terminates only its synthetic child, and verifies recovery, concurrent exclusion
+  and preservation of a replacement owner's lock. No application, provider or
+  database acceptance is repeated. Source publication and exact-head checks and
+  reviews remain under PR #41; merge and future Production activity retain their
+  separate approval boundary, and final review receipts remain private.
+- Local harness checks pass 37 with one POSIX-only Windows skip. Lint,
+  typecheck and documentation/workload checks 16/16 pass; all 137 relative
+  targets resolve, with no added-documentation private-data or whitespace findings.
+
+## 2026-10-08 — Review makes cursor proof independent of source order
+
+- The `2bd0d4c` checkpoint passes all seven CI jobs at `03:28:05Z`: 5,191 unit
+  passes with two skips and 596 browser passes with 178 gated skips, no failures
+  or flaky browser results reported in that run. Its exact-head Preview is READY
+  and Codex reports no major issues. Full CodeRabbit coverage completes at
+  `04:06:32Z` across all eighteen files, with two minor findings; all five
+  pre-merge checks pass with 88.24% touched-function docstring coverage.
+- Cursor preservation is compared by source identity rather than unordered
+  relation position. The provider-free regression accepts reordered distinct
+  cursors and rejects missing, duplicate, replaced or changed sources and absent
+  failure status. Handoffs date their completed publication/checkpoint receipts
+  and use PR #41 for live exact-head review/check status. Final receipts remain
+  private without further receipt-only source commits.
+- Provider-free harness checks pass 36 with one POSIX-only Windows skip; lint,
+  typecheck and documentation/workload checks 16/16 pass. All 137 relative targets
+  resolve, with no added-documentation private-data or whitespace findings.
+- Source fixes need fresh exact-head hosted validation and reviews before merge
+  can be proposed. Merge and future Production activity require separate approval;
+  completed real acceptance, cleanup and public rollout are not repeated.
+
+## 2026-10-07 — Review closes setup failures and repeated rejection evidence
+
+- The explicit full CodeRabbit review completes at `2026-10-08T02:55:47Z`,
+  covering all eighteen files at `cf889a0`; all five pre-merge checks pass with
+  87.88% touched-function docstring coverage. Four findings are valid: two stale
+  operator handoffs and two harness lifecycle/evidence gaps.
+- Pre-rollout and pre-provisioning passages are explicitly historical. The
+  completed operator/harness publication now points to PR #41's latest-head
+  checks and reviews; merge and future Production work retain separate approval.
+  Setup failures exit the owned server child immediately, even when framework
+  or listener handles are active. Each new native rejection writes a receipt;
+  a short tail catches split markers without recounting earlier stderr.
+- Provider-free checks pass 35 with one POSIX-only skip on Windows. Regressions
+  cover resumed rejection attempts and split/multiple markers, plus the actual
+  server entrypoint's listen/readiness failure paths using synthetic dependency
+  replacements and a retained framework handle. No real listener, app, provider
+  or database starts in those regressions. Lint, typecheck and documentation/
+  workload checks 16/16 pass; all 137 relative targets resolve, and added-doc
+  private-data/whitespace scans pass. Hosted validation was outstanding at this
+  publication checkpoint; the dated `2bd0d4c` completion is recorded in the
+  October 8 entry above. Completed acceptance, cleanup and public rollout are
+  not repeated.
+
+## 2026-10-07 — Review aligns the migration handoff with the completed Calendar rollout
+
+- The explicit full CodeRabbit review completes at `2026-10-08T01:47:58Z`,
+  covering all eighteen files at `3735e6a` and passing all five pre-merge checks
+  with 87.88% touched-function docstring coverage. Its one minor finding is valid:
+  the migration wiki records the completed Calendar rollout but still names
+  Calendar among the open migration gates.
+- The handoff now names only old-origin recovery and other remaining gates,
+  links its status to the completed Calendar ledger, and retains manual public
+  promotion. The existing limits on Production OAuth and live sync proof remain.
+  This documentation-only follow-up needs fresh latest-head hosted checks and
+  reviews; application runtime, tests and provider settings are unchanged.
+  Completed provider activity, cleanup and public rollout are not repeated.
+
+## 2026-10-07 — Review gives cleanup its own deadline and preserves revoke failures
+
+- The explicit full CodeRabbit review completes at `2026-10-08T00:43:19Z`,
+  covers all eighteen files at `70a2ab1` and identifies two valid operator
+  harness issues. A malformed or null revoke-error body now falls through to
+  the HTTP-failure receipt and returns its status; it cannot establish prior
+  revocation. Raw response contents remain private.
+- Both cleanup variants now have a separate five-minute process deadline,
+  independent of the expired normal run ceiling. Expiry immediately starts
+  owned-tree teardown and records partial cleanup with the invocation's PID;
+  intents and encrypted captures survive for scoped recovery. Completion drains
+  that receipt and cannot report command success after the deadline. Normal
+  fifteen/ninety-minute watchdog behavior remains unchanged.
+- Provider-free harness checks pass 33 with one POSIX-only test skipped on
+  Windows. They exercise both cleanup variants against stalled synthetic children,
+  retained partial evidence, timer cancellation and malformed/null revoke errors.
+  The first Windows sandbox run could not terminate its synthetic child; only
+  that verified owned child was stopped, and the same suite passed with normal
+  process control. Lint, typecheck, documentation/workload checks 16/16 and
+  whitespace checks pass. Latest-head hosted checks/reviews and Linux process/
+  permission proof are required again after these source changes.
+  No provider resource, credential, consent, completed test, cleanup or public
+  operation is repeated.
+
+## 2026-10-07 — Review bounds process descendants and all cleanup requests
+
+- Codex's review completes at `2026-10-07T23:36:32Z` on `8a12567` with two
+  valid operator findings. POSIX children now start in an owned process group;
+  deadline/interruption teardown signals the group and escalates after a short
+  grace period, even if its leader exits first. The launcher observes completion
+  immediately and waits for inherited pipes to close; Windows retains PID-scoped
+  tree termination. Failed receipt writes also stop the owned child.
+- Every cleanup provider dispatch combines an eight-second timeout with any
+  existing adapter/operator signal. Direct DELETE and token revocation now have
+  the same bounded transport as inventory/refresh. A timeout retains intents and
+  captured tokens rather than emitting a false cleanup receipt, permitting a
+  future authorized retry to reconcile absence/revocation.
+- CodeRabbit's explicit full review completes at `2026-10-07T23:40:57Z` on
+  `8a12567`, covers all eighteen files and passes its five pre-merge checks with
+  86.67% touched-function docstring coverage. Its one minor stale-handoff finding
+  is valid: both affected plans now mark completed registration guidance as
+  historical and identify PR #41 as published with latest-head reviews/checks
+  pending, linking the completed provisioning/public-activation receipt.
+- Provider-free harness checks pass 30 with one POSIX-only process test skipped
+  on Windows. Fresh latest-head Linux CI is still required for that test and the
+  POSIX diagnostic permission assertions. Documentation/workload checks pass
+  16/16; lint, typecheck and whitespace pass. Latest-head hosted results remain
+  pending; the completed full review above does not cover this follow-up.
+  Completed provider tests, cleanup, settings and public rollout are not repeated.
+
+## 2026-10-07 — Review resolves definitively rejected create intents
+
+- Codex's review completes at `2026-10-07T23:28:06Z` on `bc24073` with one
+  valid finding: cleanup could stop before token revocation after a rejected
+  Calendar-create request that produced no resource.
+- A matching parsed Calendar client-error response at 400/401/403, with no
+  resource ID, records non-creation for that exact marked intent. Cleanup accepts
+  that terminal outcome alongside accepted/reconciled targets. When every create
+  is positively rejected, it needs no inventory permission before revoking the
+  captured tokens. Malformed, transport and server failures stay unresolved and
+  require reconciliation; status alone is not treated as non-creation proof.
+- The provider-free regression covers all three explicit rejection statuses,
+  absence of inventory calls, owned-token revocation, and rejection of ambiguous
+  responses without a success receipt. Harness checks pass 29/29; lint,
+  typecheck, documentation/workload checks 16/16 and whitespace pass. Relative
+  targets are unchanged. Latest-head hosted checks/reviews remain pending.
+  No completed provider activity or cleanup is repeated.
+
+## 2026-10-07 — Review fixes capture recovery and canonical private paths
+
+- Codex's latest review completes at `2026-10-07T23:19:33Z` on `efd9b19`.
+  Both valid operator findings are fixed. Every encrypted token capture retains
+  its attempt identity and operation kind; cleanup can reconstruct a missing
+  captured journal entry after vault replacement succeeds but a worker stops
+  before the journal append. Recovery requires that exact identity/kind and
+  preserves the token's rejected-for-use state while allowing owned revocation.
+- The private-path helper canonicalizes both configuration and credential files
+  and checks ancestry by path components. Ordinary sibling scratch directories
+  are accepted; dot-prefixed in-checkout children and outside symlinks resolving
+  inside the checkout are rejected. The loader reads the canonical credential.
+- Local regression also exposed Windows pending-directory-delete contention;
+  lock directory probes and removal now retry or defer within their bounds
+  without interpreting permission failures as dead-owner proof.
+- All 28 provider-free harness checks pass in three consecutive local runs,
+  including interrupted capture/recovery/revocation, kind mismatch, canonical
+  siblings, config/credential symlinks, and concurrent lock reuse. Lint,
+  typecheck, documentation/workload checks 16/16 and whitespace pass; relative
+  targets are unchanged. Latest-head hosted checks/reviews remain pending.
+  No provider resource or completed
+  acceptance/public operation is repeated.
+
+## 2026-10-07 — Review closes uncaptured-token cleanup receipt gap
+
+- Codex's review completes at `2026-10-07T23:10:02Z` on `83f5b33` with one
+  valid operator finding: an accepted token exchange with a lost response can
+  leave an active grant outside the vault, yet cleanup could report revocation.
+- Every future exchange/refresh intent now carries its own attempt identity.
+  Cleanup requires an exact captured or explicit non-issued outcome for every
+  attempt; a captured retry cannot cover an earlier unknown response. Only
+  parsed standard validation/authentication errors without token fields establish
+  non-issuance; transport loss, malformed responses and server failures remain
+  unresolved. Raw provider errors/credentials are not copied into journal receipts.
+- Cleanup start freezes new provider activity from the application under the journal lock.
+  Final outcome verification, vault clearing and success receipt share that lock,
+  preventing a concurrent unfinished token request from producing a false receipt.
+  Unresolved outcomes stop cleanup and retain evidence; any future independent
+  provider grant-removal recovery needs exact approval. No current grant or
+  completed run requires recovery or repetition on the recorded evidence.
+- All 26 provider-free harness checks pass, including exchange and refresh loss,
+  malformed/server-error responses, distinct captured retries, explicit rejection,
+  completion refusal and the cleanup freeze. Lint, typecheck,
+  documentation/workload checks 16/16 and whitespace pass; relative targets
+  are unchanged. Latest-head hosted checks/reviews remain pending.
+  Application runtime and all completed provider operations remain unchanged.
+
+## 2026-10-07 — Review fixes protected diagnostics and terminated-worker locks
+
+- Codex's next review completes at `2026-10-07T23:00:47Z` on `17e08e6`.
+  Both valid operator findings are fixed. Raw child stderr is written only after
+  applying owner-only POSIX file mode, including when an older diagnostic file
+  exists; Windows retains the protected run directory's access controls.
+- Journal locks publish a prepopulated PID/nonce ownership directory atomically.
+  Recovery requires the recorded PID to be absent; age, denied process probes,
+  live owners and unknown/empty lock directories never establish dead ownership.
+  Cleanup removes only the exact owner entry, preserving any nonempty replacement
+  lock. Windows pending-delete contention is retried within a bounded interval.
+- All 25 provider-free harness checks pass, including a terminated owned local
+  worker, live/unowned-lock rejection, concurrent reuse and diagnostic rewrites.
+  Exact POSIX mode assertions await latest-head Linux CI. Lint, typecheck,
+  documentation/workload checks 16/16 and whitespace pass; existing relative
+  targets are unchanged. Latest-head hosted checks/reviews remain pending.
+  This local process/filesystem test creates no
+  provider resources and repeats no completed acceptance or public operation.
+
+## 2026-10-07 — Follow-up review fixes refresh omission and cleanup retry
+
+- Codex's follow-up review completes at `2026-10-07T22:47:57Z` on `c7de5c9`.
+  Both valid operator-harness findings are fixed: a refresh response may omit
+  unchanged scope, and a successful DELETE may lose its response before the
+  accepted journal receipt. Application runtime remains unchanged.
+- Refresh omission inherits only the validated grant captured for that exact
+  refresh credential; explicit empty or broader scopes still fail. Token
+  capture, validation and acceptance share one store lock. A later rejected
+  response quarantines the same credential value even if an earlier copy was
+  accepted; rejected credentials remain available only for owned revocation.
+- Cleanup reconciles complete paged inventory before deleting only still-active
+  owned targets. A lost DELETE response can therefore resume with absence proof
+  rather than retrying an absent resource. Final absence receipts identify the
+  current create intents, allowing partial token-revocation cleanup to resume.
+- The latest provider-free harness checks pass 23/23. These regressions exercise
+  the actual guarded adapter/cleanup helper and make no additional live
+  acceptance claim. Lint, typecheck, documentation/workload checks 16/16,
+  all 84 relative targets in the three updated documents, and whitespace checks
+  pass. Final-head hosted checks and renewed reviews remain pending.
+  No consent, fixture, provider
+  configuration, database, payment test, deployment or completed cleanup is rerun.
+
+## 2026-10-07 — Source-review fixes for guarded recovery and delayed cleanup
+
+- The explicit full CodeRabbit review completes at `2026-10-07T22:35:16Z`,
+  covering all eighteen files at `45bfb7805bea913cc04c5c686852bcdc62306881`.
+  All five pre-merge checks pass, including 80.95% touched-function docstrings.
+  Its valid launcher finding is repaired with platform-specific npm/shell
+  selection. Codex's two valid findings identify transport-loss recovery and
+  expired-token cleanup gaps in the operator harness, not deployed runtime.
+- A future guarded create now adds a unique run/attempt description marker.
+  Full inventory paging can recover only its uniquely marked owned secondary
+  target; ordinary application metadata is restored at the task boundary.
+  Duplicate markers, shared/primary targets and names alone remain fail-closed.
+  Teardown reconciles before deletion, rejects unresolved intent and verifies
+  active absence through every inventory page before revocation.
+- Delayed cleanup may refresh only an already captured usable grant. Newly
+  issued tokens are encrypted before validation so rejected grants can still
+  be revoked; only accepted tokens are reused. Refreshed tokens join final
+  revocation, and an absence receipt prevents a cleanup retry from needing a
+  grant already revoked during partial teardown.
+- Provider-free harness checks pass 21/21, including pre-parse transport loss,
+  paged reconnect/cleanup, ambiguous ownership and delayed refresh/revocation.
+  Documentation/workload checks pass 16/16, lint and typecheck pass, and
+  whitespace checks pass. Existing relative link targets are unchanged.
+  These are source-regression proofs, not additional live acceptance receipts.
+  Exact-latest-head hosted checks and renewed full reviews remain required.
+  No completed consent, fixtures, database/payment test, cleanup or public
+  operation is repeated.
+
+## 2026-10-07 — Calendar source closeout published for hosted review
+
+- The owner approves publication of the prepared operator/guarded-acceptance
+  closeout and shepherding hosted reviews. Fresh remote truth confirms `main`
+  remains `38d0deddea484938e13df61927d07a7b21f92071`, the owned branch was absent,
+  and no open PR duplicates it. Normal push publishes exact prepared head
+  `577298385fa1f387e91e3e98f3fb5e1398a38847`; the hosted branch matches.
+- [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41) opens against `main`
+  at `2026-10-07T22:28:33Z` and is attached to this task. Its eighteen changed
+  files contain operator scripts/tests and migration receipts; application
+  runtime remains unchanged. This publication receipt joins the source review
+  before explicit full CodeRabbit and Codex requests. Hosted CI and latest-head
+  coverage remain pending; carried statuses are not review coverage.
+- The approved loop covers valid source fixes, normal pushes and renewed
+  reviews/checks. It does not authorize merge or another Production operation.
+  The completed Calendar/payment tests, credentials and public artifact are
+  preserved; no new provider activity or cleanup is performed.
+
+## 2026-10-07 — Approved Calendar artifact promoted; public checks pass
+
+- The owner approved promotion of the exact checked PR #40 artifact, optional
+  Calendar activation for eligible provider accounts, public checks and bounded
+  rollback. Fresh preflight verified the exact READY source, unchanged 60-entry
+  Production configuration, prior PR #37 target/all six aliases and normal
+  build/Git/protection/manual-promotion controls before the single promotion.
+- Final `2026-10-07T21:50:03Z` readback verifies reviewed merge
+  `38d0deddea484938e13df61927d07a7b21f92071` as the READY public target and all
+  six saved aliases on it. No rebuild, alias repair or rollback was needed.
+  Both pause flags remain false; one-time support/background purchase switches
+  remain absent. The stable key recovery copy and all 60 Production-only
+  settings retain their verified metadata.
+- All seven anonymous public GETs return `200`: home, Pricing, registration,
+  support, Privacy, Terms and session. Registration is open, Checkout pause copy
+  absent and session `null`. The Calendar GET shows only its signed-out guard;
+  the apex still returns `308` to canonical www. This does not claim a real
+  Production OAuth exchange, signed-in entitlement test or live sync. No consent,
+  calendar/event/database activity, payment test, Google settings, credential
+  rotation, verification submission or old-site change was performed.
+- The [completed rollout/rollback receipt](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  preserves the saved PR #37 rollback and compatibility boundaries. The next
+  source step is publishing/reviewing the local operator and guarded-acceptance
+  closeout, which is not deployment source. No further setup/file input or
+  completed provider test is needed.
+- A read-only remaining-provider pass confirms no Ably, Sentry or R2/upload
+  configuration names. Source keeps polling fallback and DSN-gated monitoring;
+  SMTP names remain configured. Four representative public media HEADs return
+  `200` with expected JSON/video types, byte-range support, cache policy and
+  `Access-Control-Allow-Origin: *` for requests from the AtmoShaper origin.
+  No media bodies were downloaded or provider settings changed. Full playback,
+  whole-catalog availability and provider ownership are not proved. The legacy
+  project's authenticated configuration read was unavailable; no current legacy
+  parity claim or request to redo its setup is made. Preserve the existing host
+  and immutable media identities until a dedicated migration is approved.
+- Local source closeout checks pass: guarded provider-free harness 18/18,
+  documentation/server-workload 16/16, lint and typecheck. All 137 relative links
+  and six fragments across the branch's changed documents resolve; private-data
+  and whitespace scans pass. The only connection-string-shaped match is the
+  explicit invented ownership-test fixture, not a provider credential. No actual
+  downloaded client secret/ID or stable encryption key occurs in branch additions.
+  The source PR is concretely prepared but unpublished; its hosted CI and reviews
+  remain pending. It contains guarded operator tools and receipts, not new app
+  runtime changes, and its publication/reviews are the next requested scope.
+
+## 2026-10-07 — Approved Production Calendar provisioning and candidate verified
+
+- The owner authorized the concrete four-Production-setting, recoverable-key,
+  single-unpromoted-build operation and restoration of saved aliases if moved.
+  Fresh remote/source/configuration/alias preflight passed before writes.
+  Exactly four settings were created with their specified encrypted or
+  sensitive/write-only types. Complete final inventory has 60 Production-only
+  entries; the original 56 IDs/types/targets/update timestamps are unchanged.
+  Client/callback readbacks match the privately validated download. Both pause
+  flags remain false; excluded purchase switches remain absent.
+- The new cryptographically random stable key has an owner/SYSTEM-protected
+  recovery copy outside Git, with a matching private fingerprint. Actual app
+  encryption/decryption helpers pass a synthetic round trip. Temporary credential
+  request files were removed and their private scratch area checked for raw
+  secret/key remnants. No credentials or private identifiers enter source.
+- One fresh Git-connected Production candidate uses exact reviewed merge
+  `38d0deddea484938e13df61927d07a7b21f92071` and reached `READY` at
+  `2026-10-07T21:03:42.652Z`. All four keys are present in its environment
+  snapshot. The standard build passed actual migration-status/live Supporter
+  gates, compilation and all 115 static pages; existing nonblocking Sentry
+  release/source-map warnings remain outside Calendar readiness.
+- All seven ordinary authenticated signed-out GETs return `200`; registration
+  is open, Checkout pause copy absent and session `null`. The signed-out Calendar
+  page shows its sign-in guard without a connect form. Final `21:09:12Z` readback
+  retains PR #37 as public target and all six aliases, manual promotion, normal
+  build/Git/protection, and disabled excluded purchases. No restoration was
+  needed. The candidate remains unpromoted.
+- The [completed stage and prepared rollout](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  retain exact artifact/rollback receipts privately. Public promotion/activation
+  still need separate approval. Sensitive remote values remain write-only;
+  configuration plus the local helper check does not prove Production OAuth.
+  No Google settings, consent, calendar/event work, database test, completed
+  payment test, source push or new PR was performed.
+- The documentation/server-workload suite passes 16/16; 122 relative links and
+  six Markdown fragments across the seven updated documents resolve. Added-doc
+  private-data and whitespace checks pass. Runtime source is unchanged; these
+  local operator receipts are not a new deployed or published source revision.
+
+## 2026-10-07 — Production Calendar download validated; credential/build approval ready
+
+- The owner supplies the existing Production client JSON path. Private reads
+  validate a Web registration in the intended Production project, a correctly
+  formed client ID matching the download, a non-placeholder secret, Google
+  endpoints and only the canonical www Calendar callback. It is distinct from
+  the known test client. A private source fingerprint and sanitized receipt are
+  retained; no secret is printed, copied into source or used for a token exchange.
+  Existing sign-in credentials are write-only; comparison of their raw ID is
+  unavailable and is not claimed. No Google setup or consent is repeated.
+- Fresh readbacks verify remote `main` and READY/unpromoted PR #40 source at
+  `38d0ded`, PR #37's READY public artifact/all six aliases, manual custom-domain
+  promotion, normal build/Git/protection and 56 Production-only settings. Calendar
+  and excluded purchase keys are absent; both public pause flags read false.
+- The [credential/build proposal](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  now specifies four Production-only settings, a new stable privately recoverable
+  encryption key, one fresh Git build pinned to the reviewed SHA and saved-alias
+  restoration if needed. Its private request is prepared without sending it.
+  Exact approval is still required; public promotion/Calendar activation remain
+  separate. The local receipt/harness branch is not deployment source.
+- Documentation/server-workload checks pass 16/16; all 115 relative links and
+  six Markdown fragments across these six documents resolve. Whitespace and
+  added-document private-data scans pass. No provider write or build was run.
+
+## 2026-10-07 — Final native Disconnect check passed; bounded Calendar acceptance closed
+
+- The separately approved database-only follow-up passes against exact merged
+  runtime `38d0ded`. The native multipart request preserves Next's hidden action
+  selector, validates the real signed-in fixture, reaches the actual Disconnect
+  action, and observes its exact reconciliation rejection from the current owned
+  server. No success redirect occurs; the same ERROR/pending row and update time
+  survive unchanged. This closes the missing native guard case rather than
+  treating an arbitrary HTTP error as proof.
+- Owned cleanup removes run-bound synthetic data and independently verifies all
+  seven touched tables empty. The owned server is stopped and its port released.
+  The exact additional empty Neon project is deleted and absent from the active
+  organization listing. Ephemeral database/auth files are removed; private
+  ownership/result receipts remain. Teardown began after 4.72 minutes, inside
+  the approved 15-minute ceiling. No Google credential, token, consent, fixture,
+  provider setting, payment or Production write was involved.
+- Together with the prior completed application run, this passes the bounded
+  Calendar acceptance gate. Fixture-only inventory, injected failures and ordinary
+  primary-calendar/public-auth/Production proof limits remain explicit. Both
+  database authorizations are exhausted; no test resources remain active.
+- Fresh read-only hosting evidence retains PR #37's READY public target and all
+  six live aliases, READY/unpromoted PR #40 candidate, manual custom-domain
+  promotion, standard build and GitHub/main. The complete private API inventory
+  verifies 56 Production-only variables and no Calendar settings or excluded
+  purchase switches; both public pause flags read back false. A shortened
+  connector inventory was not treated as complete name/target coverage.
+- Prepared the [Production Calendar credential/build proposal](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md).
+  The owner's already-downloaded Production client JSON path is needed for
+  private saved-callback/client validation. No further Google bootstrap, test
+  consent or fixture work is requested. Credential writes, a build and public
+  promotion retain their exact separate gates. No source was published.
+- Documentation/server-workload checks pass 16/16. All 120 relative links,
+  including six Markdown fragments across the seven changed documents, resolve;
+  whitespace and added-document private-data scans pass. This receipt changes
+  documentation only; the previously verified harness/runtime checks were not
+  repeated.
+
+## 2026-10-07 — Final pending Disconnect database test approved
+
+This setup checkpoint is historical; the completed result and cleanup above
+supersede its pending statements.
+
+- The owner approves the prepared 15-minute database test. This separately
+  authorizes one additional independent empty Neon project in the previously
+  verified console-managed Launch organization, synthetic pending/access data,
+  the exact merged runtime, and mandatory owned row/process/project cleanup.
+  Possible Launch usage charges were disclosed. Google credentials, consent,
+  fixtures and Production operations remain outside this bounded test.
+- Fresh reads verify clean receipt head `9b9299d`, exact isolated runtime
+  `38d0ded`, no dotenv files, free loopback port and the unchanged Launch target.
+  Database-free setup passes; one fresh project is verified at PostgreSQL 17,
+  fixed 0.25 CU with idle suspension. Private pooled/direct ownership and
+  fingerprint checks pass before committed migration preparation. Native action
+  acceptance and mandatory cleanup remain pending; no second project is permitted.
+
+## 2026-10-07 — Calendar application run partial; all owned resources cleaned
+
+- The approved run exercised merged runtime `38d0ded` with one independent empty
+  Neon project, synthetic persisted access data, four secondary calendars, six
+  event resources and three fresh application consents. The database window
+  began at `2026-10-07T17:34:25.785Z`; teardown began about 38 minutes later,
+  before the 90-minute ceiling. No Production settings, credentials or deployment
+  changed, and completed permission comparisons/payment tests were not repeated.
+- Actual callback/state-cookie/encryption, role/feature gates, target creation,
+  PostgreSQL rollback and user-row lock serialization pass. The successful rename
+  and final reconnect preserve the saved target ID. Real source-selection import,
+  incremental update/cancellation, injected cursor failures/recovery, two generic
+  outbound insert/update/cancellation cases and resolved Disconnect all pass.
+  Lost-create-response injection retains a durable inactive intent; hidden-target
+  discovery cannot dispatch a further create, and reconciliation reuses its known
+  target. Provider failures are labelled injected, not observed Google outages.
+- The pending Disconnect request did not establish acceptance: its HTTP 500 came
+  from missing action dispatch, not the expected reconciliation rejection. A
+  loopback wire probe found that Playwright's multipart-object encoder drops the
+  empty hidden action field. Native FormData bytes preserve it; the new actual
+  HTTP transport regression passes. The follow-up now also requires a current
+  owned-server receipt of the exact native action error and unchanged pending row,
+  rather than accepting HTTP failure alone. No application runtime code changed.
+- Other task-only repairs used a Windows file-URL loader, checked JSON rename
+  headers/returned metadata, and kept an outbound interval inside its fixture's
+  own day. An earlier false rename receipt was explicitly invalidated; corrected
+  rename/reconnect passed using the third and final approved consent. The two
+  outbound accepted IDs were preserved across the interval correction.
+- Both app-created targets have active-absence receipts; all three new test
+  grants are revoked and the encrypted vault cleared. The owned server/listener
+  is stopped. The exact Neon project was deleted and verified absent from the
+  active organization list. The owner reports both source calendars permanently
+  deleted, and independent active-list reads confirm absence in both accounts.
+  Ephemeral credentials/configuration were removed; the original download and
+  connector/Production grants remain intact. Private ownership receipts are retained.
+- Prepared a [pending Disconnect follow-up](superpowers/plans/2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
+  for only the missing native action/database case: one additional independent
+  empty Neon project, invented unusable token strings, blank Google credentials,
+  no external fetch and a 15-minute ceiling with mandatory deletion. It remains
+  unapproved; the prior exact one-project authorization is exhausted. Provider-free
+  harness checks pass 18/18 in both owned checkouts; documentation/workload
+  checks pass 16/16, lint and isolated typecheck pass, all 81 relative links in
+  the four changed documents resolve, and whitespace/private-data scans pass.
+  Full application acceptance and public Calendar
+  activation remain pending. No source publication or hosting operation occurred.
+
+## 2026-10-07 — Isolated Calendar application acceptance authorized
+
+This entry records the initial setup checkpoint; the result and completed
+cleanup above supersede its mid-run pending statements.
+
+- The owner reports `Sources ready`. Both new secondary sources were verified
+  against the run-bound names, intended owning accounts and shared-reader role;
+  neither held events in the application import window. Created exactly four
+  synthetic source events without guests, reminders, meeting links or recurrence.
+- Created exactly one independent empty Neon project in the already approved
+  console-managed Launch organization. PostgreSQL 17, region and one fixed
+  0.25 CU read-write endpoint match the authorization. Current API schema confirms
+  idle timeout `0` means enabled plan default; `-1` disables scale-to-zero.
+  No compute, plan or idle-setting mutation was needed. Connection identities
+  and credentials are retained privately, never in source or these receipts.
+- The conservative database window starts at `2026-10-07T17:34:25.785Z`, with
+  teardown beginning no later than `2026-10-07T19:04:25.785Z`. Committed migrations
+  pass. Fixed the task launcher's Windows `--import` path with a proper file URL
+  and retained failed child diagnostics privately. Synthetic persisted access
+  gates and real local connect-route membership/feature denials pass; no provider
+  activity occurred during those access checks. Harness boundary checks pass 14/14.
+- The owned loopback application is ready and the first actual application
+  consent link was sent to the owner. Callback, target, transaction and sync
+  cases remain pending; do not treat setup as full provider acceptance.
+
+- The user states `You are authorized to continue` in response to the prepared
+  isolated test setup/run/cleanup request. This covers the existing Calendar
+  Verify callback/narrow declaration edits, private test credential use locally,
+  one empty independent Neon project and synthetic app data, at most four new
+  secondary calendars/six event resources, the 90-minute database run limit,
+  and mandatory owned token/process/calendar/database cleanup. Possible Launch
+  usage charges were disclosed in the request.
+- Clean owned receipt branch `af0eb5e` and hosted PR #40's merged source
+  `38d0ded` are reverified before action. Prepare the guarded harness and obtain
+  the new test callback/declaration save receipt before database creation. The
+  owner performs Console edits because the earlier browser-policy verification
+  denial remains unresolved; no retry or alternate control path is used.
+- This does not grant source publication, merge, Production credential writes,
+  deployment/promotion, verification submission or public Calendar activation.
+  Preserve completed comparison/payment tests, unrelated work and the old service.
+- The owner subsequently reports `Test setup saved`. Reuse that receipt for the
+  existing test callback/narrow declaration; do not ask for another save or client.
+  Created a fresh task-owned isolated checkout of merged runtime `38d0ded`, with
+  no dotenv files. Installed locked dependencies without lifecycle scripts, then
+  applied the named patch step and generated Prisma without a database connection.
+- Implemented local-only launcher/transport/worker boundaries for exact source,
+  stripped child environment, disposable database fingerprint/ownership, fresh
+  scopes, encrypted token retention, cross-process lifetime write reservations,
+  controlled faults, real callback/transaction/sync/action cases and scoped cleanup.
+  The synthetic app sees fixture-only source inventory after complete metadata
+  checks; ordinary primary-calendar defaults are explicitly outside this proof.
+- Provider-free harness checks pass 14/14, Calendar regression checks 83/83,
+  documentation/workload checks 16/16, lint and isolated typecheck.
+  The retained test Web credential validates privately; both connector accounts
+  match the intended owners. No database, event fixture or new consent started.
+  Requested creation/sharing of only the two new empty source calendars while
+  final harness validation continues. No source publication or hosting change.
+- An auxiliary all-unit invocation did not terminate after the focused receipts;
+  its positively identified root was stopped without touching another process.
+  Its artifact is preserved privately and no fresh whole-suite pass is claimed.
+
+## 2026-10-07 — Owner verification readback closes Calendar declaration gate
+
+- After reporting the approved replacement declaration saved, the owner supplies
+  Verification Center's Data access status: verification is not required because
+  the app requests no sensitive or restricted scopes. They also report no entries
+  under either category. This closes the declaration/status dependency by owner
+  readback; no independent Console/API inspection of all saved URLs is claimed.
+  No verification material/submission is currently required on this evidence.
+- Prepared the [isolated application acceptance plan](superpowers/plans/2026-10-07-atmoshaper-calendar-application-acceptance.md)
+  for real role/feature checks, dedicated target creation, PostgreSQL transactions,
+  reconnect, generic sync and disconnect. It reuses the existing Calendar Verify
+  setup with a proposed app callback/narrow declaration, one empty independent
+  Neon project, one synthetic app account and bounded new provider fixtures.
+  Mandatory token/process/calendar/database cleanup is part of the proposal.
+- Read-only preparation verified clean owned branch `a33b00c`, merged PR #40
+  hosted truth, the actual Neon adapter and free loopback ports. Neon CLI 6.1.0
+  metadata reads work through its existing authenticated OAuth profile. Exactly
+  one returned organization is unmanaged by Vercel and uses Launch, so the
+  proposed short-lived database can incur usage charges. Private target identity
+  stays outside source. No database connections/rows, new login or credentials,
+  resources, consent, fixtures, provider settings or deployments were changed.
+- Settings/resource/run/cleanup approval for the proposed application stage is
+  still pending. Production credentials, public promotion and Calendar activation
+  remain separate gates. Do not repeat Google bootstrap, declaration/save/status
+  questions, completed permission comparisons/cleanup or the live payment test.
+- Documentation/server-workload checks pass 16/16; all 99 relative links and
+  referenced fragments across the five changed documents resolve, and whitespace
+  and private-data scans pass. These are local documentation checks, not a
+  provider acceptance receipt or publication/merge authorization.
+
+## 2026-10-07 — Owner reports replacement Calendar declaration saved
+
+- The owner replied `saved` after the approved six-entry Production declaration
+  guidance. Record that execution receipt without claiming independently read
+  scope URLs/categories or completed Google verification. Current Sensitive /
+  Restricted entries and Verification Center Data access status remain pending.
+- Repository readback verifies clean task-owned branch head `aa1ff9d`, and hosted
+  PR #40 remains merged as `38d0ded`. Its existing candidate/live receipts keep
+  their dates; no new deployment, credential write, consent, fixture or payment
+  test was performed.
+- Requested only read-only current category/Verification Center status. The
+  next dependency is any required verification material and the remaining
+  isolated application/provider acceptance, not another declaration setup/save.
+  Corrected the provider checkpoint's stale completed-merge instruction and
+  replacement-section anchor before continuing. Credentials, test resources,
+  verification upload/submission, public promotion and activation remain gated.
+
+## 2026-10-07 — Replacement Calendar declaration guidance approved
+
+- The user answered `yes` to guidance for the prepared replacement Google
+  declaration after PR #40's merge/candidate verification. This approval covers
+  the six entries in the [provider checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md):
+  existing identity entries plus app-created Calendar, calendar-list read access
+  and event availability, replacing the earlier event-read proposal. It covers
+  declaration setup and saving only when required fields can be truthfully
+  completed. Actual Console selection, classification and save receipt remain
+  pending; approval is not an execution or verification claim.
+- The task-owned receipt branch is clean at `0cc2521`, based on PR #40's verified
+  merge. Hosted PR truth confirms merge `38d0ded`; merged source requests
+  `calendar.events.freebusy`. Public Google documentation confirms the Data
+  Access selection flow and that event listing accepts this grant, without
+  establishing this project's actual classification or verification outcome.
+- Continue through the owner-operated Console path because its earlier
+  automated browser security review was denied. No retry/bypass, new client,
+  API enablement, consent, fixture or payment test is needed. Preserve existing
+  sign-in, client/callback registrations, branding and audience. If Google asks
+  for missing justification/video materials, keep the draft unsaved and prepare
+  those dependencies. Video upload/submission, credentials, application/provider
+  acceptance, public promotion and Calendar activation remain separate gates.
+
+## 2026-10-07 — PR #40 merged; automatic candidate verified and unpromoted
+
+- The user approved merging PR #40, verifying its automatic unpromoted build,
+  and restoring any saved live aliases it moves. Fresh preflight verified clean
+  local/hosted head `0f486e554c9b3104dee70a3f2c00c33ffe031c7a`, unchanged base,
+  all seven CI jobs, ready Vercel Preview and clean Codex review. CI records
+  5,155 unit passes, two skips and zero failures.
+- The explicit final full CodeRabbit review covers all 20 changed files at that
+  exact head. Its action reply confirms full review finished and its summary
+  records the covered commit; no new actionable comments remain. Both earlier
+  minor threads are fixed/resolved. All five pre-merge checks pass, with 100%
+  touched-function docstring coverage. A carried successful check alone was
+  not treated as final-head coverage.
+- PR #40 merged at `2026-10-07T05:14:22Z` as
+  `38d0deddea484938e13df61927d07a7b21f92071`. Its one automatic main Production
+  candidate reached `READY` at `2026-10-07T05:17:34.607Z`. Actual remote logs
+  confirm `npm run build`, all committed migrations applied, and live Supporter
+  readiness passed. No duplicate manual build or migration write was run.
+- All seven normal authenticated candidate GETs pass: home, pricing,
+  registration, support, Privacy, Terms and signed-out session. They return real
+  application content; registration inputs are open, Checkout pause copy is
+  absent, and session is `null`. This is HTTP/HTML evidence, not a claim of
+  interactive Calendar or full application/provider acceptance.
+- All six saved live aliases and the public project target stayed on PR #37's
+  approved artifact, `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; no restoration
+  was needed or performed. Post-build readback preserves verified domains/apex
+  redirect, protection, manual custom-domain promotion, standard build and
+  GitHub/`main`. Fresh inventory has 56 Production-only variables and none in
+  Preview/Development. Both public pause flags are false; excluded purchase
+  switches and all four Calendar keys remain absent.
+- The review heartbeat remains paused. The candidate is unpromoted and public
+  Calendar remains inactive. The replacement Production Google declaration,
+  credentials, larger application/provider acceptance, any required truthful
+  demo/submission, public promotion and activation retain separate approval
+  gates. Completed Calendar comparisons, consent/fixtures/cleanup and the live
+  payment test were not repeated. Next is the prepared availability declaration
+  in the existing Production project, after its exact approval.
+
 ## 2026-10-06 — Calendar acceptance gate made explicit after full review
 
 - Explicit CodeRabbit full review at `c2c51ab` completed at

@@ -9,6 +9,20 @@ completed provider bootstrap, controlled live payment/refund, and activation
 receipts below are not instructions to repeat those operations. A new build,
 deployment, provider write, or pause change requires its own exact authority.
 
+Latest October 7 hosting receipt: the separately approved
+[Calendar credential and public rollout](../superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+is complete. Exact reviewed PR #40 merge
+`38d0deddea484938e13df61927d07a7b21f92071` is the READY public target and all
+six saved live aliases point to it. Seven anonymous public GETs, the Calendar
+sign-in guard and canonical apex redirect pass. No rebuild or rollback was
+needed. All 60 settings remain Production-only, including the four Calendar
+keys; original configuration metadata, manual promotion, normal build/Git and
+protection are retained. Registration/Supporter Checkout stay open and excluded
+purchases disabled. Stable private key recovery and the saved PR #37 rollback
+are retained. No real Production OAuth exchange or live sync was initiated.
+The dated PR #37–40 merge/build receipts below describe their earlier checkpoints;
+absent-key/unpromoted statements there do not override this latest public state.
+
 ## Current Project Name And Repository Connection
 
 The existing project is named `atmoshaper`, its custom-domain auto-assignment is
@@ -26,8 +40,8 @@ The earlier Supporter activation used CLI deployments. PR #36's and PR #37's
 source-only merges and the subsequent Dashboard Git connection triggered no
 build. One separately approved staged Production candidate from merged PR #37
 reached `READY` at `2026-10-02T23:56:01Z`. After separate exact promotion
-approval, that existing artifact was promoted without rebuilding. The live
-project target and all six recorded live aliases now use it, preserving every
+approval, that existing artifact was promoted without rebuilding. At that
+checkpoint the live target and all six recorded live aliases used it, preserving every
 original alias name, all verified project domains, and the apex redirect. Its reviewed source is
 `f184fc1d2ea9cf0adfeff7d810d9db408fc6970e`; the earlier activation runtime
 `7756080c3bc650bdbcff33013ff67728a3f97efa` is the saved rollback source.
@@ -38,8 +52,8 @@ reported successful partial browser checks. All seven post-promotion public GET
 checks also pass, with the same open-registration and signed-out-session
 results. Public Pricing assets match the checked candidate. No rollback or
 further manual page check was needed. These receipts verify the approved
-settings and exact-artifact promotion. Calendar, old-origin recovery, and other
-migration gates remain open.
+settings and exact-artifact promotion. Later Calendar completion and remaining
+migration scope are owned by the latest receipt and project state.
 
 The five operator closeout docs merged in
 [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) after final-head
@@ -66,6 +80,22 @@ build command, apex redirect, protection, empty Preview configuration, and
 absent Calendar keys remain verified. Both pause flags read `false`; excluded
 purchase switches remain unset. This build does not establish Calendar provider
 acceptance or authorize Google settings, credentials, or activation.
+
+The initial separately approved [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40)
+merge is `38d0deddea484938e13df61927d07a7b21f92071`, after exact-head full
+CodeRabbit coverage of all 20 files, clean Codex review, all seven CI jobs and
+Vercel Preview passed. Its one automatic Production candidate reached `READY`
+at `2026-10-07T05:17:34.607Z`. Actual migration-status and live Supporter gates
+and all seven normal authenticated candidate GETs pass; registration is open,
+Checkout pause copy is absent, and signed-out session is `null`. All six saved
+live aliases and the public target remain on PR #37, so no restoration was
+needed. Post-build readbacks preserve manual promotion, standard build,
+GitHub/`main`, verified domains/apex redirect and protection. Fresh inventory has
+56 Production-only variables and none in Preview/Development; both public
+pause flags remain false, excluded purchase switches are unset and all four
+Calendar keys are absent. The candidate is unpromoted. Production Google
+settings, Calendar provider acceptance, credentials and activation remain
+separate gates; no manual build or completed live test was repeated.
 
 ## Production Readiness In The Standard Build
 

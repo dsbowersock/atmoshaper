@@ -1,30 +1,59 @@
 # AtmoShaper Calendar provider-stage checkpoint
 
-Status: local source preparation after both independent permission comparisons
+Status: merged source preparation after both independent permission comparisons
 passed. Temporary test calendars are deleted by owner receipt and both test
-tokens are revoked. The availability replacement is published in
-[PR #40](https://github.com/dsbowersock/atmoshaper/pull/40); final-head review and
-CI remain pending after its first full review reports zero actionable comments.
-Merge, revised Production declaration, full application/provider acceptance and
-public Calendar activation remain pending.
+tokens are revoked. The availability replacement merged in
+[PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) on October 7 after
+exact-head full review of all 20 files found no new actionable comments and all
+seven CI jobs, Vercel Preview and Codex review passed. Its automatic Production
+candidate passed actual readiness gates and seven authenticated GETs. At that
+pre-rollout checkpoint it was unpromoted and all six saved live assignments
+retained PR #37; no restoration was
+needed. The user approved the revised Production declaration's guided setup on
+October 7 and subsequently reports `saved`. The owner then supplies Verification
+Center's message that verification is not required because the app requests no
+sensitive or restricted scopes, and reports no entries in either category.
+This closes the declaration/status gate by owner readback; independent Console/API
+inspection of every saved URL is not claimed. The bounded application/provider
+acceptance subsequently passed in the October 7 application run and its native
+Disconnect follow-up, with completed cleanup and explicit proof limits.
+The separately approved Production credential/build stage now passes: exactly
+four settings, 60 Production-only entries with the original 56 unchanged, stable
+private key recovery and one exact-`38d0ded` candidate READY at
+`2026-10-07T21:03:42.652Z`. Actual migration-status/Supporter gates and seven
+ordinary candidate GETs pass. That candidate was subsequently promoted under
+the owner's separate exact approval. Final `2026-10-07T21:50:03Z` readback
+verifies exact reviewed `38d0ded` as the READY public target with all six saved
+aliases, unchanged configuration/manual promotion/protection and retained key
+recovery. Seven anonymous public GETs, the Calendar sign-in guard and canonical
+apex redirect pass. No rebuild or rollback was needed. Public optional Calendar
+is available to eligible accounts; no real Production OAuth exchange is claimed.
+The [completed credential and rollout receipt](2026-10-07-atmoshaper-calendar-production-credentials.md)
+owns the saved rollback. Operator/harness source is published in PR #41 and its
+latest-head reviews/checks remain the source closeout step; merge requires
+separate approval.
 
 October 3 screenshots establish External / In production and empty declared
 scope lists; branding is verified/shown. The user reports completed Calendar API
 enablement under its separate approval; independent provider readback is not
 claimed. PR #39's review, merge and automatic unpromoted candidate are complete.
 Its event-read declaration approval remains historical: the unsaved draft showed
-sensitive access with justification/video requirements. Keep that draft unsaved
-until the replacement operation is authorized and actual classifications are read.
+sensitive access with justification/video requirements. That historical draft
+was left unsaved; it is not the current owner-saved availability declaration.
+The October 7 replacement status below supersedes that unsaved proposal. No
+verification material/submission is currently required on the owner readback.
 The implementation merged in PR #36 is included in the approved public PR #37
-artifact; the PR #39 candidate is verified but unpromoted. Working sign-in and
+artifact; PR #39 remains an unpromoted historical candidate, while the later
+credential-equipped PR #40 artifact is now live. Working sign-in and
 Vercel integration remain complete. Do not repeat them or the live payment test.
 
 October 6 continuation supersedes the event-read declaration proposal below for
 future preparation: both independently consented inbound comparison arms pass
 on owned/shared-reader synthetic calendars. Their tokens are revoked and the
-user reports both temporary calendars deleted. Local source now replaces new
+user reports both temporary calendars deleted. Merged source now replaces new
 event-read requests with availability access while preserving accepted legacy
-tokens. The replacement proposal below is prepared, not approved/saved. Earlier
+tokens. The replacement below now has an approved guided-setup and owner save
+receipt. Earlier
 sections retain their dated PR #39 and Google approval receipts; they do not
 authorize this different declaration or public Calendar activation.
 
@@ -40,11 +69,12 @@ and public activation require their own exact, reviewable authorization.
 - The user selected a separate calendar named `AtmoShaper`. Keep the existing
   MassageLab calendars, full service, sign-in client, and histories intact.
   This naming choice alone does not require a new Google Cloud project.
-- Fresh authenticated Vercel name-only inventory lacks
-  `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`,
-  `GOOGLE_CALENDAR_REDIRECT_URI`, and `CALENDAR_SYNC_ENCRYPTION_KEY`.
-  Existing variables remain Production-only; none were copied into Preview.
-  This proves incomplete app configuration, not absence of a Google-side client.
+- Final October 7 authenticated Vercel readback has exactly the four approved
+  Calendar settings, with sensitive/write-only secret and key, encrypted client
+  ID and callback, and all 60 entries Production-only. No values were copied
+  into Preview/Development. The promoted exact PR #40 snapshot has all four keys;
+  the saved PR #37 rollback artifact has no Calendar configuration.
+  This is configuration/build evidence, not a live Production token exchange.
 - Existing Google sign-in works. Calendar needs additional API grants and
   separate configuration. Sign-in branding verification does not establish
   saved Calendar-scope verification or callback permission.
@@ -73,7 +103,9 @@ and public activation require their own exact, reviewable authorization.
   verify its admin-enforced policy. No indirect workaround or alternate browser
   was used. The client-list and URL-only questions are now satisfied, with no
   secrets or setting changes. Google Cloud-admin CLI/connector
-  access is unavailable; isolated test targets remain unverified. All requested
+  access is unavailable; the subsequent Calendar Verify comparison setup is
+  complete. Both separately approved application database runs and their cleanup
+  are now complete; their authorizations are exhausted. All requested
   Data Access, Audience, Verification Center, and Calendar API readbacks are
   satisfied by the user's screenshots; do not ask to repeat them.
 
@@ -81,20 +113,20 @@ and public activation require their own exact, reviewable authorization.
 
 The user approved this exact registration-only scope and subsequently replied
 `created` after following the user-guided instructions. Creation is recorded
-from that user receipt; saved return settings and API/consent/scope readiness
-are not independently verified. Do not repeat Create. Automated browser access
-remains denied. All requested project-level readbacks are now received;
-the new registration's saved non-secret callback remains pending before
-credential provisioning. Do not repeat the completed setup or scope/audience
-questions.
-The user also reports downloading the credential JSON issued at creation.
-Its location and contents were not accessed, and no values are recorded here.
-Retain it privately outside source trees; provisioning remains separately gated.
+from that user receipt. The owner later supplies the existing downloaded JSON
+path; private inspection verifies the intended Production project, Web/client
+format and sole exact Calendar callback. The private source fingerprint binds
+future use. This is a saved-download receipt, not live credential authentication
+or independent Console readiness proof. No values/paths are recorded here.
+Automated browser access remains denied; do not repeat creation or the completed
+scope/audience questions. The later exact credential provisioning approval is
+complete as recorded in the linked Production plan. Its later separately
+approved public activation is complete; new provider tests remain separate.
 
 The approved, user-reported registration in the identified existing
 `AtmoShaper Production` project has this intended configuration:
 
-| Setting | Approved intended value; saved readback pending |
+| Setting | Approved intended value; downloaded callback/project validated |
 | --- | --- |
 | Application type | Web application |
 | Name | AtmoShaper Calendar Production Web |
@@ -108,14 +140,19 @@ different client for each API. No project replacement or legacy change is
 proposed. Creating this registration alone does not enable Calendar sync in the
 app, grant a user's Calendar permission, create a calendar, or deploy anything.
 
-Creation authority is now received for the scope above. Automated browser access
-is denied, so do not attempt another browser
-or indirect control path. The user must perform the approved Google UI step.
-Retain the newly issued credential securely outside chat, source trees, and
-screenshots before closing its creation dialog; Google documents that the
-secret is shown only at creation. Secure hosting provisioning is a separate
-later operation. Do not rotate/export the existing sign-in secret or add the
-new client ID/secret to Vercel as an implied follow-up.
+### Historical registration-only guidance (completed)
+
+The instructions below record the earlier registration-only approval; they
+are not a current setup handoff. The user completed creation, and the later
+separately approved credential provisioning and public activation are complete
+as recorded in the [Production receipt](2026-10-07-atmoshaper-calendar-production-credentials.md).
+Do not repeat client creation, credential export or any completed provider test.
+
+At that earlier checkpoint, automated browser access was denied and the user
+performed the approved Google UI step. The issued credential was retained
+securely outside chat, source trees and screenshots. Hosting provisioning then
+required its separate later approval; registration alone did not authorize
+rotating/exporting the existing sign-in secret or adding credentials to Vercel.
 
 Historical user-guided creation steps (completed by user report): in the existing project, choose Create client, select Web
 application, enter the approved name, leave JavaScript origins empty for this
@@ -125,17 +162,17 @@ the result. Obtain only a creation confirmation and non-secret callback
 readback. Any prompt to change API, consent, publishing, or scopes is outside
 this approval and requires a separate reviewable proposal.
 
-No API enablement, consent audience/publishing/scope edit, verification submission,
-QA resource, database write, Calendar/event operation, or Production activation
-is included in this registration-only proposal. Saved API/consent/scope checks
-and isolated test-project/client identification remain required before those
-later exact proposals. Starting the app integration by provisioning credentials
-would expose its connect route before full acceptance, so defer that operation.
+That registration-only approval excluded API enablement, consent changes,
+verification submission, QA resources, database writes, Calendar operations
+and Production activation. Later exact approvals and their completed receipts
+supersede those preparatory gates. The completed provisioning/public rollout
+requires no new client file or setup; future provider activity retains its own
+exact scope, and no completed test is authorized to repeat.
 
 Primary creation/callback/credential-retention reference:
 [Google's server-side OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).
 
-## October 6 replacement declaration proposal; no settings change yet
+## Availability declaration; October 7 owner save receipt
 
 The [two-arm comparison](2026-10-03-atmoshaper-calendar-scope-comparison.md)
 passes event identity/timing, recurrence, all-day bounds, transparency,
@@ -145,7 +182,7 @@ and normalization on owner/shared-reader sources. Availability supports the
 tested path; this does not prove complete application/database acceptance,
 app-created outbound behavior or Google's Production verification decision.
 
-| Proposed replacement declaration | Runtime purpose |
+| Approved declaration; owner reports saved | Runtime purpose |
 | --- | --- |
 | `openid` | Existing sign-in and Calendar account matching |
 | `https://www.googleapis.com/auth/userinfo.email` | Existing identity email; Calendar requests its `email` alias |
@@ -155,30 +192,50 @@ app-created outbound behavior or Google's Production verification decision.
 | `https://www.googleapis.com/auth/calendar.events.freebusy` | Measured inbound availability/event-page and incremental busy-block import |
 
 Do not newly request or declare `calendar.events.readonly` for this candidate.
-The local validator still accepts that previously permitted read grant, alone
+The merged validator still accepts that previously permitted read grant, alone
 or combined with availability, while requiring calendar-list/app-created access
 and rejecting broader Calendar grants. Cached and refreshed legacy tokens remain
 usable without rewriting stored identities/grants or weakening the validated
 outbound target. An older artifact requiring event-read would reject new
 availability-only tokens; retain this guard in any reviewed rollback.
 
-The exact future user-guided operation is to select these six entries in the
-existing Production project's Data Access declaration, replacing event-read
-with availability if present in the unsaved draft. Preserve working sign-in,
-client/callback registrations, verified branding and External / In production
-audience. Inspect and record actual scope categories, justification/demo fields
-and Verification Center actions; do not assume verification becomes unnecessary
-from the narrower scope name or standalone test. Prepare any required truthful
-materials before saving or submitting. No invented demo link or claim is allowed.
+The approved user-guided operation targeted these six entries in the existing
+Production project's Data Access declaration, replacing event-read with
+availability if present. After reporting `saved`, the owner supplies Verification
+Center's exact Data access status: verification is not required since the app is
+not requesting any sensitive or restricted scopes. They also report no entries
+in either category. The declaration/status gate is complete by owner readback;
+independent Console/API inspection of every saved URL is not claimed. Preserve
+working sign-in, client/callback registrations, verified branding and External /
+In production audience. No verification material/submission is currently required
+on that evidence; it is not inferred solely from a scope name or the comparison.
 Google's [scope reference](https://developers.google.com/workspace/calendar/api/auth)
 and [event-list permissions](https://developers.google.com/workspace/calendar/api/v3/reference/events/list)
 support the requested capability; Console outcomes remain project-specific.
 
-This replacement needs separate approval: the earlier exact declaration approval
-covered event-read. Source publication/reviews, merge, this provider operation,
-verification upload/submission if applicable, credentials, application/provider
-acceptance, deployment and public activation remain separate steps. No provider
-settings are changed by the local source preparation or this proposal.
+The user separately approved this replacement on October 7 and now reports it
+saved; the earlier exact declaration approval covered event-read. The approval covers selection and
+saving only when required fields can be truthfully completed. Confirm the draft
+contains exactly these six entries before saving. If no sensitive/restricted
+entries or required explanation/video fields appear, the owner may save and
+report the saved entries/categories. Otherwise obtain the actual categories
+and required fields first; keep the draft unsaved while missing truthful
+materials are prepared. Unexpected existing saved scopes require reconciliation
+before removing them. Approval alone does not establish selection, save or
+verification. Those selection/save steps are historical guidance, not a repeat
+request. The later owner category/status readback now satisfies the remaining
+question; do not request it again. At this pre-acceptance checkpoint, the next
+separately gated step was
+[isolated application acceptance](2026-10-07-atmoshaper-calendar-application-acceptance.md),
+now completed with its documented cleanup and limits.
+No alternate browser/control path is authorized by these receipts.
+
+Historical October 7 pre-rollout gate boundaries: PR #40's source
+publication/reviews, merge and automatic unpromoted candidate verification were
+complete. Verification upload/submission if applicable, credentials,
+application/provider acceptance, public promotion and activation required
+separate approval. The later completed receipts above supersede this handoff;
+no Google settings were changed by the merged source or this proposal.
 
 ## October 3 declared-permission checkpoint; historical event-read proposal
 
@@ -388,10 +445,14 @@ evidence of a working consent flow.
 Primary [sensitive-scope review guidance](https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification)
 checked October 3 requires the least necessary permissions, a narrower-scope
 justification, and a real consent/functionality video for sensitive-scope review.
-The two-arm scope comparison is complete. Saved Production classifications,
-full application acceptance, any required demo, and verification remain open.
+The two-arm scope comparison is complete. The October 7 owner status/category
+readback closes the Production declaration dependency and reports verification
+unnecessary; the later bounded application acceptance and cleanup are complete.
+Public Calendar was inactive at that declaration checkpoint; the later separate
+approved promotion is recorded at the top. Do not prepare the
+historical sensitive-scope demo for the current saved declaration by default.
 
-## Completed comparison setup and pending application targets
+## Completed comparison and application acceptance
 
 The [permission comparison plan](2026-10-03-atmoshaper-calendar-scope-comparison.md)
 retains the historical setup, configuration approval and separately approved
@@ -402,18 +463,28 @@ tokens were revoked, and the user reports deletion of both temporary calendars.
 Those operations are complete. Do not request comparison authority again or
 repeat project/client creation, consent, fixture setup, restoration or cleanup.
 
-After the pending source merge/build approval, the next Google operation is the
-exact [replacement-declaration proposal](#october-6-replacement-declaration-proposal-no-settings-change-yet),
-which needs its own approval and saved classification/Verification Center
-readback. The standalone comparison avoided an application database and does
-not replace the full isolated application acceptance proposal below. Prepare
-its remaining targets and operation boundaries before requesting that authority.
+PR #40's source merge/build verification and the owner's approved
+[replacement-declaration save](#availability-declaration-october-7-owner-save-receipt)
+and owner category/Verification Center status readback are complete. The
+standalone comparison avoided an application database. The later separately
+approved [application run](2026-10-07-atmoshaper-calendar-application-acceptance.md)
+and [native Disconnect follow-up](2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md)
+close the bounded application gate with cleanup and explicit proof limits. Do
+not request their resource/run authority again or repeat completed cases.
 
 Use the identified Production project and user-reported separate Calendar
-registration; do not propose another client or repeat its creation. Confirm the
-saved Calendar redirect, applicable new-scope Verification Center outcome,
-and appropriate isolated test targets before provisioning. Audience/publishing
-and Data Access readbacks are recorded above. Preserve shared consent settings.
+registration; do not propose another client or repeat its creation. Its saved
+Calendar redirect now passes private downloaded-JSON validation.
+The replacement Verification Center outcome is satisfied by the October 7 owner
+readback above. The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
+now records the approved four-setting provisioning and verified unpromoted
+candidate and the subsequently approved public promotion/activation. The
+operator/harness closeout is published in PR #41. Its `2bd0d4c` checkpoint passes
+all seven CI jobs, READY Preview and clean Codex; the October 8 full CodeRabbit
+review covers all eighteen files and identifies two source/doc follow-ups.
+PR #41 carries live exact-head review/check status and final receipts stay private,
+with no new setup or completed-test rerun. Preserve shared consent
+settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.
 
@@ -423,17 +494,21 @@ change the separate permission lists each runtime flow actually requests.
 Review their consequences before asking for a settings change. No legacy
 Google project or client change is proposed.
 
-The proposed Production callback is
+Historical October 7 pre-provisioning boundary: the proposed Production callback was
 `https://www.atmoshaper.com/api/calendar/google/callback`, distinct from sign-in's
 `/api/auth/callback/google`. Reconcile it with the saved canonical auth host.
-Provisioning the four settings is a later exact operation; never paste secrets
+Provisioning the four settings required a later exact operation, now completed
+in the linked receipt; never paste secrets
 into chat or commit them. The presence helper alone does not prove encryption
 key validity, consent readiness, or provider acceptance.
 
-The PR #39 candidate requests `openid`, `email`, `calendar.app.created`,
+The earlier PR #39 candidate requests `openid`, `email`, `calendar.app.created`,
 `calendar.calendarlist.readonly`, and `calendar.events.readonly`, using Google's
-full URI prefix for Calendar scopes. Published/live source additionally requests
-`calendar.events.freebusy`; see the compatibility boundary above.
+full URI prefix for Calendar scopes. At the October 7 pre-promotion checkpoint,
+the merged unpromoted PR #40 candidate replaced new event-read requests with
+`calendar.events.freebusy`, retaining legacy-token compatibility; see the boundary
+above. The then-live PR #37 artifact retained its earlier combined request until
+the later separately approved public promotion of PR #40.
 Review each grant's necessity and saved classification/verification; do not
 substitute broader Calendar write grants. Use separate testing and Production
 projects under Google's policy; locate an appropriate existing test project
@@ -446,6 +521,20 @@ and [OAuth project policy](https://developers.google.com/identity/protocols/oaut
 These explain requirements, not this project's saved state.
 
 ## Bounded isolated acceptance proposal
+
+The [October 7 application acceptance plan](2026-10-07-atmoshaper-calendar-application-acceptance.md)
+records a completed run against exact merged runtime `38d0ded`. Callback,
+encryption, persisted access, PostgreSQL rollback/locks, reconnect, inbound and
+generic outbound sync, and uncertain-create/reconciliation checks pass. Its
+original native pending Disconnect case was incomplete; the separately approved
+database-only follow-up proves that guard without Google credentials or activity.
+All test grants/fixtures, both exact empty Neon projects and owned processes are
+cleaned up. Teardown began within each approved ceiling. Both resource approvals
+are exhausted; no new resource or consent is authorized by this checkpoint.
+
+The following preparation sequence and proof table are historical acceptance
+requirements. Use the completed plans' receipts and limits, not these instructions
+as a request to repeat provider discovery, fixtures or execution.
 
 Prepare an owned local app and explicit Google-permitted test callback; choose
 the exact loopback port after availability and cookie/origin checks. Do not
@@ -482,9 +571,10 @@ Transaction/transport doubles do not establish real locks or provider consistenc
 
 ## Activation and rollback
 
-After isolated acceptance and scope readiness pass, prepare exact Production
-configuration, reviewed source, one staged build, verification, and a separate
-public-promotion decision. Keep manual promotion and registration/Supporter
+Isolated acceptance and scope readiness now pass within their recorded limits.
+The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
+records completed configuration, reviewed source, the single checked unpromoted
+build and the completed separate public promotion. Keep manual promotion and registration/Supporter
 Checkout open; one-time support and background purchases remain disabled.
 
 Disable only the new integration and drain its in-flight work before restoring

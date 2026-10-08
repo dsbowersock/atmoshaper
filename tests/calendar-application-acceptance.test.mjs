@@ -1,0 +1,1191 @@
+import test from "node:test"
+import assert from "node:assert/strict"
+import { mkdtemp, rm, readFile, writeFile, stat, mkdir, rmdir, symlink, realpath, readdir } from "node:fs/promises"
+import { tmpdir } from "node:os"
+import { join, resolve } from "node:path"
+import { createServer } from "node:http"
+import { spawn } from "node:child_process"
+import { once } from "node:events"
+import { fileURLToPath } from "node:url"
+import { request as playwrightRequest } from "@playwright/test"
+import { acceptanceEnvironment, authorizeAcceptanceRequest, assertAcceptancePreservedCursors, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
+import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
+import { writeAcceptanceDiagnostic, writeAcceptanceDisconnectForm, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand, acceptanceCommandWatchdog, acceptanceNativeRejectionObserver } from "../scripts/calendar-application-acceptance.mjs"
+import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
+import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
+import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
+
+/** Entirely invented identities/credentials: these tests never load local settings or contact providers. */
+function fixture() {
+  const runId = "a".repeat(32)
+  const runtimeUrl = "postgresql://test:synthetic@ep-synthetic-pooler.us-east-2.aws.neon.tech/test?sslmode=require"
+  const directUrl = runtimeUrl.replace("-pooler.", ".")
+  const manifest = {
+    version: 1, approved: true, runId, sourceSha: ACCEPTANCE_BASE, origin: ACCEPTANCE_ORIGIN,
+    appRoot: resolve("synthetic-root"), credentialFile: resolve("synthetic-private", "credential.json"),
+    googleProjectId: "synthetic-calendar-test", testSetupSaved: true, accountEmail: "synthetic@example.test",
+    authSecret: "b".repeat(64), encryptionKey: "c".repeat(64), startNonce: "d".repeat(64),
+    sources: [0, 1].map((index) => ({ calendarId: "source" + index + "@group.calendar.google.com", role: index ? "reader" : "owner", summary: "AtmoShaper application source " + runId + " " + (index + 1), eventIds: ["event" + index + "a", "event" + index + "b"] })),
+    database: { createdForRun: runId, emptyProjectReceipt: true, plan: "launch", managedByVercel: false, pgVersion: 17, region: "aws-us-east-2", compute: 0.25, createdAt: Date.now(), runtimeUrl, directUrl, endpointHost: "ep-synthetic.us-east-2.aws.neon.tech", fingerprint: fingerprintBrowserQaDatabaseTarget(runtimeUrl, directUrl) },
+  }
+  const client = { project_id: manifest.googleProjectId, client_id: "synthetic.apps.googleusercontent.com", client_secret: "invented-secret-for-tests", redirect_uris: ["http://localhost:3317/oauth/callback"] }
+  return { manifest, client }
+}
+
+test("failed sync preserves each source cursor across reordered rows without accepting identity or token drift", () => {
+  const prior = [{ id: "source-a", syncToken: "cursor-a" }, { id: "source-b", syncToken: "cursor-b" }]
+  const failed = prior.toReversed().map((source) => ({ ...source, lastErrorCode: "SYNC_FAILED" }))
+  assert.doesNotThrow(() => assertAcceptancePreservedCursors(prior, failed))
+  for (const changed of [
+    failed.slice(1),
+    [...failed, { id: "source-c", syncToken: "cursor-c", lastErrorCode: "SYNC_FAILED" }],
+    [failed[0], { ...failed[1], id: "source-c" }],
+    [failed[0], { ...failed[1], syncToken: "cursor-b" }],
+    [failed[0], { ...failed[1], lastErrorCode: null }],
+    [failed[0], failed[0]],
+  ]) assert.throws(() => assertAcceptancePreservedCursors(prior, changed), { message: "cursor_preserved" })
+})
+
+test("native rejection receipts cover repeated attempts and split markers without recounting old stderr", async () => {
+  const { manifest } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-native-rejection-unit-"))
+  const marker = "Choose a removable Google calendar connection. Unresolved creation requires reconciliation."
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    for (const [index, mode] of ["server", "pending-server"].entries()) {
+      const pid = 100 + index
+      const observe = acceptanceNativeRejectionObserver({ mode, store, pid })
+      await observe(marker.slice(0, 30))
+      assert.equal((await store.journal()).filter((item) => item.pid === pid).length, 0)
+      await observe(marker.slice(30) + "\n")
+      await new Promise((done) => setTimeout(done, 2))
+      const requestedAt = Date.now()
+      await observe("unrelated synthetic private payload\n")
+      await observe(marker + "\n" + marker.slice(0, 45))
+      await observe(marker.slice(45) + "\n")
+      await observe("later unrelated chunk\n")
+      const receipts = (await store.journal()).filter((item) => item.pid === pid)
+      assert.equal(receipts.length, 3)
+      assert.equal(receipts.filter((item) => item.at >= requestedAt).length, 2, "resumed worker attempts need fresh current-server evidence")
+      assert.ok(receipts.every((item) => item.caseName === "native-pending-disconnect-rejection" && item.phase === "observed"))
+    }
+    await acceptanceNativeRejectionObserver({ mode: "check", store, pid: 999 })(marker)
+    assert.equal((await store.journal()).some((item) => item.pid === 999), false)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("server setup failures exit the actual entrypoint despite live synthetic framework handles", async () => {
+  const serverUrl = new URL("../scripts/calendar-application-acceptance-server.mjs", import.meta.url).href
+  for (const failure of ["listen", "readiness"]) {
+    // Only this entrypoint's dependencies are replaced; no app, provider, database or real listener starts.
+    const replacements = {
+      "node:http": `import { EventEmitter } from 'node:events'; export function createServer() { const server = new EventEmitter(); server.listen = (_port, _host, done) => queueMicrotask(() => ${failure === "listen" ? "server.emit('error', new Error('synthetic unavailable port'))" : "done()"}); return server }`,
+      "next-auth/jwt": "export async function encode() { return 'synthetic-cookie' }",
+      "next": "export default function next() { return { async prepare() { setInterval(() => {}, 1000) }, getRequestHandler() { return async () => {} } } }",
+      "./calendar-application-acceptance.mjs": "export async function loadAcceptanceConfig() { return { manifest: { encryptionKey: 'synthetic', appRoot: 'synthetic', runId: 'synthetic', authSecret: 'synthetic' }, client: {}, directory: 'synthetic' } }",
+      "./calendar-application-acceptance-guard.mjs": "export function acceptanceStore() { return { locked: async (action) => action(), record: async () => { throw new Error('synthetic readiness write failure') } } }; export function createAcceptanceFetch() { return () => { throw new Error('synthetic provider access forbidden') } }",
+      "./calendar-application-acceptance-core.mjs": "export function requireAcceptance() {}; export const ACCEPTANCE_ORIGIN = 'http://localhost:3318'",
+      "../lib/auth/browser-user-fixture.ts": "export function createBrowserUserFixtureIdentity() { return { user: {} } }",
+      "../tests/browser/signed-in-session-cookie.ts": "export function signedInSessionToken() { return {} }",
+    }
+    const hook = `import { registerHooks } from 'node:module'; const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(serverUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), fileURLToPath(serverUrl)])
+    const closed = once(child, "close")
+    let stderr = ""
+    child.stderr.on("data", (chunk) => { stderr += chunk.toString() })
+    let timer
+    try {
+      const [code] = await Promise.race([closed, new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("setup failure left the owned child alive")), 5000) })])
+      assert.equal(code, 1)
+      assert.equal(stderr.trim(), "ACCEPTANCE: server setup stopped")
+    } finally {
+      clearTimeout(timer)
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+    }
+  }
+})
+
+test("launcher cancellation during its initial journal wait stops the owned child and handles setup failure", async () => {
+  const launcherUrl = new URL("../scripts/calendar-application-acceptance.mjs", import.meta.url).href
+  for (const signal of ["SIGINT", "SIGTERM"]) for (const fails of [false, true]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-launcher-signal-unit-"))
+    const pidPath = join(directory, "synthetic-child.pid")
+    const { manifest } = fixture()
+    Object.assign(manifest, { appRoot: fileURLToPath(new URL("..", import.meta.url)), pendingActionOnly: true, sources: [], credentialFile: null, googleProjectId: null, accountEmail: null })
+    // Run the real launcher and teardown, replacing only settings, Git reads, journal waiting and the worker command.
+    const replacements = {
+      "node:fs/promises": `export { open } from 'node:fs/promises'; export async function readFile() { return ${JSON.stringify(JSON.stringify(manifest))} }; export async function readdir() { return [] }; export async function realpath(path) { return path }`,
+      "node:child_process": `import { spawn as realSpawn } from 'node:child_process'; import { writeFileSync } from 'node:fs'; export function execFileSync(_command, args) { return args[0] === 'rev-parse' ? ${JSON.stringify(ACCEPTANCE_BASE)} : '' }; export function spawn(command, args, options) { if (command === 'taskkill') return realSpawn(command, args, options); const child = realSpawn(process.execPath, ['-e', "process.stdout.write('synthetic-ready' + String.fromCharCode(10)); setInterval(() => {}, 1000)"], options); globalThis.syntheticAcceptanceChild = child; writeFileSync(${JSON.stringify(pidPath)}, String(child.pid)); return child }`,
+      "./calendar-application-acceptance-guard.mjs": `import { once } from 'node:events'; export function acceptanceStore() { return { record: async () => {}, locked: async (action) => { await once(globalThis.syntheticAcceptanceChild.stdout, 'data'); if (process.platform === 'win32') { process.emit(${JSON.stringify(signal)}); process.emit(${JSON.stringify(signal)}) } else { process.kill(process.pid, ${JSON.stringify(signal)}) }; await new Promise((done) => setTimeout(done, 20)); ${fails ? "throw new Error('synthetic journal acquisition failed')" : "return action()"} } } }`,
+    }
+    const hook = `import { registerHooks } from 'node:module'; const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(launcherUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), fileURLToPath(launcherUrl), "pending-check", join(directory, "synthetic-config.json")])
+    const closed = once(child, "close")
+    let stderr = ""
+    let stdout = ""
+    child.stdout.on("data", (chunk) => { stdout += chunk.toString() })
+    child.stderr.on("data", (chunk) => { stderr += chunk.toString() })
+    let timer
+    try {
+      const [code, terminationSignal] = await Promise.race([closed, new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("initial journal wait left the owned child alive")), 5000) })])
+      assert.equal(terminationSignal, null, "the launcher handles cancellation instead of taking its default signal exit")
+      assert.equal(code, 1)
+      assert.equal(stderr.trim(), "ACCEPTANCE: stopped; inspect the protected private stage receipt")
+      assert.equal(stdout.includes("ACCEPTANCE: owned command completed"), false)
+      const pid = Number(await readFile(pidPath, "utf8"))
+      assert.throws(() => process.kill(pid, 0), { code: "ESRCH" }, "the separately owned worker must be stopped")
+    } finally {
+      clearTimeout(timer)
+      try {
+        try { await stopAcceptanceCommand({ pid: Number(await readFile(pidPath, "utf8")) }, { graceMs: 1 }) } catch (error) { if (error.code !== "ENOENT") throw error }
+      } finally {
+        try { if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 }); await closed }
+        finally { await rm(directory, { recursive: true, force: true }) }
+      }
+    }
+  }
+})
+
+test("POSIX teardown terminates an ignoring descendant even after its process-group leader exits", { skip: process.platform === "win32" }, async () => {
+  const descendant = "process.on('SIGTERM', () => {}); process.stdout.write('ready\\n'); setInterval(() => process.stdout.write('.'), 20)"
+  const parent = `import { spawn } from 'node:child_process'; spawn(process.execPath, ['-e', ${JSON.stringify(descendant)}], { stdio: ['ignore', 'inherit', 'inherit'] }); setInterval(() => {}, 1000)`
+  const child = spawnAcceptanceCommand(process.execPath, ["--input-type=module", "-e", parent])
+  const closed = once(child, "close")
+  try {
+    await new Promise((done, fail) => {
+      const timer = setTimeout(() => fail(new Error("synthetic descendant startup timed out")), 5000)
+      child.once("error", (error) => { clearTimeout(timer); fail(error) })
+      child.stdout.once("data", () => { clearTimeout(timer); done() })
+    })
+    await stopAcceptanceCommand(child, { graceMs: 40 })
+    await Promise.race([closed, new Promise((_, fail) => { const timer = setTimeout(() => fail(new Error("owned descendant survived teardown")), 5000); timer.unref() })])
+    assert.equal(child.signalCode, "SIGTERM")
+  } finally { await stopAcceptanceCommand(child, { graceMs: 1 }); await closed }
+})
+
+test("both cleanup modes terminate a stalled owned child on an independent deadline and retain partial evidence", async () => {
+  for (const mode of ["cleanup", "pending-cleanup"]) {
+    const { manifest } = fixture()
+    manifest.database.createdAt -= 91 * 60_000
+    manifest.pendingActionOnly = mode === "pending-cleanup"
+    const directory = await mkdtemp(join(tmpdir(), "calendar-cleanup-watchdog-unit-"))
+    const child = spawnAcceptanceCommand(process.execPath, ["-e", "process.stdout.write('ready\\n'); setInterval(() => {}, 1000)"])
+    const closed = once(child, "close")
+    let watchdog
+    let stopping
+    try {
+      await new Promise((done, fail) => {
+        const timer = setTimeout(() => fail(new Error("synthetic cleanup child startup timed out")), 5000)
+        child.once("error", (error) => { clearTimeout(timer); fail(error) })
+        child.stdout.once("data", () => { clearTimeout(timer); done() })
+      })
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const token = "invented-watchdog-retained-token"
+      await store.saveVault([{ access_token: token }])
+      await store.record({ kind: "calendar-create", phase: "intent", calendarMarker: "synthetic-unresolved-marker" })
+      watchdog = acceptanceCommandWatchdog({ mode, manifest, store, pid: child.pid, cleanupTimeoutMs: 60, stopChild: () => {
+        stopping ??= stopAcceptanceCommand(child, { graceMs: 20 })
+        stopping.catch(() => {})
+      } })
+      await new Promise((done) => setTimeout(done, 15))
+      assert.equal(stopping, undefined, "cleanup must not reuse the already expired run deadline")
+      await Promise.race([closed, new Promise((_, fail) => { const timer = setTimeout(() => fail(new Error("cleanup child survived its deadline")), 5000); timer.unref() })])
+      assert.equal(await watchdog.finish(), true)
+      await stopping
+      const journal = await store.journal()
+      assert.ok(journal.some((item) => item.kind === "cleanup" && item.phase === "partial" && item.mode === mode && item.pid === child.pid && item.reason === "owned-command-deadline"))
+      assert.ok(journal.some((item) => item.kind === "calendar-create" && item.phase === "intent"))
+      assert.equal(journal.some((item) => item.phase === "passed"), false)
+      assert.equal((await store.vault())[0].access_token, token)
+    } finally {
+      try { await watchdog?.finish() }
+      finally { await stopAcceptanceCommand(child, { graceMs: 1 }); await closed; await rm(directory, { recursive: true, force: true }) }
+    }
+  }
+})
+
+test("normal watchdog preserves the run ceiling and finished cleanup cancels its timer", async () => {
+  const { manifest } = fixture()
+  manifest.pendingActionOnly = true
+  let stopCalls = 0
+  const store = { locked: () => assert.fail("normal run deadline must not record partial cleanup") }
+  const normal = acceptanceCommandWatchdog({ mode: "pending-check", manifest, store, stopChild: () => { stopCalls++ }, now: manifest.database.createdAt + 15 * 60_000 })
+  await new Promise((done) => setTimeout(done, 15))
+  assert.equal(await normal.finish(), true)
+  assert.equal(stopCalls, 1)
+  const cleanup = acceptanceCommandWatchdog({ mode: "cleanup", manifest, store, stopChild: () => { stopCalls++ }, cleanupTimeoutMs: 20 })
+  assert.equal(await cleanup.finish(), false)
+  await new Promise((done) => setTimeout(done, 40))
+  assert.equal(stopCalls, 1)
+  for (const cleanupTimeoutMs of [0, Infinity, 300_001]) assert.throws(() => acceptanceCommandWatchdog({ mode: "cleanup", manifest, store, stopChild: () => {}, cleanupTimeoutMs }), /cleanup_process_timeout/)
+})
+
+test("malformed and null revoke errors retain HTTP failures without claiming revocation", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-revoke-error-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const token = "invented-revoke-error-token"
+    await store.saveVault([{ access_token: token }])
+    for (const body of ["<html>synthetic failure</html>", "null"]) {
+      const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async () => new Response(body, { status: 400 }) })
+      const response = await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(response.status, 400)
+      assert.deepEqual(await response.json(), {})
+    }
+    const records = (await store.journal()).filter((item) => item.kind === "revoke")
+    assert.equal(records.filter((item) => item.phase === "http-failure" && item.status === 400).length, 2)
+    assert.equal(records.some((item) => ["accepted", "already-revoked"].includes(item.phase)), false)
+    assert.equal((await store.vault())[0].access_token, token)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("cleanup bounds direct DELETE and revocation requests while retaining retry evidence", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-cleanup-timeout-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const token = "invented-cleanup-timeout-token"
+    const calendarId = "owned-timeout@group.calendar.google.com"
+    await store.saveVault([{ access_token: token, acceptedForUse: true }])
+    await store.record({ kind: "calendar-create", phase: "accepted", calendarId })
+    await store.record({ kind: "case", phase: "passed", caseName: "owned-targets-verified-absent", calendarMarkers: [] })
+    const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, cleanupTimeoutMs: 20, fetchImpl: async (request) => {
+      await new Promise((_, fail) => {
+        const timer = setTimeout(() => fail(new Error("cleanup failed to bound the request")), 1000)
+        const abort = () => { clearTimeout(timer); fail(request.signal.reason) }
+        if (request.signal.aborted) abort(); else request.signal.addEventListener("abort", abort, { once: true })
+      })
+    } })
+    await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/calendars/" + calendarId, { method: "DELETE", headers: { authorization: "Bearer " + token } }), /acceptance_transport_stopped/)
+    await assert.rejects(guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) }), /acceptance_transport_stopped/)
+    const journal = await store.journal()
+    for (const kind of ["calendar-delete", "revoke"]) {
+      assert.ok(journal.some((item) => item.kind === kind && item.phase === "intent"))
+      assert.equal(journal.some((item) => item.kind === kind && item.phase === "accepted"), false)
+    }
+    assert.equal((await store.vault())[0].access_token, token)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("child diagnostics protect both new files and previously permissive files before writing", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-diagnostic-unit-"))
+  const path = join(directory, "owned-command-error.txt")
+  try {
+    await writeAcceptanceDiagnostic(directory, "synthetic failure")
+    assert.equal(await readFile(path, "utf8"), "synthetic failure")
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+    await rm(path)
+    await writeFile(path, "old synthetic failure", { mode: 0o644 })
+    await writeAcceptanceDiagnostic(directory, "new synthetic failure")
+    assert.equal(await readFile(path, "utf8"), "new synthetic failure")
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("persisted native Disconnect fields restrict new and previously permissive files before writing", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-disconnect-form-unit-"))
+  const path = join(directory, "disconnect-form.json")
+  const values = { connectionId: "invented-connection-row", "$ACTION_ID_40synthetic": "" }
+  try {
+    await writeAcceptanceDisconnectForm(directory, values)
+    assert.deepEqual(JSON.parse(await readFile(path, "utf8")), values)
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+    await rm(path)
+    await writeFile(path, JSON.stringify({ connectionId: "invented-old-row" }), { mode: 0o644 })
+    await writeAcceptanceDisconnectForm(directory, values)
+    assert.deepEqual(JSON.parse(await readFile(path, "utf8")), values)
+    if (process.platform !== "win32") assert.equal((await stat(path)).mode & 0o777, 0o600)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("private paths accept canonical siblings and reject dot-prefixed children or symlinks into the checkout", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-private-path-unit-"))
+  const root = join(directory, "atmoshaper")
+  const sibling = root + "-private"
+  const inside = join(root, "..private")
+  const alias = join(directory, "outside-alias")
+  try {
+    for (const path of [root, sibling, inside]) await mkdir(path, { recursive: true })
+    for (const path of [sibling, inside]) for (const name of ["run.json", "client.json"]) await writeFile(join(path, name), "{}")
+    const config = join(sibling, "run.json")
+    const credential = join(sibling, "client.json")
+    assert.deepEqual(await acceptancePrivatePaths(root, config, credential), { config: await realpath(config), credential: await realpath(credential) })
+    await assert.rejects(acceptancePrivatePaths(root, join(inside, "run.json"), credential), /private_file_location/)
+    await assert.rejects(acceptancePrivatePaths(root, config, join(inside, "client.json")), /private_file_location/)
+    await symlink(inside, alias, process.platform === "win32" ? "junction" : "dir")
+    await assert.rejects(acceptancePrivatePaths(root, config, join(alias, "client.json")), /private_file_location/)
+    await assert.rejects(acceptancePrivatePaths(root, join(alias, "run.json"), credential), /private_file_location/)
+    assert.deepEqual(await acceptancePrivatePaths(root, config), { config: await realpath(config), credential: null })
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("actual bridge grants one session across concurrent requests and refuses pending-only or invalid starts", async () => {
+  const serverUrl = new URL("../scripts/calendar-application-acceptance-server.mjs", import.meta.url).href
+  for (const pendingActionOnly of [false, true]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-bridge-unit-"))
+    const { manifest, client } = fixture()
+    manifest.pendingActionOnly = pendingActionOnly
+    await writeFile(join(directory, "bridge.json"), JSON.stringify({ nonce: manifest.startNonce, used: false }), { mode: 0o600 })
+    // Invoke the real entrypoint/guard with synthetic HTTP objects, session encoding and framework dependencies.
+    const http = `
+      import { EventEmitter } from 'node:events'; import { readFile } from 'node:fs/promises';
+      export function createServer(handler) {
+        const server = new EventEmitter(); server.close = () => {};
+        server.listen = (_port, _host, done) => {
+          const dispatch = async () => {
+            const start = '/__calendar_acceptance/start/' + ${JSON.stringify(manifest.startNonce)};
+            const request = (method = 'GET', url = start, host = 'localhost:3318') => new Promise((resolve) => {
+              let status, headers;
+              const response = { writeHead(code, values) { status = code; headers = values }, end() { resolve({ status, hasCookie: !!headers?.['set-cookie'], location: headers?.location }) } };
+              void handler({ method, url, headers: { host } }, response);
+            });
+            const invalid = await Promise.all([request('POST'), request('GET', start + '-wrong'), request('GET', start, 'invalid.test')]);
+            const before = JSON.parse(await readFile(${JSON.stringify(join(directory, "bridge.json"))}, 'utf8'));
+            const concurrent = await Promise.all(Array.from({ length: 12 }, () => request()));
+            const repeated = await request();
+            const after = JSON.parse(await readFile(${JSON.stringify(join(directory, "bridge.json"))}, 'utf8'));
+            process.stdout.write('BRIDGE_RESULT:' + JSON.stringify({ invalid, before, concurrent, repeated, after }) + '\\n');
+            process.exit(0);
+          };
+          done(); setImmediate(() => { void dispatch().catch((error) => { console.error(error); process.exit(2) }) });
+        }; return server;
+      }
+    `
+    const replacements = {
+      "node:http": http,
+      // Delay persistence to expose the original parallel-read race without bypassing the actual shared lock.
+      "node:fs/promises": `export { readFile } from 'node:fs/promises'; import { writeFile as actualWrite } from 'node:fs/promises'; export async function writeFile(path, data, options) { if (path === ${JSON.stringify(join(directory, "bridge.json"))} && JSON.parse(data).used) await new Promise((done) => setTimeout(done, 25)); return actualWrite(path, data, options) }`,
+      "next-auth/jwt": "export async function encode() { return 'synthetic-cookie' }",
+      "next": "export default function next() { return { async prepare() {}, getRequestHandler() { return async () => { throw new Error('unexpected application request') } }, async close() {} } }",
+      "./calendar-application-acceptance.mjs": `export async function loadAcceptanceConfig() { return ${JSON.stringify({ manifest, client, directory })} }`,
+      "../lib/auth/browser-user-fixture.ts": "export function createBrowserUserFixtureIdentity() { return { user: {} } }",
+      "../tests/browser/signed-in-session-cookie.ts": "export function signedInSessionToken() { return {} }",
+    }
+    const hook = `import { registerHooks } from 'node:module'; const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(serverUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), fileURLToPath(serverUrl)])
+    const closed = once(child, "close")
+    let output = "", timer
+    child.stdout.on("data", (chunk) => { output += chunk.toString() })
+    try {
+      const [code] = await Promise.race([closed, new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("synthetic bridge requests timed out")), 10000) })])
+      assert.equal(code, 0)
+      const result = JSON.parse(output.split(/\r?\n/).find((line) => line.startsWith("BRIDGE_RESULT:")).slice("BRIDGE_RESULT:".length))
+      assert.ok(result.invalid.every((item) => item.status === 403 && !item.hasCookie))
+      assert.equal(result.before.used, false, "invalid starts must not consume the nonce")
+      assert.equal(result.concurrent.filter((item) => item.status === 302 && item.hasCookie && item.location === "/api/calendar/google/connect").length, pendingActionOnly ? 0 : 1)
+      assert.equal(result.concurrent.filter((item) => item.status === 403 && !item.hasCookie).length, pendingActionOnly ? 12 : 11)
+      assert.equal(result.after.used, !pendingActionOnly)
+      assert.equal(result.repeated.status, 403)
+      assert.equal(result.repeated.hasCookie, false)
+    } finally {
+      clearTimeout(timer)
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      await rm(directory, { recursive: true, force: true })
+    }
+  }
+})
+
+test("journal locks preserve live owners and recover only after an owned worker has exited", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-lock-unit-"))
+  const guardUrl = new URL("../scripts/calendar-application-acceptance-guard.mjs", import.meta.url).href
+  const code = `import { acceptanceLock } from ${JSON.stringify(guardUrl)}; setTimeout(() => process.exit(1), 10000); await acceptanceLock(${JSON.stringify(directory)}, async () => { process.stdout.write('held\\n'); await new Promise(() => {}); });`
+  const child = spawn(process.execPath, ["--input-type=module", "-e", code], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+  const exit = once(child, "exit")
+  try {
+    await new Promise((done, fail) => {
+      const timer = setTimeout(() => fail(new Error("synthetic lock startup timed out")), 5000)
+      child.once("error", (error) => { clearTimeout(timer); fail(error) })
+      child.stdout.once("data", () => { clearTimeout(timer); done() })
+    })
+    await assert.rejects(acceptanceLock(directory, () => assert.fail("live lock was stolen"), { timeoutMs: 60 }), /journal_lock/)
+    child.kill("SIGTERM")
+    await exit
+    let active = 0
+    await Promise.all(Array.from({ length: 12 }, () => acceptanceLock(directory, async () => {
+      assert.equal(++active, 1)
+      await new Promise((done) => setTimeout(done, 2))
+      active--
+    })))
+    assert.equal(active, 0)
+    await assert.rejects(stat(join(directory, "journal.lock")), { code: "ENOENT" })
+    await mkdir(join(directory, "journal.lock"))
+    await assert.rejects(acceptanceLock(directory, () => assert.fail("unowned empty lock was stolen"), { timeoutMs: 60 }), /journal_lock/)
+    await rmdir(join(directory, "journal.lock"))
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) child.kill("SIGTERM")
+    await exit
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test("interrupted lock release preserves ownership before retirement and never leaves an empty canonical lock", async () => {
+  const guardUrl = new URL("../scripts/calendar-application-acceptance-guard.mjs", import.meta.url).href
+  for (const stage of ["claimed", "retired"]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-lock-release-unit-"))
+    // Pause the actual guard at either release boundary; only filesystem calls in this synthetic directory run.
+    const replacement = `
+      export { readFile, writeFile, mkdir, rmdir, appendFile, readdir, chmod } from 'node:fs/promises';
+      import { rename as actualRename, unlink as actualUnlink } from 'node:fs/promises';
+      const directory = ${JSON.stringify(directory)}, stage = ${JSON.stringify(stage)};
+      async function pause() { process.stdout.write('release-paused\\n'); await new Promise(() => {}); }
+      export async function rename(source, target) {
+        await actualRename(source, target);
+        if (stage === 'claimed' && String(target) === ${JSON.stringify(join(directory, "journal.lock", "release"))}) await pause();
+      }
+      export async function unlink(target) {
+        if (stage === 'retired' && String(target).startsWith(directory) && String(target).includes('journal.lock-released-')) await pause();
+        return actualUnlink(target);
+      }
+    `
+    const hook = `import { registerHooks } from 'node:module'; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(guardUrl)} && specifier === 'node:fs/promises') return { url: 'data:text/javascript,' + encodeURIComponent(${JSON.stringify(replacement)}), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const code = `import { acceptanceLock } from ${JSON.stringify(guardUrl)}; setTimeout(() => process.exit(1), 10000); await acceptanceLock(${JSON.stringify(directory)}, async () => {});`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), "--input-type=module", "-e", code])
+    const closed = once(child, "close")
+    let timer
+    try {
+      await Promise.race([once(child.stdout, "data"), closed.then(() => assert.fail("release child exited before the boundary")), new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("release boundary timed out")), 5000) })])
+      clearTimeout(timer)
+      if (stage === "claimed") {
+        const entries = await readdir(join(directory, "journal.lock"))
+        assert.equal(entries.length, 2)
+        assert.ok(entries.includes("release"))
+        const claims = await readdir(join(directory, "journal.lock", "release"))
+        assert.equal(claims.length, 1)
+        assert.match(claims[0], new RegExp(`^owner-${child.pid}-`))
+        assert.equal(JSON.parse(await readFile(join(directory, "journal.lock", "release", claims[0]), "utf8")).pid, child.pid)
+        await assert.rejects(acceptanceLock(directory, () => assert.fail("live release claim was stolen"), { timeoutMs: 60 }), /journal_lock/)
+      } else {
+        await assert.rejects(stat(join(directory, "journal.lock")), { code: "ENOENT" })
+        assert.equal((await readdir(directory)).filter((name) => name.startsWith("journal.lock-released-")).length, 1)
+        await acceptanceLock(directory, async () => {
+          assert.equal((await readdir(join(directory, "journal.lock"))).length, 1)
+          await stopAcceptanceCommand(child, { graceMs: 1 })
+          await closed
+          assert.equal((await readdir(join(directory, "journal.lock"))).length, 1, "the replacement owner's lock survives interrupted retirement")
+        })
+      }
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      let active = 0
+      await Promise.all(Array.from({ length: 12 }, () => acceptanceLock(directory, async () => {
+        assert.equal(++active, 1)
+        await new Promise((done) => setTimeout(done, 2))
+        active--
+      })))
+      assert.equal(active, 0)
+      await assert.rejects(stat(join(directory, "journal.lock")), { code: "ENOENT" })
+    } finally {
+      clearTimeout(timer)
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      await rm(directory, { recursive: true, force: true })
+    }
+  }
+})
+
+test("actual loopback multipart transport preserves Next's empty action selector", async () => {
+  const selector = "$ACTION_ID_40" + "a".repeat(40)
+  const server = createServer(async (incoming, response) => {
+    const chunks = []
+    for await (const chunk of incoming) chunks.push(chunk)
+    const parsed = await new Request("http://localhost/", { method: "POST", headers: { "content-type": incoming.headers["content-type"] }, body: Buffer.concat(chunks) }).formData()
+    response.setHeader("content-type", "application/json")
+    response.end(JSON.stringify({ actionPresent: parsed.has(selector), actionValue: parsed.get(selector), connectionId: parsed.get("connectionId"), count: [...parsed.keys()].length }))
+  })
+  await new Promise((done) => server.listen(0, "127.0.0.1", done))
+  const context = await playwrightRequest.newContext()
+  try {
+    const payload = await encodeAcceptanceActionForm({ [selector]: "", connectionId: "synthetic-connection" })
+    const response = await context.post("http://127.0.0.1:" + server.address().port, payload)
+    assert.deepEqual(await response.json(), { actionPresent: true, actionValue: "", connectionId: "synthetic-connection", count: 2 })
+    await assert.rejects(() => encodeAcceptanceActionForm({ connectionId: "synthetic-connection" }))
+    await assert.rejects(() => encodeAcceptanceActionForm({ [selector]: "", connectionId: "synthetic-connection", unexpected: "value" }))
+  } finally {
+    await context.dispose()
+    await new Promise((done) => server.close(done))
+  }
+})
+
+test("database ownership cannot be substituted by matching environment aliases alone", () => {
+  const { manifest } = fixture()
+  assert.equal(validateAcceptanceManifest(manifest), manifest)
+  for (const change of [{ managedByVercel: true }, { endpointHost: "ep-other.us-east-2.aws.neon.tech" }, { compute: 1 }, { createdForRun: "other" }, { emptyProjectReceipt: false }]) {
+    assert.throws(() => validateAcceptanceManifest({ ...manifest, database: { ...manifest.database, ...change } }))
+  }
+  assert.throws(() => acceptanceEnvironment({ ...manifest, database: { ...manifest.database, fingerprint: "0".repeat(64) } }, {}))
+})
+
+test("child environment discards inherited provider secrets, URLs, options and hosted PHI", () => {
+  const { manifest, client } = fixture()
+  const environment = acceptanceEnvironment(manifest, client, { PATH: "synthetic-path", STRIPE_SECRET_KEY: "live-secret", DATABASE_URL: "private-prod-url", NODE_OPTIONS: "--import private-prod-loader", GOOGLE_CLIENT_SECRET: "private", MASSAGELAB_ENABLE_HOSTED_PHI_SYNC: "true" })
+  assert.equal(environment.PATH, "synthetic-path")
+  assert.equal(environment.DATABASE_URL, manifest.database.runtimeUrl)
+  assert.equal(environment.STRIPE_SECRET_KEY, "")
+  assert.equal(environment.MASSAGELAB_ENABLE_HOSTED_PHI_SYNC, "false")
+  assert.equal(environment.NODE_OPTIONS, undefined)
+  assert.equal(environment.GOOGLE_CLIENT_SECRET, "")
+})
+
+test("pending-only follow-up excludes credentials and keeps its database ownership guard", () => {
+  const { manifest } = fixture()
+  const pending = { ...manifest, pendingActionOnly: true, sources: [] }
+  for (const key of ["credentialFile", "googleProjectId", "accountEmail"]) delete pending[key]
+  assert.equal(validateAcceptanceManifest(pending), pending)
+  const environment = acceptanceEnvironment(pending, {}, { GOOGLE_CALENDAR_CLIENT_ID: "inherited", GOOGLE_CALENDAR_CLIENT_SECRET: "inherited", GOOGLE_CALENDAR_REDIRECT_URI: "https://production.example" })
+  for (const key of ["GOOGLE_CALENDAR_CLIENT_ID", "GOOGLE_CALENDAR_CLIENT_SECRET", "GOOGLE_CALENDAR_REDIRECT_URI"]) assert.equal(environment[key], "")
+  for (const change of [{ credentialFile: manifest.credentialFile }, { googleProjectId: manifest.googleProjectId }, { accountEmail: manifest.accountEmail }, { sources: manifest.sources }]) assert.throws(() => validateAcceptanceManifest({ ...pending, ...change }))
+  assert.throws(() => acceptanceEnvironment({ ...pending, database: { ...pending.database, fingerprint: "0".repeat(64) } }, {}))
+})
+
+test("pending-only follow-up expires at fifteen minutes and permits ownership-bound teardown", () => {
+  const { manifest } = fixture()
+  Object.assign(manifest, { pendingActionOnly: true, sources: [] })
+  for (const key of ["credentialFile", "googleProjectId", "accountEmail"]) delete manifest[key]
+  const deadline = manifest.database.createdAt + 15 * 60_000
+  assert.doesNotThrow(() => validateAcceptanceManifest(manifest, { now: deadline - 1 }))
+  assert.throws(() => validateAcceptanceManifest(manifest, { now: deadline }))
+  assert.doesNotThrow(() => validateAcceptanceManifest(manifest, { now: deadline, cleanup: true }))
+  assert.throws(() => validateAcceptanceManifest({ ...manifest, database: { ...manifest.database, createdForRun: "other" } }, { now: deadline, cleanup: true }))
+})
+
+test("pending-only transport refuses every external provider request before dispatch", async () => {
+  const { manifest } = fixture()
+  Object.assign(manifest, { pendingActionOnly: true, sources: [] })
+  for (const key of ["credentialFile", "googleProjectId", "accountEmail"]) delete manifest[key]
+  const directory = await mkdtemp(join(tmpdir(), "calendar-pending-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client: {}, store, fetchImpl: async () => { calls++; return Response.json({}) } })
+    for (const url of ["https://oauth2.googleapis.com/token", "https://www.googleapis.com/calendar/v3/calendars", "https://private.example/"]) await assert.rejects(guarded(url))
+    assert.equal(calls, 0)
+    assert.equal((await store.journal()).length, 0)
+    await guarded(ACCEPTANCE_ORIGIN + "/calendar/sync")
+    assert.equal(calls, 1)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("an expired run cannot dispatch new work; scoped cleanup keeps ownership checks", () => {
+  const { manifest, client } = fixture()
+  manifest.database.createdAt -= 91 * 60_000
+  assert.throws(() => acceptanceEnvironment(manifest, client))
+  assert.doesNotThrow(() => acceptanceEnvironment(manifest, client, {}, { cleanup: true }))
+  manifest.database.createdForRun = "wrong"
+  assert.throws(() => acceptanceEnvironment(manifest, client, {}, { cleanup: true }))
+})
+
+test("retained test download remains usable after owner adds the application callback", () => {
+  const { manifest, client } = fixture()
+  assert.equal(validateAcceptanceCredential({ web: client }, manifest), client)
+  assert.throws(() => validateAcceptanceCredential({ web: { ...client, project_id: "production-project" } }, manifest))
+  assert.throws(() => validateAcceptanceCredential({ web: { ...client, redirect_uris: [...client.redirect_uris, "https://private.example/callback"] } }, manifest))
+})
+
+test("fresh grants reject missing, legacy, broader Calendar and unrelated permissions", () => {
+  const narrow = GOOGLE_CALENDAR_SCOPES.join(" ")
+  assert.doesNotThrow(() => validateAcceptanceScopes(narrow))
+  assert.doesNotThrow(() => validateAcceptanceScopes(narrow.replace("email", "https://www.googleapis.com/auth/userinfo.email")))
+  for (const scope of [narrow.replace("calendar.app.created", "calendar"), narrow + " https://www.googleapis.com/auth/calendar.events.readonly", narrow.replace("calendar.events.freebusy", "missing"), narrow + " https://www.googleapis.com/auth/drive.readonly", narrow + " profile", narrow + " https://www.googleapis.com/auth/userinfo.profile"]) assert.throws(() => validateAcceptanceScopes(scope))
+})
+
+test("pure dispatch refuses primary, unrelated and source calendar writes before fetch", () => {
+  const { manifest, client } = fixture()
+  for (const [url, method] of [["https://www.googleapis.com/calendar/v3/calendars/primary/events", "GET"], ["https://www.googleapis.com/calendar/v3/calendars/unowned%40group.calendar.google.com/events", "POST"], ["https://www.googleapis.com/calendar/v3/calendars/source0%40group.calendar.google.com", "DELETE"], ["https://private.example/mutation", "POST"]]) {
+    assert.throws(() => authorizeAcceptanceRequest({ request: new Request(url, { method, headers: { authorization: "Bearer invented" } }), body: "{}", manifest, client, journal: [] }))
+  }
+})
+
+test("concurrent create requests atomically reserve the lifetime budget", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    await store.saveVault([{ access_token: "invented-owned-access-token" }])
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async () => {
+      const id = "created" + (++calls) + "@group.calendar.google.com"
+      await new Promise((done) => setTimeout(done, 25))
+      return Response.json({ id })
+    } })
+    const requests = Array.from({ length: 3 }, () => guarded("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer invented-owned-access-token" }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) }))
+    const results = await Promise.allSettled(requests)
+    assert.equal(results.filter((result) => result.status === "fulfilled").length, 2)
+    assert.equal(calls, 2)
+    assert.equal((await store.journal()).filter((item) => item.kind === "calendar-create" && item.phase === "intent").length, 2)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("a deliberately lost create response retains the accepted ID and consumes its attempt", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    await store.saveVault([{ access_token: "invented-owned-access-token" }])
+    const guarded = createAcceptanceFetch({ manifest, client, store, control: async () => ({ mode: "lose-calendar-response" }), fetchImpl: async () => Response.json({ id: "accepted@group.calendar.google.com" }) })
+    await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer invented-owned-access-token" }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) }), /acceptance_transport_stopped/)
+    assert.equal((await store.journal()).find((item) => item.phase === "accepted").calendarId, "accepted@group.calendar.google.com")
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("transport loss before parsing recovers a marked target through paged reconnect or cleanup", async () => {
+  for (const cleanup of [false, true]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-lost-response-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const accessToken = "invented-owned-access-token"
+      await store.saveVault([{ access_token: accessToken }])
+      let marker
+      let deletes = 0
+      let creates = 0
+      const calendarId = "lost-response@group.calendar.google.com"
+      const provider = async (request) => {
+        const url = new URL(request.url)
+        if (request.method === "POST") {
+          marker = (await request.json()).description
+          creates++
+          throw new Error("synthetic-response-lost-before-parsing")
+        }
+        if (request.method === "DELETE") { deletes++; return new Response(null, { status: 204 }) }
+        if (url.pathname === "/v1/userinfo") return Response.json({ sub: "synthetic-subject", email: manifest.accountEmail, email_verified: true })
+        if (url.pathname.endsWith("calendarList")) return url.searchParams.has("pageToken")
+          ? Response.json({ items: [{ id: calendarId, summary: "AtmoShaper", description: marker, accessRole: "owner" }] })
+          : Response.json({ items: [{ id: "primary@example.test", primary: true }], nextPageToken: "synthetic-page-two" })
+        return Response.json({ id: calendarId, description: marker })
+      }
+      const active = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider })
+      await assert.rejects(active("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer " + accessToken }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) }))
+      assert.match(marker, new RegExp(manifest.runId))
+      assert.equal((await store.journal()).some((item) => item.phase === "accepted"), false)
+      // Recreate an older interrupted intent; recovery must timestamp the new append, not the original dispatch.
+      const oldJournal = (await store.journal()).map((item) => ({ ...item, at: 1 }))
+      await writeFile(join(directory, "journal.jsonl"), oldJournal.map((item) => JSON.stringify(item)).join("\n") + "\n", { mode: 0o600 })
+      const recoveryStarted = Date.now()
+      if (cleanup) manifest.database.createdAt -= 91 * 60_000
+      const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider, cleanup })
+      const adapter = createGoogleCalendarAdapter({ fetchImpl: guarded })
+      if (cleanup) assert.equal((await adapter.listCalendars(accessToken))[0].id, calendarId)
+      else assert.equal((await adapter.findDedicatedCalendar(accessToken, { providerAccountId: "synthetic-subject" })).id, calendarId)
+      assert.equal((await store.journal()).filter((item) => item.kind === "calendar-create" && item.phase === "accepted").length, 1)
+      assert.ok((await store.journal()).find((item) => item.recoveredFromInventory).at >= recoveryStarted)
+      assert.equal(creates, 1)
+      await guarded("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(calendarId), { method: "DELETE", headers: { authorization: "Bearer " + accessToken } })
+      assert.equal(deletes, 1)
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("lost-create recovery refuses duplicate markers, shared targets and name-only ownership", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-recovery-boundary-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const accessToken = "invented-owned-access-token"
+    await store.saveVault([{ access_token: accessToken }])
+    let marker
+    let items = []
+    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async (request) => {
+      if (request.method === "POST") { marker = (await request.json()).description; throw new Error("synthetic-lost-response") }
+      return Response.json({ items })
+    } })
+    await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer " + accessToken }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) }))
+    const target = { id: "candidate@group.calendar.google.com", summary: "AtmoShaper", description: marker, accessRole: "owner" }
+    for (const invalid of [[target, { ...target, id: "duplicate@group.calendar.google.com" }], [{ ...target, accessRole: "reader" }], [{ ...target, primary: true }], [{ ...target, description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }]]) {
+      items = invalid
+      await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer " + accessToken } }))
+      assert.equal((await store.journal()).some((item) => item.kind === "calendar-create" && item.phase === "accepted"), false)
+    }
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("delayed cleanup refreshes only a captured grant and retains the new token for revocation", async () => {
+  const { manifest, client } = fixture()
+  manifest.database.createdAt -= 91 * 60_000
+  const directory = await mkdtemp(join(tmpdir(), "calendar-cleanup-refresh-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const expired = "invented-expired-access-token"
+    const refresh = "invented-owned-refresh-token"
+    const fresh = "invented-refreshed-access-token"
+    await store.saveVault([{ access_token: expired, refresh_token: refresh, capturedAt: Date.now() - 3_600_000, expires_in: 60 }])
+    let refreshCalls = 0
+    let calls = 0
+    let revoked = false
+    let wrongScope = false
+    const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => {
+      calls++
+      const body = new URLSearchParams(await request.text())
+      if (request.url.endsWith("/revoke")) { assert.equal(body.get("token"), fresh); revoked = true; return Response.json({}) }
+      assert.equal(body.get("grant_type"), "refresh_token")
+      assert.equal(body.get("refresh_token"), refresh)
+      refreshCalls++
+      return Response.json({ access_token: wrongScope ? "invented-rejected-new-token" : fresh, expires_in: 3600, scope: wrongScope ? "openid email https://www.googleapis.com/auth/calendar" : GOOGLE_CALENDAR_SCOPES.join(" ") })
+    } })
+    await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "refresh_token", refresh_token: "unowned" }) }))
+    assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: guarded }), fresh)
+    assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: guarded }), fresh)
+    assert.equal(refreshCalls, 1)
+    assert.equal((await store.vault()).findLast((token) => token.access_token)?.access_token, fresh)
+    wrongScope = true
+    await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "refresh_token", refresh_token: refresh }) }))
+    assert.equal((await store.vault()).findLast((token) => token.access_token)?.acceptedForUse, false)
+    const beforeRejectedUse = calls
+    await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer invented-rejected-new-token" } }))
+    assert.equal(calls, beforeRejectedUse)
+    assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: guarded }), fresh)
+    await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token: fresh }) })
+    assert.equal(revoked, true)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("raw provider exceptions and malformed bodies never escape with secrets", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    await store.saveVault([{ access_token: "invented-owned-access-token" }])
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async () => { calls++; throw new Error("private-provider-secret") } })
+    for (const body of ["{private-secret", JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION })]) await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer invented-owned-access-token" }, body }), { message: "acceptance_transport_stopped" })
+    assert.equal(calls, 1)
+    assert.equal((await readFile(join(directory, "journal.jsonl"), "utf8")).includes("private-provider-secret"), false)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("refresh omission inherits only the captured validated grant; explicit empty or broader scopes fail", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-refresh-scope-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const refresh = "invented-original-refresh-token"
+    const scopes = GOOGLE_CALENDAR_SCOPES.join(" ")
+    await store.saveVault([{ access_token: "invented-expired-access-token", refresh_token: refresh, scope: scopes, acceptedForUse: true, capturedAt: Date.now() - 3_600_000, expires_in: 60 }])
+    let returnedScope
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async () => {
+      calls++
+      return Response.json({ access_token: "invented-refreshed-access-token", expires_in: 3600, ...(returnedScope === undefined ? {} : { scope: returnedScope }) })
+    } })
+    const request = () => guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "refresh_token", refresh_token: refresh }) })
+    const data = await (await request()).json()
+    assert.equal(Object.hasOwn(data, "scope"), false)
+    assert.equal((await store.vault()).at(-1).scope, scopes)
+    assert.equal((await store.vault()).at(-1).acceptedForUse, true)
+    for (const invalid of ["", "openid email https://www.googleapis.com/auth/calendar"]) {
+      returnedScope = invalid
+      await assert.rejects(request())
+      assert.equal((await store.vault()).at(-1).acceptedForUse, false)
+      const beforeRejectedUse = calls
+      await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer invented-refreshed-access-token" } }))
+      assert.equal(calls, beforeRejectedUse)
+    }
+    returnedScope = undefined
+    assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: guarded }), "invented-refreshed-access-token")
+    assert.equal((await store.vault()).at(-1).acceptedForUse, true)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("cleanup retries a lost DELETE by proving paged absence, then permits token revocation", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-delete-response-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const accessToken = "invented-owned-access-token"
+    await store.saveVault([{ access_token: accessToken, acceptedForUse: true, capturedAt: Date.now(), expires_in: 3600 }])
+    const calendarId = "owned-delete@group.calendar.google.com"
+    let marker
+    let deleted = false
+    let deleteCalls = 0
+    let revoked = false
+    let calls = 0
+    const provider = async (request) => {
+      calls++
+      const url = new URL(request.url)
+      if (url.pathname === "/revoke") { revoked = true; return Response.json({}) }
+      if (request.method === "POST") { marker = (await request.json()).description; return Response.json({ id: calendarId, description: marker }) }
+      if (request.method === "DELETE") { deleted = true; deleteCalls++; throw new Error("synthetic-delete-response-lost") }
+      assert.ok(url.pathname.endsWith("calendarList"))
+      return url.searchParams.has("pageToken")
+        ? Response.json({ items: deleted ? [] : [{ id: calendarId, summary: "AtmoShaper", description: marker, accessRole: "owner" }] })
+        : Response.json({ items: [{ id: "unrelated@example.test", primary: true }], nextPageToken: "synthetic-page-two" })
+    }
+    const active = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider })
+    await active("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer " + accessToken }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) })
+    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider, cleanup: true })
+    const adapter = createGoogleCalendarAdapter({ fetchImpl: guarded })
+    const cleanup = () => acceptanceCleanupCalendars({ client, store, adapter, fetchImpl: guarded })
+    await assert.rejects(cleanup())
+    assert.equal((await store.journal()).some((item) => item.kind === "calendar-delete" && item.phase === "accepted"), false)
+    await cleanup()
+    assert.equal(deleteCalls, 1)
+    assert.equal((await store.journal()).some((item) => item.caseName === "owned-targets-verified-absent"), true)
+    await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token: accessToken }) })
+    assert.equal(revoked, true)
+    await store.saveVault([])
+    const beforeRetry = calls
+    await cleanup()
+    assert.equal(calls, beforeRetry)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("definitively rejected creates permit token revocation without inventory; ambiguous failures remain unresolved", async () => {
+  for (const status of [400, 401, 403, 500, "malformed"]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-rejected-create-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const accessToken = "invented-owned-access-token"
+      await store.saveVault([{ access_token: accessToken, capturedAt: Date.now(), expires_in: 3600, acceptedForUse: true }])
+      let inventoryCalls = 0
+      let revoked = false
+      const provider = async (request) => {
+        if (request.url.endsWith("/revoke")) { revoked = true; return Response.json({}) }
+        if (request.method === "POST") return status === "malformed" ? new Response("{", { status: 400 }) : Response.json({ error: { code: status, message: "synthetic Calendar rejection" } }, { status })
+        inventoryCalls++
+        return Response.json({ items: [] })
+      }
+      const active = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider })
+      const response = await active("https://www.googleapis.com/calendar/v3/calendars", { method: "POST", headers: { authorization: "Bearer " + accessToken }, body: JSON.stringify({ summary: "AtmoShaper", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }) })
+      assert.equal(response.ok, false)
+      const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: provider, cleanup: true })
+      const adapter = createGoogleCalendarAdapter({ fetchImpl: guarded })
+      const cleanup = () => acceptanceCleanupCalendars({ client, store, adapter, fetchImpl: guarded })
+      if ([400, 401, 403].includes(status)) {
+        await cleanup()
+        assert.equal(inventoryCalls, 0)
+        await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token: accessToken }) })
+        assert.equal(revoked, true)
+        assert.equal((await store.journal()).some((item) => item.allCreatesRejected), true)
+      } else {
+        await assert.rejects(cleanup(), /unresolved_cleanup_creation/)
+        assert.equal(revoked, false)
+        assert.equal((await store.journal()).some((item) => item.caseName === "owned-targets-verified-absent"), false)
+      }
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("cleanup refuses new exchange/write work and unowned token revocation", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async () => { calls++; return new Response("{}") } })
+    await assert.rejects(guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: "token=unowned" }))
+    await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+    assert.equal(calls, 0)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("cleanup cannot claim revocation for an uncaptured exchange or refresh, even after a captured retry", async () => {
+  for (const grant of ["authorization_code", "refresh_token"]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-token-outcome-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const scope = GOOGLE_CALENDAR_SCOPES.join(" ")
+      if (grant === "refresh_token") await store.saveVault([{ refresh_token: "invented-owned-refresh", scope, acceptedForUse: true }])
+      let outcome = "lost"
+      const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async () => {
+        if (outcome === "lost") throw new Error("synthetic response lost after issuing token")
+        if (outcome === "malformed") return new Response("{", { status: 200 })
+        if (outcome === "server-error") return Response.json({ error: "server_error" }, { status: 500 })
+        if (outcome === "not-issued") return Response.json({ error: "invalid_grant" }, { status: 400 })
+        return Response.json({ access_token: "invented-captured-access-token", refresh_token: "invented-captured-refresh-token", id_token: "invented-identity-token", scope })
+      } })
+      const request = () => guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: grant, redirect_uri: ACCEPTANCE_CALLBACK, refresh_token: "invented-owned-refresh" }) })
+      for (const unknown of ["lost", "malformed", "server-error"]) {
+        // Each isolated scenario uses its own journal to preserve the three-consent lifetime cap.
+        await store.locked(() => writeFile(join(directory, "journal.jsonl"), ""))
+        outcome = unknown
+        await request().catch(() => {})
+        await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)
+        let recordedSuccess = false
+        await assert.rejects(assertAcceptanceTokenCaptureComplete(store, () => { recordedSuccess = true }), /uncaptured_token_attempt/)
+        assert.equal(recordedSuccess, false)
+        outcome = "captured"
+        await request()
+        await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)
+        const intents = (await store.journal()).filter((item) => item.phase === "intent")
+        assert.equal(new Set(intents.map((item) => item.tokenAttempt)).size, 2)
+      }
+      await store.locked(() => writeFile(join(directory, "journal.jsonl"), ""))
+      outcome = "not-issued"
+      assert.equal((await request()).status, 400)
+      await assertAcceptanceTokenCaptureComplete(store)
+      outcome = "captured"
+      await request()
+      await assertAcceptanceTokenCaptureComplete(store)
+      await assertAcceptanceTokenCaptureComplete(store, () => store.record({ kind: "cleanup", phase: "started" }))
+      const prior = (await store.journal()).length
+      await assert.rejects(request())
+      assert.equal((await store.journal()).length, prior)
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("a newly issued wrong grant is encrypted and retained solely for owned revocation", async () => {
+  const { manifest, client } = fixture()
+  for (const responseFields of [
+    { scope: "openid email https://www.googleapis.com/auth/calendar" },
+    { scope: GOOGLE_CALENDAR_SCOPES.join(" ") + " https://www.googleapis.com/auth/drive.readonly", refresh_token: "invented-refresh", id_token: "invented-identity" },
+    { scope: GOOGLE_CALENDAR_SCOPES.join(" "), refresh_token: "invented-refresh" },
+    { scope: GOOGLE_CALENDAR_SCOPES.join(" "), id_token: "invented-identity" },
+  ]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const token = "invented-new-token-with-wrong-scope"
+      let calls = 0
+      const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async (request) => { calls++; return request.url.endsWith("/revoke") ? Response.json({}) : Response.json({ access_token: token, ...responseFields }) } })
+      await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+      assert.equal((await store.vault())[0].access_token, token)
+      assert.equal((await store.vault())[0].acceptedForUse, false)
+      assert.equal((await readFile(join(directory, "token-vault.json"), "utf8")).includes(token), false)
+      assert.equal((await store.journal()).some((item) => item.kind === "exchange" && item.phase === "accepted"), false)
+      await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer " + token } }))
+      assert.equal(calls, 1, "a rejected grant cannot dispatch Calendar requests")
+      await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(calls, 2, "the encrypted rejected grant remains owned for revocation")
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("validated encrypted grants survive interruption at the first vault write or capture receipt for owned cleanup", async () => {
+  for (const kind of ["exchange", "refresh"]) for (const interruptedAt of ["vault", "receipt"]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-valid-capture-crash-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const scope = GOOGLE_CALENDAR_SCOPES.join(" ")
+      const token = "invented-valid-captured-access"
+      await store.saveVault([{ access_token: "invented-expired-prior-access", refresh_token: "invented-prior-refresh", scope, acceptedForUse: true, capturedAt: Date.now() - 3_600_000, expires_in: 1 }])
+      const marker = "invented-owned-calendar-marker"
+      await store.record({ kind: "calendar-create", phase: "intent", calendarMarker: marker })
+      await store.record({ kind: "calendar-create", phase: "accepted", calendarMarker: marker, calendarId: "invented-owned@group.calendar.google.com" })
+      const interrupted = { ...store,
+        saveVault: async (tokens) => { await store.saveVault(tokens); if (interruptedAt === "vault") throw new Error("synthetic stop after encrypted replacement") },
+        record: async (item) => { if (interruptedAt === "receipt" && item.phase === "captured") throw new Error("synthetic stop before capture receipt"); return store.record(item) },
+      }
+      const active = createAcceptanceFetch({ manifest, client, store: interrupted, fetchImpl: async () => Response.json({ access_token: token, refresh_token: "invented-new-refresh", id_token: "invented-identity", expires_in: 3600, ...(kind === "refresh" ? {} : { scope }) }) })
+      await assert.rejects(active("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: kind === "exchange" ? "authorization_code" : "refresh_token", refresh_token: "invented-prior-refresh", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+      const captured = (await store.vault()).at(-1)
+      assert.equal(captured.acceptedForUse, true)
+      assert.equal(captured.tokenKind, kind)
+      assert.equal(captured.scope, scope)
+      assert.equal((await readFile(join(directory, "token-vault.json"), "utf8")).includes(token), false)
+      await assertAcceptanceTokenCaptureComplete(store, () => store.record({ kind: "cleanup", phase: "started" }))
+      assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: () => assert.fail("the recovered access grant needs no refresh") }), token)
+      let inventoryCalls = 0
+      let revoked = false
+      const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => {
+        if (request.url.endsWith("/revoke")) { revoked = new URLSearchParams(await request.text()).get("token") === token; return Response.json({}) }
+        assert.equal(request.headers.get("authorization"), "Bearer " + token)
+        inventoryCalls++
+        return Response.json({ items: [] })
+      } })
+      await acceptanceCleanupCalendars({ client, store, adapter: createGoogleCalendarAdapter({ fetchImpl: cleanup }), fetchImpl: cleanup })
+      assert.equal(inventoryCalls, 2)
+      assert.ok((await store.journal()).some((item) => item.caseName === "owned-targets-verified-absent"))
+      await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(revoked, true)
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("cleanup recovers actual encrypted temporary captures after an owned worker stops before rename", async () => {
+  const guardUrl = new URL("../scripts/calendar-application-acceptance-guard.mjs", import.meta.url).href
+  for (const kind of ["exchange", "refresh"]) for (const valid of [true, false]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-temporary-vault-unit-"))
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const scope = GOOGLE_CALENDAR_SCOPES.join(" ")
+    const token = "invented-temporary-captured-access"
+    const vaultPath = join(directory, "token-vault.json")
+    const temporary = vaultPath + ".next"
+    let child, closed, timer
+    try {
+      if (kind === "refresh") await store.saveVault([{ access_token: "invented-expired-prior-access", refresh_token: "invented-prior-refresh", scope, acceptedForUse: true, capturedAt: Date.now() - 3_600_000, expires_in: 1 }])
+      if (valid) {
+        await store.record({ kind: "calendar-create", phase: "intent", calendarMarker: "invented-owned-marker" })
+        await store.record({ kind: "calendar-create", phase: "accepted", calendarMarker: "invented-owned-marker", calendarId: "invented-owned@group.calendar.google.com" })
+      }
+      // The actual writer completes its encrypted write; only its final rename is paused in this synthetic child.
+      const replacement = `
+        export { readFile, writeFile, mkdir, rmdir, appendFile, readdir, unlink, chmod } from 'node:fs/promises';
+        import { rename as actualRename } from 'node:fs/promises';
+        export async function rename(source, target) {
+          if (String(source) === ${JSON.stringify(temporary)} && String(target) === ${JSON.stringify(vaultPath)}) {
+            process.stdout.write('vault-paused' + String.fromCharCode(10)); await new Promise(() => {});
+          }
+          return actualRename(source, target);
+        }
+      `
+      const hook = `import { registerHooks } from 'node:module'; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(guardUrl)} && specifier === 'node:fs/promises') return { url: 'data:text/javascript,' + encodeURIComponent(${JSON.stringify(replacement)}), shortCircuit: true }; return nextResolve(specifier, context) } })`
+      const response = { access_token: token, refresh_token: "invented-new-refresh", id_token: "invented-identity", expires_in: 3600, ...(!valid ? { scope: scope + " https://www.googleapis.com/auth/drive.readonly" } : kind === "exchange" ? { scope } : {}) }
+      const fields = { client_id: client.client_id, client_secret: client.client_secret, grant_type: kind === "exchange" ? "authorization_code" : "refresh_token", refresh_token: "invented-prior-refresh", redirect_uri: ACCEPTANCE_CALLBACK }
+      const code = `import { acceptanceStore, createAcceptanceFetch } from ${JSON.stringify(guardUrl)}; setTimeout(() => process.exit(1), 10000); const store = acceptanceStore(${JSON.stringify(directory)}, ${JSON.stringify(manifest.encryptionKey)}); const guarded = createAcceptanceFetch({ manifest: ${JSON.stringify(manifest)}, client: ${JSON.stringify(client)}, store, fetchImpl: async () => Response.json(${JSON.stringify(response)}) }); await guarded('https://oauth2.googleapis.com/token', { method: 'POST', body: new URLSearchParams(${JSON.stringify(fields)}) });`
+      child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), "--input-type=module", "-e", code])
+      closed = once(child, "close")
+      await Promise.race([once(child.stdout, "data"), closed.then(() => assert.fail("capture child exited before rename")), new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("temporary capture boundary timed out")), 5000) })])
+      clearTimeout(timer)
+      assert.equal((await readFile(temporary, "utf8")).includes(token), false)
+      assert.equal((await store.vault()).length, kind === "refresh" ? 1 : 0)
+      await assert.rejects(acceptanceLock(directory, () => assert.fail("live capture lock was stolen"), { timeoutMs: 60 }), /journal_lock/)
+      await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      const recoveryStarted = Date.now()
+      await assertAcceptanceTokenCaptureComplete(store, () => store.record({ kind: "cleanup", phase: "started" }))
+      const captured = (await store.vault()).at(-1)
+      assert.equal(captured.access_token, token)
+      assert.equal(captured.tokenKind, kind)
+      assert.equal(captured.acceptedForUse, valid)
+      assert.ok((await store.journal()).find((item) => item.recoveredFromVault).at >= recoveryStarted)
+      await assert.rejects(stat(temporary), { code: "ENOENT" })
+      if (process.platform !== "win32") assert.equal((await stat(vaultPath)).mode & 0o777, 0o600)
+      let calls = 0, revoked = false
+      const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => {
+        calls++
+        if (request.url.endsWith("/revoke")) { revoked = new URLSearchParams(await request.text()).get("token") === token; return Response.json({}) }
+        assert.equal(request.headers.get("authorization"), "Bearer " + token)
+        return Response.json({ items: [] })
+      } })
+      if (valid) {
+        assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: () => assert.fail("recovered access needs no refresh") }), token)
+        await acceptanceCleanupCalendars({ client, store, adapter: createGoogleCalendarAdapter({ fetchImpl: cleanup }), fetchImpl: cleanup })
+        assert.equal(calls, 2)
+      } else {
+        await assert.rejects(cleanup("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer " + token } }))
+        assert.equal(calls, 0, "recovery cannot make a rejected grant usable")
+      }
+      await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(revoked, true)
+    } finally {
+      clearTimeout(timer)
+      if (child && child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      if (closed) await closed
+      await rm(directory, { recursive: true, force: true })
+    }
+  }
+})
+
+test("temporary vault recovery rejects unauthenticated or unbound replacements and preserves interrupted clears", async () => {
+  const { manifest, client } = fixture()
+  const prior = { access_token: "invented-prior-access-token", acceptedForUse: true }
+  const capture = { access_token: "invented-next-access-token", refresh_token: "invented-next-refresh", id_token: "invented-next-identity", scope: GOOGLE_CALENDAR_SCOPES.join(" "), acceptedForUse: true, capturedAt: Date.now(), tokenAttempt: "a".repeat(32), tokenKind: "exchange" }
+  for (const fault of ["history", "attempt", "kind", "scope", "receipt", "partial", "authentication", "shape", "clear"]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-invalid-temporary-vault-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const vaultPath = join(directory, "token-vault.json"), temporary = vaultPath + ".next"
+      await store.saveVault([prior])
+      const original = await readFile(vaultPath, "utf8")
+      await store.record({ kind: "exchange", phase: "intent", tokenAttempt: capture.tokenAttempt })
+      if (fault === "receipt") await store.record({ kind: "exchange", phase: "captured", tokenAttempt: capture.tokenAttempt })
+      const next = { ...capture, ...(fault === "attempt" ? { tokenAttempt: "b".repeat(32) } : fault === "kind" ? { tokenKind: "refresh" } : fault === "scope" ? { scope: capture.scope + " https://www.googleapis.com/auth/drive.readonly" } : {}) }
+      await store.saveVault(fault === "clear" ? [] : fault === "shape" ? next : [fault === "history" ? { ...prior, access_token: "invented-replaced-history" } : prior, next])
+      let pending = await readFile(vaultPath, "utf8")
+      if (fault === "partial") pending = "{"
+      if (fault === "authentication") pending = JSON.stringify({ ...JSON.parse(pending), tag: "0".repeat(32) })
+      await writeFile(temporary, pending, { mode: 0o600 })
+      await writeFile(vaultPath, original, { mode: 0o600 })
+      if (fault === "clear") {
+        assert.deepEqual(await store.locked(() => store.vault({ recover: true })), [prior])
+        await assert.rejects(stat(temporary), { code: "ENOENT" })
+      } else {
+        await assert.rejects(store.locked(() => store.vault({ recover: true })), /vault_read/)
+        assert.equal(await readFile(temporary, "utf8"), pending, "invalid capture evidence must remain intact")
+        await assert.rejects(store.saveVault([]), { code: "EEXIST" })
+        assert.equal(await readFile(temporary, "utf8"), pending, "a new write cannot truncate stranded evidence")
+        let calls = 0
+        const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async () => { calls++; return Response.json({}) } })
+        await assert.rejects(cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token: prior.access_token }) }))
+        assert.equal(calls, 0)
+      }
+      assert.equal(await readFile(vaultPath, "utf8"), original, "rejected replacements and interrupted clears retain every canonical grant")
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("cleanup recovers capture from the encrypted vault after a worker stops before the journal append", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-capture-crash-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const interrupted = { ...store, record: async (item) => {
+      if (item.kind === "exchange" && item.phase === "captured") throw new Error("synthetic stop after vault replacement")
+      return store.record(item)
+    } }
+    const token = "invented-vault-captured-access-token"
+    const guarded = createAcceptanceFetch({ manifest, client, store: interrupted, fetchImpl: async () => Response.json({ access_token: token, refresh_token: "invented-refresh-token", id_token: "invented-identity-token", scope: GOOGLE_CALENDAR_SCOPES.join(" ") }) })
+    await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+    const captured = (await store.vault())[0]
+    assert.match(captured.tokenAttempt, /^[a-f0-9]{32}$/)
+    assert.equal(captured.tokenKind, "exchange")
+    assert.equal(captured.acceptedForUse, true)
+    assert.equal((await store.journal()).some((item) => item.phase === "captured"), false)
+    await store.saveVault([{ ...captured, tokenKind: "refresh" }])
+    await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)
+    await store.saveVault([captured])
+    const oldJournal = (await store.journal()).map((item) => ({ ...item, at: 1 }))
+    await writeFile(join(directory, "journal.jsonl"), oldJournal.map((item) => JSON.stringify(item)).join("\n") + "\n", { mode: 0o600 })
+    const recoveryStarted = Date.now()
+    await assertAcceptanceTokenCaptureComplete(store)
+    assert.equal((await store.journal()).filter((item) => item.phase === "captured" && item.recoveredFromVault).length, 1)
+    assert.ok((await store.journal()).find((item) => item.recoveredFromVault).at >= recoveryStarted)
+    let revoked = false
+    const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => { revoked = new URLSearchParams(await request.text()).get("token") === token; return Response.json({}) } })
+    await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+    assert.equal(revoked, true)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("inventory mapping preserves paging and refuses an existing marked target", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    await store.saveVault([{ access_token: "invented-owned-access-token" }])
+    let preexisting = false
+    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async () => Response.json({ nextPageToken: "synthetic-next-page", items: [{ id: "primary@example.test", primary: true }, { id: manifest.sources[0].calendarId }, ...(preexisting ? [{ id: "preexisting@group.calendar.google.com", description: ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION }] : [])] }) })
+    const options = { headers: { authorization: "Bearer invented-owned-access-token" } }
+    const data = await (await guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", options)).json()
+    assert.equal(data.nextPageToken, "synthetic-next-page")
+    assert.deepEqual(data.items.map((item) => item.id), [manifest.sources[0].calendarId])
+    preexisting = true
+    await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", options))
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})
+
+test("outbound lifetime cap includes deleted events, and updates require the accepted calendar and event", () => {
+  const { manifest, client } = fixture()
+  const calendarId = "created@group.calendar.google.com"
+  const journal = [{ kind: "calendar-create", phase: "accepted", calendarId }, { kind: "event-create", phase: "intent" }, { kind: "event-create", phase: "intent" }, { kind: "event-create", phase: "accepted", calendarId, eventId: "owned1" }, { kind: "event-delete", phase: "accepted", calendarId, eventId: "owned1" }]
+  const body = JSON.stringify({ summary: "AtmoShaper blocked time", start: { dateTime: "2026-10-10T10:00:00Z", timeZone: "UTC" }, end: { dateTime: "2026-10-10T11:00:00Z", timeZone: "UTC" }, extendedProperties: { private: { massagelabEventId: "calendar-acceptance-" + manifest.runId + "-1" } } })
+  const base = "https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(calendarId) + "/events"
+  const authorize = (url, method, payload = body) => authorizeAcceptanceRequest({ request: new Request(url, { method, headers: { authorization: "Bearer invented" } }), body: payload, manifest, client, journal })
+  assert.throws(() => authorize(base, "POST"), /event_limit/)
+  assert.throws(() => authorize(base + "/unowned", "PATCH"))
+  assert.throws(() => authorize(base + "/owned1", "PATCH", body.replace("AtmoShaper blocked time", "Synthetic private details")))
+  assert.equal(authorize(base + "/owned1", "PATCH").kind, "event-update")
+})
+
+test("fresh consent cap is reserved before exchange, and source response IDs stay allowlisted", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    await store.saveVault([{ access_token: "invented-owned-access-token" }])
+    for (let index = 0; index < 3; index++) await store.record({ kind: "exchange", phase: "intent" })
+    let calls = 0
+    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async () => { calls++; return Response.json({ items: [{ id: "unexpected-private-event" }] }) } })
+    await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+    assert.equal(calls, 0)
+    await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(manifest.sources[0].calendarId) + "/events", { headers: { authorization: "Bearer invented-owned-access-token" } }))
+    assert.equal(calls, 1)
+  } finally { await rm(directory, { recursive: true, force: true }) }
+})

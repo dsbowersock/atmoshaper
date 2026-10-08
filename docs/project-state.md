@@ -1,24 +1,208 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-06
+Verified: 2026-10-08
 
-Evidence scope: repository, both independent test Calendar permission comparisons
-and owner cleanup receipts. Hosted receipts retain their original dates.
+Evidence scope: repository, PR #40's final reviews/CI and approved merge,
+automatic unpromoted candidate, dated authenticated hosting readbacks, the owner's
+replacement Google declaration/status receipts, the bounded application tests
+and completed cleanup, approved Production Calendar provisioning/candidate
+verification, separately approved public rollout, and approved PR #41 source
+publication on October 7. Completed
+Calendar comparisons and other historical receipts retain their original dates.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
 ## Current Snapshot — Registration and Supporter Checkout Open
 
-- [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) is published under
-  the user's October 6 source/review approval. Full CodeRabbit review of
-  `c2c51ab` covers all 20 changed files and reports one minor acceptance-gate
-  clarification; all five pre-merge checks pass, with 100% docstring coverage.
-  Full application/provider acceptance is now explicitly marked pending below.
-  The earlier completed-comparison instruction is fixed. All seven CI jobs,
-  Vercel Preview and Codex review pass at `c2c51ab`; this wording follow-up needs final-head
-  checks and another eligible manual review before a merge request. Merge is
-  not authorized. No Production Google settings, Calendar activation or live
-  promotion occurs.
+- The separately approved [Production Calendar credential/build stage](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  is complete. Exactly four Calendar settings were added to the existing
+  project's Production environment; complete readback contains 60
+  Production-only entries, with the original 56 entries' metadata unchanged
+  and none in Preview/Development. The new stable encryption key has a private
+  protected recovery copy; the actual app helpers pass a synthetic round trip.
+  The single source-pinned candidate reached `READY` at
+  `2026-10-07T21:03:42.652Z` from reviewed merge
+  `38d0deddea484938e13df61927d07a7b21f92071`, with all four keys in its deployment
+  snapshot. Actual migration-status/live Supporter gates and all seven ordinary
+  authenticated signed-out GETs pass; the Calendar page exposes only its
+  sign-in guard. Sensitive values remain write-only; no real Production token
+  exchange or signed-in Production Calendar acceptance is claimed. Final
+  `21:09:12Z` hosting readback retains the PR #37 public target, all six saved
+  live aliases, manual promotion, normal build/Git/protection, both pause flags
+  false and absent excluded purchase switches. No alias restoration was needed.
+  Temporary credential request files are removed; stable recovery is retained.
+  The owner subsequently approved exact-artifact promotion and optional Calendar
+  activation with bounded rollback. Final `21:50:03Z` readback verifies reviewed
+  `38d0ded` as the READY public target and all six saved aliases on it, with
+  configuration/build/Git/protection/manual promotion and key recovery retained.
+  All seven anonymous public GETs and the Calendar sign-in guard pass; the apex
+  retains its `308` redirect to canonical www. Registration and recurring
+  Supporter Checkout stay open; the two other purchase flows stay disabled.
+  No rebuild or rollback was needed. Calendar is available to eligible provider
+  accounts; no Production OAuth exchange or live sync was initiated. The operator
+  and guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41)
+  under the owner's source publication/review approval. At the initial October 7
+  publication checkpoint, provider-free harness checks passed 30 with one
+  POSIX-only test skipped on Windows; documentation/workload checks 16/16, lint,
+  typecheck and branch private-data/link checks passed.
+  Initial published head was `577298385fa1f387e91e3e98f3fb5e1398a38847`; hosted CI
+  and full CodeRabbit/Codex reviews were pending at that checkpoint. Later dated
+  results are recorded below; PR #41 carries live exact-head validation and review
+  status. Merge and any future Production operation require separate approval.
+  The initial full CodeRabbit review covers all eighteen files at `45bfb78`
+  and finds one valid platform-command issue; Codex finds two valid operator
+  cleanup gaps. The source follow-up fixes platform selection, run-marked lost
+  response recovery and owned-token refresh after expiry. These improvements
+  have provider-free regression coverage; the completed real tests are not rerun.
+  The follow-up Codex review at `c7de5c9` finds two valid cleanup edge cases.
+  The latest source fixes inherit an omitted refresh scope only from its
+  validated captured grant and reconcile a lost DELETE response through complete
+  inventory absence. Explicit scope drift remains rejected, rejected credential
+  values remain quarantined, and absence receipts cover the current create intents.
+  The next Codex round at `17e08e6` identifies diagnostics permissions and
+  terminated-worker lock recovery. Source fixes protect diagnostic writes and
+  reclaim only a recorded dead owner's lock while preserving live/unowned locks.
+  POSIX permission assertions still require latest-head Linux CI.
+  The following Codex review at `83f5b33` identifies a possible false token
+  cleanup receipt after an uncaptured response. Unique token-attempt outcomes
+  now gate cleanup start and completion; unresolved issuance cannot report
+  revocation. Cleanup freezes new provider activity from the application before teardown.
+  The latest Codex round at `efd9b19` identifies the vault/journal crash window
+  and private-path containment. Encrypted captures now retain attempt/kind
+  identity for exact journal recovery; canonical component checks preserve
+  private siblings and reject files or symlink targets inside the checkout.
+  The subsequent Codex review at `bc24073` identifies definitively rejected
+  create intents. Matching parsed Calendar client errors now record non-creation,
+  so cleanup can revoke tokens without inventory when every create was rejected;
+  ambiguous responses retain reconciliation requirements.
+  Codex's review at `8a12567` identifies POSIX descendant termination and
+  direct cleanup request bounds. The launcher now owns and stops its POSIX
+  process group, including escalation for ignoring descendants. Every cleanup
+  provider request combines an eight-second deadline with its existing signal;
+  interrupted requests retain intent/token evidence for scoped retries.
+  Latest-head Linux CI must still verify the POSIX process/permission cases.
+  The explicit full CodeRabbit review completes at `2026-10-07T23:40:57Z`,
+  covering all eighteen files at `8a12567` with one minor stale-handoff finding.
+  Both affected plans now identify completed setup as historical and point to
+  the current published PR/provisioning/public-activation receipts. Its five
+  pre-merge checks pass, including 86.67% touched-function docstring coverage;
+  that review does not cover the subsequent source/documentation fixes.
+  No further setup, file or completed-test rerun is needed.
+  The next explicit full CodeRabbit review completes at `2026-10-08T00:43:19Z`,
+  covering all eighteen files at `70a2ab1` with two valid harness findings.
+  Malformed or null revoke-error bodies now preserve the HTTP failure receipt
+  without claiming revocation. Both cleanup modes have an independent five-minute
+  owned-process deadline; expiry stops the tree and records partial cleanup while
+  retaining private recovery evidence. Normal run ceilings remain unchanged.
+  Provider-free harness checks pass 33 with one POSIX-only test skipped on Windows,
+  using normal process control after sandbox termination was denied. Lint,
+  typecheck and documentation/workload checks 16/16 pass; renewed latest-head
+  hosted validation and reviews remain pending.
+  No completed provider activity, cleanup or public operation is repeated.
+  The subsequent full CodeRabbit review completes at `2026-10-08T01:47:58Z`,
+  covering all eighteen files at `3735e6a` with one minor stale Calendar-gate
+  sentence in the migration wiki. That handoff now distinguishes the completed
+  Calendar rollout from remaining old-origin and other gates, preserving manual
+  public promotion and the Production acceptance limits. This documentation-only
+  follow-up still needs renewed latest-head hosted validation and reviews.
+  The next full CodeRabbit review completes at `2026-10-08T02:55:47Z`,
+  covering all eighteen files at `cf889a0` with four valid findings. Historical
+  pre-rollout handoffs are now dated and completed source publication points to
+  latest-head reviews/checks. Server setup failures terminate the owned child;
+  each new native pending-Disconnect rejection records its own current-server
+  receipt, including markers split across stderr chunks. Provider-free checks
+  pass 35 with one POSIX-only skip on Windows; lint, typecheck and documentation/
+  workload checks 16/16 pass. The `2bd0d4c` checkpoint subsequently passed all
+  seven CI jobs at `2026-10-08T03:28:05Z`: 5,191 unit passes with two skips and
+  596 browser passes with 178 gated skips, no failures or flaky browser results
+  reported in that run. Its exact-head Preview is READY and Codex is clean.
+  Full CodeRabbit coverage completes at `2026-10-08T04:06:32Z`, covering all
+  eighteen files with two minor findings and five passing pre-merge checks.
+  The follow-up compares preserved cursors by source identity, accepting reordered
+  rows while rejecting missing, duplicate, replaced or changed sources. Its local
+  provider-free checks pass 36 with one POSIX-only Windows skip; lint, typecheck
+  and documentation/workload checks 16/16 pass. Handoffs
+  now date completed checks and point to PR #41 for live exact-head review/check
+  status; final receipts stay private so recording them does not change the head.
+  Later source fixes require their own checks and reviews. Merge remains separately
+  authorized. No completed provider activity is repeated.
+- The subsequent Codex finding closes an interrupted lock-release gap in the
+  operator harness. A prepopulated PID-owned release claim serializes competing
+  releasers, and the ownership-verified directory moves out of the canonical
+  lock path before any owner record is deleted. Dead release claims remain
+  recoverable; live and unrecognized locks stay protected. The provider-free
+  regression interrupts the actual release before and after retirement and
+  checks concurrent recovery and replacement-owner preservation. Live PR #41
+  checks and reviews must cover this source fix before merge is proposed.
+- The next Codex finding serializes bridge nonce read/claim/persistence under
+  the shared ownership lock before issuing a synthetic session redirect. Seed
+  and reconnect nonce publication use that same lock. The actual-entrypoint
+  regression submits concurrent synthetic HTTP requests: exactly one normal
+  request receives a session; invalid, repeated and pending-only requests are
+  rejected. Framework/session dependencies are replaced and no real listener,
+  application, provider or database starts. Live PR #41 remains the source for
+  fresh exact-head validation and review status.
+- Subsequent Codex findings protect the persisted Disconnect form, including
+  rewrites of previously permissive files, and assign each recovery receipt its
+  actual append time rather than an inherited intent time. The same private-file
+  writer protects form fields and diagnostics. Provider-free cases cover new and
+  existing files plus delayed calendar-inventory and encrypted-token recovery.
+  Fresh Linux checks must independently prove POSIX permissions; live PR #41
+  retains exact-head checks/reviews and the separate merge approval boundary.
+- The next Codex finding closes cancellation during the launcher's initial
+  journal-lock wait. Signal handlers own the child before awaited setup; every
+  exit path drains teardown and removes the handlers, and cancellation cannot
+  report command success. An actual-entrypoint provider-free regression signals
+  the launcher while journal acquisition waits, with both successful acquisition
+  and setup failure. Only synthetic children start; fresh Linux CI independently
+  verifies POSIX signal delivery and the separately owned process group.
+- Subsequent Codex findings require the entire returned grant to stay within
+  approved Calendar and identity scopes, including Google's equivalent email
+  alias, and persist token validation with the first encrypted capture. An
+  interrupted valid exchange or refresh can therefore supply owned cleanup;
+  unrelated scopes and incomplete exchange fields remain quarantined solely
+  for revocation. Invented-token regressions cover both capture crash points,
+  scope drift and cleanup after an expired prior grant. Live PR #41 retains
+  fresh exact-head validation/review status and separate merge approval.
+- The next Codex finding covers a stop after the encrypted temporary vault
+  write but before its final rename. Recovery authenticates that file, checks
+  the complete preserved history and matching pending token intent, and promotes
+  the capture under the ownership lock. Rejected grants remain revocable only;
+  partial, corrupted or mismatched replacements stay intact and stop dispatch.
+  An interrupted empty-vault clear retains canonical grants for revocation.
+  Provider-free regressions pause the actual writer and stop only its owned
+  synthetic child. Local checks pass 43 with one POSIX-only Windows skip; live
+  PR #41 carries fresh exact-head validation/reviews before separate merge approval.
+- [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
+  user's exact approval at `2026-10-07T05:14:22Z` as
+  `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head
+  `0f486e554c9b3104dee70a3f2c00c33ffe031c7a` passes all seven CI jobs,
+  Vercel Preview and clean Codex review. The completed explicit CodeRabbit full
+  review covers all 20 changed files at that head with no new actionable
+  comments; both earlier minor threads are fixed/resolved. All five pre-merge
+  checks pass, including 100% touched-function docstring coverage. Its one
+  automatic Production candidate reached `READY` at
+  `2026-10-07T05:17:34.607Z`; actual migration-status and live Supporter readiness
+  gates and all seven normal authenticated candidate GETs pass. Registration
+  is open, Checkout pause copy is absent, and signed-out session is `null`.
+  The candidate remains unpromoted. All six saved live aliases and the public
+  target remain on PR #37; no alias restoration was needed. Fresh hosting
+  readbacks retain manual custom-domain promotion, standard `npm run build`,
+  GitHub/`main`, protection, verified domains/apex redirect, and then 56 Production-only
+  variables with none in Preview/Development. Both public pause flags are
+  `false`; excluded purchase switches and all four Calendar keys were absent at
+  that initial candidate checkpoint, before the approved provisioning above.
+  The owner reports `saved` after the approved six-entry replacement Google
+  declaration guidance, then supplies Verification Center's exact message:
+  verification is not required because the app requests no sensitive or
+  restricted scopes. The owner also reports no entries in either category.
+  This completes the declaration/status gate by owner receipt, not independent
+  Console/API readback or inspection of every saved scope URL. No verification
+  material or submission is currently required on that evidence. Bounded application/provider
+  acceptance subsequently passed as recorded below; the later separate public
+  activation is recorded above. That initial merge operation ran no manual build or completed
+  live payment/Calendar comparison test; the later single credential build is
+  separately approved and recorded above.
 - [PR #39](https://github.com/dsbowersock/atmoshaper/pull/39) merged under the
   user's exact approval at `2026-10-03T17:02:47Z` as
   `2e01e8509b42ab73c85d286f2725c824770aeeec`. Reviewed head
@@ -37,8 +221,9 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   pause, excluded purchase switches remain unset, and all four Calendar keys
   remain absent. No live payment test was repeated. The earlier event-read
   declaration approval is historical; the October 6 comparison supports a
-  prepared availability replacement, recorded below. No replacement declaration
-  has been approved or saved.
+  prepared availability replacement, recorded below. At that earlier checkpoint
+  no replacement declaration had been approved or saved; the October 7 approval
+  and subsequent owner save receipt above supersede that earlier status.
 - [PR #38](https://github.com/dsbowersock/atmoshaper/pull/38) merged under the
   user's exact approval at `2026-10-03T02:55:51Z` as
   `c26e2f7b4c977a09f82f1eb83d1bde8f797f6bed`. Its reviewed head
@@ -66,14 +251,58 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   unnecessary user recovery or old-site changes.
 - Next migration focus is the already-selected separate AtmoShaper Calendar.
   The [provider-stage checkpoint](superpowers/plans/2026-10-02-atmoshaper-calendar-provider-stage.md)
-  owns the exact replacement declaration, remaining application acceptance and
+  owns the exact replacement declaration, completed bounded acceptance and
   rollback boundaries. Google sign-in is operational. The user reports creating
   the separate Production Calendar Web registration with only
   `https://www.atmoshaper.com/api/calendar/google/callback` as its return URI,
-  and enabling Calendar API under separate approvals. The saved Calendar-return
-  readback and replacement permission classifications remain pending; do not
+  and enabling Calendar API under separate approvals. The owner supplies the
+  downloaded Production JSON path; private inspection validates the Web/client
+  format, Production project and sole exact Calendar callback. This is a saved
+  download receipt, not a new live token exchange or Console readback.
+  The October 7 owner save/category/status receipts close the replacement
+  declaration gate; do not repeat scope selection, save or the completed
+  Verification Center question. Preserve identity/client/audience settings.
+  The [isolated application acceptance plan](superpowers/plans/2026-10-07-atmoshaper-calendar-application-acceptance.md)
+  now records a completed, partial application run against exact merged runtime
+  `38d0ded`. Real callback/encryption, persisted access, PostgreSQL rollback/locks,
+  rename/reconnect, source selection, inbound changes/cursors, generic outbound
+  events, resolved Disconnect, and durable uncertain-create/no-repost/reconciliation
+  checks pass. All three approved consents and the four-calendar/six-event lifetime
+  budget were used. Teardown began about 38 minutes after database creation,
+  within the approved 90-minute ceiling. Both app targets are absent, all new
+  test tokens are revoked, the exact temporary Neon project is absent from its
+  active organization list, owned processes are stopped and ephemeral credentials
+  removed. The owner reports both source calendars permanently deleted; independent
+  active-list reads confirm absence in both owning accounts. No resources remain
+  active from this run.
+  The remaining native pending-Disconnect case now passes in its separately
+  approved database-only follow-up. The corrected native multipart request reaches
+  the actual action, whose exact current-server reconciliation error, correct
+  session/form identity, absent success redirect and unchanged pending row are
+  verified. All seven touched tables are empty before exact project deletion;
+  independent active-list absence, stopped server/released port and ephemeral
+  credential removal complete cleanup. Teardown began after 4.72 minutes, within
+  the approved 15-minute ceiling. No Google credentials, grants or fixtures were
+  used or repeated. The two runs close the bounded application acceptance gate.
+  At that completed-run checkpoint, the local harness passed 18/18 provider-free
+  checks, including blank Google
+  credentials, no external fetch and a 15-minute bound for the completed
+  [pending-action follow-up](superpowers/plans/2026-10-07-atmoshaper-calendar-pending-disconnect-acceptance.md).
+  Both exact database authorizations are exhausted; no test resource remains
+  active. Runtime source remains unchanged. The subsequently approved
+  [Production credential/build stage](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
+  now passes with 60 Production-only settings and one new exact-`38d0ded` READY
+  candidate. The subsequent separately approved promotion now makes that exact
+  artifact the public target for all six saved live aliases. The supplied
+  Production JSON and private key recovery are
+  validated; no further setup/file input is needed. Current sign-in credentials are
+  write-only, so their raw client ID was not independently compared or changed.
+  The completed run exposed fixture-only source inventory after complete target
+  metadata checks; ordinary primary-calendar defaults are outside its proof.
+  Production live grant acceptance is not claimed. Do not
   repeat client creation, API enablement or the completed saved identity checks.
-  Dated hosting readbacks retain absent Calendar keys and inactive configuration.
+  Earlier absent-key readbacks are historical; public PR #40 now has the four
+  settings. The retained PR #37 rollback snapshot has no Calendar configuration.
 - Both independently consented test permission arms passed the same strict
   initial and controlled-change comparisons on owned and shared-reader synthetic
   sources. All missing/unexpected entries and shape mismatches were zero;
@@ -84,19 +313,35 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   needed. Detailed setup, diagnostic and execution history remains in the
   [project log](project-log.md) and
   [comparison plan](superpowers/plans/2026-10-03-atmoshaper-calendar-scope-comparison.md).
-- Prepared source requests availability instead of event-read access, retaining
+- Merged source requests availability instead of event-read access, retaining
   required calendar-list/app-created grants and compatibility with existing
   event-read/combined tokens on connect, cached use and refresh. Incomplete or
   broader Calendar grants still fail before provider work/token persistence.
   Calendar regressions pass 83/83, comparison checks 40/40 and documentation
-  checks 16/16; the reviewed `c2c51ab` CI run passes all seven jobs, including
+  checks 16/16; the reviewed `0f486e5` CI run passes all seven jobs, including
   5,155 unit passes, two skips and zero failures. The measured inbound result
   does not establish full application/database acceptance, verification or
-  whole-integration minimum access. Full application/provider acceptance remains
-  pending. Source merge, the changed Production
-  declaration, credentials, isolated application/provider resources, any required
-  demo/submission, public promotion and Calendar activation remain separately
-  gated. Preserve the legacy-token-compatible rollback in the provider checkpoint.
+  whole-integration minimum access. The subsequent two bounded application runs
+  now pass with their documented fixture limitations; real Production OAuth/sync
+  acceptance is not claimed by the separately approved public activation.
+  The approved declaration has owner save/category/status receipts;
+  Google reports verification unnecessary for that saved state. Credential
+  provisioning, the single candidate and exact public promotion/activation are
+  complete. Additional isolated application/provider resources and future
+  hosting changes remain separately gated. Preserve the legacy-token-compatible rollback in
+  the provider checkpoint.
+
+- Fresh remaining-provider name inventory confirms no Ably, Sentry or R2/upload
+  configuration in Production. Reviewed source retains the existing polling
+  fallback and disables Sentry when its DSN is absent. New realtime, monitoring
+  and upload administration are separately scoped provider decisions, not
+  failed or repeated Calendar setup. Four representative existing public media
+  HEADs pass with expected types, byte-range support, cache policy and CORS for
+  the AtmoShaper origin; bodies were not downloaded. This is bounded header
+  evidence, not full playback/catalog proof or provider ownership. Legacy
+  project's authenticated configuration read was unavailable; current legacy
+  configuration parity is not claimed. Preserve the existing media host and
+  immutable identities until a dedicated migration is reviewed and approved.
 
 - PR #35's documentation closeout merged as
   `572691aad5e48e01089097d59799aea19d92ba83`. Its full CodeRabbit review
