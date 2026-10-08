@@ -2,6 +2,22 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Codex makes bridge nonce claims single-use
+
+- Concurrent bridge GETs could both read an unused nonce before either persisted
+  the claim. The bridge now locks read/validation/persistence before issuing the
+  synthetic session redirect; seed and reconnect writers share the same lock.
+- The provider-free regression runs the actual server entrypoint with synthetic
+  HTTP objects and replaced framework/session dependencies. Twelve simultaneous
+  normal starts yield exactly one session redirect; invalid method/path/host,
+  repeated requests and the pending-only variant yield no session. Invalid
+  requests preserve the unused nonce. No real listener, application, provider
+  or database starts. Source publication and fresh checks/reviews remain on
+  PR #41; merge and future Production activity retain separate approval.
+- Local harness checks pass 38 with one POSIX-only Windows skip. Lint,
+  typecheck and documentation/workload checks 16/16 pass; all 137 relative
+  targets resolve, with no added-documentation private-data or whitespace findings.
+
 ## 2026-10-08 — Codex closes interrupted lock release
 
 - Fresh Codex review identifies an unlink-before-rmdir crash window: an empty

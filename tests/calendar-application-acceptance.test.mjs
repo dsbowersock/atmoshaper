@@ -264,6 +264,73 @@ test("private paths accept canonical siblings and reject dot-prefixed children o
   } finally { await rm(directory, { recursive: true, force: true }) }
 })
 
+test("actual bridge grants one session across concurrent requests and refuses pending-only or invalid starts", async () => {
+  const serverUrl = new URL("../scripts/calendar-application-acceptance-server.mjs", import.meta.url).href
+  for (const pendingActionOnly of [false, true]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-bridge-unit-"))
+    const { manifest, client } = fixture()
+    manifest.pendingActionOnly = pendingActionOnly
+    await writeFile(join(directory, "bridge.json"), JSON.stringify({ nonce: manifest.startNonce, used: false }), { mode: 0o600 })
+    // Invoke the real entrypoint/guard with synthetic HTTP objects, session encoding and framework dependencies.
+    const http = `
+      import { EventEmitter } from 'node:events'; import { readFile } from 'node:fs/promises';
+      export function createServer(handler) {
+        const server = new EventEmitter(); server.close = () => {};
+        server.listen = (_port, _host, done) => {
+          const dispatch = async () => {
+            const start = '/__calendar_acceptance/start/' + ${JSON.stringify(manifest.startNonce)};
+            const request = (method = 'GET', url = start, host = 'localhost:3318') => new Promise((resolve) => {
+              let status, headers;
+              const response = { writeHead(code, values) { status = code; headers = values }, end() { resolve({ status, hasCookie: !!headers?.['set-cookie'], location: headers?.location }) } };
+              void handler({ method, url, headers: { host } }, response);
+            });
+            const invalid = await Promise.all([request('POST'), request('GET', start + '-wrong'), request('GET', start, 'invalid.test')]);
+            const before = JSON.parse(await readFile(${JSON.stringify(join(directory, "bridge.json"))}, 'utf8'));
+            const concurrent = await Promise.all(Array.from({ length: 12 }, () => request()));
+            const repeated = await request();
+            const after = JSON.parse(await readFile(${JSON.stringify(join(directory, "bridge.json"))}, 'utf8'));
+            process.stdout.write('BRIDGE_RESULT:' + JSON.stringify({ invalid, before, concurrent, repeated, after }) + '\\n');
+            process.exit(0);
+          };
+          done(); setImmediate(() => { void dispatch().catch((error) => { console.error(error); process.exit(2) }) });
+        }; return server;
+      }
+    `
+    const replacements = {
+      "node:http": http,
+      // Delay persistence to expose the original parallel-read race without bypassing the actual shared lock.
+      "node:fs/promises": `export { readFile } from 'node:fs/promises'; import { writeFile as actualWrite } from 'node:fs/promises'; export async function writeFile(path, data, options) { if (path === ${JSON.stringify(join(directory, "bridge.json"))} && JSON.parse(data).used) await new Promise((done) => setTimeout(done, 25)); return actualWrite(path, data, options) }`,
+      "next-auth/jwt": "export async function encode() { return 'synthetic-cookie' }",
+      "next": "export default function next() { return { async prepare() {}, getRequestHandler() { return async () => { throw new Error('unexpected application request') } }, async close() {} } }",
+      "./calendar-application-acceptance.mjs": `export async function loadAcceptanceConfig() { return ${JSON.stringify({ manifest, client, directory })} }`,
+      "../lib/auth/browser-user-fixture.ts": "export function createBrowserUserFixtureIdentity() { return { user: {} } }",
+      "../tests/browser/signed-in-session-cookie.ts": "export function signedInSessionToken() { return {} }",
+    }
+    const hook = `import { registerHooks } from 'node:module'; const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(serverUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), fileURLToPath(serverUrl)])
+    const closed = once(child, "close")
+    let output = "", timer
+    child.stdout.on("data", (chunk) => { output += chunk.toString() })
+    try {
+      const [code] = await Promise.race([closed, new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("synthetic bridge requests timed out")), 10000) })])
+      assert.equal(code, 0)
+      const result = JSON.parse(output.split(/\r?\n/).find((line) => line.startsWith("BRIDGE_RESULT:")).slice("BRIDGE_RESULT:".length))
+      assert.ok(result.invalid.every((item) => item.status === 403 && !item.hasCookie))
+      assert.equal(result.before.used, false, "invalid starts must not consume the nonce")
+      assert.equal(result.concurrent.filter((item) => item.status === 302 && item.hasCookie && item.location === "/api/calendar/google/connect").length, pendingActionOnly ? 0 : 1)
+      assert.equal(result.concurrent.filter((item) => item.status === 403 && !item.hasCookie).length, pendingActionOnly ? 12 : 11)
+      assert.equal(result.after.used, !pendingActionOnly)
+      assert.equal(result.repeated.status, 403)
+      assert.equal(result.repeated.hasCookie, false)
+    } finally {
+      clearTimeout(timer)
+      if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 })
+      await closed
+      await rm(directory, { recursive: true, force: true })
+    }
+  }
+})
+
 test("journal locks preserve live owners and recover only after an owned worker has exited", async () => {
   const directory = await mkdtemp(join(tmpdir(), "calendar-lock-unit-"))
   const guardUrl = new URL("../scripts/calendar-application-acceptance-guard.mjs", import.meta.url).href

@@ -99,7 +99,8 @@ async function main() {
     requireAcceptance(response.ok && (await response.json()).summary === summary, "rename_response")
     await receipt("owned-target-renamed-for-reconnect")
     const nonce = randomBytes(32).toString("hex")
-    await writeFile(join(directory, "bridge.json"), JSON.stringify({ nonce, used: false }))
+    // Nonce publication shares the bridge's claim lock so reconnect cannot lose its new nonce to an older GET.
+    await store.locked(() => writeFile(join(directory, "bridge.json"), JSON.stringify({ nonce, used: false }), { mode: 0o600 }))
     console.log("ACCEPTANCE: reconnect at " + ACCEPTANCE_ORIGIN + "/__calendar_acceptance/start/" + nonce)
   }
   if (mode === "seed" || mode === "pending-seed") {
@@ -115,7 +116,7 @@ async function main() {
       // Invented unusable strings cannot authorize a Google request; this case never decrypts them.
       await prisma.calendarConnection.create({ data: { userId, provider: "GOOGLE", providerAccountId: "synthetic-pending-" + manifest.runId, accountEmail: identity.user.email, encryptedRefreshToken: "synthetic-unusable-refresh", encryptedAccessToken: "synthetic-unusable-access", status: "ERROR", statusReason: GOOGLE_CALENDAR_CREATION_PENDING_REASON } })
       await receipt("synthetic-pending-row-seeded")
-    } else await writeFile(join(directory, "bridge.json"), JSON.stringify({ nonce: manifest.startNonce, used: false }))
+    } else await store.locked(() => writeFile(join(directory, "bridge.json"), JSON.stringify({ nonce: manifest.startNonce, used: false }), { mode: 0o600 }))
     await receipt("persisted-role-feature-gates")
   } else if (mode === "pending-check") {
     requireAcceptance(manifest.pendingActionOnly && (await store.vault()).length === 0, "pending_only_boundary")

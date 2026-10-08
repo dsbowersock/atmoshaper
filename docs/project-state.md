@@ -132,6 +132,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   regression interrupts the actual release before and after retirement and
   checks concurrent recovery and replacement-owner preservation. Live PR #41
   checks and reviews must cover this source fix before merge is proposed.
+- The next Codex finding serializes bridge nonce read/claim/persistence under
+  the shared ownership lock before issuing a synthetic session redirect. Seed
+  and reconnect nonce publication use that same lock. The actual-entrypoint
+  regression submits concurrent synthetic HTTP requests: exactly one normal
+  request receives a session; invalid, repeated and pending-only requests are
+  rejected. Framework/session dependencies are replaced and no real listener,
+  application, provider or database starts. Live PR #41 remains the source for
+  fresh exact-head validation and review status.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

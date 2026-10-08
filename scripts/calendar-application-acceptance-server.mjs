@@ -27,10 +27,13 @@ async function main() {
       const url = new URL(request.url, ACCEPTANCE_ORIGIN)
       if (url.pathname.startsWith("/__calendar_acceptance/")) {
         requireAcceptance(!manifest.pendingActionOnly, "pending_only_bridge")
-        const current = JSON.parse(await readFile(join(directory, "bridge.json"), "utf8"))
-        requireAcceptance(request.method === "GET" && url.pathname === "/__calendar_acceptance/start/" + current.nonce && !current.used, "bridge_nonce")
-        current.used = true
-        await writeFile(join(directory, "bridge.json"), JSON.stringify(current))
+        // Persist the one-use claim under the shared lock before any concurrent request can receive a session.
+        await store.locked(async () => {
+          const current = JSON.parse(await readFile(join(directory, "bridge.json"), "utf8"))
+          requireAcceptance(request.method === "GET" && url.pathname === "/__calendar_acceptance/start/" + current.nonce && !current.used, "bridge_nonce")
+          current.used = true
+          await writeFile(join(directory, "bridge.json"), JSON.stringify(current), { mode: 0o600 })
+        })
         response.writeHead(302, { location: "/api/calendar/google/connect", "set-cookie": "authjs.session-token=" + cookie + "; Path=/; HttpOnly; SameSite=Lax", "cache-control": "no-store" })
         response.end(); return
       }
