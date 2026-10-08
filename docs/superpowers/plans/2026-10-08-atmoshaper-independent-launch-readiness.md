@@ -179,11 +179,14 @@ There is no automatic activation date in the completed Supporter-only plan.
 Activation follows this dedicated readiness stage, before marketing these paths
 as available. They remain disabled until exact deployment approval.
 
-- Review `scripts/assert-production-stripe-readiness.mjs`: its fixed
-  `--supporter-only` argument requires both flows disabled. Add an explicitly
-  scoped fail-closed full-payment mode, with meaningful regression coverage,
-  before changing either hosted switch. Retain live verification, inherited
-  build credentials, no dotenv fallback and the request deadline.
+- The source branch prepares `scripts/assert-production-stripe-readiness.mjs`
+  with exact `STRIPE_PRODUCTION_READINESS_SCOPE=all-payments`. Unset scope
+  preserves Supporter-only checks, enabled runtime switches do not widen scope,
+  and unknown/empty scope fails before provider dispatch. Full scope invokes
+  every existing payment prerequisite with live verification, inherited build
+  credentials, no dotenv fallback and the same deadline. Complete source review
+  and meaningful real-entrypoint synthetic regressions before any hosted change;
+  source preparation does not complete payment acceptance or activation.
 - One-time support: confirm all five independent tax/classification/provider/
   registration/enablement gates, correct payment-mode/copy, no entitlement grant,
   and the required actual Session/line-item evidence under a new scoped test.

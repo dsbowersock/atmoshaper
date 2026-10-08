@@ -12,9 +12,10 @@ export function shouldCheckProductionStripeReadiness(env = process.env) {
 }
 
 /**
- * Blocks Production builds until the existing read-only Supporter check passes.
- * Fixed arguments preserve the disabled purchase flows and use only inherited
- * build credentials; a local dotenv file cannot fill missing Production values.
+ * Blocks Production builds until their explicitly selected payment scope passes.
+ * Unset scope preserves the Supporter-only launch; all-payments must be selected
+ * separately from the runtime switches and still validates every existing gate.
+ * Uses only inherited build credentials; dotenv cannot fill missing values.
  * The child deadline bounds provider reads without any payment or setup writes.
  */
 export function runProductionStripeReadinessGate({
@@ -23,13 +24,21 @@ export function runProductionStripeReadinessGate({
   log = console.log,
 } = {}) {
   if (!shouldCheckProductionStripeReadiness(env)) {
-    log("Production Supporter readiness gate skipped outside Vercel Production.")
+    log("Production Stripe readiness gate skipped outside Vercel Production.")
     return { checked: false }
   }
 
+  const scope = env.STRIPE_PRODUCTION_READINESS_SCOPE ?? "supporter-only"
+  if (scope !== "supporter-only" && scope !== "all-payments") {
+    // Do not echo an invalid value: a misbound setting can contain private data.
+    throw new Error(
+      "Production Stripe readiness scope is invalid; refusing this build. Set STRIPE_PRODUCTION_READINESS_SCOPE to supporter-only or all-payments, or leave it unset for supporter-only.",
+    )
+  }
+  const scopeLabel = scope === "supporter-only" ? "Supporter" : "all-payments"
   const result = spawnSyncImpl(process.execPath, [
     readinessScript,
-    "--supporter-only",
+    ...(scope === "supporter-only" ? ["--supporter-only"] : []),
     "--live",
     "--verify-stripe",
     "--no-dotenv",
@@ -49,11 +58,11 @@ export function runProductionStripeReadinessGate({
           ? "checker could not start"
           : "checker rejected readiness"
     throw new Error(
-      `Production Supporter readiness failed: ${cause}; refusing this build. Reconcile the read-only readiness failures before retrying.`,
+      `Production ${scopeLabel} readiness failed: ${cause}; refusing this build. Reconcile the read-only readiness failures before retrying.`,
     )
   }
 
-  log("Production Supporter readiness gate passed.")
+  log(`Production ${scopeLabel} readiness gate passed.`)
   return { checked: true }
 }
 
@@ -63,7 +72,7 @@ if (invokedPath === import.meta.url) {
   try {
     runProductionStripeReadinessGate()
   } catch (error) {
-    console.error(error instanceof Error ? error.message : "Production Supporter readiness failed.")
+    console.error(error instanceof Error ? error.message : "Production Stripe readiness failed.")
     process.exitCode = 1
   }
 }

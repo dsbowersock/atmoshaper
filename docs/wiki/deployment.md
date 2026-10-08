@@ -132,6 +132,32 @@ before approving a candidate. A passing readiness
 build never grants public promotion, activates Calendar, enables other purchase
 flows, or repeats the live transaction test.
 
+### Preparing the full-payment build scope
+
+The independent-launch source branch adds `STRIPE_PRODUCTION_READINESS_SCOPE`
+to the build wrapper. An unset value preserves `supporter-only`; explicit
+`supporter-only` has the same behavior. Exact `all-payments` runs the existing
+full checker, with `--live --verify-stripe --no-dotenv` and the same two-minute
+deadline. Empty or unknown values reject the Production build before spawning
+the checker, without printing the invalid value. Non-Production builds still
+skip provider access. This source preparation is not a deployed activation.
+
+Selecting `all-payments` does not set any runtime switch or satisfy readiness:
+both additional flows must independently pass their enablement, tax, catalog,
+webhook and reconciliation requirements, while all recurring Supporter, Price,
+Portal, credential and pinned-webhook checks remain mandatory. Setting runtime
+switches alone cannot select this wider scope; the default still rejects them.
+There is no intermediate bypass mode or fallback after full readiness fails.
+
+For activation, prepare the exact source-pinned candidate, verified provider
+prerequisites, new-flow acceptance/cleanup and saved alias rollback packet in
+the [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md).
+Obtain exact deployment/configuration authority before changing the hosted scope
+or either runtime switch. Rollback is the saved approved artifact with its saved
+configuration; changing only the selector while purchase switches remain true
+will correctly fail the Supporter-only build. Never repeat the completed live
+recurring payment test as part of this preparation.
+
 ## Core Environment
 
 Use Neon's pooled connection string for runtime Prisma Client connections:

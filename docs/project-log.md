@@ -2,6 +2,27 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Prepare explicit all-payment Production build readiness
+
+- The independent-launch source branch adds exact
+  `STRIPE_PRODUCTION_READINESS_SCOPE=all-payments` selection to the existing
+  Production build wrapper. An unset value retains Supporter-only checks;
+  explicit Supporter-only remains supported. Empty or unknown values stop
+  the build before checker dispatch without printing the invalid value.
+- Full scope invokes the existing read-only checker with live retrieval,
+  inherited build configuration, no dotenv fallback and the same two-minute
+  deadline. Both additional purchasing paths must pass their existing gates;
+  enabling runtime switches alone cannot widen the default scope. All recurring
+  tax, Price, managed Portal, credential and pinned-webhook checks stay required.
+- Provider-free actual-entrypoint regressions pass: Production readiness 20/20,
+  Stripe readiness/webhook contracts 62/62, documentation/workload 16/16;
+  lint and typecheck also pass. Tests use invented credentials and a replacement
+  Stripe client, without provider requests, charges or database operations.
+- The source and environment example are prepared for review. No hosted scope,
+  purchase switch, provider configuration, public artifact or live alias changed.
+  Real new-flow acceptance, exact activation settings and source review remain
+  pending in the [independent launch plan](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md).
+
 ## 2026-10-08 — Independent marketing-readiness goal replaces optional closeout
 
 - The user wants all surrounding services independently usable by AtmoShaper
