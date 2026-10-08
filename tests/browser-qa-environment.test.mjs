@@ -248,7 +248,7 @@ test("Playwright-owned server uses its computed origin and an inert telemetry/da
   assert.doesNotThrow(() => assertBrowserQaOwnedServerRequirement(false))
 })
 
-test("Browser-QA and migration builds disable provider telemetry while preserving production behavior", async () => {
+test("all builds disable vendor telemetry while preserving release credentials and QA isolation", async () => {
   const source = await readProjectFile("next.config.mjs")
   const buildScript = await readProjectFile("scripts/build-browser-qa.mjs")
   const start = source.indexOf("const migrationParityBuild =")
@@ -276,7 +276,7 @@ test("Browser-QA and migration builds disable provider telemetry while preservin
     }
     const original = { ...environment }
     const ordinary = configure(environment)
-    assert.equal(ordinary.telemetry, undefined)
+    assert.equal(ordinary.telemetry, false)
     assert.equal(ordinary.authToken, "ordinary-token")
     assert.deepEqual(environment, original)
   }

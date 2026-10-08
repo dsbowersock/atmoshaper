@@ -2,8 +2,9 @@
 
 Read [project state](../project-state.md) and the
 [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
-first. October 8 source inspection identifies the consumers below. Provider
-ownership, current bucket contents and final hosted playback remain unverified.
+first. October 8 source inspection and public JSON-index reads identify the
+consumers below. Provider ownership, current bucket contents and final hosted
+playback remain unverified.
 This is the source-side cutover map, not an upload or retirement instruction.
 
 ## Reuse before copying
@@ -59,15 +60,45 @@ convert source-enabled audio into an observed-playback claim. These media
 declarations and runtime owners are unchanged against the recorded public
 `38d0ded` source; hosting/configuration receipts retain their recorded dates.
 
+## Bounded public index inventory
+
+Run `npm run migration:media:public-inventory` for a no-network allowlist plan.
+The explicit `-- --read-public-metadata` flag reads only the source-declared
+primary and format JSON indexes on the existing public media host. It omits
+credentials/cookies, refuses redirects and signed/credentialed destinations,
+validates each station's required instrument groups, and never requests samples.
+Four workers share a three-minute deadline and 32 MiB processed-JSON budget;
+each index has a ten-second deadline and 2 MiB body limit. An excess chunk aborts
+all workers before retention. Reported byte limits bound processed metadata,
+not a promise about wire overhead. Failed or unvisited indexes make the result
+incomplete; only aggregate counts and bounded error codes are emitted.
+
+The October 8 read completes all 228 indexes with zero failures or unvisited
+indexes, processing 867,736 bytes of JSON. It finds 6,800 sample references,
+all absolute URLs using the legacy media origin, with no other or relative
+destinations. Distinct counts are per index and summed across indexes, not a
+global unique-object count. No audio/image/video payload, private object,
+database row or provider configuration was read or changed. This establishes
+the nested-URL cutover requirement, not playback, payload integrity, bucket
+contents, ownership or a storage-copy budget.
+
 ## Provider read gate and exact operation
 
 The owner-requested Cloudflare login begins with account/user/zone read scopes.
-The owner completed login on October 8. Wrangler identifies one account, but
-the actual R2 bucket-list read is denied with authentication code `10000`.
-This is a storage-access gap, not a failed sign-in, empty inventory or media outage.
-After identifying the actual account, confirm that the approved read credential
-also has the endpoint's required R2 metadata permission; account/zone access
-alone is not bucket inventory proof. Cloudflare's
+The owner completed login on October 8 and supplied a separate encrypted API
+token with confirmed storage Read/account coverage. Its self-verification shows
+administrative status `active`, but a future October 31 start date. That time
+restriction explains the recorded HTTP 401/code `10000`; it is not evidence of
+an empty inventory or media outage. The owner can open existing bucket Settings
+and supplied evidence of an active public custom domain and disabled public
+development URL. Agent dashboard access remains blocked by browser policy.
+
+The pending owner action is to correct only the existing token's start date,
+preserving its expiry and permissions. No replacement or re-entry is needed.
+After owner confirmation, verify that the same saved credential is within its
+valid time window, then make one standard canonical bucket-list GET. Continue
+pagination/configuration reads only after that succeeds; a further denial needs
+new precise evidence, not repeated identical attempts. Cloudflare's
 [bucket-list API](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/methods/list/)
 accepts `Workers R2 Storage Read`; use read access rather than expanding to
 unneeded storage mutation. Store credentials and resource references privately.

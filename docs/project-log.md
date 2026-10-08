@@ -2,7 +2,50 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
-## 2026-10-08 — Complete approved Sentry project setup and verify the R2 token
+## 2026-10-08 — Complete PR #42 and privacy approval; diagnose storage access and inventory public indexes
+
+- The owner-approved PR #42 merge completes as `357095d`; its tree matches the
+  exact reviewed head. All seven final-head CI jobs pass: 5,225 total unit tests,
+  5,223 passes/two skips/zero failures or cancellations; 606 browser passes and
+  178 gated skips, with no flakes/final failures reported. Codex is clean and the
+  completed full CodeRabbit round covers all 37 files, passes all five pre-merge
+  checks and reports 93.94% touched-function docstrings. Initial failed heads and
+  earlier pending statements remain historical; final receipts stay private.
+- Its automatic main candidate is READY and unpromoted. The standard build,
+  actual migration/Supporter gates and all 115 static pages pass. Final authenticated
+  readback preserves manual custom-domain assignment, main Git binding/protection,
+  the PR #40 public target and all six saved live aliases. No manual build,
+  promotion, alias restoration or environment change occurred. Complete name-only
+  inventory still contains 60 Production-only settings and no Sentry binding.
+- The separately approved Sentry project-only privacy update completes with one
+  HTTP 200 write and exact readback of six advanced removal rules. Other project
+  fields, organization privacy and legacy settings are preserved; inherited IP
+  prevention is verified. Collection remains unbound, with no first event, upload
+  or notification. Current monitors have no attached workflows; quota/retention,
+  billing, release/source maps and useful owner-alert acceptance remain open.
+- The automatic build identifies separate vendor-plugin telemetry, which uses
+  its own destination rather than the app's DSN/scrubbing policy. New local source
+  sets build telemetry false in every mode. The actual configuration regression
+  verifies ordinary release credentials and migration/QA isolation remain intact.
+  This source correction is not yet published or applied to the hosted artifact.
+- The owner confirms existing R2 bucket Settings loads and provides evidence of
+  active public delivery. The saved token's precise metadata reveals its future
+  October 31 start date, explaining prior HTTP 401/code `10000` despite active
+  administrative status and confirmed Read/account coverage. The owner is asked
+  to correct only the existing start date, preserving expiry and permission scope.
+  No re-entry, replacement, broader grant or repeated denied read is needed.
+  Fresh time-window verification and one canonical read follow owner confirmation;
+  agent dashboard policy remains unresolved and is not bypassed.
+- A new bounded public metadata inventory completes all 228 source-declared
+  primary/format JSON indexes, processing 867,736 bytes. All 6,800 sample references
+  use the legacy media origin. Zero payloads, private objects or database rows are
+  requested; this proves nested URLs need a compatible cutover, not playback or
+  storage ownership. Synthetic boundary/deadline/budget and build-configuration
+  checks pass 14/14, Sentry contracts pass 55/55 and documentation/workload checks
+  pass 16/16; typecheck and lint pass. Current records distinguish completed
+  approvals from remaining launch gates; publication remains separate.
+
+## 2026-10-08 — Complete approved Sentry project setup and verify the R2 token (historical checkpoint)
 
 - The source follow-up is published in draft PR #42. At the dated `c1b0ce6`
   checkpoint, the exact Preview is READY and Codex reports no major issues.

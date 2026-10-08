@@ -36,7 +36,7 @@ Completion requires:
    match observed functionality, and the remaining ledger has no required item
    hidden under an optional or historical label.
 
-## Verified starting point
+## Historical verified starting point — before PR #42
 
 - Hosted main is `acd05b07fb67e2af1e49965ce3d2c11b97947d3f`, the approved PR #41
   merge. Its tree equals reviewed head `d99f931`. All seven reviewed-source CI
@@ -63,7 +63,7 @@ Completion requires:
 
 ## Work order
 
-October 8 source/setup checkpoint: the owner approved draft publication and the
+Historical October 8 source/setup checkpoint: the owner approved draft publication and the
 review/fix loop for PR #42, plus the separate initial Sentry project-only packet.
 Initial source head `3ee84fd` has a READY Preview and clean Codex/full 34-file
 CodeRabbit review, with the docstring pre-merge check still below threshold.
@@ -84,7 +84,36 @@ all-account inclusion and no IP restriction; the owner confirms the account.
 A standard GET against the same verified account still returns HTTP 401/code
 `10000`, leaving a provider access denial to resolve through a read-only account/
 bucket check. Do not ask for token re-entry or broader permissions without new
-evidence. Neither setup outcome activates collection or media cutover.
+evidence. Neither setup outcome activates collection or media cutover. These
+pending statements record that checkpoint; the completion below supersedes them.
+
+Latest October 8 closeout: the owner-approved PR #42 merge is complete as
+`357095d`, with reviewed/merged trees identical. All seven final-head CI jobs,
+READY Preview, clean Codex and full 37-file CodeRabbit coverage pass. Units have
+5,223 passes/two skips; browsers have 606 passes/178 gated skips, with no reported
+flakes or final failures. All five pre-merge checks pass and touched-function
+docstring coverage is 93.94%. The automatic main candidate is READY/unpromoted;
+standard build, migration and Supporter gates and 115 static pages pass. Final
+readback preserves the PR #40 public target and all six aliases, with no promotion
+or restoration. Do not reopen completed review/merge work.
+
+The approved Sentry project-only privacy change is complete and read back exactly:
+six advanced removal rules, inherited IP prevention and unchanged other project,
+organization and legacy settings. Current monitors have no attached workflows;
+owner alert delivery is not proved. Collection is still unbound. The candidate's
+build reveals separate vendor-plugin telemetry; a new local correction disables
+that for every build without changing explicit release credentials or QA isolation.
+
+The public media-index read completes all 228 source-declared primary/format
+indexes and finds 6,800 sample references, all on the legacy media origin, with
+no payload requests. Private R2 token metadata identifies the access cause:
+administrative status is active but its start date is October 31. Owner correction
+of the existing start date is pending, preserving expiry and storage Read scope.
+After confirmation, verify the time window and make one canonical metadata read;
+do not request re-entry, replacement or broader permissions. Agent dashboard
+policy remains unresolved despite working owner Settings. These new local source
+and administrative changes need their own validation/reviews and publication
+approval; no media/provider activation follows from inventory.
 
 ### 1. Reconcile documents and private dependency inventory
 
@@ -100,8 +129,9 @@ evidence. Neither setup outcome activates collection or media cutover.
 - Obtain only the precise missing read access. Initial CLI checks lacked
   authentication. The owner subsequently completed Cloudflare and Sentry login.
   Current readback identifies one Cloudflare account. The saved token is active
-  and storage-read/account coverage is owner-confirmed, but R2 listing retains
-  `10000`; resolve that access denial without speculative credential changes. Sentry has one
+  and storage-read/account coverage is owner-confirmed. Its future start date
+  explains the recorded R2 `10000`; await the owner's date correction before
+  re-verifying and reading bucket metadata. Sentry has one
   organization/team and initially one legacy Next.js project. The separately
   approved new AtmoShaper project is now created and verified; legacy resources
   stay intact. Provider references and status receipts remain private. Identify Ably owner
@@ -152,18 +182,18 @@ with no cross-environment room leakage. Polling-only success is insufficient.
 Owners: [deployment privacy contract](../../wiki/deployment.md#sentry) and
 [operational readiness/use runbook](../../wiki/sentry-operations.md).
 
-October 8 local preparation excludes the SDK's separate process-session pipeline
+Reviewed PR #42 excludes the SDK's separate process-session pipeline
 as well as browser sessions, preserves sanitized errors and gates error references
 on the current enabled SDK/error. Provider-free SDK/privacy/diagnostic/fallback
 checks pass 55/55. The owner subsequently completed OAuth CLI authentication.
-Fresh metadata identifies one organization, one existing team with owner admin
-membership, and one legacy Next.js project; no AtmoShaper project exists and
+Initial metadata identified one organization, one existing team with owner admin
+membership, and one legacy Next.js project; no AtmoShaper project existed and
 the project/team inventories have no further page. The project-creation dry run
 passes with the existing team explicitly selected; no DSN is returned or bound.
 Exact references and source/read receipts are kept in the protected journal.
 Do not infer provider readiness from source checks or the historical audit.
 
-The next concrete provider packet is **initial project creation only**:
+The completed provider packet was **initial project creation only**:
 
 - Create exactly one `atmoshaper` project with platform `javascript-nextjs` under
   the privately identified existing organization and team. Recheck the baseline
@@ -185,13 +215,17 @@ The next concrete provider packet is **initial project creation only**:
   That access is complete, and the baseline-matched single creation returns 201
   with default issue alerts disabled in its request. The project/team and legacy
   preservation are verified; never repeat this completed creation. The old alert
-  list returns 404, so current alert inventory remains a read gate. This credential
+  list returned 404 at that checkpoint. Current monitor readback has no attached
+  workflows and does not prove owner alert delivery. This credential
   capability did not change organization settings or authorize collection.
 
 - Identify an independent AtmoShaper project/environment and appropriate quotas,
   source-map/release linkage, retention and alert ownership.
 - Read and confirm provider scrubbing, default scrubbers, IP-storage prevention,
   sensitive-field rules and disabled public issue sharing before SDK enablement.
+  The subsequently approved project-only privacy correction is now complete;
+  exact readback and unchanged organization/legacy settings are recorded privately.
+  Do not repeat that write. Quota/retention/billing and activation remain open.
 - Preserve anonymous route families and scrubbed stack traces; disable personal
   identifiers, request/response content, clinical/local-vault data, automatic
   breadcrumbs, Replay, standard User Feedback, attachments and Logs.
@@ -312,8 +346,8 @@ no unexplained legacy dependency, and observed working legacy tools throughout.
 
 ### 8. Final offered-feature verification and marketing handoff
 
-October 8 public `robots.txt` and `sitemap.xml` still point to old www. Local source
-now fixes the common canonical/metadata/structured-data owner to AtmoShaper www
+October 8 public `robots.txt` and `sitemap.xml` retain their dated old-www binding.
+Reviewed PR #42 fixes the common canonical/metadata/structured-data owner to AtmoShaper www
 and omits unverified legacy Organization social equivalence. Focused checks pass
 17/17; the isolated build emits all 36 sitemap URLs and robots host/sitemap on the
 new canonical with private-route exclusions intact. Existing visible social

@@ -3,7 +3,7 @@
 Read [project state](../project-state.md) and the
 [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
 first. The approved separate destination project is created. This runbook owns
-the remaining privacy, source-map, alert and hosted-collection gates; setup does
+the remaining source-map, alert and hosted-collection gates; setup does
 not establish operational monitoring.
 
 ## What Sentry is for
@@ -49,8 +49,22 @@ actions, or as popularity, conversion, user-history or product analytics.
   and logs are absent in readback. The old issue-alert list returns 404, so do
   not equate the accepted disabled-default request with verified alert absence.
   Effective privacy/IP prevention, quotas, retention, current alerts and source
-  maps still require proof before collection. Legacy settings do not establish
-  readiness of the new independent destination; never repeat project creation.
+  maps were still pending at that creation checkpoint. Legacy settings do not
+  establish readiness of the independent destination; never repeat project creation.
+- The separately approved October 8 project-only privacy update is complete.
+  One successful write and exact readback verify the six advanced removal rules
+  for geography/server-name fields. Inherited IP prevention is enabled; other
+  project fields, organization privacy and the legacy project are unchanged.
+  Current monitor metadata has no attached workflows; this does not establish
+  a delivered owner alert. No app binding, event, upload or notification was added.
+  Quota/retention/billing, release/source maps and useful owner alerts remain gates.
+- PR #42 is merged and its automatic main candidate is READY but unpromoted.
+  Its build log identifies vendor-plugin telemetry, whose own DSN is separate
+  from application collection and project scrubbing. The next local source
+  correction sets `withSentryConfig`'s `telemetry: false` for all builds, preserving
+  explicit release credentials and QA isolation. Provider-free tests execute the
+  actual configuration for ordinary, migration and QA modes. This local change
+  has not changed the hosted artifact or enabled application monitoring.
 - The [August 17 provider audit](../audits/2026-08-17-anonymous-sentry-provider-settings.md)
   belongs to its named historical source/environment. It does not verify a new
   independent AtmoShaper destination. Do not repeat its completed diagnostic.
