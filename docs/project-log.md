@@ -2,6 +2,22 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Codex closes cancellation before the first journal receipt
+
+- The launcher previously installed signal handlers only after awaiting its
+  initial child receipt. Handlers now own teardown before any awaited setup;
+  cancellation and setup errors drain the same owned-tree stop, remove handlers
+  on every exit path, and cannot claim command success.
+- The actual-entrypoint provider-free regression cancels during journal waiting
+  for both SIGINT and SIGTERM, including a subsequent setup failure. Windows
+  delivers the synthetic signal event; Linux delivers the actual process signal.
+  The real teardown stops only a synthetic worker, without starting a listener,
+  application, provider or database. Ownership-bound finally blocks clean all
+  synthetic children and temporary files. Fresh Linux CI must verify this path.
+- Local harness checks pass 40 with one POSIX-only Windows skip. Exact-head hosted
+  validation and reviews remain on PR #41; final receipts stay private. No
+  completed provider operation is repeated; merge retains separate approval.
+
 ## 2026-10-08 — Codex protects form evidence and recovery chronology
 
 - Persisted Disconnect form fields contain a private connection ID. A shared

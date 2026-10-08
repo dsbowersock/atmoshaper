@@ -106,6 +106,47 @@ test("server setup failures exit the actual entrypoint despite live synthetic fr
   }
 })
 
+test("launcher cancellation during its initial journal wait stops the owned child and handles setup failure", async () => {
+  const launcherUrl = new URL("../scripts/calendar-application-acceptance.mjs", import.meta.url).href
+  for (const signal of ["SIGINT", "SIGTERM"]) for (const fails of [false, true]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-launcher-signal-unit-"))
+    const pidPath = join(directory, "synthetic-child.pid")
+    const { manifest } = fixture()
+    Object.assign(manifest, { appRoot: fileURLToPath(new URL("..", import.meta.url)), pendingActionOnly: true, sources: [], credentialFile: null, googleProjectId: null, accountEmail: null })
+    // Run the real launcher and teardown, replacing only settings, Git reads, journal waiting and the worker command.
+    const replacements = {
+      "node:fs/promises": `export { open } from 'node:fs/promises'; export async function readFile() { return ${JSON.stringify(JSON.stringify(manifest))} }; export async function readdir() { return [] }; export async function realpath(path) { return path }`,
+      "node:child_process": `import { spawn as realSpawn } from 'node:child_process'; import { writeFileSync } from 'node:fs'; export function execFileSync(_command, args) { return args[0] === 'rev-parse' ? ${JSON.stringify(ACCEPTANCE_BASE)} : '' }; export function spawn(command, args, options) { if (command === 'taskkill') return realSpawn(command, args, options); const child = realSpawn(process.execPath, ['-e', "process.stdout.write('synthetic-ready' + String.fromCharCode(10)); setInterval(() => {}, 1000)"], options); globalThis.syntheticAcceptanceChild = child; writeFileSync(${JSON.stringify(pidPath)}, String(child.pid)); return child }`,
+      "./calendar-application-acceptance-guard.mjs": `import { once } from 'node:events'; export function acceptanceStore() { return { record: async () => {}, locked: async (action) => { await once(globalThis.syntheticAcceptanceChild.stdout, 'data'); if (process.platform === 'win32') { process.emit(${JSON.stringify(signal)}); process.emit(${JSON.stringify(signal)}) } else { process.kill(process.pid, ${JSON.stringify(signal)}) }; await new Promise((done) => setTimeout(done, 20)); ${fails ? "throw new Error('synthetic journal acquisition failed')" : "return action()"} } } }`,
+    }
+    const hook = `import { registerHooks } from 'node:module'; const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(launcherUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
+    const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), fileURLToPath(launcherUrl), "pending-check", join(directory, "synthetic-config.json")])
+    const closed = once(child, "close")
+    let stderr = ""
+    let stdout = ""
+    child.stdout.on("data", (chunk) => { stdout += chunk.toString() })
+    child.stderr.on("data", (chunk) => { stderr += chunk.toString() })
+    let timer
+    try {
+      const [code, terminationSignal] = await Promise.race([closed, new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("initial journal wait left the owned child alive")), 5000) })])
+      assert.equal(terminationSignal, null, "the launcher handles cancellation instead of taking its default signal exit")
+      assert.equal(code, 1)
+      assert.equal(stderr.trim(), "ACCEPTANCE: stopped; inspect the protected private stage receipt")
+      assert.equal(stdout.includes("ACCEPTANCE: owned command completed"), false)
+      const pid = Number(await readFile(pidPath, "utf8"))
+      assert.throws(() => process.kill(pid, 0), { code: "ESRCH" }, "the separately owned worker must be stopped")
+    } finally {
+      clearTimeout(timer)
+      try {
+        try { await stopAcceptanceCommand({ pid: Number(await readFile(pidPath, "utf8")) }, { graceMs: 1 }) } catch (error) { if (error.code !== "ENOENT") throw error }
+      } finally {
+        try { if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child, { graceMs: 1 }); await closed }
+        finally { await rm(directory, { recursive: true, force: true }) }
+      }
+    }
+  }
+})
+
 test("POSIX teardown terminates an ignoring descendant even after its process-group leader exits", { skip: process.platform === "win32" }, async () => {
   const descendant = "process.on('SIGTERM', () => {}); process.stdout.write('ready\\n'); setInterval(() => process.stdout.write('.'), 20)"
   const parent = `import { spawn } from 'node:child_process'; spawn(process.execPath, ['-e', ${JSON.stringify(descendant)}], { stdio: ['ignore', 'inherit', 'inherit'] }); setInterval(() => {}, 1000)`

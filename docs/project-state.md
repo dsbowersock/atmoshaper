@@ -147,6 +147,13 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   existing files plus delayed calendar-inventory and encrypted-token recovery.
   Fresh Linux checks must independently prove POSIX permissions; live PR #41
   retains exact-head checks/reviews and the separate merge approval boundary.
+- The next Codex finding closes cancellation during the launcher's initial
+  journal-lock wait. Signal handlers own the child before awaited setup; every
+  exit path drains teardown and removes the handlers, and cancellation cannot
+  report command success. An actual-entrypoint provider-free regression signals
+  the launcher while journal acquisition waits, with both successful acquisition
+  and setup failure. Only synthetic children start; fresh Linux CI independently
+  verifies POSIX signal delivery and the separately owned process group.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

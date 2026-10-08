@@ -145,42 +145,50 @@ async function main() {
   }
   // Attach immediately: a failed or short-lived command must not exit before its receipt is written.
   const childResult = new Promise((done) => { child.once("error", () => done(1)); child.once("close", (code) => done(code ?? 1)) })
-  const store = acceptanceStore(loaded.directory, loaded.manifest.encryptionKey)
-  try { await store.locked(() => store.record({ kind: "owned-child", phase: "started", mode, pid: child.pid })) }
-  catch (error) { await stopAcceptanceCommand(child); throw error }
   let stopping
   /** Repeated deadline/operator signals share one owned-tree teardown. */
   const stopChild = () => {
     stopping ??= stopAcceptanceCommand(child)
     stopping.catch(() => {})
   }
-  const watchdog = acceptanceCommandWatchdog({ mode, manifest: loaded.manifest, store, stopChild, pid: child.pid })
-  let pending = ""
-  child.stdout.on("data", (chunk) => {
-    pending += chunk.toString()
-    const lines = pending.split(/\r?\n/); pending = lines.pop()
-    for (const line of lines) if (/^ACCEPTANCE: [a-zA-Z0-9 .:/_-]+$/.test(line)) console.log(line)
-  })
-  // Never forward request URLs, OAuth codes, tokens, raw database errors or provider payloads.
-  let privateError = ""
-  const observeNativeRejection = acceptanceNativeRejectionObserver({ mode, store, pid: child.pid })
-  child.stderr.on("data", (chunk) => {
-    const text = chunk.toString()
-    privateError = (privateError + text).slice(-32_768)
-    // Next emits this exact action error only after the owned database mutation rejects removal.
-    observeNativeRejection(text).catch(() => {})
-  })
+  // Cancellation must own the detached child before any journal-lock or other awaited setup.
   process.on("SIGINT", stopChild)
   process.on("SIGTERM", stopChild)
-  const result = await childResult
+  let watchdog
+  let result
   let deadlineExpired
-  try { deadlineExpired = await watchdog.finish() }
-  finally {
-    try { if (stopping) await stopping }
-    finally { process.off("SIGINT", stopChild); process.off("SIGTERM", stopChild) }
+  let privateError = ""
+  try {
+    const store = acceptanceStore(loaded.directory, loaded.manifest.encryptionKey)
+    watchdog = acceptanceCommandWatchdog({ mode, manifest: loaded.manifest, store, stopChild, pid: child.pid })
+    let pending = ""
+    child.stdout.on("data", (chunk) => {
+      pending += chunk.toString()
+      const lines = pending.split(/\r?\n/); pending = lines.pop()
+      for (const line of lines) if (/^ACCEPTANCE: [a-zA-Z0-9 .:/_-]+$/.test(line)) console.log(line)
+    })
+    // Never forward request URLs, OAuth codes, tokens, raw database errors or provider payloads.
+    const observeNativeRejection = acceptanceNativeRejectionObserver({ mode, store, pid: child.pid })
+    child.stderr.on("data", (chunk) => {
+      const text = chunk.toString()
+      privateError = (privateError + text).slice(-32_768)
+      // Next emits this exact action error only after the owned database mutation rejects removal.
+      observeNativeRejection(text).catch(() => {})
+    })
+    await store.locked(() => store.record({ kind: "owned-child", phase: "started", mode, pid: child.pid }))
+    result = await childResult
+  } catch (error) {
+    stopChild()
+    throw error
+  } finally {
+    try { deadlineExpired = await watchdog?.finish() }
+    finally {
+      try { if (stopping) await stopping }
+      finally { process.off("SIGINT", stopChild); process.off("SIGTERM", stopChild) }
+    }
   }
   if (result !== 0 && privateError) await writeAcceptanceDiagnostic(loaded.directory, privateError)
-  requireAcceptance(result === 0 && !deadlineExpired, "owned_command_failed")
+  requireAcceptance(result === 0 && !deadlineExpired && !stopping, "owned_command_failed")
   console.log("ACCEPTANCE: owned command completed")
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(() => { console.error("ACCEPTANCE: stopped; inspect the protected private stage receipt"); process.exitCode = 1 })
