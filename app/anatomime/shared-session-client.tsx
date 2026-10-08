@@ -172,6 +172,7 @@ function ablyScript(signal: AbortSignal) {
   return ready
 }
 
+/** Owns one joined room's polling, player actions and optional realtime client, with credentials and teardown scoped to that room. */
 export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode?: string }) {
   const normalizedInitialCode = normalizeAnatomimeClientRoomCode(initialCode)
   const [code, setCode] = useState(normalizedInitialCode)
@@ -333,6 +334,7 @@ export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode
       setupTimer = null
     }
 
+    /** Obtains the setup grant and installs an effect-owned SDK client whose later grants share the same cancellation boundary. */
     async function connectRealtime() {
       try {
         const { response: tokenResponse, json: tokenRequest } = await fetchJsonWithTimeout(

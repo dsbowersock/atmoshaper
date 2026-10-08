@@ -2,6 +2,68 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Publish independent launch source and reconcile setup approvals
+
+- The owner approved publication of `3ee84fd` as draft PR #42 with automatic
+  Preview/CI and the review/fix loop. Hosted main remains the PR #41 merge base.
+  The exact initial Preview is READY; Browser build, lint and typecheck pass.
+  Codex reports no major issues, and the explicit CodeRabbit full review finishes
+  with all 34 changed files covered and no actionable inline comments.
+- CodeRabbit's initial pre-merge docstring check reports 65.38% against the 80%
+  threshold. Added focused JSDoc for touched auth ownership/cancellation,
+  root-error reporting, SDK sanitization hooks, public SEO identity and synthetic
+  test helpers. These JSDoc edits leave runtime logic unchanged. These source
+  comments and current-record corrections require fresh exact-head hosted proof;
+  the initial head's reviews and checks become historical after publication.
+- The initial head's Linux unit run reports 5,225 total, 5,221 passed, two skips
+  and two failures, with no cancellations. Both failures are stale Anatomime
+  inventory/receipt assertions: the clock guard still expects 16 instead of 20
+  authored bodies, and the receipt check incorrectly grows the locked bootstrap's
+  historical browser result when new cases are registered. Updated the single
+  authored-body guard and separated current inventory from inherited receipts.
+  Current Anatomime test inventory registers 174 focused Node cases and 52
+  intercepted desktop/mobile browser cases. Historical 174/174 and 42/42 remain
+  intact; inventory is not a passing current-head acceptance receipt.
+- Initial Browser QA reports 604 passed, 178 gated skips and two final failures;
+  no recovered flake is reported. Both failures are the desktop/mobile SEO test
+  still expecting the legacy canonical/OG host after the approved source identity
+  correction. Updated those expectations to AtmoShaper without changing runtime,
+  retries, screenshots or historical results. The aggregate is failed at this
+  initial head; the correction requires fresh complete hosted checks.
+- Separate Sentry project-only creation is approved. The first API write uses
+  explicit `default_rules: false` and returns 403. Fresh project reconciliation
+  confirms no AtmoShaper project was created. Opened a separate minimal
+  project-write OAuth setup window while preserving the existing read-only login.
+  Collection, events, uploads, plan/quota settings and legacy resources stay
+  untouched; do not repeat the failed write before authorization and readback.
+- The owner completes the separate project-write login. Fresh readback matches
+  the approved organization/team, member authority and unchanged legacy project,
+  with complete pagination and no AtmoShaper project. Creation remains denied:
+  the provider explicitly says member project creation is disabled. Read-only
+  policy confirms the authenticated owner role and missing OAuth organization
+  write scope. Prepared the additional access helper for this approved project
+  only; no organization policy or legacy resource changes are authorized.
+- The owner supplied the requested R2 read token, but the original local capture
+  exited with an empty file. The next interactive capture reports missing
+  `ConvertFrom-SecureString`; the owner confirms that command name without
+  exposing token values. The prepared retry explicitly imports the built-in
+  security module and can reuse the existing in-memory SecureString. Its actual
+  native PowerShell invented-token round trip passes, and only its owned scratch
+  is removed. The owner runs the retry and confirms successful encrypted capture.
+  Actual R2 bucket reads then return HTTP 401/code `10000`; trimming/quote checks
+  find no formatting defect, and no object content or provider setting changes.
+  Token type/status and exact-account read authority still need owner readback;
+  bucket/domain inventory remains open. No request used the failed captures.
+- Focused inventory/clock contracts pass 6/6 and documentation/workload checks
+  pass 16/16; lint and typecheck pass. The five commented runtime files retain
+  identical parsed code after normalizing Windows newlines. All 231 relative
+  file targets across the branch's 15 changed Markdown documents resolve against
+  current/base source, with zero added private indicators and clean whitespace.
+  Full hosted units, all browser lanes, Preview and both reviews remain required
+  for the resulting head; the initial failed run is preserved, not rerun away.
+- Setup receipts and exact provider references remain in the protected private
+  journal. PR #42 remains draft/unmerged; no Production or media cutover occurs.
+
 ## 2026-10-08 — Verify provider access and correct independent search identity
 
 - The owner completed Wrangler and Sentry authorization. Read-only inventory

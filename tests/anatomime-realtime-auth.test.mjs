@@ -31,13 +31,14 @@ function callbackFixture(fetchImpl, { controller = new AbortController(), initia
   }
 }
 
-/** Resolves one SDK-style callback invocation without exposing callback state in production. */
+/** Adapts the actual SDK-style completion callback to a promise while preserving its error and grant outcome. */
 function authorize(authenticate, tokenParams = {}) {
   return new Promise((resolve) => authenticate(tokenParams, (error, tokenRequest) => {
     resolve({ error, tokenRequest })
   }))
 }
 
+/** Supplies an invented successful token response whose nonce distinguishes setup from fresh renewal grants. */
 function tokenResponse(nonce) {
   return new Response(JSON.stringify({ nonce }), { status: 200, headers: { "content-type": "application/json" } })
 }

@@ -9,6 +9,8 @@ const clientFetchPath = new URL("../lib/client-fetch.ts", import.meta.url)
 const normalizeNewlines = (source) => source.replace(/\r\n?/g, "\n")
 const browserSpecSource = normalizeNewlines(readFileSync(browserSpecPath, "utf8"))
 const clientFetchSource = normalizeNewlines(readFileSync(clientFetchPath, "utf8"))
+// Includes the four renewal clock cases; keep both source inventories on one authored-body guard.
+const CLOCK_DRIVEN_TEST_BODY_COUNT = 20
 
 /** Extracts the real named owners so the contract executes repository code, not copied models. */
 function extractStatements(source, fileName, names) {
@@ -44,7 +46,7 @@ function assertClockOwnerOrder(source) {
     ts.forEachChild(node, visit)
   }
   visit(ast)
-  assert.equal(clockDrivenBodies.length, 16, "expected every clock-driven test body")
+  assert.equal(clockDrivenBodies.length, CLOCK_DRIVEN_TEST_BODY_COUNT, "expected every clock-driven test body")
 
   for (const body of clockDrivenBodies) {
     const owner = body.indexOf("installPausedClock(page)")
@@ -160,7 +162,7 @@ function virtualClock({ installLatencyMilliseconds = 0 } = {}) {
 
 test("clock-driven Anatomime cases use only the fixed paused request owner", () => {
   assert.doesNotMatch(browserSpecSource, /pauseClockAtCurrentTime|Date\.now\(\) \+ 500/)
-  assert.equal(browserSpecSource.match(/await installPausedClock\(page\)/g)?.length, 16)
+  assert.equal(browserSpecSource.match(/await installPausedClock\(page\)/g)?.length, CLOCK_DRIVEN_TEST_BODY_COUNT)
   assert.equal(browserSpecSource.match(/await page\.clock\.install/g)?.length, 1)
 
   assertClockOwnerOrder(browserSpecSource)

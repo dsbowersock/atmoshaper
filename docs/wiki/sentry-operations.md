@@ -40,9 +40,15 @@ actions, or as popularity, conversion, user-history or product analytics.
   Exact references remain in the protected operation journal, outside Git/chat.
   No project, setting, DSN binding, release upload, event or alert changed.
   The [project-only setup packet](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md#3-enable-useful-privacy-safe-sentry-operations)
-  needs its exact approval; effective new-destination privacy, quotas, retention,
-  source maps and alerts still require proof before collection. Legacy settings
-  do not prove readiness of the new independent destination.
+  is now owner-approved. Its first write explicitly disables default issue alerts
+  and returns 403; fresh reconciliation confirms no new project. The completed
+  project-write login still hits the organization member-creation policy. Readback
+  confirms the owner's role and the missing policy-required OAuth organization
+  write scope. Complete that additional access, recheck the exact baseline and
+  apply the approved project-only packet; no organization settings may change.
+  Effective new-destination privacy,
+  quotas, retention, source maps and alerts still require proof before collection.
+  Legacy settings do not prove readiness of the new independent destination.
 - The [August 17 provider audit](../audits/2026-08-17-anonymous-sentry-provider-settings.md)
   belongs to its named historical source/environment. It does not verify a new
   independent AtmoShaper destination. Do not repeat its completed diagnostic.

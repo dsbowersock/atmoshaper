@@ -419,9 +419,9 @@ test("uses AtmoShaper in install, manifest, and SEO contracts without an old soc
   await expect(page.locator('meta[name="twitter:image"]')).toHaveCount(0)
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest")
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/www\.massagelab\.app\/?$/)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/www\.atmoshaper\.com\/?$/)
   await expect(page.locator('meta[property="og:url"]')).toHaveCount(1)
-  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", /^https:\/\/www\.massagelab\.app\/?$/)
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", /^https:\/\/www\.atmoshaper\.com\/?$/)
 })
 
 test("publishes the v3 legal identity and keeps general, digital, and acceptance versions distinct", async ({ page }) => {

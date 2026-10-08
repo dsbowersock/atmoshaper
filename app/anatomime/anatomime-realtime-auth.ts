@@ -24,6 +24,7 @@ export function createAnatomimeRealtimeAuthCallback({
 }) {
   let setupTokenRequest = initialTokenRequest
 
+  /** Completes one SDK authorization using the setup grant or a bounded fresh room grant; SDK parameters never widen player authority. */
   return function authenticate(_tokenParams: unknown, callback: RealtimeAuthCompletion) {
     if (signal.aborted) {
       callback("Realtime authentication cancelled.")

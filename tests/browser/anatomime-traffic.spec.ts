@@ -131,6 +131,7 @@ async function installPlayerRuntime(page: Page, {
     const activeClients = new Set<AblyClientState>()
     runtime.__anatomimeAblyAuthOutcomes = []
     runtime.__anatomimeAblyActiveClientCount = () => activeClients.size
+    /** Invokes the real application's registered callback and records only invented grants in this provider-free runtime. */
     const authorizeClient = (client: AblyClientState) => new Promise<AblyAuthOutcome>((resolve) => {
       if (!client.authCallback || client.closed) throw new Error("No active client authentication callback.")
       client.authCallback({}, (error, tokenRequest) => {
@@ -164,6 +165,7 @@ async function installPlayerRuntime(page: Page, {
       Realtime: class {
         private readonly state: AblyClientState = { channels: new Map(), closed: false, authCallback: null }
 
+        /** Registers the synthetic client and exercises setup authorization through the application's SDK callback. */
         constructor(options?: { authCallback?: AblyAuthCallback }) {
           this.state.authCallback = options?.authCallback ?? null
           activeClients.add(this.state)
@@ -191,6 +193,7 @@ async function installPlayerRuntime(page: Page, {
           },
         }
 
+        /** Ends this synthetic client's authority and subscriptions so late renewal results cannot restore its room lifetime. */
         close() {
           if (this.state.closed) return
           this.state.closed = true

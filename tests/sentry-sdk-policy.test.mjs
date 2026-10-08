@@ -49,6 +49,7 @@ function packetFixture(options = applicationOptions()) {
   return { client, envelopes, transportConstructions: () => transportConstructions }
 }
 
+/** Flattens captured in-memory SDK envelopes so assertions inspect every emitted data category without provider ingestion. */
 function envelopeItems(envelopes) {
   return envelopes.flatMap(([, items]) => items)
 }

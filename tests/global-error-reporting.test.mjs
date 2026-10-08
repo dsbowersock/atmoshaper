@@ -35,6 +35,7 @@ function fallbackFixture({ enabled = false, captureException = () => "invented-e
   }
 }
 
+/** Reads the actual rendered fallback anchor so reference assertions cover the component's navigation contract. */
 function supportHref(tree) {
   return findElement(tree, ({ type }) => type === "a").props.href
 }

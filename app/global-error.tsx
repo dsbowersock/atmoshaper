@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
+/** Renders the root fallback independently of optional reporting; any displayed reference belongs to the current error and does not prove delivery. */
 export default function GlobalError({
   error,
 }: {

@@ -63,6 +63,22 @@ Completion requires:
 
 ## Work order
 
+October 8 source/setup checkpoint: the owner approved draft publication and the
+review/fix loop for PR #42, plus the separate initial Sentry project-only packet.
+Initial source head `3ee84fd` has a READY Preview and clean Codex/full 34-file
+CodeRabbit review, with the docstring pre-merge check still below threshold.
+Initial CI also finds stale Anatomime inventory/historical-receipt assertions
+and desktop/mobile expectations of the legacy SEO host. Focused JSDoc, contract
+and current-record corrections need fresh exact-head checks and reviews.
+Sentry creation remains denied after project-write OAuth: existing organization
+policy disables member creation and requires additional OAuth organization write
+access. No new project exists, and organization policy changes are excluded.
+R2 capture first exited empty, then needed an explicit security-module import;
+the owner now successfully saves the encrypted token. Actual R2 reads return
+HTTP 401/code `10000`, so token type/status and exact-account authority still need
+readback. Neither provider is activated. Keep these approval/access outcomes
+separate from the earlier read-only inventory and completed launch receipts.
+
 ### 1. Reconcile documents and private dependency inventory
 
 - Update the current snapshot and ledger with PR #41's merged/completed status,
@@ -154,8 +170,13 @@ The next concrete provider packet is **initial project creation only**:
   before preparing the later configuration/upload/alert/acceptance packet.
   Legacy settings and missing fields do not establish the new project's readiness.
 - On any failure, stop, keep collection disabled and retain the private receipt;
-  no legacy resource or new project is automatically deleted. This packet needs
-  exact owner approval before its first write, despite completed authentication.
+  no legacy resource or new project is automatically deleted. The owner has
+  approved this packet. Its first write returned 403 and reconciliation found no
+  new project. The completed project-write login still hits the existing member
+  creation policy, so the prepared OAuth retry includes its required organization
+  write scope. That credential capability does not authorize organization-setting
+  changes. Recheck the baseline and create with default issue alerts disabled
+  before readback; do not duplicate a pending or successful creation.
 
 - Identify an independent AtmoShaper project/environment and appropriate quotas,
   source-map/release linkage, retention and alert ownership.
