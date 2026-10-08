@@ -41,12 +41,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   No rebuild or rollback was needed. Calendar is available to eligible provider
   accounts; no Production OAuth exchange or live sync was initiated. The operator
   and guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41)
-  under the owner's source publication/review approval. Its provider-free harness
-  checks pass 30 with one POSIX-only test skipped on Windows; documentation/workload
-  checks 16/16, lint and typecheck pass, and branch private-data/link checks pass.
-  Initial published head is `577298385fa1f387e91e3e98f3fb5e1398a38847`; hosted CI
-  and exact-latest-head full CodeRabbit/Codex reviews remain pending. Merge and
-  any future Production operation require separate approval.
+  under the owner's source publication/review approval. At the initial October 7
+  publication checkpoint, provider-free harness checks passed 30 with one
+  POSIX-only test skipped on Windows; documentation/workload checks 16/16, lint,
+  typecheck and branch private-data/link checks passed.
+  Initial published head was `577298385fa1f387e91e3e98f3fb5e1398a38847`; hosted CI
+  and full CodeRabbit/Codex reviews were pending at that checkpoint. Later dated
+  results are recorded below; PR #41 carries live exact-head validation and review
+  status. Merge and any future Production operation require separate approval.
   The initial full CodeRabbit review covers all eighteen files at `45bfb78`
   and finds one valid platform-command issue; Codex finds two valid operator
   cleanup gaps. The source follow-up fixes platform selection, run-marked lost

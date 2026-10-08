@@ -2,6 +2,16 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Review dates the initial PR #41 publication checkpoint
+
+- The current snapshot explicitly labels initial publication checks and pending
+  hosted reviews as the October 7 checkpoint. Later dated results remain below,
+  and PR #41 carries live exact-head validation and review status. Historical
+  pending status no longer reads as the current gate.
+- Merge and future Production activity retain separate approval. This correction
+  changes only documentation; final check/review receipts stay private, and no
+  completed acceptance, cleanup or public operation is repeated.
+
 ## 2026-10-08 — Codex binds full grant scope and durable token validation
 
 - Scope validation now rejects every permission outside the approved Calendar
