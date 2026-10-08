@@ -9,6 +9,7 @@ export const ACCEPTANCE_CALLBACK = ACCEPTANCE_ORIGIN + "/api/calendar/google/cal
 export const ACCEPTANCE_SOURCE_PREFIX = "AtmoShaper application source "
 const CALENDAR_PREFIX = "https://www.googleapis.com/auth/calendar"
 const CALENDAR_SCOPES = GOOGLE_CALENDAR_SCOPES.filter((scope) => scope.startsWith(CALENDAR_PREFIX))
+const APPROVED_SCOPES = new Set([...GOOGLE_CALENDAR_SCOPES, "https://www.googleapis.com/auth/userinfo.email"])
 const SYSTEM_ENV_KEYS = ["PATH", "Path", "PATHEXT", "SystemRoot", "WINDIR", "COMSPEC", "TEMP", "TMP", "APPDATA", "LOCALAPPDATA", "USERPROFILE", "ProgramFiles", "ProgramFiles(x86)"]
 
 /** Fixed failure labels deliberately omit rejected private values and underlying exceptions. */
@@ -121,12 +122,13 @@ export function acceptanceEnvironment(manifest, client, inherited = process.env,
   return env
 }
 
-/** Fresh application grants must contain all three narrow Calendar permissions and no legacy/broader grant. */
+/** Require the narrow Calendar and identity grant; Google's email alias adds no unrelated permission. */
 export function validateAcceptanceScopes(scope) {
   const granted = new Set(String(scope ?? "").split(/\s+/).filter(Boolean))
   const actual = [...granted].filter((item) => item.startsWith(CALENDAR_PREFIX))
   requireAcceptance(actual.length === CALENDAR_SCOPES.length && CALENDAR_SCOPES.every((item) => granted.has(item)), "scope_boundary")
   requireAcceptance(granted.has("openid") && (granted.has("email") || granted.has("https://www.googleapis.com/auth/userinfo.email")), "scope_boundary")
+  requireAcceptance([...granted].every((item) => APPROVED_SCOPES.has(item)), "scope_boundary")
 }
 
 /** Pure dispatch policy: never permit event reads or mutations against an unowned calendar. */

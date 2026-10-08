@@ -154,6 +154,14 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   the launcher while journal acquisition waits, with both successful acquisition
   and setup failure. Only synthetic children start; fresh Linux CI independently
   verifies POSIX signal delivery and the separately owned process group.
+- Subsequent Codex findings require the entire returned grant to stay within
+  approved Calendar and identity scopes, including Google's equivalent email
+  alias, and persist token validation with the first encrypted capture. An
+  interrupted valid exchange or refresh can therefore supply owned cleanup;
+  unrelated scopes and incomplete exchange fields remain quarantined solely
+  for revocation. Invented-token regressions cover both capture crash points,
+  scope drift and cleanup after an expired prior grant. Live PR #41 retains
+  fresh exact-head validation/review status and separate merge approval.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

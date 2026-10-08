@@ -2,6 +2,25 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Codex binds full grant scope and durable token validation
+
+- Scope validation now rejects every permission outside the approved Calendar
+  and identity grant, while accepting Google's equivalent email-scope alias.
+  Unrelated Drive or profile permissions cannot count as narrow acceptance.
+- The first encrypted token capture persists its scope/exchange validation
+  status. A stop after vault replacement or before the capture journal receipt
+  no longer quarantines a valid grant needed for owned inventory/teardown.
+  Invalid scopes or missing exchange fields remain encrypted solely for
+  revocation and cannot dispatch Calendar requests.
+- Provider-free cases interrupt both exchange and refresh captures, recover
+  the encrypted attempt, and complete owned-target absence and revocation with
+  invented responses after the prior access grant expires. They also verify
+  rejected grants remain unusable but revocable. No provider, database or
+  completed acceptance operation is repeated.
+- Local harness checks pass 41 with one POSIX-only Windows skip. Fresh exact-head
+  hosted validation and reviews remain on PR #41; final receipts stay private,
+  and merge and future Production activity retain separate approval.
+
 ## 2026-10-08 — Codex closes cancellation before the first journal receipt
 
 - The launcher previously installed signal handlers only after awaiting its

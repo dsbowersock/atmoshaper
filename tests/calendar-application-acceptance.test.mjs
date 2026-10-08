@@ -584,10 +584,11 @@ test("retained test download remains usable after owner adds the application cal
   assert.throws(() => validateAcceptanceCredential({ web: { ...client, redirect_uris: [...client.redirect_uris, "https://private.example/callback"] } }, manifest))
 })
 
-test("fresh grants reject missing, legacy and broader Calendar permissions", () => {
+test("fresh grants reject missing, legacy, broader Calendar and unrelated permissions", () => {
   const narrow = GOOGLE_CALENDAR_SCOPES.join(" ")
   assert.doesNotThrow(() => validateAcceptanceScopes(narrow))
-  for (const scope of [narrow.replace("calendar.app.created", "calendar"), narrow + " https://www.googleapis.com/auth/calendar.events.readonly", narrow.replace("calendar.events.freebusy", "missing")]) assert.throws(() => validateAcceptanceScopes(scope))
+  assert.doesNotThrow(() => validateAcceptanceScopes(narrow.replace("email", "https://www.googleapis.com/auth/userinfo.email")))
+  for (const scope of [narrow.replace("calendar.app.created", "calendar"), narrow + " https://www.googleapis.com/auth/calendar.events.readonly", narrow.replace("calendar.events.freebusy", "missing"), narrow + " https://www.googleapis.com/auth/drive.readonly", narrow + " profile", narrow + " https://www.googleapis.com/auth/userinfo.profile"]) assert.throws(() => validateAcceptanceScopes(scope))
 })
 
 test("pure dispatch refuses primary, unrelated and source calendar writes before fetch", () => {
@@ -929,16 +930,71 @@ test("cleanup cannot claim revocation for an uncaptured exchange or refresh, eve
 
 test("a newly issued wrong grant is encrypted and retained solely for owned revocation", async () => {
   const { manifest, client } = fixture()
-  const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
-  try {
-    const store = acceptanceStore(directory, manifest.encryptionKey)
-    const token = "invented-new-token-with-wrong-scope"
-    const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async () => Response.json({ access_token: token, scope: "openid email https://www.googleapis.com/auth/calendar" }) })
-    await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
-    assert.equal((await store.vault())[0].access_token, token)
-    assert.equal((await readFile(join(directory, "token-vault.json"), "utf8")).includes(token), false)
-    assert.equal((await store.journal()).some((item) => item.kind === "exchange" && item.phase === "accepted"), false)
-  } finally { await rm(directory, { recursive: true, force: true }) }
+  for (const responseFields of [
+    { scope: "openid email https://www.googleapis.com/auth/calendar" },
+    { scope: GOOGLE_CALENDAR_SCOPES.join(" ") + " https://www.googleapis.com/auth/drive.readonly", refresh_token: "invented-refresh", id_token: "invented-identity" },
+    { scope: GOOGLE_CALENDAR_SCOPES.join(" "), refresh_token: "invented-refresh" },
+    { scope: GOOGLE_CALENDAR_SCOPES.join(" "), id_token: "invented-identity" },
+  ]) {
+    const directory = await mkdtemp(join(tmpdir(), "calendar-acceptance-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const token = "invented-new-token-with-wrong-scope"
+      let calls = 0
+      const guarded = createAcceptanceFetch({ manifest, client, store, fetchImpl: async (request) => { calls++; return request.url.endsWith("/revoke") ? Response.json({}) : Response.json({ access_token: token, ...responseFields }) } })
+      await assert.rejects(guarded("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: "authorization_code", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+      assert.equal((await store.vault())[0].access_token, token)
+      assert.equal((await store.vault())[0].acceptedForUse, false)
+      assert.equal((await readFile(join(directory, "token-vault.json"), "utf8")).includes(token), false)
+      assert.equal((await store.journal()).some((item) => item.kind === "exchange" && item.phase === "accepted"), false)
+      await assert.rejects(guarded("https://www.googleapis.com/calendar/v3/users/me/calendarList?showHidden=true", { headers: { authorization: "Bearer " + token } }))
+      assert.equal(calls, 1, "a rejected grant cannot dispatch Calendar requests")
+      await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(calls, 2, "the encrypted rejected grant remains owned for revocation")
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
+})
+
+test("validated encrypted grants survive interruption at the first vault write or capture receipt for owned cleanup", async () => {
+  for (const kind of ["exchange", "refresh"]) for (const interruptedAt of ["vault", "receipt"]) {
+    const { manifest, client } = fixture()
+    const directory = await mkdtemp(join(tmpdir(), "calendar-valid-capture-crash-unit-"))
+    try {
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const scope = GOOGLE_CALENDAR_SCOPES.join(" ")
+      const token = "invented-valid-captured-access"
+      await store.saveVault([{ access_token: "invented-expired-prior-access", refresh_token: "invented-prior-refresh", scope, acceptedForUse: true, capturedAt: Date.now() - 3_600_000, expires_in: 1 }])
+      const marker = "invented-owned-calendar-marker"
+      await store.record({ kind: "calendar-create", phase: "intent", calendarMarker: marker })
+      await store.record({ kind: "calendar-create", phase: "accepted", calendarMarker: marker, calendarId: "invented-owned@group.calendar.google.com" })
+      const interrupted = { ...store,
+        saveVault: async (tokens) => { await store.saveVault(tokens); if (interruptedAt === "vault") throw new Error("synthetic stop after encrypted replacement") },
+        record: async (item) => { if (interruptedAt === "receipt" && item.phase === "captured") throw new Error("synthetic stop before capture receipt"); return store.record(item) },
+      }
+      const active = createAcceptanceFetch({ manifest, client, store: interrupted, fetchImpl: async () => Response.json({ access_token: token, refresh_token: "invented-new-refresh", id_token: "invented-identity", expires_in: 3600, ...(kind === "refresh" ? {} : { scope }) }) })
+      await assert.rejects(active("https://oauth2.googleapis.com/token", { method: "POST", body: new URLSearchParams({ client_id: client.client_id, client_secret: client.client_secret, grant_type: kind === "exchange" ? "authorization_code" : "refresh_token", refresh_token: "invented-prior-refresh", redirect_uri: ACCEPTANCE_CALLBACK }) }))
+      const captured = (await store.vault()).at(-1)
+      assert.equal(captured.acceptedForUse, true)
+      assert.equal(captured.tokenKind, kind)
+      assert.equal(captured.scope, scope)
+      assert.equal((await readFile(join(directory, "token-vault.json"), "utf8")).includes(token), false)
+      await assertAcceptanceTokenCaptureComplete(store, () => store.record({ kind: "cleanup", phase: "started" }))
+      assert.equal(await acceptanceCleanupAccessToken({ client, store, fetchImpl: () => assert.fail("the recovered access grant needs no refresh") }), token)
+      let inventoryCalls = 0
+      let revoked = false
+      const cleanup = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async (request) => {
+        if (request.url.endsWith("/revoke")) { revoked = new URLSearchParams(await request.text()).get("token") === token; return Response.json({}) }
+        assert.equal(request.headers.get("authorization"), "Bearer " + token)
+        inventoryCalls++
+        return Response.json({ items: [] })
+      } })
+      await acceptanceCleanupCalendars({ client, store, adapter: createGoogleCalendarAdapter({ fetchImpl: cleanup }), fetchImpl: cleanup })
+      assert.equal(inventoryCalls, 2)
+      assert.ok((await store.journal()).some((item) => item.caseName === "owned-targets-verified-absent"))
+      await cleanup("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(revoked, true)
+    } finally { await rm(directory, { recursive: true, force: true }) }
+  }
 })
 
 test("cleanup recovers capture from the encrypted vault after a worker stops before the journal append", async () => {
@@ -956,7 +1012,7 @@ test("cleanup recovers capture from the encrypted vault after a worker stops bef
     const captured = (await store.vault())[0]
     assert.match(captured.tokenAttempt, /^[a-f0-9]{32}$/)
     assert.equal(captured.tokenKind, "exchange")
-    assert.equal(captured.acceptedForUse, false)
+    assert.equal(captured.acceptedForUse, true)
     assert.equal((await store.journal()).some((item) => item.phase === "captured"), false)
     await store.saveVault([{ ...captured, tokenKind: "refresh" }])
     await assert.rejects(assertAcceptanceTokenCaptureComplete(store), /uncaptured_token_attempt/)

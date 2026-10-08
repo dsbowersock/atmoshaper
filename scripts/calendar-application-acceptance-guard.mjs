@@ -306,18 +306,21 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
         requireAcceptance(typeof data.access_token === "string" && data.access_token.length > 10, "token_response")
         // RFC 6749 permits an unchanged refresh grant to omit scope; explicit drift is still rejected.
         const effectiveScope = decision.kind === "refresh" && data.scope === undefined ? decision.capturedScope : data.scope
-        // Capture the newly issued token before rejecting a wrong/missing grant so teardown
-        // can revoke it even when the callback must stop without activating a connection.
+        // Persist validation with the first encrypted capture: interrupted valid grants stay usable
+        // for owned cleanup, while wrong/missing grants remain captured solely for revocation.
         await store.locked(async () => {
           const tokens = await store.vault()
           const captured = { ...data, scope: effectiveScope, capturedAt: Date.now(), acceptedForUse: false, tokenAttempt: decision.tokenAttempt, tokenKind: decision.kind }
+          let validationError
+          try {
+            validateAcceptanceScopes(effectiveScope)
+            if (decision.kind === "exchange") requireAcceptance(data.refresh_token && data.id_token, "token_response")
+            captured.acceptedForUse = true
+          } catch (error) { validationError = error }
           tokens.push(captured)
           await store.saveVault(tokens)
           await store.record({ ...decision, phase: "captured" })
-          validateAcceptanceScopes(effectiveScope)
-          if (decision.kind === "exchange") requireAcceptance(data.refresh_token && data.id_token, "token_response")
-          captured.acceptedForUse = true
-          await store.saveVault(tokens)
+          if (validationError) throw validationError
           await store.record({ ...decision, phase: "accepted", scope: effectiveScope })
         })
       } else if (decision.kind === "identity") {
