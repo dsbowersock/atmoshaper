@@ -7,6 +7,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 - [Project state](../project-state.md)
 - [Project log](../project-log.md)
 - [Migration status and remaining work](migration-status.md)
+- [Independent AtmoShaper marketing-readiness plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
 - [Architecture](../architecture.md)
 - [Architecture decisions](../decisions/README.md)
 - [Migration lineage](../../MIGRATION_LINEAGE.md)

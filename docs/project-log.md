@@ -2,6 +2,45 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Independent marketing-readiness goal replaces optional closeout
+
+- The user wants all surrounding services independently usable by AtmoShaper
+  before marketing, including required Ably-backed remote Anatomime. Sentry,
+  media/provider ownership and branded support are completion work; generic
+  refactors remain deferred. Preserve the working MassageLab clock and tools
+  during the transition, with any later resource assignment or retirement
+  limited to a concrete, dependency-verified operation.
+- Added the [independent launch plan](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
+  and reconciled the current-state/wiki handoff. One-time support/background
+  purchases have readiness gates but no automatic activation stage in the prior
+  Supporter-only rollout. Current Production prebuild hardcodes that narrower
+  check, so enabling either requires a reviewed build-gate change as well as
+  the corresponding payment/tax/fulfillment proof.
+- Refreshed hosted main and PR #41: the owner's clarified merge/verification/
+  preservation approval was completed at `2026-10-08T12:09:07Z`, merge
+  `acd05b07fb67e2af1e49965ce3d2c11b97947d3f`. Reviewed source has all seven CI
+  jobs passing, clean Codex and completed full CodeRabbit coverage of all 18
+  files; all 32 valid findings are resolved. Final receipts remain private.
+  Its automatic candidate is READY and unpromoted; all six live aliases remain
+  on the approved PR #40 public artifact. No alias repair was needed; the review
+  heartbeat is paused. This closes source review, not the broader new goal.
+- October 8 authenticated read-only hosting keeps standard `npm run build`,
+  GitHub/main, manual custom-domain promotion and deployment protection. The
+  complete name/target inventory has 60 Production-only settings and none in
+  Preview/Development, with no Ably, Sentry or R2/upload configuration. No secret
+  values, user records, production sync, provider changes or completed tests
+  were accessed or repeated by this documentation/planning pass.
+- Installed Wrangler's read-only identity check cannot authenticate; actual
+  Cloudflare ownership/bucket configuration remains unread. Do not interpret
+  this as a media outage or retry through a denied provider-admin path.
+- Ably dashboard access was denied because the browser could not verify the
+  admin-enforced policy. Do not bypass that control or retry until resolved;
+  this is an access limitation, not a verified provider configuration failure.
+- Local documentation/workload checks pass 16/16. All relative file targets
+  in the changed documents resolve, and whitespace checks pass. Locked local
+  test dependencies were installed with lifecycle scripts disabled; no hosted
+  service, listener, database or real payment was started by these checks.
+
 ## 2026-10-08 — Codex recovers completed temporary token captures
 
 - A stop after encrypted temporary-file writing and before replacement could

@@ -2,17 +2,54 @@
 
 Verified: 2026-10-08
 
-Evidence scope: repository, PR #40's final reviews/CI and approved merge,
-automatic unpromoted candidate, dated authenticated hosting readbacks, the owner's
-replacement Google declaration/status receipts, the bounded application tests
-and completed cleanup, approved Production Calendar provisioning/candidate
-verification, separately approved public rollout, and approved PR #41 source
-publication on October 7. Completed
-Calendar comparisons and other historical receipts retain their original dates.
+Evidence scope: October 8 hosted main/PR #41 merge truth, authenticated hosting
+and environment-name readbacks, and current source inspection. Earlier payment,
+Calendar, public-page, and provider receipts retain their original dates. A name
+inventory does not verify secret values or live feature acceptance.
 
 This is the read-first source of truth for the fresh AtmoShaper repository. Use it before `docs/project-log.md`, roadmaps, TODO files, audits, plans, or wiki pages when deciding what is active now.
 
-## Current Snapshot — Registration and Supporter Checkout Open
+## Current Goal — Independent AtmoShaper Ready for Marketing
+
+The user clarified the finish line on October 8: complete the surrounding service
+migration so AtmoShaper can operate independently and be marketed with working
+functionality. Ably-backed remote Anatomime is required; polling fallback alone
+does not close it. Include privacy-safe operational Sentry, media administration
+and branding, independent mail/support/provider ownership, and the remaining
+purchase activation gates. Broader refactors stay deferred.
+
+The user's working MassageLab clock and tools must remain available during the
+transition. Useful legacy resources may be assigned or migrated to AtmoShaper
+after their consumers and rollback are known. Do not infer permanent shared
+infrastructure or blanket old-site retirement from this scope. The future
+MassageLab product remains separate. No automatic account, billing, or PHI
+transfer is authorized.
+
+The [independent launch plan](superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
+owns the remaining work, acceptance evidence, and exact provider-change packets.
+This goal is active; the narrower public launch is complete, while independent
+marketing readiness is not yet proved.
+
+| Area | Current state | Remaining gate |
+| --- | --- | --- |
+| Source and review closeout | PR #41 merged on October 8 as `acd05b07fb67e2af1e49965ce3d2c11b97947d3f`; hosted main matches. Reviewed source passed all seven jobs, 5,199 unit passes/two skips and 596 browser passes/178 gated skips, clean Codex/full CodeRabbit, and all 32 valid threads resolved | These results cover that source; later changes need their own applicable validation/reviews |
+| Public release and hosting | PR #40's reviewed `38d0ded` artifact remains READY and assigned to all six saved live aliases; PR #41's automatic main candidate is READY and unpromoted | Keep standard build, GitHub/main, manual custom-domain promotion, protection, and saved alias recovery; future release is a separate exact-artifact operation |
+| Environment inventory | October 8 readback has 60 Production-only settings and none in Preview/Development; no Ably, Sentry, or R2/upload configuration | Identify exact independent provider resources without exposing values; absence of upload settings does not prove media playback absent |
+| Registration and recurring Supporter | Open; completed dedicated billing/readiness and controlled payment/refund receipts retained | Preserve existing purchases and reconciliation; do not repeat the completed bootstrap/payment test |
+| One-time support and permanent backgrounds | Disabled under the completed Supporter-only launch, rather than permanently excluded from the product design | Review the Production build-gate change, exact tax/payment/fulfillment prerequisites and new-flow acceptance before activation |
+| Calendar | Separate credentials and approved public rollout complete; bounded provider/application tests and teardown complete | A separately scoped real signed-in Production connection/sync is still needed for the broader readiness goal; do not redo setup or earlier tests |
+| Anatomime realtime | Source retains room-scoped Ably tokens and signals; current Production lacks its configuration | Dedicated resource binding and bounded real multi-device game/reconnect proof |
+| Sentry | Privacy contract and DSN-gated source exist; current Production lacks configuration | Independent project, scrubbed operational events, source maps and useful alerts; no Replay, logs, attachments, or personal/clinical content |
+| Media, mail, domains and other providers | Dated operational/limited media receipts exist; full independent ownership and remaining bindings are not established | Dependency inventory, branded delivery and administration, compatible transition, and observed legacy-tool continuity |
+
+PR #41's final receipts remain private; its review heartbeat is paused. The
+historical publication/review checkpoints below explain the completed work and
+do not reopen PR #41 or override its merged status. Current source work begins
+from the merged main above. Repository preparation and this clarified goal do
+not identify an exact provider mutation, charge, database target, or retirement
+operation; prepare those concrete packets before the applicable approval gate.
+
+## Historical Launch Receipt — Registration and Supporter Checkout Open
 
 - The separately approved [Production Calendar credential/build stage](superpowers/plans/2026-10-07-atmoshaper-calendar-production-credentials.md)
   is complete. Exactly four Calendar settings were added to the existing

@@ -9,7 +9,35 @@ receipts are dated 2026-10-06. Bounded application acceptance and its database-o
 follow-up/cleanup completed on October 7. The subsequently approved four-setting
 credential stage and exact-artifact public Calendar rollout are complete;
 final public/configuration readback is dated `2026-10-07T21:50:03Z`. Other
-receipts retain their original dates.
+receipts retain their original dates. October 8 hosted truth now confirms PR #41
+merged, its automatic candidate READY and unpromoted, and all six live aliases
+still on the approved PR #40 public artifact. Its final source checks/reviews
+are complete; historical pending statements below do not reopen that work.
+
+## Current finish line — Independent operation before marketing
+
+The user clarified the goal on October 8: complete the surrounding-service
+migration, including required remote Anatomime realtime, so AtmoShaper is
+independently operational and ready to market. The narrower public launch is
+complete; the following required work is still open. Broad refactors stay deferred.
+The [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
+owns the implementation order and exact acceptance/provider-change packets.
+
+| Work | Completed evidence | Required next gate |
+| --- | --- | --- |
+| Source and administrative closeout | PR #41 merged as `acd05b0`; all seven final-source CI jobs, clean Codex/full CodeRabbit and 32 resolved findings; final receipts private and review heartbeat paused | Keep current-state/handoff records aligned with the new goal; new source changes receive appropriate reviews/checks |
+| Hosting and environments | Approved PR #40 artifact remains READY/public on all six saved aliases; PR #41 candidate READY/unpromoted. October 8 readback preserves standard build, main Git binding, manual custom-domain assignment/protection, 60 Production-only settings and no Preview/Development settings | Preserve controls and alias recovery through each separately approved future exact-artifact rollout |
+| Anatomime realtime | Existing Ably tokens/signals and bounded polling fallback are implemented; Production has no Ably setting | Independently owned app/key/environment binding, real authorized host/phone turn updates and reconnect proof; fallback alone is insufficient |
+| Sentry operations | Anonymous operational/privacy contract and DSN-gated source exist; Production has no Sentry configuration | Independent project, provider privacy settings, source maps and useful owner alerts; one separately scoped sanitized synthetic event |
+| Media independence and branding | Existing delivery and limited HEAD checks have dated receipts; Production has no R2/upload configuration | Exact ownership/consumer inventory, independently administered resource and branded delivery, actual offered playback and compatible legacy URLs; decide in-place changes versus a bounded copy from evidence |
+| Production Calendar journey | Credentials, permissions, bounded isolated application/provider tests, cleanup and public rollout complete | Normal public-app sign-in/Connect/sync/control-change journey with exact owned state and agreed cleanup; never repeat completed setup/comparison tests |
+| One-time support and permanent backgrounds | Runtime/design and separate readiness contracts exist; both flows remain disabled under the completed Supporter-only launch | Reviewed full-payment Production build-gate mode, corresponding tax/payment/fulfillment/reconciliation checks, scoped new-flow acceptance and exact activation approval; no scheduled automatic enablement exists |
+| Mail, domains, database and other provider ownership | Dated auth/SMTP/support/migration-status/public-domain receipts exist | Verify independent admin/billing/recovery and any remaining branded inbound routing or hidden legacy bindings; no user-row exports or unapproved credential rotation |
+| Legacy separation | User still needs MassageLab's working clock/tools while its later direction becomes a separate project | Transfer/reassign useful resources only after exact consumers and rollback are known; preserve working tools until observed replacement continuity and any separate retirement approval |
+
+The goal is not complete until these required gates are proved or the user
+explicitly changes the offered scope. Administrative documentation alone does
+not make the unconfigured services ready.
 
 ## Completed milestones
 
@@ -41,14 +69,15 @@ vault contracts, and the full old site. The
 [local-record/PWA checkpoint](../superpowers/plans/2026-10-02-atmoshaper-local-record-recovery.md)
 retains the findings and separates general product improvements from migration.
 
-The user chose to keep the full MassageLab site available alongside AtmoShaper.
-MassageLab will continue after the migration as a separate project. Its future
-product direction is outside this work. The current platform migration to
-AtmoShaper retains its approved feature scope.
-Preserve its current deployment and routing, local-data access, authentication,
-and billing endpoints. Do not prepare an old-to-AtmoShaper redirect or retire
-the old service by default. Account, record, membership, and endpoint transfers
-or retirement remain separate decisions with their own evidence and approval.
+The earlier direction retained the full MassageLab site alongside AtmoShaper.
+On October 8 the user clarified that useful surrounding resources should move
+to independently operated AtmoShaper, while the current MassageLab clock and
+tools must keep working during the transition. MassageLab's future product
+direction remains separate. Preserve its current deployment/routing, local-data
+access, authentication, media and billing dependencies until a concrete change
+has consumer/rollback evidence and exact authority. No blanket redirect or
+retirement follows from the new goal. Account, record and membership transfers
+remain distinct operations; no automatic PHI transfer is authorized.
 
 The user selected a separate Google calendar named `AtmoShaper`; the old
 project's `MassageLab` calendar remains intact. The
@@ -114,7 +143,11 @@ Old-origin recovery and other migration gates remain open. The Calendar rollout
 is complete as recorded in the ledger below; future builds retain manual public
 promotion.
 
-## Remaining migration ledger
+## Historical remaining ledger — Before October 8 goal clarification
+
+This table preserves the earlier Supporter/public-rollout handoff. Its optional
+classifications and PR #41 pending statements are superseded by the current
+required-work table above. Dated proof limits and compatibility rules remain.
 
 | Work | Present boundary / missing evidence | Next authorized-safe step | Input or separate authority needed |
 | --- | --- | --- | --- |

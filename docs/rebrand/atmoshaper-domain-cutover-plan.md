@@ -6,6 +6,15 @@ historical planning evidence; its unverified statements do not override later
 readbacks. Old-origin recovery, protective-domain behavior, and retirement still
 need their own proof and authority before any change.
 
+October 8 current direction: complete independently administered AtmoShaper
+services for marketing while preserving the user's working MassageLab clock and
+tools during the transition. The [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
+owns this remaining work. Canonical AtmoShaper hosting is already operational;
+the original matrix is not an instruction to reconnect or repeat cutover.
+Reassign useful legacy resources only after consumers and rollback are known.
+No general old-site redirect, domain retirement, object move or DNS change is
+authorized by this document update.
+
 Historical Phase 1 baseline: `fa78ca01a42179329cc223df77c76f308e76320b`, inspected 2026-09-06. It is not the Phase 2 export source; the [export manifest](atmoshaper-export-manifest.json) and [charter](atmoshaper-migration-charter.md) own the current source lock. This documents later Phases 7-10. Task 2 changes no host, DNS record, provider, redirect or runtime. The charter, [external checklist](atmoshaper-external-account-checklist.md), and [rollback plan](atmoshaper-rollback-plan.md) govern execution.
 
 ## Final host matrix
