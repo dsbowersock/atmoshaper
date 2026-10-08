@@ -18,6 +18,7 @@
     "test:stripe-readiness": "node --test tests/stripe-readiness.test.mjs tests/stripe-supporter-only-readiness.test.mjs tests/stripe-webhook-contract.test.mjs",
     "test:production-readiness": "node --test tests/production-migration-gate.test.mjs tests/production-stripe-readiness-gate.test.mjs",
     "test:anatomime-realtime": "node --test tests/anatomime-realtime-auth.test.mjs tests/anatomime-polling.test.mjs tests/anatomime-traffic-routes.test.mjs tests/anatomime-traffic-server.test.mjs",
+    "test:sentry": "node --test tests/sentry-sdk-policy.test.mjs tests/sentry-options.test.mjs tests/sentry-privacy.test.mjs tests/sentry-operational-boundary.test.mjs tests/sentry-debug-route.test.mjs tests/problem-report.test.mjs tests/problem-report-route.test.mjs tests/global-error-reporting.test.mjs",
     "test:calendar-sync": "node --test tests/google-calendar-adapter.test.mjs tests/calendar-google-isolation.test.mjs tests/calendar-sync-service.test.mjs tests/calendar-sync-env.test.mjs tests/calendar-sync-secrets.test.mjs tests/calendar-sync-normalization.test.mjs tests/calendar-outbound-sync.test.mjs tests/calendar-external-conflicts.test.mjs",
     "test:calendar-scope-comparison": "node --test tests/calendar-scope-comparison.test.mjs tests/calendar-scope-fixtures.test.mjs",
     "test:server-workload": "node --test tests/family-friends-server-workload.test.mjs",

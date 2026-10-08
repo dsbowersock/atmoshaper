@@ -9,12 +9,18 @@ export default function GlobalError({
 }: {
   error: Error & { digest?: string }
 }) {
-  const [eventId, setEventId] = useState("")
+  const [capture, setCapture] = useState<{ error: Error; eventId: string } | null>(null)
 
   useEffect(() => {
-    setEventId(Sentry.captureException(error))
+    // Reporting is optional and must not break the fallback or imply delivery.
+    try {
+      setCapture(Sentry.isEnabled() ? { error, eventId: Sentry.captureException(error) } : null)
+    } catch {
+      setCapture(null)
+    }
   }, [error])
 
+  const eventId = capture?.error === error ? capture.eventId : ""
   const supportHref = eventId ? `/support?eventId=${encodeURIComponent(eventId)}` : "/support"
 
   return (
@@ -25,11 +31,11 @@ export default function GlobalError({
             <p className="text-sm font-medium text-primary">{PUBLIC_PRODUCT_IDENTITY.name}</p>
             <h1 className="mt-3 text-2xl font-semibold">Something went wrong.</h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              The error was captured for review. You can send a privacy-safe diagnostic report from support without uploading clinical notes, intake details, screenshots, or local vault content.
+              You can send a privacy-safe diagnostic report from support without uploading clinical notes, intake details, screenshots, or local vault content.
             </p>
             {eventId ? (
               <p className="mt-3 break-all rounded-md border border-border bg-background p-3 text-xs text-muted-foreground">
-                Sentry reference: {eventId}
+                Error reference: {eventId}
               </p>
             ) : null}
             <a

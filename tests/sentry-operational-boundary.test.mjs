@@ -377,6 +377,7 @@ describe("anonymous operational Sentry boundary", () => {
     assert.match(privacy, /event\.user\s*=\s*{\s*ip_address:\s*null\s*}/)
     assert.match(options, /integrations\(defaultIntegrations\)\s*{\s*return filterAnonymousSentryIntegrations\(defaultIntegrations\)\s*}/s)
     assert.match(policy, /"BrowserSession"/)
+    assert.match(policy, /"ProcessSession"/)
     assert.match(policy, /"Replay"/)
   })
 

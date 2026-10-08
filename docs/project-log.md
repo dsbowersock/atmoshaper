@@ -2,6 +2,35 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Prepare session-free operational Sentry and accurate error fallback
+
+- The installed SDK's Node defaults include process-session reporting in a
+  separate envelope pipeline outside the event sanitizer. Local source now
+  excludes that integration alongside browser sessions, while retaining runtime
+  error handlers and anonymous operational traces.
+- The actual error fallback avoids capture when Sentry is disabled, binds a
+  reference to its current error, makes no delivery claim and preserves support
+  if capture fails. Existing diagnostic taxonomy and compatibility identifiers
+  remain intact; no additional application capture site is introduced.
+- Provider-free SDK/privacy/diagnostic/fallback checks pass 55/55. Actual installed
+  browser/Node/edge defaults and in-memory SDK envelopes prove the session gap,
+  retained release/stack utility, sanitized private fields and absent transport
+  without an application DSN. All tokens, identity and clinical values in the
+  regressions are invented test data; no provider, application or database starts.
+- Added an [operational runbook](wiki/sentry-operations.md) explaining practical
+  use, exact destination/privacy/source-map/alert gates and bounded acceptance.
+  Lint, typecheck and the isolated 115-page Browser-QA build pass, along with
+  documentation/workload checks 16/16. All 206 relative file targets across the
+  branch's 13 changed documents resolve; added-documentation private indicators
+  and whitespace checks pass.
+- Initial read-only CLI checks lacked authentication. At the user's request,
+  opened interactive Cloudflare and Sentry sign-in windows. The official Sentry
+  OAuth CLI uses organization/project/alert read scopes and owner/SYSTEM-only
+  local credential storage; Cloudflare uses account/user/zone read scopes.
+  Both sign-ins still await owner completion at this checkpoint. Provider
+  settings and alert delivery remain unverified. No provider configuration,
+  source-map upload, synthetic hosted event or notification was submitted.
+
 ## 2026-10-08 — Prepare fresh Anatomime realtime authentication renewal
 
 - The player previously returned its original signed setup request for every SDK

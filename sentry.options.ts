@@ -12,6 +12,7 @@ import {
   sanitizeSentryTransaction,
 } from "./lib/sentry-privacy"
 
+/** Builds the shared anonymous policy; absent app DSN keeps every runtime disabled. */
 export function getSentryOptions(): Options {
   const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN
 

@@ -771,6 +771,11 @@ reports only. This is anonymous operational monitoring, not product analytics.
 Do not use Sentry to infer background popularity, user journeys, retention, or
 conversion.
 
+The [operational runbook](sentry-operations.md) records independent destination,
+privacy, source-map and owner-alert gates. Local source disables browser and
+process session integrations because session envelopes bypass event scrubbing.
+An error reference does not itself establish provider ingestion or delivery.
+
 ```text
 NEXT_PUBLIC_SENTRY_DSN=
 NEXT_PUBLIC_SENTRY_ENVIRONMENT=production

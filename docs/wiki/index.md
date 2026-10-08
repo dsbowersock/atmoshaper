@@ -24,6 +24,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 - [Account security](account-security.md)
 - [Admin user operations](admin-user-operations.md)
 - [Deployment and environment](deployment.md)
+- [Operational Sentry readiness and use](sentry-operations.md)
 - [Release checklist](release-checklist.md)
 - [Dependency security notes](dependency-security.md)
 

@@ -1,0 +1,111 @@
+# AtmoShaper operational error monitoring
+
+Read [project state](../project-state.md) and the
+[independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
+first. This runbook prepares the required Sentry integration; it is not a receipt
+that a destination project, source-map upload or alert is live.
+
+## What Sentry is for
+
+Sentry helps the owner notice and diagnose software failures: a broken page,
+an unhandled server error, a new error after a release, or a recurring error
+that comes back after a fix. Release-linked, source-mapped stacks should identify
+the relevant code instead of relying on a user's description of what happened.
+The voluntary support diagnostic adds only predefined issue/area/device buckets.
+
+The current capture boundary is framework error hooks, the global error fallback
+and the enum-only support diagnostic. A handled HTTP failure is not automatically
+an error event merely because its response status is unsuccessful. Monitoring
+must not be described as a complete audit of purchases, Calendar sync or game
+actions, or as popularity, conversion, user-history or product analytics.
+
+## Current proof and missing access
+
+- October 8 local source disables both browser and process session integrations.
+  Process-session envelopes have a separate SDK pipeline outside `beforeSend`;
+  scrubbing normal events alone does not make those envelopes session-free.
+- Provider-free tests use the installed browser, Node and edge defaults and an
+  in-memory SDK transport. Ordinary errors retain release/environment and stack
+  information after scrubbing. Requests, identity, local content and breadcrumbs
+  are removed; no application DSN means no transport is constructed.
+- The error fallback links a reference only when the SDK is enabled and the
+  reference belongs to the current error. Capture failure leaves support usable.
+  A reference is not a confirmed provider-delivery receipt.
+- Initial October 8 `sentry-cli info --no-defaults` could not authenticate because
+  no release-tool token was configured. At the owner's request, the separately
+  installed official Sentry OAuth CLI now has an interactive sign-in started
+  with `org:read`, `project:read` and `alerts:read` scopes; owner completion is
+  pending at this checkpoint. Credentials stay in owner/SYSTEM-only local
+  storage, outside Git and chat. This does not configure the SDK or authorize
+  release uploads. Provider identity, privacy settings, quotas, retention,
+  source maps and alerts remain unverified. Pending access is not evidence of
+  an outage or permission to create a guessed project.
+- The [August 17 provider audit](../audits/2026-08-17-anonymous-sentry-provider-settings.md)
+  belongs to its named historical source/environment. It does not verify a new
+  independent AtmoShaper destination. Do not repeat its completed diagnostic.
+
+## Exact destination read gate
+
+Use an owner-authorized read path to identify the destination organization and
+project, independent administration/billing, environment boundaries, quota and
+retention. Keep resource references and credentials in protected private storage.
+Do not paste tokens into chat, repository files or command arguments.
+
+Read the actual project and inherited organization settings before SDK activation:
+
+| Control | Required proof |
+| --- | --- |
+| Data scrubbing and defaults | Enabled at the effective project/organization scope |
+| IP storage | Provider prevention enabled in addition to the SDK's null IP marker |
+| Sensitive fields and advanced rules | Reviewed against the [deployment privacy contract](deployment.md#sentry), with no broad exemption that weakens it |
+| Issue sharing | Public sharing disabled |
+| Prohibited collection | Replay, standard User Feedback, attachments, Logs, product metrics and browser/process sessions disabled or unused |
+| Quota and retention | Actual plan limits, billing owner and retained-data duration recorded; no guessed free-tier or retention claim |
+| Release/source maps | Repository/build linkage and authorized upload target belong to AtmoShaper |
+| Alerts | Production new-error/regression rules and an explicitly approved owner destination |
+
+Sentry's [project settings API](https://docs.sentry.io/api/projects/update-a-project/)
+documents the relevant scrubbing/IP controls; consult its current read endpoints
+for the actual destination. Documentation is not a provider readback and is not
+authorization to use an update endpoint.
+
+## Prepare activation and acceptance
+
+1. Complete source checks/reviews and prepare the privately identified project,
+   exact environment scope, DSN, build-secret target and saved prior settings.
+   Preserve the stable `SENTRY_*` and `NEXT_PUBLIC_SENTRY_*` variable contracts.
+2. Confirm the source-map upload target matches the SDK destination and source
+   release. Uploads and release creation are provider writes and belong in the
+   explicit activation packet. Never expose the build auth token to the browser.
+3. Set the ordinary public debug route flag to false. Define a protected,
+   owner-controlled verification target and one synthetic event before any
+   temporary debug-route enablement; do not expose an error generator publicly.
+   The historical debug flag/event identity remains a compatibility contract.
+4. Specify the synthetic event, expected coarse route and scrubbed fields,
+   source release, event/usage ceiling, cleanup/retention and rollback. Any use
+   of the support POST must include its durable quota write in the exact scope;
+   it is not a read-only provider check.
+5. Obtain exact authority for configuration, upload and the single new event.
+   Inspect only that owned synthetic event after ingestion, including the
+   source-map result and absence of personal/clinical data or session envelopes.
+6. Verify the approved owner alert and its release/environment filter. Sending
+   an alert notification needs that explicit destination scope; source test
+   passes cannot establish delivery.
+7. Restore temporary flags, verify the actual public configuration/artifact and
+   preserve saved hosting aliases and legacy Clock/tool access. If privacy,
+   mapping or delivery fails, leave collection disabled and retain private proof.
+
+## Operating after activation
+
+Start with production new-issue and regression alerts. Add a failure-volume rule
+only after its event definition, threshold, quota and noise budget are agreed;
+session/adoption statistics are outside the current policy. Inspect the release,
+coarse route, exception type and mapped frame; reproduce with synthetic data.
+Keep clinical/local records, customer data, private provider references and raw
+event payloads out of issues and public PR descriptions.
+
+Use `npm run test:sentry` for local changes to this contract. It verifies SDK
+defaults, sanitization, debug-route gating, voluntary diagnostic delivery/quota
+behavior and error-fallback references without contacting Sentry or a database.
+Actual destination settings, source-map ingestion and owner alert delivery still
+require their separate receipts.

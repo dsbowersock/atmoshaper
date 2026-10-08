@@ -74,8 +74,9 @@ Completion requires:
   migrate with compatibility; or retire after all consumers are removed.
 - Keep private resource references/credential recovery in owner-protected
   storage outside Git. Tracked records contain public outcomes only.
-- Obtain only the precise missing read access. Installed Wrangler currently
-  cannot authenticate; no authenticated Cloudflare inventory is claimed.
+- Obtain only the precise missing read access. Initial CLI checks lacked
+  authentication. Owner-requested Cloudflare and Sentry read-scope sign-ins are
+  started and await completion; no authenticated provider inventory is claimed.
   Identify Ably/Sentry owner apps/projects before selecting or creating them.
 - Ably's dashboard read is blocked because the browser cannot verify the
   admin-enforced policy. Do not bypass browser controls or retry until resolved.
@@ -120,7 +121,16 @@ with no cross-environment room leakage. Polling-only success is insufficient.
 
 ### 3. Enable useful privacy-safe Sentry operations
 
-Owner: [deployment privacy contract](../../wiki/deployment.md#sentry).
+Owners: [deployment privacy contract](../../wiki/deployment.md#sentry) and
+[operational readiness/use runbook](../../wiki/sentry-operations.md).
+
+October 8 local preparation excludes the SDK's separate process-session pipeline
+as well as browser sessions, preserves sanitized errors and gates error references
+on the current enabled SDK/error. Provider-free SDK/privacy/diagnostic/fallback
+checks pass 55/55. Initial release-CLI authentication was absent. The separately
+installed official OAuth CLI's owner-requested read-scope sign-in is started and
+awaits completion; destination settings, source maps and alerts remain unread.
+Do not infer provider readiness from source checks or the historical audit.
 
 - Identify an independent AtmoShaper project/environment and appropriate quotas,
   source-map/release linkage, retention and alert ownership.
