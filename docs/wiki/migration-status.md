@@ -110,8 +110,9 @@ pass. The user supplied an open-registration screenshot and reported successful
 partial browser checks. No additional manual page readback is needed. The
 [Vercel integration plan](../superpowers/plans/2026-10-02-atmoshaper-vercel-git-integration.md)
 records the exact approval, verified artifact promotion, and saved rollback.
-Calendar, old-origin recovery, and other migration gates remain open; future
-builds retain manual public promotion.
+Old-origin recovery and other migration gates remain open. The Calendar rollout
+is complete as recorded in the ledger below; future builds retain manual public
+promotion.
 
 ## Remaining migration ledger
 

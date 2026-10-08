@@ -97,6 +97,12 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   typecheck and documentation/workload checks 16/16 pass; renewed latest-head
   hosted validation and reviews remain pending.
   No completed provider activity, cleanup or public operation is repeated.
+  The subsequent full CodeRabbit review completes at `2026-10-08T01:47:58Z`,
+  covering all eighteen files at `3735e6a` with one minor stale Calendar-gate
+  sentence in the migration wiki. That handoff now distinguishes the completed
+  Calendar rollout from remaining old-origin and other gates, preserving manual
+  public promotion and the Production acceptance limits. This documentation-only
+  follow-up still needs renewed latest-head hosted validation and reviews.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

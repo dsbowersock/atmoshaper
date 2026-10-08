@@ -2,6 +2,20 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review aligns the migration handoff with the completed Calendar rollout
+
+- The explicit full CodeRabbit review completes at `2026-10-08T01:47:58Z`,
+  covering all eighteen files at `3735e6a` and passing all five pre-merge checks
+  with 87.88% touched-function docstring coverage. Its one minor finding is valid:
+  the migration wiki records the completed Calendar rollout but still names
+  Calendar among the open migration gates.
+- The handoff now names only old-origin recovery and other remaining gates,
+  links its status to the completed Calendar ledger, and retains manual public
+  promotion. The existing limits on Production OAuth and live sync proof remain.
+  This documentation-only follow-up needs fresh latest-head hosted checks and
+  reviews; application runtime, tests and provider settings are unchanged.
+  Completed provider activity, cleanup and public rollout are not repeated.
+
 ## 2026-10-07 — Review gives cleanup its own deadline and preserves revoke failures
 
 - The explicit full CodeRabbit review completes at `2026-10-08T00:43:19Z`,
