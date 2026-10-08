@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Prepare fresh Anatomime realtime authentication renewal
+
+- The player previously returned its original signed setup request for every SDK
+  authentication callback. Local source now consumes that request once and
+  obtains each renewal from the joined-player endpoint with opaque player
+  credentials in headers. SDK parameters cannot widen room authority.
+- Every renewal bounds transport and successful JSON consumption at ten seconds,
+  follows the owning room effect's cancellation, rejects late grants and returns
+  sanitized errors. A transient failure permits a later fresh renewal, while
+  existing polling and its server cooldown remain intact.
+- Provider-free renewal, polling, actual-route and traffic checks pass 150/150.
+  The isolated Browser-QA build compiles and generates all 115 pages; lint and
+  typecheck pass. All 52 desktop/mobile Chromium traffic cases pass with local
+  retries disabled, including ten new renewal cases and the prior recovery,
+  cadence, cooldown, stalled setup/action and subscription-lifetime cases.
+  Documentation/workload checks pass 16/16; all 196 relative file targets across
+  the branch's 12 changed documents resolve, with no added private indicators.
+- The browser harness exercises the actual player component's SDK callback with
+  invented grants and intercepted provider traffic. This is local source proof,
+  not live Ably authentication, publishing or a real host-and-phone game.
+  Dedicated binding, exact provider-change scope and hosted acceptance remain
+  pending; no provider, database, public release or legacy tool changed.
+
 ## 2026-10-08 — Prepare explicit all-payment Production build readiness
 
 - The independent-launch source branch adds exact

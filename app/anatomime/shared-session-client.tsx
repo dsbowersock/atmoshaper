@@ -8,6 +8,7 @@ import { PageHeading } from "@/components/ui/page-heading"
 import { MovingBackground } from "@/components/moving-background"
 import { AnatomimeActionButton } from "./anatomime-action-button"
 import { fetchJsonResponseWithTimeout, fetchJsonWithTimeout } from "@/lib/client-fetch"
+import { createAnatomimeRealtimeAuthCallback } from "./anatomime-realtime-auth"
 import {
   ANATOMIME_ACTION_REQUEST_TIMEOUT_MS,
   ANATOMIME_ACTION_RETRY_FALLBACK_SECONDS,
@@ -354,9 +355,13 @@ export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode
         if (!window.Ably) throw new Error("Realtime unavailable")
 
         ablyClient = new window.Ably.Realtime({
-          authCallback(_tokenParams, callback) {
-            callback(null, tokenRequest)
-          },
+          authCallback: createAnatomimeRealtimeAuthCallback({
+            code: lookupCode,
+            playerId: realtimePlayerId,
+            playerToken: realtimePlayerToken,
+            initialTokenRequest: tokenRequest,
+            signal: controller.signal,
+          }),
         })
         const channel = ablyClient.channels.get(`anatomime:${lookupCode}`)
         channel.subscribe(() => {

@@ -20,6 +20,7 @@ const joinRouteSource = await readFile(new URL("../app/api/anatomime/sessions/[c
 const realtimeTokenRouteSource = await readFile(new URL("../app/api/anatomime/sessions/[code]/realtime-token/route.ts", import.meta.url), "utf8")
 const pollRouteSource = await readFile(new URL("../app/api/anatomime/sessions/[code]/route.ts", import.meta.url), "utf8")
 const sharedSessionClientSource = await readFile(new URL("../app/anatomime/shared-session-client.tsx", import.meta.url), "utf8")
+const realtimeAuthSource = await readFile(new URL("../app/anatomime/anatomime-realtime-auth.ts", import.meta.url), "utf8")
 const hostRoomClientSource = await readFile(new URL("../app/anatomime/host-room-client.tsx", import.meta.url), "utf8")
 const apiSource = await readFile(new URL("../lib/anatomime-api.ts", import.meta.url), "utf8")
 
@@ -1839,6 +1840,12 @@ function loadSharedSessionClient() {
       fetchJsonResponseWithTimeout: async () => ({ response: { ok: true }, json: {} }),
     },
     "./anatomime-action-button": { AnatomimeActionButton: emptyComponent },
+    "./anatomime-realtime-auth": loadCompiledModule(realtimeAuthSource, "anatomime-realtime-auth.ts", {
+      "../../lib/client-fetch.ts": {
+        fetchJsonWithTimeout: () => assert.fail("Normalization-only rendering must not start realtime transport"),
+      },
+      "./anatomime-polling": { ANATOMIME_REALTIME_SETUP_TIMEOUT_MS: 10_000 },
+    }),
     "./anatomime-polling": {
       ANATOMIME_ACTION_REQUEST_TIMEOUT_MS: 20_000,
       ANATOMIME_ACTION_RETRY_FALLBACK_SECONDS: 10,

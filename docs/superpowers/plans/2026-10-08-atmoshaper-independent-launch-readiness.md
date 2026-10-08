@@ -100,6 +100,14 @@ Owners: [realtime server](../../../lib/anatomime-realtime.ts),
   tokens stay limited to the joined room; server publishing stays server-only.
 - Use existing provider-free/browser harnesses for signal-triggered refresh,
   unauthorized-token rejection, reconnect and subscription cleanup.
+- Local source preparation now consumes the setup TokenRequest once and obtains
+  fresh renewal grants through the joined-player route. The callback preserves
+  room/player authority, bounds transport and JSON at ten seconds, cancels on
+  owner teardown and sanitizes failures. Renewal/polling/route checks pass
+  150/150; all 52 desktop/mobile Chromium traffic cases pass without retries.
+  Lint, typecheck and the isolated 115-page Browser-QA build also pass.
+  Hosted source review, provider binding and actual multi-device acceptance are
+  still required; intercepted browser transport is not provider acceptance.
 - Separately scope actual hosted authentication, subscription, publishing and
   synthetic multi-device room actions. Existing no-publication inventory gates
   do not authorize game writes or presence. Define room/player lifetime, data

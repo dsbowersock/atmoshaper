@@ -94,7 +94,7 @@ function roomSession({
 
 /**
  * Installs optional stored-player state, controllable visibility, deterministic retry jitter,
- * and fake Ably signaling whose callback lifetime follows active clients and subscriptions.
+ * and fake Ably signaling/auth whose lifetime follows active clients and subscriptions.
  */
 async function installPlayerRuntime(page: Page, {
   storedPlayer = true,
@@ -113,13 +113,37 @@ async function installPlayerRuntime(page: Page, {
     const runtime = window as typeof window & {
       Ably?: unknown
       __anatomimeAblySignal?: (() => void) | null
+      __anatomimeAblyRenew?: () => Promise<AblyAuthOutcome>
+      __anatomimeAblyAuthOutcomes?: AblyAuthOutcome[]
+      __anatomimeAblyActiveClientCount?: () => number
     }
     type AblyCallback = () => void
+    type AblyAuthOutcome = { error: string | null; tokenRequest?: unknown }
+    type AblyAuthCallback = (
+      params: unknown,
+      callback: (error: unknown, tokenRequest?: unknown) => void,
+    ) => void
     type AblyClientState = {
       channels: Map<string, Set<AblyCallback>>
       closed: boolean
+      authCallback: AblyAuthCallback | null
     }
     const activeClients = new Set<AblyClientState>()
+    runtime.__anatomimeAblyAuthOutcomes = []
+    runtime.__anatomimeAblyActiveClientCount = () => activeClients.size
+    const authorizeClient = (client: AblyClientState) => new Promise<AblyAuthOutcome>((resolve) => {
+      if (!client.authCallback || client.closed) throw new Error("No active client authentication callback.")
+      client.authCallback({}, (error, tokenRequest) => {
+        const outcome = { error: error ? String(error) : null, tokenRequest }
+        runtime.__anatomimeAblyAuthOutcomes?.push(outcome)
+        resolve(outcome)
+      })
+    })
+    runtime.__anatomimeAblyRenew = () => {
+      const client = [...activeClients].find((candidate) => !candidate.closed && candidate.authCallback)
+      if (!client) throw new Error("No active realtime client.")
+      return authorizeClient(client)
+    }
     const dispatchActiveCallbacks = () => {
       const callbacks: AblyCallback[] = []
       for (const client of activeClients) {
@@ -138,10 +162,12 @@ async function installPlayerRuntime(page: Page, {
     if (!installRealtimeProvider) return
     runtime.Ably = {
       Realtime: class {
-        private readonly state: AblyClientState = { channels: new Map(), closed: false }
+        private readonly state: AblyClientState = { channels: new Map(), closed: false, authCallback: null }
 
-        constructor() {
+        constructor(options?: { authCallback?: AblyAuthCallback }) {
+          this.state.authCallback = options?.authCallback ?? null
           activeClients.add(this.state)
+          if (this.state.authCallback) void authorizeClient(this.state)
         }
 
         channels = {
@@ -237,9 +263,9 @@ function responseGate() {
   return { release, wait }
 }
 
-/** Makes the first matching successful response expose a JSON reader that waits for abort. */
-async function installStalledActionJson(page: Page, targetPath: string) {
-  await page.addInitScript((path) => {
+/** Makes the selected matching successful response expose a JSON reader that waits for abort. */
+async function installStalledActionJson(page: Page, targetPath: string, stalledCall = 1) {
+  await page.addInitScript(({ path, call }) => {
     const runtime = window as typeof window & { __releaseStalledActionJson?: () => void }
     const nativeFetch = window.fetch.bind(window)
     let matchingCalls = 0
@@ -258,7 +284,7 @@ async function installStalledActionJson(page: Page, targetPath: string) {
       }
 
       matchingCalls += 1
-      if (matchingCalls !== 1) return response
+      if (matchingCalls !== call) return response
 
       // This shim models only ok/status/headers/json; other Response APIs are intentionally omitted.
       return {
@@ -282,7 +308,7 @@ async function installStalledActionJson(page: Page, targetPath: string) {
         }),
       } as Response
     }
-  }, targetPath)
+  }, { path: targetPath, call: stalledCall })
 }
 
 async function releaseStalledActionJson(page: Page) {
@@ -452,6 +478,159 @@ test("player polling uses credential-bound tokens with 2s visible and 15s hidden
   await expect.poll(() => pollCount).toBe(4)
   expect(tokenCount).toBe(1)
   expect(providerRequests(page)).toBe(0)
+})
+
+test("player realtime auth obtains fresh credential-bound grants on SDK renewal", async ({ page }) => {
+  await installPausedClock(page)
+  await installPlayerRuntime(page)
+  let tokenCount = 0
+  const tokenRequests: { headers: Record<string, string>; body: string | null }[] = []
+  await page.route((url) => url.pathname === ROOM_PATH, (route) => fulfillJson(route, 200, {
+    session: roomSession({ status: "PLAYING", phase: "ACTIVE_TERM" }),
+  }))
+  await page.route((url) => url.pathname === TOKEN_PATH, async (route) => {
+    tokenCount += 1
+    tokenRequests.push({ headers: route.request().headers(), body: route.request().postData() })
+    await fulfillJson(route, 200, { keyName: "invented", nonce: `fresh-${tokenCount}`, mac: "invented" })
+  })
+  await page.goto(`/anatomime/join?code=${ROOM_CODE}`, { waitUntil: "networkidle" })
+  await expect.poll(() => page.evaluate(() => (
+    (window as typeof window & { __anatomimeAblyAuthOutcomes?: unknown[] }).__anatomimeAblyAuthOutcomes?.length
+  ))).toBe(1)
+  expect(tokenCount).toBe(1)
+
+  for (let request = 2; request <= 3; request += 1) {
+    const outcome = await page.evaluate(async () => (
+      (window as typeof window & { __anatomimeAblyRenew?: () => Promise<unknown> }).__anatomimeAblyRenew?.()
+    ))
+    expect(outcome).toEqual({ error: null, tokenRequest: { keyName: "invented", nonce: `fresh-${request}`, mac: "invented" } })
+    expect(tokenCount).toBe(request)
+  }
+  for (const request of tokenRequests) {
+    expect(request.headers["x-anatomime-player-id"]).toBe("player-1")
+    expect(request.headers["x-anatomime-player-token"]).toBe("player-token")
+    expect(request.body).toBeNull()
+  }
+  expect(providerRequests(page)).toBe(0)
+})
+
+test("player realtime auth renewal rejects revoked credentials while ordinary polling remains active", async ({ page }) => {
+  await installPausedClock(page)
+  await installPlayerRuntime(page)
+  let tokenCount = 0
+  let pollCount = 0
+  await page.route((url) => url.pathname === ROOM_PATH, (route) => {
+    pollCount += 1
+    return fulfillJson(route, 200, { session: roomSession({ status: "PLAYING", phase: "ACTIVE_TERM" }) })
+  })
+  await page.route((url) => url.pathname === TOKEN_PATH, async (route) => {
+    tokenCount += 1
+    await fulfillJson(route, tokenCount === 1 ? 200 : 403,
+      tokenCount === 1 ? { nonce: "initial" } : { error: "private-sentinel-provider-details" })
+  })
+  await page.goto(`/anatomime/join?code=${ROOM_CODE}`, { waitUntil: "networkidle" })
+  await expect.poll(() => tokenCount).toBe(1)
+  await triggerRealtimeSignal(page)
+  const outcome = await page.evaluate(async () => (
+    (window as typeof window & { __anatomimeAblyRenew?: () => Promise<unknown> }).__anatomimeAblyRenew?.()
+  ))
+  expect(outcome).toEqual({ error: "Realtime authentication unavailable." })
+  expect(tokenCount).toBe(2)
+  const beforePoll = pollCount
+  await page.clock.runFor(2_000)
+  await expect.poll(() => pollCount).toBeGreaterThan(beforePoll)
+  expect(providerRequests(page)).toBe(0)
+})
+
+for (const stalledAt of ["transport", "JSON consumption"] as const) {
+  test(`player realtime auth bounds renewal ${stalledAt} at 10s and can retry`, async ({ page }) => {
+    await installPausedClock(page)
+    await installPlayerRuntime(page)
+    if (stalledAt === "JSON consumption") await installStalledActionJson(page, TOKEN_PATH, 2)
+    const renewalResponse = responseGate()
+    let tokenCount = 0
+    await page.route((url) => url.pathname === ROOM_PATH, (route) => fulfillJson(route, 200, {
+      session: roomSession({ status: "PLAYING", phase: "ACTIVE_TERM" }),
+    }))
+    await page.route((url) => url.pathname === TOKEN_PATH, async (route) => {
+      tokenCount += 1
+      if (tokenCount === 2 && stalledAt === "transport") await renewalResponse.wait
+      await fulfillJson(route, 200, { nonce: `grant-${tokenCount}` }).catch(() => {})
+    })
+    try {
+      await page.goto(`/anatomime/join?code=${ROOM_CODE}`, { waitUntil: "networkidle" })
+      await triggerRealtimeSignal(page)
+      await page.evaluate(() => {
+        const runtime = window as typeof window & {
+          __anatomimeAblyRenew?: () => Promise<unknown>
+          __anatomimePendingRenewal?: Promise<unknown>
+        }
+        runtime.__anatomimePendingRenewal = runtime.__anatomimeAblyRenew?.()
+      })
+      await expect.poll(() => tokenCount).toBe(2)
+      await page.clock.runFor(9_999)
+      expect(await page.evaluate(() => (
+        (window as typeof window & { __anatomimeAblyAuthOutcomes?: unknown[] }).__anatomimeAblyAuthOutcomes?.length
+      ))).toBe(1)
+      await page.clock.runFor(1)
+      const rejected = await page.evaluate(async () => (
+        (window as typeof window & { __anatomimePendingRenewal?: Promise<unknown> }).__anatomimePendingRenewal
+      ))
+      expect(rejected).toEqual({ error: "Realtime authentication unavailable." })
+      renewalResponse.release()
+      const recovered = await page.evaluate(async () => (
+        (window as typeof window & { __anatomimeAblyRenew?: () => Promise<unknown> }).__anatomimeAblyRenew?.()
+      ))
+      expect(recovered).toEqual({ error: null, tokenRequest: { nonce: "grant-3" } })
+      expect(tokenCount).toBe(3)
+      expect(providerRequests(page)).toBe(0)
+    } finally {
+      renewalResponse.release()
+      await releaseStalledActionJson(page)
+    }
+  })
+}
+
+test("player realtime auth cancels pending renewal when the room ends", async ({ page }) => {
+  await installPausedClock(page)
+  await installPlayerRuntime(page)
+  let tokenCount = 0
+  let ended = false
+  const renewalResponse = responseGate()
+  await page.route((url) => url.pathname === ROOM_PATH, (route) => fulfillJson(route, 200, {
+    session: roomSession({ status: ended ? "ENDED" : "PLAYING", phase: ended ? "GAME_COMPLETE" : "ACTIVE_TERM" }),
+  }))
+  await page.route((url) => url.pathname === TOKEN_PATH, async (route) => {
+    tokenCount += 1
+    if (tokenCount > 1) await renewalResponse.wait
+    await fulfillJson(route, 200, { nonce: tokenCount === 1 ? "initial" : "late-grant" }).catch(() => {})
+  })
+  try {
+    await page.goto(`/anatomime/join?code=${ROOM_CODE}`, { waitUntil: "networkidle" })
+    await triggerRealtimeSignal(page)
+    await page.evaluate(() => {
+      const runtime = window as typeof window & {
+        __anatomimeAblyRenew?: () => Promise<unknown>
+        __anatomimePendingRenewal?: Promise<unknown>
+      }
+      runtime.__anatomimePendingRenewal = runtime.__anatomimeAblyRenew?.()
+    })
+    await expect.poll(() => tokenCount).toBe(2)
+    ended = true
+    await triggerRealtimeSignal(page)
+    await expect.poll(() => page.evaluate(() => (
+      (window as typeof window & { __anatomimeAblyActiveClientCount?: () => number }).__anatomimeAblyActiveClientCount?.()
+    ))).toBe(0)
+    renewalResponse.release()
+    const outcome = await page.evaluate(async () => (
+      (window as typeof window & { __anatomimePendingRenewal?: Promise<unknown> }).__anatomimePendingRenewal
+    ))
+    expect(outcome).toEqual({ error: "Realtime authentication unavailable." })
+    expect(tokenCount).toBe(2)
+    expect(providerRequests(page)).toBe(0)
+  } finally {
+    renewalResponse.release()
+  }
 })
 
 for (const stalledAt of ["token transport", "successful token JSON", "inert Ably script"] as const) {
