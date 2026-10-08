@@ -62,10 +62,14 @@ revocation. Ambiguous response/transport failures still require reconciliation.
 The earlier recovery checkpoint passed all 29 provider-free checks locally.
 Subsequent review fixes terminate the owned server child on setup failure and
 record every new native pending-Disconnect rejection, including markers split
-across stderr chunks, without recounting buffered text. The current local suite
+across stderr chunks, without recounting buffered text. That local checkpoint
 passes 35 with one POSIX-only skip on Windows. Synthetic entrypoint failures and
-repeated rejection receipts are covered; fresh Linux CI and latest-head reviews
-remain required. The original real run used the earlier
+repeated rejection receipts are covered. The `2bd0d4c` checkpoint subsequently
+passes all seven CI jobs, including Linux process/permission proofs, with a READY
+Preview and clean Codex review. Full CodeRabbit coverage at `04:06:32Z` on
+October 8 identifies the source-order cursor proof and dated-handoff fixes.
+Live exact-head checks and reviews are maintained on published PR #41; later
+source fixes require fresh coverage. The original real run used the earlier
 unmodified description and injected response loss after ID capture; the new
 pre-parse recovery and delayed-refresh proofs are provider-free. They do not
 retroactively broaden the completed real acceptance claim or authorize a rerun.
@@ -329,7 +333,8 @@ The [Production credential/build and rollout receipt](2026-10-07-atmoshaper-cale
 now records separately approved provisioning, stable key recovery, the single
 checked candidate and exact-artifact public promotion. Those later approvals
 do not authorize repeating this completed acceptance run. Operator/harness source
-is published in PR #41; latest-head reviews and checks remain the source closeout
-step, with merge requiring separate approval. No additional provider test or
+is published in PR #41. The dated `2bd0d4c` checks and reviews are recorded above;
+PR #41 carries live exact-head status for subsequent source fixes and final
+receipts stay private. Merge requires separate approval. No additional provider test or
 verification upload/submission is granted here. Registration/recurring Supporter Checkout remain open; one-time
 support/background purchases and hosted clinical storage remain disabled.

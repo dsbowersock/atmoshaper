@@ -2,6 +2,27 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Review makes cursor proof independent of source order
+
+- The `2bd0d4c` checkpoint passes all seven CI jobs at `03:28:05Z`: 5,191 unit
+  passes with two skips and 596 browser passes with 178 gated skips, no failures
+  or flaky browser results reported in that run. Its exact-head Preview is READY
+  and Codex reports no major issues. Full CodeRabbit coverage completes at
+  `04:06:32Z` across all eighteen files, with two minor findings; all five
+  pre-merge checks pass with 88.24% touched-function docstring coverage.
+- Cursor preservation is compared by source identity rather than unordered
+  relation position. The provider-free regression accepts reordered distinct
+  cursors and rejects missing, duplicate, replaced or changed sources and absent
+  failure status. Handoffs date their completed publication/checkpoint receipts
+  and use PR #41 for live exact-head review/check status. Final receipts remain
+  private without further receipt-only source commits.
+- Provider-free harness checks pass 36 with one POSIX-only Windows skip; lint,
+  typecheck and documentation/workload checks 16/16 pass. All 137 relative targets
+  resolve, with no added-documentation private-data or whitespace findings.
+- Source fixes need fresh exact-head hosted validation and reviews before merge
+  can be proposed. Merge and future Production activity require separate approval;
+  completed real acceptance, cleanup and public rollout are not repeated.
+
 ## 2026-10-07 — Review closes setup failures and repeated rejection evidence
 
 - The explicit full CodeRabbit review completes at `2026-10-08T02:55:47Z`,
@@ -20,9 +41,10 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   replacements and a retained framework handle. No real listener, app, provider
   or database starts in those regressions. Lint, typecheck and documentation/
   workload checks 16/16 pass; all 137 relative targets resolve, and added-doc
-  private-data/whitespace scans pass. Fresh latest-head hosted validation
-  and reviews remain required; completed acceptance, cleanup and public rollout
-  are not repeated.
+  private-data/whitespace scans pass. Hosted validation was outstanding at this
+  publication checkpoint; the dated `2bd0d4c` completion is recorded in the
+  October 8 entry above. Completed acceptance, cleanup and public rollout are
+  not repeated.
 
 ## 2026-10-07 — Review aligns the migration handoff with the completed Calendar rollout
 

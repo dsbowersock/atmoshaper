@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-Verified: 2026-10-07
+Verified: 2026-10-08
 
 Evidence scope: repository, PR #40's final reviews/CI and approved merge,
 automatic unpromoted candidate, dated authenticated hosting readbacks, the owner's
@@ -110,8 +110,20 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   each new native pending-Disconnect rejection records its own current-server
   receipt, including markers split across stderr chunks. Provider-free checks
   pass 35 with one POSIX-only skip on Windows; lint, typecheck and documentation/
-  workload checks 16/16 pass. Fresh hosted validation/reviews
-  are required after these fixes. No completed provider activity is repeated.
+  workload checks 16/16 pass. The `2bd0d4c` checkpoint subsequently passed all
+  seven CI jobs at `2026-10-08T03:28:05Z`: 5,191 unit passes with two skips and
+  596 browser passes with 178 gated skips, no failures or flaky browser results
+  reported in that run. Its exact-head Preview is READY and Codex is clean.
+  Full CodeRabbit coverage completes at `2026-10-08T04:06:32Z`, covering all
+  eighteen files with two minor findings and five passing pre-merge checks.
+  The follow-up compares preserved cursors by source identity, accepting reordered
+  rows while rejecting missing, duplicate, replaced or changed sources. Its local
+  provider-free checks pass 36 with one POSIX-only Windows skip; lint, typecheck
+  and documentation/workload checks 16/16 pass. Handoffs
+  now date completed checks and point to PR #41 for live exact-head review/check
+  status; final receipts stay private so recording them does not change the head.
+  Later source fixes require their own checks and reviews. Merge remains separately
+  authorized. No completed provider activity is repeated.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

@@ -479,8 +479,11 @@ The replacement Verification Center outcome is satisfied by the October 7 owner
 readback above. The [Production credential/build proposal](2026-10-07-atmoshaper-calendar-production-credentials.md)
 now records the approved four-setting provisioning and verified unpromoted
 candidate and the subsequently approved public promotion/activation. The
-operator/harness closeout is published in PR #41; its latest-head reviews and
-checks remain, with no new setup or completed-test rerun. Preserve shared consent
+operator/harness closeout is published in PR #41. Its `2bd0d4c` checkpoint passes
+all seven CI jobs, READY Preview and clean Codex; the October 8 full CodeRabbit
+review covers all eighteen files and identifies two source/doc follow-ups.
+PR #41 carries live exact-head review/check status and final receipts stay private,
+with no new setup or completed-test rerun. Preserve shared consent
 settings.
 Keep private project/client identifiers, credentials, tokens, accounts, and
 calendar contents out of repository docs. Record sanitized readiness only.

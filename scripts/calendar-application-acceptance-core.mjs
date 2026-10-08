@@ -21,6 +21,14 @@ export function requireAcceptance(condition, label = "acceptance_boundary") {
   }
 }
 
+/** Requires unchanged cursors and failure status for the same source IDs, regardless of database relation order. */
+export function assertAcceptancePreservedCursors(priorSources, failedSources) {
+  const prior = new Map(priorSources.map((source) => [source.id, source.syncToken]))
+  requireAcceptance(prior.size === priorSources.length && failedSources.length === prior.size
+    && new Set(failedSources.map((source) => source.id)).size === failedSources.length
+    && failedSources.every((source) => prior.has(source.id) && source.syncToken === prior.get(source.id) && source.lastErrorCode === "SYNC_FAILED"), "cursor_preserved")
+}
+
 /** Preserves Next's empty action selector; Playwright's multipart-object path drops it. */
 export async function encodeAcceptanceActionForm(values) {
   const names = Object.keys(values)

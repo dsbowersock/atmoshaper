@@ -8,7 +8,7 @@ import { spawn } from "node:child_process"
 import { once } from "node:events"
 import { fileURLToPath } from "node:url"
 import { request as playwrightRequest } from "@playwright/test"
-import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
+import { acceptanceEnvironment, authorizeAcceptanceRequest, assertAcceptancePreservedCursors, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
 import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
 import { writeAcceptanceDiagnostic, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand, acceptanceCommandWatchdog, acceptanceNativeRejectionObserver } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
@@ -31,6 +31,20 @@ function fixture() {
   const client = { project_id: manifest.googleProjectId, client_id: "synthetic.apps.googleusercontent.com", client_secret: "invented-secret-for-tests", redirect_uris: ["http://localhost:3317/oauth/callback"] }
   return { manifest, client }
 }
+
+test("failed sync preserves each source cursor across reordered rows without accepting identity or token drift", () => {
+  const prior = [{ id: "source-a", syncToken: "cursor-a" }, { id: "source-b", syncToken: "cursor-b" }]
+  const failed = prior.toReversed().map((source) => ({ ...source, lastErrorCode: "SYNC_FAILED" }))
+  assert.doesNotThrow(() => assertAcceptancePreservedCursors(prior, failed))
+  for (const changed of [
+    failed.slice(1),
+    [...failed, { id: "source-c", syncToken: "cursor-c", lastErrorCode: "SYNC_FAILED" }],
+    [failed[0], { ...failed[1], id: "source-c" }],
+    [failed[0], { ...failed[1], syncToken: "cursor-b" }],
+    [failed[0], { ...failed[1], lastErrorCode: null }],
+    [failed[0], failed[0]],
+  ]) assert.throws(() => assertAcceptancePreservedCursors(prior, changed), { message: "cursor_preserved" })
+})
 
 test("native rejection receipts cover repeated attempts and split markers without recounting old stderr", async () => {
   const { manifest } = fixture()

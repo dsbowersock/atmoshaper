@@ -210,8 +210,10 @@ verification upload/submission or old-site changes were performed.
 Public optional Calendar configuration is now available to eligible users.
 No new setup, client file or completed-test rerun is needed. The operator and
 guarded-harness closeout is published as [PR #41](https://github.com/dsbowersock/atmoshaper/pull/41).
-Latest-head hosted checks and full CodeRabbit/Codex reviews remain pending;
-the closeout branch is not the promoted runtime. Its merge and any future
+Its `2bd0d4c` checkpoint passes all seven CI jobs, READY Preview and clean Codex;
+the October 8 full CodeRabbit review covers all eighteen files and identifies
+two source/doc follow-ups. PR #41 carries live exact-head review/check status;
+final receipts stay private. The closeout branch is not the promoted runtime. Its merge and any future
 provider or hosting operation require their own exact approval.
 
 ## Failure recovery boundaries

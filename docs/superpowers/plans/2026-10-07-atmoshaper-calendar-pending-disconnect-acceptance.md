@@ -88,6 +88,9 @@ closed with its documented fixture limitations. The
 records the existing Calendar client's validated private download/callback,
 subsequently approved provisioning and checked candidate, and concrete public
 rollout/rollback boundaries. The subsequent separately approved public promotion
-and optional activation are complete; the next source step is operator/harness
-closeout publication/review. Do not repeat this completed database test. Registration and recurring Supporter Checkout
+and optional activation are complete. Operator/harness closeout is published in
+PR #41; its `2bd0d4c` checkpoint passes all seven CI jobs, READY Preview and clean
+Codex, followed by the October 8 full CodeRabbit review and its two source/doc
+follow-ups. Use PR #41 for live exact-head review/check status; final receipts
+stay private and merge needs separate approval. Do not repeat this completed database test. Registration and recurring Supporter Checkout
 remain open; one-time support/background purchases stay disabled.

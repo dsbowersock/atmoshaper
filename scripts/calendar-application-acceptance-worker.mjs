@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto"
 import { chromium } from "@playwright/test"
 import { loadAcceptanceConfig } from "./calendar-application-acceptance.mjs"
 import { acceptanceStore, createAcceptanceFetch, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "./calendar-application-acceptance-guard.mjs"
-import { requireAcceptance, encodeAcceptanceActionForm, ACCEPTANCE_ORIGIN } from "./calendar-application-acceptance-core.mjs"
+import { requireAcceptance, assertAcceptancePreservedCursors, encodeAcceptanceActionForm, ACCEPTANCE_ORIGIN } from "./calendar-application-acceptance-core.mjs"
 import { createBrowserUserFixtureIdentity, createBrowserUserFixtureRecord, removeBrowserUserFixtureRecord } from "../lib/auth/browser-user-fixture.ts"
 import { installSignedInSessionCookie } from "../tests/browser/signed-in-session-cookie.ts"
 import { prisma } from "../lib/prisma.ts"
@@ -246,9 +246,9 @@ async function main() {
     requireAcceptance(!blocks.some((item) => item.providerEventId === deleted && item.status !== "CANCELLED"), "busy_cancellation")
     requireAcceptance((await store.journal()).some((item) => item.kind === "event-read" && item.incremental), "incremental_dispatch")
     await setFault("inbound-503")
-    const prior = (await connection()).sources.map((source) => source.syncToken)
+    const prior = (await connection()).sources
     await syncGoogleConnectionSources({ connectionId: saved.id, adapter })
-    requireAcceptance((await connection()).sources.every((source, index) => source.syncToken === prior[index] && source.lastErrorCode === "SYNC_FAILED"), "cursor_preserved")
+    assertAcceptancePreservedCursors(prior, (await connection()).sources)
     await setFault("inbound-410")
     await syncGoogleConnectionSources({ connectionId: saved.id, adapter })
     requireAcceptance((await connection()).sources.every((source) => source.syncToken === null), "stale_cursor_reset")
