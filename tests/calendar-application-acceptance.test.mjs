@@ -9,7 +9,7 @@ import { once } from "node:events"
 import { request as playwrightRequest } from "@playwright/test"
 import { acceptanceEnvironment, authorizeAcceptanceRequest, encodeAcceptanceActionForm, validateAcceptanceCredential, validateAcceptanceManifest, validateAcceptanceScopes, ACCEPTANCE_BASE, ACCEPTANCE_ORIGIN, ACCEPTANCE_CALLBACK } from "../scripts/calendar-application-acceptance-core.mjs"
 import { acceptanceStore, acceptanceLock, createAcceptanceFetch, acceptanceCleanupAccessToken, acceptanceCleanupCalendars, assertAcceptanceTokenCaptureComplete } from "../scripts/calendar-application-acceptance-guard.mjs"
-import { writeAcceptanceDiagnostic, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand } from "../scripts/calendar-application-acceptance.mjs"
+import { writeAcceptanceDiagnostic, acceptancePrivatePaths, spawnAcceptanceCommand, stopAcceptanceCommand, acceptanceCommandWatchdog } from "../scripts/calendar-application-acceptance.mjs"
 import { fingerprintBrowserQaDatabaseTarget } from "../scripts/assert-browser-qa-database-target.mjs"
 import { GOOGLE_CALENDAR_SCOPES, ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION } from "../lib/calendar-sync-constants.ts"
 import { createGoogleCalendarAdapter } from "../lib/google-calendar-adapter.ts"
@@ -46,6 +46,83 @@ test("POSIX teardown terminates an ignoring descendant even after its process-gr
     await Promise.race([closed, new Promise((_, fail) => { const timer = setTimeout(() => fail(new Error("owned descendant survived teardown")), 5000); timer.unref() })])
     assert.equal(child.signalCode, "SIGTERM")
   } finally { await stopAcceptanceCommand(child, { graceMs: 1 }); await closed }
+})
+
+test("both cleanup modes terminate a stalled owned child on an independent deadline and retain partial evidence", async () => {
+  for (const mode of ["cleanup", "pending-cleanup"]) {
+    const { manifest } = fixture()
+    manifest.database.createdAt -= 91 * 60_000
+    manifest.pendingActionOnly = mode === "pending-cleanup"
+    const directory = await mkdtemp(join(tmpdir(), "calendar-cleanup-watchdog-unit-"))
+    const child = spawnAcceptanceCommand(process.execPath, ["-e", "process.stdout.write('ready\\n'); setInterval(() => {}, 1000)"])
+    const closed = once(child, "close")
+    let watchdog
+    let stopping
+    try {
+      await new Promise((done, fail) => {
+        const timer = setTimeout(() => fail(new Error("synthetic cleanup child startup timed out")), 5000)
+        child.once("error", (error) => { clearTimeout(timer); fail(error) })
+        child.stdout.once("data", () => { clearTimeout(timer); done() })
+      })
+      const store = acceptanceStore(directory, manifest.encryptionKey)
+      const token = "invented-watchdog-retained-token"
+      await store.saveVault([{ access_token: token }])
+      await store.record({ kind: "calendar-create", phase: "intent", calendarMarker: "synthetic-unresolved-marker" })
+      watchdog = acceptanceCommandWatchdog({ mode, manifest, store, pid: child.pid, cleanupTimeoutMs: 60, stopChild: () => {
+        stopping ??= stopAcceptanceCommand(child, { graceMs: 20 })
+        stopping.catch(() => {})
+      } })
+      await new Promise((done) => setTimeout(done, 15))
+      assert.equal(stopping, undefined, "cleanup must not reuse the already expired run deadline")
+      await Promise.race([closed, new Promise((_, fail) => { const timer = setTimeout(() => fail(new Error("cleanup child survived its deadline")), 5000); timer.unref() })])
+      assert.equal(await watchdog.finish(), true)
+      await stopping
+      const journal = await store.journal()
+      assert.ok(journal.some((item) => item.kind === "cleanup" && item.phase === "partial" && item.mode === mode && item.pid === child.pid && item.reason === "owned-command-deadline"))
+      assert.ok(journal.some((item) => item.kind === "calendar-create" && item.phase === "intent"))
+      assert.equal(journal.some((item) => item.phase === "passed"), false)
+      assert.equal((await store.vault())[0].access_token, token)
+    } finally {
+      try { await watchdog?.finish() }
+      finally { await stopAcceptanceCommand(child, { graceMs: 1 }); await closed; await rm(directory, { recursive: true, force: true }) }
+    }
+  }
+})
+
+test("normal watchdog preserves the run ceiling and finished cleanup cancels its timer", async () => {
+  const { manifest } = fixture()
+  manifest.pendingActionOnly = true
+  let stopCalls = 0
+  const store = { locked: () => assert.fail("normal run deadline must not record partial cleanup") }
+  const normal = acceptanceCommandWatchdog({ mode: "pending-check", manifest, store, stopChild: () => { stopCalls++ }, now: manifest.database.createdAt + 15 * 60_000 })
+  await new Promise((done) => setTimeout(done, 15))
+  assert.equal(await normal.finish(), true)
+  assert.equal(stopCalls, 1)
+  const cleanup = acceptanceCommandWatchdog({ mode: "cleanup", manifest, store, stopChild: () => { stopCalls++ }, cleanupTimeoutMs: 20 })
+  assert.equal(await cleanup.finish(), false)
+  await new Promise((done) => setTimeout(done, 40))
+  assert.equal(stopCalls, 1)
+  for (const cleanupTimeoutMs of [0, Infinity, 300_001]) assert.throws(() => acceptanceCommandWatchdog({ mode: "cleanup", manifest, store, stopChild: () => {}, cleanupTimeoutMs }), /cleanup_process_timeout/)
+})
+
+test("malformed and null revoke errors retain HTTP failures without claiming revocation", async () => {
+  const { manifest, client } = fixture()
+  const directory = await mkdtemp(join(tmpdir(), "calendar-revoke-error-unit-"))
+  try {
+    const store = acceptanceStore(directory, manifest.encryptionKey)
+    const token = "invented-revoke-error-token"
+    await store.saveVault([{ access_token: token }])
+    for (const body of ["<html>synthetic failure</html>", "null"]) {
+      const guarded = createAcceptanceFetch({ manifest, client, store, cleanup: true, fetchImpl: async () => new Response(body, { status: 400 }) })
+      const response = await guarded("https://oauth2.googleapis.com/revoke", { method: "POST", body: new URLSearchParams({ token }) })
+      assert.equal(response.status, 400)
+      assert.deepEqual(await response.json(), {})
+    }
+    const records = (await store.journal()).filter((item) => item.kind === "revoke")
+    assert.equal(records.filter((item) => item.phase === "http-failure" && item.status === 400).length, 2)
+    assert.equal(records.some((item) => ["accepted", "already-revoked"].includes(item.phase)), false)
+    assert.equal((await store.vault())[0].access_token, token)
+  } finally { await rm(directory, { recursive: true, force: true }) }
 })
 
 test("cleanup bounds direct DELETE and revocation requests while retaining retry evidence", async () => {

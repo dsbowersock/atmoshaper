@@ -253,8 +253,8 @@ export function createAcceptanceFetch({ manifest, client, store, fetchImpl = glo
           }
         }
         if (decision.kind === "revoke" && response.status === 400) {
-          const error = await response.json()
-          if (error.error === "invalid_token") {
+          const error = await response.json().catch(() => null)
+          if (error?.error === "invalid_token") {
             await store.locked(() => store.record({ ...decision, phase: "already-revoked" }))
             return Response.json({ error: "invalid_token" }, { status: 400 })
           }

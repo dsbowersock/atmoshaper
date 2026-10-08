@@ -2,6 +2,30 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-07 — Review gives cleanup its own deadline and preserves revoke failures
+
+- The explicit full CodeRabbit review completes at `2026-10-08T00:43:19Z`,
+  covers all eighteen files at `70a2ab1` and identifies two valid operator
+  harness issues. A malformed or null revoke-error body now falls through to
+  the HTTP-failure receipt and returns its status; it cannot establish prior
+  revocation. Raw response contents remain private.
+- Both cleanup variants now have a separate five-minute process deadline,
+  independent of the expired normal run ceiling. Expiry immediately starts
+  owned-tree teardown and records partial cleanup with the invocation's PID;
+  intents and encrypted captures survive for scoped recovery. Completion drains
+  that receipt and cannot report command success after the deadline. Normal
+  fifteen/ninety-minute watchdog behavior remains unchanged.
+- Provider-free harness checks pass 33 with one POSIX-only test skipped on
+  Windows. They exercise both cleanup variants against stalled synthetic children,
+  retained partial evidence, timer cancellation and malformed/null revoke errors.
+  The first Windows sandbox run could not terminate its synthetic child; only
+  that verified owned child was stopped, and the same suite passed with normal
+  process control. Lint, typecheck, documentation/workload checks 16/16 and
+  whitespace checks pass. Latest-head hosted checks/reviews and Linux process/
+  permission proof are required again after these source changes.
+  No provider resource, credential, consent, completed test, cleanup or public
+  operation is repeated.
+
 ## 2026-10-07 — Review bounds process descendants and all cleanup requests
 
 - Codex's review completes at `2026-10-07T23:36:32Z` on `8a12567` with two

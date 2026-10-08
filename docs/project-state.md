@@ -86,6 +86,17 @@ This is the read-first source of truth for the fresh AtmoShaper repository. Use 
   pre-merge checks pass, including 86.67% touched-function docstring coverage;
   that review does not cover the subsequent source/documentation fixes.
   No further setup, file or completed-test rerun is needed.
+  The next explicit full CodeRabbit review completes at `2026-10-08T00:43:19Z`,
+  covering all eighteen files at `70a2ab1` with two valid harness findings.
+  Malformed or null revoke-error bodies now preserve the HTTP failure receipt
+  without claiming revocation. Both cleanup modes have an independent five-minute
+  owned-process deadline; expiry stops the tree and records partial cleanup while
+  retaining private recovery evidence. Normal run ceilings remain unchanged.
+  Provider-free harness checks pass 33 with one POSIX-only test skipped on Windows,
+  using normal process control after sandbox termination was denied. Lint,
+  typecheck and documentation/workload checks 16/16 pass; renewed latest-head
+  hosted validation and reviews remain pending.
+  No completed provider activity, cleanup or public operation is repeated.
 - [PR #40](https://github.com/dsbowersock/atmoshaper/pull/40) merged under the
   user's exact approval at `2026-10-07T05:14:22Z` as
   `38d0deddea484938e13df61927d07a7b21f92071`. Reviewed head

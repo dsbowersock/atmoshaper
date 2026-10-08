@@ -27,6 +27,31 @@ export async function stopAcceptanceCommand(child, { graceMs = 1000 } = {}) {
   signalGroup("SIGKILL")
 }
 
+/** Cleanup gets its own five-minute attempt bound, even after the run expires; finish drains any partial receipt. */
+export function acceptanceCommandWatchdog({ mode, manifest, store, stopChild, pid, cleanupTimeoutMs = 5 * 60_000, now = Date.now() }) {
+  const cleanup = mode === "cleanup" || mode === "pending-cleanup"
+  requireAcceptance(Number.isSafeInteger(cleanupTimeoutMs) && cleanupTimeoutMs > 0 && cleanupTimeoutMs <= 5 * 60_000, "cleanup_process_timeout")
+  const delay = cleanup ? cleanupTimeoutMs : Math.max(1, manifest.database.createdAt + (manifest.pendingActionOnly ? 15 : 90) * 60_000 - now)
+  let expired = false
+  let partialReceipt = Promise.resolve()
+  const timer = setTimeout(() => {
+    expired = true
+    // Stop the owned tree immediately; a worker's held journal lock must not postpone termination.
+    stopChild()
+    if (cleanup) {
+      partialReceipt = store.locked(() => store.record({ kind: "cleanup", phase: "partial", mode, pid, reason: "owned-command-deadline", timeoutMs: cleanupTimeoutMs }))
+      partialReceipt.catch(() => {})
+    }
+  }, delay)
+  return {
+    async finish() {
+      clearTimeout(timer)
+      await partialReceipt
+      return expired
+    },
+  }
+}
+
 /** Protect new and existing POSIX diagnostics before writing raw stderr; Windows retains the run folder's ACL. */
 export async function writeAcceptanceDiagnostic(directory, text) {
   const file = await open(join(directory, "owned-command-error.txt"), "w", 0o600)
@@ -103,7 +128,7 @@ async function main() {
     stopping ??= stopAcceptanceCommand(child)
     stopping.catch(() => {})
   }
-  const watchdog = cleanup ? null : setTimeout(stopChild, Math.max(1, loaded.manifest.database.createdAt + (loaded.manifest.pendingActionOnly ? 15 : 90) * 60_000 - Date.now()))
+  const watchdog = acceptanceCommandWatchdog({ mode, manifest: loaded.manifest, store, stopChild, pid: child.pid })
   let pending = ""
   child.stdout.on("data", (chunk) => {
     pending += chunk.toString()
@@ -124,12 +149,14 @@ async function main() {
   process.on("SIGINT", stopChild)
   process.on("SIGTERM", stopChild)
   const result = await childResult
-  if (watchdog) clearTimeout(watchdog)
-  if (stopping) await stopping
-  process.off("SIGINT", stopChild)
-  process.off("SIGTERM", stopChild)
+  let deadlineExpired
+  try { deadlineExpired = await watchdog.finish() }
+  finally {
+    try { if (stopping) await stopping }
+    finally { process.off("SIGINT", stopChild); process.off("SIGTERM", stopChild) }
+  }
   if (result !== 0 && privateError) await writeAcceptanceDiagnostic(loaded.directory, privateError)
-  requireAcceptance(result === 0, "owned_command_failed")
+  requireAcceptance(result === 0 && !deadlineExpired, "owned_command_failed")
   console.log("ACCEPTANCE: owned command completed")
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(() => { console.error("ACCEPTANCE: stopped; inspect the protected private stage receipt"); process.exitCode = 1 })

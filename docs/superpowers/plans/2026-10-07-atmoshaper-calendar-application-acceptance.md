@@ -205,6 +205,12 @@ The local server and descendants have an owned-process deadline. Its one-use
 loopback bridge installs the persisted synthetic user's session, then delegates
 to the actual app connect/callback routes. Google consent remains owner-operated.
 No special route or fault switch is added to the deployed application.
+Each `cleanup` or `pending-cleanup` invocation has a separate five-minute owned
+process deadline, independent of the database's normal run ceiling. Expiry stops
+the owned tree and records partial cleanup; existing intents and encrypted token
+captures remain available for a separately authorized scoped recovery. A failed
+or malformed revoke response records its HTTP failure and cannot establish
+revocation. These guards do not authorize another run of the completed tests.
 
 Run checks in this order: `access-http` before fresh consent; `connected` after
 the real callback; `transactions`; one fresh real reconnect and `reconnected`;
