@@ -2,6 +2,39 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-08 — Complete approved Sentry project setup and verify the R2 token
+
+- The source follow-up is published in draft PR #42. At the dated `c1b0ce6`
+  checkpoint, the exact Preview is READY and Codex reports no major issues.
+  Browser build binds the branch to merged main, generates all 115 pages and
+  uploads that artifact. Full units and all four Browser QA lanes are running;
+  initial failures remain historical. Full CodeRabbit coverage is still pending.
+- The owner cannot find the prior Sentry window, so the prepared interactive
+  authorization is reopened. Readback confirms the policy-required OAuth scope,
+  unchanged organization policy and the exact approved organization/team/project
+  baseline. The single approved project-only POST returns 201 with explicit
+  `default_rules: false`. Fresh complete inventory confirms one new AtmoShaper
+  Next.js project and the unchanged legacy project; the exact team matches.
+- New-project readback has no first event and no sessions, replays, profiles or
+  logs. No app/Production binding, event, upload, organization setting or legacy
+  resource changed. The old issue-alert list returns 404, so disabled-default
+  creation is an accepted request, not verified alert-inventory absence. Effective
+  privacy/IP prevention, retention/quota, current alerts, source maps and hosted
+  monitoring acceptance remain open before collection.
+- Cloudflare's current token format and read-only self-verification confirm the
+  saved credential is an active User API Token. The encrypted local capture is
+  usable; no re-entry is needed. Storage listing still returns 401/code `10000`,
+  initially requiring the owner's permission/account check. The owner confirms
+  the match and supplies a screenshot showing storage Read, all-account inclusion
+  and no IP restriction. A standard GET against the same verified account still
+  returns 401/code `10000`; this is an unresolved provider access denial, not a
+  reason to request token re-entry or broader permissions. No object content or
+  provider setting changed.
+- Current administrative records now distinguish completed setup from activation
+  and retain earlier denied writes as dated history. This documentation-only
+  checkpoint needs renewed exact-head hosted proof; subsequent final receipts
+  stay private to keep the passing head stable. PR #42 remains draft/unmerged.
+
 ## 2026-10-08 — Publish independent launch source and reconcile setup approvals
 
 - The owner approved publication of `3ee84fd` as draft PR #42 with automatic

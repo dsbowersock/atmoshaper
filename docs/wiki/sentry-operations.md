@@ -2,8 +2,9 @@
 
 Read [project state](../project-state.md) and the
 [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
-first. This runbook prepares the required Sentry integration; it is not a receipt
-that a destination project, source-map upload or alert is live.
+first. The approved separate destination project is created. This runbook owns
+the remaining privacy, source-map, alert and hosted-collection gates; setup does
+not establish operational monitoring.
 
 ## What Sentry is for
 
@@ -34,21 +35,22 @@ actions, or as popularity, conversion, user-history or product analytics.
 - Initial October 8 `sentry-cli info --no-defaults` could not authenticate because
   no release-tool token was configured. At the owner's request, the separately
   installed official Sentry OAuth CLI is now authenticated after owner completion.
-  Readback verifies one organization, one existing team and one legacy Next.js
-  project, with no AtmoShaper project and no remaining project-list page. A dry
-  run for one separate AtmoShaper Next.js project under that explicit team passes.
-  Exact references remain in the protected operation journal, outside Git/chat.
-  No project, setting, DSN binding, release upload, event or alert changed.
+  Initial readback verified one organization/team and one legacy Next.js project,
+  with no AtmoShaper project and complete pagination. A dry run selected that
+  explicit team. Exact references remain in the protected operation journal.
   The [project-only setup packet](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md#3-enable-useful-privacy-safe-sentry-operations)
-  is now owner-approved. Its first write explicitly disables default issue alerts
-  and returns 403; fresh reconciliation confirms no new project. The completed
-  project-write login still hits the organization member-creation policy. Readback
-  confirms the owner's role and the missing policy-required OAuth organization
-  write scope. Complete that additional access, recheck the exact baseline and
-  apply the approved project-only packet; no organization settings may change.
-  Effective new-destination privacy,
-  quotas, retention, source maps and alerts still require proof before collection.
-  Legacy settings do not prove readiness of the new independent destination.
+  is owner-approved. Initial writes returned 403 without creating a project;
+  the existing member-creation policy required additional OAuth access. After
+  that access and fresh baseline verification, one POST returns 201 with explicit
+  `default_rules: false`. Complete inventory and individual readback verify the
+  new AtmoShaper Next.js project, exact team and unchanged legacy project.
+  No organization policy or legacy setting changes. No app/Production binding,
+  upload or event is added; first event is null and sessions, replays, profiles
+  and logs are absent in readback. The old issue-alert list returns 404, so do
+  not equate the accepted disabled-default request with verified alert absence.
+  Effective privacy/IP prevention, quotas, retention, current alerts and source
+  maps still require proof before collection. Legacy settings do not establish
+  readiness of the new independent destination; never repeat project creation.
 - The [August 17 provider audit](../audits/2026-08-17-anonymous-sentry-provider-settings.md)
   belongs to its named historical source/environment. It does not verify a new
   independent AtmoShaper destination. Do not repeat its completed diagnostic.

@@ -69,15 +69,22 @@ Initial source head `3ee84fd` has a READY Preview and clean Codex/full 34-file
 CodeRabbit review, with the docstring pre-merge check still below threshold.
 Initial CI also finds stale Anatomime inventory/historical-receipt assertions
 and desktop/mobile expectations of the legacy SEO host. Focused JSDoc, contract
-and current-record corrections need fresh exact-head checks and reviews.
-Sentry creation remains denied after project-write OAuth: existing organization
-policy disables member creation and requires additional OAuth organization write
-access. No new project exists, and organization policy changes are excluded.
-R2 capture first exited empty, then needed an explicit security-module import;
-the owner now successfully saves the encrypted token. Actual R2 reads return
-HTTP 401/code `10000`, so token type/status and exact-account authority still need
-readback. Neither provider is activated. Keep these approval/access outcomes
-separate from the earlier read-only inventory and completed launch receipts.
+and current-record corrections require fresh exact-head checks and reviews.
+The published `c1b0ce6` follow-up has a READY Preview, successful 115-page Browser
+build and clean Codex; full CI was running at that dated checkpoint. These new
+provider-record corrections need renewed exact-head proof.
+Sentry's required OAuth access and approved one-project creation are now complete:
+201 and fresh readback verify the exact new project/team and unchanged legacy
+project. The accepted creation disables default alerts; the old alert-list
+endpoint returns 404, leaving inventory unverified. No app binding or first event
+exists; monitoring privacy, quotas, retention, current alerts and source maps
+remain gates. R2 encrypted capture succeeds, and token self-verification confirms
+an active User API Token. The owner's screenshot confirms storage Read,
+all-account inclusion and no IP restriction; the owner confirms the account.
+A standard GET against the same verified account still returns HTTP 401/code
+`10000`, leaving a provider access denial to resolve through a read-only account/
+bucket check. Do not ask for token re-entry or broader permissions without new
+evidence. Neither setup outcome activates collection or media cutover.
 
 ### 1. Reconcile documents and private dependency inventory
 
@@ -92,10 +99,12 @@ separate from the earlier read-only inventory and completed launch receipts.
   storage outside Git. Tracked records contain public outcomes only.
 - Obtain only the precise missing read access. Initial CLI checks lacked
   authentication. The owner subsequently completed Cloudflare and Sentry login.
-  Current readback identifies one Cloudflare account; R2 bucket listing is denied
-  with `10000`, requiring the exact storage-read permission. Sentry has one
-  organization/team and one legacy Next.js project, with no AtmoShaper project.
-  Provider references and status receipts remain private. Identify Ably owner
+  Current readback identifies one Cloudflare account. The saved token is active
+  and storage-read/account coverage is owner-confirmed, but R2 listing retains
+  `10000`; resolve that access denial without speculative credential changes. Sentry has one
+  organization/team and initially one legacy Next.js project. The separately
+  approved new AtmoShaper project is now created and verified; legacy resources
+  stay intact. Provider references and status receipts remain private. Identify Ably owner
   apps before selecting or creating them; neither login activates an integration.
 - Ably's dashboard read is blocked because the browser cannot verify the
   admin-enforced policy. Do not bypass browser controls or retry until resolved.
@@ -171,12 +180,13 @@ The next concrete provider packet is **initial project creation only**:
   Legacy settings and missing fields do not establish the new project's readiness.
 - On any failure, stop, keep collection disabled and retain the private receipt;
   no legacy resource or new project is automatically deleted. The owner has
-  approved this packet. Its first write returned 403 and reconciliation found no
-  new project. The completed project-write login still hits the existing member
-  creation policy, so the prepared OAuth retry includes its required organization
-  write scope. That credential capability does not authorize organization-setting
-  changes. Recheck the baseline and create with default issue alerts disabled
-  before readback; do not duplicate a pending or successful creation.
+  approved this packet. Initial 403 attempts created no project; the existing
+  member-creation policy required additional OAuth organization write access.
+  That access is complete, and the baseline-matched single creation returns 201
+  with default issue alerts disabled in its request. The project/team and legacy
+  preservation are verified; never repeat this completed creation. The old alert
+  list returns 404, so current alert inventory remains a read gate. This credential
+  capability did not change organization settings or authorize collection.
 
 - Identify an independent AtmoShaper project/environment and appropriate quotas,
   source-map/release linkage, retention and alert ownership.
