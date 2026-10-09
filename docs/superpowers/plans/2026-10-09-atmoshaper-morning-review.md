@@ -71,11 +71,17 @@ their historical checks remain closed.
 
 The change adds bounded public media-index inventory, disables separate Sentry
 vendor build telemetry, reconciles current documentation and the review-date
-assertion, prepares opt-in Generative.fm index/nested-sample rebinding, and adds a metadata-only Signature catalog candidate command.
+assertion, prepares opt-in Generative.fm index/nested-sample rebinding, adds a metadata-only Signature catalog candidate command, and checks both Chimer delivery bases through actual resolvers.
 Legacy delivery remains the default. The new runtime switch has focused checks
 with invented responses and substituted network/audio dependencies; no hosted
 binding, media payload, schema/migration or provider activation is changed.
-The Signature command prepares all 1,800 rendition references with a new revision and exact rollback; its candidate is private and the runtime catalog is unchanged. Current validation and the final exact head are in the protected packet.
+The Signature command prepares all 1,800 rendition references with a new revision and exact rollback; its candidate is private and the runtime catalog is unchanged. The Chimer plan covers the 84-entry published release and 83-entry fallback without runtime-data or hosted-setting changes. Its 45 focused cases, lint and typecheck pass. Current validation and the final exact head are in the protected packet.
+
+A later media configuration packet must distinguish rebinding fallback from
+activating a previously unconfigured published Chimer catalog. The published
+base includes its release revision. Current hosted values, exact domain/object
+availability and real playback must be checked before that separate operation;
+this source publication proposal does not approve activation.
 
 This approval would include the ordinary draft PR's CI/Preview behavior. It would
 not include merge, Production build/promotion, DNS/media/Sentry configuration,

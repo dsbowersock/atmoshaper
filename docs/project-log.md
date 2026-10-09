@@ -2,6 +2,29 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Prepare both Chimer delivery bindings without activation
+
+- The metadata-only command resolves all 1,476 published renditions and 84
+  vertical posters through the actual runtime helpers. The complete approved
+  84-background release declares 1,728 distinct objects and 862,078,635 bytes;
+  these counts do not newly verify remote payloads.
+- Independent comparison with the earlier 83-entry index checks the actual
+  fallback module. All 593 URL references, covering 255 distinct declared URLs,
+  rebind by origin alone while IDs, geometry and checksum metadata remain intact.
+- The two bases use different namespaces. The published base includes the
+  approved release revision; fallback retains its earlier namespace. Production
+  source defaults do not activate the published catalog. Adding a previously
+  absent setting would activate it and requires exact authority and acceptance;
+  this command has not inspected current hosted values.
+- All 45 focused cases pass, including seven new full-plan/default/drift cases
+  and existing preview contracts. Lint/typecheck pass. The protected journal
+  retains the no-write plan and source hashes. No runtime declarations, hosted
+  setting, media payload, application, provider or live Clock changes occur.
+- All 16 documentation/workload cases, 198 relative targets across ten changed
+  Markdown files, added-source privacy and whitespace checks pass on this local
+  snapshot, including new untracked source files. Publication, DNS/R2 delivery, published-path
+  activation and real playback/legacy continuity remain separate gates.
+
 ## 2026-10-09 — Prepare the branded Signature catalog without media mutation
 
 - The metadata-only command rebuilds the complete committed catalog for the
@@ -24,8 +47,9 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   and stopped; correcting that test to the established contract verifies both
   revisions and the intended ownership rejection paths.
 - Final lint/typecheck and all 16 documentation/workload checks pass. Whitespace,
-  complete relative-target and added-source privacy scans are required on the
-  final owned snapshot before local commit and private publication-packet update.
+  added-source privacy and all 197 relative targets across ten changed Markdown
+  files passed at that local Signature checkpoint; its exact commit and private
+  candidate were saved before the later Chimer preparation.
 - Signature candidate installation/publication, branded DNS/R2 bindings and real
   playback/legacy continuity remain later exact operations. Generative preparation,
   the two Chimer bases, anatomy and other independent-service gates retain scope.

@@ -88,6 +88,36 @@ exclusive-output preservation. Source candidate installation/reviews, verified
 branded bindings and separately authorized playback/legacy continuity remain
 required. The current published/default catalog is unchanged.
 
+## Local Chimer binding preparation
+
+Run `npm run migration:media:chimer-bindings` for a metadata-only, no-write plan
+using the complete approved catalog, generated published manifest, earlier index
+and actual fallback module. The actual published helpers resolve all 1,476
+renditions and 84 vertical posters. Independent fallback comparison preserves
+83 IDs and all geometry/checksum metadata while rebinding 593 URL references
+covering 255 distinct declared URLs. No remote bytes or guessed-file existence
+are verified.
+
+The proposed public build values are:
+
+- `NEXT_PUBLIC_CHIMER_PREVIEW_CATALOG_BASE_URL`: `https://media.atmoshaper.com/chimer/background-preview-catalog/catalog-approved-1`.
+- `NEXT_PUBLIC_CHIMER_PREVIEW_MEDIA_BASE_URL`: `https://media.atmoshaper.com/chimer/background-previews`.
+
+The published base must include the release revision. These values are local
+proposals, with no hosted setting or domain binding applied. The source's
+unconfigured Production published base is null; fallback keeps legacy delivery.
+The plan does not inspect current hosted values. Adding a previously absent
+published setting activates that existing catalog path and needs explicit
+approval plus offered-playback acceptance, rather than a host-only change.
+
+Run `npm run test:chimer-media-delivery` for actual resolver/default/rollback and
+complete declaration/drift checks with controlled local build fields. The
+fallback TypeScript is transpiled locally and receives no application, provider
+or network dependency; the caller environment is unchanged. Existing preview
+contracts are included. Runtime declarations and media remain unchanged.
+Branded DNS/R2 bindings, hosted values, build/release and bounded published/
+fallback playback with legacy-tool continuity still need their exact scopes.
+
 ## Reproducible source inventory
 
 Run `npm run migration:media:inventory`. The command reads only the local public

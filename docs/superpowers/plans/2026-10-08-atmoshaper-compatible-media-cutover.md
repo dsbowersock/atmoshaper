@@ -269,6 +269,31 @@ the existing staging/upload tool merely to change delivery URLs. Its historical
 encoding/upload receipts remain complete. Both Chimer bases and anatomy are
 still separate required consumer work.
 
+### October 9 local Chimer binding plan
+
+The no-write metadata command checks both delivery paths through actual runtime
+helpers and complete committed declarations. It resolves 1,476 published
+renditions and 84 vertical posters, preserving the 84-entry approved release.
+The earlier 83-entry fallback is independently compared with its index; all
+593 URL references retain paths, identities, geometry and checksum metadata.
+
+The published proposed base is
+`https://media.atmoshaper.com/chimer/background-preview-catalog/catalog-approved-1`;
+the earlier fallback proposed base is
+`https://media.atmoshaper.com/chimer/background-previews`. They are separate
+public build settings, with no provider write or runtime-data change. The
+protected plan retains complete counts and source hashes. Its focused checks,
+lint and typecheck pass; the [runbook](../../wiki/media-independence.md) lists
+the named plan/test commands.
+
+Current hosted values have not been inspected by this command. A previously
+absent published setting would activate the existing published-catalog path;
+include that behavior explicitly in a later configuration/acceptance approval.
+First verify exact branded domains and object namespaces, then prepare the
+candidate build, all offered aspect/codec/fallback checks and saved-binding
+rollback. Resolution and declared bytes do not prove hosted payloads, playback
+or legacy continuity. Anatomy still needs its aggregate-only target authority.
+
 ## 4. Bounded acceptance and rollback
 
 Specify immutable object/index allowlists, request count, streamed-byte caps,
