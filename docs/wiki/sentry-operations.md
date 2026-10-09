@@ -69,6 +69,41 @@ actions, or as popularity, conversion, user-history or product analytics.
   belongs to its named historical source/environment. It does not verify a new
   independent AtmoShaper destination. Do not repeat its completed diagnostic.
 
+## October 9 UTC metadata checkpoint
+
+Four authenticated metadata GETs succeed for the approved project and its
+organization, visible environments and the first release-list page. Project
+privacy controls and advanced rules match the approved readback; project and
+organization sharing are disabled, scrubbers are enabled and organization IP
+prevention remains enabled. The project reports no first event, replay, session,
+log or feedback data; visible environments and release rows are empty. Spike
+protection is not disabled. These metadata flags do not prove source-map
+acceptance or a complete audit of ingestion/configuration.
+
+The read endpoints do not establish actual retention, plan quotas or billing
+ownership. Keep those controls open rather than infer a Free plan or duration.
+Release-linked mapped frames and delivered owner alerts still require their exact
+activation/acceptance packet. No event contents were read, and no new setting,
+event, upload, notification or application binding was submitted.
+
+The later October 9 client-key list and exact-key GET verify an existing active
+key and a public DSN that belongs to the approved project. Its secret was not
+retained, and no key was created or changed. The list's pagination was not proved;
+this verifies the selected existing key rather than a complete key inventory.
+Its key-specific rate limit is unset, which does not establish organization
+billing limits or authorize uncapped collection. Read actual plan limits and
+retention before deciding the activation budget.
+
+The documented project repository-link GET returns an empty list. Repository
+source context is therefore not configured; a separate repository integration is
+not required merely to upload source maps. Exact release/artifact identity and
+mapped-frame acceptance still need proof. The key's remote SDK loader metadata
+has Replay/performance options enabled, but the application imports its bundled
+SDK and applies its own privacy policy. Do not use that remote loader as an
+activation shortcut or treat those metadata options as proof of app ingestion.
+The private preparation packet keeps exact references, existing public DSN and
+remaining gates; no binding, source-map upload, event or notification occurred.
+
 ## Exact destination read gate
 
 Use an owner-authorized read path to identify the destination organization and

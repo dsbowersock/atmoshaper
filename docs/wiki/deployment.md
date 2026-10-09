@@ -840,7 +840,12 @@ The [independent media cutover map](media-independence.md) owns the current
 AtmoShaper migration. The existing names, defaults and commands below describe
 compatibility/publication contracts; they are not current provider ownership
 proof or authority to rerun setup/upload. Preserve legacy delivery until the
-user's working Clock/tools and rollback have been verified.
+user's working Clock/tools and rollback have been verified. October 8 R2 metadata
+now verifies the three existing media classes and retained public/anatomy domains,
+with no private custom domain and public development access disabled on all three.
+The [compatible media plan](../superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
+owns the remaining DNS onboarding, consumer, administration/billing and acceptance
+gates; the corrected storage credential no longer blocks these reads.
 
 Use separate Cloudflare R2 buckets for media classes:
 

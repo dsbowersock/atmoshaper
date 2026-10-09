@@ -2,9 +2,10 @@
 
 Read [project state](../project-state.md) and the
 [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
-first. October 8 source inspection and public JSON-index reads identify the
-consumers below. Provider ownership, current bucket contents and final hosted
-playback remain unverified.
+first. October 8 source inspection, public JSON-index reads and authenticated
+bucket configuration reads identify the consumers and settings below. Owner
+aggregate counts are separately labeled. Independent administration/billing,
+object-level integrity and final hosted playback remain unverified.
 This is the source-side cutover map, not an upload or retirement instruction.
 
 ## Reuse before copying
@@ -52,7 +53,7 @@ The October 8 result is:
 | Published Chimer previews | 84 backgrounds: 82 animated and two poster-only; 1,728 distinct objects with 862,078,635 declared bytes; URLs are relative and runtime background IDs match |
 | Generative audio | 57 station declarations, all source-enabled with hosted index declarations; hosted nested URLs and actual playback have not been inspected by this command |
 | Earlier Chimer fallback | Separate source inspection finds 83 manifest entries; this namespace is not included in the published-catalog object/byte totals |
-| Anatomy and provider storage | No database or provider rows/objects were read; current hosted counts and ownership are unknown |
+| Anatomy and provider storage | This local command reads no database/provider rows or objects; later configuration reads and owner aggregate counts are recorded below, without object-level verification |
 
 Declared bytes and hashes are metadata, not a new verification of remote bytes
 or a complete bucket size/copy budget. The inventory intentionally does not
@@ -77,35 +78,77 @@ The October 8 read completes all 228 indexes with zero failures or unvisited
 indexes, processing 867,736 bytes of JSON. It finds 6,800 sample references,
 all absolute URLs using the legacy media origin, with no other or relative
 destinations. Distinct counts are per index and summed across indexes, not a
-global unique-object count. No audio/image/video payload, private object,
-database row or provider configuration was read or changed. This establishes
+global unique-object count. This public-index command reads no audio/image/video
+payload, private object, database row or provider configuration and changes none. It establishes
 the nested-URL cutover requirement, not playback, payload integrity, bucket
 contents, ownership or a storage-copy budget.
 
-## Provider read gate and exact operation
+## Verified provider inventory and remaining domain gate
 
-The owner-requested Cloudflare login begins with account/user/zone read scopes.
-The owner completed login on October 8 and supplied a separate encrypted API
-token with confirmed storage Read/account coverage. Its self-verification shows
-administrative status `active`, but a future October 31 start date. That time
-restriction explains the recorded HTTP 401/code `10000`; it is not evidence of
-an empty inventory or media outage. The owner can open existing bucket Settings
-and supplied evidence of an active public custom domain and disabled public
-development URL. Agent dashboard access remains blocked by browser policy.
-
-The pending owner action is to correct only the existing token's start date,
-preserving its expiry and permissions. No replacement or re-entry is needed.
-After owner confirmation, verify that the same saved credential is within its
-valid time window, then make one standard canonical bucket-list GET. Continue
-pagination/configuration reads only after that succeeds; a further denial needs
-new precise evidence, not repeated identical attempts. Cloudflare's
+The owner corrected the existing token's dates on October 8. Self-verification
+matches the saved identity, reports active status and a valid start/expiry window;
+the canonical bucket-list GET now succeeds. The former future start date explains
+the historical HTTP 401/code `10000`. No replacement, re-entry or broader storage
+permission is needed. Cloudflare's
 [bucket-list API](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/methods/list/)
-accepts `Workers R2 Storage Read`; use read access rather than expanding to
-unneeded storage mutation. Store credentials and resource references privately.
+accepts `Workers R2 Storage Read`. Exact references and credentials remain private.
 
-Read all pages of bucket metadata and the relevant jurisdiction, custom-domain
-bindings/status, managed-public-access state, CORS, cache rules, administrative
-roles and aggregate usage/billing. Do not list private object content, use
+Default-jurisdiction metadata returns three buckets. EU and US reads return none;
+these lists have no returned continuation cursor. Federal jurisdictions remain
+unavailable/unverified, so this does not claim complete account-wide storage.
+All three verified buckets use Standard storage in Eastern North America.
+
+| Media class | Authenticated configuration | Owner screenshot, rounded |
+| --- | --- | --- |
+| Public audio/previews | One enabled legacy custom domain, ownership/TLS active, minimum TLS 1.2; GET/HEAD CORS allows all origins and exposes range, cache, type, length and ETag headers | 11.11k objects, 13.13 GB |
+| Anatomy | One enabled legacy custom domain, ownership/TLS active, minimum TLS 1.2; provider explicitly reports no CORS configuration | 5.1k objects, 2.83 GB |
+| Reserved private media | No custom domain; provider explicitly reports no CORS configuration | Zero objects, zero bytes |
+
+Public development access is disabled on all three. Their returned lifecycle
+rule aborts unfinished multipart uploads after seven days; no completed-object
+expiration rule is returned. No domain, CORS or lifecycle change occurred.
+Missing anatomy CORS is not by itself evidence that ordinary image display
+fails; any canvas/export requirement needs its own consumer/acceptance proof.
+
+The owner overview reports 15.95 GB total and zero billable usage for its shown
+period. Per-bucket and total figures round independently and do not establish a
+future cost guarantee, exact object inventory, payload integrity or completed
+migration. No private/public object list or payload was requested.
+
+The approved owner-led pending-zone stage is complete. Exact native readback
+verifies one pending full `atmoshaper.com` zone on Free in the storage account,
+with two assigned nameservers held privately. The owner view shows no staged DNS
+records; the record-list API returns 403 under the current grant, so complete API
+inventory is not claimed. Fresh authoritative and recursive NS reads both match
+Namecheap. Do not repeat zone creation or login/token setup.
+October 9 UTC direct reads find no A, AAAA,
+CNAME, NS, TXT or CAA records at either proposed branded media host at both
+Namecheap authorities; root CAA has no data and NS/SOA controls succeed.
+Independent reads at two .com authorities also verify no parent DS. These dated
+checks must be refreshed before mutation and do not prove full-zone inventory.
+Cloudflare
+[requires the domain's zone in the same account as the bucket](https://developers.cloudflare.com/r2/buckets/public-buckets/#add-your-domain-to-cloudflare).
+Its [partial CNAME setup](https://developers.cloudflare.com/dns/zone-setups/partial-setup/)
+requires Business or Enterprise; no plan purchase is authorized or assumed.
+Prepare a full DNS preservation/onboarding comparison before selecting an
+operation. Agent dashboard policy remains unresolved and is not bypassed.
+
+Owner Namecheap views now show BasicDNS, DNSSEC/Dynamic DNS off, no domain
+redirects and Custom MX. Desktop view adds an email-related CNAME. Fresh paired
+reads agree on eight known record rows, with all seven prior values unchanged.
+The latest expanded owner view now shows both mail TXT rows. Fresh direct reads
+confirm unchanged full values and matching visible SPF/DKIM content, resolving
+the missing-TXT check; its support request is retired. The earlier CNAME still
+resolves but is absent from this image, so retain it in the private comparison.
+Its exact SMTP/application consumer is still unproved.
+Known-name DNS queries do not prove full zone completeness. The private candidate
+preserves these known values and is explicitly incomplete/not executable; no live
+DNS record, nameserver, DNSSEC or mail-routing change has occurred. The pending-zone creation stage does not authorize activation or media bindings. The owner subsequently approved staging exactly eight preserved DNS-only records at 300 seconds; the independently checked import remains unexecuted. Current-authority values match in fourteen reads, and all four SOA/NS controls at the assigned pending authorities pass. Complete legacy inventory and staged comparison still gate nameserver approval.
+
+The [compatible cutover plan](../superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
+owns that prerequisite, two proposed delivery hosts, consumer changes and saved
+rollback. Administrative/billing ownership, cache rules and exact cutover cost
+remain open. Do not list private object content, use
 credentials downloaded for a completed earlier operation, or create buckets
 because an old environment example mentions them. A reserved private-media
 name is not authority to inspect, transfer or host personal/clinical records.

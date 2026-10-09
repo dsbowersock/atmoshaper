@@ -2,6 +2,268 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Approve scoped Ably access and prepare the morning review
+
+- The owner approved the existing thirty-day, three-read-capability Ably packet,
+  then asked to continue within existing authority and collect questions for the
+  morning. Its hash-verified hidden-input window is open; owner token entry remains
+  pending. No new token, provider GET, app key, game traffic or activation occurred.
+- The protected inventory helper verifies the entire grant before resource reads,
+  filters credential-bearing/unknown fields and durably reserves each request
+  against the same twelve-GET ceiling. Twenty-four native offline boundary cases
+  pass using invented responses, without credential or network reads. The older
+  standalone token preflight is not additionally executed.
+- The [morning review](superpowers/plans/2026-10-09-atmoshaper-morning-review.md)
+  consolidates already-approved Ably/DNS owner steps, separate source publication,
+  and missing provider/recovery/acceptance inputs. Current hosted main still matches
+  the completed PR #42 merge, and no hosted PR exists for the owned source branch.
+  These reads do not reopen the completed review loop.
+- Normal Calendar Disconnect is an application connection deletion, not Google
+  grant revocation or dedicated-calendar teardown. The later actual public journey
+  must identify its own eligible account, synthetic state and cleanup intent;
+  no real appointments, role grants or earlier completed acceptance are repeated.
+- No push, source publication, Production build/promotion, nameserver/media change,
+  collection/upload/notification, payment, database write or legacy retirement
+  follows from the overnight continuation instruction.
+## 2026-10-09 — Prepare scoped Ably management access
+
+- No existing CLI package, default Ably config or Ably environment setting is
+  present in the checked paths. Inspected official source requests full OAuth
+  access and can save an app key. The narrower prepared packet asks for one
+  thirty-day token limited to app/channel-rule metadata and aggregate statistics;
+  existing app keys, game traffic, resource writes and activation are excluded.
+- Hidden-input DPAPI capture and fixed-host token preflight helpers are prepared
+  in the existing owner/SYSTEM-protected journal. Native synthetic encryption/
+  decryption passes with invented input and its scratch removed. Preflight syntax
+  passes; no real token is captured and no provider request or login is started.
+- Exact access approval and owner capture are pending. This preparation does not
+  establish Ably's current app inventory, billing or operational readiness. DNS
+  staging approval remains unchanged; owner import is still pending. Source HEAD
+  remains unchanged and new source publication remains separately gated.
+
+## 2026-10-09 — Identify the independent Production database resource
+
+- Current Vercel metadata binds both Production database variables to the same
+  owned, active integration store. Its external resource ID exactly matches the
+  separate AtmoShaper Neon project, and its sole connected app matches this
+  Vercel project. Complete native inventories distinguish retained legacy projects.
+- The existing Neon credential directory works with the current CLI; no new
+  login or grant was needed. Project/branch/compute metadata confirms one branch,
+  one compute endpoint and a six-hour history window on the current Free plan.
+  Private identifiers stay in the protected operation journal. No connection
+  strings, schema, user rows, database connections or provider writes occurred.
+- The connector's store 404 and the denied installation-resource route are not
+  evidence of an absent database. The successful native store read resolves its
+  identity. The first cursor-only pagination attempt stopped on a repeated cursor;
+  the native CLI's short-page completion and matching inventories supply proof.
+- Exact deployed credential/branch binding, admin/billing accountability, recovery
+  objectives and scoped restore acceptance remain gates. No migration, restore,
+  credential change or legacy retirement is authorized from this inventory.
+  DNS owner import remains pending and source HEAD stays unchanged.
+
+## 2026-10-09 — Prepare existing Sentry key and release prerequisites
+
+- Fresh identity and exact-key reads verify the approved project, unchanged
+  privacy and an existing active client key. Only its public DSN and necessary
+  metadata are retained privately; no secret or replacement key is retained.
+  Key-list pagination is not proved, so this is selected-key evidence only.
+- Its key-specific rate limit is unset; actual plan quotas, retention and billing
+  ownership remain open. The documented project repository-link list is empty.
+  Source-map upload does not inherently require a repository integration, but
+  exact release/artifact identity and mapped-frame acceptance still require proof.
+  Remote-loader Replay/performance defaults do not describe the bundled app SDK
+  or authorize collection. No provider setting, event, upload or alert was sent.
+- Pending Cloudflare authorities still answer all four SOA/NS controls and show
+  no answers for the fourteen approved-record queries. Owner import remains
+  pending; no import retry, nameserver change or hosting/media operation occurred.
+  HEAD stays unchanged and all preparation evidence remains protected privately.
+
+## 2026-10-09 — Prepare and approve eight-record staging; refresh payment metadata
+
+- Fourteen current-authority queries match all eight known preservation rows.
+  The first private shell comparison retained a record-object bug and stopped
+  candidate generation; its failed receipt remains historical and is not proof.
+  The corrected comparator requires nonempty exact sets and passes all fourteen.
+- A protected BIND staging file and exact rollback/readback packet now preserve
+  two A, two CNAME, one MX and three TXT rows. A separate local parser verifies
+  contents, full TXT chunks, MX priority, DNS-only tags, TTL 300 and file hash.
+  The owner explicitly approved staging these records only. Owner dashboard
+  import is pending; no nameserver, media, hosting or DNS import was executed.
+- All four SOA/NS controls at the assigned pending authorities pass, preparing
+  direct record readback after import without another token setup. The native
+  record-list API remains denied. Parent NS attempts remain unusable and are not
+  counted as delegation proof; the existing authority and recursive reads retain
+  Namecheap. Full old/staged inventories and later parent/DS/rollback proof still
+  gate nameserver approval.
+- The current Stripe account exactly matches the private prior purchase target.
+  Read-only Tax metadata is active with a configured head office and one active
+  registration; one page is complete. This does not prove product classification,
+  all five one-time attestations, background provisioning/reconciliation or
+  new-flow acceptance. No customer/payment rows or repeat live test were read/run.
+- Current-state verification and its existing reviewed date ceiling advance
+  together to October 9 with these new receipts. No application runtime/schema,
+  source publication, deployment, payment, email or provider-setting write occurred.
+
+## 2026-10-09 UTC — Verify the owner-created pending Free zone
+
+- The approved owner-led stage is complete. Exact native readback verifies one
+  pending full AtmoShaper zone on Free in the correct storage account. Its two
+  assigned nameservers remain in the protected private operation packet.
+- The owner-visible DNS table shows no records. The DNS-record API returns 403
+  under the current grant; complete paginated API inventory was not obtained,
+  correcting the earlier expectation that zone read alone would expose it.
+  No replacement token, broader grant or repeated login was requested.
+- Direct existing-authority and recursive NS reads match the saved Namecheap
+  authority. A parent NS attempt returned a DNS server failure and is not counted
+  as evidence. No DNS import, registrar, DNSSEC, media-binding or hosting change
+  occurred. The empty pending zone does not mean the live zone has no records.
+- Source HEAD remains unchanged. Readbacks and this stage receipt are protected
+  privately. Do not repeat zone creation; complete the full legacy comparison,
+  staged record access, TTL/proxy choices and exact rollback before separate
+  record or nameserver approval.
+
+## 2026-10-09 UTC — Authorize only the pending Free-zone stage
+
+- The owner explicitly approved one pending Free AtmoShaper zone in the existing
+  R2 account and settings verification. This does not approve registrar
+  nameservers, live DNS, media bindings, paid plans or public hosting changes.
+- The fresh native exact account/domain read succeeds with zero visible zones.
+  Native session renewal completed without asking the owner to sign in again.
+  Its grant remains zone-read-only; available Wrangler zone OAuth scopes do not
+  provide a zone-edit grant. Agent dashboard policy remains unresolved.
+- Creation therefore awaits the owner's same-account dashboard action: add the
+  domain on Free, choose manual DNS entry, and stop with the zone pending before
+  record entry or Namecheap nameserver changes. Existing read access can verify
+  the resulting account/plan, assigned nameservers and complete DNS inventory.
+  No replacement storage token, broad grant or repeated setup is required.
+- Approval and the exact packet remain protected privately; creation has not
+  occurred and all existing service/legacy routing remains unchanged.
+
+## 2026-10-09 UTC — Complete parent DNS and proposed media-host preflight
+
+- Direct DS reads at two .com authoritative servers return negative responses
+  with a .com SOA authority and no DS; positive .com SOA controls succeed at
+  both. This verifies the parent state independently of the owner's disabled
+  DNSSEC toggle. Refresh this dated proof immediately before any DNS change.
+- Direct reads at both existing Namecheap authorities return no records for
+  either proposed media hostname across A, AAAA, CNAME, NS, TXT and CAA; root
+  CAA returns no data and root NS/SOA controls succeed. One invented root-label
+  A probe also has no answer. These scoped reads do not enumerate the full zone
+  or prove absence of every wildcard or delegated record.
+- A protected proposal prepares only one pending Free full zone in the already
+  verified R2 account, followed by plan/account/nameserver and DNS inventory
+  readbacks. No pending zone was created, and no paid plan, DNS record import,
+  nameserver update, media binding or deployment is authorized by preparation.
+  The eight known records remain preserved with TTL decisions still open.
+- Four authenticated Sentry metadata GETs succeed. Project privacy controls and
+  advanced rules remain unchanged; sharing is disabled and organization IP
+  prevention is enabled. The project still has no first event, visible
+  environments or release rows. Retention/quota/billing, mapped source stacks
+  and useful delivered owner alerts remain unproved. No event payload, source
+  map upload or notification was requested, and no settings were changed.
+- Snapshots and the scoped preflight summary remain owner/SYSTEM-protected.
+  Source was not published; existing website/mail routing, legacy media and
+  working MassageLab tools remain unchanged.
+
+## 2026-10-08 — Resolve the missing mail TXT owner-view check
+
+- The owner supplied an expanded Namecheap view with Show Less visible. It
+  explicitly names AtmoShaper and shows the Google ownership TXT, mail DKIM TXT
+  and mail SPF TXT records, plus the existing website records and Custom MX.
+  The visible full SPF value and DKIM prefix match independent reads at both
+  authoritative servers; both complete mail values remain unchanged privately.
+  DKIM is shortened in the image, so its full value remains DNS-derived.
+- This resolves the missing-TXT owner-view check and supersedes the prepared
+  support question and earlier missing-entry statements below. Expansion is
+  consistent with the earlier incomplete display; exact user UI actions are
+  unknown. No support contact or record recreation is needed for that issue.
+- The earlier email-related CNAME still resolves unchanged at both servers but
+  is not visible in this latest image. Keep it in the eight-known-row private
+  preservation baseline; do not remove it or claim the image alone proves the
+  entire zone inventory. Full comparison, parent DS/host collisions and exact
+  onboarding/cost/propagation/rollback remain preflight work.
+- The owner image is saved with a verified hash in the existing protected
+  operation folder. No DNS, nameserver, provider, media or hosting change occurred;
+  no source was published and no completed live acceptance was repeated.
+
+## 2026-10-08 — Preserve owner DNS evidence and reconcile known authoritative records
+
+- The owner's subsequent desktop view explicitly names AtmoShaper and shows
+  five Host Records, including an additional email-related CNAME; the earlier
+  Mail Settings view contains one MX row. Fresh direct reads at both Namecheap
+  servers agree on eight known record rows. The new CNAME matches the screenshot
+  and all seven previously saved values remain unchanged. No CNAME is returned
+  at either of the two mail TXT owners; the additional CNAME does not replace
+  those TXT records. Its intended application/SMTP consumer is not yet proved.
+  Hash-verified owner evidence and a new eight-row preservation candidate remain
+  private. Desktop mode still omits the two live mail TXT records. Stop requesting
+  more screenshots; the next precise owner read is Namecheap's full authoritative
+  record list or authenticated readback and explanation of the missing entries.
+  Full-zone completeness and nameserver-change authority remain unproved.
+- The owner supplied the requested Namecheap views. They show BasicDNS,
+  DNSSEC/Dynamic DNS disabled, no domain redirects and Custom MX with the shown
+  priority preserved. Domain identity is cropped out; the supplied context and
+  independently matching apex addresses connect this evidence to AtmoShaper.
+  Both original images are copied into the existing owner/SYSTEM-protected
+  operation folder with matching SHA-256 hashes; no ACL was broadened.
+  A subsequent owner screenshot explicitly confirms `atmoshaper.com` and shows
+  only the Google ownership TXT record. Independent direct DNS reads reconfirm
+  the two mail TXT records at both Namecheap servers, with values matching the
+  prior reads; no separate account-subdomain NS or SOA records are returned.
+  The owner-interface discrepancy remains unexplained. Do not ask the owner to
+  recreate working mail records or infer that the full zone is inventoried.
+- Paired reads at both existing authoritative servers agree on seven known
+  website, ownership-verification and mail record rows. Full values shortened
+  in the owner view are recovered privately, including mail TXT wire chunks.
+  Observed DNS TTLs are retained separately from the registrar's Automatic label.
+- The owner view contains four Host Records and one mail row, but omits two
+  live mail TXT records. A filter control is visible; filtering is a possible
+  explanation, not a confirmed cause. Public known-name reads cannot establish
+  full zone completeness. The remaining owner check is the complete unfiltered
+  Host Records view or export, including all pages.
+- A private candidate baseline is prepared with preserved values, DNS-only
+  intent and explicit incomplete/not-executable status. Parent DS, all-record
+  completeness, host collisions, eligible zone/plan/nameservers, propagation and
+  exact rollback still require completion before approval of a concrete change.
+  Zero provider/DNS/media changes occurred; no zone was created and no
+  nameservers were changed. Source publication approval remains separate.
+
+## 2026-10-08 — Resolve R2 access and inventory all three existing media classes
+
+- The owner corrected the existing token's dates. Fresh self-verification matches
+  the saved token identity, confirms an active and currently valid start/expiry
+  window, and the canonical bucket-list GET succeeds with HTTP 200. No token
+  replacement, credential re-entry or permission expansion is needed.
+- Default-jurisdiction metadata returns the three owner-confirmed media classes;
+  EU/US lists return none, with no returned continuation cursor. Federal inventory
+  remains unavailable/unverified; this is not an all-jurisdiction completeness
+  claim. All three buckets are Standard storage in Eastern North America.
+- Public and anatomy each retain one enabled legacy custom domain with active
+  ownership/TLS and minimum TLS 1.2. Private media has no custom domain. Public
+  development access is disabled on all three. Public CORS allows GET/HEAD from
+  all origins and exposes range/cache/type/length/ETag headers; anatomy/private
+  explicitly have no CORS configuration. Each lifecycle rule only aborts
+  unfinished multipart uploads after seven days; no completed-object expiration
+  rule is returned. No setting was changed and no object content was listed.
+- The owner's aggregate screenshot reports about 5.1k anatomy objects/2.83 GB,
+  11.11k public objects/13.13 GB and zero private objects/bytes; total storage is
+  displayed as 15.95 GB. These are independently rounded owner observations,
+  not exact object counts, copied-byte verification or completed media migration.
+- The existing native Wrangler login is verified and includes the storage
+  account with user/account/zone read scopes. The exact AtmoShaper zone GET
+  succeeds but returns no zone; public DNS uses Namecheap nameservers. Existing
+  storage access therefore works, while branded-domain onboarding still needs
+  a complete authoritative DNS baseline and separately approved operation.
+- The [compatible media cutover plan](superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
+  prepares reuse of existing public/anatomy media, preservation of old domains,
+  private-media isolation, source URL/revision changes and bounded acceptance/
+  rollback. Private receipts retain exact references. Zero bucket/object/DNS,
+  provider credential, hosting or database writes occurred during this inventory.
+  Local documentation preparation does not publish source or activate delivery.
+  Documentation/workload checks pass 16/16; all 189 relative targets across nine
+  changed documents resolve, and added private-reference/whitespace scans pass.
+  Earlier local code checks remain dated; no completed live acceptance is rerun.
+
 ## 2026-10-08 — Complete PR #42 and privacy approval; diagnose storage access and inventory public indexes
 
 - The owner-approved PR #42 merge completes as `357095d`; its tree matches the

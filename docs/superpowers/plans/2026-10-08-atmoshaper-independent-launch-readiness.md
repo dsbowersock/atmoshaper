@@ -106,12 +106,36 @@ that for every build without changing explicit release credentials or QA isolati
 
 The public media-index read completes all 228 source-declared primary/format
 indexes and finds 6,800 sample references, all on the legacy media origin, with
-no payload requests. Private R2 token metadata identifies the access cause:
-administrative status is active but its start date is October 31. Owner correction
-of the existing start date is pending, preserving expiry and storage Read scope.
-After confirmation, verify the time window and make one canonical metadata read;
-do not request re-entry, replacement or broader permissions. Agent dashboard
-policy remains unresolved despite working owner Settings. These new local source
+no payload requests. The owner has corrected the existing R2 token's dates:
+the same saved identity is active and currently valid, and the canonical bucket
+read succeeds. Metadata verifies the three owner-confirmed buckets, active legacy
+public/anatomy domains, no private domain and disabled public development access
+on all three. Owner aggregate evidence shows about 15.95 GB. Exact native zone
+read now verifies one owner-created pending full AtmoShaper zone on Free in the
+storage account; fresh authoritative and recursive NS reads retain Namecheap. The [compatible media plan](2026-10-08-atmoshaper-compatible-media-cutover.md)
+prepares the DNS baseline/onboarding gate, retained old domains and consumer
+cutover without copying or deleting media. No token re-entry, replacement or
+broader storage grant is needed. The owner's Namecheap views now establish
+BasicDNS, disabled DNSSEC/Dynamic DNS, no domain redirects and Custom MX. Paired
+authoritative reads now agree on eight known record rows, including the additional
+email-related CNAME found in desktop view; all seven prior values are unchanged.
+The latest expanded owner view shows both mail TXT rows; fresh paired DNS reads
+verify unchanged values and matching visible content. The missing-TXT support
+request is retired. The earlier CNAME remains live and retained despite absence
+from the latest image. Full-zone comparison and exact onboarding/rollback remain
+prerequisites; the screenshot is not nameserver-change approval.
+October 9 UTC reads verify parent DS absence at two .com authorities and no
+records at either proposed media host across six types at both Namecheap
+servers. The owner approved only pending Free-zone creation/verification, and
+that stage is complete: account/plan, pending full-zone state and two assigned
+nameservers are verified. The owner view shows no staged DNS records; the
+record-list API returns 403 under the existing grant, so complete API inventory
+is not claimed. Full legacy-zone comparison, staged record access, TTL/proxy
+choices and exact cutover/rollback remain gated by separate approval. Fresh Sentry metadata confirms unchanged privacy and no first
+event, visible environments or release rows. Quota/retention/billing and mapped
+stacks/owner alert delivery remain unproved.
+Agent dashboard policy remains unresolved.
+These new local source
 and administrative changes need their own validation/reviews and publication
 approval; no media/provider activation follows from inventory.
 
@@ -129,9 +153,10 @@ approval; no media/provider activation follows from inventory.
 - Obtain only the precise missing read access. Initial CLI checks lacked
   authentication. The owner subsequently completed Cloudflare and Sentry login.
   Current readback identifies one Cloudflare account. The saved token is active
-  and storage-read/account coverage is owner-confirmed. Its future start date
-  explains the recorded R2 `10000`; await the owner's date correction before
-  re-verifying and reading bucket metadata. Sentry has one
+  and storage-read/account coverage is owner-confirmed. Its former future start
+  date explains historical R2 `10000`; the owner's correction and successful
+  metadata inventory are complete. Full authoritative DNS/admin/billing evidence
+  remains open; do not repeat capture or corrected-date setup. Sentry has one
   organization/team and initially one legacy Next.js project. The separately
   approved new AtmoShaper project is now created and verified; legacy resources
   stay intact. Provider references and status receipts remain private. Identify Ably owner
@@ -150,6 +175,34 @@ Owners: [realtime server](../../../lib/anatomime-realtime.ts),
 [token route](../../../app/api/anatomime/sessions/[code]/realtime-token/route.ts),
 [player client](../../../app/anatomime/shared-session-client.tsx),
 [provider checklist](../../rebrand/atmoshaper-external-account-checklist.md#ably-staging-gate).
+
+October 9 access preparation finds no CLI package, default configuration or
+Ably environment setting in the checked paths. The inspected official CLI
+source requests `full_access` during OAuth and can retrieve/save an existing app
+key. The prepared narrower owner token has thirty-day expiry and only
+`read:app`, `read:namespace` and `read:stats`, scoped to the owner's existing
+account. See [Ably access-token capabilities](https://ably.com/docs/platform/account/access-tokens).
+All other capabilities stay off. App-key reads, resource writes, data-plane
+traffic, billing changes and hosted activation remain outside this packet.
+
+Protected local helpers are prepared: hidden secure input, current-user Windows
+DPAPI, exclusive capture and a fixed-host, fifteen-second/one-MiB token GET
+preflight. The native encryption/decryption check passes using invented input;
+its scratch is removed, with zero provider requests. The preflight is syntax
+checked and remains unexecuted. It rejects broader or missing capabilities and
+absent/expired/overlong expiry before inventory. The later read budget is at most
+twelve metadata GETs and two hourly aggregate-statistics intervals. Response
+secrets are filtered before private persistence; token values stay out of chat
+and tracked files. The owner approved this exact access step; its protected
+hidden-input window is open and token capture remains pending. No CLI install,
+OAuth login, token creation, resource inventory or realtime activation occurred.
+
+The prepared inventory entrypoint combines grant verification and filtered reads
+under one durable twelve-GET budget, reserving each request before dispatch.
+Twenty-four native offline boundary cases pass without credential reads or network
+requests. Do not additionally execute the older standalone preflight; it remains
+a historical prepared helper. The [morning review](2026-10-09-atmoshaper-morning-review.md)
+separates owner capture from later resource/key/activation approval.
 
 - Identify an independently owned AtmoShaper Ably Production app and isolated
   verification app, existing if available. Read role/capability/origin/usage
@@ -229,6 +282,14 @@ The completed provider packet was **initial project creation only**:
 - Preserve anonymous route families and scrubbed stack traces; disable personal
   identifiers, request/response content, clinical/local-vault data, automatic
   breadcrumbs, Replay, standard User Feedback, attachments and Logs.
+- October 9 read-only preparation verifies one selected existing active client
+  key by exact-key GET, keeps its public DSN privately and retains no key secret.
+  Key-list pagination remains unproved; no new key is needed for this candidate.
+  Its key-specific rate limit is unset and project repository links are empty.
+  Read actual plan/retention/billing before selecting a collection ceiling; use
+  the bundled SDK rather than the remote loader's Replay/performance defaults.
+  A repository integration is not inherently required for source-map upload;
+  exact reviewed artifact/release and mapped-stack proof remain required.
 - Prepare exact DSN/build-secret/environment settings and alert changes; do not
   expose credentials or send notifications to others without that explicit scope.
 - Separately authorize one enum-only synthetic error and inspection of its
@@ -246,7 +307,10 @@ and publication receipts. The [source consumer/cutover map](../../wiki/media-ind
 and `npm run migration:media:inventory` distinguish absolute audio URLs,
 generative hosted/nested indexes, relative published previews, their earlier
 fallback, and database-controlled anatomy URLs. Source declarations are not
-provider storage or playback proof. Use the Cloudflare skill and current provider docs.
+provider storage or playback proof. The [compatible media cutover plan](2026-10-08-atmoshaper-compatible-media-cutover.md)
+owns the verified three-bucket settings, missing zone/DNS onboarding, preserved
+legacy domains, consumer work and acceptance/rollback. Use the Cloudflare skill
+and current provider docs.
 
 - Read exact account/bucket/domain/CORS/cache/usage bindings and classify their
   AtmoShaper and legacy consumers. Do not list private object content or download
@@ -277,6 +341,7 @@ media, compatible playback and no loss of legacy Clock/tool assets.
 - Verify an initial sync and an agreed controlled change, reconnect/refresh and
   normal Disconnect/cleanup through the actual deployed paths. Avoid importing
   real appointments or customer details into an acceptance fixture.
+- Source inspection confirms normal Disconnect removes the owned resolved application connection; it does not revoke the Google grant or delete the dedicated Google calendar. Identify any separately approved provider teardown and preserve pre-existing state before describing cleanup as complete.
 - Distinguish user-created state intended to remain from temporary owned test
   state; no blanket calendar deletion or token revocation is authorized.
 
@@ -317,6 +382,15 @@ Acceptance: both advertised paths function with correct tax, durable ownership
 or no-benefit support semantics, reconciliation and rollback; recurring billing
 continues unchanged.
 
+October 9 metadata refresh matches the current Stripe self-account exactly to
+the privately recorded prior purchase target. Tax settings are active, head
+office is configured and the complete registration list has one active row with
+no continuation. No customer/payment rows, Session, payment, registration write
+or repeat recurring acceptance occurred. A default tax-code value is absent;
+product-specific classification and actual new-flow evidence remain separate
+requirements. These readbacks do not authorize changing the five one-time
+attestations, background provisioning/reconciliation, public flags or tax policy.
+
 ### 7. Finish independent mail, domains and legacy separation
 
 October 8 Resend metadata readback identifies one verified AtmoShaper sending
@@ -325,6 +399,25 @@ Provider DKIM/SPF-labeled record statuses are verified; no DNS values, provider
 identifiers, recipients or messages are stored in tracked evidence. This does
 not prove the current Production SMTP binding, DMARC alignment, plan ownership,
 actual delivery, or an inbound support route; no mail or verification was sent.
+
+October 9 database metadata closes resource identification for the current
+Production configuration. Both Vercel database variables point to one owned,
+active integration store whose external resource ID exactly matches the separate
+AtmoShaper Neon project. Its sole connected project matches this Vercel app.
+The existing Neon login works when the CLI explicitly selects its existing
+credential directory; no new login or grant was needed. Native complete project
+inventories distinguish the retained legacy projects. The selected project has
+one branch and compute endpoint, with a configured six-hour history window on
+its current Free plan. Private references and comparison receipts stay outside
+Git; no connection string, schema, user row or database connection was requested.
+
+This proves current configuration/resource identity, not the exact deployed
+credential/branch target or recovery readiness. Finish administration and billing
+accountability, agree recovery objectives and prepare a bounded restore scope
+before requesting any database write. Do not recreate the database, rotate its
+credentials, restore it or retire a legacy project from this inventory. A denied
+installation-resource route and the connector's store 404 remain failed access
+checkpoints; the successful native store read supplies the binding evidence.
 
 - Reconcile the actual AtmoShaper database/admin/backup ownership, Google auth and
   Calendar clients, SMTP sender/support destination, DNS, domains, build service,

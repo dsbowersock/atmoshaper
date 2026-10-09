@@ -6,6 +6,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 - [Project state](../project-state.md)
 - [Project log](../project-log.md)
+- [Compatible AtmoShaper media cutover](../superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
 - [Migration status and remaining work](migration-status.md)
 - [Independent AtmoShaper marketing-readiness plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
 - [Architecture](../architecture.md)
