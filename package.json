@@ -23,6 +23,7 @@
     "test:seo": "node --test tests/seo.test.mjs tests/public-product-identity.test.mjs",
     "migration:media:inventory": "node scripts/migration-media-inventory.mjs",
     "migration:media:public-inventory": "node scripts/migration-public-media-inventory.mjs",
+    "test:generative-media-delivery": "node --test tests/generative-fm-media-delivery.test.mjs tests/atmosphere-generative-fm-sample-index.test.mjs tests/atmosphere-generative-fm-provider.test.mjs tests/generative-fm-runtime-source.test.mjs tests/atmosphere-provider-lazy-boundary.test.mjs tests/atmoshaper-runtime-boundary.test.mjs tests/carousel-lab-source.test.mjs",
     "test:media-inventory": "node --test tests/migration-public-media-inventory.test.mjs tests/browser-qa-environment.test.mjs",
     "test:calendar-sync": "node --test tests/google-calendar-adapter.test.mjs tests/calendar-google-isolation.test.mjs tests/calendar-sync-service.test.mjs tests/calendar-sync-env.test.mjs tests/calendar-sync-secrets.test.mjs tests/calendar-sync-normalization.test.mjs tests/calendar-outbound-sync.test.mjs tests/calendar-external-conflicts.test.mjs",
     "test:calendar-scope-comparison": "node --test tests/calendar-scope-comparison.test.mjs tests/calendar-scope-fixtures.test.mjs",

@@ -69,12 +69,13 @@ reviews. Fix only valid owned findings, preserve unrelated work, and bind any
 subsequent readiness claim to the final reviewed head. Completed PRs #41/#42 and
 their historical checks remain closed.
 
-The change adds bounded public media-index inventory, disables the separate
-Sentry vendor build telemetry, and reconciles current documentation and the
-review-date assertion. Previously completed media/Sentry/lint/typecheck receipts
-remain dated; the final documentation checks have their own receipt. No app
-runtime, schema, migration, secret binding, media payload or provider activation
-change is introduced by the documentation follow-up.
+The change adds bounded public media-index inventory, disables separate Sentry
+vendor build telemetry, reconciles current documentation and the review-date
+assertion, and prepares opt-in Generative.fm index/nested-sample rebinding.
+Legacy delivery remains the default. The new runtime switch has focused checks
+with invented responses and substituted network/audio dependencies; no hosted
+binding, media payload, schema/migration or provider activation is changed.
+Current validation and the final exact head are in the protected packet.
 
 This approval would include the ordinary draft PR's CI/Preview behavior. It would
 not include merge, Production build/promotion, DNS/media/Sentry configuration,

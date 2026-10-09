@@ -35,6 +35,31 @@ requirements separate from those stable identifiers.
 | Anatomy study images | [Study-media reader](../../lib/anatomy-study-media.ts) selects reviewed public media URLs from database records; the [admin upload owner](../../lib/anatomy-media-review-server.ts) uses the established R2 variables | A new upload base does not change existing records. Obtain exact aggregate-only database inspection authority before choosing a scoped URL migration or runtime mapping. No row export, blanket seed or upload is implied |
 | Rendered backgrounds, local assets and external sources | [Background registry](../../components/backgrounds/backgroundRegistry.ts), bundled components and retained provenance distinguish rendering assets from attribution/source links | Verify actual asset requests on the final offered backgrounds. Keep licenses and attribution; a reference link is not necessarily a runtime storage dependency. Do not widen the catalog or fetch upstream media as an inventory shortcut |
 
+## Local Generative.fm delivery preparation
+
+The current local source adds `NEXT_PUBLIC_GENERATIVE_FM_MEDIA_ORIGIN` to the
+browser runtime. Unset, empty or `https://media.massagelab.app` preserves existing
+delivery. The sole opt-in is `https://media.atmoshaper.com`, the proposed public
+host; other values are rejected before index fetching. No hosted setting or
+domain binding has been added. Next embeds this public value at build time, so
+changing it later requires a separately approved build and release.
+
+The actual index loader maps both its request URL and nested string/array/note
+collection values on the exact old origin, retaining literal object paths,
+query/fragment suffixes, keys and order. Relative and other-origin references
+retain their semantics. The original index object and old hosted indexes remain
+unchanged. Both preparation caches include the delivery origin, preventing a
+cached old payload set from satisfying new-host preparation. An opt-in failure
+stays visible; there is no automatic fallback that would falsely pass acceptance.
+
+Run `npm run test:generative-media-delivery` for invented-response checks of the
+index loader, bounded provider and actual runtime prewarm/cache behavior, plus
+related ownership/lazy-loading contracts. No remote media, audio graph or
+application/provider starts in these tests. Type checking and lint also apply.
+Actual browser playback and retained legacy-tool continuity still need their
+separate bounded acceptance packet. Signature audio, both Chimer preview bases
+and anatomy are separate required consumers, not covered by this switch.
+
 ## Reproducible source inventory
 
 Run `npm run migration:media:inventory`. The command reads only the local public

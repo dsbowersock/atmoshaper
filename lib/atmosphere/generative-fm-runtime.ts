@@ -1,5 +1,7 @@
 import {
   fetchGenerativeFmSampleIndex,
+  resolveGenerativeFmMediaOrigin,
+  resolveGenerativeFmSampleUrl,
   selectGenerativeFmSampleWarmupUrls,
 } from "./generative-fm-sample-index"
 import {
@@ -65,6 +67,7 @@ type GenerativeFmRuntimeConfig = {
   sampleGroups: Array<string | string[]>
   sampleFormat: HostedSampleFormat
   sampleIndexUrl: string
+  mediaOrigin: string
 }
 
 type GenerativeFmRuntimeModules = {
@@ -345,6 +348,7 @@ async function getPreparedGenerativeFmRuntime(
     fetchGenerativeFmSampleIndex({
       sampleIndexUrl: config.sampleIndexUrl,
       sampleGroups: config.sampleGroups,
+      mediaOrigin: config.mediaOrigin,
     }) as Promise<GenerativeFmSampleIndex>,
     loadGenerativeFmRuntimeModules(),
     loadGenerativeFmPiece(config.pieceId),
@@ -383,7 +387,13 @@ function readGenerativeFmRuntimeConfig(station: GenerativeFmRuntimeStation): Gen
     throw new Error("Generative.fm station is missing a package piece id.")
   }
 
-  return { pieceId, sampleFormat, sampleGroups, sampleIndexUrl }
+  // Next embeds this literal public setting at build time. Retain the legacy
+  // default until the separately approved branded binding and rollout exist.
+  const mediaOrigin = resolveGenerativeFmMediaOrigin(process.env.NEXT_PUBLIC_GENERATIVE_FM_MEDIA_ORIGIN)
+  return {
+    pieceId, sampleFormat, sampleGroups, mediaOrigin,
+    sampleIndexUrl: resolveGenerativeFmSampleUrl(sampleIndexUrl, mediaOrigin),
+  }
 }
 
 /**
@@ -420,8 +430,9 @@ function canPlayAudioType(audioType: string) {
   }
 }
 
-function preparedRuntimeCacheKey({ pieceId, sampleFormat, sampleGroups, sampleIndexUrl }: GenerativeFmRuntimeConfig) {
-  return JSON.stringify([pieceId, sampleFormat, sampleIndexUrl, sampleGroups])
+function preparedRuntimeCacheKey({ pieceId, sampleFormat, sampleGroups, sampleIndexUrl, mediaOrigin }: GenerativeFmRuntimeConfig) {
+  // Origin also partitions an unchanged third-party index with rebound payloads.
+  return JSON.stringify([pieceId, sampleFormat, sampleIndexUrl, sampleGroups, mediaOrigin])
 }
 
 /**

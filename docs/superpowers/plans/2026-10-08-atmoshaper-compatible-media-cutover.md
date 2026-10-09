@@ -224,6 +224,28 @@ transformations locally with invented data and actual helpers, then use the
 authorized source publication/review loop. Hosted build bindings, provider
 changes and exact-artifact public promotion remain separate operations.
 
+### October 9 local Generative.fm preparation
+
+The narrow runtime mapping is prepared locally. The public build setting
+`NEXT_PUBLIC_GENERATIVE_FM_MEDIA_ORIGIN` defaults to the retained legacy host;
+the exact proposed branded host is its sole additional allowed value. Both
+index and nested payload URLs move together, and both in-memory preparation
+caches partition by origin. Instrument/note keys, literal paths, formats,
+ordering and old indexes remain unchanged. Invalid settings or branded fetch
+errors stop rather than silently retry the old host.
+
+Focused invented-response regressions cover the actual loader/provider/runtime
+prewarm and cache path, including rollback, exact-origin boundaries, invalid
+configuration, a third-party index with old-host payloads and lazy WAV fallback.
+No audio graph, application, provider or remote object starts. See the
+[consumer runbook](../../wiki/media-independence.md) for the named check.
+
+This preparation does not set a hosted value, bind a media domain, verify
+payloads/playback or cover Signature audio, Chimer's two bases or anatomy.
+Source publication/reviews and the existing DNS, R2, build/release and acceptance
+gates still apply. Clearing the hosted opt-in requires an approved rebuild;
+old domains/objects/indexes remain available for that rollback.
+
 ## 4. Bounded acceptance and rollback
 
 Specify immutable object/index allowlists, request count, streamed-byte caps,

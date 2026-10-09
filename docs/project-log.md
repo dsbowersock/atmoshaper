@@ -2,6 +2,31 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Prepare opt-in Generative.fm branded delivery locally
+
+- The runtime now resolves the index and nested sample destinations together,
+  preserving legacy delivery when the new public build setting is absent or
+  explicitly selects the old origin. The only additional accepted origin is
+  the prepared branded public host. Invalid bindings stop before index requests;
+  branded errors do not silently fall back and hide a failed cutover.
+- Instrument/note keys, ordering, literal paths, queries/fragments and cached
+  relative or other-origin references remain intact. Metadata is copied for
+  rebinding rather than changed in place. Metadata and payload-prewarm caches
+  include the delivery origin, including when the index itself is unchanged.
+- Focused regressions exercise actual index fetching, the bounded provider and
+  the transpiled runtime prewarm/cache path with invented responses and replaced
+  audio/network dependencies. No application, audio graph, listener, provider
+  or database starts. This covers one consumer family, not completed media
+  independence; Signature audio, both Chimer paths and anatomy remain required.
+- Final local validation passes 76 focused cases, including nine new delivery
+  cases, and all 16 documentation/workload cases. Lint/typecheck, whitespace and
+  added-source private-reference scans pass; all 196 relative targets across the
+  ten changed Markdown files resolve. Hosted CI/reviews remain unpublished.
+- Source publication/review, hosted build binding, DNS/R2 configuration and real
+  playback/legacy-continuity acceptance remain separate gates. The public release,
+  old URLs/objects, credentials and the owner's already-approved morning steps
+  are unchanged.
+
 ## 2026-10-09 — Approve scoped Ably access and prepare the morning review
 
 - The owner approved the existing thirty-day, three-read-capability Ably packet,
