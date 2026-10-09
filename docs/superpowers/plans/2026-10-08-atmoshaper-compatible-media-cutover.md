@@ -246,6 +246,29 @@ Source publication/reviews and the existing DNS, R2, build/release and acceptanc
 gates still apply. Clearing the hosted opt-in requires an approved rebuild;
 old domains/objects/indexes remain available for that rollback.
 
+### October 9 local Signature catalog candidate
+
+The metadata-only preparation command now rebuilds all 1,800 rendition references
+through the existing release builder, with a changed checksum-bound revision.
+The original and normalized revision, approved rights, exact object paths,
+repeated rendition ownership and full counts must pass first. All catalog
+identity/playback/provenance and declared payload metadata remain intact.
+Reverse rebinding reproduces the original catalog exactly.
+
+Default execution only plans; explicit candidate export creates a new local file
+exclusively. The branded candidate is retained privately and current runtime data
+is unchanged. No credential/dotenv, payload read, encoding, provider request,
+upload or media mutation occurs. Whole-catalog, revision, rollback and invented
+boundary tests pass. The [runbook](../../wiki/media-independence.md) lists the
+named plan/test commands.
+
+After verified DNS/R2 binding and exact source authority, install the reviewed
+candidate through the source/review loop before an approved candidate build,
+playback/legacy acceptance and final exact-artifact public rollout. Do not run
+the existing staging/upload tool merely to change delivery URLs. Its historical
+encoding/upload receipts remain complete. Both Chimer bases and anatomy are
+still separate required consumer work.
+
 ## 4. Bounded acceptance and rollback
 
 Specify immutable object/index allowlists, request count, streamed-byte caps,

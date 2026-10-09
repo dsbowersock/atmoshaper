@@ -71,11 +71,11 @@ their historical checks remain closed.
 
 The change adds bounded public media-index inventory, disables separate Sentry
 vendor build telemetry, reconciles current documentation and the review-date
-assertion, and prepares opt-in Generative.fm index/nested-sample rebinding.
+assertion, prepares opt-in Generative.fm index/nested-sample rebinding, and adds a metadata-only Signature catalog candidate command.
 Legacy delivery remains the default. The new runtime switch has focused checks
 with invented responses and substituted network/audio dependencies; no hosted
 binding, media payload, schema/migration or provider activation is changed.
-Current validation and the final exact head are in the protected packet.
+The Signature command prepares all 1,800 rendition references with a new revision and exact rollback; its candidate is private and the runtime catalog is unchanged. Current validation and the final exact head are in the protected packet.
 
 This approval would include the ordinary draft PR's CI/Preview behavior. It would
 not include merge, Production build/promotion, DNS/media/Sentry configuration,

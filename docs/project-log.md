@@ -2,6 +2,34 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Prepare the branded Signature catalog without media mutation
+
+- The metadata-only command rebuilds the complete committed catalog for the
+  proposed branded host using the existing release builder. All 51 concepts,
+  450 source references, 410 payload identities and 1,800 rendition references
+  remain intact. The 1,640 distinct format objects retain declared hashes,
+  sizes, paths, rights, timing and browser format choices.
+- Incoming raw and normalized metadata must both match the existing revision.
+  Exact origin/content-addressed paths, repeated rendition owners and summary
+  counts are checked. Changed URL values produce a new revision; idempotence and
+  reverse rebinding reproduce the original catalog exactly. The established
+  revision collation is preserved rather than creating a new digest contract.
+- Default execution prints a no-write plan. Explicit output exclusively creates
+  a new local file and cannot overwrite stranded evidence. The verified branded
+  candidate is saved only in the protected operation journal. Current runtime
+  data is untouched; no credentials/dotenv, payload reads, encoding, provider
+  requests, uploads or bucket mutations occur.
+- All 13 focused catalog cases pass, including seven new whole-catalog and
+  boundary cases. The first reference-digest test used a different key collation
+  and stopped; correcting that test to the established contract verifies both
+  revisions and the intended ownership rejection paths.
+- Final lint/typecheck and all 16 documentation/workload checks pass. Whitespace,
+  complete relative-target and added-source privacy scans are required on the
+  final owned snapshot before local commit and private publication-packet update.
+- Signature candidate installation/publication, branded DNS/R2 bindings and real
+  playback/legacy continuity remain later exact operations. Generative preparation,
+  the two Chimer bases, anatomy and other independent-service gates retain scope.
+
 ## 2026-10-09 — Prepare opt-in Generative.fm branded delivery locally
 
 - The runtime now resolves the index and nested sample destinations together,

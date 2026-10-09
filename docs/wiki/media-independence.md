@@ -60,6 +60,34 @@ Actual browser playback and retained legacy-tool continuity still need their
 separate bounded acceptance packet. Signature audio, both Chimer preview bases
 and anatomy are separate required consumers, not covered by this switch.
 
+## Local Signature catalog preparation
+
+Run `npm run migration:media:signature-catalog` for a metadata-only, no-write
+candidate plan. It uses committed public declarations and the existing release
+builder to rebind every rendition URL to the exact proposed branded public host
+and recompute the catalog revision. Raw and normalized metadata must both match
+the input revision. Rights, summary counts, exact content-addressed paths and
+repeated rendition owners are checked before preparing output.
+
+The complete candidate keeps 51 concepts, 450 source references, 410 payloads,
+1,800 format references and 1,640 distinct format objects. Declared format bytes
+remain 6,308,427,694; no remote bytes are newly verified. Concept/source identity,
+pool order, rights, playback policies, timings, hashes and sizes remain intact.
+The candidate revision differs because URLs change. Reverse rebinding restores
+the original catalog exactly; the established digest collation remains unchanged.
+
+An explicit `-- --output NEW_LOCAL_FILE` exclusively writes a new candidate
+file, never overwriting the current catalog or existing evidence. A verified
+candidate is retained privately. This command loads no dotenv/credentials or
+provider/upload client, reads no source audio and performs no encoding, remote
+request or media mutation. It does not install the candidate into the runtime.
+
+Run `npm run test:signature-media-delivery` for whole-catalog equality, revision,
+rollback, browser-format and invented drift/ownership rejection cases, including
+exclusive-output preservation. Source candidate installation/reviews, verified
+branded bindings and separately authorized playback/legacy continuity remain
+required. The current published/default catalog is unchanged.
+
 ## Reproducible source inventory
 
 Run `npm run migration:media:inventory`. The command reads only the local public
@@ -82,8 +110,8 @@ The October 8 result is:
 
 Declared bytes and hashes are metadata, not a new verification of remote bytes
 or a complete bucket size/copy budget. The inventory intentionally does not
-convert source-enabled audio into an observed-playback claim. These media
-declarations and runtime owners are unchanged against the recorded public
+convert source-enabled audio into an observed-playback claim. At that inventory checkpoint, these media
+declarations and runtime owners were unchanged against the recorded public
 `38d0ded` source; hosting/configuration receipts retain their recorded dates.
 
 ## Bounded public index inventory
