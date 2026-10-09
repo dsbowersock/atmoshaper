@@ -2,6 +2,26 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Complete the approved staged DNS export and backup
+
+- The owner supplied the downloaded pending-zone export. Local verification at
+  16:20 UTC matches all eight full record values against the frozen approved
+  BIND file and preservation values, including MX priority 10, TTL 300 and four
+  explicit DNS-only tags on eligible records. No proxy repair or reimport is
+  needed.
+- Its two generated NS entries match the assigned Cloudflare zone nameservers;
+  the single SOA has the expected owner and structure. These are zone scaffolding
+  and do not change or authorize live delegation.
+- A byte-identical export backup and hash/comparison receipt are verified in the
+  existing owner/SYSTEM-protected operation folder. The original download remains
+  intact. Earlier local parser attempts stopped before backup and made no provider
+  requests; their repaired directive/TTL assumptions are recorded privately.
+- DNS staging/import/direct readback/export are complete. The earlier dated
+  Namecheap authority receipt remains the live-authority evidence; this local
+  comparison did not refresh it. Complete old-zone inventory, fresh parent/DS
+  proof, exact propagation/rollback and separate nameserver approval remain gates.
+  No provider, registrar, DNSSEC, media or hosting change occurred.
+
 ## 2026-10-09 — Verify the owner's eight-record Cloudflare staging
 
 - The owner imported the approved preservation file into the existing Free zone.
@@ -20,6 +40,7 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
   parent/DS evidence, exact propagation/rollback and separate nameserver authority
   remain required. No registrar, DNSSEC, media binding, hosting or agent provider
   write occurred. Keep Continue to activation untouched and do not repeat import.
+
 ## 2026-10-09 — Complete the approved Ably read-only inventory
 
 - The owner completed a replacement hidden-input capture. The authenticated

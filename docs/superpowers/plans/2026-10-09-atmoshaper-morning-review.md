@@ -6,7 +6,7 @@ existing authority and one consolidated morning review. Read
 [independent launch plan](2026-10-08-atmoshaper-independent-launch-readiness.md)
 first. This page is a decision queue, not provider-write authorization.
 
-## Already approved: finish these owner steps
+## Already approved: completed access and DNS staging
 
 ### Completed: Ably read-only access
 
@@ -26,7 +26,8 @@ The [Ably binding plan](2026-10-09-atmoshaper-ably-binding.md) prepares a dedica
 server key, an isolated verification app and the existing room-token boundary.
 Administration/billing/quotas and separately approved binding/live acceptance
 remain required. Agent dashboard policy remains unresolved.
-### DNS import verified: save the staged export
+
+### Completed: DNS import, readback and protected export
 
 The owner imported the already-approved eight-row file. All eight displayed
 records are DNS-only with TTL five minutes; both assigned Cloudflare authorities
@@ -35,17 +36,20 @@ Current-authority values remain unchanged and direct/recursive NS checks retain
 Namecheap. The explicit per-record proxy tags overrode the selected import
 checkbox. No correction, duplicate import or new token is needed.
 
-Next owner step under the existing staging approval: open the zone's DNS Records
-page, choose Import and Export, then Export. Retain the downloaded filename for
-private comparison and backup. Do not change any record or Namecheap nameserver,
-and leave Continue to activation untouched. Agent dashboard policy and the
-record-list API denial remain unresolved; no broader grant is needed for this
-completed direct readback.
+The owner supplied the downloaded export. October 9, 16:20 UTC local verification
+matches all eight complete values, MX priority, TTL 300 and four eligible
+DNS-only tags against the approved file and frozen preservation values. Generated
+NS/SOA entries match the assigned zone. A byte-identical owner/SYSTEM-protected
+backup is verified, and the original is preserved. No further import, export or
+token entry is needed for this completed staging step.
 
-This staging proof covers the known eight rows. The later live DNS operation
-still needs complete old/staged inventories, export/backup, fresh parent
-NS/DS proof, exact propagation/rollback and its own approval. See the
+This staging proof covers the known eight rows. Complete old-zone inventory,
+fresh parent NS/DS proof, exact propagation/rollback and separate activation
+approval remain required. Leave Continue to activation and Namecheap nameservers
+unchanged. Agent dashboard policy and the record-list API denial remain
+unresolved; no broader grant follows from export verification. See the
 [compatible media plan](2026-10-08-atmoshaper-compatible-media-cutover.md).
+
 ## New approval ready for review: publish the source follow-up
 
 Review the owned branch's prepared source snapshot and local validation receipt.
@@ -106,7 +110,7 @@ must concern only the remaining offered user journeys.
 
 ## Next order after the inputs
 
-1. Save and compare the already-approved staged DNS export; Ably inventory and eight-record import/direct readback are complete.
+1. Ably inventory and eight-record DNS staging/import/readback/export are complete; preserve the protected receipts and current authority.
 2. Publish/review the exact prepared source only after its publication approval.
 3. Prepare independent Ably resource/key/binding and bounded host/phone/reconnect
    scopes from the actual inventory.

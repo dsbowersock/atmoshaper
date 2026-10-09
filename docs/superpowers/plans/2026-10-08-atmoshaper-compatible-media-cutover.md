@@ -143,7 +143,7 @@ refreshed preflight and exact rollback must be prepared before separate record
 or nameserver approval. Agent dashboard policy remains unresolved and is not
 bypassed. Approval did not expand the existing read token.
 
-### Approved staging: import and direct readback complete; export pending
+### Completed approved staging: import, direct readback and protected export
 
 The owner imported the prepared eight-row file on October 9. Screenshots show
 all eight rows: two A, two CNAME, one MX and three TXT records, all DNS-only
@@ -160,11 +160,18 @@ retain Namecheap. All four pending SOA/NS controls pass. The local response
 adapter was corrected and verified with invented records before the successful
 comparison; failed writer/adapter attempts remain private historical evidence.
 
-Save an owner export from DNS Records, Import and Export, Export under the
-existing staging approval. Compare it to the protected frozen file before
-closing the backup gate. The export is still pending. Agent dashboard policy
-and the record-list API denial remain unresolved; direct DNS and owner-visible
-settings supply scoped evidence without expanding credentials.
+The owner supplied the staged zone export. Local verification at October 9,
+16:20 UTC matches every application record against the frozen approved BIND
+file and preservation values: eight rows, MX priority 10, TTL 300 and four
+explicit eligible DNS-only tags. The two generated NS entries match the assigned
+zone nameservers and its single SOA has the expected zone structure; these are
+zone scaffolding, not an authority change. A byte-identical backup and hash receipt
+are saved with owner/SYSTEM-only access, preserving the original download.
+No provider request or write occurred in this export comparison.
+
+The staging export/backup gate is complete. Agent dashboard policy and the
+record-list API denial remain unresolved; direct DNS, owner-visible settings
+and this full staged export supply scoped evidence without expanding credentials.
 
 This does not establish complete old-zone inventory, activate the domain or
 approve nameserver changes. Preserve the known earlier mail CNAME, every current
