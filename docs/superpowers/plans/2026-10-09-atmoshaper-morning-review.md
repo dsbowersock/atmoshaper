@@ -8,34 +8,24 @@ first. This page is a decision queue, not provider-write authorization.
 
 ## Already approved: finish these owner steps
 
-### Ably read-only access
+### Completed: Ably read-only access
 
-The owner approved one thirty-day token in the existing Anatomime account, with
-only **Read App**, **Read Rule (channel rules)** and **Read Stats**. The protected
-hidden-input PowerShell window is open. Token capture remains pending; no Ably
-provider inventory or game traffic has run.
+The owner completed the replacement encrypted capture, and the approved inventory
+is verified at October 9, 14:13 UTC. The thirty-day token has exactly **Read App**,
+**Read Rule (channel rules)** and **Read Stats**: `read:app`, `read:namespace` and
+`read:stats`. No further token creation, entry or CLI login is needed.
 
-Use the owner's [Ably Access tokens](https://ably.com/users/access_tokens) page.
-Create exactly one token named `AtmoShaper migration read-only`, select the
-existing account and thirty-day expiry, and enable only the three approved
-permissions. Their raw capabilities are `read:app`, `read:namespace` and
-`read:stats`. Keep every other capability off, including app-key reads and
-writes. Paste its one-time value into the hidden PowerShell prompt, never chat.
-See the [official token guide](https://ably.com/docs/platform/account/access-tokens).
+Complete metadata identifies one enabled app named `atmoshaper`, with TLS required
+and no channel rules. Two completed hourly statistics windows return no rows;
+this does not establish historical usage, plan limits or a working remote game.
+The cumulative read operation uses eleven of twelve reserved GETs, including
+unsuccessful attempts. Keys, game traffic and provider writes remain untouched.
+Thirty-six native offline helper cases pass without credentials or network.
 
-Send only the capture success/error message. Existing app keys and tokens stay
-unchanged. This step does not need another approval. If the window has closed,
-the same protected helper can be reopened without broadening the grant.
-
-After capture, the prepared native reader verifies the entire grant and expiry,
-then reads app metadata. A selected app can receive channel-rule and two completed
-hourly aggregate-statistics reads. Durable reservations cap the entire approved
-operation at twelve GETs, including interrupted requests. Push credentials and
-unknown response fields are excluded before private persistence. No app-key,
-room/player/message/presence, app mutation, hosted binding or activation request
-is part of this inventory. Twenty-four offline boundary cases pass with invented
-responses and zero credential/provider reads. Provider state is still unknown.
-
+The [Ably binding plan](2026-10-09-atmoshaper-ably-binding.md) prepares a dedicated
+server key, an isolated verification app and the existing room-token boundary.
+Administration/billing/quotas and separately approved binding/live acceptance
+remain required. Agent dashboard policy remains unresolved.
 ### Stage the eight existing DNS records
 
 The pending Free Cloudflare zone already exists. The owner approved importing the
@@ -94,6 +84,7 @@ approve unspecified provider changes.
 
 | Area | Owner input or read-only check | What it unlocks |
 | --- | --- | --- |
+| Ably ownership and limits | Confirm administration/billing ownership, current plan, connection/channel/message allowance and paid overage policy for the existing app; no token or key is needed in chat | A costed isolated-verification/server-key/binding packet and bounded host/phone acceptance. The read-only inventory is complete; no live activation is approved |
 | Sentry | Confirm the current organization's plan, monthly error allowance, retained-error duration and any pay-as-you-go allowance from Subscription/Billing. Choose the owner alert destination; using the existing Sentry account's email is the proposed first option | A concrete project-only limit, release/source-map and owner-alert packet. Existing privacy setup is complete; collection, uploads and notifications remain unapproved |
 | Calendar | Choose an existing eligible AtmoShaper provider account and its Google account, without sending credentials. Decide whether the resulting connection should remain for normal use or all newly created synthetic test state should be removed | A bounded normal public-app Connect/sync/change/Disconnect packet with named owned fixtures, database effects, consent and exact cleanup |
 | Database and recovery | Confirm administration/billing accountability and the acceptable recovery downtime/data-loss targets | A costed recovery/restore proposal for the already-identified independent resource. Current metadata has a six-hour history window; it does not prove deployed branch/credential binding or restore acceptance |
@@ -116,7 +107,7 @@ must concern only the remaining offered user journeys.
 
 ## Next order after the inputs
 
-1. Finish the two already-approved owner steps and inspect their private readbacks.
+1. Finish the already-approved eight-record DNS staging and inspect its private readback; Ably access/inventory is complete.
 2. Publish/review the exact prepared source only after its publication approval.
 3. Prepare independent Ably resource/key/binding and bounded host/phone/reconnect
    scopes from the actual inventory.

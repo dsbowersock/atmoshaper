@@ -176,34 +176,30 @@ Owners: [realtime server](../../../lib/anatomime-realtime.ts),
 [player client](../../../app/anatomime/shared-session-client.tsx),
 [provider checklist](../../rebrand/atmoshaper-external-account-checklist.md#ably-staging-gate).
 
-October 9 access preparation finds no CLI package, default configuration or
-Ably environment setting in the checked paths. The inspected official CLI
-source requests `full_access` during OAuth and can retrieve/save an existing app
-key. The prepared narrower owner token has thirty-day expiry and only
-`read:app`, `read:namespace` and `read:stats`, scoped to the owner's existing
-account. See [Ably access-token capabilities](https://ably.com/docs/platform/account/access-tokens).
-All other capabilities stay off. App-key reads, resource writes, data-plane
-traffic, billing changes and hosted activation remain outside this packet.
+October 9 approved read-only access and inventory are complete. The owner-captured
+replacement token authenticates with exactly `read:app`, `read:namespace` and
+`read:stats`, and a thirty-day expiry. It is a management read token, separate
+from the application server key; no app keys were read. No full-access CLI login
+is needed. See [Ably access-token capabilities](https://ably.com/docs/platform/account/access-tokens).
 
-Protected local helpers are prepared: hidden secure input, current-user Windows
-DPAPI, exclusive capture and a fixed-host, fifteen-second/one-MiB token GET
-preflight. The native encryption/decryption check passes using invented input;
-its scratch is removed, with zero provider requests. The preflight is syntax
-checked and remains unexecuted. It rejects broader or missing capabilities and
-absent/expired/overlong expiry before inventory. The later read budget is at most
-twelve metadata GETs and two hourly aggregate-statistics intervals. Response
-secrets are filtered before private persistence; token values stay out of chat
-and tracked files. The owner approved this exact access step; its protected
-hidden-input window is open and token capture remains pending. No CLI install,
-OAuth login, token creation, resource inventory or realtime activation occurred.
+Complete app metadata identifies one enabled `atmoshaper` app in the authenticated
+account with TLS required. Its complete channel-rule inventory is empty. Two
+bounded completed hourly statistics windows contain no rows; no broader usage,
+quota, billing or game acceptance conclusion follows. Private identifiers and
+filtered receipts remain in the protected operation journal.
 
-The prepared inventory entrypoint combines grant verification and filtered reads
-under one durable twelve-GET budget, reserving each request before dispatch.
-Twenty-four native offline boundary cases pass without credential reads or network
-requests. Do not additionally execute the older standalone preflight; it remains
-a historical prepared helper. The [morning review](2026-10-09-atmoshaper-morning-review.md)
-separates owner capture from later resource/key/activation approval.
+The native reader durably reserves each dispatch under the original twelve-GET
+ceiling, carrying unsuccessful requests across the owner-captured replacement.
+Eleven reservations are used. Thirty-six offline boundary cases pass, including
+flat-array parsing in Windows PowerShell. No key, raw response, room/player data,
+message, presence action or provider write was read, retained or sent. Do not
+repeat the completed token setup or inventory. The older standalone preflight
+remains unexecuted. Agent dashboard policy remains unresolved.
 
+The [binding plan](2026-10-09-atmoshaper-ably-binding.md) turns this inventory into
+server-key, isolated-verification and bounded hosted-acceptance prerequisites.
+The [morning review](2026-10-09-atmoshaper-morning-review.md) now marks access
+complete and retains the missing administration/billing/quota inputs.
 - Identify an independently owned AtmoShaper Ably Production app and isolated
   verification app, existing if available. Read role/capability/origin/usage
   metadata without returning credentials or real room/player data.

@@ -2,6 +2,28 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Complete the approved Ably read-only inventory
+
+- The owner completed a replacement hidden-input capture. The authenticated
+  thirty-day token has exactly `read:app`, `read:namespace` and `read:stats`;
+  the earlier broader/missing grant stopped before resource inventory. Local
+  replacement preserves the original encrypted evidence and cumulative budget.
+- Complete app metadata identifies one enabled `atmoshaper` app requiring TLS,
+  in the authenticated account. Its complete channel-rule list is empty. Two
+  bounded completed hourly statistics windows return no rows; this is not
+  all-time usage, quota, billing or actual game acceptance evidence.
+- Native helper repairs isolate the child PowerShell built-in modules and decode
+  flat JSON arrays correctly. Thirty-six offline boundary cases pass with
+  invented responses. Eleven of the twelve approved GET reservations are used,
+  including unsuccessful attempts. No app key, token value, raw response, game
+  traffic or provider write is retained or dispatched by this inventory.
+- The [binding plan](superpowers/plans/2026-10-09-atmoshaper-ably-binding.md)
+  prepares the existing app, isolated verification and server-key scope. Hosted
+  binding, quota/ownership checks and actual host/phone/reconnect acceptance
+  remain separately gated. Token setup is complete; do not repeat it.
+- The morning review marks this owner step complete. The previously approved
+  eight-record DNS staging remains pending; nameserver activation is unapproved.
+  New source publication/review and the wider migration gates remain open.
 ## 2026-10-09 — Prepare a count-only anatomy media inspection
 
 - Current source has a narrower reviewed BodyParts3D flashcard metadata loader

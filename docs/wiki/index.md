@@ -25,6 +25,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 - [Account security](account-security.md)
 - [Admin user operations](admin-user-operations.md)
 - [Deployment and environment](deployment.md)
+- [Ably app binding and remote Anatomime acceptance](../superpowers/plans/2026-10-09-atmoshaper-ably-binding.md)
 - [Operational Sentry readiness and use](sentry-operations.md)
 - [Independent media delivery and legacy continuity](media-independence.md)
 - [Release checklist](release-checklist.md)
