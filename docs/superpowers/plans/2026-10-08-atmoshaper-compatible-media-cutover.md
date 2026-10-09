@@ -292,7 +292,10 @@ include that behavior explicitly in a later configuration/acceptance approval.
 First verify exact branded domains and object namespaces, then prepare the
 candidate build, all offered aspect/codec/fallback checks and saved-binding
 rollback. Resolution and declared bytes do not prove hosted payloads, playback
-or legacy continuity. Anatomy still needs its aggregate-only target authority.
+or legacy continuity. Anatomy's [count-only inspection plan](2026-10-09-atmoshaper-anatomy-media-inspection.md)
+now distinguishes the study loader from broader entity-detail media. Its
+protected schema/count queries remain unexecuted and require exact target/read
+authority; the current resource metadata does not prove deployed branch binding.
 
 ## 4. Bounded acceptance and rollback
 

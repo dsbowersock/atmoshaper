@@ -71,7 +71,7 @@ their historical checks remain closed.
 
 The change adds bounded public media-index inventory, disables separate Sentry
 vendor build telemetry, reconciles current documentation and the review-date
-assertion, prepares opt-in Generative.fm index/nested-sample rebinding, adds a metadata-only Signature catalog candidate command, and checks both Chimer delivery bases through actual resolvers.
+assertion, prepares opt-in Generative.fm index/nested-sample rebinding, adds a metadata-only Signature catalog candidate command, and checks both Chimer delivery bases through actual resolvers, and records the aggregate-only anatomy inspection boundary.
 Legacy delivery remains the default. The new runtime switch has focused checks
 with invented responses and substituted network/audio dependencies; no hosted
 binding, media payload, schema/migration or provider activation is changed.
@@ -97,6 +97,7 @@ approve unspecified provider changes.
 | Sentry | Confirm the current organization's plan, monthly error allowance, retained-error duration and any pay-as-you-go allowance from Subscription/Billing. Choose the owner alert destination; using the existing Sentry account's email is the proposed first option | A concrete project-only limit, release/source-map and owner-alert packet. Existing privacy setup is complete; collection, uploads and notifications remain unapproved |
 | Calendar | Choose an existing eligible AtmoShaper provider account and its Google account, without sending credentials. Decide whether the resulting connection should remain for normal use or all newly created synthetic test state should be removed | A bounded normal public-app Connect/sync/change/Disconnect packet with named owned fixtures, database effects, consent and exact cleanup |
 | Database and recovery | Confirm administration/billing accountability and the acceptable recovery downtime/data-loss targets | A costed recovery/restore proposal for the already-identified independent resource. Current metadata has a six-hour history window; it does not prove deployed branch/credential binding or restore acceptance |
+| Anatomy media | Confirm the exact candidate database target and the deployed branch binding; review the [count-only inspection scope](2026-10-09-atmoshaper-anatomy-media-inspection.md) before its separate read authorization. Proposed SQL is protected and unexecuted | Counts for both study-loader and broader catalog consumers, then a concrete URL cutover/rollback choice. No raw rows, clinical data, uploads or writes are included |
 | Additional purchases | Locate any existing independent classification confirmation for one-time support and backgrounds; confirm the intended customer offering | The remaining prerequisite and bounded new-flow test packets. Active Stripe Tax metadata does not establish every attestation or authorize switching either purchase path on |
 | Mail/support and social identity | Choose whether branded support should continue using the advertised inbox or use an inbound domain address, and which existing social accounts should represent AtmoShaper | Exact routing/ownership and later delivery/profile-change packets, preserving existing sender and legacy access |
 
