@@ -40,9 +40,10 @@ stated limits.
 Native authorized login includes the storage account and zone-read scope. The
 approved owner-created resource is now verified as one pending full AtmoShaper
 zone on Free in that exact account. Two assigned nameservers remain private;
-fresh authoritative and recursive NS reads both retain Namecheap. The owner view
-shows no staged records, while the record-list API returns 403 under the current
-grant; complete API inventory is not claimed.
+fresh authoritative and recursive NS reads both retain Namecheap. The owner has
+now imported the eight known records; the completed staging/readback below
+supersedes the earlier empty table. The record-list API remains denied under
+the existing grant; complete API inventory is not claimed.
 October 9 UTC direct reads at both Namecheap authorities return no records at
 proposed `media.atmoshaper.com` and `anatomy-media.atmoshaper.com` across A, AAAA,
 CNAME, NS, TXT and CAA. Root CAA returns no data; root NS/SOA controls succeed.
@@ -142,50 +143,36 @@ refreshed preflight and exact rollback must be prepared before separate record
 or nameserver approval. Agent dashboard policy remains unresolved and is not
 bypassed. Approval did not expand the existing read token.
 
-### Approved next stage: eight known DNS-only records, import pending
+### Approved staging: import and direct readback complete; export pending
 
-Both current Namecheap authorities match the eight preserved rows in fourteen
-fresh queries. The protected staging file contains two A records, two CNAMEs,
-one MX and three TXT records. Its independent local parser confirms exact
-contents, complete TXT chunks, MX priority, no SOA/NS/new-media rows and the
-prepared hash. The owner approved staging these existing records only, with
-DNS-only and an explicit 300-second TTL; import has not occurred. This proposal
-does not claim the old Automatic TTL is numerically equivalent to 300.
+The owner imported the prepared eight-row file on October 9. Screenshots show
+all eight rows: two A, two CNAME, one MX and three TXT records, all DNS-only
+with five-minute TTL. The file's four explicit `cf-proxied:false` tags override
+the accidentally selected import checkbox, as documented by
+[Cloudflare's import rules](https://developers.cloudflare.com/dns/manage-dns-records/how-to/import-and-export/).
+No correction or repeat import is needed. The approved 300-second TTL remains
+separate from the former Namecheap Automatic display setting.
 
-Cloudflare supports [BIND imports and per-record proxy tags](https://developers.cloudflare.com/dns/manage-dns-records/how-to/import-and-export/).
-The file explicitly carries `cf-proxied:false`; also deselect the dashboard's
-proxy-import option. An explicit 300 seconds is within the supported DNS-only
-[TTL range](https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/).
-No nameserver, DNSSEC, new media record, CAA/mail policy or hosting operation is
-included in this approval. The file and exact values remain owner/SYSTEM-private.
+Fourteen queries at the two assigned pending authorities match all complete
+values and TTL 300, including MX priority 10 and complete TXT content. Fourteen
+current-authority queries preserve the same values; direct/recursive NS reads
+retain Namecheap. All four pending SOA/NS controls pass. The local response
+adapter was corrected and verified with invented records before the successful
+comparison; failed writer/adapter attempts remain private historical evidence.
 
-Owner execution uses the existing dashboard because agent policy remains
-unresolved. Confirm the staged table is still empty, import only the exact
-prepared file, inspect the reported count and export the staged zone privately.
-Stop before activation. If rows already exist or the outcome is uncertain,
-reconcile rather than import again. Deletion or repair requires exact authority.
+Save an owner export from DNS Records, Import and Export, Export under the
+existing staging approval. Compare it to the protected frozen file before
+closing the backup gate. The export is still pending. Agent dashboard policy
+and the record-list API denial remain unresolved; direct DNS and owner-visible
+settings supply scoped evidence without expanding credentials.
 
-Both assigned pending authorities pass SOA and NS positive controls. Cloudflare
-[answers DNS queries for pending zones](https://developers.cloudflare.com/dns/zone-setups/reference/domain-status/),
-so direct queries can verify all seven known RRsets/eight rows after staging
-without expanding the token. This is scoped DNS evidence; it does not expose
-all unknown names or replace full owner export/configuration readback. The native
-record-list API remains denied. Full legacy-zone completeness, exact staged
-comparison, fresh parent delegation/DS proof, propagation checks and the saved
-Namecheap rollback still gate separate nameserver approval. Parent NS attempts
-have not supplied usable evidence; current-authority/recursive NS proof is dated
-and cannot substitute for the later parent-delegation check.
-
-For an owner-led Namecheap read, open Domain List, Manage for `atmoshaper.com`,
-then inspect the Domain tab's nameserver selection and Advanced DNS's complete
-Host Records, Mail Settings and DNSSEC sections. Record every row and priority/
-TTL, plus any forwarding or dynamic-DNS status, in the protected private baseline;
-do not paste verification values or credentials into tracked files or chat.
-Do not save edits or toggle DNSSEC. These locations follow Namecheap's
-[host-record guide](https://www.namecheap.com/support/knowledgebase/article.aspx/434/2237/how-do-i-set-up-host-records-for-a-domain/)
-and [BasicDNS DNSSEC guide](https://www.namecheap.com/support/knowledgebase/article.aspx/9723/2232/managing-dnssec-for-domains-pointed-to-premium-or-basicdns/).
-If the domain is managed elsewhere, identify that authoritative owner first;
-an absent Host Records panel does not justify changing nameservers.
+This does not establish complete old-zone inventory, activate the domain or
+approve nameserver changes. Preserve the known earlier mail CNAME, every current
+row and existing Namecheap authority. Full legacy comparison, export/configuration
+readback, fresh parent delegation/DS, exact propagation and saved-nameserver
+rollback still precede a separate nameserver packet. No agent DNS write, registrar,
+DNSSEC, new media host, mail policy, bucket/object or hosting change occurred.
+Leave Continue to activation untouched.
 
 ## 2. Prepare only two new public delivery bindings
 

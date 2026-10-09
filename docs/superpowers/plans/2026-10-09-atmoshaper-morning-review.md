@@ -26,27 +26,26 @@ The [Ably binding plan](2026-10-09-atmoshaper-ably-binding.md) prepares a dedica
 server key, an isolated verification app and the existing room-token boundary.
 Administration/billing/quotas and separately approved binding/live acceptance
 remain required. Agent dashboard policy remains unresolved.
-### Stage the eight existing DNS records
+### DNS import verified: save the staged export
 
-The pending Free Cloudflare zone already exists. The owner approved importing the
-frozen eight-record preservation file, with DNS-only and TTL 300. The protected
-file and rollback/readback packet are already prepared; owner import is pending.
+The owner imported the already-approved eight-row file. All eight displayed
+records are DNS-only with TTL five minutes; both assigned Cloudflare authorities
+return the complete preserved values at TTL 300, including MX priority 10.
+Current-authority values remain unchanged and direct/recursive NS checks retain
+Namecheap. The explicit per-record proxy tags overrode the selected import
+checkbox. No correction, duplicate import or new token is needed.
 
-In the existing pending zone, confirm the staged table is still empty before
-importing the prepared file. Turn off the proxy-import option. Expected result:
-two A records, two CNAMEs, one MX and three TXT records, unchanged values and MX
-priority, with every eligible record DNS-only and every TTL 300.
+Next owner step under the existing staging approval: open the zone's DNS Records
+page, choose Import and Export, then Export. Retain the downloaded filename for
+private comparison and backup. Do not change any record or Namecheap nameserver,
+and leave Continue to activation untouched. Agent dashboard policy and the
+record-list API denial remain unresolved; no broader grant is needed for this
+completed direct readback.
 
-Stop before activation or any Namecheap nameserver change. Save the staged export
-in the existing protected operation folder and report the count or exact error.
-If records already exist or the result is uncertain, reconcile them before a
-retry. This existing staging approval does not approve record deletion/repair,
-nameserver activation, new media domains, hosting changes or a paid plan.
-
-The later live DNS operation still needs complete old/staged inventories and the
-preserved earlier mail CNAME, parent delegation/DS readback, exact rollback and
-its own approval. See the [compatible media plan](2026-10-08-atmoshaper-compatible-media-cutover.md).
-
+This staging proof covers the known eight rows. The later live DNS operation
+still needs complete old/staged inventories, export/backup, fresh parent
+NS/DS proof, exact propagation/rollback and its own approval. See the
+[compatible media plan](2026-10-08-atmoshaper-compatible-media-cutover.md).
 ## New approval ready for review: publish the source follow-up
 
 Review the owned branch's prepared source snapshot and local validation receipt.
@@ -107,7 +106,7 @@ must concern only the remaining offered user journeys.
 
 ## Next order after the inputs
 
-1. Finish the already-approved eight-record DNS staging and inspect its private readback; Ably access/inventory is complete.
+1. Save and compare the already-approved staged DNS export; Ably inventory and eight-record import/direct readback are complete.
 2. Publish/review the exact prepared source only after its publication approval.
 3. Prepare independent Ably resource/key/binding and bounded host/phone/reconnect
    scopes from the actual inventory.

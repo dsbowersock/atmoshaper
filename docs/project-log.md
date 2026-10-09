@@ -2,6 +2,24 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Verify the owner's eight-record Cloudflare staging
+
+- The owner imported the approved preservation file into the existing Free zone.
+  Screenshots show all eight rows as DNS-only with five-minute TTL, including
+  both CNAMEs and all three TXT records. Its four explicit proxy tags override
+  the accidentally selected proxy-import checkbox; no repair/reimport is needed.
+- Fourteen direct queries at the two assigned Cloudflare authorities match all
+  complete record values and TTL 300, including MX priority 10. Fourteen queries
+  at the two current authorities preserve those values. Direct/recursive NS
+  checks retain Namecheap; all four pending SOA/NS controls pass.
+- The local readback writer first stopped on a PowerShell literal; the subsequent
+  record adapter rebound its pipeline object within a switch. These failed local
+  comparisons remain historical. The explicit-answer adapter passes four invented
+  type cases before the successful full-value readback; no settings changed.
+- The staged export/backup remains pending. Full legacy-zone completeness, fresh
+  parent/DS evidence, exact propagation/rollback and separate nameserver authority
+  remain required. No registrar, DNSSEC, media binding, hosting or agent provider
+  write occurred. Keep Continue to activation untouched and do not repeat import.
 ## 2026-10-09 — Complete the approved Ably read-only inventory
 
 - The owner completed a replacement hidden-input capture. The authenticated

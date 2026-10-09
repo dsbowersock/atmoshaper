@@ -139,6 +139,12 @@ These new local source
 and administrative changes need their own validation/reviews and publication
 approval; no media/provider activation follows from inventory.
 
+October 9 later staging checkpoint: the owner imported all eight approved
+DNS-only records. Full values and TTL 300 match at both assigned Cloudflare
+authorities, with unchanged values at both current authorities; direct/recursive
+NS checks retain Namecheap. The explicit proxy tags override the import checkbox.
+The staged export/backup and complete legacy-zone inventory remain pending before
+any separate nameserver authority. Do not repeat import or infer activation.
 ### 1. Reconcile documents and private dependency inventory
 
 - Update the current snapshot and ledger with PR #41's merged/completed status,
