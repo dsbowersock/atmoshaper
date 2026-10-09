@@ -60,11 +60,12 @@ actions, or as popularity, conversion, user-history or product analytics.
   Quota/retention/billing, release/source maps and useful owner alerts remain gates.
 - PR #42 is merged and its automatic main candidate is READY but unpromoted.
   Its build log identifies vendor-plugin telemetry, whose own DSN is separate
-  from application collection and project scrubbing. The next local source
-  correction sets `withSentryConfig`'s `telemetry: false` for all builds, preserving
-  explicit release credentials and QA isolation. Provider-free tests execute the
-  actual configuration for ordinary, migration and QA modes. This local change
-  has not changed the hosted artifact or enabled application monitoring.
+  from application collection and project scrubbing. This source change sets
+  `withSentryConfig`'s `telemetry: false` for all builds, preserving explicit
+  release credentials and QA isolation. Provider-free tests execute the actual
+  configuration for ordinary, migration and QA modes. The approved draft PR #43
+  has a READY Preview at its initial publication checkpoint; the live public
+  artifact has not been replaced and application monitoring remains unbound.
 - The [August 17 provider audit](../audits/2026-08-17-anonymous-sentry-provider-settings.md)
   belongs to its named historical source/environment. It does not verify a new
   independent AtmoShaper destination. Do not repeat its completed diagnostic.

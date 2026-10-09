@@ -152,6 +152,7 @@ export async function inventoryPublicIndexes(targets, {
     }
     bytes += count
   }
+  /** Claims each index once from the shared cursor and records only bounded failure codes. */
   async function worker() {
     while (next < targets.length && !signal.aborted && bytes <= totalBytes) {
       const target = targets[next++]

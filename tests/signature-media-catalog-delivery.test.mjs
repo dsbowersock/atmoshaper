@@ -18,6 +18,7 @@ const branded = "https://media.atmoshaper.com"
 
 /** Independent canonical digest check of catalog identity, preserving array order. */
 function revision(catalog) {
+  /** Sorts object keys recursively without reordering the release's ordered arrays. */
   function canonical(value) {
     if (Array.isArray(value)) return value.map(canonical)
     if (value === null || typeof value !== "object") return value
@@ -59,6 +60,7 @@ function fixture() {
   })
 }
 
+/** Omits only origin-dependent revision/URL fields to compare immutable playback and ownership metadata. */
 function withoutDelivery(catalog) {
   const clone = structuredClone(catalog)
   delete clone.catalogRevision

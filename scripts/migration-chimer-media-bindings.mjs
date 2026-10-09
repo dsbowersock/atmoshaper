@@ -53,6 +53,7 @@ export function inspectChimerFallbackRuntime(source, { configuredBaseUrl, nodeEn
 function splitFallbackDelivery(manifest) {
   const metadata = structuredClone(manifest)
   const urls = []
+  /** Removes only delivery fields from the cloned entry while retaining their comparison order. */
   function removeUrls(entry) {
     for (const field of URL_FIELDS) {
       if (entry[field] !== undefined) {
@@ -176,6 +177,7 @@ export function planChimerMediaBindings({ catalog, publishedManifest, fallbackIn
 
 /** Reads only fixed committed declarations/source; never dotenv, credentials or hosted media. */
 export async function prepareChimerMediaBindings() {
+  /** Parses fixed committed declaration URLs; no hosted payload or environment read is involved. */
   const readJson = async (url) => JSON.parse(await readFile(new URL(url, import.meta.url), "utf8"))
   const catalog = await readJson("../public/chimer/background-preview-catalog/index.json")
   const publishedManifest = await readJson("../data/background-preview-published-manifest.json")

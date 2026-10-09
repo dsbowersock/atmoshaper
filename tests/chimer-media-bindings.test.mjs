@@ -12,6 +12,7 @@ import {
 
 const branded = "https://media.atmoshaper.com"
 const legacy = "https://media.massagelab.app"
+/** Loads committed metadata fixtures relative to this test; it never fetches media or provider state. */
 const readJson = async (relative) => JSON.parse(await readFile(new URL(relative, import.meta.url), "utf8"))
 const input = {
   catalog: await readJson("../public/chimer/background-preview-catalog/index.json"),

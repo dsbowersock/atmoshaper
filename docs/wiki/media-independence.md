@@ -224,9 +224,18 @@ confirm unchanged full values and matching visible SPF/DKIM content, resolving
 the missing-TXT check; its support request is retired. The earlier CNAME still
 resolves but is absent from this image, so retain it in the private comparison.
 Its exact SMTP/application consumer is still unproved.
-Known-name DNS queries do not prove full zone completeness. The private candidate
-preserves these known values and is explicitly incomplete/not executable; no live
-DNS record, nameserver, DNSSEC or mail-routing change has occurred. The pending-zone creation stage does not authorize activation or media bindings. The owner subsequently approved staging exactly eight preserved DNS-only records at 300 seconds; the independently checked import remains unexecuted. Current-authority values match in fourteen reads, and all four SOA/NS controls at the assigned pending authorities pass. Complete legacy inventory and staged comparison still gate nameserver approval.
+Known-name DNS queries do not prove full zone completeness. The owner completed
+the approved eight-record import into the pending zone. Full-value readback
+matches all eight preserved rows, MX priority 10 and TTL 300; all records are
+DNS-only. The October 9, 16:20 UTC local export comparison confirms those values
+and four explicit DNS-only tags, with a byte-identical protected backup. The
+dated fourteen current-authority reads retain the same values, and all four
+SOA/NS controls at the assigned pending authorities pass. Namecheap remains the
+live authority at that checkpoint; no live nameserver, DNSSEC or mail-routing
+change occurred. Complete old-zone inventory, fresh parent delegation/DS and
+host-collision proof, propagation and exact rollback still gate separate
+nameserver approval. Completed staging does not authorize activation or media
+bindings.
 
 The [compatible cutover plan](../superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
 owns that prerequisite, two proposed delivery hosts, consumer changes and saved

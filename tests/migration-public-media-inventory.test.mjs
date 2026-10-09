@@ -3,8 +3,10 @@ import test from "node:test"
 import { inventoryPublicIndexes, publicIndexTargets, readPublicIndex, sampleDestinationCounts } from "../scripts/migration-public-media-inventory.mjs"
 
 const origin = "https://media.massagelab.app"
+/** Builds an invented allowlisted index target for the injected transport, without a real request. */
 const target = (name = "invented") => ({ url: `${origin}/atmosphere/generative-fm/${name}/sample-index.json`, groups: [["piano"]] })
 const index = { piano: [`${origin}/invented/a.wav`, `${origin}/invented/a.wav`], bells: { C4: "relative/b.wav" } }
+/** Creates local JSON responses whose overridden headers/status exercise the reader's rejection boundaries. */
 const response = (value = index, options = {}) => new Response(JSON.stringify(value), {
   headers: { "content-type": "application/json" }, ...options,
 })

@@ -109,5 +109,5 @@ pre-existing games or claim no channel retention from an empty rule inventory.
 
 Access and inventory are complete. Prepare ownership/usage and isolated-target
 inputs from the [morning review](2026-10-09-atmoshaper-morning-review.md), then
-submit exact app/key/binding and acceptance packets. The already-approved DNS
-record staging can proceed independently; it does not authorize Ably activation.
+submit exact app/key/binding and acceptance packets. Approved DNS staging,
+readback and export are complete; they do not authorize Ably activation.

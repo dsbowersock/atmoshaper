@@ -2,6 +2,38 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
+## 2026-10-09 — Publish draft PR #43 and correct its first review findings
+
+- The owner approved the prepared media/monitoring snapshot, ordinary CI/Preview,
+  fresh Codex/full CodeRabbit reviews and valid owned fixes. The exact `fd50482`
+  snapshot was published as [draft PR #43](https://github.com/dsbowersock/atmoshaper/pull/43)
+  at 22:55 UTC. Publication does not approve merge or Production rollout.
+- At that initial head, Preview is READY and Browser build passes against main
+  `357095d`, including 115 static pages and the merged runtime artifact. Codex
+  completed at 22:58:59 UTC with no major issues. Full CodeRabbit completed at
+  23:01 UTC across all 26 files; its command reply confirms full review finished.
+  These are dated initial-head receipts and become historical after a new head.
+- The first full review found two valid documentation issues. The source follow-up
+  removes completed DNS staging/readback/TTL decisions from open gates and records
+  the verified export backup, while preserving old-zone completeness, fresh
+  delegation/DS/collision checks, propagation, exact rollback and separate activation
+  approval. Sentry guidance now describes the implemented telemetry setting and
+  distinguishes the draft Preview from the unchanged live public artifact.
+- Initial touched-function docstrings were 77.42%, below the configured 80% gate.
+  Eight focused helper comments explain intent and constraints; the hosted gate
+  must independently verify the follow-up. Two missing heading separators are
+  corrected. Current state and morning review now record the completed approved
+  publication instead of requesting it again.
+- Follow-up validation passes all 16 documentation/workload checks and lint.
+  All 223 relative targets across twelve changed Markdown files resolve; added
+  documentation privacy/frozen-value and whitespace scans pass. Syntax-aware
+  comparison of five script/test files confirms only comments changed. Completed
+  provider acceptance and full local suites are not repeated for these changes.
+- Latest-head CI, exact-SHA READY Preview, fresh Codex and full CodeRabbit coverage
+  with no actionable threads and passing applicable pre-merge gates remain required.
+  Keep the draft unmerged. The initial full-review cooldown is measured from its
+  successful trigger; do not duplicate requests while a review is pending.
+
 ## 2026-10-09 — Complete the approved staged DNS export and backup
 
 - The owner supplied the downloaded pending-zone export. Local verification at
@@ -63,6 +95,7 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 - The morning review marks this owner step complete. The previously approved
   eight-record DNS staging remains pending; nameserver activation is unapproved.
   New source publication/review and the wider migration gates remain open.
+
 ## 2026-10-09 — Prepare a count-only anatomy media inspection
 
 - Current source has a narrower reviewed BodyParts3D flashcard metadata loader
@@ -187,6 +220,7 @@ This is the chronological log for the fresh AtmoShaper repository. Read [project
 - No push, source publication, Production build/promotion, nameserver/media change,
   collection/upload/notification, payment, database write or legacy retirement
   follows from the overnight continuation instruction.
+
 ## 2026-10-09 — Prepare scoped Ably management access
 
 - No existing CLI package, default Ably config or Ably environment setting is

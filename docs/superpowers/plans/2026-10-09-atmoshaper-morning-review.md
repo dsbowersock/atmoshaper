@@ -50,17 +50,22 @@ unchanged. Agent dashboard policy and the record-list API denial remain
 unresolved; no broader grant follows from export verification. See the
 [compatible media plan](2026-10-08-atmoshaper-compatible-media-cutover.md).
 
-## New approval ready for review: publish the source follow-up
+## Approved publication: draft PR #43 and review follow-up
 
-Review the owned branch's prepared source snapshot and local validation receipt.
-Its final commit is recorded in the protected publication packet and morning
-handoff, avoiding a self-referential receipt-only source commit.
+The user approved the prepared source publication, ordinary CI/automatic Preview,
+fresh Codex/full CodeRabbit reviews and valid owned fixes. The exact initial
+snapshot was published as [draft PR #43](https://github.com/dsbowersock/atmoshaper/pull/43)
+on October 9. At `fd50482`, Preview is READY, Browser build passes and fresh Codex
+reports no major issues. Full CodeRabbit finished all 26 changed files and found
+two valid documentation summaries; touched-function docstrings were 77.42%,
+below the configured 80% gate. The follow-up corrects those summaries and adds
+focused helper comments. Initial receipts become historical when the head changes.
 
-Proposed authority: push that exact snapshot to the owned branch, create one draft
-PR, and shepherd its ordinary CI, automatic Preview and fresh Codex/full CodeRabbit
-reviews. Fix only valid owned findings, preserve unrelated work, and bind any
-subsequent readiness claim to the final reviewed head. Completed PRs #41/#42 and
-their historical checks remain closed.
+Finish the approved source/review loop and bind readiness to the final head's
+complete CI, READY Preview, fresh Codex and full CodeRabbit coverage with no
+actionable threads and passing applicable pre-merge gates. Completed PRs #41/#42
+and their historical checks remain closed. Exact final receipts stay in the
+protected operation packet; keep the draft unmerged until separate approval.
 
 The change adds bounded public media-index inventory, disables separate Sentry
 vendor build telemetry, reconciles current documentation and the review-date
@@ -74,11 +79,12 @@ A later media configuration packet must distinguish rebinding fallback from
 activating a previously unconfigured published Chimer catalog. The published
 base includes its release revision. Current hosted values, exact domain/object
 availability and real playback must be checked before that separate operation;
-this source publication proposal does not approve activation.
+the approved source publication does not approve activation.
 
-This approval would include the ordinary draft PR's CI/Preview behavior. It would
-not include merge, Production build/promotion, DNS/media/Sentry configuration,
-events/source maps/notifications, database writes or live payments.
+The publication approval includes ordinary draft CI/Preview behavior and valid
+owned review fixes. Merge, Production build/promotion, DNS/media/Sentry
+configuration, events/source maps/notifications, database writes and live
+payments remain separate operations requiring their exact approval.
 
 ## Inputs needed before later exact change packets
 
@@ -111,7 +117,7 @@ must concern only the remaining offered user journeys.
 ## Next order after the inputs
 
 1. Ably inventory and eight-record DNS staging/import/readback/export are complete; preserve the protected receipts and current authority.
-2. Publish/review the exact prepared source only after its publication approval.
+2. Finish the approved draft PR #43 review loop at its final head; preserve completed staging and provider boundaries.
 3. Prepare independent Ably resource/key/binding and bounded host/phone/reconnect
    scopes from the actual inventory.
 4. Complete Sentry, database/recovery and mail ownership prerequisites; submit

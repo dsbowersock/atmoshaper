@@ -109,11 +109,13 @@ identifier or point a CNAME at the development endpoint as a shortcut.
    every baseline record. Check proposed host collisions and zone holds before
    preparing the R2 binding operation.
 
-The private candidate retains known records and owner controls. Parent DS and
-proposed-host collision reads are complete at the dated checkpoint. Full
-unfiltered record completeness, staged record access and readback,
-TTL/proxy decisions, propagation and exact rollback still gate live cutover.
-Agent dashboard policy remains unresolved; do not bypass it.
+The approved eight-record staging is complete, including full-value readback,
+DNS-only/300-second TTL verification and a protected export backup. Parent DS
+and proposed-host collision reads are complete at their dated checkpoint. Full
+unfiltered old-zone completeness, fresh parent delegation/DS and host-collision
+checks, propagation and exact saved-Namecheap rollback still gate live cutover
+and separate nameserver approval. Agent dashboard policy remains unresolved;
+do not bypass it.
 
 ### Completed approved stage: one pending Free zone
 
