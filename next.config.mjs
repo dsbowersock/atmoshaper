@@ -99,8 +99,8 @@ const nextConfig = {
 }
 
 export default withSentryConfig(nextConfig, {
-  // The build plugin has its own telemetry DSN, independent of the app DSN.
-  ...(migrationParityBuild || browserQaBuild ? { telemetry: false } : {}),
+  // Vendor build telemetry uses its own DSN; app/provider scrubbing cannot govern it.
+  telemetry: false,
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: browserQaBuild ? "" : process.env.SENTRY_AUTH_TOKEN,

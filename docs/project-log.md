@@ -2,7 +2,508 @@
 
 This is the chronological log for the fresh AtmoShaper repository. Read [project-state.md](project-state.md) first for current truth. Complete development history before this bootstrap remains in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab); consult the [source-locked MassageLab project log](https://github.com/dsbowersock/massagelab/blob/e74045c2fc85c2cb4df176fdb1aff2137c4d9848/docs/project-log.md) rather than copying that history here.
 
-## 2026-10-08 — Complete approved Sentry project setup and verify the R2 token
+## 2026-10-09 — Publish draft PR #43 and correct its first review findings
+
+- The owner approved the prepared media/monitoring snapshot, ordinary CI/Preview,
+  fresh Codex/full CodeRabbit reviews and valid owned fixes. The exact `fd50482`
+  snapshot was published as [draft PR #43](https://github.com/dsbowersock/atmoshaper/pull/43)
+  at 22:55 UTC. Publication does not approve merge or Production rollout.
+- At that initial head, Preview is READY and Browser build passes against main
+  `357095d`, including 115 static pages and the merged runtime artifact. Codex
+  completed at 22:58:59 UTC with no major issues. Full CodeRabbit completed at
+  23:01 UTC across all 26 files; its command reply confirms full review finished.
+  These are dated initial-head receipts and become historical after a new head.
+- The first full review found two valid documentation issues. The source follow-up
+  removes completed DNS staging/readback/TTL decisions from open gates and records
+  the verified export backup, while preserving old-zone completeness, fresh
+  delegation/DS/collision checks, propagation, exact rollback and separate activation
+  approval. Sentry guidance now describes the implemented telemetry setting and
+  distinguishes the draft Preview from the unchanged live public artifact.
+- Initial touched-function docstrings were 77.42%, below the configured 80% gate.
+  Eight focused helper comments explain intent and constraints; the hosted gate
+  must independently verify the follow-up. Two missing heading separators are
+  corrected. Current state and morning review now record the completed approved
+  publication instead of requesting it again.
+- Follow-up validation passes all 16 documentation/workload checks and lint.
+  All 223 relative targets across twelve changed Markdown files resolve; added
+  documentation privacy/frozen-value and whitespace scans pass. Syntax-aware
+  comparison of five script/test files confirms only comments changed. Completed
+  provider acceptance and full local suites are not repeated for these changes.
+- Latest-head CI, exact-SHA READY Preview, fresh Codex and full CodeRabbit coverage
+  with no actionable threads and passing applicable pre-merge gates remain required.
+  Keep the draft unmerged. The initial full-review cooldown is measured from its
+  successful trigger; do not duplicate requests while a review is pending.
+
+## 2026-10-09 — Complete the approved staged DNS export and backup
+
+- The owner supplied the downloaded pending-zone export. Local verification at
+  16:20 UTC matches all eight full record values against the frozen approved
+  BIND file and preservation values, including MX priority 10, TTL 300 and four
+  explicit DNS-only tags on eligible records. No proxy repair or reimport is
+  needed.
+- Its two generated NS entries match the assigned Cloudflare zone nameservers;
+  the single SOA has the expected owner and structure. These are zone scaffolding
+  and do not change or authorize live delegation.
+- A byte-identical export backup and hash/comparison receipt are verified in the
+  existing owner/SYSTEM-protected operation folder. The original download remains
+  intact. Earlier local parser attempts stopped before backup and made no provider
+  requests; their repaired directive/TTL assumptions are recorded privately.
+- DNS staging/import/direct readback/export are complete. The earlier dated
+  Namecheap authority receipt remains the live-authority evidence; this local
+  comparison did not refresh it. Complete old-zone inventory, fresh parent/DS
+  proof, exact propagation/rollback and separate nameserver approval remain gates.
+  No provider, registrar, DNSSEC, media or hosting change occurred.
+
+## 2026-10-09 — Verify the owner's eight-record Cloudflare staging
+
+- The owner imported the approved preservation file into the existing Free zone.
+  Screenshots show all eight rows as DNS-only with five-minute TTL, including
+  both CNAMEs and all three TXT records. Its four explicit proxy tags override
+  the accidentally selected proxy-import checkbox; no repair/reimport is needed.
+- Fourteen direct queries at the two assigned Cloudflare authorities match all
+  complete record values and TTL 300, including MX priority 10. Fourteen queries
+  at the two current authorities preserve those values. Direct/recursive NS
+  checks retain Namecheap; all four pending SOA/NS controls pass.
+- The local readback writer first stopped on a PowerShell literal; the subsequent
+  record adapter rebound its pipeline object within a switch. These failed local
+  comparisons remain historical. The explicit-answer adapter passes four invented
+  type cases before the successful full-value readback; no settings changed.
+- The staged export/backup remains pending. Full legacy-zone completeness, fresh
+  parent/DS evidence, exact propagation/rollback and separate nameserver authority
+  remain required. No registrar, DNSSEC, media binding, hosting or agent provider
+  write occurred. Keep Continue to activation untouched and do not repeat import.
+
+## 2026-10-09 — Complete the approved Ably read-only inventory
+
+- The owner completed a replacement hidden-input capture. The authenticated
+  thirty-day token has exactly `read:app`, `read:namespace` and `read:stats`;
+  the earlier broader/missing grant stopped before resource inventory. Local
+  replacement preserves the original encrypted evidence and cumulative budget.
+- Complete app metadata identifies one enabled `atmoshaper` app requiring TLS,
+  in the authenticated account. Its complete channel-rule list is empty. Two
+  bounded completed hourly statistics windows return no rows; this is not
+  all-time usage, quota, billing or actual game acceptance evidence.
+- Native helper repairs isolate the child PowerShell built-in modules and decode
+  flat JSON arrays correctly. Thirty-six offline boundary cases pass with
+  invented responses. Eleven of the twelve approved GET reservations are used,
+  including unsuccessful attempts. No app key, token value, raw response, game
+  traffic or provider write is retained or dispatched by this inventory.
+- The [binding plan](superpowers/plans/2026-10-09-atmoshaper-ably-binding.md)
+  prepares the existing app, isolated verification and server-key scope. Hosted
+  binding, quota/ownership checks and actual host/phone/reconnect acceptance
+  remain separately gated. Token setup is complete; do not repeat it.
+- The morning review marks this owner step complete. The previously approved
+  eight-record DNS staging remains pending; nameserver activation is unapproved.
+  New source publication/review and the wider migration gates remain open.
+
+## 2026-10-09 — Prepare a count-only anatomy media inspection
+
+- Current source has a narrower reviewed BodyParts3D flashcard metadata loader
+  and a broader entity-detail media query. The upload base affects future
+  uploaded URLs; it cannot rebind existing catalog values. The new
+  [inspection plan](superpowers/plans/2026-10-09-atmoshaper-anatomy-media-inspection.md)
+  records both consumer boundaries without choosing a migration prematurely.
+- Protected proposed SQL examines ten schema fields, then returns only fixed
+  counts for all catalog media and the study-loader cohort. It excludes raw
+  rows/URLs/IDs/notes, metadata JSON, clinical/user/Calendar/ROM/test tables and
+  every write. Read-only/snapshot/time/output guards and exact target/read
+  authority must precede dispatch; deployed credential/branch binding remains
+  unproved.
+- The existing independent-resource metadata matches the private candidate
+  target. Neither proposed query was executed or engine-validated. No database,
+  application, provider, media, seed or backfill operation occurred; source and
+  query hashes are retained privately. Counts, real delivery and consumer
+  acceptance are still outstanding.
+- Local validation passes all 16 documentation/workload cases and 210 relative
+  targets across eleven changed Markdown files, with zero added-source private
+  references or whitespace errors. All ten proposed field types match local
+  schema declarations; query hashes and static read boundaries pass. SQL engine
+  validation and target queries remain unexecuted.
+
+## 2026-10-09 — Prepare both Chimer delivery bindings without activation
+
+- The metadata-only command resolves all 1,476 published renditions and 84
+  vertical posters through the actual runtime helpers. The complete approved
+  84-background release declares 1,728 distinct objects and 862,078,635 bytes;
+  these counts do not newly verify remote payloads.
+- Independent comparison with the earlier 83-entry index checks the actual
+  fallback module. All 593 URL references, covering 255 distinct declared URLs,
+  rebind by origin alone while IDs, geometry and checksum metadata remain intact.
+- The two bases use different namespaces. The published base includes the
+  approved release revision; fallback retains its earlier namespace. Production
+  source defaults do not activate the published catalog. Adding a previously
+  absent setting would activate it and requires exact authority and acceptance;
+  this command has not inspected current hosted values.
+- All 45 focused cases pass, including seven new full-plan/default/drift cases
+  and existing preview contracts. Lint/typecheck pass. The protected journal
+  retains the no-write plan and source hashes. No runtime declarations, hosted
+  setting, media payload, application, provider or live Clock changes occur.
+- All 16 documentation/workload cases, 198 relative targets across ten changed
+  Markdown files, added-source privacy and whitespace checks pass on this local
+  snapshot, including new untracked source files. Publication, DNS/R2 delivery, published-path
+  activation and real playback/legacy continuity remain separate gates.
+
+## 2026-10-09 — Prepare the branded Signature catalog without media mutation
+
+- The metadata-only command rebuilds the complete committed catalog for the
+  proposed branded host using the existing release builder. All 51 concepts,
+  450 source references, 410 payload identities and 1,800 rendition references
+  remain intact. The 1,640 distinct format objects retain declared hashes,
+  sizes, paths, rights, timing and browser format choices.
+- Incoming raw and normalized metadata must both match the existing revision.
+  Exact origin/content-addressed paths, repeated rendition owners and summary
+  counts are checked. Changed URL values produce a new revision; idempotence and
+  reverse rebinding reproduce the original catalog exactly. The established
+  revision collation is preserved rather than creating a new digest contract.
+- Default execution prints a no-write plan. Explicit output exclusively creates
+  a new local file and cannot overwrite stranded evidence. The verified branded
+  candidate is saved only in the protected operation journal. Current runtime
+  data is untouched; no credentials/dotenv, payload reads, encoding, provider
+  requests, uploads or bucket mutations occur.
+- All 13 focused catalog cases pass, including seven new whole-catalog and
+  boundary cases. The first reference-digest test used a different key collation
+  and stopped; correcting that test to the established contract verifies both
+  revisions and the intended ownership rejection paths.
+- Final lint/typecheck and all 16 documentation/workload checks pass. Whitespace,
+  added-source privacy and all 197 relative targets across ten changed Markdown
+  files passed at that local Signature checkpoint; its exact commit and private
+  candidate were saved before the later Chimer preparation.
+- Signature candidate installation/publication, branded DNS/R2 bindings and real
+  playback/legacy continuity remain later exact operations. Generative preparation,
+  the two Chimer bases, anatomy and other independent-service gates retain scope.
+
+## 2026-10-09 — Prepare opt-in Generative.fm branded delivery locally
+
+- The runtime now resolves the index and nested sample destinations together,
+  preserving legacy delivery when the new public build setting is absent or
+  explicitly selects the old origin. The only additional accepted origin is
+  the prepared branded public host. Invalid bindings stop before index requests;
+  branded errors do not silently fall back and hide a failed cutover.
+- Instrument/note keys, ordering, literal paths, queries/fragments and cached
+  relative or other-origin references remain intact. Metadata is copied for
+  rebinding rather than changed in place. Metadata and payload-prewarm caches
+  include the delivery origin, including when the index itself is unchanged.
+- Focused regressions exercise actual index fetching, the bounded provider and
+  the transpiled runtime prewarm/cache path with invented responses and replaced
+  audio/network dependencies. No application, audio graph, listener, provider
+  or database starts. This covers one consumer family, not completed media
+  independence; Signature audio, both Chimer paths and anatomy remain required.
+- Final local validation passes 76 focused cases, including nine new delivery
+  cases, and all 16 documentation/workload cases. Lint/typecheck, whitespace and
+  added-source private-reference scans pass; all 196 relative targets across the
+  ten changed Markdown files resolve. Hosted CI/reviews remain unpublished.
+- Source publication/review, hosted build binding, DNS/R2 configuration and real
+  playback/legacy-continuity acceptance remain separate gates. The public release,
+  old URLs/objects, credentials and the owner's already-approved morning steps
+  are unchanged.
+
+## 2026-10-09 — Approve scoped Ably access and prepare the morning review
+
+- The owner approved the existing thirty-day, three-read-capability Ably packet,
+  then asked to continue within existing authority and collect questions for the
+  morning. Its hash-verified hidden-input window is open; owner token entry remains
+  pending. No new token, provider GET, app key, game traffic or activation occurred.
+- The protected inventory helper verifies the entire grant before resource reads,
+  filters credential-bearing/unknown fields and durably reserves each request
+  against the same twelve-GET ceiling. Twenty-four native offline boundary cases
+  pass using invented responses, without credential or network reads. The older
+  standalone token preflight is not additionally executed.
+- The [morning review](superpowers/plans/2026-10-09-atmoshaper-morning-review.md)
+  consolidates already-approved Ably/DNS owner steps, separate source publication,
+  and missing provider/recovery/acceptance inputs. Current hosted main still matches
+  the completed PR #42 merge, and no hosted PR exists for the owned source branch.
+  These reads do not reopen the completed review loop.
+- Normal Calendar Disconnect is an application connection deletion, not Google
+  grant revocation or dedicated-calendar teardown. The later actual public journey
+  must identify its own eligible account, synthetic state and cleanup intent;
+  no real appointments, role grants or earlier completed acceptance are repeated.
+- No push, source publication, Production build/promotion, nameserver/media change,
+  collection/upload/notification, payment, database write or legacy retirement
+  follows from the overnight continuation instruction.
+
+## 2026-10-09 — Prepare scoped Ably management access
+
+- No existing CLI package, default Ably config or Ably environment setting is
+  present in the checked paths. Inspected official source requests full OAuth
+  access and can save an app key. The narrower prepared packet asks for one
+  thirty-day token limited to app/channel-rule metadata and aggregate statistics;
+  existing app keys, game traffic, resource writes and activation are excluded.
+- Hidden-input DPAPI capture and fixed-host token preflight helpers are prepared
+  in the existing owner/SYSTEM-protected journal. Native synthetic encryption/
+  decryption passes with invented input and its scratch removed. Preflight syntax
+  passes; no real token is captured and no provider request or login is started.
+- Exact access approval and owner capture are pending. This preparation does not
+  establish Ably's current app inventory, billing or operational readiness. DNS
+  staging approval remains unchanged; owner import is still pending. Source HEAD
+  remains unchanged and new source publication remains separately gated.
+
+## 2026-10-09 — Identify the independent Production database resource
+
+- Current Vercel metadata binds both Production database variables to the same
+  owned, active integration store. Its external resource ID exactly matches the
+  separate AtmoShaper Neon project, and its sole connected app matches this
+  Vercel project. Complete native inventories distinguish retained legacy projects.
+- The existing Neon credential directory works with the current CLI; no new
+  login or grant was needed. Project/branch/compute metadata confirms one branch,
+  one compute endpoint and a six-hour history window on the current Free plan.
+  Private identifiers stay in the protected operation journal. No connection
+  strings, schema, user rows, database connections or provider writes occurred.
+- The connector's store 404 and the denied installation-resource route are not
+  evidence of an absent database. The successful native store read resolves its
+  identity. The first cursor-only pagination attempt stopped on a repeated cursor;
+  the native CLI's short-page completion and matching inventories supply proof.
+- Exact deployed credential/branch binding, admin/billing accountability, recovery
+  objectives and scoped restore acceptance remain gates. No migration, restore,
+  credential change or legacy retirement is authorized from this inventory.
+  DNS owner import remains pending and source HEAD stays unchanged.
+
+## 2026-10-09 — Prepare existing Sentry key and release prerequisites
+
+- Fresh identity and exact-key reads verify the approved project, unchanged
+  privacy and an existing active client key. Only its public DSN and necessary
+  metadata are retained privately; no secret or replacement key is retained.
+  Key-list pagination is not proved, so this is selected-key evidence only.
+- Its key-specific rate limit is unset; actual plan quotas, retention and billing
+  ownership remain open. The documented project repository-link list is empty.
+  Source-map upload does not inherently require a repository integration, but
+  exact release/artifact identity and mapped-frame acceptance still require proof.
+  Remote-loader Replay/performance defaults do not describe the bundled app SDK
+  or authorize collection. No provider setting, event, upload or alert was sent.
+- Pending Cloudflare authorities still answer all four SOA/NS controls and show
+  no answers for the fourteen approved-record queries. Owner import remains
+  pending; no import retry, nameserver change or hosting/media operation occurred.
+  HEAD stays unchanged and all preparation evidence remains protected privately.
+
+## 2026-10-09 — Prepare and approve eight-record staging; refresh payment metadata
+
+- Fourteen current-authority queries match all eight known preservation rows.
+  The first private shell comparison retained a record-object bug and stopped
+  candidate generation; its failed receipt remains historical and is not proof.
+  The corrected comparator requires nonempty exact sets and passes all fourteen.
+- A protected BIND staging file and exact rollback/readback packet now preserve
+  two A, two CNAME, one MX and three TXT rows. A separate local parser verifies
+  contents, full TXT chunks, MX priority, DNS-only tags, TTL 300 and file hash.
+  The owner explicitly approved staging these records only. Owner dashboard
+  import is pending; no nameserver, media, hosting or DNS import was executed.
+- All four SOA/NS controls at the assigned pending authorities pass, preparing
+  direct record readback after import without another token setup. The native
+  record-list API remains denied. Parent NS attempts remain unusable and are not
+  counted as delegation proof; the existing authority and recursive reads retain
+  Namecheap. Full old/staged inventories and later parent/DS/rollback proof still
+  gate nameserver approval.
+- The current Stripe account exactly matches the private prior purchase target.
+  Read-only Tax metadata is active with a configured head office and one active
+  registration; one page is complete. This does not prove product classification,
+  all five one-time attestations, background provisioning/reconciliation or
+  new-flow acceptance. No customer/payment rows or repeat live test were read/run.
+- Current-state verification and its existing reviewed date ceiling advance
+  together to October 9 with these new receipts. No application runtime/schema,
+  source publication, deployment, payment, email or provider-setting write occurred.
+
+## 2026-10-09 UTC — Verify the owner-created pending Free zone
+
+- The approved owner-led stage is complete. Exact native readback verifies one
+  pending full AtmoShaper zone on Free in the correct storage account. Its two
+  assigned nameservers remain in the protected private operation packet.
+- The owner-visible DNS table shows no records. The DNS-record API returns 403
+  under the current grant; complete paginated API inventory was not obtained,
+  correcting the earlier expectation that zone read alone would expose it.
+  No replacement token, broader grant or repeated login was requested.
+- Direct existing-authority and recursive NS reads match the saved Namecheap
+  authority. A parent NS attempt returned a DNS server failure and is not counted
+  as evidence. No DNS import, registrar, DNSSEC, media-binding or hosting change
+  occurred. The empty pending zone does not mean the live zone has no records.
+- Source HEAD remains unchanged. Readbacks and this stage receipt are protected
+  privately. Do not repeat zone creation; complete the full legacy comparison,
+  staged record access, TTL/proxy choices and exact rollback before separate
+  record or nameserver approval.
+
+## 2026-10-09 UTC — Authorize only the pending Free-zone stage
+
+- The owner explicitly approved one pending Free AtmoShaper zone in the existing
+  R2 account and settings verification. This does not approve registrar
+  nameservers, live DNS, media bindings, paid plans or public hosting changes.
+- The fresh native exact account/domain read succeeds with zero visible zones.
+  Native session renewal completed without asking the owner to sign in again.
+  Its grant remains zone-read-only; available Wrangler zone OAuth scopes do not
+  provide a zone-edit grant. Agent dashboard policy remains unresolved.
+- Creation therefore awaits the owner's same-account dashboard action: add the
+  domain on Free, choose manual DNS entry, and stop with the zone pending before
+  record entry or Namecheap nameserver changes. Existing read access can verify
+  the resulting account/plan, assigned nameservers and complete DNS inventory.
+  No replacement storage token, broad grant or repeated setup is required.
+- Approval and the exact packet remain protected privately; creation has not
+  occurred and all existing service/legacy routing remains unchanged.
+
+## 2026-10-09 UTC — Complete parent DNS and proposed media-host preflight
+
+- Direct DS reads at two .com authoritative servers return negative responses
+  with a .com SOA authority and no DS; positive .com SOA controls succeed at
+  both. This verifies the parent state independently of the owner's disabled
+  DNSSEC toggle. Refresh this dated proof immediately before any DNS change.
+- Direct reads at both existing Namecheap authorities return no records for
+  either proposed media hostname across A, AAAA, CNAME, NS, TXT and CAA; root
+  CAA returns no data and root NS/SOA controls succeed. One invented root-label
+  A probe also has no answer. These scoped reads do not enumerate the full zone
+  or prove absence of every wildcard or delegated record.
+- A protected proposal prepares only one pending Free full zone in the already
+  verified R2 account, followed by plan/account/nameserver and DNS inventory
+  readbacks. No pending zone was created, and no paid plan, DNS record import,
+  nameserver update, media binding or deployment is authorized by preparation.
+  The eight known records remain preserved with TTL decisions still open.
+- Four authenticated Sentry metadata GETs succeed. Project privacy controls and
+  advanced rules remain unchanged; sharing is disabled and organization IP
+  prevention is enabled. The project still has no first event, visible
+  environments or release rows. Retention/quota/billing, mapped source stacks
+  and useful delivered owner alerts remain unproved. No event payload, source
+  map upload or notification was requested, and no settings were changed.
+- Snapshots and the scoped preflight summary remain owner/SYSTEM-protected.
+  Source was not published; existing website/mail routing, legacy media and
+  working MassageLab tools remain unchanged.
+
+## 2026-10-08 — Resolve the missing mail TXT owner-view check
+
+- The owner supplied an expanded Namecheap view with Show Less visible. It
+  explicitly names AtmoShaper and shows the Google ownership TXT, mail DKIM TXT
+  and mail SPF TXT records, plus the existing website records and Custom MX.
+  The visible full SPF value and DKIM prefix match independent reads at both
+  authoritative servers; both complete mail values remain unchanged privately.
+  DKIM is shortened in the image, so its full value remains DNS-derived.
+- This resolves the missing-TXT owner-view check and supersedes the prepared
+  support question and earlier missing-entry statements below. Expansion is
+  consistent with the earlier incomplete display; exact user UI actions are
+  unknown. No support contact or record recreation is needed for that issue.
+- The earlier email-related CNAME still resolves unchanged at both servers but
+  is not visible in this latest image. Keep it in the eight-known-row private
+  preservation baseline; do not remove it or claim the image alone proves the
+  entire zone inventory. Full comparison, parent DS/host collisions and exact
+  onboarding/cost/propagation/rollback remain preflight work.
+- The owner image is saved with a verified hash in the existing protected
+  operation folder. No DNS, nameserver, provider, media or hosting change occurred;
+  no source was published and no completed live acceptance was repeated.
+
+## 2026-10-08 — Preserve owner DNS evidence and reconcile known authoritative records
+
+- The owner's subsequent desktop view explicitly names AtmoShaper and shows
+  five Host Records, including an additional email-related CNAME; the earlier
+  Mail Settings view contains one MX row. Fresh direct reads at both Namecheap
+  servers agree on eight known record rows. The new CNAME matches the screenshot
+  and all seven previously saved values remain unchanged. No CNAME is returned
+  at either of the two mail TXT owners; the additional CNAME does not replace
+  those TXT records. Its intended application/SMTP consumer is not yet proved.
+  Hash-verified owner evidence and a new eight-row preservation candidate remain
+  private. Desktop mode still omits the two live mail TXT records. Stop requesting
+  more screenshots; the next precise owner read is Namecheap's full authoritative
+  record list or authenticated readback and explanation of the missing entries.
+  Full-zone completeness and nameserver-change authority remain unproved.
+- The owner supplied the requested Namecheap views. They show BasicDNS,
+  DNSSEC/Dynamic DNS disabled, no domain redirects and Custom MX with the shown
+  priority preserved. Domain identity is cropped out; the supplied context and
+  independently matching apex addresses connect this evidence to AtmoShaper.
+  Both original images are copied into the existing owner/SYSTEM-protected
+  operation folder with matching SHA-256 hashes; no ACL was broadened.
+  A subsequent owner screenshot explicitly confirms `atmoshaper.com` and shows
+  only the Google ownership TXT record. Independent direct DNS reads reconfirm
+  the two mail TXT records at both Namecheap servers, with values matching the
+  prior reads; no separate account-subdomain NS or SOA records are returned.
+  The owner-interface discrepancy remains unexplained. Do not ask the owner to
+  recreate working mail records or infer that the full zone is inventoried.
+- Paired reads at both existing authoritative servers agree on seven known
+  website, ownership-verification and mail record rows. Full values shortened
+  in the owner view are recovered privately, including mail TXT wire chunks.
+  Observed DNS TTLs are retained separately from the registrar's Automatic label.
+- The owner view contains four Host Records and one mail row, but omits two
+  live mail TXT records. A filter control is visible; filtering is a possible
+  explanation, not a confirmed cause. Public known-name reads cannot establish
+  full zone completeness. The remaining owner check is the complete unfiltered
+  Host Records view or export, including all pages.
+- A private candidate baseline is prepared with preserved values, DNS-only
+  intent and explicit incomplete/not-executable status. Parent DS, all-record
+  completeness, host collisions, eligible zone/plan/nameservers, propagation and
+  exact rollback still require completion before approval of a concrete change.
+  Zero provider/DNS/media changes occurred; no zone was created and no
+  nameservers were changed. Source publication approval remains separate.
+
+## 2026-10-08 — Resolve R2 access and inventory all three existing media classes
+
+- The owner corrected the existing token's dates. Fresh self-verification matches
+  the saved token identity, confirms an active and currently valid start/expiry
+  window, and the canonical bucket-list GET succeeds with HTTP 200. No token
+  replacement, credential re-entry or permission expansion is needed.
+- Default-jurisdiction metadata returns the three owner-confirmed media classes;
+  EU/US lists return none, with no returned continuation cursor. Federal inventory
+  remains unavailable/unverified; this is not an all-jurisdiction completeness
+  claim. All three buckets are Standard storage in Eastern North America.
+- Public and anatomy each retain one enabled legacy custom domain with active
+  ownership/TLS and minimum TLS 1.2. Private media has no custom domain. Public
+  development access is disabled on all three. Public CORS allows GET/HEAD from
+  all origins and exposes range/cache/type/length/ETag headers; anatomy/private
+  explicitly have no CORS configuration. Each lifecycle rule only aborts
+  unfinished multipart uploads after seven days; no completed-object expiration
+  rule is returned. No setting was changed and no object content was listed.
+- The owner's aggregate screenshot reports about 5.1k anatomy objects/2.83 GB,
+  11.11k public objects/13.13 GB and zero private objects/bytes; total storage is
+  displayed as 15.95 GB. These are independently rounded owner observations,
+  not exact object counts, copied-byte verification or completed media migration.
+- The existing native Wrangler login is verified and includes the storage
+  account with user/account/zone read scopes. The exact AtmoShaper zone GET
+  succeeds but returns no zone; public DNS uses Namecheap nameservers. Existing
+  storage access therefore works, while branded-domain onboarding still needs
+  a complete authoritative DNS baseline and separately approved operation.
+- The [compatible media cutover plan](superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
+  prepares reuse of existing public/anatomy media, preservation of old domains,
+  private-media isolation, source URL/revision changes and bounded acceptance/
+  rollback. Private receipts retain exact references. Zero bucket/object/DNS,
+  provider credential, hosting or database writes occurred during this inventory.
+  Local documentation preparation does not publish source or activate delivery.
+  Documentation/workload checks pass 16/16; all 189 relative targets across nine
+  changed documents resolve, and added private-reference/whitespace scans pass.
+  Earlier local code checks remain dated; no completed live acceptance is rerun.
+
+## 2026-10-08 — Complete PR #42 and privacy approval; diagnose storage access and inventory public indexes
+
+- The owner-approved PR #42 merge completes as `357095d`; its tree matches the
+  exact reviewed head. All seven final-head CI jobs pass: 5,225 total unit tests,
+  5,223 passes/two skips/zero failures or cancellations; 606 browser passes and
+  178 gated skips, with no flakes/final failures reported. Codex is clean and the
+  completed full CodeRabbit round covers all 37 files, passes all five pre-merge
+  checks and reports 93.94% touched-function docstrings. Initial failed heads and
+  earlier pending statements remain historical; final receipts stay private.
+- Its automatic main candidate is READY and unpromoted. The standard build,
+  actual migration/Supporter gates and all 115 static pages pass. Final authenticated
+  readback preserves manual custom-domain assignment, main Git binding/protection,
+  the PR #40 public target and all six saved live aliases. No manual build,
+  promotion, alias restoration or environment change occurred. Complete name-only
+  inventory still contains 60 Production-only settings and no Sentry binding.
+- The separately approved Sentry project-only privacy update completes with one
+  HTTP 200 write and exact readback of six advanced removal rules. Other project
+  fields, organization privacy and legacy settings are preserved; inherited IP
+  prevention is verified. Collection remains unbound, with no first event, upload
+  or notification. Current monitors have no attached workflows; quota/retention,
+  billing, release/source maps and useful owner-alert acceptance remain open.
+- The automatic build identifies separate vendor-plugin telemetry, which uses
+  its own destination rather than the app's DSN/scrubbing policy. New local source
+  sets build telemetry false in every mode. The actual configuration regression
+  verifies ordinary release credentials and migration/QA isolation remain intact.
+  This source correction is not yet published or applied to the hosted artifact.
+- The owner confirms existing R2 bucket Settings loads and provides evidence of
+  active public delivery. The saved token's precise metadata reveals its future
+  October 31 start date, explaining prior HTTP 401/code `10000` despite active
+  administrative status and confirmed Read/account coverage. The owner is asked
+  to correct only the existing start date, preserving expiry and permission scope.
+  No re-entry, replacement, broader grant or repeated denied read is needed.
+  Fresh time-window verification and one canonical read follow owner confirmation;
+  agent dashboard policy remains unresolved and is not bypassed.
+- A new bounded public metadata inventory completes all 228 source-declared
+  primary/format JSON indexes, processing 867,736 bytes. All 6,800 sample references
+  use the legacy media origin. Zero payloads, private objects or database rows are
+  requested; this proves nested URLs need a compatible cutover, not playback or
+  storage ownership. Synthetic boundary/deadline/budget and build-configuration
+  checks pass 14/14, Sentry contracts pass 55/55 and documentation/workload checks
+  pass 16/16; typecheck and lint pass. Current records distinguish completed
+  approvals from remaining launch gates; publication remains separate.
+
+## 2026-10-08 — Complete approved Sentry project setup and verify the R2 token (historical checkpoint)
 
 - The source follow-up is published in draft PR #42. At the dated `c1b0ce6`
   checkpoint, the exact Preview is READY and Codex reports no major issues.
