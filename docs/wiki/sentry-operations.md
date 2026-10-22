@@ -6,7 +6,52 @@ first. The approved separate destination project is created. This runbook owns
 the remaining source-map, alert and hosted-collection gates; setup does
 not establish operational monitoring.
 
+## October 22 category-guard follow-up
+
+The later full review identified ambiguous validation counts and flagged direct
+transaction envelopes. A real SDK control confirms that `client.sendEnvelope()`
+can bypass `beforeSendTransaction`; the three runtime regressions fail before
+the category correction. The final `beforeEnvelope` integration now allows only
+`event` items used by runtime errors and the approved diagnostic report. It
+rejects every other category, including direct transactions, spans and sessions,
+while mixed envelopes retain their error items. Existing integration exclusions,
+scrubbing, sampling and propagation restrictions remain in force.
+
+The local tests use the installed integration resolver and real SDK transport
+with an in-memory request executor. A prohibited-only envelope makes zero
+requests. Mixed envelopes containing performance, session, log, profile, replay,
+attachment or client-report data retain only their permitted event items.
+No provider ingestion or activation is performed by these tests.
+
+## Revision-scoped validation evidence
+
+The focused Sentry command is a subset of the repository-wide unit command.
+Each count below belongs only to its named revision, command and environment.
+The event-item allowlist row is local pre-push evidence; current-head hosted
+results are the [PR #44 checks](https://github.com/dsbowersock/atmoshaper/pull/44/checks),
+which must be verified independently after publication. Older dated checkpoints
+retain their original scope; they are not current-head validation assertions.
+
+| Source scope | Command / environment | Recorded result |
+| --- | --- | --- |
+| Initial candidate `98750f2` | `npm run test:sentry`, local Windows | 71 passed, including 20 installed-SDK cases; zero failures/skips |
+| Span-boundary correction `876c2d8` | `npm run test:sentry`, local Windows | 75 passed, including 24 installed-SDK cases; zero failures/skips |
+| Event-item allowlist follow-up, local pre-push scope | `npm run test:sentry`, local Windows | 76 passed, including 25 installed-SDK cases; zero failures/skips; three direct-transaction regressions failed before this correction |
+| Initial candidate `98750f2` | `npm run test`, Linux CI | 5,270 passed; two skipped; zero failures |
+| Span-boundary correction `876c2d8` | `npm run test`, Linux CI | 5,274 passed; two skipped; zero failures; browser build, four browser QA lanes and final `qa` also passed |
+| Initial local repository-wide baseline, before the later SDK regressions | `npm run test`, local Windows | 5,266 passed; two unchanged Calendar process-deadline failures; four skipped |
+
+The local Windows Calendar gate remains separate: its dedicated command
+`npm run test:calendar-application-acceptance` reproduced the two failures
+(41 passed, one platform skip), and the owned shutdown probe took 7,615 ms
+against the tests' five-second expectation. No test deadline was relaxed.
+Source-map delivery, provider privacy/limits and owner-alert acceptance remain
+separate from all of this source and CI evidence.
+
 ## October 22 manual review: final span-envelope boundary
+
+This dated checkpoint describes the span-boundary correction `876c2d8`; the
+event-item allowlist above supersedes its runtime policy.
 
 Manual review of [draft PR #44](https://github.com/dsbowersock/atmoshaper/pull/44)
 identified a remaining standalone-span escape. Installed SDK 10.59.0 does apply
@@ -23,19 +68,20 @@ transaction, session and privacy restrictions remain.
 The expanded regression uses the installed integration resolver and transport
 with an in-memory request executor. Name/origin combinations and direct/mixed
 envelopes failed in all three runtimes before the policy fix (six failures).
-All 75 focused checks now pass, including 24 SDK cases, together with typecheck,
-full lint and final changed-source lint. The original Linux CI unit run also
-passed 5,270 tests with two skips; the two previously disclosed local Windows
-Calendar deadline failures remain a separate platform-specific safety gate.
-Updated-head hosted checks and review still need their own completion proof.
+The revision-scoped table above distinguishes `npm run test:sentry` on
+`876c2d8` from the original and corrected Linux `npm run test` executions.
+Typecheck, full lint and final changed-source lint also passed for `876c2d8`.
+The local Windows Calendar deadline failures remain a separate safety gate;
+no later-head hosted result is inferred from this historical checkpoint.
 No provider ingestion, source-map upload, owner notification or activation is
 part of this source correction. The earlier checkpoint below retains its date.
 
 ## October 22 local source validation refresh
 
-The existing errors-only candidate was reviewed against installed SDK 10.59.0
-and all three runtime entrypoints. Fresh `npm run test:sentry` passes 71/71
-checks, including 20 actual SDK envelope cases; `typecheck` and `lint` pass too.
+This pre-publication checkpoint covers the source subsequently published as
+`98750f2`, before either envelope-boundary correction. Installed SDK 10.59.0 and
+all three runtime entrypoints were reviewed. Local `npm run test:sentry` passed
+71/71 checks (20 SDK cases); `npm run typecheck` and `npm run lint` also passed.
 The broader run has 5,266 passes, two Calendar process-deadline failures and four
 skips. The same two unchanged Calendar tests reproduce alone; a single synthetic
 Windows shutdown probe took 7,615 ms against their five-second expectation and
@@ -49,8 +95,8 @@ with final name/origin filters and client reports disabled. No app/test source
 change was needed during this refresh. The four-file source/test patch is
 prepared separately from unrelated dirty work; publication and hosted reviews
 remain open. The deployment and this runbook's Sentry-only documentation changes
-accompany that review candidate. No source push, binding, upload or event has
-occurred in this continuation.
+accompany that review candidate. No source push, binding, upload or event occurred at this pre-publication
+checkpoint.
 
 The next operational work is current destination/privacy and actual
 quota/retention/overage/billing proof, followed by an exact protected
@@ -71,9 +117,11 @@ and the enum-only support diagnostic. A handled HTTP failure is not automaticall
 an error event merely because its response status is unsuccessful. Monitoring
 must not be described as a complete audit of purchases, Calendar sync or game
 actions, or as popularity, conversion, user-history or product analytics.
-The merged baseline also allows anonymous operational tracing. The October 11
-local follow-up prepares errors-only collection; it remains unpublished and does
-not change the preserved public artifact or enable hosted collection.
+The historical merged baseline at `b6a7d727` also allows anonymous operational
+tracing. The October 11 local preparation introduced the errors-only direction,
+subsequently published as draft PR #44 with the later corrections above.
+Source publication does not change the preserved public artifact or enable
+hosted collection.
 
 ## Current proof and missing access
 

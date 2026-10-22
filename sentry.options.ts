@@ -31,16 +31,16 @@ export function getSentryOptions(): Options {
     ignoreSpans: [/.*/, { attributes: { "sentry.origin": /.*/ } }],
     sendClientReports: false,
     maxBreadcrumbs: 0,
-    /** Removes prohibited pipelines and rejects standalone spans at the final envelope boundary. */
+    /** Removes prohibited pipelines and permits only error/diagnostic event items before transport. */
     integrations(defaultIntegrations) {
       const integrations = filterAnonymousSentryIntegrations(defaultIntegrations)
       integrations.push({
         name: "ErrorsOnlyEnvelopeFilter",
         setup(client) {
-          // Span name/origin metadata is optional, and direct envelopes bypass the span hooks.
+          // Direct envelopes bypass capture hooks; runtime errors and diagnostics use event items.
           client.on("beforeEnvelope", (envelope) => {
             for (let index = envelope[1].length - 1; index >= 0; index -= 1) {
-              if (envelope[1][index][0].type === "span") envelope[1].splice(index, 1)
+              if (envelope[1][index][0].type !== "event") envelope[1].splice(index, 1)
             }
           })
         },

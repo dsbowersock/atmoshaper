@@ -267,20 +267,52 @@ describe("installed Sentry SDK and application privacy policy", () => {
     })
   }
 
+  it("demonstrates direct transaction envelopes bypass beforeSendTransaction", async () => {
+    let hookCalls = 0
+    const { client, envelopes } = packetFixture({
+      ...applicationOptions(),
+      integrations: [], // Control case excludes the final envelope allowlist.
+      beforeSendTransaction: () => { hookCalls += 1; return null },
+    })
+    try {
+      await client.sendEnvelope([{}, [[{ type: "transaction" }, { type: "transaction", transaction: "invented-direct-transaction", spans: [] }]]])
+      assert.equal(await client.flush(1_000), true)
+      assert.equal(hookCalls, 0)
+      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), ["transaction"])
+    } finally {
+      await client.close(1_000)
+    }
+  })
+
   for (const runtime of ["instrumentation-client.ts", "sentry.server.config.ts", "sentry.edge.config.ts"]) {
-    it("filters direct and mixed span envelopes before " + runtime + " transport requests", async () => {
+    it("permits only error items from direct and mixed " + runtime + " envelopes", async () => {
       const { client, envelopes } = packetFixture(await runtimeOptions(runtime))
       try {
-        const spanItem = [{ type: "span" }, { trace_id: "0123456789abcdef0123456789abcdef", data: { privateValue: "invented-span-content" } }]
-        await client.sendEnvelope([{}, [spanItem]])
+        const transactionItem = [{ type: "transaction" }, { type: "transaction", transaction: "invented-direct-transaction", spans: [] }]
+        await client.sendEnvelope([{}, [transactionItem]])
         assert.equal(await client.flush(1_000), true)
-        assert.deepEqual(envelopes, [], "a span-only envelope must not invoke the transport request executor")
+        assert.deepEqual(envelopes, [], "direct transactions must not invoke the transport request executor")
+
+        const blockedItems = [
+          transactionItem,
+          [{ type: "span" }, { data: { privateValue: "invented-disallowed-content" } }],
+          [{ type: "log" }, { items: [{ body: "invented-disallowed-content" }] }],
+          [{ type: "profile" }, { frames: [] }],
+          [{ type: "attachment" }, new Uint8Array([1, 2, 3])],
+          [{ type: "replay_event" }, { type: "replay_event" }],
+          [{ type: "client_report" }, { discarded_events: [] }],
+        ]
+        // Session envelopes use a separate SDK pipeline rather than beforeSend.
+        client.captureSession(makeSession({ user: { id: "invented-session-owner", ip_address: "192.0.2.9" } }))
+        await client.sendEnvelope([{}, blockedItems])
+        assert.equal(await client.flush(1_000), true)
+        assert.deepEqual(envelopes, [], "prohibited categories must not invoke a request")
 
         const event = { level: "error", release: "synthetic-source-proof", exception: { values: [{ type: "TypeError", value: "Synthetic error" }] } }
-        await client.sendEnvelope([{}, [spanItem, [{ type: "event" }, event], spanItem]])
+        await client.sendEnvelope([{}, [...blockedItems, [{ type: "event" }, event], ...blockedItems]])
         assert.equal(await client.flush(1_000), true)
         assert.deepEqual(envelopeItems(envelopes), [[{ type: "event" }, event]])
-        assert.doesNotMatch(JSON.stringify(envelopes), /invented-span-content/)
+        assert.doesNotMatch(JSON.stringify(envelopes), /invented-disallowed-content|invented-direct-transaction|invented-session-owner/)
       } finally {
         await client.close(1_000)
       }
@@ -308,6 +340,7 @@ describe("installed Sentry SDK and application privacy policy", () => {
     let eventSanitizerCalls = 0
     const { client, envelopes } = packetFixture({
       ...applicationOptions(),
+      integrations: [], // Control case demonstrates the SDK pipeline without the final allowlist.
       beforeSend: (event) => { eventSanitizerCalls += 1; return privacyPolicy.sanitizeSentryEvent(event) },
     })
     try {
