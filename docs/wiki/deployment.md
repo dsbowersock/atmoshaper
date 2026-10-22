@@ -766,8 +766,10 @@ Portal before the first destructive cleanup mutation.
 
 ## Sentry
 
-Sentry captures anonymous operational errors, traces, and privacy-safe diagnostic
-reports only. This is anonymous operational monitoring, not product analytics.
+The October 22 reviewed local source candidate captures anonymous operational
+errors and privacy-safe diagnostic reports only. Performance collection is
+disabled; source publication and hosted activation remain separate gates.
+This is anonymous operational monitoring, not product analytics.
 Do not use Sentry to infer background popularity, user journeys, retention, or
 conversion.
 
@@ -776,12 +778,10 @@ privacy, source-map and owner-alert gates. Local source disables browser and
 process session integrations because session envelopes bypass event scrubbing.
 An error reference does not itself establish provider ingestion or delivery.
 
-The next local source correction disables vendor build-plugin telemetry in all
-build modes. That plugin uses its own destination, separate from the application
+Merged PR #43 disables vendor build-plugin telemetry in all build modes. That plugin uses its own destination, separate from the application
 DSN and project scrubbing. Keep explicit source-map/release uploads under their
 separate approved scope; disabling plugin telemetry does not authorize uploads
-or application collection. The correction still needs publication before it
-affects a hosted artifact.
+or application collection. Its automatic candidate remains unpromoted; the public artifact is preserved.
 
 ```text
 NEXT_PUBLIC_SENTRY_DSN=
@@ -807,7 +807,7 @@ Production Sentry setup should keep alerting focused on:
 | sanitized stack traces | request/response bodies, headers, cookies, and query strings |
 | coarse route/API families | full URLs and dynamic route values |
 | event-scoped trace and diagnostic IDs | automatic click, input, navigation, console, and network breadcrumbs |
-| anonymous Web Vitals and bounded spans | Session Replay, User Feedback, attachments, Logs, and product metrics |
+| sanitized operational error details | performance transactions, spans and Web Vitals; Session Replay, User Feedback, attachments, Logs, and product metrics |
 
 No account, user, visitor, or session identifier is sent to Sentry. Automatic
 click, input, navigation, console, and network breadcrumbs are disabled.

@@ -1,18 +1,16 @@
-import type { Breadcrumb, ErrorEvent, Options, SpanJSON, TransactionEvent } from "@sentry/core"
+import type { Breadcrumb, ErrorEvent, Options, SpanJSON } from "@sentry/core"
 import {
   filterAnonymousSentryIntegrations,
   getAnonymousSentryDataCollection,
 } from "./lib/sentry-options"
 import {
   getSentryEnvironment,
-  getSentryTracesSampleRate,
   sanitizeSentryBreadcrumb,
   sanitizeSentryEvent,
   sanitizeSentrySpan,
-  sanitizeSentryTransaction,
 } from "./lib/sentry-privacy"
 
-/** Builds the shared anonymous policy; absent app DSN keeps every runtime disabled. */
+/** Builds the shared errors-only policy; absent app DSN keeps every runtime disabled. */
 export function getSentryOptions(): Options {
   const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN
 
@@ -25,7 +23,13 @@ export function getSentryOptions(): Options {
     dataCollection: getAnonymousSentryDataCollection(),
     enableLogs: false,
     enableMetrics: false,
-    tracesSampleRate: getSentryTracesSampleRate(),
+    // Explicit zero blocks Node environment fallback; the deny sampler also rejects sampled parents.
+    tracesSampleRate: 0,
+    tracesSampler: () => false,
+    tracePropagationTargets: [],
+    // External sampled spans bypass sampling; SDK origins also match unnamed spans.
+    ignoreSpans: [/.*/, { attributes: { "sentry.origin": /.*/ } }],
+    sendClientReports: false,
     maxBreadcrumbs: 0,
     /** Removes collection pipelines whose envelopes can bypass the event sanitizer. */
     integrations(defaultIntegrations) {
@@ -35,9 +39,9 @@ export function getSentryOptions(): Options {
     beforeSend(event: ErrorEvent) {
       return sanitizeSentryEvent(event) as ErrorEvent
     },
-    /** Applies the same privacy boundary to transaction context and spans. */
-    beforeSendTransaction(event: TransactionEvent) {
-      return sanitizeSentryTransaction(event) as TransactionEvent
+    /** Drops explicitly captured transactions even when they bypass span creation. */
+    beforeSendTransaction() {
+      return null
     },
     /** Sanitizes independently emitted spans before SDK transport dispatch. */
     beforeSendSpan(span: SpanJSON) {
