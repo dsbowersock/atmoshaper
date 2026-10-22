@@ -293,9 +293,11 @@ describe("installed Sentry SDK and application privacy policy", () => {
         assert.equal(await client.flush(1_000), true)
         assert.deepEqual(envelopes, [], "direct transactions must not invoke the transport request executor")
 
-        const blockedItems = [
-          transactionItem,
+        // The SDK mutates envelope item arrays, so every send needs fresh fixtures.
+        const blockedItems = () => [
+          [{ type: "transaction" }, { type: "transaction", transaction: "invented-direct-transaction", spans: [] }],
           [{ type: "span" }, { data: { privateValue: "invented-disallowed-content" } }],
+          [{ type: "session" }, makeSession({ user: { id: "invented-session-owner", ip_address: "192.0.2.9" } }).toJSON()],
           [{ type: "log" }, { items: [{ body: "invented-disallowed-content" }] }],
           [{ type: "profile" }, { frames: [] }],
           [{ type: "attachment" }, new Uint8Array([1, 2, 3])],
@@ -304,12 +306,15 @@ describe("installed Sentry SDK and application privacy policy", () => {
         ]
         // Session envelopes use a separate SDK pipeline rather than beforeSend.
         client.captureSession(makeSession({ user: { id: "invented-session-owner", ip_address: "192.0.2.9" } }))
-        await client.sendEnvelope([{}, blockedItems])
+        await client.sendEnvelope([{}, blockedItems()])
         assert.equal(await client.flush(1_000), true)
         assert.deepEqual(envelopes, [], "prohibited categories must not invoke a request")
 
         const event = { level: "error", release: "synthetic-source-proof", exception: { values: [{ type: "TypeError", value: "Synthetic error" }] } }
-        await client.sendEnvelope([{}, [...blockedItems, [{ type: "event" }, event], ...blockedItems]])
+        const blockedTypes = ["transaction", "span", "session", "log", "profile", "attachment", "replay_event", "client_report"]
+        const mixedItems = [...blockedItems(), [{ type: "event" }, event], ...blockedItems()]
+        assert.deepEqual(mixedItems.map(([header]) => header.type), [...blockedTypes, "event", ...blockedTypes])
+        await client.sendEnvelope([{}, mixedItems])
         assert.equal(await client.flush(1_000), true)
         assert.deepEqual(envelopeItems(envelopes), [[{ type: "event" }, event]])
         assert.doesNotMatch(JSON.stringify(envelopes), /invented-disallowed-content|invented-direct-transaction|invented-session-owner/)
