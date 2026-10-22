@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 import { createRequire } from "node:module"
-import { Client, Scope, SentrySpan, makeSession, startInactiveSpan, startSpan, withScope } from "@sentry/core"
+import { Client, Scope, SentrySpan, createTransport, getIntegrationsToSetup, makeSession, parseEnvelope, startInactiveSpan, startSpan, withScope } from "@sentry/core"
 import { getDefaultIntegrations as browserDefaults } from "@sentry/browser"
 import { getDefaultIntegrations as nodeDefaults } from "@sentry/node"
 import { getDefaultIntegrations as edgeDefaults } from "@sentry/vercel-edge"
@@ -36,14 +36,16 @@ function packetFixture(options = applicationOptions()) {
     ...options,
     environment: "synthetic-verification",
     release: "synthetic-source-proof",
-    integrations: [],
+    // Resolve the real policy integrations without installing global runtime handlers.
+    integrations: getIntegrationsToSetup({ ...options, defaultIntegrations: [] }),
     stackParser: () => [],
-    transport: () => {
+    transport: (transportOptions) => {
       transportConstructions += 1
-      return {
-        send: async (envelope) => { envelopes.push(envelope); return { statusCode: 200 } },
-        flush: async () => true,
-      }
+      // The installed SDK transport handles serialization, buffering and empty-envelope suppression.
+      return createTransport(transportOptions, async (request) => {
+        envelopes.push(parseEnvelope(request.body))
+        return { statusCode: 200 }
+      })
     },
   })
   client.init()
@@ -120,10 +122,12 @@ function endExternallySampledSpans(client) {
   scope.setClient(client)
   withScope(scope, () => {
     for (const name of ["invented-external-span", "", undefined]) {
-      // The internal constructor deliberately bypasses sampling, as an existing instrumentation parent can.
-      const span = new SentrySpan({ name, sampled: true, isStandalone: true })
-      assert.equal(span.isRecording(), true)
-      span.end()
+      for (const origin of ["manual", "", undefined, 42]) {
+        // External instrumentation can omit or replace origin metadata as well as bypass sampling.
+        const span = new SentrySpan({ name, sampled: true, isStandalone: true, attributes: { "sentry.origin": origin } })
+        assert.equal(span.isRecording(), true)
+        span.end()
+      }
     }
   })
 }
@@ -133,6 +137,7 @@ describe("installed Sentry SDK and application privacy policy", () => {
   it("observes both transaction and standalone envelopes when a zero-rate policy inherits a sampled parent", async () => {
     const { client, envelopes } = packetFixture({
       ...applicationOptions(),
+      integrations: [], // Historical control excludes the final envelope guard.
       tracesSampleRate: 0,
       tracesSampler: undefined,
       ignoreSpans: [],
@@ -182,6 +187,7 @@ describe("installed Sentry SDK and application privacy policy", () => {
   it("demonstrates server environment fallback can emit standalone spans despite undefined shared sampling options", async () => {
     const resolved = await serverSdkOptions({
       ...applicationOptions(),
+      integrations: [], // Historical control excludes the final envelope guard.
       tracesSampleRate: undefined,
       tracesSampler: undefined,
       ignoreSpans: [],
@@ -221,11 +227,23 @@ describe("installed Sentry SDK and application privacy policy", () => {
   }
 
   it("demonstrates external sampled spans can bypass a deny sampler without final span filters", async () => {
-    const { client, envelopes } = packetFixture({ ...applicationOptions(), ignoreSpans: [] })
+    const { client, envelopes } = packetFixture({ ...applicationOptions(), integrations: [], ignoreSpans: [] })
     try {
       endExternallySampledSpans(client)
       assert.equal(await client.flush(1_000), true)
-      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), ["span", "span", "span"])
+      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), Array(12).fill("span"))
+    } finally {
+      await client.close(1_000)
+    }
+  })
+
+  it("demonstrates span filters miss unnamed sampled spans without string origin metadata", async () => {
+    // Control case deliberately excludes the application's final envelope integration.
+    const { client, envelopes } = packetFixture({ ...applicationOptions(), integrations: [] })
+    try {
+      endExternallySampledSpans(client)
+      assert.equal(await client.flush(1_000), true)
+      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), Array(4).fill("span"))
     } finally {
       await client.close(1_000)
     }
@@ -243,6 +261,26 @@ describe("installed Sentry SDK and application privacy policy", () => {
         assert.equal(await client.flush(1_000), true)
         assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), ["event"])
         assert.equal(options.sendClientReports, false)
+      } finally {
+        await client.close(1_000)
+      }
+    })
+  }
+
+  for (const runtime of ["instrumentation-client.ts", "sentry.server.config.ts", "sentry.edge.config.ts"]) {
+    it("filters direct and mixed span envelopes before " + runtime + " transport requests", async () => {
+      const { client, envelopes } = packetFixture(await runtimeOptions(runtime))
+      try {
+        const spanItem = [{ type: "span" }, { trace_id: "0123456789abcdef0123456789abcdef", data: { privateValue: "invented-span-content" } }]
+        await client.sendEnvelope([{}, [spanItem]])
+        assert.equal(await client.flush(1_000), true)
+        assert.deepEqual(envelopes, [], "a span-only envelope must not invoke the transport request executor")
+
+        const event = { level: "error", release: "synthetic-source-proof", exception: { values: [{ type: "TypeError", value: "Synthetic error" }] } }
+        await client.sendEnvelope([{}, [spanItem, [{ type: "event" }, event], spanItem]])
+        assert.equal(await client.flush(1_000), true)
+        assert.deepEqual(envelopeItems(envelopes), [[{ type: "event" }, event]])
+        assert.doesNotMatch(JSON.stringify(envelopes), /invented-span-content/)
       } finally {
         await client.close(1_000)
       }

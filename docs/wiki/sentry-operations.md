@@ -6,6 +6,31 @@ first. The approved separate destination project is created. This runbook owns
 the remaining source-map, alert and hosted-collection gates; setup does
 not establish operational monitoring.
 
+## October 22 manual review: final span-envelope boundary
+
+Manual review of [draft PR #44](https://github.com/dsbowersock/atmoshaper/pull/44)
+identified a remaining standalone-span escape. Installed SDK 10.59.0 does apply
+its span hooks to ordinary standalone spans, but unnamed spans with missing or
+non-string origin attributes can miss the configured matchers. Direct span
+envelopes can bypass those hooks entirely.
+
+The candidate now registers a per-client `beforeEnvelope` integration that
+removes every `span` item, including span containers. The SDK's real transport
+suppresses a resulting empty envelope before its request executor is called;
+mixed envelopes retain their error items. Existing sampling/propagation,
+transaction, session and privacy restrictions remain.
+
+The expanded regression uses the installed integration resolver and transport
+with an in-memory request executor. Name/origin combinations and direct/mixed
+envelopes failed in all three runtimes before the policy fix (six failures).
+All 75 focused checks now pass, including 24 SDK cases, together with typecheck,
+full lint and final changed-source lint. The original Linux CI unit run also
+passed 5,270 tests with two skips; the two previously disclosed local Windows
+Calendar deadline failures remain a separate platform-specific safety gate.
+Updated-head hosted checks and review still need their own completion proof.
+No provider ingestion, source-map upload, owner notification or activation is
+part of this source correction. The earlier checkpoint below retains its date.
+
 ## October 22 local source validation refresh
 
 The existing errors-only candidate was reviewed against installed SDK 10.59.0

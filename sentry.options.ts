@@ -27,13 +27,25 @@ export function getSentryOptions(): Options {
     tracesSampleRate: 0,
     tracesSampler: () => false,
     tracePropagationTargets: [],
-    // External sampled spans bypass sampling; SDK origins also match unnamed spans.
+    // External sampled spans bypass sampling; known SDK origins also cover unnamed spans.
     ignoreSpans: [/.*/, { attributes: { "sentry.origin": /.*/ } }],
     sendClientReports: false,
     maxBreadcrumbs: 0,
-    /** Removes collection pipelines whose envelopes can bypass the event sanitizer. */
+    /** Removes prohibited pipelines and rejects standalone spans at the final envelope boundary. */
     integrations(defaultIntegrations) {
-      return filterAnonymousSentryIntegrations(defaultIntegrations)
+      const integrations = filterAnonymousSentryIntegrations(defaultIntegrations)
+      integrations.push({
+        name: "ErrorsOnlyEnvelopeFilter",
+        setup(client) {
+          // Span name/origin metadata is optional, and direct envelopes bypass the span hooks.
+          client.on("beforeEnvelope", (envelope) => {
+            for (let index = envelope[1].length - 1; index >= 0; index -= 1) {
+              if (envelope[1][index][0].type === "span") envelope[1].splice(index, 1)
+            }
+          })
+        },
+      })
+      return integrations
     },
     /** Reduces outgoing error events to the shared anonymous diagnostic contract. */
     beforeSend(event: ErrorEvent) {

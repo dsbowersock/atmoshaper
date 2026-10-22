@@ -375,7 +375,9 @@ describe("anonymous operational Sentry boundary", () => {
     assert.match(options, /maxBreadcrumbs:\s*0/)
     assert.match(server, /includeServerName:\s*false/)
     assert.match(privacy, /event\.user\s*=\s*{\s*ip_address:\s*null\s*}/)
-    assert.match(options, /integrations\(defaultIntegrations\)\s*{\s*return filterAnonymousSentryIntegrations\(defaultIntegrations\)\s*}/s)
+    // Real SDK tests verify resolved integrations; allow additional per-client protections here.
+    assert.match(options, /integrations\(defaultIntegrations\)\s*{/)
+    assert.match(options, /filterAnonymousSentryIntegrations\(defaultIntegrations\)/)
     assert.match(policy, /"BrowserSession"/)
     assert.match(policy, /"ProcessSession"/)
     assert.match(policy, /"Replay"/)
