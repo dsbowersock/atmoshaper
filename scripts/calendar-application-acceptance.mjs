@@ -35,11 +35,21 @@ export async function stopAcceptanceCommand(child, { graceMs = 1000 } = {}) {
   requireAcceptance(Number.isSafeInteger(child.pid) && child.pid > 0, "owned_command_pid")
   if (process.platform === "win32") {
     if (child.exitCode != null || child.signalCode != null) return
-    const killer = spawn("pwsh", [...WINDOWS_TREE_ARGS, "-OwnedPid", String(child.pid)], windowsTreeControlOptions())
-    await new Promise((done, fail) => {
-      killer.once("error", () => fail(new Error("owned_command_tree_stop_failed")))
-      killer.once("close", (code, signal) => code === 0 && !signal ? done() : fail(new Error("owned_command_tree_stop_failed")))
-    })
+    try {
+      const killer = spawn("pwsh", [...WINDOWS_TREE_ARGS, "-OwnedPid", String(child.pid)], windowsTreeControlOptions())
+      await new Promise((done, fail) => {
+        killer.once("error", () => fail(new Error("owned_command_tree_stop_failed")))
+        killer.once("close", (code, signal) => code === 0 && !signal ? done() : fail(new Error("owned_command_tree_stop_failed")))
+      })
+    } catch {
+      // Bound failure recovery to this owned leader. Descendant cleanup remains unverified,
+      // so release inherited pipes/handles and fail the stage instead of reporting success.
+      try { process.kill(child.pid, "SIGKILL") } catch { /* Preserve the tree-control failure even if the leader already exited or cannot be killed. */ }
+      child.stdout?.destroy()
+      child.stderr?.destroy()
+      child.unref?.()
+      throw new Error("owned_command_tree_stop_failed")
+    }
     return
   }
   const signalGroup = (signal) => {
@@ -169,11 +179,15 @@ async function main() {
   }
   // Attach immediately: a failed or short-lived command must not exit before its receipt is written.
   const childResult = new Promise((done) => { child.once("error", () => done(1)); child.once("close", (code) => done(code ?? 1)) })
+  let failStopping
+  const stopFailure = new Promise((_, fail) => { failStopping = fail })
+  // A helper can fail during initial journal setup; observe that rejection immediately.
+  stopFailure.catch(() => {})
   let stopping
-  /** Repeated deadline/operator signals share one owned-tree teardown. */
+  /** Repeated deadline/operator signals share one teardown; its failure interrupts the main wait. */
   const stopChild = () => {
     stopping ??= stopAcceptanceCommand(child)
-    stopping.catch(() => {})
+    stopping.catch(failStopping)
   }
   // Cancellation must own the detached child before any journal-lock or other awaited setup.
   process.on("SIGINT", stopChild)
@@ -199,8 +213,11 @@ async function main() {
       // Next emits this exact action error only after the owned database mutation rejects removal.
       observeNativeRejection(text).catch(() => {})
     })
-    await store.locked(() => store.record({ kind: "owned-child", phase: "started", mode, pid: child.pid }))
-    result = await childResult
+    await Promise.race([store.locked(() => {
+      requireAcceptance(!stopping, "owned_command_interrupted")
+      return store.record({ kind: "owned-child", phase: "started", mode, pid: child.pid })
+    }), stopFailure])
+    result = await Promise.race([childResult, stopFailure])
   } catch (error) {
     stopChild()
     throw error
@@ -208,7 +225,11 @@ async function main() {
     try { deadlineExpired = await watchdog?.finish() }
     finally {
       try { if (stopping) await stopping }
-      finally { process.off("SIGINT", stopChild); process.off("SIGTERM", stopChild) }
+      catch (error) {
+        // Retain the owned PID for operator recovery without claiming descendant cleanup.
+        await writeAcceptanceDiagnostic(loaded.directory, `owned_command_tree_stop_failed\nowned_pid:${child.pid}\nfull_tree_cleanup_unverified\n`)
+        throw error
+      } finally { process.off("SIGINT", stopChild); process.off("SIGTERM", stopChild) }
     }
   }
   if (result !== 0 && privateError) await writeAcceptanceDiagnostic(loaded.directory, privateError)

@@ -66,3 +66,14 @@ new tests cover unavailable tree control and real direct/shell descendants while
 preserving an unrelated sentinel. Cached focused ESLint passed. No deadline was
 relaxed and no live Calendar operation was run. The repair is a local candidate;
 fresh hosted/Linux review and publication remain separate. See the linked audit.
+
+## Review follow-up: failed tree-control recovery
+
+PR #45 review reproduced a launcher hang when the bounded Windows tree helper
+fails. Race its rejection into setup/worker waits, attempt only owned-leader
+termination as bounded recovery, release owned pipes/handle and retain a private
+PID plus explicit unverified full-tree cleanup status. Do not turn that fallback
+into a successful cleanup receipt. Cover nonzero exit, spawn failure and timeout
+for operator cancellation and watchdog expiry under the original five-second
+test bound, preserving an unrelated sentinel. Publish the focused correction
+through the approved PR review/fix loop and require new exact-head checks.

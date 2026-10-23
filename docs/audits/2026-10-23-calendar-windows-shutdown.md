@@ -69,16 +69,39 @@ Windows regression checks descendant PIDs and the unrelated sentinel; a parent
 
 The unit fixtures contain invented identities and tokens only. No database,
 Google, Sentry, Ably, Vercel or Neon operation, credential entry, ingestion,
-notification, payment or media mutation was run. The controlled probe's local
-children and sentinel were verified stopped; fixture cleanup completes in the
-full suite. Source and document preservation/diff/link checks are recorded in
+notification, payment or media mutation was run. The controlled probe's owned children stopped while the unrelated sentinel
+remained alive during the shutdown assertion. The sentinel was stopped only
+during final fixture cleanup; it was not terminated by owned-tree teardown. Source and document preservation/diff/link checks are recorded in
 local non-secret receipts.
+
+## Published review follow-up
+
+The exact initial repair is published in [PR #45](https://github.com/dsbowersock/atmoshaper/pull/45).
+Codex review identified a real exception path: an unsuccessful tree helper could
+leave the launcher waiting for its worker before surfacing the failure. A new
+actual-entrypoint regression reproduced this at the existing five-second bound.
+
+Tree-control failure now interrupts both the initial journal and worker waits.
+Windows failure recovery attempts termination of only the owned leader, releases
+its inherited pipes/handle and fails the stage. It never reports successful full-
+tree cleanup from that fallback. A protected diagnostic retains the owned PID
+and explicit `full_tree_cleanup_unverified` status for operator recovery.
+
+The final local suite passes 46 tests with zero failures and one POSIX-only
+skip (47 registered); focused cached ESLint passes. The new six-case regression
+reproduced the pre-fix hang, then passes in 15.7 seconds combined with each
+case retaining its five-second bound. It covers helper nonzero exit, spawn
+error and timeout under both operator cancellation and the watchdog deadline. It checks failed
+stage status, no success message, owned-worker termination, retained recovery
+status and unrelated-sentinel preservation. Original success deadlines and
+POSIX group escalation remain intact. Hosted checks/review for the follow-up
+head are required; no live Calendar/provider test is repeated.
 
 ## Publication and parent migration boundary
 
-This is a local repair candidate. Linux execution, hosted CI/review and source
-publication remain to be performed before release reliance. The existing
-reviewed Sentry PR remains a draft; its uploaded/hosted protected-test evidence
+The initial local candidate is now published, with a focused review follow-up
+prepared. Exact follow-up-head Linux CI/review remains required before release
+reliance. The existing reviewed Sentry PR is ready for review; its uploaded/hosted protected-test evidence
 and retained encrypted credentials were untouched. Broader Anatomime source/
 binding, media/provider recovery, offered journeys and final public release
 remain tracked in the [migration checklist](../wiki/migration-status.md).
