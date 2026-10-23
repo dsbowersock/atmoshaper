@@ -23,6 +23,7 @@ type ProductItem = AddOnInput["products"][number]
 
 const STORAGE_KEY = "massagelab-business-planner-add-on-profit-v1"
 
+/** Keeps add-on calculations editable when this device cannot persist their draft. */
 export function AddOnProfitClient() {
   const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<AddOnInput>({
     storageKey: STORAGE_KEY,

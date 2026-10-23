@@ -93,15 +93,18 @@ export async function openPlannerFixture(browser, bundle, {
         allowRemoval: config.mode !== "corrupt-remove-denied",
       }
       const storage = {
+        /** Simulates denied reads only for the planner key, preserving unrelated fixture data. */
         getItem(storageKey) {
           if (storageKey === config.key && !harness.allowReads) throw new DOMException("Invented read failure", "SecurityError")
           return nativeStorage.getItem(storageKey)
         },
+        /** Records successful writes and can inject the planner-only quota failure. */
         setItem(storageKey, value) {
           if (storageKey === config.key && !harness.allowWrites) throw new DOMException("Invented quota failure", "QuotaExceededError")
           harness.writes.push({ key: storageKey, value })
           nativeStorage.setItem(storageKey, value)
         },
+        /** Models failed corrupt-draft cleanup without removing another key. */
         removeItem(storageKey) {
           if (storageKey === config.key && !harness.allowRemoval) throw new DOMException("Invented removal failure", "SecurityError")
           harness.removals.push(storageKey)
@@ -110,6 +113,7 @@ export async function openPlannerFixture(browser, bundle, {
       }
       Object.defineProperty(window, "localStorage", {
         configurable: true,
+        /** Models browsers that reject access to the storage property itself. */
         get() {
           if (config.mode === "getter-denied") throw new DOMException("Invented getter failure", "SecurityError")
           return storage
@@ -117,6 +121,7 @@ export async function openPlannerFixture(browser, bundle, {
       })
     }, { planner, key, mode, seed, incomeProps })
 
+    /** Re-mounts the real client at the intercepted origin and waits for its first paint. */
     async function mount() {
       await page.goto(fixtureUrl)
       await page.addScriptTag({ content: bundle })

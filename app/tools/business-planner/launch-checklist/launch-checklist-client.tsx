@@ -14,6 +14,7 @@ type ChecklistState = Record<string, boolean>
 
 const STORAGE_KEY = "massagelab-business-planner-launch-checklist-v1"
 
+/** Hydrates known checklist keys and preserves unread device work when storage is denied. */
 export function LaunchChecklistClient() {
   const allKeys = useMemo(() => BUSINESS_LAUNCH_CHECKLIST_SECTIONS.flatMap((section) => (
     section.items.map((item) => checklistKey(section.id, item))

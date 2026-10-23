@@ -47,6 +47,7 @@ const moneySectionLabels: Record<MoneySectionKey, { title: string; description: 
   },
 }
 
+/** Restores the existing break-even draft while keeping storage failures recoverable in this tab. */
 export function BreakEvenPlannerClient() {
   const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<BreakEvenInput>({
     storageKey: STORAGE_KEY,

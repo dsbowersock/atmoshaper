@@ -70,6 +70,10 @@ function serializePlannerInput(value: PlannerInput) {
   return JSON.stringify(sanitizeBusinessIncomePlannerPreference(value))
 }
 
+/**
+ * Seeds one worksheet from the account or device draft, then syncs actual edits.
+ * Device-storage failure leaves account persistence independent and usable.
+ */
 export function IncomePlannerClient({
   isSignedIn,
   displayName,

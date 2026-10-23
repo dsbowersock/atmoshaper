@@ -12,6 +12,7 @@ type OutlineState = Record<string, string>
 
 const STORAGE_KEY = "massagelab-business-planner-plan-outline-v1"
 
+/** Keeps the local business outline editable even when its saved draft cannot be accessed. */
 export function PlanOutlineClient() {
   const { value: outline, setValue: setOutline, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<OutlineState>({
     storageKey: STORAGE_KEY,

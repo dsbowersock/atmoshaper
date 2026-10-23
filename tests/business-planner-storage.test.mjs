@@ -22,6 +22,7 @@ async function editFirstControl(page) {
   return { checkbox: false, value }
 }
 
+/** Reads the native fixture store and intercepted operations without exercising the failing adapter. */
 async function snapshot(fixture) {
   return fixture.page.evaluate((key) => {
     const h = window.__businessPlannerFixture
@@ -30,6 +31,7 @@ async function snapshot(fixture) {
   }, fixture.key)
 }
 
+/** Rejects unhandled client errors or requests outside the locally fulfilled fixture routes. */
 function assertNoUnexpectedTraffic(fixture) {
   assert.deepEqual(fixture.requests.blocked, [])
   assert.deepEqual(fixture.requests.pageErrors, [])

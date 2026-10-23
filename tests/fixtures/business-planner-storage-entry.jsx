@@ -17,17 +17,21 @@ const clients = {
 }
 const harness = window.__businessPlannerFixture
 
+/** Exposes real client render failures separately from the simulated storage exceptions. */
 class Boundary extends React.Component {
   state = { failed: false }
 
+  /** Switches a failed client to an observable fixture marker. */
   static getDerivedStateFromError() {
     return { failed: true }
   }
 
+  /** Records only the error type so tests can assert recovery without dumping inputs. */
   componentDidCatch(error) {
     harness.errors.push(error.name)
   }
 
+  /** Keeps the failure marker inside the fixture instead of allowing an uncaught render. */
   render() {
     return this.state.failed
       ? <p data-fixture-failed>Planner fixture error</p>
@@ -35,6 +39,7 @@ class Boundary extends React.Component {
   }
 }
 
+/** Mounts an actual client and exposes prop refreshes for the unsaved-edit regression. */
 function App() {
   const [props, setProps] = useState(harness.config.incomeProps)
   const Client = clients[harness.config.planner]

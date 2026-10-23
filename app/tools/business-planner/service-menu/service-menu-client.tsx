@@ -24,6 +24,7 @@ type ServiceItem = ServiceMenuInput["services"][number]
 
 const STORAGE_KEY = "massagelab-business-planner-service-menu-v1"
 
+/** Edits one device-local service menu without letting storage access disable its controls. */
 export function ServiceMenuClient() {
   const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<ServiceMenuInput>({
     storageKey: STORAGE_KEY,
