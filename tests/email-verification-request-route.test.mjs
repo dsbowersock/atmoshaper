@@ -26,7 +26,7 @@ const limiter = loadCompiledModule(limiterSource, "auth-rate-limit.verification-
   "@/lib/commerce/transactions": { runCommerceTransaction },
 })
 
-const routeSource = await readFile(new URL("../app/api/account/email-verification/request/route.ts", import.meta.url), "utf8")
+const routeSource = await readFile(new URL("../app/api/account/email-verification/request/handlers.ts", import.meta.url), "utf8")
 const route = loadCompiledModule(routeSource, "email-verification-request-route.test.ts", {
   "next/server": {
     after: (callback) => afterCallbacks.push(callback),

@@ -17,10 +17,10 @@ import { buildRegistrationLegalAcceptancePath } from "../lib/legal-acceptance-ga
 
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const routeFiles = {
-  confirm: "../app/api/account/security/google/link/confirm/route.ts",
-  unlink: "../app/api/account/security/google/unlink/route.ts",
-  password: "../app/api/account/security/password/route.ts",
-  disable: "../app/api/account/security/password/disable/route.ts",
+  confirm: "../app/api/account/security/google/link/confirm/handlers.ts",
+  unlink: "../app/api/account/security/google/unlink/handlers.ts",
+  password: "../app/api/account/security/password/handlers.ts",
+  disable: "../app/api/account/security/password/disable/handlers.ts",
 }
 
 const routeSources = Object.fromEntries(await Promise.all(

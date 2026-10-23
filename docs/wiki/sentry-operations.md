@@ -6,6 +6,47 @@ first. The approved separate destination project is created. This runbook owns
 the remaining source-map, alert and hosted-collection gates; setup does
 not establish operational monitoring.
 
+## October 23 build prerequisites and offline source-map checks
+
+The local candidate now passes a full webpack build with normal TypeScript
+validation, 115 static pages, optimization and build traces. Route factories and
+checkout support helpers live in ordinary colocated modules; route entries retain
+only HTTP handlers and statically analyzable Next metadata. The webpack audio
+aliases match the established Turbopack entries, and browser URL construction no
+longer imports Node signing code. These repairs preserve the errors-only policy.
+
+Fresh local regressions passed: 76 Sentry, 172 route/security/commerce and 13 audio
+tests. Generated configuration retains runtime DSN/environment inputs; no DSN
+constructs no transport. The compiled diagnostic maps to source line 10, and an
+isolated SDK client with an in-memory transport produces a sanitized envelope
+whose debug ID matches the generated JavaScript. One-off local guard, loopback
+listener and independent watchdog rehearsals also passed. These are offline
+checks, not application capture-hook, hosted delivery or owner-email acceptance.
+
+### Preserve debug IDs when preparing an upload
+
+Installed CLI 0.47.0's `--no-rewrite` upload branch leaves pair debug-ID metadata
+empty. The generated webpack JavaScript registers IDs, while its maps lack
+explicit ID fields. Do not infer an upload manifest's linkage from the JavaScript
+registration alone.
+
+Before any separately approved upload, stage only the diagnostic route's required
+generated JavaScript closure and maps. Read each existing ID from the generated
+registration, then add matching `debug_id` and `debugId` metadata to that copied
+map only. Require unchanged JavaScript bytes, mapping strings and source content.
+Use normal pairing with an explicit `app:///_next/server/` URL prefix, without
+`--no-rewrite`. The installed pure pairing/manifest functions recognized these
+existing IDs without injection or writes in the local rehearsal. Abort on missing
+or conflicting IDs, an unexpected rewrite, a changed file set or uncertain upload.
+
+The rehearsed artifact used ten files / 6,488,499 input bytes and a 1,510,147-byte
+ZIP. Recompute its manifest and enforce the agreed caps for the exact future
+reviewed source/release; these counts do not authorize another artifact or upload.
+No CLI authentication, provider request, release, alert or email was used by the
+local checks. The actual guarded CLI/runtime invocation still needs rebinding and
+preflight against the final pin before any permitted live dispatch. Keep the
+public debug flag disabled and preserve all hosted activation gates below.
+
 ## October 22 category-guard follow-up
 
 The later full review identified ambiguous validation counts and flagged direct

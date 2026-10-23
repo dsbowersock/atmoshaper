@@ -978,6 +978,17 @@ error. Provider-setting changes, live or test Checkout/payment/event/capture
 actions, and email delivery remain separate manual/provider gates and were not
 performed by the Layer D release.
 
+## Sentry build prerequisite validation
+
+The October 23 local candidate passes the full webpack build with normal
+TypeScript checks after route factories were moved out of Next route entry
+exports and browser audio imports were separated from Node signing code. This
+validates compilation, not hosted Sentry collection or release activation.
+The [Sentry runbook](sentry-operations.md#october-23-build-prerequisites-and-offline-source-map-checks)
+records the generated-map/debug-ID checks and corrected upload preparation.
+Keep source-map submission, the protected diagnostic event, owner notification
+and Production promotion behind their separate approvals.
+
 ## Production Migrations
 
 Run migrations as a deploy step before serving new code:

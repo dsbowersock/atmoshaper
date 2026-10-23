@@ -273,7 +273,7 @@ describe("verified-account background credit provisioning", () => {
       readFile(new URL("../lib/auth-users.ts", import.meta.url), "utf8"),
       readFile(new URL("../lib/auth-method-intents.ts", import.meta.url), "utf8"),
       readFile(new URL("../app/verify-email/page.tsx", import.meta.url), "utf8"),
-      readFile(new URL("../app/api/account/security/password/route.ts", import.meta.url), "utf8"),
+      readFile(new URL("../app/api/account/security/password/handlers.ts", import.meta.url), "utf8"),
     ])
 
     const authStateStart = authUsers.indexOf("export async function getUserAuthState")

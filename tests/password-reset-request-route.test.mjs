@@ -13,7 +13,7 @@ const limiter = loadCompiledModule(limiterSource, "auth-rate-limit.route-test.ts
   "@/lib/commerce/transactions": { runCommerceTransaction: (client, callback) => client.$transaction(callback, { isolationLevel: "Serializable" }) },
 })
 
-const routeSource = await readFile(new URL("../app/api/account/password-reset/request/route.ts", import.meta.url), "utf8")
+const routeSource = await readFile(new URL("../app/api/account/password-reset/request/handlers.ts", import.meta.url), "utf8")
 const afterCallbacks = []
 const route = loadCompiledModule(routeSource, "password-reset-request-route.test.ts", {
   "next/server": {
