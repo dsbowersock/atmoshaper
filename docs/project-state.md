@@ -1,5 +1,29 @@
 # AtmoShaper Project State
 
+## October 23 Anatomime runtime-repair candidate
+
+Room creation now supplies an opaque primary key, Ably requests use canonical
+capabilities and LF-terminated MAC fields, joined-room URLs survive reload without
+exposing player passes, and progress locks use PostgreSQL/adapter-supported
+parameter/result types. Schemas, permissions, attribution and stable identifiers
+are preserved.
+
+Production webpack/TypeScript and focused lint pass on this candidate's reviewed
+Sentry base plus its four runtime repairs. Named suites pass 157 realtime, one
+room-insert, 43 progress and six receipt cases. All 58 distinct intercepted
+browser cases pass (29 desktop, 29 mobile), with unchanged assertions/timing
+limits, one worker and zero retries. The initial operator-capped run retained
+23 passes; exactly its 35 unrun cases completed under the same build/source.
+Current Anatomime test inventory registers 174 focused Node cases and 58 intercepted desktop/mobile browser cases.
+The selected Node inventory is separate from added signer/room/progress suites;
+historical 174/174 and 42/42 Layer B receipts stay fixed.
+
+The [source audit](audits/2026-10-23-anatomime-source-closeout.md) records scope,
+cleanup and the retained capped-run result. This is source/intercepted QA, not
+another real database, phone or sign-in run. Those earlier acceptances remain
+separate. Hosted CI/Preview/review and final public/provider binding remain open;
+no merge, Production promotion or Sentry activation follows from this candidate.
+
 Verified: 2026-10-09
 
 Evidence scope: October 8 hosted main/PR #42 merge truth, authenticated hosting,
