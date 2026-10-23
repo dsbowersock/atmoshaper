@@ -28,7 +28,10 @@ export function createPasswordResetRequestHandler({
   resetWork = requestPasswordReset,
 }: PasswordResetRequestDependencies) {
   return async function passwordResetRequestHandler(request: Request) {
-    const body = await request.json().catch(() => ({}))
+    const body: unknown = await request.json().catch(() => null)
+    if (!isRequestBody(body)) {
+      return NextResponse.json({ message: PUBLIC_ACCOUNT_ENTRY_MESSAGE }, { status: 202 })
+    }
     const email = normalizeEmail(body.email)
     if (!isPublicAccountEmail(email)) {
       return NextResponse.json({ message: PUBLIC_ACCOUNT_ENTRY_MESSAGE }, { status: 202 })
@@ -56,6 +59,11 @@ export function createPasswordResetRequestHandler({
     }
     return NextResponse.json({ message: PUBLIC_ACCOUNT_ENTRY_MESSAGE }, { status: 202 })
   }
+}
+
+/** Rejects JSON primitives and arrays before accessing public account fields. */
+function isRequestBody(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 export const POST = createPasswordResetRequestHandler({

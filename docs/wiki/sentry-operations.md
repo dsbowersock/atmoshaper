@@ -6,6 +6,24 @@ first. The approved separate destination project is created. This runbook owns
 the remaining source-map, alert and hosted-collection gates; setup does
 not establish operational monitoring.
 
+## October 23 review follow-up
+
+The fresh full review found a JSON `null` body could throw before the password
+reset handler returned its uniform public response. The handler now rejects
+non-object JSON before accessing account fields. Six real-request regressions
+cover null, arrays, primitives and malformed JSON, retaining the existing neutral
+202 response without account/rate-limit/mail work. The tests use the real pure
+email validator; the null case failed before the correction.
+
+The audio import test now explicitly describes its local relative graph scope;
+full builds cover package resolution. SDK-internal control tests resolve
+`node-core` through the installed Next/Node dependency chain and identify the
+installed version and missing symbol/layout on upgrade failures. They also check
+the private report-flush method before calling it. Runtime Sentry policy is
+unchanged. The focused follow-up passes 76 Sentry, 178 route/security/commerce and
+13 audio tests; its full build and hosted results must be associated with the
+corresponding revision rather than inferred from an earlier head.
+
 ## October 23 build prerequisites and offline source-map checks
 
 The local candidate now passes a full webpack build with normal TypeScript

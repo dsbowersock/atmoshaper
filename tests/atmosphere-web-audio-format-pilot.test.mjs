@@ -127,8 +127,8 @@ describe("Atmosphere web-audio format pilot", () => {
 })
 
 
-/** Traverse the actual ESM graph as a bundler does, rejecting Node imports reachable by the browser catalog. */
-async function assertBrowserSafeGraph(moduleUrl, visited = new Set()) {
+/** Traverse the catalog's local relative ESM graph; package resolution remains covered by full builds. */
+async function assertRelativeGraphHasNoNodeBuiltins(moduleUrl, visited = new Set()) {
   if (visited.has(moduleUrl.href)) return visited
   visited.add(moduleUrl.href)
   const source = await readFile(moduleUrl, "utf8")
@@ -146,12 +146,12 @@ async function assertBrowserSafeGraph(moduleUrl, visited = new Set()) {
   visit(ast)
   for (const specifier of imports) {
     assert.equal(isBuiltin(specifier), false, `Node-only dependency reached from browser graph: ${specifier}`)
-    if (specifier.startsWith(".")) await assertBrowserSafeGraph(new URL(specifier, moduleUrl), visited)
+    if (specifier.startsWith(".")) await assertRelativeGraphHasNoNodeBuiltins(new URL(specifier, moduleUrl), visited)
   }
   return visited
 }
 
-it("keeps the browser format graph independent of Node-only signing dependencies", async () => {
-  const visited = await assertBrowserSafeGraph(new URL("../lib/atmosphere/web-audio-format-pilot.js", import.meta.url))
+it("keeps the local relative format graph independent of Node-only signing dependencies", async () => {
+  const visited = await assertRelativeGraphHasNoNodeBuiltins(new URL("../lib/atmosphere/web-audio-format-pilot.js", import.meta.url))
   assert.ok(visited.size >= 2, "the check must traverse dependencies rather than only the entrypoint")
 })

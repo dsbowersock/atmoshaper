@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 import { requestPasswordReset } from "../lib/password-reset-request.ts"
+import { isPublicAccountEmail } from "../lib/auth-request.ts"
 
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const limiterSource = await readFile(new URL("../lib/auth-rate-limit.ts", import.meta.url), "utf8")
@@ -28,7 +29,7 @@ const route = loadCompiledModule(routeSource, "password-reset-request-route.test
   },
   "@/lib/auth-request": {
     authRequestNetworkIdentifier: (request) => request.headers.get("x-forwarded-for") ?? "unknown",
-    isPublicAccountEmail: () => true,
+    isPublicAccountEmail,
   },
   "@/lib/password-reset-request": { requestPasswordReset },
   "@/lib/auth-env": { getAuthSecret: () => "secret" },
@@ -38,6 +39,30 @@ const route = loadCompiledModule(routeSource, "password-reset-request-route.test
 const NOW = new Date("2026-08-28T12:00:00.000Z")
 
 describe("password reset limiter cutover", () => {
+  for (const body of ["null", "[]", "true", "42", '"invented"', "{"]) {
+    it(`returns neutral 202 for non-object or malformed JSON ${body}`, async () => {
+      afterCallbacks.length = 0
+      const database = createDatabase()
+      const handler = route.createPasswordResetRequestHandler({
+        prismaClient: database,
+        secret: "secret",
+        resetWork: async () => assert.fail("Invalid JSON shape must not reach account work"),
+      })
+      const response = await handler(new Request("https://example.invalid/api/account/password-reset/request", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body,
+      }))
+      assert.equal(response.status, 202)
+      assert.deepEqual(await response.json(), {
+        message: "Check that email address for the appropriate sign-in, verification, or recovery next step.",
+      })
+      assert.equal(afterCallbacks.length, 0)
+      assert.equal(database.rows.length, 0)
+      assert.equal(database.userLookupCount, 0)
+    })
+  }
+
   it("persists both hashed buckets before reset work", async () => {
     afterCallbacks.length = 0
     const database = createDatabase()

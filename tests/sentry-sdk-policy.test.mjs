@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 import { createRequire } from "node:module"
+import { pathToFileURL } from "node:url"
 import { Client, Scope, SentrySpan, createTransport, getIntegrationsToSetup, makeSession, parseEnvelope, startInactiveSpan, startSpan, withScope } from "@sentry/core"
 import { getDefaultIntegrations as browserDefaults } from "@sentry/browser"
 import { getDefaultIntegrations as nodeDefaults } from "@sentry/node"
@@ -11,6 +12,7 @@ import * as privacyPolicy from "../lib/sentry-privacy.js"
 import { compileCommonJsModule } from "./helpers/compiled-module.mjs"
 
 const optionsSource = await readFile(new URL("../sentry.options.ts", import.meta.url), "utf8")
+const CORE_SDK_VERSION = createRequire(import.meta.url)("@sentry/core/package.json").version
 const SYNTHETIC_DSN = "https://0123456789abcdef0123456789abcdef@example.invalid/1"
 
 /** Evaluates actual application options with isolated DSN input and real privacy helpers. */
@@ -79,8 +81,23 @@ async function runtimeOptions(path) {
 
 /** Runs the installed server SDK option merger with invented environment inputs, without its global initializer. */
 async function serverSdkOptions(options, environment) {
-  const sdkPath = new URL("../node_modules/@sentry/node-core/build/cjs/sdk/index.js", import.meta.url)
-  const sdkSource = await readFile(sdkPath, "utf8")
+  const packageRequire = createRequire(import.meta.url)
+  const nextPackage = packageRequire.resolve("@sentry/nextjs/package.json")
+  const nextVersion = packageRequire(nextPackage).version
+  let corePackage
+  try {
+    // Follow the installed dependency chain so nested layouts work without hoisting.
+    const nodePackage = createRequire(nextPackage).resolve("@sentry/node/package.json")
+    corePackage = createRequire(nodePackage).resolve("@sentry/node-core/package.json")
+  } catch (error) {
+    assert.fail(`@sentry/nextjs ${nextVersion}: cannot resolve @sentry/node-core via @sentry/node (${error.code}); update serverSdkOptions for the installed SDK.`)
+  }
+  const version = packageRequire(corePackage).version
+  const sdkPath = new URL("./build/cjs/sdk/index.js", pathToFileURL(corePackage))
+  const sdkSource = await readFile(sdkPath, "utf8").catch((error) => {
+    assert.fail(`@sentry/node-core ${version}: sdk/index.js is unavailable (${error.code}); update serverSdkOptions for the installed SDK layout.`)
+  })
+  assert.match(sdkSource, /function getClientOptions\b/, `@sentry/node-core ${version}: private getClientOptions moved; update serverSdkOptions before accepting this SDK upgrade.`)
   const sdkModule = { exports: {} }
   const sdkRequire = createRequire(sdkPath)
   // Expose only the internal pure merger; no loader/hooks/client are initialized.
@@ -231,7 +248,7 @@ describe("installed Sentry SDK and application privacy policy", () => {
     try {
       endExternallySampledSpans(client)
       assert.equal(await client.flush(1_000), true)
-      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), Array(12).fill("span"))
+      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), Array(12).fill("span"), `@sentry/core ${CORE_SDK_VERSION}: external-span control changed; review this SDK upgrade.`)
     } finally {
       await client.close(1_000)
     }
@@ -243,7 +260,7 @@ describe("installed Sentry SDK and application privacy policy", () => {
     try {
       endExternallySampledSpans(client)
       assert.equal(await client.flush(1_000), true)
-      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), Array(4).fill("span"))
+      assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), Array(4).fill("span"), `@sentry/core ${CORE_SDK_VERSION}: unnamed-span matcher control changed; review this SDK upgrade.`)
     } finally {
       await client.close(1_000)
     }
@@ -257,6 +274,7 @@ describe("installed Sentry SDK and application privacy policy", () => {
         endExternallySampledSpans(client)
         client.captureEvent({ level: "error", exception: { values: [{ type: "TypeError", value: "Cannot read properties of undefined" }] } })
         // Exercise the real report flush too: dropping spans must not create another collection category.
+        assert.equal(typeof client._flushOutcomes, "function", `@sentry/core ${CORE_SDK_VERSION}: private _flushOutcomes moved; update this SDK report-flush regression.`)
         client._flushOutcomes()
         assert.equal(await client.flush(1_000), true)
         assert.deepEqual(envelopeItems(envelopes).map(([header]) => header.type), ["event"])
