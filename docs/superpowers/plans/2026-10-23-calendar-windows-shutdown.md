@@ -4,14 +4,17 @@
 
 Close the local Calendar acceptance harness's Windows shutdown gate while keeping
 its existing five-second cancellation/deadline tests and PID-owned tree semantics.
-This is local source and invented-process verification only. No Calendar game,
-provider, database, credential, deployment or other external operation is included.
-PR #44 remains draft; do not push, merge or promote to Production.
+The initial phase was local source and invented-process verification only:
+no Calendar game, provider, database, credential or deployment operation. At
+that checkpoint PR #44 remained draft and publication was not authorized.
+The later owner-approved PR publication/review loop, described below, supersedes
+that initial no-push boundary. Merge and Production promotion remain excluded.
 
 The canonical migration-records checkout is reused without switching branches.
 Its existing Anatomime and documentation changes are preserved. The separate
 reviewed Sentry checkout remains unchanged. This source slice can be extracted
-for later independent publication; that publication is not authorized here.
+for later independent publication. The initial local phase did not authorize
+publication; the subsequent direct owner approval governs the follow-up below.
 
 ## Evidence and decision
 
@@ -36,7 +39,7 @@ The POSIX process-group behavior and all provider/approval controls are preserve
 TDD Mode: off; existing failing tests are diagnostic evidence and must pass after
 repair, with additional real descendant and fail-closed preflight coverage.
 
-## Atomic execution
+## Initial local execution (historical)
 
 1. Preserve all pre-existing dirty files and the Sentry checkout head/index; record
    the migration-records head before one focused local commit. Do not push.
@@ -60,12 +63,15 @@ Sentry tests stay closed. Anatomy content review remains before dependent polish
 
 ## Executed local result
 
-The repaired harness passed all 45 applicable tests, with zero failures and one
-POSIX-only skip on Windows. The original cancellation and cleanup deadlines pass;
-new tests cover unavailable tree control and real direct/shell descendants while
-preserving an unrelated sentinel. Cached focused ESLint passed. No deadline was
-relaxed and no live Calendar operation was run. The repair is a local candidate;
-fresh hosted/Linux review and publication remain separate. See the linked audit.
+Before the review follow-up, the repaired harness passed 45 applicable tests
+with zero failures and one POSIX-only skip on Windows (46 registered). The
+post-follow-up suite passed 46 tests with zero failures and one POSIX-only skip
+(47 registered), with cached focused ESLint passing. The original cancellation
+and cleanup deadlines pass; new tests cover unavailable tree control and real
+direct/shell descendants while preserving an unrelated sentinel. No deadline was
+relaxed and no live Calendar operation was run. The initial phase ended with a
+local candidate; later publication and hosted checks belong to the separately
+authorized review loop below. See the linked audit.
 
 ## Review follow-up: failed tree-control recovery
 
@@ -77,3 +83,10 @@ into a successful cleanup receipt. Cover nonzero exit, spawn failure and timeout
 for operator cancellation and watchdog expiry under the original five-second
 test bound, preserving an unrelated sentinel. Publish the focused correction
 through the approved PR review/fix loop and require new exact-head checks.
+
+This published follow-up is covered by the owner's later authorization for
+regular PRs, CI/Preview builds and review fixes. That authority supersedes the
+initial local-only no-push instruction above; it does not authorize merge,
+Production promotion or another live Calendar/provider test. The resulting
+46-pass/one-skip local result is the post-follow-up checkpoint; the earlier
+45-pass result remains historical evidence of the first repair.

@@ -7,10 +7,12 @@ not publish the repair or prove a normal Production Calendar OAuth/sync journey.
 The existing cancellation/deadline tests retain their five-second limits.
 PowerShell 7 was already installed; no dependency download or install occurred.
 
-The repair stays in the migration-records checkout and leaves reviewed Sentry
-PR #44 source unchanged. A separate read-only GitHub inventory confirmed that
-PR #44 is the only open PR, still draft/unmerged at `2feac62`, based on `b6a7d7`.
-No push, merge, deployment or Production action occurred.
+The initial local repair stayed in the migration-records checkout and left
+reviewed Sentry PR #44 source unchanged. At that local-phase checkpoint, a
+read-only GitHub inventory found only PR #44 open, draft/unmerged at `2feac62`,
+based on `b6a7d7`. During that local verification phase, no push, merge,
+deployment or Production action occurred. The later authorized publication and
+review follow-up are recorded below.
 
 ## Reproduction and causal evidence
 
@@ -59,7 +61,8 @@ Windows regression checks descendant PIDs and the unrelated sentinel; a parent
 
 | Check | Actual result |
 | --- | --- |
-| Full local harness suite | 45 pass, zero fail, one POSIX-only skip; 46 tests, 23,910 ms |
+| Initial local harness suite, before review follow-up | 45 pass, zero fail, one POSIX-only skip; 46 tests, 23,910 ms |
+| Post-follow-up local harness suite | 46 pass, zero fail, one POSIX-only skip; 47 registered tests |
 | Original launcher cancellation/setup-failure cases | Pass; four signal/failure variants, 3,966 ms combined |
 | Original two cleanup modes | Pass, 1,161 ms combined; independent deadlines and partial evidence retained |
 | Missing Windows control | Refuses launch before a fixture worker starts |
