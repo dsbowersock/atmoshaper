@@ -5,17 +5,41 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 import { acceptanceEnvironment, requireAcceptance, validateAcceptanceCredential, validateAcceptanceManifest, ACCEPTANCE_BASE } from "./calendar-application-acceptance-core.mjs"
 import { acceptanceStore } from "./calendar-application-acceptance-guard.mjs"
 
-/** POSIX descendants inherit this owned group; Windows teardown retains its PID-scoped tree operation. */
+const WINDOWS_TREE_HELPER = fileURLToPath(new URL("./calendar-application-process-tree.ps1", import.meta.url))
+const WINDOWS_TREE_ARGS = ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", WINDOWS_TREE_HELPER]
+let windowsTreeControlChecked = false
+
+/** Keep process-control helpers outside the application/provider credential environment. */
+function windowsTreeControlOptions() {
+  const env = Object.fromEntries(["PATH", "SystemRoot", "WINDIR", "COMSPEC", "TEMP", "TMP", "PATHEXT"].filter((key) => process.env[key] !== undefined).map((key) => [key, process.env[key]]))
+  return { env, windowsHide: true, stdio: "ignore", timeout: 3000, killSignal: "SIGKILL" }
+}
+
+/** Refuse a Windows worker before launch if bounded descendant termination is unavailable. */
+function requireWindowsTreeControl() {
+  if (process.platform !== "win32" || windowsTreeControlChecked) return
+  try { execFileSync("pwsh", [...WINDOWS_TREE_ARGS, "-Check"], windowsTreeControlOptions()) }
+  catch { throw new Error("owned_command_tree_control_unavailable") }
+  windowsTreeControlChecked = true
+}
+
+/** Own a POSIX group or a Windows PID tree; validate Windows cleanup support before spawning. */
 export function spawnAcceptanceCommand(command, args, { cwd, env, shell = false } = {}) {
+  requireWindowsTreeControl()
   return spawn(command, args, { cwd, env, shell, detached: process.platform !== "win32", windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
 }
 
-/** Terminate only the launcher's owned tree, escalating the POSIX group after a short grace period. */
+/** Terminate only the owned tree; bound Windows control and escalate the POSIX group after its grace period. */
 export async function stopAcceptanceCommand(child, { graceMs = 1000 } = {}) {
   if (!child.pid) return
+  requireAcceptance(Number.isSafeInteger(child.pid) && child.pid > 0, "owned_command_pid")
   if (process.platform === "win32") {
-    const killer = spawn("taskkill", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" })
-    await new Promise((done, fail) => { killer.once("error", fail); killer.once("exit", done) })
+    if (child.exitCode != null || child.signalCode != null) return
+    const killer = spawn("pwsh", [...WINDOWS_TREE_ARGS, "-OwnedPid", String(child.pid)], windowsTreeControlOptions())
+    await new Promise((done, fail) => {
+      killer.once("error", () => fail(new Error("owned_command_tree_stop_failed")))
+      killer.once("close", (code, signal) => code === 0 && !signal ? done() : fail(new Error("owned_command_tree_stop_failed")))
+    })
     return
   }
   const signalGroup = (signal) => {
