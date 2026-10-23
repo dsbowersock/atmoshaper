@@ -116,7 +116,7 @@ test("launcher cancellation during its initial journal wait stops the owned chil
     // Run the real launcher and teardown, replacing only settings, Git reads, journal waiting and the worker command.
     const replacements = {
       "node:fs/promises": `export { open } from 'node:fs/promises'; export async function readFile() { return ${JSON.stringify(JSON.stringify(manifest))} }; export async function readdir() { return [] }; export async function realpath(path) { return path }`,
-      "node:child_process": `import { spawn as realSpawn } from 'node:child_process'; import { writeFileSync } from 'node:fs'; export function execFileSync(_command, args) { return args[0] === 'rev-parse' ? ${JSON.stringify(ACCEPTANCE_BASE)} : '' }; export function spawn(command, args, options) { if (command === 'taskkill') return realSpawn(command, args, options); const child = realSpawn(process.execPath, ['-e', "process.stdout.write('synthetic-ready' + String.fromCharCode(10)); setInterval(() => {}, 1000)"], options); globalThis.syntheticAcceptanceChild = child; writeFileSync(${JSON.stringify(pidPath)}, String(child.pid)); return child }`,
+      "node:child_process": `import { spawn as realSpawn } from 'node:child_process'; import { writeFileSync } from 'node:fs'; export function execFileSync(_command, args) { return args[0] === 'rev-parse' ? ${JSON.stringify(ACCEPTANCE_BASE)} : '' }; export function spawn(command, args, options) { if (command === 'pwsh') return realSpawn(command, args, options); const child = realSpawn(process.execPath, ['-e', "process.stdout.write('synthetic-ready' + String.fromCharCode(10)); setInterval(() => {}, 1000)"], options); globalThis.syntheticAcceptanceChild = child; writeFileSync(${JSON.stringify(pidPath)}, String(child.pid)); return child }`,
       "./calendar-application-acceptance-guard.mjs": `import { once } from 'node:events'; export function acceptanceStore() { return { record: async () => {}, locked: async (action) => { await once(globalThis.syntheticAcceptanceChild.stdout, 'data'); if (process.platform === 'win32') { process.emit(${JSON.stringify(signal)}); process.emit(${JSON.stringify(signal)}) } else { process.kill(process.pid, ${JSON.stringify(signal)}) }; await new Promise((done) => setTimeout(done, 20)); ${fails ? "throw new Error('synthetic journal acquisition failed')" : "return action()"} } } }`,
     }
     const hook = `import { registerHooks } from 'node:module'; const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(launcherUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
@@ -162,6 +162,108 @@ test("POSIX teardown terminates an ignoring descendant even after its process-gr
     await Promise.race([closed, new Promise((_, fail) => { const timer = setTimeout(() => fail(new Error("owned descendant survived teardown")), 5000); timer.unref() })])
     assert.equal(child.signalCode, "SIGTERM")
   } finally { await stopAcceptanceCommand(child, { graceMs: 1 }); await closed }
+})
+
+test("Windows tree-control capability failure refuses worker launch", { skip: process.platform !== "win32" }, async () => {
+  const launcherUrl = new URL("../scripts/calendar-application-acceptance.mjs?unavailable-tree-control", import.meta.url).href
+  const replacement = "export function execFileSync() { throw new Error('synthetic unavailable tree API') }; export function spawn() { throw new Error('synthetic worker unexpectedly started') }"
+  const hook = `import { registerHooks } from 'node:module'; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(launcherUrl)} && specifier === 'node:child_process') return { url: 'data:text/javascript,' + encodeURIComponent(${JSON.stringify(replacement)}), shortCircuit: true }; return nextResolve(specifier, context) } })`
+  const runner = `import { spawnAcceptanceCommand } from ${JSON.stringify(launcherUrl)}; try { spawnAcceptanceCommand(process.execPath, []); process.exitCode = 2 } catch (error) { if (error.message !== 'owned_command_tree_control_unavailable') throw error }`
+  // A separate process keeps the capability cache cold and never creates a fixture worker.
+  const child = spawn(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), "--input-type=module", "-e", runner], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+  const closed = once(child, "close")
+  try { assert.equal((await closed)[0], 0) }
+  finally { if (child.exitCode === null && child.signalCode === null) child.kill("SIGKILL"); await closed }
+})
+
+test("Windows launcher surfaces failed or timed-out tree control and stops its owned worker within five seconds", { skip: process.platform !== "win32" }, async () => {
+  const launcherUrl = new URL("../scripts/calendar-application-acceptance.mjs", import.meta.url).href
+  const sentinel = spawnAcceptanceCommand(process.execPath, ["-e", "process.stdout.write('ready'); setInterval(() => {}, 1000)"])
+  const sentinelClosed = once(sentinel, "close")
+  try {
+    await once(sentinel.stdout, "data")
+    for (const trigger of ["signal", "deadline"]) for (const failure of ["exit", "spawn", "timeout"]) {
+      const directory = await mkdtemp(join(tmpdir(), "calendar-tree-failure-unit-"))
+      const pidPath = join(directory, "worker.pid")
+      const { manifest } = fixture()
+      Object.assign(manifest, { appRoot: fileURLToPath(new URL("..", import.meta.url)), pendingActionOnly: true, sources: [], credentialFile: null, googleProjectId: null, accountEmail: null })
+      // Exercise the real entrypoint with an owned invented worker; only tree control fails.
+      const replacements = {
+        "node:fs/promises": `export { open } from 'node:fs/promises'; export async function readFile() { return ${JSON.stringify(JSON.stringify(manifest))} }; export async function readdir() { return [] }; export async function realpath(path) { return path }`,
+        "node:child_process": `import { spawn as realSpawn } from 'node:child_process'; import { writeFileSync } from 'node:fs'; export function execFileSync(_command, args) { return args[0] === 'rev-parse' ? ${JSON.stringify(ACCEPTANCE_BASE)} : '' }; export function spawn(command, args, options) { if (command === 'pwsh') return realSpawn(${failure === "spawn" ? "'calendar-synthetic-missing-tree-control'" : "process.execPath"}, ${failure === "spawn" ? "[]" : failure === "timeout" ? "['-e', 'setInterval(() => {}, 1000)']" : "['-e', 'process.exit(1)']"}, options); const child = realSpawn(process.execPath, ['-e', "process.stdout.write('ready'); setInterval(() => {}, 1000)"], options); globalThis.syntheticAcceptanceChild = child; writeFileSync(${JSON.stringify(pidPath)}, String(child.pid)); return child }`,
+        "./calendar-application-acceptance-guard.mjs": `import { once } from 'node:events'; let first = true; export function acceptanceStore() { return { record: async () => {}, locked: async (action) => { if (first) { first = false; await once(globalThis.syntheticAcceptanceChild.stdout, 'data'); ${trigger === "signal" ? "process.emit('SIGTERM'); process.emit('SIGTERM');" : ""} } return action() } } }`,
+      }
+      // Only the invented deadline fixture compresses the run timer; production limits stay intact.
+      const timerHook = trigger === "deadline" ? "const setTimer = globalThis.setTimeout; globalThis.setTimeout = (fn, delay, ...args) => setTimer(fn, delay > 60_000 ? 40 : delay, ...args);" : ""
+      const hook = `import { registerHooks } from 'node:module'; ${timerHook} const replacements = ${JSON.stringify(replacements)}; registerHooks({ resolve(specifier, context, nextResolve) { if (context.parentURL === ${JSON.stringify(launcherUrl)} && Object.hasOwn(replacements, specifier)) return { url: 'data:text/javascript,' + encodeURIComponent(replacements[specifier]), shortCircuit: true }; return nextResolve(specifier, context) } })`
+      const child = spawnAcceptanceCommand(process.execPath, ["--import", "data:text/javascript," + encodeURIComponent(hook), fileURLToPath(launcherUrl), "pending-check", join(directory, "invented-config.json")])
+      const closed = once(child, "close")
+      let stderr = ""
+      let stdout = ""
+      let timer
+      child.stderr.on("data", (chunk) => { stderr += chunk.toString() })
+      child.stdout.on("data", (chunk) => { stdout += chunk.toString() })
+      try {
+        const [code, signal] = await Promise.race([closed, new Promise((_, fail) => { timer = setTimeout(() => fail(new Error(`${trigger}/${failure}: failed tree control left the launcher waiting`)), 5000) })])
+        assert.equal(code, 1)
+        assert.equal(signal, null)
+        assert.equal(stderr.trim(), "ACCEPTANCE: stopped; inspect the protected private stage receipt")
+        assert.equal(stdout.includes("ACCEPTANCE: owned command completed"), false)
+        const pid = Number(await readFile(pidPath, "utf8"))
+        assert.throws(() => process.kill(pid, 0), { code: "ESRCH" }, "bounded recovery must stop the owned worker")
+        assert.equal(await readFile(join(directory, "owned-command-error.txt"), "utf8"), `owned_command_tree_stop_failed\nowned_pid:${pid}\nfull_tree_cleanup_unverified\n`)
+        assert.doesNotThrow(() => process.kill(sentinel.pid, 0), "failure recovery preserves unrelated processes")
+      } finally {
+        clearTimeout(timer)
+        // Independent real tree control cleans this fixture even when the synthetic launcher fails.
+        try { await stopAcceptanceCommand({ pid: Number(await readFile(pidPath, "utf8")) }) } catch (error) { if (error.code !== "ENOENT") throw error }
+        if (child.exitCode === null && child.signalCode === null) await stopAcceptanceCommand(child)
+        await closed
+        await rm(directory, { recursive: true, force: true })
+      }
+    }
+  } finally { await stopAcceptanceCommand(sentinel); await sentinelClosed }
+})
+
+test("Windows teardown closes direct and shell descendants within five seconds and preserves an unrelated process", { skip: process.platform !== "win32" }, async () => {
+  const directory = await mkdtemp(join(tmpdir(), "calendar-owned-tree-unit-"))
+  const descendant = "process.stdout.write('descendant:' + process.pid + String.fromCharCode(10)); setInterval(() => {}, 1000)"
+  const workerPath = join(directory, "worker.cjs")
+  await writeFile(workerPath, `require('node:child_process').spawn(process.execPath, ['-e', ${JSON.stringify(descendant)}], { windowsHide: true, stdio: ['ignore', 'inherit', 'inherit'] }); process.stdout.write('parent:' + process.pid + String.fromCharCode(10)); setInterval(() => {}, 1000)`)
+  const sentinel = spawnAcceptanceCommand(process.execPath, ["-e", "process.stdout.write('ready'); setInterval(() => {}, 1000)"])
+  const sentinelClosed = once(sentinel, "close")
+  try {
+    await once(sentinel.stdout, "data")
+    for (const shell of [false, true]) {
+      const child = spawnAcceptanceCommand(process.execPath, [workerPath], { shell })
+      const closed = once(child, "close")
+      let output = ""
+      let pids = []
+      let timer
+      try {
+        await new Promise((done, fail) => {
+          timer = setTimeout(() => fail(new Error("owned tree startup timed out")), 5000)
+          child.once("error", fail)
+          child.stdout.on("data", (chunk) => {
+            output += chunk.toString()
+            pids = [...output.matchAll(/(?:parent|descendant):(\d+)/g)].map((match) => Number(match[1]))
+            if (pids.length === 2) { clearTimeout(timer); done() }
+          })
+        })
+        await Promise.race([
+          (async () => { await stopAcceptanceCommand(child); await closed })(),
+          new Promise((_, fail) => { timer = setTimeout(() => fail(new Error("Windows owned tree exceeded five seconds")), 5000) }),
+        ])
+        for (const pid of pids) assert.throws(() => process.kill(pid, 0), { code: "ESRCH" })
+        assert.doesNotThrow(() => process.kill(sentinel.pid, 0), "teardown must preserve unrelated processes")
+      } finally {
+        clearTimeout(timer)
+        await stopAcceptanceCommand(child)
+        await closed
+        for (const pid of pids) { try { process.kill(pid, "SIGKILL") } catch (error) { if (error.code !== "ESRCH") throw error } }
+      }
+    }
+  } finally { await stopAcceptanceCommand(sentinel); await sentinelClosed; await rm(directory, { recursive: true, force: true }) }
 })
 
 test("both cleanup modes terminate a stalled owned child on an independent deadline and retain partial evidence", async () => {
