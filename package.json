@@ -119,7 +119,8 @@
     "commerce:backfill-credits": "node scripts/background-credit-backfill.mjs",
     "commerce:reconcile": "node scripts/commerce-reconcile.mjs",
     "backgrounds:branding:audit": "node --experimental-strip-types scripts/background-branding/render-audit.mjs",
-    "backgrounds:branding:catalog": "node --experimental-strip-types scripts/background-branding/render-catalog.mjs"
+    "backgrounds:branding:catalog": "node --experimental-strip-types scripts/background-branding/render-catalog.mjs",
+    "test:route-entrypoints": "node --test tests/route-entrypoints.test.mjs tests/account-security-routes.test.mjs tests/account-two-factor-routes.test.mjs tests/auth-method-intents.test.mjs tests/auth-rate-limit.test.mjs tests/auth-request.test.mjs tests/auth-security.test.mjs tests/background-checkout.test.mjs tests/background-commerce-api.test.mjs tests/background-credit-service.test.mjs tests/email-verification-request-route.test.mjs tests/password-reset-request-route.test.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

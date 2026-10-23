@@ -17,7 +17,7 @@ const BACKUP_CODES = Object.freeze(Array.from({ length: 8 }, (_, index) => `back
 
 const ROUTES = {
   setup: {
-    source: "../app/api/account/security/totp/setup/route.ts",
+    source: "../app/api/account/security/totp/setup/handlers.ts",
     filename: "two-factor-setup-route.test.ts",
     factory: "createTwoFactorSetupHandler",
     path: "/api/account/security/totp/setup",
@@ -36,7 +36,7 @@ const ROUTES = {
     },
   },
   enable: {
-    source: "../app/api/account/security/totp/enable/route.ts",
+    source: "../app/api/account/security/totp/enable/handlers.ts",
     filename: "two-factor-enable-route.test.ts",
     factory: "createTwoFactorEnableHandler",
     path: "/api/account/security/totp/enable",
@@ -45,7 +45,7 @@ const ROUTES = {
     publicSuccess: { code: "TWO_FACTOR_ENABLED", backupCodes: BACKUP_CODES },
   },
   disable: {
-    source: "../app/api/account/security/totp/disable/route.ts",
+    source: "../app/api/account/security/totp/disable/handlers.ts",
     filename: "two-factor-disable-route.test.ts",
     factory: "createTwoFactorDisableHandler",
     path: "/api/account/security/totp/disable",
@@ -59,7 +59,7 @@ const ROUTES = {
     publicSuccess: { code: "TWO_FACTOR_DISABLED" },
   },
   regenerate: {
-    source: "../app/api/account/security/backup-codes/route.ts",
+    source: "../app/api/account/security/backup-codes/handlers.ts",
     filename: "two-factor-backup-route.test.ts",
     factory: "createBackupCodeRegenerationHandler",
     path: "/api/account/security/backup-codes",

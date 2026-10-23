@@ -180,7 +180,7 @@ describe("privacy-safe auth rate limits", () => {
   })
 
   it("keeps serving sources off the legacy AuthAttempt API", async () => {
-    const paths = ["lib/auth-rate-limit.ts", "auth.ts", "app/api/account/register/route.ts", "app/api/account/password-reset/request/route.ts"]
+    const paths = ["lib/auth-rate-limit.ts", "auth.ts", "app/api/account/register/route.ts", "app/api/account/password-reset/request/handlers.ts"]
     const contents = await Promise.all(paths.map((path) => readFile(new URL(`../${path}`, import.meta.url), "utf8")))
     for (const content of contents) assert.doesNotMatch(content, /prisma\.authAttempt|assertRateLimit|recordFailedAttempt|clearAttempts|rateLimitKey/)
     const domainTypes = await readFile(new URL("../lib/domain-types.ts", import.meta.url), "utf8")

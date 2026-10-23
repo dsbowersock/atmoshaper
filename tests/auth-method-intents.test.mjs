@@ -693,7 +693,7 @@ describe("private Google auth-method intents", () => {
   }
 
   it("returns exact private cookie options in development and production", { concurrency: false }, async () => {
-    const routeSource = await readFile(new URL("../app/api/auth/google/intent/route.ts", import.meta.url), "utf8")
+    const routeSource = await readFile(new URL("../app/api/auth/google/intent/handlers.ts", import.meta.url), "utf8")
     assert.match(routeSource, /"Retry-After"/)
     assert.doesNotMatch(routeSource, /access_token|refresh_token|id_token/)
 
@@ -960,7 +960,7 @@ describe("private Google auth-method intents", () => {
 })
 
 async function loadIntentRoute() {
-  const source = await readFile(new URL("../app/api/auth/google/intent/route.ts", import.meta.url), "utf8")
+  const source = await readFile(new URL("../app/api/auth/google/intent/handlers.ts", import.meta.url), "utf8")
   return loadCompiledModule(source, "google-intent-route.test.ts", {
     "next/server": { NextResponse: testNextResponse() },
     "@/auth": { getCurrentSession: async () => null },

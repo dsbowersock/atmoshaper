@@ -15,8 +15,8 @@ import {
   markBackgroundCheckoutIndeterminate,
   persistBackgroundCheckoutSession,
   releaseBackgroundCheckoutOrder,
-} from "../app/api/background-commerce/checkout/route.ts"
-import { createBackgroundCheckoutCancelPostHandler } from "../app/api/background-commerce/checkout/cancel/route.ts"
+} from "../app/api/background-commerce/checkout/handlers.ts"
+import { createBackgroundCheckoutCancelPostHandler } from "../app/api/background-commerce/checkout/cancel/handlers.ts"
 
 const NOW = new Date("2026-07-21T18:00:00.000Z")
 

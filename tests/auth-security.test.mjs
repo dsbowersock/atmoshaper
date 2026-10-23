@@ -21,7 +21,7 @@ import {
 } from "../lib/auth-security.js"
 
 const selfServicePasswordResetRouteSource = await readFile(
-  new URL("../app/api/account/password-reset/request/route.ts", import.meta.url),
+  new URL("../app/api/account/password-reset/request/handlers.ts", import.meta.url),
   "utf8",
 )
 const passwordResetRequestServiceSource = await readFile(
