@@ -92,7 +92,7 @@ from the merged main above. Repository preparation and this clarified goal do
 not identify an exact provider mutation, charge, database target, or retirement
 operation; prepare those concrete packets before the applicable approval gate.
 
-Current Anatomime test inventory registers 174 focused Node cases and 52
+Current Anatomime test inventory registers 174 focused Node cases and 58
 intercepted desktop/mobile browser cases. These inventory counts are separate
 from the locked bootstrap's inherited 174/174 and 42/42 receipts below; added
 renewal cases do not rewrite historical acceptance evidence.
