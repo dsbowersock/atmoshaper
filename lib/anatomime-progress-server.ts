@@ -29,7 +29,9 @@ function advisoryLockKey(value: string) {
  * should acquire them in deterministic tool order to avoid advisory-lock cycles.
  */
 export async function lockFlashcardLinkedProgress(tx: Prisma.TransactionClient, userId: string, tool: string) {
-  await tx.$queryRaw`SELECT pg_advisory_xact_lock(${7341}, ${advisoryLockKey(`${userId}:${tool}`)})`
+  // Prisma binds JS integers as int8, but this two-key overload requires int4.
+  // Cast the void result as well so the adapter can decode it after acquiring the lock.
+  await tx.$queryRaw`SELECT pg_advisory_xact_lock(${7341}::int, ${advisoryLockKey(`${userId}:${tool}`)}::int)::text`
 }
 
 /**

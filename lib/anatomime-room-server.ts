@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import type { Prisma } from "@prisma/client"
 import { generateRandomToken, hashToken } from "./auth-security.js"
 import { AnatomimeSessionError, type ViewerContext } from "./anatomime-session-server.ts"
@@ -982,6 +983,9 @@ export async function createAnatomimeRoom(
   const room = await prisma.$transaction(async (tx) => {
     const created = await tx.anatomimeRoom.create({
       data: {
+        // Optional same-room composite FKs suppress Prisma's ID default on create.
+        // Allocate the opaque primary key explicitly while preserving those constraints.
+        id: randomUUID(),
         code,
         status: "LOBBY",
         lastMeaningfulActivityAt: now,

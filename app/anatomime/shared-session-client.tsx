@@ -107,6 +107,11 @@ function removeStoredPlayer(code: string) {
   window.localStorage.removeItem(storageKey(code))
 }
 
+/** Keeps reloads bound to the room without remounting its controller; player passes stay in storage. */
+function replaceRoomLocation(code: string) {
+  window.history.replaceState(null, "", code ? `/anatomime/play/${encodeURIComponent(code)}` : "/anatomime/join")
+}
+
 function secondsLeft(value: string | null, now: number) {
   if (!value) return 0
   return Math.max(0, Math.ceil((new Date(value).getTime() - now) / 1000))
@@ -496,6 +501,7 @@ export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode
       }
 
       writeStoredPlayer(nextLookupCode, player)
+      replaceRoomLocation(nextLookupCode)
       setLookupCode(nextLookupCode)
       setStoredPlayerRecord({ code: nextLookupCode, player })
       setSession(payload.session)
@@ -683,6 +689,7 @@ export function AnatomimeSharedSessionClient({ initialCode = "" }: { initialCode
   }
 
   const leaveEndedRoom = () => {
+    replaceRoomLocation("")
     setLookupCode("")
     setCode("")
     setSession(null)
