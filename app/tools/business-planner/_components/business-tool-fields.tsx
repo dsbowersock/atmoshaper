@@ -1,7 +1,7 @@
 "use client"
 
 import { type ChangeEvent } from "react"
-import { AppInset } from "@/components/ui/app-surface"
+import { AppInset, appCalloutClassName } from "@/components/ui/app-surface"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -17,6 +17,18 @@ const preciseMoneyFormatter = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 2,
 })
+
+/** Explains failed device persistence without interrupting the live worksheet. */
+export function BusinessDraftStorageNotice({ unavailable, unreadDraft }: { unavailable: boolean; unreadDraft: boolean }) {
+  if (!unavailable) return null
+
+  return (
+    <p role="status" className={`${appCalloutClassName} rounded-lg border px-4 py-3 text-sm text-foreground`}>
+      {unreadDraft ? "Device storage could not be read. " : "Local saving is unavailable. "}
+      You can keep working in this tab, but copy your changes before leaving.
+    </p>
+  )
+}
 
 export function NumberField({
   id,

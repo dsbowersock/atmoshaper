@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
+import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { BadgeDollarSign, BriefcaseBusiness, Plus, RotateCcw, Trash2 } from "lucide-react"
 import { AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import {
   normalizeBreakEvenInput,
 } from "@/lib/business-plan-template-tools"
 import {
+  BusinessDraftStorageNotice,
   MetricTile,
   NumberField,
   TextField,
@@ -46,8 +48,11 @@ const moneySectionLabels: Record<MoneySectionKey, { title: string; description: 
 }
 
 export function BreakEvenPlannerClient() {
-  const [input, setInput] = useState<BreakEvenInput>(() => normalizeBreakEvenInput({}))
-  const [storageReady, setStorageReady] = useState(false)
+  const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<BreakEvenInput>({
+    storageKey: STORAGE_KEY,
+    initialValue: () => normalizeBreakEvenInput({}),
+    normalize: normalizeBreakEvenInput,
+  })
   const plan = useMemo(() => calculateBreakEvenPlan(input), [input])
   const breakEvenSessionLabel = plan.monthlyBreakEvenSessions === null
     ? "Set service price"
@@ -55,24 +60,6 @@ export function BreakEvenPlannerClient() {
   const breakEvenSessionDescription = plan.weeklyBreakEvenSessions === null
     ? undefined
     : `${formatNumber(plan.weeklyBreakEvenSessions)} each week`
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        setInput(normalizeBreakEvenInput(JSON.parse(stored)))
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY)
-      }
-    }
-    setStorageReady(true)
-  }, [])
-
-  useEffect(() => {
-    if (!storageReady) return
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(input))
-  }, [input, storageReady])
 
   function updateTopLevel(field: keyof Pick<BreakEvenInput, "servicePrice" | "sessionsPerWeek" | "weeksPerYear" | "taxSetAsideRate">, value: number) {
     setInput((current) => normalizeBreakEvenInput({
@@ -113,6 +100,7 @@ export function BreakEvenPlannerClient() {
 
   return (
     <AppPageShell width="full" contentClassName="gap-6">
+      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
       <AppSurface
         title="Startup Costs and Break-Even"
         description="Use the business plan template's finance questions to estimate startup funding, monthly operating costs, break-even sessions, tax set-aside, and projected income."

@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
+    "test:business-planners": "node --test tests/business-planner-storage.test.mjs tests/business-plan-template-tools.test.mjs tests/business-income-planner.test.mjs tests/business-income-planner-source.test.mjs",
     "test:stripe-readiness": "node --test tests/stripe-readiness.test.mjs tests/stripe-supporter-only-readiness.test.mjs tests/stripe-webhook-contract.test.mjs",
     "test:production-readiness": "node --test tests/production-migration-gate.test.mjs tests/production-stripe-readiness-gate.test.mjs",
     "test:anatomime-realtime": "node --test tests/anatomime-realtime-token.test.mjs tests/anatomime-realtime-auth.test.mjs tests/anatomime-polling.test.mjs tests/anatomime-traffic-routes.test.mjs tests/anatomime-traffic-server.test.mjs",

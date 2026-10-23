@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
+import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { PackagePlus, Plus, RotateCcw, Trash2 } from "lucide-react"
 import { AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import {
   normalizeAddOnProfitInput,
 } from "@/lib/business-plan-template-tools"
 import {
+  BusinessDraftStorageNotice,
   MetricTile,
   NumberField,
   TextField,
@@ -22,27 +24,12 @@ type ProductItem = AddOnInput["products"][number]
 const STORAGE_KEY = "massagelab-business-planner-add-on-profit-v1"
 
 export function AddOnProfitClient() {
-  const [input, setInput] = useState<AddOnInput>(() => normalizeAddOnProfitInput({}))
-  const [storageReady, setStorageReady] = useState(false)
+  const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<AddOnInput>({
+    storageKey: STORAGE_KEY,
+    initialValue: () => normalizeAddOnProfitInput({}),
+    normalize: normalizeAddOnProfitInput,
+  })
   const plan = useMemo(() => calculateAddOnProfitPlan(input), [input])
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        setInput(normalizeAddOnProfitInput(JSON.parse(stored)))
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY)
-      }
-    }
-    setStorageReady(true)
-  }, [])
-
-  useEffect(() => {
-    if (!storageReady) return
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(input))
-  }, [input, storageReady])
 
   function updateProduct(index: number, field: keyof ProductItem, value: string | number) {
     setInput((current) => normalizeAddOnProfitInput({
@@ -73,6 +60,7 @@ export function AddOnProfitClient() {
 
   return (
     <AppPageShell width="full" contentClassName="gap-6">
+      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
       <AppSurface
         title="Add-On Profit Calculator"
         description="Estimate wholesale cost, retail price, expected sales, and yearly profit for products, upgrades, or service add-ons."

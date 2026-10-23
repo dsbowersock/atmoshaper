@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
+import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { ClipboardList, Plus, RotateCcw, Trash2 } from "lucide-react"
 import { AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import {
   normalizeServiceMenuInput,
 } from "@/lib/business-plan-template-tools"
 import {
+  BusinessDraftStorageNotice,
   MetricTile,
   NumberField,
   TextAreaField,
@@ -23,27 +25,12 @@ type ServiceItem = ServiceMenuInput["services"][number]
 const STORAGE_KEY = "massagelab-business-planner-service-menu-v1"
 
 export function ServiceMenuClient() {
-  const [input, setInput] = useState<ServiceMenuInput>(() => normalizeServiceMenuInput({}))
-  const [storageReady, setStorageReady] = useState(false)
+  const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<ServiceMenuInput>({
+    storageKey: STORAGE_KEY,
+    initialValue: () => normalizeServiceMenuInput({}),
+    normalize: normalizeServiceMenuInput,
+  })
   const plan = useMemo(() => calculateServiceMenuPlan(input), [input])
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        setInput(normalizeServiceMenuInput(JSON.parse(stored)))
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY)
-      }
-    }
-    setStorageReady(true)
-  }, [])
-
-  useEffect(() => {
-    if (!storageReady) return
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(input))
-  }, [input, storageReady])
 
   function updateService(index: number, field: keyof ServiceItem, value: string | number) {
     setInput((current) => normalizeServiceMenuInput({
@@ -91,6 +78,7 @@ export function ServiceMenuClient() {
 
   return (
     <AppPageShell width="full" contentClassName="gap-6">
+      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
       <AppSurface
         title="Service Menu and Policies"
         description="Draft the service, pricing, scheduling, cancellation, no-show, and documentation privacy pieces of the business plan template."

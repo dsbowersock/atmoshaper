@@ -18,6 +18,8 @@ import {
   sanitizeBusinessIncomePlannerPreference,
 } from "@/lib/business-income-planner"
 import { cn } from "@/lib/utils"
+import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
+import { BusinessDraftStorageNotice } from "../_components/business-tool-fields"
 
 type PlannerInput = ReturnType<typeof normalizeBusinessIncomePlannerInput>
 type PlannerPresetKey = keyof typeof BUSINESS_INCOME_PRESETS
@@ -73,10 +75,13 @@ export function IncomePlannerClient({
   displayName,
   initialAccountPlanner,
 }: IncomePlannerClientProps) {
-  const [input, setInput] = useState<PlannerInput>(() => (
-    normalizeBusinessIncomePlannerInput(initialAccountPlanner ?? presetPayload("growing_solo_practice"))
-  ))
-  const [storageReady, setStorageReady] = useState(false)
+  const { value: input, setValue: setInput, storageReady, storageUnavailable, unreadDraft, hydratedValue } = useBusinessPlannerDraft<PlannerInput>({
+    storageKey: BUSINESS_INCOME_LOCAL_STORAGE_KEY,
+    initialValue: () => normalizeBusinessIncomePlannerInput(initialAccountPlanner ?? presetPayload("growing_solo_practice")),
+    normalize: normalizeBusinessIncomePlannerInput,
+    preferInitialValue: Boolean(initialAccountPlanner),
+    serialize: sanitizeBusinessIncomePlannerPreference,
+  })
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle")
   const lastSyncedPlannerRef = useRef<string | null>(null)
   const plan = useMemo(() => calculateBusinessIncomePlan(input), [input])
@@ -85,36 +90,11 @@ export function IncomePlannerClient({
     sessionPrice60: scenario.sessionPrice60 ?? 0,
   })), [plan])
 
-  useEffect(() => {
-    let nextInput = normalizeBusinessIncomePlannerInput(initialAccountPlanner ?? presetPayload("growing_solo_practice"))
-
-    if (initialAccountPlanner) {
-      lastSyncedPlannerRef.current = serializePlannerInput(nextInput)
-      setStorageReady(true)
-      return
-    }
-
-    const stored = window.localStorage.getItem(BUSINESS_INCOME_LOCAL_STORAGE_KEY)
-    if (stored) {
-      try {
-        nextInput = normalizeBusinessIncomePlannerInput(JSON.parse(stored))
-        setInput(nextInput)
-      } catch {
-        window.localStorage.removeItem(BUSINESS_INCOME_LOCAL_STORAGE_KEY)
-      }
-    }
-    lastSyncedPlannerRef.current = serializePlannerInput(nextInput)
-    setStorageReady(true)
-  }, [initialAccountPlanner])
-
+  // A local-storage failure must not disable or manufacture an account save.
   useEffect(() => {
     if (!storageReady) return
-
-    window.localStorage.setItem(
-      BUSINESS_INCOME_LOCAL_STORAGE_KEY,
-      JSON.stringify(sanitizeBusinessIncomePlannerPreference(input)),
-    )
-  }, [input, storageReady])
+    lastSyncedPlannerRef.current = serializePlannerInput(hydratedValue)
+  }, [hydratedValue, storageReady])
 
   // Debounced account sync starts after hydration, cancels stale requests, and stores one current worksheet in appSettings.
   useEffect(() => {
@@ -200,10 +180,11 @@ export function IncomePlannerClient({
       : saveState === "error"
         ? "Account save needs retry"
         : "Saved to this account"
-    : "Saved on this device"
+    : storageUnavailable ? "Not saved on this device" : "Saved on this device"
 
   return (
     <AppPageShell width="full" contentClassName="gap-6">
+      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
       <AppSurface
         title="Business Income Planner"
         description="Estimate session pricing, workload, time off, and take-home possibilities for massage practice planning."
