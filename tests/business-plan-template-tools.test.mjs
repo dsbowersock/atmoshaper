@@ -148,12 +148,14 @@ describe("Business plan template tools", () => {
       "app/tools/business-planner/service-menu/service-menu-client.tsx",
       "app/tools/business-planner/plan-outline/plan-outline-client.tsx",
       "app/tools/business-planner/add-on-profit/add-on-profit-client.tsx",
+      "lib/use-business-planner-draft.ts",
     ].map(readProjectFile).join("\n").toLowerCase()
     const schema = readProjectFile("prisma/schema.prisma")
 
     assert.match(combinedClientSource, /localstorage/)
     assert.doesNotMatch(combinedClientSource, /\/api\/account\/preferences/)
     assert.doesNotMatch(combinedClientSource, /prisma\./)
+    assert.doesNotMatch(combinedClientSource, /\bfetch\s*\(/)
     assert.doesNotMatch(schema, /model\s+BusinessPlan(?:Tool|Worksheet|Template)?\b/)
   })
 })

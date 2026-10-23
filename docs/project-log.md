@@ -1,5 +1,26 @@
 # AtmoShaper Project Log
 
+## October 23 business planner storage recovery — locally verified
+
+The six real business clients now keep working when device storage cannot be
+read or written. A shared hydration/autosave owner protects unread drafts and
+preserves existing keys, normalization and calculations; a polite notice reports
+read/save failure. Income's initial server seed and existing account-sync
+boundary remain separate, and refreshed initial props cannot replace an edit.
+
+Local validation passes: 46 tests (28 actual-client Chromium scenarios and 18
+calculation/source regressions), final typecheck and changed-source ESLint. Six
+duplicate storage-effect owners are retired. Cached dependencies/Chromium were
+reused; fixture bundles and contexts are closed. No real account/database or
+provider workflow ran. The [repair plan](superpowers/plans/2026-10-23-business-planner-storage-recovery.md)
+records evidence and remaining hosted/artifact acceptance. This new branch is
+local and unpublished; no merge or Production change occurred.
+
+The separate global review checkpoint at 23:11 UTC had #44 `2feac62`, #45
+`f0d9e5c` and #46 `877d50d` green with zero unresolved threads and no merge.
+The R2 inventory budget decision remains pending. Older base-branch snapshots
+below are historical; they do not reopen those completed review requests.
+
 ## October 23 Anatomime runtime-repair candidate
 
 Room creation now supplies an opaque primary key, Ably requests use canonical

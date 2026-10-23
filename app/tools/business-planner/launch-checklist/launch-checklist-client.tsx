@@ -1,6 +1,8 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo } from "react"
+import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
+import { BusinessDraftStorageNotice } from "../_components/business-tool-fields"
 import { ListChecks, RotateCcw } from "lucide-react"
 import { AppInset, AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
@@ -12,32 +14,19 @@ type ChecklistState = Record<string, boolean>
 
 const STORAGE_KEY = "massagelab-business-planner-launch-checklist-v1"
 
+/** Hydrates known checklist keys and preserves unread device work when storage is denied. */
 export function LaunchChecklistClient() {
-  const [checkedItems, setCheckedItems] = useState<ChecklistState>({})
-  const [storageReady, setStorageReady] = useState(false)
   const allKeys = useMemo(() => BUSINESS_LAUNCH_CHECKLIST_SECTIONS.flatMap((section) => (
     section.items.map((item) => checklistKey(section.id, item))
   )), [])
+  const normalizeDraft = useCallback((value: unknown) => normalizeChecklistState(value, allKeys), [allKeys])
+  const { value: checkedItems, setValue: setCheckedItems, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<ChecklistState>({
+    storageKey: STORAGE_KEY,
+    initialValue: () => ({}),
+    normalize: normalizeDraft,
+  })
   const completedCount = allKeys.filter((key) => checkedItems[key]).length
   const progressPercent = allKeys.length > 0 ? Math.round((completedCount / allKeys.length) * 100) : 0
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        setCheckedItems(normalizeChecklistState(JSON.parse(stored), allKeys))
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY)
-      }
-    }
-    setStorageReady(true)
-  }, [allKeys])
-
-  useEffect(() => {
-    if (!storageReady) return
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedItems))
-  }, [checkedItems, storageReady])
 
   function setItemChecked(key: string, checked: boolean) {
     setCheckedItems((current) => ({
@@ -52,6 +41,7 @@ export function LaunchChecklistClient() {
 
   return (
     <AppPageShell width="full" contentClassName="gap-6">
+      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
       <AppSurface
         title="Practice Launch Checklist"
         description="Turn the business plan template into concrete launch tasks for legal structure, licenses, location, management, client policies, and presentation."

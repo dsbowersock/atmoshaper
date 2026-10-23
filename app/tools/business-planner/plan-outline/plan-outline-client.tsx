@@ -1,41 +1,28 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
+import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { NotebookPen, RotateCcw } from "lucide-react"
 import { AppInset, AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { BUSINESS_PLAN_OUTLINE_SECTIONS } from "@/lib/business-plan-template-tools"
-import { TextAreaField } from "../_components/business-tool-fields"
+import { BusinessDraftStorageNotice, TextAreaField } from "../_components/business-tool-fields"
 
 type OutlineState = Record<string, string>
 
 const STORAGE_KEY = "massagelab-business-planner-plan-outline-v1"
 
+/** Keeps the local business outline editable even when its saved draft cannot be accessed. */
 export function PlanOutlineClient() {
-  const [outline, setOutline] = useState<OutlineState>(() => createEmptyOutline())
-  const [storageReady, setStorageReady] = useState(false)
+  const { value: outline, setValue: setOutline, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<OutlineState>({
+    storageKey: STORAGE_KEY,
+    initialValue: () => createEmptyOutline(),
+    normalize: normalizeOutlineState,
+  })
   const completedSections = useMemo(() => (
     BUSINESS_PLAN_OUTLINE_SECTIONS.filter((section) => outline[section.id]?.trim()).length
   ), [outline])
   const progressPercent = Math.round((completedSections / BUSINESS_PLAN_OUTLINE_SECTIONS.length) * 100)
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        setOutline(normalizeOutlineState(JSON.parse(stored)))
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY)
-      }
-    }
-    setStorageReady(true)
-  }, [])
-
-  useEffect(() => {
-    if (!storageReady) return
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(outline))
-  }, [outline, storageReady])
 
   function updateSection(sectionId: string, value: string) {
     setOutline((current) => ({
@@ -50,6 +37,7 @@ export function PlanOutlineClient() {
 
   return (
     <AppPageShell width="full" contentClassName="gap-6">
+      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
       <AppSurface
         title="Business Plan Outline"
         description="Draft the template's mission, purpose, operations, marketing, finances, professional profile, and resume notes in one browser-local worksheet."
