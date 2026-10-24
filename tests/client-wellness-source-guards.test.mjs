@@ -135,11 +135,15 @@ describe("Client wellness source guards", () => {
   })
 })
 
+/** Collect required source text for payload-boundary checks; traversal failures propagate. */
 function readFiles(relativePath) {
   return readFileEntries(relativePath).map(({ source }) => source)
 }
 
-/** Read required implementation source; missing roots must fail privacy checks. */
+/**
+ * Read repository-relative implementation files and their paths for privacy assertions.
+ * Required roots must exist so a missing directory cannot produce a vacuous pass.
+ */
 function readFileEntries(relativePath) {
   const absolutePath = join(repoRoot, relativePath)
 
@@ -155,6 +159,7 @@ function readFileEntries(relativePath) {
     .flatMap((name) => readFileEntries(join(relativePath, name)))
 }
 
+/** Match Calendar/booking implementation filenames across native path separators. */
 function isCalendarImplementationPath(relativePath) {
   const normalizedPath = relativePath.replaceAll("\\", "/").toLowerCase()
   return /(^|\/)(calendar|sidebar-calendar|public-booking|booking-policy|service-catalog)[^/]*\.(js|mjs|cjs|ts|tsx|jsx)$/.test(normalizedPath)
