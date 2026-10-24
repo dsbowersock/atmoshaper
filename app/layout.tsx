@@ -74,9 +74,10 @@ export default async function RootLayout({
                     >
                       <AppSidebarClient user={user} navigation={navigation} />
                       <SidebarInset className="min-h-0 overflow-hidden bg-transparent">
-                        <main className="relative h-full min-w-0 overflow-hidden">
+                        {/* SidebarInset owns the main landmark; this wrapper only constrains layout. */}
+                        <div className="relative h-full min-w-0 overflow-hidden">
                           <LayoutWrapper user={user} navigation={navigation}>{children}</LayoutWrapper>
-                        </main>
+                        </div>
                       </SidebarInset>
                     </SidebarCalendarProvider>
                   </SidebarProvider>

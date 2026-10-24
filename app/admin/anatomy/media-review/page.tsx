@@ -170,14 +170,15 @@ export default async function AnatomyMediaReviewQueuePage({ searchParams }: Anat
         <QueueAdvancedFilters filters={filters} />
       </div>
 
-      <main className="space-y-3 p-3 sm:p-0">
+      {/* Queue content remains within the shared shell's main landmark. */}
+      <div className="space-y-3 p-3 sm:p-0">
         <QueueSummary data={data} canEditAnatomy={actor.canEditAnatomy} />
         {currentRow ? (
           <ImageReviewCard row={currentRow} filters={filters} upcomingRows={upcomingRows} canEditAnatomy={actor.canEditAnatomy} />
         ) : (
           <EmptyQueue selectedStatus={selectedStatus} />
         )}
-      </main>
+      </div>
     </AppPageShell>
   )
 }

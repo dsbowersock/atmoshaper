@@ -9,7 +9,7 @@ import { notFound } from "next/navigation"
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
-/** Emits one content-free Browser-QA receipt and is unreachable in ordinary builds. */
+/** Emits a content-free receipt inside the shell landmark; unreachable in ordinary builds. */
 export default async function RscSessionProofPage() {
   if (process.env.NEXT_PUBLIC_RSC_SESSION_PROOF !== "1") notFound()
 
@@ -20,9 +20,9 @@ export default async function RscSessionProofPage() {
   if (count === null) notFound()
 
   return (
-    <main>
+    <div>
       <h1>RSC session snapshot proof</h1>
       <output data-rsc-session-count={count}>{count}</output>
-    </main>
+    </div>
   )
 }
