@@ -5,7 +5,7 @@ import { getAuthSecret } from "@/lib/auth-env"
 import { AUTH_METHOD_INTENT_COOKIE, resolveBoundAuthMethodIntent } from "@/lib/auth-method-intents"
 import { prisma } from "@/lib/prisma"
 
-/** Renders only a yes/no recovery surface; private intent proof stays server-side. */
+/** Renders recovery status inside the shell's main landmark; private intent proof stays server-side. */
 export default async function LinkGooglePage() {
   const cookieStore = await cookies()
   const validIntent = Boolean(await resolveBoundAuthMethodIntent({
@@ -17,8 +17,8 @@ export default async function LinkGooglePage() {
   }))
 
   return (
-    <main className="mx-auto w-full max-w-xl px-4 py-8 sm:px-6">
+    <div className="mx-auto w-full max-w-xl px-4 py-8 sm:px-6">
       <LinkGoogleForm validIntent={validIntent} />
-    </main>
+    </div>
   )
 }
