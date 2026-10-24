@@ -120,3 +120,11 @@ There is no new queue, retry protocol or persistent coordination state. These
 results close the reproduced local mechanism; final integrated route/role
 acceptance and independent review of this runtime repair remain required.
 Publication of this new branch remains unapproved and has not occurred.
+
+## Review follow-up: declared browser dependency
+
+The lifecycle tests now import Chromium from the directly declared
+`@playwright/test` package, supporting package layouts that do not hoist its
+transitive `playwright` dependency. The cached-browser assertion and all thirteen
+real-provider regression cases remain unchanged. All thirteen cases and focused
+lint pass after the correction. No vault runtime or cryptography code changed.

@@ -39,7 +39,7 @@ async function release(page) {
 describe("Professional-record vault lifecycle", { concurrency: false, timeout: 120_000 }, () => {
   let browser, bundle
   before(async () => {
-    const { chromium } = require("playwright")
+    const { chromium } = require("@playwright/test")
     assert.ok(fs.existsSync(chromium.executablePath()), "Use cached Chromium; never download a browser in this suite")
     bundle = await createProfessionalVaultLifecycleBundle()
     browser = await chromium.launch({ headless: true, args: ["--disable-background-networking", "--disable-component-update", "--disable-domain-reliability", "--disable-sync"] })
