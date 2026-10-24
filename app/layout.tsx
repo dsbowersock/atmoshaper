@@ -43,6 +43,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+/** Builds the shared shell; SidebarInset owns its main landmark so route wrappers stay neutral. */
 export default async function RootLayout({
   children,
 }: {

@@ -78,6 +78,7 @@ export async function renderLandmarkDocument(kind) {
 /** Scans literal route landmarks; global-error owns a standalone document outside the ordinary shell. */
 export function findCompetingRouteMainLandmarks() {
   const findings = []
+  /** Walks application sources while exempting the global error page's standalone document. */
   function visitDirectory(directory) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const file = path.join(directory, entry.name)
@@ -88,6 +89,7 @@ export function findCompetingRouteMainLandmarks() {
         const text = fs.readFileSync(file, "utf8")
         const ast = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true,
           entry.name.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS)
+        /** Collects literal JSX landmarks; browser cases separately check actual rendered semantics. */
         function visit(node) {
           if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
             const main = node.tagName.getText(ast) === "main"

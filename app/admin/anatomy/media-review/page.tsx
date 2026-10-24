@@ -128,6 +128,7 @@ const STUDY_CATEGORY_TO_ENTITY_TYPE: Record<string, AnatomyEntityType> = {
   pain_map_region: "PAIN_MAP_REGION",
 }
 
+/** Loads the authorized review queue into the shared shell without introducing another main landmark. */
 export default async function AnatomyMediaReviewQueuePage({ searchParams }: AnatomyMediaReviewQueuePageProps) {
   const actor = await requireAnatomyReviewerUser()
 
