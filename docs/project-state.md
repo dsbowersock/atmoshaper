@@ -1,5 +1,36 @@
 # AtmoShaper Project State
 
+## October 25 Applied Human Anatomy exact publication and component caveat pinned locally
+
+The remaining major textbook source now identifies the exact 2022 Applied
+Human Anatomy PDF by Michael F. Nolan and John P. McNamara, DOI
+`10.21061/applied-human-anatomy`, PDF ISBN `978-1-957213-41-5`. Its 189-page,
+639,383-byte retained artifact is hash-verified. Physical page 5 explicitly
+states CC BY 4.0 and warns that some photographs, illustrations or quotations
+may have separate rights. That caveat is preserved rather than treating the
+book's license as permission for every component.
+
+Only this source record's private-facing evidence metadata and review date
+change. Its ID, slug, catalogue URL, displayed name, attribution, license and
+usage scope remain. The complete seed comparison preserves every citation and
+review state, all 1,271 cards and all 5,582 questions byte-for-byte. The source
+is listed by 853 cards and 4,145 questions; no factual re-approval or new prose,
+image import or media permission is claimed.
+
+All 193 focused tests, typecheck and changed-file lint pass. Network-denied
+validation records zero attempted connections or unrelated executables. The
+already retained public PDF was reused; this follow-up made no retrieval,
+credential, database or authenticated-provider request. No new full build,
+publication, Production or Sentry action is claimed.
+
+The actual public adapter lists six sources across cards and questions. The
+three main textbook editions and the Wang study have retained exact evidence;
+BodyParts3D and Human Bio Media remain distinct source/media provenance items.
+This inventory does not accept all linked claims or any third-party media.
+Wider content follow-ups keep their recorded scope. Media disposition/delivery,
+all-purchase activation and remaining launch journeys/decisions stay open.
+The declined paid media proposal remains closed and R2 requests stay at $0.
+
 ## October 25 Human Biology edition and explicit license verified locally
 
 Human Biology now identifies Willy Cushwa's OpenStax-CNX collection

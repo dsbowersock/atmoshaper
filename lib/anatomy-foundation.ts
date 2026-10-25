@@ -2305,10 +2305,12 @@ export const NECK_SHOULDER_UPPER_BACK_SEED: AnatomyFoundationSeed = {
       license: "CC BY 4.0",
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       usageScope: "open_reuse",
-      accessedAt: "2026-05-22T00:00:00.000Z",
-      notes: "Commercial-compatible anatomy education source. Store MassageLab-authored summaries and structured facts, not copied prose.",
+      // The 2022 book grants CC BY 4.0 but explicitly excludes some components.
+      // Preserve its catalogue pointer; exact artifact evidence is not new fact review.
+      accessedAt: "2026-10-25T00:00:00.000Z",
+      notes: "Exact 2022 publication, PDF ISBN 978-1-957213-41-5. Physical page 5 states CC BY 4.0 and explicitly warns that photographs, illustrations or quotations may have separate rights. Preserve per-component review; no source prose or figures are bundled. Existing authored facts and citation review states are unchanged by this edition check.",
       attribution: "Michael F. Nolan and John P. McNamara, Applied Human Anatomy, Virginia Tech Publishing, CC BY 4.0.",
-      sourceRef: "Open anatomy education source for reviewed structured anatomy facts.",
+      sourceRef: "Applied Human Anatomy (2022), DOI 10.21061/applied-human-anatomy, PDF ISBN 978-1-957213-41-5; SHA-256 1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd. Edition and component-exception evidence: docs/source-evidence/applied-human-anatomy-2022.json. This pin does not re-approve individual facts or media rights.",
     },
     {
       id: "source-openstax-ap-2e",
