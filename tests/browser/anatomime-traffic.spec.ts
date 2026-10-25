@@ -99,9 +99,10 @@ function roomSession({
 async function installPlayerRuntime(page: Page, {
   storedPlayer = true,
   realtimeProvider = true,
+  deterministicJitter = true,
 } = {}) {
   await installVisibilityRuntime(page)
-  await page.addInitScript(({ roomCode, stored, installRealtimeProvider }) => {
+  await page.addInitScript(({ roomCode, stored, installRealtimeProvider, fixedJitter }) => {
     if (stored) {
       window.localStorage.setItem(`massagelab-anatomime-player:${roomCode}`, JSON.stringify({
         playerId: "player-1",
@@ -109,7 +110,7 @@ async function installPlayerRuntime(page: Page, {
         teamId: "team-1",
       }))
     }
-    Math.random = () => 0
+    if (fixedJitter) Math.random = () => 0
     const runtime = window as typeof window & {
       Ably?: unknown
       __anatomimeAblySignal?: (() => void) | null
@@ -208,6 +209,7 @@ async function installPlayerRuntime(page: Page, {
     roomCode: ROOM_CODE,
     stored: storedPlayer,
     installRealtimeProvider: realtimeProvider,
+    fixedJitter: deterministicJitter,
   })
 }
 
@@ -1437,5 +1439,71 @@ for (const stalledAt of ["transport", "successful JSON"] as const) {
       transportGate.release()
       await releaseStalledActionJson(page)
     }
+  })
+}
+
+for (const entry of ["manual-code", "query-invite", "path-invite"] as const) {
+  test(`player room recovery: ${entry} keeps the saved team across reload and clears explicit exit`, async ({ page }) => {
+    // Native randomness keeps separate development renderers from sharing their internal event keys.
+    await installPlayerRuntime(page, { storedPlayer: false, deterministicJitter: false })
+    let joinCount = 0
+    let ended = false
+    const authenticatedPolls: Record<string, string>[] = []
+    await page.route((url) => url.pathname === ROOM_PATH, async (route) => {
+      const headers = route.request().headers()
+      const joined = headers["x-anatomime-player-id"] === "player-1"
+        && headers["x-anatomime-player-token"] === "player-token"
+      if (joined) authenticatedPolls.push(headers)
+      await fulfillJson(route, 200, { session: roomSession({
+        joined,
+        status: ended ? "EXPIRED" : "LOBBY",
+        phase: ended ? "GAME_COMPLETE" : "LOBBY",
+      }) })
+    })
+    await page.route((url) => url.pathname === TOKEN_PATH, (route) => fulfillJson(route, 200, { nonce: "invented" }))
+    await page.route((url) => url.pathname === `${ROOM_PATH}/join`, async (route) => {
+      joinCount += 1
+      await fulfillJson(route, 201, {
+        player: { id: "player-1", token: "player-token", teamId: "team-1" },
+        session: roomSession(),
+      })
+    })
+
+    const initialPath = entry === "manual-code" ? "/anatomime/join"
+      : entry === "query-invite" ? `/anatomime/join?code=${ROOM_CODE}`
+      : `/anatomime/play/${ROOM_CODE}`
+    // Wait for hydration before typing so this case measures room recovery, not lost startup input.
+    await page.goto(initialPath, { waitUntil: "networkidle" })
+    if (entry === "manual-code") {
+      await page.getByLabel("Code", { exact: true }).fill(ROOM_CODE)
+      await page.getByRole("button", { name: "Find Game", exact: true }).click()
+    }
+    await page.getByLabel("Display name").fill("Avery")
+    await page.getByRole("button", { name: "Join Team", exact: true }).click()
+    await expect.poll(() => joinCount).toBe(1)
+    await expect(page.getByRole("heading", { name: "Lobby", exact: true })).toBeVisible()
+    await expect(page.getByRole("group", { name: "Choose team" }).getByRole("button", { name: "Team 1", exact: true })).toHaveAttribute("aria-pressed", "true")
+    expect(joinCount).toBe(1)
+    expect(page.url()).not.toContain("player-token")
+    expect(page.url()).not.toContain("player-1")
+
+    const beforeReload = authenticatedPolls.length
+    await page.reload({ waitUntil: "domcontentloaded" })
+    await expect(page.getByRole("heading", { name: "Lobby", exact: true })).toBeVisible()
+    await expect(page.getByRole("group", { name: "Choose team" }).getByRole("button", { name: "Team 1", exact: true })).toHaveAttribute("aria-pressed", "true")
+    await expect.poll(() => authenticatedPolls.length).toBeGreaterThan(beforeReload)
+    expect(joinCount).toBe(1)
+
+    ended = true
+    await triggerRealtimeSignal(page)
+    await expect(page.getByRole("heading", { name: "Shared game ended", exact: true })).toBeVisible()
+    await page.getByRole("button", { name: "Find Another Game", exact: true }).click()
+    await expect(page.getByRole("heading", { name: "Game Code", exact: true })).toBeVisible()
+    const beforeExitReload = authenticatedPolls.length
+    await page.reload({ waitUntil: "domcontentloaded" })
+    await expect(page.getByRole("heading", { name: "Game Code", exact: true })).toBeVisible()
+    expect(authenticatedPolls.length).toBe(beforeExitReload)
+    expect(joinCount).toBe(1)
+    expect(providerRequests(page)).toBe(0)
   })
 }

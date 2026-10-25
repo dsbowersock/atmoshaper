@@ -84,11 +84,13 @@ export async function createAnatomimeRealtimeTokenRequest(code: string, clientId
   const channel = anatomimeRealtimeChannel(code)
   const ttl = ABLY_TOKEN_TTL_MS
   const capability = JSON.stringify({
-    [channel]: ["subscribe", "presence"],
+    // Ably signs canonical JSON, including lexicographically ordered operations.
+    [channel]: ["subscribe", "presence"].sort(),
   })
   const timestamp = Date.now()
   const nonce = crypto.randomBytes(16).toString("hex")
-  const signText = [key.keyName, ttl, capability, clientId, timestamp, nonce].join("\n")
+  // Every canonical field ends with LF, including the nonce; omitting it invalidates the MAC.
+  const signText = [key.keyName, ttl, capability, clientId, timestamp, nonce, ""].join("\n")
   const mac = await signAblyTokenRequest(signText, key.keySecret)
 
   return {
