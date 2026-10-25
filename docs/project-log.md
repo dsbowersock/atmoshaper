@@ -1,5 +1,43 @@
 # AtmoShaper Project Log
 
+## October 25 local Notes save/recovery acceptance and three defects closed
+
+Local runtime source `f85c10b` preserves a chosen SOAP session date when Identify
+remounts or therapist defaults update, keeps encrypted-backup controls within
+narrow cards, and makes rejected Journal/ROM/SOAP saves visibly report failure.
+Intake's existing failure path remains. Encryption, schemas, keys, date policy,
+entitlement gates and accepted-write/merge behavior are unchanged.
+
+The retained original date editor yields two passes and three failures in the
+same settled regression that passes all five cases on the repair. All 62 existing
+clinical tests, scoped lint and typecheck pass. The exact cached full application
+build passes; all 2,186 archive inputs match the checkout after configured text
+line-ending conversion, and the real selected DSEG7 font is hash-verified in its
+output. The external Inter fixture stays local; no install or Prisma generation.
+
+Twenty-three actual client workflow cases pass at 1440x1000, 390x844 and 320x740:
+all four encrypted saves, intake-to-SOAP handoff, retained date, lock/reload and
+wrong-password recovery, four single-write quota failures, plaintext-warning
+cancellation and encrypted backup/import into an isolated browser context.
+All twelve tool/viewport widths fit. Four further final denial observations
+confirm visible feedback and preserved ciphertext. Final browser/build checks
+record zero networking/unrelated-executable attempts or runtime/console errors.
+
+This is real client/provider/cryptography and compiled-CSS evidence with invented
+records and fixture navigation after the entitlement boundary. It does not prove
+server membership authorization, physical-device sensors/printing, authenticated
+routes, hosted PHI storage, final PWA/hosted behavior or the whole migration.
+
+Owned browser profiles, temporary encrypted downloads, source snapshots/archives,
+compiler cache and dependency links are cleaned up. Shared dependencies, all
+unrelated work and historical receipts/screenshots remain. No provider, actual
+application database, credential, cloud media, publication, Production or Sentry
+action occurred. Original Chimer/anatomy publication refs stay pinned; this Notes
+child branch is an additional local follow-up. R2 requests remain capped at $0;
+the declined paid proposal remains closed. Other release gates remain open.
+
+See the [local client audit](audits/2026-10-25-local-notes-client-readiness.md).
+
 ## October 25 public anatomy credits and publisher links verified locally
 
 The local source candidate `0a28c27` follows the exact textbook edition repairs.

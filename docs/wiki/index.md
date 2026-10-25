@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Local Notes save, recovery and backup readiness](../audits/2026-10-25-local-notes-client-readiness.md)
+
 - [Rendered anatomy credits and publisher license evidence](../audits/2026-10-25-anatomy-public-source-attribution.md)
 
 - [Applied Human Anatomy exact publication and component exceptions](../audits/2026-10-25-applied-anatomy-edition.md)

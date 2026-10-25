@@ -59,3 +59,13 @@ result there and announce the local status without changing the vault API,
 crypto, retry policy, storage formats or Intake behavior. Do not expose private
 exception contents or imply an accepted write is rolled back. Recheck each
 actual denial and full save/recovery/transfer flow on the final source.
+
+## Final local closeout
+
+The final runtime source `f85c10b` passes 67 focused tests, lint, typecheck,
+the cached full Next.js build, 23 real client workflow cases and four final
+denied-save observations. All 2,186 archived source inputs match; final
+network/executable guards are clean. Owned test artifacts are cleaned up and
+unrelated work/previous publication heads preserved. See the
+[complete audit](../../audits/2026-10-25-local-notes-client-readiness.md) for
+actual coverage, retained failures and remaining role/hosted-release gates.
