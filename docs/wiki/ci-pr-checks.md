@@ -162,3 +162,18 @@ non-fast-forward updates, but does not currently require status checks. In
 particular, it does not require `qa`, CodeQL, Vercel, or CodeRabbit to pass
 before merge. Changing that enforcement is a separate repository-governance
 decision after the workflow has proven stable.
+
+## Local Calendar acceptance process control on Windows
+
+The receipt-bound Calendar acceptance launcher requires PowerShell 7 (`pwsh` on
+`PATH`) on Windows. It checks the .NET descendant-termination capability before
+starting an owned worker; unavailable control fails before worker launch. The
+fixed local helper receives only the owned PID, excludes application/provider
+credentials and has a three-second execution bound. Existing five-second
+cancellation and cleanup-watchdog tests remain unchanged. POSIX hosts retain
+their owned process-group termination and escalation path.
+
+Run `npm run test:calendar-application-acceptance` with invented fixtures for
+local verification. This command does not authorize live Calendar/provider work.
+The [October 23 shutdown audit](../audits/2026-10-23-calendar-windows-shutdown.md)
+records the Windows reproduction, repair, scope and remaining Linux evidence.
