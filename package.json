@@ -140,7 +140,10 @@
     "test:secondary-clock": "node --test tests/secondary-display-layout.test.mjs tests/immersive-panel-layout.test.mjs tests/immersive-panel-shell.test.mjs tests/immersive-display.test.mjs tests/timer-font-delivery.test.mjs",
     "lint:secondary-clock": "eslint app/chimer/secondary-display-layout.js app/chimer/immersive-panel-shell.tsx app/chimer/running-timer.tsx tests/secondary-display-layout.test.mjs tests/fixtures/secondary-display-layout-harness.tsx tests/helpers/secondary-display-browser-loader.cjs",
     "test:anatomy-name-equivalence": "node --test tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
-    "lint:anatomy-name-equivalence": "eslint lib/anatomy-name-aliases.js lib/anatomy-study.ts tests/anatomy-name-equivalence.test.mjs"
+    "lint:anatomy-name-equivalence": "eslint lib/anatomy-name-aliases.js lib/anatomy-study.ts tests/anatomy-name-equivalence.test.mjs",
+    "test:anatomy-reviewed-sources": "node --test tests/anatomy-reviewed-sources.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
+    "lint:anatomy-reviewed-sources": "eslint lib/anatomy-openstax-provenance.js lib/anatomy-foundation.ts lib/anatomy-seed/sources.ts lib/anatomy-seed/tissue-taxonomy-concepts.ts lib/anatomy-seed/gross-body-system-structures.ts tests/anatomy-reviewed-sources.test.mjs scripts/verify-reviewed-anatomy-sources.mjs scripts/verify-anatomy-source-provenance.mjs",
+    "audit:anatomy-reviewed-sources": "node scripts/verify-reviewed-anatomy-sources.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

@@ -1,3 +1,4 @@
+import { withPinnedOpenstaxApReferences } from "./anatomy-openstax-provenance.js"
 import {
   ANATOMY_SEED_SECTION_NAMES,
   ANATOMY_SEED_SECTIONS,
@@ -4419,6 +4420,10 @@ function inferredStructureSystemConceptSlugs(structure: AnatomyStructure) {
   const name = normalizeText(structure.name)
   const combined = `${structureType}-${name}`
 
+  // This accessory reproductive gland is not a urinary structure merely because
+  // its stable name contains "urethral"; preserve real urethral memberships below.
+  if (structure.slug === "bulbourethral-gland") return ["reproductive-system"]
+
   if (/(dermatome|myotome)/.test(combined)) return ["nervous-system"]
   if (/(lymph|spleen|thymus|tonsil|marrow|immune)/.test(combined)) return ["lymphatic-system"]
   if (!/lymph/.test(combined) && /(artery|vein|venous|blood-vessel|microvessel|capillary|cardiac|heart|atrium|ventricle|pericardium|myocardium|endocardium|blood)/.test(combined)) return ["cardiovascular-system"]
@@ -5746,7 +5751,7 @@ function withBodyParts3d3dCandidateSourceLinks(seed: AnatomyFoundationSeed): Ana
   }
 }
 
-export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withSourceReferenceCitationBacklog(
+const SOURCE_REFERENCED_ANATOMY_SEED: AnatomyFoundationSeed = withSourceReferenceCitationBacklog(
   withBodyParts3d3dCandidateSourceLinks(
     withBodyParts3dAnimatedMediaCoverage(
       withBodyParts3dPartListUpgradeMediaCoverage(
@@ -5776,6 +5781,10 @@ export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withSourceReferenc
     ),
   ),
 )
+
+// Resolve provenance only after source references have been assembled, keeping
+// exact entity/term/relation context separate from generic source-safety flags.
+export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withPinnedOpenstaxApReferences(SOURCE_REFERENCED_ANATOMY_SEED)
 
 const COLLECTION_NAMES = [
   "sources",

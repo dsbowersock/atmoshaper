@@ -1,3 +1,4 @@
+import { OPENSTAX_AP_SOURCE_METADATA } from "../anatomy-openstax-provenance.js"
 import type { AnatomySeedSection } from "./sections.ts"
 
 export const SOURCES_SEED_SECTION: AnatomySeedSection = {
@@ -29,15 +30,7 @@ export const SOURCES_SEED_SECTION: AnatomySeedSection = {
     {
       id: "source-openstax-anatomy-physiology",
       slug: "openstax-anatomy-physiology",
-      name: "OpenStax Anatomy and Physiology",
-      url: "https://openstax.org/books/anatomy-and-physiology/pages/1-introduction",
-      license: "CC BY 4.0",
-      licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
-      usageScope: "open_reuse",
-      accessedAt: "2026-06-13T00:00:00.000Z",
-      notes: "Commercial-compatible textbook source used to align MassageLab taxonomy with A&P organ-system and tissue-type structure. Do not copy source prose directly.",
-      attribution: "OpenStax, Anatomy and Physiology, licensed under Creative Commons Attribution 4.0 International.",
-      sourceRef: "Open A&P textbook reference for organ-system hierarchy, structural organization, and tissue-type taxonomy.",
+      ...OPENSTAX_AP_SOURCE_METADATA,
     },
     {
       id: "source-openstax-human-biology",

@@ -96,6 +96,13 @@ export function verifyAnatomySourceEvidence(manifest, cards, readArtifact) {
 
 /** CLI reads a caller-selected public evidence directory; it never retrieves missing files. */
 async function main(args) {
+  // Keep the established command, but audit the actual retargeted source rather
+  // than treating the original pending-only manifest as current runtime proof.
+  const reviewed = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../docs/source-evidence/openstax-ap-2e-reviewed-summaries.json")
+  if (fs.existsSync(reviewed)) {
+    const { runReviewedAnatomySourceAudit } = await import("./verify-reviewed-anatomy-sources.mjs")
+    return runReviewedAnatomySourceAudit(args)
+  }
   assert.equal(args.length, 2, "Use --artifact-root followed by the retained public evidence directory")
   assert.equal(args[0], "--artifact-root")
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
