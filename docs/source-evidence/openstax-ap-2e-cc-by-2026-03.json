@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 1,
+  "status": "edition_pinned_claim_review_pending",
+  "sourceRef": "openstax-anatomy-physiology",
+  "baseSourceHead": "be2909b041919dcf6c54c8b93ff3fc7270721207",
+  "publisher": "OpenStax, Rice University",
+  "title": "Anatomy and Physiology 2e",
+  "edition": "2e",
+  "publisherRepository": "https://github.com/openstax/osbooks-anatomy-physiology",
+  "publisherRevision": "b0058a743bdd2cc08196abaaa7d5469970c0d80c",
+  "collectionId": "4fd99458-6fdf-49bc-8688-a6dc17a1268d",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "licenseChangedAtCommit": "fdfa6e21ac3bc372dc2802a9952df124a619fdcc",
+  "licenseChangeCommittedUtc": "2026-03-19T15:37:29Z",
+  "evidenceCheckedUtc": "2026-10-25T12:05:42.336349+00:00",
+  "runtimeSourceRetargeted": false,
+  "claimReviewComplete": false,
+  "commercialClearance": false,
+  "artifactPolicy": "Public text only. Preserve original component notices; no image or media permission is inferred.",
+  "notice": "OpenStax, Anatomy and Physiology 2e, Rice University, archived publisher revision b0058a743bdd2cc08196abaaa7d5469970c0d80c; CC BY 4.0. No external book prose or figures are bundled by this manifest. AtmoShaper summaries remain separately authored.",
+  "artifacts": [
+    {
+      "file": "historical-license.txt",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/LICENSE",
+      "sha256": "0ff174546cbe3dd1287da231f9796618ac2f6e6595b2d11f567b2c9790f64868",
+      "bytes": 19104
+    },
+    {
+      "file": "historical-readme.md",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/README.md",
+      "sha256": "32a858c19195098d48e4e5d67aea36c116c816062075280b4b868af26c7fc829",
+      "bytes": 780
+    },
+    {
+      "file": "historical-collection.xml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/collections/anatomy-and-physiology-2e.collection.xml",
+      "sha256": "5a564a7e28abffaabc2563be429b044fe71406782a8486ca360a450108ec81bf",
+      "bytes": 14805
+    }
+  ],
+  "modules": [
+    {
+      "module": "m46844",
+      "title": "Preface",
+      "file": "publisher-text/m46844.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46844/index.cnxml",
+      "sha256": "6ee7764cc12a9614604c307a54255cf2b83bd72a87c08b0585bfe07725d432c1",
+      "bytes": 24887
+    },
+    {
+      "module": "m45985",
+      "title": "Structural Organization of the Human Body",
+      "file": "publisher-text/m45985.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m45985/index.cnxml",
+      "sha256": "d0b41a2a363398aaa29dc5492ffe4c844977ca35152bc102c4ee0b9287e1eba9",
+      "bytes": 14055
+    },
+    {
+      "module": "m46046",
+      "title": "Types of Tissues",
+      "file": "publisher-text/m46046.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml",
+      "sha256": "6a82d5a64ea9f50e62e1c3c0440c1db23468614ba322c979057cad88c0a7c29f",
+      "bytes": 24665
+    },
+    {
+      "module": "m46048",
+      "title": "Epithelial Tissue",
+      "file": "publisher-text/m46048.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46048/index.cnxml",
+      "sha256": "e4364c97327388a3127ea771148730583f8fe731f1af88064b90e8c693ccab0f",
+      "bytes": 47406
+    },
+    {
+      "module": "m46049",
+      "title": "Connective Tissue Supports and Protects",
+      "file": "publisher-text/m46049.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml",
+      "sha256": "4e3f3c0c8892bda33ff9f04b6a091f839d093aa8b82f0a0ef00742a683827e88",
+      "bytes": 45000
+    },
+    {
+      "module": "m46055",
+      "title": "Muscle Tissue and Motion",
+      "file": "publisher-text/m46055.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46055/index.cnxml",
+      "sha256": "b0eefe311842905aeaee44cbbac99c36afc67e59eb1fb2415c82eb205cd3dd37",
+      "bytes": 12109
+    },
+    {
+      "module": "m46057",
+      "title": "Nervous Tissue Mediates Perception and Response",
+      "file": "publisher-text/m46057.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46057/index.cnxml",
+      "sha256": "af05f18f2597acaab917fdd1edf7cc1ab3d00a09ecbbd0609a1db3caad0538c5",
+      "bytes": 12828
+    },
+    {
+      "module": "m46699",
+      "title": "The Pituitary Gland and Hypothalamus",
+      "file": "publisher-text/m46699.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46699/index.cnxml",
+      "sha256": "75d1ac917d36421550050cda9669908e904d40217b4173098f671c42c3f040a4",
+      "bytes": 37484
+    },
+    {
+      "module": "m46693",
+      "title": "The Pineal Gland",
+      "file": "publisher-text/m46693.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46693/index.cnxml",
+      "sha256": "4aa4887a043cd4f16a57dc89a9a817a1290de0622f933396cef7b4389dd85c69",
+      "bytes": 7280
+    },
+    {
+      "module": "m46676",
+      "title": "Heart Anatomy",
+      "file": "publisher-text/m46676.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46676/index.cnxml",
+      "sha256": "429840d8aefb5430ffa434d4d1afeefa49b6e7e7026147a2969f71d92fd06313",
+      "bytes": 93820
+    },
+    {
+      "module": "m46548",
+      "title": "Organs and Structures of the Respiratory System",
+      "file": "publisher-text/m46548.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46548/index.cnxml",
+      "sha256": "a91730ffe6e8992636e8010b475fde8e16d53b96cefb37d3eea1f165deb798ad",
+      "bytes": 46784
+    },
+    {
+      "module": "m46512",
+      "title": "The Small and Large Intestines",
+      "file": "publisher-text/m46512.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml",
+      "sha256": "fc3968bd5ebf8f8fc7744d772975a00e7f7a59f40255b1e9031cb7ab1b674a7f",
+      "bytes": 56587
+    },
+    {
+      "module": "m46429",
+      "title": "Gross Anatomy of the Kidney",
+      "file": "publisher-text/m46429.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46429/index.cnxml",
+      "sha256": "d5596eaae57c8f486543a79d2a57d17da974985478f980f5da145cc8da80c49e",
+      "bytes": 18479
+    },
+    {
+      "module": "m46431",
+      "title": "Microscopic Anatomy of the Kidney",
+      "file": "publisher-text/m46431.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46431/index.cnxml",
+      "sha256": "6e3cb5ece48ec28ec2b1d5e47f627af5f826928649d76d3bdef87279263ecf0c",
+      "bytes": 22634
+    },
+    {
+      "module": "m46433",
+      "title": "Physiology of Urine Formation",
+      "file": "publisher-text/m46433.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46433/index.cnxml",
+      "sha256": "66b49125ace24cd5139096ada8ad9d26ba6dc4ac6ba385f4d57ba33bac2a7485",
+      "bytes": 16429
+    },
+    {
+      "module": "m46400",
+      "title": "Anatomy and Physiology of the Testicular Reproductive System",
+      "file": "publisher-text/m46400.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46400/index.cnxml",
+      "sha256": "419f2ea873050fbffac13845286b2fbb39b44d814e39838bd552cebf320a7bd4",
+      "bytes": 53085
+    },
+    {
+      "module": "m46392",
+      "title": "Anatomy and Physiology of the Ovarian Reproductive System",
+      "file": "publisher-text/m46392.cnxml",
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46392/index.cnxml",
+      "sha256": "f0f62099f8112d7612a26a44a49463479dbd8ab13a827f6eb85af8402ac538bd",
+      "bytes": 76712
+    }
+  ],
+  "claimInputSha256": "c52ef59572bcecfedfe35346f3d21cc87ef342ea1a526fcf23ca3bd908f86e3d",
+  "claimBindings": [
+    {
+      "selector": "anatomy_structure:hypothalamus",
+      "candidateModules": [
+        "m46699"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:pineal-gland",
+      "candidateModules": [
+        "m46693"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:blood",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:adipose-tissue",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:blood",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:bone-tissue",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:cardiac-muscle-tissue",
+      "candidateModules": [
+        "m46055"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:cartilage",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:collagen-fiber",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:connective-tissue",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:connective-tissue-membrane",
+      "candidateModules": [
+        "m46046"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:cutaneous-membrane",
+      "candidateModules": [
+        "m46046"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:dense-connective-tissue",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:epithelial-membrane",
+      "candidateModules": [
+        "m46046"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:epithelial-tissue",
+      "candidateModules": [
+        "m46048"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:epithelium",
+      "candidateModules": [
+        "m46048"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:extracellular-matrix",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:glandular-epithelium",
+      "candidateModules": [
+        "m46048"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:loose-connective-tissue",
+      "candidateModules": [
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:mucous-membrane",
+      "candidateModules": [
+        "m46046"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:muscle-tissue",
+      "candidateModules": [
+        "m46055"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:muscular-system",
+      "candidateModules": [
+        "m45985",
+        "m46055"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:musculoskeletal-system",
+      "candidateModules": [
+        "m45985"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:nervous-tissue",
+      "candidateModules": [
+        "m46057"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:serous-membrane",
+      "candidateModules": [
+        "m46046"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:simple-columnar-epithelium",
+      "candidateModules": [
+        "m46048"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:simple-cuboidal-epithelium",
+      "candidateModules": [
+        "m46048"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:simple-squamous-epithelium",
+      "candidateModules": [
+        "m46048"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:skeletal-muscle-tissue",
+      "candidateModules": [
+        "m46055"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:skeletal-system",
+      "candidateModules": [
+        "m45985",
+        "m46049"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:smooth-muscle-tissue",
+      "candidateModules": [
+        "m46055"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:stratified-squamous-epithelium",
+      "candidateModules": [
+        "m46048"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_concept:synovial-membrane",
+      "candidateModules": [
+        "m46046"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:bronchiole",
+      "candidateModules": [
+        "m46548"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:left-atrium",
+      "candidateModules": [
+        "m46676"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:left-ventricle",
+      "candidateModules": [
+        "m46676"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:right-atrium",
+      "candidateModules": [
+        "m46676"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:right-ventricle",
+      "candidateModules": [
+        "m46676"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:appendix",
+      "candidateModules": [
+        "m46512"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:cecum",
+      "candidateModules": [
+        "m46512"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:colon",
+      "candidateModules": [
+        "m46512"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:duodenum",
+      "candidateModules": [
+        "m46512"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:glomerulus",
+      "candidateModules": [
+        "m46431"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:ileum",
+      "candidateModules": [
+        "m46512"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:jejunum",
+      "candidateModules": [
+        "m46512"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:renal-pelvis",
+      "candidateModules": [
+        "m46429"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:renal-tubule",
+      "candidateModules": [
+        "m46431",
+        "m46433"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:bulbourethral-gland",
+      "candidateModules": [
+        "m46400"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:cervix",
+      "candidateModules": [
+        "m46392"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:clitoris",
+      "candidateModules": [
+        "m46392"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:scrotum",
+      "candidateModules": [
+        "m46400"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:seminal-vesicle",
+      "candidateModules": [
+        "m46400"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    },
+    {
+      "selector": "anatomy_structure:vulva",
+      "candidateModules": [
+        "m46392"
+      ],
+      "reviewStatus": "needs_review",
+      "scope": "Authored AtmoShaper summary; selected chapter candidates are locators, not automatic scientific approval."
+    }
+  ]
+}

@@ -1,5 +1,43 @@
 # AtmoShaper Project State
 
+## October 25 publisher-pinned CC BY edition evidence verified locally
+
+Direct public publisher history identifies the March 19, 2026 CC BY-NC-SA change
+at `fdfa6e2`. Its parent `b0058a743bdd2cc08196abaaa7d5469970c0d80c` retains CC BY
+4.0. The same revision's README and collection explicitly identify Anatomy and
+Physiology 2e under that license. This is a verified historical second-edition
+candidate, not a blanket clearance for today's website, third-party components
+or the existing unversioned first-edition source record.
+
+The local `codex/anatomy-source-provenance` candidate retains a hash/size manifest
+for LICENSE, README, collection and seventeen selected text modules. It records
+all 53 current A&P-dependent card selectors and their unchanged authored inputs,
+with candidate chapter locators. Every claim binding remains needs_review;
+runtime source metadata, source IDs, usage scopes, citations, cards and review
+flags are unchanged. No textbook prose or figures are copied into the app.
+
+The named audit matches all twenty retained artifacts (644,933 bytes) and all 53
+current card inputs. Six negative/positive tests pass for tampering, moving
+revisions, changed or missing coverage, duplicates, unretained modules, path
+traversal and accidental review promotion. Changed-script lint passes after a
+reserved local variable was renamed; the first lint failure is retained. Six
+final denial receipts record zero network/blocked-executable attempts. Archive
+integrity remains distinct from scientific approval and commercial acceptance.
+
+Twenty-two direct unauthenticated public history/text requests retained the
+publisher evidence, with no retries or image requests; public web bibliography
+checks are separate. No authenticated provider, database, credential, cloud
+mutation, source publication or Production action occurred. All 52 runtime/seed
+pins match the prior clean candidate. The owned dependency junction is removed;
+shared dependencies/schema and unrelated work are preserved. The original
+region-answer branch stays clean. This local evidence branch is unpublished.
+
+Next review the 53 claims against these retained sections, prepare precise
+field-level citations and explicitly review any source-edition retargeting and
+attribution. Do not infer approval from an archive hash. The four action-binding
+and 31 direct muscle-detail gaps, broader content/model acceptance, media,
+all-purchase activation, hosting and public-cutover gates remain open.
+
 ## October 25 source-backed region answers repaired and verified locally
 
 The local candidate on `codex/anatomy-region-answer` requires an explicit,
