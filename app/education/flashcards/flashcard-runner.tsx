@@ -110,7 +110,7 @@ export function PromptFront({ prompt, isReviewMode }: { prompt: FlashcardPrompt;
       <div className="mt-1 flex min-h-0 items-center justify-center sm:mt-2">
         {prompt.front.mode === "media" && prompt.front.media ? (
           <figure className="flex h-full w-full flex-col overflow-hidden rounded-none border border-border/80 bg-background/80 shadow-inner">
-            <div className="flex min-h-0 flex-1 items-center justify-center p-2 sm:p-4">
+            <div className="flex min-h-0 flex-1 items-center justify-center p-2 sm:px-4 sm:py-1">
               {/* eslint-disable-next-line @next/next/no-img-element -- reviewed source media can come from multiple external hosts not configured for next/image. */}
               <img src={prompt.front.media.url} alt={prompt.front.media.title || `${prompt.name} anatomical view`} className="max-h-full max-w-full object-contain drop-shadow-sm" loading="lazy" referrerPolicy="no-referrer" />
             </div>

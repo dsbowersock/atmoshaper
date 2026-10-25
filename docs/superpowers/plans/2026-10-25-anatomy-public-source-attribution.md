@@ -45,7 +45,7 @@ label; no game, room, sign-in or provider test is started.
 8. Compare every bundled seed record/card/question. Permit only the declared
    metadata changes and additive license URLs; preserve IDs, order, answers,
    grading, selectors, review flags, study coverage and asset contents.
-9. Run focused existing contracts, changed-file lint, typecheck and one cached
+9. Run focused existing contracts, changed-file lint, typecheck and a cached
    provider-free build with the existing local font fixture. No install or Prisma
    regeneration. Pin inputs and reject network/unrelated executables.
 10. Browser plugin is not listed; use cached Playwright. Check actual rendered
@@ -67,3 +67,15 @@ the separate approved storage cap stays unchanged. Publisher licenses do not
 independently establish every linked claim, individual asset or clinical use.
 Remaining media disposition/delivery, all-purchase activation and final release
 journeys/decisions stay open. No broader content backlog becomes a new gate.
+
+## Measured landscape correction
+
+The first exact source build passed. In the actual React/card fixture with that
+built CSS, both portrait views passed credit/keyboard checks; the 844x390 image
+area failed the greater-than-24px height bound. Console, request and overlay
+checks were clean. The browser and owned profile were closed before correction.
+The caption now keeps credit/license inline with compact readable typography,
+and only vertical image padding is reduced at wider breakpoints. Outer card
+dimensions, full credit text, license links and study data stay intact. Recheck
+201 tests, lint/typecheck and a corrected cached build, then five browser sizes
+including 640x360. Preserve all original failure/build receipts.

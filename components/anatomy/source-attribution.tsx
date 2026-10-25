@@ -45,9 +45,11 @@ export function AnatomySourceCredits({ sources }: { sources: readonly AnatomyStu
 /** Attribute the selected image itself; its source or license may differ from the answer's references. */
 export function AnatomyMediaCredit({ media }: { media: AnatomyStudyMedia }) {
   return (
-    <figcaption className="space-y-1 border-t border-border/80 px-3 py-1.5 text-xs leading-relaxed text-muted-foreground">
-      <p className="break-words">{media.attribution || "Anatomy image"}</p>
-      <AnatomyLicenseLabel license={media.license} licenseUrl={media.licenseUrl} />
+    <figcaption className="border-t border-border/80 px-3 py-1 text-[11px] leading-tight text-muted-foreground">
+      <p className="break-words">
+        {media.attribution || "Anatomy image"}
+        {media.license ? <> · <AnatomyLicenseLabel license={media.license} licenseUrl={media.licenseUrl} /></> : null}
+      </p>
     </figcaption>
   )
 }
