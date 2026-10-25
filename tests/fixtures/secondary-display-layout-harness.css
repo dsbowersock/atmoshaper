@@ -1,0 +1,8 @@
+@font-face {
+  font-family: "Digital";
+  src: url("../../public/fonts/dseg/DSEG7Modern-Regular.woff2") format("woff2");
+  unicode-range: U+002D-002E, U+0030-003A;
+}
+html { font-size: 16px; }
+body { margin: 0; }
+*, *::before, *::after { box-sizing: border-box; }

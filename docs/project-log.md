@@ -1,5 +1,40 @@
 # AtmoShaper Project Log
 
+## October 24 Chimer auxiliary-toolbar collision repaired and locally verified
+
+The auxiliary timer/clock now uses actual toolbar and top-control bounds. It
+moves below those controls only when they intersect, stays within the visual
+viewport and reserves its lower edge in the primary display's existing safe
+region. Wide-screen placement, the selected DSEG7 Modern font, saved Digital
+settings and display actions are preserved. The shell releases its inline
+reservations and observers on owner removal or unmount.
+
+The meaningful browser baseline reproduced the collision at phone and narrow
+landscape sizes. The repaired named suite passes all 40 focused checks, including
+eight real-shell browser scenarios, existing immersive contracts and real-font
+checks. Focused lint, repository typecheck and the complete inert-provider build
+pass. Six build guard receipts and seven focused-suite receipts record zero
+network attempts. Earlier fixture setup failures remain separate from the
+reproduced application geometry failure; no dependency was downloaded.
+
+The built application passes 16 checks across 320px/390px phones, 640px landscape
+and 1440px desktop: standalone clock, running timer, Clock settings and primary
+display swap. Screenshots were inspected. Toolbar clearance and the protected
+centered-display/settings-panel contract pass; this does not claim the accessory
+is always visible beneath an intentional settings sheet. The landscape side
+sheet retains priority over part of the auxiliary display, as before.
+
+The browser/server are closed, and the owned source/build snapshot plus two
+dependency junctions are removed. Shared packages, the cached Prisma schema,
+existing typecheck cache, receipts and screenshots are retained. No database,
+real account, game, payment, provider request or configuration change ran.
+
+This is a separate local candidate on codex/chimer-secondary-clock-layout.
+PR #51's reviewed branch remains at 5769db5; all eight existing PRs retain their
+green reviewed heads and the earlier no-merge hold. The prepared complete merge
+batch awaits the owner's decision. This new runtime candidate is unpublished;
+no push, merge, Production promotion, media exposure or Sentry activation follows.
+
 ## October 24 selected DSEG7 Modern implemented and locally verified
 
 The owner selected DSEG7 Modern. The unmodified v0.46 WOFF2 and author's original
