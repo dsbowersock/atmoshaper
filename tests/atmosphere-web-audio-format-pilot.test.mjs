@@ -1,4 +1,7 @@
 import assert from "node:assert/strict"
+import { readFile } from "node:fs/promises"
+import { isBuiltin } from "node:module"
+import ts from "typescript"
 import { describe, it } from "node:test"
 import {
   AAC_WEB_AUDIO_FORMAT,
@@ -121,4 +124,34 @@ describe("Atmosphere web-audio format pilot", () => {
     assert.equal(getWebAudioSidecarFormat("mp3"), MP3_WEB_AUDIO_FORMAT)
     assert.throws(() => getWebAudioSidecarFormat("flac"), /Unsupported web audio sidecar format/)
   })
+})
+
+
+/** Traverse the catalog's local relative ESM graph; package resolution remains covered by full builds. */
+async function assertRelativeGraphHasNoNodeBuiltins(moduleUrl, visited = new Set()) {
+  if (visited.has(moduleUrl.href)) return visited
+  visited.add(moduleUrl.href)
+  const source = await readFile(moduleUrl, "utf8")
+  const ast = ts.createSourceFile(moduleUrl.pathname, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const imports = []
+  function visit(node) {
+    const specifier = ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
+      ? node.moduleSpecifier
+      : ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword
+        ? node.arguments[0]
+        : undefined
+    if (specifier && ts.isStringLiteral(specifier)) imports.push(specifier.text)
+    ts.forEachChild(node, visit)
+  }
+  visit(ast)
+  for (const specifier of imports) {
+    assert.equal(isBuiltin(specifier), false, `Node-only dependency reached from browser graph: ${specifier}`)
+    if (specifier.startsWith(".")) await assertRelativeGraphHasNoNodeBuiltins(new URL(specifier, moduleUrl), visited)
+  }
+  return visited
+}
+
+it("keeps the local relative format graph independent of Node-only signing dependencies", async () => {
+  const visited = await assertRelativeGraphHasNoNodeBuiltins(new URL("../lib/atmosphere/web-audio-format-pilot.js", import.meta.url))
+  assert.ok(visited.size >= 2, "the check must traverse dependencies rather than only the entrypoint")
 })

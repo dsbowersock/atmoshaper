@@ -94,6 +94,10 @@ const nextConfig = {
   },
   webpack(config) {
     config.resolve.alias["@/lib/atmoshaper/browser-qa"] = resolve(root, atmoShaperBrowserQaModule)
+    // The generative library uses Babel helpers; mirror the existing no-op shim for webpack builds.
+    config.resolve.alias["regenerator-runtime/runtime.js$"] = resolve(root, "lib/atmosphere/regenerator-runtime-shim.js")
+    // Browser consumers need the ESM named exports, matching the existing Turbopack entry.
+    config.resolve.alias["tone$"] = resolve(root, "node_modules/tone/build/esm/index.js")
     return config
   },
 }

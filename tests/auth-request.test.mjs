@@ -8,12 +8,12 @@ const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const source = await readFile(new URL("../lib/auth-request.ts", import.meta.url), "utf8").catch(() => "")
 const consumerPaths = [
   "../auth.ts",
-  "../app/api/auth/google/intent/route.ts",
-  "../app/api/account/email-verification/request/route.ts",
-  "../app/api/account/password-reset/request/route.ts",
+  "../app/api/auth/google/intent/handlers.ts",
+  "../app/api/account/email-verification/request/handlers.ts",
+  "../app/api/account/password-reset/request/handlers.ts",
   "../app/api/account/register/route.ts",
-  "../app/api/account/security/google/unlink/route.ts",
-  "../app/api/account/security/password/route.ts",
+  "../app/api/account/security/google/unlink/handlers.ts",
+  "../app/api/account/security/password/handlers.ts",
 ]
 const consumerSources = await Promise.all(consumerPaths.map((path) => readFile(new URL(path, import.meta.url), "utf8")))
 
@@ -82,8 +82,8 @@ describe("shared authentication request boundaries", () => {
       assert.doesNotMatch(consumerSource, /function requestIp/, consumerPaths[index])
     }
     const emailValidationPaths = [
-      "../app/api/account/email-verification/request/route.ts",
-      "../app/api/account/password-reset/request/route.ts",
+      "../app/api/account/email-verification/request/handlers.ts",
+      "../app/api/account/password-reset/request/handlers.ts",
       "../app/api/account/register/route.ts",
     ]
     for (const consumerPath of emailValidationPaths) {

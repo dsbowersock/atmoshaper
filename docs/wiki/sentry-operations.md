@@ -6,6 +6,163 @@ first. The approved separate destination project is created. This runbook owns
 the remaining source-map, alert and hosted-collection gates; setup does
 not establish operational monitoring.
 
+## October 23 review follow-up
+
+The fresh full review found a JSON `null` body could throw before the password
+reset handler returned its uniform public response. The handler now rejects
+non-object JSON before accessing account fields. Six real-request regressions
+cover null, arrays, primitives and malformed JSON, retaining the existing neutral
+202 response without account/rate-limit/mail work. The tests use the real pure
+email validator; the null case failed before the correction.
+
+The audio import test now explicitly describes its local relative graph scope;
+full builds cover package resolution. SDK-internal control tests resolve
+`node-core` through the installed Next/Node dependency chain and identify the
+installed version and missing symbol/layout on upgrade failures. They also check
+the private report-flush method before calling it. Runtime Sentry policy is
+unchanged. The focused follow-up passes 76 Sentry, 178 route/security/commerce and
+13 audio tests; its full build and hosted results must be associated with the
+corresponding revision rather than inferred from an earlier head.
+
+## October 23 build prerequisites and offline source-map checks
+
+The local candidate now passes a full webpack build with normal TypeScript
+validation, 115 static pages, optimization and build traces. Route factories and
+checkout support helpers live in ordinary colocated modules; route entries retain
+only HTTP handlers and statically analyzable Next metadata. The webpack audio
+aliases match the established Turbopack entries, and browser URL construction no
+longer imports Node signing code. These repairs preserve the errors-only policy.
+
+Fresh local regressions passed: 76 Sentry, 172 route/security/commerce and 13 audio
+tests. Generated configuration retains runtime DSN/environment inputs; no DSN
+constructs no transport. The compiled diagnostic maps to source line 10, and an
+isolated SDK client with an in-memory transport produces a sanitized envelope
+whose debug ID matches the generated JavaScript. One-off local guard, loopback
+listener and independent watchdog rehearsals also passed. These are offline
+checks, not application capture-hook, hosted delivery or owner-email acceptance.
+
+### Preserve debug IDs when preparing an upload
+
+Installed CLI 0.47.0's `--no-rewrite` upload branch leaves pair debug-ID metadata
+empty. The generated webpack JavaScript registers IDs, while its maps lack
+explicit ID fields. Do not infer an upload manifest's linkage from the JavaScript
+registration alone.
+
+Before any separately approved upload, stage only the diagnostic route's required
+generated JavaScript closure and maps. Read each existing ID from the generated
+registration, then add matching `debug_id` and `debugId` metadata to that copied
+map only. Require unchanged JavaScript bytes, mapping strings and source content.
+Use normal pairing with an explicit `app:///_next/server/` URL prefix, without
+`--no-rewrite`. The installed pure pairing/manifest functions recognized these
+existing IDs without injection or writes in the local rehearsal. Abort on missing
+or conflicting IDs, an unexpected rewrite, a changed file set or uncertain upload.
+
+The rehearsed artifact used ten files / 6,488,499 input bytes and a 1,510,147-byte
+ZIP. Recompute its manifest and enforce the agreed caps for the exact future
+reviewed source/release; these counts do not authorize another artifact or upload.
+No CLI authentication, provider request, release, alert or email was used by the
+local checks. The actual guarded CLI/runtime invocation still needs rebinding and
+preflight against the final pin before any permitted live dispatch. Keep the
+public debug flag disabled and preserve all hosted activation gates below.
+
+## October 22 category-guard follow-up
+
+The later full review identified ambiguous validation counts and flagged direct
+transaction envelopes. A real SDK control confirms that `client.sendEnvelope()`
+can bypass `beforeSendTransaction`; the three runtime regressions fail before
+the category correction. The final `beforeEnvelope` integration now allows only
+`event` items used by runtime errors and the approved diagnostic report. It
+rejects every other category, including direct transactions, spans and sessions,
+while mixed envelopes retain their error items. Existing integration exclusions,
+scrubbing, sampling and propagation restrictions remain in force.
+
+The local tests use the installed integration resolver and real SDK transport
+with an in-memory request executor. A prohibited-only envelope makes zero
+requests. Mixed envelopes containing performance, session, log, profile, replay,
+attachment or client-report data retain only their permitted event items.
+No provider ingestion or activation is performed by these tests.
+
+## Revision-scoped validation evidence
+
+The focused Sentry command is a subset of the repository-wide unit command.
+Each count below belongs only to its named revision, command and environment.
+The event-item allowlist row is local pre-push evidence; current-head hosted
+results are the [PR #44 checks](https://github.com/dsbowersock/atmoshaper/pull/44/checks),
+which must be verified independently after publication. Older dated checkpoints
+retain their original scope; they are not current-head validation assertions.
+
+| Source scope | Command / environment | Recorded result |
+| --- | --- | --- |
+| Initial candidate `98750f2` | `npm run test:sentry`, local Windows | 71 passed, including 20 installed-SDK cases; zero failures/skips |
+| Span-boundary correction `876c2d8` | `npm run test:sentry`, local Windows | 75 passed, including 24 installed-SDK cases; zero failures/skips |
+| Event-item allowlist follow-up, local pre-push scope | `npm run test:sentry`, local Windows | 76 passed, including 25 installed-SDK cases; zero failures/skips; three direct-transaction regressions failed before this correction |
+| Initial candidate `98750f2` | `npm run test`, Linux CI | 5,270 passed; two skipped; zero failures |
+| Span-boundary correction `876c2d8` | `npm run test`, Linux CI | 5,274 passed; two skipped; zero failures; browser build, four browser QA lanes and final `qa` also passed |
+| Initial local repository-wide baseline, before the later SDK regressions | `npm run test`, local Windows | 5,266 passed; two unchanged Calendar process-deadline failures; four skipped |
+
+The local Windows Calendar gate remains separate: its dedicated command
+`npm run test:calendar-application-acceptance` reproduced the two failures
+(41 passed, one platform skip), and the owned shutdown probe took 7,615 ms
+against the tests' five-second expectation. No test deadline was relaxed.
+Source-map delivery, provider privacy/limits and owner-alert acceptance remain
+separate from all of this source and CI evidence.
+
+## October 22 manual review: final span-envelope boundary
+
+This dated checkpoint describes the span-boundary correction `876c2d8`; the
+event-item allowlist above supersedes its runtime policy.
+
+Manual review of [draft PR #44](https://github.com/dsbowersock/atmoshaper/pull/44)
+identified a remaining standalone-span escape. Installed SDK 10.59.0 does apply
+its span hooks to ordinary standalone spans, but unnamed spans with missing or
+non-string origin attributes can miss the configured matchers. Direct span
+envelopes can bypass those hooks entirely.
+
+The candidate now registers a per-client `beforeEnvelope` integration that
+removes every `span` item, including span containers. The SDK's real transport
+suppresses a resulting empty envelope before its request executor is called;
+mixed envelopes retain their error items. Existing sampling/propagation,
+transaction, session and privacy restrictions remain.
+
+The expanded regression uses the installed integration resolver and transport
+with an in-memory request executor. Name/origin combinations and direct/mixed
+envelopes failed in all three runtimes before the policy fix (six failures).
+The revision-scoped table above distinguishes `npm run test:sentry` on
+`876c2d8` from the original and corrected Linux `npm run test` executions.
+Typecheck, full lint and final changed-source lint also passed for `876c2d8`.
+The local Windows Calendar deadline failures remain a separate safety gate;
+no later-head hosted result is inferred from this historical checkpoint.
+No provider ingestion, source-map upload, owner notification or activation is
+part of this source correction. The earlier checkpoint below retains its date.
+
+## October 22 local source validation refresh
+
+This pre-publication checkpoint covers the source subsequently published as
+`98750f2`, before either envelope-boundary correction. Installed SDK 10.59.0 and
+all three runtime entrypoints were reviewed. Local `npm run test:sentry` passed
+71/71 checks (20 SDK cases); `npm run typecheck` and `npm run lint` also passed.
+The broader run has 5,266 passes, two Calendar process-deadline failures and four
+skips. The same two unchanged Calendar tests reproduce alone; a single synthetic
+Windows shutdown probe took 7,615 ms against their five-second expectation and
+verified its child closed. Keep that local Calendar safety gate open; the full
+suite is not recorded as green. No deadline was relaxed.
+These checks use invented inputs, in-memory Sentry transports and no inherited
+provider credentials. They do not deliver a hosted event or owner notification.
+
+The reviewed policy is the October 12 explicit-zero/deny-sampler version below,
+with final name/origin filters and client reports disabled. No app/test source
+change was needed during this refresh. The four-file source/test patch is
+prepared separately from unrelated dirty work; publication and hosted reviews
+remain open. The deployment and this runbook's Sentry-only documentation changes
+accompany that review candidate. No source push, binding, upload or event occurred at this pre-publication
+checkpoint.
+
+The next operational work is current destination/privacy and actual
+quota/retention/overage/billing proof, followed by an exact protected
+release/source-map, single sanitized error and named owner-alert packet under
+the existing activation gates. Do not repeat completed project/privacy setup
+or reuse the closed Anatomime operation allowances.
+
 ## What Sentry is for
 
 Sentry helps the owner notice and diagnose software failures: a broken page,
@@ -14,11 +171,16 @@ that comes back after a fix. Release-linked, source-mapped stacks should identif
 the relevant code instead of relying on a user's description of what happened.
 The voluntary support diagnostic adds only predefined issue/area/device buckets.
 
-The current capture boundary is framework error hooks, the global error fallback
+The error capture boundary is framework error hooks, the global error fallback
 and the enum-only support diagnostic. A handled HTTP failure is not automatically
 an error event merely because its response status is unsuccessful. Monitoring
 must not be described as a complete audit of purchases, Calendar sync or game
 actions, or as popularity, conversion, user-history or product analytics.
+The historical merged baseline at `b6a7d727` also allows anonymous operational
+tracing. The October 11 local preparation introduced the errors-only direction,
+subsequently published as draft PR #44 with the later corrections above.
+Source publication does not change the preserved public artifact or enable
+hosted collection.
 
 ## Current proof and missing access
 
@@ -60,12 +222,12 @@ actions, or as popularity, conversion, user-history or product analytics.
   Quota/retention/billing, release/source maps and useful owner alerts remain gates.
 - PR #42 is merged and its automatic main candidate is READY but unpromoted.
   Its build log identifies vendor-plugin telemetry, whose own DSN is separate
-  from application collection and project scrubbing. This source change sets
+  from application collection and project scrubbing. Merged PR #43 sets
   `withSentryConfig`'s `telemetry: false` for all builds, preserving explicit
   release credentials and QA isolation. Provider-free tests execute the actual
-  configuration for ordinary, migration and QA modes. The approved draft PR #43
-  has a READY Preview at its initial publication checkpoint; the live public
-  artifact has not been replaced and application monitoring remains unbound.
+  configuration for ordinary, migration and QA modes. PR #43 merged on October 10
+  after final-head checks/reviews; its READY main candidate remains unpromoted.
+  The live public artifact is preserved and application monitoring remains unbound.
 - The [August 17 provider audit](../audits/2026-08-17-anonymous-sentry-provider-settings.md)
   belongs to its named historical source/environment. It does not verify a new
   independent AtmoShaper destination. Do not repeat its completed diagnostic.
@@ -105,6 +267,76 @@ activation shortcut or treat those metadata options as proof of app ingestion.
 The private preparation packet keeps exact references, existing public DSN and
 remaining gates; no binding, source-map upload, event or notification occurred.
 
+## October 10 source and envelope-scope checkpoint
+
+The shared source sets error `sampleRate` to 1.0 and obtains trace sampling from
+[the privacy helper](../../lib/sentry-privacy.js): 1.0 in development, 0.1
+otherwise. This helper has no trace-rate environment override. Installed SDK
+10.59.0 includes browser tracing, and transactions/spans pass through the existing
+sanitizers. Sampling describes a probabilistic selection, not a hard envelope or
+span count. Confirm the plan's error and trace/span allowances, retention and
+overage controls if retaining that policy.
+
+Six provider-free calls to the installed sampler use invented rates, parent
+decisions and random values. Unparented zero rate rejects sampling, but a positive
+parent decision is inherited before the configured rate. Omitting both trace
+sampling options or using a deny sampler rejects the tested positive-parent
+input. Those utility branches do not constitute a complete runtime policy test.
+If the initial approval permits errors only, first review a source policy and
+SDK-envelope tests that prevent spans, including inherited sampled inputs; merely
+setting a provider quota or assuming a zero rate is sufficient does not prove it.
+No application/SDK client, transport, database or provider was started by the probes.
+
+The debug GET route has only the existing environment-flag gate. Keep the ordinary
+public flag false and name a protected verification deployment before enabling
+it temporarily. The support POST uses a durable operational limiter; its write
+must be named in any acceptance scope. Retain the historical debug flag/event
+compatibility identifiers and do not substitute a real support submission for
+the separately approved synthetic event.
+
+## October 11 local errors-only source preparation
+
+The unpublished follow-up leaves both trace sampling options undefined, disables
+trace-header propagation and removes BrowserTracing while preserving browser,
+Node and edge error hooks. Explicitly captured transactions are dropped before
+transport. Existing error sanitization, release/environment and compatibility
+settings remain intact; an absent application DSN still disables collection.
+
+The installed SDK regression first proves that a zero-rate policy can emit both
+transaction and standalone-span envelopes after inheriting a sampled parent.
+The actual shared policy and all three compiled entrypoints then produce only
+the sanitized error envelope for active, child, manual and standalone span
+attempts with and without sampled incoming context. All 62 focused Sentry tests
+pass locally, using temporary scopes and an in-memory transport; lint and
+typecheck also pass. No provider request, database connection, event ingestion, upload or alert is included.
+
+Source publication/reviews, actual error quota/retention/billing, release/source
+maps and the separately scoped synthetic-event/owner-alert acceptance remain
+required. Future performance tracing needs its own reviewed privacy and usage
+scope; the historical trace helpers do not activate it in this policy.
+
+## October 12 inherited SDK environment and external-span hardening
+
+The October 11 undefined-rate policy is historical preparation. Installed Node
+initialization can replace that undefined rate from SENTRY_TRACES_SAMPLE_RATE,
+and local sampled parents can bypass a deny sampler for child spans. Both paths
+are reproduced using real installed SDK merging/envelopes with invented inputs;
+their pre-fix failures are retained.
+
+The current unpublished policy uses explicit zero plus a deny sampler, disables
+trace-header propagation, and adds final span-name/SDK-origin filters. The origin
+filter covers empty/unnamed SDK spans as well as the named path. Client reports
+are disabled so dropping spans cannot emit a separate span-count envelope.
+Existing session/replay/console exclusions, error scrubbing and error handlers
+remain. No application DSN still means disabled collection.
+
+All 71 focused checks, lint and typecheck pass. The SDK policy
+slice includes 20 in-memory cases, including inherited rates, sampled context,
+externally recorded spans and preserved sanitized error delivery. No SDK global
+initializer, provider ingestion or credential capture is used. Publication and
+fresh hosted reviews remain pending; this source correction enables no provider
+collection, upload, alert, Production change or new source archive deployment.
+
 ## Exact destination read gate
 
 Use an owner-authorized read path to identify the destination organization and
@@ -121,7 +353,7 @@ Read the actual project and inherited organization settings before SDK activatio
 | Sensitive fields and advanced rules | Reviewed against the [deployment privacy contract](deployment.md#sentry), with no broad exemption that weakens it |
 | Issue sharing | Public sharing disabled |
 | Prohibited collection | Replay, standard User Feedback, attachments, Logs, product metrics and browser/process sessions disabled or unused |
-| Quota and retention | Actual plan limits, billing owner and retained-data duration recorded; no guessed free-tier or retention claim |
+| Quota and retention | Actual error and trace/span allowances, overage controls, billing owner and retained-data duration recorded; align the approved envelope scope with the reviewed SDK policy |
 | Release/source maps | Repository/build linkage and authorized upload target belong to AtmoShaper |
 | Alerts | Production new-error/regression rules and an explicitly approved owner destination |
 
@@ -143,7 +375,9 @@ authorization to use an update endpoint.
    temporary debug-route enablement; do not expose an error generator publicly.
    The historical debug flag/event identity remains a compatibility contract.
 4. Specify the synthetic event, expected coarse route and scrubbed fields,
-   source release, event/usage ceiling, cleanup/retention and rollback. Any use
+   source release, separate error and trace/span ceilings, cleanup/retention and
+   rollback. An errors-only initial scope requires the reviewed source policy
+   described above before dispatch. Any use
    of the support POST must include its durable quota write in the exact scope;
    it is not a read-only provider check.
 5. Obtain exact authority for configuration, upload and the single new event.

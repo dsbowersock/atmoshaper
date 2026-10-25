@@ -1,9 +1,9 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 import { getBackgroundCommerceSnapshot } from "../lib/commerce/snapshot-service.ts"
-import { createBackgroundCommerceStateGetHandler } from "../app/api/background-commerce/state/route.ts"
-import { createBackgroundCommerceRedeemPostHandler } from "../app/api/background-commerce/credits/redeem/route.ts"
-import { createBackgroundCommerceCartHandlers } from "../app/api/background-commerce/cart/route.ts"
+import { createBackgroundCommerceStateGetHandler } from "../app/api/background-commerce/state/handlers.ts"
+import { createBackgroundCommerceRedeemPostHandler } from "../app/api/background-commerce/credits/redeem/handlers.ts"
+import { createBackgroundCommerceCartHandlers } from "../app/api/background-commerce/cart/handlers.ts"
 import { CommerceError, COMMERCE_ERROR_CODES } from "../lib/commerce/errors.ts"
 
 const USER_ID = "user-snapshot"
