@@ -18,7 +18,8 @@
       "sourceRef": "openstax-anatomy-physiology",
       "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L281-L281",
       "reviewNote": "Archived paragraph fs-id2586421 identifies erector spinae as a vertebral-column extensor, including its lumbar component.",
-      "citationId": "citation-reviewed-action-lumbar-erector-extension"
+      "citationId": "citation-reviewed-action-lumbar-erector-extension",
+      "publisherElementId": "fs-id2586421"
     },
     {
       "id": "action-lumbar-erector-stabilization",
@@ -51,7 +52,8 @@
       "sourceRef": "openstax-anatomy-physiology",
       "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L283-L283",
       "reviewNote": "Archived paragraph fs-id2808964 supports lumbar extension; segmental-control wording is corroborated separately by Wang et al. 2023, CC BY 4.0. https://pmc.ncbi.nlm.nih.gov/articles/PMC9854514/#sec4-bioengineering-10-00067",
-      "citationId": "citation-reviewed-action-lumbar-multifidus-extension"
+      "citationId": "citation-reviewed-action-lumbar-multifidus-extension",
+      "publisherElementId": "fs-id2808964"
     },
     {
       "id": "action-rectus-femoris-hip-flexion",
@@ -82,9 +84,10 @@
       "descriptionSha256": "544e52339ab8036f44effa30492c442ba574c67de9de27f75029791263add99f",
       "originalSourceRef": "applied-human-anatomy",
       "sourceRef": "openstax-anatomy-physiology",
-      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L24-L27",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L24-L26",
       "reviewNote": "Frontal-belly eyebrow action in the archived figure description; forehead wrinkling independently corroborated by Kwon et al. 2023. Supplemental article is CC BY-NC 4.0 and is bibliography only: no article text, media or license is adopted. https://pubmed.ncbi.nlm.nih.gov/37365738/",
-      "citationId": "citation-reviewed-action-frontalis-brow-elevation"
+      "citationId": "citation-reviewed-action-frontalis-brow-elevation",
+      "publisherElementId": "fs-id2319967"
     }
   ],
   "newSource": {

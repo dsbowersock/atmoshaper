@@ -139,6 +139,8 @@
     "test:anatomime-progress": "node --test tests/anatomime-progress-lock.test.mjs tests/anatomime-progress-server.test.mjs tests/anatomime-room-rules.test.mjs tests/anatomime-shared.test.mjs tests/flashcard-progress.test.mjs",
     "test:secondary-clock": "node --test tests/secondary-display-layout.test.mjs tests/immersive-panel-layout.test.mjs tests/immersive-panel-shell.test.mjs tests/immersive-display.test.mjs tests/timer-font-delivery.test.mjs",
     "lint:secondary-clock": "eslint app/chimer/secondary-display-layout.js app/chimer/immersive-panel-shell.tsx app/chimer/running-timer.tsx tests/secondary-display-layout.test.mjs tests/fixtures/secondary-display-layout-harness.tsx tests/helpers/secondary-display-browser-loader.cjs",
+    "test:flashcard-credits": "node --test tests/flashcard-credit-interaction.test.mjs",
+    "lint:flashcard-credits": "eslint app/education/flashcards/flashcard-runner.tsx tests/flashcard-credit-interaction.test.mjs tests/fixtures/flashcard-credit-interaction-harness.tsx",
     "test:anatomy-name-equivalence": "node --test tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
     "lint:anatomy-name-equivalence": "eslint lib/anatomy-name-aliases.js lib/anatomy-study.ts tests/anatomy-name-equivalence.test.mjs",
     "test:anatomy-reviewed-sources": "node --test tests/anatomy-reviewed-sources.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
