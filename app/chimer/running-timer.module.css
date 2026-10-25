@@ -477,8 +477,8 @@
 
 .currentTimeUnit {
   display: inline-grid;
-  width: 1.08em;
-  grid-template-columns: repeat(2, 0.54em);
+  width: calc(2 * var(--chimer-clock-digit-width, 0.54em));
+  grid-template-columns: repeat(2, var(--chimer-clock-digit-width, 0.54em));
   align-items: center;
   gap: 0;
   justify-content: center;
@@ -489,11 +489,11 @@
 
 .currentTimeDigit {
   display: inline-flex;
-  width: 0.54em;
+  width: var(--chimer-clock-digit-width, 0.54em);
   align-items: center;
   justify-content: center;
   min-width: 0;
-  max-width: 0.54em;
+  max-width: var(--chimer-clock-digit-width, 0.54em);
   overflow: visible;
 }
 
@@ -512,12 +512,12 @@
 
 .colon {
   display: inline-block;
-  width: 0.22em;
+  width: var(--chimer-timer-colon-width, 0.22em);
   opacity: 0.82;
 }
 
 .clockColon {
-  width: 0.34em;
+  width: var(--chimer-clock-colon-width, 0.34em);
 }
 
 .meridiemColon {

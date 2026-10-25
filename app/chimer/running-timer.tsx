@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import type { MusicVisualizerState } from "@/components/providers/music-provider"
 import { DEFAULT_CHIMER_SETTINGS, parseGlobeCoordinateDraft } from "@/lib/chimer-timer"
+import { getChimerClockFontMetrics } from "@/lib/chimer-clock-font-metrics"
 import { canCustomizeBackgroundColors } from "@/lib/background-palette"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import { buildBackgroundVisualOpeningSnapshot, buildBackgroundVisualPendingCommit, createBackgroundVisualDraft, getCommittedBackgroundVisualSnapshot, partitionBackgroundVisualSettingChange, reduceBackgroundVisualDraft, resolveBackgroundVisualPendingOutcome } from "@/lib/background-visual-draft"
@@ -12681,6 +12682,7 @@ export function RunningTimer({
 
   const chromeClassName = [styles.chrome, controlState === "faded" ? styles.chromeFaded : "", controlState === "hidden" ? styles.chromeHidden : ""].filter(Boolean).join(" ")
   const containerStyle = {
+    ...getChimerClockFontMetrics(clockFontFamily),
     "--chimer-timer-color": resolvedTimerDisplayColor,
     "--chimer-clock-color": resolvedCurrentTimeDisplayColor,
     "--chimer-display-font-family": getClockFontStack(clockFontFamily),

@@ -1,5 +1,92 @@
 # AtmoShaper Project Log
 
+## October 24 selected DSEG7 Modern implemented and locally verified
+
+The owner selected DSEG7 Modern. The unmodified v0.46 WOFF2 and author's original
+OFL/copyright are vendored; the Digital family and saved digital settings remain
+compatible. Unit and meridiem letters retain readable fallback fonts. The
+Digital-7 permission inquiry is superseded and remains unsent. No font purchase
+or global installation occurred.
+
+The build-relative font URL emits a fingerprinted static asset that the existing
+service worker caches. Digital's digit slots now use its real fixed advance,
+with natural separator widths; all other font choices retain their prior widths.
+The overlap regression failed before that repair and passed afterward.
+
+Three focused tests, changed-source lint and the complete inert-provider build
+(including TypeScript) pass. Ten desktop/mobile built-app cases verify primary
+clock/countdown fit, individual glyph fit, fullscreen, saved Digital selection
+and exact cached-font readback while offline. Four actual Anatomime timer-style
+cases also fit; no game/controller or closed realtime test was replayed.
+The real Modern binary was used throughout; only unrelated build-time Inter
+used the cached local fixture. Zero external/provider/database requests ran.
+
+Screenshots were inspected. The browser/server, both owned dependency junctions
+and temporary source/build snapshot are closed or removed; shared packages and
+the Prisma schema are preserved. Receipts and screenshots remain retained.
+This closes the local font slice, not full immersive-screen or release acceptance.
+The mobile running-timer screenshot also exposes the auxiliary clock beneath the
+open toolbar; its cause and layout repair remain a separate investigation.
+
+The [selected-font plan](superpowers/plans/2026-10-24-local-digital-font-rights.md)
+records scope and evidence. Source publication, merge and Production remain held.
+
+## October 24 free clock-font alternatives requested and compared
+
+The owner requested free alternatives before any Digital-7 commercial-permission
+request. Four candidates now have current original-license evidence: DSEG7
+Classic, DSEG7 Modern, Digital Numbers and Share Tech Mono. All are OFL 1.1;
+commercial website use and self-hosting are permitted with their applicable
+copyright/license notices retained. Classic is the first visual recommendation,
+not a selected replacement. The existing permission inquiry remains unsent.
+
+A self-contained local comparison rendered all four original fonts at desktop
+and mobile widths. Both views passed font loading, clipping and editable-text
+checks, with zero external browser requests, no server and the browser closed.
+The images were visually inspected. This is style comparison, not actual-app
+geometry or release acceptance. The live font is unchanged, and no font was
+purchased, installed globally or published. Owner choice and real-app validation
+of the selected font remain pending. Other migration work and the original
+private-copy worker continue within their existing authority.
+
+
+## October 24 font permission investigation; optional local candidate held
+
+The owner asked whether the existing Chimer font must be replaced. Keeping the
+current design is preferred if applicable commercial web-use permission can be
+established. The owner confirms there is no existing commercial license or
+written permission. No replacement has been selected. The author's old README,
+reproduced at https://urbanfonts.com/free-font/digital-7-1, mentions a historical
+$24.95 commercial offer; no current price, working purchase channel or grant for
+this exact website is verified. The author product page could not be accessed.
+Do not treat that old price or the separate freeware clause as current clearance.
+No author message or purchase has been sent.
+
+This worktree contains only an unpublished provisional Classic alternative,
+including original OFL/copyright, stable Digital settings and ordinary suffix
+fallbacks. Its two font-delivery/metric tests and scoped lint pass. No app build,
+site activation or source publication occurred; its browser and dependency
+junction are closed/removed. The live font is unchanged. The
+[local plan](superpowers/plans/2026-10-24-local-digital-font-rights.md) is a held
+candidate, not a selected substitution or authority to publish it.
+
+Independent migration work continues: PR #49 at `671d7f2` has passing exact-head
+CI/Preview, completed CodeRabbit with no actionable findings and 100% docstrings,
+and no unresolved review threads. PR #50's included review found one test-driver
+dependency issue. It is fixed and published at `5c8a133`, with thirteen lifecycle
+cases and focused lint passing; the thread is resolved. All eight exact-head
+GitHub checks and Vercel Preview now pass.
+Fresh included review confirmation remains queued no earlier than October 25 at
+00:35:35 UTC. Both PRs are regular and unmerged.
+The approved private media-copy worker remains active under its original
+October 25 05:14:25 UTC absolute stop, with no new work after 04:59:25 UTC and
+65,064 new reservations retained as spent. Do not restart/retry that worker or
+reuse its credential for another operation. Final copy verification, temporary
+cleanup and owner revocation are still pending. Preserve source buckets, old
+sites and all unrelated resources. No merge, Production change or Sentry
+activation is authorized. The full migration remains active; inherited older
+snapshots below do not reopen closed Ably/Sentry/Stripe test scopes.
+
 ## October 23 business planner storage recovery — locally verified
 
 The six real business clients now keep working when device storage cannot be

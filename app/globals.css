@@ -2,10 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Bundle this face into fingerprinted static assets covered by the existing offline policy.
+   Preserve saved Digital selections; keep suffix letters in the readable fallback stack.
+   Unmodified DSEG font copyright/OFL notice: /fonts/dseg/DSEG-LICENSE.txt. */
 @font-face {
   font-family: "Digital";
-  src: url("https://db.onlinewebfonts.com/t/8e22783d707ad140bffe18b2a3812529.woff2") format("woff2");
+  src: url("../public/fonts/dseg/DSEG7Modern-Regular.woff2") format("woff2");
   font-display: swap;
+  unicode-range: U+002D-002E, U+0030-003A;
 }
 
 @layer base {

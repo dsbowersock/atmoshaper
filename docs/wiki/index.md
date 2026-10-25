@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Selected DSEG7 Modern clock font](../superpowers/plans/2026-10-24-local-digital-font-rights.md)
+
 - [Project state](../project-state.md)
 - [Project log](../project-log.md)
 - [Compatible AtmoShaper media cutover](../superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
