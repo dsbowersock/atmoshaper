@@ -1,5 +1,6 @@
 "use client"
 
+import { AnatomyLicenseLabel } from "@/components/anatomy/source-attribution"
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ArrowDown, ArrowUp, CheckCircle2, ChevronDown, ChevronRight, LogIn, Play, RotateCcw, SkipForward, Trophy, Users, X } from "lucide-react"
@@ -1276,7 +1277,7 @@ export function AnatomimeGameClient({
                   ) : (
                     <span>{source.label}</span>
                   )}
-                  {source.license ? <span> · {source.license}</span> : null}
+                  {source.license ? <span> · <AnatomyLicenseLabel license={source.license} licenseUrl={source.licenseUrl} /></span> : null}
                   <p>{source.attribution}</p>
                 </li>
               ))}

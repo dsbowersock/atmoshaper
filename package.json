@@ -146,7 +146,10 @@
     "audit:anatomy-reviewed-sources": "node scripts/verify-reviewed-anatomy-sources.mjs",
     "test:muscle-action-citations": "node --test tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
     "lint:muscle-action-citations": "eslint lib/anatomy-muscle-action-provenance.js lib/anatomy-foundation.ts scripts/audit-muscle-action-citations.mjs scripts/verify-reviewed-anatomy-sources.mjs tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-study.test.mjs tests/anatomy-foundation.test.mjs",
-    "audit:muscle-action-citations": "node scripts/audit-muscle-action-citations.mjs"
+    "audit:muscle-action-citations": "node scripts/audit-muscle-action-citations.mjs",
+    "test:anatomy-attribution-regression": "node --test tests/anatomy-attribution.test.mjs",
+    "test:anatomy-attribution": "node --test tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs tests/anatomy-attribution.test.mjs tests/flashcard-media-admin-flag-ui.test.mjs",
+    "lint:anatomy-attribution": "eslint lib/anatomy-foundation.ts lib/anatomy-study.ts components/anatomy/source-attribution.tsx app/education/flashcards/flashcard-runner.tsx app/anatomime/anatomime-game-client.tsx tests/anatomy-attribution.test.mjs tests/helpers/anatomy-attribution-component-loader.mjs lib/anatomy-seed/media-coverage-gap-batch.ts lib/anatomy-seed/media-bodyparts3d-muscle-batch-2.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

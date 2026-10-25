@@ -143,6 +143,7 @@ export type AnatomyStudySource = {
   label: string
   url?: string
   license?: string
+  licenseUrl?: string
   attribution: string
   usageScope: AnatomySourceUsageScope
 }
@@ -163,6 +164,7 @@ export type AnatomyStudyMedia = {
   url: string
   sourceRef: string
   license: string
+  licenseUrl?: string
   attribution: string
 }
 
@@ -480,6 +482,7 @@ function publicMediaForEntity(entityType: AnatomyStudyCategory, entitySlug: stri
         url,
         sourceRef: asset.sourceRef,
         license: asset.license,
+        licenseUrl: asset.licenseUrl,
         attribution: asset.attribution,
       }
     })
@@ -495,6 +498,7 @@ function publicSources(sourceRefs: Iterable<string>, context: BuildContext): Ana
       label: sourceLabel(source),
       url: source.url,
       license: source.license,
+      licenseUrl: source.licenseUrl,
       attribution: source.attribution,
       usageScope: source.usageScope ?? "review_only",
     }))
