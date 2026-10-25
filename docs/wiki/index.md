@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Rendered anatomy credits and publisher license evidence](../audits/2026-10-25-anatomy-public-source-attribution.md)
+
 - [Applied Human Anatomy exact publication and component exceptions](../audits/2026-10-25-applied-anatomy-edition.md)
 
 - [Human Biology exact edition and license evidence](../audits/2026-10-25-human-biology-edition.md)

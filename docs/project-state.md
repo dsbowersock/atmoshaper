@@ -1,5 +1,37 @@
 # AtmoShaper Project State
 
+## October 25 public anatomy credits and publisher links verified locally
+
+The local source candidate `0a28c27` follows the exact textbook edition repairs.
+It retains four hash-verified public publisher pages for BodyParts3D and Human
+Bio Media, corrects the broken archive description link, and displays supplied
+source/image credits with linked licenses. The publisher's full BodyParts3D
+credit replaces shortened text in 92 existing image records. Historical mirror
+licenses, asset URLs, usage/review flags and all citation IDs stay unchanged.
+
+All 1,271 cards and 5,582 default questions preserve study identity, order,
+answers and grading; only declared attribution/link metadata is different.
+An invented local media map additionally verifies all 9,398 expanded questions.
+This does not establish scientific acceptance or permission for every asset.
+
+All 201 focused tests, changed-file lint, typecheck and the exact cached full
+build pass. The actual React flashcard with built CSS passes five viewport
+checks, including short landscape, native keyboard disclosure without a flip,
+active-face focus isolation and linked licenses. The measured first landscape
+failure is retained; compact inline credits and reduced vertical image padding
+correct it without changing outer card geometry. Images in this local browser
+fixture are invented; hosted media and gameplay were not exercised.
+
+All 82 build inputs match after the configured Git line-ending conversion.
+Local validation records zero network/unrelated-executable attempts. Three owned
+dependency junctions, the compiler cache, stopped browser profile and temporary
+build/baseline snapshots are removed. Shared dependencies, screenshots, publisher
+evidence and unrelated work remain. No cloud media, credential, database,
+publication, Production or Sentry action ran. The $15 media proposal stays
+declined; R2 requests stay at $0. Other migration gates remain open.
+
+See the [validation audit](audits/2026-10-25-anatomy-public-source-attribution.md).
+
 ## October 25 Applied Human Anatomy exact publication and component caveat pinned locally
 
 The remaining major textbook source now identifies the exact 2022 Applied
