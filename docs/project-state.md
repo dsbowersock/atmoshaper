@@ -1,5 +1,40 @@
 # AtmoShaper Project State
 
+## October 25 Chimer repair integrated with merged main and revalidated locally
+
+The owner-approved PR #44-51 batch is complete at main `af5373d`; all eight
+hosted candidates are READY, final combined-main CI passes and captured public
+routing is unchanged. The historical pending-merge checkpoints below do not
+reopen that completed batch. No public promotion or Sentry activation occurred.
+
+The separate auxiliary-display repair now starts from that merged main on
+`codex/chimer-main-integration`. Its original `68a116f` branch is retained.
+All 80 pages, 62 API handlers and reviewed Calendar changes are preserved.
+This route/source comparison does not claim whole-site journey acceptance.
+
+Fresh real-shell verification exposed a position-only control-root change that
+the dimension observer missed. The shell now observes that portal owner's
+class/style and child changes as well, coalesces measurements through the
+existing animation-frame owner and disconnects the added observer on disposal.
+The deterministic regression fails before the fix and passes after it.
+
+All 41 focused Chimer checks pass. The integrated Calendar suite has 46 passes
+and one POSIX-only skip. Named focused lint and the full provider-free build,
+including normal TypeScript validation, pass. The earlier 90-second lint wrapper
+timeout remains an unverified attempt; the separate terminal lint result passes.
+Sixteen actual built-app cases pass across 320px/390px phones, 640px landscape
+and 1440px desktop with the real DSEG7 Modern font and saved Digital selection.
+Screenshots were inspected; the existing landscape settings-sheet priority is
+preserved. Only unrelated Inter uses the local build fixture.
+
+The owned browser/server are closed; the exact source/build snapshot, temporary
+archive and one dependency junction are removed. Sixteen current runtime/test
+inputs match the validated snapshot. Shared dependencies and generated Prisma
+schema are preserved; receipts and screenshots remain. No provider request,
+database, real account, game, checkout or configuration change ran. This follow-up
+is local and unpublished; its publication/review and final migration release
+gates remain separate from the completed eight-PR batch.
+
 ## October 24 Chimer auxiliary-toolbar collision repaired and locally verified
 
 The auxiliary timer/clock now uses actual toolbar and top-control bounds. It

@@ -5,8 +5,10 @@
 The built-app mobile screenshot retained during DSEG7 Modern verification shows
 the auxiliary clock behind the immersive toolbar. Its fixed top/center rule and
 the toolbar CSS are unchanged from the pre-font source. That comparison does not
-claim a pre-font browser reproduction. PR #51 remains fixed at its reviewed head;
-this separate local branch starts there and is not approved for publication.
+claim a pre-font browser reproduction. The original local candidate started at
+PR #51's reviewed head. The owner-approved eight-PR batch has since merged; the
+current candidate is integrated on final main `af5373d`, with the original local
+`68a116f` branch retained. This follow-up is not approved for publication.
 
 ## Implementation
 
@@ -22,8 +24,11 @@ this separate local branch starts there and is not approved for publication.
    dimensions rather than animated swap/glow transforms. Do not change the
    selected font or the primary font-fit owner.
 4. Observe size, secondary-owner changes, font readiness and layout/visual viewport
-   changes. Restore properties and disconnect observers/listeners on owner swap
-   or unmount. Keep position stable while toolbar chrome fades.
+   changes. Also observe the portal control root's class/style and child changes:
+   inherited styles can move controls without resizing them. The display's own
+   inline reservations are outside that subtree. Restore properties and disconnect
+   observers/listeners on owner swap or unmount. Keep position stable while toolbar
+   chrome fades.
 
 ## Validation
 
@@ -38,14 +43,15 @@ No database, game, account, checkout, telemetry or external provider is involved
 
 ## Delivery boundaries
 
-Keep the current eight-PR merge proposal unchanged and await its owner decision.
-This follow-up may be prepared and verified locally; publication needs its own
-reviewable source decision. No push, merge, hosted configuration, media exposure,
-Production promotion or Sentry activation is included. Preserve shared cached
-dependencies, prior operation receipts and unrelated dirty worktrees. Remove
-only task-owned browser/build resources after validation.
+The owner-approved PR #44-51 batch is complete, with final combined-main CI,
+READY candidates and baseline public routing verified. This separate follow-up
+may be prepared and verified locally; publication needs its own reviewable source
+decision. No new push, merge, hosted configuration, media exposure, Production
+promotion or Sentry activation is included. Preserve shared cached dependencies,
+prior operation receipts and unrelated dirty worktrees. Remove only task-owned
+browser/build resources after validation.
 
-## Completed local validation
+## Original October 24 local validation checkpoint
 
 The real-shell baseline reproduced four failures/two passes under the old
 placement. After the repair, all 40 named checks pass, including eight responsive
@@ -63,4 +69,34 @@ The evidence does not assert always-visible secondary text while editing.
 The server/browser, owned source/build snapshot and two dependency junctions are
 closed or removed; shared dependencies/schema, the existing typecheck cache and
 receipts/screenshots are retained. The published font branch is unchanged. This
-candidate is local and unpublished; the eight-PR merge decision remains pending.
+candidate was local and unpublished at this checkpoint; the eight-PR merge
+decision was pending then and is now complete as recorded above.
+
+## October 25 merged-main integration and fresh validation
+
+The local integration starts on `af5373d` and retains all 80 pages, 62 API
+handlers and reviewed Calendar source. An initial 320px focused failure led to
+a deterministic regression that moves the real control root without changing
+its dimensions or dispatching resize. The old helper fails that new case; the
+additional lifecycle-owned mutation observer fixes it. All 41 named checks pass,
+with seven denial-guard receipts and zero network attempts.
+
+The reviewed Calendar suite passes 46 checks with one POSIX-only skip and 32
+guard receipts. A first 90-second lint wrapper timeout has no terminal lint
+outcome; a distinct focused-lint run passes in about 94 seconds. The full build,
+including ordinary TypeScript validation, passes with six guard receipts and no
+network, database or provider access. Cached dependencies and the local Inter
+fixture were reused; the selected DSEG7 Modern binary is real and unchanged.
+
+Sixteen actual built-app cases pass across the same four viewport sizes, covering
+standalone clock, timer, Clock settings and primary display swap. Screenshots
+were inspected. The runtime reports no client errors, server 5xx, external
+attempts or non-read requests. Settings-sheet priority in landscape remains
+intentional and separate from toolbar clearance. No account or game is exercised.
+
+The owned server/browser are closed. Sixteen current runtime/test inputs match
+the validated snapshot. Removed only that checked source/build snapshot, its
+temporary generated archive and one dependency junction; shared dependencies,
+Prisma schema, receipts and screenshots are retained. This integrated follow-up
+remains local and unpublished. Whole-site/provider acceptance and release remain
+separate gates.

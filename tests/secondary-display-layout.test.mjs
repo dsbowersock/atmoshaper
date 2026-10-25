@@ -85,7 +85,7 @@ async function geometry(page) {
     const box = secondary.getBoundingClientRect()
     const controls = [document.querySelector('[aria-label="Immersive display controls"]'), ...document.querySelectorAll('button[data-chimer-control="true"]')]
     const overlap = controls.some((node) => { const r = node.getBoundingClientRect(); return r.right > box.left && r.left < box.right && r.bottom > box.top && r.top < box.bottom })
-    return { top: box.top, bottom: box.bottom, left: box.left, right: box.right, overlap, width: box.width, scrollWidth: secondary.scrollWidth, clientWidth: secondary.clientWidth, faceLoaded: document.fonts.check('32px "Digital"') }
+    return { top: box.top, bottom: box.bottom, left: box.left, right: box.right, overlap, width: box.width, scrollWidth: secondary.scrollWidth, clientWidth: secondary.clientWidth, faceLoaded: document.fonts.check('32px "Digital"'), inlineTop: secondary.style.getPropertyValue("--chimer-secondary-top"), controls: controls.map((node) => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom } }) }
   })
 }
 
@@ -103,11 +103,11 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
       const { page, context } = await pageFor(viewport)
       try {
         const clock = await geometry(page)
+        if (process.env.SECONDARY_EVIDENCE) await page.screenshot({ path: path.join(process.env.SECONDARY_EVIDENCE, `${viewport.width}x${viewport.height}-clock.png`) })
         assert.equal(clock.faceLoaded, true)
-        assert.equal(clock.overlap, false, "The auxiliary clock must not sit underneath interactive controls")
+        assert.equal(clock.overlap, false, `The auxiliary clock must not sit underneath interactive controls: ${JSON.stringify(clock)}`)
         assert.ok(clock.left >= 0 && clock.right <= viewport.width + 0.5)
         if (viewport.width === 1440) assert.ok(Math.abs(clock.top - 19.2) < 1, "Preserve the existing wide-screen position")
-        if (process.env.SECONDARY_EVIDENCE) await page.screenshot({ path: path.join(process.env.SECONDARY_EVIDENCE, `${viewport.width}x${viewport.height}-clock.png`) })
         await page.getByTestId("clock").click()
         const timer = await geometry(page)
         assert.equal(timer.overlap, false, "Swapping to the auxiliary timer must retain clearance")
@@ -115,6 +115,24 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
       } finally { await context.close() }
     })
   }
+  it("remeasures position-only control-root changes without a resize event", async () => {
+    const { page, context } = await pageFor({ width: 1440, height: 1000 })
+    try {
+      assert.equal((await geometry(page)).overlap, false)
+      const before = await page.getByRole("group", { name: "Immersive display controls" }).boundingBox()
+      // The real shell updates inherited viewport/inset CSS on its portal root.
+      // Moving those controls need not resize them or emit a viewport event.
+      await page.evaluate(() => {
+        const toolbar = document.querySelector('[aria-label="Immersive display controls"]')
+        const shell = toolbar.closest("[data-immersive-shell]")
+        shell.style.setProperty("--immersive-toolbar-leading-space", `${(innerWidth - toolbar.getBoundingClientRect().width) / 2 + 4}px`)
+      })
+      const moved = await geometry(page)
+      const after = await page.getByRole("group", { name: "Immersive display controls" }).boundingBox()
+      assert.ok(Math.abs(after.width - before.width) < 1 && Math.abs(after.height - before.height) < 1, "Exercise a position change, not a ResizeObserver notification")
+      assert.equal(moved.overlap, false, `Position-only chrome change must retain accessory clearance: ${JSON.stringify(moved)}`)
+    } finally { await context.close() }
+  })
   it("fits a panned and zoomed visual viewport as its dimensions change", async () => {
     const { page, context } = await pageFor({ width: 390, height: 844 }, { width: 210, height: 650, offsetLeft: 60, offsetTop: 30 })
     try {

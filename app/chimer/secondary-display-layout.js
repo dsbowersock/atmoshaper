@@ -99,6 +99,13 @@ export function observeSecondaryDisplayLayout({ stage, toolbar, insetProbe }) {
   mutationObserver.observe(stage, { attributes: true, attributeFilter: ["data-immersive-secondary-display"], childList: true, subtree: true })
   const bodyObserver = new MutationObserver(schedule)
   bodyObserver.observe(document.body, { attributes: true, attributeFilter: ["class", "style"] })
+  // Viewport/inset styles can move the portal's controls without changing their
+  // size. Observe that owner as well as ResizeObserver's dimensions; the display
+  // and its own inline reservations live outside this subtree.
+  const controlObserver = new MutationObserver(schedule)
+  controlObserver.observe(toolbar.closest("[data-immersive-shell]") ?? toolbar, {
+    attributes: true, attributeFilter: ["class", "style"], childList: true, subtree: true,
+  })
   resizeObserver?.observe(toolbar)
   resizeObserver?.observe(insetProbe)
   window.addEventListener("resize", schedule)
@@ -114,6 +121,7 @@ export function observeSecondaryDisplayLayout({ stage, toolbar, insetProbe }) {
     resizeObserver?.disconnect()
     mutationObserver.disconnect()
     bodyObserver.disconnect()
+    controlObserver.disconnect()
     window.removeEventListener("resize", schedule)
     window.removeEventListener("orientationchange", schedule)
     window.visualViewport?.removeEventListener("resize", schedule)
