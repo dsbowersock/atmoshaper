@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import { auditMuscleActionEvidence } from "../scripts/audit-muscle-action-citations.mjs"
+import { auditMuscleActionEvidence, assertMuscleActionPublisherLocators } from "../scripts/audit-muscle-action-citations.mjs"
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 import { ANATOMY_FOUNDATION_SEED as seed } from "../lib/anatomy-foundation.js"
@@ -93,5 +93,31 @@ describe("Action evidence integrity boundaries", () => {
   it("rejects a replaced artifact even when its size is unchanged", () => {
     const data = manifest()
     assert.throws(()=>auditMuscleActionEvidence(data,seed,name=>Buffer.alloc(data.publisherArtifacts.find(artifact=>artifact.file===name).bytes)),/Artifact digest/)
+  })
+})
+
+// Retained element ranges are independent of matching runtime citation strings.
+describe("Audited action locator boundaries", () => {
+  const manifest = () => JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/anatomy-muscle-action-review-20261025.json", import.meta.url)))
+  it("requires runtime and manifest locators to point to the audited OpenStax element", () => {
+    const data = manifest()
+    assertMuscleActionPublisherLocators(data)
+    for (const binding of data.bindings) assert.equal(bindings.find(row => row.id === binding.id).sourceLocator, binding.sourceLocator)
+  })
+  it("rejects citation and manifest strings that agree but drift beyond the audited element", () => {
+    const data = manifest(), changed = structuredClone(seed)
+    const binding = data.bindings.find(row => row.id === "action-frontalis-brow-elevation")
+    binding.sourceLocator = binding.sourceLocator.replace(/#L\d+-L\d+$/, "#L24-L27")
+    changed.citations.find(row => row.id === binding.citationId).sourceLocator = binding.sourceLocator
+    assert.equal(changed.citations.find(row => row.id === binding.citationId).sourceLocator, binding.sourceLocator)
+    assert.throws(() => assertMuscleActionPublisherLocators(data), /Publisher element locator/)
+  })
+  it("rejects an unbound or ambiguous publisher element", () => {
+    for (const duplicate of [false, true]) {
+      const data = manifest(), binding = data.bindings.find(row => row.id === "action-frontalis-brow-elevation")
+      if (duplicate) data.publisherElements.push({...data.publisherElements.find(row => row.elementId === binding.publisherElementId)})
+      else binding.publisherElementId = "unreviewed-element"
+      assert.throws(() => assertMuscleActionPublisherLocators(data), /Unique publisher element/)
+    }
   })
 })

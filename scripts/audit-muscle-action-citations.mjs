@@ -7,6 +7,20 @@ import {fileURLToPath,pathToFileURL} from "node:url"
 
 const sha = bytes => createHash("sha256").update(bytes).digest("hex")
 
+/** Bind OpenStax links to element ranges independently verified against retained publisher bytes. */
+export function assertMuscleActionPublisherLocators(manifest) {
+  for (const binding of manifest.bindings.filter(row => row.sourceRef === "openstax-anatomy-physiology")) {
+    const matches = manifest.publisherElements.filter(element => element.elementId === binding.publisherElementId)
+    assert.equal(matches.length, 1, `Unique publisher element: ${binding.id}`)
+    const element = matches[0]
+    assert.match(element.file, /^m[0-9]+\.cnxml$/)
+    assert.match(manifest.publisherRevision, /^[a-f0-9]{40}$/)
+    const moduleId = element.file.slice(0, -6)
+    const expected = `https://github.com/openstax/osbooks-anatomy-physiology/blob/${manifest.publisherRevision}/modules/${moduleId}/index.cnxml#L${element.startLine}-L${element.endLine}`
+    assert.equal(binding.sourceLocator, expected, `Publisher element locator: ${binding.id}`)
+  }
+}
+
 /** A narrow source comparison is not clinical acceptance or full migration completion. */
 export function auditMuscleActionEvidence(manifest, seed, readArtifact) {
   assert.equal(manifest.schemaVersion, 1)
@@ -37,6 +51,7 @@ export function auditMuscleActionEvidence(manifest, seed, readArtifact) {
     assert.equal(text.slice(0,start).split("\n").length,element.startLine)
     assert.equal(text.slice(0,end).split("\n").length,element.endLine)
   }
+  assertMuscleActionPublisherLocators(manifest)
   const pages = JSON.parse(files.get("applied-selected-pages.json"))
   assert.deepEqual(manifest.appliedPdfPages,{license:5,quadricepsIdentity:54,quadricepsAction:55,movementQuestions:62,movementAnswers:166})
   assert.ok(pages[5].replace(/\s+/g,"").includes("creativecommons.org/licenses/by/4.0"))

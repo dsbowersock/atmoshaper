@@ -64,7 +64,7 @@ function promptFrontInstruction(prompt: FlashcardPrompt, isReviewMode: boolean) 
 function isEmbeddedInteractiveTarget(target: EventTarget | null) {
   const element = target instanceof HTMLElement ? target : null
   // Keep links, controls, and native credit disclosures usable without also flipping the card.
-  return Boolean(element?.closest("a,button,input,select,textarea,summary"))
+  return Boolean(element?.closest("a,button,input,select,textarea,summary,details"))
 }
 
 export function PromptSourceLinks({ prompt }: { prompt: FlashcardPrompt }) {
