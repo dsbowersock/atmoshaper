@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "source-openstax-human-biology",
+  "sourceSlug": "openstax-human-biology",
+  "title": "Human Biology",
+  "compiler": "Willy Cushwa",
+  "publisher": "OpenStax-CNX",
+  "collectionId": "col11903",
+  "collectionVersion": "1.3",
+  "collectionRevised": "2015-12-01",
+  "pdfGenerated": "2018-06-27",
+  "catalogueUrl": "https://open.umn.edu/opentextbooks/textbooks/576",
+  "repositoryUrl": "https://hdl.handle.net/20.500.11785/653",
+  "artifactUrl": "https://mountainscholar.org/bitstreams/510db077-cfe2-45d8-8a50-07386d27f8b8/download",
+  "artifactBytes": 95645766,
+  "artifactSha256": "890451366bef49edc3828b3836a8ffdccda6683549216db3c26b107046960dbd",
+  "physicalPages": 508,
+  "identityPhysicalPage": 3,
+  "licensePhysicalPage": 4,
+  "moduleAttributionsPhysicalPages": [
+    490,
+    507
+  ],
+  "moduleAttributionsPrintedPages": [
+    482,
+    499
+  ],
+  "collectionLicense": "CC BY 4.0",
+  "moduleLicenseCounts": {
+    "CC BY 4.0": 70
+  },
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "selectedPageTextSha256": {
+    "3": "2c8c31e2a1be1d6e76118f151edffe51b6fc5dce4ecf8dc2e816a4a1ce33cc01",
+    "4": "0c76984b89a5c11941db32a5e64073112b2f42d099c60f1b11a1517c8dad7eef"
+  },
+  "moduleLicenseIndexSha256": "27bbf54a48e8768305584b1890f7f9857a8c0c3352cb644812c19862e1265734",
+  "checkedUtcDate": "2026-10-25",
+  "scope": "Edition and explicit collection/module license evidence only; existing authored summaries and review statuses are not re-approved.",
+  "thirdPartyFigureClearanceClaimed": false,
+  "sourceProseOrFiguresBundled": false,
+  "factReviewComplete": false,
+  "wholeMigrationComplete": false
+}

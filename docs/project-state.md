@@ -1,5 +1,35 @@
 # AtmoShaper Project State
 
+## October 25 Human Biology edition and explicit license verified locally
+
+Human Biology now identifies Willy Cushwa's OpenStax-CNX collection
+`col11903/1.3`, revised December 1, 2015, in the retained June 27, 2018 PDF.
+Physical page 4 explicitly grants CC BY 4.0 for the collection; the attribution
+section lists the same license for all 70 modules. The exact 508-page artifact,
+identity/license pages and module-version index are hashed in the retained
+evidence. The generic library listing alone was not used to infer a version.
+
+Only this source record's bibliography is corrected. Its stable ID/slug, existing
+catalogue URL, usage scope and all 2,212 citation records/review states remain.
+All 1,271 cards and 5,582 questions retain identity, order and study content;
+364 cards and 1,247 questions show the clarified bibliography. No source prose
+or figures are bundled. This verifies edition/license metadata, not every
+existing factual claim, third-party image permission or commercial/clinical
+acceptance. No wider content backlog is promoted into a new release gate.
+
+All 193 focused tests, typecheck and changed-file lint pass with zero network
+attempts during validation. The prior full build remains evidence for its pinned
+candidate; no new full build is claimed for this metadata-only follow-up. Early
+snapshot URL/normalization method errors and the unnecessary generated-locator
+retarget were corrected, with their receipts retained. Source research retained
+three public artifacts after discovery browsing; validation remained offline.
+
+This work is on its own local child branch. The pending publication heads
+`58a34e9` (Chimer) and `75d599a` (anatomy) remain unchanged. No push, authenticated provider,
+database, credential, Production or Sentry action ran. The declined paid media
+proposal remains closed; R2 request authority stays at $0. Other migration
+release gates remain open.
+
 ## October 25 seven existing muscle actions now have exact reviewed citations locally
 
 A complete source-only inspection found 100 declared-reusable action rows across

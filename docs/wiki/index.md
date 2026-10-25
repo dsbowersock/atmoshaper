@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Human Biology exact edition and license evidence](../audits/2026-10-25-human-biology-edition.md)
+
 - [Exact reviewed muscle-action citations and preserved study identity](../superpowers/plans/2026-10-25-exact-muscle-action-citations.md)
 
 - [Reviewed A&P edition and compatible citation retarget](../superpowers/plans/2026-10-25-anatomy-reviewed-source-retarget.md)
