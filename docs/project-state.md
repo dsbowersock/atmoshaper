@@ -1,5 +1,39 @@
 # AtmoShaper Project State
 
+## October 25 anatomy summary comparison completed; seven evidence gaps isolated
+
+All 53 A&P-dependent authored summaries now have an explicit comparison against
+the pinned CC BY 2e text: 45 have supporting passages for their core anatomical
+clauses, seven need additional evidence or narrower wording, and one is expressly
+AtmoShaper-authored browsing taxonomy. Seventy-eight paragraph bindings retain
+exact revision, element, line and text-digest evidence. Educational-purpose
+sentences are distinguished from external anatomical claims.
+
+The seven pending summaries concern collagen-fiber examples, connective-tissue
+membership, dense connective tissue, extracellular-matrix load transfer, loose
+connective tissue, muscular-system membership and whole-clitoris versus glans
+description. A missing locator is not proof that a statement is false. Preserve
+those distinctions when preparing corrections; do not silently approve them.
+
+Two additional public text modules close the bone-function and muscle-force
+locators. Both are collection members at the same pinned revision. Their 24,262
+bytes are retained outside Git with hash/size pins; no images are fetched. This
+slice made two unauthenticated direct public text GETs, separate from public web
+research. No authenticated provider, database, credential or Production action ran.
+
+The independent integrity check matches all 53 unchanged summaries and all 78
+paragraph/line bindings. The six provenance tests and actual retained-artifact
+audit pass again, with four denial receipts and zero network/executable attempts.
+All 52 runtime/seed pins remain unchanged; no dependency link, browser or server
+was created. This is summary-source comparison, not clinical acceptance, a review
+of all 272 citation rows or commercial clearance. Runtime source/summary/citation
+flags stay unchanged, and the local candidate remains unpublished.
+
+Next resolve the seven wording/evidence gaps, distinguish authored taxonomy in
+attribution and review the remaining term/relation/citation bindings before an
+explicit versioned runtime source change. The four action-binding and 31 direct
+detail gaps, media, all-purchase activation and final launch gates remain open.
+
 ## October 25 publisher-pinned CC BY edition evidence verified locally
 
 Direct public publisher history identifies the March 19, 2026 CC BY-NC-SA change

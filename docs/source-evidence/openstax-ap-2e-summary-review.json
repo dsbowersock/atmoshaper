@@ -1,0 +1,1098 @@
+{
+  "schemaVersion": 1,
+  "state": "summary_comparison_complete_seven_evidence_gaps",
+  "sourceRef": "openstax-anatomy-physiology",
+  "publisherRevision": "b0058a743bdd2cc08196abaaa7d5469970c0d80c",
+  "edition": "2e",
+  "license": "CC BY 4.0",
+  "reviewedUtc": "2026-10-25T12:22:50.337131+00:00",
+  "scope": "Anatomical clauses in 53 authored card summaries only; editorial learning-purpose sentences remain site-authored. No review of all terms, relations, answer variants or the 272 runtime citation rows is claimed.",
+  "claimInputSha256": "c52ef59572bcecfedfe35346f3d21cc87ef342ea1a526fcf23ca3bd908f86e3d",
+  "artifactManifestSha256": "5b3a6422995700d15298b17ba5afb68abe104ef083a3dcd15c6295b7b6c6847a",
+  "supplementaryArtifacts": [
+    {
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46341/index.cnxml",
+      "reservedBeforeDispatch": true,
+      "authenticated": false,
+      "retries": 0,
+      "module": "m46341",
+      "title": "The Functions of the Skeletal System",
+      "bytes": 15220,
+      "sha256": "d269cb391b19f75b5d6447af1c94e051c65205a20697efb9dd88fd69b305d7c4",
+      "file": "publisher-text/m46341.cnxml",
+      "success": true
+    },
+    {
+      "publicUrl": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46473/index.cnxml",
+      "reservedBeforeDispatch": true,
+      "authenticated": false,
+      "retries": 0,
+      "module": "m46473",
+      "title": "Overview of Muscle Tissues",
+      "bytes": 9042,
+      "sha256": "6b75b82a78a9f92f6c8f25ef1533252823a84142953fc569cdfc5603a8f25b4b",
+      "file": "publisher-text/m46473.cnxml",
+      "success": true
+    }
+  ],
+  "counts": {
+    "summary_supported": 45,
+    "additional_support_required": 7,
+    "authored_grouping": 1
+  },
+  "runtimeSourceRetargeted": false,
+  "runtimeSummaryChanged": false,
+  "runtimeCitationReviewComplete": false,
+  "clinicalReviewComplete": false,
+  "commercialClearance": false,
+  "bindings": [
+    {
+      "selector": "anatomy_structure:hypothalamus",
+      "summarySha256": "76c2f0964e55a67052c65f64e112e174fed020646cc556e075cb45eff9762ca3",
+      "assessment": "summary_supported",
+      "reason": "The paragraph identifies a brain structure with neural and endocrine functions; the remaining sentence describes app coverage intent.",
+      "locators": [
+        {
+          "module": "m46699",
+          "elementId": "eip-577",
+          "startLine": 17,
+          "endLine": 17,
+          "paragraphTextSha256": "43e60dfbd1bb340922d0aea400edfc6905eaa1725ddbf8489dd6dba799f6278b",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46699/index.cnxml#L17-L17"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:pineal-gland",
+      "summarySha256": "0e0df02ffb62b7fc2568d3183902c4cfa1a412b270863be4ef5d2dabc129d06e",
+      "assessment": "summary_supported",
+      "reason": "The text identifies an endocrine gland, melatonin secretion and a circadian association; no treatment or supplement claim is adopted.",
+      "locators": [
+        {
+          "module": "m46693",
+          "elementId": "fs-id1355539",
+          "startLine": 16,
+          "endLine": 16,
+          "paragraphTextSha256": "0a8f5aaa22fc726666147b22bcfdd5b1ed8a2a672de633ed283c48a6ed9289de",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46693/index.cnxml#L16-L16"
+        },
+        {
+          "module": "m46693",
+          "elementId": "fs-id1388310",
+          "startLine": 22,
+          "endLine": 22,
+          "paragraphTextSha256": "98f1fddd7eee174c126e2a9bf28d5d81eb3fa3286a323a64b55d6d386f11a8a3",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46693/index.cnxml#L22-L22"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:blood",
+      "summarySha256": "b68c2c36c17f0dca158bdc23e8af6650df7a61a649e3dcdb3dbe4372a5b77e6b",
+      "assessment": "summary_supported",
+      "reason": "Fluid connective-tissue classification, circulating cells and transport including oxygen are explicit. Separate structure/concept entries are app taxonomy, not distinct tissues.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1471531",
+          "startLine": 150,
+          "endLine": 150,
+          "paragraphTextSha256": "ceb2525f0005a6650353c8bde97d121eb554eb2cef48ffadfcdc96efe4e8cb34",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L150-L150"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:adipose-tissue",
+      "summarySha256": "c106357bdb1958070801a0c0e3b3e8c8665ecdce24a9a5b2128546464b6696c6",
+      "assessment": "summary_supported",
+      "reason": "Fat storage, insulation and cushioning are explicit. The hypodermis sentence is educational context rather than a new location-only assertion.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1323875",
+          "startLine": 104,
+          "endLine": 104,
+          "paragraphTextSha256": "240faaf1ca66015b59af1ff7494569e6331d0af2f83e8cc25c3f0c754a9666a7",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L104-L104"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:blood",
+      "summarySha256": "6d4edec38975591e2a8abc91dcdd9448b2d56e2b7341785d76c34892b1f1bf5f",
+      "assessment": "summary_supported",
+      "reason": "Fluid connective-tissue classification, circulating cells and transport including oxygen are explicit. Separate structure/concept entries are app taxonomy, not distinct tissues.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1471531",
+          "startLine": 150,
+          "endLine": 150,
+          "paragraphTextSha256": "ceb2525f0005a6650353c8bde97d121eb554eb2cef48ffadfcdc96efe4e8cb34",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L150-L150"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:bone-tissue",
+      "summarySha256": "edbf45800c20b5ec411d1de31a98f01baa8bbe0673d04af47a14c463ab62a777",
+      "assessment": "summary_supported",
+      "reason": "The combined paragraphs support mineralized connective tissue, support/protection, leverage and mineral storage. The 4.3 paragraph alone did not establish every function.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1286153",
+          "startLine": 146,
+          "endLine": 146,
+          "paragraphTextSha256": "c26f5860e240e67fde770baea7bc30924fe97dbedc195fcfe57e34d2da8a6029",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L146-L146"
+        },
+        {
+          "module": "m46341",
+          "elementId": "fs-id1082253",
+          "startLine": 26,
+          "endLine": 26,
+          "paragraphTextSha256": "ec2cdf39f2e027d08e6e87606ca68fc4bccd885ed529cba4d3190a579825086a",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46341/index.cnxml#L26-L26"
+        },
+        {
+          "module": "m46341",
+          "elementId": "fs-id1265514",
+          "startLine": 47,
+          "endLine": 47,
+          "paragraphTextSha256": "6749607a9da3334e36468db675c9ad033aceb7937ccca36b8c244d47e98f4b61",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46341/index.cnxml#L47-L47"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:cardiac-muscle-tissue",
+      "summarySha256": "2b3e5db5d9973514cf55d5de784e52f7872e4cae4bffc3db7166fa8643dcfb6d",
+      "assessment": "summary_supported",
+      "reason": "Heart-wall location, striation and involuntary contraction are explicit.",
+      "locators": [
+        {
+          "module": "m46055",
+          "elementId": "fs-id1269818",
+          "startLine": 58,
+          "endLine": 58,
+          "paragraphTextSha256": "6b3a5664dbaca4dc321c06d1bce84818f1d19c38c6cf8da4403c785b13e538b3",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46055/index.cnxml#L58-L58"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:cartilage",
+      "summarySha256": "f09b3234f42cf621ba09b6b1f49265ffdfaac2135012e26182358f73bef0b639",
+      "assessment": "summary_supported",
+      "reason": "The passage gives supportive cartilage examples at joints and elsewhere. No claim about every cartilage subtype or site is added.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1141589",
+          "startLine": 140,
+          "endLine": 140,
+          "paragraphTextSha256": "e58c741b65069ffbcf040a7f8be05eabecfb4abaa8a14a47fda8471fdc7cdb2a",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L140-L140"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:collagen-fiber",
+      "summarySha256": "37d35915b21e6f835665cc5be96ab86a4d784eb698f11f6d0a4dba61ba4a3057",
+      "assessment": "additional_support_required",
+      "reason": "Tensile strength and tendon/ligament/dermal context are supported. These selected paragraphs do not individually establish the whole fascia, capsule and organ-support list. Add exact site evidence or narrow that list.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1303675",
+          "startLine": 96,
+          "endLine": 96,
+          "paragraphTextSha256": "1f1b8b28a6602c01cf123e2c9bb846a60fd1472355675e469bc073d998bc1e6c",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L96-L96"
+        },
+        {
+          "module": "m46049",
+          "elementId": "fs-id1284451",
+          "startLine": 115,
+          "endLine": 115,
+          "paragraphTextSha256": "0a7b954924d262b22da5225870360e3dc04afe6482d2e5e7190fe8e83e7ee5ee",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L115-L115"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:connective-tissue",
+      "summarySha256": "c524af1d68feb3f58b5ba1277cc4b64bd2d0442a0aae98dd62e16c0d4e4a620c",
+      "assessment": "additional_support_required",
+      "reason": "The broad functions and principal tissue classes are supported. The complete app list, particularly fascia as an explicit item, needs a precise additional locator or an explicitly authored taxonomy scope.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1312224",
+          "startLine": 23,
+          "endLine": 23,
+          "paragraphTextSha256": "056d5e65784a12f5d5ae8f6a2cc910dc874b390418436feaf8cc7f545a669905",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L23-L23"
+        },
+        {
+          "module": "m46049",
+          "elementId": "fs-id1481373",
+          "startLine": 19,
+          "endLine": 19,
+          "paragraphTextSha256": "48e7bb0622f4b2c2830e8abe073b4fc9a8419afcfa26334ee6605076f5286746",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L19-L19"
+        },
+        {
+          "module": "m46049",
+          "elementId": "fs-id1452498",
+          "startLine": 26,
+          "endLine": 26,
+          "paragraphTextSha256": "b000a6ccee93a12992bfbb577a18a9ddc4b1700bc9bd1e38451b897b993a1893",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L26-L26"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:connective-tissue-membrane",
+      "summarySha256": "4ce1aea08fdd5c38294bf2edd548a8e37c48e80b12e653a2f1ab1276ffe6ac7e",
+      "assessment": "summary_supported",
+      "reason": "Connective-only membrane composition and the synovial example are explicit.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1102328",
+          "startLine": 44,
+          "endLine": 44,
+          "paragraphTextSha256": "e141d96e87978373c709a9bc672a6e51c7eafab6eca7117490bc7f599ed34942",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L44-L44"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:cutaneous-membrane",
+      "summarySha256": "b630f7f4c679163f6c8cc8c3950589103aa57f9883cf94b3da560da8b0085015",
+      "assessment": "summary_supported",
+      "reason": "Skin/cutaneous membrane and epithelial/connective layers are explicit.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1432081",
+          "startLine": 49,
+          "endLine": 49,
+          "paragraphTextSha256": "3c3811dd5020d7d6c3927ab12e5e5b7447dc3e15f66f8d142131223d6f6c668e",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L49-L49"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:dense-connective-tissue",
+      "summarySha256": "8ef89753ef4d3551b83dd500d3c6e852c76f32af90286269b85cb800ef5e7f6d",
+      "assessment": "additional_support_required",
+      "reason": "Fiber density, tendons, ligaments and organ capsules are supported. The fascial-sheet extension is not specifically established by these retained passages.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1180376",
+          "startLine": 114,
+          "endLine": 114,
+          "paragraphTextSha256": "559ba44993dc9d497c298d39c23405abe190964e1b0ef146576269caea771f3f",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L114-L114"
+        },
+        {
+          "module": "m46049",
+          "elementId": "fs-id1307738",
+          "startLine": 162,
+          "endLine": 162,
+          "paragraphTextSha256": "d18fcb57a57f017950e282ce144c96a00235653c14a2bb2e708179d9ccc76f11",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L162-L162"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:epithelial-membrane",
+      "summarySha256": "b9012a98dbf0b7811a1e86b8c1d26e0e51011940c0235089c06b5fc0473053fa",
+      "assessment": "summary_supported",
+      "reason": "Composite epithelial/connective composition and the three membrane types are explicit.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1522633",
+          "startLine": 48,
+          "endLine": 48,
+          "paragraphTextSha256": "929d0a775dfd0ee87dbc872251465c0cfb6afab2c8ef039695cc6b8c6480c09d",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L48-L48"
+        },
+        {
+          "module": "m46046",
+          "elementId": "fs-id1462627",
+          "startLine": 56,
+          "endLine": 56,
+          "paragraphTextSha256": "fa51783ac0be272866868e1e5132af359ce417eaaf59ed25d69ef8c9dfdf6664",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L56-L56"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:epithelial-tissue",
+      "summarySha256": "8aa8af1234c7444bd2977cb756304b48fb0dbc305022216b9ce74828c89e0d52",
+      "assessment": "summary_supported",
+      "reason": "Surface coverage, cavity/passageway lining and glands are explicit. Their distinct app entries do not imply separate biological tissue classes.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1312224",
+          "startLine": 23,
+          "endLine": 23,
+          "paragraphTextSha256": "056d5e65784a12f5d5ae8f6a2cc910dc874b390418436feaf8cc7f545a669905",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L23-L23"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:epithelium",
+      "summarySha256": "bd292cf230ab5de93866acd0dad39b34753efd8b921030710362c5f6fc6299a7",
+      "assessment": "summary_supported",
+      "reason": "Surface coverage, cavity/passageway lining and glands are explicit. Their distinct app entries do not imply separate biological tissue classes.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1312224",
+          "startLine": 23,
+          "endLine": 23,
+          "paragraphTextSha256": "056d5e65784a12f5d5ae8f6a2cc910dc874b390418436feaf8cc7f545a669905",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L23-L23"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:extracellular-matrix",
+      "summarySha256": "04349b273372b80aa1a8f53e94f50b14980eb92d9f3656e1fbe4de207d5d7261",
+      "assessment": "additional_support_required",
+      "reason": "Noncellular ground substance/fibers and tissue support are established. The authored load-transfer wording needs an exact mechanical reference or a narrower statement; it is not assumed from an artifact hash.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1514526",
+          "startLine": 16,
+          "endLine": 16,
+          "paragraphTextSha256": "3bc8b173fd54eeea0ec1905434092a87399d68ecb950c6fbf95413f662dd484a",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L16-L16"
+        },
+        {
+          "module": "m46049",
+          "elementId": "fs-id1508104",
+          "startLine": 88,
+          "endLine": 88,
+          "paragraphTextSha256": "0e7844f3adeb0d5ff960f270232b21043588ad2644360690f4e22bbbca80aee1",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L88-L88"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:glandular-epithelium",
+      "summarySha256": "5d9c72270d2cce2ab5b19f1b4582ce1216ba64ca2a2b84ec366151f38696f291",
+      "assessment": "summary_supported",
+      "reason": "Secretory cells and secretion are explicit. The listed learning areas are app educational context, not additional gland classification claims.",
+      "locators": [
+        {
+          "module": "m46048",
+          "elementId": "fs-id1300309",
+          "startLine": 25,
+          "endLine": 25,
+          "paragraphTextSha256": "f595a365528bcad46875c35d9eaf30519303fe45c06c84660300203005d4ca26",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46048/index.cnxml#L25-L25"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:loose-connective-tissue",
+      "summarySha256": "783cc30e3f16973f2c93b7c7b62408e5cc652e11dd021a03c2fe0325c8fedbf4",
+      "assessment": "additional_support_required",
+      "reason": "Open fiber organization, binding and support are supported. The selected mucosal passage calls lamina propria connective tissue, without proving this card's more specific loose/superficial-fascia pairing.",
+      "locators": [
+        {
+          "module": "m46049",
+          "elementId": "fs-id1138718",
+          "startLine": 103,
+          "endLine": 103,
+          "paragraphTextSha256": "34c9b10b4cb86b992cf0f28e93abdfb4bbbaab326f184d8f3c1748e63b038792",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L103-L103"
+        },
+        {
+          "module": "m46049",
+          "elementId": "fs-id1452498",
+          "startLine": 26,
+          "endLine": 26,
+          "paragraphTextSha256": "b000a6ccee93a12992bfbb577a18a9ddc4b1700bc9bd1e38451b897b993a1893",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46049/index.cnxml#L26-L26"
+        },
+        {
+          "module": "m46046",
+          "elementId": "fs-id1522633",
+          "startLine": 48,
+          "endLine": 48,
+          "paragraphTextSha256": "929d0a775dfd0ee87dbc872251465c0cfb6afab2c8ef039695cc6b8c6480c09d",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L48-L48"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:mucous-membrane",
+      "summarySha256": "01fe988b76955bb7f6adcc08d3577c0ef033498ed942b3006ec5f454d818d7d5",
+      "assessment": "summary_supported",
+      "reason": "The external-opening passageways and the four named tract contexts are explicit.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1522633",
+          "startLine": 48,
+          "endLine": 48,
+          "paragraphTextSha256": "929d0a775dfd0ee87dbc872251465c0cfb6afab2c8ef039695cc6b8c6480c09d",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L48-L48"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:muscle-tissue",
+      "summarySha256": "7a17cc06d7ebe93ade0fb225a51f76ee267ce86d05e5c6bab4a0112c0fb8b11b",
+      "assessment": "summary_supported",
+      "reason": "Contractility, force and movement are explicit; the card distinguishes a tissue-type topic from an individual muscle.",
+      "locators": [
+        {
+          "module": "m46055",
+          "elementId": "fs-id1524010",
+          "startLine": 17,
+          "endLine": 17,
+          "paragraphTextSha256": "14fcf4827dcbbe3a1572ae088805774be9e68dd3475de7eee994b75ec2906320",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46055/index.cnxml#L17-L17"
+        },
+        {
+          "module": "m46473",
+          "elementId": "fs-id2017239",
+          "startLine": 20,
+          "endLine": 20,
+          "paragraphTextSha256": "d03e77e4c74ca2fcd54c05621e46959dbc38b0f6a612be23570394cb71a6eab3",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46473/index.cnxml#L20-L20"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:muscular-system",
+      "summarySha256": "fa548d03232698852cb01e8990d53292a217e3ffe9a19e83199e4ca1d1e6942e",
+      "assessment": "additional_support_required",
+      "reason": "Skeletal-muscle movement, posture and force are supported. Related contractile tissues is an imprecise organ-system membership phrase; clarify its extent rather than silently grouping cardiac and smooth muscle into that system.",
+      "locators": [
+        {
+          "module": "m46055",
+          "elementId": "fs-id1508374",
+          "startLine": 57,
+          "endLine": 57,
+          "paragraphTextSha256": "c46fe94a49746465e8025babdeccec9755fd2d8ea74571215854115a7d1321ea",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46055/index.cnxml#L57-L57"
+        },
+        {
+          "module": "m46473",
+          "elementId": "fs-id2017239",
+          "startLine": 20,
+          "endLine": 20,
+          "paragraphTextSha256": "d03e77e4c74ca2fcd54c05621e46959dbc38b0f6a612be23570394cb71a6eab3",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46473/index.cnxml#L20-L20"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:musculoskeletal-system",
+      "summarySha256": "340ab8cc2110202242fea62c647680e64a5df5c2841b9bf7dd50bc14f93ef289",
+      "assessment": "authored_grouping",
+      "reason": "The text supports organ-system overlap and skeletal-muscular interaction. The app's combined browsing membership and separate-group decision are expressly authored taxonomy, not a verbatim publisher system list. Keep that distinction in attribution.",
+      "locators": [
+        {
+          "module": "m45985",
+          "elementId": "fs-id2292264",
+          "startLine": 20,
+          "endLine": 20,
+          "paragraphTextSha256": "4d9bae3f701b4bbe30aeeba4f6f2e88c28e1d6191ab985a8c09ab9786aba06a9",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m45985/index.cnxml#L20-L20"
+        },
+        {
+          "module": "m46341",
+          "elementId": "fs-id1082253",
+          "startLine": 26,
+          "endLine": 26,
+          "paragraphTextSha256": "ec2cdf39f2e027d08e6e87606ca68fc4bccd885ed529cba4d3190a579825086a",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46341/index.cnxml#L26-L26"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:nervous-tissue",
+      "summarySha256": "a16478f779390e3013037c71ddfac0aa2326932276d7216cb9928daf69e4e7ab",
+      "assessment": "summary_supported",
+      "reason": "Neurons, supporting glia and information signaling are explicit. The tissue-versus-system separation is app modeling context.",
+      "locators": [
+        {
+          "module": "m46057",
+          "elementId": "fs-id1119252",
+          "startLine": 16,
+          "endLine": 16,
+          "paragraphTextSha256": "0c5860c0c3688a0e0d77b67e9f058ef7e16257831e97c37f17c9f0aebf0d2fa9",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46057/index.cnxml#L16-L16"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:serous-membrane",
+      "summarySha256": "42fd54a012a6d51448ae90b0e643003b7004fec437f2058b8938087f986217fe",
+      "assessment": "summary_supported",
+      "reason": "Closed-cavity/organ coverage, mesothelium and connective-tissue support are explicit.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1110348",
+          "startLine": 48,
+          "endLine": 48,
+          "paragraphTextSha256": "96cf7a37d6c8a0cde1e712d91baf5cfcb0e46572f99190daf5011cdfff24ee6b",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L48-L48"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:simple-columnar-epithelium",
+      "summarySha256": "59fc2f21f0bd14e65b8162ce1d0cf712db6886e71fdb4f2aead3268c0524dea0",
+      "assessment": "summary_supported",
+      "reason": "Absorption, secretion and named hollow-tract linings are explicit; no universal claim about all hollow organs is made.",
+      "locators": [
+        {
+          "module": "m46048",
+          "elementId": "fs-id1319983",
+          "startLine": 48,
+          "endLine": 48,
+          "paragraphTextSha256": "1d70373ecd098c0f4f9d1a091c001698930e99c69360591e9dc48c7bd058b9cb",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46048/index.cnxml#L48-L48"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:simple-cuboidal-epithelium",
+      "summarySha256": "68e9d12b4a9502da244b7aaaa0bcc69f2865b7ff58efbf5a446c9618ddf38ea8",
+      "assessment": "summary_supported",
+      "reason": "Kidney tubules and gland ducts directly support the broad tubular/glandular context.",
+      "locators": [
+        {
+          "module": "m46048",
+          "elementId": "fs-id1511558",
+          "startLine": 47,
+          "endLine": 47,
+          "paragraphTextSha256": "a5239e05ba0c1341d0ec63e4be510c1c5b29ca09eafb5679f5d833216caeb2dc",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46048/index.cnxml#L47-L47"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:simple-squamous-epithelium",
+      "summarySha256": "980a48f02d8f86652d74bcac99e8a1d3ebba18963a4aaa14e0de7f15fcd5be7a",
+      "assessment": "summary_supported",
+      "reason": "Thin exchange surfaces, lubricated mesothelium and filtration as an epithelial function support the introductory wording; no universal membrane permeability is inferred.",
+      "locators": [
+        {
+          "module": "m46048",
+          "elementId": "fs-id1321611",
+          "startLine": 46,
+          "endLine": 46,
+          "paragraphTextSha256": "0ee8966ece6e643e47e57c32a12e1f900ee7c99041563fc2eec19ecfb24b64d2",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46048/index.cnxml#L46-L46"
+        },
+        {
+          "module": "m46048",
+          "elementId": "fs-id1053236",
+          "startLine": 105,
+          "endLine": 105,
+          "paragraphTextSha256": "c10d40fa8d69df2d51241f2c01b60ee9b3dcd550d8d5594142ce2eb4109d2f80",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46048/index.cnxml#L105-L105"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:skeletal-muscle-tissue",
+      "summarySha256": "b9593d9f0c0916db81a94c7a57c6f7ccdcad9e387547a308a721ecfc5a23e711",
+      "assessment": "summary_supported",
+      "reason": "Striation, usual voluntary control, movement and posture are explicit. Voluntary classification must not be read as excluding reflex or shivering contractions.",
+      "locators": [
+        {
+          "module": "m46055",
+          "elementId": "fs-id1508374",
+          "startLine": 57,
+          "endLine": 57,
+          "paragraphTextSha256": "c46fe94a49746465e8025babdeccec9755fd2d8ea74571215854115a7d1321ea",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46055/index.cnxml#L57-L57"
+        },
+        {
+          "module": "m46055",
+          "elementId": "fs-id1306966",
+          "startLine": 69,
+          "endLine": 69,
+          "paragraphTextSha256": "e06862e26282c2584b0732fb4fa746bba7432f7c3237f52046f6896ab3ddefc0",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46055/index.cnxml#L69-L69"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:skeletal-system",
+      "summarySha256": "b7e7658e96de51e2c73ec8eb075dd4e82891535934958a05259f1fd1a8c7ab44",
+      "assessment": "summary_supported",
+      "reason": "Bones/cartilage, support, joint leverage and mineral storage are explicit. Supporting joint/connective structures remain associated anatomical context rather than a newly invented organ system.",
+      "locators": [
+        {
+          "module": "m46341",
+          "elementId": "fs-id1641272",
+          "startLine": 16,
+          "endLine": 16,
+          "paragraphTextSha256": "a98e208904b506fff23b6e7a0ebacfb8184128ea960ce02c84873ab4d2c5c8c1",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46341/index.cnxml#L16-L16"
+        },
+        {
+          "module": "m46341",
+          "elementId": "fs-id1082253",
+          "startLine": 26,
+          "endLine": 26,
+          "paragraphTextSha256": "ec2cdf39f2e027d08e6e87606ca68fc4bccd885ed529cba4d3190a579825086a",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46341/index.cnxml#L26-L26"
+        },
+        {
+          "module": "m46341",
+          "elementId": "fs-id1265514",
+          "startLine": 47,
+          "endLine": 47,
+          "paragraphTextSha256": "6749607a9da3334e36468db675c9ad033aceb7937ccca36b8c244d47e98f4b61",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46341/index.cnxml#L47-L47"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:smooth-muscle-tissue",
+      "summarySha256": "5ee5a44fbdb52a9e0efd4985ef3b1f7e3ce2592d4e0fbc10b3087edd2a3894ce",
+      "assessment": "summary_supported",
+      "reason": "Involuntary contraction and the digestive, urinary, reproductive, airway and arterial contexts are explicit.",
+      "locators": [
+        {
+          "module": "m46055",
+          "elementId": "fs-id1515671",
+          "startLine": 59,
+          "endLine": 59,
+          "paragraphTextSha256": "5146d56ea09d8516d113ea88a8e26f19b8134f1e046abe5830b72b904819fe24",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46055/index.cnxml#L59-L59"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:stratified-squamous-epithelium",
+      "summarySha256": "93e75ad048a5943431e6320188c3f1a920c2d17d6336d065d3174c78fa6b6a17",
+      "assessment": "summary_supported",
+      "reason": "Multiple layers, protection and skin/oral-lining examples are explicit.",
+      "locators": [
+        {
+          "module": "m46048",
+          "elementId": "fs-id1178293",
+          "startLine": 61,
+          "endLine": 61,
+          "paragraphTextSha256": "2ee0862cb3f40aa19d7d2dd97039e29f79e2cc9311d14271c69638ea1bdc35fc",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46048/index.cnxml#L61-L61"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_concept:synovial-membrane",
+      "summarySha256": "5b89dc76f64e1e48793adf1ecf92f3e9522ef34fa6a988aa767a14f950bf27a0",
+      "assessment": "summary_supported",
+      "reason": "Movable-joint lining and hyaluronan-supported lubricating synovial fluid are explicit; the summary does not assign it an epithelial lining.",
+      "locators": [
+        {
+          "module": "m46046",
+          "elementId": "fs-id1102328",
+          "startLine": 44,
+          "endLine": 44,
+          "paragraphTextSha256": "e141d96e87978373c709a9bc672a6e51c7eafab6eca7117490bc7f599ed34942",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46046/index.cnxml#L44-L44"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:bronchiole",
+      "summarySha256": "2042d152d2448433a5b5b7f9ca6acc83b8f994ac4e2c925e06dd4b3a11d3d1ed",
+      "assessment": "summary_supported",
+      "reason": "Branching smaller airways and progression toward alveolar structures are explicit. Respiratory bronchioles also participate in gas exchange; do not turn the card into an all-bronchioles conducting-only claim.",
+      "locators": [
+        {
+          "module": "m46548",
+          "elementId": "fs-id2138728",
+          "startLine": 69,
+          "endLine": 69,
+          "paragraphTextSha256": "6cade62989c7d47ffc70df10046778b2566e807b3a27b06e2d5281736633bf56",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46548/index.cnxml#L69-L69"
+        },
+        {
+          "module": "m46548",
+          "elementId": "fs-id2757673",
+          "startLine": 73,
+          "endLine": 73,
+          "paragraphTextSha256": "4078440ddf7bcece22c40f312ac7f60a326d85a1cb3165d2d365ad0beb333157",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46548/index.cnxml#L73-L73"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:left-atrium",
+      "summarySha256": "9c18a9452f5fd626e9f8e3ab20deca980f3fa145603432266f955e0217474976",
+      "assessment": "summary_supported",
+      "reason": "Pulmonary venous return to the left atrium and onward flow to the left ventricle are explicit.",
+      "locators": [
+        {
+          "module": "m46676",
+          "elementId": "fs-id1236860",
+          "startLine": 50,
+          "endLine": 50,
+          "paragraphTextSha256": "27c6a2bd9d31057459bdbe7b3a3325ed33944fc36fdec02abeabae629d688431",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46676/index.cnxml#L50-L50"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:left-ventricle",
+      "summarySha256": "a6a21f6550985dbc3e9d492953574cc620970c1e05866a56082e69cce3a89125",
+      "assessment": "summary_supported",
+      "reason": "Systemic pumping through the aorta is explicit; no diagnostic cardiology assertion is adopted.",
+      "locators": [
+        {
+          "module": "m46676",
+          "elementId": "fs-id2663012",
+          "startLine": 142,
+          "endLine": 142,
+          "paragraphTextSha256": "f7033944002d8fc837ff8df32fc847309431214fcf7159091dd2a3a81988465f",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46676/index.cnxml#L142-L142"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:right-atrium",
+      "summarySha256": "51a53dac61a4f64e0aa7e03b92cd7d6c906d44c10d5d6b54e9244f9cab7aae21",
+      "assessment": "summary_supported",
+      "reason": "Systemic venous return and onward flow to the right ventricle are explicit.",
+      "locators": [
+        {
+          "module": "m46676",
+          "elementId": "fs-id2175356",
+          "startLine": 51,
+          "endLine": 51,
+          "paragraphTextSha256": "5f7f4e6bc669351c3fe005742cd5b4134d22db0847e783bdf36b639593b33e36",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46676/index.cnxml#L51-L51"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:right-ventricle",
+      "summarySha256": "a6e66b1089bc9c0737edde14913553f2b8ef4022a09d9892cda0ed5e1976390d",
+      "assessment": "summary_supported",
+      "reason": "Pumping into the pulmonary trunk and lung-directed circuit is explicit.",
+      "locators": [
+        {
+          "module": "m46676",
+          "elementId": "fs-id1236860",
+          "startLine": 50,
+          "endLine": 50,
+          "paragraphTextSha256": "27c6a2bd9d31057459bdbe7b3a3325ed33944fc36fdec02abeabae629d688431",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46676/index.cnxml#L50-L50"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:appendix",
+      "summarySha256": "fffad82cd0f50084ad793936bb1fa7ad4d3d894b03e87530904bce3b8b555c15",
+      "assessment": "summary_supported",
+      "reason": "The attachment to the cecum is explicit. This review does not adopt the older paragraph's separate vestigial or immune-function discussion.",
+      "locators": [
+        {
+          "module": "m46512",
+          "elementId": "fs-id2020835",
+          "startLine": 159,
+          "endLine": 159,
+          "paragraphTextSha256": "a5e5a14b1f889cde186789406f9ee27ee1336eaae2ae6095671631621f6e55e2",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L159-L159"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:cecum",
+      "summarySha256": "104b8d746ed35d5a719edd67fc43b08c09f6743195cd1d2c7017e7c54ab11e32",
+      "assessment": "summary_supported",
+      "reason": "The first sac-like large-intestine region receiving ileal contents is explicit.",
+      "locators": [
+        {
+          "module": "m46512",
+          "elementId": "fs-id2020835",
+          "startLine": 159,
+          "endLine": 159,
+          "paragraphTextSha256": "a5e5a14b1f889cde186789406f9ee27ee1336eaae2ae6095671631621f6e55e2",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L159-L159"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:colon",
+      "summarySha256": "fcec5799bbe8c0f9e0848ce58d6e3312557ac4afe45ce5a71185638e33b1d3c1",
+      "assessment": "summary_supported",
+      "reason": "Continuity from cecum through colon to rectum is explicit; the client-language sentence is editorial context.",
+      "locators": [
+        {
+          "module": "m46512",
+          "elementId": "fs-id1583646",
+          "startLine": 163,
+          "endLine": 163,
+          "paragraphTextSha256": "2f2d2825da9c9d4048b5458b0b1ae8b5960f1ed1909e7db9c0e70cdfc9317048",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L163-L163"
+        },
+        {
+          "module": "m46512",
+          "elementId": "fs-id1247327",
+          "startLine": 176,
+          "endLine": 176,
+          "paragraphTextSha256": "e00a0eeed046204ac600afe20fda5b7d8c4f4bea519967fbfec6def41c1f9441",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L176-L176"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:duodenum",
+      "summarySha256": "b408cd81e33fe1956f4ec921e8c016e5b54760c1e199d8b2d62e657e5495d4ef",
+      "assessment": "summary_supported",
+      "reason": "The first small-intestine region, gastric chyme and bile/pancreatic-juice entry are explicit.",
+      "locators": [
+        {
+          "module": "m46512",
+          "elementId": "fs-id2142277",
+          "startLine": 26,
+          "endLine": 26,
+          "paragraphTextSha256": "80149d919252a09ff871b3efca3a792e0d6c0f489c7f074d27ad1f996e4fc99d",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L26-L26"
+        },
+        {
+          "module": "m46512",
+          "elementId": "fs-id2227124",
+          "startLine": 28,
+          "endLine": 28,
+          "paragraphTextSha256": "99d17c793500b4448c7339e5791c46fa9cceac5172f3a3a3bf3ec9f19717ce36",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L28-L28"
+        },
+        {
+          "module": "m46512",
+          "elementId": "fs-id1638653",
+          "startLine": 137,
+          "endLine": 137,
+          "paragraphTextSha256": "6fd1c4e6444d59a69b4a5e5da2fb7bae17a2805eb061cd00210ff9e53c815c4c",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L137-L137"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:glomerulus",
+      "summarySha256": "b84ec57547685af51f62d64539cbc3cffb318f41cc8e07679d2a843bf5399aa9",
+      "assessment": "summary_supported",
+      "reason": "The capillary tuft and renal filtration context are explicit; unrelated numeric filtration claims are not imported.",
+      "locators": [
+        {
+          "module": "m46431",
+          "elementId": "fs-id2001225",
+          "startLine": 24,
+          "endLine": 24,
+          "paragraphTextSha256": "296209d6eb7b4e7b32584d50559a7211a6ed46d1de535ec1025bc11f15bf810c",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46431/index.cnxml#L24-L24"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:ileum",
+      "summarySha256": "ddc9e092d3f9f1641f917a56f57edf6c7d5894f5d02b9c806f8358e904ba30b6",
+      "assessment": "summary_supported",
+      "reason": "Distal small-intestine position and its cecal junction are explicit. The card does not adopt this older passage's separate comparative wall-fold assertions.",
+      "locators": [
+        {
+          "module": "m46512",
+          "elementId": "fs-id2142277",
+          "startLine": 26,
+          "endLine": 26,
+          "paragraphTextSha256": "80149d919252a09ff871b3efca3a792e0d6c0f489c7f074d27ad1f996e4fc99d",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L26-L26"
+        },
+        {
+          "module": "m46512",
+          "elementId": "fs-id1921294",
+          "startLine": 33,
+          "endLine": 33,
+          "paragraphTextSha256": "72102b3b034d67e7091eee346b4a36f1aff47777339b8a6b2ca42ffb1180ec0d",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L33-L33"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:jejunum",
+      "summarySha256": "7a689bde25af37a202ddd2bf609236329750ef47bdc4fd755de45aebc0a1b06b",
+      "assessment": "summary_supported",
+      "reason": "The middle region and small-intestine digestion/absorption context are explicit; exact regional contribution percentages are not claimed.",
+      "locators": [
+        {
+          "module": "m46512",
+          "elementId": "fs-id2311182",
+          "startLine": 32,
+          "endLine": 32,
+          "paragraphTextSha256": "5bb0013729e835e3f469e5ff1d5de52e00cb0dec1b325ec922d0037b75250a8d",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L32-L32"
+        },
+        {
+          "module": "m46512",
+          "elementId": "fs-id1391067",
+          "startLine": 225,
+          "endLine": 225,
+          "paragraphTextSha256": "65aa2b549b71ab70bcd10c8c7ab8e9a6f4fdeceba3d54e9e61e7293b5012a63c",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46512/index.cnxml#L225-L225"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:renal-pelvis",
+      "summarySha256": "a3bbf54b5c158af7f043e97c1666f6c1340e017491c502a9d595b3241d3db0eb",
+      "assessment": "summary_supported",
+      "reason": "Collection from calyces and urine flow toward the ureter are explicit.",
+      "locators": [
+        {
+          "module": "m46429",
+          "elementId": "fs-id1764618",
+          "startLine": 40,
+          "endLine": 40,
+          "paragraphTextSha256": "79e3f30b7ebf0dbbae5b9e6222ea5ef259e5c35e256365ef5a9971a94e614dae",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46429/index.cnxml#L40-L40"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:renal-tubule",
+      "summarySha256": "2ac5f240e68bc7adb60244e934b187b3f6cc4319c8d45d7c213aba1b45a65c01",
+      "assessment": "summary_supported",
+      "reason": "Tubular processing by absorption/reabsorption and secretion is explicit; the card does not make collecting ducts part of every nephron definition.",
+      "locators": [
+        {
+          "module": "m46431",
+          "elementId": "fs-id2686216",
+          "startLine": 62,
+          "endLine": 62,
+          "paragraphTextSha256": "7bcc28c685c9c2d0080f056d44e3d6564ac502085a7d5959c7471c44256cd140",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46431/index.cnxml#L62-L62"
+        },
+        {
+          "module": "m46433",
+          "elementId": "fs-id1949601",
+          "startLine": 20,
+          "endLine": 20,
+          "paragraphTextSha256": "2b0676a7cf1ab2ad98ad2189320372c5b2aac6aea8a0747a73c77409d560f2ca",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46433/index.cnxml#L20-L20"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:bulbourethral-gland",
+      "summarySha256": "1e6cf794b9c107c19e7adbedf80b8c6218d35522cd4102076fd20e2e0646540e",
+      "assessment": "summary_supported",
+      "reason": "Accessory-gland membership in the described reproductive tract is explicit; no pregnancy-risk or examination advice is imported.",
+      "locators": [
+        {
+          "module": "m46400",
+          "elementId": "fs-id2428415",
+          "startLine": 98,
+          "endLine": 98,
+          "paragraphTextSha256": "3e608852530673b1575fe635a494556811ab484d4bc9809f84a156989b8dd700",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46400/index.cnxml#L98-L98"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:cervix",
+      "summarySha256": "a25b691892c7f716d9f96a87355a3b51445f048f1a5d14b8fa0ac4ee0cbe925f",
+      "assessment": "summary_supported",
+      "reason": "The inferior uterine portion projecting into the vagina is explicit.",
+      "locators": [
+        {
+          "module": "m46392",
+          "elementId": "fs-id2132572",
+          "startLine": 125,
+          "endLine": 125,
+          "paragraphTextSha256": "21820b91b457a053b0a84e180ec90e0d6b16a772cca60c93324e7a5bda0d2ce3",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46392/index.cnxml#L125-L125"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:clitoris",
+      "summarySha256": "6577135c268313e7f087b6e1e8078404b8d4f1c7114728f343e8a38aa3769ff0",
+      "assessment": "additional_support_required",
+      "reason": "The passage describes the externally visible glans and sensation, but does not establish the full card's erectile-tissue claim or the extent of the whole organ. Pin a complete anatomical source and distinguish the whole organ from its glans before accepting this summary.",
+      "locators": [
+        {
+          "module": "m46392",
+          "elementId": "fs-id1978861",
+          "startLine": 27,
+          "endLine": 27,
+          "paragraphTextSha256": "7198d75d7d9fe29c3bdeb7511f1b1713ab8064fd36b3e1aac49562c118741b92",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46392/index.cnxml#L27-L27"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:scrotum",
+      "summarySha256": "a459d791363fa94af6a7ea6b66c959cf0bdc7a69b0a2cef6534bca03a0ce4478",
+      "assessment": "summary_supported",
+      "reason": "The sac containing testes outside the body cavity is explicit.",
+      "locators": [
+        {
+          "module": "m46400",
+          "elementId": "fs-id2633121",
+          "startLine": 171,
+          "endLine": 171,
+          "paragraphTextSha256": "e91c7d72f49f50ded53989bfd189e48badac90d43a49cbaa10098afadb6f6102",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46400/index.cnxml#L171-L171"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:seminal-vesicle",
+      "summarySha256": "949b5abb78c75282d3cf6e7a841fd3c90c2e3b4910269a697484eeda620c2f96",
+      "assessment": "summary_supported",
+      "reason": "Accessory gland secretion into semen is explicit; no quantitative semen-volume claim is added.",
+      "locators": [
+        {
+          "module": "m46400",
+          "elementId": "fs-id2790773",
+          "startLine": 103,
+          "endLine": 103,
+          "paragraphTextSha256": "c7db351134aee398c0b6d8c3010691401e46e8e64ee280b4436c272512fcdb2b",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46400/index.cnxml#L103-L103"
+        }
+      ]
+    },
+    {
+      "selector": "anatomy_structure:vulva",
+      "summarySha256": "8b6107f3f846155939f44ecb5dfdcee861fc8811abec59982aae0703f0950e71",
+      "assessment": "summary_supported",
+      "reason": "Collective external reproductive structures are explicit. The neutral educational purpose is site-authored context.",
+      "locators": [
+        {
+          "module": "m46392",
+          "elementId": "fs-id2174284",
+          "startLine": 27,
+          "endLine": 27,
+          "paragraphTextSha256": "9eaa2d6f6f31f6a5b05fec0ee176c89c9cbec7cf15f2e266068e730aede78a91",
+          "publicUrl": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46392/index.cnxml#L27-L27"
+        }
+      ]
+    }
+  ]
+}

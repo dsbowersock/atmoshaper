@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [A&P summary-source comparison and seven precise gaps](../superpowers/plans/2026-10-25-anatomy-summary-source-review.md)
+
 - [Pinned A&P edition evidence and claim-review boundary](../superpowers/plans/2026-10-25-anatomy-edition-provenance.md)
 
 - [Chimer auxiliary-display toolbar repair](../superpowers/plans/2026-10-24-chimer-secondary-display-layout.md)
