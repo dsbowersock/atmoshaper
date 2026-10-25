@@ -79,6 +79,8 @@ async function pageFor(viewport, visualViewport) {
 
 /** Wait for layout/transition settlement and inspect actual visible rectangles, not source strings. */
 async function geometry(page) {
+  // Wait for the real observer to acquire its owner before checking geometry.
+  await page.waitForFunction(() => document.querySelector('[data-immersive-secondary-display="true"]')?.style.getPropertyValue("--chimer-secondary-top"))
   await page.waitForTimeout(250)
   return page.evaluate(() => {
     const secondary = document.querySelector('[data-immersive-secondary-display="true"]')
@@ -112,6 +114,36 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
         const timer = await geometry(page)
         assert.equal(timer.overlap, false, "Swapping to the auxiliary timer must retain clearance")
         assert.ok(timer.scrollWidth <= timer.clientWidth + 1)
+      } finally { await context.close() }
+    })
+  }
+  for (const clockPrimary of [true, false]) {
+    it(`uses the greater viewport boundary for ${clockPrimary ? "clock primary" : "compact timer"}`, async () => {
+      const { page, context } = await pageFor({ width: 320, height: 740 })
+      try {
+        await page.evaluate((isClock) => {
+          window.secondaryFixture.setClockPrimary(isClock)
+          window.secondaryFixture.setCompactTimer(!isClock)
+          document.querySelector("[data-immersive-stage]").style.setProperty("--immersive-reserved-top", "100px")
+        }, clockPrimary)
+        await geometry(page)
+        await page.evaluate(async () => {
+          const primary = document.querySelector('[data-immersive-primary-display="true"]')
+          await Promise.all(primary.getAnimations().map((animation) => animation.finished.catch(() => {})))
+        })
+        const actual = await page.evaluate(() => {
+          const stage = document.querySelector("[data-immersive-stage]")
+          const style = getComputedStyle(stage)
+          const primary = document.querySelector('[data-immersive-primary-display="true"]')
+          const box = primary.getBoundingClientRect()
+          return { top: box.top, height: box.height, bottom: box.bottom,
+            reserved: parseFloat(style.getPropertyValue("--immersive-reserved-top")),
+            secondary: parseFloat(style.getPropertyValue("--chimer-secondary-safe-top")) }
+        })
+        assert.ok(actual.reserved > 0 && actual.secondary > 0, JSON.stringify(actual))
+        assert.ok(Math.abs(actual.top - Math.max(actual.reserved, actual.secondary)) < 1, JSON.stringify(actual))
+        assert.ok(Math.abs(actual.bottom - 740) < 1, "Keep the existing bottom boundary")
+        assert.ok(actual.height > 0)
       } finally { await context.close() }
     })
   }
