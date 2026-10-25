@@ -1,5 +1,53 @@
 # AtmoShaper Project State
 
+## October 25 seven existing muscle actions now have exact reviewed citations locally
+
+A complete source-only inspection found 100 declared-reusable action rows across
+68 muscles without an exact reviewed action-ID citation. Seven existing actions
+across Frontalis, Rectus Femoris, Lumbar Erector Spinae and Lumbar Multifidus are
+now bound to precise, independently compared references. Four previously absent
+action prompts become available. No authored action description is changed.
+
+All original source, action and citation IDs remain. Five fact-source references
+and corresponding teaching-membership references are corrected. Ten existing
+source-pointer metadata rows are retargeted in place; only seven new exact
+citations and one separately licensed primary-study source are added. The four
+old action-group pointer IDs remain as pending history, distinct from the original
+30 pending records. The adapter still requires exact reviewed IDs and matching
+reusable fact/citation sources; negative runtime tests preserve these filters.
+
+References use the already pinned historical A&P 2e chapters, the exact 2022
+Applied Human Anatomy artifact and Wang et al. 2023's CC BY 4.0 modeling study.
+Actual one-based PDF pages, article license metadata, selected study paragraphs
+and all eight retained artifact hashes are checked. A frontalis article is
+explicitly factual bibliography only, with its non-commercial license retained;
+no article text or figures are bundled or assigned the book's license. Modeling
+evidence does not establish patient outcomes or an exclusive stabilizer claim.
+
+The original five regression failures are retained. All 193 final focused tests,
+lint, typecheck, the exact-action audit and the existing 53-summary audit pass.
+Whole before/after comparison preserves every original ID, all 1,271 cards and
+all 5,578 original prompts byte-for-byte, adding exactly four action prompts.
+The first integration's duplicate/stale pointer issue was fixed by preserving
+reference cardinality in place. Early test/API, source-service and page-label
+method errors and their accurate dispositions remain retained; successful public
+reads were reused rather than repeated. Only public anonymous bibliography reads
+occurred; local validation records no network or blocked-executable attempts.
+
+Source commit `f65a004` passes the exact cached offline full webpack build.
+All 80 source input pins match. No database, credential, authenticated provider,
+source publication, Production or Sentry action ran. Both owned dependency links,
+the generated compiler cache and temporary build/baseline source archives are
+cleaned up. Retained evidence, shared caches and unrelated work are preserved.
+
+The broader action-citation backlog is now 93 rows across 64 muscles; it is not
+reported complete. The separately documented 31 sparse muscle records remain
+content follow-ups and are not silently promoted into a new migration release
+gate. Other source/version review, media independence, all-purchase activation
+and final journey/launch decisions remain open. This source candidate remains
+local and unpublished; hosted reconciliation needs its own scoped approval.
+Media request cost stays at $0 and the declined paid proposal remains closed.
+
 ## October 25 reviewed A&P summary sources pinned and clarified locally
 
 The 53 current A&P summaries now identify the exact retained Anatomy and

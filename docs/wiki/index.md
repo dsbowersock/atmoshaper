@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Exact reviewed muscle-action citations and preserved study identity](../superpowers/plans/2026-10-25-exact-muscle-action-citations.md)
+
 - [Reviewed A&P edition and compatible citation retarget](../superpowers/plans/2026-10-25-anatomy-reviewed-source-retarget.md)
 
 - [Equivalent anatomy names and retained broader lookup labels](../superpowers/plans/2026-10-25-anatomy-name-equivalence.md)
