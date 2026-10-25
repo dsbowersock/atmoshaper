@@ -28,3 +28,14 @@ unchanged. Reconcile the four owned canonical migration records after validation
 Clean only task-owned build/browser artifacts and dependency links, retaining
 failure and validation receipts. Publication and final migration acceptance
 remain separately pending.
+
+## Completed local validation
+
+Runtime source `16e99df` passes all 169 targeted Calendar cases, scoped lint,
+typecheck and the full cached build. The original parent fails the six new read
+cases. All seven query projections and 2,189 frozen inputs are preserved. Three
+final static-SSR views use the completed candidate CSS and pass without overflow
+or browser errors. Owned temporary artifacts and links are removed. See the
+[validation audit](../../audits/2026-10-25-calendar-workspace-read-recovery.md)
+for exact limits and retained corrections. The source is local/unpublished;
+real database/provider and complete migration acceptance remain open.
