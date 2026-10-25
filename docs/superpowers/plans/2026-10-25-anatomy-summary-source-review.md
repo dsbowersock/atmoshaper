@@ -120,3 +120,29 @@ and unrelated worktrees remain intact; no temporary dependency link is created.
 Next prepare the seven precise corrections and a complete citation/term/relation
 review, then explicitly decide versioned runtime source attribution. Publication
 and provider/Production actions remain outside this local comparison.
+
+## Executed full citation-scope classification
+
+An independent source-only reader resolved every current A&P citation binding:
+
+| Kind | Rows | Remaining acceptance |
+| --- | ---: | --- |
+| Authored summaries | 53 | Resolve seven evidence/wording gaps and authored grouping attribution. |
+| Entity-source pointers | 53 | Bind source-edition provenance; these duplicate entity linkage rather than adding 53 independent summary reviews. |
+| Term references | 77 | Check preferred names, authored plain-language labels and the exact breadth of aliases. |
+| Relationship references | 89 | Check real anatomical membership versus authored browsing/grouping semantics. |
+
+All 272 rows currently say reviewed. In `lib/anatomy-foundation.ts`, the
+`sourceReferenceCitationTargets` and `seedSourceReferenceReviewStatus` helpers
+generate 219 of these rows from sourceRef/usageScope. Their notes distinguish a
+source-linkage review from an exact scientific locator. Keep that distinction;
+no blanket claim-review promotion or blanket deletion is justified by the count.
+
+The executed reader used the real bundled source, resolved all term/relationship
+IDs and denied networking/subprocesses. All 52 runtime/seed hashes match. Its
+retained data is public app source, not hosted DB rows. Specific next inspections
+include blood's broad fluid-connective-tissue alias, colon's large-bowel alias,
+matrix/fiber tissue grouping, practical musculoskeletal cross-links and the
+bulbourethral urinary-system association. Inspect how the application uses each
+relation/alias before deciding the compatible correction and its source. This
+classification makes no clinical acceptance or runtime change.

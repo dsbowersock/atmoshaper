@@ -1,5 +1,28 @@
 # AtmoShaper Project State
 
+## October 25 exact A&P citation scope classified locally
+
+The remaining 272 A&P source rows were read from the actual bundled seed and
+bound to their current records: 53 authored summaries, 53 entity-source pointers,
+77 terms and 89 relationships. Every row currently carries reviewed status.
+The 219 generated source-reference rows inherit that status from source usage
+scope; the generator note describes source linkage, not an independent review
+of each anatomical claim. Do not report 272 scientifically verified facts or
+silently upgrade them based on the historical edition license.
+
+The next source review must cover exact names/aliases and relationship semantics,
+as well as the seven summary gaps. In particular, inspect the broad blood/fluid-
+connective-tissue and colon/large-bowel aliases, tissue-category versus material
+grouping, practical musculoskeletal cross-links and bulbourethral urinary-system
+membership. These are review targets, not already executed corrections or a
+claim that every existing association is false. Preserve stable identifiers.
+
+The pure source reader resolved every binding, preserved all 52 runtime/seed
+hashes and recorded zero network, child-process, database or credential attempts.
+No runtime or scientific-review flag changed. This narrows the concrete review
+work before source retargeting; it does not close clinical or commercial release.
+The paid media proposal is separately declined and remains closed at $0.
+
 ## October 25 anatomy summary comparison completed; seven evidence gaps isolated
 
 All 53 A&P-dependent authored summaries now have an explicit comparison against
