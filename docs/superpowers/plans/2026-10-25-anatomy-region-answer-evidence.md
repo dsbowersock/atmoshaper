@@ -39,3 +39,23 @@ concept-region taxonomy, independent scientific/content review or media gates.
 Publication/review, merge and Production are not authorized by this local repair.
 The remaining curated concept-location model and 31-muscle/citation work stay
 visible. An eligibility safeguard does not clear full anatomy acceptance.
+
+## Verified local result
+
+The application snapshot at `5f5b4a4` passes 37 focused tests, typecheck, scoped
+lint and the complete inert-provider build. The full export comparison preserves
+all 1,271 card DTOs and every retained prompt; 239 unsupported region questions
+are omitted and 1,032 explicit-region questions remain identical.
+
+Six actual bundled-fallback browser cases cover unsupported-selection recovery,
+correct category and region answers, guest save denial, Setup return and stored
+config preservation across desktop and two phone widths. Fixed prompt/deck 503
+boundaries prevent database handler entry; the real local adapter supplies all
+counts/questions. The 24 expected resource errors and twelve isolation/fallback
+warnings remain in evidence with no unclassified diagnostics. This is not hosted
+API, saved-progress, PWA, scientific-content or publication acceptance.
+
+All owned processes, profiles, build copies, archive and two dependency junctions
+are cleaned. The 65 pinned input hashes and shared generated schema match. No
+provider/database/credential operation, source push, merge or Production change
+ran. Broader anatomy facts/citations and release gates remain open.

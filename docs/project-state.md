@@ -1,32 +1,42 @@
 # AtmoShaper Project State
 
-## October 25 source-backed region-answer safeguard prepared locally
+## October 25 source-backed region answers repaired and verified locally
 
-The bundled content audit reproduced 229 concept-region questions accepting the
-Spine grouping fallback. The local safeguard also covers ten body-surface
-structures with the same unsupported mapping. Graded region questions now
-require a recognized source region; landmarks can use their parent bone's
-explicit region. Existing fallback grouping remains compatibility data while
-concept-location content is reviewed separately.
+The local candidate on `codex/anatomy-region-answer` requires an explicit,
+recognized source region before generating a graded region question. It omits
+229 concept and ten body-surface questions whose answers came from the Spine
+fallback. All 1,271 card DTOs, every non-region question and all 1,032 retained
+region questions remain byte-equivalent to `58a34e9`; no fact, citation, stored
+configuration, stable identifier or new anatomical classification is changed.
+Legacy display/filter grouping remains compatibility data pending content review.
 
-All 1,271 card DTOs and every non-region prompt are byte-equivalent to clean
-`58a34e9`. The 1,032 retained region prompts are also identical; only 239
-unsupported region questions are omitted. No card, source/citation record,
-identifier, stored config value or new anatomical classification is changed.
-A legacy concept-region-only or pinned selection remains valid configuration
-with zero eligible prompts; no different question is silently substituted.
+The original adapter fails three meaningful regressions. The final candidate
+passes all 37 focused study/community/Anatomime contracts, repository typecheck,
+changed-file lint and the full cached provider-free build. Six actual anonymous
+Chromium cases pass at 1440x1000, 390x844 and 320x740: unsupported region-only
+selection renders zero eligible prompts with Start disabled; selecting a supported
+category question recovers the deck; a supported upper-extremity region question
+still grades correctly. Each typed answer reaches 1/1 correct, guest saving shows
+the sign-in requirement, Setup remains usable and the original stored config
+is preserved. Representative desktop/phone screenshots were inspected.
 
-The three new regressions fail against the original adapter. After repair, all
-37 focused study, saved-deck and Anatomime contract tests pass, along with the
-repository typecheck and changed-file lint. Their denial guards record zero
-network or blocked executable attempts. Full cached build and actual setup/
-runner acceptance are the next local checks; they are not yet claimed passed.
+Browser scope is the real bundled client fallback: the two exact prompt/deck
+APIs deliberately return 503 before database-capable handlers dispatch. Twenty-
+four resource-error entries match those fixed boundaries; twelve warnings are
+the expected fallback or Playwright service-worker isolation warning. They are
+retained and classified, with zero unclassified errors/warnings, client errors,
+blocked external requests or unexpected mutation attempts. No fixture supplies
+question/count content. This does not verify normal hosted APIs, persisted
+progress, PWA behavior or a new scientific taxonomy.
 
-This is a local, unpublished source candidate. No provider, account, database,
-media, payment, email, Sentry or Production action occurred. Full anatomy
-acceptance, the curated concept-location model, 31-muscle/citation review work,
-media disposition/delivery, all-purchase activation and public launch remain
-open. The existing Chimer publication decision is not extended to this branch.
+The browser/server are closed, port 3194 is clear and owned profiles, temporary
+source/build/archive and two dependency junctions are removed. All 65 pinned
+inputs still match; shared dependencies/schema and unrelated work remain intact.
+The validated application source is `5f5b4a4`; publication/review is still pending.
+No provider, credential, database, account, media, payment, email, Sentry or
+Production operation ran. The separate Chimer publication and media budget
+decisions remain pending. Full anatomy/content/rights, the 31-muscle/citation
+work, all-purchase activation and public launch are not closed by this safeguard.
 
 ## October 25 Chimer repair integrated with merged main and revalidated locally
 
