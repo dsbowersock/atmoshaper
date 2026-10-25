@@ -128,6 +128,7 @@ const STUDY_CATEGORY_TO_ENTITY_TYPE: Record<string, AnatomyEntityType> = {
   pain_map_region: "PAIN_MAP_REGION",
 }
 
+/** Loads the authorized review queue into the shared shell without introducing another main landmark. */
 export default async function AnatomyMediaReviewQueuePage({ searchParams }: AnatomyMediaReviewQueuePageProps) {
   const actor = await requireAnatomyReviewerUser()
 
@@ -170,14 +171,15 @@ export default async function AnatomyMediaReviewQueuePage({ searchParams }: Anat
         <QueueAdvancedFilters filters={filters} />
       </div>
 
-      <main className="space-y-3 p-3 sm:p-0">
+      {/* Queue content remains within the shared shell's main landmark. */}
+      <div className="space-y-3 p-3 sm:p-0">
         <QueueSummary data={data} canEditAnatomy={actor.canEditAnatomy} />
         {currentRow ? (
           <ImageReviewCard row={currentRow} filters={filters} upcomingRows={upcomingRows} canEditAnatomy={actor.canEditAnatomy} />
         ) : (
           <EmptyQueue selectedStatus={selectedStatus} />
         )}
-      </main>
+      </div>
     </AppPageShell>
   )
 }

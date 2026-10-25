@@ -24,6 +24,7 @@ const PREVIEW_TRACK_4B_EFFECT_PROPS = resolveDnaTwistedCubesBackgroundHostProps(
 /**
  * Internal capture surface for Chimer preview media generation. It intentionally
  * mounts the production BackgroundHost so generated assets track the live effect.
+ * The shell owns its main landmark; this container retains only capture geometry.
  */
 export function ChimerBackgroundPreviewScene({
   backgroundId,
@@ -45,7 +46,7 @@ export function ChimerBackgroundPreviewScene({
   }, [])
 
   return (
-    <main
+    <div
       className={styles.scene}
       data-chimer-preview-scene={backgroundId}
       data-preview-ready={isReady ? "true" : "false"}
@@ -63,6 +64,6 @@ export function ChimerBackgroundPreviewScene({
         testId="chimer-preview-background"
       />
       <div className={styles.frame} aria-hidden="true" />
-    </main>
+    </div>
   )
 }
