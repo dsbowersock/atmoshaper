@@ -1,5 +1,43 @@
 # AtmoShaper Project State
 
+## October 25 broader anatomy labels no longer grade as equivalent names locally
+
+The real study adapter previously accepted fluid connective tissue as the name
+of blood and large bowel as the name of colon. A focused entity-specific rule
+now omits those two broader labels from public aliases and all derived name
+answers. Existing raw terms/IDs, source/citation rows, summary text and lookup
+remain intact. Legacy large-bowel lookup still maps to the large intestine;
+blood lookup and other valid aliases retain their observed behavior. No global
+terminology blacklist or new anatomy classification was introduced.
+
+The two actual grading regressions fail before integration and pass afterward.
+All 48 focused study/region/community/Anatomime/provenance tests pass, as do
+typecheck, changed-file lint and the retained-edition audit. The initial new test
+incorrectly expected legacy large-bowel lookup to choose colon; that method error
+and the original result remain retained. A separate corrected original-source
+run isolates the two real grading failures. The first sandbox typecheck failed
+only writing its generated cache; its distinct permitted rerun passes.
+
+Actual before/after projection compares every card/question: all 1,271 cards and
+5,578 prompts keep IDs, order and coverage. Only two card alias sets, eight prompt
+alias lists and the two derived name-answer sets change; every other field is
+byte-equivalent. The raw seed and all 53 authored A&P summaries are unchanged.
+
+The exact local source commit passes the full cached webpack build with the
+local Inter fixture and real DSEG7 Modern font. Six build-denial receipts record
+zero network or blocked-executable attempts. No Prisma regeneration, database,
+credential, authenticated provider, source publication or Production action ran.
+All 67 build input pins match. The two owned dependency junctions, temporary
+build source/archive and new compiler cache are removed; shared dependencies
+and unrelated work remain intact. No browser/hosted acceptance is inferred.
+
+The local candidate remains unpublished. The seven summary-source gaps, exact
+term/relationship attribution, field-level muscle content, media, all-purchase
+activation and final launch acceptance remain open. Three further public archived
+text sections are retained for that next source review, without changing summaries
+or scientific-review flags. Those public bibliography/text reads are separate
+from the zero-network validation; no R2 read or paid media run was performed.
+
 ## October 25 exact A&P citation scope classified locally
 
 The remaining 272 A&P source rows were read from the actual bundled seed and

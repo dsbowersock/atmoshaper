@@ -33,3 +33,26 @@ it is not a global terminology blacklist. Other valid aliases remain accepted.
 This fixes a concrete grading defect, not the remaining seven summary-source
 gaps or full scientific/commercial acceptance. The $15 media proposal is declined;
 the $0 remote hold remains. No old provider/test grant is reopened.
+
+## Executed result
+
+Application source `d70f7dc` passes all 48 focused tests, typecheck, changed-file
+lint and the actual retained-edition audit. The corrected original-source run
+fails exactly the two intended grading cases. The first test run's incorrect
+legacy-lookup assertion is retained with a method-error disposition; large bowel
+already selected the large intestine before this change. The sandbox compiler-
+cache write failure is also retained separately from the successful rerun.
+
+All 1,271 actual cards and 5,578 prompts preserve coverage, IDs and order. Only
+two card alias sets, eight prompt alias lists and two name-answer sets change;
+every other field is byte-equivalent. The original seed/term/citation IDs and
+all summaries stay intact. Real equivalent names and raw/legacy lookup pass.
+
+The exact-commit cached webpack build succeeds with six denial receipts and zero
+network/executable attempts. The build uses the local Inter fixture, preserves
+the real selected clock font, skips provider prebuild/Prisma generation and never
+starts a browser or server. All 67 build-source pins match. Owned snapshot/archive,
+two dependency junctions and the newly created compiler cache are removed. Shared
+dependencies/schema and unrelated worktrees remain intact. No provider/DB/credential,
+publication or Production action occurred. This is local library/build evidence;
+it does not close whole-site browser, content, licensing or launch acceptance.
