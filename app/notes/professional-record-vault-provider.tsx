@@ -67,6 +67,28 @@ const emptyLegacyStatus: LegacyStatus = {
   warnings: [],
 }
 
+type VaultOperation = { view: symbol | null; storage: symbol }
+type PendingVaultWrite = { storage: symbol; settled: Promise<void> }
+
+// These contain only transient authority/settlement metadata, never record data or keys.
+// Storage authority outlives one provider mount so reset cannot be undone by its old save.
+let vaultStorageGeneration = Symbol("professional-vault-storage")
+const pendingVaultWrites = new Set<PendingVaultWrite>()
+
+/** Register an accepted write so a later unlock reads its settled ciphertext. */
+function beginVaultWrite(storage: symbol) {
+  let settle!: () => void
+  const pending = { storage, settled: new Promise<void>((resolve) => { settle = resolve }) }
+  pendingVaultWrites.add(pending)
+  return () => { pendingVaultWrites.delete(pending); settle() }
+}
+
+/** Wait only for already accepted writes to this generation, never a discarded vault. */
+async function settleVaultWrites(storage: symbol) {
+  await Promise.all([...pendingVaultWrites].filter((write) => write.storage === storage).map((write) => write.settled))
+}
+
+/** Own plaintext-view authority separately from accepted encrypted persistence. */
 export function ProfessionalRecordVaultProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<VaultStatus>("loading")
   const [payload, setPayload] = useState<AnyRecord>(() => createEmptyProfessionalRecordVaultPayload())
@@ -75,6 +97,26 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
   const [legacyStatus, setLegacyStatus] = useState<LegacyStatus>(emptyLegacyStatus)
   const [vaultCreatedAt, setVaultCreatedAt] = useState("")
   const [revision, setRevision] = useState(0)
+  // State binds callbacks to the rendered view without reading mutable refs during render.
+  const [renderedOperation, setRenderedOperation] = useState<VaultOperation>(() => ({
+    view: Symbol("professional-vault-view"), storage: vaultStorageGeneration,
+  }))
+  const viewAuthority = useRef<symbol | null>(renderedOperation.view)
+
+  /** A closed view may finish ciphertext work, but cannot publish plaintext or messages. */
+  const hasViewAuthority = (operation: VaultOperation) => operation.view !== null
+    && operation.view === viewAuthority.current && operation.storage === vaultStorageGeneration
+
+  /** Explicit reset/recreation revokes storage writes even across provider remounts. */
+  const hasStorageAuthority = (operation: VaultOperation) => operation.storage === vaultStorageGeneration
+
+  /** Supersede earlier view completions before starting an explicit create or unlock. */
+  const claimView = (): VaultOperation => {
+    const operation = { view: Symbol("professional-vault-view"), storage: vaultStorageGeneration }
+    viewAuthority.current = operation.view
+    setRenderedOperation(operation)
+    return operation
+  }
 
   const inspectStoredVault = useCallback(() => {
     const raw = window.localStorage.getItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)
@@ -96,7 +138,6 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
         setMessage(`${PUBLIC_PRODUCT_IDENTITY.name} could not read this browser's professional-record vault metadata.`)
         return
       }
-
       setVaultCreatedAt(typeof parsed.createdAt === "string" ? parsed.createdAt : "")
       setStatus("locked")
     } catch {
@@ -106,42 +147,53 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
   }, [])
 
   useEffect(() => {
+    const operation = { view: Symbol("professional-vault-view"), storage: vaultStorageGeneration }
+    viewAuthority.current = operation.view
+    setRenderedOperation(operation)
+    setPayload(createEmptyProfessionalRecordVaultPayload())
+    setPassphrase("")
     inspectStoredVault()
+    return () => { viewAuthority.current = null }
   }, [inspectStoredVault])
 
+  /** Carry an import's issued operation through persistence instead of reacquiring a view. */
   const persistPayload = async (
     nextPayload: AnyRecord,
     successMessage = "Professional-record vault saved in this browser.",
     options: { mergeCurrentStored?: boolean } = {},
+    issuedOperation?: VaultOperation,
   ) => {
+    const operation = issuedOperation ?? renderedOperation
+    if (!hasStorageAuthority(operation) || (!issuedOperation && !hasViewAuthority(operation))) return null
     if (!passphrase) {
-      setStatus("locked")
-      setPayload(createEmptyProfessionalRecordVaultPayload())
-      setMessage("Unlock the professional-record vault before saving clinical documents.")
+      if (hasViewAuthority(operation)) {
+        setStatus("locked")
+        setPayload(createEmptyProfessionalRecordVaultPayload())
+        setMessage("Unlock the professional-record vault before saving clinical documents.")
+      }
       return null
     }
 
+    const finishWrite = beginVaultWrite(operation.storage)
     try {
       const normalized = normalizeProfessionalRecordVaultPayload(nextPayload)
       let payloadToSave = normalized
       let createdAt = vaultCreatedAt
       const raw = window.localStorage.getItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)
-
       if (raw && options.mergeCurrentStored !== false) {
         const parsed = JSON.parse(raw)
         if (!isEncryptedProfessionalRecordVault(parsed)) {
           throw new Error("This browser's professional-record vault needs attention before saving.")
         }
-
         const currentStoredPayload = await decryptEncryptedProfessionalRecordVault(parsed, passphrase)
         payloadToSave = mergeProfessionalRecordVaultPayloadChanges(payload, normalized, currentStoredPayload)
         createdAt = typeof parsed.createdAt === "string" ? parsed.createdAt : createdAt
       }
-
-      const vault = await createEncryptedProfessionalRecordVault(payloadToSave, passphrase, {
-        createdAt,
-      })
+      if (!hasStorageAuthority(operation)) return null
+      const vault = await createEncryptedProfessionalRecordVault(payloadToSave, passphrase, { createdAt })
+      if (!hasStorageAuthority(operation)) return null
       window.localStorage.setItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, JSON.stringify(vault))
+      if (!hasViewAuthority(operation)) return null
       setVaultCreatedAt(vault.createdAt)
       setPayload(payloadToSave)
       setRevision((current) => current + 1)
@@ -149,12 +201,14 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       setMessage(successMessage)
       return normalized
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not save the professional-record vault.")
+      if (hasViewAuthority(operation)) setMessage(error instanceof Error ? error.message : "Could not save the professional-record vault.")
       return null
-    }
+    } finally { finishWrite() }
   }
 
+  /** Replace storage authority; migrate legacy plaintext only after ciphertext commits. */
   const createVault = async (nextPassphrase: string, confirmation: string) => {
+    if (!hasViewAuthority(renderedOperation)) return false
     const cleanPassphrase = nextPassphrase.trim()
     if (cleanPassphrase.length < 8) {
       setMessage("Professional-record vault passphrase must be at least 8 characters.")
@@ -165,13 +219,18 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       return false
     }
 
-    const migration = collectLegacyProfessionalRecordMigration((key: string) => window.localStorage.getItem(key))
+    vaultStorageGeneration = Symbol("professional-vault-storage")
+    const operation = claimView()
+    const finishWrite = beginVaultWrite(operation.storage)
     try {
+      const migration = collectLegacyProfessionalRecordMigration((key: string) => window.localStorage.getItem(key))
       const vault = await createEncryptedProfessionalRecordVault(migration.payload, cleanPassphrase)
+      if (!hasStorageAuthority(operation)) return false
       window.localStorage.setItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, JSON.stringify(vault))
       for (const key of migration.plaintextKeysToRemove) {
         window.localStorage.removeItem(key)
       }
+      if (!hasViewAuthority(operation)) return false
       setPayload(migration.payload)
       setPassphrase(cleanPassphrase)
       setVaultCreatedAt(vault.createdAt)
@@ -189,19 +248,23 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       )
       return true
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not create the professional-record vault.")
+      if (hasViewAuthority(operation)) setMessage(error instanceof Error ? error.message : "Could not create the professional-record vault.")
       return false
-    }
+    } finally { finishWrite() }
   }
 
+  /** Open only the current view, after accepted writes have settled for this vault. */
   const unlockVault = async (nextPassphrase: string) => {
+    if (!hasViewAuthority(renderedOperation)) return false
     const cleanPassphrase = nextPassphrase.trim()
     if (cleanPassphrase.length < 8) {
       setMessage("Enter the professional-record vault passphrase.")
       return false
     }
-
+    const operation = claimView()
     try {
+      await settleVaultWrites(operation.storage)
+      if (!hasViewAuthority(operation)) return false
       const raw = window.localStorage.getItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)
       const parsed = raw ? JSON.parse(raw) : null
       if (!isEncryptedProfessionalRecordVault(parsed)) {
@@ -209,8 +272,8 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
         setMessage(raw ? "This browser's professional-record vault needs attention." : "Create a professional-record vault before continuing.")
         return false
       }
-
       const unlockedPayload = await decryptEncryptedProfessionalRecordVault(parsed, cleanPassphrase)
+      if (!hasViewAuthority(operation)) return false
       setPayload(unlockedPayload)
       setPassphrase(cleanPassphrase)
       setVaultCreatedAt(typeof parsed.createdAt === "string" ? parsed.createdAt : "")
@@ -219,12 +282,15 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       setMessage("Professional-record vault unlocked for this browser session.")
       return true
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not unlock the professional-record vault.")
+      if (hasViewAuthority(operation)) setMessage(error instanceof Error ? error.message : "Could not unlock the professional-record vault.")
       return false
     }
   }
 
+  /** Immediately revoke plaintext access while allowing accepted encrypted writes. */
   const lockVault = () => {
+    if (viewAuthority.current === null) return
+    claimView()
     setPayload(createEmptyProfessionalRecordVaultPayload())
     setPassphrase("")
     setStatus("locked")
@@ -232,7 +298,11 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
     setMessage("Professional-record vault locked.")
   }
 
+  /** Discard unreadable storage and revoke every older writer before removal. */
   const resetCorruptVault = () => {
+    if (!hasViewAuthority(renderedOperation)) return
+    vaultStorageGeneration = Symbol("professional-vault-storage")
+    claimView()
     window.localStorage.removeItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)
     setPayload(createEmptyProfessionalRecordVaultPayload())
     setPassphrase("")
@@ -256,32 +326,38 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
     )
   }
 
+  /** Finish an accepted encrypted export without granting a closed view new authority. */
   const exportEncryptedBundle = async (password: string) => {
+    const operation = renderedOperation
+    if (!hasViewAuthority(operation)) return null
     try {
       const bundle = await createEncryptedProfessionalRecordBundle(payload, password)
-      setMessage("Encrypted professional-record bundle created. Keep the password separate from the file.")
+      if (hasViewAuthority(operation)) setMessage("Encrypted professional-record bundle created. Keep the password separate from the file.")
       return bundle
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not create the encrypted professional-record bundle.")
+      if (hasViewAuthority(operation)) setMessage(error instanceof Error ? error.message : "Could not create the encrypted professional-record bundle.")
       return null
     }
   }
 
+  /** Preserve the accepting view through decrypt and persistence, including a later Lock. */
   const importEncryptedBundle = async (text: string, password: string) => {
+    const operation = renderedOperation
+    if (!hasViewAuthority(operation)) return null
     if (!passphrase) {
       setStatus("locked")
       setMessage("Unlock the professional-record vault before importing a bundle.")
       return null
     }
-
+    const finishWrite = beginVaultWrite(operation.storage)
     try {
       const bundle = JSON.parse(text)
       const importedPayload = await decryptEncryptedProfessionalRecordBundle(bundle, password)
-      return persistPayload(importedPayload, "Encrypted professional-record bundle imported into this browser vault.", { mergeCurrentStored: false })
+      return await persistPayload(importedPayload, "Encrypted professional-record bundle imported into this browser vault.", { mergeCurrentStored: false }, operation)
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not import that encrypted professional-record bundle.")
+      if (hasViewAuthority(operation)) setMessage(error instanceof Error ? error.message : "Could not import that encrypted professional-record bundle.")
       return null
-    }
+    } finally { finishWrite() }
   }
 
   const value: ProfessionalRecordVaultContextValue = {
@@ -290,7 +366,7 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
     revision,
     message,
     legacyStatus,
-    setMessage,
+    setMessage: (nextMessage) => { if (hasViewAuthority(renderedOperation)) setMessage(nextMessage) },
     createVault,
     unlockVault,
     lockVault,
