@@ -2,9 +2,12 @@ import assert from "node:assert/strict"
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs"
 import { join } from "node:path"
 import { describe, it } from "node:test"
+import { fileURLToPath } from "node:url"
 import { removeForbiddenPreferenceFields } from "../lib/account-preferences.js"
 
-const repoRoot = new URL("..", import.meta.url).pathname
+// URL.pathname keeps /C:/ on Windows and leaves escapes in paths with spaces.
+// Decode a native path before source traversal so privacy checks inspect files.
+const repoRoot = fileURLToPath(new URL("..", import.meta.url))
 const forbiddenWellnessPreferenceKeys = [
   "wellnessEntries",
   "clientWellnessEntries",
@@ -19,6 +22,24 @@ const forbiddenWellnessPreferenceKeys = [
 ]
 
 describe("Client wellness source guards", () => {
+  it("actually scans each required implementation directory", () => {
+    const requiredFiles = {
+      "app/wellness": "app/wellness/page.tsx",
+      "components/wellness": "components/wellness/wellness-hub-client.tsx",
+      "app/calendar": "app/calendar/page.tsx",
+      lib: "lib/client-wellness.js",
+    }
+
+    for (const [directory, expected] of Object.entries(requiredFiles)) {
+      const paths = new Set(readFileEntries(directory).map(({ relativePath }) => relativePath.replaceAll("\\", "/")))
+      assert.ok(paths.has(expected), `${directory} must include ${expected}; an empty privacy scan cannot pass`)
+    }
+  })
+
+  it("rejects a missing required source path rather than treating it as empty", () => {
+    assert.throws(() => readFileEntries("tests/__required_source_guard_missing_path__"), /Required source path is missing/)
+  })
+
   it("removes likely wellness payload keys from account preference sync", () => {
     const payload = Object.fromEntries(forbiddenWellnessPreferenceKeys.map((key) => [key, [{ private: "entry" }]]))
     const sanitized = removeForbiddenPreferenceFields({
@@ -114,16 +135,19 @@ describe("Client wellness source guards", () => {
   })
 })
 
+/** Collect required source text for payload-boundary checks; traversal failures propagate. */
 function readFiles(relativePath) {
   return readFileEntries(relativePath).map(({ source }) => source)
 }
 
+/**
+ * Read repository-relative implementation files and their paths for privacy assertions.
+ * Required roots must exist so a missing directory cannot produce a vacuous pass.
+ */
 function readFileEntries(relativePath) {
   const absolutePath = join(repoRoot, relativePath)
 
-  if (!existsSync(absolutePath)) {
-    return []
-  }
+  assert.ok(existsSync(absolutePath), `Required source path is missing: ${relativePath}`)
 
   const stat = statSync(absolutePath)
 
@@ -135,6 +159,7 @@ function readFileEntries(relativePath) {
     .flatMap((name) => readFileEntries(join(relativePath, name)))
 }
 
+/** Match Calendar/booking implementation filenames across native path separators. */
 function isCalendarImplementationPath(relativePath) {
   const normalizedPath = relativePath.replaceAll("\\", "/").toLowerCase()
   return /(^|\/)(calendar|sidebar-calendar|public-booking|booking-policy|service-catalog)[^/]*\.(js|mjs|cjs|ts|tsx|jsx)$/.test(normalizedPath)
