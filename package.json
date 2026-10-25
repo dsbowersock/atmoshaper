@@ -151,7 +151,7 @@
     "test:anatomy-attribution": "node --test tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs tests/anatomy-attribution.test.mjs tests/flashcard-media-admin-flag-ui.test.mjs",
     "lint:anatomy-attribution": "eslint lib/anatomy-foundation.ts lib/anatomy-study.ts components/anatomy/source-attribution.tsx app/education/flashcards/flashcard-runner.tsx app/anatomime/anatomime-game-client.tsx tests/anatomy-attribution.test.mjs tests/helpers/anatomy-attribution-component-loader.mjs lib/anatomy-seed/media-coverage-gap-batch.ts lib/anatomy-seed/media-bodyparts3d-muscle-batch-2.ts",
     "test:soap-session-date": "node --test --test-reporter=tap tests/soap-session-date.test.mjs",
-    "lint:soap-session-date": "eslint app/notes/soap/components/identifying-info.tsx app/notes/professional-record-vault-provider.tsx tests/soap-session-date.test.mjs tests/fixtures/soap-session-date-harness.mjs"
+    "lint:soap-session-date": "eslint app/notes/soap/components/identifying-info.tsx app/notes/professional-record-vault-provider.tsx app/notes/journal/client-page.tsx app/notes/rom/client-page.tsx app/notes/soap/client-page.tsx tests/soap-session-date.test.mjs tests/fixtures/soap-session-date-harness.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

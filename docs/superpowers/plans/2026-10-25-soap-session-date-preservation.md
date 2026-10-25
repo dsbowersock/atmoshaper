@@ -48,3 +48,14 @@ Preserve the existing desktop two-column layout; set a single minmax-zero track
 below that breakpoint and let the two backup labels wrap within their card.
 Only this shared presentation owner changes; crypto, controls and payload
 contracts remain. Recheck all three viewport workflows and isolated import.
+
+## Confirmed failed-save feedback follow-up
+
+A real denied browser-vault write preserved ciphertext in all four clients.
+Journal, ROM and SOAP kept the pending form but displayed no failure status;
+Intake's existing failure message was the passing control. The three affected
+consumers already own their visible save message. Handle the existing null
+result there and announce the local status without changing the vault API,
+crypto, retry policy, storage formats or Intake behavior. Do not expose private
+exception contents or imply an accepted write is rolled back. Recheck each
+actual denial and full save/recovery/transfer flow on the final source.
