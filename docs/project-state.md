@@ -21,7 +21,8 @@ wrong-password recovery, four single-write quota failures, plaintext-warning
 cancellation and encrypted backup/import into an isolated browser context.
 All twelve tool/viewport widths fit. Four further final denial observations
 confirm visible feedback and preserved ciphertext. Final browser/build checks
-record zero networking/unrelated-executable attempts or runtime/console errors.
+record zero external-network or unrelated-executable attempts and zero
+runtime/console errors.
 
 This is real client/provider/cryptography and compiled-CSS evidence with invented
 records and fixture navigation after the entitlement boundary. It does not prove

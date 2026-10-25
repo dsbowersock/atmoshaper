@@ -14,7 +14,8 @@ Chimer `58a34e9`, anatomy `cc56763` and the older anatomy `75d599a` refs remain.
    after Next then Previous. `IdentifyingInfo` assigned today's date whenever
    its effect ran. It now initializes only an empty date, preserving the current
    date policy and therapist-default precedence. Existing saved dates, step
-   remounts and settings updates have real-editor regressions.
+   remounts and settings updates have real-editor regression coverage; all five
+   corrected cases pass.
 2. At a 320-pixel viewport, the shared encrypted transfer grid expanded to a
    no-wrap button. Document width measured 321 pixels and the import button's
    right bound 321.17 pixels. A single minmax-zero track and bounded wrapping
