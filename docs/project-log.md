@@ -29,7 +29,10 @@ The mobile running-timer screenshot also exposes the auxiliary clock beneath the
 open toolbar; its cause and layout repair remain a separate investigation.
 
 The [selected-font plan](superpowers/plans/2026-10-24-local-digital-font-rights.md)
-records scope and evidence. Source publication, merge and Production remain held.
+records scope and evidence. The owner subsequently approved regular PR #51,
+stacked on #50, and its CI/Preview and included review/fix loop. At this
+publication checkpoint, checks and documentation follow-up are in progress.
+Merge, Production promotion and Sentry activation remain held.
 
 ## October 24 free clock-font alternatives requested and compared
 

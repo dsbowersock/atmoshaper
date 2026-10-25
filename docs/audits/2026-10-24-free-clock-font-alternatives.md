@@ -36,8 +36,9 @@ no HTTP server was started and the browser was closed afterward. Both images
 were visually inspected. These are style specimens, not actual-app geometry,
 selected-font or final release acceptance.
 
-The Modern selection is now being verified in the real Chimer clock/countdown
-and other Digital consumers at mobile/desktop widths. Saved Digital settings,
-readable suffixes, compatibility identifiers and the original notice are retained.
-Follow the separate publication/review boundary after local validation.
+The selected Modern font passed the real Chimer clock/countdown checks and other
+Digital timer-style checks at mobile/desktop widths. The local font slice is
+closed, with saved Digital settings, readable suffixes, compatibility identifiers
+and the original notice retained. Full immersive-screen and release acceptance
+remain separate. The owner approved publication and the review/fix loop in PR #51.
 No merge, Production change or Sentry activation is included.

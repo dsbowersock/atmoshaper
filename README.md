@@ -62,6 +62,7 @@ Copy `.env.example` to `.env.local` only for local configuration. Never commit s
 For a clean verification install, use `npm ci`, then run the repository-owned checks:
 
 ```bash
+npx playwright install chromium
 npm run prisma:validate
 npm run prisma:generate
 npm run typecheck

@@ -3,7 +3,8 @@
 The owner selected DSEG7 Modern after comparing four free alternatives. This
 replaces the provisional Classic candidate and supersedes seeking Digital-7
 commercial permission. The permission inquiry remains unsent. The local source
-change is authorized; publication, merge and Production are separate boundaries.
+change is authorized. The owner subsequently approved regular PR #51 and its
+CI/Preview and included review/fix loop; merge and Production remain held.
 
 ## Implementation
 
@@ -60,8 +61,8 @@ evidence, not a replay of the closed realtime/game verification.
 The owned browser/server, two temporary dependency junctions and source/build
 snapshot are closed or removed. Exact build-input hashes, results and screenshots
 remain retained; unrelated worktrees and shared dependencies/Prisma are unchanged.
-Prepare a regular source PR only after publication is authorized. Production is
-unchanged.
+Regular PR #51 is now open under that publication approval. Its CI/review loop
+is in progress at this checkpoint. Production is unchanged and merge remains held.
 
 This evidence covers the selected font and primary display, not all immersive
 controls/background combinations. The mobile running-timer image shows the
