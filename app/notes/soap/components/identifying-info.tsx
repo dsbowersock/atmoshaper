@@ -17,7 +17,8 @@ export function IdentifyingInfo({ formData, setFormData }: SoapNoteSectionProps)
     // Pre-populate therapist information from settings
     setFormData((prev) => ({
       ...prev,
-      date: today,
+      // Step remounts and settings hydration must preserve a date already entered in this draft.
+      date: prev.date || today,
       therapistName: therapistSettings.name || prev.therapistName,
       location: therapistSettings.location || prev.location,
       licenseNumber: therapistSettings.licenseNumber || prev.licenseNumber,
