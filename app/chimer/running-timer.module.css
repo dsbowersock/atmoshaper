@@ -52,12 +52,12 @@
 }
 
 .primaryDisplay.timerModeClockPrimary {
-  top: calc(var(--immersive-reserved-top) + var(--chimer-secondary-safe-top, 0px));
+  top: max(var(--immersive-reserved-top), var(--chimer-secondary-safe-top, 0px));
   bottom: var(--immersive-reserved-bottom);
 }
 
 .primaryDisplay.timerModeCompactTimer {
-  top: calc(var(--immersive-reserved-top) + var(--chimer-secondary-safe-top, 0px));
+  top: max(var(--immersive-reserved-top), var(--chimer-secondary-safe-top, 0px));
   bottom: var(--immersive-reserved-bottom);
 }
 
