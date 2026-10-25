@@ -1,5 +1,33 @@
 # AtmoShaper Project Log
 
+## October 25 source-backed region-answer safeguard prepared locally
+
+The bundled content audit reproduced 229 concept-region questions accepting the
+Spine grouping fallback. The local safeguard also covers ten body-surface
+structures with the same unsupported mapping. Graded region questions now
+require a recognized source region; landmarks can use their parent bone's
+explicit region. Existing fallback grouping remains compatibility data while
+concept-location content is reviewed separately.
+
+All 1,271 card DTOs and every non-region prompt are byte-equivalent to clean
+`58a34e9`. The 1,032 retained region prompts are also identical; only 239
+unsupported region questions are omitted. No card, source/citation record,
+identifier, stored config value or new anatomical classification is changed.
+A legacy concept-region-only or pinned selection remains valid configuration
+with zero eligible prompts; no different question is silently substituted.
+
+The three new regressions fail against the original adapter. After repair, all
+37 focused study, saved-deck and Anatomime contract tests pass, along with the
+repository typecheck and changed-file lint. Their denial guards record zero
+network or blocked executable attempts. Full cached build and actual setup/
+runner acceptance are the next local checks; they are not yet claimed passed.
+
+This is a local, unpublished source candidate. No provider, account, database,
+media, payment, email, Sentry or Production action occurred. Full anatomy
+acceptance, the curated concept-location model, 31-muscle/citation review work,
+media disposition/delivery, all-purchase activation and public launch remain
+open. The existing Chimer publication decision is not extended to this branch.
+
 ## October 25 Chimer follow-up integrated with final main; position-only regression fixed
 
 The approved PR #44-51 merge batch completed at main `af5373d`, with final CI,

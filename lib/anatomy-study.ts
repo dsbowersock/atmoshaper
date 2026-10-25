@@ -345,14 +345,15 @@ function unique<T>(items: T[]) {
   return [...new Set(items)]
 }
 
-function regionForFoundationRegion(region: string): AnatomyStudyRegion {
+/** Maps declared source vocabulary; an unknown value is not evidence for Spine. */
+function regionForFoundationRegion(region: string): AnatomyStudyRegion | null {
   if (["head", "head-neck", "head-face-jaw", "face", "jaw", "neck", "anterior-neck", "lateral-neck", "posterior-neck", "base-of-skull"].includes(region)) {
     return "head"
   }
   if (["upper-limb", "shoulder-girdle", "glenohumeral-region", "rotator-cuff-region", "scapular-region", "upper-trapezius-area", "arm", "elbow", "forearm", "wrist", "hand"].includes(region)) {
     return "upper-extremity"
   }
-  if (["trunk-spine-pelvis", "neck-shoulder-upper-back", "upper-back", "back", "lumbar-region", "thoracic-spine-region"].includes(region)) {
+  if (["spine", "trunk-spine-pelvis", "neck-shoulder-upper-back", "upper-back", "back", "lumbar-region", "thoracic-spine-region"].includes(region)) {
     return "spine"
   }
   if (region === "thorax") return "thorax"
@@ -360,7 +361,7 @@ function regionForFoundationRegion(region: string): AnatomyStudyRegion {
   if (region === "pelvis") return "pelvis"
   if (["lower-limb", "hip", "thigh", "knee", "leg", "ankle", "foot"].includes(region)) return "lower-extremity"
 
-  return "spine"
+  return null
 }
 
 function difficultyForEntity(entityType: AnatomyStudyCategory, entity: FoundationStudyEntity): AnatomyStudyDifficulty {
@@ -387,15 +388,16 @@ function entityDisplayName(entityType: AnatomyStudyCategory, entity: FoundationS
   return undefined
 }
 
+/** Parent-bone inheritance is declared evidence; a missing region remains unknown. */
 function entityRegion(entityType: AnatomyStudyCategory, entity: FoundationStudyEntity, context: BuildContext) {
   if (entityType === "bone_landmark") {
     const landmark = entity as BoneLandmark
     const parentBone = context.seed.bones.find((bone) => bone.slug === landmark.bone)
 
-    return parentBone?.region ?? ("region" in entity ? entity.region : "spine")
+    return parentBone?.region ?? ("region" in entity ? entity.region : null)
   }
 
-  return "region" in entity ? entity.region : "spine"
+  return "region" in entity ? entity.region : null
 }
 
 function bodySystemsForEntity(entityType: AnatomyStudyCategory, entitySlug: string, context: BuildContext) {
@@ -608,8 +610,10 @@ function cardFromEntity(entityType: AnatomyStudyCategory, entity: FoundationStud
     ...publicSummaryCitations.map((citation) => citation.sourceRef),
     ...media.map((asset) => asset.sourceRef),
   ])
-  const foundationRegion = entityRegion(entityType, entity, context)
-  const studyRegion = regionForFoundationRegion(foundationRegion)
+  // Retain saved filter/group identities while the concept-location model is
+  // reviewed. Assessment eligibility below uses source evidence, not this fallback.
+  const foundationRegion = entityRegion(entityType, entity, context) ?? "spine"
+  const studyRegion = regionForFoundationRegion(foundationRegion) ?? "spine"
   const bodySystems = bodySystemsForEntity(entityType, entity.slug, context)
 
   return {
@@ -855,7 +859,26 @@ function summaryPromptForCard(card: AnatomyStudyCard, context: BuildContext) {
   )
 }
 
+/** Resolves the seed row again so a compatibility label cannot authorize grading. */
+function supportedAnswerRegion(card: AnatomyStudyCard, context: BuildContext): AnatomyStudyRegion | null {
+  const entities: Record<AnatomyStudyCategory, FoundationStudyEntity[]> = {
+    bone: context.seed.bones,
+    bone_landmark: context.seed.boneLandmarks,
+    muscle: context.seed.muscles,
+    anatomy_structure: context.seed.structures,
+    anatomy_concept: context.seed.concepts,
+  }
+  const entity = entities[card.entityType].find((candidate) => candidate.slug === card.entitySlug)
+  const region = entity ? entityRegion(card.entityType, entity, context) : null
+
+  return region ? regionForFoundationRegion(region) : null
+}
+
 function regionPromptForCard(card: AnatomyStudyCard, context: BuildContext) {
+  const region = supportedAnswerRegion(card, context)
+  if (!region) return null
+  const label = ANATOMY_STUDY_REGION_LABELS[region]
+
   return basePrompt(
     card,
     "name_to_region",
@@ -864,7 +887,7 @@ function regionPromptForCard(card: AnatomyStudyCard, context: BuildContext) {
       title: card.name,
       instruction: "Type the primary study region for this anatomy item.",
     },
-    [answerField("region", "Region", card.regionLabels.join(", "), card.regionLabels)],
+    [answerField("region", "Region", label, [label])],
     card.citations,
     context,
   )
