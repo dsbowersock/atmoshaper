@@ -1,3 +1,4 @@
+import { isEquivalentAnatomyNameAlias } from "./anatomy-name-aliases.js"
 import {
   ANATOMY_FOUNDATION_SEED,
   searchAnatomyFoundation,
@@ -441,6 +442,7 @@ function aliasesForEntity(entityType: AnatomyStudyCategory, entity: FoundationSt
       const normalized = normalizeText(alias)
 
       return normalized && normalized !== displayName && normalized !== formalNormalized
+        && isEquivalentAnatomyNameAlias(entityType, entity.slug, alias)
     })
     .slice(0, 10)
 }
