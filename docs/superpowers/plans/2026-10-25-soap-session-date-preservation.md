@@ -37,3 +37,14 @@ network or executable violations. Earlier path/runtime/provider setup errors,
 the cleared-date timing assertion, missing production act and fixture syntax
 errors remain recorded as harness issues rather than application findings.
 The full four-client browser acceptance and ownership cleanup follow separately.
+
+## Measured narrow transfer-control follow-up
+
+The real four-client workflow passed desktop and 390-pixel save, handoff, date,
+reload/wrong-password recovery and encrypted export. At 320 pixels, the shared
+transfer grid's implicit track grew to its no-wrap button width. The document
+measured 321 pixels and the import button's right bound was 321.17 pixels.
+Preserve the existing desktop two-column layout; set a single minmax-zero track
+below that breakpoint and let the two backup labels wrap within their card.
+Only this shared presentation owner changes; crypto, controls and payload
+contracts remain. Recheck all three viewport workflows and isolated import.
