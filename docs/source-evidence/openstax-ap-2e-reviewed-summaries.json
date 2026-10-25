@@ -212,7 +212,7 @@
   "supplementaryReferences": [
     {
       "key": "benjamin-fascia-2009",
-      "title": "The fascia of the limbs and back—a review",
+      "title": "The fascia of the limbs and back\u2014a review",
       "authors": "M. Benjamin",
       "year": 2009,
       "doi": "10.1111/j.1469-7580.2008.01011.x",
@@ -225,7 +225,7 @@
     {
       "key": "oconnell-delancey-clitoris-2005",
       "title": "Clitoral anatomy in nulliparous, healthy, premenopausal volunteers using unenhanced magnetic resonance imaging",
-      "authors": "H. E. O’Connell and J. O. L. DeLancey",
+      "authors": "H. E. O\u2019Connell and J. O. L. DeLancey",
       "year": 2005,
       "doi": "10.1097/01.ju.0000158446.21396.c0",
       "url": "https://pubmed.ncbi.nlm.nih.gov/15879834/",
@@ -1512,10 +1512,11 @@
   "runtimeSourceRetargeted": true,
   "expectedReferenceCounts": {
     "clinical_summary": 53,
-    "entity_source_reference": 53,
+    "entity_source_reference": 56,
     "entity_term": 77,
-    "relationship": 88,
-    "total": 271
+    "relationship": 91,
+    "action": 3,
+    "total": 280
   },
   "originalRuntimeSourceId": "source-openstax-anatomy-physiology",
   "sourceCitationReviewFlagsPromoted": false,
@@ -1532,5 +1533,6 @@
       "selector": "anatomy_structure:clitoris",
       "summary": "The clitoris is a reproductive organ with an external glans and internal erectile structures, including its body and paired crura. It is included for complete, neutral reproductive anatomy terminology."
     }
-  ]
+  ],
+  "additionalExactActionEvidence": "anatomy-muscle-action-review-20261025.json; audited separately without changing the 53 summary bindings"
 }

@@ -83,7 +83,7 @@ export function verifyReviewedAnatomySourceEvidence(manifest, seed, cards, readA
   }
   for (const card of cards) assert.equal(hash(card.summary), bindings.get(`${card.category}:${card.entitySlug}`).summarySha256)
   const citations = seed.citations.filter(citation => citation.sourceRef === sourceKey)
-  const counts = { clinical_summary: 0, entity_source_reference: 0, entity_term: 0, relationship: 0, total: citations.length }
+  const counts = { clinical_summary: 0, entity_source_reference: 0, entity_term: 0, relationship: 0, action: 0, total: citations.length }
   for (const citation of citations) {
     assert.equal(citation.reviewStatus, "reviewed", "This slice preserves the existing source-linkage flags")
     assert.ok(citation.sourceLocator.includes(`${prefix}modules/`), "Unpinned citation remains")
@@ -96,6 +96,10 @@ export function verifyReviewedAnatomySourceEvidence(manifest, seed, cards, readA
       const expected = [...binding.locators.map(locator => locator.publicUrl), ...binding.supplementaryReferences.map(key => supplementByKey.get(key).url)]
       assert.equal(citation.sourceLocator, expected[0], "Live summary locator differs from reviewed binding")
       for (const secondary of expected.slice(1)) assert.ok(citation.citationNote.includes(secondary), "Secondary reference omitted")
+    } else if (citation.factType === "action") {
+      // Exact action evidence is independently audited by audit:muscle-action-citations.
+      // This audit retains complete summary and archived-URL coverage as it grows.
+      counts.action++
     } else {
       assert.equal(citation.factType, "seed_source_reference")
       if (citation.factSlug.startsWith("entity_term:")) counts.entity_term++

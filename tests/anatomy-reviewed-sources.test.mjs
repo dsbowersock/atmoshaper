@@ -23,7 +23,7 @@ describe("Pinned and precisely attributed A&P source", () => {
     const citations = ANATOMY_FOUNDATION_SEED.citations.filter(c => c.sourceRef === "openstax-anatomy-physiology")
     const summaries = citations.filter(c => c.factType === "clinical_summary")
     assert.equal(summaries.length, 53)
-    assert.equal(citations.length, 271)
+    assert.equal(citations.length, 280)
     for (const citation of citations) {
       assert.ok(citation.sourceLocator.includes(`${OPENSTAX_AP_REVISION}/modules/`), citation.slug)
       assert.match(citation.sourceLocator, /index\.cnxml#L[0-9]+-L[0-9]+/)

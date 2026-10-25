@@ -143,7 +143,10 @@
     "lint:anatomy-name-equivalence": "eslint lib/anatomy-name-aliases.js lib/anatomy-study.ts tests/anatomy-name-equivalence.test.mjs",
     "test:anatomy-reviewed-sources": "node --test tests/anatomy-reviewed-sources.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
     "lint:anatomy-reviewed-sources": "eslint lib/anatomy-openstax-provenance.js lib/anatomy-foundation.ts lib/anatomy-seed/sources.ts lib/anatomy-seed/tissue-taxonomy-concepts.ts lib/anatomy-seed/gross-body-system-structures.ts tests/anatomy-reviewed-sources.test.mjs scripts/verify-reviewed-anatomy-sources.mjs scripts/verify-anatomy-source-provenance.mjs",
-    "audit:anatomy-reviewed-sources": "node scripts/verify-reviewed-anatomy-sources.mjs"
+    "audit:anatomy-reviewed-sources": "node scripts/verify-reviewed-anatomy-sources.mjs",
+    "test:muscle-action-citations": "node --test tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
+    "lint:muscle-action-citations": "eslint lib/anatomy-muscle-action-provenance.js lib/anatomy-foundation.ts scripts/audit-muscle-action-citations.mjs scripts/verify-reviewed-anatomy-sources.mjs tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-study.test.mjs tests/anatomy-foundation.test.mjs",
+    "audit:muscle-action-citations": "node scripts/audit-muscle-action-citations.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

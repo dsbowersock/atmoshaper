@@ -1,4 +1,5 @@
 import { withPinnedOpenstaxApReferences } from "./anatomy-openstax-provenance.js"
+import { withReviewedMuscleActionEvidence } from "./anatomy-muscle-action-provenance.js"
 import {
   ANATOMY_SEED_SECTION_NAMES,
   ANATOMY_SEED_SECTIONS,
@@ -5784,7 +5785,11 @@ const SOURCE_REFERENCED_ANATOMY_SEED: AnatomyFoundationSeed = withSourceReferenc
 
 // Resolve provenance only after source references have been assembled, keeping
 // exact entity/term/relation context separate from generic source-safety flags.
-export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withPinnedOpenstaxApReferences(SOURCE_REFERENCED_ANATOMY_SEED)
+// Retain historical citation IDs, then add source pointers for the exact reviewed
+// action sources. The public adapter still requires matching reviewed fact IDs.
+export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withSourceReferenceCitationBacklog(
+  withReviewedMuscleActionEvidence(withPinnedOpenstaxApReferences(SOURCE_REFERENCED_ANATOMY_SEED)),
+)
 
 const COLLECTION_NAMES = [
   "sources",
@@ -5967,6 +5972,7 @@ function seedSourceReferenceReviewStatus(target: SourceReferenceCitationTarget, 
 }
 
 function seedSourceReferenceLocator(target: SourceReferenceCitationTarget, source?: FoundationSource) {
+
   if (target.sourceRef === CLIENT_LANGUAGE_SOURCE) return CLIENT_LANGUAGE_SOURCE_LOCATOR
   if (target.sourceRef === CDC_ROM_SOURCE) return CDC_ROM_LOCATOR
   if (target.sourceRef === ROM_TRACKING_SOURCE) return ROM_TRACKING_LOCATOR
