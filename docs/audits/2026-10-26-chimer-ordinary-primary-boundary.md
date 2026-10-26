@@ -28,3 +28,18 @@ Publication and review fixes use the owner's existing four-PR grant. Configured
 CI/Preview and a fresh applicable included review must cover the new commit;
 2a7b5ef coverage cannot be reused as new-head evidence. No full local app build,
 protected account/admin test, provider test, merge, Production or Sentry action.
+
+## Subsequent review coverage corrections
+
+The included review of 2df4004 completed in review5648791397 with two trivial
+outside-diff test-coverage comments. Both are valid gaps in the existing tests;
+neither establishes another runtime defect. The visual-viewport case now moves
+offsetTop beyond the earlier control-clearance boundary and asserts the new
+vertical position while retaining horizontal/overlap/width checks. The font
+case clears the controller-owned placement before changing font, then requires
+fresh acquisition alongside the existing metric and owner-cleanup assertions.
+
+All44 focused cases, named lint, typecheck and diff checks pass. Application
+runtime, CSS, font files and saved settings are unchanged by this follow-up.
+Current-head CI/Preview and applicable included review remain required after
+publication. The one-included-review-per-hour limit is preserved.

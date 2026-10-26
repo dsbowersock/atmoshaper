@@ -226,10 +226,11 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
       assert.equal(layout.overlap, false)
       assert.ok(layout.left >= 75 && layout.right <= 255)
       assert.ok(layout.scrollWidth <= layout.clientWidth + 1)
-      await page.evaluate(() => { Object.assign(window.secondaryViewport, { width: 180, offsetLeft: 90 }); window.secondaryViewport.dispatchEvent(new Event("resize")) })
-      layout = await geometry(page, (current) => current.left >= 105 && current.right <= 255)
+      await page.evaluate(() => { Object.assign(window.secondaryViewport, { width: 180, offsetLeft: 90, offsetTop: 160 }); window.secondaryViewport.dispatchEvent(new Event("resize")) })
+      layout = await geometry(page, (current) => current.left >= 105 && current.right <= 255 && current.top >= 160)
       assert.equal(layout.overlap, false)
       assert.ok(layout.left >= 105 && layout.right <= 255)
+      assert.ok(layout.top >= 160, "Follow vertical visual-viewport movement beyond the original controls")
       assert.ok(layout.scrollWidth <= layout.clientWidth + 1)
     } finally { await context.close() }
   })
@@ -243,6 +244,9 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
         Object.fromEntries(names.map((name) => [name, stage.style.getPropertyValue(name).trim()]))
       ), metricNames)
       await expect.poll(readMetrics).toEqual(getChimerClockFontMetrics("digital"))
+      // Re-acquisition proves this controller observed the new font instead of
+      // accepting a still-clear placement left over from its prior dimensions.
+      await page.evaluate(() => document.querySelector('[data-immersive-secondary-display="true"]').style.removeProperty("--chimer-secondary-top"))
       await page.evaluate(() => window.secondaryFixture.setFont("Arial, sans-serif"))
       await expect.poll(readMetrics).toEqual(getChimerClockFontMetrics("sans"))
       assert.equal((await geometry(page, (layout) => layout.fontFamily.includes("Arial"))).overlap, false)
