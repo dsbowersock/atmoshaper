@@ -14,6 +14,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test:ci-harness": "node --test tests/browser-qa-harness.test.mjs tests/browser-qa-environment.test.mjs tests/atmoshaper-browser-qa-build.test.mjs",
+    "lint:ci-harness": "eslint tests/browser-qa-harness.test.mjs tests/browser-qa-environment.test.mjs tests/atmoshaper-browser-qa-build.test.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:business-planners": "node --test tests/business-planner-storage.test.mjs tests/business-plan-template-tools.test.mjs tests/business-income-planner.test.mjs tests/business-income-planner-source.test.mjs",
     "test:clinical-local": "node --test tests/professional-record-vault.test.mjs tests/local-intake-builder.test.mjs tests/intake-soap-handoff.test.mjs tests/notes-entitlements.test.mjs tests/client-wellness.test.mjs tests/client-wellness-patterns.test.mjs tests/client-wellness-source-guards.test.mjs tests/local-intake-workspace-page.test.mjs",
@@ -131,7 +133,10 @@
     "backgrounds:branding:catalog": "node --experimental-strip-types scripts/background-branding/render-catalog.mjs",
     "test:route-entrypoints": "node --test tests/route-entrypoints.test.mjs tests/account-security-routes.test.mjs tests/account-two-factor-routes.test.mjs tests/auth-method-intents.test.mjs tests/auth-rate-limit.test.mjs tests/auth-request.test.mjs tests/auth-security.test.mjs tests/background-checkout.test.mjs tests/background-commerce-api.test.mjs tests/background-credit-service.test.mjs tests/email-verification-request-route.test.mjs tests/password-reset-request-route.test.mjs",
     "test:anatomime-room-persistence": "npm run prisma:generate && node --test tests/anatomime-room-persistence.test.mjs",
-    "test:anatomime-progress": "node --test tests/anatomime-progress-lock.test.mjs tests/anatomime-progress-server.test.mjs tests/anatomime-room-rules.test.mjs tests/anatomime-shared.test.mjs tests/flashcard-progress.test.mjs"
+    "test:anatomime-progress": "node --test tests/anatomime-progress-lock.test.mjs tests/anatomime-progress-server.test.mjs tests/anatomime-room-rules.test.mjs tests/anatomime-shared.test.mjs tests/flashcard-progress.test.mjs",
+    "test:secondary-clock": "node --test tests/secondary-display-layout.test.mjs tests/immersive-panel-layout.test.mjs tests/immersive-panel-shell.test.mjs tests/immersive-display.test.mjs tests/timer-font-delivery.test.mjs",
+    "lint:secondary-clock": "eslint app/chimer/secondary-display-layout.js app/chimer/immersive-panel-shell.tsx app/chimer/running-timer.tsx tests/secondary-display-layout.test.mjs tests/fixtures/secondary-display-layout-harness.tsx tests/helpers/secondary-display-browser-loader.cjs",
+    "test:secondary-clock-inventory": "node --test --test-name-pattern=\"stylesheet coverage inventories all\" tests/repository-cleanup-audit.test.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

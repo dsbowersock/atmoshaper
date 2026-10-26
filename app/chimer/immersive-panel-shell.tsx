@@ -21,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { triggerHapticFeedback } from "@/lib/haptics"
 
 import { calculateDockPlacement, toVisualViewportBounds } from "./immersive-panel-layout.js"
+import { observeSecondaryDisplayLayout } from "./secondary-display-layout.js"
 import styles from "./immersive-panel-shell.module.css"
 
 export type ImmersivePanelId = "clock" | "visual" | "background" | null
@@ -185,6 +186,7 @@ export function ImmersivePanelShell({
   const dockRef = useRef<HTMLDivElement | null>(null)
   const dockInsetProbeRef = useRef<HTMLSpanElement | null>(null)
   const toolbarRef = useRef<HTMLDivElement | null>(null)
+  const secondaryInsetProbeRef = useRef<HTMLSpanElement | null>(null)
   const toolbarButtonRefs = useRef<Partial<Record<PanelKey, HTMLButtonElement | null>>>({})
   const [placement, setPlacement] = useState<DockPlacement>(DEFAULT_PLACEMENT)
   const [visualViewportFrame, setVisualViewportFrame] = useState<VisualViewportFrame | null>(null)
@@ -205,6 +207,15 @@ export function ImmersivePanelShell({
   useLayoutEffect(() => {
     setPortalTarget(document.body)
   }, [])
+
+  useLayoutEffect(() => {
+    const stage = protectedDisplayRef.current?.closest<HTMLElement>("[data-immersive-stage]")
+      ?? document.querySelector<HTMLElement>("[data-immersive-stage]")
+    const toolbar = toolbarRef.current
+    const insetProbe = secondaryInsetProbeRef.current
+    if (!stage || !toolbar || !insetProbe) return
+    return observeSecondaryDisplayLayout({ stage, toolbar, insetProbe })
+  }, [portalTarget, protectedDisplayRef])
 
   useLayoutEffect(() => {
     // The toolbar remains active after a nonmodal panel closes, so visual
@@ -575,6 +586,7 @@ export function ImmersivePanelShell({
       data-chimer-control="true"
       data-immersive-shell
     >
+      <span ref={secondaryInsetProbeRef} className={styles.secondaryInsetProbe} aria-hidden="true" />
       <span
         ref={dockInsetProbeRef}
         className={styles.dockInsetProbe}

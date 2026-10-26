@@ -65,6 +65,16 @@
   pointer-events: none;
 }
 
+/* Resolve the accessory's legacy inset plus live safe-area/player exclusion in pixels. */
+.secondaryInsetProbe {
+  position: fixed;
+  width: 0;
+  height: 0;
+  padding-top: max(calc(env(safe-area-inset-top, 0px) + 1.2rem), var(--chimer-top-control-offset, 0px));
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .toolbar {
   --immersive-toolbar-focus-inset: 0.25rem;
 

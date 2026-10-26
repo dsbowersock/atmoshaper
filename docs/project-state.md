@@ -1,5 +1,85 @@
 # AtmoShaper Project State
 
+## October 25 Chimer review follow-up uses state-aware layout assertions
+
+PR #52's valid review finding is repaired in the component test: every changed
+state now waits for its expected owner/geometry, and hide/unmount cleanup is
+observed directly. No application runtime or stylesheet changed. All 43 focused
+checks and named lint/typecheck pass; new-commit CI/Preview and included review remain
+required after publication under the existing four-PR approval. No PR merge or
+Production/Sentry activation is authorized. See the
+[validation audit](audits/2026-10-25-chimer-state-aware-layout-waits.md).
+
+## October 25 Chimer repair integrated with merged main and revalidated locally
+
+The owner-approved PR #44-51 batch is complete at main `af5373d`; all eight
+hosted candidates are READY, final combined-main CI passes and captured public
+routing is unchanged. The historical pending-merge checkpoints below do not
+reopen that completed batch. No public promotion or Sentry activation occurred.
+
+The separate auxiliary-display repair now starts from that merged main on
+`codex/chimer-main-integration`. Its original `68a116f` branch is retained.
+All 80 pages, 62 API handlers and reviewed Calendar changes are preserved.
+This route/source comparison does not claim whole-site journey acceptance.
+
+Fresh real-shell verification exposed a position-only control-root change that
+the dimension observer missed. The shell now observes that portal owner's
+class/style and child changes as well, coalesces measurements through the
+existing animation-frame owner and disconnects the added observer on disposal.
+The deterministic regression fails before the fix and passes after it.
+
+All 41 focused Chimer checks pass. The integrated Calendar suite has 46 passes
+and one POSIX-only skip. Named focused lint and the full provider-free build,
+including normal TypeScript validation, pass. The earlier 90-second lint wrapper
+timeout remains an unverified attempt; the separate terminal lint result passes.
+Sixteen actual built-app cases pass across 320px/390px phones, 640px landscape
+and 1440px desktop with the real DSEG7 Modern font and saved Digital selection.
+Screenshots were inspected; the existing landscape settings-sheet priority is
+preserved. Only unrelated Inter uses the local build fixture.
+
+The owned browser/server are closed; the exact source/build snapshot, temporary
+archive and one dependency junction are removed. Sixteen current runtime/test
+inputs match the validated snapshot. Shared dependencies and generated Prisma
+schema are preserved; receipts and screenshots remain. No provider request,
+database, real account, game, checkout or configuration change ran. This follow-up
+is local and unpublished; its publication/review and final migration release
+gates remain separate from the completed eight-PR batch.
+
+## October 24 Chimer auxiliary-toolbar collision repaired and locally verified
+
+The auxiliary timer/clock now uses actual toolbar and top-control bounds. It
+moves below those controls only when they intersect, stays within the visual
+viewport and reserves its lower edge in the primary display's existing safe
+region. Wide-screen placement, the selected DSEG7 Modern font, saved Digital
+settings and display actions are preserved. The shell releases its inline
+reservations and observers on owner removal or unmount.
+
+The meaningful browser baseline reproduced the collision at phone and narrow
+landscape sizes. The repaired named suite passes all 40 focused checks, including
+eight real-shell browser scenarios, existing immersive contracts and real-font
+checks. Focused lint, repository typecheck and the complete inert-provider build
+pass. Six build guard receipts and seven focused-suite receipts record zero
+network attempts. Earlier fixture setup failures remain separate from the
+reproduced application geometry failure; no dependency was downloaded.
+
+The built application passes 16 checks across 320px/390px phones, 640px landscape
+and 1440px desktop: standalone clock, running timer, Clock settings and primary
+display swap. Screenshots were inspected. Toolbar clearance and the protected
+centered-display/settings-panel contract pass; this does not claim the accessory
+is always visible beneath an intentional settings sheet. The landscape side
+sheet retains priority over part of the auxiliary display, as before.
+
+The browser/server are closed, and the owned source/build snapshot plus two
+dependency junctions are removed. Shared packages, the cached Prisma schema,
+existing typecheck cache, receipts and screenshots are retained. No database,
+real account, game, payment, provider request or configuration change ran.
+
+This is a separate local candidate on codex/chimer-secondary-clock-layout.
+PR #51's reviewed branch remains at 5769db5; all eight existing PRs retain their
+green reviewed heads and the earlier no-merge hold. The prepared complete merge
+batch awaits the owner's decision. This new runtime candidate is unpublished;
+no push, merge, Production promotion, media exposure or Sentry activation follows.
+
 ## October 24 selected DSEG7 Modern implemented and locally verified
 
 The owner selected DSEG7 Modern. The unmodified v0.46 WOFF2 and author's original

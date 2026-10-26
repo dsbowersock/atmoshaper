@@ -13543,6 +13543,7 @@ export function RunningTimer({
           aria-live={isTimerPrimary ? "polite" : undefined}
           data-testid="running-timer-clock"
           data-immersive-primary-display={isTimerPrimary ? "true" : undefined}
+          data-immersive-secondary-display={!isTimerPrimary ? "true" : undefined}
         >
           <span ref={isTimerPrimary ? protectedDisplayRef : undefined} className={styles.protectedDisplay} data-protected-display={isTimerPrimary ? "true" : undefined}>
             {renderDisplayEffectLayers("timer", isTimerPrimary)}
@@ -13562,6 +13563,7 @@ export function RunningTimer({
           ref={isCurrentTimePrimary ? primaryDisplayRef : undefined}
           data-testid="running-current-time"
           data-immersive-primary-display={isCurrentTimePrimary ? "true" : undefined}
+          data-immersive-secondary-display={!isCurrentTimePrimary ? "true" : undefined}
           aria-label={isCurrentTimePrimary ? (isClockMode ? "Reveal clock controls" : isComplete ? "Session complete" : `${primaryActionLabel} from center display`) : "Show current time in center"}
           style={isCurrentTimePrimary ? primaryDisplayStyle : undefined}
         >

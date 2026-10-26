@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Chimer auxiliary-display toolbar repair](../superpowers/plans/2026-10-24-chimer-secondary-display-layout.md)
+
 - [Selected DSEG7 Modern clock font](../superpowers/plans/2026-10-24-local-digital-font-rights.md)
 
 - [Project state](../project-state.md)

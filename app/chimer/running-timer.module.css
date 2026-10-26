@@ -52,12 +52,12 @@
 }
 
 .primaryDisplay.timerModeClockPrimary {
-  top: var(--immersive-reserved-top);
+  top: max(var(--immersive-reserved-top), var(--chimer-secondary-safe-top, 0px));
   bottom: var(--immersive-reserved-bottom);
 }
 
 .primaryDisplay.timerModeCompactTimer {
-  top: var(--immersive-reserved-top);
+  top: max(var(--immersive-reserved-top), var(--chimer-secondary-safe-top, 0px));
   bottom: var(--immersive-reserved-bottom);
 }
 
@@ -114,7 +114,8 @@
   --chimer-display-base-transform: translateX(0);
 
   position: fixed;
-  top: calc(var(--chimer-top-control-space) + var(--immersive-reserved-top));
+  /* The secondary edge is already absolute; compare it with the complete ordinary control inset. */
+  top: max(calc(var(--chimer-top-control-space) + var(--immersive-reserved-top)), var(--chimer-secondary-safe-top, 0px));
   right: var(--immersive-reserved-right);
   bottom: calc(var(--chimer-bottom-control-space) + var(--immersive-reserved-bottom));
   left: var(--immersive-reserved-left);
@@ -166,21 +167,21 @@
   --chimer-display-base-transform: translateX(-50%);
 
   position: fixed;
-  top: 1.2rem;
+  top: var(--chimer-secondary-top, 1.2rem);
   right: auto;
   bottom: auto;
-  left: 50%;
+  left: var(--chimer-secondary-center, 50%);
   z-index: 10002;
   display: flex;
   align-items: center;
   justify-content: center;
   width: auto;
-  max-width: calc(100vw - 9rem);
+  max-width: var(--chimer-secondary-max-width, calc(100vw - 9rem));
   overflow: hidden;
   transform: var(--chimer-display-base-transform);
   color: hsl(var(--brand-orange));
   font-family: var(--chimer-display-font-family);
-  font-size: clamp(1.4rem, 6vw, 4rem);
+  font-size: calc(clamp(1.4rem, 6vw, 4rem) * var(--chimer-secondary-scale, 1));
   line-height: 1;
   letter-spacing: 0;
   opacity: 0.84;
@@ -216,7 +217,7 @@
 }
 
 .secondaryDisplay.timerDisplay {
-  font-size: clamp(1.15rem, 7vw, 3.25rem);
+  font-size: calc(clamp(1.15rem, 7vw, 3.25rem) * var(--chimer-secondary-scale, 1));
 }
 
 .primaryDisplay.currentTimeDisplay {
@@ -2177,7 +2178,7 @@
   }
 
   .secondaryDisplay {
-    max-width: calc(100vw - 8rem);
+    max-width: var(--chimer-secondary-max-width, calc(100vw - 8rem));
   }
 
   .backgroundCategoryRow {

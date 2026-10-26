@@ -2322,15 +2322,17 @@ test("stylesheet usage remains metadata-only uncertainty regardless of imports o
   assertPrivateSerialization(envelope, root, ["UNSTAGED_STYLESHEET_SENTINEL", "private-fixture-token", css])
 })
 
-test("stylesheet coverage inventories all 22 tracked repository CSS files exactly once", () => {
+test("stylesheet coverage inventories all 23 tracked repository CSS files exactly once", () => {
   const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
   const paths = index.trackedPaths.filter((path) => path.toLowerCase().endsWith(".css"))
-  assert.equal(paths.length, 22)
+  assert.equal(paths.length, 23)
   const report = buildDeadCodeCandidateReport(index, realPolicy)
   const rows = report.uncertainties.stylesheetUsage ?? []
   assert.deepEqual(rows.map((row) => row.path), paths)
   assert.equal(new Set(rows.map((row) => row.path)).size, paths.length)
   assert.ok(rows.some((row) => row.path === "app/globals.css"))
+  // The Chimer browser fixture is tracked CSS and must keep an exact audit row.
+  assert.ok(rows.some((row) => row.path === "tests/fixtures/secondary-display-layout-harness.css"))
   assert.ok(rows.some((row) => row.path === "components/backgrounds/BackgroundHost.module.css"))
   for (const row of rows) {
     const record = index.records.find((entry) => entry.path === row.path)
