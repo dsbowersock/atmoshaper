@@ -25,6 +25,8 @@
     "test:app-landmarks": "node --test tests/app-main-landmarks.test.mjs",
     "lint:app-landmarks": "eslint app/layout.tsx app/chimer/layout.tsx \"app/chimer/background-preview/[backgroundId]/preview-scene.tsx\" app/account/link-google/page.tsx app/admin/anatomy/media-review/page.tsx app/dev/rsc-session-proof/page.tsx tests/app-main-landmarks.test.mjs tests/fixtures/app-main-landmark-harness.mjs",
     "test:stripe-readiness": "node --test tests/stripe-readiness.test.mjs tests/stripe-supporter-only-readiness.test.mjs tests/stripe-webhook-contract.test.mjs",
+    "test:commerce-purchase-ui": "node --test tests/donations.test.mjs tests/background-commerce-provider.test.mjs tests/background-checkout-surfaces.test.mjs tests/background-commerce-surfaces.test.mjs tests/purchase-availability-wiring.test.mjs",
+    "lint:commerce-purchase-ui": "eslint app/layout.tsx app/pricing/page.tsx app/pricing/donation-checkout-form.tsx components/layout-wrapper.tsx components/backgrounds/BackgroundCommerceProvider.tsx components/backgrounds/BackgroundAcquisitionDialog.tsx components/backgrounds/BackgroundCommerceCart.tsx components/backgrounds/BackgroundCheckoutReview.tsx tests/donations.test.mjs tests/background-commerce-provider.test.mjs tests/background-checkout-surfaces.test.mjs tests/background-commerce-surfaces.test.mjs tests/purchase-availability-wiring.test.mjs tests/browser/background-commerce.spec.ts",
     "test:commerce-purchase-domain": "node --test tests/background-checkout.test.mjs",
     "lint:commerce-purchase-domain": "eslint lib/commerce/catalog.ts lib/stripe-billing.js tests/background-checkout.test.mjs",
     "test:production-readiness": "node --test tests/production-migration-gate.test.mjs tests/production-stripe-readiness-gate.test.mjs",

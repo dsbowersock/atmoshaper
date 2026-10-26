@@ -76,6 +76,21 @@ describe("background checkout review", () => {
     }
   })
 
+  it("rejects unavailable direct submissions even with consent before storage or Checkout", async () => {
+    for (const available of [false, undefined, "true"]) {
+      const harness = await loadCheckoutReviewHarness({ backgroundPurchasesAvailable: available })
+      try {
+        checkoutConsent(harness.render()).props.onChange({ target: { checked: true } })
+        const accepted = harness.render()
+        assert.equal(checkoutSubmit(accepted).props.disabled, true)
+        assert.match(elementText(accepted), /Background purchases are temporarily unavailable\./)
+        checkoutSubmit(accepted).props.onClick()
+        assert.equal(harness.storageWrites.length, 0)
+        assert.equal(harness.checkoutCalls.length, 0)
+      } finally { harness.resolveCheckout(); harness.cleanup() }
+    }
+  })
+
   it("keeps lawful exceptions and account cart recovery visible", async () => {
     const source = await readFile(reviewPath, "utf8")
     for (const copy of [
@@ -108,7 +123,7 @@ function checkoutSubmit(tree) {
 }
 
 /** Renders the real checkout review with stateful hooks and deterministic commerce dependencies. */
-async function loadCheckoutReviewHarness() {
+async function loadCheckoutReviewHarness({ backgroundPurchasesAvailable } = { backgroundPurchasesAvailable: true }) {
   const source = await readFile(reviewPath, "utf8")
   const checkoutCalls = []
   const storageWrites = []
@@ -144,6 +159,7 @@ async function loadCheckoutReviewHarness() {
             },
           },
         },
+        backgroundPurchasesAvailable,
         startCheckout: (input) => {
           checkoutCalls.push(input)
           return pendingCheckout

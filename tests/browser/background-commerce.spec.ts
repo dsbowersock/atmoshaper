@@ -437,8 +437,16 @@ async function openMusicBackground(page: Page) {
   await expect(page.getByRole("dialog", { name: "Background" })).toBeVisible()
 }
 
-test("guest cart persists locally and requires an account only at checkout", async ({ page }) => {
+test("guest cart persists locally while paid checkout is unavailable", async ({ page }) => {
   await installGuestFixture(page)
+  // Seed once per test session so later navigation cannot conceal lost cart data.
+  await page.addInitScript(({ id }) => {
+    const initializedKey = "browser-qa-guest-cart-initialized"
+    if (sessionStorage.getItem(initializedKey) !== "true") {
+      localStorage.setItem("massagelab-guest-background-cart-v1", JSON.stringify([id]))
+      sessionStorage.setItem(initializedKey, "true")
+    }
+  }, { id: AURORA_ID })
   await openClockBackground(page, "/clock?source=music&returnTo=%2Fmusic&panel=background")
   const backgroundPanel = page.getByRole("dialog", { name: "Background" })
   const guestAurora = await centerPremium(page, AURORA_ID)
@@ -455,38 +463,40 @@ test("guest cart persists locally and requires an account only at checkout", asy
   await guestUnlock.click()
   const acquisition = page.getByRole("dialog", { name: `Unlock ${AURORA_NAME}` })
   await expect(acquisition.getByRole("button", { name: "Use free credit" })).toBeDisabled()
-  await expect(acquisition).toContainText(
-    "Sign in at checkout to use account credits. You can still add this background to your cart now.",
-  )
-  await acquisition.getByRole("button", { name: "Buy for $1" }).click()
+  await expect(acquisition).toContainText("Sign in to use account credits.")
+  await expect(acquisition).toContainText("Background purchases are temporarily unavailable.")
+  await expect(acquisition.getByRole("button", { name: "Buy for $1" })).toBeDisabled()
+  await page.keyboard.press("Escape")
 
   const compactCart = backgroundPanel.getByRole("region", { name: "AtmoShaper cart" })
   await expect(compactCart).toContainText(AURORA_NAME)
   await expect(compactCart.getByRole("button", { name: "Review checkout" })).toHaveCount(0)
-  const signInLink = compactCart.getByRole("link", { name: "Sign in to checkout" })
-  const registerLink = compactCart.getByRole("link", { name: "Create account" })
-  await expect(signInLink).toHaveAttribute(
-    "href",
-    "/login?callbackUrl=%2Fclock%3Fsource%3Dmusic%26returnTo%3D%252Fmusic%26panel%3Dbackground",
-  )
-  await expect(registerLink).toHaveAttribute(
-    "href",
-    "/register?callbackUrl=%2Fclock%3Fsource%3Dmusic%26returnTo%3D%252Fmusic%26panel%3Dbackground",
-  )
+  await expect(compactCart.getByRole("button", { name: "Sign in to checkout" })).toBeDisabled()
+  await expect(compactCart.getByRole("button", { name: "Create account" })).toBeDisabled()
+  await expect(compactCart.getByRole("link", { name: "Sign in to checkout" })).toHaveCount(0)
+  await expect(compactCart.getByRole("link", { name: "Create account" })).toHaveCount(0)
 
   await page.reload({ waitUntil: "domcontentloaded" })
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("massagelab-guest-background-cart-v1") ?? "[]")))
+    .toEqual([AURORA_ID])
   const trigger = page.locator("[data-commerce-cart-trigger]:visible")
   await page.goto("/music", { waitUntil: "domcontentloaded" })
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("massagelab-guest-background-cart-v1") ?? "[]")))
+    .toEqual([AURORA_ID])
   await expect(trigger).toHaveAccessibleName("Open AtmoShaper cart with 1 item")
   await trigger.click()
   const cartDialog = page.getByRole("dialog", { name: "AtmoShaper cart" })
   await expect(cartDialog).toContainText("This cart is saved in this browser until you sign in.")
   await expect(cartDialog).toContainText(AURORA_NAME)
-  await expect(cartDialog.getByRole("link", { name: "Sign in to checkout" })).toHaveAttribute(
-    "href",
-    "/login?callbackUrl=%2Fmusic%3FcommerceCart%3Dopen",
-  )
+  await expect(cartDialog.getByRole("button", { name: "Sign in to checkout" })).toBeDisabled()
+  await cartDialog.getByRole("button", { name: `Remove ${AURORA_NAME} from AtmoShaper cart` }).click()
+  await expect(cartDialog).toContainText("cart is empty")
+
   await page.keyboard.press("Escape")
+  await page.reload({ waitUntil: "domcontentloaded" })
+  expect(await page.evaluate(() => localStorage.getItem("massagelab-guest-background-cart-v1")))
+    .toBeNull()
+  await expect(trigger).toHaveCount(0)
 
   await page.evaluate(() => window.history.pushState({}, "", "/calendar"))
   await expect(trigger).toHaveCount(0)
@@ -750,14 +760,17 @@ test("Music selects a newly redeemed background before account ownership reloads
   })).toBeVisible()
 })
 
-test("zero-credit cart persists across refresh and checkout failure keeps one submission", async ({ context, page }, testInfo) => {
+test("zero-credit cart persists across refresh while paid actions stay unavailable", async ({ context, page }, testInfo) => {
   const baseURL = String(testInfo.project.use.baseURL)
   const fixture = await installCommerceFixture({
     context,
     page,
     baseURL,
     projectName: testInfo.project.name,
-    initialSnapshot: emptySnapshot({ creditBalance: 0 }),
+    initialSnapshot: emptySnapshot({ creditBalance: 0, cart: {
+      items: [PRODUCTS[DOTTED_GLOW_ID]], reservedOrder: null,
+      subtotalAmount: 100, currency: "usd", notices: [],
+    } }),
   })
   await page.addInitScript(() => {
     // Insert a hidden same-name clock region at DOMContentLoaded so
@@ -778,28 +791,16 @@ test("zero-credit cart persists across refresh and checkout failure keeps one su
   const acquisition = page.getByRole("dialog", { name: `Unlock ${DOTTED_GLOW_NAME}` })
   await expect(acquisition.getByRole("button", { name: "Use free credit" })).toBeDisabled()
   await expect(acquisition.getByText(/You have 0 credits\./)).toBeVisible()
-  await acquisition.getByRole("button", { name: "Buy for $1" }).click()
+  await expect(acquisition.getByRole("button", { name: "Buy for $1" })).toBeDisabled()
+  await expect(acquisition).toContainText("Background purchases are temporarily unavailable.")
+  await page.keyboard.press("Escape")
 
   const cart = panel.getByRole("region", { name: "Account cart" })
   await expect(cart).toContainText("1 background")
   await expect(cart).toContainText(DOTTED_GLOW_NAME)
-  await cart.getByRole("button", { name: "Review checkout" }).click()
-  const review = page.getByRole("dialog", { name: "Review checkout" })
-  await expect(review.getByText("Purchases are U.S. only in this release.")).toBeVisible()
-  await expect(review.getByText("$1.00", { exact: true })).toHaveCount(2)
-  const continueButton = review.getByRole("button", { name: "Continue to Checkout" })
-  await expect(continueButton).toBeDisabled()
-  await review.getByRole("checkbox", { name: /immediate digital delivery/i }).check()
-  await continueButton.dblclick()
-  await expect(review.getByRole("alert")).toContainText("temporarily unavailable")
-  expect(fixture.checkoutBodies).toHaveLength(1)
-  expect(fixture.checkoutBodies[0]).toMatchObject({
-    combinedConsentAccepted: true,
-    purchaseCountry: "US",
-    returnPath: "/clock?panel=background",
-  })
-
-  await review.getByRole("button", { name: "Back to cart" }).click()
+  await expect(cart.getByRole("button", { name: "Review checkout" })).toBeDisabled()
+  await expect(cart).toContainText("Background purchases are temporarily unavailable.")
+  expect(fixture.checkoutBodies).toHaveLength(0)
   await expect(cart).toContainText(DOTTED_GLOW_NAME)
   await page.reload({ waitUntil: "domcontentloaded" })
   await page.getByRole("button", { name: "Background", exact: true }).click()
@@ -899,7 +900,7 @@ test("subscriber and purchased ownership stay distinct in active Chimer", async 
   await permanentPurchase.click()
   const keep = page.getByRole("dialog", { name: `Keep ${AURORA_NAME} permanently` })
   await expect(keep).toContainText("even if you later cancel")
-  await expect(keep.getByRole("button", { name: "Buy permanently for $1" })).toBeVisible()
+  await expect(keep.getByRole("button", { name: "Buy permanently for $1" })).toBeDisabled()
   await expect(keep.getByRole("link", { name: "Unlock all" })).toHaveCount(0)
   await page.keyboard.press("Escape")
   await expect(panel).toBeVisible()
@@ -1008,7 +1009,10 @@ test("Music visualizer keeps the shared account cart through minimize and restor
     page,
     baseURL,
     projectName: testInfo.project.name,
-    initialSnapshot: emptySnapshot({ creditBalance: 0 }),
+    initialSnapshot: emptySnapshot({ creditBalance: 0, cart: {
+      items: [PRODUCTS[AURORA_ID]], reservedOrder: null,
+      subtotalAmount: 100, currency: "usd", notices: [],
+    } }),
   })
   await page.addInitScript(() => {
     localStorage.setItem("massagelab-atmosphere-v2", JSON.stringify({
@@ -1037,9 +1041,10 @@ test("Music visualizer keeps the shared account cart through minimize and restor
   await expect(panel).toBeVisible()
   await centerPremium(page, AURORA_ID)
   await panel.getByRole("button", { name: `Unlock ${AURORA_NAME} background` }).click()
-  await page.getByRole("dialog", { name: `Unlock ${AURORA_NAME}` })
-    .getByRole("button", { name: "Buy for $1" })
-    .click()
+  const acquisition = page.getByRole("dialog", { name: `Unlock ${AURORA_NAME}` })
+  await expect(acquisition.getByRole("button", { name: "Buy for $1" })).toBeDisabled()
+  await expect(acquisition).toContainText("Background purchases are temporarily unavailable.")
+  await page.keyboard.press("Escape")
   await expect(panel.getByRole("region", { name: "Account cart" })).toContainText(AURORA_NAME)
 
   await panel.getByRole("button", { name: "Close Background panel" }).click()

@@ -42,8 +42,9 @@ function CartContents({
   search: string
   signedIn: boolean
 }) {
-  const { state, removeFromCart, cancelReservation } = useBackgroundCommerce()
+  const { state, removeFromCart, cancelReservation, backgroundPurchasesAvailable } = useBackgroundCommerce()
   const [localError, setLocalError] = useState("")
+  const purchasesAvailable = backgroundPurchasesAvailable === true
   const cart = state.snapshot?.cart
 
   // Preserve the picker route and query through authentication. The compact
@@ -141,7 +142,13 @@ function CartContents({
             </time>.
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" size="sm" onClick={onReviewCheckout}>
+            <Button
+              type="button"
+              size="sm"
+              disabled={!purchasesAvailable}
+              className={!purchasesAvailable ? "disabled:pointer-events-auto disabled:cursor-not-allowed" : undefined}
+              onClick={onReviewCheckout}
+            >
               Return to checkout
             </Button>
             <Button
@@ -164,18 +171,33 @@ function CartContents({
       </div>
 
       {!reservedOrder && cart.items.length > 0 && signedIn ? (
-        <Button type="button" onClick={onReviewCheckout}>
+        <Button
+          type="button"
+          disabled={!purchasesAvailable}
+          className={!purchasesAvailable ? "disabled:pointer-events-auto disabled:cursor-not-allowed" : undefined}
+          onClick={onReviewCheckout}
+        >
           Review checkout
         </Button>
       ) : null}
+      {!purchasesAvailable ? <p role="status" className="text-sm text-muted-foreground">Background purchases are temporarily unavailable.</p> : null}
       {!reservedOrder && cart.items.length > 0 && !signedIn ? (
         <div className="grid gap-2 sm:grid-cols-2">
-          <Button asChild>
-            <Link href={`/login?callbackUrl=${encodeURIComponent(authReturnPath)}`}>Sign in to checkout</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href={`/register?callbackUrl=${encodeURIComponent(authReturnPath)}`}>Create account</Link>
-          </Button>
+          {purchasesAvailable ? (
+            <>
+              <Button asChild>
+                <Link href={`/login?callbackUrl=${encodeURIComponent(authReturnPath)}`}>Sign in to checkout</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href={`/register?callbackUrl=${encodeURIComponent(authReturnPath)}`}>Create account</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button type="button" disabled className="disabled:pointer-events-auto disabled:cursor-not-allowed">Sign in to checkout</Button>
+              <Button type="button" disabled variant="outline" className="disabled:pointer-events-auto disabled:cursor-not-allowed">Create account</Button>
+            </>
+          )}
         </div>
       ) : null}
       {localError ? <p role="alert" className="text-sm text-destructive">{localError}</p> : null}
@@ -190,13 +212,14 @@ export function BackgroundCommerceCart({
   variant: "compact" | "dialog"
   onReviewCheckout?: () => void
 }) {
-  const { cartOpen, closeCart, openCart, signedIn } = useBackgroundCommerce()
+  const { cartOpen, closeCart, openCart, signedIn, backgroundPurchasesAvailable } = useBackgroundCommerce()
   const [reviewOpen, setReviewOpen] = useState(false)
   const pathname = usePathname() ?? "/"
   const searchParams = useSearchParams()
   const search = searchParams.toString()
   const isCalendarRoute = pathname === "/calendar" || pathname.startsWith("/calendar/")
   const beginReview = () => {
+    if (backgroundPurchasesAvailable !== true) return
     onReviewCheckout?.()
     if (variant === "dialog") closeCart()
     setReviewOpen(true)

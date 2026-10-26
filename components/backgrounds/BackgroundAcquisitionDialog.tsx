@@ -39,9 +39,10 @@ export function BackgroundAcquisitionDialog({
   onAcquired: (background: BackgroundDefinition) => void
 }) {
   const pathname = usePathname() ?? "/chimer"
-  const { state, addToCart, signedIn } = useBackgroundCommerce()
+  const { state, addToCart, signedIn, backgroundPurchasesAvailable } = useBackgroundCommerce()
   const [confirmingCredit, setConfirmingCredit] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const purchasesAvailable = backgroundPurchasesAvailable === true
   const snapshot = state.snapshot
   const creditBalance = snapshot?.creditBalance
   const owned = Boolean(background && snapshot?.ownerships.some((ownership) => (
@@ -66,6 +67,7 @@ export function BackgroundAcquisitionDialog({
   const adding = state.pendingAction?.action === "add-to-cart"
 
   const buy = async () => {
+    if (!purchasesAvailable) return
     setErrorMessage("")
     try {
       if (!inCart) await addToCart(background.id)
@@ -92,7 +94,9 @@ export function BackgroundAcquisitionDialog({
             <DialogDescription>
               <span className="mb-2 block text-foreground">{background.visualDescriptor}</span>
               {mode === "keep-permanently"
-                ? "Your membership includes this background while it is active. Buy it for $1 or use a background credit to keep it on your account even if you later cancel."
+                ? purchasesAvailable
+                  ? "Your membership includes this background while it is active. Buy it for $1 or use a background credit to keep it on your account even if you later cancel."
+                  : "Your membership includes this background while it is active. Use a background credit to keep it on your account even if you later cancel."
                 : "Choose how you want to access this premium background."}
             </DialogDescription>
           </DialogHeader>
@@ -107,7 +111,9 @@ export function BackgroundAcquisitionDialog({
             </Button>
             {!signedIn ? (
               <p className="-mt-2 text-xs text-muted-foreground">
-                Sign in at checkout to use account credits. You can still add this background to your cart now.
+                {purchasesAvailable
+                  ? "Sign in at checkout to use account credits. You can still add this background to your cart now."
+                  : "Sign in to use account credits."}
               </p>
             ) : typeof creditBalance !== "number" ? (
               <p className="-mt-2 text-xs text-muted-foreground" role="status">
@@ -115,16 +121,23 @@ export function BackgroundAcquisitionDialog({
               </p>
             ) : creditBalance === 0 ? (
               <p className="-mt-2 text-xs text-muted-foreground">
-                {mode === "keep-permanently"
-                  ? "You have 0 credits. Buy this background for $1 to keep it permanently."
-                  : "You have 0 credits. Purchase this background or unlock the premium collection."}
+                {!purchasesAvailable
+                  ? "You have 0 credits."
+                  : mode === "keep-permanently"
+                    ? "You have 0 credits. Buy this background for $1 to keep it permanently."
+                    : "You have 0 credits. Purchase this background or unlock the premium collection."}
               </p>
             ) : (
               <p className="-mt-2 text-xs text-muted-foreground">
                 {creditBalance} {creditBalance === 1 ? "credit" : "credits"} available.
               </p>
             )}
-            <Button type="button" disabled={adding || inCart} onClick={() => void buy()}>
+            <Button
+              type="button"
+              disabled={!purchasesAvailable || adding || inCart}
+              className={!purchasesAvailable ? "disabled:pointer-events-auto disabled:cursor-not-allowed" : undefined}
+              onClick={() => void buy()}
+            >
               {mode === "keep-permanently" ? "Buy permanently for $1" : "Buy for $1"}
             </Button>
             {mode === "locked" ? (
@@ -135,6 +148,7 @@ export function BackgroundAcquisitionDialog({
               </Button>
             ) : null}
           </div>
+          {!purchasesAvailable ? <p role="status" className="text-sm text-muted-foreground">Background purchases are temporarily unavailable.</p> : null}
           {inCart ? (
             <p role="status" className="text-sm text-muted-foreground">
               This background is already in your account cart.

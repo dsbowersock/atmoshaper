@@ -18,10 +18,12 @@ import { cn } from "@/lib/utils"
 
 export function LayoutWrapper({
   children,
+  backgroundPurchasesAvailable,
   navigation,
   user,
 }: {
   children: ReactNode
+  backgroundPurchasesAvailable: boolean
   navigation: SidebarNavigation
   user: SidebarUser
 }) {
@@ -95,7 +97,7 @@ export function LayoutWrapper({
   ) : shell
 
   return (
-    <BackgroundCommerceProvider ownerKey={ownerKey}>
+    <BackgroundCommerceProvider ownerKey={ownerKey} backgroundPurchasesAvailable={backgroundPurchasesAvailable}>
       {content}
       <BackgroundCommerceCart variant="dialog" />
       <BackgroundCheckoutReturnStatus />
