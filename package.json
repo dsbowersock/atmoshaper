@@ -25,6 +25,8 @@
     "test:app-landmarks": "node --test tests/app-main-landmarks.test.mjs",
     "lint:app-landmarks": "eslint app/layout.tsx app/chimer/layout.tsx \"app/chimer/background-preview/[backgroundId]/preview-scene.tsx\" app/account/link-google/page.tsx app/admin/anatomy/media-review/page.tsx app/dev/rsc-session-proof/page.tsx tests/app-main-landmarks.test.mjs tests/fixtures/app-main-landmark-harness.mjs",
     "test:stripe-readiness": "node --test tests/stripe-readiness.test.mjs tests/stripe-supporter-only-readiness.test.mjs tests/stripe-webhook-contract.test.mjs",
+    "test:commerce-purchase-domain": "node --test tests/background-checkout.test.mjs",
+    "lint:commerce-purchase-domain": "eslint lib/commerce/catalog.ts lib/stripe-billing.js tests/background-checkout.test.mjs",
     "test:production-readiness": "node --test tests/production-migration-gate.test.mjs tests/production-stripe-readiness-gate.test.mjs",
     "test:anatomime-realtime": "node --test tests/anatomime-realtime-token.test.mjs tests/anatomime-realtime-auth.test.mjs tests/anatomime-polling.test.mjs tests/anatomime-traffic-routes.test.mjs tests/anatomime-traffic-server.test.mjs",
     "test:anatomime-contracts": "node --test tests/anatomime-browser-clock-contract.test.mjs tests/anatomime-release-receipts.test.mjs",

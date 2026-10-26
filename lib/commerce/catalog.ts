@@ -1,4 +1,5 @@
 import { backgroundRegistry } from "../../components/backgrounds/backgroundRegistry.ts"
+import { DIGITAL_PURCHASES_REFUNDS_VERSION } from "../legal-documents.js"
 import {
   BACKGROUND_COMMERCE_TAX_PRODUCT_CODE,
   BACKGROUND_UNIT_AMOUNT,
@@ -72,6 +73,34 @@ export function getCommerceTaxReadiness(env: NodeJS.ProcessEnv = process.env): C
     ready,
     taxCode: taxMode === "stripe" ? taxCode : null,
   }
+}
+
+/**
+ * Resolves the existing environment gates for paid background checkout without
+ * provider calls or exposing key values. Key presence is an operator signal,
+ * not credential verification. Request country, catalog and consent remain
+ * separate checks in the billing assertion; callers may expose only `ready`.
+ */
+export function getBackgroundCommercePurchaseReadiness(
+  env: NodeJS.ProcessEnv = process.env,
+): { ready: boolean; tax: CommerceTaxReadiness } {
+  const tax = getCommerceTaxReadiness(env)
+  const purchaseCountries = String(env.BACKGROUND_COMMERCE_PURCHASE_COUNTRIES ?? "")
+    .split(",")
+    .map((country) => country.trim().toUpperCase())
+    .filter(Boolean)
+  const ready = explicitTrue(env.BACKGROUND_COMMERCE_PURCHASING_ENABLED)
+    && String(env.BACKGROUND_COMMERCE_PRICE_CENTS ?? "").trim() === "100"
+    && purchaseCountries.length === 1
+    && purchaseCountries[0] === "US"
+    && env.BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION === DIGITAL_PURCHASES_REFUNDS_VERSION
+    && explicitTrue(env.BACKGROUND_COMMERCE_WEBHOOK_READY)
+    && explicitTrue(env.BACKGROUND_COMMERCE_RECONCILIATION_READY)
+    && Boolean(env.STRIPE_SECRET_KEY?.trim())
+    && Boolean(env.STRIPE_WEBHOOK_SECRET?.trim())
+    && tax.ready
+
+  return { ready, tax }
 }
 
 export function resolveCommerceProduct(productType: string, productKey: string): CommerceProduct {

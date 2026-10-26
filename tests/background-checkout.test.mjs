@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
+import * as commerceCatalog from "../lib/commerce/catalog.ts"
 import {
   assertBackgroundCommercePurchasingReady,
   createBackgroundPurchaseCheckoutSession,
@@ -176,6 +177,113 @@ function checkoutHarness(overrides = {}) {
 }
 
 describe("background purchasing readiness", () => {
+  it("exposes the canonical environment-only readiness contract without configuration values", () => {
+    assert.equal(typeof commerceCatalog.getBackgroundCommercePurchaseReadiness, "function")
+    assert.deepEqual(commerceCatalog.getBackgroundCommercePurchaseReadiness(readyEnv()), {
+      ready: true,
+      tax: { mode: "stripe", ready: true, taxCode: "txcd_10000000" },
+    })
+  })
+
+  const invalidConfiguration = {
+    BACKGROUND_COMMERCE_PURCHASING_ENABLED: "1",
+    BACKGROUND_COMMERCE_PRICE_CENTS: "200",
+    BACKGROUND_COMMERCE_PURCHASE_COUNTRIES: "US,CA",
+    BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION: "stale",
+    BACKGROUND_COMMERCE_WEBHOOK_READY: "yes",
+    BACKGROUND_COMMERCE_RECONCILIATION_READY: "false",
+    STRIPE_SECRET_KEY: "   ",
+    STRIPE_WEBHOOK_SECRET: "   ",
+    BACKGROUND_COMMERCE_TAX_MODE: "disabled",
+    BACKGROUND_COMMERCE_TAX_PRODUCT_CODE: "txcd_other",
+    BACKGROUND_COMMERCE_TAX_PROVIDER_READY: "1",
+    BACKGROUND_COMMERCE_TAX_REGISTRATIONS_READY: "false",
+  }
+
+  for (const [key, invalidValue] of Object.entries(invalidConfiguration)) {
+    for (const [caseName, value] of [["missing", undefined], ["invalid", invalidValue]]) {
+      it(`keeps ${caseName} ${key} unavailable in the helper and billing assertion`, () => {
+        const env = readyEnv({ [key]: value })
+        assert.equal(commerceCatalog.getBackgroundCommercePurchaseReadiness(env).ready, false)
+        assert.throws(() => assertBackgroundCommercePurchasingReady({
+          env,
+          purchaseCountry: "US",
+          catalogReady: true,
+          legalConsent: currentConsent(),
+        }), { code: "TAX_NOT_READY", status: 503, message: "Purchases are temporarily unavailable." })
+      })
+    }
+  }
+
+  it("preserves accepted normalization and key-presence semantics without mutating the environment", () => {
+    const env = Object.freeze(readyEnv({
+      BACKGROUND_COMMERCE_PURCHASING_ENABLED: " TRUE ",
+      BACKGROUND_COMMERCE_PRICE_CENTS: " 100 ",
+      BACKGROUND_COMMERCE_PURCHASE_COUNTRIES: " , us, ",
+      BACKGROUND_COMMERCE_WEBHOOK_READY: " TRUE ",
+      BACKGROUND_COMMERCE_RECONCILIATION_READY: " TRUE ",
+      STRIPE_SECRET_KEY: "present",
+      STRIPE_WEBHOOK_SECRET: "present",
+      BACKGROUND_COMMERCE_TAX_MODE: " STRIPE ",
+      BACKGROUND_COMMERCE_TAX_PRODUCT_CODE: " txcd_10000000 ",
+      BACKGROUND_COMMERCE_TAX_PROVIDER_READY: " TRUE ",
+      BACKGROUND_COMMERCE_TAX_REGISTRATIONS_READY: " TRUE ",
+    }))
+    const result = commerceCatalog.getBackgroundCommercePurchaseReadiness(env)
+    assert.equal(result.ready, true)
+    assert.deepEqual(result.tax, commerceCatalog.getCommerceTaxReadiness(env))
+    assert.deepEqual(assertBackgroundCommercePurchasingReady({
+      env, purchaseCountry: "US", catalogReady: true, legalConsent: currentConsent(),
+    }), result.tax)
+  })
+
+  it("preserves exact US-only configuration and untrimmed legal-version matching", () => {
+    for (const countries of ["CA", "US,US", "", " , "]) {
+      assert.equal(commerceCatalog.getBackgroundCommercePurchaseReadiness(readyEnv({
+        BACKGROUND_COMMERCE_PURCHASE_COUNTRIES: countries,
+      })).ready, false)
+    }
+    assert.equal(commerceCatalog.getBackgroundCommercePurchaseReadiness(readyEnv({
+      BACKGROUND_COMMERCE_DIGITAL_PURCHASE_DOCUMENT_VERSION: ` ${DIGITAL_PURCHASES_REFUNDS_VERSION} `,
+    })).ready, false)
+  })
+
+  it("retains the tax-readiness shape for incomplete tax configuration", () => {
+    const env = readyEnv({ BACKGROUND_COMMERCE_TAX_MODE: undefined })
+    assert.deepEqual(commerceCatalog.getBackgroundCommercePurchaseReadiness(env), {
+      ready: false,
+      tax: { mode: "disabled", ready: false, taxCode: null },
+    })
+  })
+
+  it("still rejects request-country, catalog and consent failures after configuration passes", () => {
+    const env = readyEnv()
+    const legalConsent = currentConsent()
+    assert.equal(commerceCatalog.getBackgroundCommercePurchaseReadiness(env).ready, true)
+    const base = { env, purchaseCountry: "US", catalogReady: true, legalConsent }
+    const failures = [
+      { purchaseCountry: "CA" },
+      { purchaseCountry: "us" },
+      { purchaseCountry: undefined },
+      { catalogReady: false },
+      { catalogReady: "true" },
+      { catalogReady: undefined },
+      { legalConsent: null },
+      { legalConsent: { ...legalConsent, combinedConsentAccepted: false } },
+      { legalConsent: { ...legalConsent, acceptedAt: "invalid" } },
+      { legalConsent: { ...legalConsent, documentIds: [] } },
+      { legalConsent: { ...legalConsent, documentVersions: {} } },
+    ]
+    for (const failure of failures) {
+      assert.throws(() => assertBackgroundCommercePurchasingReady({ ...base, ...failure }), {
+        code: "TAX_NOT_READY", status: 503, message: "Purchases are temporarily unavailable.",
+      })
+    }
+    assert.deepEqual(assertBackgroundCommercePurchasingReady(base), {
+      mode: "stripe", ready: true, taxCode: "txcd_10000000",
+    })
+  })
+
   it("fails closed unless purchasing, legal, webhook, reconciliation, catalog, country, and tax are ready", () => {
     const legalConsent = currentConsent()
     const base = {

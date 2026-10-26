@@ -30,20 +30,22 @@ Verification follows Superpowers' bug-reproduction-before-repair workflow and Ae
 
 ## Task 1: reuse canonical readiness owners
 
-- [ ] Read current lib/stripe-readiness.js, lib/commerce/catalog.ts and lib/stripe-billing.js completely around the readiness functions; confirm source matches the audit before edits.
-- [ ] Add pure getBackgroundCommercePurchaseReadiness(env) in existing catalog.ts, returning { ready:boolean, tax:CommerceTaxReadiness }. Extract only the exact existing environment conjuncts. No private configuration values leave this function.
-- [ ] Reuse the helper in assertBackgroundCommercePurchasingReady, preserving request-specific guards, exception code and successful return.
-- [ ] Extend existing background-checkout pure tests: each missing/invalid conjunct is false; complete fixture true; request-country/catalog/consent failures still reject with original code after configuration passes.
-- [ ] Add named test:commerce-purchase-domain and lint:commerce-purchase-domain scripts for tests/background-checkout.test.mjs and the changed domain files if no equivalent commands exist. Run only the focused source tests/lint. Independent task review verifies exact conjunct equivalence and no readiness weakening.
+- [x] Read current lib/stripe-readiness.js, lib/commerce/catalog.ts and lib/stripe-billing.js completely around the readiness functions; confirm source matches the audit before edits.
+- [x] Add pure getBackgroundCommercePurchaseReadiness(env) in existing catalog.ts, returning { ready:boolean, tax:CommerceTaxReadiness }. Extract only the exact existing environment conjuncts. No private configuration values leave this function.
+- [x] Reuse the helper in assertBackgroundCommercePurchasingReady, preserving request-specific guards, exception code and successful return.
+- [x] Extend existing background-checkout pure tests: each missing/invalid conjunct is false; complete fixture true; request-country/catalog/consent failures still reject with original code after configuration passes.
+- [x] Add named test:commerce-purchase-domain and lint:commerce-purchase-domain scripts for tests/background-checkout.test.mjs and the changed domain files if no equivalent commands exist. Run only the focused source tests/lint. Independent task review verifies exact conjunct equivalence and no readiness weakening.
 
 ## Task 2: project availability to the existing controls
 
 - [ ] app/pricing/page.tsx supplies required checkoutAvailable:boolean from existing support readiness to DonationCheckoutForm. Unavailable displays fixed copy, disables amount/attempt controls and guards submit before storage/native submission. Preserve ready amounts, consent, notices, idempotency and native form action.
 - [ ] app/layout.tsx passes only backgroundPurchasesAvailable:boolean through components/layout-wrapper.tsx to BackgroundCommerceProvider. Expose it via existing context; missing/nonboolean means false. No state-route, snapshot or account-preferences change.
 - [ ] Provider startCheckout rejects unavailable attempts before queuing/fetching. Leave credit redemption, cart maintenance, cancellation, ownership and membership access unchanged.
+- [ ] A paid operation queued while ready must recheck latest committed availability before its paid fetch. Keep availability updates separate from owner-generation cleanup so disabling purchases does not cancel free-credit/cart/cancellation work.
 - [ ] BackgroundAcquisitionDialog disables paid Buy only, preserving credit confirmation/redemption and existing access/customization. Adjust zero-credit guidance without suggesting an unavailable purchase.
 - [ ] BackgroundCommerceCart preserves visible cart/removal/reservation cancellation while disabling checkout-oriented actions. BackgroundCheckoutReview disables and directly guards submission, preserving legal documents and consent.
 - [ ] Fixed public copy: One-time support is temporarily unavailable. / Background purchases are temporarily unavailable. No implementation or tax-setup details in customer flows.
+- [ ] Use semantic disabled controls; unavailable anchors must not navigate (aria-disabled alone is insufficient). Keep membership, policy, cart-removal and reservation-cancel navigation/actions usable. Distinguish unavailable cursor/feedback from an in-progress Checkout without changing the ready layout.
 - [ ] Extend actual inert UI/provider/source-wiring tests: unavailable support makes0storage/native submissions; unavailable background makes0fetches even with consent; ready restores current actions; unavailable plus2credits still permits credit redemption; owned/subscriber selection/customization works; guest/account receive SSR boolean; layout-wrapper-provider real guard wiring is covered.
 - [ ] Run focused donations, background-checkout, background-commerce-provider and background-checkout-surfaces named scripts plus changed-source lint/typecheck if cached. Do not replace meaningful assertions with source-only string matches.
 - [ ] Independent task review checks specification and code quality, then a broad whole-branch review checks all affected surfaces. Fix only valid findings and retain red/green evidence. Root owns staging/commits.
