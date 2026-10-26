@@ -70,6 +70,10 @@ describe("Professional-record vault lifecycle", { concurrency: false, timeout: 1
       await holdSave(page, seam)
       await lock(page)
       await release(page)
+      assert.equal(await page.evaluate(async () => {
+        const saved = await window.__vaultFixture.pending
+        return saved?.records?.soap?.draft?.subjective === "Invented pending note"
+      }), true, "A committed save must report success without reopening its locked view")
       assert.equal(await page.evaluate(() => window.__vaultFixture.api.status), "locked")
       assert.equal(await page.evaluate(() => window.__vaultFixture.api.payload.records.soap.draft), null)
       assert.equal(await page.evaluate(async () => {

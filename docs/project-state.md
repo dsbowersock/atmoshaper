@@ -1,5 +1,21 @@
 # AtmoShaper Project State
 
+## October 25 committed-save result after a vault lock
+
+CodeRabbit's included review of `020c48c` identified a valid save-result edge:
+an already accepted encrypted write could commit after a lock but return null,
+causing Journal, ROM and SOAP to report failure. The provider now returns the
+normalized accepted result after the write while retaining the authority guard
+around every view update. It does not unlock the vault or restore its plaintext
+view. Rejected or superseded storage operations still return null.
+
+All 13 real-crypto lifecycle cases pass, including new committed-result assertions
+for both delayed decrypt and encrypt saves, plus lock preservation, rejected
+stale callbacks, import/export, remount and reset protection. These use invented
+in-memory fixtures and the cached browser with no application services or database.
+No public/provider state or clinical storage boundary changed.
+
+
 ## October 25 Chimer review follow-up uses state-aware layout assertions
 
 PR #52's valid review finding is repaired in the component test: every changed
