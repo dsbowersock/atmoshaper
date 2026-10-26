@@ -3,6 +3,7 @@ import fs from "node:fs"
 import path from "node:path"
 import { createRequire } from "node:module"
 import { after, before, describe, it } from "node:test"
+import { expect } from "@playwright/test"
 
 const require = createRequire(import.meta.url)
 const root = path.resolve(import.meta.dirname, "..")
@@ -77,18 +78,26 @@ async function pageFor(viewport, visualViewport) {
   return { page, context }
 }
 
-/** Wait for layout/transition settlement and inspect actual visible rectangles, not source strings. */
-async function geometry(page) {
-  // Wait for the real observer to acquire its owner before checking geometry.
-  await page.waitForFunction(() => document.querySelector('[data-immersive-secondary-display="true"]')?.style.getPropertyValue("--chimer-secondary-top"))
-  await page.waitForTimeout(250)
+/** Reads current geometry without accepting a previous observer measurement as settlement. */
+async function readGeometry(page) {
   return page.evaluate(() => {
     const secondary = document.querySelector('[data-immersive-secondary-display="true"]')
+    if (!secondary) return null
     const box = secondary.getBoundingClientRect()
     const controls = [document.querySelector('[aria-label="Immersive display controls"]'), ...document.querySelectorAll('button[data-chimer-control="true"]')]
     const overlap = controls.some((node) => { const r = node.getBoundingClientRect(); return r.right > box.left && r.left < box.right && r.bottom > box.top && r.top < box.bottom })
-    return { top: box.top, bottom: box.bottom, left: box.left, right: box.right, overlap, width: box.width, scrollWidth: secondary.scrollWidth, clientWidth: secondary.clientWidth, faceLoaded: document.fonts.check('32px "Digital"'), inlineTop: secondary.style.getPropertyValue("--chimer-secondary-top"), controls: controls.map((node) => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom } }) }
+    return { top: box.top, bottom: box.bottom, left: box.left, right: box.right, overlap, width: box.width, scrollWidth: secondary.scrollWidth, clientWidth: secondary.clientWidth, faceLoaded: document.fonts.check('32px "Digital"'), inlineTop: secondary.style.getPropertyValue("--chimer-secondary-top"), kind: secondary.dataset.testid, fontFamily: getComputedStyle(secondary).fontFamily, chrome: document.querySelector("[data-immersive-stage]").dataset.fixtureChrome, controls: controls.map((node) => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom } }) }
   })
+}
+
+/** Retries the caller's post-change invariant as well as observer acquisition and clearance. */
+async function geometry(page, isExpected = () => true) {
+  let current
+  await expect.poll(async () => {
+    current = await readGeometry(page)
+    return Boolean(current?.inlineTop) && !current.overlap && isExpected(current)
+  }, { timeout: 5_000, message: "Expected the changed accessory layout to be acquired and clear." }).toBe(true)
+  return current
 }
 
 describe("Chimer accessory display and actual immersive toolbar", { concurrency: false, timeout: 120_000 }, () => {
@@ -111,7 +120,7 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
         assert.ok(clock.left >= 0 && clock.right <= viewport.width + 0.5)
         if (viewport.width === 1440) assert.ok(Math.abs(clock.top - 19.2) < 1, "Preserve the existing wide-screen position")
         await page.getByTestId("clock").click()
-        const timer = await geometry(page)
+        const timer = await geometry(page, (layout) => layout.kind === "timer")
         assert.equal(timer.overlap, false, "Swapping to the auxiliary timer must retain clearance")
         assert.ok(timer.scrollWidth <= timer.clientWidth + 1)
       } finally { await context.close() }
@@ -126,20 +135,23 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
           window.secondaryFixture.setCompactTimer(!isClock)
           document.querySelector("[data-immersive-stage]").style.setProperty("--immersive-reserved-top", "100px")
         }, clockPrimary)
-        await geometry(page)
-        await page.evaluate(async () => {
-          const primary = document.querySelector('[data-immersive-primary-display="true"]')
-          await Promise.all(primary.getAnimations().map((animation) => animation.finished.catch(() => {})))
-        })
-        const actual = await page.evaluate(() => {
+        await geometry(page, (layout) => layout.kind === (clockPrimary ? "timer" : "clock"))
+        let actual
+        await expect.poll(async () => {
+          actual = await page.evaluate(() => {
           const stage = document.querySelector("[data-immersive-stage]")
           const style = getComputedStyle(stage)
           const primary = document.querySelector('[data-immersive-primary-display="true"]')
           const box = primary.getBoundingClientRect()
-          return { top: box.top, height: box.height, bottom: box.bottom,
+          return { top: box.top, height: box.height, bottom: box.bottom, mode: stage.dataset.fixturePrimaryMode,
             reserved: parseFloat(style.getPropertyValue("--immersive-reserved-top")),
             secondary: parseFloat(style.getPropertyValue("--chimer-secondary-safe-top")) }
-        })
+          })
+          return actual.mode === (clockPrimary ? "clock" : "compact-timer")
+            && actual.reserved > 0 && actual.secondary > 0
+            && Math.abs(actual.top - Math.max(actual.reserved, actual.secondary)) < 1
+            && Math.abs(actual.bottom - 740) < 1 && actual.height > 0
+        }, { timeout: 5_000, message: "Expected the changed primary mode and greater viewport boundary." }).toBe(true)
         assert.ok(actual.reserved > 0 && actual.secondary > 0, JSON.stringify(actual))
         assert.ok(Math.abs(actual.top - Math.max(actual.reserved, actual.secondary)) < 1, JSON.stringify(actual))
         assert.ok(Math.abs(actual.bottom - 740) < 1, "Keep the existing bottom boundary")
@@ -150,7 +162,8 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
   it("remeasures position-only control-root changes without a resize event", async () => {
     const { page, context } = await pageFor({ width: 1440, height: 1000 })
     try {
-      assert.equal((await geometry(page)).overlap, false)
+      const initial = await geometry(page)
+      assert.equal(initial.overlap, false)
       const before = await page.getByRole("group", { name: "Immersive display controls" }).boundingBox()
       // The real shell updates inherited viewport/inset CSS on its portal root.
       // Moving those controls need not resize them or emit a viewport event.
@@ -159,7 +172,9 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
         const shell = toolbar.closest("[data-immersive-shell]")
         shell.style.setProperty("--immersive-toolbar-leading-space", `${(innerWidth - toolbar.getBoundingClientRect().width) / 2 + 4}px`)
       })
-      const moved = await geometry(page)
+      const moved = await geometry(page, (layout) => (
+        Math.abs(layout.controls[0].left - before.x) > 1 && layout.top > initial.top + 1
+      ))
       const after = await page.getByRole("group", { name: "Immersive display controls" }).boundingBox()
       assert.ok(Math.abs(after.width - before.width) < 1 && Math.abs(after.height - before.height) < 1, "Exercise a position change, not a ResizeObserver notification")
       assert.equal(moved.overlap, false, `Position-only chrome change must retain accessory clearance: ${JSON.stringify(moved)}`)
@@ -168,12 +183,12 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
   it("fits a panned and zoomed visual viewport as its dimensions change", async () => {
     const { page, context } = await pageFor({ width: 390, height: 844 }, { width: 210, height: 650, offsetLeft: 60, offsetTop: 30 })
     try {
-      let layout = await geometry(page)
+      let layout = await geometry(page, (current) => current.left >= 75 && current.right <= 255)
       assert.equal(layout.overlap, false)
       assert.ok(layout.left >= 75 && layout.right <= 255)
       assert.ok(layout.scrollWidth <= layout.clientWidth + 1)
       await page.evaluate(() => { Object.assign(window.secondaryViewport, { width: 180, offsetLeft: 90 }); window.secondaryViewport.dispatchEvent(new Event("resize")) })
-      layout = await geometry(page)
+      layout = await geometry(page, (current) => current.left >= 105 && current.right <= 255)
       assert.equal(layout.overlap, false)
       assert.ok(layout.left >= 105 && layout.right <= 255)
       assert.ok(layout.scrollWidth <= layout.clientWidth + 1)
@@ -183,30 +198,29 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
     const { page, context } = await pageFor({ width: 390, height: 844 })
     try {
       await page.evaluate(() => window.secondaryFixture.setFont("Arial, sans-serif"))
-      assert.equal((await geometry(page)).overlap, false)
+      assert.equal((await geometry(page, (layout) => layout.fontFamily.includes("Arial"))).overlap, false)
       await page.evaluate(() => { window.savedSecondary = document.querySelector('[data-immersive-secondary-display="true"]'); window.secondaryFixture.setShowSecondary(false) })
-      await page.waitForTimeout(100)
-      assert.deepEqual(await page.evaluate(() => ({ owner: window.savedSecondary.style.getPropertyValue("--chimer-secondary-top"), stage: document.querySelector("[data-immersive-stage]").style.getPropertyValue("--chimer-secondary-safe-top") })), { owner: "", stage: "" })
+      await expect.poll(() => page.evaluate(() => ({ owner: window.savedSecondary.style.getPropertyValue("--chimer-secondary-top"), stage: document.querySelector("[data-immersive-stage]").style.getPropertyValue("--chimer-secondary-safe-top"), acquired: Boolean(document.querySelector('[data-immersive-secondary-display="true"]')) }))).toEqual({ owner: "", stage: "", acquired: false })
       await page.evaluate(() => window.secondaryFixture.setShowSecondary(true))
-      assert.equal((await geometry(page)).overlap, false)
+      assert.equal((await geometry(page, (layout) => layout.kind === "clock" && layout.fontFamily.includes("Arial"))).overlap, false)
     } finally { await context.close() }
   })
   it("responds to resize, preserves placement through chrome fade, and releases reservations on unmount", async () => {
     const { page, context } = await pageFor({ width: 1440, height: 1000 })
     try {
       await page.setViewportSize({ width: 390, height: 844 })
-      const shown = await geometry(page)
+      const shown = await geometry(page, (layout) => layout.left >= 0 && layout.right <= 390.5)
       assert.equal(shown.overlap, false)
       for (const visibility of ["faded", "hidden", "visible"]) {
         await page.evaluate((value) => window.secondaryFixture.setChrome(value), visibility)
-        assert.ok(Math.abs((await geometry(page)).top - shown.top) < 1)
+        assert.ok(Math.abs((await geometry(page, (layout) => layout.chrome === visibility && Math.abs(layout.top - shown.top) < 1)).top - shown.top) < 1)
       }
-      const cleared = await page.evaluate(() => {
-        const stage = document.querySelector("[data-immersive-stage]"), secondary = document.querySelector('[data-immersive-secondary-display="true"]')
+      await page.evaluate(() => {
+        window.savedStage = document.querySelector("[data-immersive-stage]")
+        window.savedSecondary = document.querySelector('[data-immersive-secondary-display="true"]')
         window.unmountSecondaryFixture()
-        return new Promise((resolve) => setTimeout(() => resolve({ stage: stage.style.getPropertyValue("--chimer-secondary-safe-top"), secondary: secondary.style.getPropertyValue("--chimer-secondary-top") }), 50))
       })
-      assert.deepEqual(cleared, { stage: "", secondary: "" })
+      await expect.poll(() => page.evaluate(() => ({ stage: window.savedStage.style.getPropertyValue("--chimer-secondary-safe-top"), secondary: window.savedSecondary.style.getPropertyValue("--chimer-secondary-top") }))).toEqual({ stage: "", secondary: "" })
     } finally { await context.close() }
   })
 })

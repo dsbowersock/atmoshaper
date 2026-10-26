@@ -1,5 +1,17 @@
 # AtmoShaper Project Log
 
+## October 25 Chimer current-head review finding repaired
+
+Validated CodeRabbit's stale-observer-state finding and replaced fixed layout
+delays with retrying assertions for the actual changed state. Hide/show and
+unmount verify clear/reacquire explicitly; font, viewport, toolbar and primary
+mode checks require their new state. Only the component test and its inert
+fixture changed. All 43 focused checks and named lint/typecheck pass, using cached
+Chromium and fully intercepted requests. Initial cache-discovery and sandbox
+browser-launch failures remain recorded; the read-only Defender recheck found
+no additional detection. Publication uses the existing four-PR review/fix grant;
+new-head CI/review remain pending, with no merge or Production/Sentry activation.
+
 ## October 25 Chimer follow-up integrated with final main; position-only regression fixed
 
 The approved PR #44-51 merge batch completed at main `af5373d`, with final CI,
