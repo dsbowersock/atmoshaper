@@ -124,3 +124,14 @@ and diff checks pass. The
 records the narrow source change and evidence. The existing four-PR review/fix
 grant covers this correction, CI/Preview and dependency synchronization, with
 no PR/main merge, Production promotion or Sentry activation.
+## October 26 production-marker review follow-up
+
+The 213bd45 included review identified a valid gap between the inert fixture's
+markers and RunningTimer's production wiring. Add source-contract coverage of
+the actual guards and marker roles, including pure Clock's lack of an accessory;
+use inert AST evaluation and mutation controls without importing the full app.
+The suggested pure-Clock safe-top CSS change is not applicable because the
+production timer guard excludes status `clock` and the visible clock is primary.
+Preserve its runtime CSS and validate the source contract alongside the existing
+component/font checks. Publication remains within the approved review-fix loop;
+new-head CI/Preview and applicable included coverage remain separate gates.

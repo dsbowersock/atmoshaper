@@ -43,3 +43,32 @@ All 44 focused cases, named lint, typecheck and diff checks pass. Application
 runtime, CSS, font files and saved settings are unchanged by this follow-up.
 Current-head CI/Preview and applicable included review remain required after
 publication. The one-included-review-per-hour limit is preserved.
+
+## Production display wiring review
+
+The completed included review of 213bd45 (5650119063) raised two outside-diff
+comments. The proposed pure-Clock CSS change does not apply to the current
+rendering contract: status `clock` disables `shouldRenderTimerDisplay` and
+forces `isCurrentTimePrimary`. If its clock is visible, it is the sole primary
+display; if hidden, neither display renders. There is no auxiliary display to
+produce the proposed secondary safe-top reservation in that mode. The existing
+pure-Clock CSS remains unchanged rather than repairing an unreachable premise.
+
+The production-marker coverage gap is valid. Two source-contract checks now
+parse the actual RunningTimer declarations, button guards and marker expressions
+with TypeScript's AST. A small evaluator accepts only the required inert boolean
+syntax and never imports or executes the application. It verifies timer/clock
+role swaps, hidden clocks and the absence of an accessory in pure Clock/Music
+modes, independently of the geometry fixture's own markers. In-memory guard and
+marker mutations prove the assertions reject regressions. This is a source
+wiring check, not a complete rendered RunningTimer integration journey.
+
+The earlier full focused attempt could not locate Chromium because the sandbox
+redirected its default cache to a missing AppContainer path; it did not establish
+a geometry regression. The existing owner cache was selected explicitly for
+the follow-up, without any browser download or protection-setting change.
+
+All 46 focused checks pass with cached Chromium; scoped lint, typecheck and
+diff checks pass. The fixtures close their owned browser/contexts and reject
+unexpected traffic. No full application build, account/admin case, database,
+provider operation, runtime or permission change was performed for this review.

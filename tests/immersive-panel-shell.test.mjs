@@ -1,4 +1,5 @@
 import assert from "node:assert/strict"
+import ts from "typescript"
 import { readFile } from "node:fs/promises"
 import test from "node:test"
 
@@ -25,6 +26,110 @@ function getPanelContentSource(startProp, endProp) {
   assert.ok(start >= 0 && end > start)
   return runningTimerSource.slice(start, end)
 }
+
+/**
+ * Read the actual display guards/marker expressions without importing the
+ * application's hooks, account owners or media. The deliberately small AST
+ * evaluator rejects calls and unknown syntax rather than executing source.
+ */
+function productionDisplayWiring(source) {
+  const ast = ts.createSourceFile("running-timer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const declarations = new Map()
+  const displays = new Map()
+  const wanted = new Set(["isClockMode", "shouldRenderTimerDisplay", "isTimerPrimary", "isCurrentTimePrimary"])
+  const visit = (node) => {
+    if (ts.isVariableDeclaration(node) && wanted.has(node.name.getText(ast))) {
+      const name = node.name.getText(ast)
+      assert.equal(declarations.has(name), false, `Expected one production owner for ${name}`)
+      declarations.set(name, node.initializer)
+    }
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(ast) === "button") {
+      const attributes = node.openingElement.attributes.properties
+      const attribute = (name) => attributes.find((item) => ts.isJsxAttribute(item) && item.name.text === name)?.initializer
+      const id = attribute("data-testid")
+      const kind = ts.isStringLiteral(id ?? {}) ? { "running-timer-clock": "timer", "running-current-time": "clock" }[id.text] : null
+      if (kind) {
+        assert.equal(displays.has(kind), false)
+        let wrapper = node.parent
+        while (wrapper && !ts.isJsxExpression(wrapper)) wrapper = wrapper.parent
+        const guard = wrapper?.expression
+        const condition = ts.isBinaryExpression(guard ?? {}) && guard.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+          ? guard.left : ts.isConditionalExpression(guard ?? {}) ? guard.condition : null
+        assert.ok(condition, `Expected a conditional production ${kind} display`)
+        const marker = (name) => {
+          const value = attribute(name)
+          assert.ok(ts.isJsxExpression(value ?? {}) && value.expression, `Expected production ${name}`)
+          return value.expression
+        }
+        displays.set(kind, { condition, primary: marker("data-immersive-primary-display"), secondary: marker("data-immersive-secondary-display") })
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(ast)
+  assert.equal(declarations.size, wanted.size)
+  assert.equal(displays.size, 2)
+  const evaluate = (node, values) => {
+    if (ts.isParenthesizedExpression(node)) return evaluate(node.expression, values)
+    if (ts.isStringLiteral(node)) return node.text
+    if (ts.isIdentifier(node)) {
+      if (node.text === "undefined") return undefined
+      if (Object.hasOwn(values, node.text)) return values[node.text]
+      assert.ok(declarations.has(node.text), `Unexpected production identifier ${node.text}`)
+      return evaluate(declarations.get(node.text), values)
+    }
+    if (ts.isPropertyAccessExpression(node)) {
+      assert.equal(node.expression.getText(ast), "mode")
+      assert.ok(["context", "showClock"].includes(node.name.text))
+      return values.mode[node.name.text]
+    }
+    if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.ExclamationToken) return !evaluate(node.operand, values)
+    if (ts.isConditionalExpression(node)) return evaluate(evaluate(node.condition, values) ? node.whenTrue : node.whenFalse, values)
+    if (ts.isBinaryExpression(node)) {
+      const left = evaluate(node.left, values)
+      if (node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) return left === evaluate(node.right, values)
+      if (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) return left && evaluate(node.right, values)
+      if (node.operatorToken.kind === ts.SyntaxKind.BarBarToken) return left || evaluate(node.right, values)
+    }
+    assert.fail(`Unsupported display-wiring syntax ${ts.SyntaxKind[node.kind]}`)
+  }
+  return (values) => [...displays].filter(([, display]) => evaluate(display.condition, values)).map(([kind, display]) => ({
+    kind, primary: evaluate(display.primary, values) === "true", secondary: evaluate(display.secondary, values) === "true",
+  }))
+}
+
+test("production display markers swap timer/clock roles and pure Clock never renders an accessory", () => {
+  const wiring = productionDisplayWiring(runningTimerSource)
+  const primaryTimer = { kind: "timer", primary: true, secondary: false }
+  const secondaryTimer = { kind: "timer", primary: false, secondary: true }
+  const primaryClock = { kind: "clock", primary: true, secondary: false }
+  const secondaryClock = { kind: "clock", primary: false, secondary: true }
+  assert.deepEqual(wiring({ status: "running", primaryDisplay: "timer", mode: { context: "chimer", showClock: true } }), [primaryTimer, secondaryClock])
+  assert.deepEqual(wiring({ status: "paused", primaryDisplay: "currentTime", mode: { context: "chimer", showClock: true } }), [secondaryTimer, primaryClock])
+  assert.deepEqual(wiring({ status: "complete", primaryDisplay: "timer", mode: { context: "chimer", showClock: false } }), [primaryTimer])
+  for (const context of ["chimer", "clock", "musicVisualizer"]) {
+    for (const primaryDisplay of ["timer", "currentTime"]) {
+      assert.deepEqual(wiring({ status: "clock", primaryDisplay, mode: { context, showClock: true } }), [primaryClock])
+      assert.deepEqual(wiring({ status: "clock", primaryDisplay, mode: { context, showClock: false } }), [])
+    }
+  }
+})
+
+test("the production wiring projection detects guard and marker regressions independently of the fixture", () => {
+  const input = { status: "clock", primaryDisplay: "currentTime", mode: { context: "chimer", showClock: true } }
+  const expected = [{ kind: "clock", primary: true, secondary: false }]
+  const mutations = [
+    ['mode.context === "chimer" && !isClockMode', 'mode.context === "chimer"'],
+    ['data-immersive-primary-display={isCurrentTimePrimary ? "true" : undefined}', 'data-immersive-primary-display={!isCurrentTimePrimary ? "true" : undefined}'],
+  ]
+  for (const [before, after] of mutations) {
+    assert.ok(runningTimerSource.includes(before))
+    assert.throws(() => assert.deepEqual(productionDisplayWiring(runningTimerSource.replace(before, after))(input), expected), { name: "AssertionError" })
+  }
+  const timerInput = { status: "running", primaryDisplay: "timer", mode: { context: "chimer", showClock: true } }
+  const reversed = runningTimerSource.replace('data-immersive-secondary-display={!isTimerPrimary ? "true" : undefined}', 'data-immersive-secondary-display={isTimerPrimary ? "true" : undefined}')
+  assert.throws(() => assert.deepEqual(productionDisplayWiring(reversed)(timerInput), productionDisplayWiring(runningTimerSource)(timerInput)), { name: "AssertionError" })
+})
 
 test("exports the reusable controlled immersive panel contract", () => {
   assert.match(shellSource, /export type ImmersivePanelId = "clock" \| "visual" \| "background" \| null/)
