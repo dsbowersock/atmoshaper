@@ -4,7 +4,7 @@
 
 Goal: customers should see an unavailable purchase state whenever the existing server configuration would reject that path, while preserving all three intended purchase options, free credits and existing access.
 
-Spec: the existing October23 media/full-commerce readiness plan and original migration charter; the owner explicitly requires recurring Supporter, one-time support and permanent backgrounds. No merge, push, new provider operation, live payment, Production change or Sentry activation is included.
+Spec: the existing October 23 media/full-commerce readiness plan and original migration charter; the owner explicitly requires recurring Supporter, one-time support and permanent backgrounds. No merge, push, new provider operation, live payment, Production change or Sentry activation is included.
 
 ## Baseline and workspace
 
@@ -46,7 +46,7 @@ Verification follows Superpowers' bug-reproduction-before-repair workflow and Ae
 - [x] BackgroundCommerceCart preserves visible cart/removal/reservation cancellation while disabling checkout-oriented actions. BackgroundCheckoutReview disables and directly guards submission, preserving legal documents and consent.
 - [x] Fixed public copy: One-time support is temporarily unavailable. / Background purchases are temporarily unavailable. No implementation or tax-setup details in customer flows.
 - [x] Use semantic disabled controls; unavailable anchors must not navigate (aria-disabled alone is insufficient). Keep membership, policy, cart-removal and reservation-cancel navigation/actions usable. Distinguish unavailable cursor/feedback from an in-progress Checkout without changing the ready layout.
-- [x] Extend actual inert UI/provider/source-wiring tests: unavailable support makes0storage/native submissions; unavailable background makes0fetches even with consent; ready restores current actions; unavailable plus2credits still permits credit redemption; owned/subscriber selection/customization works; guest/account receive SSR boolean; layout-wrapper-provider real guard wiring is covered.
+- [x] Extend actual inert UI/provider/source-wiring tests: unavailable support makes 0 storage/native submissions; unavailable background makes 0 fetches even with consent; ready restores current actions; unavailable plus 2 credits still permits credit redemption; owned/subscriber selection/customization works; guest/account receive SSR boolean; layout-wrapper-provider real guard wiring is covered.
 - [x] Keep the full-app Browser-QA provider environment inert. Its existing commerce cases currently assume purchases are enabled despite disabled server configuration; adapt those expectations to the real unavailable state and seed existing cart fixtures where cart persistence, removal or cancellation is the behavior under test. Preserve ready purchase/duplicate-submit coverage in actual inert component/provider tests. Do not skip cases, enable provider flags, inject a production test bypass, change snapshots/APIs or claim full-app browser acceptance from source checks.
 - [x] Run focused donations, background-checkout, background-commerce-provider and background-checkout-surfaces named scripts plus changed-source lint/typecheck if cached. Do not replace meaningful assertions with source-only string matches.
 - [x] Independent task review checks specification and code quality, then a broad whole-branch review checks all affected surfaces. Fix only valid findings and retain red/green evidence. Root owns staging/commits.
@@ -60,6 +60,7 @@ Fresh focused evidence: 56 domain checks and 64 UI/component/provider/wiring che
 Evidence limits remain explicit. Task 2's original red aggregate was lost while collection overlapped editing; its separately reconstructed retained-baseline probe yielded 54 passes and eight failures. The final two tray cases have original retained test-first evidence: 62 passes/two failures before the production copy change, then 64 passes. These are separate receipts. The full-app commerce browser specification was adapted and lint/typechecked but not executed. No application build/server, database, Docker, provider, credential, payment, email or Production operation ran for this source slice.
 
 The branch and task-owned checkout remain available for authorized publication and review. Configured CI/Preview, deployed three-option acceptance and final migration/launch gates remain separate. Neither readiness boolean promises provider credential health.
+
 ## Done for this source slice
 
 Unavailable controls and direct handlers reject before attempt side effects; ready behavior and all existing server/build gates remain; free credits and existing access remain; meaningful positive/negative checks pass; docs/JSDoc explain non-obvious readiness semantics. Source remains local/unpublished until a concrete reviewable publication request is authorized. This does not close deployed three-option acceptance, tax/legal/rights approval, webhook/reconciliation/reversal acceptance, the account/admin runtime gate or final launch.
