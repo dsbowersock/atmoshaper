@@ -1,5 +1,14 @@
 # AtmoShaper Project Log
 
+## October 25 Calendar review documentation follow-up
+
+The included review through `45d382d` had no actionable comments or unresolved
+threads; its documentation check reported 60% coverage. Added intent/constraint
+comments to the four previously undocumented page helpers without changing
+statements or behavior. All 14 focused tests pass. Publication remains within
+the existing PR #55 review/fix loop; current-head CI and included review remain
+required. No main merge, Production change or Sentry activation occurred.
+
 ## October 25 committed-save result after a vault lock
 
 CodeRabbit's included review of `020c48c` identified a valid save-result edge:

@@ -1,5 +1,15 @@
 # AtmoShaper Project State
 
+## October 25 Calendar review documentation follow-up
+
+The included CodeRabbit review through `45d382d` reported no actionable
+comments and no unresolved threads. Its function-documentation check reported
+60% coverage. Focused JSDoc now explains the page read boundary, shared shell,
+private-read recovery message and date parsing constraint. Runtime behavior is
+unchanged; all 14 Calendar read-recovery tests pass. The new comment-only head
+still requires CI/Preview and its queued included review. No merge, Production
+change or Sentry activation is authorized.
+
 ## October 25 committed-save result after a vault lock
 
 CodeRabbit's included review of `020c48c` identified a valid save-result edge:

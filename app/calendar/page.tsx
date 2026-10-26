@@ -15,6 +15,7 @@ import { CalendarGuidanceNotice } from "./calendar-guidance-notice"
 import { CalendarOperatorShell } from "./calendar-operator-shell"
 import { CalendarWorkspace } from "./calendar-workspace"
 
+/** Scopes workspace reads to the signed-in member and shows safe unavailability when a required read fails. */
 export default async function CalendarPage({
   searchParams,
 }: {
@@ -237,10 +238,12 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
   return { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks }
 }
 
+/** Keeps sign-in, unavailable and ready states inside the same full-width operator geometry. */
 function CalendarShell({ children }: { children: React.ReactNode }) {
   return <CalendarOperatorShell width="full" flush>{children}</CalendarOperatorShell>
 }
 
+/** Hides failed or partial private reads behind the established generic recovery message. */
 function CalendarUnavailableNotice() {
   return (
     <AppSurface
@@ -253,6 +256,7 @@ function CalendarUnavailableNotice() {
   )
 }
 
+/** Accepts a real calendar-only date, including years below 100 without Date.UTC's century remapping. */
 function normalizeCalendarDateParam(value: unknown) {
   if (typeof value !== "string") return undefined
 
