@@ -124,6 +124,7 @@ and diff checks pass. The
 records the narrow source change and evidence. The existing four-PR review/fix
 grant covers this correction, CI/Preview and dependency synchronization, with
 no PR/main merge, Production promotion or Sentry activation.
+
 ## October 26 production-marker review follow-up
 
 The 213bd45 included review identified a valid gap between the inert fixture's
