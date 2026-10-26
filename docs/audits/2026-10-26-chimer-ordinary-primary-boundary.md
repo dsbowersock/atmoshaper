@@ -39,7 +39,7 @@ vertical position while retaining horizontal/overlap/width checks. The font
 case clears the controller-owned placement before changing font, then requires
 fresh acquisition alongside the existing metric and owner-cleanup assertions.
 
-All44 focused cases, named lint, typecheck and diff checks pass. Application
+All 44 focused cases, named lint, typecheck and diff checks pass. Application
 runtime, CSS, font files and saved settings are unchanged by this follow-up.
 Current-head CI/Preview and applicable included review remain required after
 publication. The one-included-review-per-hour limit is preserved.
