@@ -193,7 +193,9 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       const vault = await createEncryptedProfessionalRecordVault(payloadToSave, passphrase, { createdAt })
       if (!hasStorageAuthority(operation)) return null
       window.localStorage.setItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, JSON.stringify(vault))
-      if (!hasViewAuthority(operation)) return null
+      // The encrypted write committed even if its original view has locked.
+      // Report that accepted save without restoring plaintext in the closed view.
+      if (!hasViewAuthority(operation)) return normalized
       setVaultCreatedAt(vault.createdAt)
       setPayload(payloadToSave)
       setRevision((current) => current + 1)
