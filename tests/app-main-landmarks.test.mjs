@@ -35,6 +35,11 @@ describe("Application main-landmark ownership", { concurrency: false }, () => {
     assert.deepEqual(findCompetingRouteMainLandmarks(), [])
   })
 
+  it("preserves the shell landmark while projecting available background purchases", async () => {
+    const html = await renderLandmarkDocument("ordinary", { backgroundPurchasesAvailable: true })
+    assert.equal((html.match(/<main[\s>]/g) ?? []).length, 1)
+  })
+
   it("preserves a main landmark for the standalone global error document", () => {
     const source = fs.readFileSync(path.resolve(import.meta.dirname, "../app/global-error.tsx"), "utf8")
     assert.match(source, /<html[\s>]/)

@@ -1404,8 +1404,9 @@
   padding-left: 0.625rem;
 }
 
+/* Keep compact format targets at 44px even when the global choice styles load later. */
 .immersiveSettingsTabContent .clockCompactField select,
-.immersiveSettingsTabContent .formatOption,
+.immersiveSettingsTabContent .clockCompactField .formatOption,
 .immersiveSettingsTabContent .clockColorSwatchButton {
   min-height: 2.75rem;
 }

@@ -3,7 +3,6 @@ import {
   test as base,
   type Locator,
   type Page,
-  type Route,
 } from "@playwright/test"
 import { PROBLEM_REPORT_REQUEST_TIMEOUT_MS } from "../../lib/problem-report.js"
 
@@ -21,11 +20,6 @@ type ProviderBoundary = {
   assertClean: () => void
   takeUnexpectedExternalRequests: () => string[]
   takeUnexpectedSameOriginApiRequests: () => string[]
-}
-
-type DonationCall = {
-  amounts: string[]
-  attemptId: string
 }
 
 const test = base.extend<{ providerBoundary: ProviderBoundary }>({
@@ -133,49 +127,11 @@ async function openSupport(page: Page) {
   return { form, submit }
 }
 
-function donationButton(form: Locator, accessibleName: string) {
-  return form.getByRole("button", { name: accessibleName, exact: true })
-}
-
-function donationCall(route: Route): DonationCall {
-  const fields = new URLSearchParams(route.request().postData() ?? "")
-  const attemptIds = fields.getAll("checkoutAttemptId")
-  expect(attemptIds).toHaveLength(1)
-  return {
-    amounts: fields.getAll("amountCents"),
-    attemptId: attemptIds[0],
-  }
-}
-
 async function storedAttempt(page: Page) {
   return page.evaluate((key) => {
     const value = sessionStorage.getItem(key)
     return value ? JSON.parse(value) as { amountCents: number; attemptId: string } : null
   }, DONATION_STORAGE_KEY)
-}
-
-async function followDonationRedirect({
-  page,
-  calls,
-  accessibleName,
-  returnCode,
-}: {
-  page: Page
-  calls: DonationCall[]
-  accessibleName: string
-  returnCode: string
-}) {
-  const form = await settledDonationForm(page)
-  const before = calls.length
-  const navigation = page.waitForEvent("framenavigated", (frame) => frame === page.mainFrame())
-  await donationButton(form, accessibleName).evaluate((element) => {
-    ;(element as HTMLButtonElement).click()
-  })
-  await expect.poll(() => calls.length).toBe(before + 1)
-  await navigation
-  await expect(page).toHaveURL(new RegExp(`[?&]donation=${returnCode}(?:&|$)`))
-  await settledDonationForm(page)
-  return calls[before]
 }
 
 test("external targets and unexpected app APIs stay visible to the browser boundary", async ({
@@ -223,201 +179,81 @@ test("external targets and unexpected app APIs stay visible to the browser bound
   providerBoundary.assertClean()
 })
 
-test("donation keeps one attempt through bounded, unavailable, generic, and ambiguous outcomes", async ({
+test("unavailable donation controls reject new attempts without storage writes or POST", async ({
   page,
   providerBoundary,
 }) => {
   await installSameOriginAppBoundary(page, providerBoundary)
-  const outcomes = ["rate-limited", "unavailable", "checkout-error", "abort", "rate-limited"]
-  const calls: DonationCall[] = []
-  let releaseFirst: () => void = () => undefined
-  const firstResponseGate = new Promise<void>((resolve) => {
-    releaseFirst = resolve
+  const posts: string[] = []
+  await page.route((url) => isSameOriginPath(url, providerBoundary.appOrigin, DONATION_PATH), async (route) => {
+    posts.push(route.request().method())
+    await route.abort("blockedbyclient")
   })
-  await page.route((url) => (
-    isSameOriginPath(url, providerBoundary.appOrigin, DONATION_PATH)
-  ), async (route) => {
-    const outcome = outcomes[calls.length]
-    calls.push(donationCall(route))
-    if (calls.length === 1) await firstResponseGate
-    if (outcome === "abort") {
-      await route.abort("failed")
-      return
+  await page.addInitScript((key) => {
+    const original = Storage.prototype.setItem
+    const writes: string[] = []
+    Object.defineProperty(window, "__donationAttemptWrites", { value: writes })
+    Storage.prototype.setItem = function (name, value) {
+      if (name === key) writes.push(value)
+      return original.call(this, name, value)
     }
-    await route.fulfill({
-      status: 303,
-      headers: { location: `/pricing?donation=${outcome}` },
-      body: "",
-    })
+  }, DONATION_STORAGE_KEY)
+  const form = await openPricing(page)
+  await expect(form.getByRole("status")).toHaveText("One-time support is temporarily unavailable.")
+  await expect(form).toHaveAttribute("aria-busy", "false")
+  const buttons = form.getByRole("button")
+  expect(await buttons.count()).toBe(5)
+  for (const button of await buttons.all()) await expect(button).toBeDisabled()
+  const blocked = await form.evaluate((owner) => {
+    const submitter = owner.querySelector<HTMLButtonElement>('button[type="submit"]')!
+    submitter.click()
+    const attempt = new SubmitEvent("submit", { bubbles: true, cancelable: true, submitter })
+    owner.dispatchEvent(attempt)
+    owner.querySelector<HTMLButtonElement>('button[type="button"]')!.click()
+    return attempt.defaultPrevented
   })
-
-  let form = await openPricing(page)
-  const firstNavigation = page.waitForEvent("framenavigated", (frame) => frame === page.mainFrame())
-  const fiveDollar = donationButton(form, "$5 Small project support")
-  const claimedState = await fiveDollar.evaluate(async (element) => {
-    const button = element as HTMLButtonElement
-    button.click()
-    button.click()
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-    const owner = button.form
-    return {
-      busy: owner?.getAttribute("aria-busy"),
-      allSubmitsDisabled: [...(owner?.querySelectorAll<HTMLButtonElement>('button[type="submit"]') ?? [])]
-        .every((submit) => submit.disabled),
-      status: owner?.querySelector('[role="status"]')?.textContent,
-    }
-  })
-  expect(claimedState).toEqual({
-    busy: "true",
-    allSubmitsDisabled: true,
-    status: "Opening secure checkout…",
-  })
-  await expect.poll(() => calls.length).toBe(1)
-  await page.waitForTimeout(250)
-  expect(calls).toHaveLength(1)
-  releaseFirst()
-  await firstNavigation
-  form = await settledDonationForm(page)
-  await expect(page.getByText("One-time support checkout temporarily paused", { exact: true })).toBeVisible()
-
-  const firstAttempt = calls[0].attemptId
-  expect(firstAttempt).toMatch(/^[0-9a-f-]{36}$/)
-  expect(calls[0].amounts).toEqual(["500"])
-  await expect.poll(async () => (await storedAttempt(page))?.attemptId).toBe(firstAttempt)
-  await page.evaluate(() => {
-    window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }))
-  })
-  const restoredState = await form.evaluate((owner) => ({
-    busy: owner.getAttribute("aria-busy"),
-    allSubmitsEnabled: [...owner.querySelectorAll<HTMLButtonElement>('button[type="submit"]')]
-      .every((submit) => !submit.disabled),
-    statusText: owner.querySelector('[role="status"]')?.textContent,
-    alertText: owner.querySelector('[role="alert"]')?.textContent,
-  }))
-  expect(restoredState).toEqual({
-    busy: "false",
-    allSubmitsEnabled: true,
-    statusText: "",
-    alertText: "",
-  })
-  expect(calls).toHaveLength(1)
-  await expect.poll(async () => (await storedAttempt(page))?.attemptId).toBe(firstAttempt)
-
-  const transientReturns = [
-    ["unavailable", "One-time support checkout temporarily unavailable"],
-    ["checkout-error", "One-time support checkout unavailable"],
-  ] as const
-  for (const [returnCode, notice] of transientReturns) {
-    const call = await followDonationRedirect({
-      page,
-      calls,
-      accessibleName: "$5 Small project support",
-      returnCode,
-    })
-    expect(call.attemptId).toBe(firstAttempt)
-    await expect(page.getByText(notice, { exact: true })).toBeVisible()
-    await expect.poll(async () => (await storedAttempt(page))?.attemptId).toBe(firstAttempt)
-  }
-
-  form = await settledDonationForm(page)
-  await donationButton(form, "$5 Small project support").evaluate((element) => {
-    ;(element as HTMLButtonElement).click()
-  })
-  await expect.poll(() => calls.length).toBe(4)
-  await page.waitForTimeout(250)
-  expect(calls).toHaveLength(4)
-
-  await page.goto("/pricing", { waitUntil: "domcontentloaded" })
-  await expect.poll(async () => (await storedAttempt(page))?.attemptId).toBe(firstAttempt)
-  const recovered = await followDonationRedirect({
-    page,
-    calls,
-    accessibleName: "$5 Small project support",
-    returnCode: "rate-limited",
-  })
-  expect(recovered.attemptId).toBe(firstAttempt)
-  await page.waitForTimeout(250)
-  expect(calls).toHaveLength(5)
+  expect(blocked).toBe(true)
+  await expect.poll(() => storedAttempt(page)).toBe(null)
+  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+  expect(await page.evaluate(() => Reflect.get(window, "__donationAttemptWrites"))).toEqual([])
+  expect(posts).toEqual([])
+  await expect(form).toHaveAttribute("aria-busy", "false")
 })
 
-test("donation rotates on amount, conflict, success, cancel, and explicit new attempt", async ({
+test("unavailable donation retains transient retries and cleans terminal returns with real notices", async ({
   page,
   providerBoundary,
 }) => {
   await installSameOriginAppBoundary(page, providerBoundary)
-  const outcomes = ["rate-limited", "conflict", "thanks", "cancelled", "rate-limited", "unavailable"]
-  const calls: DonationCall[] = []
-  await page.route((url) => (
-    isSameOriginPath(url, providerBoundary.appOrigin, DONATION_PATH)
-  ), async (route) => {
-    const outcome = outcomes[calls.length]
-    calls.push(donationCall(route))
-    await route.fulfill({
-      status: 303,
-      headers: { location: `/pricing?donation=${outcome}` },
-      body: "",
-    })
+  const posts: string[] = []
+  await page.route((url) => isSameOriginPath(url, providerBoundary.appOrigin, DONATION_PATH), async (route) => {
+    posts.push(route.request().method())
+    await route.abort("blockedbyclient")
   })
   await openPricing(page)
-
-  const first = await followDonationRedirect({
-    page,
-    calls,
-    accessibleName: "$5 Small project support",
-    returnCode: "rate-limited",
-  })
-  const amountChanged = await followDonationRedirect({
-    page,
-    calls,
-    accessibleName: "$15 Support a careful build session",
-    returnCode: "conflict",
-  })
-  expect(amountChanged.attemptId).not.toBe(first.attemptId)
-  await expect(page.getByText("One-time support checkout attempt changed", { exact: true })).toBeVisible()
-  await expect.poll(() => storedAttempt(page)).toBe(null)
-
-  const afterConflict = await followDonationRedirect({
-    page,
-    calls,
-    accessibleName: "$15 Support a careful build session",
-    returnCode: "thanks",
-  })
-  expect(afterConflict.attemptId).not.toBe(amountChanged.attemptId)
-  await expect(page.getByText("One-time support checkout completed", { exact: true })).toBeVisible()
-  await expect.poll(() => storedAttempt(page)).toBe(null)
-
-  const afterSuccess = await followDonationRedirect({
-    page,
-    calls,
-    accessibleName: "$15 Support a careful build session",
-    returnCode: "cancelled",
-  })
-  expect(afterSuccess.attemptId).not.toBe(afterConflict.attemptId)
-  await expect(page.getByText("One-time support checkout cancelled", { exact: true })).toBeVisible()
-  await expect.poll(() => storedAttempt(page)).toBe(null)
-
-  const afterCancel = await followDonationRedirect({
-    page,
-    calls,
-    accessibleName: "$15 Support a careful build session",
-    returnCode: "rate-limited",
-  })
-  expect(afterCancel.attemptId).not.toBe(afterSuccess.attemptId)
-  await expect.poll(async () => (await storedAttempt(page))?.attemptId).toBe(afterCancel.attemptId)
-
-  const form = await settledDonationForm(page)
-  await form.getByRole("button", { name: "Start a new checkout attempt" }).click()
-  await expect.poll(() => storedAttempt(page)).toBe(null)
-  const explicitNew = await followDonationRedirect({
-    page,
-    calls,
-    accessibleName: "$15 Support a careful build session",
-    returnCode: "unavailable",
-  })
-  expect(explicitNew.attemptId).not.toBe(afterCancel.attemptId)
-  expect(new Set(calls.map(({ attemptId }) => attemptId).slice(1))).toHaveProperty("size", 5)
+  const retained = { attemptId: "123e4567-e89b-42d3-a456-426614174000", amountCents: 500, createdAt: Date.now() }
+  const returns = [
+    ["rate-limited", "One-time support checkout temporarily paused", false],
+    ["unavailable", "One-time support checkout temporarily unavailable", false],
+    ["checkout-error", "One-time support checkout unavailable", false],
+    ["conflict", "One-time support checkout attempt changed", true],
+    ["thanks", "One-time support checkout completed", true],
+    ["cancelled", "One-time support checkout cancelled", true],
+  ] as const
+  for (const [returnCode, notice, terminal] of returns) {
+    await page.evaluate(({ key, retained }) => sessionStorage.setItem(key, JSON.stringify(retained)), { key: DONATION_STORAGE_KEY, retained })
+    await page.goto(`/pricing?donation=${returnCode}`, { waitUntil: "domcontentloaded" })
+    const form = await settledDonationForm(page)
+    await expect(page.getByText(notice, { exact: true })).toBeVisible()
+    await expect(form.getByRole("status")).toHaveText("One-time support is temporarily unavailable.")
+    await expect.poll(() => storedAttempt(page)).toEqual(terminal ? null : retained)
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })))
+    await expect(form).toHaveAttribute("aria-busy", "false")
+    for (const button of await form.getByRole("button").all()) await expect(button).toBeDisabled()
+    await expect.poll(() => storedAttempt(page)).toEqual(terminal ? null : retained)
+    expect(posts).toEqual([])
+  }
 })
-
 test("diagnostic Retry-After owns a countdown without automatic replay", async ({
   page,
   providerBoundary,

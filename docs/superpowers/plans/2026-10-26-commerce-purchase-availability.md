@@ -63,3 +63,24 @@ The branch and task-owned checkout remain available for authorized publication a
 ## Done for this source slice
 
 Unavailable controls and direct handlers reject before attempt side effects; ready behavior and all existing server/build gates remain; free credits and existing access remain; meaningful positive/negative checks pass; docs/JSDoc explain non-obvious readiness semantics. Source remains local/unpublished until a concrete reviewable publication request is authorized. This does not close deployed three-option acceptance, tax/legal/rights approval, webhook/reconciliation/reversal acceptance, the account/admin runtime gate or final launch.
+
+## October 26 included CI follow-up — compact Clock cascade
+
+The retained PR56 lane4 artifact isolates a compact Clock selector conflict: the
+module's 44px format minimum and global default had equal specificity, so later
+global styles could win. The compact owner now includes its existing
+`clockCompactField` ancestor; the 2.75rem value, global defaults and production
+markup stay intact. This does not establish whether the failure predates the
+commerce branch.
+
+The purpose-specific inert regression uses current module/global styles and an
+AST check of the real Clock markup ancestry. Before the selector repair, three
+checks passed and the two global-last cases failed with reconstructed 42px
+buttons at 539/319px. Afterward all five checks pass, covering both stylesheet
+orders, the unchanged >=44px target requirement, 44px bordered container, 59px
+cards and responsive card fit. Scoped ESLint and diff checks pass. Cached
+dependencies/Chromium only; no app build/server, database, provider or protected
+case ran. Existing full-app Browser-QA assertions remain for hosted CI; this is
+bounded source/CSS evidence, not full application visual or release acceptance.
+Detailed commands, retained red/green logs, evidence limits and frozen hashes
+are in the plan-scoped SDD clock-fix report for independent review.
