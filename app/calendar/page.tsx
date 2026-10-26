@@ -15,6 +15,7 @@ import { CalendarGuidanceNotice } from "./calendar-guidance-notice"
 import { CalendarOperatorShell } from "./calendar-operator-shell"
 import { CalendarWorkspace } from "./calendar-workspace"
 
+/** Scopes workspace reads to the signed-in member and shows safe unavailability when a required read fails. */
 export default async function CalendarPage({
   searchParams,
 }: {
@@ -93,93 +94,21 @@ export default async function CalendarPage({
 
   const membership = memberships.find((row) => row.practiceId === selectedPracticeId) ?? memberships[0]
   const practice = membership.practice
-  const windowStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-  const windowEnd = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
-  const [events, therapists, preferenceRow, availabilityRules, scheduleIntervals] = await Promise.all([
-    prisma.calendarEvent.findMany({
-      where: {
-        practiceId: practice.id,
-        startsAt: { lt: windowEnd },
-        endsAt: { gt: windowStart },
-      },
-      include: {
-        owner: { select: { name: true, email: true } },
-        appointment: {
-          include: {
-            practiceClient: true,
-            serviceType: true,
-            serviceVariant: true,
-            therapist: { select: { name: true, email: true } },
-          },
-        },
-        personalBlock: {
-          include: { therapist: { select: { name: true, email: true } } },
-        },
-        class: {
-          include: { instructor: { select: { name: true, email: true } } },
-        },
-        reminder: true,
-      },
-      orderBy: { startsAt: "asc" },
-      take: 500,
-    }),
-    prisma.practiceMembership.findMany({
-      where: {
-        practiceId: practice.id,
-        role: { in: ["OWNER", "THERAPIST"] },
-      },
-      include: { user: { select: { name: true, email: true } } },
-      orderBy: { createdAt: "asc" },
-    }),
-    prisma.userPreference.findUnique({
-      where: { userId: session.user.id },
-      select: { calendarPreferences: true },
-    }),
-    prisma.therapistAvailabilityRule.findMany({
-      where: { practiceId: practice.id, active: true },
-      select: { therapistId: true, startMinute: true, endMinute: true },
-    }),
-    prisma.calendarAvailabilityScheduleInterval.findMany({
-      where: {
-        active: true,
-        schedule: {
-          practiceId: practice.id,
-          active: true,
-        },
-      },
-      select: {
-        startMinute: true,
-        endMinute: true,
-        schedule: { select: { therapistId: true } },
-      },
-    }),
-  ])
+  const workspaceData = await loadCalendarWorkspaceData(practice.id, session.user.id).catch(() => null)
+  if (!workspaceData) {
+    return (
+      <CalendarShell>
+        <CalendarUnavailableNotice />
+      </CalendarShell>
+    )
+  }
+
+  const { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks } = workspaceData
   const preferences = normalizeCalendarPreferences(preferenceRow?.calendarPreferences ?? {})
   const providers = therapists.map((therapist) => ({
     id: therapist.userId,
     label: therapist.user.name ?? therapist.user.email ?? "Provider",
   }))
-  const providerIds = providers.map((provider) => provider.id)
-  const externalBusyBlocks = providerIds.length > 0
-    ? await prisma.externalCalendarBusyBlock.findMany({
-      where: {
-        ownerUserId: { in: providerIds },
-        status: "BUSY",
-        connection: { status: "ACTIVE" },
-        source: { selectedForBusySync: true },
-        startsAt: { lt: windowEnd },
-        endsAt: { gt: windowStart },
-      },
-      select: {
-        id: true,
-        startsAt: true,
-        endsAt: true,
-        ownerUserId: true,
-      },
-      take: 500,
-      orderBy: { startsAt: "asc" },
-    })
-    : []
   const workspaceEvents = [
     ...events.map((event) => buildCalendarWorkspaceEvent(event, preferences)),
     ...externalBusyBlocks.map((busyBlock) => buildExternalCalendarBusyWorkspaceEvent(busyBlock)),
@@ -218,10 +147,103 @@ export default async function CalendarPage({
   )
 }
 
+/**
+ * Loads every required workspace read as one usable result. A readiness-cache
+ * hit cannot guarantee later queries succeed; callers must not present missing
+ * events, availability or external busy windows as an empty, bookable calendar.
+ */
+async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
+  const windowStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const windowEnd = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
+  const [events, therapists, preferenceRow, availabilityRules, scheduleIntervals] = await Promise.all([
+    prisma.calendarEvent.findMany({
+      where: {
+        practiceId,
+        startsAt: { lt: windowEnd },
+        endsAt: { gt: windowStart },
+      },
+      include: {
+        owner: { select: { name: true, email: true } },
+        appointment: {
+          include: {
+            practiceClient: true,
+            serviceType: true,
+            serviceVariant: true,
+            therapist: { select: { name: true, email: true } },
+          },
+        },
+        personalBlock: {
+          include: { therapist: { select: { name: true, email: true } } },
+        },
+        class: {
+          include: { instructor: { select: { name: true, email: true } } },
+        },
+        reminder: true,
+      },
+      orderBy: { startsAt: "asc" },
+      take: 500,
+    }),
+    prisma.practiceMembership.findMany({
+      where: {
+        practiceId,
+        role: { in: ["OWNER", "THERAPIST"] },
+      },
+      include: { user: { select: { name: true, email: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.userPreference.findUnique({
+      where: { userId },
+      select: { calendarPreferences: true },
+    }),
+    prisma.therapistAvailabilityRule.findMany({
+      where: { practiceId, active: true },
+      select: { therapistId: true, startMinute: true, endMinute: true },
+    }),
+    prisma.calendarAvailabilityScheduleInterval.findMany({
+      where: {
+        active: true,
+        schedule: {
+          practiceId,
+          active: true,
+        },
+      },
+      select: {
+        startMinute: true,
+        endMinute: true,
+        schedule: { select: { therapistId: true } },
+      },
+    }),
+  ])
+  const providerIds = therapists.map((therapist) => therapist.userId)
+  const externalBusyBlocks = providerIds.length > 0
+    ? await prisma.externalCalendarBusyBlock.findMany({
+      where: {
+        ownerUserId: { in: providerIds },
+        status: "BUSY",
+        connection: { status: "ACTIVE" },
+        source: { selectedForBusySync: true },
+        startsAt: { lt: windowEnd },
+        endsAt: { gt: windowStart },
+      },
+      select: {
+        id: true,
+        startsAt: true,
+        endsAt: true,
+        ownerUserId: true,
+      },
+      take: 500,
+      orderBy: { startsAt: "asc" },
+    })
+    : []
+  return { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks }
+}
+
+/** Keeps sign-in, unavailable and ready states inside the same full-width operator geometry. */
 function CalendarShell({ children }: { children: React.ReactNode }) {
   return <CalendarOperatorShell width="full" flush>{children}</CalendarOperatorShell>
 }
 
+/** Hides failed or partial private reads behind the established generic recovery message. */
 function CalendarUnavailableNotice() {
   return (
     <AppSurface
@@ -234,6 +256,7 @@ function CalendarUnavailableNotice() {
   )
 }
 
+/** Accepts a real calendar-only date, including years below 100 without Date.UTC's century remapping. */
 function normalizeCalendarDateParam(value: unknown) {
   if (typeof value !== "string") return undefined
 
@@ -243,8 +266,8 @@ function normalizeCalendarDateParam(value: unknown) {
   const year = Number(match[1])
   const month = Number(match[2])
   const day = Number(match[3])
-  const date = new Date(Date.UTC(0, month - 1, day))
-  date.setUTCFullYear(year)
+  const date = new Date(0)
+  date.setUTCFullYear(year, month - 1, day)
 
   if (
     date.getUTCFullYear() !== year

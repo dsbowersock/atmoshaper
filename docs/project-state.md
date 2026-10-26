@@ -1,5 +1,15 @@
 # AtmoShaper Project State
 
+## October 25 Calendar review documentation follow-up
+
+The included CodeRabbit review through `45d382d` reported no actionable
+comments and no unresolved threads. Its function-documentation check reported
+60% coverage. Focused JSDoc now explains the page read boundary, shared shell,
+private-read recovery message and date parsing constraint. Runtime behavior is
+unchanged; all 14 Calendar read-recovery tests pass. The new comment-only head
+still requires CI/Preview and its queued included review. No merge, Production
+change or Sentry activation is authorized.
+
 ## October 25 committed-save result after a vault lock
 
 CodeRabbit's included review of `020c48c` identified a valid save-result edge:
@@ -25,6 +35,34 @@ checks and named lint/typecheck pass; new-commit CI/Preview and included review 
 required after publication under the existing four-PR approval. No PR merge or
 Production/Sentry activation is authorized. See the
 [validation audit](audits/2026-10-25-chimer-state-aware-layout-waits.md).
+
+## October 25 Calendar workspace read recovery verified locally
+
+Local runtime candidate `16e99df` now shows the existing generic Calendar
+unavailable surface if any required event, provider, preference, availability,
+schedule-interval or external-busy read fails. It never turns those failed reads
+into a successful empty schedule. Earlier sign-in/readiness/membership gates,
+valid empty workspaces, practice/user scope and date behavior are preserved.
+All seven Prisma query projections match after explicit helper-parameter and
+object-shorthand normalization; no privacy selection, row limit or filter changes.
+
+The actual-page regression improves from 8 passes/6 failures to all 14 passing.
+All 155 related Calendar cases, scoped lint, typecheck and the cached full build
+pass. All 2,189 archived inputs match the build snapshot and checkout through
+Git's configured text conversion. The actual page and presentation owners render
+the outage safely at 1440x1000, 390x844 and 320x740 using the completed candidate's
+CSS, with no overflow, browser errors, blocked requests or private error detail.
+This is invented-read/static-SSR acceptance, not database or hosted Google sync.
+
+Owned browser profiles/processes, source/build/archive, compiler/npm caches and
+two dependency junctions are cleaned up. Shared dependencies, unrelated work,
+receipts/screenshots, the three prior publication refs and the unapproved
+account/admin database packet remain intact. No authenticated provider, database,
+credential-holder, media, publication, Production or Sentry operation occurred.
+The paid media proposal stays declined; its request cap remains $0. Other
+migration release gates remain open.
+
+See the [Calendar recovery audit](audits/2026-10-25-calendar-workspace-read-recovery.md).
 
 ## October 25 local Notes save/recovery acceptance and three defects closed
 
