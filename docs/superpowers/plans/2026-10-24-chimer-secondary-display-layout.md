@@ -136,3 +136,15 @@ production timer guard excludes status `clock` and the visible clock is primary.
 Preserve its runtime CSS and validate the source contract alongside the existing
 component/font checks. Publication remains within the approved review-fix loop;
 new-head CI/Preview and applicable included coverage remain separate gates.
+
+## October 26 resize-baseline CI follow-up
+
+The new-head unit failure compares a resized geometry snapshot against a later
+fade state. A deterministic paused native transition proves the old fixture
+accepts a clear but unfinished baseline. Require completed geometry transitions
+before accepting it, preserving the existing five-second ordinary deadline and
+all prior assertions. The negative control uses a shorter bounded rejection,
+then finishes that exact transition and requires final geometry. Runtime/CSS is
+unchanged. The [resize audit](../../audits/2026-10-26-chimer-resize-baseline.md)
+records the CI frame, red/green proof and limits. Final child synchronization
+remains deferred until the parent is settled, before the children's reviews.
