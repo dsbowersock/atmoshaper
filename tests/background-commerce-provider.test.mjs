@@ -146,6 +146,7 @@ function providerHarnessBundle() {
         window.addEventListener("unhandledrejection", (event) => harness.errors.push(String(event.reason)));
         let latestCommerce = null;
         let updateOwner = null;
+        let updateAvailability = null;
         let checkoutResolve = null;
         let mutationResolve = null;
         const pendingStateRequests = new Set();
@@ -205,6 +206,7 @@ function providerHarnessBundle() {
           latestCommerce = useBackgroundCommerce();
           harness.owner = owner;
           harness.state = latestCommerce.state;
+          harness.available = latestCommerce.backgroundPurchasesAvailable;
           useEffect(() => {
             if (window.__commerceProviderAutomaticDemand) void latestCommerce.ensureSnapshot();
           }, [latestCommerce.ensureSnapshot]);
@@ -212,10 +214,14 @@ function providerHarnessBundle() {
         }
         function App() {
           const [owner, setOwner] = useState("owner-a");
+          const [available, setAvailable] = useState(true);
+          updateAvailability = setAvailable;
           updateOwner = setOwner;
-          return React.createElement(BackgroundCommerceProvider, { ownerKey: owner }, React.createElement(Probe, { owner }));
+          return React.createElement(BackgroundCommerceProvider, { ownerKey: owner, backgroundPurchasesAvailable: available }, React.createElement(Probe, { owner }));
         }
 
+        harness.setAvailability = (value) => updateAvailability(value);
+        harness.redeemCredit = () => latestCommerce.redeemCredit("static-gradient", "credit-safe");
         harness.setOwner = (owner) => updateOwner(owner);
         harness.ensureSnapshot = () => latestCommerce.ensureSnapshot();
         harness.refresh = () => latestCommerce.refresh();
@@ -350,6 +356,45 @@ describe("BackgroundCommerceProvider owner behavior", { concurrency: false }, ()
 
   after(async () => {
     await browser?.close()
+  })
+
+  it("fails closed for unavailable direct Checkout while preserving free-credit mutations", { timeout: 45_000 }, async () => {
+    const page = await openProviderHarness(browser)
+    try {
+      for (const value of [false, undefined, "true"]) {
+        await page.evaluate((value) => window.__commerceProviderHarness.setAvailability(value), value)
+        await page.waitForFunction(() => window.__commerceProviderHarness.available === false)
+        await page.evaluate(() => window.__commerceProviderHarness.startCheckout())
+        await page.waitForFunction(() => window.__commerceProviderHarness.checkoutSettled)
+        const result = await page.evaluate(() => ({ ...window.__commerceProviderHarness.read(), error: window.__commerceProviderHarness.checkoutError }))
+        assert.match(result.error, /Background purchases are temporarily unavailable\./)
+        assert.equal(result.calls.length, 0)
+      }
+      await page.evaluate(() => window.__commerceProviderHarness.redeemCredit())
+      const result = await page.evaluate(() => window.__commerceProviderHarness.read())
+      assert.ok(result.calls.includes("POST /api/background-commerce/credits/redeem"))
+    } finally { await page.close() }
+  })
+
+  it("rechecks committed availability inside a queued Checkout without aborting cart work", { timeout: 45_000 }, async () => {
+    const page = await openProviderHarness(browser)
+    try {
+      await page.evaluate(() => {
+        const harness = window.__commerceProviderHarness
+        harness.mutationMode = "pending"
+        harness.startAddToCart()
+      })
+      await page.waitForFunction(() => window.__commerceProviderHarness.read().calls.includes("POST /api/background-commerce/cart"))
+      await page.evaluate(() => window.__commerceProviderHarness.startCheckout())
+      await page.evaluate(() => window.__commerceProviderHarness.setAvailability(false))
+      await page.waitForFunction(() => window.__commerceProviderHarness.available === false)
+      await page.evaluate(() => window.__commerceProviderHarness.resolveMutation())
+      await page.waitForFunction(() => window.__commerceProviderHarness.checkoutSettled && window.__commerceProviderHarness.mutationSettled)
+      const result = await page.evaluate(() => ({ ...window.__commerceProviderHarness.read(), error: window.__commerceProviderHarness.checkoutError }))
+      assert.match(result.error, /Background purchases are temporarily unavailable\./)
+      assert.equal(result.calls.filter((call) => call === "POST /api/background-commerce/checkout").length, 0)
+      assert.ok(result.calls.includes("GET /api/background-commerce/state"), "cart work completes its snapshot refresh")
+    } finally { await page.close() }
   })
 
   it("replaces an aborted automatic mount read when Strict Mode replays the consumer", { timeout: 45_000 }, async () => {

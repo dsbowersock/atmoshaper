@@ -47,6 +47,7 @@ export type PurchaseConsentInput = {
 export type BackgroundCommerceContextValue = {
   state: BackgroundCommerceClientState
   signedIn: boolean
+  backgroundPurchasesAvailable: boolean
   ensureSnapshot(): Promise<void>
   refresh(): Promise<void>
   captureOwnershipReconciliationRevision(): number
@@ -174,14 +175,16 @@ function validCheckoutUrl(value: unknown): string | null {
 export function BackgroundCommerceProvider({
   children,
   ownerKey,
+  backgroundPurchasesAvailable,
 }: {
   children: ReactNode
   ownerKey: string | null
+  backgroundPurchasesAvailable: boolean
 }) {
   // A keyed owner boundary gives every account its own reducer, cart, and
   // request generation; cleanup invalidates work retained by the old instance.
   return (
-    <OwnerScopedBackgroundCommerceProvider key={ownerKey ?? "guest"} ownerKey={ownerKey}>
+    <OwnerScopedBackgroundCommerceProvider key={ownerKey ?? "guest"} ownerKey={ownerKey} backgroundPurchasesAvailable={backgroundPurchasesAvailable}>
       {children}
     </OwnerScopedBackgroundCommerceProvider>
   )
@@ -190,10 +193,19 @@ export function BackgroundCommerceProvider({
 function OwnerScopedBackgroundCommerceProvider({
   children,
   ownerKey,
+  backgroundPurchasesAvailable,
 }: {
   children: ReactNode
   ownerKey: string | null
+  backgroundPurchasesAvailable: boolean
 }) {
+  const purchasesAvailable = backgroundPurchasesAvailable === true
+  const purchasesAvailableRef = useRef(purchasesAvailable)
+  // Read the latest committed configuration inside queued paid work. This effect
+  // intentionally has no owner-generation cleanup: credit/cart work stays active.
+  useLayoutEffect(() => {
+    purchasesAvailableRef.current = purchasesAvailable
+  }, [purchasesAvailable])
   const signedIn = Boolean(ownerKey)
   const [state, dispatch] = useReducer(
     backgroundCommerceReducer,
@@ -489,6 +501,15 @@ function OwnerScopedBackgroundCommerceProvider({
   }, [signedIn, enqueueMutation])
 
   const startCheckout = useCallback(async (consent: PurchaseConsentInput) => {
+    const assertPurchasesAvailable = () => {
+      if (!purchasesAvailableRef.current) {
+        throw new BackgroundCommerceClientError({
+          code: "TAX_NOT_READY",
+          message: "Background purchases are temporarily unavailable.",
+        })
+      }
+    }
+    assertPurchasesAvailable()
     if (!signedIn) {
       throw new BackgroundCommerceClientError({
         code: "AUTH_REQUIRED",
@@ -505,6 +526,9 @@ function OwnerScopedBackgroundCommerceProvider({
         || requestGeneration !== ownerGenerationRef.current
         || requestOwnerKey !== activeOwnerKeyRef.current
       ) return
+      // A ready callback may wait behind free or cart mutations while the
+      // committed server projection changes. Reject before any paid side effect.
+      assertPurchasesAvailable()
       commerceRevisionRef.current += 1
       mutationStartedOwnerRef.current = requestOwnerKey
       hydratedOwnerRef.current = null
@@ -641,6 +665,7 @@ function OwnerScopedBackgroundCommerceProvider({
 
   const value = useMemo<BackgroundCommerceContextValue>(() => ({
     state: exposedState,
+    backgroundPurchasesAvailable: purchasesAvailable,
     signedIn,
     ensureSnapshot,
     refresh,
@@ -656,6 +681,7 @@ function OwnerScopedBackgroundCommerceProvider({
     closeCart,
   }), [
     exposedState,
+    purchasesAvailable,
     signedIn,
     ensureSnapshot,
     refresh,

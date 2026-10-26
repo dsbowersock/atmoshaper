@@ -59,7 +59,7 @@ function loadDonationAttemptModule() {
 }
 
 /** Renders the public pricing page with local read-only doubles around its billing forms. */
-async function renderPricingPage(donation) {
+async function renderPricingPage(donation, ready = true) {
   const Div = passThroughElement("div")
   const Button = passThroughElement("button")
   const Form = passThroughElement("form")
@@ -76,6 +76,7 @@ async function renderPricingPage(donation) {
       },
       "@/lib/rsc-session": { getCurrentRscSession: async () => null },
       "@/lib/donations": { DONATION_OPTIONS },
+      "@/lib/stripe-readiness": { getOneTimeSupportTaxReadiness: () => ({ ready }) },
       "@/lib/membership": {
         getUserMembershipPricingStatus: async () => null,
         resolveMembershipPricingMode: () => "auth",
@@ -265,6 +266,14 @@ describe("one-time support pricing owner", () => {
     assert.equal(donationForms[0].props.initialAttemptId, CHECKOUT_ATTEMPT_ID)
   })
 
+  it("projects only canonical support readiness into the form", async () => {
+    for (const ready of [false, true]) {
+      const tree = await renderPricingPage(undefined, ready)
+      const form = findElements(tree, (element) => element.type === "form" && Array.isArray(element.props.options))[0]
+      assert.equal(form.props.checkoutAvailable, ready)
+    }
+  })
+
   it("uses one native form with synchronous attempt persistence and no automatic replay", () => {
     assert.match(donationFormSource, /^"use client"/)
     assert.equal((donationFormSource.match(/<form\b/g) ?? []).length, 1)
@@ -370,11 +379,13 @@ describe("one-time support pricing owner", () => {
           "@/lib/donation-checkout-attempt": loadDonationAttemptModule(),
         },
       )
+      let checkoutAvailable = true
       const render = () => {
         stateCursor = 0
         refCursor = 0
         effectCursor = 0
         return renderFunctionComponents(DonationCheckoutForm({
+          checkoutAvailable,
           options: DONATION_OPTIONS,
           initialAttemptId: CHECKOUT_ATTEMPT_ID,
         }))
@@ -398,6 +409,21 @@ describe("one-time support pricing owner", () => {
       flushEffects()
       assert.equal(typeof listeners.get("pageshow"), "function")
 
+      for (const unavailable of [false, undefined, "true"]) {
+        checkoutAvailable = unavailable
+        const blocked = render()
+        assert.equal(findElements(blocked, (element) => element.type === "button").every((button) => button.props.disabled === true), true)
+        const blockedForm = findElements(blocked, (element) => element.type === "form")[0]
+        let prevented = false
+        blockedForm.props.onSubmitCapture({ currentTarget: new FakeHtmlFormElement(), nativeEvent: { submitter: { value: 500 } }, preventDefault: () => { prevented = true } })
+        findElements(blocked, (element) => element.type === "button" && element.props.type === "button")[0].props.onClick()
+        assert.equal(prevented, true)
+        assert.equal(storageWrites.length, 0)
+        assert.equal(storage.size, 0)
+        assert.equal(animationFrames.length, 0)
+      }
+      checkoutAvailable = true
+      tree = render()
       const form = findElements(tree, (element) => element.type === "form")[0]
       const submitButtons = findElements(
         tree,

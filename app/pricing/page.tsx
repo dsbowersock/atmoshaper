@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto"
 import Link from "next/link"
 import { HeartHandshake, ShieldCheck, Sparkles } from "lucide-react"
 import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
+import { getOneTimeSupportTaxReadiness } from "@/lib/stripe-readiness"
 import { DONATION_OPTIONS } from "@/lib/donations"
 import {
   getUserMembershipPricingStatus,
@@ -119,6 +120,7 @@ export default async function PricingPage({ searchParams }: PricingPageProps) {
             One-time support does not purchase goods or services, create a membership, or unlock features. It is not a charitable donation and is not tax-deductible.
           </p>
           <DonationCheckoutForm
+            checkoutAvailable={getOneTimeSupportTaxReadiness().ready}
             options={DONATION_OPTIONS}
             initialAttemptId={randomUUID()}
             returnCode={params?.donation}

@@ -1,4 +1,5 @@
 import fs from "node:fs"
+import assert from "node:assert/strict"
 import path from "node:path"
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
@@ -24,7 +25,7 @@ function loadSidebarInset() {
 }
 
 /** Keeps the actual root/shell/route JSX; auth, media and provider dependencies stay inert. */
-export async function renderLandmarkDocument(kind) {
+export async function renderLandmarkDocument(kind, { backgroundPurchasesAvailable = false } = {}) {
   const dependencies = {
     "next/font/google": { Inter: () => ({ className: "local-font-fixture" }) },
     "@/components/sidebar/sidebar": { getAppSidebarData: async () => ({
@@ -38,7 +39,14 @@ export async function renderLandmarkDocument(kind) {
     "@/components/providers/pwa-install-provider": { PwaInstallProvider: childrenOnly },
     "@/components/providers/therapist-settings-provider": { TherapistSettingsProvider: childrenOnly },
     "@/components/providers/music-provider": { MusicProvider: childrenOnly },
-    "@/components/layout-wrapper": { LayoutWrapper: childrenOnly },
+    "@/components/layout-wrapper": { LayoutWrapper: (props) => {
+      // Verify the real root projects the controlled decision without loading commerce services.
+      assert.equal(props.backgroundPurchasesAvailable, backgroundPurchasesAvailable)
+      return childrenOnly(props)
+    } },
+    "@/lib/commerce/catalog": {
+      getBackgroundCommercePurchaseReadiness: () => ({ ready: backgroundPurchasesAvailable }),
+    },
     "@/components/ui/sidebar": { SidebarInset: loadSidebarInset(), SidebarProvider: childrenOnly },
     "@/lib/seo": seo,
     "@/lib/public-product-identity": { PUBLIC_PRODUCT_IDENTITY: { name: "AtmoShaper" } },

@@ -90,8 +90,8 @@ export function BackgroundCarouselControlTray({
         ? "Selected"
         : "Select"
   const acquisitionHint = signedIn
-    ? "Use a credit, buy for $1, or unlock all premium backgrounds."
-    : "Add this background now, then sign in or create an account at checkout."
+    ? "Review account credits, permanent access, or membership options."
+    : "Review access options, or sign in to use account credits."
   const previewTags = getBackgroundVisualTags(option)
     .filter((tag) => !["shader", "video"].includes(tag.toLowerCase()))
     .slice(0, 4)

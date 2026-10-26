@@ -17,6 +17,7 @@ type DonationOption = {
 }
 
 type DonationCheckoutFormProps = {
+  checkoutAvailable: boolean
   options: readonly DonationOption[]
   initialAttemptId: string
   returnCode?: string
@@ -29,9 +30,11 @@ type DonationCheckoutFormProps = {
  */
 export function DonationCheckoutForm({
   options,
+  checkoutAvailable,
   initialAttemptId,
   returnCode,
 }: DonationCheckoutFormProps) {
+  const available = checkoutAvailable === true
   const amountInputRef = useRef<HTMLInputElement>(null)
   const attemptInputRef = useRef<HTMLInputElement>(null)
   const unusedInitialIdRef = useRef<string | null>(initialAttemptId)
@@ -71,6 +74,11 @@ export function DonationCheckoutForm({
   }, [returnCode])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    // Configuration can stop new attempts without discarding retained retry cleanup.
+    if (!available || pending) {
+      event.preventDefault()
+      return
+    }
     const form = event.currentTarget
     const submitter = (event.nativeEvent as SubmitEvent).submitter
     const amountCents = Number((submitter as HTMLButtonElement | null)?.value)
@@ -128,6 +136,7 @@ export function DonationCheckoutForm({
   }
 
   function startNewAttempt() {
+    if (!available || pending) return
     try {
       sessionStorage.removeItem(DONATION_CHECKOUT_ATTEMPT_STORAGE_KEY)
       const nextAttemptId = crypto.randomUUID()
@@ -163,10 +172,10 @@ export function DonationCheckoutForm({
             tone="pricing"
             effect="glowFlicker"
             size="lg"
-            disabled={pending}
+            disabled={!available || pending}
             aria-pressed={selectedAmount === option.amountCents}
             aria-label={`${option.label} ${option.description}`}
-            className="h-full min-h-12 w-full text-lg font-semibold disabled:cursor-wait"
+            className={`h-full min-h-12 w-full text-lg font-semibold ${available ? "disabled:cursor-wait" : "disabled:pointer-events-auto disabled:cursor-not-allowed"}`}
             style={{
               "--ml-neon-flicker-delay": `${index * 0.65}s`,
             } as CSSProperties}
@@ -180,14 +189,14 @@ export function DonationCheckoutForm({
           type="button"
           variant="link"
           size="compact"
-          disabled={pending}
+          disabled={!available || pending}
           onClick={startNewAttempt}
-          className="h-auto px-0 text-muted-foreground hover:text-foreground"
+          className={`h-auto px-0 text-muted-foreground hover:text-foreground ${!available ? "disabled:pointer-events-auto disabled:cursor-not-allowed" : ""}`}
         >
           Start a new checkout attempt
         </Button>
         <span role="status" aria-live="polite" aria-atomic="true">
-          {pending ? "Opening secure checkout…" : ""}
+          {!available ? "One-time support is temporarily unavailable." : pending ? "Opening secure checkout…" : ""}
         </span>
         <span role="alert" aria-atomic="true" className="text-destructive">
           {storageError ? "Checkout could not start in this browser. Please try again." : ""}

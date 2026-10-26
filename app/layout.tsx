@@ -12,6 +12,7 @@ import { MusicProvider } from "@/components/providers/music-provider"
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { createPublicPageMetadata, createSeoJsonLd } from "@/lib/seo"
+import { getBackgroundCommercePurchaseReadiness } from "@/lib/commerce/catalog"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import "./globals.css"
 
@@ -77,7 +78,13 @@ export default async function RootLayout({
                       <SidebarInset className="min-h-0 overflow-hidden bg-transparent">
                         {/* SidebarInset owns the main landmark; this wrapper only constrains layout. */}
                         <div className="relative h-full min-w-0 overflow-hidden">
-                          <LayoutWrapper user={user} navigation={navigation}>{children}</LayoutWrapper>
+                          <LayoutWrapper
+                            user={user}
+                            navigation={navigation}
+                            backgroundPurchasesAvailable={getBackgroundCommercePurchaseReadiness().ready}
+                          >
+                            {children}
+                          </LayoutWrapper>
                         </div>
                       </SidebarInset>
                     </SidebarCalendarProvider>

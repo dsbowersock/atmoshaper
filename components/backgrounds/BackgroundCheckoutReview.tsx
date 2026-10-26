@@ -47,7 +47,7 @@ export function BackgroundCheckoutReview({
 }) {
   const pathname = usePathname() ?? "/chimer"
   const searchParams = useSearchParams()
-  const { state, startCheckout } = useBackgroundCommerce()
+  const { state, startCheckout, backgroundPurchasesAvailable } = useBackgroundCommerce()
   const [consentAccepted, setConsentAccepted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
@@ -55,6 +55,7 @@ export function BackgroundCheckoutReview({
     () => requiredLegalDocumentsForEvent("digital-purchase"),
     [],
   )
+  const purchasesAvailable = backgroundPurchasesAvailable === true
   const cart = state.snapshot?.cart
   const returnPath = currentBackgroundReturnPath(
     pathname,
@@ -70,7 +71,7 @@ export function BackgroundCheckoutReview({
   }, [open])
 
   const submit = async () => {
-    if (submitting) return
+    if (!purchasesAvailable || submitting) return
     if (!consentAccepted || !cart || cart.items.length === 0) return
     setSubmitting(true)
     setErrorMessage("")
@@ -159,6 +160,7 @@ export function BackgroundCheckoutReview({
           purchases, non-delivery, and unresolved material defects through the
           policy and support process.
         </p>
+        {!purchasesAvailable ? <p role="status" className="text-sm text-muted-foreground">Background purchases are temporarily unavailable.</p> : null}
         {errorMessage ? <p role="alert" className="text-sm text-destructive">{errorMessage}</p> : null}
 
         <DialogFooter>
@@ -167,7 +169,8 @@ export function BackgroundCheckoutReview({
           </Button>
           <Button
             type="button"
-            disabled={!consentAccepted || submitting || !cart?.items.length}
+            disabled={!purchasesAvailable || !consentAccepted || submitting || !cart?.items.length}
+            className={!purchasesAvailable ? "disabled:pointer-events-auto disabled:cursor-not-allowed" : undefined}
             onClick={() => void submit()}
           >
             {submitting ? "Opening secure Checkout..." : "Continue to Checkout"}

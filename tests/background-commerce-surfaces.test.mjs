@@ -151,7 +151,7 @@ describe("production background commerce states", () => {
     assert.match(traySource, /data-carousel-primary-state/)
     assert.match(traySource, /\?\s*"Unlock"/)
     assert.match(traySource, /variant=\{\s*locked\s*\?\s*"default"\s*:\s*"glow"\s*\}/)
-    assert.match(traySource, /Add this background now, then sign in or create an account at checkout\./)
+    assert.match(traySource, /Review access options, or sign in to use account credits\./)
     assert.match(traySource, /aria-describedby=\{\s*locked\s*\?\s*acquisitionHintId\s*:\s*undefined\s*\}/)
     assert.match(traySource, /<Lock\b[^>]*\baria-hidden="true"[^>]*\/>/)
     assert.doesNotMatch(cardSource, /<Button|<Lock|<DollarSign|<Crown|data-carousel-primary-action/)

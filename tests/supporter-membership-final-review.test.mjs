@@ -71,11 +71,12 @@ function TestPendingSubmitButton(props) {
 }
 
 /** Preserves the production donation owner's single native POST-form boundary. */
-function TestDonationCheckoutForm({ options, initialAttemptId, returnCode }) {
+function TestDonationCheckoutForm({ options, initialAttemptId, returnCode, checkoutAvailable }) {
   return createElement("form", {
     action: "/api/billing/donation",
     method: "post",
     "data-return-code": returnCode,
+    "data-checkout-available": checkoutAvailable,
     children: [
       createElement("input", {
         type: "hidden",
@@ -103,6 +104,7 @@ async function renderPublicPricing({
   registrationOpen = true,
   session,
   supporterCheckoutOpen = true,
+  oneTimeSupportReady = false,
   stripeCustomer = null,
   subscriptions,
   membershipStatusError = null,
@@ -145,6 +147,9 @@ async function renderPublicPricing({
       },
       "@/lib/donations": {
         DONATION_OPTIONS: [],
+      },
+      "@/lib/stripe-readiness": {
+        getOneTimeSupportTaxReadiness: () => ({ ready: oneTimeSupportReady }),
       },
       "@/lib/membership": {
         getUserMembershipPricingStatus,
@@ -233,6 +238,7 @@ async function renderPublicPricing({
   )
   assert.ok(donationForm, "PricingPage should render the native donation POST owner")
   assert.equal(donationForm.props.method, "post")
+  assert.equal(donationForm.props["data-checkout-available"], oneTimeSupportReady)
   assert.equal(
     findElements(donationForm, (element) => element.props.name === "checkoutAttemptId")[0]?.props.value,
     PRICING_ATTEMPT_ID,
@@ -366,6 +372,18 @@ function migrationStripeFixture(targetPrice) {
 }
 
 describe("Supporter membership final-review contracts", () => {
+  it("projects ready and unavailable one-time support independently of recurring Checkout", async () => {
+    for (const oneTimeSupportReady of [false, true]) {
+      const result = await renderPublicPricing({
+        oneTimeSupportReady,
+        supporterCheckoutOpen: !oneTimeSupportReady,
+        session: null,
+        subscriptions: [],
+      })
+      assert.equal(result.supporterCheckoutOpen, !oneTimeSupportReady)
+    }
+  })
+
   it("derives the public Stripe product name from the AtmoShaper identity owner", () => {
     assert.equal(
       SUPPORTER_MEMBERSHIP_PRODUCT_NAME,
