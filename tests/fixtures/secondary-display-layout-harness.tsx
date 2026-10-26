@@ -26,12 +26,15 @@ function Fixture() {
   const [chrome, setChrome] = useState<"visible" | "faded" | "hidden">("visible")
   const [panel, setPanel] = useState<"clock" | "visual" | "background" | null>(null)
   const [font, setFont] = useState('"Digital", monospace')
+  // The fixture exposes Digital and Arial CSS families; the metric helper takes
+  // setting keys so a fallback must also switch away from segmented cell widths.
+  const metricFont = font === '"Digital", monospace' ? "digital" : "sans"
   const protectedDisplayRef = useRef<HTMLSpanElement | null>(null)
   Object.assign(window, { secondaryFixture: { setCompactTimer, setClockPrimary, setShowSecondary, setChrome, setFont } })
   // Match the production conditional classes so geometry tests cover both timer overrides.
   const primaryClass = `${timer.displayButton} ${timer.primaryDisplay} ${clockPrimary ? timer.timerModeClockPrimary : compactTimer ? timer.timerModeCompactTimer : ""}`
   const secondaryClass = `${timer.displayButton} ${timer.secondaryDisplay}`
-  return <section className={timer.container} data-immersive-stage data-fixture-chrome={chrome} data-fixture-primary-mode={clockPrimary ? "clock" : compactTimer ? "compact-timer" : "timer"} style={{ ...getChimerClockFontMetrics("digital"), "--chimer-primary-font-size": "48px", "--chimer-display-font-family": font } as React.CSSProperties}>
+  return <section className={timer.container} data-immersive-stage data-fixture-chrome={chrome} data-fixture-primary-mode={clockPrimary ? "clock" : compactTimer ? "compact-timer" : "timer"} style={{ ...getChimerClockFontMetrics(metricFont), "--chimer-primary-font-size": "48px", "--chimer-display-font-family": font } as React.CSSProperties}>
     <button className={`${clockPrimary ? secondaryClass : primaryClass} ${timer.timerDisplay}`} data-testid="timer" data-immersive-primary-display={!clockPrimary ? "true" : undefined} data-immersive-secondary-display={clockPrimary && showSecondary ? "true" : undefined} style={clockPrimary && !showSecondary ? { display: "none" } : undefined} onClick={() => setClockPrimary(false)}>
       <span ref={!clockPrimary ? protectedDisplayRef : undefined}>{compactTimer ? "01:25" : "01:25:00"}</span>
     </button>
