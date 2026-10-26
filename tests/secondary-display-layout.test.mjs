@@ -4,6 +4,7 @@ import path from "node:path"
 import { createRequire } from "node:module"
 import { after, before, describe, it } from "node:test"
 import { expect } from "@playwright/test"
+import { getChimerClockFontMetrics } from "../lib/chimer-clock-font-metrics.js"
 
 const require = createRequire(import.meta.url)
 const root = path.resolve(import.meta.dirname, "..")
@@ -197,7 +198,15 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
   it("remeasures a fallback font and releases the prior secondary owner when hidden", async () => {
     const { page, context } = await pageFor({ width: 390, height: 844 })
     try {
+      // Assert the selected metric family as well as its geometry; changing
+      // CSS font-family alone can leave the Digital cell widths in place.
+      const metricNames = Object.keys(getChimerClockFontMetrics("digital"))
+      const readMetrics = () => page.locator("[data-immersive-stage]").evaluate((stage, names) => (
+        Object.fromEntries(names.map((name) => [name, stage.style.getPropertyValue(name).trim()]))
+      ), metricNames)
+      await expect.poll(readMetrics).toEqual(getChimerClockFontMetrics("digital"))
       await page.evaluate(() => window.secondaryFixture.setFont("Arial, sans-serif"))
+      await expect.poll(readMetrics).toEqual(getChimerClockFontMetrics("sans"))
       assert.equal((await geometry(page, (layout) => layout.fontFamily.includes("Arial"))).overlap, false)
       await page.evaluate(() => { window.savedSecondary = document.querySelector('[data-immersive-secondary-display="true"]'); window.secondaryFixture.setShowSecondary(false) })
       await expect.poll(() => page.evaluate(() => ({ owner: window.savedSecondary.style.getPropertyValue("--chimer-secondary-top"), stage: document.querySelector("[data-immersive-stage]").style.getPropertyValue("--chimer-secondary-safe-top"), acquired: Boolean(document.querySelector('[data-immersive-secondary-display="true"]')) }))).toEqual({ owner: "", stage: "", acquired: false })
