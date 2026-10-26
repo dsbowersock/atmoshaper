@@ -127,6 +127,44 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
       } finally { await context.close() }
     })
   }
+  it("compares the ordinary timer's complete control inset with the absolute secondary boundary", async () => {
+    const { page, context } = await pageFor({ width: 320, height: 740 })
+    try {
+      await geometry(page, (layout) => layout.kind === "clock")
+      // Resolve the real CSS inset through layout, including calc/safe-area
+      // values. A persistent inert probe avoids mutating the DOM on each poll.
+      await page.evaluate(() => {
+        const probe = document.createElement("i")
+        probe.dataset.controlInsetProbe = "true"
+        probe.style.cssText = "position:fixed;top:0;left:0;width:0;height:var(--chimer-top-control-space);visibility:hidden;pointer-events:none"
+        document.querySelector("[data-immersive-stage]").appendChild(probe)
+      })
+      for (const reservation of [10, 200]) {
+        await page.evaluate((value) => document.querySelector("[data-immersive-stage]").style.setProperty("--immersive-reserved-top", `${value}px`), reservation)
+        let actual
+        await expect.poll(async () => {
+          actual = await page.evaluate(() => {
+            const stage = document.querySelector("[data-immersive-stage]")
+            const style = getComputedStyle(stage)
+            const box = document.querySelector('[data-immersive-primary-display="true"]').getBoundingClientRect()
+            return { top: box.top, bottom: box.bottom, mode: stage.dataset.fixturePrimaryMode,
+              controls: document.querySelector("[data-control-inset-probe]").getBoundingClientRect().height,
+              reserved: parseFloat(style.getPropertyValue("--immersive-reserved-top")),
+              secondary: parseFloat(style.getPropertyValue("--chimer-secondary-safe-top")) || 0 }
+          })
+          if (actual.mode !== "timer" || actual.reserved !== reservation || actual.secondary <= 0) return Infinity
+          return Math.abs(actual.top - Math.max(actual.controls + actual.reserved, actual.secondary))
+        }, { timeout: 5_000, message: "Ordinary timer must compare two complete viewport boundaries." }).toBeLessThan(1)
+        assert.equal(actual.secondary > actual.controls + actual.reserved, reservation === 10, JSON.stringify(actual))
+        assert.ok(Math.abs(actual.bottom - (740 - 112)) < 1, "Preserve the ordinary timer's bottom control inset")
+      }
+      await page.evaluate(() => window.secondaryFixture.setShowSecondary(false))
+      await expect.poll(() => page.evaluate(() => ({
+        safeTop: document.querySelector("[data-immersive-stage]").style.getPropertyValue("--chimer-secondary-safe-top"),
+        top: document.querySelector('[data-immersive-primary-display="true"]').getBoundingClientRect().top,
+      }))).toEqual({ safeTop: "", top: 280 })
+    } finally { await context.close() }
+  })
   for (const clockPrimary of [true, false]) {
     it(`uses the greater viewport boundary for ${clockPrimary ? "clock primary" : "compact timer"}`, async () => {
       const { page, context } = await pageFor({ width: 320, height: 740 })

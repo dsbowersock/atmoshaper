@@ -114,7 +114,8 @@
   --chimer-display-base-transform: translateX(0);
 
   position: fixed;
-  top: calc(max(var(--chimer-top-control-space), var(--chimer-secondary-safe-top, 0px)) + var(--immersive-reserved-top));
+  /* The secondary edge is already absolute; compare it with the complete ordinary control inset. */
+  top: max(calc(var(--chimer-top-control-space) + var(--immersive-reserved-top)), var(--chimer-secondary-safe-top, 0px));
   right: var(--immersive-reserved-right);
   bottom: calc(var(--chimer-bottom-control-space) + var(--immersive-reserved-bottom));
   left: var(--immersive-reserved-left);
