@@ -14,6 +14,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test:ci-harness": "node --test tests/browser-qa-harness.test.mjs tests/browser-qa-environment.test.mjs tests/atmoshaper-browser-qa-build.test.mjs",
+    "lint:ci-harness": "eslint tests/browser-qa-harness.test.mjs tests/browser-qa-environment.test.mjs tests/atmoshaper-browser-qa-build.test.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:business-planners": "node --test tests/business-planner-storage.test.mjs tests/business-plan-template-tools.test.mjs tests/business-income-planner.test.mjs tests/business-income-planner-source.test.mjs",
     "test:clinical-local": "node --test tests/professional-record-vault.test.mjs tests/local-intake-builder.test.mjs tests/intake-soap-handoff.test.mjs tests/notes-entitlements.test.mjs tests/client-wellness.test.mjs tests/client-wellness-patterns.test.mjs tests/client-wellness-source-guards.test.mjs tests/local-intake-workspace-page.test.mjs",
