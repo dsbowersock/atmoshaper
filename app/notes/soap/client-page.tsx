@@ -239,6 +239,9 @@ export default function SoapNotesPage() {
     if (saved) {
       loadedRevisionRef.current = vault.revision + 1
       setMessage("SOAP draft saved in the encrypted professional-record vault.")
+    } else {
+      // A rejected vault write must not leave this form silent or showing an earlier success.
+      setMessage("Could not save the encrypted draft. Keep this page open and try again.")
     }
   }
 
@@ -356,7 +359,7 @@ export default function SoapNotesPage() {
               </div>
             </div>
 
-            {message && <p className="text-sm text-brand-orange">{message}</p>}
+            {message && <p role="status" className="text-sm text-brand-orange">{message}</p>}
           </div>
         </Card>
         <Card className={appSurfaceClassName}>

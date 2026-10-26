@@ -1,5 +1,21 @@
 # AtmoShaper Project State
 
+## October 25 committed-save result after a vault lock
+
+CodeRabbit's included review of `020c48c` identified a valid save-result edge:
+an already accepted encrypted write could commit after a lock but return null,
+causing Journal, ROM and SOAP to report failure. The provider now returns the
+normalized accepted result after the write while retaining the authority guard
+around every view update. It does not unlock the vault or restore its plaintext
+view. Rejected or superseded storage operations still return null.
+
+All 13 real-crypto lifecycle cases pass, including new committed-result assertions
+for both delayed decrypt and encrypt saves, plus lock preservation, rejected
+stale callbacks, import/export, remount and reset protection. These use invented
+in-memory fixtures and the cached browser with no application services or database.
+No public/provider state or clinical storage boundary changed.
+
+
 ## October 25 Chimer review follow-up uses state-aware layout assertions
 
 PR #52's valid review finding is repaired in the component test: every changed
@@ -9,6 +25,45 @@ checks and named lint/typecheck pass; new-commit CI/Preview and included review 
 required after publication under the existing four-PR approval. No PR merge or
 Production/Sentry activation is authorized. See the
 [validation audit](audits/2026-10-25-chimer-state-aware-layout-waits.md).
+
+## October 25 local Notes save/recovery acceptance and three defects closed
+
+Local runtime source `f85c10b` preserves a chosen SOAP session date when Identify
+remounts or therapist defaults update, keeps encrypted-backup controls within
+narrow cards, and makes rejected Journal/ROM/SOAP saves visibly report failure.
+Intake's existing failure path remains. Encryption, schemas, keys, date policy,
+entitlement gates and accepted-write/merge behavior are unchanged.
+
+The retained original date editor yields two passes and three failures in the
+same settled regression that passes all five cases on the repair. All 62 existing
+clinical tests, scoped lint and typecheck pass. The exact cached full application
+build passes; all 2,186 archive inputs match the checkout after configured text
+line-ending conversion, and the real selected DSEG7 font is hash-verified in its
+output. The external Inter fixture stays local; no install or Prisma generation.
+
+Twenty-three actual client workflow cases pass at 1440x1000, 390x844 and 320x740:
+all four encrypted saves, intake-to-SOAP handoff, retained date, lock/reload and
+wrong-password recovery, four single-write quota failures, plaintext-warning
+cancellation and encrypted backup/import into an isolated browser context.
+All twelve tool/viewport widths fit. Four further final denial observations
+confirm visible feedback and preserved ciphertext. Final browser/build checks
+record zero external-network or unrelated-executable attempts and zero
+runtime/console errors.
+
+This is real client/provider/cryptography and compiled-CSS evidence with invented
+records and fixture navigation after the entitlement boundary. It does not prove
+server membership authorization, physical-device sensors/printing, authenticated
+routes, hosted PHI storage, final PWA/hosted behavior or the whole migration.
+
+Owned browser profiles, temporary encrypted downloads, source snapshots/archives,
+compiler cache and dependency links are cleaned up. Shared dependencies, all
+unrelated work and historical receipts/screenshots remain. No provider, actual
+application database, credential, cloud media, publication, Production or Sentry
+action occurred. Original Chimer/anatomy publication refs stay pinned; this Notes
+child branch is an additional local follow-up. R2 requests remain capped at $0;
+the declined paid proposal remains closed. Other release gates remain open.
+
+See the [local client audit](audits/2026-10-25-local-notes-client-readiness.md).
 
 ## October 25 public anatomy credits and publisher links verified locally
 

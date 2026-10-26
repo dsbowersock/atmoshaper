@@ -168,6 +168,9 @@ export default function JournalPage() {
     if (saved) {
       loadedRevisionRef.current = vault.revision + 1
       setMessage("Journal saved in the encrypted professional-record vault.")
+    } else {
+      // A rejected vault write must not leave this form silent or showing an earlier success.
+      setMessage("Could not save the encrypted draft. Keep this page open and try again.")
     }
   }
 
@@ -296,7 +299,7 @@ export default function JournalPage() {
                 onConfirm={printPdf}
               />
             </div>
-            {message && <p className="text-sm text-brand-orange">{message}</p>}
+            {message && <p role="status" className="text-sm text-brand-orange">{message}</p>}
           </CardContent>
         </Card>
 

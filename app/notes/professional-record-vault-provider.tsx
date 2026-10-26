@@ -193,7 +193,9 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       const vault = await createEncryptedProfessionalRecordVault(payloadToSave, passphrase, { createdAt })
       if (!hasStorageAuthority(operation)) return null
       window.localStorage.setItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, JSON.stringify(vault))
-      if (!hasViewAuthority(operation)) return null
+      // The encrypted write committed even if its original view has locked.
+      // Report that accepted save without restoring plaintext in the closed view.
+      if (!hasViewAuthority(operation)) return normalized
       setVaultCreatedAt(vault.createdAt)
       setPayload(payloadToSave)
       setRevision((current) => current + 1)
@@ -532,6 +534,7 @@ export function ProfessionalRecordVaultToolbar({ className }: { className?: stri
   )
 }
 
+/** Constrain transfer tracks and labels to narrow cards without clipping the encrypted-backup controls. */
 export function ProfessionalRecordVaultTransferControls({ idPrefix = "professionalRecordVault" }: { idPrefix?: string }) {
   const vault = useProfessionalRecordVault()
   const [exportPassword, setExportPassword] = useState("")
@@ -560,7 +563,7 @@ export function ProfessionalRecordVaultTransferControls({ idPrefix = "profession
   }
 
   return (
-    <AppInset className="grid gap-4 p-4 lg:grid-cols-2">
+    <AppInset className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-2">
       <div className="grid gap-3">
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}ExportPassword`}>Encrypted bundle password</Label>
@@ -572,7 +575,7 @@ export function ProfessionalRecordVaultTransferControls({ idPrefix = "profession
             autoComplete="new-password"
           />
         </div>
-        <Button type="button" onClick={exportBundle} className="justify-self-start bg-primary hover:bg-brand-orange-glow">
+        <Button type="button" onClick={exportBundle} className="h-auto min-h-10 max-w-full justify-self-start whitespace-normal bg-primary text-left hover:bg-brand-orange-glow">
           <Download className="mr-2 h-4 w-4" />
           Export encrypted vault bundle
         </Button>
@@ -596,7 +599,7 @@ export function ProfessionalRecordVaultTransferControls({ idPrefix = "profession
           className="hidden"
           onChange={importBundle}
         />
-        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="justify-self-start">
+        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="h-auto min-h-10 max-w-full justify-self-start whitespace-normal text-left">
           <FolderOpen className="mr-2 h-4 w-4" />
           Import encrypted vault bundle
         </Button>
