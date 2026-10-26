@@ -31,6 +31,21 @@ rollback is the preceding source commit; no database seed/migration is executed.
 No provider credentials, writes, publication, Production or paid media work is
 authorized. The migration and wider muscle-source review remain open.
 
+## Reproduce the retained-evidence audit
+
+Supply the existing local directory containing the eight artifacts pinned by
+`docs/source-evidence/anatomy-muscle-action-review-20261025.json`:
+
+```sh
+npm run audit:muscle-action-citations -- --artifact-root "PATH_TO_RETAINED_PUBLIC_EVIDENCE"
+```
+
+Replace the quoted placeholder with the retained directory; it is not a URL or
+a credential path. Running the bare script without `--artifact-root` is not a
+complete invocation. The audit intentionally fails for missing or changed
+evidence and has no retrieval fallback. A successful source check does not
+upgrade the separately pending scientific, clinical, media or launch gates.
+
 ## Verified local outcome
 
 A complete source-only inspection found 100 declared-reusable action rows across

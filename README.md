@@ -74,6 +74,22 @@ git diff --check
 
 See the [release checklist](docs/wiki/release-checklist.md) before inviting users, tagging, or deploying. Provider writes, database migrations, live payments, email delivery, DNS changes, and production actions require their documented gates and separate authorization.
 
+### Retained anatomy source audit
+
+The exact muscle-action audit requires the caller's retained public-evidence
+directory. Replace the quoted placeholder with that existing local directory:
+
+```bash
+npm run audit:muscle-action-citations -- --artifact-root "PATH_TO_RETAINED_PUBLIC_EVIDENCE"
+```
+
+The command checks the eight pinned artifacts and current source bindings. It
+does not download missing evidence or use a provider/database credential. An
+absent directory, missing artifact or changed hash fails the audit; a pass does
+not establish complete scientific or clinical acceptance. See the
+[exact muscle-action plan](docs/superpowers/plans/2026-10-25-exact-muscle-action-citations.md)
+for the scope and remaining content work.
+
 ## Safety and Compatibility
 
 - Keep PHI-bearing professional records local-first and preserve encrypted-vault and import/export compatibility.
