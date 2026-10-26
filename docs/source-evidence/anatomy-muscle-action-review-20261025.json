@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "state": "seven_existing_actions_exact_citations_integrated",
+  "baselineHead": "2639975955705e0ff194fa2665b08c49c4a7cf08",
+  "baselineGlobalGap": {
+    "rawActions": 340,
+    "declaredReusableActionsWithoutExactCitation": 100,
+    "musclesWithoutExactActionCitations": 68,
+    "publicActionPrompts": 219
+  },
+  "bindings": [
+    {
+      "id": "action-lumbar-erector-extension",
+      "muscle": "lumbar-erector-spinae",
+      "description": "Extends the lumbar spine.",
+      "descriptionSha256": "76efc21e15ee309ec50ff5627e5a541d806ca8a70a655c2e69b1146567e54c18",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L281-L281",
+      "reviewNote": "Archived paragraph fs-id2586421 identifies erector spinae as a vertebral-column extensor, including its lumbar component.",
+      "citationId": "citation-reviewed-action-lumbar-erector-extension",
+      "publisherElementId": "fs-id2586421"
+    },
+    {
+      "id": "action-lumbar-erector-stabilization",
+      "muscle": "lumbar-erector-spinae",
+      "description": "Contributes to loaded lumbar postural control.",
+      "descriptionSha256": "8aed8192e23a314b8e23e9f5b0d569e5aec8da0fad40ec8ee479426753cc73ec",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "wang-2023-lumbar-multifidus-biomechanics",
+      "sourceLocator": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9854514/#sec1-bioengineering-10-00067",
+      "reviewNote": "Study introduction describes paraspinal muscles balancing upper-body loading in static postures; the existing educational contribution statement does not claim a unique stabilizer or patient outcome.",
+      "citationId": "citation-reviewed-action-lumbar-erector-stabilization"
+    },
+    {
+      "id": "action-lumbar-multifidus-stabilizer",
+      "muscle": "lumbar-multifidus",
+      "description": "Contributes to segmental lumbar control.",
+      "descriptionSha256": "74b5d41988a79c17366879851326ddbeec947d891b0157b425e98af49286a8ec",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "wang-2023-lumbar-multifidus-biomechanics",
+      "sourceLocator": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9854514/#sec4-bioengineering-10-00067",
+      "reviewNote": "Study discussion supports multifidus contribution to segmental balance in the modeled lumbar spine. This is a modeling study, not proof of treatment outcomes or an exclusive stabilizing role.",
+      "citationId": "citation-reviewed-action-lumbar-multifidus-stabilizer"
+    },
+    {
+      "id": "action-lumbar-multifidus-extension",
+      "muscle": "lumbar-multifidus",
+      "description": "Assists lumbar extension and segmental control.",
+      "descriptionSha256": "8536361a4049324600995a9798537f8ca7d6516baf17850d010e800dbc29217a",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L283-L283",
+      "reviewNote": "Archived paragraph fs-id2808964 supports lumbar extension; segmental-control wording is corroborated separately by Wang et al. 2023, CC BY 4.0. https://pmc.ncbi.nlm.nih.gov/articles/PMC9854514/#sec4-bioengineering-10-00067",
+      "citationId": "citation-reviewed-action-lumbar-multifidus-extension",
+      "publisherElementId": "fs-id2808964"
+    },
+    {
+      "id": "action-rectus-femoris-hip-flexion",
+      "muscle": "rectus-femoris",
+      "description": "Assists hip flexion.",
+      "descriptionSha256": "ec725f9d11fa6436eaccad4ce90a32105e04e440dfebe68580c871a445cf75d5",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "applied-human-anatomy",
+      "sourceLocator": "https://open.umn.edu/opentextbooks/formats/3154#page=166",
+      "reviewNote": "Applied Human Anatomy 2022: printed page 53 (PDF page 62), exercise B1, paired with printed page 157 (PDF page 166), answer B1c; rectus femoris is included among hip flexors.",
+      "citationId": "citation-reviewed-action-rectus-femoris-hip-flexion"
+    },
+    {
+      "id": "action-rectus-femoris-knee-extension",
+      "muscle": "rectus-femoris",
+      "description": "Extends the knee.",
+      "descriptionSha256": "14fd90e0b0ece2cbb1222600257fe63c8343f07de8345bc45c83f6ae829cc0b7",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "applied-human-anatomy",
+      "sourceLocator": "https://open.umn.edu/opentextbooks/formats/3154#page=55",
+      "reviewNote": "Applied Human Anatomy 2022: printed pages 45-46 (PDF pages 54-55), exercise A3 identifies rectus femoris as a quadriceps head and A4 describes quadriceps knee extension; exercise B2 on PDF page 62 and its answer on PDF page 166 corroborate the action.",
+      "citationId": "citation-reviewed-action-rectus-femoris-knee-extension"
+    },
+    {
+      "id": "action-frontalis-brow-elevation",
+      "muscle": "frontalis",
+      "description": "Elevates the eyebrows and wrinkles forehead soft tissue.",
+      "descriptionSha256": "544e52339ab8036f44effa30492c442ba574c67de9de27f75029791263add99f",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L24-L26",
+      "reviewNote": "Frontal-belly eyebrow action in the archived figure description; forehead wrinkling independently corroborated by Kwon et al. 2023. Supplemental article is CC BY-NC 4.0 and is bibliography only: no article text, media or license is adopted. https://pubmed.ncbi.nlm.nih.gov/37365738/",
+      "citationId": "citation-reviewed-action-frontalis-brow-elevation",
+      "publisherElementId": "fs-id2319967"
+    }
+  ],
+  "newSource": {
+    "id": "source-wang-2023-lumbar-multifidus-biomechanics",
+    "slug": "wang-2023-lumbar-multifidus-biomechanics",
+    "name": "Wang et al. (2023), lumbar multifidus biomechanics",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9854514/",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "usageScope": "open_reuse",
+    "accessedAt": "2026-10-25T00:00:00.000Z",
+    "notes": "Primary musculoskeletal modeling study; educational structural facts only. No patient outcomes, treatment efficacy, article figures or dataset redistribution are inferred. Article XML and license were checked through the NLM public dataset; NLM does not endorse this application.",
+    "attribution": "Kuan Wang, Zhen Deng, Xinpeng Chen, Jiang Shao, Lulu Qiu, Chenghua Jiang and Wenxin Niu (2023). The Role of Multifidus in the Biomechanics of Lumbar Spine: A Musculoskeletal Modeling Study. Bioengineering 10(1):67. DOI 10.3390/bioengineering10010067. CC BY 4.0. Bibliographic evidence accessed through NLM PubMed Central; no endorsement implied.",
+    "sourceRef": "Primary biomechanics evidence for the two specified existing lumbar action facts."
+  },
+  "publisherRevision": "b0058a743bdd2cc08196abaaa7d5469970c0d80c",
+  "publisherArtifacts": [
+    {
+      "file": "m46484.cnxml",
+      "bytes": 46543,
+      "sha256": "18e63f6287d7e996d2e8bcc20c6e0bc42761581326ccd38744cd47ada049a7da"
+    },
+    {
+      "file": "m46482.cnxml",
+      "bytes": 40696,
+      "sha256": "e1f977e7eb556d989fd0fb54928800b8687389133780f9fe25481e9f257a6c11"
+    },
+    {
+      "file": "historical-license.txt",
+      "bytes": 19104,
+      "sha256": "0ff174546cbe3dd1287da231f9796618ac2f6e6595b2d11f567b2c9790f64868"
+    },
+    {
+      "file": "historical-collection.xml",
+      "bytes": 14805,
+      "sha256": "5a564a7e28abffaabc2563be429b044fe71406782a8486ca360a450108ec81bf"
+    },
+    {
+      "file": "applied-human-anatomy-2022.pdf",
+      "bytes": 639383,
+      "sha256": "1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd"
+    },
+    {
+      "file": "applied-selected-pages.json",
+      "bytes": 7155,
+      "sha256": "bc9aca034f3b3107b43b7d6242ffd470ac47c3390bff3a8320542e144d9aa81d"
+    },
+    {
+      "file": "PMC9854514.1.json",
+      "bytes": 1402,
+      "sha256": "622682f6614a1aac7e33a012faa3f27096baab6ecf73611b5ca9cad7c0729cf6"
+    },
+    {
+      "file": "PMC9854514.1.xml",
+      "bytes": 110475,
+      "sha256": "ebd9c7604c0e0226250347b6910ec98b72f1ecd419d86d634234bb6216b16c26"
+    }
+  ],
+  "publisherElements": [
+    {
+      "file": "m46484.cnxml",
+      "elementId": "fs-id2319967",
+      "kind": "media",
+      "startLine": 24,
+      "endLine": 26,
+      "xmlSha256": "87f10bcc9b7fb2b6c1059f70e99b9923eada3670e8ccd013cc126815e68af6e1"
+    },
+    {
+      "file": "m46484.cnxml",
+      "elementId": "fs-id2586421",
+      "kind": "para",
+      "startLine": 281,
+      "endLine": 281,
+      "xmlSha256": "7319031cd1fde7aadfcdc23a197ea6908ce3c54facc7b28f42b631ed258c118f"
+    },
+    {
+      "file": "m46484.cnxml",
+      "elementId": "fs-id2808964",
+      "kind": "para",
+      "startLine": 283,
+      "endLine": 283,
+      "xmlSha256": "39e9e1ee6d8b5a8bfa4e62769370d89f80ff20305b3a7df783de25b6d0b15013"
+    },
+    {
+      "file": "m46482.cnxml",
+      "elementId": "fs-id2299695",
+      "kind": "para",
+      "startLine": 130,
+      "endLine": 130,
+      "xmlSha256": "796a83293cb3590358617ac852cbaef6821c1d2f46d7132307e409f642786c80"
+    }
+  ],
+  "appliedPdfPages": {
+    "license": 5,
+    "quadricepsIdentity": 54,
+    "quadricepsAction": 55,
+    "movementQuestions": 62,
+    "movementAnswers": 166
+  },
+  "primaryStudyBodyParagraphs": [
+    {
+      "bodyParagraphIndex": 1,
+      "sha256": "3a2908529849efae29dab16b1475cf7de36330913f0b8ad5e3ae19d0b14e1f5d",
+      "textSha256": "dd5c964e18f5283bcf4c2847ae6788458d7d125e60ef21ab1a5802cf90abb3f1",
+      "sectionId": "sec1-bioengineering-10-00067"
+    },
+    {
+      "bodyParagraphIndex": 20,
+      "sha256": "d80983a2ca08480b297afdf424da29bece8871d71011d85f0c5c0db1242f27f9",
+      "textSha256": "c17b1ae98a56a1cbb273565fdcb581b97d00df16e3a785bc184968f076b62a04",
+      "sectionId": "sec4-bioengineering-10-00067"
+    },
+    {
+      "bodyParagraphIndex": 23,
+      "sha256": "1d1a36df5769c6b9f4161a05ad97503f90d25ed35f07508e79c8dd8d95c4fb10",
+      "textSha256": "4e72566810a06aca827772e5a4fd4263d02d2375931100e7e7e1be4a1f76dfe9",
+      "sectionId": "sec4-bioengineering-10-00067"
+    }
+  ],
+  "supplementalFrontalis": {
+    "url": "https://pubmed.ncbi.nlm.nih.gov/37365738/",
+    "doi": "10.3349/ymj.2022.0605",
+    "license": "CC BY-NC 4.0",
+    "bibliographyOnly": true,
+    "articleTextOrMediaBundled": false,
+    "licenseInferredFromBook": false
+  },
+  "clinicalAcceptanceComplete": false,
+  "wholeMigrationComplete": false,
+  "hostedDataChanged": false,
+  "allOriginalIdsMustRemain": true,
+  "appliedPageTextSha256": {
+    "5": "bda0f0d259064de729da1d68441b217b92002bcea3edea59ff6dcfcf602abdf2",
+    "54": "08e00b9f0deecb481cbdecae351abd91db263bf7215cb697267fe629e4325d3b",
+    "55": "5df3d542ef7e993539566565e8a6bfd77c6a9f1d5506c35d69ae00a73fb518e6",
+    "62": "d7bb0f1e8e373ef20c6c66f1c98dadf7a3c2a7599d73fd5c8b72f7039a72f7cc",
+    "166": "63a32742102752fbd940fa8b4405518898cf8a890b0028421e2d7e633e5084e4"
+  }
+}

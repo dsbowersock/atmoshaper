@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "checkedUtcDate": "2026-10-25",
+  "artifacts": [
+    {
+      "file": "bodyparts-description.html",
+      "url": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/desc.html",
+      "bytes": 29111,
+      "sha256": "f9dbc17b20d7e7b76cc289b115f203acd83eac5ecfa3eb9193956eae584c9933"
+    },
+    {
+      "file": "bodyparts-license.html",
+      "url": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+      "bytes": 14694,
+      "sha256": "a0d9962116bf38b636f78c41b6c19481fc3853370c7bf1ab0bd1a1aa9c78cc1e"
+    },
+    {
+      "file": "bodyparts-update.html",
+      "url": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/update.html",
+      "bytes": 16210,
+      "sha256": "d2d57b146351a443c7f1d668767a6dba06070e5249ec62c229ccb6b6f3164490"
+    },
+    {
+      "file": "humanbio-biceps.html",
+      "url": "https://www.humanbiomedia.org/biceps-brachii-lesson/",
+      "bytes": 241015,
+      "sha256": "f6b3b7d2d7f75847892895b02530a9157f60fc5d61d3d449ea55803796b1108a"
+    }
+  ],
+  "bodyparts3d": {
+    "sourceId": "source-bodyparts3d",
+    "descriptionUrl": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/desc.html",
+    "licenseUrl": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+    "licensePageUpdated": "2025-02-27",
+    "declaredLicense": "CC BY 4.0",
+    "requiredCredit": "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International",
+    "legacyMirrorLicenseAutomaticallyChanged": false
+  },
+  "humanBioMedia": {
+    "sourceId": "source-human-bio-media",
+    "lessonUrl": "https://www.humanbiomedia.org/biceps-brachii-lesson/",
+    "declaredLicense": "CC BY 4.0",
+    "requiredCredit": "Access for free at https://humanbiomedia.org/",
+    "creditCondition": "On each page redistributing the publisher material."
+  },
+  "evidenceMethod": "Actual retained anonymous publisher HTML; not inferred from unrelated books or mirrors.",
+  "individualModelOrImageValidated": false,
+  "allFactsReapproved": false,
+  "wholeMigrationComplete": false
+}

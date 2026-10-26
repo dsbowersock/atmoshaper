@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "source-applied-human-anatomy",
+  "sourceSlug": "applied-human-anatomy",
+  "title": "Applied Human Anatomy",
+  "authors": [
+    "Michael F. Nolan",
+    "John P. McNamara"
+  ],
+  "publicationYear": 2022,
+  "publisher": "Virginia Tech Carilion School of Medicine in association with Virginia Tech Publishing",
+  "pdfIsbn": "978-1-957213-41-5",
+  "doi": "10.21061/applied-human-anatomy",
+  "catalogueUrl": "https://open.umn.edu/opentextbooks/textbooks/1266",
+  "artifactUrl": "https://open.umn.edu/opentextbooks/formats/3154",
+  "artifactBytes": 639383,
+  "artifactSha256": "1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd",
+  "physicalPages": 189,
+  "licensePhysicalPage": 5,
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "selectedPageTextSha256": {
+    "1": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "3": "b5e171e42a1add7306d1b29e608ab13fc57c9c06516fcad2e7ab4caef85a79e9",
+    "5": "bda0f0d259064de729da1d68441b217b92002bcea3edea59ff6dcfcf602abdf2"
+  },
+  "explicitComponentExceptionsPresent": true,
+  "thirdPartyFigureClearanceClaimed": false,
+  "sourceProseOrFiguresBundled": false,
+  "factReviewComplete": false,
+  "wholeMigrationComplete": false,
+  "checkedUtcDate": "2026-10-25",
+  "scope": "Exact retained publication and license caveat only; existing authored facts and citation review states are unchanged."
+}

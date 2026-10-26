@@ -2320,7 +2320,12 @@ describe("Anatomy data foundation", () => {
 
     assert.deepEqual(bioportalIdentifiers, [])
     assert.deepEqual(bioportalCitations, [])
-    assert.equal(coverage.needsReviewCitationCount, 30)
+    // Preserve the original pending inventory separately from the four retained
+    // action-group pointers, which cannot approve exact action IDs.
+    const legacyActionIds = new Set(["frontalis", "rectus-femoris", "lumbar-erector-spinae", "lumbar-multifidus"].map(slug => `citation-${slug}-action`))
+    const pendingLegacyActions = ANATOMY_FOUNDATION_SEED.citations.filter(citation => citation.reviewStatus === "needs_review" && legacyActionIds.has(citation.id))
+    assert.deepEqual(new Set(pendingLegacyActions.map(citation => citation.id)), legacyActionIds)
+    assert.equal(coverage.needsReviewCitationCount - pendingLegacyActions.length, 30)
 
     for (const [entityType, entitySlug] of [
       ["bone", "scapula"],

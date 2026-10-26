@@ -1,3 +1,4 @@
+import { OPENSTAX_AP_SOURCE_METADATA } from "../anatomy-openstax-provenance.js"
 import type { AnatomySeedSection } from "./sections.ts"
 
 export const SOURCES_SEED_SECTION: AnatomySeedSection = {
@@ -29,28 +30,22 @@ export const SOURCES_SEED_SECTION: AnatomySeedSection = {
     {
       id: "source-openstax-anatomy-physiology",
       slug: "openstax-anatomy-physiology",
-      name: "OpenStax Anatomy and Physiology",
-      url: "https://openstax.org/books/anatomy-and-physiology/pages/1-introduction",
-      license: "CC BY 4.0",
-      licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
-      usageScope: "open_reuse",
-      accessedAt: "2026-06-13T00:00:00.000Z",
-      notes: "Commercial-compatible textbook source used to align MassageLab taxonomy with A&P organ-system and tissue-type structure. Do not copy source prose directly.",
-      attribution: "OpenStax, Anatomy and Physiology, licensed under Creative Commons Attribution 4.0 International.",
-      sourceRef: "Open A&P textbook reference for organ-system hierarchy, structural organization, and tissue-type taxonomy.",
+      ...OPENSTAX_AP_SOURCE_METADATA,
     },
     {
       id: "source-openstax-human-biology",
       slug: "openstax-human-biology",
-      name: "OpenStax CNX Human Biology",
+      // Pin this historical collection separately from other OpenStax editions.
+      // Its collection/module license does not replace figure-specific or fact review.
+      name: "Human Biology (Willy Cushwa, OpenStax-CNX col11903 v1.3)",
       url: "https://open.umn.edu/opentextbooks/textbooks/576",
-      license: "CC BY",
+      license: "CC BY 4.0",
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       usageScope: "open_reuse",
-      accessedAt: "2026-05-23T00:00:00.000Z",
-      notes: "Commercial-compatible physiology reference used to support MassageLab-authored concept summaries. Do not copy source prose directly.",
-      attribution: "OpenStax CNX, Human Biology, listed by Open Textbook Library under a Creative Commons Attribution license.",
-      sourceRef: "Open physiology reference for reviewed concept summaries and MBLEx A&P coverage mapping.",
+      accessedAt: "2026-10-25T00:00:00.000Z",
+      notes: "Exact retained collection revised December 1, 2015; PDF generated June 27, 2018. Physical page 4 and module attributions on physical pages 490-507 explicitly state CC BY 4.0. Third-party figure rights and factual accuracy require separate review. Existing authored summaries and citation review statuses are not re-approved by this edition check; no source prose or figures are bundled.",
+      attribution: "Willy Cushwa, compiler/editor, Human Biology, OpenStax-CNX col11903 v1.3, based on OpenStax resources. Collection and 70 listed modules: CC BY 4.0; see the retained edition's individual attributions.",
+      sourceRef: "Human Biology col11903/1.3, revised 2015-12-01, PDF generated 2018-06-27; SHA-256 890451366bef49edc3828b3836a8ffdccda6683549216db3c26b107046960dbd. Edition evidence: docs/source-evidence/human-biology-col11903-v1.3.json. This bibliography identifies the reference, not a new claim-level review.",
     },
     {
       id: "source-servier-medical-art",

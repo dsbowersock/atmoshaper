@@ -145,7 +145,7 @@ const CONCEPTS: ConceptSpec[] = [
     slug: "dense-connective-tissue",
     name: "Dense Connective Tissue",
     conceptType: "tissue_subtype",
-    description: "Dense connective tissue contains more concentrated fibers and is a useful parent concept for tendons, ligaments, capsules, and fascial sheets.",
+    description: "Dense connective tissue contains more concentrated fibers. It forms tendons, ligaments, fibrous capsules, and many deep fascial sheets.",
     sourceRef: SOURCE,
     tissueTypeSlugs: ["connective-tissue"],
   },

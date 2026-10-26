@@ -10,6 +10,359 @@ required after publication under the existing four-PR approval. No PR merge or
 Production/Sentry activation is authorized. See the
 [validation audit](audits/2026-10-25-chimer-state-aware-layout-waits.md).
 
+## October 25 public anatomy credits and publisher links verified locally
+
+The local source candidate `0a28c27` follows the exact textbook edition repairs.
+It retains four hash-verified public publisher pages for BodyParts3D and Human
+Bio Media, corrects the broken archive description link, and displays supplied
+source/image credits with linked licenses. The publisher's full BodyParts3D
+credit replaces shortened text in 92 existing image records. Historical mirror
+licenses, asset URLs, usage/review flags and all citation IDs stay unchanged.
+
+All 1,271 cards and 5,582 default questions preserve study identity, order,
+answers and grading; only declared attribution/link metadata is different.
+An invented local media map additionally verifies all 9,398 expanded questions.
+This does not establish scientific acceptance or permission for every asset.
+
+All 201 focused tests, changed-file lint, typecheck and the exact cached full
+build pass. The actual React flashcard with built CSS passes five viewport
+checks, including short landscape, native keyboard disclosure without a flip,
+active-face focus isolation and linked licenses. The measured first landscape
+failure is retained; compact inline credits and reduced vertical image padding
+correct it without changing outer card geometry. Images in this local browser
+fixture are invented; hosted media and gameplay were not exercised.
+
+All 82 build inputs match after the configured Git line-ending conversion.
+Local validation records zero network/unrelated-executable attempts. Three owned
+dependency junctions, the compiler cache, stopped browser profile and temporary
+build/baseline snapshots are removed. Shared dependencies, screenshots, publisher
+evidence and unrelated work remain. No cloud media, credential, database,
+publication, Production or Sentry action ran. The $15 media proposal stays
+declined; R2 requests stay at $0. Other migration gates remain open.
+
+See the [validation audit](audits/2026-10-25-anatomy-public-source-attribution.md).
+
+## October 25 Applied Human Anatomy exact publication and component caveat pinned locally
+
+The remaining major textbook source now identifies the exact 2022 Applied
+Human Anatomy PDF by Michael F. Nolan and John P. McNamara, DOI
+`10.21061/applied-human-anatomy`, PDF ISBN `978-1-957213-41-5`. Its 189-page,
+639,383-byte retained artifact is hash-verified. Physical page 5 explicitly
+states CC BY 4.0 and warns that some photographs, illustrations or quotations
+may have separate rights. That caveat is preserved rather than treating the
+book's license as permission for every component.
+
+Only this source record's private-facing evidence metadata and review date
+change. Its ID, slug, catalogue URL, displayed name, attribution, license and
+usage scope remain. The complete seed comparison preserves every citation and
+review state, all 1,271 cards and all 5,582 questions byte-for-byte. The source
+is listed by 853 cards and 4,145 questions; no factual re-approval or new prose,
+image import or media permission is claimed.
+
+All 193 focused tests, typecheck and changed-file lint pass. Network-denied
+validation records zero attempted connections or unrelated executables. The
+already retained public PDF was reused; this follow-up made no retrieval,
+credential, database or authenticated-provider request. No new full build,
+publication, Production or Sentry action is claimed.
+
+The actual public adapter lists six sources across cards and questions. The
+three main textbook editions and the Wang study have retained exact evidence;
+BodyParts3D and Human Bio Media remain distinct source/media provenance items.
+This inventory does not accept all linked claims or any third-party media.
+Wider content follow-ups keep their recorded scope. Media disposition/delivery,
+all-purchase activation and remaining launch journeys/decisions stay open.
+The declined paid media proposal remains closed and R2 requests stay at $0.
+
+## October 25 Human Biology edition and explicit license verified locally
+
+Human Biology now identifies Willy Cushwa's OpenStax-CNX collection
+`col11903/1.3`, revised December 1, 2015, in the retained June 27, 2018 PDF.
+Physical page 4 explicitly grants CC BY 4.0 for the collection; the attribution
+section lists the same license for all 70 modules. The exact 508-page artifact,
+identity/license pages and module-version index are hashed in the retained
+evidence. The generic library listing alone was not used to infer a version.
+
+Only this source record's bibliography is corrected. Its stable ID/slug, existing
+catalogue URL, usage scope and all 2,212 citation records/review states remain.
+All 1,271 cards and 5,582 questions retain identity, order and study content;
+364 cards and 1,247 questions show the clarified bibliography. No source prose
+or figures are bundled. This verifies edition/license metadata, not every
+existing factual claim, third-party image permission or commercial/clinical
+acceptance. No wider content backlog is promoted into a new release gate.
+
+All 193 focused tests, typecheck and changed-file lint pass with zero network
+attempts during validation. The prior full build remains evidence for its pinned
+candidate; no new full build is claimed for this metadata-only follow-up. Early
+snapshot URL/normalization method errors and the unnecessary generated-locator
+retarget were corrected, with their receipts retained. Source research retained
+three public artifacts after discovery browsing; validation remained offline.
+
+This work is on its own local child branch. The pending publication heads
+`58a34e9` (Chimer) and `75d599a` (anatomy) remain unchanged. No push, authenticated provider,
+database, credential, Production or Sentry action ran. The declined paid media
+proposal remains closed; R2 request authority stays at $0. Other migration
+release gates remain open.
+
+## October 25 seven existing muscle actions now have exact reviewed citations locally
+
+A complete source-only inspection found 100 declared-reusable action rows across
+68 muscles without an exact reviewed action-ID citation. Seven existing actions
+across Frontalis, Rectus Femoris, Lumbar Erector Spinae and Lumbar Multifidus are
+now bound to precise, independently compared references. Four previously absent
+action prompts become available. No authored action description is changed.
+
+All original source, action and citation IDs remain. Five fact-source references
+and corresponding teaching-membership references are corrected. Ten existing
+source-pointer metadata rows are retargeted in place; only seven new exact
+citations and one separately licensed primary-study source are added. The four
+old action-group pointer IDs remain as pending history, distinct from the original
+30 pending records. The adapter still requires exact reviewed IDs and matching
+reusable fact/citation sources; negative runtime tests preserve these filters.
+
+References use the already pinned historical A&P 2e chapters, the exact 2022
+Applied Human Anatomy artifact and Wang et al. 2023's CC BY 4.0 modeling study.
+Actual one-based PDF pages, article license metadata, selected study paragraphs
+and all eight retained artifact hashes are checked. A frontalis article is
+explicitly factual bibliography only, with its non-commercial license retained;
+no article text or figures are bundled or assigned the book's license. Modeling
+evidence does not establish patient outcomes or an exclusive stabilizer claim.
+
+The original five regression failures are retained. All 193 final focused tests,
+lint, typecheck, the exact-action audit and the existing 53-summary audit pass.
+Whole before/after comparison preserves every original ID, all 1,271 cards and
+all 5,578 original prompts byte-for-byte, adding exactly four action prompts.
+The first integration's duplicate/stale pointer issue was fixed by preserving
+reference cardinality in place. Early test/API, source-service and page-label
+method errors and their accurate dispositions remain retained; successful public
+reads were reused rather than repeated. Only public anonymous bibliography reads
+occurred; local validation records no network or blocked-executable attempts.
+
+Source commit `f65a004` passes the exact cached offline full webpack build.
+All 80 source input pins match. No database, credential, authenticated provider,
+source publication, Production or Sentry action ran. Both owned dependency links,
+the generated compiler cache and temporary build/baseline source archives are
+cleaned up. Retained evidence, shared caches and unrelated work are preserved.
+
+The broader action-citation backlog is now 93 rows across 64 muscles; it is not
+reported complete. The separately documented 31 sparse muscle records remain
+content follow-ups and are not silently promoted into a new migration release
+gate. Other source/version review, media independence, all-purchase activation
+and final journey/launch decisions remain open. This source candidate remains
+local and unpublished; hosted reconciliation needs its own scoped approval.
+Media request cost stays at $0 and the declined paid proposal remains closed.
+
+## October 25 reviewed A&P summary sources pinned and clarified locally
+
+The 53 current A&P summaries now identify the exact retained Anatomy and
+Physiology 2e revision rather than a moving first-edition URL. All seven earlier
+summary-source gaps are resolved with retained publisher sections, three precise
+description changes and two clearly separate supplemental bibliography references.
+Dense fascia is qualified, muscular support tissue is distinguished from skeletal
+contraction, and the whole clitoris is distinguished from its external glans.
+No article text or figures are bundled or assigned the book's CC BY license.
+
+The 271 retained citations now have exact archived paragraph references and
+explicit authored-summary, source-linkage, broader-lookup or teaching-group
+context. Each keeps one clickable primary URL; secondary references remain in
+its explanatory note. Existing review flags are preserved, not presented as
+271 independently clinically accepted facts. A substring-derived urinary-system
+association for the bulbourethral gland and its generated citation are removed
+locally; reproductive and true urinary memberships are preserved. Hosted rows
+are untouched and need separately authorized targeted reconciliation before
+future seeding or cutover.
+
+All 184 focused tests, typecheck, changed-file lint and both audit commands pass.
+The live-source audit matches 25 retained artifacts, 87 paragraph bindings and
+all 53 current authored summaries. Complete before/after comparison preserves
+all 1,271 cards and 5,578 prompt IDs, order and coverage. Only declared source
+metadata, citations, three descriptions and the false association change.
+
+Source commit `fca21b8` passes the full cached offline webpack build.
+All 73 build input pins match. Local validation records no network or blocked
+executable attempts; no Prisma generation, database, credential, authenticated
+provider or Production action ran. Earlier public bibliography research remains
+separate from this zero-network validation. The two owned dependency junctions,
+temporary build source/archive and generated compiler cache are cleaned up;
+shared cached dependencies and unrelated local work are preserved.
+
+This local candidate is unpublished. The field-level muscle gaps and exact action
+citation bindings, other source collections, media independence, all-purchase
+activation and final journey/launch acceptance remain open. The owner declined
+the optional $15 media-verification ceiling; that proposal is closed. R2 requests
+stay at $0 and approved additional storage at 30 cents/month before tax. Unknown
+operation counts are not zero evidence. No further paid run is activated.
+
+## October 25 broader anatomy labels no longer grade as equivalent names locally
+
+The real study adapter previously accepted fluid connective tissue as the name
+of blood and large bowel as the name of colon. A focused entity-specific rule
+now omits those two broader labels from public aliases and all derived name
+answers. Existing raw terms/IDs, source/citation rows, summary text and lookup
+remain intact. Legacy large-bowel lookup still maps to the large intestine;
+blood lookup and other valid aliases retain their observed behavior. No global
+terminology blacklist or new anatomy classification was introduced.
+
+The two actual grading regressions fail before integration and pass afterward.
+All 48 focused study/region/community/Anatomime/provenance tests pass, as do
+typecheck, changed-file lint and the retained-edition audit. The initial new test
+incorrectly expected legacy large-bowel lookup to choose colon; that method error
+and the original result remain retained. A separate corrected original-source
+run isolates the two real grading failures. The first sandbox typecheck failed
+only writing its generated cache; its distinct permitted rerun passes.
+
+Actual before/after projection compares every card/question: all 1,271 cards and
+5,578 prompts keep IDs, order and coverage. Only two card alias sets, eight prompt
+alias lists and the two derived name-answer sets change; every other field is
+byte-equivalent. The raw seed and all 53 authored A&P summaries are unchanged.
+
+The exact local source commit passes the full cached webpack build with the
+local Inter fixture and real DSEG7 Modern font. Six build-denial receipts record
+zero network or blocked-executable attempts. No Prisma regeneration, database,
+credential, authenticated provider, source publication or Production action ran.
+All 67 build input pins match. The two owned dependency junctions, temporary
+build source/archive and new compiler cache are removed; shared dependencies
+and unrelated work remain intact. No browser/hosted acceptance is inferred.
+
+The local candidate remains unpublished. The seven summary-source gaps, exact
+term/relationship attribution, field-level muscle content, media, all-purchase
+activation and final launch acceptance remain open. Three further public archived
+text sections are retained for that next source review, without changing summaries
+or scientific-review flags. Those public bibliography/text reads are separate
+from the zero-network validation; no R2 read or paid media run was performed.
+
+## October 25 exact A&P citation scope classified locally
+
+The remaining 272 A&P source rows were read from the actual bundled seed and
+bound to their current records: 53 authored summaries, 53 entity-source pointers,
+77 terms and 89 relationships. Every row currently carries reviewed status.
+The 219 generated source-reference rows inherit that status from source usage
+scope; the generator note describes source linkage, not an independent review
+of each anatomical claim. Do not report 272 scientifically verified facts or
+silently upgrade them based on the historical edition license.
+
+The next source review must cover exact names/aliases and relationship semantics,
+as well as the seven summary gaps. In particular, inspect the broad blood/fluid-
+connective-tissue and colon/large-bowel aliases, tissue-category versus material
+grouping, practical musculoskeletal cross-links and bulbourethral urinary-system
+membership. These are review targets, not already executed corrections or a
+claim that every existing association is false. Preserve stable identifiers.
+
+The pure source reader resolved every binding, preserved all 52 runtime/seed
+hashes and recorded zero network, child-process, database or credential attempts.
+No runtime or scientific-review flag changed. This narrows the concrete review
+work before source retargeting; it does not close clinical or commercial release.
+The paid media proposal is separately declined and remains closed at $0.
+
+## October 25 anatomy summary comparison completed; seven evidence gaps isolated
+
+All 53 A&P-dependent authored summaries now have an explicit comparison against
+the pinned CC BY 2e text: 45 have supporting passages for their core anatomical
+clauses, seven need additional evidence or narrower wording, and one is expressly
+AtmoShaper-authored browsing taxonomy. Seventy-eight paragraph bindings retain
+exact revision, element, line and text-digest evidence. Educational-purpose
+sentences are distinguished from external anatomical claims.
+
+The seven pending summaries concern collagen-fiber examples, connective-tissue
+membership, dense connective tissue, extracellular-matrix load transfer, loose
+connective tissue, muscular-system membership and whole-clitoris versus glans
+description. A missing locator is not proof that a statement is false. Preserve
+those distinctions when preparing corrections; do not silently approve them.
+
+Two additional public text modules close the bone-function and muscle-force
+locators. Both are collection members at the same pinned revision. Their 24,262
+bytes are retained outside Git with hash/size pins; no images are fetched. This
+slice made two unauthenticated direct public text GETs, separate from public web
+research. No authenticated provider, database, credential or Production action ran.
+
+The independent integrity check matches all 53 unchanged summaries and all 78
+paragraph/line bindings. The six provenance tests and actual retained-artifact
+audit pass again, with four denial receipts and zero network/executable attempts.
+All 52 runtime/seed pins remain unchanged; no dependency link, browser or server
+was created. This is summary-source comparison, not clinical acceptance, a review
+of all 272 citation rows or commercial clearance. Runtime source/summary/citation
+flags stay unchanged, and the local candidate remains unpublished.
+
+Next resolve the seven wording/evidence gaps, distinguish authored taxonomy in
+attribution and review the remaining term/relation/citation bindings before an
+explicit versioned runtime source change. The four action-binding and 31 direct
+detail gaps, media, all-purchase activation and final launch gates remain open.
+
+## October 25 publisher-pinned CC BY edition evidence verified locally
+
+Direct public publisher history identifies the March 19, 2026 CC BY-NC-SA change
+at `fdfa6e2`. Its parent `b0058a743bdd2cc08196abaaa7d5469970c0d80c` retains CC BY
+4.0. The same revision's README and collection explicitly identify Anatomy and
+Physiology 2e under that license. This is a verified historical second-edition
+candidate, not a blanket clearance for today's website, third-party components
+or the existing unversioned first-edition source record.
+
+The local `codex/anatomy-source-provenance` candidate retains a hash/size manifest
+for LICENSE, README, collection and seventeen selected text modules. It records
+all 53 current A&P-dependent card selectors and their unchanged authored inputs,
+with candidate chapter locators. Every claim binding remains needs_review;
+runtime source metadata, source IDs, usage scopes, citations, cards and review
+flags are unchanged. No textbook prose or figures are copied into the app.
+
+The named audit matches all twenty retained artifacts (644,933 bytes) and all 53
+current card inputs. Six negative/positive tests pass for tampering, moving
+revisions, changed or missing coverage, duplicates, unretained modules, path
+traversal and accidental review promotion. Changed-script lint passes after a
+reserved local variable was renamed; the first lint failure is retained. Six
+final denial receipts record zero network/blocked-executable attempts. Archive
+integrity remains distinct from scientific approval and commercial acceptance.
+
+Twenty-two direct unauthenticated public history/text requests retained the
+publisher evidence, with no retries or image requests; public web bibliography
+checks are separate. No authenticated provider, database, credential, cloud
+mutation, source publication or Production action occurred. All 52 runtime/seed
+pins match the prior clean candidate. The owned dependency junction is removed;
+shared dependencies/schema and unrelated work are preserved. The original
+region-answer branch stays clean. This local evidence branch is unpublished.
+
+Next review the 53 claims against these retained sections, prepare precise
+field-level citations and explicitly review any source-edition retargeting and
+attribution. Do not infer approval from an archive hash. The four action-binding
+and 31 direct muscle-detail gaps, broader content/model acceptance, media,
+all-purchase activation, hosting and public-cutover gates remain open.
+
+## October 25 source-backed region answers repaired and verified locally
+
+The local candidate on `codex/anatomy-region-answer` requires an explicit,
+recognized source region before generating a graded region question. It omits
+229 concept and ten body-surface questions whose answers came from the Spine
+fallback. All 1,271 card DTOs, every non-region question and all 1,032 retained
+region questions remain byte-equivalent to `58a34e9`; no fact, citation, stored
+configuration, stable identifier or new anatomical classification is changed.
+Legacy display/filter grouping remains compatibility data pending content review.
+
+The original adapter fails three meaningful regressions. The final candidate
+passes all 37 focused study/community/Anatomime contracts, repository typecheck,
+changed-file lint and the full cached provider-free build. Six actual anonymous
+Chromium cases pass at 1440x1000, 390x844 and 320x740: unsupported region-only
+selection renders zero eligible prompts with Start disabled; selecting a supported
+category question recovers the deck; a supported upper-extremity region question
+still grades correctly. Each typed answer reaches 1/1 correct, guest saving shows
+the sign-in requirement, Setup remains usable and the original stored config
+is preserved. Representative desktop/phone screenshots were inspected.
+
+Browser scope is the real bundled client fallback: the two exact prompt/deck
+APIs deliberately return 503 before database-capable handlers dispatch. Twenty-
+four resource-error entries match those fixed boundaries; twelve warnings are
+the expected fallback or Playwright service-worker isolation warning. They are
+retained and classified, with zero unclassified errors/warnings, client errors,
+blocked external requests or unexpected mutation attempts. No fixture supplies
+question/count content. This does not verify normal hosted APIs, persisted
+progress, PWA behavior or a new scientific taxonomy.
+
+The browser/server are closed, port 3194 is clear and owned profiles, temporary
+source/build/archive and two dependency junctions are removed. All 65 pinned
+inputs still match; shared dependencies/schema and unrelated work remain intact.
+The validated application source is `5f5b4a4`; publication/review is still pending.
+No provider, credential, database, account, media, payment, email, Sentry or
+Production operation ran. The separate Chimer publication and media budget
+decisions remain pending. Full anatomy/content/rights, the 31-muscle/citation
+work, all-purchase activation and public launch are not closed by this safeguard.
+
 ## October 25 Chimer repair integrated with merged main and revalidated locally
 
 The owner-approved PR #44-51 batch is complete at main `af5373d`; all eight

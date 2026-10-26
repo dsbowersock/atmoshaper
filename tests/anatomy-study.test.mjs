@@ -20,6 +20,7 @@ import {
 
 const safeSourceIds = new Set([
   "applied-human-anatomy",
+  "wang-2023-lumbar-multifidus-biomechanics",
   "bodyparts3d",
   "human-bio-media",
   "openstax-anatomy-physiology",

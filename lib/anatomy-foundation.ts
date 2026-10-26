@@ -1,3 +1,5 @@
+import { withPinnedOpenstaxApReferences } from "./anatomy-openstax-provenance.js"
+import { withReviewedMuscleActionEvidence } from "./anatomy-muscle-action-provenance.js"
 import {
   ANATOMY_SEED_SECTION_NAMES,
   ANATOMY_SEED_SECTIONS,
@@ -2290,10 +2292,10 @@ export const NECK_SHOULDER_UPPER_BACK_SEED: AnatomyFoundationSeed = {
       license: "CC BY 4.0",
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       usageScope: "open_reuse",
-      accessedAt: "2026-05-22T00:00:00.000Z",
-      notes: "Commercial-compatible anatomy education source. Store MassageLab-authored summaries and structured facts, not copied prose.",
-      attribution: "Human Bio Media materials licensed under CC BY 4.0.",
-      sourceRef: "Open anatomy education source for reviewed structured anatomy facts.",
+      accessedAt: "2026-10-25T00:00:00.000Z",
+      notes: "The exact biceps lesson's Terms of Use state CC BY 4.0 and request the free-access credit on each page redistributing Human Bio Media materials. Preserve that supplied credit and any per-image attribution; this source check does not re-approve every fact or unrelated asset.",
+      attribution: "Access for free at https://humanbiomedia.org/ (Human Bio Media, CC BY 4.0).",
+      sourceRef: "Publisher biceps lesson and Terms of Use checked 2026-10-25; retained HTML and license evidence: docs/source-evidence/anatomy-public-source-licenses-20261025.json. No prose, images or hosted content are imported by this metadata correction.",
     },
     {
       id: "source-applied-human-anatomy",
@@ -2303,10 +2305,12 @@ export const NECK_SHOULDER_UPPER_BACK_SEED: AnatomyFoundationSeed = {
       license: "CC BY 4.0",
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       usageScope: "open_reuse",
-      accessedAt: "2026-05-22T00:00:00.000Z",
-      notes: "Commercial-compatible anatomy education source. Store MassageLab-authored summaries and structured facts, not copied prose.",
+      // The 2022 book grants CC BY 4.0 but explicitly excludes some components.
+      // Preserve its catalogue pointer; exact artifact evidence is not new fact review.
+      accessedAt: "2026-10-25T00:00:00.000Z",
+      notes: "Exact 2022 publication, PDF ISBN 978-1-957213-41-5. Physical page 5 states CC BY 4.0 and explicitly warns that photographs, illustrations or quotations may have separate rights. Preserve per-component review; no source prose or figures are bundled. Existing authored facts and citation review states are unchanged by this edition check.",
       attribution: "Michael F. Nolan and John P. McNamara, Applied Human Anatomy, Virginia Tech Publishing, CC BY 4.0.",
-      sourceRef: "Open anatomy education source for reviewed structured anatomy facts.",
+      sourceRef: "Applied Human Anatomy (2022), DOI 10.21061/applied-human-anatomy, PDF ISBN 978-1-957213-41-5; SHA-256 1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd. Edition and component-exception evidence: docs/source-evidence/applied-human-anatomy-2022.json. This pin does not re-approve individual facts or media rights.",
     },
     {
       id: "source-openstax-ap-2e",
@@ -2385,13 +2389,15 @@ export const NECK_SHOULDER_UPPER_BACK_SEED: AnatomyFoundationSeed = {
       id: "source-bodyparts3d",
       slug: "bodyparts3d",
       name: "BodyParts3D/Anatomography",
-      url: "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/",
+      url: "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/desc.html",
       license: "CC BY 4.0",
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       usageScope: "open_reuse",
-      accessedAt: "2026-05-22T00:00:00.000Z",
-      attribution: "BodyParts3D, Database Center for Life Science licensed under CC BY 4.0.",
-      sourceRef: "Open-license anatomy media/model candidate source.",
+      // The current archive license is separate from historical mirror/ShareAlike records.
+      accessedAt: "2026-10-25T00:00:00.000Z",
+      notes: "The official archive license page, updated 2025-02-27, states CC BY 4.0 and specifies the retained credit. Use the working description URL; keep per-asset scientific/source review and historical mirror licenses distinct. This source check does not validate every generated image or model.",
+      attribution: "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International.",
+      sourceRef: "Official archive description, license and update pages checked 2026-10-25; retained HTML evidence: docs/source-evidence/anatomy-public-source-licenses-20261025.json. No models or images are fetched by this metadata correction.",
     },
     {
       id: "source-wikimedia-commons",
@@ -4419,6 +4425,10 @@ function inferredStructureSystemConceptSlugs(structure: AnatomyStructure) {
   const name = normalizeText(structure.name)
   const combined = `${structureType}-${name}`
 
+  // This accessory reproductive gland is not a urinary structure merely because
+  // its stable name contains "urethral"; preserve real urethral memberships below.
+  if (structure.slug === "bulbourethral-gland") return ["reproductive-system"]
+
   if (/(dermatome|myotome)/.test(combined)) return ["nervous-system"]
   if (/(lymph|spleen|thymus|tonsil|marrow|immune)/.test(combined)) return ["lymphatic-system"]
   if (!/lymph/.test(combined) && /(artery|vein|venous|blood-vessel|microvessel|capillary|cardiac|heart|atrium|ventricle|pericardium|myocardium|endocardium|blood)/.test(combined)) return ["cardiovascular-system"]
@@ -5746,7 +5756,7 @@ function withBodyParts3d3dCandidateSourceLinks(seed: AnatomyFoundationSeed): Ana
   }
 }
 
-export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withSourceReferenceCitationBacklog(
+const SOURCE_REFERENCED_ANATOMY_SEED: AnatomyFoundationSeed = withSourceReferenceCitationBacklog(
   withBodyParts3d3dCandidateSourceLinks(
     withBodyParts3dAnimatedMediaCoverage(
       withBodyParts3dPartListUpgradeMediaCoverage(
@@ -5775,6 +5785,14 @@ export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withSourceReferenc
       ),
     ),
   ),
+)
+
+// Resolve provenance only after source references have been assembled, keeping
+// exact entity/term/relation context separate from generic source-safety flags.
+// Retain historical citation IDs, then add source pointers for the exact reviewed
+// action sources. The public adapter still requires matching reviewed fact IDs.
+export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withSourceReferenceCitationBacklog(
+  withReviewedMuscleActionEvidence(withPinnedOpenstaxApReferences(SOURCE_REFERENCED_ANATOMY_SEED)),
 )
 
 const COLLECTION_NAMES = [
@@ -5958,6 +5976,7 @@ function seedSourceReferenceReviewStatus(target: SourceReferenceCitationTarget, 
 }
 
 function seedSourceReferenceLocator(target: SourceReferenceCitationTarget, source?: FoundationSource) {
+
   if (target.sourceRef === CLIENT_LANGUAGE_SOURCE) return CLIENT_LANGUAGE_SOURCE_LOCATOR
   if (target.sourceRef === CDC_ROM_SOURCE) return CDC_ROM_LOCATOR
   if (target.sourceRef === ROM_TRACKING_SOURCE) return ROM_TRACKING_LOCATOR

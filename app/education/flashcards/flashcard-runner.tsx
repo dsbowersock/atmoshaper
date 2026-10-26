@@ -3,6 +3,7 @@
 import type { RefObject } from "react"
 import Link from "next/link"
 import { ArrowLeft, ArrowRight, CheckCircle2, ExternalLink, Flag, Lock, Sparkles, XCircle } from "lucide-react"
+import { AnatomyMediaCredit, AnatomySourceCredits } from "@/components/anatomy/source-attribution"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -62,21 +63,24 @@ function promptFrontInstruction(prompt: FlashcardPrompt, isReviewMode: boolean) 
 
 function isEmbeddedInteractiveTarget(target: EventTarget | null) {
   const element = target instanceof HTMLElement ? target : null
-  // Keep links, buttons, and form controls usable inside the card without also flipping it.
-  return Boolean(element?.closest("a,button,input,select,textarea"))
+  // Keep links, controls, and native credit disclosures usable without also flipping the card.
+  return Boolean(element?.closest("a,button,input,select,textarea,summary,details"))
 }
 
 export function PromptSourceLinks({ prompt }: { prompt: FlashcardPrompt }) {
   return (
-    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-      {prompt.sources.map((source) => (
-        source.url ? (
-          <a key={source.id} href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border/80 px-2 py-1 transition hover:text-foreground">
-            {source.label}
-            <ExternalLink className="h-3 w-3" aria-hidden="true" />
-          </a>
-        ) : <span key={source.id} className="rounded-md border border-border/80 px-2 py-1">{source.label}</span>
-      ))}
+    <div className="space-y-2 text-xs text-muted-foreground">
+      <div className="flex flex-wrap gap-2">
+        {prompt.sources.map((source) => (
+          source.url ? (
+            <a key={source.id} href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border/80 px-2 py-1 transition hover:text-foreground">
+              {source.label}
+              <ExternalLink className="h-3 w-3" aria-hidden="true" />
+            </a>
+          ) : <span key={source.id} className="rounded-md border border-border/80 px-2 py-1">{source.label}</span>
+        ))}
+      </div>
+      <AnatomySourceCredits sources={prompt.sources} />
     </div>
   )
 }
@@ -106,11 +110,11 @@ export function PromptFront({ prompt, isReviewMode }: { prompt: FlashcardPrompt;
       <div className="mt-1 flex min-h-0 items-center justify-center sm:mt-2">
         {prompt.front.mode === "media" && prompt.front.media ? (
           <figure className="flex h-full w-full flex-col overflow-hidden rounded-none border border-border/80 bg-background/80 shadow-inner">
-            <div className="flex min-h-0 flex-1 items-center justify-center p-2 sm:p-4">
+            <div className="flex min-h-0 flex-1 items-center justify-center p-2 sm:px-4 sm:py-1">
               {/* eslint-disable-next-line @next/next/no-img-element -- reviewed source media can come from multiple external hosts not configured for next/image. */}
               <img src={prompt.front.media.url} alt={prompt.front.media.title || `${prompt.name} anatomical view`} className="max-h-full max-w-full object-contain drop-shadow-sm" loading="lazy" referrerPolicy="no-referrer" />
             </div>
-            <figcaption className="border-t border-border/80 px-3 py-1.5 text-xs text-muted-foreground">Reviewed BodyParts3D anatomy image</figcaption>
+            <AnatomyMediaCredit media={prompt.front.media} />
           </figure>
         ) : (
           <div className="grid max-h-full min-h-0 w-full place-items-center overflow-hidden rounded-none border border-border/80 bg-background/65 px-2 py-2 shadow-inner sm:px-3 sm:py-3 md:px-8 md:py-8">
@@ -204,7 +208,13 @@ export function FlashcardSurface({
             canFlipCard && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           )}
         >
-          <article className="absolute inset-0 overflow-hidden border-0 p-1 shadow-[0_28px_90px_rgba(0,0,0,0.34),0_2px_0_hsl(var(--border))] ring-1 ring-white/5 [backface-visibility:hidden] sm:p-2">
+          {/* Both faces contain credit links; keep only the active face available to keyboard users. */}
+          <article
+            aria-hidden={isFlipped}
+            inert={isFlipped ? true : undefined}
+            tabIndex={isFlipped ? -1 : undefined}
+            className="absolute inset-0 overflow-hidden border-0 p-1 shadow-[0_28px_90px_rgba(0,0,0,0.34),0_2px_0_hsl(var(--border))] ring-1 ring-white/5 [backface-visibility:hidden] sm:p-2"
+          >
             <PromptFront prompt={prompt} isReviewMode={isReviewMode} />
           </article>
           <article
