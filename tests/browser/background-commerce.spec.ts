@@ -455,10 +455,10 @@ test("guest cart persists locally while paid checkout is unavailable", async ({ 
   await expect(guestUnlock).toBeEnabled()
   await expect(guestUnlock).toHaveAttribute(
     "title",
-    "Add this background now, then sign in or create an account at checkout.",
+    "Review access options, or sign in to use account credits.",
   )
   await expect(accessCard(guestAurora)).toContainText(
-    "Add this background now, then sign in or create an account at checkout.",
+    "Review access options, or sign in to use account credits.",
   )
   await guestUnlock.click()
   const acquisition = page.getByRole("dialog", { name: `Unlock ${AURORA_NAME}` })
@@ -484,6 +484,11 @@ test("guest cart persists locally while paid checkout is unavailable", async ({ 
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("massagelab-guest-background-cart-v1") ?? "[]")))
     .toEqual([AURORA_ID])
   await expect(trigger).toHaveAccessibleName("Open AtmoShaper cart with 1 item")
+  // Calendar suppression must be checked with a populated cart, before removal.
+  await page.evaluate(() => window.history.pushState({}, "", "/calendar"))
+  await expect(trigger).toHaveCount(0)
+  await page.evaluate(() => window.history.pushState({}, "", "/music"))
+  await expect(trigger).toHaveAccessibleName("Open AtmoShaper cart with 1 item")
   await trigger.click()
   const cartDialog = page.getByRole("dialog", { name: "AtmoShaper cart" })
   await expect(cartDialog).toContainText("This cart is saved in this browser until you sign in.")
@@ -496,9 +501,6 @@ test("guest cart persists locally while paid checkout is unavailable", async ({ 
   await page.reload({ waitUntil: "domcontentloaded" })
   expect(await page.evaluate(() => localStorage.getItem("massagelab-guest-background-cart-v1")))
     .toBeNull()
-  await expect(trigger).toHaveCount(0)
-
-  await page.evaluate(() => window.history.pushState({}, "", "/calendar"))
   await expect(trigger).toHaveCount(0)
 })
 

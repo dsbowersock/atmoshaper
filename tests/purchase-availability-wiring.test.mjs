@@ -80,6 +80,41 @@ async function surface(file, context) {
 }
 const state = { status: "ready", snapshot: { creditBalance: 2, ownerships: [], cart: { items: [{ productKey: "one", displayName: "One" }], notices: [], reservedOrder: null } } }
 
+for (const signedIn of [false, true]) {
+  it(`keeps ${signedIn ? "account" : "guest"} tray guidance neutral and Unlock usable`, async () => {
+    let unlocks = 0
+    let selections = 0
+    const { BackgroundCarouselControlTray } = await moduleAt("components/backgrounds/background-carousel-control-tray.tsx", {
+      react: { ...react, useId: () => "tray-guidance" },
+      "@/components/ui/button": { Button: passThroughElement("button") },
+      // Keep decorative/data dependencies inert while rendering the real tray and action handler.
+      "@/lib/background-catalog": { getBackgroundVisualTags: () => [] },
+      "@/lib/background-carousel-access-label.js": { backgroundCarouselAccessLabel: () => "Locked" },
+      "@/lib/background-commerce-client.js": { hasActivePermanentOwnership: () => false },
+    })
+    const tree = renderFunctionComponents(BackgroundCarouselControlTray({
+      option: { id: "two", label: "Two", visualDescriptor: "Two background" },
+      commerceState: { state: "locked", canSelect: false, ownershipSource: null },
+      signedIn, selected: false, saved: false, previewPreferenceEnabled: false,
+      reducedMotion: false, canGoPrevious: false, canGoNext: false,
+      onPrevious() {}, onNext() {}, onToggleSaved() {}, onPreviewPreferenceChange() {},
+      onLockedSelect: () => { unlocks += 1 }, onSelect: () => { selections += 1 },
+    }))
+    const hint = signedIn
+      ? "Review account credits, permanent access, or membership options."
+      : "Review access options, or sign in to use account credits."
+    const unlock = findElement(tree, (node) => node.type === "button" && node.props["aria-label"] === "Unlock Two background")
+    assert.equal(unlock.props.title, hint)
+    const description = findElement(tree, (node) => node.type === "span" && node.props.id === unlock.props["aria-describedby"])
+    assert.equal(elementText(description), hint)
+    assert.doesNotMatch(elementText(tree), /buy for \$1|Add this background now/i)
+    assert.equal(unlock.props.disabled, false)
+    unlock.props.onClick()
+    assert.equal(unlocks, 1)
+    assert.equal(selections, 0)
+  })
+}
+
 it("disables only acquisition Buy, retaining credits and membership without zero-credit purchase advice", async () => {
   for (const available of [false, undefined, "true", true]) {
     let adds = 0
