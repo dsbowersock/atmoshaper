@@ -1,5 +1,15 @@
 # AtmoShaper Project State
 
+## October 25 Chimer review follow-up uses state-aware layout assertions
+
+PR #52's valid review finding is repaired in the component test: every changed
+state now waits for its expected owner/geometry, and hide/unmount cleanup is
+observed directly. No application runtime or stylesheet changed. All 43 focused
+checks and named lint/typecheck pass; new-commit CI/Preview and included review remain
+required after publication under the existing four-PR approval. No PR merge or
+Production/Sentry activation is authorized. See the
+[validation audit](audits/2026-10-25-chimer-state-aware-layout-waits.md).
+
 ## October 25 local Notes save/recovery acceptance and three defects closed
 
 Local runtime source `f85c10b` preserves a chosen SOAP session date when Identify

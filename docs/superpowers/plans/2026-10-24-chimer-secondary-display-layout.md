@@ -1,5 +1,15 @@
 # Chimer auxiliary display and toolbar collision
 
+## October 25 review follow-up
+
+The separate four-PR publication/review approval now covers PR #52 and its
+validated review fixes. Its latest follow-up changes only state-aware component
+assertions and fixture state markers; all 43 focused checks and named lint/typecheck pass.
+The [review audit](../../audits/2026-10-25-chimer-state-aware-layout-waits.md)
+records the prerequisite failures and successful isolated validation. New-head
+CI/Preview and included review are still required. Historical publication holds
+below describe the original local candidate; they do not revoke the later grant.
+
 ## Scope and baseline
 
 The built-app mobile screenshot retained during DSEG7 Modern verification shows
