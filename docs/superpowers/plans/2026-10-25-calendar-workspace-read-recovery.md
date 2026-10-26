@@ -39,3 +39,13 @@ or browser errors. Owned temporary artifacts and links are removed. See the
 [validation audit](../../audits/2026-10-25-calendar-workspace-read-recovery.md)
 for exact limits and retained corrections. The source is local/unpublished;
 real database/provider and complete migration acceptance remain open.
+
+## PR55 leap-date review correction
+
+The canonical calendar-only parser now constructs the requested year, month and
+day together, avoiding the `Date.UTC` remapping of years 0 through 99. The
+actual-page `initialDate` regression covers leap dates in years 0000, 0004,
+0096, 0400 and 2000, an ordinary year-0099 date, non-leap centuries and
+out-of-range input. Existing read-recovery, query/privacy and safe-default
+assertions remain in place. The focused named test and lint pass; TypeScript
+typecheck passes. No query, provider, auth, event or Calendar UI behavior changed.

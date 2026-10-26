@@ -266,8 +266,8 @@ function normalizeCalendarDateParam(value: unknown) {
   const year = Number(match[1])
   const month = Number(match[2])
   const day = Number(match[3])
-  const date = new Date(Date.UTC(0, month - 1, day))
-  date.setUTCFullYear(year)
+  const date = new Date(0)
+  date.setUTCFullYear(year, month - 1, day)
 
   if (
     date.getUTCFullYear() !== year

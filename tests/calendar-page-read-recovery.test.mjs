@@ -165,3 +165,13 @@ test("invalid requested dates retain the existing safe default", async () => {
     assert.equal((await fixture().run({ date })).workspace.initialDate, undefined)
   }
 })
+
+test("calendar-only leap dates are preserved through the actual page initialDate", async () => {
+  const accepted = ["0000-02-29", "0004-02-29", "0096-02-29", "0400-02-29", "2000-02-29", "0099-01-15"]
+  const rejected = ["0100-02-29", "1900-02-29", "2026-02-30", "0000-13-01"]
+  const acceptedResults = await Promise.all(accepted.map(async (date) => (await fixture().run({ date })).workspace.initialDate))
+  const rejectedResults = await Promise.all(rejected.map(async (date) => (await fixture().run({ date })).workspace.initialDate))
+
+  assert.deepEqual(acceptedResults, accepted)
+  assert.deepEqual(rejectedResults, rejected.map(() => undefined))
+})
