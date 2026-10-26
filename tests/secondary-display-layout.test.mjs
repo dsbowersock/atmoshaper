@@ -85,19 +85,27 @@ async function readGeometry(page) {
     const secondary = document.querySelector('[data-immersive-secondary-display="true"]')
     if (!secondary) return null
     const box = secondary.getBoundingClientRect()
+    // A clear intermediate frame is not a stable resize baseline. Opacity and
+    // glow effects do not change geometry and must not delay these checks.
+    const geometryProperties = ["top", "right", "bottom", "left", "width", "height", "max-width", "font-size", "transform", "scale"]
+    const placementUnsettled = secondary.getAnimations().some((animation) => (
+      geometryProperties.includes(animation.transitionProperty)
+      && animation.playState !== "finished" && animation.playState !== "idle"
+    ))
     const controls = [document.querySelector('[aria-label="Immersive display controls"]'), ...document.querySelectorAll('button[data-chimer-control="true"]')]
     const overlap = controls.some((node) => { const r = node.getBoundingClientRect(); return r.right > box.left && r.left < box.right && r.bottom > box.top && r.top < box.bottom })
-    return { top: box.top, bottom: box.bottom, left: box.left, right: box.right, overlap, width: box.width, scrollWidth: secondary.scrollWidth, clientWidth: secondary.clientWidth, faceLoaded: document.fonts.check('32px "Digital"'), inlineTop: secondary.style.getPropertyValue("--chimer-secondary-top"), kind: secondary.dataset.testid, fontFamily: getComputedStyle(secondary).fontFamily, chrome: document.querySelector("[data-immersive-stage]").dataset.fixtureChrome, controls: controls.map((node) => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom } }) }
+    return { top: box.top, bottom: box.bottom, left: box.left, right: box.right, overlap, placementUnsettled, width: box.width, scrollWidth: secondary.scrollWidth, clientWidth: secondary.clientWidth, faceLoaded: document.fonts.check('32px "Digital"'), inlineTop: secondary.style.getPropertyValue("--chimer-secondary-top"), kind: secondary.dataset.testid, fontFamily: getComputedStyle(secondary).fontFamily, chrome: document.querySelector("[data-immersive-stage]").dataset.fixtureChrome, controls: controls.map((node) => { const r = node.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom } }) }
   })
 }
 
-/** Retries the caller's post-change invariant as well as observer acquisition and clearance. */
-async function geometry(page, isExpected = () => true) {
+/** Require a settled post-change frame; only the negative probe shortens the five-second deadline. */
+async function geometry(page, isExpected = () => true, { timeout = 5_000 } = {}) {
+  assert.ok(Number.isInteger(timeout) && timeout > 0 && timeout <= 5_000, "Never extend the fixture's ordinary deadline")
   let current
   await expect.poll(async () => {
     current = await readGeometry(page)
-    return Boolean(current?.inlineTop) && !current.overlap && isExpected(current)
-  }, { timeout: 5_000, message: "Expected the changed accessory layout to be acquired and clear." }).toBe(true)
+    return Boolean(current?.inlineTop) && !current.overlap && !current.placementUnsettled && isExpected(current)
+  }, { timeout, message: "Expected the changed accessory layout to be acquired and clear." }).toBe(true)
   return current
 }
 
@@ -272,6 +280,33 @@ describe("Chimer accessory display and actual immersive toolbar", { concurrency:
         window.unmountSecondaryFixture()
       })
       await expect.poll(() => page.evaluate(() => ({ stage: window.savedStage.style.getPropertyValue("--chimer-secondary-safe-top"), secondary: window.savedSecondary.style.getPropertyValue("--chimer-secondary-top") }))).toEqual({ stage: "", secondary: "" })
+    } finally { await context.close() }
+  })
+  it("rejects a clear but unfinished position transition before taking its geometry baseline", async () => {
+    const { page, context } = await pageFor({ width: 390, height: 844 })
+    try {
+      await geometry(page)
+      // A paused native CSS transition makes the intermediate snapshot
+      // deterministic without fixed sleeps, delayed app code or network work.
+      const intermediate = await page.evaluate(() => {
+        const secondary = document.querySelector('[data-immersive-secondary-display="true"]')
+        secondary.style.transition = "none"
+        secondary.style.setProperty("--chimer-secondary-top", "400px")
+        secondary.getBoundingClientRect()
+        secondary.style.transition = "top 600ms linear"
+        secondary.style.setProperty("--chimer-secondary-top", "440px")
+        secondary.getBoundingClientRect()
+        const transition = secondary.getAnimations().find((animation) => animation.transitionProperty === "top")
+        if (!transition) throw new Error("Expected the actual CSS top transition")
+        transition.pause()
+        transition.currentTime = 300
+        window.geometryProbeTransition = transition
+        return secondary.getBoundingClientRect().top
+      })
+      assert.ok(Math.abs(intermediate - 420) < 1)
+      await assert.rejects(() => geometry(page, () => true, { timeout: 100 }), /Expected the changed accessory layout/)
+      await page.evaluate(() => window.geometryProbeTransition.finish())
+      assert.ok(Math.abs((await geometry(page)).top - 440) < 1)
     } finally { await context.close() }
   })
 })
