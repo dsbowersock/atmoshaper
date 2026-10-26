@@ -1,9 +1,10 @@
 # Exact muscle-action citations and preserved study identity
 
-The bundled public seed currently has 100 declared-reusable actions without an
-exact reviewed citation, spanning 68 muscles. This is a complete current source
-inspection, not a hosted database claim. Four previously identified component
-muscles account for seven actions. Repair those against actual source evidence;
+The pre-repair bundled public-seed baseline had 100 declared-reusable actions
+without an exact reviewed citation, spanning 68 muscles. This was a complete
+source-only baseline inspection, not a hosted database claim. Four previously
+identified component muscles account for seven actions. Repair those against
+actual source evidence;
 leave the remaining gap visible and do not broaden the runtime review filter.
 
 Compare the retained historical CC BY 2e chapters, the exact 2022 Applied Human
@@ -48,9 +49,10 @@ upgrade the separately pending scientific, clinical, media or launch gates.
 
 ## Verified local outcome
 
-A complete source-only inspection found 100 declared-reusable action rows across
-68 muscles without an exact reviewed action-ID citation. Seven existing actions
-across Frontalis, Rectus Femoris, Lumbar Erector Spinae and Lumbar Multifidus are
+The pre-repair source-only inspection found 100 declared-reusable action rows
+across 68 muscles without an exact reviewed action-ID citation. Seven existing
+actions across Frontalis, Rectus Femoris, Lumbar Erector Spinae and Lumbar
+Multifidus are
 now bound to precise, independently compared references. Four previously absent
 action prompts become available. No authored action description is changed.
 
