@@ -110,3 +110,17 @@ temporary generated archive and one dependency junction; shared dependencies,
 Prisma schema, receipts and screenshots are retained. This integrated follow-up
 remains local and unpublished. Whole-site/provider acceptance and release remain
 separate gates.
+
+## October 26 ordinary primary boundary review follow-up
+
+The included review of 2a7b5ef completed and raised one valid outside-diff
+ordinary-primary inset issue. The existing specialized timer-mode maxima are
+correct; only the base ordinary rule needs to compare its complete control
+inset against the already absolute secondary edge. The actual component
+regression reproduces the failure and then passes, exercising both sides of
+the maximum and accessory removal. All 44 focused checks, named lint, typecheck
+and diff checks pass. The
+[review audit](../../audits/2026-10-26-chimer-ordinary-primary-boundary.md)
+records the narrow source change and evidence. The existing four-PR review/fix
+grant covers this correction, CI/Preview and dependency synchronization, with
+no PR/main merge, Production promotion or Sentry activation.
