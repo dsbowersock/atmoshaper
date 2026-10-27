@@ -1,3 +1,4 @@
+import { REVIEWED_ACTION_BACKLOG_BINDINGS } from "../lib/anatomy-action-backlog-provenance.js"
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { describe, it } from "node:test"
@@ -2301,7 +2302,17 @@ describe("Anatomy data foundation", () => {
     assert.ok(bicepsCitations.some((citation) => citation.factType === "official_term" && citation.sourceRef === "fipat-ta2" && citation.reviewStatus === "reviewed"))
     assert.ok(bicepsCitations.some((citation) => citation.factType === "clinical_summary" && citation.sourceRef === "human-bio-media" && citation.reviewStatus === "reviewed"))
     assert.ok(bicepsAttachments.every((attachment) => attachment.sourceRef === "human-bio-media"))
-    assert.ok(bicepsActions.every((action) => action.sourceRef === "human-bio-media"))
+    // The display/source identity stays human-bio-media; only the three
+    // individually compared action facts use the precise OpenStax passage.
+    const exactBicepsBindings = REVIEWED_ACTION_BACKLOG_BINDINGS.filter(binding => binding.muscle === "biceps-brachii")
+    assert.equal(exactBicepsBindings.length, 3)
+    assert.deepEqual(new Set(bicepsActions.map(action => action.id)), new Set(exactBicepsBindings.map(binding => binding.id)))
+    for (const binding of exactBicepsBindings) {
+      const action = bicepsActions.find(row => row.id === binding.id)
+      assert.equal(action.sourceRef, binding.sourceRef)
+      assert.equal(action.description, binding.description)
+      assert.ok(bicepsCitations.some(citation => citation.id === binding.citationId && citation.factSlug === action.id && citation.sourceRef === action.sourceRef && citation.sourceLocator === binding.sourceLocator && citation.reviewStatus === "reviewed"))
+    }
     assert.equal(bicepsInnervation?.sourceRef, "human-bio-media")
     assert.equal(brachialArtery?.sourceRef, "human-bio-media")
     assert.ok(bicepsCitations.some((citation) => citation.factType === "origin" && citation.sourceRef === "human-bio-media" && citation.reviewStatus === "reviewed"))
@@ -2320,9 +2331,10 @@ describe("Anatomy data foundation", () => {
 
     assert.deepEqual(bioportalIdentifiers, [])
     assert.deepEqual(bioportalCitations, [])
-    // Preserve the original pending inventory separately from the four retained
+    // Preserve the original pending inventory separately from the 27 retained
     // action-group pointers, which cannot approve exact action IDs.
-    const legacyActionIds = new Set(["frontalis", "rectus-femoris", "lumbar-erector-spinae", "lumbar-multifidus"].map(slug => `citation-${slug}-action`))
+    const legacyActionIds = new Set([...(["frontalis", "rectus-femoris", "lumbar-erector-spinae", "lumbar-multifidus", "semitendinosus", "semimembranosus", "gracilis", "sartorius"].map(slug => `citation-${slug}-action`)), ...REVIEWED_ACTION_BACKLOG_BINDINGS.flatMap(binding => binding.legacyGroupCitationIds)])
+    assert.equal(legacyActionIds.size, 27)
     const pendingLegacyActions = ANATOMY_FOUNDATION_SEED.citations.filter(citation => citation.reviewStatus === "needs_review" && legacyActionIds.has(citation.id))
     assert.deepEqual(new Set(pendingLegacyActions.map(citation => citation.id)), legacyActionIds)
     assert.equal(coverage.needsReviewCitationCount - pendingLegacyActions.length, 30)

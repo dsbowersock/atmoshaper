@@ -1,0 +1,66 @@
+[
+  {
+    "promptId": "muscle_action:muscle-styloglossus",
+    "entitySlug": "styloglossus",
+    "acceptedAnswers": [
+      "Retracts the tongue toward the styloid region.",
+      "Tongue Retraction at Tongue Functional Complex"
+    ]
+  },
+  {
+    "promptId": "muscle_action:muscle-lumbricals-hand",
+    "entitySlug": "lumbricals-hand",
+    "acceptedAnswers": [
+      "Flexes the metacarpophalangeal joints as part of coordinated lumbrical grip mechanics.",
+      "Metacarpophalangeal Flexion at Metacarpophalangeal Joints"
+    ]
+  },
+  {
+    "promptId": "muscle_action:muscle-pectoralis-minor",
+    "entitySlug": "pectoralis-minor",
+    "acceptedAnswers": [
+      "Assists scapular protraction and anterior tilt patterning through the coracoid process.",
+      "Scapular Protraction at Scapulothoracic Articulation"
+    ]
+  },
+  {
+    "promptId": "muscle_action:muscle-abductor-digiti-minimi-foot",
+    "entitySlug": "abductor-digiti-minimi-foot",
+    "acceptedAnswers": [
+      "Abducts the fifth toe away from the second-toe axis and supports the lateral plantar border.",
+      "Toe Abduction at Metatarsophalangeal Joints"
+    ]
+  },
+  {
+    "promptId": "muscle_action:muscle-extensor-hallucis-longus",
+    "entitySlug": "extensor-hallucis-longus",
+    "acceptedAnswers": [
+      "Extends the great toe through the dorsal hallux tendon.",
+      "Hallux Extension at Metatarsophalangeal Joints"
+    ]
+  },
+  {
+    "promptId": "muscle_action:muscle-gracilis",
+    "entitySlug": "gracilis",
+    "acceptedAnswers": [
+      "Assists hip adduction.",
+      "Hip Adduction at Hip Joint"
+    ]
+  },
+  {
+    "promptId": "muscle_action:muscle-semimembranosus",
+    "entitySlug": "semimembranosus",
+    "acceptedAnswers": [
+      "Assists hip extension.",
+      "Hip Extension at Hip Joint"
+    ]
+  },
+  {
+    "promptId": "muscle_action:muscle-semitendinosus",
+    "entitySlug": "semitendinosus",
+    "acceptedAnswers": [
+      "Assists hip extension.",
+      "Hip Extension at Hip Joint"
+    ]
+  }
+]

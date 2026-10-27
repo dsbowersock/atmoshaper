@@ -1,3 +1,4 @@
+import { isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
 /** Verify live source/summary bindings against retained public bytes; never fetch missing evidence. */
 import assert from "node:assert/strict"
 import { createHash } from "node:crypto"
@@ -86,9 +87,13 @@ export function verifyReviewedAnatomySourceEvidence(manifest, seed, cards, readA
   const counts = { clinical_summary: 0, entity_source_reference: 0, entity_term: 0, relationship: 0, action: 0, total: citations.length }
   for (const citation of citations) {
     assert.equal(citation.reviewStatus, "reviewed", "This slice preserves the existing source-linkage flags")
-    assert.ok(citation.sourceLocator.includes(`${prefix}modules/`), "Unpinned citation remains")
+    // A figure is allowed only for its exact reviewed fact/pointer identity.
+    // All other source locators retain the existing pinned-module/line contract.
+    const exactFigure = isReviewedActionFigureCitation(citation)
+    assert.ok(exactFigure || citation.sourceLocator.includes(`${prefix}modules/`), "Unpinned citation remains")
     assert.equal(citation.sourceLocator.includes("pages/1-introduction"), false)
-    assert.match(new URL(citation.sourceLocator).hash, /^#L[0-9]+-L[0-9]+$/, "A citation must keep one directly clickable primary URL")
+    if (exactFigure) assert.equal(new URL(citation.sourceLocator).hash, "")
+    else assert.match(new URL(citation.sourceLocator).hash, /^#L[0-9]+-L[0-9]+$/, "A citation must keep one directly clickable primary URL")
     if (citation.factType === "clinical_summary") {
       counts.clinical_summary++
       const binding = bindings.get(`${citation.entityType}:${citation.entitySlug}`)

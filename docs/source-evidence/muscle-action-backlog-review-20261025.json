@@ -1,0 +1,2328 @@
+{
+  "schemaVersion": 1,
+  "state": "ALL_87_REMAINING_ACTION_DESCRIPTIONS_COMPARED",
+  "sourceHead": "01a60b7c4475141cd3ae3a264f00d2c781e99f62",
+  "rows": [
+    {
+      "actionId": "action-serratus-upward-rotation",
+      "muscle": "serratus-anterior",
+      "description": "Contributes strongly to upward scapular rotation during arm elevation.",
+      "descriptionSha256": "2660c344956a2f58bf06f8c7144ae1d729f31dae5bfb2d5a9f5c7a7ed82db905",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46495:tbl-ch11_08:row:4"
+      ],
+      "comparison": "The row identifies serratus anterior and scapular protraction.",
+      "remainingEvidence": "A precise source for strong upward rotation during arm elevation; protraction is not a substitute.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-pectoralis-minor-depression",
+      "muscle": "pectoralis-minor",
+      "description": "Assists scapular depression and downward pull of the coracoid region.",
+      "descriptionSha256": "44c5b6da53965dee2d15f9b6b64cf5723fa01bcd70af5367b7573943b182fc5e",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:tbl-ch11_08:row:3"
+      ],
+      "comparison": "The named row gives scapular depression and coracoid-process insertion, supporting the limited downward-pull wording.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-pectoralis-major-clavicular-adduction",
+      "muscle": "pectoralis-major-clavicular-head",
+      "description": "Assists shoulder adduction and horizontal adduction with the rest of pectoralis major.",
+      "descriptionSha256": "90296e0b2e35c17ab12f3c462d5e410733348345b663466bbe56813a4ad305db",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1129:Pectoralis major"
+      ],
+      "comparison": "The table gives whole-muscle adduction.",
+      "remainingEvidence": "Clavicular-head contribution and horizontal adduction specifically.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-longus-colli-cervical-lateral-flexion",
+      "muscle": "longus-colli",
+      "description": "Supports subtle side-bending and segmental stabilization of the cervical spine.",
+      "descriptionSha256": "1ad69a2289687df5c38cb8cd0e95276880cdbd0e6b639f9aa26351ab73468d11",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "NO_PRECISE_PASSAGE_RETAINED",
+      "evidenceRefs": [],
+      "comparison": "No precise longus-colli action passage is in the retained chapter set.",
+      "remainingEvidence": "Named cervical side bending and segmental stabilization.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-anterior-scalene-rib-elevation",
+      "muscle": "anterior-scalene",
+      "description": "Assists elevation of the first rib during accessory breathing mechanics.",
+      "descriptionSha256": "86815122796e3b35a64952580748b18432ea540a7ece2cb0aa472ba68d643ad4",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2080091",
+        "m46549:fs-id2146002"
+      ],
+      "comparison": "The scalenes are named accessory inspiratory muscles that lift the thoracic wall.",
+      "remainingEvidence": "The particular named scalene and first-rib contribution; general thoracic elevation does not identify the rib.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-middle-scalene-rib-elevation",
+      "muscle": "middle-scalene",
+      "description": "Assists first-rib elevation and thoracic inlet breathing mechanics.",
+      "descriptionSha256": "0da9dfcc9efc3dbd8bb67f745ca28c6670e9348af02902540f57d0d6022d3c50",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2080091",
+        "m46549:fs-id2146002"
+      ],
+      "comparison": "The scalenes are named accessory inspiratory muscles that lift the thoracic wall.",
+      "remainingEvidence": "The particular named scalene and first-rib contribution; general thoracic elevation does not identify the rib.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-posterior-scalene-cervical-lateral-flexion",
+      "muscle": "posterior-scalene",
+      "description": "Assists cervical side bending from the posterior scalene line of pull.",
+      "descriptionSha256": "16f57cf6fb3625a9b7e4a3b1acdfddcbd076c8b34b959624fb8ba55eabed4b84",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2080091"
+      ],
+      "comparison": "Scalene group lateral flexion and posterior-scalene membership/location are stated.",
+      "remainingEvidence": "A precise individual posterior-scalene line-of-pull comparison; no automatic group-to-individual approval.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-rcp-major-cervical-rotation",
+      "muscle": "rectus-capitis-posterior-major",
+      "description": "Assists ipsilateral upper cervical rotation as part of the suboccipital group.",
+      "descriptionSha256": "5ac2f27247d52caac6b6eeaeda7dc8fbdf08ca0ab4e4f75bd36a3a243385cd5d",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "NO_PRECISE_PASSAGE_RETAINED",
+      "evidenceRefs": [],
+      "comparison": "No exact named rectus-capitis-posterior-major action passage is retained.",
+      "remainingEvidence": "Ipsilateral upper-cervical rotation for this individual muscle.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-oci-cervical-rotation",
+      "muscle": "obliquus-capitis-inferior",
+      "description": "Assists head rotation at the atlas-axis region within broader cervical rotation.",
+      "descriptionSha256": "5e3cdaaebec4ac7fdca171a506ad9111901f4f814d578c0eb03bc5e69f4d1d65",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "NO_PRECISE_PASSAGE_RETAINED",
+      "evidenceRefs": [],
+      "comparison": "No exact named obliquus-capitis-inferior action passage is retained.",
+      "remainingEvidence": "Its atlanto-axial contribution to rotation.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-quadratus-lumborum-lateral-flexion",
+      "muscle": "quadratus-lumborum",
+      "description": "Laterally flexes the lumbar spine.",
+      "descriptionSha256": "459ed4589ef8309c15ae76c3025a98be6f4084d77f34a086309b811b7d312111",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46485:tbl-ch11_06:row:5"
+      ],
+      "comparison": "The named target/movement cells explicitly give vertebral-column lateral flexion; unrelated origin cells are not adopted.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-quadratus-lumborum-stabilization",
+      "muscle": "quadratus-lumborum",
+      "description": "Helps stabilize the twelfth rib, pelvis, and lumbar spine.",
+      "descriptionSha256": "a202fb50f6570eff6e956e2a705f145deb78873813887df02d6080b58a08b7d0",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46485:fs-id2738851",
+        "m46485:tbl-ch11_06:row:5"
+      ],
+      "comparison": "Posterior-core postural contribution and the twelfth-rib/lumbar insertion are stated.",
+      "remainingEvidence": "Stabilization of all three named structures, including the twelfth rib, rather than inferring function solely from attachment.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-external-oblique-flexion",
+      "muscle": "external-oblique",
+      "description": "Assists trunk flexion.",
+      "descriptionSha256": "cab13fe47ea1bc24144b6e764fb3feaeadd9575fb9d5e748b136f537894b39b1",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46485:fs-id2830198",
+        "m46485:tbl-ch11_06:row:2"
+      ],
+      "comparison": "The obliques are associated with trunk movement, twisting and side bending.",
+      "remainingEvidence": "Explicit flexion support for this named oblique; the rectus-abdominis flexion row cannot approve a different muscle.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-external-oblique-rotation",
+      "muscle": "external-oblique",
+      "description": "Contributes to trunk rotation.",
+      "descriptionSha256": "5ea8456419bc308fa0c4dec68daa9720d509450b89d37376b1321ef1af4620bd",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46485:tbl-ch11_06:row:2",
+        "m46485:fs-id2830198"
+      ],
+      "comparison": "The named oblique row and prose describe twisting/rotation. The table word supination is excluded as inappropriate trunk terminology.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-external-oblique-lateral-flexion",
+      "muscle": "external-oblique",
+      "description": "Assists trunk lateral flexion.",
+      "descriptionSha256": "2e9007ce3b9480a37ecce5cd30e7454168f905d4e3327d67ada9c113637ba104",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46485:tbl-ch11_06:row:2"
+      ],
+      "comparison": "The row names both obliques and side bending/lateral flexion.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-internal-oblique-flexion",
+      "muscle": "internal-oblique",
+      "description": "Assists trunk flexion.",
+      "descriptionSha256": "cab13fe47ea1bc24144b6e764fb3feaeadd9575fb9d5e748b136f537894b39b1",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46485:fs-id2830198",
+        "m46485:tbl-ch11_06:row:2"
+      ],
+      "comparison": "The obliques are associated with trunk movement, twisting and side bending.",
+      "remainingEvidence": "Explicit flexion support for this named oblique; the rectus-abdominis flexion row cannot approve a different muscle.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-internal-oblique-rotation",
+      "muscle": "internal-oblique",
+      "description": "Contributes to trunk rotation.",
+      "descriptionSha256": "5ea8456419bc308fa0c4dec68daa9720d509450b89d37376b1321ef1af4620bd",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46485:tbl-ch11_06:row:2",
+        "m46485:fs-id2830198"
+      ],
+      "comparison": "The named oblique row and prose describe twisting/rotation. The table word supination is excluded as inappropriate trunk terminology.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-internal-oblique-lateral-flexion",
+      "muscle": "internal-oblique",
+      "description": "Assists trunk lateral flexion.",
+      "descriptionSha256": "2e9007ce3b9480a37ecce5cd30e7454168f905d4e3327d67ada9c113637ba104",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46485:tbl-ch11_06:row:2"
+      ],
+      "comparison": "The row names both obliques and side bending/lateral flexion.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-diaphragm-thoracic-cage-expansion",
+      "muscle": "diaphragm",
+      "description": "Contracts and descends to increase thoracic volume during inspiration.",
+      "descriptionSha256": "d1896410d87fec31e300c8097fc0f4d5485a58c8755ce3397b10b9c03336e5f5",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46549:fs-id1882180",
+        "m46549:fs-id2575781"
+      ],
+      "comparison": "The text explicitly says contraction moves the diaphragm inferiorly, flattens it and increases thoracic volume during inspiration.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-external-intercostals-expansion",
+      "muscle": "external-intercostals",
+      "description": "Elevates ribs and supports inspiratory rib cage motion.",
+      "descriptionSha256": "6bd162a32879a76dc5115c1926391daf5d69772064ceb30cf95687a1276025b4",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46549:fs-id1882180"
+      ],
+      "comparison": "The text explicitly describes ribs moving upward and outward and the thoracic cage expanding during inspiration.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-internal-intercostals-rib-depression",
+      "muscle": "internal-intercostals",
+      "description": "Assists rib depression during forced expiration.",
+      "descriptionSha256": "6818f14db3975b695972ad72f65ae79b926cefe65e9547925dbaea85ddc6a688",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46485:tbl-ch11_07:row:4",
+        "m46549:fs-id2146002"
+      ],
+      "comparison": "The named row concerns forced expiration and bringing ribs together along the superior/inferior axis; the prose confirms internal-intercostal rib-cage compression. No universal action of every subdivision is claimed.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-internal-intercostals-stabilization",
+      "muscle": "internal-intercostals",
+      "description": "Stabilizes intercostal spaces during breathing mechanics.",
+      "descriptionSha256": "591dc9e7ce610bda8478832c41e69f9f847a8578179badee66c5b3601b9dce24",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46485:fs-id2494693"
+      ],
+      "comparison": "Intercostal location and respiratory rib-cage function are described.",
+      "remainingEvidence": "Specific stabilization of intercostal spaces; changing dimensions alone does not establish the stated role.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-biceps-elbow-flexion",
+      "muscle": "biceps-brachii",
+      "description": "Flexes the elbow.",
+      "descriptionSha256": "43526116d11eaea8eea8df8170f44927f43c41464c3e5974aa9092178e6f20f2",
+      "currentSourceRef": "human-bio-media",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:fs-id2831016",
+        "image:1130:Biceps brachii"
+      ],
+      "comparison": "The named paragraph explicitly assigns elbow flexion, forearm supination and shoulder flexion to biceps brachii; the forearm table corroborates the first two.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-biceps-forearm-supination",
+      "muscle": "biceps-brachii",
+      "description": "Supinates the forearm.",
+      "descriptionSha256": "4593dda40e6a8e77c75ba54d5b3c8b4d351765431201188e4351f8768c622704",
+      "currentSourceRef": "human-bio-media",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:fs-id2831016",
+        "image:1130:Biceps brachii"
+      ],
+      "comparison": "The named paragraph explicitly assigns elbow flexion, forearm supination and shoulder flexion to biceps brachii; the forearm table corroborates the first two.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-biceps-shoulder-flexion",
+      "muscle": "biceps-brachii",
+      "description": "Assists shoulder flexion.",
+      "descriptionSha256": "312ab15565bca1a9afa2e44411d41f5794319081c862ec07e334edec6b589804",
+      "currentSourceRef": "human-bio-media",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:fs-id2831016",
+        "image:1130:Biceps brachii"
+      ],
+      "comparison": "The named paragraph explicitly assigns elbow flexion, forearm supination and shoulder flexion to biceps brachii; the forearm table corroborates the first two.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-coracobrachialis-shoulder-adduction",
+      "muscle": "coracobrachialis",
+      "description": "Assists adduction and stabilization of the humerus near the shoulder.",
+      "descriptionSha256": "37b91b30faba4ea182a3efed31c84ac34f147ed7faabe6a157009c1ceebc6b6f",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46495:fs-id2501482",
+        "image:1129:Coracobrachialis"
+      ],
+      "comparison": "Named prose and table support shoulder adduction.",
+      "remainingEvidence": "Humeral/shoulder stabilization specifically; stabilization stated for subscapularis is not transferred to coracobrachialis.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-fcr-wrist-flexion",
+      "muscle": "flexor-carpi-radialis",
+      "description": "Flexes the wrist from the radial side of the anterior forearm.",
+      "descriptionSha256": "b6db7244f1b5f213c9e930f81f8012ede1b1032fc419430a1bb7b2e63b67d8d3",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:fs-id3304716",
+        "image:1131:Flexor carpi radialis"
+      ],
+      "comparison": "The named wrist-flexion cells, anterior compartment and relative radial/ulnar location support the limited description.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-fcr-wrist-radial-deviation",
+      "muscle": "flexor-carpi-radialis",
+      "description": "Contributes to radial deviation of the wrist with radial-side wrist extensors.",
+      "descriptionSha256": "f3e31e606d66b652704703ffd8f9ff6f9cfb357a7969bfb21d6926101ac346b2",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1131:Flexor carpi radialis",
+        "image:1131:Extensor carpi radialis longus/brevis"
+      ],
+      "comparison": "The named paired muscles share the explicit abduction (radial-deviation) or adduction (ulnar-deviation) wrist target. This supports shared directional contribution, not a measured co-contraction protocol. Ambiguous away-from-body prose is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-fcu-wrist-flexion",
+      "muscle": "flexor-carpi-ulnaris",
+      "description": "Flexes the wrist from the ulnar side of the anterior forearm.",
+      "descriptionSha256": "34576a0ad87634ce22eaaeab2a68badc04113b94e23cfaa84bcf4069b203ffc4",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:fs-id3304716",
+        "image:1131:Flexor carpi ulnaris"
+      ],
+      "comparison": "The named wrist-flexion cells, anterior compartment and relative radial/ulnar location support the limited description.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-fcu-wrist-ulnar-deviation",
+      "muscle": "flexor-carpi-ulnaris",
+      "description": "Contributes to ulnar deviation of the wrist with extensor carpi ulnaris.",
+      "descriptionSha256": "ed9ea24a3b42456a499f0654a865d6e4dd2249611a8852075c4b27a4ee97f1e4",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1131:Flexor carpi ulnaris",
+        "image:1131:Extensor carpi ulnaris"
+      ],
+      "comparison": "The named paired muscles share the explicit abduction (radial-deviation) or adduction (ulnar-deviation) wrist target. This supports shared directional contribution, not a measured co-contraction protocol. Ambiguous away-from-body prose is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-ecr-wrist-extension",
+      "muscle": "extensor-carpi-radialis",
+      "description": "Extends the wrist through the radial-side posterior forearm tendons.",
+      "descriptionSha256": "8f7e47b9abd4ae3794b8137a2e10c7b9f257ec8aeee6434b51b75fa1ad267f38",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:fs-id2483384",
+        "image:1131:Extensor carpi radialis longus/brevis"
+      ],
+      "comparison": "The named posterior-compartment rows explicitly give wrist extension; the grouped radialis description covers longus and brevis without changing entity identity.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-ecr-wrist-radial-deviation",
+      "muscle": "extensor-carpi-radialis",
+      "description": "Contributes to radial deviation of the wrist with flexor carpi radialis.",
+      "descriptionSha256": "e950a12499d402b6750583878898f8926a3826dfceb760c958f704183bb720ff",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1131:Extensor carpi radialis longus/brevis",
+        "image:1131:Flexor carpi radialis"
+      ],
+      "comparison": "The named paired muscles share the explicit abduction (radial-deviation) or adduction (ulnar-deviation) wrist target. This supports shared directional contribution, not a measured co-contraction protocol. Ambiguous away-from-body prose is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-ecu-wrist-extension",
+      "muscle": "extensor-carpi-ulnaris",
+      "description": "Extends the wrist from the ulnar side of the posterior forearm.",
+      "descriptionSha256": "e30f36ff8d5cc60f7b646e64c3d80336364043dd77fcd9e1618f6cb005a162a2",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:fs-id2483384",
+        "image:1131:Extensor carpi ulnaris"
+      ],
+      "comparison": "The named posterior-compartment rows explicitly give wrist extension; the grouped radialis description covers longus and brevis without changing entity identity.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-ecu-wrist-ulnar-deviation",
+      "muscle": "extensor-carpi-ulnaris",
+      "description": "Contributes to ulnar deviation of the wrist with flexor carpi ulnaris.",
+      "descriptionSha256": "61fbdbdd5f97907664c4bbc281aa45ee55f69c80d755f2dc78ee38714525736b",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1131:Extensor carpi ulnaris",
+        "image:1131:Flexor carpi ulnaris"
+      ],
+      "comparison": "The named paired muscles share the explicit abduction (radial-deviation) or adduction (ulnar-deviation) wrist target. This supports shared directional contribution, not a measured co-contraction protocol. Ambiguous away-from-body prose is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-lumbricals-hand-finger-extension",
+      "muscle": "lumbricals-hand",
+      "description": "Assists interphalangeal extension through the extensor expansion mechanism.",
+      "descriptionSha256": "172aae768a79184eda15e09731f173821d42c929b4fa4064f26098995b8dedd3",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46495:tbl-ch11_09:row:9"
+      ],
+      "comparison": "The row explicitly gives interphalangeal extension and insertion into extensional expansions.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-biceps-femoris-knee-flexion",
+      "muscle": "biceps-femoris",
+      "description": "Flexes the knee as part of the lateral hamstring group.",
+      "descriptionSha256": "380331a1c22d614554fd91851d1bbc26b6a844d84e9fd0422dcf6eb63108456f",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2012638",
+        "pdf:Applied2022:59,60,165"
+      ],
+      "comparison": "The named hamstrings paragraph gives knee flexion; Applied Human Anatomy A17a/b questions and answers give lateral/medial popliteal borders. The movement and position have distinct precise support.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-biceps-femoris-hip-extension",
+      "muscle": "biceps-femoris",
+      "description": "Long head assists hip extension.",
+      "descriptionSha256": "70f1621af57de2bb32d1f6712866eec1b0d42b15d070e64ffc7672c6627b530e",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46482:fs-id2012638",
+        "image:1133:Biceps femoris",
+        "pdf:Applied2022:58,165"
+      ],
+      "comparison": "Whole-biceps-femoris thigh extension and the long-head ischial origin are described.",
+      "remainingEvidence": "A precise head-specific action comparison; origin and whole-group function are retained without silently approving the long-head qualification.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-semitendinosus-knee-flexion",
+      "muscle": "semitendinosus",
+      "description": "Flexes the knee as part of the medial hamstrings.",
+      "descriptionSha256": "9385e366a6c8b874506f3840d153763196bd84550097a28d65dcd506f83a3455",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2012638",
+        "pdf:Applied2022:59,60,165"
+      ],
+      "comparison": "The named hamstrings paragraph gives knee flexion; Applied Human Anatomy A17a/b questions and answers give lateral/medial popliteal borders. The movement and position have distinct precise support.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-semimembranosus-knee-flexion",
+      "muscle": "semimembranosus",
+      "description": "Flexes the knee as part of the medial hamstrings.",
+      "descriptionSha256": "9385e366a6c8b874506f3840d153763196bd84550097a28d65dcd506f83a3455",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2012638",
+        "pdf:Applied2022:59,60,165"
+      ],
+      "comparison": "The named hamstrings paragraph gives knee flexion; Applied Human Anatomy A17a/b questions and answers give lateral/medial popliteal borders. The movement and position have distinct precise support.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-adductor-magnus-hip-adduction",
+      "muscle": "adductor-magnus",
+      "description": "Adducts the hip through its adductor portion.",
+      "descriptionSha256": "78bac5994eae459a365cc46802030eb811eede019faf3851a327092c78ccdfc4",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46482:fs-id2875826",
+        "image:1132:Adductor magnus"
+      ],
+      "comparison": "Whole-muscle adduction and extension have explicit support.",
+      "remainingEvidence": "Adductor-portion or posterior-fiber attribution specifically, rather than approving the subdivision from a whole-muscle row.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-adductor-magnus-hip-extension",
+      "muscle": "adductor-magnus",
+      "description": "Posterior fibers assist hip extension.",
+      "descriptionSha256": "df9ae669ec4db34868ea9def165efe1aad36b09cb4fbe2db1940eb2c5857a214",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46482:fs-id2875826",
+        "image:1132:Adductor magnus"
+      ],
+      "comparison": "Whole-muscle adduction and extension have explicit support.",
+      "remainingEvidence": "Adductor-portion or posterior-fiber attribution specifically, rather than approving the subdivision from a whole-muscle row.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-gracilis-knee-flexion",
+      "muscle": "gracilis",
+      "description": "Assists knee flexion through its medial tibial attachment.",
+      "descriptionSha256": "9949ce29c801b289127ea233e83cbb040f3645422f349ee4bafac217515378a9",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2252429",
+        "image:1133:Gracilis"
+      ],
+      "comparison": "Prose gives knee flexion; the actual table gives tibial flexion and medial-tibial insertion. Its contradictory hip-opening phrase is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-pectineus-hip-flexion",
+      "muscle": "pectineus",
+      "description": "Assists hip flexion.",
+      "descriptionSha256": "ec725f9d11fa6436eaccad4ce90a32105e04e440dfebe68580c871a445cf75d5",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2875826"
+      ],
+      "comparison": "The prose explicitly states pectineus adduction and flexion at the hip. The conflicting opens-thigh phrase in the table is not accepted.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-pectineus-hip-adduction",
+      "muscle": "pectineus",
+      "description": "Assists hip adduction.",
+      "descriptionSha256": "a3346bb60c57b2fefd79b6ee3d0aab9735b24970e0525a309e73722f7edf650c",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2875826"
+      ],
+      "comparison": "The prose explicitly states pectineus adduction and flexion at the hip. The conflicting opens-thigh phrase in the table is not accepted.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-tensor-fasciae-latae-hip-abduction",
+      "muscle": "tensor-fasciae-latae",
+      "description": "Assists hip abduction and lateral pelvic control.",
+      "descriptionSha256": "5ae264a5ff90b807759389ec4b53c74a18ad7870b2fdf3ae011041500e49c266",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46482:fs-id2472929",
+        "image:1132:Tensor fascia lata"
+      ],
+      "comparison": "Hip abduction and lateral-knee/iliotibial-tract stabilization are described.",
+      "remainingEvidence": "Lateral pelvic control specifically; knee stabilization is not substituted for pelvic stabilization.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-tensor-fasciae-latae-hip-flexion",
+      "muscle": "tensor-fasciae-latae",
+      "description": "Assists hip flexion.",
+      "descriptionSha256": "ec725f9d11fa6436eaccad4ce90a32105e04e440dfebe68580c871a445cf75d5",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2472929"
+      ],
+      "comparison": "The named prose explicitly states assistance in hip flexion.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-gastrocnemius-ankle-plantarflexion",
+      "muscle": "gastrocnemius",
+      "description": "Plantarflexes the ankle.",
+      "descriptionSha256": "b05867033124f228636e9e526c072fdf3dc64ae49e4590aff5bc167724b1b9e3",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1134:Gastrocnemius"
+      ],
+      "comparison": "The named table target and motion cells explicitly identify the described action; extensor-digitorum-longus target toes are 2 through 5.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-gastrocnemius-knee-flexion",
+      "muscle": "gastrocnemius",
+      "description": "Assists knee flexion.",
+      "descriptionSha256": "05b92fb1b790ff61c8e4d25f9d5a11d76836f77c49643b2a31bcf64f518c9047",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1134:Gastrocnemius"
+      ],
+      "comparison": "The named table target and motion cells explicitly identify the described action; extensor-digitorum-longus target toes are 2 through 5.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-tibialis-anterior-dorsiflexion",
+      "muscle": "tibialis-anterior",
+      "description": "Dorsiflexes the ankle.",
+      "descriptionSha256": "75e793d7bf3e95f8cb476261afd31b0835415773c8726d91752292e3a1aaaf82",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1134:Tibialis anterior"
+      ],
+      "comparison": "The named table target and motion cells explicitly identify the described action; extensor-digitorum-longus target toes are 2 through 5.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-tibialis-anterior-inversion",
+      "muscle": "tibialis-anterior",
+      "description": "Assists foot inversion.",
+      "descriptionSha256": "29c358f724bbba0de6775676a915d0f275f523379304efc922803343b259b072",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1134:Tibialis anterior"
+      ],
+      "comparison": "The named table target and motion cells explicitly identify the described action; extensor-digitorum-longus target toes are 2 through 5.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-extensor-digitorum-longus-dorsiflexion",
+      "muscle": "extensor-digitorum-longus",
+      "description": "Assists ankle dorsiflexion.",
+      "descriptionSha256": "edc868657292eafd344d01ee1e1eefcd24960052bf6bea867b08fb6680aabcbc",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1134:Extensor digitorum longus"
+      ],
+      "comparison": "The named table target and motion cells explicitly identify the described action; extensor-digitorum-longus target toes are 2 through 5.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-extensor-digitorum-longus-toe-extension",
+      "muscle": "extensor-digitorum-longus",
+      "description": "Extends toes two through five.",
+      "descriptionSha256": "7765e81870a5a5aab518464cf6514277d41612020cb88cba596e50f3d83ea534",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1134:Extensor digitorum longus"
+      ],
+      "comparison": "The named table target and motion cells explicitly identify the described action; extensor-digitorum-longus target toes are 2 through 5.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-flexor-hallucis-longus-ankle-plantarflexion",
+      "muscle": "flexor-hallucis-longus",
+      "description": "Assists ankle plantarflexion as the tendon passes behind the medial ankle.",
+      "descriptionSha256": "5a37a0b9a157d65e9d0dcdd43e3f22c6fb6e9bb85bd00f72cded6ae0397c9206",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1134:Flexor hallucis longus"
+      ],
+      "comparison": "The named table explicitly states foot plantarflexion.",
+      "remainingEvidence": "The tendon course behind the medial ankle, which is absent from the table.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-extensor-hallucis-longus-ankle-dorsiflexion",
+      "muscle": "extensor-hallucis-longus",
+      "description": "Assists ankle dorsiflexion as part of the anterior compartment.",
+      "descriptionSha256": "5b0f7ba00511e5aeb7601cfa7ac7f0106197276578f0492dda157f112a1dbecc",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46482:fs-id2415928",
+        "image:1134:Extensor hallucis longus"
+      ],
+      "comparison": "The prose names its anterior compartment and the table gives foot dorsiflexion.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-fibularis-tertius-eversion",
+      "muscle": "fibularis-tertius",
+      "description": "Assists foot eversion through the fifth metatarsal attachment.",
+      "descriptionSha256": "e61aed5149bdeb0c045d28c1242ba331ab193333c1ad0a51dbc3ce61a3c5a86e",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46482:fs-id2415928"
+      ],
+      "comparison": "The retained prose identifies fibularis tertius and its variable presence.",
+      "remainingEvidence": "Explicit eversion and fifth-metatarsal insertion for this muscle; fibularis brevis is not an acceptable substitute.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-lumbricals-foot-toe-extension",
+      "muscle": "lumbricals-foot",
+      "description": "Assists extension control of the toe phalanges through the plantar extensor expansion relationship.",
+      "descriptionSha256": "55df483441bd5a08e87e6d6b6841456f7b99ecbf90089b1a5e19ff11a2693bf6",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1135:Lumbricals"
+      ],
+      "comparison": "The named table gives toe interphalangeal extension.",
+      "remainingEvidence": "The exact extensor-expansion relationship; the displayed insertion is described only as medial proximal-phalangeal, not an expansion.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-abductor-digiti-minimi-foot-toe-flexion",
+      "muscle": "abductor-digiti-minimi-foot",
+      "description": "Assists flexion of the fifth toe at the metatarsophalangeal joint.",
+      "descriptionSha256": "4f6d2eb8d0ac58faa2d51b682cfc1d349f41557fcf3b1d6f040ed968289638d8",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1135:Abductor digiti minimi"
+      ],
+      "comparison": "The named row gives fifth-toe flexion and proximal-phalanx insertion, supporting metatarsophalangeal flexion; no interphalangeal action is inferred.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-gluteus-minimus-hip-abduction",
+      "muscle": "gluteus-minimus",
+      "description": "Assists hip abduction and pelvic stabilization in single-leg stance.",
+      "descriptionSha256": "ad7e200c2cc8f6b6ca1a6727f49b8b2e19f8fe42d6c134a5d38e05a5804bfc87",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46482:fs-id1546298",
+        "image:1132:Gluteus minimus",
+        "pdf:Applied2022:64,166"
+      ],
+      "comparison": "Abduction is supported by prose, the direction cell and the Applied movement/answer pair. The table movement phrase brings thighs together is conflicting and excluded.",
+      "remainingEvidence": "Pelvic stabilization in single-leg stance requires additional precise evidence.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-obturator-externus-hip-adduction",
+      "muscle": "obturator-externus",
+      "description": "Can assist hip adduction depending on hip position.",
+      "descriptionSha256": "497ed6bb98d22bd6cff570b3dc65a0bc266cb7a1cae1d0b6447498dda45f48bb",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46482:fs-id2472929",
+        "image:1132:Obturator externus"
+      ],
+      "comparison": "The retained named source gives lateral rotation and hip stabilization.",
+      "remainingEvidence": "Position-dependent adduction specifically; a different listed action does not establish this claim.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-plantaris-ankle-plantarflexion",
+      "muscle": "plantaris",
+      "description": "Weakly assists ankle plantarflexion through its long tendon toward the calcaneal tendon region.",
+      "descriptionSha256": "02bc25e0abd90d5bac74ab5b5cc186b99a6281757550fc83fdcd9f667061bb8e",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1134:Plantaris",
+        "m46482:fs-id2421915"
+      ],
+      "comparison": "Plantarflexion and calcaneus/calcaneal-tendon insertion are stated.",
+      "remainingEvidence": "The weak contribution and long-tendon wording require a precise comparison; insertion alone does not quantify strength or tendon length.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-masseter-jaw-elevation",
+      "muscle": "masseter",
+      "description": "Elevates the mandible.",
+      "descriptionSha256": "38b0c47847733207063d79df9fb7d62e3c46006364bddb8d8e32476242720cfa",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:2",
+        "m46484:fs-id2101141"
+      ],
+      "comparison": "The named table and prose explicitly give mandibular elevation.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-masseter-jaw-protraction",
+      "muscle": "masseter",
+      "description": "Superficial fibers can assist jaw protraction.",
+      "descriptionSha256": "31b3b48cba3b8d33400046a95d1885982c3ba00688b9fd97270318e2d4aa06b0",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:2"
+      ],
+      "comparison": "The retained named source gives jaw elevation.",
+      "remainingEvidence": "Superficial-fiber protraction specifically; no fiber-level action is inferred from jaw closure.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-temporalis-jaw-elevation",
+      "muscle": "temporalis",
+      "description": "Elevates the mandible.",
+      "descriptionSha256": "38b0c47847733207063d79df9fb7d62e3c46006364bddb8d8e32476242720cfa",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:3",
+        "m46484:fs-id2321650"
+      ],
+      "comparison": "The named table and prose explicitly give mandibular elevation.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-temporalis-jaw-retraction",
+      "muscle": "temporalis",
+      "description": "Posterior fibers assist mandible retraction.",
+      "descriptionSha256": "f8edb0b56e4f086afa8aaf86f9a84280b2451f6b77312d7451640ad08cfaa942",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:3",
+        "m46484:fs-id2101141"
+      ],
+      "comparison": "Whole-temporalis mandibular retraction is described.",
+      "remainingEvidence": "Posterior-fiber attribution specifically.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-medial-pterygoid-jaw-elevation",
+      "muscle": "medial-pterygoid",
+      "description": "Elevates the mandible.",
+      "descriptionSha256": "38b0c47847733207063d79df9fb7d62e3c46006364bddb8d8e32476242720cfa",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:5"
+      ],
+      "comparison": "The named row explicitly gives jaw closure/elevation and side-to-side jaw motion; no claim is taken from its contradictory posterior/protraction label.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-medial-pterygoid-jaw-lateral-deviation",
+      "muscle": "medial-pterygoid",
+      "description": "Assists side-to-side jaw movement.",
+      "descriptionSha256": "3d0ec19ab122901cb4304f8cebab831b9076352f317a730d31efabe1f0b435d1",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:5"
+      ],
+      "comparison": "The named row explicitly gives jaw closure/elevation and side-to-side jaw motion; no claim is taken from its contradictory posterior/protraction label.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-lateral-pterygoid-jaw-protraction",
+      "muscle": "lateral-pterygoid",
+      "description": "Protracts the mandible.",
+      "descriptionSha256": "59fbd7bb94ca7af0f3397726b0873d0ff23632ddde59a05d8389f15ee19d86d9",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:4"
+      ],
+      "comparison": "The named movement cells explicitly give pushing the lower jaw forward, mouth opening and side-to-side motion. The inconsistent posterior/protracts direction label is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-lateral-pterygoid-jaw-depression",
+      "muscle": "lateral-pterygoid",
+      "description": "Assists jaw opening.",
+      "descriptionSha256": "ad854f39f683ddc842d0dc13d4fd9202b6d6758b7b02ce7926cd09890f98991f",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:4"
+      ],
+      "comparison": "The named movement cells explicitly give pushing the lower jaw forward, mouth opening and side-to-side motion. The inconsistent posterior/protracts direction label is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-lateral-pterygoid-jaw-lateral-deviation",
+      "muscle": "lateral-pterygoid",
+      "description": "Assists side-to-side jaw movement.",
+      "descriptionSha256": "3d0ec19ab122901cb4304f8cebab831b9076352f317a730d31efabe1f0b435d1",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_04:row:4"
+      ],
+      "comparison": "The named movement cells explicitly give pushing the lower jaw forward, mouth opening and side-to-side motion. The inconsistent posterior/protracts direction label is excluded.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-orbicularis-oculi-eyelid-closure",
+      "muscle": "orbicularis-oculi",
+      "description": "Closes the eyelids during blinking and forceful eye closure.",
+      "descriptionSha256": "78acf0cf0be2d482ebdaf0115a6205ee91d76ffc29f3d8093b7ab5ca14be42d2",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:tbl-ch11_03:row:9",
+        "m46484:fs-id2361275"
+      ],
+      "comparison": "The source explicitly assigns eyelid closure to orbicularis oculi. Blinking/forceful closure are ordinary examples of that action; no subdivision-specific or quantitative activation claim is inferred.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-orbicularis-oris-lip-closure",
+      "muscle": "orbicularis-oris",
+      "description": "Closes, compresses, and purses the lips.",
+      "descriptionSha256": "825c47ab5c2b66fa64c6a035c47287efb21c460c689d4b48c30855401c1a7ecb",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2361275",
+        "image:1125:Orbicularis oris"
+      ],
+      "comparison": "The source identifies the circular lip muscle and general shaping of the lips.",
+      "remainingEvidence": "Specific closure, compression and pursing as stated, without transferring a movement from another named facial muscle.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-buccinator-cheek-compression",
+      "muscle": "buccinator",
+      "description": "Compresses the cheek against teeth and supports chewing-related oral control.",
+      "descriptionSha256": "13b161e59d8ffaf5790869a0cc21bff40ffab7f1c1f4578630b957cf43f12e03",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2500664",
+        "image:1125:Buccinator"
+      ],
+      "comparison": "Cheek compression and contribution to chewing have direct support.",
+      "remainingEvidence": "The explicit against-teeth relationship remains to be compared with a precise source.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-zygomaticus-major-mouth-angle-elevation",
+      "muscle": "zygomaticus-major",
+      "description": "Elevates and draws the mouth angle superolaterally during smiling.",
+      "descriptionSha256": "ffe2915d87454fbf415153211cfb567c3690fcba752652dd20d0e4a1c6ecb8a8",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1125:Zygomaticus major"
+      ],
+      "comparison": "The actual table row gives smiling, mouth corners and lateral elevation. Its image description incorrectly assigns this muscle to lower-lip depression; that description is rejected.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-zygomaticus-minor-upper-lip-elevation",
+      "muscle": "zygomaticus-minor",
+      "description": "Elevates the upper lip and contributes to nasolabial expression.",
+      "descriptionSha256": "4677c8907158c00dfa5b8ab4bd446799bab35d125e136d32c261f7cd99f84dcb",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "NO_PRECISE_PASSAGE_RETAINED",
+      "evidenceRefs": [],
+      "comparison": "No precise named zygomaticus-minor action passage is retained.",
+      "remainingEvidence": "Upper-lip elevation and nasolabial-expression contribution for this muscle, not zygomaticus major.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-levator-labii-superioris-upper-lip-elevation",
+      "muscle": "levator-labii-superioris",
+      "description": "Elevates the upper lip.",
+      "descriptionSha256": "66b5f6daec4eb7a4a6f7742907948dd6a6808cdcaeb393c76c453e06726f12ae",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "image:1125:Levator labii superioris"
+      ],
+      "comparison": "The actual named table row explicitly gives upper-lip elevation.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-depressor-anguli-oris-mouth-angle-depression",
+      "muscle": "depressor-anguli-oris",
+      "description": "Depresses the mouth angle.",
+      "descriptionSha256": "f7c6eacd908b870115a7a64a66caf61c38e95ec0f64dbffd17c6ed881488109a",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "SOURCE_CONFLICT_NEEDS_CORROBORATION",
+      "evidenceRefs": [
+        "image:1125:Depressor angulus oris"
+      ],
+      "comparison": "The table names this muscle and corner-of-mouth insertion but describes lower-jaw movement as its target.",
+      "remainingEvidence": "A precise mouth-angle-depression source; the source target mismatch is not silently repaired or adopted.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-depressor-labii-inferioris-lower-lip-depression",
+      "muscle": "depressor-labii-inferioris",
+      "description": "Depresses and everts the lower lip.",
+      "descriptionSha256": "4c2156616bbd88d152b6bb3b36915f6ddbf416f078bf9702d395fefd3b8bd5cb",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1125:Depressor labii inferioris"
+      ],
+      "comparison": "The actual image gives lower-lip depression, unlike its conflicting image description.",
+      "remainingEvidence": "Eversion of the lower lip specifically.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-mentalis-lower-lip-depression",
+      "muscle": "mentalis",
+      "description": "Elevates and protrudes the lower lip while wrinkling the chin region; represented in the lower-lip mechanics group.",
+      "descriptionSha256": "f48edf31c88775f1d28bdbd313b8a1e820e83c6da24eaa77b2437327a823efc0",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1125:Mentalis"
+      ],
+      "comparison": "Lower-lip/chin-skin protrusion is stated; the stable ID is a compatibility identifier, not adopted as evidence of depression.",
+      "remainingEvidence": "Elevation and chin wrinkling require a precise source. The internal teaching-group sentence is authored taxonomy, not an external claim.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-risorius-mouth-angle-elevation",
+      "muscle": "risorius",
+      "description": "Retracts the mouth angle laterally during smile or grimace expressions.",
+      "descriptionSha256": "5486e49584511b95c87d707fa21d06cb37867c831e7a38bb4d646a6601d132d9",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1125:Risorius"
+      ],
+      "comparison": "The named row gives lateral mouth-corner movement.",
+      "remainingEvidence": "The smile/grimace context needs corroboration beyond a row worded as pursing; the stable ID does not authorize elevation.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-nasalis-nasal-compression",
+      "muscle": "nasalis",
+      "description": "Compresses or assists dilation-related movement of nasal soft tissues depending on fiber region.",
+      "descriptionSha256": "8678e971511bd0d196cf3fee9b821843de44dee7881aee9d6ba6917a52036917",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "image:1125:Nasalis"
+      ],
+      "comparison": "The row gives nasal-cartilage compression and flaring.",
+      "remainingEvidence": "Fiber-region-specific compression versus dilation; a general flaring row does not identify the fiber regions.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-platysma-mouth-angle-depression",
+      "muscle": "platysma",
+      "description": "Tenses anterior neck skin and can assist depression of the lower face and mouth angle.",
+      "descriptionSha256": "46e27f7ad70ea62d7ce1c52aeb1c59b6f71d24432dd79d42dcf3b0c688a17bb9",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "NO_PRECISE_PASSAGE_RETAINED",
+      "evidenceRefs": [],
+      "comparison": "No precise named platysma action passage is retained.",
+      "remainingEvidence": "Anterior-neck skin tension and depression of the lower face/mouth angle.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-digastric-hyoid-elevation",
+      "muscle": "digastric",
+      "description": "Assists elevation of the hyoid region through the intermediate tendon.",
+      "descriptionSha256": "4dc96e00b4b43e4ac2a8c64c8636239a7544c45d0715cc0905b03f438b9cfb65",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2522796",
+        "image:1127:Digastric"
+      ],
+      "comparison": "Hyoid elevation is explicit for the digastric.",
+      "remainingEvidence": "Intermediate-tendon involvement specifically; two bellies and a hyoid insertion do not by themselves document that tendon.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-mylohyoid-jaw-depression",
+      "muscle": "mylohyoid",
+      "description": "Assists mandibular depression when the hyoid is fixed.",
+      "descriptionSha256": "06d6bae92359d25bc626fb84f2b79543c32ed91cd2bad27c903bc97fb313db51",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2522796",
+        "image:1127:Mylohyoid"
+      ],
+      "comparison": "The retained source gives hyoid elevation and tongue/floor-of-mouth function.",
+      "remainingEvidence": "Mandibular depression with fixed hyoid for mylohyoid, rather than transferring digastric/geniohyoid function.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-genioglossus-tongue-depression",
+      "muscle": "genioglossus",
+      "description": "Assists depression or flattening of the central tongue.",
+      "descriptionSha256": "5c47b4bab269c8bb64e155b4696336058b5f359fb1d3db25c72a57366ae6b070",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2367016",
+        "image:1127:Genioglossus"
+      ],
+      "comparison": "Downward tongue motion is explicit.",
+      "remainingEvidence": "Central-tongue flattening as worded; the source assigns flattening to hyoglossus and does not describe the named central portion here.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-hyoglossus-tongue-retraction",
+      "muscle": "hyoglossus",
+      "description": "Assists retraction of the tongue body.",
+      "descriptionSha256": "62cb94d128fa168c2c8b4e11554cc4a19fadc13a87a393d30331b20f32fd2311",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2367016",
+        "image:1127:Hyoglossus"
+      ],
+      "comparison": "The retained named source gives depression and flattening.",
+      "remainingEvidence": "Retraction of the tongue body specifically; absence of this function here is not proof the fact is false.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-styloglossus-tongue-elevation",
+      "muscle": "styloglossus",
+      "description": "Assists elevation of the side of the tongue.",
+      "descriptionSha256": "c0eb888f71616637399ab9aa025a0eba397e8e54482c1fa3166ec0b2ecd7a81f",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "FULL_DESCRIPTION_SUPPORTED",
+      "evidenceRefs": [
+        "m46484:fs-id2367016",
+        "image:1127:Styloglossus"
+      ],
+      "comparison": "Upward tongue movement is explicit, and the table identifies insertion into the undersurface and sides, supporting limited side-elevation assistance.",
+      "remainingEvidence": "",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-geniohyoid-jaw-depression",
+      "muscle": "geniohyoid",
+      "description": "Can assist mandibular depression when the hyoid is stabilized.",
+      "descriptionSha256": "db19f8d5170e0fbe9aaa2232055a903f591b3f5ba4c8db97ac566e2b0ecee5c9",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id2522796",
+        "image:1127:Geniohyoid"
+      ],
+      "comparison": "Geniohyoid mandibular depression is stated.",
+      "remainingEvidence": "The stabilized-hyoid condition needs an explicit reciprocal-action comparison; no automatic condition is added from attachment geometry.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    },
+    {
+      "actionId": "action-thyrohyoid-hyoid-depression",
+      "muscle": "thyrohyoid",
+      "description": "Can depress the hyoid when the laryngeal region is fixed.",
+      "descriptionSha256": "cfe962cfba6133f84041ec854eb53dd7b739f3b6bfd537cd8a3fee1a5766ec5b",
+      "currentSourceRef": "applied-human-anatomy",
+      "status": "PARTIAL_CLAUSE_NEEDS_EVIDENCE",
+      "evidenceRefs": [
+        "m46484:fs-id1531116",
+        "image:1127:Thyrohyoid"
+      ],
+      "comparison": "Hyoid depression and thyroid-cartilage elevation are both stated.",
+      "remainingEvidence": "The fixed-laryngeal-region condition requires a precise reciprocal-action comparison.",
+      "runtimeChanged": false,
+      "clinicalAcceptanceGranted": false
+    }
+  ],
+  "counts": {
+    "PARTIAL_CLAUSE_NEEDS_EVIDENCE": 34,
+    "FULL_DESCRIPTION_SUPPORTED": 47,
+    "NO_PRECISE_PASSAGE_RETAINED": 5,
+    "SOURCE_CONFLICT_NEEDS_CORROBORATION": 1
+  },
+  "total": 87,
+  "affectedMuscles": 63,
+  "manualClauseLevelComparison": true,
+  "automatedSemanticTruthClaim": false,
+  "runtimeFactsOrCitationsChanged": false,
+  "unboundRuntimeActionsUnchanged": 87,
+  "clinicalAcceptanceComplete": false,
+  "wholeMigrationComplete": false,
+  "r2Requests": 0,
+  "authenticatedProviderRequests": 0,
+  "databaseOperations": 0,
+  "credentialsUsed": false,
+  "inputSha256": "5309501dfc846c6bc6d9a6c964935a1c3c5dd76b08abcee6ff53cbc12d3f39b1",
+  "publisherRevision": "b0058a743bdd2cc08196abaaa7d5469970c0d80c",
+  "publisherArtifacts": [
+    {
+      "file": "m46484.cnxml",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence",
+      "bytes": 46543,
+      "sha256": "18e63f6287d7e996d2e8bcc20c6e0bc42761581326ccd38744cd47ada049a7da",
+      "existingArtifactReused": true
+    },
+    {
+      "file": "m46482.cnxml",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence",
+      "bytes": 40696,
+      "sha256": "e1f977e7eb556d989fd0fb54928800b8687389133780f9fe25481e9f257a6c11",
+      "existingArtifactReused": true
+    },
+    {
+      "file": "historical-collection.xml",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence",
+      "bytes": 14805,
+      "sha256": "5a564a7e28abffaabc2563be429b044fe71406782a8486ca360a450108ec81bf",
+      "existingArtifactReused": true
+    },
+    {
+      "file": "historical-license.txt",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence",
+      "bytes": 19104,
+      "sha256": "0ff174546cbe3dd1287da231f9796618ac2f6e6595b2d11f567b2c9790f64868",
+      "existingArtifactReused": true
+    },
+    {
+      "file": "applied-human-anatomy-2022.pdf",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence",
+      "bytes": 639383,
+      "sha256": "1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd",
+      "existingArtifactReused": true
+    },
+    {
+      "file": "m46485.cnxml",
+      "retainedRoot": "public-evidence",
+      "bytes": 27078,
+      "sha256": "59d9878560ebcacc2f28ab4c087670adb3997d5cb0de4eb1c7d8d3db6121a233",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46485/index.cnxml",
+      "publicAnonymous": true
+    },
+    {
+      "file": "m46495.cnxml",
+      "retainedRoot": "public-evidence",
+      "bytes": 45696,
+      "sha256": "7c94ce0355bbe9678e66fbf85187024576307f4aa3aef49fd5d852b7e9e8a590",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml",
+      "publicAnonymous": true
+    },
+    {
+      "file": "m46551.cnxml",
+      "retainedRoot": "public-evidence",
+      "bytes": 17075,
+      "sha256": "1ecc7ce8bf6d505689a5e157ef266792bf94933a41bf3001d1efe52e21c406e8",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46551/index.cnxml",
+      "publicAnonymous": true
+    },
+    {
+      "file": "m46549.cnxml",
+      "retainedRoot": "public-evidence",
+      "bytes": 52068,
+      "sha256": "77b78ae25c215e6d0007644923e119eafbba05b2e356784eefaad462a926b745",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46549/index.cnxml",
+      "publicAnonymous": true
+    },
+    {
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 1029926,
+      "sha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "module": "m46484",
+      "declaredMediaElementId": "fs-id2319967",
+      "width": 2021,
+      "height": 2658,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 1842326,
+      "sha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "module": "m46484",
+      "declaredMediaElementId": "fs-id1917122",
+      "width": 2088,
+      "height": 2717,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 2274319,
+      "sha256": "0820e5155b4618b29eef29a7eb903ff5e8cfe388a301e211b2581b58e2446633",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "module": "m46482",
+      "declaredMediaElementId": "fs-id2786015",
+      "width": 2275,
+      "height": 3425,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1133_Thigh_Muscles_that_Moves_the_Femur_Tibia_and_Fibula.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 1575908,
+      "sha256": "19fb973491ff162370b45144cd46c617b2cdb65e6cfbdb931e732900c165c255",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1133_Thigh_Muscles_that_Moves_the_Femur_Tibia_and_Fibula.jpg",
+      "module": "m46482",
+      "declaredMediaElementId": "fs-id2026297",
+      "width": 1971,
+      "height": 2746,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 1705568,
+      "sha256": "09c89f0cf2669f5336a106da95dd20085532a3e674974d1f71ac6ee8bf0c260a",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "module": "m46482",
+      "declaredMediaElementId": "fs-id2980597",
+      "width": 2239,
+      "height": 3075,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1135_Intrinsic_Muscles_in_the_Foot.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 1522478,
+      "sha256": "e942f320416147d2dca836d45d0d7c6899f3c4e172c4755341e7becf13c3a190",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1135_Intrinsic_Muscles_in_the_Foot.jpg",
+      "module": "m46482",
+      "declaredMediaElementId": "fs-id2772615",
+      "width": 1958,
+      "height": 2753,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1129_Muscles_that_Moves_the_Humerus.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 981663,
+      "sha256": "dd37977c8b4211bd87e38b1318067c405febab75c9545bd3ed0bfdee14ee9fa7",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1129_Muscles_that_Moves_the_Humerus.jpg",
+      "module": "m46495",
+      "declaredMediaElementId": "fs-id1234943",
+      "width": 1940,
+      "height": 2181,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1130_Muscles_that_Move_the_Forearm.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 1086797,
+      "sha256": "2da509a04ab708f4a3c271ef420d7fe44769935164c24f3580a0ad88e6fa2cca",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1130_Muscles_that_Move_the_Forearm.jpg",
+      "module": "m46495",
+      "declaredMediaElementId": "fs-id2515826",
+      "width": 1971,
+      "height": 1983,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    },
+    {
+      "file": "1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "retainedRoot": "publisher-reference-tables",
+      "bytes": 2114212,
+      "sha256": "7ff5ee612e29363c8a8db255aa273ecc590c595394d35d96872fbee0047862b0",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "module": "m46495",
+      "declaredMediaElementId": "fs-id1908413",
+      "width": 2250,
+      "height": 3048,
+      "selectedRowsVisuallyCompared": true,
+      "wholeFigureScientificallyAccepted": false,
+      "applicationAssetAdopted": false
+    }
+  ],
+  "resolvedEvidence": {
+    "image:1125:Buccinator": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Buccinator",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Depressor angulus oris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Depressor angulus oris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Depressor labii inferioris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Depressor labii inferioris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Levator labii superioris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Levator labii superioris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Mentalis": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Mentalis",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Nasalis": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Nasalis",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Orbicularis oris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Orbicularis oris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Risorius": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Risorius",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1125:Zygomaticus major": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1125_Muscles_in_Facial_Expression.jpg",
+      "fileSha256": "6f38e27ab460f0aa22a3fe4fbd65347ed39fedaa8eec3a879bc55a2073206764",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1125_Muscles_in_Facial_Expression.jpg",
+      "rowLabel": "Zygomaticus major",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1127:Digastric": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "fileSha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "rowLabel": "Digastric",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1127:Genioglossus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "fileSha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "rowLabel": "Genioglossus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1127:Geniohyoid": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "fileSha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "rowLabel": "Geniohyoid",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1127:Hyoglossus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "fileSha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "rowLabel": "Hyoglossus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1127:Mylohyoid": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "fileSha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "rowLabel": "Mylohyoid",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1127:Styloglossus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "fileSha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "rowLabel": "Styloglossus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1127:Thyrohyoid": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "fileSha256": "4292d679c90c5cdaafb71018da784ac8a1bbce6fd2752a2ea5be8b069c60cb84",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1127_Muscles_for_Tongue_Movement_Swallowing_and_Speech.jpg",
+      "rowLabel": "Thyrohyoid",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1129:Coracobrachialis": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1129_Muscles_that_Moves_the_Humerus.jpg",
+      "fileSha256": "dd37977c8b4211bd87e38b1318067c405febab75c9545bd3ed0bfdee14ee9fa7",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1129_Muscles_that_Moves_the_Humerus.jpg",
+      "rowLabel": "Coracobrachialis",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1129:Pectoralis major": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1129_Muscles_that_Moves_the_Humerus.jpg",
+      "fileSha256": "dd37977c8b4211bd87e38b1318067c405febab75c9545bd3ed0bfdee14ee9fa7",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1129_Muscles_that_Moves_the_Humerus.jpg",
+      "rowLabel": "Pectoralis major",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1130:Biceps brachii": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1130_Muscles_that_Move_the_Forearm.jpg",
+      "fileSha256": "2da509a04ab708f4a3c271ef420d7fe44769935164c24f3580a0ad88e6fa2cca",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1130_Muscles_that_Move_the_Forearm.jpg",
+      "rowLabel": "Biceps brachii",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1131:Extensor carpi radialis longus/brevis": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "fileSha256": "7ff5ee612e29363c8a8db255aa273ecc590c595394d35d96872fbee0047862b0",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "rowLabel": "Extensor carpi radialis longus/brevis",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1131:Extensor carpi ulnaris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "fileSha256": "7ff5ee612e29363c8a8db255aa273ecc590c595394d35d96872fbee0047862b0",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "rowLabel": "Extensor carpi ulnaris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1131:Flexor carpi radialis": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "fileSha256": "7ff5ee612e29363c8a8db255aa273ecc590c595394d35d96872fbee0047862b0",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "rowLabel": "Flexor carpi radialis",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1131:Flexor carpi ulnaris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "fileSha256": "7ff5ee612e29363c8a8db255aa273ecc590c595394d35d96872fbee0047862b0",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1131_Muscles_that_Moves_the_Wrist_Hands_and_Fingers.jpg",
+      "rowLabel": "Flexor carpi ulnaris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1132:Adductor magnus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "fileSha256": "0820e5155b4618b29eef29a7eb903ff5e8cfe388a301e211b2581b58e2446633",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "rowLabel": "Adductor magnus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1132:Gluteus minimus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "fileSha256": "0820e5155b4618b29eef29a7eb903ff5e8cfe388a301e211b2581b58e2446633",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "rowLabel": "Gluteus minimus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1132:Obturator externus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "fileSha256": "0820e5155b4618b29eef29a7eb903ff5e8cfe388a301e211b2581b58e2446633",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "rowLabel": "Obturator externus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1132:Tensor fascia lata": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "fileSha256": "0820e5155b4618b29eef29a7eb903ff5e8cfe388a301e211b2581b58e2446633",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1132_Gluteal_Region_Muscles_that_Move_the_Femur.jpg",
+      "rowLabel": "Tensor fascia lata",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1133:Biceps femoris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1133_Thigh_Muscles_that_Moves_the_Femur_Tibia_and_Fibula.jpg",
+      "fileSha256": "19fb973491ff162370b45144cd46c617b2cdb65e6cfbdb931e732900c165c255",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1133_Thigh_Muscles_that_Moves_the_Femur_Tibia_and_Fibula.jpg",
+      "rowLabel": "Biceps femoris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1133:Gracilis": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1133_Thigh_Muscles_that_Moves_the_Femur_Tibia_and_Fibula.jpg",
+      "fileSha256": "19fb973491ff162370b45144cd46c617b2cdb65e6cfbdb931e732900c165c255",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1133_Thigh_Muscles_that_Moves_the_Femur_Tibia_and_Fibula.jpg",
+      "rowLabel": "Gracilis",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1134:Extensor digitorum longus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "fileSha256": "09c89f0cf2669f5336a106da95dd20085532a3e674974d1f71ac6ee8bf0c260a",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "rowLabel": "Extensor digitorum longus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1134:Extensor hallucis longus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "fileSha256": "09c89f0cf2669f5336a106da95dd20085532a3e674974d1f71ac6ee8bf0c260a",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "rowLabel": "Extensor hallucis longus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1134:Flexor hallucis longus": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "fileSha256": "09c89f0cf2669f5336a106da95dd20085532a3e674974d1f71ac6ee8bf0c260a",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "rowLabel": "Flexor hallucis longus",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1134:Gastrocnemius": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "fileSha256": "09c89f0cf2669f5336a106da95dd20085532a3e674974d1f71ac6ee8bf0c260a",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "rowLabel": "Gastrocnemius",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1134:Plantaris": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "fileSha256": "09c89f0cf2669f5336a106da95dd20085532a3e674974d1f71ac6ee8bf0c260a",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "rowLabel": "Plantaris",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1134:Tibialis anterior": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "fileSha256": "09c89f0cf2669f5336a106da95dd20085532a3e674974d1f71ac6ee8bf0c260a",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1134_Muscles_that_Moves_the_Feet_and_Toes.jpg",
+      "rowLabel": "Tibialis anterior",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1135:Abductor digiti minimi": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1135_Intrinsic_Muscles_in_the_Foot.jpg",
+      "fileSha256": "e942f320416147d2dca836d45d0d7c6899f3c4e172c4755341e7becf13c3a190",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1135_Intrinsic_Muscles_in_the_Foot.jpg",
+      "rowLabel": "Abductor digiti minimi",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "image:1135:Lumbricals": {
+      "kind": "visually_compared_publisher_table_row",
+      "file": "1135_Intrinsic_Muscles_in_the_Foot.jpg",
+      "fileSha256": "e942f320416147d2dca836d45d0d7c6899f3c4e172c4755341e7becf13c3a190",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1135_Intrinsic_Muscles_in_the_Foot.jpg",
+      "rowLabel": "Lumbricals",
+      "automaticOcrOrSemanticApproval": false
+    },
+    "m46482:fs-id1546298": {
+      "kind": "para",
+      "module": "m46482",
+      "elementId": "fs-id1546298",
+      "elementXmlSha256": "dafade356f3c7adca3f5566f50cce5996bfbd77d6d11db0383a0e7a18d00c637",
+      "selectedTextSha256": "2b6b19d3113089f057a56b7923597d95f8f59d7e5c38d12634b1c7299f5beb4d",
+      "startLine": 56,
+      "endLine": 56,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L56-L56"
+    },
+    "m46482:fs-id2012638": {
+      "kind": "para",
+      "module": "m46482",
+      "elementId": "fs-id2012638",
+      "elementXmlSha256": "a65d5bdf996611043d45e94d9d889cd33bcbabf381963b9409f286be90e28041",
+      "selectedTextSha256": "0b5ffec0a5a802d35b347449397b865b48f83a7bbd46b29a36d7fb9e205907fd",
+      "startLine": 34,
+      "endLine": 34,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34"
+    },
+    "m46482:fs-id2252429": {
+      "kind": "para",
+      "module": "m46482",
+      "elementId": "fs-id2252429",
+      "elementXmlSha256": "4de5e30cb1e0649be7f398c585f8096c4f1a457b97659021bef1a089e5ace27a",
+      "selectedTextSha256": "c932abdec5429900306195aaaf1d784b43370e42188bcaa1afdb470b8688e183",
+      "startLine": 31,
+      "endLine": 31,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L31-L31"
+    },
+    "m46482:fs-id2415928": {
+      "kind": "para",
+      "module": "m46482",
+      "elementId": "fs-id2415928",
+      "elementXmlSha256": "ba04fae2da9b1c73e8b04065e8e602713182ad1571ea3f3a82c27d260e60d022",
+      "selectedTextSha256": "ab0c45f2380d5cebb432162269bc425223c06637d22d87598b978a16937531e8",
+      "startLine": 45,
+      "endLine": 45,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L45-L45"
+    },
+    "m46482:fs-id2421915": {
+      "kind": "para",
+      "module": "m46482",
+      "elementId": "fs-id2421915",
+      "elementXmlSha256": "25ba31eb0bf24dcd89687cc2f27a104001e3ea73b825b6a1f9167bed56530391",
+      "selectedTextSha256": "1f8b450a2546bb39defb384419ed9ea5e898fc9d081bb6032deef126544adcf4",
+      "startLine": 46,
+      "endLine": 46,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L46-L46"
+    },
+    "m46482:fs-id2472929": {
+      "kind": "para",
+      "module": "m46482",
+      "elementId": "fs-id2472929",
+      "elementXmlSha256": "451d32651b0a18a3b657934547920c7211f2561de21c406c48fc9e8101640407",
+      "selectedTextSha256": "83c6711904c2231522861e1cfbf403bf36a81d0e3017bf559d75d2b4f9358d38",
+      "startLine": 27,
+      "endLine": 27,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L27-L27"
+    },
+    "m46482:fs-id2875826": {
+      "kind": "para",
+      "module": "m46482",
+      "elementId": "fs-id2875826",
+      "elementXmlSha256": "616a5d199a7b397f806e7f42c0534692413261ba025e3409e283b1a638e92966",
+      "selectedTextSha256": "5a83cd1029ecbe6c373327b98816f1e243527193e7889fdfdc22ed9843eb5746",
+      "startLine": 27,
+      "endLine": 27,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L27-L27"
+    },
+    "m46484:fs-id1531116": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id1531116",
+      "elementXmlSha256": "f56c06e0fd74a69b87139414706d9f0ed18c295a1143ead548ae291c0ca57086",
+      "selectedTextSha256": "ab7f032565c2b502cbceb3bd3127c2c7dba4af4a87ced16aa0dc473eef9d9736",
+      "startLine": 211,
+      "endLine": 211,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L211-L211"
+    },
+    "m46484:fs-id2080091": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id2080091",
+      "elementXmlSha256": "ed234b2bae24efd4110187c72cad0024a0ba9948de9fc450307d289748e2bd33",
+      "selectedTextSha256": "d0714d2064210cb9e1e1f98047adb176ea488538108ac917afb48b5b52ccdcc5",
+      "startLine": 284,
+      "endLine": 284,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L284-L284"
+    },
+    "m46484:fs-id2101141": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id2101141",
+      "elementXmlSha256": "0467c11d69399c264b3d51d500703adbe72ba9d93136754325ecb4eb83ce70ea",
+      "selectedTextSha256": "5912fe81f73bfa9133fcacf8afe8c3d4b3d73f7d967523c463415b5c7e692ef8",
+      "startLine": 125,
+      "endLine": 125,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L125-L125"
+    },
+    "m46484:fs-id2321650": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id2321650",
+      "elementXmlSha256": "95f008247323680a8591d683abafb9341ddc6295903d9acf4eef9a2b8a4a00a9",
+      "selectedTextSha256": "c13b4e68a4970be39d77e17a2817d218f3e7c59fcc69d37c948ab02ae6c12a16",
+      "startLine": 185,
+      "endLine": 185,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L185-L185"
+    },
+    "m46484:fs-id2361275": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id2361275",
+      "elementXmlSha256": "7b374f56ffbc3957db83a6066541775576d8ac79d231f664228934a21a83f4f9",
+      "selectedTextSha256": "c9af6d3ac06a32d815dbdbe6df6c8b86b10e55a80c4c8ffce06ad441bd00c5b5",
+      "startLine": 22,
+      "endLine": 22,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L22-L22"
+    },
+    "m46484:fs-id2367016": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id2367016",
+      "elementXmlSha256": "d3b014dfdb739817611403494dcce845b2409c145cdb9be02d773bb8fa21d2e0",
+      "selectedTextSha256": "fe2c0673e6e970fa847ba5376f3c68529689815ac077a91cdb402f4306b6fe42",
+      "startLine": 196,
+      "endLine": 196,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L196-L196"
+    },
+    "m46484:fs-id2500664": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id2500664",
+      "elementXmlSha256": "49fef851356b383ea873b0658a5e8f0e60cef6dae4476364d9e67cb30b571962",
+      "selectedTextSha256": "81b6722e0276a34c62c084b6b59de9a7f143b821c8f197c4e4dbeaa052c2bb57",
+      "startLine": 22,
+      "endLine": 22,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L22-L22"
+    },
+    "m46484:fs-id2522796": {
+      "kind": "para",
+      "module": "m46484",
+      "elementId": "fs-id2522796",
+      "elementXmlSha256": "aae3be2aff00035f1de35b7e78e7bd276fa577d00d43391fd753637875bcf00b",
+      "selectedTextSha256": "e82777866a2e010bbe1c23cb21aaf5f62c36baeddf7ac935e18d4344b63d5ab5",
+      "startLine": 210,
+      "endLine": 210,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L210-L210"
+    },
+    "m46484:tbl-ch11_03:row:9": {
+      "kind": "table",
+      "module": "m46484",
+      "elementId": "tbl-ch11_03",
+      "elementXmlSha256": "0f2fc05be54a9684963aa55b46e64609559d6ca1a8ecfb159b2b977746bd0502",
+      "selectedTextSha256": "0b0f4e4ecb3b6a805b422e9b93ca82f098b0f93cfe064d1fba42de204f95fc6c",
+      "startLine": 33,
+      "endLine": 121,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L33-L121",
+      "rowOrdinalZeroBased": 9
+    },
+    "m46484:tbl-ch11_04:row:2": {
+      "kind": "table",
+      "module": "m46484",
+      "elementId": "tbl-ch11_04",
+      "elementXmlSha256": "c9831f2028581ca98e791995bd43c09e06456dff6ab9b5ed9bb32f5a7e0e3da1",
+      "selectedTextSha256": "fd00de6b709771c6eefb2e6523d5a467c1c7009c0999ee9e12cba2ab95b91c53",
+      "startLine": 128,
+      "endLine": 184,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L128-L184",
+      "rowOrdinalZeroBased": 2
+    },
+    "m46484:tbl-ch11_04:row:3": {
+      "kind": "table",
+      "module": "m46484",
+      "elementId": "tbl-ch11_04",
+      "elementXmlSha256": "c9831f2028581ca98e791995bd43c09e06456dff6ab9b5ed9bb32f5a7e0e3da1",
+      "selectedTextSha256": "ac0eede266121ab4d9fbe67eb16883d7516530f382a5ade2cde7f573329ae846",
+      "startLine": 128,
+      "endLine": 184,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L128-L184",
+      "rowOrdinalZeroBased": 3
+    },
+    "m46484:tbl-ch11_04:row:4": {
+      "kind": "table",
+      "module": "m46484",
+      "elementId": "tbl-ch11_04",
+      "elementXmlSha256": "c9831f2028581ca98e791995bd43c09e06456dff6ab9b5ed9bb32f5a7e0e3da1",
+      "selectedTextSha256": "c767ae93b9567f7b4c07a0ebb7078a1d6bd4af71578d841c690e45d4d43b7cd4",
+      "startLine": 128,
+      "endLine": 184,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L128-L184",
+      "rowOrdinalZeroBased": 4
+    },
+    "m46484:tbl-ch11_04:row:5": {
+      "kind": "table",
+      "module": "m46484",
+      "elementId": "tbl-ch11_04",
+      "elementXmlSha256": "c9831f2028581ca98e791995bd43c09e06456dff6ab9b5ed9bb32f5a7e0e3da1",
+      "selectedTextSha256": "25ffc0a8ec4689b249946556a7bdae97f3b1067473b1f1207c123484fe348940",
+      "startLine": 128,
+      "endLine": 184,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L128-L184",
+      "rowOrdinalZeroBased": 5
+    },
+    "m46485:fs-id2494693": {
+      "kind": "para",
+      "module": "m46485",
+      "elementId": "fs-id2494693",
+      "elementXmlSha256": "843da0e3b820ccf42710c720f8211127c2eaebd6c05b07fcfc7eeaaa891fbe58",
+      "selectedTextSha256": "83ed4c64bc9dab3c00a3fd52b80b3de333cd9b7a9de7b059fb997213ae539bb4",
+      "startLine": 152,
+      "endLine": 152,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46485/index.cnxml#L152-L152"
+    },
+    "m46485:fs-id2738851": {
+      "kind": "para",
+      "module": "m46485",
+      "elementId": "fs-id2738851",
+      "elementXmlSha256": "9e37d0f18bb9d7d2211cf83faaea133577f81aa202e17ff5c85b783546ef37b4",
+      "selectedTextSha256": "b4e888b02f751fe4b938c64dc4a5edb0927108c5164748e8ff82b2bd9cb9c15d",
+      "startLine": 81,
+      "endLine": 81,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46485/index.cnxml#L81-L81"
+    },
+    "m46485:fs-id2830198": {
+      "kind": "para",
+      "module": "m46485",
+      "elementId": "fs-id2830198",
+      "elementXmlSha256": "43708f900a31d5d6b8fbbf2ceb4ae7c52251da3b3c53203622753010a34d9485",
+      "selectedTextSha256": "233c9194c9aacd1cf4e1ce90948a2be69e190c361f40aad77ba53e5dc2958eb7",
+      "startLine": 79,
+      "endLine": 79,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46485/index.cnxml#L79-L79"
+    },
+    "m46485:tbl-ch11_06:row:2": {
+      "kind": "table",
+      "module": "m46485",
+      "elementId": "tbl-ch11_06",
+      "elementXmlSha256": "29c9288f0b5818c79fa479fdbb1cd80cbb6b657dcdcb904c1ff45c9862ede64f",
+      "selectedTextSha256": "7a23005d41b291d318896d32e258ebf1bde35ea416ee5dac077d672743a2ad10",
+      "startLine": 22,
+      "endLine": 78,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46485/index.cnxml#L22-L78",
+      "rowOrdinalZeroBased": 2
+    },
+    "m46485:tbl-ch11_06:row:5": {
+      "kind": "table",
+      "module": "m46485",
+      "elementId": "tbl-ch11_06",
+      "elementXmlSha256": "29c9288f0b5818c79fa479fdbb1cd80cbb6b657dcdcb904c1ff45c9862ede64f",
+      "selectedTextSha256": "03984e5a18faab319f8f347995686fa47d84f55b5bd9b0286a62e0f639761a57",
+      "startLine": 22,
+      "endLine": 78,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46485/index.cnxml#L22-L78",
+      "rowOrdinalZeroBased": 5
+    },
+    "m46485:tbl-ch11_07:row:4": {
+      "kind": "table",
+      "module": "m46485",
+      "elementId": "tbl-ch11_07",
+      "elementXmlSha256": "a1e08b03d575ed1e9d16c63907ec52831b8c15112d0814ac3a17774ad753b1ca",
+      "selectedTextSha256": "e06d5ced30dc01417380294eac563504638527f68848b130b79b570091c653ce",
+      "startLine": 92,
+      "endLine": 139,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46485/index.cnxml#L92-L139",
+      "rowOrdinalZeroBased": 4
+    },
+    "m46495:fs-id2483384": {
+      "kind": "para",
+      "module": "m46495",
+      "elementId": "fs-id2483384",
+      "elementXmlSha256": "a663989d79e483b2915bebb60695f7239d3e2cff0db256c36767a9f23059a1dc",
+      "selectedTextSha256": "f37f9b873f33a184c13dc7ed80053bf3a7d845fb4368b51c8779aa85b54f7a49",
+      "startLine": 260,
+      "endLine": 260,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml#L260-L260"
+    },
+    "m46495:fs-id2501482": {
+      "kind": "para",
+      "module": "m46495",
+      "elementId": "fs-id2501482",
+      "elementXmlSha256": "9eb5a0b92fe1da1b4a45e6c0c1885b915f0132ad71ab34b708fb18165d9e45a1",
+      "selectedTextSha256": "2bac0cfceedc2769bfb9c013b3c93b7df6b25fb6837a1e327d3f73d7eefa9c22",
+      "startLine": 108,
+      "endLine": 108,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml#L108-L108"
+    },
+    "m46495:fs-id2831016": {
+      "kind": "para",
+      "module": "m46495",
+      "elementId": "fs-id2831016",
+      "elementXmlSha256": "9142267bd7ac503433b9ffd855c5f3dbde78bb917a8db22399ff2a5c9ef3691c",
+      "selectedTextSha256": "0c75b9ac484892507c55f440547238d9792af61de7958acae07116cb4f0658cf",
+      "startLine": 113,
+      "endLine": 113,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml#L113-L113"
+    },
+    "m46495:fs-id3304716": {
+      "kind": "para",
+      "module": "m46495",
+      "elementId": "fs-id3304716",
+      "elementXmlSha256": "eccb8d3c2056b21e5dff129b2abe525042beb5f49a0973fd471cf385af3d5b72",
+      "selectedTextSha256": "4400683350f7f8ce1dcc0ac00afcd2411810bb61dd2630d72acab9e04a9bf1bf",
+      "startLine": 125,
+      "endLine": 125,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml#L125-L125"
+    },
+    "m46495:tbl-ch11_08:row:3": {
+      "kind": "table",
+      "module": "m46495",
+      "elementId": "tbl-ch11_08",
+      "elementXmlSha256": "234f6e5aa688f36077f3bfe684cdbc636f8b52f16f9c00798d75b3266670c43b",
+      "selectedTextSha256": "5f85a139fd6f0c147b2ebb90d86de75fd29d157b26685e0c312f1e35101df4b6",
+      "startLine": 21,
+      "endLine": 99,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml#L21-L99",
+      "rowOrdinalZeroBased": 3
+    },
+    "m46495:tbl-ch11_08:row:4": {
+      "kind": "table",
+      "module": "m46495",
+      "elementId": "tbl-ch11_08",
+      "elementXmlSha256": "234f6e5aa688f36077f3bfe684cdbc636f8b52f16f9c00798d75b3266670c43b",
+      "selectedTextSha256": "c04016ea667abe701d0e9127e1db53cef95aa9d6764c906d21a5c0780f13628f",
+      "startLine": 21,
+      "endLine": 99,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml#L21-L99",
+      "rowOrdinalZeroBased": 4
+    },
+    "m46495:tbl-ch11_09:row:9": {
+      "kind": "table",
+      "module": "m46495",
+      "elementId": "tbl-ch11_09",
+      "elementXmlSha256": "76d42aedc91f22d5223817bfd29a89477a00a6209c0c98ba4c5d6f679078482c",
+      "selectedTextSha256": "f0e4412aaf346a64d56750213191ba37ba67caa74daf35b8f3571a8b5ed3e612",
+      "startLine": 138,
+      "endLine": 254,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46495/index.cnxml#L138-L254",
+      "rowOrdinalZeroBased": 9
+    },
+    "m46549:fs-id1882180": {
+      "kind": "para",
+      "module": "m46549",
+      "elementId": "fs-id1882180",
+      "elementXmlSha256": "86235b9ff8b6f6dae84d4f185bb8ee3d711ead3f5791aa7b272f991670c1cc0a",
+      "selectedTextSha256": "0d829aa143ae863ace705ab5b0ab17c7483605a001d76a53031460e0cbd6687a",
+      "startLine": 82,
+      "endLine": 82,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46549/index.cnxml#L82-L82"
+    },
+    "m46549:fs-id2146002": {
+      "kind": "para",
+      "module": "m46549",
+      "elementId": "fs-id2146002",
+      "elementXmlSha256": "e98a8b517debe769f499b1dc1930db7a2c49093f68e9049229479f5d7ab69cf3",
+      "selectedTextSha256": "4550d3cd1afa15409d7a808db45abe10c9c0a5114a074c2b3de2139b75386887",
+      "startLine": 88,
+      "endLine": 88,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46549/index.cnxml#L88-L88"
+    },
+    "m46549:fs-id2575781": {
+      "kind": "para",
+      "module": "m46549",
+      "elementId": "fs-id2575781",
+      "elementXmlSha256": "6d0c83e20cf11d13379dbc2fadf4d0751eb3655801d2272bf8c11f95b46c428a",
+      "selectedTextSha256": "d2e066c8b6128d2a3e6dae597d9cc2c99fbc1a07333554018ce494f8d0fef935",
+      "startLine": 306,
+      "endLine": 306,
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46549/index.cnxml#L306-L306"
+    },
+    "pdf:Applied2022:58,165": {
+      "kind": "book_question_answer_or_table_comparison",
+      "file": "applied-human-anatomy-2022.pdf",
+      "fileSha256": "1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd",
+      "actualOneBasedPdfPages": [
+        58,
+        165
+      ],
+      "pageTextSha256": {
+        "58": "d4fbdef71f46a221411dbfd484c1c21a5a6f491239d12d850ddfb8f6d1c0a6e5",
+        "165": "3e7f18e53577fe786844ede5913b24a451cf675e4da5aec5156a22557897c2f3"
+      },
+      "url": "https://open.umn.edu/opentextbooks/formats/3154"
+    },
+    "pdf:Applied2022:59,60,165": {
+      "kind": "book_question_answer_or_table_comparison",
+      "file": "applied-human-anatomy-2022.pdf",
+      "fileSha256": "1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd",
+      "actualOneBasedPdfPages": [
+        59,
+        60,
+        165
+      ],
+      "pageTextSha256": {
+        "59": "e25d426f08dca0e7050af03649771472616d003977e2f4b3dac53c7ae876dcc4",
+        "60": "77fe7a92f43849dcafe1ce1679aadab67b8cb83b0e4b2af2e2cd3bc0fef9cb76",
+        "165": "3e7f18e53577fe786844ede5913b24a451cf675e4da5aec5156a22557897c2f3"
+      },
+      "url": "https://open.umn.edu/opentextbooks/formats/3154"
+    },
+    "pdf:Applied2022:64,166": {
+      "kind": "book_question_answer_or_table_comparison",
+      "file": "applied-human-anatomy-2022.pdf",
+      "fileSha256": "1a4e1695b6857d3c82d06d783eca6c467c35ec186d2257fe49747f7696bd46fd",
+      "actualOneBasedPdfPages": [
+        64,
+        166
+      ],
+      "pageTextSha256": {
+        "64": "8bed93808284fa445902296aebab80229efe00f6d65ee8e857ade1209f35f590",
+        "166": "63a32742102752fbd940fa8b4405518898cf8a890b0028421e2d7e633e5084e4"
+      },
+      "url": "https://open.umn.edu/opentextbooks/formats/3154"
+    }
+  },
+  "sourceConflictsAndExcludedCells": [
+    {
+      "key": "gracilis-hip-wording",
+      "refs": [
+        "image:1133:Gracilis"
+      ],
+      "finding": "The actual table movement phrase says opening thighs, while its direction column/prose give adduction. No conflicting hip phrase is adopted; the separate tibial-flexion and medial-tibial-insertion cells support the knee comparison."
+    },
+    {
+      "key": "gluteus-minimus-hip-wording",
+      "finding": "The actual table movement phrase says thighs back together while its direction column and prose give abduction. The conflict is retained; single-leg pelvic stabilization remains unbound."
+    },
+    {
+      "key": "pectineus-hip-wording",
+      "finding": "The actual table says opens thighs but its direction column and prose give adduction. The precise prose is used for the two pectineus comparisons."
+    },
+    {
+      "key": "facial-image-description-row-shift",
+      "finding": "The CNXML image description assigns zygomaticus major to lower-lip depression. The actual image names depressor labii inferioris there and gives zygomaticus major its own smiling/lateral-elevation row. The actual image, not the shifted description, is used."
+    },
+    {
+      "key": "depressor-anguli-target",
+      "finding": "The named facial-table row gives a lower-jaw target although the claim is mouth-angle depression. That claim remains unresolved."
+    },
+    {
+      "key": "oblique-supination-label",
+      "finding": "The abdominal table labels trunk twisting supination. Only its named oblique movement/side-bending cells and prose are used; no supination term is copied to the app."
+    },
+    {
+      "key": "wrist-relative-body-language",
+      "finding": "Away/toward-body wording is ambiguous across wrist rows. The named abduction/adduction target cells and paired muscles are compared, with no measured co-contraction protocol inferred."
+    },
+    {
+      "key": "pterygoid-direction-label",
+      "finding": "The jaw table pairs posterior with protracts. Only its forward-jaw/opening/side-to-side movement wording is used; the inconsistent direction label is excluded."
+    }
+  ],
+  "newApplicationAssets": 0,
+  "newRuntimeBindings": 0,
+  "publicAnonymousWorkerReads": {
+    "textModules": 4,
+    "acceptedReferenceTables": 9,
+    "unacceptedTableResponse": 1,
+    "partialHeaderRead": 1,
+    "headRead": 1,
+    "total": 16,
+    "webBrowsingSeparate": true,
+    "noR2OrProviderAccountReads": true
+  },
+  "licenseBoundary": "The retained book/collection/license identify the reviewed edition. Publisher images are reference-only; no figure redistribution, new application asset license clearance or whole-content acceptance is inferred."
+}

@@ -1004,7 +1004,12 @@ function actionPromptForCard(card: AnatomyStudyCard, context: BuildContext) {
       title: card.name,
       instruction: "Type the primary sourced action information for this muscle.",
     },
-    [answerField("action", "Action", answer, [combinedAnswer(publicActions.map((action) => actionLabel(action, context)))])],
+    [answerField("action", "Action", answer, [
+      combinedAnswer(publicActions.map((action) => actionLabel(action, context))),
+      // Each reviewed action remains a correct primary answer when additional
+      // sourced facts become eligible; only publicActions may supply aliases.
+      ...publicActions.flatMap((action) => [action.description, actionLabel(action, context)]),
+    ])],
     citations,
     context,
   )

@@ -1,5 +1,7 @@
 import { withPinnedOpenstaxApReferences } from "./anatomy-openstax-provenance.js"
 import { withReviewedMuscleActionEvidence } from "./anatomy-muscle-action-provenance.js"
+import { withReviewedThighActionEvidence } from "./anatomy-thigh-action-provenance.js"
+import { withReviewedActionBacklogEvidence } from "./anatomy-action-backlog-provenance.js"
 import {
   ANATOMY_SEED_SECTION_NAMES,
   ANATOMY_SEED_SECTIONS,
@@ -5792,7 +5794,11 @@ const SOURCE_REFERENCED_ANATOMY_SEED: AnatomyFoundationSeed = withSourceReferenc
 // Retain historical citation IDs, then add source pointers for the exact reviewed
 // action sources. The public adapter still requires matching reviewed fact IDs.
 export const ANATOMY_FOUNDATION_SEED: AnatomyFoundationSeed = withSourceReferenceCitationBacklog(
-  withReviewedMuscleActionEvidence(withPinnedOpenstaxApReferences(SOURCE_REFERENCED_ANATOMY_SEED)),
+  withReviewedActionBacklogEvidence(
+    withReviewedThighActionEvidence(
+      withReviewedMuscleActionEvidence(withPinnedOpenstaxApReferences(SOURCE_REFERENCED_ANATOMY_SEED)),
+    ),
+  ),
 )
 
 const COLLECTION_NAMES = [
