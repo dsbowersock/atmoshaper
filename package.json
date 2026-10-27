@@ -5,6 +5,8 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "test:calendar-advisory-lock": "node --test tests/calendar-advisory-lock.test.mjs tests/calendar-creation-routes.test.mjs tests/public-request-id.test.mjs",
+    "lint:calendar-advisory-lock": "eslint app/calendar/actions/setup.ts lib/public-booking-idempotency.ts tests/calendar-advisory-lock.test.mjs",
     "dev": "next dev",
     "prebuild": "npm run production:migrations:check && npm run production:stripe-readiness:check && prisma generate",
     "build": "next build",
