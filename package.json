@@ -5,6 +5,8 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "test:wellness-action-lifecycle": "node --test tests/client-wellness-action-lifecycle.test.mjs",
+    "lint:wellness-action-lifecycle": "eslint components/wellness/wellness-hub-client.tsx tests/client-wellness-action-lifecycle.test.mjs",
     "test:calendar-advisory-lock": "node --test tests/calendar-advisory-lock.test.mjs tests/calendar-creation-routes.test.mjs tests/public-request-id.test.mjs",
     "lint:calendar-advisory-lock": "eslint app/calendar/actions/setup.ts lib/public-booking-idempotency.ts tests/calendar-advisory-lock.test.mjs",
     "dev": "next dev",
