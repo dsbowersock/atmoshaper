@@ -2,8 +2,9 @@
 
 The practice-creation and public booking/waitlist advisory queries now return a
 Prisma-supported text result. Practice creation also explicitly casts its two
-lock keys to integers. The source regression and real private browser practice
-creation pass; the complete Calendar browser journey remains open.
+lock keys to integers. The source regression and the later source-matched local
+build and all seven ordinary Calendar UI/persistence cases pass. Hosted behavior,
+concurrent contention and literal public-artifact acceptance remain separate.
 
 ## Change and preserved behavior
 
@@ -43,7 +44,7 @@ existing Calendar creation and public-request ownership contracts: **38 passed,
 zero failed or skipped**. Scoped `lint:calendar-advisory-lock` passed. Existing
 checks cover lock ordering, UUID namespaces and exact replay selection.
 
-## Runtime limit
+## Runtime validation and limits
 
 The earlier local Calendar journey failed during practice creation with a
 retained `P2010`; its underlying SQL error was not retained. A subsequent private
@@ -55,11 +56,18 @@ the next private journey created the practice through the real form and passed
 its persisted-state readback. The second case stopped at the test helper's
 checkbox-label assertion before another completed mutation: one case passed,
 one failed and five were unrun. All three scalar inspections and owned cleanup
-passed, with zero denied provider traffic.
+passed, with zero denied provider traffic. This incomplete attempt is historical.
 
-That positive practice result exercises the corrected query against the local
-PostgreSQL service. It does not reconstruct the original unretained error,
-exercise the later public booking/waitlist lock or prove concurrent lock
-contention, the complete Calendar journey, the literal public artifact or hosted
-behavior. Those limits are separate from the inert compiler/decoder proof. No
-deployment or publication result is claimed.
+After the separately reviewed test-locator correction, the later source-matched
+local run completed its full build and all seven serial Calendar cases: practice,
+catalog, policy and availability creation; a staff appointment retained across a
+catalog edit and a fifteen-minute drag; personal, class and reminder events;
+client request confirmation/decline; and final queue/access presentation. All
+three scalar inspections and exact owned cleanup passed. There were zero failed
+or skipped cases, retries or denied provider requests.
+
+Those positive practice/client-request paths execute the corrected query owners
+against local PostgreSQL. They do not reconstruct the original unretained error
+or prove simultaneous lock contention, every Calendar/provider journey, the
+literal public artifact or hosted behavior. The seven-case local acceptance and
+these remaining limits are separate from the inert compiler/decoder proof.
