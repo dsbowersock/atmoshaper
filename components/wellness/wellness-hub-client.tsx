@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo, useRef, useState, useTransition } from "react"
+import { unstable_rethrow } from "next/navigation"
+import { useMemo, useRef, useState } from "react"
 import { Download, Save, Trash2 } from "lucide-react"
 import {
   createClientWellnessEntryAction,
@@ -97,7 +98,28 @@ export function WellnessHubClient({
   const [error, setError] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [confirmExport, setConfirmExport] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
+  const actionPending = useRef(false)
+
+  /** Own only this component's action promise and result application. Next still
+   * owns dispatch/revalidation; local completion alone does not prove queue readiness.
+   * The ref closes same-tick admission before React renders the disabled controls. */
+  const runOwnedAction = async (operation: () => Promise<void>, failureMessage: string) => {
+    if (actionPending.current) return
+    actionPending.current = true
+    setIsPending(true)
+    setError(null)
+    setStatus(null)
+    try {
+      await operation()
+    } catch (error) {
+      unstable_rethrow(error)
+      setError(failureMessage)
+    } finally {
+      actionPending.current = false
+      setIsPending(false)
+    }
+  }
 
   const entryCounts = useMemo(() => ({
     total: entries.length,
@@ -121,6 +143,7 @@ export function WellnessHubClient({
   ), [entries, isSignedIn, reportEntries])
 
   const saveQuickLog = () => {
+    if (actionPending.current) return
     const form = formRef.current
 
     if (!form) {
@@ -144,28 +167,27 @@ export function WellnessHubClient({
       return
     }
 
-    startTransition(async () => {
-      setError(null)
+    return runOwnedAction(async () => {
       const result = await createClientWellnessEntryAction(formData)
 
-      if (!result.ok) {
-        setError(actionReason(result.reason, "Could not save this entry."))
+      if (result?.ok !== true) {
+        setError(actionReason(result?.reason, "Could not save this entry."))
         return
       }
 
       const data = actionData(result.data)
       const entry = normalizeTimelineEntry(data.entry, true)
-      if (entry) {
-        setEntries((current) => upsertTimelineEntry(entry, current))
-        setReportEntries((current) => upsertTimelineEntry(entry, current))
-      }
+      if (!entry) { setError("Could not save this entry."); return }
+      setEntries((current) => upsertTimelineEntry(entry, current))
+      setReportEntries((current) => upsertTimelineEntry(entry, current))
       setStatus("Saved to your client-owned wellness timeline.")
       form.reset()
       setSelectedRegions([])
-    })
+    }, "Could not save this entry.")
   }
 
   const saveRomMeasurement = (draft: RomMeasurementDraft) => {
+    if (actionPending.current) return
     const formData = romFormData(draft)
 
     if (!isSignedIn) {
@@ -181,26 +203,25 @@ export function WellnessHubClient({
       return
     }
 
-    startTransition(async () => {
-      setError(null)
+    return runOwnedAction(async () => {
       const result = await createClientWellnessEntryAction(formData)
 
-      if (!result.ok) {
-        setError(actionReason(result.reason, "Could not save this ROM measurement."))
+      if (result?.ok !== true) {
+        setError(actionReason(result?.reason, "Could not save this ROM measurement."))
         return
       }
 
       const data = actionData(result.data)
       const entry = normalizeTimelineEntry(data.entry, true)
-      if (entry) {
-        setEntries((current) => upsertTimelineEntry(entry, current))
-        setReportEntries((current) => upsertTimelineEntry(entry, current))
-      }
+      if (!entry) { setError("Could not save this ROM measurement."); return }
+      setEntries((current) => upsertTimelineEntry(entry, current))
+      setReportEntries((current) => upsertTimelineEntry(entry, current))
       setStatus("ROM measurement saved to your wellness timeline.")
-    })
+    }, "Could not save this ROM measurement.")
   }
 
   const deleteEntry = (entry: WellnessTimelineEntry) => {
+    if (actionPending.current) return
     if (!entry.persisted) {
       setEntries((current) => removeTimelineEntry(entry.id, current))
       setConfirmDeleteId(null)
@@ -216,12 +237,11 @@ export function WellnessHubClient({
     const formData = new FormData()
     formData.set("id", entry.id)
 
-    startTransition(async () => {
-      setError(null)
+    return runOwnedAction(async () => {
       const result = await deleteClientWellnessEntryAction(formData)
 
-      if (!result.ok) {
-        setError(actionReason(result.reason, "Could not delete this entry."))
+      if (result?.ok !== true) {
+        setError(actionReason(result?.reason, "Could not delete this entry."))
         return
       }
 
@@ -229,10 +249,11 @@ export function WellnessHubClient({
       setReportEntries((current) => removeTimelineEntry(entry.id, current))
       setConfirmDeleteId(null)
       setStatus("Entry deleted from your wellness timeline.")
-    })
+    }, "Could not delete this entry.")
   }
 
   const exportEntries = () => {
+    if (actionPending.current) return
     if (!isSignedIn) {
       setError("Sign in before exporting saved wellness entries.")
       return
@@ -243,12 +264,11 @@ export function WellnessHubClient({
       return
     }
 
-    startTransition(async () => {
-      setError(null)
+    return runOwnedAction(async () => {
       const result = await exportClientWellnessEntriesAction()
 
-      if (!result.ok) {
-        setError(actionReason(result.reason, "Could not export wellness entries."))
+      if (result?.ok !== true) {
+        setError(actionReason(result?.reason, "Could not export wellness entries."))
         return
       }
 
@@ -259,7 +279,7 @@ export function WellnessHubClient({
       })
       setConfirmExport(false)
       setStatus("Export prepared in your browser.")
-    })
+    }, "Could not export wellness entries.")
   }
 
   return (
