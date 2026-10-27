@@ -407,13 +407,18 @@ export function useProfessionalRecordVault() {
 
 export function ProfessionalRecordVaultGate({ children }: { children: ReactNode }) {
   const vault = useProfessionalRecordVault()
-  const [password, setPassword] = useState("")
-  const [confirmation, setConfirmation] = useState("")
-
   if (vault.status === "unlocked") {
     return <>{children}</>
   }
 
+  // A phase change discards entered credentials; a failed setup write keeps its retry fields.
+  return <ProfessionalRecordVaultGateForm key={vault.status} vault={vault} />
+}
+
+/** Own transient credentials only for the currently rendered setup or unlock phase. */
+function ProfessionalRecordVaultGateForm({ vault }: { vault: ProfessionalRecordVaultContextValue }) {
+  const [password, setPassword] = useState("")
+  const [confirmation, setConfirmation] = useState("")
   const isSetup = vault.status === "setup"
   const isLocked = vault.status === "locked"
   const isCorrupt = vault.status === "corrupt"

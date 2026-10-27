@@ -23,3 +23,11 @@ No schema, storage migration, new service, permission, entitlement, host, provid
 5. Independently review the complete candidate and actual evidence, then make one local commit. Publication and any merge require their own concrete decision; no push or public activation follows from local verification.
 
 The three-case client proof does not establish server membership, full Next routing, final hosted/default transport, installed PWA behavior or whole-site acceptance. Previously accepted local/database/provider results remain closed within their scopes.
+
+## Included review follow-up: discard gate credentials on phase changes
+
+The completed included review of `1b08161` identified a separate same-session form issue: post-commit recovery returns false, so the gate's success-only clearing retained its setup passphrase in the newly rendered Unlock field. The provider had already cleared its own plaintext payload and passphrase; the remaining owner is the gate's local form state.
+
+Keep the provider and its boolean result/operation contracts unchanged. Move the existing credential form to a module-scope child keyed only by canonical `vault.status`. A setup-to-locked transition then discards both form fields, while a pre-commit failure that stays in setup preserves them for retry. Unlocked record children remain outside the keyed form; ordinary payload, message and revision updates must not remount them. This disposes of form state, without claiming guaranteed memory erasure.
+
+Two actual-Gate controls use the existing isolated lifecycle fixture with native presentation controls, the real provider and crypto, and its in-memory storage adapter. They require pre-commit field retention and successful Create retry; empty recovery Unlock input and rejection of an empty submission; empty password/confirmation after a synthetic missing-vault read exposes setup; unchanged committed ciphertext and recovered drafts after explicit re-entry; and an empty input after later ordinary Lock. The original 14 lifecycle cases remain intact. These are local owner/handler controls, not full app styling, native-storage, authentication or hosted acceptance.

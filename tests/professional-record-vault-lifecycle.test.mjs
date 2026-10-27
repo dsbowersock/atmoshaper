@@ -267,3 +267,105 @@ describe("Professional-record vault lifecycle", { concurrency: false, timeout: 1
     assert.equal(await page.evaluate(() => window.__vaultFixture.api.payload.records.soap.draft), null)
   }))
 })
+
+describe("Professional-record vault gate credentials", { concurrency: false, timeout: 120_000 }, () => {
+  let browser, bundle
+  before(async () => {
+    const { chromium } = require("@playwright/test")
+    assert.ok(fs.existsSync(chromium.executablePath()), "Use cached Chromium; never download a browser in this suite")
+    bundle = await createProfessionalVaultLifecycleBundle({ renderGate: true })
+    browser = await chromium.launch({ headless: true, args: ["--disable-background-networking", "--disable-component-update", "--disable-domain-reliability", "--disable-sync"] })
+  })
+  after(async () => { await browser?.close() })
+  const fixture = (run) => withProfessionalVaultLifecycleFixture(browser, bundle, run)
+
+  /** Exercise the real gate's input handlers rather than injecting credentials into its context. */
+  async function fillSetup(page) {
+    await page.locator("#newProfessionalRecordVaultPassword").fill("invented-vault-fixture-only")
+    await page.locator("#confirmProfessionalRecordVaultPassword").fill("invented-vault-fixture-only")
+  }
+
+  it("retains both setup fields for a failed ciphertext write and allows Create retry", () => fixture(async (page) => {
+    await page.evaluate(() => {
+      const f = window.__vaultFixture
+      const setStored = f.stored.set
+      let faulted = false
+      f.stored.set = function (key, value) {
+        if (key === f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY && !faulted) {
+          faulted = true
+          throw new Error("Invented controlled ciphertext write failure")
+        }
+        return setStored.call(this, key, value)
+      }
+    })
+    await fillSetup(page)
+    await page.getByRole("button", { name: "Create encrypted vault", exact: true }).click()
+    await page.getByText("Invented controlled ciphertext write failure", { exact: true }).waitFor()
+    assert.equal(await page.locator("#newProfessionalRecordVaultPassword").inputValue(), "invented-vault-fixture-only")
+    assert.equal(await page.locator("#confirmProfessionalRecordVaultPassword").inputValue(), "invented-vault-fixture-only")
+    assert.equal(await page.evaluate(() => window.__vaultFixture.stored.has(window.__vaultFixture.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)), false)
+    await page.getByRole("button", { name: "Create encrypted vault", exact: true }).click()
+    await page.getByTestId("vault-protected").waitFor()
+    assert.equal(await page.evaluate(() => window.__vaultFixture.api.status), "unlocked")
+  }))
+
+  it("requires passphrase re-entry after committed cleanup recovery without replacing ciphertext", () => fixture(async (page) => {
+    await page.evaluate(async () => {
+      const f = window.__vaultFixture
+      const keys = f.helpers.LEGACY_PROFESSIONAL_RECORD_STORAGE_KEYS
+      f.stored.set(keys.soap, JSON.stringify({ schemaVersion: 2, noteType: "soap", clientName: "Invented gate SOAP" }))
+      f.stored.set(keys.intake, JSON.stringify({ schemaVersion: 1, templates: [], clients: [{ id: "invented-gate-client", displayName: "Invented gate Intake" }], documents: [] }))
+      const removeStored = f.stored.delete
+      let faulted = false
+      f.stored.delete = function (key) {
+        if (key === keys.intake && !faulted) {
+          faulted = true
+          throw new Error("Invented controlled gate cleanup failure")
+        }
+        return removeStored.call(this, key)
+      }
+      await f.act(async () => { await f.unmount(); await f.mount() })
+    })
+    await fillSetup(page)
+    await page.getByRole("button", { name: "Create encrypted vault", exact: true }).click()
+    const unlockInput = page.locator("#professionalRecordVaultPassword")
+    await unlockInput.waitFor()
+    assert.equal(await unlockInput.inputValue(), "", "Recovery lock must discard the setup passphrase")
+    await page.evaluate(() => {
+      const f = window.__vaultFixture
+      f.committedCipher = f.stored.get(f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)
+    })
+    await page.getByRole("button", { name: "Unlock vault", exact: true }).click()
+    await page.getByText("Enter the professional-record vault passphrase.", { exact: true }).waitFor()
+    assert.equal(await page.evaluate(() => window.__vaultFixture.api.status), "locked")
+
+    // A synthetic missing-vault read exposes setup again, including its otherwise hidden confirmation.
+    await page.evaluate(() => {
+      const f = window.__vaultFixture
+      f.stored.delete(f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)
+    })
+    await unlockInput.fill("invented-vault-fixture-only")
+    await page.getByRole("button", { name: "Unlock vault", exact: true }).click()
+    await page.locator("#confirmProfessionalRecordVaultPassword").waitFor()
+    assert.equal(await page.locator("#newProfessionalRecordVaultPassword").inputValue(), "")
+    assert.equal(await page.locator("#confirmProfessionalRecordVaultPassword").inputValue(), "")
+    await page.evaluate(async () => {
+      const f = window.__vaultFixture
+      f.stored.set(f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, f.committedCipher)
+      await f.unmount()
+      await f.mount()
+    })
+    await unlockInput.waitFor()
+    await unlockInput.fill("invented-vault-fixture-only")
+    await page.getByRole("button", { name: "Unlock vault", exact: true }).click()
+    await page.getByTestId("vault-protected").waitFor()
+    assert.equal(await page.evaluate(() => {
+      const f = window.__vaultFixture
+      return f.api.payload.records.soap.draft.clientName === "Invented gate SOAP"
+        && f.api.payload.records.intake.workspace.clients[0].displayName === "Invented gate Intake"
+        && f.stored.get(f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY) === f.committedCipher
+    }), true, "Actual Unlock must recover the committed drafts without rewriting ciphertext")
+    await lock(page)
+    assert.equal(await unlockInput.inputValue(), "", "A later ordinary lock must also require fresh entry")
+  }))
+})

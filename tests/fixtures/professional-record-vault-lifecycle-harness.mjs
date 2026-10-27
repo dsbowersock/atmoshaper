@@ -11,11 +11,19 @@ const asImport = (relative) => JSON.stringify(path.join(root, relative).replaceA
 const dataModule = (source) => `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`
 
 /** Bundle the actual context owner and real crypto; only presentation and asynchronous timing are controlled. */
-export async function createProfessionalVaultLifecycleBundle() {
+export async function createProfessionalVaultLifecycleBundle({ renderGate = false } = {}) {
   const { webpack } = require("next/dist/compiled/webpack/webpack")
   const { NormalModuleReplacementPlugin } = webpack
   const uiNames = ["Download", "FolderOpen", "KeyRound", "LockKeyhole", "ShieldCheck", "Trash2", "AlertDialog", "AlertDialogAction", "AlertDialogCancel", "AlertDialogContent", "AlertDialogDescription", "AlertDialogFooter", "AlertDialogHeader", "AlertDialogTitle", "AlertDialogTrigger", "AppInset", "AppNotice", "AppPageShell", "AppSurface", "Button", "Input", "Label"]
-  const ui = dataModule(uiNames.map((name) => `export const ${name}=()=>null;`).join("\n") + "\nexport const appCalloutClassName='';")
+  // Gate cases retain its real handlers/state while replacing presentation with native controls.
+  const ui = dataModule("import React from 'react';\n" + uiNames.map((name) => {
+    if (!renderGate) return `export const ${name}=()=>null;`
+    if (name === "Input") return "export const Input=({id,type,value,onChange,autoComplete})=>React.createElement('input',{id,type,value,onChange,autoComplete});"
+    if (name === "Button") return "export const Button=({type,onClick,disabled,children})=>React.createElement('button',{type,onClick,disabled},children);"
+    if (name === "Label") return "export const Label=({htmlFor,children})=>React.createElement('label',{htmlFor},children);"
+    if (["AppInset", "AppNotice", "AppPageShell", "AppSurface"].includes(name)) return `export const ${name}=({children})=>React.createElement('section',null,children);`
+    return `export const ${name}=()=>null;`
+  }).join("\n") + "\nexport const appCalloutClassName='';")
   const controlled = dataModule(`
     import * as actual from ${asImport("lib/professional-record-vault.js")};
     export * from ${asImport("lib/professional-record-vault.js")};
@@ -34,7 +42,7 @@ export async function createProfessionalVaultLifecycleBundle() {
   const entry = dataModule(`
     import React,{act,useEffect} from 'react';
     import {createRoot} from 'react-dom/client';
-    import {ProfessionalRecordVaultProvider,useProfessionalRecordVault} from ${asImport("app/notes/professional-record-vault-provider.tsx")};
+    import {ProfessionalRecordVaultProvider,ProfessionalRecordVaultGate,useProfessionalRecordVault} from ${asImport("app/notes/professional-record-vault-provider.tsx")};
     import * as helpers from ${asImport("lib/professional-record-vault.js")};
     const stored=new Map();
     Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:key=>stored.get(key)??null,setItem:(key,value)=>stored.set(key,String(value)),removeItem:key=>stored.delete(key),clear:()=>stored.clear()}});
@@ -42,7 +50,7 @@ export async function createProfessionalVaultLifecycleBundle() {
     const fixture=window.__vaultFixture={api:null,act,helpers,holdNext:null,gate:null,stored,cryptoCalls:{}};
     function Probe(){const vault=useProfessionalRecordVault();useEffect(()=>{fixture.api=vault;return()=>{if(fixture.api===vault)fixture.api=null}},[vault]);return React.createElement('output',null,vault.status)}
     const renderer=createRoot(document.getElementById('root'));
-    fixture.mount=(strict=false)=>act(async()=>{const tree=React.createElement(ProfessionalRecordVaultProvider,null,React.createElement(Probe));renderer.render(strict?React.createElement(React.StrictMode,null,tree):tree)});
+    fixture.mount=(strict=false)=>act(async()=>{const tree=React.createElement(ProfessionalRecordVaultProvider,null,React.createElement(Probe),${renderGate ? "React.createElement(ProfessionalRecordVaultGate,null,React.createElement('p',{'data-testid':'vault-protected'},'Invented protected drafts'))" : "null"});renderer.render(strict?React.createElement(React.StrictMode,null,tree):tree)});
     fixture.unmount=()=>act(async()=>{renderer.render(null)});
     fixture.ready=fixture.mount();
   `)
