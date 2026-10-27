@@ -1294,7 +1294,10 @@ test("help routes installation and problem reports without claiming commerce is 
   await gotoShell(page, "/help")
   await expect(page.getByRole("heading", { name: "Help & FAQ" })).toBeVisible()
   await expect(page.locator("#installing")).toBeVisible()
-  await expect(page.getByText(/free background credits and individual background purchases are not available yet/i)).toBeVisible()
+  // Account credits are available independently of the separately gated checkout.
+  const premiumAccess = page.locator("#premium-access")
+  await expect(premiumAccess.getByText(/two initial free background credits/i)).toBeVisible()
+  await expect(premiumAccess.getByText(/individual purchases are available when checkout is enabled/i)).toBeVisible()
   await expect(page.getByRole("link", { name: "Send Feedback or Report a Problem" })).toHaveAttribute("href", "/support")
 })
 
