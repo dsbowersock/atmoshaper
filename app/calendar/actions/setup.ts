@@ -41,9 +41,10 @@ async function lockPracticeCreationOwner(tx: Prisma.TransactionClient, userId: s
 /**
  * Serializes global practice slug allocation. The owner-row lock protects the
  * free-account quota, but slugs are unique across all owners.
+ * Select the two-integer overload and cast its void result for Prisma decoding.
  */
 async function lockPracticeSlugAllocation(tx: Prisma.TransactionClient) {
-  await tx.$queryRaw`SELECT pg_advisory_xact_lock(${8520}, ${1})`
+  await tx.$queryRaw`SELECT pg_advisory_xact_lock(${8520}::int, ${1}::int)::text`
 }
 
 export async function createAvailabilitySchedule(formData: FormData) {

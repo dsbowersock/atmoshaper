@@ -151,13 +151,14 @@ export function hasExactPublicRequestSelection(
  * Serializes every concrete selection sharing one UUID. The advisory key uses
  * only the versioned UUID prefix so changed-selection races cannot create two
  * domain rows before the transaction's repeated prefix lookup.
+ * Preserve the bigint hash key; cast only the void result for Prisma decoding.
  */
 export async function acquirePublicRequestLock(
   transaction: PublicRequestLockTransaction,
   owner: PublicRequestOwner,
 ): Promise<void> {
   assertPublicRequestOwner(owner)
-  await transaction.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${owner.prefix}, 0))`
+  await transaction.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${owner.prefix}, 0))::text`
 }
 
 function selectionComponents<StartLabel extends "requestedStart" | "preferredStart">(input: {
