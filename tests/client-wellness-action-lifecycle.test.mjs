@@ -133,6 +133,25 @@ test("synchronous duplicate lock and a withheld second action cannot fake contin
   assert.equal(hub.report().length, 2); assert.equal(hub.form.resets, 2)
 })
 
+test("pending Save blocks both staged delete and export confirmation handlers", async () => {
+  const result = deferred(), hub = owner({ initialEntries: [entry("existing")], create: () => result.promise })
+  hub.ack(); hub.click("Delete entry"); hub.render(); hub.click("Export"); hub.render()
+  const confirmDelete = hub.button("Confirm delete entry").props.onClick, confirmExport = hub.button("Confirm").props.onClick
+  assert.deepEqual(hub.calls, [])
+  hub.click("Save")
+  // Invoke retained handlers before disabled controls render to exercise the shared ref lock.
+  confirmDelete(); confirmExport(); hub.render()
+  assert.deepEqual(hub.calls.map(({ kind }) => kind), ["create"])
+  assert.equal(hub.status(), "Working..."); hub.controlsPending(true)
+  assert.equal(hub.button("Confirm delete entry").props.disabled, true)
+  assert.equal(hub.report().length, 1); assert.equal(hub.form.resets, 0); assert.deepEqual(hub.downloads, [])
+  result.resolve(success("saved")); await hub.settled()
+  assert.deepEqual(hub.calls.map(({ kind }) => kind), ["create"])
+  assert.equal(hub.status(), "Saved to your client-owned wellness timeline."); hub.controlsPending(false)
+  assert.equal(hub.button("Confirm delete entry").props.disabled, false)
+  assert.equal(hub.report().length, 2); assert.equal(hub.form.resets, 1); assert.deepEqual(hub.caught, [])
+})
+
 test("rejected, non-ok and invalid normalized replies preserve input and recover through a real next handler call", async () => {
   for (const reply of [() => Promise.reject(new Error("PRIVATE_ACTION_ERROR")), () => Promise.resolve({ ok: false, reason: "save-failed" }),
     () => Promise.resolve(null), () => Promise.resolve({ ok: true, data: { entry: {} } })]) {

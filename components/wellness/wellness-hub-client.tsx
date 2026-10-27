@@ -71,6 +71,11 @@ const movementEffectOptions = [
   { value: "unchanged", label: "Unchanged" },
 ]
 
+/** Render supplied timeline/report entries, display name and calendar context.
+ * Signed-out additions stay in page state; signed-in saves require self-tracking
+ * acknowledgment. Therapist sharing is disabled; these are not professional records.
+ * Own pending/result state until each action promise settles and release the shared
+ * admission lock; Next retains dispatch/revalidation ownership. */
 export function WellnessHubClient({
   isSignedIn,
   displayName,
