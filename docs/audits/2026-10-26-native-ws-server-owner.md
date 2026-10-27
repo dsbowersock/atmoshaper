@@ -10,7 +10,7 @@ The installed Next/ws source chain and an isolated resolver counterfactual suppo
 
 ## Focused regression
 
-`tests/ws-native-owner.test.mjs` loads the actual config through an inert VM boundary with a synthetic environment and identity Sentry wrapper. It calls the installed Next external handler using deterministic resolution and verifies native ws ownership for the selected server layers and QA configuration. Removing only the app's ws opt-out restores RSC bundling in its negative control.
+`tests/ws-native-owner.test.mjs` loads the actual config through an inert VM boundary with a synthetic environment and identity Sentry wrapper. It merges the installed Next experimental defaults, including default ESM externals, before calling the installed external handler. Deterministic resolution follows ws's installed import/require split: `wrapper.mjs` for ESM and `index.js` for CommonJS. Both the RSC and Node API layers, in ordinary and QA configuration, must return `module ws` or `commonjs ws` respectively. Each call verifies matching issuer and base resolution. Removing only the app's ws opt-out restores RSC bundling for both request types in its negative control.
 
 A separate check evaluates the installed ws JavaScript masking code with a synthetic missing optional dependency. An 80-byte mask/unmask round trip succeeds; returning an empty optional module reproduces a TypeError. This tests the native-resolution fallback contract without a server, socket, database or provider.
 
@@ -21,7 +21,7 @@ npm run test:ws-native-owner
 npm run lint:ws-native-owner
 ```
 
-The test genuinely failed against the prior config, then passed both checks after the repair. Scoped lint passes. The source test uses injected CommonJS resolution; it is not itself a complete production bundle or every possible ESM resolution condition.
+The test genuinely failed against the prior config, then passed both checks after the repair. The review follow-up's new ESM expectation also failed against the earlier CommonJS-only fixture (`commonjs ws` instead of `module ws`), then passed with normalized Next defaults and options-sensitive resolution. Both focused checks and scoped lint pass. This is deterministic ESM/CommonJS source-contract coverage; it is not itself a complete production bundle or every possible resolution condition. The follow-up changes only the test and this audit; application configuration is unchanged.
 
 ## Executed integration evidence
 

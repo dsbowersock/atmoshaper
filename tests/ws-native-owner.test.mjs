@@ -8,6 +8,7 @@ import { runInNewContext } from "node:vm"
 
 const require = createRequire(import.meta.url)
 const { makeExternalHandler } = require("next/dist/build/handle-externals")
+const { defaultConfig } = require("next/dist/server/config-shared")
 const { WEBPACK_LAYERS } = require("next/dist/lib/constants")
 const json5 = require("next/dist/compiled/json5")
 const defaults = json5.parse(readFileSync(
@@ -15,6 +16,7 @@ const defaults = json5.parse(readFileSync(
 ))
 const root = fileURLToPath(new URL("../", import.meta.url))
 const wsEntry = require.resolve("ws")
+const wsEsmEntry = join(dirname(wsEntry), require("ws/package.json").exports["."].import)
 const bufferUtilSource = readFileSync(join(dirname(wsEntry), "lib/buffer-util.js"), "utf8")
 
 /** Reuse the telemetry guard test's VM boundary; never import Sentry or ambient env. */
@@ -40,37 +42,48 @@ function externalHandler(config) {
   // Match installed Next's package-path boundary, including Windows paths.
   const pattern = new RegExp(`[/\\\\]node_modules[/\\\\](${packages.map((name) => name.replaceAll("/", "[/\\\\]")).join("|")})[/\\\\]`)
   return makeExternalHandler({
-    config: { ...config, experimental: config.experimental ?? {} },
+    // The raw VM config has not passed through Next's default normalization.
+    config: { ...config, experimental: { ...defaultConfig.experimental, ...config.experimental } },
     optOutBundlingPackageRegex: pattern,
     transpiledPackages: config.transpilePackages,
     dir: root,
   })
 }
 
-test("canonical server config keeps ws on its native CommonJS owner", async () => {
+test("canonical server config preserves native ws ESM and CommonJS ownership", async () => {
   const nextConfig = loadConfig()
   assert.equal(nextConfig.transpilePackages?.includes("ws") ?? false, false)
-  let resolutions = 0
-  const getResolve = () => async (_context, request) => {
-    assert.equal(request, "ws")
-    resolutions += 1
-    return [wsEntry, false]
+  const resolutions = []
+  // Preserve ws's installed import/require split for both issuer and base checks.
+  const getResolve = ({ dependencyType }) => {
+    assert.ok(["esm", "commonjs"].includes(dependencyType))
+    return async (context, request) => {
+      assert.equal(context, root)
+      assert.equal(request, "ws")
+      resolutions.push(dependencyType)
+      return dependencyType === "esm" ? [wsEsmEntry, true] : [wsEntry, false]
+    }
   }
-  const handler = externalHandler(nextConfig)
-  for (const layer of [WEBPACK_LAYERS.reactServerComponents, WEBPACK_LAYERS.apiNode]) {
-    assert.equal(await handler(root, "ws", "esm", layer, getResolve), "commonjs ws")
+  const requests = [["esm", "module ws"], ["commonjs", "commonjs ws"]]
+  for (const config of [nextConfig, loadConfig({ NEXT_PUBLIC_ATMOSHAPER_BROWSER_QA: "1" })]) {
+    const handler = externalHandler(config)
+    for (const layer of [WEBPACK_LAYERS.reactServerComponents, WEBPACK_LAYERS.apiNode]) {
+      for (const [dependencyType, expected] of requests) {
+        const start = resolutions.length
+        assert.equal(await handler(root, "ws", dependencyType, layer, getResolve), expected)
+        assert.deepEqual(resolutions.slice(start), [dependencyType, dependencyType])
+      }
+    }
   }
-  assert.ok(resolutions >= 4)
 
   // Deleting only this opt-out must restore RSC bundling, proving sensitivity.
   const withoutWs = externalHandler({
     ...nextConfig,
     serverExternalPackages: (nextConfig.serverExternalPackages ?? []).filter((name) => name !== "ws"),
   })
-  assert.equal(await withoutWs(root, "ws", "esm", WEBPACK_LAYERS.reactServerComponents, getResolve), undefined)
-
-  const qaHandler = externalHandler(loadConfig({ NEXT_PUBLIC_ATMOSHAPER_BROWSER_QA: "1" }))
-  assert.equal(await qaHandler(root, "ws", "esm", WEBPACK_LAYERS.reactServerComponents, getResolve), "commonjs ws")
+  for (const [dependencyType] of requests) {
+    assert.equal(await withoutWs(root, "ws", dependencyType, WEBPACK_LAYERS.reactServerComponents, getResolve), undefined)
+  }
 })
 
 /** Load only the installed JS algorithm with a synthetic missing optional peer. */
