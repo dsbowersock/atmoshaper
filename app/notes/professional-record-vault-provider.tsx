@@ -208,6 +208,17 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
     } finally { finishWrite() }
   }
 
+  /** Immediately revoke plaintext access while allowing accepted encrypted writes. */
+  const lockVault = () => {
+    if (viewAuthority.current === null) return
+    claimView()
+    setPayload(createEmptyProfessionalRecordVaultPayload())
+    setPassphrase("")
+    setStatus("locked")
+    setRevision((current) => current + 1)
+    setMessage("Professional-record vault locked.")
+  }
+
   /** Replace storage authority; migrate legacy plaintext only after ciphertext commits. */
   const createVault = async (nextPassphrase: string, confirmation: string) => {
     if (!hasViewAuthority(renderedOperation)) return false
@@ -224,11 +235,13 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
     vaultStorageGeneration = Symbol("professional-vault-storage")
     const operation = claimView()
     const finishWrite = beginVaultWrite(operation.storage)
+    let ciphertextCommitted = false
     try {
       const migration = collectLegacyProfessionalRecordMigration((key: string) => window.localStorage.getItem(key))
       const vault = await createEncryptedProfessionalRecordVault(migration.payload, cleanPassphrase)
       if (!hasStorageAuthority(operation)) return false
       window.localStorage.setItem(PROFESSIONAL_RECORD_VAULT_STORAGE_KEY, JSON.stringify(vault))
+      ciphertextCommitted = true
       for (const key of migration.plaintextKeysToRemove) {
         window.localStorage.removeItem(key)
       }
@@ -250,7 +263,15 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       )
       return true
     } catch (error) {
-      if (hasViewAuthority(operation)) setMessage(error instanceof Error ? error.message : "Could not create the professional-record vault.")
+      if (hasViewAuthority(operation)) {
+        if (ciphertextCommitted) {
+          // Setup retry would replace committed drafts with only the plaintext left after partial cleanup.
+          lockVault()
+          setMessage("Encrypted vault saved, but legacy plaintext cleanup is incomplete. Unlock the vault to recover your drafts.")
+        } else {
+          setMessage(error instanceof Error ? error.message : "Could not create the professional-record vault.")
+        }
+      }
       return false
     } finally { finishWrite() }
   }
@@ -287,17 +308,6 @@ export function ProfessionalRecordVaultProvider({ children }: { children: ReactN
       if (hasViewAuthority(operation)) setMessage(error instanceof Error ? error.message : "Could not unlock the professional-record vault.")
       return false
     }
-  }
-
-  /** Immediately revoke plaintext access while allowing accepted encrypted writes. */
-  const lockVault = () => {
-    if (viewAuthority.current === null) return
-    claimView()
-    setPayload(createEmptyProfessionalRecordVaultPayload())
-    setPassphrase("")
-    setStatus("locked")
-    setRevision((current) => current + 1)
-    setMessage("Professional-record vault locked.")
   }
 
   /** Discard unreadable storage and revoke every older writer before removal. */

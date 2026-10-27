@@ -55,6 +55,88 @@ describe("Professional-record vault lifecycle", { concurrency: false, timeout: 1
     assert.equal(await page.evaluate(() => window.__vaultFixture.api.payload.records.soap.draft.subjective), "Invented saved note")
   }))
 
+  it("locks a committed legacy migration after partial cleanup and recovers every draft on unlock", () => fixture(async (page) => {
+    const failedCreate = await page.evaluate(async () => {
+      const f = window.__vaultFixture
+      const keys = f.helpers.LEGACY_PROFESSIONAL_RECORD_STORAGE_KEYS
+      f.legacyEntries = [
+        [keys.soap, JSON.stringify({ schemaVersion: 2, noteType: "soap", clientName: "Invented migration SOAP" })],
+        [keys.intake, JSON.stringify({ schemaVersion: 1, templates: [], clients: [{ id: "invented-migration-client", displayName: "Invented migration Intake" }], documents: [] })],
+        [keys.journal, JSON.stringify({ schemaVersion: 1, documentType: "client-journal", clientName: "Invented migration Journal", entries: [] })],
+        [keys.rom, JSON.stringify({ schemaVersion: 1, documentType: "rom-session", clientName: "Invented migration ROM", entries: [] })],
+      ]
+      for (const [key, value] of f.legacyEntries) f.stored.set(key, value)
+      f.stored.set("invented-unrelated-storage", "preserve these exact unrelated bytes")
+      const removeStored = f.stored.delete
+      let cleanupFaulted = false
+      let faultAfterSoap = false
+      // Fault only this fixture's adapter, after real ciphertext commit and SOAP removal.
+      f.stored.delete = function (key) {
+        if (key === keys.intake && !cleanupFaulted) {
+          cleanupFaulted = true
+          faultAfterSoap = !f.stored.has(keys.soap)
+            && Boolean(f.stored.get(f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY))
+          throw new Error("Invented controlled legacy cleanup failure")
+        }
+        return removeStored.call(this, key)
+      }
+      let created
+      try {
+        await f.act(async () => { created = await f.api.createVault("invented-vault-fixture-only", "invented-vault-fixture-only") })
+      } finally {
+        f.stored.delete = removeStored
+      }
+      f.committedCipher = f.stored.get(f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY)
+      f.postFaultLegacyEntries = f.legacyEntries.map(([key]) => [key, f.stored.get(key)])
+      return { created, status: f.api.status, message: f.api.message, cleanupFaulted, faultAfterSoap }
+    })
+    assert.equal(failedCreate.created, false)
+    assert.equal(failedCreate.status, "locked")
+    assert.equal(failedCreate.message, "Encrypted vault saved, but legacy plaintext cleanup is incomplete. Unlock the vault to recover your drafts.")
+    assert.equal(failedCreate.cleanupFaulted, true)
+    assert.equal(failedCreate.faultAfterSoap, true, "The injected failure must occur after SOAP cleanup and ciphertext commit")
+    assert.equal(await page.evaluate(async () => {
+      const f = window.__vaultFixture
+      const keys = f.helpers.LEGACY_PROFESSIONAL_RECORD_STORAGE_KEYS
+      const storedPayload = await f.helpers.decryptEncryptedProfessionalRecordVault(JSON.parse(f.committedCipher), "invented-vault-fixture-only")
+      return storedPayload.records.soap.draft.clientName === "Invented migration SOAP"
+        && storedPayload.records.intake.workspace.clients[0].displayName === "Invented migration Intake"
+        && storedPayload.records.journal.draft.clientName === "Invented migration Journal"
+        && storedPayload.records.rom.draft.clientName === "Invented migration ROM"
+        && !f.committedCipher.includes("Invented migration")
+        && f.api.payload.records.soap.draft === null
+        && f.api.payload.records.intake.workspace.clients.length === 0
+        && f.api.payload.records.intake.workspace.documents.length === 0
+        && f.api.payload.records.journal.draft === null
+        && f.api.payload.records.rom.draft === null
+        && f.stored.get(keys.intake) === f.legacyEntries[1][1]
+        && f.legacyEntries.every(([key, value]) => !f.stored.has(key) || f.stored.get(key) === value)
+        && f.stored.get("invented-unrelated-storage") === "preserve these exact unrelated bytes"
+    }), true, "Partial cleanup must preserve complete ciphertext, hide plaintext payload and retain failed intake/unrelated bytes")
+    const recovered = await page.evaluate(async () => {
+      const f = window.__vaultFixture
+      let unlocked
+      await f.act(async () => { unlocked = await f.api.unlockVault("invented-vault-fixture-only") })
+      return {
+        unlocked, status: f.api.status,
+        soap: f.api.payload.records.soap.draft?.clientName,
+        intake: f.api.payload.records.intake.workspace?.clients[0]?.displayName,
+        journal: f.api.payload.records.journal.draft?.clientName,
+        rom: f.api.payload.records.rom.draft?.clientName,
+        ciphertextUnchanged: f.stored.get(f.helpers.PROFESSIONAL_RECORD_VAULT_STORAGE_KEY) === f.committedCipher,
+        legacyUnchanged: f.postFaultLegacyEntries.every(([key, value]) => f.stored.get(key) === value),
+        unrelated: f.stored.get("invented-unrelated-storage"),
+      }
+    })
+    assert.deepEqual(recovered, {
+      unlocked: true, status: "unlocked",
+      soap: "Invented migration SOAP", intake: "Invented migration Intake",
+      journal: "Invented migration Journal", rom: "Invented migration ROM",
+      ciphertextUnchanged: true, legacyUnchanged: true,
+      unrelated: "preserve these exact unrelated bytes",
+    })
+  }))
+
   it("retains create, save and unlock behavior through Strict Mode effect replay", () => fixture(async (page) => {
     await page.evaluate(async () => { const f = window.__vaultFixture; await f.unmount(); await f.mount(true) })
     await createVault(page)
