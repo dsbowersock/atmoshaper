@@ -75,3 +75,52 @@ server, browser campaign, Docker, database, authenticated provider, new source
 retrieval, media mutation or activation occurs in this repair. Publisher retrieval
 preceded implementation; validation used retained public evidence. The wider
 migration and separate media, purchase and release gates remain open.
+
+## PR62 included-review follow-up: held-answer coverage
+
+CodeRabbit's included review of `91f102b26d10e3056fc19477d10381c0cb083727`
+identified a test-coverage gap in the historical backlog guard. Its prompt helper
+filtered to the 32 admitted muscles, and the negative assertion inspected only
+primary answer text. That could miss a held description accepted elsewhere in the
+complete public action catalog or through an accepted alias.
+
+The follow-up changes only the backlog test and this audit section. The test now
+collects the unfiltered action-prompt catalog once and checks every one of the 34
+remaining held descriptions through the actual grader on its matching muscle.
+Twenty-five descriptions have an offered action prompt and all remain uncredited;
+nine have no offered action prompt. Absence is a legitimate negative result. All
+34 source/citation and negative checks remain, as do the existing positive checks
+for the 47 reviewed facts and their 32 answer surfaces.
+
+A cloned actual serratus-anterior prompt receives the held
+`action-serratus-upward-rotation` description as an accepted alias, leaving its
+primary answer unchanged. The actual grader confirms that deliberate mutation is
+accepted. The extracted legacy guard then misses it, producing the retained RED
+result of one pass and one failure (missing expected exception). The repaired
+unfiltered grader guard detects the same mutation; the GREEN coverage check passes
+both cases. No seed, runtime prompt, source evidence, taxonomy or application
+grading implementation is mutated by this control.
+
+Fresh owned snapshots come from the tracked `91f102b` source archive, with only
+the reviewed test overlay, cached dependencies and the unchanged denial/compiler
+harness. Both compile 174 public-library modules into their own trees; ignored
+repository JavaScript is neither used nor overwritten. The final focused suite
+passes 289 tests in 21 suites, with zero failed, cancelled or skipped tests.
+Scoped test lint passes. The complete compatibility check still retains all 683
+permitted baseline answer occurrences, rejects exactly the three pinned errors,
+and preserves all 1,271 cards and 5,359 non-action prompt objects; both mutation
+controls reject. Every guarded follow-up check records zero network attempts and
+zero blocked executables.
+
+Receipts and the final two-path freeze are retained under
+`hosted-review-followup-v1` in the existing public-evidence directory. The earlier
+fourteen-path freeze, 288-test proof, reviews and failed checkpoints remain dated
+history and were not overwritten. One initial quoted shell invocation failed
+before the preparation script opened; its separate receipt is retained and it is
+not described as an application or compilation failure. This audit-only suffix is
+added after the terminal checks and is declared separately from executed inputs.
+
+The follow-up remains uncommitted and unpushed for coordinator review. No application
+build, server/browser campaign, Docker, database, provider, download, authentication,
+media operation, source-data change or service activation occurs. Root retains Git
+and publication ownership; the wider migration and release gates remain open.

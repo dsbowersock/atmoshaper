@@ -14,6 +14,20 @@ const manifest = () => JSON.parse(fs.readFileSync(new URL("../docs/source-eviden
 /** Make a public citation fixture for validator rejection cases, not a runtime approval. */
 const exactFor = binding => ({id:binding.citationId, slug:binding.citationId, entityType:"muscle", entitySlug:binding.muscle, factType:"action", factSlug:binding.id, sourceRef:binding.sourceRef, sourceLocator:binding.sourceLocator, reviewStatus:"reviewed"})
 
+/**
+ * Check each held description against the full catalog, including accepted aliases.
+ * A missing muscle-action prompt offers nothing to credit; return both row counts.
+ */
+function assertHeldDescriptionsNotCredited(remaining, allPrompts) {
+  let withActionPrompt = 0
+  for (const pending of remaining) {
+    const prompt = allPrompts.find(row => row.entitySlug === pending.muscle)
+    if (prompt) withActionPrompt++
+    assert.equal(Boolean(prompt && checkFlashcardAnswer(prompt, {action:pending.description}).correct), false, pending.actionId)
+  }
+  return {heldDescriptionsChecked:remaining.length, withActionPrompt, withoutActionPrompt:remaining.length-withActionPrompt}
+}
+
 describe("Complete supported action-citation batch", () => {
   it("binds all 47 unchanged descriptions to their exact primary-source citations", () => {
     assert.equal(bindings.length, 47)
@@ -44,7 +58,7 @@ describe("Complete supported action-citation batch", () => {
       assert.equal(checkFlashcardAnswer(prompt, {action:prompt.answerFields[0].answer}).correct, true)
     }
   })
-  it("preserves the historical 40-row remainder and keeps the other 34 rows unapproved", () => {
+  it("preserves the historical 40-row remainder and checks all 34 held descriptions against public grading", t => {
     const historical = manifest().remainingUnapproved
     assert.equal(historical.length, 40)
     const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
@@ -55,9 +69,28 @@ describe("Complete supported action-citation batch", () => {
       assert.equal(action.description, pending.description)
       assert.equal(action.sourceRef, pending.currentSourceRef)
       assert.equal(seed.citations.some(citation => citation.factType === "action" && citation.factSlug === pending.actionId && citation.reviewStatus === "reviewed"), false)
-      // Identical wording on another muscle cannot approve this held action ID.
-      assert.equal(prompts().some(prompt => prompt.entitySlug === pending.muscle && prompt.answerFields[0].answer.includes(pending.description)), false)
     }
+    const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
+    const coverage = assertHeldDescriptionsNotCredited(remaining, allPrompts)
+    assert.equal(coverage.heldDescriptionsChecked, 34)
+    t.diagnostic(JSON.stringify(coverage))
+  })
+  it("detects credit for a held description in a mutated unfiltered prompt", t => {
+    const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
+    const remaining = manifest().remainingUnapproved.filter(row => !successors.has(row.actionId))
+    const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
+    // Choose an actually offered muscle excluded by the old admitted-cohort filter.
+    const pending = remaining.find(row => !muscles.has(row.muscle) && allPrompts.some(prompt => prompt.entitySlug === row.muscle))
+    assert.ok(pending)
+    const mutated = structuredClone(allPrompts)
+    const prompt = mutated.find(row => row.entitySlug === pending.muscle)
+    const field = prompt.answerFields.find(row => row.id === "action")
+    // Accepted-alias drift must be detected even when the primary answer is unchanged.
+    field.acceptedAnswers.push(pending.description)
+    assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, true)
+    t.diagnostic(JSON.stringify({mutatedHeldAction:pending.actionId, promptId:prompt.id, primaryAnswerUnchanged:true, acceptedAliasInjected:true}))
+    assert.throws(() => assertHeldDescriptionsNotCredited(remaining, mutated), error => error.code === "ERR_ASSERTION" && error.message.includes(pending.actionId))
+    assert.equal(checkFlashcardAnswer(allPrompts.find(row => row.entitySlug === pending.muscle), {action:pending.description}).correct, false)
   })
   it("uses the qualified-knee book evidence as primary attribution", () => {
     const qualified = bindings.filter(binding => binding.primaryEvidenceKind === "book_question_answer")
