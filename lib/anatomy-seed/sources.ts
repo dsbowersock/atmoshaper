@@ -1,5 +1,6 @@
 import { TEMPLE_HANDS_ON_ANATOMY_SOURCE_METADATA } from "../anatomy-temple-action-provenance.js"
 import { OPENSTAX_AP_SOURCE_METADATA } from "../anatomy-openstax-provenance.js"
+import { POSNIK_FOOT_SOURCE_METADATA } from "../anatomy-muscle-action-provenance.js"
 import type { AnatomySeedSection } from "./sections.ts"
 
 export const SOURCES_SEED_SECTION: AnatomySeedSection = {
@@ -161,6 +162,11 @@ export const SOURCES_SEED_SECTION: AnatomySeedSection = {
       notes: "Use only as an internal curriculum coverage reference. Do not reuse FSMTB outline wording as MassageLab display copy.",
       attribution: "Federation of State Massage Therapy Boards, Massage & Bodywork Licensing Examination Content Outline.",
       sourceRef: "Internal reference for MBLEx coverage alignment, not a reusable anatomy content source.",
+    },
+    {
+      id: "source-posnik-intrinsic-foot-muscle-variability-2024",
+      slug: "posnik-intrinsic-foot-muscle-variability-2024",
+      ...POSNIK_FOOT_SOURCE_METADATA,
     },
   ],
 }

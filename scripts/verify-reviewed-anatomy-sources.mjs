@@ -1,4 +1,5 @@
 import { isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
+import { OFFERED_FOOT_SOURCE_BINDING as foot, POSNIK_FOOT_SOURCE_METADATA } from "../lib/anatomy-muscle-action-provenance.js"
 /** Verify live source/summary bindings against retained public bytes; never fetch missing evidence. */
 import assert from "node:assert/strict"
 import { createHash } from "node:crypto"
@@ -36,6 +37,49 @@ export function verifyReviewedAnatomySourceEvidence(manifest, seed, cards, readA
   assert.equal(manifest.commercialReleaseComplete, false, "Source integrity cannot activate commercial release")
   assert.equal(manifest.articleContentLicenseInferred, false, "The book cannot license supplemental articles")
   assert.equal(manifest.articleTextOrMediaBundled, false)
+  // This later two-source description is not retroactively part of the frozen
+  // 53-summary publisher comparison. Validate its exact identities before removal;
+  // an unknown extra card/citation still fails the unchanged historical counts.
+  const footCards = cards.filter(card => card.category === "muscle" && card.entitySlug === foot.muscle)
+  assert.equal(footCards.length, 1, "Missing later offered-foot card")
+  assert.equal(footCards[0].summary, foot.summary)
+  const footCitations = seed.citations.filter(citation => foot.citationIds.includes(citation.id))
+  assert.equal(footCitations.length, 4, "Later offered-foot citation cohort changed")
+  const targets = [
+    ["muscle", foot.muscle, "clinical_summary", undefined],
+    ["muscle", foot.muscle, "action", foot.actionId],
+    ["muscle", foot.muscle, "seed_source_reference", `muscle:${foot.muscle}`],
+    ["muscle_action", foot.actionId, "seed_source_reference", `muscle_action:${foot.actionId}`],
+  ]
+  for (const [index, id] of foot.citationIds.entries()) {
+    const matches = footCitations.filter(citation => citation.id === id)
+    assert.equal(matches.length, 1, "Duplicate later offered-foot citation")
+    const citation = matches[0]
+    assert.deepEqual([citation.entityType, citation.entitySlug, citation.factType, citation.factSlug], targets[index])
+    assert.equal(citation.slug, id)
+    assert.equal(citation.sourceRef, sourceKey)
+    assert.equal(citation.sourceLocator, foot.sourceLocator)
+    assert.equal(citation.reviewStatus, "reviewed")
+    assert.ok(citation.citationNote.includes(foot.supplementLocator), "Foot source contributions must stay separate")
+  }
+  const footSources = seed.sources.filter(source => source.slug === foot.supplementRef)
+  assert.deepEqual(footSources, [{id:`source-${foot.supplementRef}`, slug:foot.supplementRef, ...POSNIK_FOOT_SOURCE_METADATA}])
+  assert.equal(seed.citations.filter(citation => citation.sourceRef === foot.supplementRef).length, 2, "Unreviewed supplemental foot citation")
+  for (const factType of ["clinical_summary", "action"]) {
+    const id = `citation-lumbricals-foot-${factType === "action" ? "action" : "summary"}-posnik-2024`
+    const supplemental = seed.citations.filter(citation => citation.id === id)
+    assert.equal(supplemental.length, 1)
+    assert.equal(supplemental[0].slug, id)
+    assert.equal(supplemental[0].entityType, "muscle")
+    assert.equal(supplemental[0].entitySlug, foot.muscle)
+    assert.equal(supplemental[0].factType, factType)
+    assert.equal(supplemental[0].factSlug, factType === "action" ? foot.actionId : undefined)
+    assert.equal(supplemental[0].sourceRef, foot.supplementRef)
+    assert.equal(supplemental[0].sourceLocator, foot.supplementLocator)
+    assert.equal(supplemental[0].reviewStatus, "reviewed")
+    assert.ok(supplemental[0].citationNote.includes(foot.sourceLocator))
+  }
+  cards = cards.filter(card => card !== footCards[0])
   const prefix = `https://github.com/openstax/osbooks-anatomy-physiology/blob/${manifest.publisherRevision}/`
   const rawPrefix = `https://raw.githubusercontent.com/openstax/osbooks-anatomy-physiology/${manifest.publisherRevision}/`
   assert.equal(manifest.collectionUrl, `${prefix}collections/anatomy-and-physiology-2e.collection.xml`)
@@ -83,7 +127,7 @@ export function verifyReviewedAnatomySourceEvidence(manifest, seed, cards, readA
     bindings.set(binding.selector, binding)
   }
   for (const card of cards) assert.equal(hash(card.summary), bindings.get(`${card.category}:${card.entitySlug}`).summarySha256)
-  const citations = seed.citations.filter(citation => citation.sourceRef === sourceKey)
+  const citations = seed.citations.filter(citation => citation.sourceRef === sourceKey && !foot.citationIds.includes(citation.id))
   const counts = { clinical_summary: 0, entity_source_reference: 0, entity_term: 0, relationship: 0, action: 0, total: citations.length }
   for (const citation of citations) {
     assert.equal(citation.reviewStatus, "reviewed", "This slice preserves the existing source-linkage flags")
@@ -145,7 +189,7 @@ export function verifyReviewedAnatomySourceEvidence(manifest, seed, cards, readA
     assert.equal(text.slice(0, end).split("\n").length, locator.endLine)
     paragraphsMatched++
   }
-  return { state: "LIVE_EDITION_AND_SUMMARY_BINDINGS_VERIFIED", runtimeSourceRetargeted: true, summaryCardsMatched: cards.length, citationCounts: counts, publisherArtifactsMatched: contents.size, publisherBytesMatched: bytesMatched, paragraphsMatched, clinicalAcceptanceComplete: false, commercialReleaseComplete: false, articleContentLicenseInferred: false, networkRequests: 0 }
+  return { state: "LIVE_EDITION_AND_SUMMARY_BINDINGS_VERIFIED", runtimeSourceRetargeted: true, summaryCardsMatched: cards.length, citationCounts: counts, laterFootMetadata:{summaryCardsMatched:1, primaryCitationsMatched:4, supplementalCitationsMatched:2, publisherBytesAuditedByHistoricalManifest:false}, publisherArtifactsMatched: contents.size, publisherBytesMatched: bytesMatched, paragraphsMatched, clinicalAcceptanceComplete: false, commercialReleaseComplete: false, articleContentLicenseInferred: false, networkRequests: 0 }
 }
 
 /** Read a caller-selected local evidence directory; no credential or retrieval fallback exists. */
