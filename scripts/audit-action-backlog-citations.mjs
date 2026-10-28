@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 import { REVIEWED_ACTION_BACKLOG_BINDINGS, isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
 
 import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "../lib/anatomy-temple-action-provenance.js"
+import { resolveHeldActionDescription } from "./held-anatomy-description-revisions.mjs"
 
 const sha = bytes => createHash("sha256").update(bytes).digest("hex")
 const decode = text => text.replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16))).replace(/&#([0-9]+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&(lt|gt|quot|apos|amp);/g, (_, n) => ({lt:"<", gt:">", quot:'"', apos:"'", amp:"&"}[n]))
@@ -123,10 +124,11 @@ export function auditActionBacklogEvidence(manifest, review, seed, readArtifact)
   }
   // The immutable 40-row remainder belongs to the October 25 review. Only the
   // six separately reviewed Temple identities can supersede those dispositions.
+  // The fixed directional wording revision changes one held text, never eligibility.
   for (const pending of manifest.remainingUnapproved) {
     const action = seed.muscleActions.find(row => row.id === pending.actionId)
     assert.ok(action)
-    assert.equal(sha(action.description), pending.descriptionSha256)
+    assert.equal(sha(action.description), sha(resolveHeldActionDescription(pending)))
     const successor = REVIEWED_TEMPLE_ACTION_BINDINGS.find(row => row.id === pending.actionId)
     if (successor) {
       assert.equal(successor.descriptionSha256, pending.descriptionSha256)

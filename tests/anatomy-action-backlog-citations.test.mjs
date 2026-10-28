@@ -1,6 +1,8 @@
 import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "../lib/anatomy-temple-action-provenance.js"
 import { auditActionBacklogEvidence } from "../scripts/audit-action-backlog-citations.mjs"
+import { resolveHeldActionDescription } from "../scripts/held-anatomy-description-revisions.mjs"
 import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
 import fs from "node:fs"
 import { describe, it } from "node:test"
 import { ANATOMY_FOUNDATION_SEED as seed } from "../lib/anatomy-foundation.js"
@@ -10,6 +12,7 @@ import { REVIEWED_ACTION_BACKLOG_BINDINGS as bindings, withReviewedActionBacklog
 const muscles = new Set(bindings.map(binding => binding.muscle))
 const prompts = () => getAnatomyStudyPrompts({promptTypes:["muscle_action"]}).filter(prompt => muscles.has(prompt.entitySlug))
 const manifest = () => JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/muscle-action-backlog-integration-20261025.json", import.meta.url)))
+const revision = () => JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/foot-lumbrical-directional-correction-20261028.json", import.meta.url)))
 
 /** Make a public citation fixture for validator rejection cases, not a runtime approval. */
 const exactFor = binding => ({id:binding.citationId, slug:binding.citationId, entityType:"muscle", entitySlug:binding.muscle, factType:"action", factSlug:binding.id, sourceRef:binding.sourceRef, sourceLocator:binding.sourceLocator, reviewStatus:"reviewed"})
@@ -97,15 +100,79 @@ describe("Complete supported action-citation batch", () => {
     assert.equal(remaining.length, 34)
     for (const pending of remaining) {
       const action = seed.muscleActions.find(row => row.id === pending.actionId)
-      assert.equal(action.description, pending.description)
+      assert.equal(action.description, resolveHeldActionDescription(pending))
       assert.equal(action.sourceRef, pending.currentSourceRef)
       assert.equal(seed.citations.some(citation => citation.factType === "action" && citation.factSlug === pending.actionId && citation.reviewStatus === "reviewed"), false)
     }
     const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
     const coverage = assertHeldDescriptionsNotCredited(remaining, allPrompts)
     assert.equal(coverage.heldDescriptionsChecked, 34)
+    // Preserve all original negatives and also inspect the one current held successor.
+    const current = remaining.map(row => ({...row, description:resolveHeldActionDescription(row)}))
+    assert.equal(assertHeldDescriptionsNotCredited(current, allPrompts).heldDescriptionsChecked, 34)
     t.diagnostic(JSON.stringify(coverage))
   })
+  it("corrects only the held foot-lumbrical directional modifier", () => {
+    const pending = manifest().remainingUnapproved.find(row => row.actionId === "action-lumbricals-foot-toe-extension")
+    const action = seed.muscleActions.find(row => row.id === pending.actionId)
+    const current = resolveHeldActionDescription(pending)
+    assert.equal(current, pending.description.replace("plantar", "dorsal"))
+    assert.equal(action.description, current)
+    assert.equal(action.sourceRef, pending.currentSourceRef)
+    assert.equal(seed.citations.some(row => row.factSlug === action.id && row.factType === "action" && row.reviewStatus === "reviewed"), false)
+  })
+  it("rejects malformed or different revision identities, text, hashes and scope", () => {
+    const pending = manifest().remainingUnapproved.find(row => row.actionId === "action-lumbricals-foot-toe-extension")
+    for (const invalid of [null, [], {}, {...revision(), actionId:"another-action"}, {...revision(), schemaVersion:2}]) {
+      assert.throws(() => resolveHeldActionDescription(pending, invalid), /Held description revision/)
+    }
+    for (const change of [
+      row => { row.historicalDescription += " Unreviewed." },
+      row => { row.historicalDescriptionSha256 = "0".repeat(64) },
+      row => { row.currentDescription += " Unreviewed."; row.currentDescriptionSha256 = createHash("sha256").update(row.currentDescription).digest("hex") },
+      row => { row.currentDescriptionSha256 = "0".repeat(64) },
+      row => { row.scope.sourceAdmission = true },
+      row => { row.scope.heldActionRemainsHeld = false },
+      row => { row.bibliography[1].doi = "unreviewed" },
+      row => { row.extraRevision = {...row} },
+    ]) {
+      const changed = revision(); change(changed)
+      assert.throws(() => resolveHeldActionDescription(pending, changed), /Held description revision/)
+    }
+    for (const changed of [{...pending, description:pending.description+" Drift."}, {...pending, descriptionSha256:"0".repeat(64)}]) {
+      assert.throws(() => resolveHeldActionDescription(changed), /Historical held description changed/)
+    }
+    const other = manifest().remainingUnapproved.find(row => row.actionId !== pending.actionId)
+    assert.equal(resolveHeldActionDescription(other), other.description)
+  })
+  for (const surface of ["standalone", "primary", "accepted"]) {
+    it(`excludes the current held foot-lumbrical description on the ${surface} surface and detects injection`, () => {
+      const historical = manifest().remainingUnapproved.find(row => row.actionId === "action-lumbricals-foot-toe-extension")
+      const pending = {...historical, description:resolveHeldActionDescription(historical)}
+      const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
+      const original = JSON.stringify(allPrompts)
+      assert.doesNotThrow(() => assertHeldDescriptionsNotCredited([pending], allPrompts))
+      const mutated = structuredClone(allPrompts)
+      const prompt = mutated.find(row => row.entitySlug === pending.muscle)
+      assert.ok(prompt)
+      const field = prompt.answerFields.find(row => row.id === "action")
+      assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, false)
+      const composite = `${field.answer}; ${pending.description.toUpperCase()}`
+      if (surface === "standalone") {
+        field.acceptedAnswers.push(pending.description)
+        assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, true)
+      } else if (surface === "primary") {
+        field.answer = composite
+        assert.equal(checkFlashcardAnswer(prompt, {action:composite}).correct, false)
+      } else {
+        field.acceptedAnswers.push(composite)
+        assert.equal(checkFlashcardAnswer(prompt, {action:composite}).correct, true)
+        assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, false)
+      }
+      assert.throws(() => assertHeldDescriptionsNotCredited([pending], mutated), error => error.code === "ERR_ASSERTION" && error.message.includes(pending.actionId))
+      assert.equal(JSON.stringify(allPrompts), original)
+    })
+  }
   it("detects credit for a held description in a mutated unfiltered prompt", t => {
     const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
     const remaining = manifest().remainingUnapproved.filter(row => !successors.has(row.actionId))
