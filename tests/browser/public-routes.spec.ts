@@ -760,7 +760,12 @@ for (const route of publicRoutes) {
     }
 
     await page.goto(route.path, { waitUntil: "domcontentloaded" })
-    await expect(page.locator("body")).toContainText(route.expectedText)
+    if (route.path === "/notes" || route.path === "/notes/soap") {
+      // Check the complete access label rather than accepting a longer, misleading message.
+      await expect(page.getByText("Documentation access required", { exact: true }).first()).toBeVisible()
+    } else {
+      await expect(page.locator("body")).toContainText(route.expectedText)
+    }
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined)
     await page.waitForTimeout(250)
 

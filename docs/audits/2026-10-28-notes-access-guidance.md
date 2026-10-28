@@ -60,3 +60,24 @@ All three Notes entitlement checks, scoped lint for the two affected browser
 specs and whitespace checks pass. No app/runtime source changes or new local
 browser campaign were needed; the new PR head still requires its own CI and
 applicable hosted review.
+
+## Review follow-up: complete access-message matching
+
+The completed included review of `1be265d` noted that partial text matching could
+accept a longer, misleading access label. The local-first checks and the two
+public Notes routes now select the complete “Documentation access required”
+text. The gated parity readiness locator uses the same exact match; its visual
+assertions and baselines remain unchanged. The dashboard permits multiple
+matching labels because each locked tool repeats the message, while each direct
+route must present its single gate label. Other public-route checks are unchanged.
+
+A focused dashboard JSDoc also records why locked accounts retain the existing
+capability-access destinations. This addresses the review's documentation
+warning without changing a capability, route, runtime expression or layout.
+
+All 62 checks in `npm run test:clinical-local`, repository lint, nonincremental
+typecheck and diff checks pass. Independent source review finds no actionable
+issue; a byte comparison confirms that removing the added dashboard comment
+recovers its preceding runtime source exactly. No local browser campaign was
+rerun for this follow-up. Its new head still needs its own CI/Preview and
+applicable review; the preceding head's green checks are historical evidence.

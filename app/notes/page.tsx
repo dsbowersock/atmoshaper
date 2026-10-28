@@ -71,6 +71,7 @@ const documentationProofs = [
   },
 ] as const
 
+/** Show local tools while routing locked accounts through the existing capability-access destinations. */
 export default async function NotesPage() {
   const session = await getCurrentSession()
   const canUseLocalClinicalTools = Boolean(session?.user?.capabilities?.canUseLocalClinicalTools)
