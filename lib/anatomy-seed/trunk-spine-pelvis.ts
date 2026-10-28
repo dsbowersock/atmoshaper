@@ -1114,6 +1114,19 @@ export const TRUNK_SPINE_PELVIS_SECTION: AnatomySeedSection = {
     { id: "external-spinalis-uberon", entityType: "muscle", entitySlug: "spinalis", provider: "UBERON", identifier: "UBERON:0011013", iri: "http://purl.obolibrary.org/obo/UBERON_0011013", label: "spinalis muscle", sourceRef: OLS_UBERON_SOURCE },
   ],
   citations: [
+    {
+      id: "citation-ql-stabilization-grzonkowska-2018-pending",
+      slug: "ql-stabilization-grzonkowska-2018-pending",
+      entityType: "muscle",
+      entitySlug: "quadratus-lumborum",
+      factType: "action",
+      factSlug: "action-quadratus-lumborum-stabilization",
+      sourceRef: "grzonkowska-quadratus-lumborum-2018",
+      sourceLocator: "https://link.springer.com/article/10.1007/s00276-017-1901-4",
+      // The record names the full existing target while disclosing partial support.
+      citationNote: "Introduction paragraph 2 (PDF physical page 1) describes lumbar stabilization and QL/gluteus-medius pelvic support during gait weight transfer; the Discussion rib-XII paragraph (physical page 5) explicitly adds rib stabilization. These are background teaching statements, not outcomes of the fetal growth measurements. This metadata intake records the full set of locators without executing an exact-action binding review. The source pointer and quiz eligibility remain unchanged; this citation stays pending.",
+      reviewStatus: "needs_review",
+    },
     { id: "citation-trunk-spine-pelvis-pack-needs-review", slug: "trunk-spine-pelvis-pack-needs-review", entityType: "region", entitySlug: "trunk-spine-pelvis", factType: "section_pack", sourceRef: REVIEW_SOURCE, citationNote: "Trunk, spine, and pelvis starter facts continue to be deepened by reviewed section packs.", reviewStatus: "needs_review" },
     ...TRUNK_REVIEWED_MUSCLE_CITATIONS,
     ...BREATHING_REVIEWED_MUSCLE_CITATIONS,
