@@ -68,7 +68,7 @@ test("therapist note tools stay visible but locked without subscription", async 
 
   for (const path of ["/notes/soap", "/notes/intake", "/notes/journal", "/notes/rom"]) {
     await gotoHydratedLocalPage(page, path)
-    await expect(page.getByText(/Therapist membership required/i)).toBeVisible()
+    await expect(page.getByText(/Documentation access required/i)).toBeVisible()
     await expect(page.getByRole("link", { name: /Sign in/i })).toBeVisible()
   }
 

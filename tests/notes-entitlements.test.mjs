@@ -8,7 +8,7 @@ describe("therapist note tool entitlements", () => {
 
     assert.match(source, /getCurrentSession/)
     assert.match(source, /canUseLocalClinicalTools/)
-    assert.match(source, /Therapist or Team\/Practice required/)
+    assert.match(source, /Documentation access required/)
     assert.match(source, /account\?tab=membership/)
     assert.match(source, /href: "\/notes\/soap"/)
     assert.match(source, /href: "\/notes\/intake"/)
@@ -31,7 +31,7 @@ describe("therapist note tool entitlements", () => {
 
     assert.match(source, /getCurrentSession/)
     assert.match(source, /canUseLocalClinicalTools/)
-    assert.match(source, /Therapist membership required/)
+    assert.match(source, /Documentation access required/)
     assert.doesNotMatch(source, /membershipLevel\s*===\s*"THERAPIST"/)
     assert.doesNotMatch(source, /membershipLevel\s*===\s*"PRACTICE"/)
   })
