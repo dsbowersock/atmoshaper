@@ -11,6 +11,16 @@ import {
   getVisibleAtmosphereStations,
 } from "../../lib/atmosphere/stations.js"
 import { centerCarouselItem } from "./carousel-test-helpers"
+import { assertSyntheticMediaIsolation, installSyntheticGenerativeMedia } from "./music-synthetic-media-fixture.mjs"
+
+/** Only synthetic-media cases block service workers; unrelated route controls keep their scope. */
+const syntheticMediaTest = test.extend({
+  serviceWorkers: "block",
+  page: async ({ page }, runFixture) => {
+    await runFixture(page)
+    assertSyntheticMediaIsolation(page)
+  },
+})
 
 type MediaProbe = {
   audio: {
@@ -28,6 +38,10 @@ type MediaProbe = {
     generatorGeneration: number
     generatorStarts: number
     generatorTeardowns: number
+    nativeDecoderAvailable: boolean
+    nativeDecodeStarted: number
+    nativeDecodeCompleted: number
+    nativeDecodeRejected: number
     resumeAttempts: Array<{
       calledAt: number
       latencyMs: number | null
@@ -209,6 +223,10 @@ async function installMediaOwnershipFakes(page: Page, options: MediaOwnershipFak
       generatorGeneration: 0,
       generatorStarts: 0,
       generatorTeardowns: 0,
+      nativeDecoderAvailable: false,
+      nativeDecodeStarted: 0,
+      nativeDecodeCompleted: 0,
+      nativeDecodeRejected: 0,
       resumeAttempts: [] as Array<{
         calledAt: number
         latencyMs: number | null
@@ -541,9 +559,19 @@ async function installMediaOwnershipFakes(page: Page, options: MediaOwnershipFak
       const decodeAudioData = Reflect.get(context, "decodeAudioData")
       if (typeof decodeAudioData === "function") {
         replaceMethod(context, "decodeAudioData", function (this: object, ...args: unknown[]) {
-          const decoded = Reflect.apply(decodeAudioData, this, args)
+          // This instrumentation is installed only on native contexts. The WebKit
+          // graph fallback below must never satisfy genuine-decoder acceptance.
+          audioContext.nativeDecodeStarted += 1
+          let decoded: unknown
+          try {
+            decoded = Reflect.apply(decodeAudioData, this, args)
+          } catch (error) {
+            audioContext.nativeDecodeRejected += 1
+            throw error
+          }
           if (!decoded || typeof Reflect.get(decoded, "then") !== "function") return decoded
           return Promise.resolve(decoded).then(async (buffer) => {
+            audioContext.nativeDecodeCompleted += 1
             providerDecodeCompleted = true
             if (fakeOptions.holdPhase === "provider-decode" && !startup.phaseReached.includes("provider-decode")) {
               startup.phaseReached.push("provider-decode")
@@ -552,6 +580,9 @@ async function installMediaOwnershipFakes(page: Page, options: MediaOwnershipFak
               })
             }
             return buffer
+          }, (error) => {
+            audioContext.nativeDecodeRejected += 1
+            throw error
           })
         })
       }
@@ -577,6 +608,7 @@ async function installMediaOwnershipFakes(page: Page, options: MediaOwnershipFak
     }
     const NativeAudioContext = window.AudioContext
     if (NativeAudioContext) {
+      audioContext.nativeDecoderAvailable = true
       const requiresNativeConstructorIdentity = /AppleWebKit/i.test(navigator.userAgent)
         && !/(Chrome|Chromium)/i.test(navigator.userAgent)
       if (requiresNativeConstructorIdentity) {
@@ -1689,8 +1721,12 @@ test("fresh-page cold runtime exposes only an activation-safe centered Play acti
   await expect(page.getByTestId("music-player-toolbar")).toHaveAttribute("data-playback-state", "playing")
 })
 
-test("Favorites direct playback keeps the provider as the single owner during loading and while active", async ({ page }, testInfo) => {
+syntheticMediaTest("Favorites direct playback keeps the provider as the single owner during loading and while active", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-chromium", "Touch Favorites playback is mobile-owned.")
+  await installSyntheticGenerativeMedia(page, {
+    baseURL: testInfo.project.use.baseURL,
+    pieceIds: ["observable-streams"],
+  })
   await installAtmosphereFavorites(page, ["observable-streams-probe", "mlab-proof-drone"])
   await installMediaOwnershipFakes(page, {
     actualRuntimeModulePath: await getActualRuntimeModulePath(),
@@ -1865,6 +1901,150 @@ async function closeInterruptionNotice(page: Page) {
   await expect(notice).toHaveCount(0)
 }
 
+test.describe("synthetic native-delivery acceptance", () => {
+  test.describe.configure({ retries: 0 })
+
+  syntheticMediaTest("same-page held payload release reaches genuine native Music startup", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium", "Native causal acceptance runs in desktop Chromium.")
+    test.setTimeout(90_000)
+    const media = await installSyntheticGenerativeMedia(page, {
+      baseURL: testInfo.project.use.baseURL,
+      pieceIds: ["observable-streams"],
+      holdPayloads: true,
+    })
+    try {
+      await installMediaOwnershipFakes(page)
+      const play = await openStation(page, {
+        category: "Treatment room starters",
+        id: "observable-streams-probe",
+        title: "Observable Streams",
+      })
+      await play.click()
+      const player = page.getByTestId("music-player-toolbar")
+      await expect.poll(() => media.counters.targetIndex["observable-streams"]).toBeGreaterThan(0)
+      await expect.poll(() => media.counters.held).toBeGreaterThan(0)
+      await expect(player).toHaveAttribute("data-playback-state", "loading")
+      const before = await readProbe(page)
+      expect(before.audioContext.nativeDecoderAvailable).toBe(true)
+      expect(before.audioContext.nativeDecodeCompleted).toBe(0)
+      expect(before.startup.timings).toHaveLength(0)
+      expect(media.counters.targetPayload["observable-streams"]).toBe(0)
+
+      // Release the same pre-navigation gate; the adapter keeps its real decoder,
+      // returned buffers and startup event without an injected success or phase.
+      media.releasePayloads()
+      await expect(player).toHaveAttribute("data-playback-state", "playing", { timeout: 60_000 })
+      await expect.poll(() => media.counters.targetPayload["observable-streams"]).toBeGreaterThan(0)
+      await expect.poll(async () => (await readProbe(page)).audioContext.nativeDecodeCompleted).toBeGreaterThan(0)
+      await expect.poll(async () => (await readProbe(page)).startup.timings.length).toBeGreaterThan(0)
+      const after = await readProbe(page)
+      expect(after.audioContext.nativeDecodeStarted).toBeGreaterThan(0)
+      expect(after.audioContext.nativeDecodeRejected).toBe(0)
+      expect(after.startup.timings).toContainEqual(expect.objectContaining({
+        pieceId: "observable-streams",
+        stationId: "observable-streams-probe",
+      }))
+      assertSyntheticMediaIsolation(page)
+      await testInfo.attach("music-native-causal-counts", {
+        contentType: "application/json",
+        body: Buffer.from(JSON.stringify({
+          schema: 1,
+          delivery: "synthetic-local",
+          before: {
+            state: "loading",
+            decodeCompleted: before.audioContext.nativeDecodeCompleted,
+            startupEvents: before.startup.timings.length,
+          },
+          after: {
+            state: "playing",
+            nativeDecoderAvailable: after.audioContext.nativeDecoderAvailable,
+            decodeStarted: after.audioContext.nativeDecodeStarted,
+            decodeCompleted: after.audioContext.nativeDecodeCompleted,
+            decodeRejected: after.audioContext.nativeDecodeRejected,
+            startupEvents: after.startup.timings.length,
+          },
+          counters: media.counters,
+        })),
+      })
+      await player.getByRole("button", { name: "Stop", exact: true }).click()
+      await expect(player).toHaveAttribute("data-playback-state", "stopped")
+    } finally {
+      await media.dispose()
+    }
+  })
+
+  test.describe("intentional media rejection control", () => {
+    // The expected miss must not use syntheticMediaTest's zero-miss teardown.
+    test.use({ serviceWorkers: "block" })
+    test("unexpected media intent is rejected before transport", async ({ page }, testInfo) => {
+      test.skip(testInfo.project.name !== "desktop-chromium", "Native causal controls run in desktop Chromium.")
+      const media = await installSyntheticGenerativeMedia(page, {
+        baseURL: testInfo.project.use.baseURL,
+        pieceIds: ["observable-streams"],
+      })
+      try {
+        // Playwright installs WebSocket routing in new documents; the existing
+        // about:blank realm still has its native constructor. Fulfill one inert
+        // same-origin document so this control never visits the app server.
+        const controlDocumentUrl = new URL("/__browser_qa_synthetic_media__/rejection-control.html", media.catalog.appOrigin).href
+        const controlDocumentHandler = (route: Route) => route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: "<!doctype html><title>Synthetic media rejection control</title>",
+        })
+        await page.route(controlDocumentUrl, controlDocumentHandler)
+        try {
+          await page.goto(controlDocumentUrl, { waitUntil: "domcontentloaded" })
+        } finally {
+          await page.unroute(controlDocumentUrl, controlDocumentHandler)
+        }
+        const rejectedFetch = () => page.evaluate(async () => {
+          try {
+            await fetch("https://media.massagelab.app/atmosphere/unreviewed-piece/sample-index.json")
+            return "unexpected-success"
+          } catch {
+            return "rejected"
+          }
+        })
+        expect(await rejectedFetch()).toBe("rejected")
+        expect(media.counters.mediaMiss).toBe(1)
+        expect(media.counters.nonlocal).toBe(0)
+        expect(() => assertSyntheticMediaIsolation(page)).toThrow(/mediaMiss/)
+        const socketOrigin = new URL(media.catalog.appOrigin)
+        socketOrigin.protocol = socketOrigin.protocol === "https:" ? "wss:" : "ws:"
+        const socketOutcome = await page.evaluate((url) => new Promise<string>((resolve) => {
+          const socket = new WebSocket(url)
+          socket.addEventListener("open", () => resolve("unexpected-open"), { once: true })
+          socket.addEventListener("close", () => resolve("closed"), { once: true })
+        }), new URL("/synthetic-isolation-control", socketOrigin).href)
+        expect(socketOutcome).toBe("closed")
+        expect(media.counters.websocketBlocked).toBe(1)
+        expect(() => assertSyntheticMediaIsolation(page)).toThrow(/websocketBlocked/)
+        await media.dispose()
+        // Retirement retains abort-only ownership and does not erase the miss.
+        expect(await rejectedFetch()).toBe("rejected")
+        expect(media.counters.retiredAbort).toBe(1)
+        expect(media.counters.mediaMiss).toBe(1)
+        expect(() => assertSyntheticMediaIsolation(page)).toThrow(/mediaMiss/)
+        await testInfo.attach("music-expected-rejection-counts", {
+          contentType: "application/json",
+          body: Buffer.from(JSON.stringify({
+            schema: 1,
+            delivery: "synthetic-local",
+            expectedRejection: true,
+            mediaMiss: media.counters.mediaMiss,
+            nonlocal: media.counters.nonlocal,
+            websocketBlocked: media.counters.websocketBlocked,
+            retiredAbort: media.counters.retiredAbort,
+          })),
+        })
+      } finally {
+        await media.dispose()
+      }
+    })
+  })
+})
+
 test("immediate carrier claim precedes a held sample-index response and Stop stays authoritative", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium", "Deterministic startup timing coverage runs in desktop Chromium.")
   await installMediaOwnershipFakes(page)
@@ -1985,8 +2165,12 @@ test("latest request wins when Stop occurs during provider decode", async ({ pag
 })
 
 for (const phase of ["piece-activation", "scheduling"] as const) {
-  test(`latest request wins when Stop occurs during ${phase}`, async ({ page }, testInfo) => {
+  syntheticMediaTest(`latest request wins when Stop occurs during ${phase}`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium", "Deterministic startup timing coverage runs in desktop Chromium.")
+    await installSyntheticGenerativeMedia(page, {
+      baseURL: testInfo.project.use.baseURL,
+      pieceIds: ["observable-streams"],
+    })
     await installMediaOwnershipFakes(page, { stopAtPhase: phase })
     const play = await openStation(page, {
       category: "Treatment room starters",
@@ -2034,9 +2218,16 @@ const startupMeasurementStations = [
 ] as const
 
 for (const station of startupMeasurementStations) {
-  test(`startup timing records fresh-context cold and same-context warm ${station.pieceId}`, async ({ page }, testInfo) => {
+  const measurementTest = station.pieceId === "observable-streams" ? syntheticMediaTest : test
+  measurementTest(`startup timing records fresh-context cold and same-context warm ${station.pieceId}`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium", "Measurements are intentionally limited to desktop Chromium.")
     test.setTimeout(150_000)
+    if (station.pieceId === "observable-streams") {
+      await installSyntheticGenerativeMedia(page, {
+        baseURL: testInfo.project.use.baseURL,
+        pieceIds: ["observable-streams"],
+      })
+    }
     await installMediaOwnershipFakes(page)
     const audioRequests: string[] = []
     page.on("request", (request) => {
@@ -2045,6 +2236,9 @@ for (const station of startupMeasurementStations) {
     const play = await openStation(page, station)
     const player = page.getByTestId("music-player-toolbar")
 
+    // Request intents preserve the count fields; synthetic delivery does not measure hosted performance.
+    const measurementDelivery = station.pieceId === "observable-streams" ? "synthetic-local" : "existing-media"
+    const requestCountSemantics = "browser-request-intents; upstream HTTP dispatch is not established"
     const runs: Array<Record<string, unknown>> = []
     for (const temperature of ["cold", "warm"] as const) {
       const previousTimings = (await readProbe(page)).startup.timings
@@ -2074,6 +2268,8 @@ for (const station of startupMeasurementStations) {
       const runRequests = audioRequests.slice(requestStart)
         .filter((url) => url.includes(station.requestPathFragment))
       runs.push({
+        delivery: measurementDelivery,
+        requestCountSemantics,
         carrierCallLatencyMs: result.carrier?.latencyMs,
         networkIndexRequestCount: runRequests.filter((url) => /sample-index[^/]*\.json/i.test(url)).length,
         networkSampleRequestCount: runRequests.filter((url) => !/sample-index[^/]*\.json/i.test(url)).length,
@@ -2089,7 +2285,7 @@ for (const station of startupMeasurementStations) {
 
     const warmTiming = runs[1]?.timing as Record<string, unknown> | undefined
     expect(Number(warmTiming?.sampleRequestMemoryHitUrlCount)).toBeGreaterThan(0)
-    console.log(`ATMOSPHERE_STARTUP_MEASUREMENT ${JSON.stringify({ station: station.pieceId, runs })}`)
+    console.log(`ATMOSPHERE_STARTUP_MEASUREMENT ${JSON.stringify({ station: station.pieceId, delivery: measurementDelivery, requestCountSemantics, runs })}`)
   })
 }
 
@@ -2878,7 +3074,12 @@ test("stopped retirement exclusions leave paused and interrupted identity intact
   })}`)
 })
 
-test("restart cancels stopped retirement without stale identity or media teardown", async ({ page }) => {
+syntheticMediaTest("restart cancels stopped retirement without stale identity or media teardown", async ({ page }, testInfo) => {
+  // Gamma serves this case's later Next-station phase after the initial Drone.
+  await installSyntheticGenerativeMedia(page, {
+    baseURL: testInfo.project.use.baseURL,
+    pieceIds: ["420hz-gamma-waves-for-big-brain"],
+  })
   await page.clock.install()
   await installMediaOwnershipFakes(page)
   const player = await startProofStation(page)

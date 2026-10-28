@@ -1,8 +1,14 @@
+import { TEMPLE_HANDS_ON_ANATOMY_SOURCE_METADATA } from "../anatomy-temple-action-provenance.js"
 import { OPENSTAX_AP_SOURCE_METADATA } from "../anatomy-openstax-provenance.js"
 import type { AnatomySeedSection } from "./sections.ts"
 
 export const SOURCES_SEED_SECTION: AnatomySeedSection = {
   sources: [
+    {
+      id: "source-temple-hands-on-anatomy-2024",
+      slug: "temple-hands-on-anatomy-2024",
+      ...TEMPLE_HANDS_ON_ANATOMY_SOURCE_METADATA,
+    },
     {
       id: "source-wikidata-anatomy",
       slug: "wikidata-anatomy",

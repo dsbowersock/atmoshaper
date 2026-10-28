@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "state": "SIX_UNCHANGED_ACTION_DESCRIPTIONS_INDEPENDENTLY_SUPPORTED",
+  "reviewedUtc": "2026-10-28",
+  "baselineHead": "b5d061e788596f2a9cdaea831d8e39544b9572b3",
+  "sourceId": "source-temple-hands-on-anatomy-2024",
+  "sourceRef": "temple-hands-on-anatomy-2024",
+  "sourceMetadata": {
+    "name": "Hands-on Anatomy (Jacqueline Phillips and Michael O'Hara, 2024)",
+    "url": "https://temple.manifoldapp.org/projects/hands-on-anatomy",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "usageScope": "open_reuse",
+    "accessedAt": "2026-10-28T00:00:00.000Z",
+    "attribution": "Jacqueline Phillips and Michael O'Hara, Hands-on Anatomy (2024), North Broad Press/Temple University Press. DOI 10.34944/381c-cx44; ebook ISBN 9781439921241. CC BY 4.0 unless otherwise noted.",
+    "notes": "The publisher copyright page applies CC BY 4.0 unless otherwise noted. Permission-only photographs and illustrations, including Alsup/Fox figures, are not cleared by this source record. Only six independently compared unchanged action descriptions use this bibliography. No source prose, figures or palpation instructions are bundled; this is not clinical or whole-record acceptance.",
+    "sourceRef": "Exact 2024 work, DOI 10.34944/381c-cx44; evidence: docs/source-evidence/temple-hands-on-anatomy-actions-20261028.json. Retained catalogue/copyright and four named chapter captures pin publication identity, component exceptions and the six comparisons."
+  },
+  "independentReviewSha256": "b9bbb9010fd5436fb82c93362fe48edb5e8c7b6e21ab27b7c12e489d2616be5f",
+  "historicalBacklogManifest": "muscle-action-backlog-integration-20261025.json",
+  "historicalBacklogManifestSha256": "2bac295fc405bcfbf1171bcb9ffc608d81e6cfe1a1a4a3e8ab2cfce9ab176972",
+  "historicalReviewSha256": "1eab0b5fe1a7797c74d62af8c84752d8e39caa9f9fb78beddc451f9b9c24ff05",
+  "historicalRemainingActions": 40,
+  "separatelySupportedSuccessors": 6,
+  "remainingHeldActions": 34,
+  "clinicalAcceptanceComplete": false,
+  "wholeMigrationComplete": false,
+  "automatedSemanticTruthClaim": false,
+  "sourceTextOrMediaBundled": false,
+  "componentLicenseInferred": false,
+  "publisherArtifacts": [
+    {
+      "file": "copyright.html",
+      "retainedRoot": ".",
+      "bytes": 710099,
+      "sha256": "b96a650e9fcdbd66b18236b9c38c6358370fa4a8ed4f5afac1f20ca198358e17",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/b0089167-fc78-425f-ab26-bbdf9dd0f7d3"
+    },
+    {
+      "file": "copyright.body.txt",
+      "retainedRoot": ".",
+      "bytes": 3957,
+      "sha256": "3432721d0f4bad542b012f5d071492e525c103be80b5be7c7567c8b2c30026ce",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/b0089167-fc78-425f-ab26-bbdf9dd0f7d3"
+    },
+    {
+      "file": "catalog.html",
+      "retainedRoot": ".",
+      "bytes": 507875,
+      "sha256": "972585f2f15c304b021efbe21178ae474852bab9b8eb84713447d16b328ffc23",
+      "url": "https://temple.manifoldapp.org/projects/hands-on-anatomy"
+    },
+    {
+      "file": "catalog.body.txt",
+      "retainedRoot": ".",
+      "bytes": 4665,
+      "sha256": "806178f3f6aeb570874c3b41fd4bad1fa9495e5212c3d599b00e732b1f44ae37",
+      "url": "https://temple.manifoldapp.org/projects/hands-on-anatomy"
+    },
+    {
+      "file": "spine-thorax-abdomen.html",
+      "retainedRoot": ".",
+      "bytes": 1152205,
+      "sha256": "8de5b3b71a2fcf6b0cb47e5563f7422ce5a62c0041a24c17f7bf3332753d66e3",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/8ff57319-f921-4deb-b896-585474a87763"
+    },
+    {
+      "file": "spine-thorax-abdomen.body.txt",
+      "retainedRoot": ".",
+      "bytes": 22258,
+      "sha256": "ea3afe89f88849a736c867011dc6ebd2fa2efb6259b1167bf57a8916ffecf944",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/8ff57319-f921-4deb-b896-585474a87763"
+    },
+    {
+      "file": "hip-thigh.html",
+      "retainedRoot": ".",
+      "bytes": 1147976,
+      "sha256": "5bcc1c1b9625e5eeb30bbc16eb0a0d5cf106f4efdc551e937d09a522dcca977b",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/c56ce988-f5f2-42ae-950a-4e8ca4d98263"
+    },
+    {
+      "file": "hip-thigh.body.txt",
+      "retainedRoot": ".",
+      "bytes": 29805,
+      "sha256": "8c7308756778a074ddb3c44a0b4d08d84c9ec5471b9c1464d0efd8ea3a7b67de",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/c56ce988-f5f2-42ae-950a-4e8ca4d98263"
+    },
+    {
+      "file": "knee-lower-leg.html",
+      "retainedRoot": ".",
+      "bytes": 1163815,
+      "sha256": "02f23237811d3354d9176f44df5de33f3550a3b47346c7bcb8f157794402a669",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/fbaf4654-749e-4c63-baed-5d17cf03aafe"
+    },
+    {
+      "file": "knee-lower-leg.body.txt",
+      "retainedRoot": ".",
+      "bytes": 26122,
+      "sha256": "e685f2405300bb56e24cd8dcb2a1e9417252659b58c02a7d0b8fe849e74af905",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/fbaf4654-749e-4c63-baed-5d17cf03aafe"
+    },
+    {
+      "file": "head-neck.html",
+      "retainedRoot": ".",
+      "bytes": 1014054,
+      "sha256": "119019fb332d06945b5a6bacd9ef35aa3d5401a4453e383998cecaf68c2a256f",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/7e2046c8-f989-4c7b-805e-0f5ce7321e23"
+    },
+    {
+      "file": "head-neck.body.txt",
+      "retainedRoot": ".",
+      "bytes": 16442,
+      "sha256": "8ce0e6e282284ea1184ca44d05e3ed063d712fe135af929192cd30cd546b1287",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/7e2046c8-f989-4c7b-805e-0f5ce7321e23"
+    }
+  ],
+  "breathingContextArtifact": {
+    "file": "m46484.cnxml",
+    "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence",
+    "bytes": 46543,
+    "sha256": "18e63f6287d7e996d2e8bcc20c6e0bc42761581326ccd38744cd47ada049a7da",
+    "url": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L284-L284",
+    "elementId": "fs-id2080091",
+    "elementXmlSha256": "ed234b2bae24efd4110187c72cad0024a0ba9948de9fc450307d289748e2bd33",
+    "startLine": 284
+  },
+  "bindings": [
+    {
+      "id": "action-external-oblique-flexion",
+      "muscle": "external-oblique",
+      "description": "Assists trunk flexion.",
+      "descriptionSha256": "cab13fe47ea1bc24144b6e764fb3feaeadd9575fb9d5e748b136f537894b39b1",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "temple-hands-on-anatomy-2024",
+      "sourceLocator": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/8ff57319-f921-4deb-b896-585474a87763",
+      "evidenceFile": "spine-thorax-abdomen.body.txt",
+      "startLine": 208,
+      "endLine": 211,
+      "selectedTextSha256": "b166cb720c276a24bda49039cbe603edf9dba20febd533c9b6247cd4212d52b7",
+      "requiresBreathingContext": false,
+      "expectedAction": {
+        "id": "action-external-oblique-flexion",
+        "muscle": "external-oblique",
+        "joint": "lumbar-spine",
+        "movement": "lumbar-flexion",
+        "role": "secondary",
+        "contractionType": "concentric",
+        "description": "Assists trunk flexion."
+      },
+      "relationshipId": "relationship-enrichment-muscle-action-action-external-oblique-flexion-belongs-to-system-anatomy-concept-muscular-system",
+      "sourcePointerIds": [
+        "citation-source-ref-muscle-action-action-external-oblique-flexion-muscle-action-action-external-oblique-flexion-applied-human-anatomy",
+        "citation-source-ref-muscle-action-action-external-oblique-flexion-relationship-relationship-enrichment-muscle-action-action-external-oblique-flexion-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy"
+      ],
+      "sourcePointerFactSlugs": [
+        "muscle_action:action-external-oblique-flexion",
+        "relationship:relationship-enrichment-muscle-action-action-external-oblique-flexion-belongs-to-system-anatomy-concept-muscular-system"
+      ],
+      "legacyGroupCitationIds": [
+        "citation-external-oblique-action"
+      ],
+      "citationId": "citation-reviewed-action-external-oblique-flexion",
+      "reviewNote": "Chapter 5, External Oblique, Action(s). The named muscle explicitly flexes the spine; this supports the unchanged limited trunk-flexion description. Independently compared as an exact educational description; no clinical, other-fact or whole-content acceptance follows."
+    },
+    {
+      "id": "action-anterior-scalene-rib-elevation",
+      "muscle": "anterior-scalene",
+      "description": "Assists elevation of the first rib during accessory breathing mechanics.",
+      "descriptionSha256": "86815122796e3b35a64952580748b18432ea540a7ece2cb0aa472ba68d643ad4",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "temple-hands-on-anatomy-2024",
+      "sourceLocator": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/7e2046c8-f989-4c7b-805e-0f5ce7321e23",
+      "evidenceFile": "head-neck.body.txt",
+      "startLine": 167,
+      "endLine": 176,
+      "selectedTextSha256": "69d08d32381f5882c9d2781d87e2f1af62c2736acd408e0b59024107f03a2c33",
+      "requiresBreathingContext": true,
+      "expectedAction": {
+        "id": "action-anterior-scalene-rib-elevation",
+        "muscle": "anterior-scalene",
+        "joint": "cervical-spine",
+        "movement": "rib-elevation",
+        "role": "secondary",
+        "contractionType": "concentric",
+        "description": "Assists elevation of the first rib during accessory breathing mechanics."
+      },
+      "relationshipId": "relationship-enrichment-muscle-action-action-anterior-scalene-rib-elevation-belongs-to-system-anatomy-concept-muscular-system",
+      "sourcePointerIds": [
+        "citation-source-ref-muscle-action-action-anterior-scalene-rib-elevation-muscle-action-action-anterior-scalene-rib-elevation-applied-human-anatomy",
+        "citation-source-ref-muscle-action-action-anterior-scalene-rib-elevation-relationship-relationship-enrichment-muscle-action-action-anterior-scalene-rib-elevation-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy"
+      ],
+      "sourcePointerFactSlugs": [
+        "muscle_action:action-anterior-scalene-rib-elevation",
+        "relationship:relationship-enrichment-muscle-action-action-anterior-scalene-rib-elevation-belongs-to-system-anatomy-concept-muscular-system"
+      ],
+      "legacyGroupCitationIds": [],
+      "citationId": "citation-reviewed-action-anterior-scalene-rib-elevation",
+      "reviewNote": "Chapter 9, Scalenes, Anterior and Middle, Action(s). Temple explicitly assigns first-rib elevation to these named muscles. Accessory-breathing context additionally uses the pinned A&P 2e deep-inhalation paragraph: https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L284-L284. No exclusive recruitment, magnitude or quiet-breathing claim is inferred. Independently compared as an exact educational description; no clinical, other-fact or whole-content acceptance follows."
+    },
+    {
+      "id": "action-middle-scalene-rib-elevation",
+      "muscle": "middle-scalene",
+      "description": "Assists first-rib elevation and thoracic inlet breathing mechanics.",
+      "descriptionSha256": "0da9dfcc9efc3dbd8bb67f745ca28c6670e9348af02902540f57d0d6022d3c50",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "temple-hands-on-anatomy-2024",
+      "sourceLocator": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/7e2046c8-f989-4c7b-805e-0f5ce7321e23",
+      "evidenceFile": "head-neck.body.txt",
+      "startLine": 167,
+      "endLine": 176,
+      "selectedTextSha256": "69d08d32381f5882c9d2781d87e2f1af62c2736acd408e0b59024107f03a2c33",
+      "requiresBreathingContext": true,
+      "expectedAction": {
+        "id": "action-middle-scalene-rib-elevation",
+        "muscle": "middle-scalene",
+        "joint": "cervical-spine",
+        "movement": "rib-elevation",
+        "role": "secondary",
+        "contractionType": "concentric",
+        "description": "Assists first-rib elevation and thoracic inlet breathing mechanics."
+      },
+      "relationshipId": "relationship-enrichment-muscle-action-action-middle-scalene-rib-elevation-belongs-to-system-anatomy-concept-muscular-system",
+      "sourcePointerIds": [
+        "citation-source-ref-muscle-action-action-middle-scalene-rib-elevation-muscle-action-action-middle-scalene-rib-elevation-applied-human-anatomy",
+        "citation-source-ref-muscle-action-action-middle-scalene-rib-elevation-relationship-relationship-enrichment-muscle-action-action-middle-scalene-rib-elevation-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy"
+      ],
+      "sourcePointerFactSlugs": [
+        "muscle_action:action-middle-scalene-rib-elevation",
+        "relationship:relationship-enrichment-muscle-action-action-middle-scalene-rib-elevation-belongs-to-system-anatomy-concept-muscular-system"
+      ],
+      "legacyGroupCitationIds": [],
+      "citationId": "citation-reviewed-action-middle-scalene-rib-elevation",
+      "reviewNote": "Chapter 9, Scalenes, Anterior and Middle, Action(s). Temple supplies named first-rib elevation; the pinned A&P 2e deep-inhalation paragraph supplies breathing context: https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46484/index.cnxml#L284-L284. Thoracic inlet is the unchanged limited regional description of that contribution, not measured expansion or an additional mechanism. Independently compared as an exact educational description; no clinical, other-fact or whole-content acceptance follows."
+    },
+    {
+      "id": "action-posterior-scalene-cervical-lateral-flexion",
+      "muscle": "posterior-scalene",
+      "description": "Assists cervical side bending from the posterior scalene line of pull.",
+      "descriptionSha256": "16f57cf6fb3625a9b7e4a3b1acdfddcbd076c8b34b959624fb8ba55eabed4b84",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "temple-hands-on-anatomy-2024",
+      "sourceLocator": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/7e2046c8-f989-4c7b-805e-0f5ce7321e23",
+      "evidenceFile": "head-neck.body.txt",
+      "startLine": 167,
+      "endLine": 176,
+      "selectedTextSha256": "69d08d32381f5882c9d2781d87e2f1af62c2736acd408e0b59024107f03a2c33",
+      "requiresBreathingContext": false,
+      "expectedAction": {
+        "id": "action-posterior-scalene-cervical-lateral-flexion",
+        "muscle": "posterior-scalene",
+        "joint": "cervical-spine",
+        "movement": "cervical-lateral-flexion",
+        "role": "secondary",
+        "contractionType": "concentric",
+        "description": "Assists cervical side bending from the posterior scalene line of pull."
+      },
+      "relationshipId": "relationship-enrichment-muscle-action-action-posterior-scalene-cervical-lateral-flexion-belongs-to-system-anatomy-concept-muscular-system",
+      "sourcePointerIds": [
+        "citation-source-ref-muscle-action-action-posterior-scalene-cervical-lateral-flexion-muscle-action-action-posterior-scalene-cervical-lateral-flexion-applied-human-anatomy",
+        "citation-source-ref-muscle-action-action-posterior-scalene-cervical-lateral-flexion-relationship-relationship-enrichment-muscle-action-action-posterior-scalene-cervical-lateral-flexion-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy"
+      ],
+      "sourcePointerFactSlugs": [
+        "muscle_action:action-posterior-scalene-cervical-lateral-flexion",
+        "relationship:relationship-enrichment-muscle-action-action-posterior-scalene-cervical-lateral-flexion-belongs-to-system-anatomy-concept-muscular-system"
+      ],
+      "legacyGroupCitationIds": [],
+      "citationId": "citation-reviewed-action-posterior-scalene-cervical-lateral-flexion",
+      "reviewNote": "Chapter 9, Scalenes, Posterior, Action(s). Named posterior-scalene cervical side bending supports the unchanged limited description. Line of pull adds no quantitative angle, force, side, fixation condition or segment-specific claim. Independently compared as an exact educational description; no clinical, other-fact or whole-content acceptance follows."
+    },
+    {
+      "id": "action-adductor-magnus-hip-adduction",
+      "muscle": "adductor-magnus",
+      "description": "Adducts the hip through its adductor portion.",
+      "descriptionSha256": "78bac5994eae459a365cc46802030eb811eede019faf3851a327092c78ccdfc4",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "temple-hands-on-anatomy-2024",
+      "sourceLocator": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/c56ce988-f5f2-42ae-950a-4e8ca4d98263",
+      "evidenceFile": "hip-thigh.body.txt",
+      "startLine": 253,
+      "endLine": 262,
+      "selectedTextSha256": "175fd8d2ff7a17e0e5d9333b1748612414068680fc4c9da3f7d94be5327d112c",
+      "requiresBreathingContext": false,
+      "expectedAction": {
+        "id": "action-adductor-magnus-hip-adduction",
+        "muscle": "adductor-magnus",
+        "joint": "hip-joint",
+        "movement": "hip-adduction",
+        "role": "primary",
+        "contractionType": "concentric",
+        "description": "Adducts the hip through its adductor portion."
+      },
+      "relationshipId": "relationship-enrichment-muscle-action-action-adductor-magnus-hip-adduction-belongs-to-system-anatomy-concept-muscular-system",
+      "sourcePointerIds": [
+        "citation-source-ref-muscle-action-action-adductor-magnus-hip-adduction-muscle-action-action-adductor-magnus-hip-adduction-applied-human-anatomy",
+        "citation-source-ref-muscle-action-action-adductor-magnus-hip-adduction-relationship-relationship-enrichment-muscle-action-action-adductor-magnus-hip-adduction-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy"
+      ],
+      "sourcePointerFactSlugs": [
+        "muscle_action:action-adductor-magnus-hip-adduction",
+        "relationship:relationship-enrichment-muscle-action-action-adductor-magnus-hip-adduction-belongs-to-system-anatomy-concept-muscular-system"
+      ],
+      "legacyGroupCitationIds": [
+        "citation-adductor-magnus-action"
+      ],
+      "citationId": "citation-reviewed-action-adductor-magnus-hip-adduction",
+      "reviewNote": "Chapter 6, Adductor Magnus, Adductor Portion, Action(s). The named subdivision explicitly adducts the hip. The separate posterior-fiber hip-extension description is not approved. Independently compared as an exact educational description; no clinical, other-fact or whole-content acceptance follows."
+    },
+    {
+      "id": "action-fibularis-tertius-eversion",
+      "muscle": "fibularis-tertius",
+      "description": "Assists foot eversion through the fifth metatarsal attachment.",
+      "descriptionSha256": "e61aed5149bdeb0c045d28c1242ba331ab193333c1ad0a51dbc3ce61a3c5a86e",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "temple-hands-on-anatomy-2024",
+      "sourceLocator": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/fbaf4654-749e-4c63-baed-5d17cf03aafe",
+      "evidenceFile": "knee-lower-leg.body.txt",
+      "startLine": 222,
+      "endLine": 229,
+      "selectedTextSha256": "e93bb7f04f36eb857c3980661abb4fc1e203294a245c253aa4f2a95d68e45a42",
+      "requiresBreathingContext": false,
+      "expectedAction": {
+        "id": "action-fibularis-tertius-eversion",
+        "muscle": "fibularis-tertius",
+        "joint": "subtalar-joint",
+        "movement": "foot-eversion",
+        "role": "secondary",
+        "contractionType": "concentric",
+        "description": "Assists foot eversion through the fifth metatarsal attachment."
+      },
+      "relationshipId": "relationship-enrichment-muscle-action-action-fibularis-tertius-eversion-belongs-to-system-anatomy-concept-muscular-system",
+      "sourcePointerIds": [
+        "citation-source-ref-muscle-action-action-fibularis-tertius-eversion-muscle-action-action-fibularis-tertius-eversion-applied-human-anatomy",
+        "citation-source-ref-muscle-action-action-fibularis-tertius-eversion-relationship-relationship-enrichment-muscle-action-action-fibularis-tertius-eversion-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy"
+      ],
+      "sourcePointerFactSlugs": [
+        "muscle_action:action-fibularis-tertius-eversion",
+        "relationship:relationship-enrichment-muscle-action-action-fibularis-tertius-eversion-belongs-to-system-anatomy-concept-muscular-system"
+      ],
+      "legacyGroupCitationIds": [],
+      "citationId": "citation-reviewed-action-fibularis-tertius-eversion",
+      "reviewNote": "Chapter 7, Fibularis Tertius, Insertion(s), Action(s), and the connected same-muscle tendon passage. Named eversion and the dorsal fifth-metatarsal-base attachment support the unchanged limited description; no quantitative leverage, exclusive tendon function or subtalar-specific mechanics is inferred. Independently compared as an exact educational description; no clinical, other-fact or whole-content acceptance follows."
+    }
+  ],
+  "baselineAnswerCorrectnessExceptions": {
+    "state": "EXACT_THREE_BASELINE_ANSWER_CORRECTNESS_EXCEPTIONS",
+    "baselineHead": "b5d061e788596f2a9cdaea831d8e39544b9572b3",
+    "baselineProjectionSha256": "898a23316a86edcc9161c73d4a164d98b553749d8b2a93428099b2c78cc244bc",
+    "evidence": {
+      "source": "Temple Hands-on Anatomy 2024, Chapter 5, Ribs, palpation paragraph",
+      "file": "spine-thorax-abdomen.body.txt",
+      "line": 145,
+      "selectedTextSha256": "740c0a952c689b47dec4d3bf7698d4dc0db5213a2bb86f6cdc5fb755bd574fcb",
+      "wholeTextSha256": "ea3afe89f88849a736c867011dc6ebd2fa2efb6259b1167bf57a8916ffecf944",
+      "url": "https://temple.manifoldapp.org/read/hands-on-anatomy-c6538f97-bc62-44ae-96ff-0f1f97d6c977/section/8ff57319-f921-4deb-b896-585474a87763",
+      "license": "CC BY 4.0 unless otherwise noted",
+      "sourceProseOrFiguresImported": false
+    },
+    "invalidPair": {
+      "movement": "rib-elevation",
+      "joint": "cervical-spine"
+    },
+    "corrections": [
+      {
+        "promptId": "muscle_action:muscle-posterior-scalene",
+        "answer": "Rib Elevation at Cervical Spine",
+        "answerSha256": "5131b6f58f25fce26646efd88972e9f9adf6fb5be73a94479a4df808ab9ea2d2"
+      },
+      {
+        "promptId": "muscle_action:muscle-scalenes",
+        "answer": "Rib Elevation at Cervical Spine",
+        "answerSha256": "5131b6f58f25fce26646efd88972e9f9adf6fb5be73a94479a4df808ab9ea2d2"
+      },
+      {
+        "promptId": "muscle_action:muscle-scalenes",
+        "answer": "Cervical Lateral Flexion at Cervical Spine; Rib Elevation at Cervical Spine",
+        "answerSha256": "80f6c32e33adabf59bdbfc42a9880a5c2569bf64edce415ed680a9ae6ec4a986"
+      }
+    ],
+    "previouslyAcceptedAnswersObserved": 686,
+    "preservedCorrectAnswersRequired": 683,
+    "incorrectOccurrencesRequiredRejected": 3,
+    "anyOtherLossPermitted": false,
+    "sourceIdsOrTaxonomyChanged": false,
+    "published": false,
+    "rationale": "Rib elevation is not movement at a cervical-spine joint. The retained Temple Ribs paragraph identifies posterior articulation with thoracic vertebrae. Existing seed taxonomy stays; only the invalid labels and label composites containing that pair are rejected."
+  }
+}

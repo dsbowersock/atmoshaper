@@ -1,4 +1,5 @@
 import { isEquivalentAnatomyNameAlias } from "./anatomy-name-aliases.js"
+import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "./anatomy-temple-action-provenance.js"
 import {
   ANATOMY_FOUNDATION_SEED,
   searchAnatomyFoundation,
@@ -979,11 +980,43 @@ function originInsertionPromptForCard(card: AnatomyStudyCard, context: BuildCont
   )
 }
 
+// These exact reviews cover authored descriptions; their existing joint/movement
+// metadata remains a compatibility field and cannot generate new answer labels.
+const DESCRIPTION_ONLY_ACTION_IDS = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(binding => binding.id))
+
+/**
+ * Keep description-only reviews out of label grading, and reject the known rib
+ * elevation/cervical-spine target on older facts too. The source-evidence ledger
+ * pins the three former answers removed by that correction; taxonomy IDs stay.
+ */
+function canOfferActionLabel(action: MuscleAction) {
+  return !DESCRIPTION_ONLY_ACTION_IDS.has(action.id)
+    && !(action.movement === "rib-elevation" && action.joint === "cervical-spine")
+}
+
 function actionLabel(action: MuscleAction, context: BuildContext) {
   const movement = context.seed.jointMovements.find((item) => item.slug === action.movement)?.movementName ?? action.movement
   const joint = context.seed.joints.find((item) => item.slug === action.joint)?.name ?? action.joint
 
   return `${movement} at ${joint}`
+}
+
+/**
+ * Preserve the two composite answers offered by b5 before Temple added external
+ * oblique flexion. Both original facts must still pass the current exact public
+ * citation/source filter; a pending or mismatched fact cannot supply an alias.
+ * This helper alone owns those composites, so label filtering cannot bypass its
+ * unchanged-description check by recreating the same pair in the generic path.
+ */
+function previousExternalObliqueAnswers(publicActions: MuscleAction[], context: BuildContext) {
+  const previous = publicActions.filter(action => action.muscle === "external-oblique"
+    && action.sourceRef === "openstax-anatomy-physiology"
+    && ((action.id === "action-external-oblique-rotation" && action.description === "Contributes to trunk rotation.")
+      || (action.id === "action-external-oblique-lateral-flexion" && action.description === "Assists trunk lateral flexion.")))
+  return previous.length === 2 ? [
+    combinedAnswer(previous.map(action => action.description)),
+    combinedAnswer(previous.map(action => actionLabel(action, context))),
+  ] : []
 }
 
 function actionPromptForCard(card: AnatomyStudyCard, context: BuildContext) {
@@ -992,6 +1025,13 @@ function actionPromptForCard(card: AnatomyStudyCard, context: BuildContext) {
   const actions = context.seed.muscleActions.filter((action) => action.muscle === card.entitySlug)
   const publicActions = actions.filter((action) => factIsPublic(action.sourceRef, card, "action", [action.id], context))
   if (publicActions.length === 0) return null
+
+  // A generic composite must cover every public fact with supported labels;
+  // filtering first would invent new partial combinations. Declared historical
+  // composites retain their separate exact-cohort guard below.
+  const combinedLabel = publicActions.every(canOfferActionLabel)
+    ? combinedAnswer(publicActions.map(action => actionLabel(action, context)))
+    : ""
 
   const citations = reviewedReusableFactCitations(card, "action", publicActions.map((action) => action.id), context)
   const answer = combinedAnswer(publicActions.map((action) => action.description))
@@ -1005,10 +1045,13 @@ function actionPromptForCard(card: AnatomyStudyCard, context: BuildContext) {
       instruction: "Type the primary sourced action information for this muscle.",
     },
     [answerField("action", "Action", answer, [
-      combinedAnswer(publicActions.map((action) => actionLabel(action, context))),
+      combinedLabel,
       // Each reviewed action remains a correct primary answer when additional
       // sourced facts become eligible; only publicActions may supply aliases.
-      ...publicActions.flatMap((action) => [action.description, actionLabel(action, context)]),
+      ...publicActions.flatMap((action) => canOfferActionLabel(action)
+        ? [action.description, actionLabel(action, context)]
+        : [action.description]),
+      ...previousExternalObliqueAnswers(publicActions, context),
     ])],
     citations,
     context,

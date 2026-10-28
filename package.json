@@ -178,10 +178,13 @@
     "lint:thigh-action-citations": "eslint lib/anatomy-thigh-action-provenance.js lib/anatomy-foundation.ts scripts/audit-thigh-action-citations.mjs tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs",
     "audit:thigh-action-citations": "node scripts/audit-thigh-action-citations.mjs",
     "test:action-backlog-regression": "node --test tests/anatomy-action-backlog-citations.test.mjs",
-    "test:action-backlog-citations": "node --test tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs tests/anatomy-action-answer-compatibility.test.mjs",
+    "test:action-backlog-citations": "node --test tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs tests/anatomy-action-answer-compatibility.test.mjs tests/anatomy-temple-action-citations.test.mjs",
     "lint:action-backlog-citations": "eslint lib/anatomy-action-backlog-provenance.js lib/anatomy-foundation.ts scripts/audit-action-backlog-citations.mjs scripts/audit-thigh-action-citations.mjs scripts/verify-reviewed-anatomy-sources.mjs tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs lib/anatomy-study.ts tests/anatomy-action-answer-compatibility.test.mjs",
     "audit:action-backlog-citations": "node scripts/audit-action-backlog-citations.mjs",
-    "test:action-answer-compatibility": "node --test tests/anatomy-action-answer-compatibility.test.mjs"
+    "test:action-answer-compatibility": "node --test tests/anatomy-action-answer-compatibility.test.mjs",
+    "test:temple-action-citations": "node --test tests/anatomy-temple-action-citations.test.mjs",
+    "audit:temple-action-citations": "node scripts/audit-temple-action-citations.mjs",
+    "lint:temple-action-citations": "eslint lib/anatomy-temple-action-provenance.js lib/anatomy-foundation.ts lib/anatomy-study.ts lib/anatomy-seed/sources.ts scripts/audit-temple-action-citations.mjs scripts/audit-action-backlog-citations.mjs tests/anatomy-temple-action-citations.test.mjs tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-study.test.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
