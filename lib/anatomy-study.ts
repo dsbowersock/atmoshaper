@@ -1,5 +1,6 @@
 import { isEquivalentAnatomyNameAlias } from "./anatomy-name-aliases.js"
 import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "./anatomy-temple-action-provenance.js"
+import { REVIEWED_LATER_ACTION_BINDINGS } from "./anatomy-action-backlog-provenance.js"
 import {
   ANATOMY_FOUNDATION_SEED,
   searchAnatomyFoundation,
@@ -982,7 +983,7 @@ function originInsertionPromptForCard(card: AnatomyStudyCard, context: BuildCont
 
 // These exact reviews cover authored descriptions; their existing joint/movement
 // metadata remains a compatibility field and cannot generate new answer labels.
-const DESCRIPTION_ONLY_ACTION_IDS = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(binding => binding.id))
+const DESCRIPTION_ONLY_ACTION_IDS = new Set([...REVIEWED_TEMPLE_ACTION_BINDINGS, ...REVIEWED_LATER_ACTION_BINDINGS].map(binding => binding.id))
 
 /**
  * Keep description-only reviews out of label grading, and reject the known rib

@@ -1,3 +1,4 @@
+import { REVIEWED_LATER_ACTION_BINDINGS } from "../lib/anatomy-action-backlog-provenance.js"
 import assert from "node:assert/strict"
 import fs from "node:fs"
 import { describe, it } from "node:test"
@@ -115,13 +116,13 @@ describe("Six separately reviewed Temple action descriptions", () => {
       } finally { Object.assign(citation, original) }
     })
   }
-  it("retains the historical 40 rows and approves only these six successors", () => {
+  it("retains the historical 40 rows and checks the six Temple plus one later successor", () => {
     const historical = JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/muscle-action-backlog-integration-20261025.json", import.meta.url)))
     assert.equal(historical.bindings.length, 47)
     assert.equal(historical.remainingUnapproved.length, 40)
-    const selected = new Set(bindings.map(row => row.id))
+    const selected = new Set([...bindings, ...REVIEWED_LATER_ACTION_BINDINGS].map(row => row.id))
     const remaining = historical.remainingUnapproved.filter(row => !selected.has(row.actionId))
-    assert.equal(remaining.length, 34)
+    assert.equal(remaining.length, 33)
     for (const row of remaining) {
       const action = seed.muscleActions.find(candidate => candidate.id === row.actionId)
       assert.equal(action.description, resolveHeldActionDescription(row))

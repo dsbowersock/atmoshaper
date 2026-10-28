@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "state": "ONE_EXACT_QL_EDUCATIONAL_DESCRIPTION_INDEPENDENTLY_SUPPORTED",
+  "baselineHead": "9c4507bdf56f51b73fb13debbb9d30b3161ae3bc",
+  "sourceIntakeFile": "quadratus-lumborum-grzonkowska-reference-intake-20261028.json",
+  "sourceIntakeSha256": "8aea22b60078f1025fa400de9b8d67a2c86a6b7d0aa85438213cac4b4db118ff",
+  "sourceClaimReviewSha256": "2c46a419c7740d68889d498b6fe5edb9fdbe33da024f7d2070dbc2f6338d3456",
+  "publication": {
+    "doi": "10.1007/s00276-017-1901-4",
+    "issueYear": 2018,
+    "onlineDate": "2017-07-29",
+    "license": "CC BY 4.0",
+    "component": "narrative teaching only"
+  },
+  "binding": {
+    "id": "action-quadratus-lumborum-stabilization",
+    "muscle": "quadratus-lumborum",
+    "description": "Helps stabilize the twelfth rib, pelvis, and lumbar spine.",
+    "descriptionSha256": "a202fb50f6570eff6e956e2a705f145deb78873813887df02d6080b58a08b7d0",
+    "originalSourceRef": "applied-human-anatomy",
+    "sourceRef": "grzonkowska-quadratus-lumborum-2018",
+    "sourceLocator": "https://link.springer.com/article/10.1007/s00276-017-1901-4",
+    "expectedAction": {
+      "id": "action-quadratus-lumborum-stabilization",
+      "muscle": "quadratus-lumborum",
+      "joint": "lumbar-spine",
+      "movement": "lumbar-stabilization",
+      "role": "stabilizer",
+      "contractionType": "isometric",
+      "description": "Helps stabilize the twelfth rib, pelvis, and lumbar spine."
+    },
+    "relationshipId": "relationship-enrichment-muscle-action-action-quadratus-lumborum-stabilization-belongs-to-system-anatomy-concept-muscular-system",
+    "sourcePointerIds": [
+      "citation-source-ref-muscle-action-action-quadratus-lumborum-stabilization-muscle-action-action-quadratus-lumborum-stabilization-applied-human-anatomy",
+      "citation-source-ref-muscle-action-action-quadratus-lumborum-stabilization-relationship-relationship-enrichment-muscle-action-action-quadratus-lumborum-stabilization-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy"
+    ],
+    "sourcePointerFactSlugs": [
+      "muscle_action:action-quadratus-lumborum-stabilization",
+      "relationship:relationship-enrichment-muscle-action-action-quadratus-lumborum-stabilization-belongs-to-system-anatomy-concept-muscular-system"
+    ],
+    "legacyGroupCitationIds": [],
+    "citationId": "citation-ql-stabilization-grzonkowska-2018-pending",
+    "citationSlug": "ql-stabilization-grzonkowska-2018-pending",
+    "answerScope": "description_only",
+    "reviewNote": "Exact description only. Ordinary anatomical teaching synthesis across Grzonkowska et al., Introduction paragraph 2 (lumbar and cooperative gait-pelvic support; PDF physical page 1) and Discussion rib-XII paragraph (physical page 5). Functional background is separate from fetal morphometry; no adult force or clinical outcome is claimed. Does not review joint, movement, role or contraction metadata, the full summary or media. Stable citation ID/slug retain their historical pending suffix."
+  },
+  "historical": {
+    "originalReviewedActions": 47,
+    "originalRemainder": 40,
+    "templeReviewedSuccessors": 6,
+    "laterReviewedSuccessors": 1,
+    "currentHeldActions": 33,
+    "datedEvidenceModified": false
+  },
+  "scope": {
+    "descriptionOnly": true,
+    "taxonomyOrContractionReviewed": false,
+    "allPriorCorrectAnswersMustRemain": true,
+    "newPartialLabelCompositesAllowed": false,
+    "summaryAdmission": false,
+    "sourceTextOrMediaBundled": false,
+    "clinicalAcceptance": false,
+    "wholeMigrationComplete": false,
+    "published": false
+  }
+}

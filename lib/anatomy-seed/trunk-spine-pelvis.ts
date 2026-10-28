@@ -1123,9 +1123,9 @@ export const TRUNK_SPINE_PELVIS_SECTION: AnatomySeedSection = {
       factSlug: "action-quadratus-lumborum-stabilization",
       sourceRef: "grzonkowska-quadratus-lumborum-2018",
       sourceLocator: "https://link.springer.com/article/10.1007/s00276-017-1901-4",
-      // The record names the full existing target while disclosing partial support.
-      citationNote: "Introduction paragraph 2 (PDF physical page 1) describes lumbar stabilization and QL/gluteus-medius pelvic support during gait weight transfer; the Discussion rib-XII paragraph (physical page 5) explicitly adds rib stabilization. These are background teaching statements, not outcomes of the fetal growth measurements. This metadata intake records the full set of locators without executing an exact-action binding review. The source pointer and quiz eligibility remain unchanged; this citation stays pending.",
-      reviewStatus: "needs_review",
+      // Exact description review leaves taxonomy, summary and media scope separate.
+      citationNote: "Exact description only. Ordinary anatomical teaching synthesis across Grzonkowska et al., Introduction paragraph 2 (lumbar and cooperative gait-pelvic support; PDF physical page 1) and Discussion rib-XII paragraph (physical page 5). Functional background is separate from fetal morphometry; no adult force or clinical outcome is claimed. Does not review joint, movement, role or contraction metadata, the full summary or media. Stable citation ID/slug retain their historical pending suffix.",
+      reviewStatus: "reviewed",
     },
     { id: "citation-trunk-spine-pelvis-pack-needs-review", slug: "trunk-spine-pelvis-pack-needs-review", entityType: "region", entitySlug: "trunk-spine-pelvis", factType: "section_pack", sourceRef: REVIEW_SOURCE, citationNote: "Trunk, spine, and pelvis starter facts continue to be deepened by reviewed section packs.", reviewStatus: "needs_review" },
     ...TRUNK_REVIEWED_MUSCLE_CITATIONS,

@@ -2338,14 +2338,16 @@ describe("Anatomy data foundation", () => {
     assert.equal(legacyActionIds.size, 28)
     const pendingLegacyActions = ANATOMY_FOUNDATION_SEED.citations.filter(citation => citation.reviewStatus === "needs_review" && legacyActionIds.has(citation.id))
     assert.deepEqual(new Set(pendingLegacyActions.map(citation => citation.id)), legacyActionIds)
-    // Keep the new partial-support intake separate from the original pending inventory.
+    // The later exact description review retains its historical pending-suffixed identity.
     const qlIntake = ANATOMY_FOUNDATION_SEED.citations.filter(citation => citation.id === "citation-ql-stabilization-grzonkowska-2018-pending")
     assert.equal(qlIntake.length, 1)
     assert.equal(qlIntake[0].factType, "action")
     assert.equal(qlIntake[0].factSlug, "action-quadratus-lumborum-stabilization")
-    assert.equal(qlIntake[0].reviewStatus, "needs_review")
-    assert.notEqual(qlIntake[0].sourceRef, ANATOMY_FOUNDATION_SEED.muscleActions.find(action => action.id === qlIntake[0].factSlug).sourceRef)
-    assert.equal(coverage.needsReviewCitationCount - pendingLegacyActions.length - qlIntake.length, 30)
+    assert.equal(qlIntake[0].reviewStatus, "reviewed")
+    assert.equal(qlIntake[0].slug, "ql-stabilization-grzonkowska-2018-pending")
+    assert.equal(qlIntake[0].sourceRef, "grzonkowska-quadratus-lumborum-2018")
+    assert.equal(qlIntake[0].sourceRef, ANATOMY_FOUNDATION_SEED.muscleActions.find(action => action.id === qlIntake[0].factSlug).sourceRef)
+    assert.equal(coverage.needsReviewCitationCount - pendingLegacyActions.length, 30)
 
     for (const [entityType, entitySlug] of [
       ["bone", "scapula"],
