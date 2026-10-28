@@ -219,10 +219,7 @@ export async function installSyntheticGenerativeMedia(page, options) {
   await context.route("**/*", routeHandler)
   // WebSockets use a different Playwright interception API from HTTP routes.
   await context.routeWebSocket("**/*", (socket) => {
-    const url = new URL(socket.url())
-    const expected = new URL(catalog.appOrigin)
-    if (!disposed && url.protocol === "ws:" && url.hostname === expected.hostname && url.port === expected.port
-      && !url.username && !url.password) return void socket.connectToServer()
+    // Even same-origin sockets violate synthetic isolation; never connect them.
     if (disposed) counters.retiredWebsocketClose += 1
     else counters.websocketBlocked += 1
     void socket.close()
