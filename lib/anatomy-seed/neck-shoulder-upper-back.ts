@@ -9,9 +9,15 @@ const APPLIED_HUMAN_ANATOMY_LOCATOR = "https://open.umn.edu/opentextbooks/textbo
 
 type CitationSeedRows = NonNullable<AnatomySeedSection["citations"]>
 
+// Keep supplemental factual bibliography distinct from the retained book pointer
+// and safe-source eligibility. These notes import no article expression or media.
+const OCI_ROTATION_REFERENCE_NOTE = "Site-authored OCI rotation description/summary; Applied Human Anatomy retains the existing baseline source pointer. Its catalogue locator is historical regional context, not a precise passage locator for these qualifiers. Precise supplemental factual bibliography: Vigo et al. (2020), Immersive Surgical Anatomy of the Craniocervical Junction, Table 2 OCI row, DOI 10.7759/cureus.10364, https://pmc.ncbi.nlm.nih.gov/articles/PMC7549867/ (inspected Creative Commons Attribution notice; version not stated); Su et al. (2022), Pivotal role of obliquus capitis inferior in torticaput revealed by single-photon emission computed tomography, Abstract, DOI 10.1007/s00702-022-02469-6, https://pubmed.ncbi.nlm.nih.gov/35129677/ (exclusive publisher licence; reference only); Hölzl et al. (2021; online 2020), Multimodal control of neck muscles for vestibular mediated head oscillation damping during walking: a pilot study, simulation Methods, yaw Results and Discussion, DOI 10.1007/s00405-020-06488-5, https://link.springer.com/article/10.1007/s00405-020-06488-5 (CC BY 4.0 with component caveats). Individual atlas-axis/same-side rotation and qualitative importance are ordinary teaching synthesis; clinical activity ranks and walking-model torques are not universal healthy force ranks. Supplement licences do not derive from the book. Bibliography only: no source prose/media, source admission, held activation, taxonomy or clinical approval."
+const LONGUS_COLLI_SUMMARY_REFERENCE_NOTE = "Site-authored longus-colli summary; Applied Human Anatomy retains the existing baseline source pointer. Its catalogue locator is historical regional context, not a precise passage locator for these qualifiers. Precise supplemental factual bibliography: UAMS, Muscles of the Head and Neck, named longus-colli Origin/Insertion/Action row, https://medicine.uams.edu/neuroscience/education/medical-school-courses/human-structure-module/anatomy-tables/muscle-tables/muscles-of-the-head-and-neck/ (reference only; no reusable licence established); Tran et al. (2022), Cross-sectional area of the longus colli and cervical degenerative spondylolisthesis: A retrospective review evaluating this anatomic consideration, Abstract, Methods and Discussion, https://pmc.ncbi.nlm.nih.gov/articles/PMC9910131/ (CC BY-NC-SA 4.0; reference only); Karacif, Karacif and Cagliyan Turk (2026), Comparison of Neck Muscle Thickness via Ultrasound in Patients with Ankylosing Spondylitis and Healthy Controls, Discussion and limitations, DOI 10.5152/ArchRheumatol.2026.25253, https://pmc.ncbi.nlm.nih.gov/articles/PMC13401114/ (CC BY 4.0). Named lateral bending and stability evidence support the modest assistive/postural reading as qualified teaching synthesis. The cross-sectional disease-specific findings do not establish causal healthy mechanics or precise small-amplitude control; that stronger interpretation remains unclosed and is not required by the offered wording. Supplement licences do not derive from the book. Bibliography only: no source prose/media, source admission, held activation, taxonomy or clinical approval."
+
 const NECK_REVIEWED_MUSCLE_CITATION_SPECS = [
   {
     slug: "longus-colli",
+    summaryCitationNote: LONGUS_COLLI_SUMMARY_REFERENCE_NOTE,
     termFact: "term-longus-colli-preferred-fipat",
     identifierFact: "external-longus-colli-uberon",
     identifierLocator: "UBERON:0001121",
@@ -108,6 +114,8 @@ const NECK_REVIEWED_MUSCLE_CITATION_SPECS = [
   },
   {
     slug: "obliquus-capitis-inferior",
+    summaryCitationNote: OCI_ROTATION_REFERENCE_NOTE,
+    actionCitationNote: OCI_ROTATION_REFERENCE_NOTE,
     termFact: "term-oci-preferred-fipat",
     identifierFact: "external-obliquus-capitis-inferior-fma",
     identifierLocator: "FMA:32528",
@@ -154,7 +162,7 @@ const NECK_REVIEWED_MUSCLE_CITATIONS: CitationSeedRows = NECK_REVIEWED_MUSCLE_CI
     factSlug: "clinical-summary",
     sourceRef: APPLIED_HUMAN_ANATOMY_SOURCE,
     sourceLocator: APPLIED_HUMAN_ANATOMY_LOCATOR,
-    citationNote: "MassageLab-authored summary verified against open-reuse applied anatomy material.",
+    citationNote: "summaryCitationNote" in spec ? spec.summaryCitationNote : "MassageLab-authored summary verified against open-reuse applied anatomy material.",
     reviewStatus: "reviewed",
   },
   {
@@ -190,7 +198,7 @@ const NECK_REVIEWED_MUSCLE_CITATIONS: CitationSeedRows = NECK_REVIEWED_MUSCLE_CI
     factSlug: spec.actionFact,
     sourceRef: APPLIED_HUMAN_ANATOMY_SOURCE,
     sourceLocator: APPLIED_HUMAN_ANATOMY_LOCATOR,
-    citationNote: "Action fact verified against open-reuse applied anatomy material.",
+    citationNote: "actionCitationNote" in spec ? spec.actionCitationNote : "Action fact verified against open-reuse applied anatomy material.",
     reviewStatus: "reviewed",
   },
   {
