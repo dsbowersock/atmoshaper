@@ -39,3 +39,24 @@ updates have not been exercised against a running application in this local
 copy-only check. Shared publication, hosted CI/review, merge and public release
 remain separate decisions; this document does not claim final migration or
 deployed-product acceptance.
+
+## Review follow-up: remaining dashboard selectors
+
+The initial expected-copy update missed the anonymous Notes dashboard assertion
+in local-first.spec.ts. Codex identified it in review: the removed
+Therapist/Team-Practice wording would prevent that test from reaching its
+direct-route and clinical-network checks. A same-pattern search found the
+obsolete Notes readiness locator in the explicitly gated migration-parity spec
+as well. The earlier source review did not catch these two consumers.
+
+Both selectors now require the actual “Documentation access required” copy.
+Navigation, lock/denial and network assertions remain unchanged. The parity
+change affects readiness only: screenshot assertions and existing baselines are
+preserved, and no parity capture or baseline update is claimed. Any intentional
+copy difference still needs its proper visual disposition when that campaign
+runs. Independent source review confirms the owner/scope boundary.
+
+All three Notes entitlement checks, scoped lint for the two affected browser
+specs and whitespace checks pass. No app/runtime source changes or new local
+browser campaign were needed; the new PR head still requires its own CI and
+applicable hosted review.
