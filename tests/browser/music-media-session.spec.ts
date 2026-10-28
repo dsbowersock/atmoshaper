@@ -1983,6 +1983,21 @@ test.describe("synthetic native-delivery acceptance", () => {
         pieceIds: ["observable-streams"],
       })
       try {
+        // Playwright installs WebSocket routing in new documents; the existing
+        // about:blank realm still has its native constructor. Fulfill one inert
+        // same-origin document so this control never visits the app server.
+        const controlDocumentUrl = new URL("/__browser_qa_synthetic_media__/rejection-control.html", media.catalog.appOrigin).href
+        const controlDocumentHandler = (route: Route) => route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: "<!doctype html><title>Synthetic media rejection control</title>",
+        })
+        await page.route(controlDocumentUrl, controlDocumentHandler)
+        try {
+          await page.goto(controlDocumentUrl, { waitUntil: "domcontentloaded" })
+        } finally {
+          await page.unroute(controlDocumentUrl, controlDocumentHandler)
+        }
         const rejectedFetch = () => page.evaluate(async () => {
           try {
             await fetch("https://media.massagelab.app/atmosphere/unreviewed-piece/sample-index.json")
