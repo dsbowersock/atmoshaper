@@ -34,7 +34,7 @@ const helpTopics = [
   {
     id: "premium-access",
     title: "Premium backgrounds and subscriptions",
-    body: "Subscriptions can unlock supported premium backgrounds. Free background credits and individual background purchases are not available yet.",
+    body: "Verified accounts receive two initial free background credits. Use the background picker to unlock eligible backgrounds with a credit. Subscriptions can also unlock supported premium backgrounds; individual purchases are available when checkout is enabled.",
     links: [{ href: "/pricing", label: "View Pricing" }, { href: "/account?tab=membership", label: "Account and Billing" }],
   },
   {
