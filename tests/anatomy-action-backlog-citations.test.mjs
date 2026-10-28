@@ -1,3 +1,4 @@
+import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "../lib/anatomy-temple-action-provenance.js"
 import { auditActionBacklogEvidence } from "../scripts/audit-action-backlog-citations.mjs"
 import assert from "node:assert/strict"
 import fs from "node:fs"
@@ -43,15 +44,19 @@ describe("Complete supported action-citation batch", () => {
       assert.equal(checkFlashcardAnswer(prompt, {action:prompt.answerFields[0].answer}).correct, true)
     }
   })
-  it("keeps all other 40 descriptions and source refs unchanged and unapproved", () => {
-    const remaining = manifest().remainingUnapproved
-    assert.equal(remaining.length, 40)
+  it("preserves the historical 40-row remainder and keeps the other 34 rows unapproved", () => {
+    const historical = manifest().remainingUnapproved
+    assert.equal(historical.length, 40)
+    const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
+    const remaining = historical.filter(row => !successors.has(row.actionId))
+    assert.equal(remaining.length, 34)
     for (const pending of remaining) {
       const action = seed.muscleActions.find(row => row.id === pending.actionId)
       assert.equal(action.description, pending.description)
       assert.equal(action.sourceRef, pending.currentSourceRef)
       assert.equal(seed.citations.some(citation => citation.factType === "action" && citation.factSlug === pending.actionId && citation.reviewStatus === "reviewed"), false)
-      assert.equal(prompts().some(prompt => prompt.answerFields[0].answer.includes(pending.description)), false)
+      // Identical wording on another muscle cannot approve this held action ID.
+      assert.equal(prompts().some(prompt => prompt.entitySlug === pending.muscle && prompt.answerFields[0].answer.includes(pending.description)), false)
     }
   })
   it("uses the qualified-knee book evidence as primary attribution", () => {

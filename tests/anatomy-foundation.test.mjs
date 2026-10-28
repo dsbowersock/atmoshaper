@@ -1,3 +1,4 @@
+import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "../lib/anatomy-temple-action-provenance.js"
 import { REVIEWED_ACTION_BACKLOG_BINDINGS } from "../lib/anatomy-action-backlog-provenance.js"
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
@@ -2331,10 +2332,10 @@ describe("Anatomy data foundation", () => {
 
     assert.deepEqual(bioportalIdentifiers, [])
     assert.deepEqual(bioportalCitations, [])
-    // Preserve the original pending inventory separately from the 27 retained
+    // Preserve the original pending inventory separately from the 28 retained
     // action-group pointers, which cannot approve exact action IDs.
-    const legacyActionIds = new Set([...(["frontalis", "rectus-femoris", "lumbar-erector-spinae", "lumbar-multifidus", "semitendinosus", "semimembranosus", "gracilis", "sartorius"].map(slug => `citation-${slug}-action`)), ...REVIEWED_ACTION_BACKLOG_BINDINGS.flatMap(binding => binding.legacyGroupCitationIds)])
-    assert.equal(legacyActionIds.size, 27)
+    const legacyActionIds = new Set([...(["frontalis", "rectus-femoris", "lumbar-erector-spinae", "lumbar-multifidus", "semitendinosus", "semimembranosus", "gracilis", "sartorius"].map(slug => `citation-${slug}-action`)), ...REVIEWED_ACTION_BACKLOG_BINDINGS.flatMap(binding => binding.legacyGroupCitationIds), ...REVIEWED_TEMPLE_ACTION_BINDINGS.flatMap(binding => binding.legacyGroupCitationIds)])
+    assert.equal(legacyActionIds.size, 28)
     const pendingLegacyActions = ANATOMY_FOUNDATION_SEED.citations.filter(citation => citation.reviewStatus === "needs_review" && legacyActionIds.has(citation.id))
     assert.deepEqual(new Set(pendingLegacyActions.map(citation => citation.id)), legacyActionIds)
     assert.equal(coverage.needsReviewCitationCount - pendingLegacyActions.length, 30)

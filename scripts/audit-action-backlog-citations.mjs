@@ -6,6 +6,8 @@ import { createHash } from "node:crypto"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { REVIEWED_ACTION_BACKLOG_BINDINGS, isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
 
+import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "../lib/anatomy-temple-action-provenance.js"
+
 const sha = bytes => createHash("sha256").update(bytes).digest("hex")
 const decode = text => text.replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16))).replace(/&#([0-9]+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&(lt|gt|quot|apos|amp);/g, (_, n) => ({lt:"<", gt:">", quot:'"', apos:"'", amp:"&"}[n]))
 const plain = xml => decode(xml.replace(/<[^>]*>/g, "")).replace(/\s+/g, " ").trim()
@@ -119,16 +121,30 @@ export function auditActionBacklogEvidence(manifest, review, seed, readArtifact)
     assert.ok(relation && relation.sourceEntityType === "muscle_action" && relation.sourceEntitySlug === binding.id && relation.targetEntitySlug === "muscular-system" && relation.sourceRef === binding.sourceRef)
     for (const id of binding.legacyGroupCitationIds) assert.equal(seed.citations.find(row => row.id === id).reviewStatus, "needs_review")
   }
+  // The immutable 40-row remainder belongs to the October 25 review. Only the
+  // six separately reviewed Temple identities can supersede those dispositions.
   for (const pending of manifest.remainingUnapproved) {
     const action = seed.muscleActions.find(row => row.id === pending.actionId)
-    assert.ok(action && action.sourceRef === pending.currentSourceRef)
+    assert.ok(action)
     assert.equal(sha(action.description), pending.descriptionSha256)
-    assert.equal(seed.citations.some(row => row.factType === "action" && row.factSlug === action.id && row.reviewStatus === "reviewed"), false)
+    const successor = REVIEWED_TEMPLE_ACTION_BINDINGS.find(row => row.id === pending.actionId)
+    if (successor) {
+      assert.equal(successor.descriptionSha256, pending.descriptionSha256)
+      assert.equal(successor.originalSourceRef, pending.currentSourceRef)
+      assert.equal(action.sourceRef, successor.sourceRef)
+      const exact = seed.citations.filter(row => row.id === successor.citationId)
+      assert.equal(exact.length, 1)
+      assert.ok(exact[0].entityType === "muscle" && exact[0].entitySlug === action.muscle && exact[0].factType === "action" && exact[0].factSlug === action.id && exact[0].sourceRef === successor.sourceRef && exact[0].sourceLocator === successor.sourceLocator && exact[0].citationNote === successor.reviewNote && exact[0].reviewStatus === "reviewed")
+    } else {
+      assert.equal(action.sourceRef, pending.currentSourceRef)
+      assert.equal(seed.citations.some(row => row.factType === "action" && row.factSlug === action.id && row.reviewStatus === "reviewed"), false)
+    }
   }
   const sourceMap = new Map(seed.sources.map(source => [source.slug, source]))
   const unbound = seed.muscleActions.filter(action => ["open_reuse", "commercial_licensed"].includes(sourceMap.get(action.sourceRef)?.usageScope) && !seed.citations.some(row => row.entityType === "muscle" && row.entitySlug === action.muscle && row.factType === "action" && row.factSlug === action.id && row.sourceRef === action.sourceRef && row.reviewStatus === "reviewed"))
-  assert.equal(unbound.length, 40)
-  return {state:"EXACT_47_ACTIONS_AND_RETAINED_EVIDENCE_VERIFIED", reviewedActions:47, selectedMuscles:32, primaryFigureFacts:20, primaryBookFacts:3, publisherArtifacts:18, derivedPageTextArtifacts:1, exactEvidenceRefs:Object.keys(review.resolvedEvidence).length, remainingUnboundReusableActions:unbound.length, remainingAffectedMuscles:new Set(unbound.map(action => action.muscle)).size, clinicalAcceptanceComplete:false, wholeMigrationComplete:false, automatedSemanticTruthClaim:false, networkRequests:0}
+  assert.equal(unbound.length, 34)
+  assert.equal(REVIEWED_TEMPLE_ACTION_BINDINGS.length, 6)
+  return {state:"EXACT_47_ACTIONS_AND_RETAINED_EVIDENCE_VERIFIED", reviewedActions:47, selectedMuscles:32, primaryFigureFacts:20, primaryBookFacts:3, publisherArtifacts:18, derivedPageTextArtifacts:1, exactEvidenceRefs:Object.keys(review.resolvedEvidence).length, historicalRemainingActions:40, separatelyReviewedSuccessorActions:6, remainingUnboundReusableActions:unbound.length, remainingAffectedMuscles:new Set(unbound.map(action => action.muscle)).size, clinicalAcceptanceComplete:false, wholeMigrationComplete:false, automatedSemanticTruthClaim:false, networkRequests:0}
 }
 
 /** Read only named public evidence under the three fixed retained roots; no fallback. */
