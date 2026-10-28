@@ -1,3 +1,4 @@
+import { isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
 import fs from "node:fs"
 import { verifyReviewedAnatomySourceEvidence } from "../scripts/verify-reviewed-anatomy-sources.mjs"
 import assert from "node:assert/strict"
@@ -23,10 +24,10 @@ describe("Pinned and precisely attributed A&P source", () => {
     const citations = ANATOMY_FOUNDATION_SEED.citations.filter(c => c.sourceRef === "openstax-anatomy-physiology")
     const summaries = citations.filter(c => c.factType === "clinical_summary")
     assert.equal(summaries.length, 53)
-    assert.equal(citations.length, 280)
+    assert.equal(citations.length, 430)
     for (const citation of citations) {
-      assert.ok(citation.sourceLocator.includes(`${OPENSTAX_AP_REVISION}/modules/`), citation.slug)
-      assert.match(citation.sourceLocator, /index\.cnxml#L[0-9]+-L[0-9]+/)
+      assert.ok(isReviewedActionFigureCitation(citation) || citation.sourceLocator.includes(`${OPENSTAX_AP_REVISION}/modules/`), citation.slug)
+      if (!isReviewedActionFigureCitation(citation)) assert.match(citation.sourceLocator, /index\.cnxml#L[0-9]+-L[0-9]+/)
       assert.equal(citation.reviewStatus, "reviewed")
     }
     assert.ok(citations.some(c => /broader search\/category label/.test(c.citationNote)))
@@ -37,7 +38,8 @@ describe("Pinned and precisely attributed A&P source", () => {
     for (const citation of ANATOMY_FOUNDATION_SEED.citations.filter(c => c.sourceRef === "openstax-anatomy-physiology")) {
       const href = new URL(citation.sourceLocator)
       assert.equal(href.href, citation.sourceLocator)
-      assert.match(href.hash, /^#L[0-9]+-L[0-9]+$/)
+      if (isReviewedActionFigureCitation(citation)) assert.equal(href.hash, "")
+      else assert.match(href.hash, /^#L[0-9]+-L[0-9]+$/)
     }
     const fascia = ANATOMY_FOUNDATION_SEED.citations.find(c => c.entitySlug === "dense-connective-tissue" && c.factType === "clinical_summary")
     assert.ok(fascia.citationNote.includes("19166469"))

@@ -172,7 +172,16 @@
     "lint:anatomy-attribution": "eslint lib/anatomy-foundation.ts lib/anatomy-study.ts components/anatomy/source-attribution.tsx app/education/flashcards/flashcard-runner.tsx app/anatomime/anatomime-game-client.tsx tests/anatomy-attribution.test.mjs tests/helpers/anatomy-attribution-component-loader.mjs lib/anatomy-seed/media-coverage-gap-batch.ts lib/anatomy-seed/media-bodyparts3d-muscle-batch-2.ts",
     "test:soap-session-date": "node --test --test-reporter=tap tests/soap-session-date.test.mjs",
     "lint:soap-session-date": "eslint app/notes/soap/components/identifying-info.tsx app/notes/professional-record-vault-provider.tsx app/notes/journal/client-page.tsx app/notes/rom/client-page.tsx app/notes/soap/client-page.tsx tests/soap-session-date.test.mjs tests/fixtures/soap-session-date-harness.mjs",
-    "test:secondary-clock-inventory": "node --test --test-name-pattern=\"stylesheet coverage inventories all\" tests/repository-cleanup-audit.test.mjs"
+    "test:secondary-clock-inventory": "node --test --test-name-pattern=\"stylesheet coverage inventories all\" tests/repository-cleanup-audit.test.mjs",
+    "test:thigh-action-regression": "node --test tests/anatomy-thigh-action-citations.test.mjs",
+    "test:thigh-action-citations": "node --test tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs",
+    "lint:thigh-action-citations": "eslint lib/anatomy-thigh-action-provenance.js lib/anatomy-foundation.ts scripts/audit-thigh-action-citations.mjs tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs",
+    "audit:thigh-action-citations": "node scripts/audit-thigh-action-citations.mjs",
+    "test:action-backlog-regression": "node --test tests/anatomy-action-backlog-citations.test.mjs",
+    "test:action-backlog-citations": "node --test tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-muscle-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs tests/anatomy-name-equivalence.test.mjs tests/anatomy-study-region-answer.test.mjs tests/anatomy-study.test.mjs tests/flashcard-community.test.mjs tests/anatomime-shared.test.mjs tests/anatomy-source-provenance.test.mjs tests/anatomy-action-answer-compatibility.test.mjs",
+    "lint:action-backlog-citations": "eslint lib/anatomy-action-backlog-provenance.js lib/anatomy-foundation.ts scripts/audit-action-backlog-citations.mjs scripts/audit-thigh-action-citations.mjs scripts/verify-reviewed-anatomy-sources.mjs tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-thigh-action-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-reviewed-sources.test.mjs lib/anatomy-study.ts tests/anatomy-action-answer-compatibility.test.mjs",
+    "audit:action-backlog-citations": "node scripts/audit-action-backlog-citations.mjs",
+    "test:action-answer-compatibility": "node --test tests/anatomy-action-answer-compatibility.test.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

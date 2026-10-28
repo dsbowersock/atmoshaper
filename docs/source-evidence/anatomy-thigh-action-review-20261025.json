@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "state": "SIX_EXISTING_THIGH_ACTIONS_EXACTLY_COMPARED",
+  "sourceRevision": "b0058a743bdd2cc08196abaaa7d5469970c0d80c",
+  "sourceRef": "openstax-anatomy-physiology",
+  "clinicalAcceptanceComplete": false,
+  "wholeMigrationComplete": false,
+  "publisherArtifacts": [
+    {
+      "file": "m46482.cnxml",
+      "bytes": 40696,
+      "sha256": "e1f977e7eb556d989fd0fb54928800b8687389133780f9fe25481e9f257a6c11",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence"
+    },
+    {
+      "file": "historical-collection.xml",
+      "bytes": 14805,
+      "sha256": "5a564a7e28abffaabc2563be429b044fe71406782a8486ca360a450108ec81bf",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence"
+    },
+    {
+      "file": "historical-license.txt",
+      "bytes": 19104,
+      "sha256": "0ff174546cbe3dd1287da231f9796618ac2f6e6595b2d11f567b2c9790f64868",
+      "retainedRoot": "../anatomy-muscle-action-citations-v1/public-evidence"
+    }
+  ],
+  "publisherElements": [
+    {
+      "elementId": "fs-id2252429",
+      "kind": "para",
+      "file": "m46482.cnxml",
+      "startLine": 31,
+      "endLine": 31,
+      "xmlSha256": "4de5e30cb1e0649be7f398c585f8096c4f1a457b97659021bef1a089e5ace27a",
+      "textSha256": "c932abdec5429900306195aaaf1d784b43370e42188bcaa1afdb470b8688e183",
+      "locator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L31-L31"
+    },
+    {
+      "elementId": "fs-id2591754",
+      "kind": "para",
+      "file": "m46482.cnxml",
+      "startLine": 34,
+      "endLine": 34,
+      "xmlSha256": "53886292138d2a22a39f5befbe4824ae6aab4c72b2592d8beb83ebcfb19e882c",
+      "textSha256": "48695dc5e3e73fb670a8374cb8051680edc2952d3fdba4712b3053493bba09f9",
+      "locator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34"
+    },
+    {
+      "elementId": "fs-id2012638",
+      "kind": "para",
+      "file": "m46482.cnxml",
+      "startLine": 34,
+      "endLine": 34,
+      "xmlSha256": "a65d5bdf996611043d45e94d9d889cd33bcbabf381963b9409f286be90e28041",
+      "textSha256": "0b5ffec0a5a802d35b347449397b865b48f83a7bbd46b29a36d7fb9e205907fd",
+      "locator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34"
+    },
+    {
+      "elementId": "fs-id2026297",
+      "kind": "media",
+      "file": "m46482.cnxml",
+      "startLine": 31,
+      "endLine": 33,
+      "xmlSha256": "95279280577814b21ab1cbd6aace289156a828ecdc5a3e14070e44973ab42b02",
+      "textSha256": "14ed3a28dc671a1d50add2c294900fedbc4baf728c9ddc12d85c9286678868ae",
+      "locator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L31-L33"
+    }
+  ],
+  "sourceDiscrepancy": {
+    "state": "PRESERVED_NOT_SILENTLY_REPAIRED",
+    "elementIds": [
+      "fs-id2252429",
+      "fs-id2026297"
+    ],
+    "description": "The prose states gracilis adduction; the table image description says it assists opening the thighs. The prose supports the existing adduction fact. The conflicting image description is not accepted as corroboration and no publisher text is changed."
+  },
+  "bindings": [
+    {
+      "id": "action-semitendinosus-hip-extension",
+      "muscle": "semitendinosus",
+      "description": "Assists hip extension.",
+      "descriptionSha256": "e259f453163439bd48064993f24a1cb2b4835cddd2f09b6f04b7e1db37023a4a",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34",
+      "reviewNote": "The text identifies semitendinosus within the thigh-extending posterior compartment; the named table description independently describes moving the thigh down and back. Exact passage review covers only this unchanged educational action description; other actions and clinical acceptance remain separate.",
+      "citationId": "citation-reviewed-action-semitendinosus-hip-extension"
+    },
+    {
+      "id": "action-semimembranosus-hip-extension",
+      "muscle": "semimembranosus",
+      "description": "Assists hip extension.",
+      "descriptionSha256": "e259f453163439bd48064993f24a1cb2b4835cddd2f09b6f04b7e1db37023a4a",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34",
+      "reviewNote": "The text identifies semimembranosus within the thigh-extending posterior compartment; the named table description independently describes moving the thigh down and back. Exact passage review covers only this unchanged educational action description; other actions and clinical acceptance remain separate.",
+      "citationId": "citation-reviewed-action-semimembranosus-hip-extension"
+    },
+    {
+      "id": "action-gracilis-hip-adduction",
+      "muscle": "gracilis",
+      "description": "Assists hip adduction.",
+      "descriptionSha256": "a3346bb60c57b2fefd79b6ee3d0aab9735b24970e0525a309e73722f7edf650c",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L31-L31",
+      "reviewNote": "The prose explicitly says gracilis adducts the thigh. The conflicting table image description is excluded as evidence for this action. Exact passage review covers only this unchanged educational action description; other actions and clinical acceptance remain separate.",
+      "citationId": "citation-reviewed-action-gracilis-hip-adduction"
+    },
+    {
+      "id": "action-sartorius-hip-flexion",
+      "muscle": "sartorius",
+      "description": "Assists hip flexion.",
+      "descriptionSha256": "ec725f9d11fa6436eaccad4ce90a32105e04e440dfebe68580c871a445cf75d5",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34",
+      "reviewNote": "The prose explicitly assigns hip flexion to sartorius. Exact passage review covers only this unchanged educational action description; other actions and clinical acceptance remain separate.",
+      "citationId": "citation-reviewed-action-sartorius-hip-flexion"
+    },
+    {
+      "id": "action-sartorius-knee-flexion",
+      "muscle": "sartorius",
+      "description": "Assists knee flexion.",
+      "descriptionSha256": "05b92fb1b790ff61c8e4d25f9d5a11d76836f77c49643b2a31bcf64f518c9047",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34",
+      "reviewNote": "The prose explicitly assigns knee flexion to sartorius. Exact passage review covers only this unchanged educational action description; other actions and clinical acceptance remain separate.",
+      "citationId": "citation-reviewed-action-sartorius-knee-flexion"
+    },
+    {
+      "id": "action-sartorius-hip-abduction",
+      "muscle": "sartorius",
+      "description": "Assists hip abduction.",
+      "descriptionSha256": "211971f529c50b937a367079dc6df60bdd913dee4b1680d49200634d0965b595",
+      "originalSourceRef": "applied-human-anatomy",
+      "sourceRef": "openstax-anatomy-physiology",
+      "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34",
+      "reviewNote": "The prose explicitly assigns hip abduction to sartorius. Exact passage review covers only this unchanged educational action description; other actions and clinical acceptance remain separate.",
+      "citationId": "citation-reviewed-action-sartorius-hip-abduction"
+    }
+  ],
+  "unresolved": [
+    {
+      "actionId": "action-biceps-femoris-knee-flexion",
+      "muscle": "biceps-femoris",
+      "existingDescription": "Flexes the knee as part of the lateral hamstring group.",
+      "descriptionSha256": "380331a1c22d614554fd91851d1bbc26b6a844d84e9fd0422dcf6eb63108456f",
+      "currentSourceRef": "applied-human-anatomy",
+      "evidenceSourceRef": "openstax-anatomy-physiology",
+      "status": "PARTIAL_QUALIFIER_UNRESOLVED",
+      "elementIds": [
+        "fs-id2012638"
+      ],
+      "sourceLocators": [
+        "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34"
+      ],
+      "comparison": "Knee flexion is explicit for biceps femoris; its lateral position within the hamstrings is not established by this retained passage.",
+      "laterExactEvidence": {
+        "id": "action-biceps-femoris-knee-flexion",
+        "citationId": "citation-reviewed-action-biceps-femoris-knee-flexion",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/formats/3154#page=165",
+        "descriptionSha256": "380331a1c22d614554fd91851d1bbc26b6a844d84e9fd0422dcf6eb63108456f",
+        "manifest": "muscle-action-backlog-integration-20261025.json"
+      }
+    },
+    {
+      "actionId": "action-biceps-femoris-hip-extension",
+      "muscle": "biceps-femoris",
+      "existingDescription": "Long head assists hip extension.",
+      "descriptionSha256": "70f1621af57de2bb32d1f6712866eec1b0d42b15d070e64ffc7672c6627b530e",
+      "currentSourceRef": "applied-human-anatomy",
+      "evidenceSourceRef": "openstax-anatomy-physiology",
+      "status": "PARTIAL_QUALIFIER_UNRESOLVED",
+      "elementIds": [
+        "fs-id2012638",
+        "fs-id2026297"
+      ],
+      "sourceLocators": [
+        "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34",
+        "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L31-L33"
+      ],
+      "comparison": "Thigh extension is stated for the posterior compartment and table description; the long-head-only qualification needs a separate precise passage."
+    },
+    {
+      "actionId": "action-semitendinosus-knee-flexion",
+      "muscle": "semitendinosus",
+      "existingDescription": "Flexes the knee as part of the medial hamstrings.",
+      "descriptionSha256": "9385e366a6c8b874506f3840d153763196bd84550097a28d65dcd506f83a3455",
+      "currentSourceRef": "applied-human-anatomy",
+      "evidenceSourceRef": "openstax-anatomy-physiology",
+      "status": "PARTIAL_QUALIFIER_UNRESOLVED",
+      "elementIds": [
+        "fs-id2012638"
+      ],
+      "sourceLocators": [
+        "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34"
+      ],
+      "comparison": "Knee flexion is explicit for semitendinosus; the medial hamstring qualifier is not established by this passage.",
+      "laterExactEvidence": {
+        "id": "action-semitendinosus-knee-flexion",
+        "citationId": "citation-reviewed-action-semitendinosus-knee-flexion",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/formats/3154#page=165",
+        "descriptionSha256": "9385e366a6c8b874506f3840d153763196bd84550097a28d65dcd506f83a3455",
+        "manifest": "muscle-action-backlog-integration-20261025.json"
+      }
+    },
+    {
+      "actionId": "action-semimembranosus-knee-flexion",
+      "muscle": "semimembranosus",
+      "existingDescription": "Flexes the knee as part of the medial hamstrings.",
+      "descriptionSha256": "9385e366a6c8b874506f3840d153763196bd84550097a28d65dcd506f83a3455",
+      "currentSourceRef": "applied-human-anatomy",
+      "evidenceSourceRef": "openstax-anatomy-physiology",
+      "status": "PARTIAL_QUALIFIER_UNRESOLVED",
+      "elementIds": [
+        "fs-id2012638"
+      ],
+      "sourceLocators": [
+        "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L34-L34"
+      ],
+      "comparison": "Knee flexion is explicit for semimembranosus; the medial hamstring qualifier is not established by this passage.",
+      "laterExactEvidence": {
+        "id": "action-semimembranosus-knee-flexion",
+        "citationId": "citation-reviewed-action-semimembranosus-knee-flexion",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/formats/3154#page=165",
+        "descriptionSha256": "9385e366a6c8b874506f3840d153763196bd84550097a28d65dcd506f83a3455",
+        "manifest": "muscle-action-backlog-integration-20261025.json"
+      }
+    },
+    {
+      "actionId": "action-gracilis-knee-flexion",
+      "muscle": "gracilis",
+      "existingDescription": "Assists knee flexion through its medial tibial attachment.",
+      "descriptionSha256": "9949ce29c801b289127ea233e83cbb040f3645422f349ee4bafac217515378a9",
+      "currentSourceRef": "applied-human-anatomy",
+      "evidenceSourceRef": "openstax-anatomy-physiology",
+      "status": "PARTIAL_QUALIFIER_UNRESOLVED",
+      "elementIds": [
+        "fs-id2252429"
+      ],
+      "sourceLocators": [
+        "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L31-L31"
+      ],
+      "comparison": "Knee flexion is explicit; the action description also specifies a medial tibial attachment that needs an additional precise source.",
+      "laterExactEvidence": {
+        "id": "action-gracilis-knee-flexion",
+        "citationId": "citation-reviewed-action-gracilis-knee-flexion",
+        "sourceRef": "openstax-anatomy-physiology",
+        "sourceLocator": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/media/1133_Thigh_Muscles_that_Moves_the_Femur_Tibia_and_Fibula.jpg",
+        "descriptionSha256": "9949ce29c801b289127ea233e83cbb040f3645422f349ee4bafac217515378a9",
+        "manifest": "muscle-action-backlog-integration-20261025.json"
+      }
+    }
+  ]
+}

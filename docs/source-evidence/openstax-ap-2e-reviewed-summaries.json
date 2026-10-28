@@ -1512,11 +1512,11 @@
   "runtimeSourceRetargeted": true,
   "expectedReferenceCounts": {
     "clinical_summary": 53,
-    "entity_source_reference": 56,
+    "entity_source_reference": 106,
     "entity_term": 77,
-    "relationship": 91,
-    "action": 3,
-    "total": 280
+    "relationship": 141,
+    "action": 53,
+    "total": 430
   },
   "originalRuntimeSourceId": "source-openstax-anatomy-physiology",
   "sourceCitationReviewFlagsPromoted": false,
@@ -1534,5 +1534,5 @@
       "summary": "The clitoris is a reproductive organ with an external glans and internal erectile structures, including its body and paired crura. It is included for complete, neutral reproductive anatomy terminology."
     }
   ],
-  "additionalExactActionEvidence": "anatomy-muscle-action-review-20261025.json; audited separately without changing the 53 summary bindings"
+  "additionalExactActionEvidence": "anatomy-muscle-action-review-20261025.json, anatomy-thigh-action-review-20261025.json and muscle-action-backlog-integration-20261025.json; independently audited without changing the 53 summary bindings"
 }
