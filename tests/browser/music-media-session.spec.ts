@@ -11,6 +11,16 @@ import {
   getVisibleAtmosphereStations,
 } from "../../lib/atmosphere/stations.js"
 import { centerCarouselItem } from "./carousel-test-helpers"
+import { assertSyntheticMediaIsolation, installSyntheticGenerativeMedia } from "./music-synthetic-media-fixture.mjs"
+
+/** Only synthetic-media cases block service workers; unrelated route controls keep their scope. */
+const syntheticMediaTest = test.extend({
+  serviceWorkers: "block",
+  page: async ({ page }, runFixture) => {
+    await runFixture(page)
+    assertSyntheticMediaIsolation(page)
+  },
+})
 
 type MediaProbe = {
   audio: {
@@ -1689,8 +1699,12 @@ test("fresh-page cold runtime exposes only an activation-safe centered Play acti
   await expect(page.getByTestId("music-player-toolbar")).toHaveAttribute("data-playback-state", "playing")
 })
 
-test("Favorites direct playback keeps the provider as the single owner during loading and while active", async ({ page }, testInfo) => {
+syntheticMediaTest("Favorites direct playback keeps the provider as the single owner during loading and while active", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-chromium", "Touch Favorites playback is mobile-owned.")
+  await installSyntheticGenerativeMedia(page, {
+    baseURL: testInfo.project.use.baseURL,
+    pieceIds: ["observable-streams"],
+  })
   await installAtmosphereFavorites(page, ["observable-streams-probe", "mlab-proof-drone"])
   await installMediaOwnershipFakes(page, {
     actualRuntimeModulePath: await getActualRuntimeModulePath(),
@@ -1985,8 +1999,12 @@ test("latest request wins when Stop occurs during provider decode", async ({ pag
 })
 
 for (const phase of ["piece-activation", "scheduling"] as const) {
-  test(`latest request wins when Stop occurs during ${phase}`, async ({ page }, testInfo) => {
+  syntheticMediaTest(`latest request wins when Stop occurs during ${phase}`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium", "Deterministic startup timing coverage runs in desktop Chromium.")
+    await installSyntheticGenerativeMedia(page, {
+      baseURL: testInfo.project.use.baseURL,
+      pieceIds: ["observable-streams"],
+    })
     await installMediaOwnershipFakes(page, { stopAtPhase: phase })
     const play = await openStation(page, {
       category: "Treatment room starters",
@@ -2034,9 +2052,16 @@ const startupMeasurementStations = [
 ] as const
 
 for (const station of startupMeasurementStations) {
-  test(`startup timing records fresh-context cold and same-context warm ${station.pieceId}`, async ({ page }, testInfo) => {
+  const measurementTest = station.pieceId === "observable-streams" ? syntheticMediaTest : test
+  measurementTest(`startup timing records fresh-context cold and same-context warm ${station.pieceId}`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium", "Measurements are intentionally limited to desktop Chromium.")
     test.setTimeout(150_000)
+    if (station.pieceId === "observable-streams") {
+      await installSyntheticGenerativeMedia(page, {
+        baseURL: testInfo.project.use.baseURL,
+        pieceIds: ["observable-streams"],
+      })
+    }
     await installMediaOwnershipFakes(page)
     const audioRequests: string[] = []
     page.on("request", (request) => {
@@ -2045,6 +2070,9 @@ for (const station of startupMeasurementStations) {
     const play = await openStation(page, station)
     const player = page.getByTestId("music-player-toolbar")
 
+    // Request intents preserve the count fields; synthetic delivery does not measure hosted performance.
+    const measurementDelivery = station.pieceId === "observable-streams" ? "synthetic-local" : "existing-media"
+    const requestCountSemantics = "browser-request-intents; upstream HTTP dispatch is not established"
     const runs: Array<Record<string, unknown>> = []
     for (const temperature of ["cold", "warm"] as const) {
       const previousTimings = (await readProbe(page)).startup.timings
@@ -2074,6 +2102,8 @@ for (const station of startupMeasurementStations) {
       const runRequests = audioRequests.slice(requestStart)
         .filter((url) => url.includes(station.requestPathFragment))
       runs.push({
+        delivery: measurementDelivery,
+        requestCountSemantics,
         carrierCallLatencyMs: result.carrier?.latencyMs,
         networkIndexRequestCount: runRequests.filter((url) => /sample-index[^/]*\.json/i.test(url)).length,
         networkSampleRequestCount: runRequests.filter((url) => !/sample-index[^/]*\.json/i.test(url)).length,
@@ -2089,7 +2119,7 @@ for (const station of startupMeasurementStations) {
 
     const warmTiming = runs[1]?.timing as Record<string, unknown> | undefined
     expect(Number(warmTiming?.sampleRequestMemoryHitUrlCount)).toBeGreaterThan(0)
-    console.log(`ATMOSPHERE_STARTUP_MEASUREMENT ${JSON.stringify({ station: station.pieceId, runs })}`)
+    console.log(`ATMOSPHERE_STARTUP_MEASUREMENT ${JSON.stringify({ station: station.pieceId, delivery: measurementDelivery, requestCountSemantics, runs })}`)
   })
 }
 
@@ -2878,7 +2908,11 @@ test("stopped retirement exclusions leave paused and interrupted identity intact
   })}`)
 })
 
-test("restart cancels stopped retirement without stale identity or media teardown", async ({ page }) => {
+syntheticMediaTest("restart cancels stopped retirement without stale identity or media teardown", async ({ page }, testInfo) => {
+  await installSyntheticGenerativeMedia(page, {
+    baseURL: testInfo.project.use.baseURL,
+    pieceIds: ["420hz-gamma-waves-for-big-brain"],
+  })
   await page.clock.install()
   await installMediaOwnershipFakes(page)
   const player = await startProofStation(page)
