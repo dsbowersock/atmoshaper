@@ -120,7 +120,67 @@ before the preparation script opened; its separate receipt is retained and it is
 not described as an application or compilation failure. This audit-only suffix is
 added after the terminal checks and is declared separately from executed inputs.
 
-The follow-up remains uncommitted and unpushed for coordinator review. No application
+The October 28 checkpoint above preceded the follow-up commit and push of
+`014579b24dcef17416e2bb1b0f1eae47225b2a8d` after independent review. No application
 build, server/browser campaign, Docker, database, provider, download, authentication,
 media operation, source-data change or service activation occurs. Root retains Git
 and publication ownership; the wider migration and release gates remain open.
+
+## PR62 second included-review follow-up: composite held descriptions
+
+The completed review of `014579b24dcef17416e2bb1b0f1eae47225b2a8d` identified
+two still-valid follow-ups: the preceding audit status needed to be historical,
+and standalone grader equality did not detect a held description inside a larger
+primary or accepted answer. The first follow-up's October 28 pre-commit wording is
+now explicitly tied to its subsequent commit and push of `014579b`, rather than
+claiming that completed publication is still pending.
+
+The backlog guard retains the unfiltered 34-description checks, standalone grader
+rejection and standalone accepted-alias mutation. It additionally examines
+`field.answer` and every `field.acceptedAnswers` entry. The real formatter joins
+actions with semicolons, and one held description contains its own semicolon, so
+the test compares complete contiguous component spans using the actual grader's
+normalization. It does not use substring or prefix matching, duplicate the
+normalizer, or change application grading.
+
+Independent cloned-prompt controls cover both surfaces. The primary control first
+changes only display text and verifies detection, then makes that composite
+creditable. The accepted control leaves primary text unchanged and adds only an
+accepted composite. In both creditable cases the real grader accepts the full
+composite while still rejecting the held description alone. The original prompt
+catalog is verified unchanged. A separate longer-component control contains the
+held wording plus an invented qualifier; the deliberately injected composite
+remains creditable without falsely matching
+its longer component to the exact held fact.
+The composite mutations also exercise case normalization.
+
+The actual RED checkpoint retains the old standalone-only guard with the new
+controls: three cases pass and two composite-detection cases fail with missing
+expected exceptions. In particular, the accepted composite is already credited
+by the actual grader before that legacy guard misses it. The repaired GREEN
+checkpoint passes all five focused cases. All 34 original negatives remain:
+25 descriptions have an offered action prompt and nine have none.
+
+Fresh tracked-source snapshots come from `014579b`; both compile 174
+public-library modules into owned trees with cached dependencies and the unchanged
+denial harness. Ignored repository JavaScript is neither executed nor overwritten.
+The complete focused suite passes 292 tests in 21 suites, with zero failures,
+cancelled or skipped tests. Scoped test lint passes. Complete compatibility still
+preserves all 683 permitted old answer occurrences, rejects exactly the three
+pinned incorrect answers, and preserves all 1,271 cards and 5,359 non-action prompt
+objects; both mutation controls reject. Every guarded check records zero network
+attempts and zero blocked executables.
+
+The new sources, actual RED/GREEN results and final two-path freeze are retained
+under `hosted-review-composite-followup-v2`. The first follow-up's
+`hosted-review-followup-v1` sources, freeze and receipts remain unchanged history.
+This section records the local implementation/validation checkpoint before any
+new coordinator-owned publication action; it records no new push, hosted CI result,
+bot review or independent-review conclusion. Its audit-only update follows the
+terminal checks and is declared separately from their execution inputs.
+
+Only this audit and the backlog test change. Runtime code, source evidence, seed,
+taxonomy and the other twelve candidate paths remain unchanged. No application
+build, server/browser campaign, Docker, database, provider, download, credential,
+music-source change or activation action occurs. Root retains Git, hosted-review
+and publication ownership; broader migration and release gates remain separate.

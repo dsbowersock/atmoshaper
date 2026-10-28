@@ -15,6 +15,22 @@ const manifest = () => JSON.parse(fs.readFileSync(new URL("../docs/source-eviden
 const exactFor = binding => ({id:binding.citationId, slug:binding.citationId, entityType:"muscle", entitySlug:binding.muscle, factType:"action", factSlug:binding.id, sourceRef:binding.sourceRef, sourceLocator:binding.sourceLocator, reviewStatus:"reviewed"})
 
 /**
+ * Compare complete semicolon-delimited spans through the real grader, not substrings.
+ * Authored held descriptions can contain semicolons too, so retain contiguous spans.
+ */
+function answerContainsHeldComponents(prompt, field, answer, description) {
+  const components = answer.split(";")
+  const heldOnlyPrompt = {...prompt, answerFields:[{...field, acceptedAnswers:[description]}]}
+  for (let start = 0; start < components.length; start++) {
+    for (let end = start + 1; end <= components.length; end++) {
+      const componentAnswer = components.slice(start, end).join(";")
+      if (checkFlashcardAnswer(heldOnlyPrompt, {[field.id]:componentAnswer}).correct) return true
+    }
+  }
+  return false
+}
+
+/**
  * Check each held description against the full catalog, including accepted aliases.
  * A missing muscle-action prompt offers nothing to credit; return both row counts.
  */
@@ -24,8 +40,23 @@ function assertHeldDescriptionsNotCredited(remaining, allPrompts) {
     const prompt = allPrompts.find(row => row.entitySlug === pending.muscle)
     if (prompt) withActionPrompt++
     assert.equal(Boolean(prompt && checkFlashcardAnswer(prompt, {action:pending.description}).correct), false, pending.actionId)
+    for (const field of prompt?.answerFields ?? []) {
+      for (const answer of [field.answer, ...field.acceptedAnswers]) {
+        assert.equal(answerContainsHeldComponents(prompt, field, answer, pending.description), false, `${pending.actionId}: held description in ${field.id} answer components`)
+      }
+    }
   }
   return {heldDescriptionsChecked:remaining.length, withActionPrompt, withoutActionPrompt:remaining.length-withActionPrompt}
+}
+
+/** Build an actual unfiltered prompt fixture; mutations remain in a caller-owned clone. */
+function heldCompositeFixture() {
+  const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
+  const remaining = manifest().remainingUnapproved.filter(row => !successors.has(row.actionId))
+  const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
+  const pending = remaining.find(row => !muscles.has(row.muscle) && allPrompts.some(prompt => prompt.entitySlug === row.muscle))
+  assert.ok(pending)
+  return {remaining, allPrompts, pending}
 }
 
 describe("Complete supported action-citation batch", () => {
@@ -91,6 +122,45 @@ describe("Complete supported action-citation batch", () => {
     t.diagnostic(JSON.stringify({mutatedHeldAction:pending.actionId, promptId:prompt.id, primaryAnswerUnchanged:true, acceptedAliasInjected:true}))
     assert.throws(() => assertHeldDescriptionsNotCredited(remaining, mutated), error => error.code === "ERR_ASSERTION" && error.message.includes(pending.actionId))
     assert.equal(checkFlashcardAnswer(allPrompts.find(row => row.entitySlug === pending.muscle), {action:pending.description}).correct, false)
+  })
+  for (const surface of ["primary", "accepted"]) {
+    it(`detects a held description inside the ${surface} composite answer`, t => {
+      const {remaining, allPrompts, pending} = heldCompositeFixture()
+      const before = JSON.stringify(allPrompts)
+      const mutated = structuredClone(allPrompts)
+      const prompt = mutated.find(row => row.entitySlug === pending.muscle)
+      const field = prompt.answerFields.find(row => row.id === "action")
+      const originalAnswer = field.answer
+      const composite = `${originalAnswer}; ${pending.description.toUpperCase()}`
+      assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, false)
+      if (surface === "primary") {
+        // Check the display surface independently before making the composite creditable.
+        field.answer = composite
+        assert.equal(checkFlashcardAnswer(prompt, {action:composite}).correct, false)
+        assert.throws(() => assertHeldDescriptionsNotCredited(remaining, mutated), error => error.code === "ERR_ASSERTION" && error.message.includes(pending.actionId))
+      }
+      field.acceptedAnswers.push(composite)
+      assert.equal(checkFlashcardAnswer(prompt, {action:composite}).correct, true)
+      assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, false)
+      if (surface === "accepted") assert.equal(field.answer, originalAnswer)
+      t.diagnostic(JSON.stringify({surface, mutatedHeldAction:pending.actionId, compositeCredited:true, standaloneHeldDescriptionCredited:false}))
+      assert.throws(() => assertHeldDescriptionsNotCredited(remaining, mutated), error => error.code === "ERR_ASSERTION" && error.message.includes(pending.actionId))
+      assert.equal(JSON.stringify(allPrompts), before)
+    })
+  }
+  it("keeps a longer composite component distinct from the held description", () => {
+    const {remaining, allPrompts, pending} = heldCompositeFixture()
+    const before = JSON.stringify(allPrompts)
+    const mutated = structuredClone(allPrompts)
+    const prompt = mutated.find(row => row.entitySlug === pending.muscle)
+    const field = prompt.answerFields.find(row => row.id === "action")
+    const longerComponent = `${pending.description} With an invented extra qualifier.`
+    const composite = `${field.answer}; ${longerComponent}`
+    field.acceptedAnswers.push(composite)
+    assert.equal(checkFlashcardAnswer(prompt, {action:composite}).correct, true)
+    assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, false)
+    assert.doesNotThrow(() => assertHeldDescriptionsNotCredited(remaining, mutated))
+    assert.equal(JSON.stringify(allPrompts), before)
   })
   it("uses the qualified-knee book evidence as primary attribution", () => {
     const qualified = bindings.filter(binding => binding.primaryEvidenceKind === "book_question_answer")
