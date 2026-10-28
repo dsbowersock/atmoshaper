@@ -3125,26 +3125,12 @@ test("Favorites use measured remaining space across roomy bottom-rail workspaces
     expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true)
     await expect(favorites.getByRole("heading")).toHaveCount(0)
 
-    // Embla applies its post-resize snap on the next frame. Assert the
-    // completed geometry rather than sampling its intentional transition.
-    await expect.poll(() => carousel.evaluate((region) => {
-      const stage = region.querySelector<HTMLElement>('[data-testid="station-carousel-stage"]')
-      const center = region.querySelector<HTMLElement>(
-        '[data-carousel-slide][data-centered="true"] [data-carousel-transform="true"]',
-      )
-      if (!stage || !center) return Number.POSITIVE_INFINITY
-      const stageBox = stage.getBoundingClientRect()
-      const centerBox = center.getBoundingClientRect()
-      return Math.abs(
-        centerBox.left + (centerBox.width / 2) - (stageBox.left + (stageBox.width / 2)),
-      )
-    })).toBeLessThanOrEqual(1)
     await waitForStableSlideGeometry(
       carousel.locator('[data-carousel-slide][data-centered="true"] [data-carousel-transform="true"]'),
       `Roomy Station center at ${viewport.width}x${viewport.height}`,
     )
 
-    const carouselGeometry = await carousel.evaluate((region) => {
+    const readCarouselGeometry = () => carousel.evaluate((region) => {
       const stage = region.querySelector<HTMLElement>('[data-testid="station-carousel-stage"]')
       const center = region.querySelector<HTMLElement>(
         '[data-carousel-slide][data-centered="true"] [data-carousel-transform="true"]',
@@ -3192,6 +3178,13 @@ test("Favorites use measured remaining space across roomy bottom-rail workspaces
         visiblyComposedCards: 1 + visibleSummaries.length,
       }
     })
+    let carouselGeometry = await readCarouselGeometry()
+    // A later card resize can change its relation to the stage after quiet.
+    // Accept the same complete numeric snapshot used by every assertion below.
+    await expect.poll(async () => {
+      carouselGeometry = await readCarouselGeometry()
+      return carouselGeometry.centered
+    }).toBeLessThanOrEqual(1)
     expect(carouselGeometry.mountedCardCount).toBe(9)
     expect(carouselGeometry.summaryCount).toBe(8)
     expect(carouselGeometry.center.width / carouselGeometry.center.height).toBeCloseTo(192 / 224, 2)
