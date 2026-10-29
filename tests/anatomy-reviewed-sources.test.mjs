@@ -23,8 +23,9 @@ describe("Pinned and precisely attributed A&P source", () => {
   it("replaces generic introduction citations with exact retained section locators", () => {
     const citations = ANATOMY_FOUNDATION_SEED.citations.filter(c => c.sourceRef === "openstax-anatomy-physiology")
     const summaries = citations.filter(c => c.factType === "clinical_summary")
-    assert.equal(summaries.length, 53)
-    assert.equal(citations.length, 430)
+    assert.equal(summaries.length, 54)
+    assert.equal(summaries.filter(c => c.id !== "citation-lumbricals-foot-clinical-summary").length, 53)
+    assert.equal(citations.length, 434)
     for (const citation of citations) {
       assert.ok(isReviewedActionFigureCitation(citation) || citation.sourceLocator.includes(`${OPENSTAX_AP_REVISION}/modules/`), citation.slug)
       if (!isReviewedActionFigureCitation(citation)) assert.match(citation.sourceLocator, /index\.cnxml#L[0-9]+-L[0-9]+/)
@@ -96,6 +97,22 @@ describe("Reviewed source integrity rejects stale or broader acceptance", () => 
     changed[0].summary += " Invented unreviewed extension."
     assert.throws(() => verifyReviewedAnatomySourceEvidence(manifest(), ANATOMY_FOUNDATION_SEED, changed, unread), /summary text changed/)
     assert.throws(() => verifyReviewedAnatomySourceEvidence(manifest(), ANATOMY_FOUNDATION_SEED, changed.slice(1), unread), /coverage changed/)
+  })
+
+  it("does not hide missing, misbound or unknown citations in the later foot cohort", () => {
+    const id = "citation-lumbricals-foot-action"
+    const missing = structuredClone(ANATOMY_FOUNDATION_SEED)
+    missing.citations = missing.citations.filter(row => row.id !== id)
+    assert.throws(() => verifyReviewedAnatomySourceEvidence(manifest(), missing, cards(), unread), /foot citation cohort changed/)
+    const misbound = structuredClone(ANATOMY_FOUNDATION_SEED)
+    misbound.citations.find(row => row.id === id).factSlug = "another-action"
+    assert.throws(() => verifyReviewedAnatomySourceEvidence(manifest(), misbound, cards(), unread), /Expected values/)
+    const extra = structuredClone(ANATOMY_FOUNDATION_SEED)
+    extra.citations.push({...extra.citations.find(row => row.id === id), id:"unknown-extra-action-citation", slug:"unknown-extra-action-citation"})
+    assert.throws(() => verifyReviewedAnatomySourceEvidence(manifest(), extra, cards(), unread), /Expected values/)
+    const supplemental = structuredClone(ANATOMY_FOUNDATION_SEED)
+    supplemental.citations.push({...supplemental.citations.find(row => row.id === "citation-lumbricals-foot-action-posnik-2024"), id:"unknown-supplement", slug:"unknown-supplement"})
+    assert.throws(() => verifyReviewedAnatomySourceEvidence(manifest(), supplemental, cards(), unread), /Unreviewed supplemental foot citation/)
   })
 
   it("does not convert comparison into clinical, commercial or article-license approval", () => {

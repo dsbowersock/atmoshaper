@@ -19,6 +19,7 @@ import {
 } from "../lib/anatomy-study.js"
 
 const safeSourceIds = new Set([
+  "posnik-intrinsic-foot-muscle-variability-2024",
   "grzonkowska-quadratus-lumborum-2018",
   "applied-human-anatomy",
   "wang-2023-lumbar-multifidus-biomechanics",

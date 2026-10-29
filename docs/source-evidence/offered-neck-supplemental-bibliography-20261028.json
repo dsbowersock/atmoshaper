@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "state": "EXISTING_THREE_CITATION_NOTES_QUALIFIED",
+  "baseHead": "ca8b0983d6be9ebe5fefc4f56e1e456cc46c5f72",
+  "scope": "Supplemental factual bibliography and honest qualifier limits only; no new visible learner links or source admission",
+  "targetCitationIds": [
+    "citation-obliquus-capitis-inferior-action",
+    "citation-obliquus-capitis-inferior-clinical-summary",
+    "citation-longus-colli-clinical-summary"
+  ],
+  "beforeAfter": [
+    {
+      "before": {
+        "id": "citation-obliquus-capitis-inferior-action",
+        "slug": "citation-obliquus-capitis-inferior-action",
+        "entityType": "muscle",
+        "entitySlug": "obliquus-capitis-inferior",
+        "factType": "action",
+        "factSlug": "action-oci-atlantoaxial-rotation",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/textbooks/1266",
+        "citationNote": "Action fact verified against open-reuse applied anatomy material.",
+        "reviewStatus": "reviewed"
+      },
+      "after": {
+        "id": "citation-obliquus-capitis-inferior-action",
+        "slug": "citation-obliquus-capitis-inferior-action",
+        "entityType": "muscle",
+        "entitySlug": "obliquus-capitis-inferior",
+        "factType": "action",
+        "factSlug": "action-oci-atlantoaxial-rotation",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/textbooks/1266",
+        "citationNote": "Site-authored OCI rotation description/summary; Applied Human Anatomy retains the existing baseline source pointer. Its catalogue locator is historical regional context, not a precise passage locator for these qualifiers. Precise supplemental factual bibliography: Vigo et al. (2020), Immersive Surgical Anatomy of the Craniocervical Junction, Table 2 OCI row, DOI 10.7759/cureus.10364, https://pmc.ncbi.nlm.nih.gov/articles/PMC7549867/ (inspected Creative Commons Attribution notice; version not stated); Su et al. (2022), Pivotal role of obliquus capitis inferior in torticaput revealed by single-photon emission computed tomography, Abstract, DOI 10.1007/s00702-022-02469-6, https://pubmed.ncbi.nlm.nih.gov/35129677/ (exclusive publisher licence; reference only); Hölzl et al. (2021; online 2020), Multimodal control of neck muscles for vestibular mediated head oscillation damping during walking: a pilot study, simulation Methods, yaw Results and Discussion, DOI 10.1007/s00405-020-06488-5, https://link.springer.com/article/10.1007/s00405-020-06488-5 (CC BY 4.0 with component caveats). Individual atlas-axis/same-side rotation and qualitative importance are ordinary teaching synthesis; clinical activity ranks and walking-model torques are not universal healthy force ranks. Supplement licences do not derive from the book. Bibliography only: no source prose/media, source admission, held activation, taxonomy or clinical approval.",
+        "reviewStatus": "reviewed"
+      }
+    },
+    {
+      "before": {
+        "id": "citation-obliquus-capitis-inferior-clinical-summary",
+        "slug": "citation-obliquus-capitis-inferior-clinical-summary",
+        "entityType": "muscle",
+        "entitySlug": "obliquus-capitis-inferior",
+        "factType": "clinical_summary",
+        "factSlug": "clinical-summary",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/textbooks/1266",
+        "citationNote": "MassageLab-authored summary verified against open-reuse applied anatomy material.",
+        "reviewStatus": "reviewed"
+      },
+      "after": {
+        "id": "citation-obliquus-capitis-inferior-clinical-summary",
+        "slug": "citation-obliquus-capitis-inferior-clinical-summary",
+        "entityType": "muscle",
+        "entitySlug": "obliquus-capitis-inferior",
+        "factType": "clinical_summary",
+        "factSlug": "clinical-summary",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/textbooks/1266",
+        "citationNote": "Site-authored OCI rotation description/summary; Applied Human Anatomy retains the existing baseline source pointer. Its catalogue locator is historical regional context, not a precise passage locator for these qualifiers. Precise supplemental factual bibliography: Vigo et al. (2020), Immersive Surgical Anatomy of the Craniocervical Junction, Table 2 OCI row, DOI 10.7759/cureus.10364, https://pmc.ncbi.nlm.nih.gov/articles/PMC7549867/ (inspected Creative Commons Attribution notice; version not stated); Su et al. (2022), Pivotal role of obliquus capitis inferior in torticaput revealed by single-photon emission computed tomography, Abstract, DOI 10.1007/s00702-022-02469-6, https://pubmed.ncbi.nlm.nih.gov/35129677/ (exclusive publisher licence; reference only); Hölzl et al. (2021; online 2020), Multimodal control of neck muscles for vestibular mediated head oscillation damping during walking: a pilot study, simulation Methods, yaw Results and Discussion, DOI 10.1007/s00405-020-06488-5, https://link.springer.com/article/10.1007/s00405-020-06488-5 (CC BY 4.0 with component caveats). Individual atlas-axis/same-side rotation and qualitative importance are ordinary teaching synthesis; clinical activity ranks and walking-model torques are not universal healthy force ranks. Supplement licences do not derive from the book. Bibliography only: no source prose/media, source admission, held activation, taxonomy or clinical approval.",
+        "reviewStatus": "reviewed"
+      }
+    },
+    {
+      "before": {
+        "id": "citation-longus-colli-clinical-summary",
+        "slug": "citation-longus-colli-clinical-summary",
+        "entityType": "muscle",
+        "entitySlug": "longus-colli",
+        "factType": "clinical_summary",
+        "factSlug": "clinical-summary",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/textbooks/1266",
+        "citationNote": "MassageLab-authored summary verified against open-reuse applied anatomy material.",
+        "reviewStatus": "reviewed"
+      },
+      "after": {
+        "id": "citation-longus-colli-clinical-summary",
+        "slug": "citation-longus-colli-clinical-summary",
+        "entityType": "muscle",
+        "entitySlug": "longus-colli",
+        "factType": "clinical_summary",
+        "factSlug": "clinical-summary",
+        "sourceRef": "applied-human-anatomy",
+        "sourceLocator": "https://open.umn.edu/opentextbooks/textbooks/1266",
+        "citationNote": "Site-authored longus-colli summary; Applied Human Anatomy retains the existing baseline source pointer. Its catalogue locator is historical regional context, not a precise passage locator for these qualifiers. Precise supplemental factual bibliography: UAMS, Muscles of the Head and Neck, named longus-colli Origin/Insertion/Action row, https://medicine.uams.edu/neuroscience/education/medical-school-courses/human-structure-module/anatomy-tables/muscle-tables/muscles-of-the-head-and-neck/ (reference only; no reusable licence established); Tran et al. (2022), Cross-sectional area of the longus colli and cervical degenerative spondylolisthesis: A retrospective review evaluating this anatomic consideration, Abstract, Methods and Discussion, https://pmc.ncbi.nlm.nih.gov/articles/PMC9910131/ (CC BY-NC-SA 4.0; reference only); Karacif, Karacif and Cagliyan Turk (2026), Comparison of Neck Muscle Thickness via Ultrasound in Patients with Ankylosing Spondylitis and Healthy Controls, Discussion and limitations, DOI 10.5152/ArchRheumatol.2026.25253, https://pmc.ncbi.nlm.nih.gov/articles/PMC13401114/ (CC BY 4.0). Named lateral bending and stability evidence support the modest assistive/postural reading as qualified teaching synthesis. The cross-sectional disease-specific findings do not establish causal healthy mechanics or precise small-amplitude control; that stronger interpretation remains unclosed and is not required by the offered wording. Supplement licences do not derive from the book. Bibliography only: no source prose/media, source admission, held activation, taxonomy or clinical approval.",
+        "reviewStatus": "reviewed"
+      }
+    }
+  ],
+  "bibliography": [
+    {
+      "id": "N1",
+      "title": "Pivotal role of obliquus capitis inferior in torticaput revealed by single-photon emission computed tomography",
+      "authors": "Junhui Su and colleagues",
+      "journal": "Journal of Neural Transmission 129:311-317 (2022)",
+      "doi": "10.1007/s00702-022-02469-6",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35129677/",
+      "access": "Primary author abstract read on PubMed",
+      "locator": "Abstract line244; study context244-247; copyright250",
+      "support": "Authors state a major ipsilateral head-rotation role as anatomical background.",
+      "methodLimit": "Retrospective imaging of 60 torticaput patients; abnormal-activity ranking is not healthy muscle force or a universal role ranking.",
+      "rights": "Exclusive Springer licence notice; no CC/reuse admission inferred.",
+      "directQuote": "plays a major role in ipsilateral rotation of the head",
+      "quoteWords": 10
+    },
+    {
+      "id": "N2",
+      "title": "Multimodal control of neck muscles for vestibular mediated head oscillation damping during walking: a pilot study",
+      "authors": "Matthias Hölzl and colleagues",
+      "journal": "European Archives of Oto-Rhino-Laryngology 278:3801-3811 (2021), online 2020-12-15",
+      "doi": "10.1007/s00405-020-06488-5",
+      "url": "https://link.springer.com/article/10.1007/s00405-020-06488-5",
+      "access": "Full publisher HTML text",
+      "locator": "Methods99,117-119; Results133; Discussion205; Rights497-500",
+      "support": "The authors model a substantial OCI yaw contribution under their walking conditions, comparable with SCM in that setup.",
+      "methodLimit": "Seven volunteers; gait kinematics and adopted OpenSim muscle parameters. Model estimates are not isolated direct force measurements or an atlantoaxial percentage.",
+      "rights": "CC BY4.0 article notice, with third-party/component caveat. Metadata only; no source admission or figure inspection.",
+      "quoteWords": 0
+    },
+    {
+      "id": "N3",
+      "title": "Comparison of Neck Muscle Thickness via Ultrasound in Patients with Ankylosing Spondylitis and Healthy Controls",
+      "authors": "Derya Karacif; Onur Karacif; Ayla Cagliyan Turk",
+      "journal": "Archives of Rheumatology 41(3):212-222 (2026), online 2026-04-24",
+      "doi": "10.5152/ArchRheumatol.2026.25253",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13401114/",
+      "access": "Full original article HTML in PMC",
+      "locator": "Methods125-138; Discussion317; limitations335-338; licence79-81",
+      "support": "LC morphology is associated with lateral-flexion mobility; authors tentatively interpret the pattern as postural support rather than gross movement production.",
+      "methodLimit": "Cross-sectional 30 AS/30 control study; no causal or fine-lateral-control measurement. Interpretation is not established healthy-task mechanics.",
+      "rights": "CC BY4.0 journal notice. Bibliography metadata only; no source registration or media clearance.",
+      "quoteWords": 0
+    },
+    {
+      "id": "R1",
+      "title": "Vigo et al.2020 Immersive Surgical Anatomy of the Craniocervical Junction",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7549867/",
+      "locator": "Retained independent review: Table2 OCI row268; definitions134,172-174,196",
+      "support": "Individual OCI head/C1 rotation through atlantoaxial joint",
+      "access": "Reused frozen report and independent review; not reopened",
+      "rights": "Retained Creative Commons Attribution notice lacks an inspected version/href; no invented CC BY4.0 or component admission."
+    },
+    {
+      "id": "R2",
+      "title": "TTUHSC El Paso muscle table",
+      "url": "https://anatomy.ttuhscep.edu/anatomytables/muscles_alpha.html",
+      "locator": "Retained OCI row18",
+      "support": "Individual same-side head rotation",
+      "access": "Reused frozen independent review",
+      "rights": "Reference-only copyrighted teaching table."
+    },
+    {
+      "id": "R3",
+      "title": "UAMS Muscles of the Head and Neck",
+      "url": "https://medicine.uams.edu/neuroscience/education/medical-school-courses/human-structure-module/anatomy-tables/muscle-tables/muscles-of-the-head-and-neck/",
+      "locator": "Retained longus-colli row62, Action column",
+      "support": "Generic named LC neck lateral bending",
+      "access": "Reused independent stability SPEC",
+      "rights": "No reusable licence newly established."
+    },
+    {
+      "id": "R4",
+      "title": "Tran et al.2022 longus-colli CSA and degenerative spondylolisthesis",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9910131/",
+      "locator": "Retained Abstract164-179, Methods189-198, Discussion288-298",
+      "support": "Named LC stability-role association, not subtle lateral-control result",
+      "access": "Reused prior report and SPEC",
+      "rights": "Retained CC BY-NC-SA4.0 notice; no new reuse admission."
+    }
+  ],
+  "evidencePins": [
+    {
+      "artifact": "anatomy-offered-neck-qualifier-followup-20261028.md",
+      "sha256": "5ece8e555b3285e46c13271132ce7bc3e4cbfc3b3ad650e997867e3e8b7f9ecb"
+    },
+    {
+      "artifact": "anatomy-offered-neck-qualifier-followup-20261028.json",
+      "sha256": "fc25fa21a4d60aee90b07fdfec83f109db070730d97d3e4e5d3555c32a12d00e"
+    },
+    {
+      "artifact": "anatomy-offered-neck-qualifier-independent-review-20261028.md",
+      "sha256": "46f5dd9066304ba99cf65cb75eb46b241dc9dfb27266fbed4a6aa343914ce9b2"
+    },
+    {
+      "artifact": "anatomy-offered-neck-qualifier-independent-review-20261028.json",
+      "sha256": "c7998d21589ae8b561957c6e9d1fdf9428d2f1fc0c915a02efe970900d5b00f9"
+    },
+    {
+      "artifact": "anatomy-oci-exact-source-comparison-20261028.json",
+      "sha256": "2f6fa21352890774dbdeb347200ff96baa83991d1ae69baea517a0e2a4c95ef3"
+    },
+    {
+      "artifact": "anatomy-two-offered-stability-qualifiers-20261028.json",
+      "sha256": "f90bb937045c49e8cf206d1b36d955c015864e0e65a6a1379b16ab75a02ce86c"
+    }
+  ],
+  "factualScope": {
+    "oci": "Qualitative importance, not sole/largest universal force role",
+    "longusColli": "Qualified ordinary assistive/postural interpretation; not causal healthy-task or precise amplitude control"
+  },
+  "unchanged": [
+    "authored words and accepted answers",
+    "IDs/slugs/fact identities/review status",
+    "sourceRef/sourceLocator/source safety and book metadata",
+    "taxonomy and all33held identities",
+    "media and configuration",
+    "learner credit UI"
+  ],
+  "limits": [
+    "Applied catalogue URL remains historical regional context, not a precise qualifier passage.",
+    "Supplement license notices remain separate; no article expression/media is imported.",
+    "No whole-summary, clinical or release acceptance is added."
+  ],
+  "validationPosture": {
+    "TDDMode": "off",
+    "decision": "skipped",
+    "reason": "Citation metadata only. Existing source checks and complete raw/public/grader comparison verify the delta without mirror tests."
+  },
+  "sharedPublicationAuthorized": false
+}

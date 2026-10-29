@@ -4,7 +4,7 @@ import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 import { ANATOMY_FOUNDATION_SEED as seed } from "../lib/anatomy-foundation.js"
 import { getAnatomyStudyPrompts, getAnatomyStudyCards, checkFlashcardAnswer } from "../lib/anatomy-study.js"
-import { REVIEWED_MUSCLE_ACTION_BINDINGS as bindings, REVIEWED_LUMBAR_STUDY_SOURCE, withReviewedMuscleActionEvidence } from "../lib/anatomy-muscle-action-provenance.js"
+import { REVIEWED_MUSCLE_ACTION_BINDINGS as bindings, REVIEWED_LUMBAR_STUDY_SOURCE, OFFERED_FOOT_SOURCE_BINDING as foot, withReviewedMuscleActionEvidence } from "../lib/anatomy-muscle-action-provenance.js"
 
 const selected = new Set(bindings.map(binding => binding.muscle))
 const actionPrompts = () => getAnatomyStudyPrompts({promptTypes:["muscle_action"]}).filter(prompt => selected.has(prompt.entitySlug))
@@ -80,6 +80,37 @@ describe("Precisely sourced existing muscle actions", () => {
     const result = withReviewedMuscleActionEvidence(changed)
     assert.equal(result.muscleActions.find(action => action.id === extra.id).sourceRef, extra.sourceRef)
     assert.equal(result.citations.some(citation => citation.factType === "action" && citation.factSlug === extra.id), false)
+  })
+})
+
+describe("Already offered foot descriptions retain their answers with precise attribution", () => {
+  it("shows both independently licensed supports without changing the offered action or summary", () => {
+    const card = getAnatomyStudyCards().find(row => row.entityType === "muscle" && row.entitySlug === foot.muscle)
+    assert.equal(card.summary, foot.summary)
+    assert.deepEqual(new Set(card.sourceRefs), new Set([foot.sourceRef, foot.supplementRef]))
+    const prompt = getAnatomyStudyPrompts({promptTypes:["muscle_action"]}).find(row => row.entitySlug === foot.muscle)
+    assert.ok(prompt)
+    for (const answer of ["Toe Flexion at Metatarsophalangeal Joints", foot.description]) {
+      assert.equal(checkFlashcardAnswer(prompt, {action:answer}).correct, true)
+    }
+    for (const sourceRef of [foot.sourceRef, foot.supplementRef]) {
+      const id = sourceRef === foot.sourceRef ? "citation-lumbricals-foot-action" : "citation-lumbricals-foot-action-posnik-2024"
+      assert.ok(prompt.citations.some(row => row.id === id && row.sourceRef === sourceRef))
+    }
+    const held = seed.muscleActions.find(row => row.id === "action-lumbricals-foot-toe-extension")
+    assert.equal(held.sourceRef, "applied-human-anatomy")
+    assert.equal(checkFlashcardAnswer(prompt, {action:held.description}).correct, false)
+    assert.equal(checkFlashcardAnswer(prompt, {action:`${foot.description}; ${held.description}`}).correct, false)
+  })
+
+  it("keeps the citation correction idempotent and refuses changed description or source input", () => {
+    assert.deepEqual(withReviewedMuscleActionEvidence(structuredClone(seed)), seed)
+    const changed = structuredClone(seed)
+    changed.muscles.find(row => row.slug === foot.muscle).description += " Unreviewed claim."
+    assert.throws(() => withReviewedMuscleActionEvidence(changed), /Offered foot description input changed/)
+    const conflict = structuredClone(seed)
+    conflict.citations.find(row => row.id === "citation-lumbricals-foot-action-posnik-2024").sourceLocator = "https://example.invalid/"
+    assert.throws(() => withReviewedMuscleActionEvidence(conflict), /Offered foot supplemental citation conflict/)
   })
 })
 
