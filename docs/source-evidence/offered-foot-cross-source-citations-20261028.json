@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "state": "TWO_EXISTING_EDUCATIONAL_DESCRIPTIONS_CROSS_SOURCE_BOUND",
+  "baseHead": "ab419164a84c551f2dc4d355caa5ba9e9c5ef868",
+  "targets": [
+    {
+      "id": "action-lumbricals-foot-toe-flexion",
+      "text": "Flexes the metatarsophalangeal joints of toes two through five while coordinating toe extension through the extensor expansions.",
+      "sha256": "e22b09edc6ffc585372ac47e79a502b1f6bff863ceac7f14bfeccbdad91142a5",
+      "disposition": "SUPPORTED_ORDINARY_ANATOMICAL_SYNTHESIS"
+    },
+    {
+      "id": "muscle-lumbricals-foot",
+      "text": "The lumbricals of the foot are small second-layer intrinsic muscles arising from flexor digitorum longus tendons. They coordinate metatarsophalangeal flexion with toe extension support through the extensor expansions.",
+      "sha256": "93e712447f1e6c368ecc782f3abd8898e6316d6edf976b2b7863d671205c0963",
+      "disposition": "COMPLETE_TWO_SENTENCE_DESCRIPTION_SUPPORTED_ORDINARY_SYNTHESIS"
+    }
+  ],
+  "sources": [
+    {
+      "key": "AP_PIN",
+      "url": "https://github.com/openstax/osbooks-anatomy-physiology/blob/b0058a743bdd2cc08196abaaa7d5469970c0d80c/modules/m46482/index.cnxml#L50",
+      "license": "CC BY4.0 pinned historical edition",
+      "figure": "fig-ch11_06_07",
+      "mediaId": "fs-id2772615",
+      "tableSha256": "e942f320416147d2dca836d45d0d7c6899f3c4e172c4755341e7becf13c3a190",
+      "visualRead": true,
+      "support": "Lumbricals row in second plantar layer: FDL origin,digits2-5,IP extension with MTP flexion",
+      "limit": "Its insertion cell names medial proximal phalanges, not extensor expansion; do not borrow neighboring interosseous rows."
+    },
+    {
+      "key": "POSNIK_2024",
+      "title": "A Literature Review of the Morphological Variability in the Intrinsic Muscles of the Foot: Traps Awaiting Clinicians during Ultrasound",
+      "doi": "10.3390/jcm13154286",
+      "pmcid": "PMC11313258",
+      "pmid": "39124554",
+      "authors": [
+        "Marta Pośnik",
+        "Nicol Zielinska",
+        "Bartosz Gonera",
+        "Łukasz Olewnik",
+        "Mariola Głowacka",
+        "Krystian Maślanka",
+        "Kacper Ruzik"
+      ],
+      "journal": "Journal of Clinical Medicine",
+      "year": 2024,
+      "volume": 13,
+      "issue": 15,
+      "article": 4286,
+      "published": "2024-07-23",
+      "type": "Anatomical literature review; narrative support, not a new cadaveric experiment",
+      "xmlUrl": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC11313258/fullTextXML",
+      "xmlSha256": "16b06f6b3769e24bafa787224f2332e72966ced7ebbd93e37c404d748d8ce086",
+      "locator": "body//sec[@id=\"sec3dot3dot3-jcm-13-04286\"]/p[1]",
+      "section": "3.3.3 Lumbrical Muscles",
+      "support": "Named FDL origins and distal course to toe2-5 proximal phalanges and their extensor expansions",
+      "variationScope": "Following paragraphs describe variant origins,accessory slips,unusual distal insertions and absence; no universal morphology or clinical inference",
+      "license": "CC BY4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseLocator": "front/article-meta/permissions/license and contained ext-link",
+      "registered": true
+    }
+  ],
+  "sourceInputs": [
+    {
+      "artifact": "final-candidate-public-projection.json",
+      "sha256": "8deb987d26033a78c23c3f004db488bcc982d493fe8242dfea6092bb3927bbf5"
+    },
+    {
+      "artifact": "m46482.cnxml",
+      "sha256": "e1f977e7eb556d989fd0fb54928800b8687389133780f9fe25481e9f257a6c11"
+    },
+    {
+      "artifact": "openstax-ap-2e-cc-by-2026-03.json",
+      "sha256": "5b3a6422995700d15298b17ba5afb68abe104ef083a3dcd15c6295b7b6c6847a"
+    },
+    {
+      "artifact": "applied-human-anatomy-2022.json",
+      "sha256": "6197a569f8ffdcdc91ff03fdcf6957e5540466780beccb9c4e350476a77a4b2a"
+    },
+    {
+      "artifact": "1135_Intrinsic_Muscles_in_the_Foot.jpg",
+      "sha256": "e942f320416147d2dca836d45d0d7c6899f3c4e172c4755341e7becf13c3a190"
+    },
+    {
+      "artifact": "jcm13154286.xml",
+      "sha256": "16b06f6b3769e24bafa787224f2332e72966ced7ebbd93e37c404d748d8ce086"
+    },
+    {
+      "artifact": "anatomy-foot-lumbrical-source-disposition-v2-20261028.json",
+      "sha256": "6f84da2857f8c99ef082ecdbd7d94657cdd158a40068b198f78de3f19be0e9df"
+    }
+  ],
+  "independentReview": {
+    "report": "anatomy-offered-foot-source-independent-review-20261028.md",
+    "sha256": "966ac8d1cca60a1f0fda9dcd51e8b11f5788b578db2af042b68fa12dc13e117a",
+    "result": "PASS within recorded limits"
+  },
+  "scope": {
+    "existingSummaryAndOfferedActionOnly": true,
+    "muscleSourceReferenceMeansEducationalDescriptionContext": true,
+    "teachingRelationshipAndAllOtherFactProvenanceUnchanged": true,
+    "originalIdsAndWordingUnchanged": true,
+    "heldActionsUnchanged": 33,
+    "noClinicalAcceptance": true,
+    "noNewMediaRights": true,
+    "articleExpressionOrFiguresImported": false
+  },
+  "implementation": {
+    "owner": "withReviewedMuscleActionEvidence",
+    "oldCitationCount": 4,
+    "newSupplementaryCitationCount": 2,
+    "newSourceCount": 1,
+    "primarySource": "openstax-anatomy-physiology",
+    "supplementarySource": "posnik-intrinsic-foot-muscle-variability-2024",
+    "historicalSummaryManifestUnchanged": true,
+    "historicalOpenStaxSummaries": 53,
+    "historicalOpenStaxCitations": 430,
+    "currentOpenStaxSummaries": 54,
+    "currentOpenStaxCitations": 434
+  },
+  "validationPosture": {
+    "TDDMode": "off",
+    "decision": "skipped",
+    "reason": "Attribution-only correction with existing wording, eligibility, grading and runtime flow preserved. Existing source/grade contract tests extended; fresh full projection comparison supplies compatibility evidence."
+  },
+  "limitations": [
+    "Pinned book table supplies paired actions; insertion cell does not name extensor expansions.",
+    "Article paragraph supplies expansion connection; following paragraphs retain variation.",
+    "Ordinary anatomical synthesis is not measured neural/timing/force coordination.",
+    "License scope is article text reference only, not third-party components or clinical release.",
+    "Prior Applied selected-passage search is not whole-book absence."
+  ]
+}

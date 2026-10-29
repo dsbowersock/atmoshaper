@@ -1,9 +1,24 @@
 import { TEMPLE_HANDS_ON_ANATOMY_SOURCE_METADATA } from "../anatomy-temple-action-provenance.js"
 import { OPENSTAX_AP_SOURCE_METADATA } from "../anatomy-openstax-provenance.js"
+import { POSNIK_FOOT_SOURCE_METADATA } from "../anatomy-muscle-action-provenance.js"
 import type { AnatomySeedSection } from "./sections.ts"
 
 export const SOURCES_SEED_SECTION: AnatomySeedSection = {
   sources: [
+    {
+      id: "source-grzonkowska-quadratus-lumborum-2018",
+      slug: "grzonkowska-quadratus-lumborum-2018",
+      name: "Quantitative anatomy of the growing quadratus lumborum in the human foetus (Grzonkowska et al., 2018; online 2017)",
+      url: "https://link.springer.com/article/10.1007/s00276-017-1901-4",
+      license: "CC BY 4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      usageScope: "open_reuse",
+      accessedAt: "2026-10-28T00:00:00.000Z",
+      // Article-text rights and a pending comparison do not review the whole action.
+      notes: "Scope is the cited narrative text only; no figure, table, supplement or third-party component is cleared for product use. Lumbar, pelvic and rib function statements are author background in the Introduction and Discussion, separate from the study's 58 fetal specimens. No article prose or media is bundled, and no action or summary is promoted by this bibliography.",
+      attribution: "Magdalena Grzonkowska, Mariusz Baumgart, Mateusz Badura, Małgorzata Dombek, Marcin Wiśniewski, Monika Paruszewska-Achtel and Michał Szpinda. Quantitative anatomy of the growing quadratus lumborum in the human foetus. Surgical and Radiologic Anatomy 40:91-98 (2018), first online July 29, 2017. DOI 10.1007/s00276-017-1901-4. CC BY 4.0. Product notes paraphrase the Introduction; no source text is reproduced.",
+      sourceRef: "Exact DOI article; Introduction paragraph 2, Discussion rib-XII paragraph and Rights and permissions. Bibliography, clause limits and pending citation: docs/source-evidence/quadratus-lumborum-grzonkowska-reference-intake-20261028.json.",
+    },
     {
       id: "source-temple-hands-on-anatomy-2024",
       slug: "temple-hands-on-anatomy-2024",
@@ -147,6 +162,11 @@ export const SOURCES_SEED_SECTION: AnatomySeedSection = {
       notes: "Use only as an internal curriculum coverage reference. Do not reuse FSMTB outline wording as MassageLab display copy.",
       attribution: "Federation of State Massage Therapy Boards, Massage & Bodywork Licensing Examination Content Outline.",
       sourceRef: "Internal reference for MBLEx coverage alignment, not a reusable anatomy content source.",
+    },
+    {
+      id: "source-posnik-intrinsic-foot-muscle-variability-2024",
+      slug: "posnik-intrinsic-foot-muscle-variability-2024",
+      ...POSNIK_FOOT_SOURCE_METADATA,
     },
   ],
 }

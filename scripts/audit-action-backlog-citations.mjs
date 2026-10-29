@@ -4,9 +4,10 @@ import fs from "node:fs"
 import path from "node:path"
 import { createHash } from "node:crypto"
 import { fileURLToPath, pathToFileURL } from "node:url"
-import { REVIEWED_ACTION_BACKLOG_BINDINGS, isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
+import { REVIEWED_ACTION_BACKLOG_BINDINGS, REVIEWED_LATER_ACTION_BINDINGS, isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
 
 import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "../lib/anatomy-temple-action-provenance.js"
+import { resolveHeldActionDescription } from "./held-anatomy-description-revisions.mjs"
 
 const sha = bytes => createHash("sha256").update(bytes).digest("hex")
 const decode = text => text.replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16))).replace(/&#([0-9]+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&(lt|gt|quot|apos|amp);/g, (_, n) => ({lt:"<", gt:">", quot:'"', apos:"'", amp:"&"}[n]))
@@ -122,12 +123,13 @@ export function auditActionBacklogEvidence(manifest, review, seed, readArtifact)
     for (const id of binding.legacyGroupCitationIds) assert.equal(seed.citations.find(row => row.id === id).reviewStatus, "needs_review")
   }
   // The immutable 40-row remainder belongs to the October 25 review. Only the
-  // six separately reviewed Temple identities can supersede those dispositions.
+  // six Temple identities and the one later QL description supersede dispositions.
+  // The fixed directional wording revision changes one held text, never eligibility.
   for (const pending of manifest.remainingUnapproved) {
     const action = seed.muscleActions.find(row => row.id === pending.actionId)
     assert.ok(action)
-    assert.equal(sha(action.description), pending.descriptionSha256)
-    const successor = REVIEWED_TEMPLE_ACTION_BINDINGS.find(row => row.id === pending.actionId)
+    assert.equal(sha(action.description), sha(resolveHeldActionDescription(pending)))
+    const successor = [...REVIEWED_TEMPLE_ACTION_BINDINGS, ...REVIEWED_LATER_ACTION_BINDINGS].find(row => row.id === pending.actionId)
     if (successor) {
       assert.equal(successor.descriptionSha256, pending.descriptionSha256)
       assert.equal(successor.originalSourceRef, pending.currentSourceRef)
@@ -142,9 +144,12 @@ export function auditActionBacklogEvidence(manifest, review, seed, readArtifact)
   }
   const sourceMap = new Map(seed.sources.map(source => [source.slug, source]))
   const unbound = seed.muscleActions.filter(action => ["open_reuse", "commercial_licensed"].includes(sourceMap.get(action.sourceRef)?.usageScope) && !seed.citations.some(row => row.entityType === "muscle" && row.entitySlug === action.muscle && row.factType === "action" && row.factSlug === action.id && row.sourceRef === action.sourceRef && row.reviewStatus === "reviewed"))
-  assert.equal(unbound.length, 34)
+  assert.equal(unbound.length, 33)
   assert.equal(REVIEWED_TEMPLE_ACTION_BINDINGS.length, 6)
-  return {state:"EXACT_47_ACTIONS_AND_RETAINED_EVIDENCE_VERIFIED", reviewedActions:47, selectedMuscles:32, primaryFigureFacts:20, primaryBookFacts:3, publisherArtifacts:18, derivedPageTextArtifacts:1, exactEvidenceRefs:Object.keys(review.resolvedEvidence).length, historicalRemainingActions:40, separatelyReviewedSuccessorActions:6, remainingUnboundReusableActions:unbound.length, remainingAffectedMuscles:new Set(unbound.map(action => action.muscle)).size, clinicalAcceptanceComplete:false, wholeMigrationComplete:false, automatedSemanticTruthClaim:false, networkRequests:0}
+  assert.deepEqual(REVIEWED_LATER_ACTION_BINDINGS.map(row => row.id), ["action-quadratus-lumborum-stabilization"])
+  const successorIds = new Set([...REVIEWED_TEMPLE_ACTION_BINDINGS, ...REVIEWED_LATER_ACTION_BINDINGS].map(row => row.id))
+  assert.deepEqual(new Set(unbound.map(row => row.id)), new Set(manifest.remainingUnapproved.filter(row => !successorIds.has(row.actionId)).map(row => row.actionId)))
+  return {state:"EXACT_47_ACTIONS_AND_RETAINED_EVIDENCE_VERIFIED", reviewedActions:47, selectedMuscles:32, primaryFigureFacts:20, primaryBookFacts:3, publisherArtifacts:18, derivedPageTextArtifacts:1, exactEvidenceRefs:Object.keys(review.resolvedEvidence).length, historicalRemainingActions:40, separatelyReviewedSuccessorActions:7, remainingUnboundReusableActions:unbound.length, remainingAffectedMuscles:new Set(unbound.map(action => action.muscle)).size, clinicalAcceptanceComplete:false, wholeMigrationComplete:false, automatedSemanticTruthClaim:false, networkRequests:0}
 }
 
 /** Read only named public evidence under the three fixed retained roots; no fallback. */

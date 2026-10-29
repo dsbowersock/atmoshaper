@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "intakeStatus": "article_narrative_source_registered_exact_action_citation_pending",
+  "sourceHead": "07de2ccdcf383f935f8bd8fe3c81ecb3e7954f4e",
+  "sourceRef": "grzonkowska-quadratus-lumborum-2018",
+  "publication": {
+    "title": "Quantitative anatomy of the growing quadratus lumborum in the human foetus",
+    "authors": [
+      "Magdalena Grzonkowska",
+      "Mariusz Baumgart",
+      "Mateusz Badura",
+      "Małgorzata Dombek",
+      "Marcin Wiśniewski",
+      "Monika Paruszewska-Achtel",
+      "Michał Szpinda"
+    ],
+    "doi": "10.1007/s00276-017-1901-4",
+    "journal": "Surgical and Radiologic Anatomy",
+    "volume": 40,
+    "pages": "91-98",
+    "publishedOnline": "2017-07-29",
+    "issue": "2018-01",
+    "url": "https://link.springer.com/article/10.1007/s00276-017-1901-4",
+    "retainedCopyUrl": "https://d-nb.info/114134209X/34",
+    "dateChecked": "2026-10-28"
+  },
+  "rights": {
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "noticeLocator": "Publisher Rights and permissions; DNB PDF physical page 7, Open Access paragraph",
+    "observedArticleNotice": true,
+    "registeredUsageScope": "open_reuse",
+    "registeredComponent": "cited article narrative text only",
+    "attributionRecorded": true,
+    "productNotesParaphrased": true,
+    "articleProseCopied": false,
+    "mediaOrFiguresImported": false,
+    "thirdPartyOrFigureRightsCleared": false,
+    "worldwideLegalCertification": false
+  },
+  "comparison": {
+    "citationId": "citation-ql-stabilization-grzonkowska-2018-pending",
+    "citationSlug": "ql-stabilization-grzonkowska-2018-pending",
+    "entityType": "muscle",
+    "entitySlug": "quadratus-lumborum",
+    "factType": "action",
+    "factSlug": "action-quadratus-lumborum-stabilization",
+    "unchangedDescription": "Helps stabilize the twelfth rib, pelvis, and lumbar spine.",
+    "descriptionSha256": "a202fb50f6570eff6e956e2a705f145deb78873813887df02d6080b58a08b7d0",
+    "unchangedActionSourceRef": "applied-human-anatomy",
+    "reviewStatus": "needs_review",
+    "sourceLocator": "https://link.springer.com/article/10.1007/s00276-017-1901-4",
+    "supportedClauses": [
+      {
+        "target": "lumbar-spine stabilization",
+        "locator": "Introduction paragraph 2; PDF physical page 1, extracted lines 25-27",
+        "assessment": "Explicit background teaching, not a result of the fetal morphometry experiment"
+      },
+      {
+        "target": "pelvic stabilization",
+        "locator": "Introduction paragraph 2; PDF physical page 1, extracted lines 31-36",
+        "assessment": "Explicit background teaching conditioned on gait weight transfer and cooperation with gluteus medius"
+      },
+      {
+        "target": "twelfth-rib stabilization",
+        "locator": "Publisher Discussion rib-XII paragraph; DNB PDF physical page 5, extracted lines 289-290",
+        "assessment": "Explicit background teaching statement; not a result measured by the fetal morphometry study"
+      }
+    ],
+    "remaining": "All three functions now have explicit narrative teaching locators in this article. The exact-action source binding is not executed in this metadata-intake slice; needs_review is a scope boundary, not a claim of missing rib corroboration or a new experimental gate.",
+    "studyBoundary": "Original measurements concern 58 fetal specimens aged 16-27 gestational weeks; no adult gait force, isolated stabilization or clinical outcome is measured here.",
+    "underlyingReferencesIndependentlyRead": false,
+    "fullActionAdmitted": false,
+    "summaryAdmitted": false
+  },
+  "compatibility": {
+    "actionSourceRetargeted": false,
+    "descriptionsChanged": false,
+    "actionMetadataChanged": false,
+    "reviewedCitationsAdded": 0,
+    "pendingActionCitationsAdded": 1,
+    "bibliographySourcesAdded": 1,
+    "newRuntimeGate": false,
+    "heldActionIds": 34,
+    "allHeldMustRemainHeld": true,
+    "publicObjectsMustRemainByteIdentical": true
+  },
+  "priorEvidence": [
+    {
+      "file": "anatomy-two-offered-stability-qualifiers-20261028.json",
+      "sha256": "f90bb937045c49e8cf206d1b36d955c015864e0e65a6a1379b16ab75a02ce86c"
+    },
+    {
+      "file": "anatomy-ql-intake-boundary-spec-review-20261028.md",
+      "sha256": "8b85d5943c3b021751fa8f361c03b4aafa602fde11fd38acf8d58c48c88f9755"
+    }
+  ],
+  "sourceReportingCorrection": {
+    "initialManifestSha256": "a49c31bfbaed0c422f9ff52c3821cdb055d25c94ddf3a64a28662ccce9987799",
+    "finding": "Initial candidate incorrectly generalized an Introduction-only limit to the whole article. Independent SPEC found explicit ribXII stabilization in Discussion, and root confirmed it in publisher text and PDF physical page5 lines289-290.",
+    "claimCorrected": "No claim remains that the article lacks rib support. Introduction supplies lumbar/pelvic teaching; Discussion supplies rib support. Citation stays needs_review only because this metadata-intake slice does not execute full-action source binding.",
+    "newExperimentRequired": false,
+    "sourceOwnerOrEligibilityChange": false
+  }
+}
