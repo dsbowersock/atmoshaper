@@ -82,8 +82,8 @@ const publicRoutes = [
   { path: "/about", expectedText: /Built from inside the massage profession/i },
   { path: "/about/derrick", expectedText: /Therapist, educator, mentor/i },
   { path: "/help", expectedText: /Help & FAQ/i },
-  { path: "/notes", expectedText: /Therapist or Team\/Practice required/i },
-  { path: "/notes/soap", expectedText: /Therapist membership required/i },
+  { path: "/notes", expectedText: /Documentation access required/i },
+  { path: "/notes/soap", expectedText: /Documentation access required/i },
   { path: "/chimer", expectedText: /Chimer/i },
   { path: "/clock", expectedText: /Clock|AM|PM/i },
   { path: "/browse", expectedText: /Wellness audio stations/i },
@@ -760,7 +760,12 @@ for (const route of publicRoutes) {
     }
 
     await page.goto(route.path, { waitUntil: "domcontentloaded" })
-    await expect(page.locator("body")).toContainText(route.expectedText)
+    if (route.path === "/notes" || route.path === "/notes/soap") {
+      // Check the complete access label rather than accepting a longer, misleading message.
+      await expect(page.getByText("Documentation access required", { exact: true }).first()).toBeVisible()
+    } else {
+      await expect(page.locator("body")).toContainText(route.expectedText)
+    }
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined)
     await page.waitForTimeout(250)
 

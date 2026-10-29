@@ -71,6 +71,7 @@ const documentationProofs = [
   },
 ] as const
 
+/** Show local tools while routing locked accounts through the existing capability-access destinations. */
 export default async function NotesPage() {
   const session = await getCurrentSession()
   const canUseLocalClinicalTools = Boolean(session?.user?.capabilities?.canUseLocalClinicalTools)
@@ -107,10 +108,10 @@ export default async function NotesPage() {
         </AppSurface>
 
         <AppSurface
-          title={canUseLocalClinicalTools ? "PHI stays under user control" : "Therapist or Team/Practice required"}
+          title={canUseLocalClinicalTools ? "PHI stays under user control" : "Documentation access required"}
           description={
             <>
-                AtmoShaper stores therapist documentation in one encrypted local professional-record vault in this alpha. Therapist note-taking tools are visible here, but using them requires an active Therapist or Team/Practice membership.
+                AtmoShaper stores therapist documentation in one encrypted local professional-record vault in this alpha. Using these tools requires documentation access on your account. A Supporter membership funds development but does not unlock these tools.
             </>
           }
           icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
@@ -139,7 +140,7 @@ export default async function NotesPage() {
                     ) : null}
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
                       {!canUseLocalClinicalTools ? <LockKeyhole className="h-4 w-4" aria-hidden="true" /> : null}
-                      <span>{canUseLocalClinicalTools ? `Open ${note.title.toLowerCase()}` : "Therapist or Team/Practice required"}</span>
+                      <span>{canUseLocalClinicalTools ? `Open ${note.title.toLowerCase()}` : "Documentation access required"}</span>
                     </p>
                 </AppSurface>
               </Link>

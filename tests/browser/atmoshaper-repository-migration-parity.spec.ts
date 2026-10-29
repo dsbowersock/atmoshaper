@@ -19,7 +19,7 @@ const publicSurfaces = [
   { name: "chimer", path: "/chimer", ready: (page: Page) => page.getByRole("button", { name: /^Increase minutes$/i }) },
   { name: "clock", path: "/clock", ready: (page: Page) => page.getByRole("region", { name: "Chimer clock", exact: true }) },
   { name: "wellness", path: "/wellness", ready: (page: Page) => page.getByText(/Client-owned self-tracking/i).first() },
-  { name: "notes", path: "/notes", ready: (page: Page) => page.getByText(/Therapist or Team\/Practice required/i).first() },
+  { name: "notes", path: "/notes", ready: (page: Page) => page.getByText("Documentation access required", { exact: true }).first() },
   { name: "pricing", path: "/pricing", ready: (page: Page) => page.locator("#one-time-support:visible") },
   { name: "support", path: "/support", ready: (page: Page) => page.getByRole("button", { name: "Send Diagnostic", exact: true }) },
 ] as const

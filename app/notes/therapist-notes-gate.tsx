@@ -6,6 +6,7 @@ import { AppNotice, AppPageShell, AppSurface, appCalloutClassName } from "@/comp
 import { Button } from "@/components/ui/button"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 
+/** Explain the capability gate without implying that the current Supporter tier grants clinical access. */
 export async function TherapistNotesGate({ children }: { children: ReactNode }) {
   const session = await getCurrentSession()
 
@@ -18,23 +19,23 @@ export async function TherapistNotesGate({ children }: { children: ReactNode }) 
   return (
     <AppPageShell title="Local-First Documentation">
       <AppSurface
-        title="Therapist membership required"
+        title="Documentation access required"
         description={
           signedIn
-            ? "SOAP notes, intake forms, client journals, and ROM tools are available with an active Therapist or Team/Practice membership."
-            : "Sign in with an account that has an active Therapist or Team/Practice membership to use these local documentation tools."
+            ? "Your account needs documentation access to use SOAP notes, intake forms, client journals, and ROM tools. A Supporter membership does not include this access."
+            : "Sign in to check your access to these local documentation tools. A Supporter membership does not include documentation access."
         }
         icon={<LockKeyhole className="h-5 w-5" aria-hidden="true" />}
         className={appCalloutClassName}
       >
         <AppNotice
           title="Tools remain visible on the documentation dashboard"
-          description={`${PUBLIC_PRODUCT_IDENTITY.name} keeps the therapist note-taking tools visible so users can see what is available, while direct access stays gated by membership.`}
+          description={`${PUBLIC_PRODUCT_IDENTITY.name} keeps these tools visible so you can explore what is available. Contact support if you expected documentation access on your account.`}
         />
         <div className="flex flex-wrap gap-2">
           <Button asChild className="bg-primary hover:bg-brand-orange-glow">
             <Link href={signedIn ? "/account?tab=membership" : "/login"}>
-              {signedIn ? "Manage membership" : "Sign in"}
+              {signedIn ? "View account access" : "Sign in"}
             </Link>
           </Button>
           <Button asChild variant="outline">
