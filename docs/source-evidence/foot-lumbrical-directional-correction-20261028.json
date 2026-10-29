@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "revisionId": "foot-lumbrical-directional-correction-20261028",
+  "sourceHead": "860ab7624484074201df53435bf1e83da89a4cae",
+  "actionId": "action-lumbricals-foot-toe-extension",
+  "historicalDescription": "Assists extension control of the toe phalanges through the plantar extensor expansion relationship.",
+  "historicalDescriptionSha256": "55df483441bd5a08e87e6d6b6841456f7b99ecbf90089b1a5e19ff11a2693bf6",
+  "currentDescription": "Assists extension control of the toe phalanges through the dorsal extensor expansion relationship.",
+  "currentDescriptionSha256": "9739a87862f05b5ba1ca6e91ec943b35f83af5b842184e1d65570d74eb986c0b",
+  "scope": {
+    "changedWord": "plantar -> dorsal",
+    "reason": "Correct the expansion's directional modifier using positive foot-specific structural evidence.",
+    "heldActionRemainsHeld": true,
+    "all34HeldIdentitiesPreserved": true,
+    "wholeDescriptionApproved": false,
+    "extensionControlApproved": false,
+    "sourceAdmission": false,
+    "rightsApproval": false,
+    "reviewStatusChanged": false,
+    "promptOrAnswerChange": false
+  },
+  "bibliography": [
+    {
+      "title": "LUMBRICALS",
+      "institution": "Loyola University medical-school LUMEN",
+      "url": "https://www.meddean.luc.edu/lumen/meded/grossanatomy/dissector/muscles/lumf.htm",
+      "locator": "Insertion field",
+      "support": "Names the dorsal extensor expansion for foot lumbrical insertion.",
+      "limit": "Reference-only institutional anatomy page. No compatible reusable license, linked-image inspection or complete held-description admission is established."
+    },
+    {
+      "authors": ["Hideki Oukouchi", "Takuro Murakami", "Akio Kikuta"],
+      "title": "Insertions of the Lumbrical and Interosseous Muscles in the Human Foot",
+      "journal": "Okajimas Folia Anatomica Japonica",
+      "publicationDate": "1992-08-20",
+      "volume": "69",
+      "issue": "2-3",
+      "pages": "77-83",
+      "doi": "10.2535/ofaj1936.69.2-3_77",
+      "url": "https://www.jstage.jst.go.jp/article/ofaj1936/69/2-3/69_77/_article/-char/en",
+      "locator": "Original publisher abstract only",
+      "support": "Reports 25 Japanese adult cadaver feet, with lumbricals mainly continuous with dorsal aponeuroses or terminal extensor digitorum longus tendons, and occasional accessory proximal-phalangeal slips.",
+      "limit": "Scoped structural evidence with variation. Full text was not reviewed; no measured extension-control, universal-anatomy, clinical or reusable-license conclusion follows."
+    }
+  ],
+  "retainedReviewInputs": [
+    {"file": "anatomy-two-source-root-corroboration-20261028.json", "sha256": "3da7e85a55db02e2371b063bcf02db01327ea73b5263d97fe1020a650485c0b2"},
+    {"file": "anatomy-two-exact-source-comparisons-independent-review-20261028.md", "sha256": "ebece29175c3ea424a1121a8293688b11639dacf6749b7c302d8f6b6a715d01a"},
+    {"file": "anatomy-foot-directional-correction-scope-20261028.json", "sha256": "3c363fbf438c3b3f743ecd600e7e7545b8742fc08a804689b2628ef8c9193cdd"}
+  ],
+  "historicalEvidencePolicy": "Keep the October 25 review/integration manifests unchanged. The audit/test-only resolver recognizes this exact description successor without admitting a citation or changing runtime eligibility."
+}

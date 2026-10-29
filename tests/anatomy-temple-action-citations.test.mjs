@@ -1,3 +1,4 @@
+import { REVIEWED_LATER_ACTION_BINDINGS } from "../lib/anatomy-action-backlog-provenance.js"
 import assert from "node:assert/strict"
 import fs from "node:fs"
 import { describe, it } from "node:test"
@@ -5,6 +6,7 @@ import { ANATOMY_FOUNDATION_SEED as seed } from "../lib/anatomy-foundation.js"
 import { getAnatomyStudyPrompts, checkFlashcardAnswer } from "../lib/anatomy-study.js"
 import { REVIEWED_TEMPLE_ACTION_BINDINGS as bindings, TEMPLE_HANDS_ON_ANATOMY_SOURCE_METADATA as metadata, withReviewedTempleActionEvidence } from "../lib/anatomy-temple-action-provenance.js"
 import { auditTempleActionEvidence } from "../scripts/audit-temple-action-citations.mjs"
+import { resolveHeldActionDescription } from "../scripts/held-anatomy-description-revisions.mjs"
 
 const manifest = () => JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/temple-hands-on-anatomy-actions-20261028.json", import.meta.url)))
 const actionPrompts = () => getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
@@ -114,16 +116,16 @@ describe("Six separately reviewed Temple action descriptions", () => {
       } finally { Object.assign(citation, original) }
     })
   }
-  it("retains the historical 40 rows and approves only these six successors", () => {
+  it("retains the historical 40 rows and checks the six Temple plus one later successor", () => {
     const historical = JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/muscle-action-backlog-integration-20261025.json", import.meta.url)))
     assert.equal(historical.bindings.length, 47)
     assert.equal(historical.remainingUnapproved.length, 40)
-    const selected = new Set(bindings.map(row => row.id))
+    const selected = new Set([...bindings, ...REVIEWED_LATER_ACTION_BINDINGS].map(row => row.id))
     const remaining = historical.remainingUnapproved.filter(row => !selected.has(row.actionId))
-    assert.equal(remaining.length, 34)
+    assert.equal(remaining.length, 33)
     for (const row of remaining) {
       const action = seed.muscleActions.find(candidate => candidate.id === row.actionId)
-      assert.equal(action.description, row.description)
+      assert.equal(action.description, resolveHeldActionDescription(row))
       assert.equal(action.sourceRef, row.currentSourceRef)
       assert.equal(seed.citations.some(citation => citation.factType === "action" && citation.factSlug === row.actionId && citation.reviewStatus === "reviewed"), false)
     }

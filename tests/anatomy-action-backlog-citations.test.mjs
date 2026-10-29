@@ -1,15 +1,18 @@
 import { REVIEWED_TEMPLE_ACTION_BINDINGS } from "../lib/anatomy-temple-action-provenance.js"
 import { auditActionBacklogEvidence } from "../scripts/audit-action-backlog-citations.mjs"
+import { resolveHeldActionDescription } from "../scripts/held-anatomy-description-revisions.mjs"
 import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
 import fs from "node:fs"
 import { describe, it } from "node:test"
 import { ANATOMY_FOUNDATION_SEED as seed } from "../lib/anatomy-foundation.js"
 import { getAnatomyStudyCards, getAnatomyStudyPrompts, checkFlashcardAnswer } from "../lib/anatomy-study.js"
-import { REVIEWED_ACTION_BACKLOG_BINDINGS as bindings, withReviewedActionBacklogEvidence, isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
+import { REVIEWED_ACTION_BACKLOG_BINDINGS as bindings, REVIEWED_LATER_ACTION_BINDINGS, withReviewedActionBacklogEvidence, isReviewedActionFigureCitation } from "../lib/anatomy-action-backlog-provenance.js"
 
 const muscles = new Set(bindings.map(binding => binding.muscle))
 const prompts = () => getAnatomyStudyPrompts({promptTypes:["muscle_action"]}).filter(prompt => muscles.has(prompt.entitySlug))
 const manifest = () => JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/muscle-action-backlog-integration-20261025.json", import.meta.url)))
+const revision = () => JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/foot-lumbrical-directional-correction-20261028.json", import.meta.url)))
 
 /** Make a public citation fixture for validator rejection cases, not a runtime approval. */
 const exactFor = binding => ({id:binding.citationId, slug:binding.citationId, entityType:"muscle", entitySlug:binding.muscle, factType:"action", factSlug:binding.id, sourceRef:binding.sourceRef, sourceLocator:binding.sourceLocator, reviewStatus:"reviewed"})
@@ -51,7 +54,7 @@ function assertHeldDescriptionsNotCredited(remaining, allPrompts) {
 
 /** Build an actual unfiltered prompt fixture; mutations remain in a caller-owned clone. */
 function heldCompositeFixture() {
-  const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
+  const successors = new Set([...REVIEWED_TEMPLE_ACTION_BINDINGS, ...REVIEWED_LATER_ACTION_BINDINGS].map(row => row.id))
   const remaining = manifest().remainingUnapproved.filter(row => !successors.has(row.actionId))
   const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
   const pending = remaining.find(row => !muscles.has(row.muscle) && allPrompts.some(prompt => prompt.entitySlug === row.muscle))
@@ -89,25 +92,89 @@ describe("Complete supported action-citation batch", () => {
       assert.equal(checkFlashcardAnswer(prompt, {action:prompt.answerFields[0].answer}).correct, true)
     }
   })
-  it("preserves the historical 40-row remainder and checks all 34 held descriptions against public grading", t => {
+  it("preserves the historical 40-row remainder and checks all 33 held descriptions against public grading", t => {
     const historical = manifest().remainingUnapproved
     assert.equal(historical.length, 40)
-    const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
+    const successors = new Set([...REVIEWED_TEMPLE_ACTION_BINDINGS, ...REVIEWED_LATER_ACTION_BINDINGS].map(row => row.id))
     const remaining = historical.filter(row => !successors.has(row.actionId))
-    assert.equal(remaining.length, 34)
+    assert.equal(remaining.length, 33)
     for (const pending of remaining) {
       const action = seed.muscleActions.find(row => row.id === pending.actionId)
-      assert.equal(action.description, pending.description)
+      assert.equal(action.description, resolveHeldActionDescription(pending))
       assert.equal(action.sourceRef, pending.currentSourceRef)
       assert.equal(seed.citations.some(citation => citation.factType === "action" && citation.factSlug === pending.actionId && citation.reviewStatus === "reviewed"), false)
     }
     const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
     const coverage = assertHeldDescriptionsNotCredited(remaining, allPrompts)
-    assert.equal(coverage.heldDescriptionsChecked, 34)
+    assert.equal(coverage.heldDescriptionsChecked, 33)
+    // Preserve all original negatives and also inspect the one current held successor.
+    const current = remaining.map(row => ({...row, description:resolveHeldActionDescription(row)}))
+    assert.equal(assertHeldDescriptionsNotCredited(current, allPrompts).heldDescriptionsChecked, 33)
     t.diagnostic(JSON.stringify(coverage))
   })
+  it("corrects only the held foot-lumbrical directional modifier", () => {
+    const pending = manifest().remainingUnapproved.find(row => row.actionId === "action-lumbricals-foot-toe-extension")
+    const action = seed.muscleActions.find(row => row.id === pending.actionId)
+    const current = resolveHeldActionDescription(pending)
+    assert.equal(current, pending.description.replace("plantar", "dorsal"))
+    assert.equal(action.description, current)
+    assert.equal(action.sourceRef, pending.currentSourceRef)
+    assert.equal(seed.citations.some(row => row.factSlug === action.id && row.factType === "action" && row.reviewStatus === "reviewed"), false)
+  })
+  it("rejects malformed or different revision identities, text, hashes and scope", () => {
+    const pending = manifest().remainingUnapproved.find(row => row.actionId === "action-lumbricals-foot-toe-extension")
+    for (const invalid of [null, [], {}, {...revision(), actionId:"another-action"}, {...revision(), schemaVersion:2}]) {
+      assert.throws(() => resolveHeldActionDescription(pending, invalid), /Held description revision/)
+    }
+    for (const change of [
+      row => { row.historicalDescription += " Unreviewed." },
+      row => { row.historicalDescriptionSha256 = "0".repeat(64) },
+      row => { row.currentDescription += " Unreviewed."; row.currentDescriptionSha256 = createHash("sha256").update(row.currentDescription).digest("hex") },
+      row => { row.currentDescriptionSha256 = "0".repeat(64) },
+      row => { row.scope.sourceAdmission = true },
+      row => { row.scope.heldActionRemainsHeld = false },
+      row => { row.bibliography[1].doi = "unreviewed" },
+      row => { row.extraRevision = {...row} },
+    ]) {
+      const changed = revision(); change(changed)
+      assert.throws(() => resolveHeldActionDescription(pending, changed), /Held description revision/)
+    }
+    for (const changed of [{...pending, description:pending.description+" Drift."}, {...pending, descriptionSha256:"0".repeat(64)}]) {
+      assert.throws(() => resolveHeldActionDescription(changed), /Historical held description changed/)
+    }
+    const other = manifest().remainingUnapproved.find(row => row.actionId !== pending.actionId)
+    assert.equal(resolveHeldActionDescription(other), other.description)
+  })
+  for (const surface of ["standalone", "primary", "accepted"]) {
+    it(`excludes the current held foot-lumbrical description on the ${surface} surface and detects injection`, () => {
+      const historical = manifest().remainingUnapproved.find(row => row.actionId === "action-lumbricals-foot-toe-extension")
+      const pending = {...historical, description:resolveHeldActionDescription(historical)}
+      const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
+      const original = JSON.stringify(allPrompts)
+      assert.doesNotThrow(() => assertHeldDescriptionsNotCredited([pending], allPrompts))
+      const mutated = structuredClone(allPrompts)
+      const prompt = mutated.find(row => row.entitySlug === pending.muscle)
+      assert.ok(prompt)
+      const field = prompt.answerFields.find(row => row.id === "action")
+      assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, false)
+      const composite = `${field.answer}; ${pending.description.toUpperCase()}`
+      if (surface === "standalone") {
+        field.acceptedAnswers.push(pending.description)
+        assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, true)
+      } else if (surface === "primary") {
+        field.answer = composite
+        assert.equal(checkFlashcardAnswer(prompt, {action:composite}).correct, false)
+      } else {
+        field.acceptedAnswers.push(composite)
+        assert.equal(checkFlashcardAnswer(prompt, {action:composite}).correct, true)
+        assert.equal(checkFlashcardAnswer(prompt, {action:pending.description}).correct, false)
+      }
+      assert.throws(() => assertHeldDescriptionsNotCredited([pending], mutated), error => error.code === "ERR_ASSERTION" && error.message.includes(pending.actionId))
+      assert.equal(JSON.stringify(allPrompts), original)
+    })
+  }
   it("detects credit for a held description in a mutated unfiltered prompt", t => {
-    const successors = new Set(REVIEWED_TEMPLE_ACTION_BINDINGS.map(row => row.id))
+    const successors = new Set([...REVIEWED_TEMPLE_ACTION_BINDINGS, ...REVIEWED_LATER_ACTION_BINDINGS].map(row => row.id))
     const remaining = manifest().remainingUnapproved.filter(row => !successors.has(row.actionId))
     const allPrompts = getAnatomyStudyPrompts({promptTypes:["muscle_action"]})
     // Choose an actually offered muscle excluded by the old admitted-cohort filter.
@@ -293,6 +360,135 @@ describe("Precisely registered publisher figure locators", () => {
   })
 })
 
+
+// Explicit later identity: historical pending/source suffixes remain stable.
+const ql = {
+  id:"action-quadratus-lumborum-stabilization", muscle:"quadratus-lumborum",
+  description:"Helps stabilize the twelfth rib, pelvis, and lumbar spine.",
+  originalSourceRef:"applied-human-anatomy", sourceRef:"grzonkowska-quadratus-lumborum-2018",
+  sourceLocator:"https://link.springer.com/article/10.1007/s00276-017-1901-4",
+  relationshipId:"relationship-enrichment-muscle-action-action-quadratus-lumborum-stabilization-belongs-to-system-anatomy-concept-muscular-system",
+  citationId:"citation-ql-stabilization-grzonkowska-2018-pending", citationSlug:"ql-stabilization-grzonkowska-2018-pending",
+  sourcePointerIds:[
+    "citation-source-ref-muscle-action-action-quadratus-lumborum-stabilization-muscle-action-action-quadratus-lumborum-stabilization-applied-human-anatomy",
+    "citation-source-ref-muscle-action-action-quadratus-lumborum-stabilization-relationship-relationship-enrichment-muscle-action-action-quadratus-lumborum-stabilization-belongs-to-system-anatomy-concept-muscular-system-applied-human-anatomy",
+  ],
+}
+const qlPrompt = () => getAnatomyStudyPrompts({promptTypes:["muscle_action"]}).find(row => row.entitySlug === ql.muscle)
+const qlPriorDescription = "Laterally flexes the lumbar spine."
+const qlPriorLabel = "Lumbar Lateral Flexion at Lumbar Spine"
+const qlDescriptionComposite = `${qlPriorDescription}; ${ql.description}`
+
+describe("One later exact QL description admission", () => {
+  it("adds exactly one frozen later description binding while preserving the dated cohort", () => {
+    assert.equal(bindings.length, 47)
+    assert.deepEqual(bindings, manifest().bindings)
+    assert.deepEqual(REVIEWED_LATER_ACTION_BINDINGS.map(row => row.id), [ql.id])
+    const binding = REVIEWED_LATER_ACTION_BINDINGS[0]
+    assert.equal(binding.answerScope, "description_only")
+    assert.deepEqual(binding.legacyGroupCitationIds, [])
+    assert.equal(binding.citationSlug, ql.citationSlug)
+    assert.equal(binding.descriptionSha256, createHash("sha256").update(ql.description).digest("hex"))
+    assert.ok(Object.isFrozen(REVIEWED_LATER_ACTION_BINDINGS) && Object.isFrozen(binding) && Object.isFrozen(binding.expectedAction))
+  })
+  it("grades the unchanged description and full description composite while retaining both prior answers", () => {
+    const prompt = qlPrompt()
+    assert.equal(prompt.id, "muscle_action:muscle-quadratus-lumborum")
+    for (const answer of [ql.description, qlDescriptionComposite, qlPriorDescription, qlPriorLabel]) assert.equal(checkFlashcardAnswer(prompt, {action:answer}).correct, true, answer)
+    assert.equal(prompt.answerFields[0].answer, qlDescriptionComposite)
+    assert.ok(prompt.citations.some(row => row.id === ql.citationSlug && row.sourceRef === ql.sourceRef))
+    assert.ok(prompt.sources.some(row => row.id === ql.sourceRef))
+  })
+  it("rejects stabilization labels and partial or mixed label composites", () => {
+    const prompt = qlPrompt()
+    const label = "Lumbar Stabilization at Lumbar Spine"
+    for (const answer of [label, `${qlPriorLabel}; ${label}`, `${qlPriorLabel}; ${ql.description}`, `${qlPriorDescription}; ${label}`]) {
+      assert.equal(checkFlashcardAnswer(prompt, {action:answer}).correct, false, answer)
+      assert.equal(prompt.answerFields[0].acceptedAnswers.includes(answer), false, answer)
+    }
+    assert.equal(checkFlashcardAnswer(prompt, {action:qlPriorLabel}).correct, true)
+  })
+  it("retains exact action metadata, promoted citation and only the original teaching/source-pointer identities", () => {
+    assert.deepEqual(seed.muscleActions.find(row => row.id === ql.id), {id:ql.id, muscle:ql.muscle, joint:"lumbar-spine", movement:"lumbar-stabilization", role:"stabilizer", contractionType:"isometric", description:ql.description, sourceRef:ql.sourceRef})
+    const exact = seed.citations.filter(row => row.id === ql.citationId)
+    assert.equal(exact.length, 1)
+    for (const [key, value] of Object.entries({slug:ql.citationSlug, entityType:"muscle", entitySlug:ql.muscle, factType:"action", factSlug:ql.id, sourceRef:ql.sourceRef, sourceLocator:ql.sourceLocator, reviewStatus:"reviewed"})) assert.equal(exact[0][key], value, key)
+    for (const context of [/Introduction/, /Discussion/, /fetal/]) assert.match(exact[0].citationNote, context)
+    const relations = seed.relationships.filter(row => row.id === ql.relationshipId)
+    assert.equal(relations.length, 1)
+    assert.equal(relations[0].sourceRef, ql.sourceRef)
+    const pointers = seed.citations.filter(row => row.entityType === "muscle_action" && row.entitySlug === ql.id && row.factType === "seed_source_reference")
+    assert.deepEqual(pointers.map(row => row.id).sort(), [...ql.sourcePointerIds].sort())
+    for (const [index, id] of ql.sourcePointerIds.entries()) {
+      const pointer = pointers.find(row => row.id === id)
+      assert.equal(pointer.factSlug, index === 0 ? `muscle_action:${ql.id}` : `relationship:${ql.relationshipId}`)
+      assert.equal(pointer.sourceRef, ql.sourceRef)
+      assert.equal(pointer.sourceLocator, ql.sourceLocator)
+    }
+    assert.equal(seed.citations.find(row => row.id === "citation-quadratus-lumborum-action").reviewStatus, "needs_review")
+    assert.equal(isReviewedActionFigureCitation(exact[0]), false)
+  })
+  it("retargets original QL source state idempotently without regenerating IDs or mutating input", () => {
+    const input = structuredClone(seed)
+    input.muscleActions.find(row => row.id === ql.id).sourceRef = ql.originalSourceRef
+    input.relationships.find(row => row.id === ql.relationshipId).sourceRef = ql.originalSourceRef
+    for (const id of ql.sourcePointerIds) Object.assign(input.citations.find(row => row.id === id), {sourceRef:ql.originalSourceRef, sourceLocator:"https://open.umn.edu/opentextbooks/textbooks/1266"})
+    const before = structuredClone(input)
+    const result = withReviewedActionBacklogEvidence(input)
+    assert.deepEqual(input, before)
+    assert.equal(result.muscleActions.find(row => row.id === ql.id).sourceRef, ql.sourceRef)
+    assert.equal(result.relationships.find(row => row.id === ql.relationshipId).sourceRef, ql.sourceRef)
+    for (const id of ql.sourcePointerIds) assert.equal(result.citations.find(row => row.id === id).sourceRef, ql.sourceRef)
+    assert.deepEqual(result.citations.map(row => row.id), input.citations.map(row => row.id))
+    assert.deepEqual(withReviewedActionBacklogEvidence(result), result)
+  })
+  it("rejects complete action, teaching, pointer and citation corruption without mutation", () => {
+    const changes = [
+      ...["muscle", "joint", "movement", "role", "contractionType", "description", "sourceRef"].map(key => copy => { copy.muscleActions.find(row => row.id === ql.id)[key] = "unreviewed-drift" }),
+      copy => { copy.muscleActions.find(row => row.id === ql.id).unreviewedMetadata = "additional-field" },
+      copy => { copy.muscleActions.push({...copy.muscleActions.find(row => row.id === ql.id)}) },
+      copy => { copy.relationships.find(row => row.id === ql.relationshipId).targetEntitySlug = "skeletal-system" },
+      copy => { copy.relationships.push({...copy.relationships.find(row => row.id === ql.relationshipId)}) },
+      ...["slug", "entitySlug", "factSlug", "sourceRef", "sourceLocator", "reviewStatus"].map(key => copy => { copy.citations.find(row => row.id === ql.sourcePointerIds[0])[key] = "unreviewed-drift" }),
+      copy => { copy.citations.push({...copy.citations.find(row => row.id === ql.sourcePointerIds[0])}) },
+      copy => { copy.citations = copy.citations.filter(row => row.id !== ql.sourcePointerIds[1]) },
+      copy => { copy.citations.find(row => row.id === ql.citationId).reviewStatus = "needs_review" },
+      copy => { copy.citations.find(row => row.id === ql.citationId).sourceLocator += "#unreviewed" },
+      copy => { copy.citations.push({...copy.citations.find(row => row.id === ql.citationId)}) },
+    ]
+    for (const change of changes) {
+      const input = structuredClone(seed)
+      change(input)
+      const before = structuredClone(input)
+      assert.throws(() => withReviewedActionBacklogEvidence(input), /Reviewed backlog action changed|Reviewed action (teaching|source-pointer) context changed|Exact backlog action citation conflict/)
+      assert.deepEqual(input, before)
+    }
+  })
+  it("rejects article identity, DOI URL, license and reuse-scope drift", () => {
+    for (const patch of [{id:"different-source"}, {url:"https://example.test/unreviewed"}, {license:"unreviewed"}, {licenseUrl:"https://example.test/license"}, {usageScope:"reference_only"}]) {
+      const input = structuredClone(seed)
+      Object.assign(input.sources.find(row => row.slug === ql.sourceRef), patch)
+      const before = structuredClone(input)
+      assert.throws(() => withReviewedActionBacklogEvidence(input), /Reviewed action source changed/)
+      assert.deepEqual(input, before)
+    }
+  })
+  it("withholds the new answers on exact citation status/source/fact failure while retaining prior answers", () => {
+    const citation = seed.citations.find(row => row.id === ql.citationId)
+    const original = {...citation}
+    assert.equal(checkFlashcardAnswer(qlPrompt(), {action:ql.description}).correct, true)
+    try {
+      for (const patch of [{reviewStatus:"needs_review"}, {sourceRef:ql.originalSourceRef}, {factSlug:"quadratus-lumborum-actions"}, {entitySlug:"another-muscle"}]) {
+        Object.assign(citation, original, patch)
+        const prompt = qlPrompt()
+        for (const answer of [ql.description, qlDescriptionComposite]) assert.equal(checkFlashcardAnswer(prompt, {action:answer}).correct, false, answer)
+        for (const answer of [qlPriorDescription, qlPriorLabel]) assert.equal(checkFlashcardAnswer(prompt, {action:answer}).correct, true, answer)
+        assert.equal(prompt.citations.some(row => row.id === ql.citationSlug), false)
+      }
+    } finally { Object.assign(citation, original) }
+    assert.equal(checkFlashcardAnswer(qlPrompt(), {action:ql.description}).correct, true)
+  })
+})
 
 describe("Whole-batch evidence boundaries", () => {
   const review = () => JSON.parse(fs.readFileSync(new URL("../docs/source-evidence/muscle-action-backlog-review-20261025.json", import.meta.url)))
