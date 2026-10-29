@@ -5144,9 +5144,17 @@ test("vinyl geometry keeps short landscape complete with exact safe-area offsets
 test("Atmosphere interruption notice counts only active unhovered and unfocused time", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== mobileProject, "The notice timer contract is covered in mobile Chromium.")
   await installInterruptionNoticeMediaFakes(page)
-  await page.clock.install()
+  await page.clock.install({ time: new Date("2026-01-01T00:00:00Z") })
   await page.setViewportSize({ width: 390, height: 844 })
-  const player = await startInterruptionNoticeSession(page)
+  await gotoShell(page, "/music")
+  await centerCarouselItem(page, "mlab-proof-drone", "Next station")
+  // Let the shell load normally, then stop wall time before Play creates the
+  // notice deadline. The fixed future target stays ahead of the bounded test;
+  // automation latency must not consume the notice's 500 ms margin.
+  await page.clock.pauseAt(new Date("2026-01-01T01:00:00Z"))
+  await page.getByRole("button", { name: /^Play Drone$/i }).click()
+  const player = page.getByTestId("music-player-toolbar")
+  await expect(player).toHaveAttribute("data-playback-state", /loading|playing/)
   const notice = page.getByRole("region", { name: "Interruption preference" })
   await expect(notice).toBeVisible()
 
