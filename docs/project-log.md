@@ -1,5 +1,11 @@
 # AtmoShaper Project Log
 
+## October 29 enabled background notices completed at source scope
+
+The [background notice coverage audit](audits/2026-10-29-background-notice-coverage.md) maps all 84 enabled entries and their declared source families, keeping cobe/simplex subcomponents additive. The canonical static notice file now also preserves the complete Chamaac, Magic, Eldora, cobe and two original Jhey notices, plus the existing simplex package and source notices. Prior React Bits/Animate UI bytes remain unchanged. Custom-source credits retain separate terms; no universal media or licensing clearance is claimed.
+
+Exact body/prefix, source/legal/history and link/diff checks pass with independent source review. Purchase availability, entitlement, renderer and legal-policy code is unchanged. No app build/test, dependency install, media/cloud-account operation, credential read or Windows permission change occurred. This prepares source distribution only; exact artifact notice delivery, publication, the separate media-access route choice and the full release gates remain pending.
+
 ## October 29 background license notices preserved locally
 
 A bounded source review found the React Bits/Animate UI copyright summaries and links lacked their full permission notices. The [notice-preservation audit](audits/2026-10-29-background-license-notice-preservation.md) records the pinned public sources and scope. One static third-party-notices file now preserves both complete license bodies; the source guide reflects the already-approved permanent in-app access alongside membership access. Existing legal text/versions, registry IDs, availability and purchase behavior are unchanged.
