@@ -1,5 +1,15 @@
 # AtmoShaper Project Log
 
+## October 30 local anatomy delivery and current media hold
+
+The reviewed local anatomy delivery source at `e0e877f` is composed with the retained documentation candidate on `codex/migration-readiness-20261030`; no publication or PR/main merge has occurred. All 61 source-only checks, scoped lint and nonincremental typecheck pass, with independent specification and quality reviews. The opt-in final image/diagram URL binding covers the shared study projection used by database-backed consumers and seed-only Anatomime. Defaults preserve existing delivery. No setting is enabled, and actual database-origin coverage, branded delivery and final artifact acceptance remain unverified. See the [anatomy delivery audit](audits/2026-10-30-anatomy-independent-media-delivery.md).
+
+The private copy/restoration and four-copy exclusion are complete, and the owner admitted the resulting 16,268-file cohort for public setup on retained grant evidence. The later October 30 setup stopped at file-owner metadata admission before credential reading or any provider request. Its window and correction card expired; the owner reported revoking the temporary setup token. That owner report is not an API revocation check. Local encrypted-holder cleanup remains unverified after the pre-admission stop. No expired grant or unused request slot is reusable.
+
+The source-only capture producer correction now passes independent specification/quality reviews and root's fresh 164-test offline run. It reuses the existing explicit-owner CREATE_NEW primitive for the five new capture files, including continuation in a validated existing root; strict readers remain unchanged. No existing file ownership or permissions were changed. These invented-boundary tests do not prove native owner assignment, live capture or provider delivery. A later token/setup operation still requires a new security/provider decision.
+
+The README and [migration guide](wiki/migration-status.md) now distinguish completed scoped campaigns from remaining independent media delivery, all-three-purchase deployed readiness/activation, service/recovery and exact public-release decisions. Historical state/log entries remain intact. Both public apps and originals retain their existing versions; the full MassageLab-to-AtmoShaper migration remains incomplete.
+
 ## October 30 temporary-token media preparation accepted locally
 
 The owner selected preparation of a temporary-token route. The new source-only successor avoids the saved CLI login and keeps one canonical authentication lease and media workflow. A future custom USER token needs account-wide R2 Edit on the intended account plus Zone/DNS Read only on the intended zone; source guards are not provider-enforced two-bucket scope. The owner-launched masked entry uses CurrentUser DPAPI and new-task-only protected artifacts. Existing credentials and Windows permissions remain untouched.

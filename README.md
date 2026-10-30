@@ -4,15 +4,11 @@ This repository contains the AtmoShaper codebase: a local-first toolkit for lear
 
 ## Repository Status
 
-AtmoShaper is the repository and approved public platform identity. The dependency-ordered Phase 6 replacement stack is merged and presents the application as `AtmoShaper` and the audio mixer as `Atmosphere` while preserving private compatibility identifiers. The whole-site migration is live; production, provider, domain, and deployment cutover remain staged under the repository identity boundary, and billing is not configured.
+The retained source includes the reviewed migration integration through PR #66. Local source and documentation candidates are tracked separately in [project state](docs/project-state.md) and the [migration status](docs/wiki/migration-status.md). Bootstrap and phase history remain in [migration lineage](MIGRATION_LINEAGE.md) and the [project log](docs/project-log.md).
 
-The Phase 1–2 bootstrap is merged: [PR #1](https://github.com/dsbowersock/atmoshaper/pull/1) merged on 2026-09-09 at 09:36:44 UTC by `dsbowersock` as `f59e1b9371b06e7401740ae011f6dc911430a97c`. The reviewed head was `6f516b29a8f1be8c66b48663f1101b66efe3f7f9`; `codex/bootstrap-atmoshaper` is retained.
+The complete MassageLab → AtmoShaper migration remains in progress. Scoped application, local-first records, realtime/progress, monitoring and sandbox-purchase campaigns have completed receipts; final media delivery and catalog binding, deployed service/recovery readiness, exact release-artifact agreement and public release still need their recorded acceptance. Existing public sites retain their separately approved versions.
 
-Phase 3 documentation consolidation is complete. [PR #2](https://github.com/dsbowersock/atmoshaper/pull/2) merged at `2026-09-10T00:57:48Z` as `7c07e4578307508ae2bdb784c4d7ad0d9fb64c65`; its reviewed head was `9d2a8eca057f33354f2cbb50263c8e4f365a00f1`, and `codex/atmoshaper-docs-consolidation` remains retained. Of 150 inherited design records reviewed, 134 remain and 16 exact superseded plans were omitted with [source and rollback receipts](docs/rebrand/atmoshaper-cleanup-register.md#phase-3-documentation-omissions--2026-09-09). The new Phase 3 plan is additional to those records.
-
-Phase 4 [PR #3](https://github.com/dsbowersock/atmoshaper/pull/3) and Phase 5 [PR #4](https://github.com/dsbowersock/atmoshaper/pull/4) are merged. Preserved [PR #5](https://github.com/dsbowersock/atmoshaper/pull/5) is closed unmerged; replacement PRs #6–#14, CI repair PR #15, artwork repair PR #16, anatomy repair PR #17, and support-contact PR #18 are merged. Current `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`. [PR #19](https://github.com/dsbowersock/atmoshaper/pull/19) is the open, unmerged provider-readiness record; its merge remains separately authorized.
-
-Full development history and historical evidence remain in [`dsbowersock/massagelab`](https://github.com/dsbowersock/massagelab). See [MIGRATION_LINEAGE.md](MIGRATION_LINEAGE.md) for the exact source and migration boundary.
+Recurring Supporter billing has separate acceptance and activation receipts. One-time support and permanent-background purchases remain part of the release scope and have passed their sandbox fulfillment/readback checks. Their final deployed readiness and activation remain pending. Current work continues on the existing Vercel setup.
 
 ## Current Runtime
 
@@ -22,7 +18,7 @@ The current application includes:
 - local-first SOAP notes, intake forms, journals, and ROM sessions;
 - Calendar scheduling, availability, booking, and conflict-prevention foundations;
 - Anatomime anatomy-learning experiences;
-- the audio mixer, presented publicly as `Atmosphere` in the local Phase 6 stack while internal `atmoshaper` identifiers remain compatibility identifiers; and
+- the audio mixer, presented as `Atmosphere` in the reviewed source while internal `atmoshaper` identifiers remain compatibility identifiers; and
 - optional accounts for preferences, profiles, role verification, templates, and security settings.
 
 Clinical notes, intake forms, journals, ROM sessions, and other PHI-bearing professional-record workflows remain local-first. They are not authorized for hosted clinical storage unless the documented compliance gates pass.
@@ -39,7 +35,7 @@ Start with:
 
 The [migration charter](docs/rebrand/atmoshaper-migration-charter.md) remains current policy. The [Phase 6 replacement delivery plan](docs/superpowers/plans/2026-09-20-phase6-review-sized-prs.md), earlier plans, the [export manifest](docs/rebrand/atmoshaper-export-manifest.json), and the [project log](docs/project-log.md) retain the merged stack's implementation history and completed contracts.
 
-The Phase 6 replacement stack is merged. Task 8 introduced new current legal-version IDs without rewriting archived v2 documents or existing acceptance rows. Old-origin recovery remains a compatibility requirement; PR #19's merge and the staged provider, deployment, domain/DNS, production-database, payment, email, media, final-logo, and separate Linux Atmosphere snapshot decisions remain independently gated.
+The Phase 6 replacement stack is merged. Task 8 introduced new current legal-version IDs without rewriting archived v2 documents or existing acceptance rows. Old-origin recovery remains a compatibility requirement. The current remaining service, purchase, media and exact-release gates are tracked in [migration status](docs/wiki/migration-status.md); earlier PR and phase snapshots remain historical evidence.
 
 ## Local Development
 

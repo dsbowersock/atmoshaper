@@ -2,11 +2,16 @@
 
 Read [project state](../project-state.md) and the
 [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
-first. October 8 source inspection, public JSON-index reads and authenticated
-bucket configuration reads identify the consumers and settings below. Owner
-aggregate counts are separately labeled. Independent administration/billing,
-object-level integrity and final hosted playback remain unverified.
-This is the source-side cutover map, not an upload or retirement instruction.
+first. The October 8 inventory below is historical source and configuration
+evidence. Later copy and exclusion receipts supersede its old object-integrity
+hold: the private copy/restoration passed, the four selected new copies were
+removed with originals preserved, and the owner admitted the resulting 16,268
+files for public setup on retained grant evidence. This bounded admission is
+not blanket rights or clinical clearance. Branded hosted delivery, actual
+consumer coverage and final catalog/configuration/artifact acceptance remain
+pending. The owner reported revoking the later temporary setup token; all its
+private windows are closed. This source map authorizes no upload, retirement,
+credential use or public-access change.
 
 ## Reuse before copying
 

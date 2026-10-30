@@ -1,7 +1,7 @@
 # AtmoShaper migration status and remaining work
 
 Read [project state](../project-state.md) first for the canonical current snapshot
-and [project log](../project-log.md) for dated outcomes. This is a **dated October 29
+and [project log](../project-log.md) for dated outcomes. This is a **dated October 30
 reconciliation**, not a live provider inspection or an execution grant. The
 [reconciliation audit](../audits/2026-10-29-migration-gate-reconciliation.md) states
 which evidence supports each correction and its limits. Historical snapshots
@@ -26,14 +26,18 @@ Broad refactoring and unrelated new features remain separate work.
 | Anatomy and public identity | Reviewed rebrand/final assets and the later supported anatomy/citation/grading changes are integrated. The chosen DSEG7 Modern replacement has replaced the unresolved Digital-7 source gate. | Confirm the final offered content and media rights/admission. Held auxiliary facts are a disposition worklist, not a requirement to activate every held row or conduct an invented whole-corpus enrichment campaign. Preserve legal/compatibility identities. |
 | All three purchase options | Recurring Supporter has dated acceptance/activation receipts. One-time support and permanent-background sandbox payments, local fulfillment, buyer-specific access, fresh-process readback and cleanup passed. Source availability guards preserve all three intended options while failing closed when configuration is unavailable. | Complete the exact deployed all-payments configuration/webhook/browser proof, applicable catalog/tax/legal/rights and reconciliation evidence, then obtain activation/release authority. A Supporter-only build marker does not close these gates; the two additional flows stay disabled until approved. |
 | Sentry | Protected Node/error/source-map/privacy/count/owner-email acceptance and temporary-alert/local cleanup passed. Its sole accepted event/email campaign is closed. | Final hosted application/DSN binding and any offered browser/edge/regression/Production monitoring acceptance remain distinct. Do not resend the completed synthetic event or treat source integration as activation. |
-| Independent media | The separate generic buckets contain the copied/restored material. On October 29 the owner removed the four selected copies after fresh matching body comparisons. Readback verified all four copies absent, all four corresponding originals unchanged, every other 5,156 copied key/size/version witness preserved and the new bucket private. The temporary copy-write token remains revoked. | Complete rights/cohort disposition, branded delivery, CORS/cache/range/playback and exact catalog binding/write-backout. The four-copy cleanup is closed; its integrity proof establishes neither usage rights nor clinical eligibility. |
+| Independent media | The private copy/restoration and four-copy exclusion are complete. Readback preserved all four originals and the other 5,156 anatomy copies. The owner admitted the resulting 16,268-file cohort for public setup on the retained grant evidence; that is a bounded admission, not blanket rights or clinical clearance. Both temporary copy-write and later setup tokens are owner-reported revoked. | Complete branded delivery, CORS/cache/range/playback, actual consumer coverage and exact catalog/configuration/backout acceptance. Carry forward the admitted cohort and completed cleanup; reconcile any changed offered content against its applicable rights basis. |
 | Calendar, mail, database and other service ownership | Dated setup, delivery/resource-identity and local acceptance receipts remain valid for what they observed. The latest source build passed committed-migration status. | Resolve final deployed bindings, independent administration/billing/limits and recovery objectives/restore acceptance, plus the actual offered user journeys. Local Calendar persistence is not a real Production Google OAuth/sync journey; migration status is not a backup/restore test. |
 | Local-first records and legacy continuity | Clinical/PHI workflows remain local-first. The owner expects no existing-user record transfer; compatibility identifiers and both working sites are retained. | Preserve existing data/legal/entitlement contracts. Do not create a transfer campaign or generic import/cache/offline launch prerequisite without a real need; do not imply untested recovery or compliant hosted clinical storage. |
 | Final public release | Both public versions and protected routing were preserved during the approved source batch; its permitted branch-preview movements were bounded and recorded. | Fresh exact-artifact/release evidence, owner activation/promotion decision, rollback and support/recovery handoff. No current document, old setting report or unused allowance authorizes a new rollout. |
 
 ## Current source-only preparation
 
-The encrypted-only helper successor has 576 offline checks and independent source reviews; actual credential eligibility and provider/media delivery are not yet observed. All earlier private windows remain closed. Preparing its next complete security decision does not reopen credentials or create an operation clock. The [service/recovery runbook](service-recovery-readiness.md) and [staged final acceptance plan](../superpowers/plans/2026-10-29-final-service-recovery-and-release-acceptance.md) now define the remaining service and release evidence; they are preparation, not completed provider recovery. The offered repository's canonical state/log have been consolidated from retained dated continuation evidence, with the original chronology preserved.
+The [local anatomy delivery candidate](../audits/2026-10-30-anatomy-independent-media-delivery.md) passes 61 source-only checks and independent specification/quality reviews. It adds an opt-in binding at the shared final image/diagram projection, covering both database-backed study consumers and seed-only Anatomime without row rewrites. No setting is enabled; actual database-origin coverage and final artifact delivery remain unverified.
+
+The October 30 temporary-token setup stopped at file-owner metadata admission before credential reading or any provider request. The owner reported revoking that setup token. All earlier private windows and correction cards are closed; preparing the producer repair creates no new credential, grant or clock. Local encrypted-holder cleanup remains unverified after that pre-admission stop. The [service/recovery runbook](service-recovery-readiness.md) and [staged final acceptance plan](../superpowers/plans/2026-10-29-final-service-recovery-and-release-acceptance.md) define the remaining evidence; they are preparation, not completed provider recovery. Historical state/log entries remain intact.
+
+The capture producer correction has independent specification/quality reviews and a fresh root run of 164 offline tests. It sets the intended owner when creating new capture files through the existing CREATE_NEW primitive; strict admission is preserved. No existing Windows ownership/permissions, credential, provider or public-access operation occurred. Native ownership, actual capture and media setup remain unverified; this source result supplies no new operational authority.
 
 ## Next operator step and safe continuation
 
@@ -43,8 +47,8 @@ Readback completed at **2026-10-29T13:46:15Z**: all four copies absent, all four
 corresponding original size/version witnesses unchanged, all 5,156 other copied
 objects preserved, and the new bucket private. The worker and form are closed.
 
-The next media work is rights/cohort admission, independent public delivery and
-exact catalog binding/backout. Use the retained preparation; do not restart the
+The next media work is independent public delivery and exact consumer/catalog
+binding/backout for the admitted cohort. Use the retained preparation; do not restart the
 copy or closed acceptance campaigns. This completed private hour, nonce and
 unused request slots authorize no further action. Credentials and object paths
 remain private, and retained credentials/history remain preserved.
