@@ -1,5 +1,11 @@
 # AtmoShaper Project State
 
+## October 29 background license notices preserved locally
+
+A bounded source review found the React Bits/Animate UI copyright summaries and links lacked their full permission notices. The [notice-preservation audit](audits/2026-10-29-background-license-notice-preservation.md) records the pinned public sources and scope. One static third-party-notices file now preserves both complete license bodies; the source guide reflects the already-approved permanent in-app access alongside membership access. Existing legal text/versions, registry IDs, availability and purchase behavior are unchanged.
+
+Literal source counts are 88 registry definitions and 81 purchase-eligible entries: 35 verified/46 caution, with no blocked or unclear eligible entry. Those labels are not a blanket clearance. Independent review established no runtime defect or new permanent-use rights decision; only notice preservation and stale explanatory wording needed correction. Exact notice bytes, preserved source/history and relative links are checked locally. Publication and exact final-artifact notice delivery remain pending; no protected operation, public change or closed-campaign replay follows. The separate media-route owner choice and full migration gates remain open.
+
 ## October 29 exact-artifact release checklist clarified
 
 The release checklist now distinguishes the intended all-three-purchase migration from retained October 1 Supporter-only activation evidence. It points to the existing staged acceptance record for source/catalog/configuration/READY artifact, missing offered-context checks, all-flow backout and final decision. Command examples explicitly disclose environment loading, direct database/live Stripe reads and the separate audio release tooling; none was executed. This is local documentation preparation, not provider readiness, build acceptance or public activation. Media remains on hold for the pending owner route choice.

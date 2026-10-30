@@ -2,7 +2,9 @@
 
 This file tracks visual background and visualizer sources reviewed for MassageLab. These effects are used only as internal app UI effects inside MassageLab. They are not sold, sublicensed, redistributed, exposed as source files, or marketed as standalone components, templates, UI packs, React Bits packs, or reusable source components.
 
-Premium access means subscribed MassageLab users can use the visual effect inside MassageLab. Users do not receive component source code, downloadable component files, or reusable templates.
+Premium access means use of the visual effect inside the application, through either the existing membership entitlement or approved permanent in-app background access. Permanent access grants purchaser-operated personal and internal professional display under the digital-purchase policy; it does not transfer the component or its assets. Users do not receive component source code, downloadable component files, or reusable templates.
+
+The [retained third-party background notices](../public/third-party-notices.txt) preserve the complete copyright and permission notices for the React Bits and Animate UI material documented below. The static file is prepared for inclusion in the next application artifact at `/third-party-notices.txt`; this source change does not establish that it is served by the current public version. These notices supplement the source-specific attribution and restrictions below and do not clear unrelated content or change the purchaser policy.
 
 ## Provider License Notes
 
