@@ -16,7 +16,10 @@ const imageSlug = "bodyparts3d-biceps-brachii-anatomogram"
 const load = createCompiledModuleLoader(import.meta.url)
 const studySource = readFileSync(new URL("../lib/anatomy-study.ts", import.meta.url), "utf8")
 
-// Compile the real projection with pure data dependencies, never the DB loader.
+/**
+ * Compiles the real projection with pure data dependencies instead of the DB
+ * loader. The public origin is captured at initialization and restored afterward.
+ */
 function loadStudy(origin, seed = foundation.ANATOMY_FOUNDATION_SEED, deliveryDependency = delivery) {
   const original = process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN
   try {
@@ -47,6 +50,7 @@ const template = foundation.ANATOMY_FOUNDATION_SEED.mediaAssets.find((asset) => 
 const bicepsMedia = (study, options = {}) => study.getAnatomyStudyCards({}, options)
   .find((card) => card.id === "muscle-biceps-brachii").media
 
+/** Builds invented media from a committed template; overrides probe admission. */
 function inventedAsset(slug, overrides = {}) {
   return {
     ...template, id: `invented-${slug}`, slug, remoteUrl: `${legacy}/invented/${slug}.png`,
@@ -55,6 +59,7 @@ function inventedAsset(slug, overrides = {}) {
   }
 }
 
+/** Supplies an approved biceps link by default, with explicit adverse overrides. */
 function inventedLink(assetSlug, overrides = {}) {
   return {
     id: `invented-link-${assetSlug}`, assetSlug, entityType: "muscle", entitySlug: "biceps-brachii",
@@ -62,11 +67,12 @@ function inventedLink(assetSlug, overrides = {}) {
   }
 }
 
+/** Forwards raw assets and every link decision so the real projection owns filtering. */
 function optionsFor(assets, links = assets.map((asset) => inventedLink(asset.slug))) {
   return { mediaAssets: assets, mediaEntityLinks: links }
 }
 
-// Compare every projected field, replacing only image/diagram delivery URLs.
+/** Copies the complete expected result while replacing only image/diagram delivery URLs. */
 function expectedDelivery(value, from = legacy, to = branded) {
   if (Array.isArray(value)) return value.map((item) => expectedDelivery(item, from, to))
   if (!value || typeof value !== "object") return value

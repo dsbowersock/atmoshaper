@@ -7,7 +7,7 @@ This documentation-only reconciliation updates the active table in
 canonical project-state/log/index and dated sanitized source/acceptance closeouts.
 It makes no fresh provider observation, executes no application/test/database
 campaign, and grants no publication, private access, activation or release.
-All old dated checkpoints remain evidence; their later supersession is explicit.
+All earlier dated checkpoints remain evidence; their later supersession is explicit.
 
 The local source baseline is `4f0c124c2aaa04936f12bd3f623b2a9188a41cb7`.
 The approved source integration's last verified main is
@@ -64,7 +64,7 @@ Selected continuation inputs were the four owner-controlled source records, SHA-
 | media/full-commerce plan | `285d3495c6b1093d1cc70819fa9d14b3abe9cdd50c6e02d225af50c68fa243f3` |
 | media/commerce audit | `af2cb8cd2415e0680bfab7e6e812eea65c35a380bc81deae881902ff98a6b5dc` |
 
-The original four inputs and complete chronology are retained in the separate owner-controlled continuation checkout, not deleted, rewritten or represented as fully imported here. Its 94 unrelated dirty paths and empty index remain outside this change. The exact local read-only integration assessment is retained as canonical-documentation-integration-audit-20261029.md (SHA-256 `fbab92f46cd8264e804c40d9d0251a986a50eb02be80fd84a23af9a54eeb4705`); that host-side evidence is not a required shipped website file.
+The original four inputs and complete chronology are retained in the separate owner-controlled continuation checkout, not deleted, rewritten or represented as fully imported here. Its 94 unrelated dirty paths and empty index remain outside this change. The exact local read-only integration assessment is retained as canonical-documentation-integration-audit-20261029.md (SHA-256 `fbab92f46cd8264e804c40d9d0251a986a50eb02be80fd84a23af9a54eeb4705`); that host-side evidence is not a website file required for shipment.
 
 Later selected scope facts are limited to the already-recorded source-only helper result and prepared service/recovery packet. Helper source manifest `ad2831499312af33d0e0553229be8549cf3d759afe30faa1d6ef36d1a2be9181`, freeze `22ae517581c2d89bddc3a382bb3bae4cda5914c09f35e435765976af4e5691a6`, 576 offline checks and independent reviews establish source/fixture correctness only. The service/recovery documents at local commit `5c31ebb` establish a staged evidence plan, not actual provider binding/restore or public activation. Nothing in this consolidation observes a new remote main, private login/key, provider resource, database row or public artifact.
 

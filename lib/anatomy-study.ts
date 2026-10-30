@@ -456,6 +456,11 @@ function aliasesForEntity(entityType: AnatomyStudyCategory, entity: FoundationSt
     .slice(0, 10)
 }
 
+/**
+ * Projects public media after existing link, review and source-usage rules.
+ * Only the selected image/diagram delivery URL is rebound; raw options, study
+ * identity and source/credit URLs retain their original values.
+ */
 function publicMediaForEntity(entityType: AnatomyStudyCategory, entitySlug: string, context: BuildContext): AnatomyStudyMedia[] {
   const links = context.mediaLinksByEntity.get(entityKey(entityType, entitySlug)) ?? []
 
