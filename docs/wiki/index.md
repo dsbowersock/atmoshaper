@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Service, recovery and exact-release readiness](service-recovery-readiness.md)
+
 - [Calendar required-read recovery](../audits/2026-10-25-calendar-workspace-read-recovery.md)
 
 - [Local Notes save, recovery and backup readiness](../audits/2026-10-25-local-notes-client-readiness.md)
@@ -32,6 +34,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 - [Project log](../project-log.md)
 - [Compatible AtmoShaper media cutover](../superpowers/plans/2026-10-08-atmoshaper-compatible-media-cutover.md)
 - [Migration status and remaining work](migration-status.md)
+- [October 29 migration evidence reconciliation](../audits/2026-10-29-migration-gate-reconciliation.md)
 - [Independent AtmoShaper marketing-readiness plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md)
 - [Architecture](../architecture.md)
 - [Architecture decisions](../decisions/README.md)

@@ -1,5 +1,28 @@
 # AtmoShaper Project State
 
+## October 29 exact-artifact release checklist clarified
+
+The release checklist now distinguishes the intended all-three-purchase migration from retained October 1 Supporter-only activation evidence. It points to the existing staged acceptance record for source/catalog/configuration/READY artifact, missing offered-context checks, all-flow backout and final decision. Command examples explicitly disclose environment loading, direct database/live Stripe reads and the separate audio release tooling; none was executed. This is local documentation preparation, not provider readiness, build acceptance or public activation. Media remains on hold for the pending owner route choice.
+
+
+## October 29 product migration readiness checkpoint
+
+The MassageLab → AtmoShaper product migration remains **incomplete**. This is a consolidation of dated source/acceptance evidence, not a new provider inspection or permission to activate the site. Continue building on the existing Vercel setup; hosting alternatives remain deferred.
+
+Reviewed source batches through PR #66 were integrated. The last recorded integration main is `908cba9`, whose tree matched the final reviewed source `4f0c124`; no current remote-head claim is made here. Closed account/Admin, Calendar, persistence, clinical/public-tool/Chimer, Anatomime realtime/progress, protected Sentry and sandbox-purchase campaigns remain accepted only at their recorded scope. Carry them forward rather than replaying them. See the [dated migration table](wiki/migration-status.md) and [evidence reconciliation](audits/2026-10-29-migration-gate-reconciliation.md).
+
+The remaining finish line is:
+
+1. **Independent media:** complete the approved-cohort public delivery, CORS/range/playback, exact catalog binding and backout. Four-copy removal/preservation is already verified. The encryption-only helper repair passes 576 offline checks and independent reviews, but actual saved-login eligibility and media delivery remain unverified. All private windows are closed; source preparation grants no private retry.
+2. **All three purchases:** preserve recurring Supporter, one-time support and permanent-background scope. Complete deployed configuration, applicable tax/legal/rights, signed webhook/fulfillment/reconciliation and final artifact/browser evidence before activation. Sandbox success and a Supporter-only build do not enable the two other flows.
+3. **Services and recovery:** verify the final owned bindings, administration/billing/limits, offered provider journeys, agreed recovery objectives and bounded restore/support acceptance. Use the [service/recovery runbook](wiki/service-recovery-readiness.md) and [staged acceptance plan](superpowers/plans/2026-10-29-final-service-recovery-and-release-acceptance.md). Their preparation is not actual restore evidence.
+4. **Final release:** agree the exact offered source/catalog/configuration/artifact, then obtain the public activation/promotion decision with rollback and legacy continuity. Both public versions remain protected; no local documentation or old approval performs a rollout.
+
+Clinical/PHI records remain local-first. Stable legal/data/entitlement/compatibility identifiers and the decision not to invent an existing-user transfer campaign remain. Held anatomy facts are a disposition worklist, not a requirement to activate every held row or repeat a whole-corpus review.
+
+This concise offered-source checkpoint consolidates selected owner-controlled continuation records through the encrypted-helper source closeout. Their complete chronology is retained separately; existing entries below are preserved as dated history, not fresh pending instructions. Provenance, input hashes and limits are in the reconciliation audit.
+
+
 ## October 25 Calendar review documentation follow-up
 
 The included CodeRabbit review through `45d382d` reported no actionable

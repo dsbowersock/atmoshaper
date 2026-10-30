@@ -1,5 +1,19 @@
 # AtmoShaper Project Log
 
+## October 29 exact-artifact release checklist clarified
+
+The release checklist now distinguishes the intended all-three-purchase migration from retained October 1 Supporter-only activation evidence. It points to the existing staged acceptance record for source/catalog/configuration/READY artifact, missing offered-context checks, all-flow backout and final decision. Command examples explicitly disclose environment loading, direct database/live Stripe reads and the separate audio release tooling; none was executed. This is local documentation preparation, not provider readiness, build acceptance or public activation. Media remains on hold for the pending owner route choice.
+
+
+## October 29 canonical readiness documentation consolidated
+
+Corrected the offered repository's canonical entry points, which still started with October 25 pending review labels while its migration guide already described later integrated source and closed campaigns. Added a concise current-state checkpoint and this chronological delta, preserving every existing entry. Kept the existing wiki index and added only the reconciliation link; did not import the other worktree's index or unrelated dirty files.
+
+The selected evidence covers recorded source integration through PR #66, narrow closed acceptance campaigns, verified four-copy disposition, the 576-check source-only encrypted helper repair, and the prepared service/recovery/staged-release documents. It does not claim a new remote/provider/runtime observation, actual encrypted-login/media success, all-payments activation or final public release. The migration remains incomplete on media delivery/catalog binding, deployed all-purchase readiness, service/recovery and exact-artifact/rollback/owner-release gates.
+
+The full owner-controlled continuation chronology and four source records remain retained separately, pinned in the [reconciliation audit](audits/2026-10-29-migration-gate-reconciliation.md). This is selective consolidation, not an import of that complete history or a rewrite of earlier findings. No application, database, credential, provider, Windows permission, publication or public-site operation accompanies this documentation correction.
+
+
 ## October 25 Calendar review documentation follow-up
 
 The included review through `45d382d` had no actionable comments or unresolved

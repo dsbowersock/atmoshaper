@@ -2,13 +2,43 @@
 
 Use this checklist before inviting real users or tagging/deploying an alpha build. Keep SOAP notes, intake forms, journals, ROM sessions, and other professional-record workflows local-first in all testing.
 
-Current AtmoShaper registration and recurring Supporter Checkout are open after
-the separately authorized 2026-10-01 activation. Read [project state](../project-state.md)
-and the [activation receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md)
-before interpreting inherited or dated rollout instructions below. One-time
-support and background purchases remain disabled. Completed migrations,
-provider setup, and the live payment/refund test are preserved evidence, not
-instructions to repeat those operations for a later documentation release.
+The recorded 2026-10-01 activation opened registration and recurring Supporter
+membership. Read [project state](../project-state.md) and the [activation
+receipt](../superpowers/plans/2026-10-01-atmoshaper-supporter-public-activation.md)
+before interpreting the dated instructions below; this document is not a fresh
+provider/settings observation. The full migration scope includes recurring
+Supporter, one-time support and permanent-background purchases. The latter two
+remain disabled under the retained public activation scope until their
+separately approved acceptance/activation. Completed setup, migrations and
+payment campaigns are evidence to carry forward, not automatic rerun commands.
+
+## Exact candidate, configuration and artifact agreement
+
+Use the [staged acceptance plan](../superpowers/plans/2026-10-29-final-service-recovery-and-release-acceptance.md#phase-3--prepare-exact-artifact-release-and-backout) as the record owner. Prepare source/configuration and rollback scope first; fill artifact-dependent fields only after the separately approved candidate exists. Keep provider/deployment identifiers and sensitive configuration in the private operator packet; tracked progress contains only logical scope, dates and qualified outcomes. Do not hash or publish secrets.
+
+Before final acceptance, the same record must bind:
+
+- The exact reviewed source and applicable current checks, distinguishing local documentation follow-ups from the last recorded hosted head.
+- The offered catalog/media revision and accepted rights/cohort/content scope; a copied object or reachable URL alone is insufficient.
+- The approved environment and actual payment scope. For this migration the intended final scope is **all-payments**; source defaults, runtime switches and provider-backed attestations must agree without setting unproved fields true.
+- The existing READY artifact and its actual source/build/configuration evidence. A missing artifact is pending while a scoped candidate is prepared, not an instruction to skip its prerequisites or rebuild only for a marker.
+- Saved compatible prior artifact, configuration and routing, plus finite all-flow containment/backout. Registration/Supporter pause flags alone do not contain one-time support, background purchases or in-flight webhook effects.
+- The genuinely missing exact-artifact/service-context journeys and their bounded approval/evidence. Carry closed narrow campaigns forward; do not relabel them as proof of a different hosted context or repeat them merely for documentation changes.
+- Support/recovery handoff and the separate final activation/public-promotion decision. A green build, source checklist or old merge approval grants none.
+
+This is an evidence record, not a new ready flag or execution grant. The sequence is truthful prerequisites → separately approved isolated candidate → any separately approved bounded public-context acceptance → final release acceptance. Both public sites and local-first professional records remain protected.
+
+### Command effects and authority
+
+The examples below describe commands; they do not authorize running them. Inspect the selected environment and proposed operation before invocation.
+
+| Command family | Actual source-defined effect |
+| --- | --- |
+| `npm run build` | Its prebuild runs migration status and Stripe readiness. With `VERCEL_ENV=production`, those gates use a direct database maintenance connection and live read-only Stripe requests before generation/build. Outside that environment those provider gates skip; a build still creates local outputs. It is not a credential-free inspection command. |
+| `npm run stripe:readiness -- --live --verify-stripe --no-dotenv` | Performs live read-only provider checks for all payment flows using explicitly supplied process credentials. `--supporter-only` narrows the checker; `--no-dotenv` prevents loading secret files but does not prevent provider access. |
+| `npm run atmoshaper:production:*` | These are audio catalog/stage/upload/verification tools, not website promotion tooling. Their entry loads environment files before dispatch, and modes can read media, invoke encoders, upload or probe. Do not run their `check` mode to discover website release settings. |
+
+[Production migration gate](../../scripts/assert-production-migrations-current.mjs), [payment gate](../../scripts/assert-production-stripe-readiness.mjs) and [deployment guidance](deployment.md#preparing-the-full-payment-build-scope) define these boundaries. Source/diff/link inspection may proceed locally; credentials, provider/DB access, protected builds, publication, settings and public promotion follow their applicable separate authority.
 
 ## Automated Gate
 
@@ -239,10 +269,20 @@ Then walk [../alpha-qa.md](../alpha-qa.md) with anonymous test data where it sti
 - Run the focused password-reset confirmation, route, auth-security, auth-session-version, Admin security-service, and Admin security-UI tests before the comprehensive gate. Do not expose reset links, credentials, hashes, tokens, email addresses, database rows, or session artifacts in release evidence.
 - Completed 2026-08-11: Prisma client generation, all 69 focused and adjacent tests, typecheck, lint with only the existing Babel large-file note, the full 2,447-test suite with 2,446 passes and one intentional skip, the 104-page Production build, and `git diff --check` passed.
 
-## Current Supporter-only Readiness Gate
+## Payment scope and retained Supporter-only gate
 
-The approved launch scope is recurring Supporter membership while one-time
-support and background purchases remain disabled. Run
+For the intended all-three-purchase candidate, select exact
+`STRIPE_PRODUCTION_READINESS_SCOPE=all-payments` and satisfy the full checker
+without `--supporter-only`. This selects the build gate; it does not enable
+runtime flows or prove missing webhook/tax/legal/reconciliation attestations.
+Use the staged plan above for truthful prerequisites, candidate-only enablement,
+feasible webhook/acceptance context and final activation. No live campaign is
+authorized by this paragraph.
+
+The October 1 public activation had the narrower recurring-Supporter scope.
+The following retained gate applies only when that explicit narrower scope is
+being checked or restored, not as proof that the full migration is complete.
+Run
 `npm run stripe:readiness -- --supporter-only --live --verify-stripe --no-dotenv`
 with the intended deployment configuration in a trusted process that actually
 has the credentials. See [deployment guidance](deployment.md) for a protected
@@ -266,9 +306,10 @@ env-file alternative and the write-only Vercel secret limitation.
 - Preserve the completed controlled live Supporter payment, cancellation,
   refund, and webhook convergence receipt. Do not repeat that live payment test
   for a readiness-only change.
-- Public registration and recurring Supporter Checkout are now open under the
-  explicit activation approval; both pause flags are `false`. Preserve that
-  current state. A future readiness check does not itself authorize a new
+- The October 1 activation receipt records open registration/recurring Checkout
+  and both pause flags `false`; that is dated evidence, not a fresh settings
+  observation. Preserve its authorized scope pending a separately reviewed
+  change. A future readiness check does not itself authorize a new
   activation, pause, deployment, provider write, or enabling excluded flows.
   Verify any future change against its exact separate approval and rollback
   plan rather than applying the earlier pre-launch pause instruction.

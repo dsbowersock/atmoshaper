@@ -1,5 +1,66 @@
 # AtmoShaper migration status and remaining work
 
+Read [project state](../project-state.md) first for the canonical current snapshot
+and [project log](../project-log.md) for dated outcomes. This is a **dated October 29
+reconciliation**, not a live provider inspection or an execution grant. The
+[reconciliation audit](../audits/2026-10-29-migration-gate-reconciliation.md) states
+which evidence supports each correction and its limits. Historical snapshots
+remain below; their pending labels do not reopen subsequently completed work.
+
+The work is the **MassageLab → AtmoShaper product migration**. The owner has
+deferred hosting alternatives and is continuing personal development on the
+existing Vercel setup. A move to another host is not the current implementation
+task. Commercial/public activation remains a later explicit decision.
+
+## Current finish line — Independent operation before marketing
+
+The full migration is **incomplete**. Source integration and scoped acceptance
+are evidence toward it; they do not substitute for independent media delivery,
+all three purchase paths, service/recovery, or the final released artifact.
+Broad refactoring and unrelated new features remain separate work.
+
+| Work | Completed evidence at its recorded scope | Remaining gate |
+| --- | --- | --- |
+| Source integration and reviews | The approved source batches through PR #66 are integrated. The final #66 → #63 → #64 → #65 batch reached main `908cba9`; every resulting PR source and main-push run passed its seven required jobs, with applicable completed review and retained branches. The final build was READY with the existing migration/Supporter markers. | Match final offered source, catalog, configuration and release artifact after the remaining changes. Existing build success is not public promotion or all-payments acceptance. |
+| Scoped application acceptance | The documented account/Admin, ordinary local Calendar, persistence, clinical/public-tool and Chimer campaigns have closed outcomes. Anatomime guest realtime, real local password/progress attribution and source UI checks have separate completed receipts. | Carry those narrow proofs forward. Perform only the final-context or service-specific acceptance actually still required; do not replay closed campaigns because an old table says pending. |
+| Anatomy and public identity | Reviewed rebrand/final assets and the later supported anatomy/citation/grading changes are integrated. The chosen DSEG7 Modern replacement has replaced the unresolved Digital-7 source gate. | Confirm the final offered content and media rights/admission. Held auxiliary facts are a disposition worklist, not a requirement to activate every held row or conduct an invented whole-corpus enrichment campaign. Preserve legal/compatibility identities. |
+| All three purchase options | Recurring Supporter has dated acceptance/activation receipts. One-time support and permanent-background sandbox payments, local fulfillment, buyer-specific access, fresh-process readback and cleanup passed. Source availability guards preserve all three intended options while failing closed when configuration is unavailable. | Complete the exact deployed all-payments configuration/webhook/browser proof, applicable catalog/tax/legal/rights and reconciliation evidence, then obtain activation/release authority. A Supporter-only build marker does not close these gates; the two additional flows stay disabled until approved. |
+| Sentry | Protected Node/error/source-map/privacy/count/owner-email acceptance and temporary-alert/local cleanup passed. Its sole accepted event/email campaign is closed. | Final hosted application/DSN binding and any offered browser/edge/regression/Production monitoring acceptance remain distinct. Do not resend the completed synthetic event or treat source integration as activation. |
+| Independent media | The separate generic buckets contain the copied/restored material. On October 29 the owner removed the four selected copies after fresh matching body comparisons. Readback verified all four copies absent, all four corresponding originals unchanged, every other 5,156 copied key/size/version witness preserved and the new bucket private. The temporary copy-write token remains revoked. | Complete rights/cohort disposition, branded delivery, CORS/cache/range/playback and exact catalog binding/write-backout. The four-copy cleanup is closed; its integrity proof establishes neither usage rights nor clinical eligibility. |
+| Calendar, mail, database and other service ownership | Dated setup, delivery/resource-identity and local acceptance receipts remain valid for what they observed. The latest source build passed committed-migration status. | Resolve final deployed bindings, independent administration/billing/limits and recovery objectives/restore acceptance, plus the actual offered user journeys. Local Calendar persistence is not a real Production Google OAuth/sync journey; migration status is not a backup/restore test. |
+| Local-first records and legacy continuity | Clinical/PHI workflows remain local-first. The owner expects no existing-user record transfer; compatibility identifiers and both working sites are retained. | Preserve existing data/legal/entitlement contracts. Do not create a transfer campaign or generic import/cache/offline launch prerequisite without a real need; do not imply untested recovery or compliant hosted clinical storage. |
+| Final public release | Both public versions and protected routing were preserved during the approved source batch; its permitted branch-preview movements were bounded and recorded. | Fresh exact-artifact/release evidence, owner activation/promotion decision, rollback and support/recovery handoff. No current document, old setting report or unused allowance authorizes a new rollout. |
+
+## Current source-only preparation
+
+The encrypted-only helper successor has 576 offline checks and independent source reviews; actual credential eligibility and provider/media delivery are not yet observed. All earlier private windows remain closed. Preparing its next complete security decision does not reopen credentials or create an operation clock. The [service/recovery runbook](service-recovery-readiness.md) and [staged final acceptance plan](../superpowers/plans/2026-10-29-final-service-recovery-and-release-acceptance.md) now define the remaining service and release evidence; they are preparation, not completed provider recovery. The offered repository's canonical state/log have been consolidated from retained dated continuation evidence, with the original chronology preserved.
+
+## Next operator step and safe continuation
+
+The four-copy cleanup is **verified complete**. After fresh comparisons, the
+owner removed only the four displayed copies and confirmed in the private form.
+Readback completed at **2026-10-29T13:46:15Z**: all four copies absent, all four
+corresponding original size/version witnesses unchanged, all 5,156 other copied
+objects preserved, and the new bucket private. The worker and form are closed.
+
+The next media work is rights/cohort admission, independent public delivery and
+exact catalog binding/backout. Use the retained preparation; do not restart the
+copy or closed acceptance campaigns. This completed private hour, nonce and
+unused request slots authorize no further action. Credentials and object paths
+remain private, and retained credentials/history remain preserved.
+
+Local preparation for the remaining gates can continue. Publication, protected
+provider work and Production changes retain their separate boundaries. Keep
+media requests at $0 and the approved additional storage ceiling at $0.30/month
+before tax; preserve spent attempts and unrelated work.
+
+The [independent launch plan](../superpowers/plans/2026-10-08-atmoshaper-independent-launch-readiness.md),
+[migration charter](../rebrand/atmoshaper-migration-charter.md) and current canonical
+records still own scope and acceptance. This guide updates gate status; it drops
+no required service, purchase, privacy, media or release requirement.
+
+## Historical October 7–8 source checkpoint
+
 Read [project state](../project-state.md) first for the active snapshot and
 [project log](../project-log.md) for dated receipts. This guide connects the
 original migration scope with the work still needed; it does not replace those
@@ -17,7 +78,7 @@ The separately approved PR #42 merge is now complete as `357095d`. Its automatic
 main candidate is READY/unpromoted, with the same public target and all six
 saved aliases preserved. No public promotion or alias restoration occurred.
 
-## Current finish line — Independent operation before marketing
+## Historical October 8 required-work snapshot
 
 The user clarified the goal on October 8: complete the surrounding-service
 migration, including required remote Anatomime realtime, so AtmoShaper is
