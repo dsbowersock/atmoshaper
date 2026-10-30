@@ -5,6 +5,8 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "test:anatomy-media-delivery": "node --test tests/anatomy-media-delivery.test.mjs",
+    "lint:anatomy-media-delivery": "eslint lib/anatomy-media-delivery.ts lib/anatomy-media-delivery.js lib/anatomy-study.ts tests/anatomy-media-delivery.test.mjs",
     "test:wellness-action-lifecycle": "node --test tests/client-wellness-action-lifecycle.test.mjs",
     "lint:wellness-action-lifecycle": "eslint components/wellness/wellness-hub-client.tsx tests/client-wellness-action-lifecycle.test.mjs",
     "test:calendar-advisory-lock": "node --test tests/calendar-advisory-lock.test.mjs tests/calendar-creation-routes.test.mjs tests/public-request-id.test.mjs",

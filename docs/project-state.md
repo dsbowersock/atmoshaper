@@ -1,5 +1,61 @@
 # AtmoShaper Project State
 
+## October 30 local anatomy delivery and current media hold
+
+The reviewed local anatomy delivery source at `e0e877f` is composed with the retained documentation candidate on `codex/migration-readiness-20261030`; no publication or PR/main merge has occurred. All 61 source-only checks, scoped lint and nonincremental typecheck pass, with independent specification and quality reviews. The opt-in final image/diagram URL binding covers the shared study projection used by database-backed consumers and seed-only Anatomime. Defaults preserve existing delivery. No setting is enabled, and actual database-origin coverage, branded delivery and final artifact acceptance remain unverified. See the [anatomy delivery audit](audits/2026-10-30-anatomy-independent-media-delivery.md).
+
+The private copy/restoration and four-copy exclusion are complete, and the owner admitted the resulting 16,268-file cohort for public setup on retained grant evidence. The later October 30 setup stopped at file-owner metadata admission before credential reading or any provider request. Its window and correction card expired; the owner reported revoking the temporary setup token. That owner report is not an API revocation check. Local encrypted-holder cleanup remains unverified after the pre-admission stop. No expired grant or unused request slot is reusable.
+
+The source-only capture producer correction now passes independent specification/quality reviews and root's fresh 164-test offline run. It reuses the existing explicit-owner CREATE_NEW primitive for the five new capture files, including continuation in a validated existing root; strict readers remain unchanged. No existing file ownership or permissions were changed. These invented-boundary tests do not prove native owner assignment, live capture or provider delivery. A later token/setup operation still requires a new security/provider decision.
+
+The README and [migration guide](wiki/migration-status.md) now distinguish completed scoped campaigns from remaining independent media delivery, all-three-purchase deployed readiness/activation, service/recovery and exact public-release decisions. Historical state/log entries remain intact. Both public apps and originals retain their existing versions; the full MassageLab-to-AtmoShaper migration remains incomplete.
+
+## October 30 temporary-token media preparation accepted locally
+
+The owner selected preparation of a temporary-token route. The new source-only successor avoids the saved CLI login and keeps one canonical authentication lease and media workflow. A future custom USER token needs account-wide R2 Edit on the intended account plus Zone/DNS Read only on the intended zone; source guards are not provider-enforced two-bucket scope. The owner-launched masked entry uses CurrentUser DPAPI and new-task-only protected artifacts. Existing credentials and Windows permissions remain untouched.
+
+Independent specification and quality reviews, including the exact test-only follow-up, pass. Root's fresh native run passes all 159 tests; all 22 source pins, three physical runtimes, 37 source/test inputs and 49 inventory files match. The earlier helper remains unchanged. Tests cover invented protected boundaries and ordinary owned-file leases; actual protected creation, form visibility, DPAPI, token/API effectiveness and media delivery remain unverified. No private credential-store metadata/key contents, provider operation, app/database/build, installation, publication or public change occurred.
+
+Review closed late/ambiguous-save admission and unnecessary console-history clearing. Successful save metadata also needs a separately bound OWNER-SOURCE report of the visible CAPTURE_SAVED_CLOSED label; it is not independent machine-exit proof. One root fixture race with a transient Windows file was fixed by parsing the complete closed source set, preserving all expected parse errors and protection settings.
+
+The complete later security/provider proposal remains inactive: one new token, separate 30-minute capture and later 50-minute media readiness, 75 HTTP attempts, $0 requests, the existing 30-cent additional monthly-storage cap, two public media hosts and owner revocation. No token, operational grant, nonce or clock exists. A direct decision is still required before credential creation/use and public access. See the [native media entry plan](superpowers/plans/2026-10-29-native-media-host-entry.md). Actual media/catalog, all-purchase/service/recovery and final artifact/rollback/public release remain incomplete.
+
+
+## October 29 enabled background notices completed at source scope
+
+The [background notice coverage audit](audits/2026-10-29-background-notice-coverage.md) maps all 84 enabled entries and their declared source families, keeping cobe/simplex subcomponents additive. The canonical static notice file now also preserves the complete Chamaac, Magic, Eldora, cobe and two original Jhey notices, plus the existing simplex package and source notices. Prior React Bits/Animate UI bytes remain unchanged. Custom-source credits retain separate terms; no universal media or licensing clearance is claimed.
+
+Exact body/prefix, source/legal/history and link/diff checks pass with independent source review. Purchase availability, entitlement, renderer and legal-policy code is unchanged. No app build/test, dependency install, media/cloud-account operation, credential read or Windows permission change occurred. This prepares source distribution only; exact artifact notice delivery, publication, the separate media-access route choice and the full release gates remain pending.
+
+## October 29 background license notices preserved locally
+
+A bounded source review found the React Bits/Animate UI copyright summaries and links lacked their full permission notices. The [notice-preservation audit](audits/2026-10-29-background-license-notice-preservation.md) records the pinned public sources and scope. One static third-party-notices file now preserves both complete license bodies; the source guide reflects the already-approved permanent in-app access alongside membership access. Existing legal text/versions, registry IDs, availability and purchase behavior are unchanged.
+
+Literal source counts are 88 registry definitions and 81 purchase-eligible entries: 35 verified/46 caution, with no blocked or unclear eligible entry. Those labels are not a blanket clearance. Independent review established no runtime defect or new permanent-use rights decision; only notice preservation and stale explanatory wording needed correction. Exact notice bytes, preserved source/history and relative links are checked locally. Publication and exact final-artifact notice delivery remain pending; no protected operation, public change or closed-campaign replay follows. The separate media-route owner choice and full migration gates remain open.
+
+## October 29 exact-artifact release checklist clarified
+
+The release checklist now distinguishes the intended all-three-purchase migration from retained October 1 Supporter-only activation evidence. It points to the existing staged acceptance record for source/catalog/configuration/READY artifact, missing offered-context checks, all-flow backout and final decision. Command examples explicitly disclose environment loading, direct database/live Stripe reads and the separate audio release tooling; none was executed. This is local documentation preparation, not provider readiness, build acceptance or public activation. Media remains on hold for the pending owner route choice.
+
+
+## October 29 product migration readiness checkpoint
+
+The MassageLab → AtmoShaper product migration remains **incomplete**. This is a consolidation of dated source/acceptance evidence, not a new provider inspection or permission to activate the site. Continue building on the existing Vercel setup; hosting alternatives remain deferred.
+
+Reviewed source batches through PR #66 were integrated. The last recorded integration main is `908cba9`, whose tree matched the final reviewed source `4f0c124`; no current remote-head claim is made here. Closed account/Admin, Calendar, persistence, clinical/public-tool/Chimer, Anatomime realtime/progress, protected Sentry and sandbox-purchase campaigns remain accepted only at their recorded scope. Carry them forward rather than replaying them. See the [dated migration table](wiki/migration-status.md) and [evidence reconciliation](audits/2026-10-29-migration-gate-reconciliation.md).
+
+The remaining finish line is:
+
+1. **Independent media:** complete the approved-cohort public delivery, CORS/range/playback, exact catalog binding and backout. Four-copy removal/preservation is already verified. The encryption-only helper repair passes 576 offline checks and independent reviews, but actual saved-login eligibility and media delivery remain unverified. All private windows are closed; source preparation grants no private retry.
+2. **All three purchases:** preserve recurring Supporter, one-time support and permanent-background scope. Complete deployed configuration, applicable tax/legal/rights, signed webhook/fulfillment/reconciliation and final artifact/browser evidence before activation. Sandbox success and a Supporter-only build do not enable the two other flows.
+3. **Services and recovery:** verify the final owned bindings, administration/billing/limits, offered provider journeys, agreed recovery objectives and bounded restore/support acceptance. Use the [service/recovery runbook](wiki/service-recovery-readiness.md) and [staged acceptance plan](superpowers/plans/2026-10-29-final-service-recovery-and-release-acceptance.md). Their preparation is not actual restore evidence.
+4. **Final release:** agree the exact offered source/catalog/configuration/artifact, then obtain the public activation/promotion decision with rollback and legacy continuity. Both public versions remain protected; no local documentation or old approval performs a rollout.
+
+Clinical/PHI records remain local-first. Stable legal/data/entitlement/compatibility identifiers and the decision not to invent an existing-user transfer campaign remain. Held anatomy facts are a disposition worklist, not a requirement to activate every held row or repeat a whole-corpus review.
+
+This concise offered-source checkpoint consolidates selected owner-controlled continuation records through the encrypted-helper source closeout. Their complete chronology is retained separately; existing entries below are preserved as dated history, not fresh pending instructions. Provenance, input hashes and limits are in the reconciliation audit.
+
+
 ## October 25 Calendar review documentation follow-up
 
 The included CodeRabbit review through `45d382d` reported no actionable

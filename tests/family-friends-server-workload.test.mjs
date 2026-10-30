@@ -896,20 +896,22 @@ describe("family-and-friends server workload baseline", () => {
       /The repaired exact bytes still require a fresh freeze, independent SPEC then QUALITY, publication, exact-head coverage from both hosted reviewers and all strict CI jobs/i,
       "README must not send contributors back through the completed v21 gates",
     )
+    // This static checkpoint cannot pin live main SHAs or PR states. Keep the
+    // README's canonical entrypoints; immutable v21 evidence is checked below.
     assert.match(
       normalizedReadmeSource,
-      /PR #5.*closed unmerged[\s\S]*replacement PRs #6–#14[\s\S]*PR #18 are merged[\s\S]*Current `main` is `06cb73035c7695a5f96e19a5ee9274f2e16c1c6a`/i,
-      "README must record the merged replacement stack and current main",
+      /\[Project state\]\(docs\/project-state\.md\) for current truth and the next gate[\s\S]*\[Project log\]\(docs\/project-log\.md\) for chronological AtmoShaper progress[\s\S]*\[Project wiki\]\(docs\/wiki\/index\.md\) for stable operational documentation/i,
+      "README must direct contributors to canonical current state, chronological history, and operational guidance",
     )
     assert.match(
       normalizedReadmeSource,
-      /PR #19.*open, unmerged provider-readiness record[\s\S]*merge remains separately authorized/i,
-      "README must retain the current unmerged provider-readiness boundary",
+      /\[Migration lineage\]\(MIGRATION_LINEAGE\.md\) for the exact source and history boundary/i,
+      "README must retain the migration source and history entrypoint",
     )
     assert.match(
       normalizedReadmeSource,
-      /Phase 6 replacement stack is merged[\s\S]*PR #19's merge[\s\S]*remain independently gated/i,
-      "README must distinguish the merged Phase 6 stack from the remaining independent gates",
+      /Phase 6 replacement stack is merged[\s\S]*remaining service, purchase, media and exact-release gates[\s\S]*\[migration status\]\(docs\/wiki\/migration-status\.md\)[\s\S]*earlier PR and phase snapshots remain historical evidence/i,
+      "README must distinguish merged Phase 6 history from the remaining migration gates",
     )
     assert.doesNotMatch(
       normalizedReadmeSource,
