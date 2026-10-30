@@ -1,5 +1,16 @@
 # AtmoShaper Project State
 
+## October 30 temporary-token media preparation accepted locally
+
+The owner selected preparation of a temporary-token route. The new source-only successor avoids the saved CLI login and keeps one canonical authentication lease and media workflow. A future custom USER token needs account-wide R2 Edit on the intended account plus Zone/DNS Read only on the intended zone; source guards are not provider-enforced two-bucket scope. The owner-launched masked entry uses CurrentUser DPAPI and new-task-only protected artifacts. Existing credentials and Windows permissions remain untouched.
+
+Independent specification and quality reviews, including the exact test-only follow-up, pass. Root's fresh native run passes all 159 tests; all 22 source pins, three physical runtimes, 37 source/test inputs and 49 inventory files match. The earlier helper remains unchanged. Tests cover invented protected boundaries and ordinary owned-file leases; actual protected creation, form visibility, DPAPI, token/API effectiveness and media delivery remain unverified. No private credential-store metadata/key contents, provider operation, app/database/build, installation, publication or public change occurred.
+
+Review closed late/ambiguous-save admission and unnecessary console-history clearing. Successful save metadata also needs a separately bound OWNER-SOURCE report of the visible CAPTURE_SAVED_CLOSED label; it is not independent machine-exit proof. One root fixture race with a transient Windows file was fixed by parsing the complete closed source set, preserving all expected parse errors and protection settings.
+
+The complete later security/provider proposal remains inactive: one new token, separate 30-minute capture and later 50-minute media readiness, 75 HTTP attempts, $0 requests, the existing 30-cent additional monthly-storage cap, two public media hosts and owner revocation. No token, operational grant, nonce or clock exists. A direct decision is still required before credential creation/use and public access. See the [native media entry plan](superpowers/plans/2026-10-29-native-media-host-entry.md). Actual media/catalog, all-purchase/service/recovery and final artifact/rollback/public release remain incomplete.
+
+
 ## October 29 enabled background notices completed at source scope
 
 The [background notice coverage audit](audits/2026-10-29-background-notice-coverage.md) maps all 84 enabled entries and their declared source families, keeping cobe/simplex subcomponents additive. The canonical static notice file now also preserves the complete Chamaac, Magic, Eldora, cobe and two original Jhey notices, plus the existing simplex package and source notices. Prior React Bits/Animate UI bytes remain unchanged. Custom-source credits retain separate terms; no universal media or licensing clearance is claimed.
