@@ -32,8 +32,46 @@ requirements separate from those stable identifiers.
 | Generative audio in Atmosphere | [Station metadata](../../lib/atmosphere/generative-fm-catalog.js) derives hosted index URLs from the [shared public base](../../lib/atmosphere/observable-streams-adaptation.js); the [index reader](../../lib/atmosphere/generative-fm-sample-index.js) uses the returned sample URL values | Inspect the offered indexes as public metadata under the approved read scope. Update both index locations and nested sample destinations if they retain legacy URLs. Use a versioned metadata release or separately reviewed runtime mapping; preserve old metadata for legacy tools |
 | Published Chimer preview catalog | [Runtime resolver](../../lib/background-preview-runtime.js) combines relative paths from the [published manifest](../../data/background-preview-published-manifest.json) with `NEXT_PUBLIC_CHIMER_PREVIEW_CATALOG_BASE_URL` | Bind the verified branded custom-domain release base at build time. Preserve every relative path, rendition matrix and checksum. No media re-encoding or payload copy is inherently required |
 | Earlier Chimer preview fallback | [Fallback manifest](../../components/backgrounds/backgroundPreviewManifest.ts) uses `NEXT_PUBLIC_CHIMER_PREVIEW_MEDIA_BASE_URL` or its legacy Production base | Bind the fallback too; do not silently assume all callers use the published catalog. Keep the earlier object namespace reachable until callers and rollback have been verified |
-| Anatomy study images | [Study-media reader](../../lib/anatomy-study-media.ts) selects reviewed public media URLs from database records; the [admin upload owner](../../lib/anatomy-media-review-server.ts) uses the established R2 variables | A new upload base does not change existing records. The [prepared inspection](../superpowers/plans/2026-10-09-atmoshaper-anatomy-media-inspection.md) covers both all-catalog and study-loader counts. Obtain exact target/read authority before execution or choosing a URL migration/runtime mapping. No row export, blanket seed or upload is implied |
+| Anatomy study images | [Study-media reader](../../lib/anatomy-study-media.ts) supplies raw reviewed database options to the [shared public projection](../../lib/anatomy-study.ts); Anatomime uses the same projection with seed-only data. The [admin upload owner](../../lib/anatomy-media-review-server.ts) retains the established R2 variables | The local opt-in `NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN` binds matching final image/diagram delivery URLs without rewriting rows. See the anatomy preparation below. Actual origin coverage, branded delivery and release acceptance remain pending; no row export, blanket seed or upload is implied |
 | Rendered backgrounds, local assets and external sources | [Background registry](../../components/backgrounds/backgroundRegistry.ts), bundled components and retained provenance distinguish rendering assets from attribution/source links | Verify actual asset requests on the final offered backgrounds. Keep licenses and attribution; a reference link is not necessarily a runtime storage dependency. Do not widen the catalog or fetch upstream media as an inventory shortcut |
+
+## Local anatomy image delivery preparation
+
+`NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN` is captured and validated once when the shared
+study module initializes, before cards or prompt caches are constructed. Unset,
+empty or exactly `https://anatomy-media.massagelab.app` preserves every existing
+URL. The only opt-in value is exactly `https://anatomy-media.atmoshaper.com`.
+Any other value fails initialization with a fixed error that does not echo it;
+it cannot become an empty-media or seed-only request fallback. Next embeds the
+public setting at build time. Enabling it or rolling back to unset/the exact
+legacy value requires a separately authorized build and release; it is not a
+request-time flag.
+
+After all existing review, source, link ordering and URL-selection rules, the
+projection rebinds only image/diagram delivery URLs on the literal exact legacy
+origin. It slices the complete suffix unchanged, including encoded paths,
+repeated slashes, query ordering and fragments. Other origins, relative URLs,
+source links, audio/video behavior, credits and license/reference URLs remain
+unchanged. The raw DB loader/options, queries, caches, seed declarations, upload
+variables and durable study identities are preserved. A seed with only
+`storagePath`/`sourceUrl` still has no delivered image. There is no fetch, retry
+or automatic old-host fallback in this binding.
+
+Run `npm run test:anatomy-media-delivery` and
+`npm run lint:anatomy-media-delivery` for source-only checks. The tests execute
+the real public projection, Anatomime and flashcard prompt-cache owners with
+pure data dependencies and invented delivery URLs; no Prisma owner is imported.
+See the [local validation audit](../audits/2026-10-30-anatomy-independent-media-delivery.md).
+
+The legacy origin is supported only by the example in
+[anatomy media storage](../anatomy-media-storage.md), not by a verified current
+DB-origin distribution. This candidate does not establish actual coverage,
+object existence, rights admission, branded DNS/R2 binding, CORS, playback,
+legacy-tool continuity or whole-media readiness. Provider setup is incomplete;
+before enablement, verify the bounded actual origin cohort and branded delivery,
+then obtain exact configuration/artifact agreement and separate build/release
+authority. The expired private windows and revoked temporary token supply no
+current authority. No hosted setting is activated by this source change.
 
 ## Local Generative.fm delivery preparation
 

@@ -25,6 +25,11 @@ import type {
   AnatomyStructure,
 } from "./anatomy-foundation.ts"
 import { anatomyMediaReviewKey } from "./anatomy-media-review.js"
+import { anatomyMediaDeliveryUrl, resolveAnatomyMediaDeliveryOrigin } from "./anatomy-media-delivery.js"
+
+// Next embeds this public setting at build time. Validate once before building
+// cards/caches; invalid artifacts must fail outside request/seed fallbacks.
+const anatomyMediaDeliveryOrigin = resolveAnatomyMediaDeliveryOrigin(process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN)
 
 export const ANATOMY_STUDY_CATEGORIES = [
   "bone",
@@ -481,7 +486,7 @@ function publicMediaForEntity(entityType: AnatomyStudyCategory, entitySlug: stri
         title: asset.title,
         mediaType: asset.mediaType,
         role: link.role,
-        url,
+        url: anatomyMediaDeliveryUrl(url, asset.mediaType, anatomyMediaDeliveryOrigin),
         sourceRef: asset.sourceRef,
         license: asset.license,
         licenseUrl: asset.licenseUrl,
