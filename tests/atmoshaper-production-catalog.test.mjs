@@ -123,7 +123,8 @@ describe("AtmoShaper production audio catalog", () => {
       "utf8",
     ))
     const release = validateAtmoShaperProductionCatalog(raw)
-    assert.equal(release.catalogRevision, "df8cb2ceffa9148194c0e60e8d10b6c0d83ad944e3968bd671f97a72301b65fa")
+    assert.equal(release.catalogRevision, "4afb728dcdc5ed0cdef4d8256a0d187a4e4f585e6feeee1a9a66775e21cc3c45")
+    assert.equal(release.publishedBaseUrl, "https://media.atmoshaper.com/")
     assert.deepEqual(release.summary, {
       conceptCount: 51,
       sourceReferenceCount: 450,

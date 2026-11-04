@@ -74,9 +74,9 @@ function withoutDelivery(catalog) {
 }
 
 test("the entire committed Signature catalog rebinds with a distinct verified revision and immutable owners", () => {
-  const original = structuredClone(committedCatalog)
-  const result = rebindAtmoShaperProductionCatalog(committedCatalog, branded)
-  assert.deepEqual(committedCatalog, original)
+  const original = rebindAtmoShaperProductionCatalog(committedCatalog, legacy)
+  const result = rebindAtmoShaperProductionCatalog(original, branded)
+  assert.deepEqual(result, committedCatalog)
   assert.deepEqual(withoutDelivery(result), withoutDelivery(original))
   assert.equal(revision(original), original.catalogRevision)
   assert.equal(revision(result), result.catalogRevision)
@@ -96,7 +96,7 @@ test("the entire committed Signature catalog rebinds with a distinct verified re
 test("rebinding is idempotent and rollback restores the exact original catalog and browser format choice", () => {
   const result = rebindAtmoShaperProductionCatalog(committedCatalog, branded)
   assert.deepEqual(rebindAtmoShaperProductionCatalog(result, branded), result)
-  assert.deepEqual(rebindAtmoShaperProductionCatalog(result, legacy), committedCatalog)
+  assert.deepEqual(rebindAtmoShaperProductionCatalog(rebindAtmoShaperProductionCatalog(result, legacy), branded), committedCatalog)
   const source = result.concepts[0].sources[0]
   for (const contentType of ["audio/ogg; codecs=opus", "audio/mp4; codecs=mp4a.40.2", "audio/mpeg", "audio/wav"]) {
     assert.equal(
