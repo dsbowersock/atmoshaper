@@ -13,6 +13,7 @@ import type {
   FlashcardPromptType,
 } from "@/lib/anatomy-study"
 import {
+  FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE,
   FLASHCARD_STATIC_CATEGORY_IDS,
   FLASHCARD_STATIC_PROMPT_TYPES,
   FLASHCARD_STATIC_REGION_IDS,
@@ -30,6 +31,7 @@ import {
 } from "./flashcard-setup-builder"
 import { FlashcardProgressDashboard } from "./flashcard-progress-dashboard"
 import {
+  FlashcardImageUnavailableError,
   loadFlashcardProgressDashboard,
   loadFlashcardPromptCatalog,
   loadTemporaryFlashcardDeck,
@@ -519,6 +521,10 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
           activateDeck(prompts)
           if (message) setSaveMessage(message)
         } catch (error) {
+          if (error instanceof FlashcardImageUnavailableError) {
+            setSaveMessage(error.message)
+            return
+          }
           console.error("Failed to start temporary flashcard deck", error)
           setSaveMessage("Deck could not be started.")
         }
@@ -531,6 +537,10 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
           const result = await startFlashcardProgressSession({ config, deckSlug, skipMastered: skipMasteredPrompts })
 
           if (!result.ok) {
+            if (result.mediaUnavailable) {
+              setSaveMessage(result.errorMessage || FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE)
+              return
+            }
             if (skipMasteredPrompts && result.status === 409) {
               setSaveMessage(result.errorMessage || "All selected prompts are already mastered.")
               return

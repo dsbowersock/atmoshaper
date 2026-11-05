@@ -2,6 +2,14 @@ import type { FlashcardDeckSummary, NormalizedFlashcardDeckConfig } from "./flas
 import type { FlashcardAnswerMode, FlashcardPromptType } from "./anatomy-study.ts"
 import { PUBLIC_PRODUCT_IDENTITY } from "./public-product-identity.js"
 
+export const FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE = "Image availability could not be checked. Try starting the deck again."
+
+/** An explicit image prompt must not be omitted from a deck on a failed media lookup. */
+export function hasExactFlashcardImageSelection(config: NormalizedFlashcardDeckConfig) {
+  return config.promptTypes.includes("identify_from_media")
+    && config.promptIds?.some((id) => id.startsWith("identify_from_media:")) === true
+}
+
 export type FlashcardSetupOption = {
   id: string
   label: string

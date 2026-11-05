@@ -29,17 +29,24 @@ const row = {
   }],
 }
 
-test("distinguishes partial image catalogs from complete empty results", async () => {
+test("preserves exact image selections across catalog and deck-start lookup failures", async () => {
   const read = Promise.withResolvers()
   const started = Promise.withResolvers()
   let lookupCount = 0
   let lookupFails = false
+  const recordedSessions = []
   globalThis.atmoPromptFixturePrisma = {
     anatomyMediaAsset: {
       findMany() {
         lookupCount++
         started.resolve()
         return lookupFails ? Promise.reject(Error("Invented lookup failure")) : read.promise
+      },
+    },
+    flashcardStudySession: {
+      create({ data }) {
+        recordedSessions.push(data.promptIds)
+        return Promise.resolve({ id: "invented-session" })
       },
     },
   }
@@ -52,6 +59,10 @@ test("distinguishes partial image catalogs from complete empty results", async (
     ["@/lib/anatomy-study-media", media],
     ["@/lib/flashcard-community", file("lib/flashcard-community.ts")],
     ["@/lib/flashcard-static-metadata", file("lib/flashcard-static-metadata.ts")],
+    ["@/lib/flashcard-progress", file("lib/flashcard-progress.ts")],
+    ["@/lib/flashcard-progress-helpers", file("lib/flashcard-progress-helpers.ts")],
+    ["@/auth", "data:text/javascript,export const getCurrentSession=async()=>({user:{id:'fixture-user'}})"],
+    ["@/lib/prisma", "data:text/javascript,export const prisma=globalThis.atmoPromptFixturePrisma"],
     ["next/server", import.meta.resolve("next/server.js")],
   ])
   const hooks = registerHooks({
@@ -67,9 +78,15 @@ test("distinguishes partial image catalogs from complete empty results", async (
 
   try {
     const { POST } = await import(file("app/api/education/flashcards/prompts/route.ts"))
+    const { POST: startSession } = await import(file("app/api/education/flashcards/sessions/route.ts"))
     const { loadAnatomyStudyMediaUrlOptions } = await import(media)
     const { normalizeFlashcardDeckConfig } = await import(file("lib/flashcard-community.ts"))
-    const { loadFlashcardPromptCatalog } = await import(file("app/education/flashcards/flashcard-api-client.ts"))
+    const {
+      FlashcardImageUnavailableError,
+      loadFlashcardPromptCatalog,
+      loadTemporaryFlashcardDeck,
+      startFlashcardProgressSession,
+    } = await import(file("app/education/flashcards/flashcard-api-client.ts"))
     const config = normalizeFlashcardDeckConfig({
       categories: ["muscle"], difficulty: "hard", promptTypes: ["identify_from_media"], promptIds: [promptId], count: 1,
     })
@@ -82,7 +99,10 @@ test("distinguishes partial image catalogs from complete empty results", async (
       assert.equal(response.status, 200)
       return response.json()
     }
-    globalThis.fetch = (url, init) => POST(new Request("https://example.invalid" + url, init))
+    globalThis.fetch = (url, init) => {
+      const route = url.endsWith("/sessions") ? startSession : POST
+      return route(new Request("https://example.invalid" + url, init))
+    }
 
     const text = await request({ promptTypes: ["name_to_region"], promptIds: undefined })
     assert.equal(text.prompts.length, 1)
@@ -107,14 +127,40 @@ test("distinguishes partial image catalogs from complete empty results", async (
     assert.equal(absent.mediaUnavailable, undefined)
     assert.equal(lookupCount, 1)
 
+    const exactIds = [text.prompts[0].id, promptId]
+    const mixed = normalizeFlashcardDeckConfig({
+      ...config, promptTypes: ["name_to_region", "identify_from_media"], promptIds: exactIds, count: 2,
+    })
+    const startMixedSession = () => startSession(new Request("https://example.invalid/api/education/flashcards/sessions", {
+      method: "POST", body: JSON.stringify({ config: mixed }),
+    }))
+    const temporary = await loadTemporaryFlashcardDeck(mixed)
+    assert.deepEqual(new Set(temporary.map(prompt => prompt.id)), new Set(exactIds))
+    assert.equal((await startMixedSession()).status, 201)
+    assert.deepEqual(new Set(recordedSessions[0]), new Set(exactIds))
+
     const expired = realNow() + 61_000
     Date.now = () => expired
     lookupFails = true
     assert.equal((await loadFlashcardPromptCatalog(config)).mediaUnavailable, true)
     assert.equal(lookupCount, 2)
 
+    await assert.rejects(loadTemporaryFlashcardDeck(mixed), FlashcardImageUnavailableError)
+    const failedSession = await startFlashcardProgressSession({ config: mixed, deckSlug: "", skipMastered: false })
+    assert.deepEqual(failedSession, {
+      ok: false,
+      status: 503,
+      errorMessage: "Image availability could not be checked. Try starting the deck again.",
+      mediaUnavailable: true,
+    })
+    assert.equal(recordedSessions.length, 1)
+    const broad = normalizeFlashcardDeckConfig({ ...mixed, promptIds: undefined })
+    const availableText = await loadTemporaryFlashcardDeck(broad)
+    assert.ok(availableText.length > 0 && availableText.every(prompt => prompt.type === "name_to_region"))
+
     globalThis.fetch = async () => { throw Error("Invented offline transport") }
     assert.equal((await loadFlashcardPromptCatalog(config)).mediaUnavailable, true)
+    await assert.rejects(loadTemporaryFlashcardDeck(mixed), FlashcardImageUnavailableError)
   } finally {
     globalThis.fetch = realFetch
     Date.now = realNow

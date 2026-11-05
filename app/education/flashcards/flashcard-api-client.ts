@@ -6,7 +6,11 @@ import type {
   FlashcardPromptType,
 } from "@/lib/anatomy-study"
 import type { NormalizedFlashcardDeckConfig } from "@/lib/flashcard-community"
-import { FLASHCARD_STATIC_PROMPT_TYPES } from "@/lib/flashcard-static-metadata"
+import {
+  FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE,
+  FLASHCARD_STATIC_PROMPT_TYPES,
+  hasExactFlashcardImageSelection,
+} from "@/lib/flashcard-static-metadata"
 
 export type PromptTypeCount = {
   id: FlashcardPromptType
@@ -103,7 +107,7 @@ export type FlashcardPromptCatalogPayload = {
 
 export type FlashcardProgressSessionResult =
   | { ok: true; session: FlashcardSessionStartPayload }
-  | { ok: false; status: number; errorMessage: string }
+  | { ok: false; status: number; errorMessage: string; mediaUnavailable?: boolean }
 
 export type FlashcardMasteryRoundResult =
   | { ok: true; completedRound: number; nextRound: number }
@@ -352,7 +356,15 @@ export async function loadFlashcardPromptCatalog(config: NormalizedFlashcardDeck
   return { promptTypeCounts, promptSummaries, mediaUnavailable: config.promptTypes.includes("identify_from_media") }
 }
 
+/** Indicates that an exact image deck can be retried without narrowing its selection. */
+export class FlashcardImageUnavailableError extends Error {
+  constructor() {
+    super(FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE)
+  }
+}
+
 export async function loadTemporaryFlashcardDeck(config: NormalizedFlashcardDeckConfig) {
+  const requiresImages = hasExactFlashcardImageSelection(config)
   try {
     const response = await fetch("/api/education/flashcards/prompts", {
       method: "POST",
@@ -364,13 +376,19 @@ export async function loadTemporaryFlashcardDeck(config: NormalizedFlashcardDeck
       throw new Error(`Prompt API returned ${response.status}.`)
     }
 
-    const prompts = promptDeckPayload(await response.json())
-    if (prompts.length === 0) {
+    const payload = await response.json()
+    if (requiresImages && payload?.mediaUnavailable === true) {
+      throw new FlashcardImageUnavailableError()
+    }
+    const prompts = promptDeckPayload(payload)
+    if (prompts.length === 0 && !requiresImages) {
       throw new Error("Prompt API returned no prompts.")
     }
 
     return prompts
   } catch (error) {
+    if (error instanceof FlashcardImageUnavailableError) throw error
+    if (requiresImages) throw new FlashcardImageUnavailableError()
     console.warn("Falling back to local flashcard prompt generation", error)
   }
 
@@ -398,6 +416,7 @@ export async function startFlashcardProgressSession({
       ok: false,
       status: response.status,
       errorMessage: typeof payload?.error === "string" ? payload.error : "",
+      ...(payload?.mediaUnavailable === true && { mediaUnavailable: true }),
     }
   }
 

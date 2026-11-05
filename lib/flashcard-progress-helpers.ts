@@ -52,23 +52,28 @@ export function flashcardPromptIdFromTool(tool: string) {
   return tool.startsWith(prefix) ? tool.slice(prefix.length) : ""
 }
 
-export async function optionalFlashcardMediaOptions() {
+/** Distinguish an unavailable lookup from a completed lookup with no images. */
+export async function tryFlashcardMediaOptions() {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
 
   try {
     const { loadAnatomyStudyMediaUrlOptions } = await import("./anatomy-study-media.ts")
 
     return await Promise.race([
-      loadAnatomyStudyMediaUrlOptions(),
-      new Promise<typeof emptyFlashcardMediaOptions>((resolve) => {
-        timeoutId = setTimeout(() => resolve(emptyFlashcardMediaOptions), 1500)
+      loadAnatomyStudyMediaUrlOptions({ requireDatabaseResult: true }),
+      new Promise<null>((resolve) => {
+        timeoutId = setTimeout(() => resolve(null), 1500)
       }),
     ])
   } catch {
-    return emptyFlashcardMediaOptions
+    return null
   } finally {
     if (timeoutId) clearTimeout(timeoutId)
   }
+}
+
+export async function optionalFlashcardMediaOptions() {
+  return await tryFlashcardMediaOptions() ?? emptyFlashcardMediaOptions
 }
 
 function mediaUrlEntries(mediaUrlBySlug: AnatomyStudyBuildOptions["mediaUrlBySlug"]) {

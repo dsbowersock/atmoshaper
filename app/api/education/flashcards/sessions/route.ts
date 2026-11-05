@@ -8,7 +8,9 @@ import {
   getFlashcardPromptDeckFromCatalog,
   getFlashcardPromptPoolFromCatalog,
   optionalFlashcardMediaOptions,
+  tryFlashcardMediaOptions,
 } from "@/lib/flashcard-progress-helpers"
+import { FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE, hasExactFlashcardImageSelection } from "@/lib/flashcard-static-metadata"
 import {
   flashcardProgressTool,
   isFlashcardProgressMastered,
@@ -52,7 +54,15 @@ export async function POST(request: Request) {
   }
 
   const config = normalizeFlashcardDeckConfig(deck?.config ?? body.config)
-  const mediaOptions = await optionalFlashcardMediaOptions()
+  const mediaOptions = hasExactFlashcardImageSelection(config)
+    ? await tryFlashcardMediaOptions()
+    : await optionalFlashcardMediaOptions()
+  if (!mediaOptions) {
+    return NextResponse.json({
+      error: FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE,
+      mediaUnavailable: true,
+    }, { status: 503 })
+  }
   let prompts = skipMastered
     ? getFlashcardPromptPoolFromCatalog(config, mediaOptions)
     : getFlashcardPromptDeckFromCatalog(config, mediaOptions)
