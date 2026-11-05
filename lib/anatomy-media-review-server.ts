@@ -1,4 +1,5 @@
 import { createHash, createHmac } from "node:crypto"
+import { BRANDED_ANATOMY_MEDIA_ORIGIN, resolveAnatomyMediaDeliveryOrigin } from "./anatomy-media-delivery.ts"
 
 type R2Env = {
   accountId?: string
@@ -42,6 +43,13 @@ function readR2Env(): R2Env {
 }
 
 function requireUploadEnv(env: R2Env) {
+  const deliveryOrigin = resolveAnatomyMediaDeliveryOrigin(process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN)
+  // A branded build must not write to the legacy bucket and record a URL on the new host.
+  if (deliveryOrigin === BRANDED_ANATOMY_MEDIA_ORIGIN
+    && (env.bucket !== "anatomy-media" || env.publicBaseUrl !== deliveryOrigin)) {
+    throw new Error("Branded anatomy uploads require the anatomy-media bucket and the matching public URL.")
+  }
+
   const missing = [
     ["CLOUDFLARE_ACCOUNT_ID or MASSAGELAB_R2_ENDPOINT", env.endpoint ?? env.accountId],
     ["R2_ACCESS_KEY_ID", env.accessKeyId],

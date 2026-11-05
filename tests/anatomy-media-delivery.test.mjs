@@ -7,6 +7,7 @@ import * as temple from "../lib/anatomy-temple-action-provenance.js"
 import * as later from "../lib/anatomy-action-backlog-provenance.js"
 import * as review from "../lib/anatomy-media-review.js"
 import * as delivery from "../lib/anatomy-media-delivery.js"
+import { uploadAnatomyMediaToR2 } from "../lib/anatomy-media-review-server.ts"
 import * as progress from "../lib/flashcard-progress.js"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 
@@ -15,6 +16,62 @@ const branded = "https://anatomy-media.atmoshaper.com"
 const imageSlug = "bodyparts3d-biceps-brachii-anatomogram"
 const load = createCompiledModuleLoader(import.meta.url)
 const studySource = readFileSync(new URL("../lib/anatomy-study.ts", import.meta.url), "utf8")
+
+test("the branded anatomy importer requires the matching bucket and URL before fetching", async (t) => {
+  const endpoint = "https://invented-storage.example.test"
+  const sourceUrl = "https://invented-source.example.test/image.png"
+  const storagePath = "invented/anatomy/image.png"
+  const fixture = {
+    NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN: branded,
+    R2_ACCESS_KEY_ID: "invented",
+    R2_SECRET_ACCESS_KEY: "invented",
+    MASSAGELAB_R2_BUCKET: "",
+    MASSAGELAB_R2_ENDPOINT: endpoint,
+    MASSAGELAB_R2_PUBLIC_BASE_URL: branded,
+  }
+  const previous = Object.fromEntries(Object.keys(fixture).map((name) => [name, process.env[name]]))
+  t.after(() => {
+    for (const [name, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[name]
+      else process.env[name] = value
+    }
+  })
+  Object.assign(process.env, fixture)
+
+  const requests = []
+  t.mock.method(globalThis, "fetch", async (url, options) => {
+    requests.push([url, options?.method ?? "GET"])
+    return new Response(new Uint8Array([1]), { headers: { "content-type": "image/png" } })
+  })
+  const importImage = () => uploadAnatomyMediaToR2({ sourceUrl, storagePath })
+  for (const [bucket, publicBaseUrl] of [
+    ["", branded],
+    ["massagelab-anatomy-media", branded],
+    ["anatomy-media", ""],
+    ["anatomy-media", legacy],
+  ]) {
+    process.env.MASSAGELAB_R2_BUCKET = bucket
+    process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = publicBaseUrl
+    await assert.rejects(importImage, /Branded anatomy uploads require/)
+  }
+  assert.deepEqual(requests, [])
+
+  process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = branded
+  assert.equal((await importImage()).remoteUrl, `${branded}/${storagePath}`)
+  assert.deepEqual(requests.splice(0), [
+    [sourceUrl, "GET"],
+    [`${endpoint}/anatomy-media/${storagePath}`, "PUT"],
+  ])
+
+  delete process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN
+  process.env.MASSAGELAB_R2_BUCKET = ""
+  process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = legacy
+  assert.equal((await importImage()).remoteUrl, `${legacy}/${storagePath}`)
+  assert.deepEqual(requests, [
+    [sourceUrl, "GET"],
+    [`${endpoint}/massagelab-anatomy-media/${storagePath}`, "PUT"],
+  ])
+})
 
 /**
  * Compiles the real projection with pure data dependencies instead of the DB
