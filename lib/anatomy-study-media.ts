@@ -125,7 +125,9 @@ async function readAnatomyStudyMediaUrlOptions(): Promise<AnatomyStudyMediaUrlOp
  * keeping the query projected and cached avoids repeated Neon transfer of the
  * full anatomy media catalog while preserving reviewed BodyParts3D prompt media.
  */
-export async function loadAnatomyStudyMediaUrlOptions(): Promise<AnatomyStudyMediaUrlOptions> {
+export async function loadAnatomyStudyMediaUrlOptions(
+  { requireDatabaseResult = false }: { requireDatabaseResult?: boolean } = {},
+): Promise<AnatomyStudyMediaUrlOptions> {
   try {
     const now = Date.now()
     if (studyMediaOptionsCache && studyMediaOptionsCache.expiresAt > now) {
@@ -139,7 +141,9 @@ export async function loadAnatomyStudyMediaUrlOptions(): Promise<AnatomyStudyMed
       value,
     }
     return cloneMediaOptions(value)
-  } catch {
+  } catch (error) {
+    // The public catalog distinguishes a failed read from a successful empty result.
+    if (requireDatabaseResult) throw error
     return cloneMediaOptions(emptyMediaOptions)
   } finally {
     pendingStudyMediaOptions = null

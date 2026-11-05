@@ -23,11 +23,14 @@ async function optionalMediaOptions(shouldLoad: boolean) {
     const { loadAnatomyStudyMediaUrlOptions } = await import("@/lib/anatomy-study-media")
 
     return await Promise.race([
-      loadAnatomyStudyMediaUrlOptions(),
-      new Promise<typeof emptyMediaOptions>((resolve) => {
-        timeoutId = setTimeout(() => resolve(emptyMediaOptions), 1500)
+      loadAnatomyStudyMediaUrlOptions({ requireDatabaseResult: true }),
+      // Keep text prompts available without treating an incomplete image catalog as empty.
+      new Promise<null>((resolve) => {
+        timeoutId = setTimeout(() => resolve(null), 1500)
       }),
     ])
+  } catch {
+    return null
   } finally {
     if (timeoutId) clearTimeout(timeoutId)
   }
@@ -37,7 +40,8 @@ export async function POST(request: Request) {
   const body = objectBody(await request.json().catch(() => ({})))
   const config = normalizeFlashcardDeckConfig(body.config)
   const shouldLoadMediaUrls = config.promptTypes.includes("identify_from_media")
-  const mediaOptions = await optionalMediaOptions(shouldLoadMediaUrls)
+  const loadedMedia = await optionalMediaOptions(shouldLoadMediaUrls)
+  const mediaOptions = loadedMedia ?? emptyMediaOptions
   const promptTypeCounts = getFlashcardPromptTypeCounts(config, mediaOptions)
   const prompts = body.includePrompts === true
     ? createFlashcardPromptDeck(config, mediaOptions)
@@ -58,5 +62,6 @@ export async function POST(request: Request) {
     promptTypeCounts,
     prompts,
     promptSummaries,
+    ...(loadedMedia === null && { mediaUnavailable: true }),
   })
 }

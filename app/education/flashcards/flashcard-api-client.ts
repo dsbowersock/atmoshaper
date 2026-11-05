@@ -98,6 +98,7 @@ export type FlashcardSessionStartPayload = {
 export type FlashcardPromptCatalogPayload = {
   promptTypeCounts: PromptTypeCount[]
   promptSummaries: PromptSummary[]
+  mediaUnavailable: boolean
 }
 
 export type FlashcardProgressSessionResult =
@@ -336,6 +337,7 @@ export async function loadFlashcardPromptCatalog(config: NormalizedFlashcardDeck
       return {
         promptTypeCounts: payload.promptTypeCounts,
         promptSummaries: promptSummaryRows(payload),
+        mediaUnavailable: payload.mediaUnavailable === true,
       }
     }
   } catch {
@@ -347,7 +349,7 @@ export async function loadFlashcardPromptCatalog(config: NormalizedFlashcardDeck
     localPromptSummaries(config),
   ])
 
-  return { promptTypeCounts, promptSummaries }
+  return { promptTypeCounts, promptSummaries, mediaUnavailable: config.promptTypes.includes("identify_from_media") }
 }
 
 export async function loadTemporaryFlashcardDeck(config: NormalizedFlashcardDeckConfig) {
