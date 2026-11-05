@@ -69,9 +69,21 @@ try {
   process.exitCode = 1
 }
 
+/** Resolves the release destination consistently for checks, staging and upload. */
+function resolveReleaseTarget(options, fallbackPublicBaseUrl = DEFAULT_PUBLIC_BASE_URL) {
+  const env = readAtmospherePublicMediaR2Env()
+  const publicBaseUrl = options.publicBaseUrl ?? env.publicBaseUrl ?? fallbackPublicBaseUrl
+  if (publicBaseUrl === "https://media.atmoshaper.com" && env.bucket !== "public-media") {
+    throw new Error("The AtmoShaper media URL requires the public-media bucket.")
+  }
+  if (publicBaseUrl === DEFAULT_PUBLIC_BASE_URL && env.bucket === "public-media") {
+    throw new Error("The public-media bucket requires the AtmoShaper media URL instead of the legacy URL.")
+  }
+  return { ...env, publicBaseUrl }
+}
+
 async function runCheck(options) {
-  const base = readAtmospherePublicMediaR2Env()
-  const env = { ...base, publicBaseUrl: options.publicBaseUrl ?? base.publicBaseUrl ?? DEFAULT_PUBLIC_BASE_URL }
+  const env = resolveReleaseTarget(options)
   const toolchain = await inspectFfmpegToolchain(options)
   const missingForUpload = missingAtmosphereR2UploadEnv(env)
   console.log(JSON.stringify({
@@ -108,6 +120,7 @@ async function runPlan(options) {
 
 async function runStage(options) {
   if (!options.stagingRoot) throw new Error("--staging-root is required for stage")
+  const { bucket, publicBaseUrl } = resolveReleaseTarget(options)
   await requireApprovedFfmpegToolchain(options)
   const owners = await loadOwners(options)
   const payloads = await verifyAtmoShaperProductionPayloads(owners.concepts)
@@ -118,7 +131,7 @@ async function runStage(options) {
     const row = await stagePayload({
       payload,
       stagingRoot,
-      publicBaseUrl: options.publicBaseUrl,
+      publicBaseUrl,
       ffmpegPath: options.ffmpegPath,
       ffprobePath: options.ffprobePath,
     })
@@ -130,7 +143,7 @@ async function runStage(options) {
   )))
   const catalog = buildAtmoShaperProductionCatalog({
     concepts: owners.concepts,
-    publishedBaseUrl: options.publicBaseUrl,
+    publishedBaseUrl: publicBaseUrl,
     renditionsByPayloadSha256,
   })
   const catalogObjectKey = atmoShaperProductionCatalogObjectKey(catalog.catalogRevision)
@@ -142,8 +155,8 @@ async function runStage(options) {
     catalogRevision: catalog.catalogRevision,
     sourceRoot: owners.sourceRoot,
     derivedRoot: owners.derivedRoot,
-    publicBaseUrl: options.publicBaseUrl,
-    bucket: "massagelab-public-media",
+    publicBaseUrl,
+    bucket,
     objectPrefix: ATMOSHAPER_PRODUCTION_RELEASE_PREFIX,
     summary: {
       conceptCount: catalog.summary.conceptCount,
@@ -160,7 +173,7 @@ async function runStage(options) {
     catalogObject: {
       kind: "catalog",
       objectKey: catalogObjectKey,
-      publicUrl: publicUrlForR2Object(options.publicBaseUrl, catalogObjectKey),
+      publicUrl: publicUrlForR2Object(publicBaseUrl, catalogObjectKey),
       localPath: path.join(stagingRoot, "catalog.json"),
       contentType: "application/json; charset=utf-8",
       cacheControl: DEFAULT_ATMOSPHERE_R2_METADATA_CACHE_CONTROL,
@@ -183,11 +196,11 @@ async function runStage(options) {
 
 async function runUpload(options) {
   const stage = await loadStage(options)
-  const base = readAtmospherePublicMediaR2Env()
-  const env = { ...base, publicBaseUrl: options.publicBaseUrl ?? base.publicBaseUrl ?? stage.publicBaseUrl }
+  const env = resolveReleaseTarget(options, stage.publicBaseUrl)
   const missing = missingAtmosphereR2UploadEnv(env)
   if (missing.length > 0) throw new Error(`R2 upload is not configured: ${missing.join(", ")}`)
   if (env.bucket !== stage.bucket) throw new Error("R2 stage bucket differs from configured public-media bucket")
+  if (env.publicBaseUrl !== stage.publicBaseUrl) throw new Error("R2 stage public URL differs from configured public-media URL")
   const objects = [...stage.audioObjects]
   console.log(`Uploading or verifying ${objects.length} immutable audio objects…`)
   await mapConcurrent(objects, options.concurrency, async (object, index) => {
@@ -421,7 +434,6 @@ function parseOptions(rawArgs) {
     derivedRoot: DEFAULT_DERIVED_ROOT,
     stagingRoot: undefined,
     catalogOutput: DEFAULT_CATALOG_OUTPUT,
-    publicBaseUrl: DEFAULT_PUBLIC_BASE_URL,
     ffmpegPath: DEFAULT_FFMPEG_PATH,
     ffprobePath: DEFAULT_FFPROBE_PATH,
     concurrency: 4,
