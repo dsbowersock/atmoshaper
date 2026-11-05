@@ -5,8 +5,8 @@ import {
   getFlashcardPromptTypeCounts,
 } from "@/lib/anatomy-study"
 import { normalizeFlashcardDeckConfig } from "@/lib/flashcard-community"
-
-const emptyMediaOptions = { mediaUrlBySlug: new Map<string, string>() }
+import { emptyFlashcardMediaOptions, tryFlashcardMediaOptions } from "@/lib/flashcard-progress-helpers"
+import { hasExactFlashcardImageSelection, hasMissingSelectedFlashcardImages } from "@/lib/flashcard-static-metadata"
 
 function objectBody(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -14,36 +14,21 @@ function objectBody(value: unknown) {
     : {}
 }
 
-async function optionalMediaOptions(shouldLoad: boolean) {
-  if (!shouldLoad) return emptyMediaOptions
-
-  let timeoutId: ReturnType<typeof setTimeout> | undefined
-
-  try {
-    const { loadAnatomyStudyMediaUrlOptions } = await import("@/lib/anatomy-study-media")
-
-    return await Promise.race([
-      loadAnatomyStudyMediaUrlOptions(),
-      new Promise<typeof emptyMediaOptions>((resolve) => {
-        timeoutId = setTimeout(() => resolve(emptyMediaOptions), 1500)
-      }),
-    ])
-  } finally {
-    if (timeoutId) clearTimeout(timeoutId)
-  }
-}
-
 export async function POST(request: Request) {
   const body = objectBody(await request.json().catch(() => ({})))
   const config = normalizeFlashcardDeckConfig(body.config)
   const shouldLoadMediaUrls = config.promptTypes.includes("identify_from_media")
-  const mediaOptions = await optionalMediaOptions(shouldLoadMediaUrls)
+  const loadedMedia = shouldLoadMediaUrls ? await tryFlashcardMediaOptions() : emptyFlashcardMediaOptions
+  const mediaOptions = loadedMedia ?? emptyFlashcardMediaOptions
   const promptTypeCounts = getFlashcardPromptTypeCounts(config, mediaOptions)
-  const prompts = body.includePrompts === true
+  const needsFullPool = body.includePromptSummaries === true || hasExactFlashcardImageSelection(config)
+  const eligiblePrompts = needsFullPool ? getAnatomyStudyPrompts(config, mediaOptions) : []
+  const missingSelection = hasMissingSelectedFlashcardImages(config, eligiblePrompts.map((prompt) => prompt.id))
+  const prompts = body.includePrompts === true && !missingSelection
     ? createFlashcardPromptDeck(config, mediaOptions)
     : []
   const promptSummaries = body.includePromptSummaries === true
-    ? getAnatomyStudyPrompts(config, mediaOptions).map((prompt) => ({
+    ? eligiblePrompts.map((prompt) => ({
       id: prompt.id,
       type: prompt.type,
       typeLabel: prompt.typeLabel,
@@ -58,5 +43,6 @@ export async function POST(request: Request) {
     promptTypeCounts,
     prompts,
     promptSummaries,
+    ...((loadedMedia === null || missingSelection) && { mediaUnavailable: true }),
   })
 }

@@ -596,7 +596,23 @@ async function verifyStripePrices() {
 
   try {
     const endpoints = await stripe.webhookEndpoints.list({ limit: 100 })
-    const endpoint = endpoints.data.find((candidate) => candidate.url === STRIPE_PINNED_WEBHOOK_URL)
+    // A partial page cannot establish uniqueness within the bounded provider read.
+    if (endpoints.has_more !== false) {
+      addFailure("The Stripe webhook endpoint inventory is incomplete.")
+      return
+    }
+    const pinnedEndpoints = endpoints.data.filter((candidate) => candidate.url === STRIPE_PINNED_WEBHOOK_URL)
+    const enabledEndpoints = pinnedEndpoints.filter((candidate) => candidate.status === "enabled")
+    if (enabledEndpoints.length > 1) {
+      addFailure("The pinned Stripe webhook URL has multiple enabled endpoints.")
+      return
+    }
+    // A disabled historical endpoint cannot shadow the active one.
+    const endpoint = enabledEndpoints[0] ?? pinnedEndpoints[0]
+    if (endpoint && endpoint.livemode !== expectedLivemode) {
+      addFailure("The pinned Stripe webhook endpoint mode does not match the requested mode.")
+      return
+    }
     const endpointResult = validatePinnedStripeWebhookEndpoint(endpoint)
     verifiedWebhookCoverageComplete = endpointResult.eventSetExact
     verifiedWebhookEndpointEnabled = endpointResult.enabled

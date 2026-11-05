@@ -1,7 +1,7 @@
 import type { AnatomyMediaAsset } from "./anatomy-foundation.ts"
 
 const LEGACY_ANATOMY_MEDIA_ORIGIN = "https://anatomy-media.massagelab.app"
-const BRANDED_ANATOMY_MEDIA_ORIGIN = "https://anatomy-media.atmoshaper.com"
+export const BRANDED_ANATOMY_MEDIA_ORIGIN = "https://anatomy-media.atmoshaper.com"
 
 export type AnatomyMediaDeliveryOrigin = typeof LEGACY_ANATOMY_MEDIA_ORIGIN | typeof BRANDED_ANATOMY_MEDIA_ORIGIN
 

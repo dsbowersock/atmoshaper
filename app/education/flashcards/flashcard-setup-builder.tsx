@@ -57,6 +57,9 @@ type FlashcardSetupBuilderProps = {
   skipMasteredPrompts: boolean
   isStartingDeck: boolean
   isLoadingPromptCounts: boolean
+  isMediaCatalogUnavailable: boolean
+  hasUnverifiedImageSelection: boolean
+  onRetryPromptCatalog: () => void
   saveMessage: string
   onSelectAllCategories: () => void
   onToggleCategory: (id: FlashcardCategoryId) => void
@@ -269,6 +272,9 @@ export function FlashcardSetupBuilder({
   skipMasteredPrompts,
   isStartingDeck,
   isLoadingPromptCounts,
+  isMediaCatalogUnavailable,
+  hasUnverifiedImageSelection,
+  onRetryPromptCatalog,
   saveMessage,
   onSelectAllCategories,
   onToggleCategory,
@@ -299,14 +305,16 @@ export function FlashcardSetupBuilder({
   const promptTypeByPromptId = useMemo(() => new Map(promptSummaries.map((prompt) => [prompt.id, prompt.type])), [promptSummaries])
   const exactPromptSelectionActive = selectedPromptIds.length > 0
   const displayedDeckSize = eligiblePromptCount > 0 ? Math.min(Math.max(1, deckSize), eligiblePromptCount) : 0
-  const canStartOrSaveDeck = eligiblePromptCount > 0 && !isLoadingPromptCounts
+  const canStartOrSaveDeck = eligiblePromptCount > 0 && !isLoadingPromptCounts && !hasUnverifiedImageSelection
   const startButtonLabel = isStartingDeck
     ? "Starting..."
     : isLoadingPromptCounts
       ? "Updating..."
-      : displayedDeckSize > 0
-        ? `Start ${displayedDeckSize}`
-        : "No cards to start"
+      : hasUnverifiedImageSelection
+        ? "Retry image availability to start"
+        : displayedDeckSize > 0
+          ? `Start ${displayedDeckSize}`
+          : "No cards to start"
 
   return (
     <div ref={builderRef} className="scroll-mt-6 rounded-md border border-border/80 bg-background/70 p-4">
@@ -445,7 +453,9 @@ export function FlashcardSetupBuilder({
               : []
             const selectedExpandedPromptCount = expandedPromptSummaries.filter((prompt) => selectedPromptIdSet.has(prompt.id)).length
             const unavailableText = type.id === "identify_from_media"
-              ? "No uploaded images available for these filters"
+              ? isMediaCatalogUnavailable
+                ? "Image availability could not be checked"
+                : "No uploaded images available for these filters"
               : "No eligible prompts for these filters"
 
             return (
@@ -606,7 +616,15 @@ export function FlashcardSetupBuilder({
       <div className="mt-4 flex flex-wrap gap-2 text-sm text-muted-foreground">
         <Badge variant="outline">{eligiblePromptCount} eligible prompts</Badge>
         {isLoadingPromptCounts ? <Badge variant="outline">Updating counts</Badge> : null}
-        {!isLoadingPromptCounts && eligiblePromptCount === 0 ? (
+        {!isLoadingPromptCounts && isMediaCatalogUnavailable ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/80 bg-card/60 px-3 py-2">
+            <span role="status">Image availability could not be checked. Your selections were kept.</span>
+            <Button type="button" variant="link" className="h-auto p-0 text-sm" onClick={onRetryPromptCatalog}>
+              Retry image availability
+            </Button>
+          </div>
+        ) : null}
+        {!isLoadingPromptCounts && eligiblePromptCount === 0 && (!isMediaCatalogUnavailable || !promptTypes.includes("identify_from_media")) ? (
           <span className="flex flex-wrap items-center gap-2 rounded-md border border-border/80 bg-card/60 px-3 py-2 text-sm text-muted-foreground">
             No eligible cards match these filters.
             <Button type="button" variant="link" className="h-auto p-0 text-sm" onClick={onResetStudyFilters}>

@@ -4,7 +4,8 @@ import { generateRandomToken } from "@/lib/auth-security"
 import { getGoogleCalendarSyncAccess } from "@/lib/calendar-sync-access"
 import { getGoogleCalendarSyncConfig } from "@/lib/calendar-sync-env"
 import { buildGoogleCalendarAuthUrl } from "@/lib/google-calendar-adapter"
-import { getSiteUrl } from "@/lib/auth-env"
+import { getAuthSecret, getSiteUrl } from "@/lib/auth-env"
+import { signGoogleCalendarState } from "@/lib/calendar-oauth-state"
 
 export async function GET() {
   const baseUrl = getSiteUrl()
@@ -18,7 +19,8 @@ export async function GET() {
   }
 
   const config = getGoogleCalendarSyncConfig()
-  if (!config) {
+  const secret = getAuthSecret()
+  if (!config || !secret) {
     return NextResponse.redirect(new URL("/calendar/sync?google=unconfigured", baseUrl))
   }
 
@@ -28,7 +30,7 @@ export async function GET() {
     redirectUri: config.redirectUri,
     state,
   }))
-  response.cookies.set("massagelab_google_calendar_state", state, {
+  response.cookies.set("massagelab_google_calendar_state", signGoogleCalendarState(state, session.user.id, secret), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

@@ -13,6 +13,7 @@ import type {
   FlashcardPromptType,
 } from "@/lib/anatomy-study"
 import {
+  FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE,
   FLASHCARD_STATIC_CATEGORY_IDS,
   FLASHCARD_STATIC_PROMPT_TYPES,
   FLASHCARD_STATIC_REGION_IDS,
@@ -30,6 +31,7 @@ import {
 } from "./flashcard-setup-builder"
 import { FlashcardProgressDashboard } from "./flashcard-progress-dashboard"
 import {
+  FlashcardImageUnavailableError,
   loadFlashcardProgressDashboard,
   loadFlashcardPromptCatalog,
   loadTemporaryFlashcardDeck,
@@ -134,6 +136,8 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
   const [promptTypeCounts, setPromptTypeCounts] = useState(initialPromptTypeCounts)
   const [promptSummaries, setPromptSummaries] = useState<PromptSummary[]>([])
   const [isLoadingPromptCounts, setIsLoadingPromptCounts] = useState(false)
+  const [isMediaCatalogUnavailable, setIsMediaCatalogUnavailable] = useState(false)
+  const [catalogRefresh, setCatalogRefresh] = useState(0)
   const [canPersistProgress, setCanPersistProgress] = useState(isSignedIn)
   const [skipMasteredPrompts, setSkipMasteredPrompts] = useState(false)
   const [progressDashboard, setProgressDashboard] = useState<FlashcardProgressPayload | null>(null)
@@ -235,6 +239,9 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
       return Boolean(promptType && promptTypes.includes(promptType))
     })
   ), [promptTypeByPromptId, promptTypes, selectedPromptIds])
+  // A partial catalog cannot safely start or save an exact image selection it omitted.
+  const hasUnverifiedImageSelection = isMediaCatalogUnavailable && promptTypes.includes("identify_from_media")
+    && selectedPromptIds.some((id) => id.startsWith("identify_from_media:") && !availablePromptIdSet.has(id))
   const setupConfig = useMemo(() => configFromState({
     categories: selectedCategories,
     regions: selectedRegions,
@@ -258,10 +265,11 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
 
     async function updatePromptCounts() {
       try {
-        const { promptTypeCounts: counts, promptSummaries: summaries } = await loadFlashcardPromptCatalog(countConfig)
+        const { promptTypeCounts: counts, promptSummaries: summaries, mediaUnavailable } = await loadFlashcardPromptCatalog(countConfig)
         if (!cancelled) {
           setPromptTypeCounts(counts)
           setPromptSummaries(summaries)
+          setIsMediaCatalogUnavailable(mediaUnavailable)
         }
       } catch (error) {
         console.error("Failed to calculate local flashcard prompt counts", error)
@@ -275,15 +283,15 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
     return () => {
       cancelled = true
     }
-  }, [countConfig])
+  }, [countConfig, catalogRefresh])
 
   useEffect(() => {
-    if (selectedPromptIds.length === 0 || availablePromptIdSet.size === 0) return
+    if (isLoadingPromptCounts || isMediaCatalogUnavailable || selectedPromptIds.length === 0 || availablePromptIdSet.size === 0) return
     setSelectedPromptIds((current) => {
       const next = current.filter((promptId) => availablePromptIdSet.has(promptId))
       return next.length === current.length ? current : next
     })
-  }, [availablePromptIdSet, selectedPromptIds])
+  }, [availablePromptIdSet, selectedPromptIds, isLoadingPromptCounts, isMediaCatalogUnavailable])
 
   const currentPrompt = activeDeck[currentIndex]
   const currentResult = currentPrompt ? results.find((result) => result.promptId === currentPrompt.id) ?? checkedResult : null
@@ -513,6 +521,10 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
           activateDeck(prompts)
           if (message) setSaveMessage(message)
         } catch (error) {
+          if (error instanceof FlashcardImageUnavailableError) {
+            setSaveMessage(error.message)
+            return
+          }
           console.error("Failed to start temporary flashcard deck", error)
           setSaveMessage("Deck could not be started.")
         }
@@ -525,6 +537,10 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
           const result = await startFlashcardProgressSession({ config, deckSlug, skipMastered: skipMasteredPrompts })
 
           if (!result.ok) {
+            if (result.mediaUnavailable) {
+              setSaveMessage(result.errorMessage || FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE)
+              return
+            }
             if (skipMasteredPrompts && result.status === 409) {
               setSaveMessage(result.errorMessage || "All selected prompts are already mastered.")
               return
@@ -587,7 +603,9 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
   }, [activeDeckActivation])
 
   const persistDraftAndPromptSignIn = () => {
-    window.localStorage.setItem(draftStorageKey, JSON.stringify(setupConfig))
+    // A temporary lookup failure must not narrow the deck draft during sign-in.
+    const draft = hasUnverifiedImageSelection ? { ...setupConfig, promptIds: selectedPromptIds } : setupConfig
+    window.localStorage.setItem(draftStorageKey, JSON.stringify(draft))
     setSaveMessage("Sign in to save decks, progress, and achievements.")
   }
 
@@ -1017,6 +1035,9 @@ export function FlashcardsClient({ categories, regions, initialDecks, initialPro
           skipMasteredPrompts={skipMasteredPrompts}
           isStartingDeck={isStartingDeck}
           isLoadingPromptCounts={isLoadingPromptCounts}
+          isMediaCatalogUnavailable={isMediaCatalogUnavailable}
+          hasUnverifiedImageSelection={hasUnverifiedImageSelection}
+          onRetryPromptCatalog={() => setCatalogRefresh((revision) => revision + 1)}
           saveMessage={saveMessage}
           onSelectAllCategories={() => {
             setSelectedCategories([...allCategoryIds])

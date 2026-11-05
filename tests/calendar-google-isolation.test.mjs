@@ -1,7 +1,9 @@
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
-import { createGoogleCalendarAdapter, GoogleCalendarConnectionError } from "../lib/google-calendar-adapter.ts"
+import { buildGoogleCalendarAuthUrl, createGoogleCalendarAdapter, GoogleCalendarConnectionError } from "../lib/google-calendar-adapter.ts"
+import { generateRandomToken } from "../lib/auth-security.js"
+import * as oauthState from "../lib/calendar-oauth-state.ts"
 import * as constants from "../lib/calendar-sync-constants.ts"
 import * as normalization from "../lib/calendar-sync-normalization.ts"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
@@ -9,12 +11,89 @@ import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 const load = createCompiledModuleLoader(import.meta.url)
 const serviceSource = await readFile(new URL("../lib/calendar-sync-service.ts", import.meta.url), "utf8")
 const routeSource = await readFile(new URL("../app/api/calendar/google/callback/route.ts", import.meta.url), "utf8")
+const connectSource = await readFile(new URL("../app/api/calendar/google/connect/route.ts", import.meta.url), "utf8")
 const actionsSource = await readFile(new URL("../app/calendar/sync/actions.ts", import.meta.url), "utf8")
 const marker = constants.ATMOSHAPER_GOOGLE_CALENDAR_DESCRIPTION
 const scopes = constants.GOOGLE_CALENDAR_SCOPES.join(" ")
 const managed = (overrides = {}) => ({ id: "atmo-calendar", summary: "AtmoShaper", description: marker, accessRole: "owner", ...overrides })
 const legacy = { id: "legacy-calendar", summary: "MassageLab", accessRole: "owner" }
 const token = { access_token: "fixture-access", refresh_token: "fixture-refresh", expires_in: 3600, scope: scopes, googleUserId: "subject-a" }
+const fixtureAuthSecret = "fixture-auth-secret"
+
+it("rejects a Google callback after the app account changes in the same browser", async () => {
+  const host = "https://atmoshaper.example.test"
+  const callbackUrl = host + "/api/calendar/google/callback"
+  const cookieName = "massagelab_google_calendar_state"
+  let currentUser = "user-a"
+  let secret = fixtureAuthSecret
+  const effects = []
+  const redirect = (url) => ({
+    url: String(url),
+    cookies: {
+      set(name, value, options) { this.saved = { name, value, options } },
+      delete(name) { this.deleted = name },
+    },
+  })
+  const dependencies = {
+    "next/server": { NextResponse: { redirect } },
+    "@/auth": { getCurrentSession: async () => ({ user: { id: currentUser } }) },
+    "@/lib/auth-env": { getSiteUrl: () => host, getAuthSecret: () => secret },
+    "@/lib/auth-security": { generateRandomToken },
+    "@/lib/calendar-oauth-state": oauthState,
+    "@/lib/calendar-sync-access": { getGoogleCalendarSyncAccess: async () => ({ allowed: true }) },
+    "@/lib/calendar-sync-env": { getGoogleCalendarSyncConfig: () => ({ clientId: "fixture-client", clientSecret: "fixture-secret", redirectUri: callbackUrl }) },
+    "@/lib/google-calendar-adapter": {
+      buildGoogleCalendarAuthUrl,
+      GoogleCalendarConnectionError,
+      createGoogleCalendarAdapter: () => ({ exchangeCode: async () => { effects.push("exchange"); return token } }),
+    },
+    "@/lib/calendar-sync-service": { connectGoogleCalendar: async ({ userId }) => effects.push(userId) },
+  }
+  const connect = load(connectSource, "app/api/calendar/google/connect.test.ts", dependencies)
+  const callback = load(routeSource, "app/api/calendar/google/callback.test.ts", dependencies)
+  const initiated = await connect.GET()
+  assert.equal(initiated.cookies.saved.name, cookieName)
+  const state = new URL(initiated.url).searchParams.get("state")
+  assert.ok(state)
+  assert.notEqual(initiated.cookies.saved.value, state)
+  assert.equal(initiated.cookies.saved.options.httpOnly, true)
+  assert.equal(initiated.cookies.saved.options.sameSite, "lax")
+  assert.equal(initiated.cookies.saved.options.maxAge, 600)
+  const request = (stored = initiated.cookies.saved.value) => ({
+    url: callbackUrl + "?" + new URLSearchParams({ code: "fixture-code", state }),
+    cookies: { get: (name) => name === cookieName ? { value: stored } : undefined },
+  })
+
+  currentUser = "user-b"
+  const changed = await callback.GET(request())
+  assert.deepEqual([new URL(changed.url).searchParams.get("google"), effects], ["state", []])
+  assert.equal(changed.cookies.deleted, cookieName)
+
+  currentUser = "user-a"
+  const legacy = await callback.GET(request(state))
+  assert.equal(new URL(legacy.url).searchParams.get("google"), "state")
+  const corrupted = await callback.GET(request("z".repeat(64)))
+  assert.equal(new URL(corrupted.url).searchParams.get("google"), "state")
+  const digest = initiated.cookies.saved.value
+  const otherDigest = (digest.startsWith("0") ? "1" : "0") + digest.slice(1)
+  const tampered = await callback.GET(request(otherDigest))
+  assert.equal(new URL(tampered.url).searchParams.get("google"), "state")
+  assert.deepEqual(effects, [])
+
+  const sameUser = await callback.GET(request())
+  assert.equal(new URL(sameUser.url).searchParams.get("google"), "connected")
+  assert.equal(sameUser.cookies.deleted, cookieName)
+  assert.deepEqual(effects, ["exchange", "user-a"])
+
+  secret = ""
+  const missingSecret = await connect.GET()
+  assert.equal(new URL(missingSecret.url).searchParams.get("google"), "unconfigured")
+  assert.equal(missingSecret.cookies.saved, undefined)
+  const callbackWithoutSecret = await callback.GET(request())
+  assert.equal(new URL(callbackWithoutSecret.url).searchParams.get("google"), "unconfigured")
+  assert.equal(callbackWithoutSecret.cookies.deleted, cookieName)
+  assert.deepEqual(effects, ["exchange", "user-a"])
+})
 
 /** Minimal nullable equality/NOT/OR semantics for the real disconnect action's atomic delete. */
 function matchesConnectionWhere(row, where) {
@@ -268,13 +347,15 @@ function callbackFixture(service, adapter, { session = { user: { id: "user-a" } 
   const route = load(routeSource, "app/api/calendar/google/callback.isolation.test.ts", {
     "next/server": { NextResponse: { redirect: (url) => ({ url: String(url), cookies: { delete: (name) => cookiesDeleted.push(name) } }) } },
     "@/auth": { getCurrentSession: async () => session },
-    "@/lib/auth-env": { getSiteUrl: () => "https://atmoshaper.example.test" },
+    "@/lib/auth-env": { getSiteUrl: () => "https://atmoshaper.example.test", getAuthSecret: () => fixtureAuthSecret },
+    "@/lib/calendar-oauth-state": oauthState,
     "@/lib/calendar-sync-access": { getGoogleCalendarSyncAccess: async () => ({ allowed }) },
     "@/lib/calendar-sync-env": { getGoogleCalendarSyncConfig: () => ({ clientId: "fixture-client", clientSecret: "fixture-secret", redirectUri: "https://atmoshaper.example.test/api/calendar/google/callback" }) },
     "@/lib/google-calendar-adapter": { createGoogleCalendarAdapter: () => ({ ...adapter, exchangeCode: async () => callbackToken }), GoogleCalendarConnectionError },
     "@/lib/calendar-sync-service": service,
   })
-  return { route, cookiesDeleted, request: (state = "expected") => ({ url: `https://atmoshaper.example.test/api/calendar/google/callback?code=fixture-code&state=${state}`, cookies: { get: () => ({ value: "expected" }) } }) }
+  const stateCookie = oauthState.signGoogleCalendarState("expected", session?.user.id ?? "user-a", fixtureAuthSecret)
+  return { route, cookiesDeleted, request: (state = "expected") => ({ url: `https://atmoshaper.example.test/api/calendar/google/callback?code=fixture-code&state=${state}`, cookies: { get: () => ({ value: stateCookie }) } }) }
 }
 
 describe("Google callback and service coexistence seam", () => {

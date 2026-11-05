@@ -161,4 +161,19 @@ describe("Supporter-only readiness CLI", () => {
       assert.doesNotMatch(result.stdout, /PASS Stripe membership/)
     }
   })
+
+  it("requires complete inventory and one enabled pinned webhook in the expected mode", () => {
+    for (const [drift, diagnostic] of [
+      ["duplicate", /multiple enabled endpoints/],
+      ["partial", /inventory is incomplete/],
+      ["mode", /mode does not match/],
+    ]) {
+      const result = runSupporterReadiness({ STRIPE_READINESS_STUB_INVALID_WEBHOOK: drift })
+      assert.equal(result.status, 1, drift)
+      assert.match(result.stderr, diagnostic)
+      assert.doesNotMatch(result.stdout, /PASS Stripe membership/)
+    }
+    const disabledHistory = runSupporterReadiness({ STRIPE_READINESS_STUB_INVALID_WEBHOOK: "disabled-history" })
+    assert.equal(disabledHistory.status, 0, disabledHistory.stderr || disabledHistory.stdout)
+  })
 })

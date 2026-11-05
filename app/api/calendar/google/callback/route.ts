@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getCurrentSession } from "@/auth"
-import { getSiteUrl } from "@/lib/auth-env"
+import { getAuthSecret, getSiteUrl } from "@/lib/auth-env"
+import { matchesGoogleCalendarState } from "@/lib/calendar-oauth-state"
 import { getGoogleCalendarSyncAccess } from "@/lib/calendar-sync-access"
 import { getGoogleCalendarSyncConfig } from "@/lib/calendar-sync-env"
 import { createGoogleCalendarAdapter, GoogleCalendarConnectionError } from "@/lib/google-calendar-adapter"
@@ -29,16 +30,17 @@ export async function GET(request: NextRequest) {
   }
 
   const config = getGoogleCalendarSyncConfig()
-  if (!config) {
+  const secret = getAuthSecret()
+  if (!config || !secret) {
     return redirectToCalendarSync(baseUrl, "unconfigured")
   }
 
   const url = new URL(request.url)
   const code = url.searchParams.get("code")
   const state = url.searchParams.get("state")
-  const expectedState = request.cookies.get("massagelab_google_calendar_state")?.value
+  const stateCookie = request.cookies.get("massagelab_google_calendar_state")?.value
 
-  if (!code || !state || !expectedState || state !== expectedState) {
+  if (!code || !state || !matchesGoogleCalendarState(state, stateCookie, session.user.id, secret)) {
     return redirectToCalendarSync(baseUrl, "state")
   }
 

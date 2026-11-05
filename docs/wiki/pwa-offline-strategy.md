@@ -1,6 +1,6 @@
 # PWA Offline Strategy
 
-MassageLab is offline-capable for anonymous public tools during private alpha. It is not an offline sync product for account, billing, calendar, booking, admin, or hosted clinical workflows.
+AtmoShaper supports offline use of selected anonymous public tools during private alpha. Account, billing, calendar, booking, admin and hosted clinical workflows require a connection.
 
 ## Offline-Capable Routes
 
@@ -40,6 +40,7 @@ When the browser reports offline, non-allowlisted navigations fall back to `/off
 ## Implementation Rules
 
 - `public/sw.js` owns the strategy through `PUBLIC_OFFLINE_ROUTES`, `SENSITIVE_PREFIXES`, `CACHE_NAME`, and `OFFLINE_URL`.
+- The worker reads its named shell cache and removes only older caches in the existing shell namespace. The compatibility name and keys are retained.
 - Public route warming uses `credentials: "omit"` so cached route documents are anonymous.
 - Live navigation responses are not written to the public route cache because a signed-in user may be navigating.
 - Runtime caching is limited to `/_next/static/*` and `/offline.html`.
