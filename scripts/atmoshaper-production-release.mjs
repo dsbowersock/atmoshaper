@@ -69,14 +69,19 @@ try {
   process.exitCode = 1
 }
 
-/** Resolves the release destination consistently for checks, staging and upload. */
+/**
+ * Resolve one destination for checks, staging and upload. Compare known hosts by
+ * parsed origin so equivalent authorities cannot select the wrong bucket, while
+ * retaining the configured base spelling and path for existing staged manifests.
+ */
 function resolveReleaseTarget(options, fallbackPublicBaseUrl = DEFAULT_PUBLIC_BASE_URL) {
   const env = readAtmospherePublicMediaR2Env()
   const publicBaseUrl = options.publicBaseUrl ?? env.publicBaseUrl ?? fallbackPublicBaseUrl
-  if (publicBaseUrl === "https://media.atmoshaper.com" && env.bucket !== "public-media") {
+  const publicOrigin = URL.canParse(publicBaseUrl) ? new URL(publicBaseUrl).origin : undefined
+  if (publicOrigin === "https://media.atmoshaper.com" && env.bucket !== "public-media") {
     throw new Error("The AtmoShaper media URL requires the public-media bucket.")
   }
-  if (publicBaseUrl === DEFAULT_PUBLIC_BASE_URL && env.bucket === "public-media") {
+  if (publicOrigin === DEFAULT_PUBLIC_BASE_URL && env.bucket === "public-media") {
     throw new Error("The public-media bucket requires the AtmoShaper media URL instead of the legacy URL.")
   }
   return { ...env, publicBaseUrl }

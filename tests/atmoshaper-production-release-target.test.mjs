@@ -59,6 +59,39 @@ test("known branded and legacy destinations cannot be paired with the wrong buck
     assert.doesNotMatch(result.stderr, /UNEXPECTED_NETWORK_REQUEST/)
   }
 })
+
+test("equivalent known origins cannot bypass bucket guards", () => {
+  for (const [publicBaseUrl, bucket] of [
+    ["https://MEDIA.ATMOSHAPER.COM", "massagelab-public-media"],
+    [`${publicMedia}:443`, "massagelab-public-media"],
+    ["https://MEDIA.MASSAGELAB.APP", "public-media"],
+    [`${legacy}:443`, "public-media"],
+  ]) {
+    const result = command(["check"], {
+      MASSAGELAB_PUBLIC_MEDIA_PUBLIC_BASE_URL: publicBaseUrl,
+      MASSAGELAB_PUBLIC_MEDIA_BUCKET: bucket,
+    })
+    assert.equal(result.status, 1, `Expected bucket refusal for ${publicBaseUrl}`)
+    assert.match(result.stderr, /requires/)
+    assert.doesNotMatch(result.stderr, /UNEXPECTED_NETWORK_REQUEST/)
+  }
+})
+
+test("valid normalized release authorities preserve the configured base", () => {
+  for (const [publicBaseUrl, bucket] of [
+    ["https://MEDIA.ATMOSHAPER.COM", "public-media"],
+    [`${publicMedia}:443/reviewed-prefix`, "public-media"],
+    ["https://MEDIA.MASSAGELAB.APP", "massagelab-public-media"],
+    ["https://invented-cdn.example.test/reviewed-prefix", "public-media"],
+  ]) {
+    const result = check([], {
+      MASSAGELAB_PUBLIC_MEDIA_PUBLIC_BASE_URL: publicBaseUrl,
+      MASSAGELAB_PUBLIC_MEDIA_BUCKET: bucket,
+    })
+    assert.equal(result.publicBaseUrl, publicBaseUrl)
+    assert.equal(result.bucket, bucket)
+  }
+})
 test("upload stops before probing when its configured origin differs from the staged origin", () => {
   writeFileSync(join(cwd, "release-stage.json"), JSON.stringify({
     version: 1,

@@ -66,9 +66,7 @@ function requireUploadEnv(env: R2Env) {
     || env.bucket === "anatomy-media"
     || publicBase?.hostname.replace(/\.$/, "") === BRANDED_UPLOAD_HOST
   const matchesBrandedPair = env.bucket === "anatomy-media" && publicBase
-    && publicBase.origin === BRANDED_ANATOMY_MEDIA_ORIGIN
-    && !publicBase.username && !publicBase.password
-    && publicBase.pathname === "/" && !publicBase.search && !publicBase.hash
+    && publicBase.href === `${BRANDED_ANATOMY_MEDIA_ORIGIN}/`
   if (usesBrandedPair && !matchesBrandedPair) {
     throw new Error("Branded anatomy uploads require the anatomy-media bucket and the matching public URL.")
   }

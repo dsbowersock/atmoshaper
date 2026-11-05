@@ -75,3 +75,33 @@ All 37 focused/related tests, named media lint (including the upload helper),
 nonincremental type checking and whitespace checks pass. Independent review of
 this exact three-file correction found no actionable issue. Hosted checks and
 the next applicable included review still need to cover the resulting head.
+
+## Final URL representation controls
+
+The completed included review of `2e1fc15` found two additional cases, including
+one outside the diff. An empty query or fragment delimiter serializes in the
+URL even though its `search` or `hash` accessor is empty. The anatomy uploader
+now requires the complete serialized branded root, so these forms are rejected
+before any source fetch or upload. Equivalent casing and HTTPS port 443 remain
+accepted and canonicalized.
+
+The audio release resolver now compares parsed origins for its known branded
+and legacy bucket guards. It preserves the supplied base spelling and path in
+the staged manifest; this is classification for bucket pairing, not a rewrite
+of existing object paths. Equivalent known authorities cannot bypass either
+guard, while valid branded, legacy and custom-prefix destinations retain their
+configured base. These are future tool validations; no media operation ran.
+
+The added controls failed against `2e1fc15` (16 passed, two failed), then all
+43 focused/related tests passed with the corrections. The first local launch
+lacked its dependency junction and stopped at imports; that infrastructure
+failure is separate from the reproduced assertions. Cached dependencies were
+linked for the actual checks without a download. No protected app build,
+database, credential or provider access was part of these source checks.
+
+Named lint, nonincremental type checking and whitespace checks pass. Independent
+review found no actionable issue in this exact five-path delta. Applicable
+source coverage combines the completed included reviews through `2e1fc15` with
+that substantive independent correction review; it is not a literal full
+CodeRabbit review of the final follow-up hash. The Calendar ingress blobs are
+unchanged. Final-head CI and protected artifact/browser acceptance remain open.

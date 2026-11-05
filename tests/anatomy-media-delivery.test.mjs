@@ -86,6 +86,7 @@ test("the branded anatomy importer requires the matching bucket and URL before f
   }
   for (const publicBaseUrl of [
     `${branded}/prefix`, `${branded}?query=fixture`, `${branded}#fixture`,
+    `${branded}?`, `${branded}#`, `${branded}/?`, `${branded}/#`,
     "https://fixture:fixture@anatomy-media.atmoshaper.com", `${branded}:8443`,
     "http://anatomy-media.atmoshaper.com", "https://anatomy-media.atmoshaper.com.",
   ]) {
