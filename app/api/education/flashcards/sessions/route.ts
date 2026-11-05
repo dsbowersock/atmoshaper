@@ -5,12 +5,15 @@ import {
   normalizeFlashcardDeckConfig,
 } from "@/lib/flashcard-community"
 import {
-  getFlashcardPromptDeckFromCatalog,
   getFlashcardPromptPoolFromCatalog,
   optionalFlashcardMediaOptions,
   tryFlashcardMediaOptions,
 } from "@/lib/flashcard-progress-helpers"
-import { FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE, hasExactFlashcardImageSelection } from "@/lib/flashcard-static-metadata"
+import {
+  FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE,
+  hasExactFlashcardImageSelection,
+  hasMissingSelectedFlashcardImages,
+} from "@/lib/flashcard-static-metadata"
 import {
   flashcardProgressTool,
   isFlashcardProgressMastered,
@@ -63,9 +66,14 @@ export async function POST(request: Request) {
       mediaUnavailable: true,
     }, { status: 503 })
   }
-  let prompts = skipMastered
-    ? getFlashcardPromptPoolFromCatalog(config, mediaOptions)
-    : getFlashcardPromptDeckFromCatalog(config, mediaOptions)
+  let prompts = getFlashcardPromptPoolFromCatalog(config, mediaOptions)
+  if (hasMissingSelectedFlashcardImages(config, prompts.map((prompt) => prompt.id))) {
+    return NextResponse.json({
+      error: FLASHCARD_IMAGE_UNAVAILABLE_MESSAGE,
+      mediaUnavailable: true,
+    }, { status: 503 })
+  }
+  if (!skipMastered) prompts = prompts.slice(0, Math.max(0, config.count))
   if (prompts.length === 0) {
     return NextResponse.json({ error: "This deck has no eligible sourced prompts." }, { status: 400 })
   }

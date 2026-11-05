@@ -29,18 +29,30 @@ const row = {
   }],
 }
 
-test("preserves exact image selections across catalog and deck-start lookup failures", async () => {
+test("preserves exact image selections across failed and incomplete catalog lookups", async () => {
   const read = Promise.withResolvers()
   const started = Promise.withResolvers()
   let lookupCount = 0
   let lookupFails = false
+  let availableRows
+  let progressReads = 0
+  let masteredImage = false
   const recordedSessions = []
   globalThis.atmoPromptFixturePrisma = {
     anatomyMediaAsset: {
       findMany() {
         lookupCount++
         started.resolve()
-        return lookupFails ? Promise.reject(Error("Invented lookup failure")) : read.promise
+        return lookupFails ? Promise.reject(Error("Invented lookup failure")) : read.promise.then(rows => availableRows ?? rows)
+      },
+    },
+    learningProgress: {
+      findMany() {
+        progressReads++
+        return Promise.resolve(masteredImage ? [{
+          tool: "invented-image-progress",
+          metadata: { promptId, correctCount: 10, attemptCount: 10 },
+        }] : [])
       },
     },
     flashcardStudySession: {
@@ -122,28 +134,52 @@ test("preserves exact image selections across catalog and deck-start lookup fail
     assert.deepEqual(ready.promptSummaries.map(prompt => prompt.id), [promptId])
     assert.equal((await request()).prompts[0].front.media.url, imageUrl)
 
-    const absent = await request({ promptIds: [promptId + "-unknown"] })
-    assert.deepEqual(absent.prompts, [])
-    assert.equal(absent.mediaUnavailable, undefined)
-    assert.equal(lookupCount, 1)
-
     const exactIds = [text.prompts[0].id, promptId]
     const mixed = normalizeFlashcardDeckConfig({
       ...config, promptTypes: ["name_to_region", "identify_from_media"], promptIds: exactIds, count: 2,
     })
-    const startMixedSession = () => startSession(new Request("https://example.invalid/api/education/flashcards/sessions", {
-      method: "POST", body: JSON.stringify({ config: mixed }),
+    const startMixedSession = (changes = {}) => startSession(new Request("https://example.invalid/api/education/flashcards/sessions", {
+      method: "POST", body: JSON.stringify({ config: mixed, ...changes }),
     }))
     const temporary = await loadTemporaryFlashcardDeck(mixed)
     assert.deepEqual(new Set(temporary.map(prompt => prompt.id)), new Set(exactIds))
     assert.equal((await startMixedSession()).status, 201)
     assert.deepEqual(new Set(recordedSessions[0]), new Set(exactIds))
 
-    const expired = realNow() + 61_000
+    // Sampling one of two eligible selections is intentional, not missing media.
+    const sampled = { ...mixed, count: 1 }
+    assert.equal((await loadTemporaryFlashcardDeck(sampled)).length, 1)
+    assert.equal((await startMixedSession({ config: sampled })).status, 201)
+    assert.equal(recordedSessions[1].length, 1)
+
+    masteredImage = true
+    assert.equal((await startMixedSession({ skipMastered: true })).status, 201)
+    assert.deepEqual(recordedSessions[2], [text.prompts[0].id])
+    assert.equal(progressReads, 1)
+    masteredImage = false
+    progressReads = 0
+
+    const incompleteAt = realNow() + 61_000
+    Date.now = () => incompleteAt
+    availableRows = []
+    await assert.rejects(loadTemporaryFlashcardDeck(mixed), FlashcardImageUnavailableError)
+    await assert.rejects(loadTemporaryFlashcardDeck(sampled), FlashcardImageUnavailableError)
+    for (const skipMastered of [false, true]) {
+      const incompleteSession = await startMixedSession({ skipMastered })
+      assert.equal(incompleteSession.status, 503)
+      assert.equal((await incompleteSession.json()).mediaUnavailable, true)
+    }
+    assert.equal(recordedSessions.length, 3)
+    assert.equal(progressReads, 0, "missing selected images must fail before mastery reads")
+    const absent = await request({ promptIds: [promptId + "-unknown"] })
+    assert.deepEqual(absent.prompts, [])
+    assert.equal(absent.mediaUnavailable, true)
+
+    const expired = incompleteAt + 61_000
     Date.now = () => expired
     lookupFails = true
     assert.equal((await loadFlashcardPromptCatalog(config)).mediaUnavailable, true)
-    assert.equal(lookupCount, 2)
+    assert.equal(lookupCount, 3)
 
     await assert.rejects(loadTemporaryFlashcardDeck(mixed), FlashcardImageUnavailableError)
     const failedSession = await startFlashcardProgressSession({ config: mixed, deckSlug: "", skipMastered: false })
@@ -153,7 +189,7 @@ test("preserves exact image selections across catalog and deck-start lookup fail
       errorMessage: "Image availability could not be checked. Try starting the deck again.",
       mediaUnavailable: true,
     })
-    assert.equal(recordedSessions.length, 1)
+    assert.equal(recordedSessions.length, 3)
     const broad = normalizeFlashcardDeckConfig({ ...mixed, promptIds: undefined })
     const availableText = await loadTemporaryFlashcardDeck(broad)
     assert.ok(availableText.length > 0 && availableText.every(prompt => prompt.type === "name_to_region"))

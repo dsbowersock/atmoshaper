@@ -179,7 +179,6 @@ describe("Flashcard community deck policy", () => {
     assert.match(helperSource, /function\s+getFlashcardPromptDeckFromCatalog\b/)
     assert.match(helperSource, /function\s+getFlashcardPromptPoolFromCatalog\b/)
     assert.match(progressRouteSource, /currentFlashcardPromptCatalog/)
-    assert.match(sessionsRouteSource, /getFlashcardPromptDeckFromCatalog/)
     assert.match(sessionsRouteSource, /getFlashcardPromptPoolFromCatalog/)
     assert.doesNotMatch(sessionsRouteSource, /createFlashcardPromptDeck/)
     assert.doesNotMatch(sessionsRouteSource, /createFlashcardPromptPool/)

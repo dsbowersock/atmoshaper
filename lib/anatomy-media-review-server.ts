@@ -42,11 +42,14 @@ function readR2Env(): R2Env {
   }
 }
 
+/** Reject mismatched branded storage/delivery before downloading or uploading bytes. */
 function requireUploadEnv(env: R2Env) {
   const deliveryOrigin = resolveAnatomyMediaDeliveryOrigin(process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN)
-  // A branded build must not write to the legacy bucket and record a URL on the new host.
-  if (deliveryOrigin === BRANDED_ANATOMY_MEDIA_ORIGIN
-    && (env.bucket !== "anatomy-media" || env.publicBaseUrl !== deliveryOrigin)) {
+  const usesBrandedPair = deliveryOrigin === BRANDED_ANATOMY_MEDIA_ORIGIN
+    || env.bucket === "anatomy-media"
+    || env.publicBaseUrl === BRANDED_ANATOMY_MEDIA_ORIGIN
+  if (usesBrandedPair
+    && (env.bucket !== "anatomy-media" || env.publicBaseUrl !== BRANDED_ANATOMY_MEDIA_ORIGIN)) {
     throw new Error("Branded anatomy uploads require the anatomy-media bucket and the matching public URL.")
   }
 

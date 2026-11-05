@@ -79,6 +79,8 @@ test("activation preserves unrelated caches and offline navigation reads only th
   const source = await readFile(new URL("../public/sw.js", import.meta.url), "utf8")
   const handlers = new Map()
   const deleted = []
+  const matches = []
+  let publicRouteMissing = false
   const origin = "https://www.atmoshaper.com"
   const cacheName = "massagelab-shell-v2026-05-18"
   runInNewContext(source, {
@@ -91,10 +93,15 @@ test("activation preserves unrelated caches and offline navigation reads only th
     caches: {
       keys: async () => ["unrelated-cache", "massagelab-shell-v2025-01-01", cacheName],
       delete: async name => { deleted.push(name) },
-      match: async (_request, options) => new Response(
-        options?.cacheName === cacheName ? "owned cached response" : "unrelated cached response",
-      ),
+      match: async (request, options) => {
+        const key = typeof request === "string" ? request : new URL(request.url).pathname
+        matches.push([key, options?.cacheName])
+        if (options?.cacheName !== cacheName) return new Response("unrelated cached response")
+        if (publicRouteMissing && key.startsWith("/__massagelab-offline-route/")) return undefined
+        return new Response(key === "/offline.html" ? "owned offline fallback" : "owned cached response")
+      },
     },
+    fetch: async () => { throw Error("Invented offline transport") },
     URL, Request, Response,
   })
   let activation
@@ -102,12 +109,34 @@ test("activation preserves unrelated caches and offline navigation reads only th
   await activation
   assert.deepEqual(deleted, ["massagelab-shell-v2025-01-01"])
 
-  for (const [path, mode] of [["/calendar", "navigate"], ["/_next/static/build.js", "cors"]]) {
+  for (const [path, mode, expected] of [
+    ["/calendar", "navigate", "owned offline fallback"],
+    ["/chimer", "navigate", "owned cached response"],
+    ["/_next/static/build.js", "cors", "owned cached response"],
+  ]) {
     let response
+    const background = []
     handlers.get("fetch")({
       request: { url: origin + path, method: "GET", mode },
       respondWith: promise => { response = promise },
+      waitUntil: promise => { background.push(promise) },
     })
-    assert.equal(await (await response).text(), "owned cached response")
+    assert.equal(await (await response).text(), expected)
+    await Promise.all(background)
   }
+  publicRouteMissing = true
+  matches.length = 0
+  let fallback
+  const background = []
+  handlers.get("fetch")({
+    request: { url: origin + "/chimer", method: "GET", mode: "navigate" },
+    respondWith: promise => { fallback = promise },
+    waitUntil: promise => { background.push(promise) },
+  })
+  assert.equal(await (await fallback).text(), "owned offline fallback")
+  await Promise.all(background)
+  assert.deepEqual(matches, [
+    ["/__massagelab-offline-route/chimer", cacheName],
+    ["/offline.html", cacheName],
+  ])
 })

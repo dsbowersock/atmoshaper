@@ -64,6 +64,26 @@ test("the branded anatomy importer requires the matching bucket and URL before f
   ])
 
   delete process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN
+  for (const [bucket, publicBaseUrl] of [
+    ["", branded],
+    ["massagelab-anatomy-media", branded],
+    ["anatomy-media", ""],
+    ["anatomy-media", legacy],
+  ]) {
+    process.env.MASSAGELAB_R2_BUCKET = bucket
+    process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = publicBaseUrl
+    await assert.rejects(importImage, /Branded anatomy uploads require/)
+  }
+  assert.deepEqual(requests, [])
+
+  process.env.MASSAGELAB_R2_BUCKET = "anatomy-media"
+  process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = branded
+  assert.equal((await importImage()).remoteUrl, `${branded}/${storagePath}`)
+  assert.deepEqual(requests.splice(0), [
+    [sourceUrl, "GET"],
+    [`${endpoint}/anatomy-media/${storagePath}`, "PUT"],
+  ])
+
   process.env.MASSAGELAB_R2_BUCKET = ""
   process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = legacy
   assert.equal((await importImage()).remoteUrl, `${legacy}/${storagePath}`)
