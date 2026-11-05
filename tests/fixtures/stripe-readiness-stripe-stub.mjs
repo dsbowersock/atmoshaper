@@ -341,18 +341,23 @@ export default class StripeReadinessStub {
         const endpoint = {
           url: STRIPE_PINNED_WEBHOOK_URL,
           status: "enabled",
+          livemode: usesLiveStripeKey(),
           api_version: this.config.apiVersion,
           enabled_events: [...STRIPE_PINNED_WEBHOOK_EVENTS],
         }
         // Exercise the real CLI webhook validator with isolated provider drift.
         switch (process.env.STRIPE_READINESS_STUB_INVALID_WEBHOOK) {
-          case "missing": return { data: [] }
+          case "missing": return { data: [], has_more: false }
           case "disabled": endpoint.status = "disabled"; break
+          case "disabled-history": return { data: [{ ...endpoint, status: "disabled" }, endpoint], has_more: false }
+          case "duplicate": return { data: [endpoint, { ...endpoint }], has_more: false }
+          case "partial": return { data: [endpoint], has_more: true }
+          case "mode": endpoint.livemode = !endpoint.livemode; break
           case "api-version": endpoint.api_version = "outdated"; break
           case "events": endpoint.enabled_events.pop(); break
           default: break
         }
-        return { data: [endpoint] }
+        return { data: [endpoint], has_more: false }
       },
     }
   }
