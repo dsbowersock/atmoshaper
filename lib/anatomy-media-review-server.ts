@@ -19,6 +19,7 @@ export type UploadedAnatomyMedia = {
 }
 
 const DEFAULT_BUCKET = "massagelab-anatomy-media"
+const BRANDED_UPLOAD_HOST = new URL(BRANDED_ANATOMY_MEDIA_ORIGIN).hostname
 const DEFAULT_CACHE_CONTROL = "public, max-age=31536000, immutable"
 const SERVICE = "s3"
 const REGION = "auto"
@@ -42,14 +43,33 @@ function readR2Env(): R2Env {
   }
 }
 
-/** Reject mismatched branded storage/delivery before downloading or uploading bytes. */
+/** Parse only for target validation; never echo malformed configuration in errors. */
+function parsedPublicBase(value: string | undefined) {
+  if (!value) return undefined
+  try {
+    return new URL(value)
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Validate storage/delivery before any fetch. Equivalent HTTPS authorities use
+ * the canonical branded root; prefixes, credentials and alternate ports cannot
+ * silently point a new-host URL at another object. Legacy/custom bases retain
+ * their existing behavior. Return a validated copy without changing the input.
+ */
 function requireUploadEnv(env: R2Env) {
   const deliveryOrigin = resolveAnatomyMediaDeliveryOrigin(process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN)
+  const publicBase = parsedPublicBase(env.publicBaseUrl)
   const usesBrandedPair = deliveryOrigin === BRANDED_ANATOMY_MEDIA_ORIGIN
     || env.bucket === "anatomy-media"
-    || env.publicBaseUrl === BRANDED_ANATOMY_MEDIA_ORIGIN
-  if (usesBrandedPair
-    && (env.bucket !== "anatomy-media" || env.publicBaseUrl !== BRANDED_ANATOMY_MEDIA_ORIGIN)) {
+    || publicBase?.hostname.replace(/\.$/, "") === BRANDED_UPLOAD_HOST
+  const matchesBrandedPair = env.bucket === "anatomy-media" && publicBase
+    && publicBase.origin === BRANDED_ANATOMY_MEDIA_ORIGIN
+    && !publicBase.username && !publicBase.password
+    && publicBase.pathname === "/" && !publicBase.search && !publicBase.hash
+  if (usesBrandedPair && !matchesBrandedPair) {
     throw new Error("Branded anatomy uploads require the anatomy-media bucket and the matching public URL.")
   }
 
@@ -63,6 +83,7 @@ function requireUploadEnv(env: R2Env) {
   if (missing.length > 0) {
     throw new Error(`BodyParts3D import requires R2 upload configuration: ${missing.join(", ")}`)
   }
+  return usesBrandedPair ? { ...env, publicBaseUrl: BRANDED_ANATOMY_MEDIA_ORIGIN } : env
 }
 
 function endpointForEnv(env: R2Env) {
@@ -147,6 +168,7 @@ function authorizationHeader({
   return `AWS4-HMAC-SHA256 Credential=${accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`
 }
 
+/** Copy one image to the validated target; return storage metadata without writing database rows. */
 export async function uploadAnatomyMediaToR2({
   sourceUrl,
   storagePath,
@@ -154,8 +176,7 @@ export async function uploadAnatomyMediaToR2({
   sourceUrl: string
   storagePath: string
 }): Promise<UploadedAnatomyMedia> {
-  const env = readR2Env()
-  requireUploadEnv(env)
+  const env = requireUploadEnv(readR2Env())
 
   const sourceResponse = await fetch(sourceUrl, { signal: AbortSignal.timeout(SOURCE_FETCH_TIMEOUT_MS) })
   if (!sourceResponse.ok) {

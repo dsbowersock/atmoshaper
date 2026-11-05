@@ -64,11 +64,44 @@ test("the branded anatomy importer requires the matching bucket and URL before f
   ])
 
   delete process.env.NEXT_PUBLIC_ANATOMY_MEDIA_ORIGIN
+  const equivalentBrandedBases = [
+    "https://ANATOMY-MEDIA.ATMOSHAPER.COM",
+    `${branded}:443`,
+    "https://Anatomy-Media.AtmoShaper.com:443/",
+  ]
+  for (const publicBaseUrl of equivalentBrandedBases) {
+    process.env.MASSAGELAB_R2_BUCKET = ""
+    process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = publicBaseUrl
+    await assert.rejects(importImage, /Branded anatomy uploads require/)
+  }
+  assert.deepEqual(requests, [])
+  for (const publicBaseUrl of equivalentBrandedBases) {
+    process.env.MASSAGELAB_R2_BUCKET = "anatomy-media"
+    process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = publicBaseUrl
+    assert.equal((await importImage()).remoteUrl, `${branded}/${storagePath}`)
+    assert.deepEqual(requests.splice(0), [
+      [sourceUrl, "GET"],
+      [`${endpoint}/anatomy-media/${storagePath}`, "PUT"],
+    ])
+  }
+  for (const publicBaseUrl of [
+    `${branded}/prefix`, `${branded}?query=fixture`, `${branded}#fixture`,
+    "https://fixture:fixture@anatomy-media.atmoshaper.com", `${branded}:8443`,
+    "http://anatomy-media.atmoshaper.com", "https://anatomy-media.atmoshaper.com.",
+  ]) {
+    for (const bucket of ["massagelab-anatomy-media", "anatomy-media"]) {
+      process.env.MASSAGELAB_R2_BUCKET = bucket
+      process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = publicBaseUrl
+      await assert.rejects(importImage, /Branded anatomy uploads require/)
+    }
+  }
+  assert.deepEqual(requests, [])
   for (const [bucket, publicBaseUrl] of [
     ["", branded],
     ["massagelab-anatomy-media", branded],
     ["anatomy-media", ""],
     ["anatomy-media", legacy],
+    ["anatomy-media", "not-a-valid-url"],
   ]) {
     process.env.MASSAGELAB_R2_BUCKET = bucket
     process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = publicBaseUrl
@@ -87,6 +120,20 @@ test("the branded anatomy importer requires the matching bucket and URL before f
   process.env.MASSAGELAB_R2_BUCKET = ""
   process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = legacy
   assert.equal((await importImage()).remoteUrl, `${legacy}/${storagePath}`)
+  assert.deepEqual(requests, [
+    [sourceUrl, "GET"],
+    [`${endpoint}/massagelab-anatomy-media/${storagePath}`, "PUT"],
+  ])
+  requests.length = 0
+  const customBase = "https://invented-cdn.example.test/anatomy"
+  process.env.MASSAGELAB_R2_PUBLIC_BASE_URL = customBase
+  assert.equal((await importImage()).remoteUrl, `${customBase}/${storagePath}`)
+  assert.deepEqual(requests.splice(0), [
+    [sourceUrl, "GET"],
+    [`${endpoint}/massagelab-anatomy-media/${storagePath}`, "PUT"],
+  ])
+  delete process.env.MASSAGELAB_R2_PUBLIC_BASE_URL
+  assert.equal((await importImage()).remoteUrl, undefined)
   assert.deepEqual(requests, [
     [sourceUrl, "GET"],
     [`${endpoint}/massagelab-anatomy-media/${storagePath}`, "PUT"],

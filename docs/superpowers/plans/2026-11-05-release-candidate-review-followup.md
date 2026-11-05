@@ -57,3 +57,21 @@ Those results cover that published head, not this corrective source. Do not spen
 the remaining branded Preview on a known incomplete source. Prepare one concrete
 new-head continuation after the corrections and independent review are complete.
 No merge or public rollout is included.
+
+## Equivalent upload origins
+
+The next completed included review found one remaining pairing bypass: mixed
+hostname casing or explicit HTTPS port 443 was not recognized as the branded
+host with the delivery flag unset. The new negative control failed against the
+published corrective source. The upload guard now detects equivalent hosts with
+the URL parser and accepts only the matching new bucket and clean HTTPS root.
+Accepted branded bases produce the canonical origin. Prefixed paths, query,
+fragment, userinfo, nondefault ports, HTTP and trailing-dot authorities are
+rejected before any fetch. Valid legacy/custom prefixes and private legacy
+uploads without a public base remain supported. This changes future import
+validation only; it performs no upload or database operation in this campaign.
+
+All 37 focused/related tests, named media lint (including the upload helper),
+nonincremental type checking and whitespace checks pass. Independent review of
+this exact three-file correction found no actionable issue. Hosted checks and
+the next applicable included review still need to cover the resulting head.
