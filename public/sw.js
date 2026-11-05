@@ -1,4 +1,5 @@
-const CACHE_NAME = "massagelab-shell-v2026-05-18"
+const SHELL_CACHE_PREFIX = "massagelab-shell-v"
+const CACHE_NAME = `${SHELL_CACHE_PREFIX}2026-05-18`
 const OFFLINE_URL = "/offline.html"
 const PUBLIC_OFFLINE_ROUTES = [
   "/",
@@ -46,7 +47,8 @@ self.addEventListener("activate", (event) => {
     caches.keys()
       .then((cacheNames) => Promise.all(
         cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
+          // Other same-origin features may manage caches outside this worker.
+          .filter((cacheName) => cacheName.startsWith(SHELL_CACHE_PREFIX) && cacheName !== CACHE_NAME)
           .map((cacheName) => caches.delete(cacheName)),
       ))
       .then(() => self.clients.claim()),
@@ -118,13 +120,13 @@ async function warmPublicOfflineRoutes() {
 
 async function offlineFallbackForNavigation(requestUrl) {
   if (isPublicOfflineRoute(requestUrl)) {
-    const cachedPublicRoute = await caches.match(publicOfflineCacheKey(requestUrl.pathname))
+    const cachedPublicRoute = await caches.match(publicOfflineCacheKey(requestUrl.pathname), { cacheName: CACHE_NAME })
     if (cachedPublicRoute) {
       return cachedPublicRoute
     }
   }
 
-  return caches.match(OFFLINE_URL)
+  return caches.match(OFFLINE_URL, { cacheName: CACHE_NAME })
 }
 
 async function handleNavigation(request, requestUrl) {
@@ -173,7 +175,7 @@ self.addEventListener("fetch", (event) => {
 
   if (isStaticShellAsset(requestUrl)) {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => (
+      caches.match(request, { cacheName: CACHE_NAME }).then((cachedResponse) => (
         cachedResponse
         || fetch(request).then((networkResponse) => {
           if (!networkResponse.ok) {
