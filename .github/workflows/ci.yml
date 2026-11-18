@@ -15,9 +15,11 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Playwright 1.60 cannot install Chromium on Ubuntu 26.04. Keep the build and
+  # test hosts on its supported LTS until a reviewed browser upgrade is ready.
   code_quality:
     name: Code quality
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Chromium OS-package installation has taken sixteen minutes before tests;
     # retain bounded setup headroom without weakening test assertions/retries.
     timeout-minutes: 30
@@ -62,7 +64,7 @@ jobs:
 
   browser_build:
     name: Browser build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     env:
       AUTH_SECRET: ci-browser-qa-auth-secret-not-for-production-use-only
@@ -123,7 +125,7 @@ jobs:
   browser_qa:
     name: Browser QA (lane ${{ matrix.lane }})
     needs: browser_build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Slow OS-package setup can consume sixteen minutes. Leave bounded room for
     # the full lane, rerun-only artifact fallback build and diagnostic upload.
     timeout-minutes: 40
@@ -196,7 +198,7 @@ jobs:
       - browser_build
       - browser_qa
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
 
     steps:

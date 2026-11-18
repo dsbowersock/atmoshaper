@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 18 live Calendar acceptance and supported CI runner follow-up
+
+Published only the separately approved `cdea4a6` artifact after real Production
+gates, Sentry map association and seven staged entry checks. All six promotion
+mappings complete and the previous READY build remains intact. Public Cancel
+block cancels the sole fixture and removes its Google mirror. The approved two
+refreshes, one Disconnect and one equivalent reconnect pass, preserving the
+dedicated target and all original calendars, finishing ACTIVE within the window.
+No new test event or broader permission was introduced.
+
+The PR's hosted build, lint and typecheck pass, but Chromium installation fails
+on Ubuntu 26.04 before tests execute. Logs identify the pinned Playwright 1.60
+OS incompatibility. Pinned all CI jobs to Ubuntu 24.04 and documented the reason;
+no browser/dependency upgrade or application runtime change is included. The
+local CI harness passes all 162 checks outside the sandbox, whose browser path
+was unavailable. Hosted
+acceptance of this CI follow-up remains pending.
+
 ## November 18 focused personal blocked-time cancellation fix
 
 The approved Google connection and synthetic outbound event work on the public
