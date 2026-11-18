@@ -1,6 +1,6 @@
 # Beta runtime dependency security update
 
-Status: **prepared locally; not deployed; broad regression in progress**.
+Status: **local validation accepted; not deployed; hosted checks in progress**.
 The public release remains the separately approved Calendar fix `cdea4a6`.
 
 ## Resolved changes
@@ -54,7 +54,12 @@ vulnerabilities as fixed.
 - Seventy-six Sentry/privacy checks pass on the resolved 10.78.0 SDK.
 - Optimized build passes compilation, TypeScript and page generation. Its live
   Production readiness gates correctly skip outside Vercel Production.
-- The complete bounded provider-free suite is in progress.
+- The complete bounded provider-free suite passes: 5,681 total, 5,677 passed,
+  four skipped and zero failed/cancelled in 963,426 ms. The retained log records
+  each environment-dependent skip; they were not converted into passes.
+
+The frozen app candidate is `72ce62a` in draft PR #70. Its hosted validation is
+still in progress. The inherited Calendar/CI commit passes every hosted job.
 
 No credential, provider setting, database migration, real message/payment or
 public promotion belongs to this local preparation. Build/publication and the

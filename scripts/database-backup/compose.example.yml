@@ -1,0 +1,20 @@
+# Inert example. Private paths/inputs, owner UID/GID and the tested derived-image
+# digest must be fixed in the separately approved deployment packet.
+services:
+  backup:
+    image: ${ATMOSHAPER_BACKUP_IMAGE:?Set the tested image digest}
+    user: ${ATMOSHAPER_BACKUP_UID:?Set the approved NAS UID}:${ATMOSHAPER_BACKUP_GID:?Set the approved NAS GID}
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    memswap_limit: 256m
+    restart: "no"
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    volumes:
+      - ${ATMOSHAPER_BACKUP_CONFIG:?Set the private config directory}:/config:ro
+      - ${ATMOSHAPER_BACKUP_OUTPUT:?Set the private archive directory}:/backups:rw
+      - ${ATMOSHAPER_BACKUP_SCRIPT:?Set the verified public backup script}:/app/backup.py:ro
+    command: [plan]

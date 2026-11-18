@@ -62,6 +62,11 @@ jobs:
       - name: Unit tests
         run: npm run test
 
+      - name: Encrypted backup process and file boundaries
+        # Hosted Ubuntu includes Python. These fixtures use invented subprocess
+        # data only; the separate optional age round-trip has a local receipt.
+        run: npm run test:database-backup
+
   browser_build:
     name: Browser build
     runs-on: ubuntu-24.04
