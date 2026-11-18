@@ -1,9 +1,12 @@
 # All three purchase flows before beta
 
-Status: **exact owner approval received; release published; owned payments pending**.
+Status: **release published; two owned payments pass; refund permission recovery pending**.
 The owner approved the release/configuration and the bounded payments/refund
 below. See the [activation receipt](../../audits/2026-11-18-beta-purchase-activation.md).
 Preserve the finite counts, private financial handoffs and stop/cleanup rules.
+The original one-refund submission stopped at Stripe's confirmed 403 permission
+rejection; no automatic retry or expired release operation follows. A fresh
+permission/one-record recovery proposal is required, with no additional purchase.
 
 The prepared runtime source is now `99c297b` on
 [PR #70](https://github.com/dsbowersock/atmoshaper/pull/70). The first hosted run's

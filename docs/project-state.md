@@ -19,14 +19,22 @@ capability, attached channel and backend events are observed. End runs once,
 both views reach recap/review, provider connections return to zero and a scoped
 aggregate confirms one REVIEW room, one player, zero game runs and normal
 expiry. The [campaign](audits/2026-11-18-offered-ably-connection-check.md) is closed
-without gameplay or deletion. The two owned payments ($7 combined cap including
-tax) and one background-only refund (up to $2) are authorized but not started;
-private financial input is pending. No new Checkout Session, charge or refund
-has occurred. Finish those bounded checks and the offered-feature/support
-handoff before invitations; do not replay accepted earlier campaigns.
+without gameplay or deletion. Both owned payments pass: $5 One-time support and
+$1.07 Skybreak including $0.07 tax, totaling $6.07 within the $7 cap. Support
+creates no entitlement change; signed background fulfillment and its purchase
+ownership are verified. The owner's one $1.07 app refund submission is retained
+as PENDING with suspended purchase ownership, but Stripe rejects the processor
+call with 403 `more_permissions_required`. Exact-payment reads return no refund.
+The runtime key needs the combined Charges and Refunds Write capability; the
+one-field change is prepared but unsaved. A guarded local command on
+`codex/beta-refund-recovery` prepares one original-record resume, with 81 focused
+checks passing. Fresh permission/credential/recovery approval is required; no
+automatic retry, replacement refund or batch reconciliation ran. Invitations
+remain on hold. The published artifact/settings are unchanged, and the expired
+release window has not been reused for a rollback or another build.
 The [beta handoff checkpoint](audits/2026-11-18-beta-handoff.md) now records the
-carried-forward scopes, monitored support contact and remaining private payment
-handoff. Pricing is prepared without submitting a Checkout attempt. Later
+carried-forward scopes, monitored support contact and outstanding refund
+recovery. The original payment campaign stopped at the rejected refund. Later
 prepublication sections below are chronological snapshots superseded by this
 published-release entry.
 

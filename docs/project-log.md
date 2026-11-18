@@ -1,5 +1,33 @@
 # AtmoShaper Project Log
 
+## November 18 two owner payments pass; refund permission gap stops acceptance
+
+After the owner is ready, the separate thirty-minute payment campaign starts.
+One $5 support Session and one $1 background Session are completed privately by
+the owner. Exact processor/line readback confirms the reviewed distinct tax
+codes, payment mode, complete Automatic Tax and $6.07 total. Support has zero
+tax and leaves the owner's membership, two credits and ownership unchanged.
+Skybreak has $0.07 Ohio tax, the current purchase document, a processed signed
+Checkout receipt and one fulfilled permanent purchase ownership.
+
+The owner submits the selected $1.07 app refund once. The original local refund
+and REFUND_PENDING ownership remain, but two exact-payment processor reads are
+empty. After private owner Stripe sign-in, the exact request log proves HTTP
+403 `more_permissions_required`: the dedicated runtime key has Charges and
+Refunds Read. Its combined Write capability is needed. Prepared that one change
+without saving; all eight other permissions remain unchanged, with no connected-
+account change. No key is revealed/rotated and no processor retry is made.
+
+The existing batch reconciliation command is unsuitable for one owned fixture.
+Prepared a separate guarded command on the published-source recovery branch;
+81 focused checks pass. It preserves the original refund/idempotency identity,
+filters owner/order/refund before reading, checks amount/item/live payment and
+absence of an existing processor refund, and permits one bounded SDK write
+without automatic retry. New permission, private Production binding use and
+one-record execution require fresh approval. The original campaign's unused
+attempts and expired release window stay closed; no deployment/rollback follows
+automatically. Beta invitations remain on hold pending actual refund recovery.
+
 ## November 18 beta handoff assembled; private payment entry remains pending
 
 Prepared the signed-in Pricing page without submitting an amount or creating

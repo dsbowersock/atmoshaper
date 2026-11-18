@@ -1,6 +1,6 @@
 # Beta purchase activation and remaining live acceptance
 
-Status: **approved release published; Ably check passed; owner payments pending**.
+Status: **release/Ably passed; two payments passed; refund recovery pending**.
 
 The owner separately approved PR #70 at `99c297b`, the exact 18 Production-only
 settings in the all-payments plan, two owner payment checks capped at $7 total
@@ -51,7 +51,41 @@ observed; no manual rebuild or intermediate older-dependency merge occurred.
 
 The prior READY `cdea4a6` artifact remains the compatible disabled-flow rollback.
 The new release enables One-time support and $1 U.S./USD background purchasing.
-No new Checkout Session, payment or refund has yet been created. The separate
+At publication no new Checkout Session, payment or refund had been created. The separate
 [one-lobby Ably campaign](2026-11-18-offered-ably-connection-check.md) passes and
 is closed without gameplay or deletion. Invitations remain pending the approved
 owned payment/refund acceptance and final handoff.
+
+## Owned financial acceptance and stopped refund
+
+The owner completes one $5 One-time support payment and one Skybreak payment
+of $1 plus $0.07 Ohio tax, totaling $6.07 within the $7 ceiling. Only the exact
+owned Sessions, PaymentIntents, expanded lines and product classifications are
+verified. Both are paid/succeeded in payment mode with complete Automatic Tax.
+The existing no-benefit support purpose has the retained `txcd_90000001` code
+and zero tax; membership, credits and ownership remain unchanged. Its success
+return matches the exact Session. It intentionally has no commerce receipt;
+individual Stripe delivery acknowledgement was not separately inspected.
+
+Skybreak uses the unchanged background key, `txcd_10000000`, exclusive tax and
+the current digital-purchase version. Its exact owned order is PAID/FULFILLED
+and the signed Checkout receipt is processed without failure. One permanent
+purchase ownership is ACTIVE before the refund submission.
+
+The owner submits the app's selected full $1.07 refund once. AtmoShaper saves
+the original pending refund, its immutable item and REFUND_PENDING purchase
+ownership. No processor refund appears in two exact-payment reads. The exact
+Stripe request log proves HTTP 403 `more_permissions_required`; its request
+retains the original amount, order/refund metadata and idempotency key. The
+dedicated Production runtime key currently has Charges and Refunds Read; Stripe
+requires its combined Write capability for this request.
+
+The original campaign stops without a processor retry, new refund, batch repair,
+database deletion or additional purchase. The one-field permission change is
+prepared but unsaved. A read-only-by-default guarded one-record recovery tool
+has 81 passing focused checks on `codex/beta-refund-recovery`; its use of the
+existing Production bindings and one original-record processor submission need
+fresh approval. The public artifact and all 18 settings remain as published;
+the earlier release window is expired and was not reused for automatic rollback.
+If remediation is declined, fresh containment authority must be prepared rather
+than treating old release attempts as reusable. Invitations remain on hold.

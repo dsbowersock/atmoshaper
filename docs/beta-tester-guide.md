@@ -3,7 +3,7 @@
 **Draft for owner review. Invitations have not been sent.** The bounded live
 Calendar journey, recovery-mail delivery and offered game connection have
 accepted bounded live checks. The updated release and purchase activation are
-published; owned payment/refund acceptance and final handoff remain in
+published; both owner payments passed, while refund recovery and final handoff remain in
 [project state](project-state.md). Review this guide against the final offered
 build before sharing it.
 

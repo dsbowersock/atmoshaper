@@ -1,6 +1,6 @@
 # Small beta handoff checkpoint
 
-Status: **release published; owner payment acceptance pending**. No invitations
+Status: **release published; payments passed; refund recovery pending**. No invitations
 have been sent. This checkpoint carries forward dated, scoped results rather
 than repeating closed campaigns or declaring the full migration complete.
 
@@ -18,19 +18,20 @@ than repeating closed campaigns or declaring the full migration complete.
 
 ## Remaining before invitations
 
-Complete only the already approved $5 One-time support payment, $1 Skybreak
-purchase and background-only full refund, preserving the $7 combined charge
-ceiling including tax and $2 refund ceiling. The thirty-minute window starts
-when the owner is ready for private payment entry. No new Checkout Session,
-payment or refund has been created. Pricing is prepared in the signed-in
-regular Chrome session without submitting its amount button.
+Both approved owner payments pass: $5 support and $1.07 Skybreak including tax,
+totaling $6.07. The original selected $1.07 app refund is locally pending, with
+its purchase ownership suspended. Stripe rejected the processor call because
+the runtime key lacks the required combined Charges and Refunds Write access.
+The original campaign stopped, without another purchase or processor retry.
 
-The owner completes binding terms, payment details and final financial
-submissions. Verify the exact owned transaction/tax/purpose and signed fulfillment
-records; use the app's exact-order Admin refund action so ownership reversal is
-bound to the refund. Existing membership-derived access must remain. Do not
-substitute a direct processor refund or create replacement attempts after an
-ambiguous result. [Approved campaign and stop rules](../superpowers/plans/2026-11-18-all-payments-beta-activation.md).
+The owner completed terms, payment details and the original refund submission
+privately. Exact transaction/tax/purpose and signed background fulfillment pass.
+The one-field key edit and guarded resumption of only the original pending
+refund are prepared but need fresh provider/credential/recovery approval. Keep
+the original metadata and idempotency key; do not substitute a new dashboard
+refund or broad reconciliation. Require processor/signed-webhook/ownership
+convergence and preserve existing membership, credits and administrator access.
+[Campaign receipt and stop](2026-11-18-beta-purchase-activation.md).
 
 After those results, reconcile this checkpoint and the tester guide with the
 offered scope before inviting people. Held content, broader migration/marketing,
