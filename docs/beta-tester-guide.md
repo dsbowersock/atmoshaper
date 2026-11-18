@@ -1,8 +1,9 @@
 # Small beta tester guide
 
 **Draft for owner review. Invitations have not been sent.** The bounded live
-Calendar journey and recovery-mail delivery have accepted bounded live checks.
-Uncovered offered-feature, purchase activation and final release checks remain in
+Calendar journey, recovery-mail delivery and offered game connection have
+accepted bounded live checks. The updated release and purchase activation are
+published; owned payment/refund acceptance and final handoff remain in
 [project state](project-state.md). Review this guide against the final offered
 build before sharing it.
 
@@ -40,7 +41,8 @@ own owner-coordinated test scope; available account features may depend on acces
 
 Use the site's [support page](https://www.atmoshaper.com/support) or its current
 public support address, `atmoshaper@gmail.com`. Derrick monitors this inbox for
-beta feedback. Include:
+beta feedback. The support form opens your email app with a draft; send the
+message there, or compose an email directly. Include:
 
 1. The page/tool and steps that reproduce the problem.
 2. What you expected and what happened.

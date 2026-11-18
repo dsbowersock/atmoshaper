@@ -1,5 +1,35 @@
 # AtmoShaper Project State
 
+## November 18 patched all-payments release published; owned live checks approved
+
+The owner approved the exact release/configuration and bounded payment/lobby
+checks. PR #70 merged as `8d89550`; its tree equals reviewed `99c297b`. Created
+and individually verified only the 18 approved Production settings; complete
+metadata/name checks confirm all 69 prior settings were untouched. The one real
+Production build passes the 46-migration and all-payments gates, compilation,
+TypeScript and 115 pages. New Sentry archives and a deployed client debug ID
+match the exact release. Eight staged/public page/artwork checks pass, and one
+promotion completes all six mappings without changing unrelated aliases.
+The prior READY `cdea4a6` remains rollback. See the
+[activation receipt](audits/2026-11-18-beta-purchase-activation.md).
+
+One-time support and $1 U.S. backgrounds are now enabled. The approved one-lobby
+Ably check passes: dedicated-key WebSocket/TLS authentication, room-only token
+capability, attached channel and backend events are observed. End runs once,
+both views reach recap/review, provider connections return to zero and a scoped
+aggregate confirms one REVIEW room, one player, zero game runs and normal
+expiry. The [campaign](audits/2026-11-18-offered-ably-connection-check.md) is closed
+without gameplay or deletion. The two owned payments ($7 combined cap including
+tax) and one background-only refund (up to $2) are authorized but not started;
+private financial input is pending. No new Checkout Session, charge or refund
+has occurred. Finish those bounded checks and the offered-feature/support
+handoff before invitations; do not replay accepted earlier campaigns.
+The [beta handoff checkpoint](audits/2026-11-18-beta-handoff.md) now records the
+carried-forward scopes, monitored support contact and remaining private payment
+handoff. Pricing is prepared without submitting a Checkout attempt. Later
+prepublication sections below are chronological snapshots superseded by this
+published-release entry.
+
 ## November 18 corrected security candidate; payment activation prepared
 
 Candidate `99c297b` on [PR #70](https://github.com/dsbowersock/atmoshaper/pull/70)

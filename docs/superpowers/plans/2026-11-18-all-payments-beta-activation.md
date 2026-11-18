@@ -1,17 +1,19 @@
 # All three purchase flows before beta
 
-Status: **owner confirmed required scope; preparation only**. No provider write,
-new Checkout Session, payment, refund, deployment or activation is authorized
-by that scope preference alone. Finish and freeze the security candidate first.
+Status: **exact owner approval received; release published; owned payments pending**.
+The owner approved the release/configuration and the bounded payments/refund
+below. See the [activation receipt](../../audits/2026-11-18-beta-purchase-activation.md).
+Preserve the finite counts, private financial handoffs and stop/cleanup rules.
 
 The prepared runtime source is now `99c297b` on
 [PR #70](https://github.com/dsbowersock/atmoshaper/pull/70). The first hosted run's
 three browser failures are corrected; all jobs in the fresh
 [hosted run](https://github.com/dsbowersock/atmoshaper/actions/runs/44391726173) pass.
-The public source remains `cdea4a6`. This operations branch records the packet;
+The reviewed tree is published through merge source `8d89550`; `cdea4a6` is the
+retained rollback. This operations branch records the packet and receipts;
 it is not the offered application candidate.
 
-## Current read-only evidence
+## Preflight evidence carried into the published release
 
 The existing named live Stripe account has active Tax settings, the expected
 active Ohio registration, six v2 Supporter Products and twelve exclusive USD
@@ -20,9 +22,11 @@ and 15-event contract. Catalog search is complete; one-time/background inline
 Products need not exist before their Checkout is created. No customer/payment
 inventory was read and the completed recurring payment campaign stays closed.
 
-Production environment-name inventory is complete through the restored CLI.
-The 18 settings below are absent. The connector's bulk response truncates some
-entries, so it alone is not absence proof. No secret values were exported.
+The preflight Production environment-name inventory was complete through the
+restored CLI and proved the 18 settings below absent. They have since been
+created and individually verified under the exact approval. The connector's
+bulk response truncates some entries, so the complete projected CLI metadata
+provided the inventory/preservation proof. No secret values were exported.
 
 The Vercel Production database-project identifier matches the accessible Neon
 project; the configured database name matches its sole database and ready root
@@ -34,7 +38,7 @@ category matches the existing UNKNOWN_REFUND no-op path. It is not a pending
 refund or authority to delete history. Queries returned counts/categories only,
 not users, credentials, processor payloads or clinical information.
 
-## Proposed Production-only Config changes
+## Approved and applied Production-only Config changes
 
 The existing billing runbook and July 28 receipt retain the previously reviewed
 nothing-in-return `txcd_90000001` classification and its accepted Automatic Tax
@@ -69,10 +73,10 @@ tax/classification contracts; do not reinterpret them as a new legal conclusion.
 | `BACKGROUND_COMMERCE_TAX_PROVIDER_READY` | `true` |
 | `BACKGROUND_COMMERCE_TAX_REGISTRATIONS_READY` | `true` |
 
-Before requesting approval, attach the frozen source/PR, final local/hosted
-checks, exact staged-build/promotion steps and private rollback references.
-Do not claim classification is verified merely because a Boolean can be saved.
-Read back settings and stop on an unexpected existing value or wider target.
+The frozen source/checks, staged-build/promotion steps and private rollback
+references accompanied the approval. Individual readbacks confirm the applied
+values and sole Production target. A saved Boolean is not independent evidence
+of classification; the retained reviewed offering remains the basis.
 
 ## Candidate and public activation boundary
 
@@ -105,7 +109,7 @@ Verify HTTP 200, PNG content/signature and the requested dimensions. This checks
 the actual Linux Sharp/libvips function trace after the patched native update;
 a Windows-only raster test or HTML entry success cannot establish it.
 
-## Proposed bounded new-flow test, not yet authorized
+## Approved bounded new-flow test, not yet started
 
 Prepare the exact signed-in owner account and one eligible, not-permanently-owned
 procedural background through normal UI. The existing membership can use the

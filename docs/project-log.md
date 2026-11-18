@@ -1,5 +1,52 @@
 # AtmoShaper Project Log
 
+## November 18 beta handoff assembled; private payment entry remains pending
+
+Prepared the signed-in Pricing page without submitting an amount or creating
+a Checkout Session. Source confirms its success return carries the exact
+Session reference; the background refund uses the app's exact-order binding.
+The beta checkpoint carries forward existing account, mail, Calendar, music,
+recovery and support evidence with its limits, alongside the current release
+and closed Ably result. It preserves the future first regular overnight backup
+and remaining owned payment/refund acceptance. No invitations were sent.
+
+## November 18 offered-release Ably binding verified; one-lobby campaign closed
+
+After the exact owner approval, prepared two owned views before starting the
+ten-minute clock. Created, joined and ended one generic lobby, one attempt each,
+with no gameplay. Ably's live inspector proves a dedicated-key WebSocket/TLS
+bearer connection, room-only presence/subscribe capability, attached room and
+the backend player-joined/room-ended events. The app reaches review/recap.
+Stopped the observer and closed both game views; a fresh connection listing is
+zero. One scoped aggregate proves the retained REVIEW room, one player, zero
+game runs and normal thirty-minute expiry. No replacement, direct publish,
+database delete or key change occurred. Closed the campaign within its window.
+
+Native window inspection was mismatched and was stopped without input. A fresh
+provider tab and normal Google sign-in provided safe inspection instead. No
+API key/token was revealed. Payment readiness has been requested as a private
+handoff; no new Session, charge or refund has been created.
+
+## November 18 all-payments release approved, built, mapped and published
+
+The owner approves the frozen PR #70 release, 18 Production-only settings, two
+capped owner payments/background refund and one no-gameplay lobby check. Fresh
+preflight verifies exact source, CI, manual promotion and live Stripe metadata.
+Created the 18 settings once with upsert disabled; individual values/targets
+agree. Bulk metadata truncation initially prevents comparison; full encrypted
+CLI metadata projected before output confirms all 69 prior timestamps untouched.
+No secret values are exported and no create is retried.
+
+PR #70 merges as `8d89550` with the exact reviewed tree. One automatic Production
+build passes actual migration/all-payments gates, TypeScript and 115 pages.
+Sentry archives (521/2,620 files) associate with the exact release; a real staged
+client debug ID resolves to its new archive. Seven staged pages and a genuine
+Linux 512-pixel artwork response pass. Promoted that artifact once, verified six
+completed mappings and unchanged unrelated aliases, then repeated the eight
+read-only public checks and preserved apex redirect. Prior READY `cdea4a6` is
+retained. The approved payment/refund and one-lobby checks remain unstarted;
+no new Session, charge, refund or game record exists from this campaign yet.
+
 ## November 18 browser corrections verified locally; bounded new-flow packets refined
 
 Dependency commit `72ce62a` passes the full local unit run, with 5,677 passed,

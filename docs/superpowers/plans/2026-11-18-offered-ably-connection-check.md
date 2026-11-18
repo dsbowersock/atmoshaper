@@ -1,6 +1,8 @@
 # Offered-release Ably connection check
 
-Status: **prepared, not authorized or executed**. The earlier guest and
+Status: **passed and closed**. See the
+[acceptance receipt](../../audits/2026-11-18-offered-ably-connection-check.md).
+The earlier guest and
 password/progress campaigns remain accepted and closed. This checks only the
 current offered artifact's new Production key binding and signed-in context.
 
@@ -38,6 +40,6 @@ record that limit instead of claiming realtime passed.
 - Save only status/timing/event-kind proof in tracked records. Exact room and
   player/provider identifiers stay privately in ignored operator artifacts.
 
-This is a proposal for a missing current binding check. Creating the lobby,
-joining, granting a token or ending it still needs exact separate approval
-under repository AGENTS.md.
+The owner approved this exact bounded current-binding check on November 18.
+Start its ten-minute clock only after the fixture/inspection preflight is ready.
+Close the campaign after its result; unused slots do not authorize a replay.
