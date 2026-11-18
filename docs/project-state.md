@@ -1,5 +1,19 @@
 # AtmoShaper Project State
 
+## November 18 owned payments pass; refund permission recovery prepared
+
+Published source is `8d89550`. The two owner payments total $6.07: $5 One-time
+support and $1.07 Skybreak including tax. The background was fulfilled through
+its signed Checkout event. One app refund submission retained a pending request,
+but Stripe rejected its processor call with 403 because the existing runtime
+key has Charges and Refunds Read rather than the required combined Write.
+No processor refund or automatic retry is confirmed. Beta invitations remain
+on hold. The [recovery plan](superpowers/plans/2026-11-18-owned-background-refund-recovery.md)
+prepares one unsaved permission change and a tested, exact-record local recovery
+command. It requires fresh provider/credential/recovery authorization and does
+not deploy code or renew expired release/payment attempts. Prior preparation
+snapshots below are historical and superseded by this published-source entry.
+
 ## November 18 patched runtime dependencies; corrected browser checks pass locally
 
 Prepared a separate environment-free branch containing the published Calendar

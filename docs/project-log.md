@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 18 owner payment acceptance exposes a refund permission gap
+
+The owner completes both bounded payments privately, within the $7 combined
+ceiling. Exact Stripe/app readback proves the non-entitling $5 support payment,
+the $1.07 U.S. background payment, current product tax classifications and signed
+background fulfillment. The owner submits one exact-item refund through the app.
+The retained pending record and purchase suspension agree with Stripe's exact
+403 request log: the dedicated runtime key is missing Charges and Refunds Write.
+No replacement/refund retry or broad reconciliation runs.
+
+Prepared the one-field key edit without saving. Added a separate read-only-by-
+default recovery command instead of using the existing batch repair command.
+It filters owner/order/refund before reading, guards the immutable amount/item,
+checks only the matching live payment/refund list, preserves the original
+idempotency key and permits one SDK write without automatic retry. All 81
+focused checks pass. The published artifact and provider permissions remain
+unchanged pending the exact new approval described in the recovery plan.
+
 ## November 18 broad regression passes; hosted browser failures isolated
 
 The complete local provider-free suite passes with 5,677 passed, four existing
