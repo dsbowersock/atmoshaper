@@ -7,6 +7,7 @@ import {
   createAvailabilityRuleAction,
   createAvailabilityScheduleAction,
   createCalendarBlockAction,
+  cancelPersonalEventAction,
 } from "@/app/calendar/actions"
 import { formatMinuteLabel } from "@/lib/calendar"
 import { isCalendarDatabaseReady } from "@/lib/calendar-readiness"
@@ -53,8 +54,10 @@ function formatPracticeDate(value: Date, timeZone = "America/New_York") {
   return `${byType.year}-${byType.month}-${byType.day}`
 }
 
-export default async function CalendarAvailabilityPage() {
+export default async function CalendarAvailabilityPage({ searchParams }: { searchParams?: Promise<{ block?: string; google?: string }> }) {
   const session = await getCurrentSession()
+  const params = await searchParams
+  const blockCancelled = params?.block === "cancelled"
 
   if (!session?.user?.id) {
     return (
@@ -147,6 +150,7 @@ export default async function CalendarAvailabilityPage() {
       where: {
         practiceId: membership.practiceId,
         endsAt: { gte: new Date() },
+        event: { kind: "PERSONAL", status: "ACTIVE", blocksAvailability: true },
       },
       include: { therapist: { select: { name: true, email: true } } },
       orderBy: { startsAt: "asc" },
@@ -185,7 +189,7 @@ export default async function CalendarAvailabilityPage() {
 
       <WeeklyAvailabilityPlanner rules={rules} timeZone={membership.practice.timezone} />
 
-      <Tabs defaultValue="weekly" className="space-y-4">
+      <Tabs defaultValue={blockCancelled ? "blocks" : "weekly"} className="space-y-4">
         <TabsList className="flex h-auto flex-wrap justify-start">
           <TabsTrigger value="weekly">Working hours</TabsTrigger>
           <TabsTrigger value="overrides">Overrides</TabsTrigger>
@@ -292,6 +296,12 @@ export default async function CalendarAvailabilityPage() {
         </TabsContent>
 
         <TabsContent value="blocks">
+          {blockCancelled && (
+            <p role="status" className="mb-4 text-sm">
+              Blocked time cancelled.
+              {params?.google === "error" ? " Google Calendar could not be updated. Contact support before relying on its copy." : ""}
+            </p>
+          )}
           <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
           <Card className={appSurfaceClassName}>
             <CardHeader>
@@ -334,7 +344,14 @@ export default async function CalendarAvailabilityPage() {
                 key={block.id}
                 title={`${formatDateTime(block.startsAt, membership.practice.timezone)} - ${formatDateTime(block.endsAt, membership.practice.timezone)}`}
                 detail={`${block.therapist.name ?? block.therapist.email}${block.reason ? ` · ${block.reason}` : ""}`}
-              />
+              >
+                {(membership.role === "OWNER" || block.therapistId === session.user.id) && (
+                  <form action={cancelPersonalEventAction} className="mt-3">
+                    <input type="hidden" name="eventId" value={block.eventId} />
+                    <Button type="submit" variant="outline" size="sm">Cancel block</Button>
+                  </form>
+                )}
+              </AvailabilityRow>
             ))}
           </AvailabilityList>
           </div>
@@ -538,11 +555,12 @@ function AvailabilityList({ title, empty, children }: { title: string; empty: st
   )
 }
 
-function AvailabilityRow({ title, detail }: { title: string; detail: string }) {
+function AvailabilityRow({ title, detail, children }: { title: string; detail: string; children?: React.ReactNode }) {
   return (
     <div className="rounded-md border border-border/70 bg-background/60 p-3">
       <p className="font-medium">{title}</p>
       <p className="text-sm text-muted-foreground">{detail}</p>
+      {children}
     </div>
   )
 }

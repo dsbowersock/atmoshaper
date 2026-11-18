@@ -1,5 +1,18 @@
 # AtmoShaper Project Log
 
+## November 18 focused personal blocked-time cancellation fix
+
+The approved Google connection and synthetic outbound event work on the public
+site. The test found no personal-block cancellation control, so prepared a
+focused fix from current main without incorporating unrelated beta work. Added
+an owner/own-therapist form on Availability > Blocked time and a locked server
+action that preserves history and reports any post-commit Google failure.
+Forty-five focused and 84 existing sync checks pass, with typecheck/targeted
+lint; the local optimized build passes compilation, TypeScript and all 115 pages.
+Its Production-provider gates correctly skip locally. Publication and the remaining approved live
+journey are pending. No additional event, calendar or credential was created by
+this source preparation. See the [plan](superpowers/plans/2026-11-18-personal-block-cancellation.md).
+
 ## October 30 local anatomy delivery and current media hold
 
 The reviewed local anatomy delivery source at `e0e877f` is composed with the retained documentation candidate on `codex/migration-readiness-20261030`; no publication or PR/main merge has occurred. All 61 source-only checks, scoped lint and nonincremental typecheck pass, with independent specification and quality reviews. The opt-in final image/diagram URL binding covers the shared study projection used by database-backed consumers and seed-only Anatomime. Defaults preserve existing delivery. No setting is enabled, and actual database-origin coverage, branded delivery and final artifact acceptance remain unverified. See the [anatomy delivery audit](audits/2026-10-30-anatomy-independent-media-delivery.md).

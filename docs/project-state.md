@@ -1,5 +1,22 @@
 # AtmoShaper Project State
 
+## November 18 personal blocked-time cancellation prepared for beta
+
+The owner-approved live Google Calendar test connected successfully and produced
+one correctly timed generic mirror without guests. It exposed missing personal
+block cancellation controls. The focused fix adds Cancel block to Availability
+> Blocked time, retains history, clears availability blocking, and uses the
+existing Google removal after commit with an honest partial-failure notice.
+It rechecks current owner, practice, role and event times under scheduling locks.
+No schema, scope, credential or billing change is needed. Forty-five focused
+checks and 84 existing Calendar sync checks pass; typecheck and targeted lint
+pass. The local optimized build passes all 115 pages, TypeScript and compilation;
+its Production-provider gates correctly skip outside Vercel. Publication and live cancellation/
+disconnect/reconnect acceptance remain pending. The synthetic fixture is still
+retained for the approved test. See the [fix plan](superpowers/plans/2026-11-18-personal-block-cancellation.md).
+This source branch contains only the focused fix; broader beta operations are
+tracked in the retained beta-readiness checkout and are not replay authority.
+
 ## October 30 local anatomy delivery and current media hold
 
 The reviewed local anatomy delivery source at `e0e877f` is composed with the retained documentation candidate on `codex/migration-readiness-20261030`; no publication or PR/main merge has occurred. All 61 source-only checks, scoped lint and nonincremental typecheck pass, with independent specification and quality reviews. The opt-in final image/diagram URL binding covers the shared study projection used by database-backed consumers and seed-only Anatomime. Defaults preserve existing delivery. No setting is enabled, and actual database-origin coverage, branded delivery and final artifact acceptance remain unverified. See the [anatomy delivery audit](audits/2026-10-30-anatomy-independent-media-delivery.md).
