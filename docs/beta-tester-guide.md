@@ -1,8 +1,8 @@
 # Small beta tester guide
 
 **Draft for owner review. Invitations have not been sent.** The bounded live
-Calendar journey passes. Account/recovery, any uncovered offered-feature,
-commerce-scope and final release checks remain in
+Calendar journey and recovery-mail delivery have accepted bounded live checks.
+Uncovered offered-feature, purchase activation and final release checks remain in
 [project state](project-state.md). Review this guide against the final offered
 build before sharing it.
 

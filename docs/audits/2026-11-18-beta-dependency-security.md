@@ -1,6 +1,6 @@
 # Beta runtime dependency security update
 
-Status: **local validation accepted; not deployed; hosted checks in progress**.
+Status: **local and hosted checks pass; not deployed**.
 The public release remains the separately approved Calendar fix `cdea4a6`.
 
 ## Resolved changes
@@ -21,6 +21,24 @@ aggregate audit label was not evidence of an observed authorization bypass.
 Two new ESLint warnings are handled with focused documented exceptions retaining
 existing full-document navigation, including escape from a revoked auth session.
 No navigation or authorization behavior was rewritten for the dependency update.
+
+Hosted Browser QA found a real CSS ordering regression: the shared Button's
+display utility overrode the background tray's single-class hidden rule. The
+focused selector now wins independently of stylesheet order while retaining
+the existing short-landscape Info control. Both desktop/mobile assertions
+reproduce the problem on the previous artifact; Linux baselines remain unchanged.
+The two Windows baselines still contained older purchase wording superseded by
+the October 26 source/CI fixture repair. Their reviewed differences are that
+hint and its mobile text wrapping; those two images are refreshed to the
+existing guarded copy. No product copy or screenshot tolerance is changed.
+
+The Music outage fixture also needed to cover the framework's new automatic
+chunk transport retry. One rejected request now recovers successfully, so it
+cannot test the app's explicit recovery control. The fixture fails matching
+loads throughout the initial document and permits them after the user's Retry
+reload. The same visible-error, hover/focus stability, reload and physical-tap
+activation assertions remain; the corrected test passes locally. No audio
+runtime behavior or timeout is weakened.
 
 ## Audit result and residual scope
 
@@ -55,11 +73,28 @@ vulnerabilities as fixed.
 - Optimized build passes compilation, TypeScript and page generation. Its live
   Production readiness gates correctly skip outside Vercel Production.
 - The complete bounded provider-free suite passes: 5,681 total, 5,677 passed,
-  four skipped and zero failed/cancelled in 963,426 ms. The retained log records
-  each environment-dependent skip; they were not converted into passes.
-
-The frozen app candidate is `72ce62a` in draft PR #70. Its hosted validation is
-still in progress. The inherited Calendar/CI commit passes every hosted job.
+  four existing host/context skips, zero failed/cancelled.
+- Initial hosted code quality, browser build and three browser lanes pass.
+  Lane 3 reports the two background snapshots and Music outage fixture above.
+- Rebuilt isolated Browser QA artifact passes. Corrected desktop/mobile
+  background checks and the mobile full Retry/playback journey pass without
+  snapshot-update mode (one desktop ownership skip is expected).
+- The existing production-background responsive journey passes both portrait
+  and short landscape, including opening Info in the compact layout.
+- Full lint passes again.
+- Follow-up `99c297b` passes every job in
+  [hosted CI](https://github.com/dsbowersock/atmoshaper/actions/runs/44391726173):
+  5,676 unit checks passed, five explicit Windows/catalog skips, zero failures.
+  All four Chromium browser lanes pass: 127/174/172/141 passed and
+  25/52/44/59 skipped respectively. Matrix ownership and opt-in/live-provider
+  cases are separate from executed browser evidence; no real payment or game
+  binding is proved by these provider-free fixtures.
+- The existing responsive journey also passes against the optimized artifact
+  through the public `/clock` caller, including portrait, short landscape and
+  opening Info. An initial extra attempt used the development-only Clock caller
+  and reached its production 404 rather than the panel. A temporary owned test
+  copy changed only that entry path; the full unchanged assertions passed and
+  the temporary copy was removed. The candidate worktree remains clean.
 
 No credential, provider setting, database migration, real message/payment or
 public promotion belongs to this local preparation. Build/publication and the

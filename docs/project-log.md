@@ -1,5 +1,30 @@
 # AtmoShaper Project Log
 
+## November 18 browser corrections verified locally; bounded new-flow packets refined
+
+Dependency commit `72ce62a` passes the full local unit run, with 5,677 passed,
+four existing skips and zero failures. Hosted lane 3 finds two background CSS
+ordering snapshots and one audio fault fixture; the other three lanes pass.
+Follow-up `99c297b` restores existing responsive controls with a scoped selector
+and makes the outage fixture span the framework's automatic transport retry.
+Rebuilt focused desktop/mobile background and audio recovery checks pass, as
+does portrait/short-landscape Info. Reviewed Windows baseline changes only
+catch up to the existing guarded purchase wording; Linux baselines/tolerances
+are preserved. Lint passes again. The optimized public Clock responsive journey
+passes through a temporary owned copy with only its development entry path
+changed; that copy is removed. Follow-up hosted CI passes every job on
+`99c297b`: 5,676 unit checks passed with five Windows/catalog skips, plus all
+four Chromium browser lanes green (614 passed, 180 matrix/opt-in skips). Main
+remains unchanged and the candidate worktree is clean. Publication and live
+new-flow acceptance remain separately authorized boundaries.
+
+The all-payments proposal now names the app's exact-order Admin refund action:
+a direct Stripe refund would bypass its pending-refund binding. A bounded
+owner-only aggregate confirms existing verified full-Admin authority. No role,
+order, payment, refund or provider setting was changed. Prepared a separate
+ten-minute one-lobby Ably check with create/join/end only, no gameplay or hard
+deletion. All proposed live operations remain unsubmitted.
+
 ## November 18 full patched-runtime regression passed; operation sources preserved
 
 The frozen `72ce62a` application candidate passes all 5,681 local checks at the

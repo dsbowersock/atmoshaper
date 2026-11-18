@@ -1,14 +1,24 @@
 # AtmoShaper Project State
 
-## November 18 application security candidate frozen; payment activation prepared
+## November 18 corrected security candidate; payment activation prepared
 
-Candidate `72ce62a` on [draft PR #70](https://github.com/dsbowersock/atmoshaper/pull/70)
+Candidate `99c297b` on [PR #70](https://github.com/dsbowersock/atmoshaper/pull/70)
 contains the published Calendar fix, the supported CI correction and the patched
 runtime dependency set. Prisma generate/validate, clean lint, typecheck, 19
 dependency/artwork/inert-mail checks, 76 Sentry/privacy checks and the optimized
 115-page build pass. The complete local regression also passes: 5,681 total,
-5,677 passed, four skipped and zero failed/cancelled. This candidate's hosted
-CI is running. The inherited Calendar/CI commit passes every hosted job.
+5,677 passed, four skipped and zero failed/cancelled on dependency commit
+`72ce62a`. Its hosted run exposed two background CSS snapshots and a Music fault
+fixture. Follow-up `99c297b` corrects CSS specificity and holds the fixture outage
+through automatic transport retries, preserving audio recovery assertions and
+Linux baselines. Two reviewed Windows snapshots catch up to existing guarded
+purchase wording. The rebuilt focused desktop/mobile and compact-landscape
+journeys pass; lint passes again. The optimized public Clock responsive journey
+also passes, including compact Info. Every job in this follow-up's
+[hosted CI](https://github.com/dsbowersock/atmoshaper/actions/runs/44391726173)
+passes: 5,676 unit checks passed with five explicit Windows/catalog skips and
+all four Chromium browser lanes green (614 passed, 180 matrix/opt-in skips).
+The inherited Calendar/CI commit passes every hosted job.
 The final production audit has zero critical/high and eight moderate build-tool
 entries; the separate development-only finding and reachability limits are in
 the [audit](audits/2026-11-18-beta-dependency-security.md). No new public release.
@@ -22,6 +32,13 @@ drift. Retain the processed unknown-refund receipt; no backfill or repair ran.
 Neither a new Session/payment/refund nor configuration activation has occurred.
 The owner requires all three flows before beta and will monitor the public
 support inbox. The public artifact remains the approved `cdea4a6`.
+
+The bounded proposal uses the app's exact-order Admin refund binding, not a
+direct processor refund. Owner-only aggregate verification confirms existing
+verified full-Admin authority. A separate
+[one-lobby Ably check](superpowers/plans/2026-11-18-offered-ably-connection-check.md)
+is prepared for missing offered-release connectivity; no room or new grant was
+created. These operations remain unsubmitted and require exact approval.
 
 ## November 18 all three purchase flows retained for beta; dependency patch prepared
 

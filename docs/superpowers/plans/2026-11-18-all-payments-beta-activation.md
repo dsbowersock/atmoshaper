@@ -4,6 +4,13 @@ Status: **owner confirmed required scope; preparation only**. No provider write,
 new Checkout Session, payment, refund, deployment or activation is authorized
 by that scope preference alone. Finish and freeze the security candidate first.
 
+The prepared runtime source is now `99c297b` on
+[PR #70](https://github.com/dsbowersock/atmoshaper/pull/70). The first hosted run's
+three browser failures are corrected; all jobs in the fresh
+[hosted run](https://github.com/dsbowersock/atmoshaper/actions/runs/44391726173) pass.
+The public source remains `cdea4a6`. This operations branch records the packet;
+it is not the offered application candidate.
+
 ## Current read-only evidence
 
 The existing named live Stripe account has active Tax settings, the expected
@@ -28,6 +35,14 @@ refund or authority to delete history. Queries returned counts/categories only,
 not users, credentials, processor payloads or clinical information.
 
 ## Proposed Production-only Config changes
+
+The existing billing runbook and July 28 receipt retain the previously reviewed
+nothing-in-return `txcd_90000001` classification and its accepted Automatic Tax
+result. This proposal preserves that same non-entitling offering and the separate
+background code; saving a flag does not create a new tax/legal conclusion. A
+bounded owner-only aggregate also confirms the existing verified full-Admin
+authority required by the app's exact-order refund action. Recheck it before use;
+no role or account change is proposed.
 
 Existing Secret credentials, recurring prices/Portals, API version, webhook
 endpoint and all other settings remain unchanged. Use the existing reviewed
@@ -73,6 +88,23 @@ publicly. Disclose that consequence before approval. Preserve the old public
 artifact and its saved disabled-flow configuration. Avoid separately merging an
 intermediate older-dependency source that would auto-deploy before the candidate.
 
+The proposed release operation has a 90-minute window beginning with fresh
+post-approval preflight: one exact-head merge, one automatic staged Production
+build, one gated promotion and at most one rollback to the saved public artifact.
+Automatic domain assignment was verified disabled in the actual Production
+settings; recheck before merging. Require the merge tree to equal the reviewed
+candidate, actual migration/all-payments gates and Sentry map association before
+promotion. A failure or ambiguous outcome stops the operation for inspection;
+this packet does not authorize a repeated build/merge/promotion. Read back all
+six public aliases and the seven offered entry paths. No charge or refund occurs
+under release/configuration approval alone.
+
+Also request the candidate's existing Drone station artwork at
+`/api/atmosphere/stations/mlab-proof-drone/artwork?size=512&v=2026-08-17-1`.
+Verify HTTP 200, PNG content/signature and the requested dimensions. This checks
+the actual Linux Sharp/libvips function trace after the patched native update;
+a Windows-only raster test or HTML entry success cannot establish it.
+
 ## Proposed bounded new-flow test, not yet authorized
 
 Prepare the exact signed-in owner account and one eligible, not-permanently-owned
@@ -91,9 +123,14 @@ Confirm eligibility and the displayed total before any payment handoff.
   then durable background ownership and absence of one-time-support entitlements.
   Use a bounded private packet with IDs and counters; do not read other payments.
 - Propose refunding only the owned background test payment, including its tax,
-  through the supported app/operator path, then verify signed reversal and
-  ownership status. Preserve the audit trail. State any non-returned processor
+  through the exact owned-order AtmoShaper Admin Commerce refund action, then
+  verify signed reversal and ownership status. The app must create its pending
+  refund binding and processor metadata first; a direct Stripe dashboard/API
+  refund would not exercise that contract and can remain an UNKNOWN_REFUND
+  receipt. Never substitute it. Preserve the audit trail. State any non-returned processor
   fee as a cost; do not promise free live testing or a refundable support payment.
+  [Stripe's refund-fee guidance](https://support.stripe.com/questions/understanding-fees-for-refunded-payments)
+  confirms the original processing fees are not returned.
 - Do not simulate a live dispute, charge a third party, replay successful recurring
   payment tests or invent a failed live card. Preserve accepted sandbox coverage
   of failure/duplicate/delay/dispute behavior, adding only missing controlled
@@ -102,6 +139,26 @@ Confirm eligibility and the displayed total before any payment handoff.
 Set the exact time window, request/poll ceiling, money/refund budget, cleanup and
 stop rules in the private operation packet before the approval request. If no
 owner payment handoff is ready, keep the activation unsubmitted.
+
+For the proposed new-flow campaign, use a 30-minute window starting when the
+owner is ready for private payment entry. At most one Session per flow, two
+payments totaling at most $7 including tax, and one full background-only refund
+no greater than its paid amount or $2. Preferred background: Skybreak, using the
+unchanged `massage-lab-aerial-rays` key, subject to fresh ownership/cart checks.
+Use at most 60 operator-controlled reads of the exact owned Session/line/payment,
+receipt and order/refund IDs, with no more than 12 delayed-status polls. Normal
+Stripe/app delivery retries are observed, never manually replayed. Capture only
+sanitized states, totals, classifications and timestamps; private identifiers
+stay in the ignored operation packet. Stop for an unexpected amount, owner,
+existing purchase, tax/classification, event or ambiguous write. Expire only the
+two owned incomplete Sessions if authorized cleanup is needed; preserve paid
+history. Financial approval and private owner entry remain separate from release.
+
+Prepare the exact forms, then have the owner complete binding purchase terms,
+private payment entry and final financial submissions. Verify the resulting
+owned records afterward. The background refund should remove permanent purchase
+ownership while preserving the owner's existing membership-derived access;
+continued ability to select the background is not evidence of a failed refund.
 
 ## Containment and acceptance
 
