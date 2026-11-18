@@ -376,6 +376,7 @@ export function CalendarWorkspace({
 
   function handleDateClick(info: DateClickArg) {
     const startsAt = info.dateStr.slice(0, 16)
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Preserve the established full-document transition from FullCalendar during this dependency upgrade.
     window.location.href = `/calendar/new?startsAt=${encodeURIComponent(startsAt)}`
   }
 

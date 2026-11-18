@@ -81,16 +81,23 @@ test("reviewed dependency copies stay above their patched security floors", asyn
     readProjectJson("package-lock.json"),
   ])
 
-  assertVersionAtLeast(packageJson.dependencies.next, "16.2.12", "next")
-  assert.equal(packageJson.dependencies["nodemailer-v9"], "npm:nodemailer@^9.0.3")
-  assertVersionAtLeast(packageJson.dependencies["@prisma/adapter-neon"], "7.9.1", "@prisma/adapter-neon")
-  assertVersionAtLeast(packageJson.dependencies["@prisma/client"], "7.9.1", "@prisma/client")
+  // These floors include the November Server Actions and image-library fixes;
+  // checking nested lock entries prevents an override retaining an older copy.
+  assertVersionAtLeast(packageJson.dependencies.next, "16.4.6", "next")
+  assertVersionAtLeast(packageJson.dependencies["@sentry/nextjs"], "10.75.2", "@sentry/nextjs")
+  assert.equal(packageJson.dependencies["nodemailer-v9"], "npm:nodemailer@^10.6.0")
+  assertVersionAtLeast(packageJson.dependencies["@prisma/adapter-neon"], "7.10.1", "@prisma/adapter-neon")
+  assertVersionAtLeast(packageJson.dependencies["@prisma/client"], "7.10.1", "@prisma/client")
   assertVersionAtLeast(packageJson.devDependencies.postcss, "8.5.28", "postcss")
-  assertVersionAtLeast(packageJson.devDependencies.prisma, "7.9.1", "prisma")
+  assertVersionAtLeast(packageJson.devDependencies.prisma, "7.10.1", "prisma")
   assertVersionAtLeast(packageJson.devDependencies.shadcn, "4.16.1", "shadcn")
   assert.equal(packageJson.devDependencies["eslint-config-next"], packageJson.dependencies.next)
 
   const fixedVersionFloors = new Map([
+    ["next", "16.4.6"],
+    ["@sentry/nextjs", "10.75.2"],
+    ["@prisma/config", "7.10.1"],
+    ["deepmerge-ts", "8.0.0"],
     ["@babel/core", "7.29.6"],
     ["@hono/node-server", "2.0.10"],
     ["@humanfs/node", "0.16.8"],
@@ -100,10 +107,11 @@ test("reviewed dependency copies stay above their patched security floors", asyn
     ["hono", "4.12.34"],
     ["mysql2", "3.24.3"],
     ["nanoid", "3.3.18"],
-    ["nodemailer-v9", "9.0.1"],
+    ["nodemailer-v9", "10.6.0"],
     ["postcss", "8.5.28"],
     ["qs", "6.16.0"],
-    ["sharp", "0.35.3"],
+    ["sharp", "0.35.5"],
+    ["source-map-js", "1.2.2"],
   ])
 
   for (const [packageName, minimum] of fixedVersionFloors) {
@@ -118,8 +126,8 @@ test("reviewed dependency copies stay above their patched security floors", asyn
 
   const braceExpansionFloors = new Map([
     [1, "1.1.18"],
-    [2, "2.1.4"],
-    [5, "5.0.9"],
+    [2, "2.1.7"],
+    [5, "5.0.12"],
   ])
 
   const braceExpansionVersions = getLockedVersions(lock, "brace-expansion")

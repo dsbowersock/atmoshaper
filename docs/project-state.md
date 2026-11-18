@@ -1,5 +1,28 @@
 # AtmoShaper Project State
 
+## November 18 patched runtime dependencies prepared; release validation running
+
+Prepared a separate environment-free branch containing the published Calendar
+fix and supported CI runner. Next.js/ESLint config 16.4.6, Sharp 0.35.5, Sentry
+10.78.0, the retained Nodemailer alias at 10.6.0, aligned Prisma 7.10.1 and patched
+transitive overrides pass local typecheck, clean lint, Prisma generation/
+validation, 19 dependency/artwork/inert-mail checks and 76 Sentry/privacy checks.
+The unused root Zod dependency is removed. Application navigation is preserved.
+The optimized build passes; its live provider gates correctly skip locally.
+The complete provider-free regression run is in progress.
+
+The production dependency audit now has zero critical/high entries and eight
+moderate build-tool entries; the separate development tree still has a critical
+proxy-addr report. The [audit](audits/2026-11-18-beta-dependency-security.md) records
+the limited source/dependency reachability assessment. No package-wide security
+clearance, provider activation or beta-ready claim is made. The approved public
+artifact remains `cdea4a6`, with rollback retained.
+
+The owner requires all three purchase flows before beta and will monitor the
+existing public support inbox. Current all-payments preparation/receipts remain
+in the retained beta-readiness checkout. No new transaction or activation is
+authorized by this dependency branch.
+
 ## November 18 cancellation published; Calendar accepted; CI runner corrected
 
 The owner-approved exact commit `cdea4a6` passed its real Production migration

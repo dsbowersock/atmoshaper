@@ -1,7 +1,7 @@
 /**
- * The runtime is an npm alias for Nodemailer 9. Re-exporting the maintained
- * DefinitelyTyped contract keeps the alias typed without installing the
- * vulnerable Nodemailer package name solely for declarations.
+ * Keep the historical alias stable while its runtime follows patched
+ * Nodemailer releases. Re-export the compatible maintained type contract
+ * without installing Auth.js's unused optional Nodemailer runtime peer.
  */
 declare module "nodemailer-v9" {
   import nodemailer from "nodemailer"

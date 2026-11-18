@@ -1,5 +1,24 @@
 # AtmoShaper Project Log
 
+## November 18 beta security candidate prepared with local checks passing
+
+An audit during beta continuation found applicable framework security fixes.
+Updated the isolated runtime dependency set and its nested-version regression
+floors, retaining aliases, schema, provider contracts and normal navigation.
+The installed production audit changes from 17 entries including critical/high
+reports to eight moderate entries with zero critical/high. Documented residual
+build-tool and separate development-only findings without claiming universal
+reachability clearance. Prisma generation/validation, typecheck, clean lint,
+19 dependency/artwork/inert-email checks and 76 SDK/privacy checks pass.
+The optimized build passes compilation, TypeScript and page generation, with
+provider gates correctly skipped locally. The complete provider-free suite
+remains running. See the
+[audit](audits/2026-11-18-beta-dependency-security.md).
+
+The owner's first-beta scope explicitly includes all three purchase flows and
+the existing public support inbox, which the owner will monitor. No provider
+write, live payment or second release occurred during this source preparation.
+
 ## November 18 live Calendar acceptance and supported CI runner follow-up
 
 Published only the separately approved `cdea4a6` artifact after real Production
