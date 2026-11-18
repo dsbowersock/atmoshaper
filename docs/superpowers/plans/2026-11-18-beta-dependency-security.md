@@ -43,6 +43,10 @@ observed application bypass or repeat the completed mapped-error/email campaign.
 8. Preserve schema/migrations, identity, entitlements, mail settings,
    provider settings, and all unrelated overrides. Triage remaining audit entries
    explicitly; do not apply an unrestricted `npm audit fix --force`.
+9. Resolve the observed CSS cascade regression with a scoped selector that
+   preserves existing background layout/baselines and short-landscape Info.
+   Keep the Music failure fixture unavailable through automatic transport
+   retries until explicit reload; retain its existing recovery assertions.
 
 ## Validation and release boundary
 

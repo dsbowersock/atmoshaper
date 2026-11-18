@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-## November 18 patched runtime dependencies prepared; release validation running
+## November 18 patched runtime dependencies; corrected browser checks pass locally
 
 Prepared a separate environment-free branch containing the published Calendar
 fix and supported CI runner. Next.js/ESLint config 16.4.6, Sharp 0.35.5, Sentry
@@ -9,7 +9,15 @@ transitive overrides pass local typecheck, clean lint, Prisma generation/
 validation, 19 dependency/artwork/inert-mail checks and 76 Sentry/privacy checks.
 The unused root Zod dependency is removed. Application navigation is preserved.
 The optimized build passes; its live provider gates correctly skip locally.
-The complete provider-free regression run is in progress.
+The complete provider-free regression passes: 5,681 total, 5,677 passed, four
+existing skips and zero failed/cancelled. Hosted code quality, browser build
+and three browser lanes pass. Lane 3 exposes a background CSS-order regression
+and an outage fixture that no longer spans the framework's automatic retry.
+Focused fixes preserve the approved layout, Linux baselines and audio recovery
+assertions. Two stale Windows images are refreshed for already-existing guarded
+purchase wording. Rebuilt-artifact desktop/mobile background and mobile Retry
+journeys pass; portrait/short-landscape controls including Info pass. Full lint
+passes again. Fresh hosted Linux CI remains open.
 
 The production dependency audit now has zero critical/high entries and eight
 moderate build-tool entries; the separate development tree still has a critical

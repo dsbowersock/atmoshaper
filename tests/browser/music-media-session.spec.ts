@@ -85,7 +85,7 @@ type MediaOwnershipFakeOptions = {
   mediaSessionSupported?: boolean
   rejectCarrierPlay?: boolean
   rejectLivePositionState?: boolean
-  rejectRuntimeModuleLoadOnce?: boolean
+  rejectRuntimeModuleLoadUntilReload?: boolean
   requireAudioContextResumeInPlayTurn?: boolean
   resumeAfterInterruption?: boolean
   stopAtPhase?: "piece-activation" | "scheduling"
@@ -283,12 +283,12 @@ async function installMediaOwnershipFakes(page: Page, options: MediaOwnershipFak
       handlers.stop?.()
     }
 
-    if (fakeOptions.holdPhase === "module-loading" || fakeOptions.rejectRuntimeModuleLoadOnce) {
+    if (fakeOptions.holdPhase === "module-loading" || fakeOptions.rejectRuntimeModuleLoadUntilReload) {
       const nativeAppendChild = Node.prototype.appendChild
       const runtimeRejectionKey = "__massagelabBrowserQaRuntimeModuleRejected"
-      let runtimeModuleLoadRejected = false
+      let rejectRuntimeModuleLoadsInThisDocument = true
       try {
-        runtimeModuleLoadRejected = sessionStorage.getItem(runtimeRejectionKey) === "true"
+        rejectRuntimeModuleLoadsInThisDocument = sessionStorage.getItem(runtimeRejectionKey) !== "true"
       } catch {
         // A storage-denied browser can still exercise the visible error state.
       }
@@ -300,14 +300,15 @@ async function installMediaOwnershipFakes(page: Page, options: MediaOwnershipFak
         )
         if (
           isTargetRuntimeModule
-          && fakeOptions.rejectRuntimeModuleLoadOnce
-          && !runtimeModuleLoadRejected
+          && fakeOptions.rejectRuntimeModuleLoadUntilReload
+          && rejectRuntimeModuleLoadsInThisDocument
         ) {
-          runtimeModuleLoadRejected = true
+          // Fail the whole pre-reload attempt, including Turbopack's transport
+          // retry. Only the user's visible Retry action starts a healthy graph.
           try {
             sessionStorage.setItem(runtimeRejectionKey, "true")
           } catch {
-            // The in-memory guard still prevents a second rejection in this document.
+            // Keep the simulated outage in this document when storage is denied.
           }
           startup.phaseReached.push("module-load-rejected")
           setTimeout(() => child.dispatchEvent(new Event("error")), 0)
@@ -1825,7 +1826,7 @@ test("runtime readiness failure exposes a visible retry before Play becomes acti
   const actualRuntimeModulePath = await getActualRuntimeModulePath()
   await installMediaOwnershipFakes(page, {
     actualRuntimeModulePath,
-    rejectRuntimeModuleLoadOnce: true,
+    rejectRuntimeModuleLoadUntilReload: true,
     requireAudioContextResumeInPlayTurn: true,
   })
   await page.goto("/music", { waitUntil: "domcontentloaded" })

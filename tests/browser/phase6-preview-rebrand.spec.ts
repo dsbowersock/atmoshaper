@@ -507,6 +507,8 @@ test("shows the three approved background labels without changing free or premiu
   await centerCarouselItem(page, "massage-lab-tile-grid", "Next background")
   await expect(controls.getByRole("heading", { name: "Tile grid", exact: true })).toBeVisible()
   await expect(panel.getByRole("button", { name: "Unlock Tile grid background" })).toBeEnabled()
+  await expect(panel.getByRole("button", { name: "More information about Tile grid", includeHidden: true }))
+    .toBeHidden()
   await settledBox(controls)
   const trayFit = await controls.evaluate((tray) => {
     const trayBox = tray.getBoundingClientRect()

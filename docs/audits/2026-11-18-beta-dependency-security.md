@@ -1,6 +1,6 @@
 # Beta runtime dependency security update
 
-Status: **prepared locally; not deployed; broad regression in progress**.
+Status: **local checks pass; not deployed; fresh hosted browser acceptance pending**.
 The public release remains the separately approved Calendar fix `cdea4a6`.
 
 ## Resolved changes
@@ -21,6 +21,24 @@ aggregate audit label was not evidence of an observed authorization bypass.
 Two new ESLint warnings are handled with focused documented exceptions retaining
 existing full-document navigation, including escape from a revoked auth session.
 No navigation or authorization behavior was rewritten for the dependency update.
+
+Hosted Browser QA found a real CSS ordering regression: the shared Button's
+display utility overrode the background tray's single-class hidden rule. The
+focused selector now wins independently of stylesheet order while retaining
+the existing short-landscape Info control. Both desktop/mobile assertions
+reproduce the problem on the previous artifact; Linux baselines remain unchanged.
+The two Windows baselines still contained older purchase wording superseded by
+the October 26 source/CI fixture repair. Their reviewed differences are that
+hint and its mobile text wrapping; those two images are refreshed to the
+existing guarded copy. No product copy or screenshot tolerance is changed.
+
+The Music outage fixture also needed to cover the framework's new automatic
+chunk transport retry. One rejected request now recovers successfully, so it
+cannot test the app's explicit recovery control. The fixture fails matching
+loads throughout the initial document and permits them after the user's Retry
+reload. The same visible-error, hover/focus stability, reload and physical-tap
+activation assertions remain; the corrected test passes locally. No audio
+runtime behavior or timeout is weakened.
 
 ## Audit result and residual scope
 
@@ -54,7 +72,16 @@ vulnerabilities as fixed.
 - Seventy-six Sentry/privacy checks pass on the resolved 10.78.0 SDK.
 - Optimized build passes compilation, TypeScript and page generation. Its live
   Production readiness gates correctly skip outside Vercel Production.
-- The complete bounded provider-free suite is in progress.
+- The complete bounded provider-free suite passes: 5,681 total, 5,677 passed,
+  four existing host/context skips, zero failed/cancelled.
+- Initial hosted code quality, browser build and three browser lanes pass.
+  Lane 3 reports the two background snapshots and Music outage fixture above.
+- Rebuilt isolated Browser QA artifact passes. Corrected desktop/mobile
+  background checks and the mobile full Retry/playback journey pass without
+  snapshot-update mode (one desktop ownership skip is expected).
+- The existing production-background responsive journey passes both portrait
+  and short landscape, including opening Info in the compact layout.
+- Full lint passes again. Fresh hosted Linux acceptance remains pending.
 
 No credential, provider setting, database migration, real message/payment or
 public promotion belongs to this local preparation. Build/publication and the

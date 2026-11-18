@@ -1,5 +1,25 @@
 # AtmoShaper Project Log
 
+## November 18 broad regression passes; hosted browser failures isolated
+
+The complete local provider-free suite passes with 5,677 passed, four existing
+skips and zero failed/cancelled. Hosted code quality/build and three browser
+lanes pass; lane 3 identifies two background snapshots and one Music fixture.
+The background Info hidden rule loses to a shared display utility when CSS
+order changes. A focused selector restores the existing responsive geometry;
+new explicit assertions fail on both prior desktop/mobile artifacts. The Music
+fixture rejected only one chunk request, which the upgraded framework now
+automatically retries successfully. Holding that synthetic outage until the
+user's explicit reload exercises the unchanged app recovery contract and passes
+locally. The rebuilt isolated artifact passes both background checks and the
+mobile full Retry/playback journey without snapshot-update mode. The existing
+portrait/short-landscape test also passes, including compact Info. Full lint
+passes again. Fresh hosted acceptance remains pending.
+Linux image baselines, tolerances, timeouts and provider state are unchanged.
+Reviewed Windows diffs expose purchase wording already superseded by the
+October 26 source/Linux-fixture repair; the two stale Windows images are
+refreshed to that existing guarded wording and its mobile text wrapping.
+
 ## November 18 beta security candidate prepared with local checks passing
 
 An audit during beta continuation found applicable framework security fixes.
