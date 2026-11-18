@@ -102,6 +102,7 @@ export function SignInMethodsPanel({
       // the only safe recovery surface even when the client sign-out fails.
     }
     if (window.location.href === initialHref) {
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Leave the revoked session's document even when Auth.js navigation fails.
       window.location.href = SIGN_IN_METHODS_CHANGED_CALLBACK
     }
     return true

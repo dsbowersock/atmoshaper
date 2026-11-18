@@ -1,5 +1,79 @@
 # AtmoShaper Project State
 
+## November 18 patched runtime dependencies; corrected browser checks pass locally
+
+Prepared a separate environment-free branch containing the published Calendar
+fix and supported CI runner. Next.js/ESLint config 16.4.6, Sharp 0.35.5, Sentry
+10.78.0, the retained Nodemailer alias at 10.6.0, aligned Prisma 7.10.1 and patched
+transitive overrides pass local typecheck, clean lint, Prisma generation/
+validation, 19 dependency/artwork/inert-mail checks and 76 Sentry/privacy checks.
+The unused root Zod dependency is removed. Application navigation is preserved.
+The optimized build passes; its live provider gates correctly skip locally.
+The complete provider-free regression passes: 5,681 total, 5,677 passed, four
+existing skips and zero failed/cancelled. Hosted code quality, browser build
+and three browser lanes pass. Lane 3 exposes a background CSS-order regression
+and an outage fixture that no longer spans the framework's automatic retry.
+Focused fixes preserve the approved layout, Linux baselines and audio recovery
+assertions. Two stale Windows images are refreshed for already-existing guarded
+purchase wording. Rebuilt-artifact desktop/mobile background and mobile Retry
+journeys pass; portrait/short-landscape controls including Info pass. Full lint
+passes again. Fresh hosted Linux CI remains open.
+
+The production dependency audit now has zero critical/high entries and eight
+moderate build-tool entries; the separate development tree still has a critical
+proxy-addr report. The [audit](audits/2026-11-18-beta-dependency-security.md) records
+the limited source/dependency reachability assessment. No package-wide security
+clearance, provider activation or beta-ready claim is made. The approved public
+artifact remains `cdea4a6`, with rollback retained.
+
+The owner requires all three purchase flows before beta and will monitor the
+existing public support inbox. Current all-payments preparation/receipts remain
+in the retained beta-readiness checkout. No new transaction or activation is
+authorized by this dependency branch.
+
+## November 18 cancellation published; Calendar accepted; CI runner corrected
+
+The owner-approved exact commit `cdea4a6` passed its real Production migration
+and Supporter gates, 115-page build, seven authenticated candidate entry checks
+and Sentry source-map/debug-ID association. The existing staged artifact was
+promoted once; all six mappings completed and the public host matches. The prior
+READY build remains available for rollback. Draft PR #69 preserves the focused
+source and has not been merged.
+
+On the public site, the one approved Personal fixture cancelled through Cancel
+block; upcoming blocks became zero and its generic Google mirror disappeared.
+Two explicit refreshes, one Disconnect and one equivalent reconnect pass. The
+same dedicated calendar and all original calendars are preserved; the connection
+finishes ACTIVE with the original primary busy source selected. The finite
+campaign is complete and must not be replayed. Natural token expiry was not tested.
+
+Hosted PR CI passes lint, typecheck and browser build, but its moving Ubuntu
+runner selects 26.04, unsupported by pinned Playwright 1.60. Browser installation
+fails before Node/browser tests. This follow-up pins all CI jobs to supported
+Ubuntu 24.04 without changing runtime source, dependencies or test assertions.
+The local CI harness passes all 162 checks using the installed browser outside
+the sandbox; the sandbox browser path was unavailable. The next hosted run must
+establish that the tests execute successfully; the
+earlier setup failure is not a passing test result. Broader beta records remain
+in the retained beta-readiness checkout.
+
+## November 18 personal blocked-time cancellation prepared for beta
+
+The owner-approved live Google Calendar test connected successfully and produced
+one correctly timed generic mirror without guests. It exposed missing personal
+block cancellation controls. The focused fix adds Cancel block to Availability
+> Blocked time, retains history, clears availability blocking, and uses the
+existing Google removal after commit with an honest partial-failure notice.
+It rechecks current owner, practice, role and event times under scheduling locks.
+No schema, scope, credential or billing change is needed. Forty-five focused
+checks and 84 existing Calendar sync checks pass; typecheck and targeted lint
+pass. The local optimized build passes all 115 pages, TypeScript and compilation;
+its Production-provider gates correctly skip outside Vercel. Publication and live cancellation/
+disconnect/reconnect acceptance remain pending. The synthetic fixture is still
+retained for the approved test. See the [fix plan](superpowers/plans/2026-11-18-personal-block-cancellation.md).
+This source branch contains only the focused fix; broader beta operations are
+tracked in the retained beta-readiness checkout and are not replay authority.
+
 ## October 30 local anatomy delivery and current media hold
 
 The reviewed local anatomy delivery source at `e0e877f` is composed with the retained documentation candidate on `codex/migration-readiness-20261030`; no publication or PR/main merge has occurred. All 61 source-only checks, scoped lint and nonincremental typecheck pass, with independent specification and quality reviews. The opt-in final image/diagram URL binding covers the shared study projection used by database-backed consumers and seed-only Anatomime. Defaults preserve existing delivery. No setting is enabled, and actual database-origin coverage, branded delivery and final artifact acceptance remain unverified. See the [anatomy delivery audit](audits/2026-10-30-anatomy-independent-media-delivery.md).

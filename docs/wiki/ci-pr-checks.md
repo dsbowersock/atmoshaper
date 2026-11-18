@@ -6,6 +6,11 @@ replacement for reviewing a change or its external provider statuses.
 
 ## What happens on a pull request
 
+All CI jobs use Ubuntu 24.04 explicitly. The pinned Playwright 1.60 package
+cannot install Chromium dependencies on Ubuntu 26.04, which `ubuntu-latest`
+selected in the November 18 run. Keep the supported runner until a separately
+validated browser upgrade changes that requirement.
+
 The CI workflow has two independent starting jobs. **Code quality** installs
 dependencies, validates and generates Prisma, then runs lint, typecheck, and
 unit tests. **Browser build** independently installs dependencies, restores the

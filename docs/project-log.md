@@ -1,5 +1,75 @@
 # AtmoShaper Project Log
 
+## November 18 broad regression passes; hosted browser failures isolated
+
+The complete local provider-free suite passes with 5,677 passed, four existing
+skips and zero failed/cancelled. Hosted code quality/build and three browser
+lanes pass; lane 3 identifies two background snapshots and one Music fixture.
+The background Info hidden rule loses to a shared display utility when CSS
+order changes. A focused selector restores the existing responsive geometry;
+new explicit assertions fail on both prior desktop/mobile artifacts. The Music
+fixture rejected only one chunk request, which the upgraded framework now
+automatically retries successfully. Holding that synthetic outage until the
+user's explicit reload exercises the unchanged app recovery contract and passes
+locally. The rebuilt isolated artifact passes both background checks and the
+mobile full Retry/playback journey without snapshot-update mode. The existing
+portrait/short-landscape test also passes, including compact Info. Full lint
+passes again. Fresh hosted acceptance remains pending.
+Linux image baselines, tolerances, timeouts and provider state are unchanged.
+Reviewed Windows diffs expose purchase wording already superseded by the
+October 26 source/Linux-fixture repair; the two stale Windows images are
+refreshed to that existing guarded wording and its mobile text wrapping.
+
+## November 18 beta security candidate prepared with local checks passing
+
+An audit during beta continuation found applicable framework security fixes.
+Updated the isolated runtime dependency set and its nested-version regression
+floors, retaining aliases, schema, provider contracts and normal navigation.
+The installed production audit changes from 17 entries including critical/high
+reports to eight moderate entries with zero critical/high. Documented residual
+build-tool and separate development-only findings without claiming universal
+reachability clearance. Prisma generation/validation, typecheck, clean lint,
+19 dependency/artwork/inert-email checks and 76 SDK/privacy checks pass.
+The optimized build passes compilation, TypeScript and page generation, with
+provider gates correctly skipped locally. The complete provider-free suite
+remains running. See the
+[audit](audits/2026-11-18-beta-dependency-security.md).
+
+The owner's first-beta scope explicitly includes all three purchase flows and
+the existing public support inbox, which the owner will monitor. No provider
+write, live payment or second release occurred during this source preparation.
+
+## November 18 live Calendar acceptance and supported CI runner follow-up
+
+Published only the separately approved `cdea4a6` artifact after real Production
+gates, Sentry map association and seven staged entry checks. All six promotion
+mappings complete and the previous READY build remains intact. Public Cancel
+block cancels the sole fixture and removes its Google mirror. The approved two
+refreshes, one Disconnect and one equivalent reconnect pass, preserving the
+dedicated target and all original calendars, finishing ACTIVE within the window.
+No new test event or broader permission was introduced.
+
+The PR's hosted build, lint and typecheck pass, but Chromium installation fails
+on Ubuntu 26.04 before tests execute. Logs identify the pinned Playwright 1.60
+OS incompatibility. Pinned all CI jobs to Ubuntu 24.04 and documented the reason;
+no browser/dependency upgrade or application runtime change is included. The
+local CI harness passes all 162 checks outside the sandbox, whose browser path
+was unavailable. Hosted
+acceptance of this CI follow-up remains pending.
+
+## November 18 focused personal blocked-time cancellation fix
+
+The approved Google connection and synthetic outbound event work on the public
+site. The test found no personal-block cancellation control, so prepared a
+focused fix from current main without incorporating unrelated beta work. Added
+an owner/own-therapist form on Availability > Blocked time and a locked server
+action that preserves history and reports any post-commit Google failure.
+Forty-five focused and 84 existing sync checks pass, with typecheck/targeted
+lint; the local optimized build passes compilation, TypeScript and all 115 pages.
+Its Production-provider gates correctly skip locally. Publication and the remaining approved live
+journey are pending. No additional event, calendar or credential was created by
+this source preparation. See the [plan](superpowers/plans/2026-11-18-personal-block-cancellation.md).
+
 ## October 30 local anatomy delivery and current media hold
 
 The reviewed local anatomy delivery source at `e0e877f` is composed with the retained documentation candidate on `codex/migration-readiness-20261030`; no publication or PR/main merge has occurred. All 61 source-only checks, scoped lint and nonincremental typecheck pass, with independent specification and quality reviews. The opt-in final image/diagram URL binding covers the shared study projection used by database-backed consumers and seed-only Anatomime. Defaults preserve existing delivery. No setting is enabled, and actual database-origin coverage, branded delivery and final artifact acceptance remain unverified. See the [anatomy delivery audit](audits/2026-10-30-anatomy-independent-media-delivery.md).

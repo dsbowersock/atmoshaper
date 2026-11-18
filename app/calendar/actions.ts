@@ -35,6 +35,12 @@ import {
   createPractice,
 } from "./actions/setup"
 import { rescheduleCalendarEvent } from "./actions/reschedule"
+import { cancelPersonalEvent } from "./actions/cancel-personal"
+
+/** Cancel owned personal blocked time while retaining its audit/history records. */
+export async function cancelPersonalEventAction(formData: FormData) {
+  return cancelPersonalEvent(formData)
+}
 
 export async function saveBookingPolicyAction(formData: FormData) {
   return saveBookingPolicy(formData)

@@ -52,7 +52,8 @@
   gap: 0.45rem;
 }
 
-.infoTrigger {
+/* Beat the shared Button display utility regardless of stylesheet load order. */
+.actions .infoTrigger {
   display: none;
 }
 
