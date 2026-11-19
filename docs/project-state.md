@@ -1,5 +1,24 @@
 # AtmoShaper Project State
 
+## November 18 customer-facing privacy review; support phone replacement pending
+
+The owner narrows account cleanup to information customers actually see.
+Fresh public-page/source and live Stripe reads find correct AtmoShaper support
+email/name branding on the checked surfaces. Prior verified Google consent and
+branded recovery-mail evidence are retained. No private administrator-account
+consolidation or new payment/mail campaign is needed for this goal.
+
+The owner identifies the configured Stripe public support phone as a personal
+cell number. Receipt/invoice display is already off, but Stripe says card/bank
+statements still show the support number. Its US requirements call for a valid
+customer-support number. A business replacement is needed to meet the owner's
+privacy preference before payment beta outreach. Await the selected number;
+do not invent one, change private verification phones or remove legal identity.
+The public editor is cancelled without a save. No provider/deployment change.
+The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) records the
+checked surfaces, source limits and one-field replacement scope. The accepted
+release checks below remain valid; this new customer-contact item is unresolved.
+
 ## November 18 final release accepted; small beta handoff ready
 
 The owner-approved corrected head `1748230` passes all seven hosted CI jobs on

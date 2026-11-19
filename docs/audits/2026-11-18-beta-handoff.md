@@ -1,6 +1,10 @@
 # Small beta handoff checkpoint
 
-Status: **accepted for the documented small, owner-led beta**. No invitations
+Status: **release accepted; public support-phone privacy follow-up pending**.
+The owner identifies the Stripe support number as personal and wants a business
+replacement. Receipt display is already off; card-statement exposure remains.
+Resolve that [contact item](2026-11-18-public-contact-privacy.md) before payment
+beta outreach. No provider setting has been changed. No invitations
 have been sent. This checkpoint carries forward dated, scoped results rather
 than repeating closed campaigns or declaring the full migration complete.
 

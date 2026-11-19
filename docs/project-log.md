@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 18 public contact review finds a personal-cell exposure
+
+The owner clarifies that customer-visible branding/privacy is the goal, rather
+than moving private administrator logins. Public Support/Privacy/About reads,
+runtime source and live Stripe public/customer-email settings show correct
+AtmoShaper email/name branding on the checked surfaces. Carried forward the
+matched Google consent and delivered branded recovery-message evidence without
+a new grant or email. No personal Gmail is found on those checked surfaces.
+
+Stripe's public support phone is the owner's personal cell. Its receipt/invoice
+display checkbox is already off, while the editor and official US requirements
+confirm support-number exposure to card networks/cardmember statements. The
+owner wants to avoid that exposure. Prepared a replacement-only scope, awaiting
+an owner-selected business support number. Cancelled the editor without saving;
+no provider setting, legal identity, payment or deployment changed. Recorded the
+[privacy receipt](audits/2026-11-18-public-contact-privacy.md); payment beta
+outreach has this remaining contact-privacy item despite accepted release tests.
+
 ## November 18 corrected release published; Google availability and beta handoff accepted
 
 After exact amendment approval, pushed `1748230` once to existing PR #71. All
