@@ -1,5 +1,14 @@
 # AtmoShaper Project Log
 
+## November 19 Wellness and planner publication requested
+
+The owner authorizes publication of the prepared Wellness and planner updates.
+The clean application head is `ae3d327`; main and the accepted public source
+remain `fa3a030`. Existing GitHub sign-in works in the native shell, and Vercel
+confirms the existing project, owner and normal build command. Preparation adds
+the scoped publication plan and these records, preserving the accepted source.
+Fresh metadata/routing, review and actual Production/source-map gates follow.
+
 ## November 19 Wellness physical and context groups
 
 The owner requests the regular blue Breathing Guide button, unchanged Music,

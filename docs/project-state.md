@@ -1,5 +1,17 @@
 # AtmoShaper Project State
 
+## November 19 Wellness and planner publication approved
+
+The owner requests publication of the verified `ae3d327` application on
+`codex/planner-wellness-polish`: both planner guidance/layout improvements and
+the latest grouped, centered Wellness launchers. Fresh service preflight,
+current-head hosted review/QA, protected Preview, gated Production build,
+authenticated Sentry map proof and same-artifact promotion precede live
+acceptance. Public `fa3a030` remains the rollback baseline. The new
+[publication plan](superpowers/plans/2026-11-19-wellness-planner-publication.md)
+owns this operation; previous campaigns stay closed. Earlier local-only status
+below records the accepted implementation checkpoint.
+
 ## November 19 planner guidance and Wellness hub ready locally
 
 The owner's latest Wellness grouping uses the regular blue Breathing Guide and
