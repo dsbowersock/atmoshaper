@@ -6,6 +6,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 - [Published breathing/Clock fixes and verification](../audits/2026-11-19-breathing-clock-publication.md)
 - [Breathing/Clock publication and hosted-review gates](../superpowers/plans/2026-11-19-breathing-clock-publication.md)
+- [Local Business Income Planner phone layout repair](../superpowers/plans/2026-11-19-business-income-mobile.md)
 - [Local breathing workspace and uninterrupted quick-access candidate](../superpowers/plans/2026-11-19-breathing-guide-mobile.md)
 - [Local Clock and timer bold/vertical-alignment correction](../superpowers/plans/2026-11-19-clock-vertical-centering.md)
 - [Accepted small-beta release and Google availability](../audits/2026-11-18-beta-final-publication.md)

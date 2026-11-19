@@ -61,6 +61,33 @@ The Production build/promotion slots are unused, the original operation window
 is retained and the separate local planner branch is excluded. The
 [publication plan](superpowers/plans/2026-11-19-breathing-clock-publication.md)
 owns the remaining gates and evidence.
+## November 19 Business Income Planner mobile layout repaired locally
+
+While the approved breathing/Clock publication is awaiting Vercel CLI sign-in,
+the owner reports phone-width overflow and an awkward oversized planner intro.
+Created a separate branch from the unchanged `e944178` release candidate. A real
+rendered regression reproduces 223px of nested overflow at 320px against that
+old planner. Zero-minimum grid/field sizing and removing the chart's combined
+aspect-ratio/minimum-height width constraint correct the cause without clipping
+content. A compact semantic header, optional guidance, two-column preset choices
+with one selected description and adaptive result tiles bring inputs forward.
+Financial calculations, field meanings and persistence are unchanged.
+
+The final candidate passes four actual-app desktop/mobile cases without retries
+or skips, all 46 existing planner checks, focused lint and the inert full build
+with TypeScript and 115 generated pages. Tests include all scenarios, 320–412px
+phones, 24px root text, short landscape, desktop, concrete recalculation and
+reload persistence, disclosure/back navigation, and anonymous traffic guards.
+The isolated storage fixture now uses the real Next CSS module loader/trace
+setup already established by the Clock fixture. Connected Chrome confirms the
+compact default view and optional guidance with no captured warnings/errors.
+Evidence and limits are recorded in the
+[planner plan](superpowers/plans/2026-11-19-business-income-mobile.md).
+
+No publication boundary was crossed. The breathing/Clock branch remains clean;
+the Vercel device authorization expired before completion, so a fresh private
+CLI sign-in is pending. The planner is a separate local candidate, with a
+loopback-only review tab on port 3018; it is outside the approved release.
 
 ## November 19 owner-found button text spill and clock alignment corrections
 

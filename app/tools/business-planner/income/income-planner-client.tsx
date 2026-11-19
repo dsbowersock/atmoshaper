@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react"
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ComponentProps } from "react"
+import Link from "next/link"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { BadgeDollarSign, BriefcaseBusiness, CalendarDays, Clock3, Percent, Save, WalletCards } from "lucide-react"
-import { AppInset, AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
+import { ArrowLeft, BadgeDollarSign, BriefcaseBusiness, CalendarDays, Clock3, Percent, Save, WalletCards } from "lucide-react"
+import { AppInset, AppSurface } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Input } from "@/components/ui/input"
@@ -20,6 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { BusinessDraftStorageNotice } from "../_components/business-tool-fields"
+import styles from "./income-planner.module.css"
 
 type PlannerInput = ReturnType<typeof normalizeBusinessIncomePlannerInput>
 type PlannerPresetKey = keyof typeof BUSINESS_INCOME_PRESETS
@@ -185,39 +187,43 @@ export function IncomePlannerClient({
         ? "Account save needs retry"
         : "Saved to this account"
     : storageUnavailable ? "Not saved on this device" : "Saved on this device"
+  const selectedPreset = BUSINESS_INCOME_PRESETS[presetKeys.find((key) => key === input.presetKey) ?? "custom"]
 
   return (
-    <AppPageShell width="full" contentClassName="gap-6">
+    <div className={styles.page} data-income-planner>
+      <div className={styles.workspace}>
       <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <AppSurface
-        title="Business Income Planner"
-        description="Estimate session pricing, workload, time off, and take-home possibilities for massage practice planning."
-        icon={<BriefcaseBusiness className="h-5 w-5" aria-hidden="true" />}
-        badge={isSignedIn ? "Account worksheet" : "Device worksheet"}
-        className={appCalloutClassName}
-      >
-        <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-          <p className="text-sm leading-6 text-muted-foreground">
-            Change the assumptions below to see how schedule, expenses, taxes, and session length affect the prices and workload needed to reach a personal take-home target.
-          </p>
-          <div className="flex items-center gap-2 rounded-md border border-primary/30 bg-background/70 px-3 py-2 text-sm">
-            <Save className="h-4 w-4 text-primary" aria-hidden="true" />
-            <span>{savedLabel}</span>
-          </div>
+      <header className={styles.header} data-income-header>
+        <div className={styles.titleRow}>
+          <BriefcaseBusiness className={styles.titleIcon} aria-hidden="true" />
+          <h1>Business Income Planner</h1>
+          <Button asChild variant="ghost" className={styles.backLink}>
+            <Link href="/tools/business-planner" aria-label="Back to business tools" title="Back to business tools"><ArrowLeft aria-hidden="true" /></Link>
+          </Button>
+        </div>
+        <p className={styles.subtitle}>Pricing and workload for your massage practice.</p>
+        <div className={styles.meta}>
+          <p className={styles.saveStatus} aria-live="polite" aria-atomic="true"><Save aria-hidden="true" /><span>{savedLabel}</span></p>
+          <details className={styles.help}>
+            <summary>How this planner works</summary>
+            <p>Estimate session pricing, workload, time off, and take-home possibilities for massage practice planning.</p>
+            <p>Change the assumptions below to see how schedule, expenses, taxes, and session length affect the prices and workload needed to reach a personal take-home target.</p>
+          </details>
         </div>
         {displayName ? (
-          <p className="text-xs text-muted-foreground">Current worksheet for {displayName}.</p>
+          <p className={styles.account}>Current worksheet for {displayName}.</p>
         ) : null}
-      </AppSurface>
+      </header>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(20rem,0.95fr)_minmax(0,1.25fr)]">
-        <div className="space-y-6">
-          <AppSurface
+      <div className={styles.main}>
+        <div className={styles.column}>
+          <PlannerSection
             title="Scenario"
             description="Start with a realistic pattern, then customize the numbers."
             icon={<WalletCards className="h-5 w-5" aria-hidden="true" />}
           >
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className={styles.scenarioChoices}>
+              <div className={styles.scenarioGrid} role="group" aria-label="Income scenario">
               {presetKeys.map((key) => {
                 const preset = BUSINESS_INCOME_PRESETS[key]
                 const selected = input.presetKey === key
@@ -226,21 +232,21 @@ export function IncomePlannerClient({
                     key={key}
                     type="button"
                     variant={selected ? "default" : "outline"}
-                    className={cn("h-auto min-h-20 justify-start whitespace-normal p-3 text-left", selected && "bg-primary hover:bg-brand-orange-glow")}
+                    className={styles.scenarioButton}
                     aria-pressed={selected}
+                    aria-describedby={selected ? "income-scenario-description" : undefined}
                     onClick={() => applyPreset(key)}
                   >
-                    <span>
-                      <span className="block text-sm font-medium">{preset.label}</span>
-                      <span className="mt-1 block text-xs font-normal leading-5 opacity-80">{preset.description}</span>
-                    </span>
+                    <span>{preset.label}</span>
                   </Button>
                 )
               })}
+              </div>
+              <p id="income-scenario-description" className={styles.scenarioDescription}>{selectedPreset.description}</p>
             </div>
-          </AppSurface>
+          </PlannerSection>
 
-          <AppSurface
+          <PlannerSection
             title="Income and costs"
             description="Use take-home income as the personal amount you want left after your set-aside."
             icon={<BadgeDollarSign className="h-5 w-5" aria-hidden="true" />}
@@ -286,9 +292,9 @@ export function IncomePlannerClient({
                 onChange={(value) => updateField("employeeHourlyWage", value)}
               />
             </div>
-          </AppSurface>
+          </PlannerSection>
 
-          <AppSurface
+          <PlannerSection
             title="Time and schedule"
             description="Match the worksheet: days off reduce available weeks, and client hours drive revenue capacity."
             icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />}
@@ -331,11 +337,11 @@ export function IncomePlannerClient({
                 />
               ))}
             </div>
-          </AppSurface>
+          </PlannerSection>
         </div>
 
-        <div className="space-y-6">
-          <AppSurface
+        <div className={styles.column}>
+          <PlannerSection
             title="What this means"
             description={buildInterpretation(plan)}
             icon={<Percent className="h-5 w-5" aria-hidden="true" />}
@@ -345,26 +351,26 @@ export function IncomePlannerClient({
                 {plan.warnings.join(" ")}
               </div>
             ) : null}
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className={styles.metrics}>
               <MetricTile label="Gross revenue needed" value={formatMoney(plan.requiredGrossRevenue)} />
               <MetricTile label="Hourly target" value={formatMoney(plan.hourlyRevenueTarget)} />
               <MetricTile label="Sessions each week" value={formatNumber(plan.sessionsPerWeek)} />
               <MetricTile label="Available weeks" value={String(plan.availableWeeks)} />
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className={styles.metrics}>
               <MetricTile label="30 min" value={formatMoney(plan.sessionPrices[30])} description="Suggested session price" />
               <MetricTile label="60 min" value={formatMoney(plan.sessionPrices[60])} description="Suggested session price" />
               <MetricTile label="90 min" value={formatMoney(plan.sessionPrices[90])} description="Suggested session price" />
               <MetricTile label="120 min" value={formatMoney(plan.sessionPrices[120])} description="Suggested session price" />
             </div>
-          </AppSurface>
+          </PlannerSection>
 
-          <AppSurface
+          <PlannerSection
             title="60-minute price by capacity"
             description="Lower client-hour capacity usually means the hourly target must rise to reach the same take-home goal."
             icon={<Clock3 className="h-5 w-5" aria-hidden="true" />}
           >
-            <ChartContainer config={chartConfig} className="min-h-[260px] w-full">
+            <ChartContainer config={chartConfig} className={styles.chart}>
               <BarChart data={chartData} margin={{ left: 0, right: 12, top: 12, bottom: 0 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="capacity" tickLine={false} axisLine={false} />
@@ -373,9 +379,9 @@ export function IncomePlannerClient({
                 <Bar dataKey="sessionPrice60" fill="var(--color-sessionPrice60)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ChartContainer>
-          </AppSurface>
+          </PlannerSection>
 
-          <AppSurface
+          <PlannerSection
             title="Workload scenarios"
             description="Compare what the same goal looks like at partial, strong, and full client-hour capacity."
           >
@@ -394,9 +400,9 @@ export function IncomePlannerClient({
                 </AppInset>
               ))}
             </div>
-          </AppSurface>
+          </PlannerSection>
 
-          <AppSurface
+          <PlannerSection
             title="Employee wage comparison"
             description="A simple same-client-hours comparison for discussing employment, booth rent, and independent-practice tradeoffs."
           >
@@ -408,11 +414,17 @@ export function IncomePlannerClient({
             ) : (
               <p className="text-sm text-muted-foreground">Add an employee hourly wage to compare the same client-hour schedule against an hourly job.</p>
             )}
-          </AppSurface>
+          </PlannerSection>
         </div>
       </div>
-    </AppPageShell>
+      </div>
+    </div>
   )
+}
+
+/** Apply compact route-only spacing without changing the shared card library. */
+function PlannerSection({ className, headerClassName, contentClassName, ...props }: ComponentProps<typeof AppSurface>) {
+  return <AppSurface {...props} className={cn(styles.surface, className)} headerClassName={cn(styles.sectionHeader, headerClassName)} contentClassName={cn(styles.sectionContent, contentClassName)} />
 }
 
 function NumberField({
@@ -435,12 +447,13 @@ function NumberField({
   }
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", styles.field)}>
       <Label htmlFor={id} className="text-xs font-medium text-muted-foreground">{label}</Label>
       <Input
         id={id}
         type="number"
         inputMode="decimal"
+        className={styles.numberInput}
         min={0}
         max={max}
         step={step}
@@ -461,7 +474,7 @@ function MetricTile({
   description?: string
 }) {
   return (
-    <AppInset className="p-3">
+    <AppInset className={cn("p-3", styles.metric)}>
       <p className="text-xs uppercase tracking-normal text-muted-foreground">{label}</p>
       <p className="mt-1 text-lg font-semibold">{value}</p>
       {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}

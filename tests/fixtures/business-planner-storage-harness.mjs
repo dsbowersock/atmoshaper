@@ -28,6 +28,7 @@ export async function buildPlannerFixture() {
         module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2020}}).outputText};`)
     writeFileSync(link, 'import React from "react"; export default function Link({href,children,...props}){return React.createElement("a",{...props,href},children)}')
     const webpack = require("next/dist/compiled/webpack/webpack").webpack
+    const { getCssModuleLocalIdent } = require("next/dist/build/webpack/config/blocks/css/loaders/getCssModuleLocalIdent")
     await new Promise((resolve, reject) => {
       const compiler = webpack({
         mode: "development", devtool: false, context: projectRoot,
@@ -38,7 +39,21 @@ export async function buildPlannerFixture() {
           alias: { "@": projectRoot, "next/link$": link },
           modules: [path.join(projectRoot, "node_modules"), "node_modules"],
         },
-        module: { rules: [{ test: /\.(?:tsx?|jsx)$/, exclude: /node_modules/, use: [{ loader }] }] },
+        module: { rules: [
+          { test: /\.(?:tsx?|jsx)$/, exclude: /node_modules/, use: [{ loader }] },
+          { test: /\.module\.css$/, use: [require.resolve("next/dist/build/webpack/loaders/next-style-loader"), {
+            loader: require.resolve("next/dist/build/webpack/loaders/css-loader/src"),
+            options: { esModule: false, postcss: async () => ({ postcss: require("postcss") }),
+              modules: { auto: /\.module\.css$/, mode: "pure", getLocalIdent: getCssModuleLocalIdent } },
+          }] },
+        ] },
+        plugins: [
+          // Next's CSS loader needs a trace owner in this server-free fixture.
+          { apply(owner) { owner.hooks.compilation.tap("PlannerStylesheetTrace", (compilation) => {
+            const span = { traceChild: () => span, traceFn: (fn) => fn(), traceAsyncFn: (fn) => fn() }
+            webpack.NormalModule.getCompilationHooks(compilation).loader.tap("PlannerStylesheetTrace", (context) => { context.currentTraceSpan = span })
+          }) } },
+        ],
       })
       compiler.run((error, stats) => compiler.close((closeError) => {
         if (error || closeError) return reject(error || closeError)
