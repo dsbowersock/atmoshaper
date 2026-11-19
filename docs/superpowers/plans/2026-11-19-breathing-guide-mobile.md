@@ -1,7 +1,8 @@
 # Breathing guide: phone viewport and uninterrupted quick access
 
-Status: implemented and verified locally on `codex/breathing-guide-mobile`;
-not published.
+Status: implemented locally; owner-approved publication is under hosted review
+on [PR #72](https://github.com/dsbowersock/atmoshaper/pull/72). The public release
+is unchanged while the focused review correction receives fresh checks.
 
 November 19 correction: the owner finds text spilling within preset faces even
 though the page/control bounds pass. The follow-up below supersedes the initial
@@ -155,3 +156,23 @@ audio/background continuity still pass. Actual Chrome readback confirms the
 intended grid, 6.4px/5.6px padding and 2.4px gap at normal text size. Screenshots
 are visually inspected and retained outside source. The prior viewport tests
 alone did not prove this stronger text-containment condition.
+
+## Hosted-review landscape and overlay correction
+
+PR #72 reports the missing enlarged-landscape combination. The expanded test
+reproduces 7px of page-width overflow at 667x375/24px. A named container on the
+workspace and dialog now permits the landscape columns only when their actual
+content measure fits 8rem + 17rem + 1rem, rather than relying on media-query
+rems tied to the initial font size. At smaller measures, accessible vertical
+stacking remains. The extra control-column width keeps complete labels inside.
+
+Screenshot review catches the breathing modal behind the 10015 wide-phone
+sidebar. A new layer comparison fails at 50 before the scoped breathing
+backdrop/content layers correct it; the shared dialog library stays unchanged.
+All 16 final local combined desktop/mobile cases pass without retry or skip.
+Text measurement now covers all 16 viewport/text combinations, including
+667px with 20/24/32px text. Enlarged landscape page and Box-pattern overlay
+checks exercise Start/Pause/Reset, zero horizontal overflow, modal layers,
+Escape and focus return. The final inert build, TypeScript and focused lint
+pass. Actual hosted results for the corrected source remain separate gates in
+the [publication record](2026-11-19-breathing-clock-publication.md).

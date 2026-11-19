@@ -1,5 +1,32 @@
 # AtmoShaper Project State
 
+## November 19 approved breathing/Clock publication under review
+
+The owner requests publication of the breathing guide and Clock fixes. Fresh
+Vercel CLI sign-in succeeds. All 87 Production setting metadata entries match
+the accepted configuration, payment scope is `all-payments`, automatic domain
+assignment is off and the existing public release remains READY at `adb137e`.
+The original `e944178` is pushed once as
+[PR #72](https://github.com/dsbowersock/atmoshaper/pull/72); its protected Preview
+passes nine entry routes, the actual reviewed bold-font hash and artwork.
+
+Hosted review identifies enlarged-text landscape overflow, reproduced locally
+at 667x375/24px. A focused container-width correction and expanded page/overlay
+checks are being prepared before the PR update. Screenshot review also finds
+the breathing dialog below the wide-phone sidebar; the reproduced stacking
+defect receives a breathing-only correction. All 16 corrected-runtime local
+desktop/mobile cases, focused lint and the inert 115-page TypeScript/build
+pass. The original hosted unit job also flags two stale source guards: a fixed
+stylesheet count and a route-key ban that must remain on shared owners while
+permitting only the ephemeral guide controller. Both corrected checks pass with
+their protections intact before the single PR update. See the
+[publication plan](superpowers/plans/2026-11-19-breathing-clock-publication.md).
+No merge, actual Production build or public promotion has occurred yet.
+
+The Business Income Planner repair is independently ready locally at `0d48772`
+on `codex/business-income-mobile`, with its own records and inert port-3018
+preview. It is not included in this approved breathing/Clock release.
+
 ## November 19 breathing text correction and centered bold clocks ready locally
 
 The owner identifies text spilling from the breathing preset buttons, then

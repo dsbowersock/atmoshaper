@@ -1974,8 +1974,9 @@ test("Breathing button labels stay inside their faces at narrow widths and enlar
 
   for (const width of [320, 360, 390, 667]) {
     await page.setViewportSize({ width, height: width === 667 ? 375 : 714 })
-    for (const fontSize of width === 667 ? [16] : [16, 20, 24, 32]) {
+    for (const fontSize of [16, 20, 24, 32]) {
       await page.locator("html").evaluate((element, size) => { element.style.fontSize = `${size}px` }, fontSize)
+      await expect.poll(() => page.locator("[data-breathing-page]").evaluate((element) => element.scrollWidth - element.clientWidth), { message: `${width}px / ${fontSize}px text fits the page width` }).toBe(0)
       // Element boxes alone miss overflowing glyphs when a fixed-height flex
       // button shrinks its labels. Measure the actual text line rectangles.
       const buttons = await page.locator("[data-breathing-guide] button").evaluateAll((elements) => elements.map((button) => {
@@ -2004,8 +2005,15 @@ test("Breathing button labels stay inside their faces at narrow widths and enlar
       }
       const coherentLines = buttons[0].lines.filter((line) => line.text === "Coherent")
       expect(coherentLines, "keep the preset name intact rather than splitting a word").toHaveLength(1)
+      if (width === 667 && fontSize >= 24) {
+        await page.getByRole("button", { name: "Start breathing", exact: true }).click()
+        await expect(page.getByRole("button", { name: "Pause breathing", exact: true })).toBeInViewport()
+        await page.getByRole("button", { name: "Reset breathing", exact: true }).click()
+        await expect(page.getByRole("button", { name: "Start breathing", exact: true })).toBeInViewport()
+      }
       if (fontSize === 16 && width === 320) await page.screenshot({ path: testInfo.outputPath("breathing-button-fit-phone.png") })
       if (fontSize === 20 && width === 390) await page.screenshot({ path: testInfo.outputPath("breathing-button-fit-larger-text.png") })
+      if (fontSize === 32 && width === 667) await page.screenshot({ path: testInfo.outputPath("breathing-button-fit-landscape-enlarged.png") })
     }
   }
   expect(health.pageErrors).toEqual([])
@@ -2013,7 +2021,7 @@ test("Breathing button labels stay inside their faces at narrow widths and enlar
   expect(health.failedLocalResponses).toEqual([])
 })
 
-test("Breathing shortcut protects typing and restores focus without duplicating the page", async ({ page }) => {
+test("Breathing shortcut protects typing and restores focus without duplicating the page", async ({ page }, testInfo) => {
   const health = await capturePageHealth(page, new Set())
   await page.goto("/login", { waitUntil: "domcontentloaded" })
   const email = page.getByLabel("Email", { exact: true })
@@ -2047,6 +2055,29 @@ test("Breathing shortcut protects typing and restores focus without duplicating 
   await originalFocus.press("Alt+Shift+B")
   await expect(dialog.getByRole("button", { name: "Start breathing", exact: true })).toBeVisible()
   await dialog.press("Alt+Shift+B")
+  await expect(dialog).toHaveCount(0)
+  await expect(originalFocus).toBeFocused()
+  await page.setViewportSize({ width: 667, height: 375 })
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "32px" })
+  await originalFocus.press("Alt+Shift+B")
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole("button", { name: /^Box/ }).click()
+  // A modal can have zero overflow yet still be painted behind the wide-phone
+  // sidebar. Its layer must clear the visible shell, not just trap keyboard focus.
+  const layers = await dialog.evaluate((element) => ({
+    modal: Number.parseInt(getComputedStyle(element).zIndex, 10),
+    shell: Math.max(0, ...Array.from(document.querySelectorAll(".ml-app-sidebar-frame, .ml-music-player, .ml-app-topbar"))
+      .filter((node) => node.getClientRects().length > 0)
+      .map((node) => Number.parseInt(getComputedStyle(node).zIndex, 10) || 0)),
+  }))
+  expect(layers.modal, "breathing overlay clears the sidebar and player layers").toBeGreaterThan(layers.shell)
+  await expect.poll(() => dialog.evaluate((element) => element.scrollWidth - element.clientWidth)).toBe(0)
+  await expect.poll(() => dialog.locator("[data-breathing-guide]").evaluate((element) => element.scrollWidth - element.clientWidth)).toBe(0)
+  await dialog.getByRole("button", { name: "Start breathing", exact: true }).click()
+  await expect(dialog.getByRole("button", { name: "Pause breathing", exact: true })).toBeInViewport()
+  await dialog.getByRole("button", { name: "Reset breathing", exact: true }).click()
+  await page.screenshot({ path: testInfo.outputPath("breathing-landscape-enlarged-overlay.png") })
+  await dialog.press("Escape")
   await expect(dialog).toHaveCount(0)
   await expect(originalFocus).toBeFocused()
   expect(health.pageErrors).toEqual([])

@@ -1,6 +1,6 @@
 /* One composition, sized by the shell rather than a stack of page cards. */
 .page { height: 100%; min-height: 0; overflow: auto; padding: clamp(0.65rem, 1.8dvh, 1.4rem) clamp(0.75rem, 3vw, 2rem); --ring: var(--button-calendar-leaf-bright); }
-.workspace { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.5dvh, 1rem); width: 100%; max-width: 44rem; height: 100%; min-height: 22rem; margin-inline: auto; }
+.workspace { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.5dvh, 1rem); width: 100%; max-width: 44rem; height: 100%; min-height: 22rem; margin-inline: auto; container: breathing-layout / inline-size; }
 .header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
 .header h1 { font-size: clamp(1.2rem, 3vw, 1.75rem); font-weight: 600; line-height: 1.2; }
 .header p { margin-top: 0.3rem; color: hsl(var(--muted-foreground)); font-size: 0.75rem; }
@@ -32,7 +32,11 @@
 .shortcut { color: hsl(var(--muted-foreground)); font-size: 0.65rem; text-align: center; }
 .shortcut kbd { color: hsl(var(--foreground)); font: inherit; }
 /* Same fluid tool in a focused overlay; unrelated dialog styles stay intact. */
-.dialog { width: calc(100% - 1.5rem); max-width: 30rem; height: min(38rem, calc(100dvh - var(--ml-safe-top, 0px) - var(--ml-safe-bottom, 0px) - 2rem)); min-height: 0; grid-template-rows: auto minmax(0, 1fr); gap: 1rem; padding: 1rem; overflow: auto; border-radius: 1rem; border-color: hsl(var(--button-cta-face) / 0.25); --ring: var(--button-calendar-leaf-bright); }
+.dialog { width: calc(100% - 1.5rem); max-width: 30rem; height: min(38rem, calc(100dvh - var(--ml-safe-top, 0px) - var(--ml-safe-bottom, 0px) - 2rem)); min-height: 0; grid-template-rows: auto minmax(0, 1fr); gap: 1rem; padding: 1rem; overflow: auto; border-radius: 1rem; border-color: hsl(var(--button-cta-face) / 0.25); --ring: var(--button-calendar-leaf-bright); container: breathing-layout / inline-size; }
+/* The shell's sidebar/player reach 10015/10020. Keep this focused modal above
+   those layers without changing the shared dialog library or other tools. */
+.dialog[data-breathing-dialog] { z-index: 10040; }
+:global(body) .dialogBackdrop { z-index: 10030; background: hsl(var(--background) / 0.35); backdrop-filter: blur(2px); }
 .dialogHeader { padding-inline-end: 1.5rem; }
 .dialogHeader p { margin-top: 0.35rem; font-size: 0.75rem; }
 .dialog .guide { min-height: 19rem; }
@@ -48,7 +52,11 @@
 /* Keep touch targets at 44px in short landscape; borrow width for the pacer. */
 @media (min-width: 32rem) and (max-height: 34rem) {
   .workspace { min-height: 15rem; max-width: 56rem; }
-  .guide { grid-template-areas: "visual presets" "visual phases" "visual controls" "comfort comfort"; grid-template-columns: minmax(8rem, 0.8fr) minmax(15rem, 1fr); grid-template-rows: auto auto 1fr auto; gap: 0.5rem 1rem; }
+  /* Media-query rems use the initial font size. Check the actual text-relative
+     container measure before committing to these two minimum-width columns. */
+  @container breathing-layout (min-width: 26rem) {
+    .guide { grid-template-areas: "visual presets" "visual phases" "visual controls" "comfort comfort"; grid-template-columns: minmax(8rem, 0.8fr) minmax(17rem, 1fr); grid-template-rows: auto auto 1fr auto; gap: 0.5rem 1rem; }
+  }
   .controls { align-self: end; }
   .presets .preset { min-height: 2.75rem; padding-block: 0.3rem; }
   .phases li { min-height: 2rem; }

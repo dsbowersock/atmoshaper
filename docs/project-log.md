@@ -1,5 +1,43 @@
 # AtmoShaper Project Log
 
+## November 19 breathing/Clock publication and review correction
+
+The owner asks to publish the completed fixes. The first Vercel device sign-in
+expires; a fresh private authorization succeeds. Complete current metadata
+preflight verifies 87 unchanged Production settings, existing all-payments
+scope, disabled automatic domain assignment, READY rollback and six matching
+public aliases. A Windows batch launcher initially splits alias-query
+ampersands; invoking the same installed Vercel CLI's Node entry directly
+corrects the read-only request. No provider write occurs during that diagnosis.
+
+One push opens PR #72 at `e944178`. Its READY protected Preview passes nine
+entry pages, the reviewed bold font and actual Drone artwork. Its one expected
+new branch alias is recorded separately from the original 40-entry baseline.
+CodeRabbit skips; hosted Codex review reports a valid enlarged landscape
+overflow. The new regression reproduces 7px at 667x375/24px. A named-container
+condition now governs two-column layout by actual text-relative available
+measure, with enough width for intact preset names. Screenshot review also
+reveals the breathing overlay painted beneath the 10015 sidebar; a layer test
+fails at modal layer 50 before the scoped backdrop/content correction.
+
+All 16 final local runtime cases pass without retry/skip, including expanded
+landscape typography, page/overlay control reachability, correct overlay layers,
+focus return, native media/background continuity and Clock geometry. Focused
+lint and the inert 115-page build/TypeScript pass. The original hosted full-unit
+run separately finds two stale source contracts: 23 assumed stylesheets versus
+24 tracked, and an overbroad route-key guard. Exact independent Git inventory
+comparison replaces the fixed count; the sole ephemeral guide key is allowed
+while the remaining shared-shell key ban remains. Both checks pass through a
+named focused npm script before the PR update.
+
+These corrections stay within the requested breathing UI publication. The
+existing PR will receive the locally verified source once; original hosted
+results/Preview remain historical and are not substituted for new-head gates.
+The Production build/promotion slots are unused, the original operation window
+is retained and the separate local planner branch is excluded. The
+[publication plan](superpowers/plans/2026-11-19-breathing-clock-publication.md)
+owns the remaining gates and evidence.
+
 ## November 19 owner-found button text spill and clock alignment corrections
 
 The owner's follow-up screenshot reveals Coherent wrapping mid-word and its

@@ -65,7 +65,12 @@ test("persistent-shell navigation feedback has focused owners and preserves rout
   assert.match(intakePage, /Saving intake and opening SOAP editor…/)
   assert.match(intakePage, /role="status"/)
   assert.doesNotMatch(rootLayout, /key=\{[^}]*(?:pathname|searchParams)/)
-  assert.doesNotMatch(layoutWrapper, /key=\{[^}]*(?:pathname|searchParams)/)
+  // Only the ephemeral guide resets on navigation. Keep the blanket route-key
+  // prohibition on the remaining shell, shared media and background owners.
+  const quickGuides = layoutWrapper.match(/<BreathingQuickAccess\b[^>]*\/>/g) ?? []
+  assert.equal(quickGuides.length, 1)
+  assert.match(quickGuides[0], /key=\{pathname\}/)
+  assert.doesNotMatch(layoutWrapper.replace(quickGuides[0], ""), /key=\{[^}]*(?:pathname|searchParams)/)
   assert.match(runningTimer, /router\.replace\(intent\.href\)/)
   assert.match(runningTimer, /router\.push\(intent\.href\)/)
 })

@@ -39,7 +39,7 @@ export function BreathingQuickAccess({ onBreathingPage }: { onBreathingPage: boo
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         className={styles.dialog}
-        overlayClassName="bg-background/35 backdrop-blur-[2px]"
+        overlayClassName={styles.dialogBackdrop}
         data-breathing-dialog
         onCloseAutoFocus={(event) => {
           // A keyboard-opened dialog has no Radix Trigger to restore focus to.
