@@ -1,5 +1,24 @@
 # AtmoShaper Project State
 
+## November 18 temporary business support phone saved and verified
+
+The owner selects the existing salon number for temporary AtmoShaper support,
+confirms its exact digits and that callers can reach the owner or leave an
+AtmoShaper message, and approves replacing only Stripe's public support phone.
+One save completes that field change. The saved public summary and reopened
+editor agree: the salon contact replaces the personal cell, receipt/invoice
+phone display stays off, and all other visible public-contact fields match the
+pre-save form. The editor is closed without a second save. Private verification
+and recovery phones are outside this operation and remain untouched.
+
+The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) closes the
+personal-cell item. The small-beta handoff is accepted again within its existing
+scope; a dedicated AtmoShaper phone service remains an optional later choice.
+Research finds inactivity/recycling limits on the examined free services, not a
+verified permanent free-number solution. No phone account, subscription, port,
+payment, email, application deployment or unrelated provider change occurs.
+The earlier pending-phone section below is historical and superseded.
+
 ## November 18 customer-facing privacy review; support phone replacement pending
 
 The owner narrows account cleanup to information customers actually see.

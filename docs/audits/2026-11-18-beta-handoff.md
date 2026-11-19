@@ -1,10 +1,11 @@
 # Small beta handoff checkpoint
 
-Status: **release accepted; public support-phone privacy follow-up pending**.
-The owner identifies the Stripe support number as personal and wants a business
-replacement. Receipt display is already off; card-statement exposure remains.
-Resolve that [contact item](2026-11-18-public-contact-privacy.md) before payment
-beta outreach. No provider setting has been changed. No invitations
+Status: **accepted for the documented small, owner-led beta**.
+The owner-confirmed temporary salon support number replaces the personal cell
+in Stripe. One save and saved-summary/reopened-editor checks pass; receipt phone
+display stays off and all other visible public fields are unchanged. The
+[contact item](2026-11-18-public-contact-privacy.md) is closed; a dedicated phone
+service remains an optional later choice. No invitations
 have been sent. This checkpoint carries forward dated, scoped results rather
 than repeating closed campaigns or declaring the full migration complete.
 

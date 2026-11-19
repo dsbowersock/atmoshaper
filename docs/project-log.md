@@ -1,5 +1,26 @@
 # AtmoShaper Project Log
 
+## November 18 owner-confirmed salon support number replaces the personal cell
+
+The owner chooses the salon line temporarily and confirms the exact number and
+AtmoShaper message routing before any save. Fresh Stripe preflight verifies the
+reviewed account/public contact and receipt display off. The editor masks phone
+values in DOM reads, so the initial field-value guard correctly stops without
+editing; the fresh public summary then verifies the reviewed original contact.
+Filled only the approved support-phone field, compared all other visible fields
+and saved once. Static saved-summary readback shows the salon line and no
+personal cell. Reopening the editor verifies every other visible public field
+unchanged and receipt/invoice phone display still off. Cancelled this read-only
+reopen without a second save. Saved a screenshot in ignored operator output.
+
+Closed the public-phone privacy follow-up and restored the accepted small-beta
+handoff scope. Private verification/recovery settings, address, legal identity,
+branding, support email, payments and deployed application remain untouched.
+Researched free phone-number retention/business-use policies and the standalone
+paid Google Voice option; no new phone service, port, trial or billing change is
+started. The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) records
+the result and qualified research. Canonical documentation remains local-only.
+
 ## November 18 public contact review finds a personal-cell exposure
 
 The owner clarifies that customer-visible branding/privacy is the goal, rather
