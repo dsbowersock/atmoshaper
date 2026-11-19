@@ -19,7 +19,12 @@ and recovery workflow for any local test material you want to keep.
 - **Account:** sign in, open settings, sign out and return. Report confusing
   instructions or a setting that does not persist.
 - **Clock and Chimer:** try a short session, start/pause/reset, sound controls
-  and the views you would use in a treatment room. Check on your actual device.
+  and the views you would use in a treatment room. Check the bold digits and
+  vertical centering in Clock and timer setup on your actual device.
+- **Breathing guide:** try its presets, pause and reset. At ordinary text size,
+  the tool should fit your phone screen; enlarged text should stay readable with
+  reachable controls. On a keyboard, `Alt+Shift+B` opens the guide over your
+  current view. Check that music continues, and use Escape to return.
 - **Atmosphere:** choose an offered sound or station, adjust its volume, pause
   and resume. Report the exact selection if audio fails or keeps loading.
 - **Anatomime and education:** try the available study/game flows and report

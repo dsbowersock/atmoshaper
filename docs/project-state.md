@@ -1,5 +1,26 @@
 # AtmoShaper Project State
 
+## November 19 breathing guide and centered bold clocks published
+
+Corrected `7577cec` on [PR #72](https://github.com/dsbowersock/atmoshaper/pull/72)
+passes all seven hosted jobs and merges as tree-identical `81b18e8`. Its actual
+Production build passes all 46 read-only migration status checks, all-payments
+readiness, TypeScript/115 pages and both Sentry uploads. The emitted script and
+referenced map resolve inside the new release archive. Nine staged/public entry
+routes, reviewed bold-font bytes, actual artwork and canonical redirect pass.
+
+One same-artifact promotion completes six public mappings; all 34 unrelated
+original aliases remain unchanged. One expected Preview alias makes 41 total.
+All 87 Production setting metadata entries remain unchanged. Live Chrome
+confirms breathing controls/viewport fit and centered 700-weight Clock/setup
+digits without captured warnings/errors. Physical-phone/Safari checks remain
+owner acceptance. See the [receipt](audits/2026-11-19-breathing-clock-publication.md).
+
+Previous compatible `adb137e` is retained READY; no rollback is needed. The
+operation is closed. These completion records remain local-only on
+`codex/breathing-clock-publication-receipt` and trigger no additional deployment.
+The separate planner candidate remains local at `0d48772`.
+
 ## November 19 approved breathing/Clock publication under review
 
 The owner requests publication of the breathing guide and Clock fixes. Fresh

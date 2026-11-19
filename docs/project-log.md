@@ -1,5 +1,29 @@
 # AtmoShaper Project Log
 
+## November 19 breathing/Clock release published and verified
+
+Corrected `7577cec` passes all seven hosted jobs: 5,749 JavaScript passes with
+five skips, 45 synthetic backup passes with one optional-tool skip, and 628
+browser passes with 180 matrix/opt-in skips and no reported configured retry.
+The reproduced finding is resolved. PR #72 merges once as tree-identical
+`81b18e8` and its one staged Production build passes real migration status,
+all-payments readiness, TypeScript/115 pages and two Sentry uploads.
+
+Sentry's new 521/2,608-file archives are linked to the merge release. An emitted
+script's debug ID and referenced map resolve inside the client archive; the
+unchanged common-chunk ID alone is not source identity. Nine staged/public
+routes, font bytes and artwork pass. One promotion maps the same READY artifact
+to six public aliases, preserving the other 34 original mappings, one expected
+Preview alias, all 87 Production settings and the apex redirect.
+
+Live Chrome confirms breathing Start/Reset, viewport fit and bold/centered
+Clock/setup digits without captured warnings/errors. Retained `adb137e` stays
+READY; no rollback is needed. No financial/email, clinical, NAS, migration-apply
+or service-setting campaign is repeated. The planner remains unpublished.
+The operation closes; this local-only documentation branch records the
+[receipt and limits](audits/2026-11-19-breathing-clock-publication.md) without
+triggering another build.
+
 ## November 19 breathing/Clock publication and review correction
 
 The owner asks to publish the completed fixes. The first Vercel device sign-in
