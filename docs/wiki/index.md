@@ -5,6 +5,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 ## Pages
 
 - [Service, recovery and exact-release readiness](service-recovery-readiness.md)
+- [Shared database backups and failure response](database-backups.md)
 
 - [Calendar required-read recovery](../audits/2026-10-25-calendar-workspace-read-recovery.md)
 

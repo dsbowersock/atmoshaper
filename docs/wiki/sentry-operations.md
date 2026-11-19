@@ -6,6 +6,30 @@ first. The approved separate destination project is created. This runbook owns
 the remaining source-map, alert and hosted-collection gates; setup does
 not establish operational monitoring.
 
+## November 18 live runtime/source-map binding
+
+The separately authorized daily database backup now has its own Cron monitor
+and owner-only alert. One synthetic backup failure, actual received email and
+scheduled successful export/recovery check-in are accepted in the
+[backup receipt](../audits/2026-11-18-daily-encrypted-backups-and-alerts.md).
+This is minimal operational status from the NAS and does not broaden the
+application SDK's error-only capture policy or replay its closed test campaign.
+See [backup failure response](database-backups.md#when-an-alert-arrives).
+
+The owner-approved Production connection is now saved and published from reviewed
+main `012952b`. Sentry lists two new source-map archives linked to that release;
+an actual deployed JavaScript debug ID matches its uploaded archive. All 76
+SDK/privacy tests and seven candidate/seven public entry checks pass. The original
+setup token was revoked after an explicitly approved complete-token replacement.
+The initial truncated-token attempt is retained as failed/unpromoted evidence.
+
+See the [sanitized execution receipt](../audits/2026-11-18-sentry-runtime-and-source-maps.md).
+READY alone is insufficient: the SDK can log upload errors without failing the
+Next build, so future promotion needs actual authenticated map/artifact evidence.
+No new synthetic error or owner-email campaign was sent; the accepted protected
+campaign retains its original scope. Final account/Calendar/media/recovery and
+full beta acceptance remain open.
+
 ## October 23 review follow-up
 
 The fresh full review found a JSON `null` body could throw before the password

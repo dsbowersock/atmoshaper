@@ -1,7 +1,10 @@
 # Beta runtime dependency security update
 
-Status: **local checks pass; not deployed; fresh hosted browser acceptance pending**.
-The public release remains the separately approved Calendar fix `cdea4a6`.
+Status: **the reviewed dependency update is published in `8d89550`**.
+The historical validation below describes its preparation and green `99c297b`
+checks. The [release receipt](2026-11-18-beta-purchase-activation.md) records
+publication. The subsequent post-refund access correction is a separate local
+candidate; this dependency receipt does not claim that correction is published.
 
 ## Resolved changes
 
@@ -81,7 +84,20 @@ vulnerabilities as fixed.
   snapshot-update mode (one desktop ownership skip is expected).
 - The existing production-background responsive journey passes both portrait
   and short landscape, including opening Info in the compact layout.
-- Full lint passes again. Fresh hosted Linux acceptance remains pending.
+- Full lint passes again.
+- Follow-up `99c297b` passes every job in
+  [hosted CI](https://github.com/dsbowersock/atmoshaper/actions/runs/44391726173):
+  5,676 unit checks passed, five explicit Windows/catalog skips, zero failures.
+  All four Chromium browser lanes pass: 127/174/172/141 passed and
+  25/52/44/59 skipped respectively. Matrix ownership and opt-in/live-provider
+  cases are separate from executed browser evidence; no real payment or game
+  binding is proved by these provider-free fixtures.
+- The existing responsive journey also passes against the optimized artifact
+  through the public `/clock` caller, including portrait, short landscape and
+  opening Info. An initial extra attempt used the development-only Clock caller
+  and reached its production 404 rather than the panel. A temporary owned test
+  copy changed only that entry path; the full unchanged assertions passed and
+  the temporary copy was removed. The candidate worktree remains clean.
 
 No credential, provider setting, database migration, real message/payment or
 public promotion belongs to this local preparation. Build/publication and the

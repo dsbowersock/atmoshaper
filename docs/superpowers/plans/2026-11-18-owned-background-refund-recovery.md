@@ -1,6 +1,14 @@
 # Recover the single owned beta refund
 
-Status: **prepared locally; new provider/credential/recovery approval required**.
+Status: **new exact approval executed; monetary recovery passed and closed**.
+The [recovery receipt](../../audits/2026-11-18-owned-refund-recovery.md) records
+the saved permission, one successful original-record resumption, signed
+convergence and unchanged existing account state. The initial Vercel reader
+could not read the key and ran no command; the actual credential-bearing runner
+used the existing matching CurrentUser-encrypted runtime-key copy instead.
+There was no credential file, key rotation, extra purchase or replacement refund.
+The source/limits below describe the consumed operation, not reusable authority.
+The separate post-refund carousel defect remains open.
 Public source remains `8d89550`. The two approved owner payments succeeded:
 $5 One-time support with zero tax, and $1 Skybreak plus $0.07 Ohio tax. Their
 $6.07 combined total is below the $7 cap. The background's signed Checkout

@@ -1,20 +1,674 @@
 # AtmoShaper Project State
 
-## November 18 owned payments pass; refund permission recovery prepared
+## November 18 original refund recovered; post-refund carousel correction pending
 
-Published source is `8d89550`. The two owner payments total $6.07: $5 One-time
-support and $1.07 Skybreak including tax. The background was fulfilled through
-its signed Checkout event. One app refund submission retained a pending request,
-but Stripe rejected its processor call with 403 because the existing runtime
-key has Charges and Refunds Read rather than the required combined Write.
-No processor refund or automatic retry is confirmed. Beta invitations remain
-on hold. The [recovery plan](superpowers/plans/2026-11-18-owned-background-refund-recovery.md)
-prepares one unsaved permission change and a tested, exact-record local recovery
-command. It requires fresh provider/credential/recovery authorization and does
-not deploy code or renew expired release/payment attempts. Prior preparation
-snapshots below are historical and superseded by this published-source entry.
+The new exact approval is completed: one runtime key permission is saved and
+verified, then the original $1.07 refund is resumed once with its original
+metadata/idempotency key. Stripe and the app agree on success, the signed refund
+receipt is processed, and order/payment/purchase ownership converge to refunded
+and revoked. Membership, two credits, Admin authority and history are preserved.
+The failed write-only credential reader ran no refund command; the guarded
+execution used the original encrypted runtime-key copy privately. No new
+purchase, refund record, key, migration or deployment occurred. The
+[recovery receipt](audits/2026-11-18-owned-refund-recovery.md) closes that campaign.
 
-## November 18 patched runtime dependencies; corrected browser checks pass locally
+A fresh Clock check exposes a separate adapter defect: an inactive ownership
+row disables selection even with an independent current premium grant. The
+[correction plan](superpowers/plans/2026-11-18-post-refund-background-access.md)
+owns the narrow client fix and inert regression/browser checks. The candidate
+also consolidates the tested beta operations tools/records; it is not published.
+Public source remains `8d89550`. Invitations stay on hold; no further payment
+or expired operation is authorized by this checkpoint. Older pending-refund
+entries below are historical and superseded by the successful recovery above.
+
+## November 18 patched all-payments release published; owned live checks approved
+
+The owner approved the exact release/configuration and bounded payment/lobby
+checks. PR #70 merged as `8d89550`; its tree equals reviewed `99c297b`. Created
+and individually verified only the 18 approved Production settings; complete
+metadata/name checks confirm all 69 prior settings were untouched. The one real
+Production build passes the 46-migration and all-payments gates, compilation,
+TypeScript and 115 pages. New Sentry archives and a deployed client debug ID
+match the exact release. Eight staged/public page/artwork checks pass, and one
+promotion completes all six mappings without changing unrelated aliases.
+The prior READY `cdea4a6` remains rollback. See the
+[activation receipt](audits/2026-11-18-beta-purchase-activation.md).
+
+One-time support and $1 U.S. backgrounds are now enabled. The approved one-lobby
+Ably check passes: dedicated-key WebSocket/TLS authentication, room-only token
+capability, attached channel and backend events are observed. End runs once,
+both views reach recap/review, provider connections return to zero and a scoped
+aggregate confirms one REVIEW room, one player, zero game runs and normal
+expiry. The [campaign](audits/2026-11-18-offered-ably-connection-check.md) is closed
+without gameplay or deletion. Both owned payments pass: $5 One-time support and
+$1.07 Skybreak including $0.07 tax, totaling $6.07 within the $7 cap. Support
+creates no entitlement change; signed background fulfillment and its purchase
+ownership are verified. The owner's one $1.07 app refund submission is retained
+as PENDING with suspended purchase ownership, but Stripe rejects the processor
+call with 403 `more_permissions_required`. Exact-payment reads return no refund.
+The runtime key needs the combined Charges and Refunds Write capability; the
+one-field change is prepared but unsaved. A guarded local command on
+`codex/beta-refund-recovery` prepares one original-record resume, with 81 focused
+checks passing. Fresh permission/credential/recovery approval is required; no
+automatic retry, replacement refund or batch reconciliation ran. Invitations
+remain on hold. The published artifact/settings are unchanged, and the expired
+release window has not been reused for a rollback or another build.
+The [beta handoff checkpoint](audits/2026-11-18-beta-handoff.md) now records the
+carried-forward scopes, monitored support contact and outstanding refund
+recovery. The original payment campaign stopped at the rejected refund. Later
+prepublication sections below are chronological snapshots superseded by this
+published-release entry.
+
+## November 18 corrected security candidate; payment activation prepared
+
+Candidate `99c297b` on [PR #70](https://github.com/dsbowersock/atmoshaper/pull/70)
+contains the published Calendar fix, the supported CI correction and the patched
+runtime dependency set. Prisma generate/validate, clean lint, typecheck, 19
+dependency/artwork/inert-mail checks, 76 Sentry/privacy checks and the optimized
+115-page build pass. The complete local regression also passes: 5,681 total,
+5,677 passed, four skipped and zero failed/cancelled on dependency commit
+`72ce62a`. Its hosted run exposed two background CSS snapshots and a Music fault
+fixture. Follow-up `99c297b` corrects CSS specificity and holds the fixture outage
+through automatic transport retries, preserving audio recovery assertions and
+Linux baselines. Two reviewed Windows snapshots catch up to existing guarded
+purchase wording. The rebuilt focused desktop/mobile and compact-landscape
+journeys pass; lint passes again. The optimized public Clock responsive journey
+also passes, including compact Info. Every job in this follow-up's
+[hosted CI](https://github.com/dsbowersock/atmoshaper/actions/runs/44391726173)
+passes: 5,676 unit checks passed with five explicit Windows/catalog skips and
+all four Chromium browser lanes green (614 passed, 180 matrix/opt-in skips).
+The inherited Calendar/CI commit passes every hosted job.
+The final production audit has zero critical/high and eight moderate build-tool
+entries; the separate development-only finding and reachability limits are in
+the [audit](audits/2026-11-18-beta-dependency-security.md). No new public release.
+
+The [all-payments packet](superpowers/plans/2026-11-18-all-payments-beta-activation.md)
+prepares the 18 absent Production-only Config settings, actual all-payments
+build/map/entry gates, saved disabled-flow rollback and two owned new-flow tests.
+The database binding/name and ready main branch agree. Aggregate checks find no
+missing wallets, negative balance or ledger/owner mismatch and no commerce order
+drift. Retain the processed unknown-refund receipt; no backfill or repair ran.
+Neither a new Session/payment/refund nor configuration activation has occurred.
+The owner requires all three flows before beta and will monitor the public
+support inbox. The public artifact remains the approved `cdea4a6`.
+
+The bounded proposal uses the app's exact-order Admin refund binding, not a
+direct processor refund. Owner-only aggregate verification confirms existing
+verified full-Admin authority. A separate
+[one-lobby Ably check](superpowers/plans/2026-11-18-offered-ably-connection-check.md)
+is prepared for missing offered-release connectivity; no room or new grant was
+created. These operations remain unsubmitted and require exact approval.
+
+## November 18 all three purchase flows retained for beta; dependency patch prepared
+
+The owner explicitly requires recurring Supporter, one-time support and paid
+backgrounds before inviting beta testers, and will monitor the existing public
+support inbox. Do not treat the two disabled flows as a beta exclusion. Fresh
+read-only Stripe metadata confirms the named live account, active Tax settings,
+one active Ohio registration, six v2 Supporter Products/twelve exclusive Prices
+and the enabled exact 15-event canonical webhook contract. Inline one-time and
+background Products are created by Checkout; their absence from catalog search
+is not a failure. No Session, payment, customer/registration write or activation
+occurred. Deployed all-payment settings and new-flow acceptance remain separate.
+
+The production dependency audit found applicable Next.js security advisories.
+A separate isolated `codex/beta-dependency-refresh` candidate updates Next.js/
+ESLint config to 16.4.6, Sharp and its override to 0.35.5, and Sentry within major
+10. The resulting audit has zero critical-labelled entries, with 15 other
+package entries requiring reachability/fix triage. Local validation is underway;
+this candidate is not deployed and is not beta-ready. See the
+[dependency plan](superpowers/plans/2026-11-18-beta-dependency-security.md).
+
+## November 18 recovery-mail delivery accepted; CI environment fix under validation
+
+The owner approved one recovery email and clarified that normal sign-in uses
+Google. One public form submission returns the neutral notice, and one expected
+branded message reaches the Inbox. Received headers report SPF and branded DKIM
+pass; no DMARC result is stated. Its link targets the correct HTTPS site/reset
+path. The link is unused; password and Google methods are unchanged. This closes
+the observed delivery/destination gap, not password mutation or new-account
+verification. See the [receipt](audits/2026-11-18-account-recovery-mail.md).
+
+The focused PR's first hosted run passed lint, typecheck and browser build, then
+failed Chromium installation because the moving Ubuntu runner selected 26.04,
+which pinned Playwright 1.60 does not support. Follow-up `2ab17b7` pins all CI
+jobs to Ubuntu 24.04; the local CI harness passes 162/162 outside the Windows
+sandbox. The follow-up is pushed for hosted validation, without another public
+promotion. The live artifact remains the approved `cdea4a6`. Final review and
+source integration, uncovered feature checks, disabled-commerce scope and the
+owner's support/invitation handoff remain open.
+
+## November 18 cancellation fix published and Google Calendar journey accepted
+
+The approved exact commit `cdea4a6` is now public. Its staged Production build
+passed the real migration and Supporter readiness gates, TypeScript and all
+115 pages. Seven authenticated entry requests returned 200. Sentry accepted
+the two source-map archives under that exact Git release; an observed client
+debug ID matches its archive. All six promotion mappings completed and the
+public host resolves to that same artifact. The previous READY build is retained
+for rollback. No rebuild, billing change, schema migration or broader purchase
+activation was substituted for this promotion. The focused source remains on
+[draft PR #69](https://github.com/dsbowersock/atmoshaper/pull/69), not merged.
+
+The single approved Personal fixture cancelled through the new public Cancel
+block control. The page reports cancellation, zero upcoming blocks and no
+Google-error warning; bounded provider searches find zero remaining mirrors.
+Two explicit refreshes, one Disconnect and one equivalent reconnect pass within
+the approved test window. Google permissions are unchanged, all 18 original
+calendars and the same dedicated calendar are preserved, and the app finishes
+ACTIVE with only the original primary busy source selected. No clinical content
+or existing appointment details were opened. This proves the observed manual
+journey, not natural token expiry or long-session behavior. See the
+[live Calendar receipt](audits/2026-11-18-google-calendar-live-test.md).
+
+The dated pending Calendar/publication statements below are superseded. Daily
+backups, failure alerts and isolated restore retain their accepted scopes.
+Remaining work is genuinely missing offered account-mail/recovery evidence,
+any uncovered feature/fallback checks, the scope of disabled commerce and final
+support/release acceptance. No invitations have been sent.
+
+## November 18 cancellation publication approved; Vercel identity check pending
+
+The owner explicitly approved publishing focused commit `cdea4a6` after staged
+Production/source-map/entry checks, retaining the current release for rollback
+and finishing the existing Calendar fixture test. Its isolated branch is pushed;
+the automatic Preview build is distinct from the requested Production candidate.
+The public alias still matches the prior Sentry-enabled release. A CLI account
+scope check failed without a deployment; normal signed-in Vercel UI confirms
+the correct project, source commit and disabled custom-domain auto-assignment.
+Prepared Redeploy with Production selected and cache disabled. Vercel requires
+owner identity verification before proceeding; handed that step to the owner
+without reading or requesting codes. Do not repeat the build submission until
+the post-verification state is inspected. No publication has occurred yet.
+
+## November 18 Google connection and outbound mirror pass; cancellation fix prepared
+
+The owner approved the bounded Calendar test. Fresh Google consent matches the
+three reviewed Calendar permissions. The public app reports ACTIVE and a
+successful initial busy sync. Exactly one owned dedicated calendar was added;
+all original calendar IDs are preserved. The one approved Personal entry mirrors
+to Google at the correct time with generic title, no guests, no location and
+no non-whitespace description. Real appointment details were not opened.
+
+The test found no personal-block cancellation control. Prepared a focused fix
+on an isolated branch: an authorized Cancel block form, locked role/ownership/
+snapshot rechecks, retained history and honest post-commit Google-failure notice.
+Forty-five focused checks, 84 existing sync checks, typecheck, targeted lint and
+the local 115-page optimized build pass. Publication and live cancellation/
+refresh/disconnect/reconnect are pending; the one synthetic fixture remains
+active for that test. See the [live receipt](audits/2026-11-18-google-calendar-live-test.md).
+
+## November 18 offered Calendar connection prepared for owner consent
+
+The current public signed-in Calendar sync page is configured and Not connected.
+Its normal Google account picker and returning-account review load successfully;
+the Continue step is waiting without a new grant. The
+[bounded Calendar acceptance packet](superpowers/plans/2026-11-18-offered-google-calendar-acceptance.md)
+discloses the primary-calendar busy import, ongoing Google grant, dedicated
+app-calendar creation and one synthetic test entry. Approval is needed at this
+Google-access boundary; no event, token grant or Calendar connection was created.
+An owner-review [beta tester guide](beta-tester-guide.md) is also drafted; it is
+not an invitation or release approval.
+
+## November 18 daily encrypted backups and owner failure alerts accepted
+
+The owner explicitly requested daily activation. One enabled DSM task now runs
+at 03:00 America/New_York with one attempt per UTC day, checksum validation and
+retention preserving at least seven successes and seven days. One real
+clock-triggered acceptance run completed in about 13 seconds, producing a
+second verified encrypted copy; no archive was eligible for deletion. Sentry
+received the paired start/success check-ins and resolved the synthetic failure.
+The permanent saved schedule's next run is November 19 at 03:00 local; that
+overnight run has not occurred yet. Existing Free plans are unchanged.
+
+The dedicated backup-only Sentry alert records one test trigger. Its owner email
+was received with the expected monitor subject and SPF/DKIM/DMARC pass. Missing
+check-ins have a 15-minute grace and running jobs a 20-minute ceiling. All 40
+pre-existing NAS containers retain their identities, images and states; the
+private operator/configuration and two encrypted pairs validate. Recovery-key
+custody and the earlier isolated restore remain accepted. The
+[daily activation receipt](audits/2026-11-18-daily-encrypted-backups-and-alerts.md)
+and [operator runbook](wiki/database-backups.md) supersede earlier pending daily
+activation statements below. Full hosting-outage cutover is not tested.
+Remaining beta work includes the consenting Google Calendar journey, genuine
+remaining account-mail/recovery and offered-feature checks, commerce scope and
+final support/release acceptance. No beta-ready claim follows from backups alone.
+
+## November 18 HTTPS and firewall accepted with remote access preserved
+
+The approved sequence is applied: secure QuickConnect sign-in/Control Panel
+works; DSM HTTP-to-HTTPS desktop redirect is saved; a separate firewall profile
+is enabled and re-read from a fresh secure session. The physical interface allows
+the existing home subnet/link-local IPv6, required existing web/DSM/Drive/Plex
+ports and ICMP, then denies unmatched traffic. The private tunnel remains allowed.
+Original profiles, QuickConnect permissions and all 40 container identities/
+images/states are preserved. Local SSH/SMB/HTTPS/Drive transports pass, and the
+existing certificate validates with TLS 1.3. No router/DNS/account/file or backup
+activation change occurred.
+
+See the [activation receipt](audits/2026-11-18-nas-https-and-firewall.md).
+The owner confirmed DSM administration, Drive and files all work on mobile data.
+The requested remote-access preservation check is accepted. The bare-IP
+certificate mismatch remains a reason to use the working HTTPS QuickConnect
+entry point. All published container ports and full WAN exposure were not
+certified by the host-firewall checks. Daily backups/retention/Sentry activation
+remain separately unapproved and uninstalled.
+
+## November 18 HTTPS/firewall changes approved and secure route established
+
+The owner explicitly approved working HTTPS first and then a firewall preserving
+QuickConnect, Drive, files and remote administration. The
+[execution plan](superpowers/plans/2026-11-18-nas-https-and-firewall.md) owns this
+bounded NAS-setting authority; earlier no-write observations below are historical.
+The existing secure QuickConnect gateway reaches the correct NAS without a
+certificate warning. The owner signed in privately; authenticated desktop and
+Control Panel access work over HTTPS. Applied the approved DSM HTTP redirect
+with existing ports and certificate/QuickConnect identity preserved. DSM's
+expected web-server reload completed and the secure administrative session
+survived. Persistent readback/redirect acceptance and firewall preparation remain
+in progress. No public port, DNS, credential, daily backup or Sentry change is
+authorized by this NAS-setting operation.
+
+## November 18 NAS access review requested before daily activation
+
+The owner completed DSM sign-in and asked about backup/NAS security. The
+[read-only review](audits/2026-11-18-nas-backup-access-review.md) confirms existing
+HTTP management, disabled DSM firewall, enabled QuickConnect/relay and remote
+DSM/app/Drive/file permissions, plus an existing DSM-listed Drive mapping. These
+were not enabled by the backup setup. Current router-wide/WAN reachability and
+account-protection posture remain unverified. A working certificate-matched HTTPS
+route and owner-required remote services need review before unattended activation.
+No NAS security or network setting changed; daily jobs/retention/Sentry monitoring
+remain uninstalled. The protected credential, encrypted first copy and accepted
+restore are retained. NAS administrator compromise could expose the read-only
+export credential and live hosted data even with encrypted archive files.
+
+The owner clarified that Drive, file access and DSM administration are all used
+frequently away from home. Preserve all remote workflows while preparing HTTPS
+and account/router protection improvements. No removal of remote access, VPN
+requirement or NAS security policy change is approved by that clarification.
+
+Local daily/retention preparation passes all 46 backup tests with zero skips,
+including genuine age encryption, checksum/ownership/race failures, duplicate-day
+prevention, minimal check-ins, scoped cleanup and private config/script binding.
+All three modules parse as Python 3.8; the inert plan and `git diff --check` pass.
+No second live export, pruning, check-in or test email occurred.
+
+## November 18 second recovery-key copy confirmed; daily activation being prepared
+
+The owner selected their existing password manager and confirmed saving the
+entire recovery identity privately. This is owner-confirmed custody; the agent
+did not inspect the password manager or key contents. The protected PC identity
+and instructions remain available. The second-copy prerequisite is satisfied.
+
+Prepared the [daily activation plan](superpowers/plans/2026-11-18-daily-backup-activation.md)
+and local daily/retention tooling. Read-only checks confirm the retained encrypted
+copy passes the new checksum/receipt validator and cannot authorize pruning as
+an old success. Native NAS Python 3.8 imports and deadline interruption/restoration
+pass without installation, database connections, deletion or check-ins. Fresh
+Sentry billing shows one unused included Cron monitor; its setup form was read
+and closed without submission. Daily scheduling, retention and alerts remain
+uninstalled and require the prepared separate activation approval.
+
+## November 18 first encrypted backup and isolated restore accepted
+
+The owner approved the first live NAS backup/restore packet. One isolated tool
+image was built, one dedicated read-only database login was created, and one
+owner-only encrypted archive was produced: 2,250,739 bytes in approximately
+18 seconds. The PC-held recovery key restored that archive through pipes into
+one network-disabled temporary PostgreSQL database in approximately 6 seconds.
+All 135 tables, 46 migration names/checksums, expected extensions, constraints,
+and the owned test-practice/default-service fixture pass acceptance. The
+temporary database was removed; all 40 existing NAS containers match their
+original identities/images/states. The archive, private configuration, tested
+tooling/login and protected PC recovery identity are retained. Neon remains Free.
+
+The [recovery receipt](audits/2026-11-18-first-encrypted-backup-and-restore.md)
+records controls, bounded attempts, preflight corrections and acceptance limits.
+The first restore is complete; unattended recovery coverage is **not active**.
+Next: owner-held second key copy, current quota/headroom check, then separately
+approved daily scheduling, retention and failure/staleness alerts. No daily job
+or older-copy deletion was installed. A full hosting outage/cutover was not tested.
+Google Calendar consent/sync and other remaining offered-release journeys stay open.
+
+## November 18 NAS preflight and encrypted one-shot backup tool prepared
+
+The owner confirmed the NAS runs continuously. Read-only authenticated checks
+verify reachable storage, Docker/Compose, ample capacity, and supported memory/
+swap limits. The built-in PostgreSQL 11 client is unsuitable for the application's
+PostgreSQL 18 database; it stays unchanged. The proposed isolated image pins
+official PostgreSQL 18.7 and age 1.3.2. New private directories need effective ACL
+verification because the existing parent is broadly writable. No NAS directory,
+container, image, schedule, permission or production key/credential was changed.
+
+Added [inert one-shot backup tooling](../scripts/database-backup/README.md).
+All 17 local tests pass, including actual age encryption/decryption, wrong-key
+rejection, partial export, timeout, size limit, collision/concurrency preservation,
+and credential/log boundaries. A Windows sandbox file-link denial was resolved
+by running these invented-data tests outside the sandbox, without weakening
+publication safeguards. The inert plan opens no database. NAS Compose parsing
+also passes without creating files or starting containers. Hosted CI includes
+the failure-boundary fixtures but has not run this branch. All 162 existing
+CI-harness checks also pass outside the sandbox; the initial sandbox run could
+not find the already-installed browser cache. No assertion or timeout changed.
+
+A bounded catalog-only Production read verifies one application schema, expected
+extension compatibility, common object ownership and no row-level-security
+tables. No application rows were read. Prepared the
+[first backup/restore packet](superpowers/plans/2026-11-18-encrypted-database-backups.md#first-nas-backup-and-restore-packet)
+for one read-only backup credential, private NAS tooling/configuration, separate
+owner-held key, one encrypted export and one network-isolated temporary restore.
+This is the next exact write-approval boundary. Daily scheduling, alerts and
+retention remain uninstalled; recovery acceptance is still pending.
+
+## November 18 test practice created; separate encrypted database backups selected
+
+The owner selected separate encrypted backups while retaining Neon's Free plan.
+They also approved `AtmoShaper Studio` for testing, while naming `Massage Lab`
+as their intended working calendar name. Submitted the approved first-practice
+form once. The resulting empty calendar loads; a subsequent availability-page
+read confirms the saved test name, no availability rules/blocks/schedules, and
+the services page lists the default service with one variant. Google sync now
+offers Connect Google Calendar. No connection, appointment, availability change,
+working-calendar rename or deletion was performed.
+
+The owner requested a clear explanation of backup scope before choosing storage.
+This is recovery for the shared hosted application database across all users,
+including account/sign-in records, preferences/progress, scheduling, membership/
+purchase records, reference/operational records and any account-saved personal
+wellness logs. It does not upload or copy users' local professional-record vaults.
+Git source, hosted media and provider configuration are separate recovery assets.
+Backups contain sensitive data even with local-first professional documentation.
+
+Prepared the [plain-language scope and encrypted-backup plan](superpowers/plans/2026-11-18-encrypted-database-backups.md).
+Daily copies, seven-day retention, separate key custody, failure reporting and
+an isolated restore are proposed, not active. Storage/runner choice remains
+deferred until the owner understands the scope. No export, credential, key,
+scheduler, storage or restore write is authorized by the preference choice.
+No billing change occurred, and beta recovery acceptance remains open.
+
+## November 18 offered account checks pass; practice setup and backup choice pending
+
+After private owner sign-in in regular Chrome, the deployed account shell,
+Security, App layout and Data & sync pages load correctly. The existing Google
+method is linked, and the displayed clinical-sync boundary remains local-first.
+No authentication method, preference, membership or clinical record changed.
+The optional onboarding form was bypassed using its existing navigation link,
+without saving its answers.
+
+Calendar reports no practice membership and offers the first-practice form;
+Google Calendar is not connected and its controls require provider access.
+Prepared an unsaved `AtmoShaper Studio` form for owner review. Creation would add
+the owner membership and default 60-minute service/variant. The name/creation
+decision is pending; no practice, appointment or Google permission was created.
+
+Fresh Vercel dashboard metadata confirms the database is connected to this
+project's Production environment, and its provider ID matches the explicitly
+scoped Neon project read. It remains Free with six hours of history, no snapshots
+and no schedule. Native automatic snapshots require a paid plan. The billing
+preview applies to both products in this installation; it was cancelled without
+changing the plan. The owner was asked to choose separate encrypted backups or
+a paid-plan comparison. Adequate coverage and isolated restore proof stay open.
+
+Two representative live stations, Drone and Observable Streams, leave loading
+and report Playing. Pause/stop pass for both; resume also passes for Observable
+Streams. Playback was stopped and test tabs closed. This is browser control/state
+evidence, not physical-listening, complete-catalog or forced-fallback acceptance.
+See the [account/playback/recovery receipt](audits/2026-11-18-offered-account-playback-and-recovery.md).
+
+## November 18 Sentry runtime and source maps connected on the live build
+
+The approved corrected build is READY and published from unchanged reviewed
+main `012952b`. Sentry lists two new archives, 523 and 2,080 files, under the
+expected project and exact Git release. A debug ID read from deployed public
+JavaScript filters Sentry to its matching new archive/release. The paired public
+map request returns 403, and six sampled client chunks contain no CI-token-shaped
+value. These are artifact association/access checks, not a new synthetic error
+or proof of every asset. The prior protected mapped-error/email campaign remains
+closed at its accepted scope.
+
+All seven candidate browser entry checks and seven post-promotion public HTTP
+checks pass. All six live aliases reference the new artifact, unrelated mappings
+are unchanged, and the apex 308 redirect is preserved. The original setup token
+was revoked under explicit approval; a reloaded organization-token list confirms
+only the replacement remains active. The previous verified public artifact is
+the saved rollback. No secret was printed, saved locally or committed. See the
+[Sentry connection receipt](audits/2026-11-18-sentry-runtime-and-source-maps.md).
+
+The user accepted up to one day's lost hosted account/settings/scheduling changes
+and restoration by the next day. Further read-only discovery identifies the
+separate Vercel-managed AtmoShaper Neon project on the Free plan: one ready root
+main branch, six hours of history, no configured snapshot schedule and no listed
+snapshots. The earlier console-managed legacy project is separate and archived.
+Fresh integration-store linkage is still to confirm because the Vercel connector
+rejects that metadata endpoint with 403. No secret or row access was substituted.
+Adequate backup coverage, cost/eligibility and isolated recovery proof remain
+pending. Representative audio
+protocol checks pass, and the configured account sending domain is provider-
+verified with sending enabled and open/click tracking disabled. No email was
+sent. Full playback and account/Calendar offered-context journeys remain open.
+
+The next hands-on beta step is private owner sign-in in the opened regular-Chrome
+app tab, followed by account/settings checks without opening clinical records.
+No sign-in credential is requested in chat, and no account/clinical data has
+been inspected in this handoff. Full beta readiness is not yet claimed.
+
+## November 18 Sentry correction approved; complete-token retry building
+
+The owner approved the replacement and revocation of only the original token.
+The corrected handoff passes inert plus/slash and truncation checks, and the
+new visible token validates with its complete 43-character secret component.
+Created `atmoshaper-vercel-sourcemaps-v2` with the same `org:ci` scope and updated
+only the existing Production Secret. One fresh exact-source retry build is
+running. Authenticated upload, candidate acceptance, publication and the
+approved original-token revocation remain pending. All six live aliases were
+verified unchanged after the first attempt; its unpromoted READY artifact is
+not accepted for source maps.
+
+Parallel read-only media checks pass for one committed Signature Opus payload
+(206, 64-byte range, audio/ogg, CORS allowed), the branded generative Opus index
+(200 JSON), and one nested generative sample through the source-defined origin
+mapping (206, 64-byte range, audio/ogg, CORS allowed). These are representative
+protocol checks, not full catalog or audible-playback acceptance. No media
+object, catalog, provider setting or legacy consumer changed.
+
+## November 18 Sentry upload stopped at token-handoff failure
+
+The first configured build reached READY but Sentry rejected release/map
+requests with HTTP 401. It is not promoted. Root's token-copy expression
+incorrectly excluded valid standard-base64 characters and captured only 27
+characters of the 43-character secret component. This was an agent handoff
+error, not an application or Sentry service failure. The one-time full value
+is no longer visible. Do not retry the partial credential or treat READY as
+source-map acceptance.
+
+A replacement token draft with the same native `org:ci` scope is prepared.
+The exact correction is one replacement, updating only the existing Production
+secret, one fresh authenticated build, and revoking only the original token
+created in this operation after replacement verification. Creation/revocation
+approval is pending; no replacement or revocation has occurred. The current
+public build remains the verified rollback reference. Beta recovery targets
+are accepted as recorded below; implementation/restore proof remain pending.
+
+## November 18 final Sentry binding approved; first build attempt
+
+The owner requested completing Sentry/source maps and continuing beta readiness.
+Pre-write UI reads confirmed the existing active project DSN, no organization
+build tokens, and no `SENTRY` variable matches in either Vercel project or linked
+shared-variable scope. The owner then explicitly approved the complete token,
+Production binding, source-map build/upload and same-artifact publication.
+Created one dedicated `org:ci` organization token and saved the four approved
+Vercel project variables, Production only. Reloaded metadata confirms the auth
+token is Secret and the three destination variables are Config; values remain
+concealed. No terminal credential was exported or secret saved locally.
+
+The narrow native token scope is `org:ci` (source-map upload, release creation,
+code mappings). It is organization-wide; the form offers no per-project scope.
+The creation approval was received at action time. The
+[final Sentry packet](superpowers/plans/2026-11-18-sentry-final-binding.md)
+owns the four Production-only variables, one exact-source SDK upload/build,
+readback, contained activation and rollback. The current error-only policy,
+map cleanup, destination protections and closed error/email campaign remain.
+Fresh `npm run test:sentry` passes all 76 tests with zero skips/failures. One
+authenticated Production rebuild of unchanged reviewed main `012952b` is in
+progress. The currently serving same-source build is the saved rollback;
+upload/readback, candidate checks and public promotion remain pending.
+
+The owner also accepted a beta recovery target of at most one day's lost
+account/settings/scheduling changes and restoration by the next day. This is a
+target, not backup or restore proof. A read-only Neon discovery found no project
+named AtmoShaper and an existing legacy-named project with six hours of history;
+its exact deployed binding and adequate independent backup coverage still need
+verification. No database rows, backup export or restore operation were accessed.
+
+## November 18 approved service changes saved and current application published
+
+The owner explicitly approved the prepared Ably key, Production-only Vercel
+secret and two Sentry project corrections, then additionally authorized updating
+the deployed site to the completed application work.
+
+Created one `production-anatomime-server` key in the existing main Ably app.
+Reloaded metadata confirms only publish/subscribe/presence on `anatomime:*`.
+Saved it as the existing Vercel project's Secret `ABLY_API_KEY`, Production only;
+the saved variable is verified and concealed. No key value was logged or saved
+locally. Both Sentry project changes persist after reload: automatic JavaScript
+source fetching off and outbound TLS/SSL verification on. Existing keys, apps,
+inherited privacy protections, legacy project and organization settings remain.
+
+Fresh remote Git still identifies main as `012952b` (PR #68), the exact source
+of the completed local full-suite/build/browser checks. Vercel still uses
+`npm run build`, Node 24, main tracking and disabled automatic custom-domain
+assignment. Saved the current six live alias mappings as the rollback reference;
+their artifact source is `38d0ded`. One fresh Production-target build of exact
+`012952b` completed using current settings, including the newly saved secret.
+Its actual read-only migration-status and live Supporter-readiness gates passed,
+as did compilation, TypeScript and all 115 static pages. Seven staged anonymous
+browser entry points passed before the separately owner-authorized public
+promotion. All six live aliases now point to that new build; unrelated branch
+aliases are unchanged. All seven post-promotion public HTTP checks return 200,
+the signed-out session is null, and the apex redirect remains 308 to the www
+site. The current public home also renders correctly in regular Chrome. The
+prior READY artifact remains the rollback reference. No database migration or
+additional payment activation occurred. See the
+[service and deployment receipt](audits/2026-11-18-live-service-binding-and-site-update.md).
+
+This publishes the latest merged application work, not a full beta-readiness
+claim. The build reported no Sentry upload-auth token, so source-map upload and
+release creation did not run; final runtime/source-map binding remains pending.
+No Production game, synthetic error, real account/email/payment, Calendar sync,
+restore or hosted-media playback campaign was run in this operation. Continue
+the remaining offered-context and recovery work in the resumption plan.
+
+## November 18 browser restored; live binding prepared
+
+The owner restarted Codex and attached the existing Ably tab. Regular Chrome
+control now works through the extension, including the owner's signed-in Ably,
+Sentry and Vercel dashboards. This supersedes the connection blocker below.
+
+Read-only live checks identify the existing main Ably app and the separate
+verification app; preserve both. A new-key form is prepared but unsaved for
+`production-anatomime-server`, limited to `anatomime:*` and only publish,
+subscribe and presence. No existing key value was revealed and no key created.
+Vercel's project and linked-shared-variable searches both return no result for
+`ABLY_API_KEY`. Its unsaved project-variable form selects Secret and Production
+only, with the value blank.
+
+The AtmoShaper Sentry project inherits required server-side/default scrubbing,
+IP removal and disabled minidump storage. Six existing project removal rules
+remain in place. Project JavaScript source fetching is enabled and outbound
+TLS/SSL verification is disabled; their narrow corrections are proposed,
+not saved. Organization-wide and legacy-project settings remain untouched.
+
+Vercel's project overview identifies the current public Production deployment as
+the October 7 artifact from source `38d0ded`, despite newer READY
+Production-target artifact metadata. Ready target metadata is not current public
+alias proof. No deployment or promotion has occurred. The next step is exact
+approval of the [prepared service-binding packet](superpowers/plans/2026-11-18-live-service-binding.md),
+followed by configuration readback. Sentry runtime/source-map activation and
+offered-artifact acceptance remain separate, unfinished work.
+
+## November 17 browser connection repair awaits app restart
+
+The owner authorized continuing live-service bindings and requested connection
+instructions. A fresh controller reset still fails before browser access.
+Read-only diagnostics found the per-user and running-process `CODEX_CLI_PATH`
+pointing to a removed executable, while the app-managed runtime, resolved CLI
+and running CLI path agree on an existing working executable.
+
+Backed up and verified the one obsolete per-user value in ignored local output,
+removed only that user override, and confirmed it is absent. The current app
+process still holds its inherited environment; the owner must fully quit and
+reopen Codex, return to this chat and request a connection retest. Chrome and
+the existing Sentry/Ably sign-ins can remain open. The repair has not yet been
+proven through a successful browser-controller launch. No service key, provider
+setting, browser permission, account or deployment changed.
+
+## November 17 beta-readiness resumption
+
+The owner resumed work toward a small beta using the already documented feature
+set, with no new feature requests. Work continues in isolated local branch
+`codex/beta-readiness-20261117` from verified GitHub main `012952b` (PR #68).
+The chat's September checkout and the retained migration worktree's unfinished
+November continuation records are preserved. This section supersedes older
+next-action statements below; those remain dated history.
+
+Fresh GitHub reads confirm the November 5 main commit, no open PRs, and all
+seven jobs passing in its [existing CI run](https://github.com/dsbowersock/atmoshaper/actions/runs/42125868836).
+Fresh Vercel metadata reports a READY Production-target artifact with that Git
+source. This does not prove public routing, effective credentials or user
+journeys. The environment-list connector response is truncated, so it cannot
+reconfirm that any omitted setting is absent.
+
+The exact lockfile install, offline Prisma generation/schema validation, full
+lint and typecheck passed. The full bounded suite passed: 5,663 tests total,
+5,659 passed, four skipped and zero failures in 999,775 ms. The local
+production-mode webpack build passed, including TypeScript, 115/115 static
+pages and build traces. Its Production migration and Stripe gates correctly
+skipped outside Vercel Production. All 52 desktop/mobile Chromium public-route
+smoke cases passed in 3.6 minutes, with no skips/retries, against that ordinary
+build using inert providers and intercepted external resources. This proves
+local anonymous rendering/health, not hosted media, sign-in, provider writes or
+full authenticated journeys. No beta-ready claim follows yet. The initial default-concurrency run
+was stopped after failures under memory pressure. Its failing Calendar and
+commerce groups pass in isolation (69 passed, one platform skip); the full
+`npm run test:beta` rerun limits active files to two without changing assertions.
+The
+[resumption plan](superpowers/plans/2026-11-17-beta-readiness-resumption.md)
+coordinates the existing migration/service/recovery requirements and records
+the next concrete work.
+
+Owner-supplied November 17 Sentry organization billing screenshots show the
+Developer plan, 5,000 included Errors, five accepted and zero dropped in the
+displayed October 20–November 19 period. The usage warning concerns the one
+uptime-monitor allowance. Sentry's [published Developer plan](https://sentry.io/pricing/)
+lists a 30-day lookback, and its [free-plan policy](https://www.sentry.help/en/articles/13965037-can-i-set-up-an-on-demand-pay-as-you-go-budget-for-my-free-developer-plan)
+does not offer pay-as-you-go overage. The screenshots do not show an effective
+project retention setting; the published plan contract and observed account
+plan are distinct evidence. No overage-budget configuration is needed on this
+free tier. These organization-level facts do not establish final app/project
+binding, privacy or collection. Native dashboard control failed to launch;
+the requested regular-Chrome tabs were opened without changing service settings.
+
+The owner's November 17 Ably package screenshot confirms the existing Free
+resource-based package: six million monthly messages, 200 peak connections and
+200 peak channels. These are account package limits, not current usage or proof
+of the offered app's runtime-key binding. The advertised MAU-pricing migration
+was not performed or required as a condition of this local verification.
+
+Carry forward dated accepted application, local-record, sandbox-payment,
+realtime, Sentry and media/image proofs at their original scopes. Remaining
+work is exact offered-artifact service binding, account/mail/Calendar journeys,
+all-three-purchase readiness, offered media acceptance, recovery/support and
+final release/rollback acceptance. The November continuation records contain
+later narrow proofs than the historical snapshots below; they are not fresh
+live observations or authority to replay expired operations.
+
+Clinical/PHI workflows remain local-first. No provider configuration, database
+write, real email/payment, media mutation, deployment, public promotion or legal
+cutover has been performed in this resumption. Those external changes retain
+the exact separate authorization boundary in AGENTS.md.
+
+## November 18 patched runtime dependencies prepared; release validation running
 
 Prepared a separate environment-free branch containing the published Calendar
 fix and supported CI runner. Next.js/ESLint config 16.4.6, Sharp 0.35.5, Sentry
@@ -23,15 +677,7 @@ transitive overrides pass local typecheck, clean lint, Prisma generation/
 validation, 19 dependency/artwork/inert-mail checks and 76 Sentry/privacy checks.
 The unused root Zod dependency is removed. Application navigation is preserved.
 The optimized build passes; its live provider gates correctly skip locally.
-The complete provider-free regression passes: 5,681 total, 5,677 passed, four
-existing skips and zero failed/cancelled. Hosted code quality, browser build
-and three browser lanes pass. Lane 3 exposes a background CSS-order regression
-and an outage fixture that no longer spans the framework's automatic retry.
-Focused fixes preserve the approved layout, Linux baselines and audio recovery
-assertions. Two stale Windows images are refreshed for already-existing guarded
-purchase wording. Rebuilt-artifact desktop/mobile background and mobile Retry
-journeys pass; portrait/short-landscape controls including Info pass. Full lint
-passes again. Fresh hosted Linux CI remains open.
+The complete provider-free regression run is in progress.
 
 The production dependency audit now has zero critical/high entries and eight
 moderate build-tool entries; the separate development tree still has a critical

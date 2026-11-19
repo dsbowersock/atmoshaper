@@ -50,7 +50,52 @@ Do not replay those campaigns because an older runbook says pending. Final deplo
 
 ## Prepare database recovery acceptance
 
-Recovery-point objective (acceptable data loss) and recovery-time objective (acceptable restoration time) are **unknown pending owner decision**. A historically observed history window is not a promised backup feature, an agreed objective or a tested restore. Confirm current coverage through a separately scoped fact check before selecting a method.
+The owner's subsequent daily-activation request is now completed at its
+[scheduled-test scope](../audits/2026-11-18-daily-encrypted-backups-and-alerts.md):
+the enabled daily task, retention guards and dedicated owner alert are saved,
+one real scheduled export and authenticated failure email pass, and all existing
+NAS services are preserved. See the [operating runbook](database-backups.md).
+The first permanent 03:00 run is future. This supersedes earlier pending daily
+activation statements below; full hosting-outage cutover remains untested.
+
+The November 18 [NAS HTTPS/DSM firewall operation](../audits/2026-11-18-nas-https-and-firewall.md)
+is accepted at its recorded scope, including owner-confirmed mobile-data access
+to DSM, Drive and files. Carry it forward; do not replay the NAS-setting changes
+as part of daily-backup activation. Full router/Docker exposure remains a separate
+review; the subsequent daily-backup acceptance is recorded above.
+
+On November 18 the owner accepted up to one day's lost account/settings/scheduling
+changes and restoration by the next day for beta. Clinical records remain local.
+These are recovery targets, not backup or restore proof. Fresh explicitly scoped
+read-only discovery identifies the separate Vercel-managed AtmoShaper project on
+Free: one ready root main branch, six hours of history, no snapshot schedule and
+no listed snapshots. The console-managed legacy project is separate/archived.
+The subsequent normal Vercel dashboard read confirms Production store attachment
+and an exact provider-project match to scoped Neon metadata. The connector's
+integration metadata read was permission-limited; no credential export was used.
+Current [Neon backup documentation](https://neon.com/docs/guides/backup-restore)
+limits automatic snapshot schedules to paid plans. The current installation's
+plan preview covers both connected products, so an upgrade cannot be treated as
+an AtmoShaper-only change. The owner selected separate encrypted backups on Free.
+The [scope-first backup plan](../superpowers/plans/2026-11-18-encrypted-database-backups.md)
+explains shared hosted database coverage, including account-saved wellness logs,
+and separate local-vault/source/media/configuration recovery. The owner confirmed
+24/7 NAS operation and subsequently approved the first live packet. The
+[first encrypted export and isolated restore](../audits/2026-11-18-first-encrypted-backup-and-restore.md)
+passed on November 18: all 135 tables, 46 migration names/checksums and the owned
+test-calendar fixture. The network-disabled temporary database was removed;
+all 40 existing NAS containers were preserved. One encrypted copy, private
+read-only export configuration/login, tested tooling and protected PC recovery
+identity are retained. That first-run packet changed no billing or daily job.
+The first database restore is accepted; complete hosting-outage recovery remains
+untested. Daily coverage has the separate accepted receipt above. The owner confirmed the second
+identity copy was saved privately in their existing password manager. The later
+daily receipt covers fresh quota/headroom and approved scheduling, retention
+and alerts; the [plan](../superpowers/plans/2026-11-18-daily-backup-activation.md)
+retains the original execution scope.
+A history window is not an independent backup; one successful restore does not
+establish ongoing daily coverage. Carry this receipt forward rather than replaying
+the spent first-run campaign.
 
 Prepare the following privately before any restore operation:
 
