@@ -58,3 +58,25 @@ Physical-phone, Safari and screen-reader listening remain owner acceptance.
 
 No provider-setting, credential, payment, email, NAS, media, schema or database
 write is part of this publication; existing live-readiness gates remain intact.
+
+## Hosted-review correction
+
+Initial candidate `772e54d` opens PR #74 and its protected Preview. All 87
+Production setting metadata entries and 42 baseline aliases match the previous
+receipt; 12 Preview routes, the reviewed clock font and artwork pass readback.
+Hosted review identifies silent category replacement when an edited shared
+check-in is reopened through another launcher. An actual-app regression fails
+on the original build with Incident expected but Sleep selected. An initial
+hydration-readiness failure is retained separately; the accepted reproduction
+uses the existing Quick Log effect to establish that interaction is ready.
+
+The correction tracks native form and body-map edits. Launchers seed only a
+fresh draft; category and all mounted values are retained until a successful
+save, including deliberate category changes. Existing action ownership and
+failure retention remain. All 11 action lifecycle checks, focused lint and the
+inert TypeScript/115-page build pass. All four original/regression Wellness
+cases pass in desktop/mobile Chromium without retries/skips. The regression
+covers category, note, intensity, context, intentional category edits, selecting
+a new category after save and body-map-only draft retention.
+This focused fix remains within the approved publication, requiring a fresh
+Preview, hosted QA and review at its changed source head before merge.

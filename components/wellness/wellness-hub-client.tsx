@@ -153,6 +153,7 @@ export function WellnessHubClient({
   }, [activeTool])
 
   const formRef = useRef<HTMLFormElement>(null)
+  const logDraftChanged = useRef(false)
   const [entries, setEntries] = useState(initialEntries)
   const [reportEntries, setReportEntries] = useState(initialReportEntries)
   const [selectedRegions, setSelectedRegions] = useState<string[]>([])
@@ -187,12 +188,16 @@ export function WellnessHubClient({
     }
   }
 
-  /** Keep panes mounted so leaving a tool cannot discard an unfinished draft. */
+  /** Keep the entire mounted draft, including deliberate category edits. A
+   * launcher seeds only a fresh form; navigating cannot relabel existing input. */
   function openTool(tool: WellnessTool, opener: HTMLButtonElement, category?: string) {
     if (actionPending.current) return
     launcherRef.current = opener
     moveFocus.current = true
-    if (category) setLogCategory(category)
+    if (category && !logDraftChanged.current) setLogCategory(category)
+    else if (category && category !== logCategory) {
+      setStatus("Continuing your unfinished check-in with its category and details preserved.")
+    }
     setActiveTool(tool)
   }
   function returnToTools() {
@@ -244,6 +249,7 @@ export function WellnessHubClient({
       setStatus("Practice entry added for this page session. Sign in before saving anything permanently.")
       setError(null)
       form.reset()
+      logDraftChanged.current = false
       setSelectedRegions([])
       return
     }
@@ -268,6 +274,7 @@ export function WellnessHubClient({
       setReportEntries((current) => upsertTimelineEntry(entry, current))
       setStatus("Saved to your client-owned wellness timeline.")
       form.reset()
+      logDraftChanged.current = false
       setSelectedRegions([])
     }, "Could not save this entry.")
   }
@@ -469,7 +476,7 @@ export function WellnessHubClient({
         <div hidden={activeTool !== "patterns"} data-wellness-pane><WellnessPatternReport entries={reportEntriesForPanel} isSignedIn={isSignedIn} /></div>
 
         <div id="quick-log" hidden={activeTool !== "log"} data-wellness-pane>
-        <form ref={formRef} className="rounded-md border border-border/80 bg-card/95 p-4">
+        <form ref={formRef} onChange={() => { logDraftChanged.current = true }} className="rounded-md border border-border/80 bg-card/95 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-lg font-semibold">Quick log</h3>
@@ -528,7 +535,11 @@ export function WellnessHubClient({
           <details className="mt-4 rounded-md border border-border/80 bg-background/80 p-3" open={logCategory === "body_sensation" || logCategory === "incident"}>
             <summary className="cursor-pointer text-sm font-medium">{logCategory === "body_sensation" ? "Body sensations and timing" : "Add body details or timing (optional)"}</summary>
             <div className="mt-4 grid gap-4">
-              <BodyRegionSelector selectedRegions={selectedRegions} onChange={setSelectedRegions} />
+              <BodyRegionSelector selectedRegions={selectedRegions} onChange={(regions) => {
+                // Region buttons update React state rather than emitting a native form change.
+                logDraftChanged.current = true
+                setSelectedRegions(regions)
+              }} />
 
               <fieldset>
                 <legend className="text-sm font-medium">Sensation terms</legend>

@@ -1,5 +1,27 @@
 # AtmoShaper Project Log
 
+## November 19 publication review catches draft relabeling
+
+The initial `772e54d` candidate opens PR #74. Fresh preflight preserves all 87
+Production setting metadata entries and 42 alias mappings; the protected Preview
+passes 12 routes, the existing reviewed clock font, artwork and emitted bundle
+readback. Hosted review identifies a shared-form defect: opening another
+recording launcher keeps input but changes its category. The new actual-app
+regression reproduces Incident becoming Sleep on the original build. Its first
+attempt lacked hydration readiness; waiting for the existing Quick Log effect
+corrects the harness before the accepted reproduction.
+
+The focused fix retains the entire edited draft, including manual category
+changes and body-map-only selections. A launcher seeds a category only while
+the form is fresh; successful practice/persisted saves release that guard.
+Failed saves preserve it. Save ownership and storage behavior remain intact.
+All 11 existing action lifecycle checks, focused lint and the inert 115-page
+TypeScript/build pass. Both original Wellness flow cases and both complete-draft
+regressions pass in desktop/mobile Chromium, with no retries/skips. The new
+checks cover category, note, intensity, context, manual category edits, fresh
+selection after save and body-map-only input. The verified correction updates
+the existing PR for fresh hosted QA/review before merge.
+
 ## November 19 Wellness and planner publication requested
 
 The owner authorizes publication of the prepared Wellness and planner updates.

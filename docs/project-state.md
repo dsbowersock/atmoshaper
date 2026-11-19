@@ -2,6 +2,16 @@
 
 ## November 19 Wellness and planner publication approved
 
+PR [#74](https://github.com/dsbowersock/atmoshaper/pull/74) has a READY protected
+Preview and passing route/asset readback. Hosted review finds that switching
+recording launchers can relabel an unfinished shared draft. An isolated browser
+regression reproduces Incident becoming Sleep. The focused correction seeds a
+launcher category only for a fresh form and retains native/body-map edits until
+a successful save. All 11 action lifecycle checks, focused lint and the inert
+TypeScript/115-page build pass. All four desktop/mobile Wellness cases pass,
+including the complete-draft regression, with no retries/skips. The corrected
+source must pass fresh hosted checks before merge.
+
 The owner requests publication of the verified `ae3d327` application on
 `codex/planner-wellness-polish`: both planner guidance/layout improvements and
 the latest grouped, centered Wellness launchers. Fresh service preflight,
