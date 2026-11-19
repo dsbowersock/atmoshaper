@@ -921,6 +921,43 @@ test("subscriber and purchased ownership stay distinct in active Chimer", async 
   await expect(page.getByLabel("Running Chimer timer")).toBeVisible()
 })
 
+test("refunded ownership preserves independent membership selection without another acquisition", async ({ context, page }, testInfo) => {
+  const fixture = await installCommerceFixture({
+    context,
+    page,
+    baseURL: String(testInfo.project.use.baseURL),
+    projectName: testInfo.project.name,
+    featureKeys: ["premium_backgrounds"],
+    initialSnapshot: emptySnapshot({
+      ownerships: [{ backgroundId: AURORA_ID, source: "purchase", status: "refund_revoked", acquiredAt: "2026-07-22T12:00:00.000Z" }],
+    }),
+  })
+  await startActiveChimer(page)
+  await page.getByRole("button", { name: "Background", exact: true }).click()
+  const panel = page.getByRole("dialog", { name: "Background" })
+  const card = accessCard(await centerPremium(page, AURORA_ID))
+  await expect(card).toHaveAttribute("data-background-access-state", "included-subscription")
+  await expect(card).toContainText("Refund revoked")
+  await expect(card.getByRole("img", { name: `${AURORA_NAME} is permanently owned` })).toHaveCount(0)
+  await expect(card.getByRole("button", { name: `Open permanent ownership options for ${AURORA_NAME}` })).toHaveCount(0)
+  const select = card.getByRole("button", { name: `Select ${AURORA_NAME} background` })
+  await expect(select).toBeEnabled()
+  await select.click()
+  await expect(panel).toHaveCount(0)
+  await expect(page.getByTestId("chimer-premium-background")).toHaveAttribute("data-background-id", AURORA_ID)
+  await page.getByRole("button", { name: "Background", exact: true }).click()
+  await expect(accessCard(await centerPremium(page, AURORA_ID)).getByRole("button", { name: `Selected ${AURORA_NAME} background` })).toBeEnabled()
+  expect(fixture.snapshot.ownerships[0].status).toBe("refund_revoked")
+  expect(fixture.snapshot.ownedBackgroundIds).toEqual([])
+  expect(fixture.snapshot.creditBalance).toBe(2)
+  expect(fixture.snapshot.cart.items).toEqual([])
+  expect(fixture.checkoutBodies).toEqual([])
+  // Keep review evidence even when the local list reporter drops buffer attachments.
+  const screenshotPath = testInfo.outputPath("post-refund-independent-access.png")
+  await page.screenshot({ path: screenshotPath, animations: "disabled" })
+  await testInfo.attach("post-refund-independent-access", { path: screenshotPath, contentType: "image/png" })
+})
+
 test("returning signed-in Clock retries subscription access after a wake-time preference failure", async ({ context, page }, testInfo) => {
   const baseURL = String(testInfo.project.use.baseURL)
   const fixture = await installCommerceFixture({

@@ -30,6 +30,14 @@ npm run test
 npm run build
 ```
 
+For a full local beta check on a memory-constrained machine, use
+`npm run test:beta`. It runs the same test files with at most two files active
+at once. Native browser and Windows process-lifecycle fixtures retain their
+existing assertions and deadlines. On the November 17 machine, the default
+parallel run encountered failures with about 400 MB of free memory; its failing
+Calendar and commerce groups subsequently passed in isolation. Keep lint,
+typecheck and builds separate from this full run to reduce memory contention.
+
 Seed anatomy content from the local fallback data:
 
 ```bash

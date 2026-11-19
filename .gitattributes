@@ -6,3 +6,6 @@ data/legal-document-history/2026-07-digital-purchases-v2.json text eol=lf
 
 # Retain the author's exact notice bytes, including its original trailing space.
 public/fonts/dseg/DSEG-LICENSE.txt -text whitespace=-blank-at-eol
+
+# NAS operator bindings hash exact source bytes; Windows checkouts must retain LF.
+scripts/database-backup/** text eol=lf
