@@ -1,7 +1,11 @@
 # Business Income Planner phone layout
 
-Status: verified locally on `codex/business-income-mobile`, based on the
-separately approved breathing/Clock candidate. No planner publication yet.
+Status: initially verified locally at `0d48772` on
+`codex/business-income-mobile`. The owner subsequently approves publication;
+`codex/business-income-release` integrates the patch with the now-published
+breathing/Clock release. Current release gates are tracked in the
+[publication plan](2026-11-19-business-income-publication.md). Initial validation
+and sign-in checkpoints below describe the original local work.
 
 ## Requested outcome
 

@@ -1,5 +1,17 @@
 # AtmoShaper Project Log
 
+## November 19 owner approves planner publication
+
+After breathing/Clock publication, the owner requests publication of the
+Business Income Planner fixes too. A new release branch integrates the original
+local `0d48772` patch onto published `81b18e8` and its local completion records.
+Three documentation-only conflicts are combined without losing either history;
+application and browser-test changes merge cleanly. The original local branch
+is preserved. Integrated validation and a fresh release preflight are underway;
+this is a new publication operation, separate from the closed breathing release.
+The [publication plan](superpowers/plans/2026-11-19-business-income-publication.md)
+records its scope and remaining gates.
+
 ## November 19 breathing/Clock release published and verified
 
 Corrected `7577cec` passes all seven hosted jobs: 5,749 JavaScript passes with

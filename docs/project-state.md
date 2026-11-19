@@ -1,5 +1,21 @@
 # AtmoShaper Project State
 
+## November 19 Business Income Planner publication approved
+
+The owner now requests publication of the planner fixes. Release branch
+`codex/business-income-release` integrates the previously verified `0d48772`
+patch with published `81b18e8` and its completion records. Existing breathing
+and Clock corrections remain included. The planner changes only its layout,
+presentation and corresponding synthetic fixtures; calculations, storage
+contracts and account synchronization remain unchanged.
+
+Integrated validation and fresh provider preflight precede one review PR and
+protected Preview, hosted checks, a real gated Production build with Sentry
+maps, same-artifact promotion and public readback. The current compatible
+published release stays available for rollback. See the
+[planner publication plan](superpowers/plans/2026-11-19-business-income-publication.md).
+Earlier local-only and pending-sign-in entries below are historical checkpoints.
+
 ## November 19 breathing guide and centered bold clocks published
 
 Corrected `7577cec` on [PR #72](https://github.com/dsbowersock/atmoshaper/pull/72)

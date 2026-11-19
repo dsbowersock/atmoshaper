@@ -4,6 +4,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Business Income Planner publication gates](../superpowers/plans/2026-11-19-business-income-publication.md)
 - [Published breathing/Clock fixes and verification](../audits/2026-11-19-breathing-clock-publication.md)
 - [Breathing/Clock publication and hosted-review gates](../superpowers/plans/2026-11-19-breathing-clock-publication.md)
 - [Local Business Income Planner phone layout repair](../superpowers/plans/2026-11-19-business-income-mobile.md)
