@@ -1,5 +1,39 @@
 # AtmoShaper Project Log
 
+## November 19 Business Income Planner published and verified
+
+Integrated `dc37c3b` passes all 46 local planner checks, focused lint, the inert
+115-page TypeScript/build and four actual-app desktop/mobile cases without
+retry/skip. Fresh complete preflight preserves 87 Production settings, the
+all-payments scope, disabled automatic domain assignment and the 41-alias
+baseline. One push opens PR #73 and its protected Preview.
+
+Hosted review completes with no findings; CodeRabbit skips automatic review.
+All seven CI jobs pass: 5,749 JavaScript passes/five skips, 45 synthetic backup
+passes/one optional-tool skip, and 632 browser passes/180 matrix or opt-in skips
+with no reported configured retry. The last lane's live log confirms continued
+music/interruption test progress during the longer wait. A guarded merge yields
+tree-identical `fa3a030` and one automatic staged Production build.
+
+Actual migration-status/all-payments gates, TypeScript/115 pages and two Sentry
+uploads pass. The operator verifier initially misses the planner chunk because
+it scans only script tags; including App Router's emitted module references
+finds the planner-specific script. Its debug ID and referenced map match the
+new release archive. This corrects read-only verification, not application code.
+
+An initial Preview load records one recoverable hydration warning; it does not
+recur on reload, a fresh Preview tab, staged Production or public readback.
+No root cause is established and no speculative source change is made. Staged
+and public entry routes, planner/font bytes, artwork, optional guidance and
+layout containment pass. Live worksheet values remain unchanged.
+
+One promotion completes all six public mappings, preserving the other 35
+baseline mappings, one expected new Preview alias and all 87 setting metadata
+entries. The apex redirect is unchanged. Prior compatible `81b18e8` stays READY;
+no rollback is needed. The operation closes with its
+[receipt](audits/2026-11-19-business-income-publication.md) on a local-only
+documentation branch, with no additional deployment.
+
 ## November 19 owner approves planner publication
 
 After breathing/Clock publication, the owner requests publication of the

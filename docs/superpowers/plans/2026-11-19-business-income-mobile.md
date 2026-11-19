@@ -1,6 +1,9 @@
 # Business Income Planner phone layout
 
-Status: initially verified locally at `0d48772` on
+Status: **published** as `fa3a030` through PR #73 after integration at `dc37c3b`,
+all hosted/Production gates and public readback. See the
+[receipt](../../audits/2026-11-19-business-income-publication.md).
+Initially verified locally at `0d48772` on
 `codex/business-income-mobile`. The owner subsequently approves publication;
 `codex/business-income-release` integrates the patch with the now-published
 breathing/Clock release. Current release gates are tracked in the

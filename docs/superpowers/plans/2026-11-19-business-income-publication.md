@@ -1,6 +1,13 @@
 # Business Income Planner publication
 
-Status: owner approved; integrated validation and fresh preflight in progress.
+Status: **completed and closed**. Reviewed `dc37c3b` on PR #73 passes all seven
+hosted jobs and merges as tree-identical `fa3a030`. Actual Production gates,
+Sentry maps, staged/public checks and one same-artifact promotion pass.
+Compatible `81b18e8` remains READY. See the
+[final receipt](../../audits/2026-11-19-business-income-publication.md).
+These closing records stay local and trigger no additional build; remaining
+time or unused write capacity grants no further operation. Procedure below
+records the completed campaign.
 
 ## Scope and source
 

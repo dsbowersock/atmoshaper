@@ -1,5 +1,28 @@
 # AtmoShaper Project State
 
+## November 19 Business Income Planner fixes published
+
+Reviewed `dc37c3b` on [PR #73](https://github.com/dsbowersock/atmoshaper/pull/73)
+passes all seven hosted jobs and merges as tree-identical `fa3a030`. Its actual
+Production build passes read-only status for all 46 migrations, all-payments
+readiness, TypeScript/115 pages and both Sentry uploads. The emitted planner
+script and referenced map match the new release's 522/2,608-file archives.
+
+One same-artifact promotion completes six public mappings. All 35 unrelated
+baseline mappings and all 87 Production setting metadata entries are preserved;
+one expected planner Preview alias makes 42 total. Ten staged/public entry
+routes, emitted planner/clock-font bytes, artwork and canonical redirect pass.
+Live Chrome confirms the compact heading, contained fields/results and working
+optional guidance without captured warnings/errors or edits to the existing
+worksheet. Exact phone/enlarged-text coverage comes from synthetic browser QA;
+physical-phone and Safari acceptance remain owner checks.
+
+Compatible `81b18e8` remains READY for rollback. The operation is completed and
+closed. These completion records stay local on
+`codex/business-income-publication-receipt` and trigger no additional build.
+See the [receipt](audits/2026-11-19-business-income-publication.md). Earlier
+pending/local-only entries below are historical checkpoints.
+
 ## November 19 Business Income Planner publication approved
 
 The owner now requests publication of the planner fixes. Release branch

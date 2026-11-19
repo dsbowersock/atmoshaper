@@ -2,6 +2,14 @@
 
 Use this checklist before inviting real users or tagging/deploying an alpha build. Keep SOAP notes, intake forms, journals, ROM sessions, and other professional-record workflows local-first in all testing.
 
+Latest November 19 update: planner `dc37c3b` is published as tree-identical
+`fa3a030` after all seven hosted jobs, actual Production migration/all-payments
+and Sentry gates, and staged/public verification. Prior `81b18e8` remains READY.
+All 87 Production settings and unrelated routing are preserved. See the
+[planner receipt](../audits/2026-11-19-business-income-publication.md). The
+operation is closed; these local completion records trigger no rebuild.
+Earlier local-only planner statements below are historical checkpoints.
+
 November 19 update: breathing/Clock candidate `7577cec` is published as
 tree-identical `81b18e8` after all seven hosted jobs, actual Production
 migration/all-payments/map gates, staged/public checks and same-artifact
