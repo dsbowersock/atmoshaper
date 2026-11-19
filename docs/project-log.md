@@ -1,5 +1,20 @@
 # AtmoShaper Project Log
 
+## November 19 hosted SEO assertion aligned with compact hub
+
+Fresh review of `1719246` reports no findings; its protected Preview passes all
+12 route/asset checks and rendered groups, units, help and guidance. One initial
+recoverable hydration error is retained in evidence and does not recur after
+reload or in a fresh tab; its cause is not established. No existing worksheet
+is edited. The hosted unit run passes 5,748 cases with five skips and one failure:
+an old source guard expects the deliberately replaced long Wellness heading.
+The corrected guard checks the compact h1, the existing metadata binding and
+unchanged route-specific search description. All 17 SEO/public-identity checks
+pass locally, as does focused lint. All four hosted browser lanes finish
+successfully on the corrected application; the aggregate correctly stays
+failed because of the stale SEO assertion. The consolidated correction changes
+tests and records only, retaining the application for a fresh hosted run.
+
 ## November 19 publication review catches draft relabeling
 
 The initial `772e54d` candidate opens PR #74. Fresh preflight preserves all 87

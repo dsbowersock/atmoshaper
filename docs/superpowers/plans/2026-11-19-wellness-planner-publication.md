@@ -80,3 +80,21 @@ covers category, note, intensity, context, intentional category edits, selecting
 a new category after save and body-map-only draft retention.
 This focused fix remains within the approved publication, requiring a fresh
 Preview, hosted QA and review at its changed source head before merge.
+
+## Hosted source-guard correction
+
+Corrected runtime `1719246` passes fresh review with no findings and all 12
+protected Preview entry/asset checks. Rendered Chrome confirms the requested
+groups/materials, centered labels, dollar units, linked help and optional
+guidance without horizontal overflow or worksheet edits. One initial recoverable
+hydration error is recorded; reload and fresh-tab reads are clean, and no cause
+is established or speculative runtime change made.
+
+The hosted unit suite passes 5,748 cases with five skips and one stale SEO
+assertion failure. It expects the former long Wellness heading despite the
+approved compact hub. The focused test-only correction checks the compact h1,
+its unchanged route metadata binding and existing search description separately.
+All 17 SEO/identity checks pass locally. Application source, metadata and the
+accepted runtime build remain unchanged. All four hosted browser lanes finish
+successfully; the aggregate correctly fails on the stale unit assertion.
+Focused lint passes. The consolidated test-only head still needs hosted QA.

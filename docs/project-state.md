@@ -2,6 +2,15 @@
 
 ## November 19 Wellness and planner publication approved
 
+Corrected runtime `1719246` passes fresh hosted review with no findings and
+protected Preview acceptance. The hosted unit suite identifies one stale SEO
+source assertion expecting the intentionally replaced long Wellness heading.
+Its correction checks the compact heading, the unchanged metadata binding and
+the route's existing search description separately. All 17 SEO/identity checks
+pass locally. Application source is unchanged by this test-only correction;
+all four hosted browser lanes pass on the corrected runtime. The final
+candidate still requires fresh hosted checks before merge.
+
 PR [#74](https://github.com/dsbowersock/atmoshaper/pull/74) has a READY protected
 Preview and passing route/asset readback. Hosted review finds that switching
 recording launchers can relabel an unfinished shared draft. An isolated browser

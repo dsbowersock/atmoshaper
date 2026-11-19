@@ -171,7 +171,10 @@ describe("SEO route contract", () => {
     assert.match(readProjectFile("app/tools/business-planner/plan-outline/plan-outline-client.tsx"), /business plan outline/)
     assert.match(readProjectFile("app/tools/business-planner/add-on-profit/add-on-profit-client.tsx"), /add-on profit/)
     assert.match(readProjectFile("app/notes/page.tsx"), /local-first massage documentation/)
-    assert.match(readProjectFile("app/wellness/page.tsx"), /massage wellness tools/)
+    // The compact hub title and search description deliberately use different copy.
+    assert.match(readProjectFile("app/wellness/page.tsx"), /<h1>wellness<\/h1>/)
+    assert.match(readProjectFile("app/wellness/page.tsx"), /createpublicpagemetadata\("\/wellness"\)/)
+    assert.match(PUBLIC_SEO_ROUTES.find((route) => route.path === "/wellness").description.toLowerCase(), /massage wellness tools/)
     assert.match(publicRouteCopy, /massage anatomy flashcards/)
     assert.match(publicRouteCopy, /massage session timer/)
     assert.match(publicRouteCopy, /massage therapist income planner/)
