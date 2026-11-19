@@ -1,5 +1,26 @@
 # AtmoShaper Project Log
 
+## November 18 post-refund access correction passes focused local checks
+
+The client adapter preserves independently authorized background use after
+purchase reversal, while historical ownership stays inactive and duplicate
+acquisition controls stay hidden. Native red/green checks reproduce 18 access
+failures, then pass all 98 focused checks. The optimized inert build passes
+TypeScript and 115 pages; all 34 desktop/mobile commerce journeys and full lint
+pass. Two screenshot-evidence cases pass without Checkout requests, ownership
+restoration, credit use or cart mutation. Full regression finishes with 5,722
+passes, four explicit platform/catalog skips and zero failures/cancellations
+out of 5,726 in 850 seconds. Standalone typecheck and local Prisma schema
+validation also pass.
+
+Consolidated backup helpers pass 45 synthetic tests with one optional age skip,
+and the existing one-record refund tool retains its 81 passing checks. Sandbox
+filesystem restrictions require native validation for junctions and hard links;
+they are not application failures. Current public source/READY rollback
+`8d89550` and disabled automatic custom-domain assignment are rechecked read-only.
+Prepared the exact-source publication packet; no push, new provider build, live
+payment or deployment occurs under the consumed refund grant.
+
 ## November 18 original refund succeeds; final UI read exposes an access defect
 
 Fresh scoped preflight confirms the original owned pending record and no

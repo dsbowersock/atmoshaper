@@ -163,6 +163,8 @@
     "commerce:refund:resume-owned": "node scripts/commerce-resume-owned-refund.mjs",
     "test:commerce-owned-refund": "node --test tests/commerce-owned-refund-recovery.test.mjs tests/background-reversals.test.mjs tests/commerce-reconcile.test.mjs tests/commerce-admin.test.mjs",
     "lint:commerce-owned-refund": "eslint scripts/commerce-resume-owned-refund.mjs tests/commerce-owned-refund-recovery.test.mjs",
+    "test:post-refund-background-access": "node --test --test-concurrency=2 tests/background-commerce-client.test.mjs tests/background-access.test.mjs tests/background-commerce-surfaces.test.mjs tests/background-commerce-provider.test.mjs",
+    "lint:post-refund-background-access": "eslint lib/background-commerce-client.js tests/background-commerce-client.test.mjs tests/browser/background-commerce.spec.ts",
     "backgrounds:branding:audit": "node --experimental-strip-types scripts/background-branding/render-audit.mjs",
     "backgrounds:branding:catalog": "node --experimental-strip-types scripts/background-branding/render-catalog.mjs",
     "test:route-entrypoints": "node --test tests/route-entrypoints.test.mjs tests/account-security-routes.test.mjs tests/account-two-factor-routes.test.mjs tests/auth-method-intents.test.mjs tests/auth-rate-limit.test.mjs tests/auth-request.test.mjs tests/auth-security.test.mjs tests/background-checkout.test.mjs tests/background-commerce-api.test.mjs tests/background-credit-service.test.mjs tests/email-verification-request-route.test.mjs tests/password-reset-request-route.test.mjs",

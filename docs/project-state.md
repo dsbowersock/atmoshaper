@@ -1,6 +1,6 @@
 # AtmoShaper Project State
 
-## November 18 original refund recovered; post-refund carousel correction pending
+## November 18 original refund recovered; local access correction passes
 
 The new exact approval is completed: one runtime key permission is saved and
 verified, then the original $1.07 refund is resumed once with its original
@@ -13,11 +13,19 @@ purchase, refund record, key, migration or deployment occurred. The
 [recovery receipt](audits/2026-11-18-owned-refund-recovery.md) closes that campaign.
 
 A fresh Clock check exposes a separate adapter defect: an inactive ownership
-row disables selection even with an independent current premium grant. The
+row disables selection even with an independent current premium grant. The local
+correction preserves independent membership/temporary/Admin/free use while
+retaining revoked ownership and blocking duplicate acquisition. All 98 focused
+checks, 34 desktop/mobile commerce journeys, full lint/typecheck and the inert optimized
+115-page build pass. Full regression passes: 5,722 passed, four explicit
+platform/catalog skips, zero failed/cancelled out of 5,726 total. The
+[local receipt](audits/2026-11-18-post-refund-background-access.md) and
 [correction plan](superpowers/plans/2026-11-18-post-refund-background-access.md)
-owns the narrow client fix and inert regression/browser checks. The candidate
+own the narrow client fix and inert regression/browser checks. The candidate
 also consolidates the tested beta operations tools/records; it is not published.
-Public source remains `8d89550`. Invitations stay on hold; no further payment
+Public source remains `8d89550`; its READY artifact and manual domain-assignment
+setting were rechecked. A [publication packet](superpowers/plans/2026-11-18-beta-final-acceptance-publication.md)
+is prepared, not approved. Invitations stay on hold; no further payment
 or expired operation is authorized by this checkpoint. Older pending-refund
 entries below are historical and superseded by the successful recovery above.
 

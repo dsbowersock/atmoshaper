@@ -1,6 +1,6 @@
 # Small beta handoff checkpoint
 
-Status: **monetary checks passed; post-refund carousel correction pending**. No invitations
+Status: **monetary checks passed; local carousel correction passes, publication pending**. No invitations
 have been sent. This checkpoint carries forward dated, scoped results rather
 than repeating closed campaigns or declaring the full migration complete.
 
@@ -28,10 +28,18 @@ The owner completed terms, payment details and the original refund submission
 privately. Exact transaction/tax/purpose and signed background fulfillment pass.
 The monetary campaign is closed; no additional payment or refund is proposed.
 A fresh Clock check shows that the client adapter incorrectly disables the
-refunded item despite independent premium access. Complete the
+refunded item despite independent premium access. The local correction passes
+98 focused checks, 34 desktop/mobile commerce journeys, full lint/typecheck and the inert
+115-page build. Full regression passes with 5,722 passed, four explicit
+platform/catalog skips and zero failed/cancelled out of 5,726. Complete the
 [focused source/browser correction](../superpowers/plans/2026-11-18-post-refund-background-access.md)
 and its separately approved publication/owned-account readback, then finish the
 tester handoff. Do not change purchase history or grants to hide this UI defect.
+The [source receipt](2026-11-18-post-refund-background-access.md) and
+[bounded release packet](../superpowers/plans/2026-11-18-beta-final-acceptance-publication.md)
+distinguish completed local results from pending hosted and offered-artifact
+checks. Fresh metadata comparison preserves all 87 Production settings' names,
+types, targets and timestamps, with no secret decryption or setting write.
 
 After those results, reconcile this checkpoint and the tester guide with the
 offered scope before inviting people. Held content, broader migration/marketing,

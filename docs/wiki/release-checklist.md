@@ -5,9 +5,12 @@ Use this checklist before inviting real users or tagging/deploying an alpha buil
 November 18 update: the separately approved all-payments release `8d89550` is
 published, including One-time support and $1 U.S. backgrounds. Its exact build,
 source maps, routing and offered Ably check pass. The two owner payments and
-background-only refund were approved. Both payments now pass within the cap;
-the refund stopped at a confirmed missing processor permission and needs the
-separately prepared one-record recovery. Use the [current beta checkpoint](../audits/2026-11-18-beta-handoff.md)
+background-only refund pass within the cap. The separately approved original-
+record recovery succeeds with signed reversal and preserved account state.
+The discovered post-refund client access correction passes local checks and
+awaits final validation/publication. Use the
+[source receipt](../audits/2026-11-18-post-refund-background-access.md),
+[current beta checkpoint](../audits/2026-11-18-beta-handoff.md)
 and [activation receipt](../audits/2026-11-18-beta-purchase-activation.md).
 The disabled-flow statements below describe the earlier October 1 activation;
 they do not override the current canonical state or authorize another campaign.

@@ -1,9 +1,13 @@
 # Preserve independent background access after a refund
 
-Status: **live defect reproduced; local correction under preparation**.
+Status: **local correction and focused desktop/mobile checks pass; not published**.
 The [monetary recovery](../../audits/2026-11-18-owned-refund-recovery.md) passed.
 The published Clock still disables the refunded background for an account with
 unchanged Admin authority. No additional financial test is required.
+The [local receipt](../../audits/2026-11-18-post-refund-background-access.md)
+records the correction, green full regression and focused validation. The
+[publication packet](2026-11-18-beta-final-acceptance-publication.md) defines the
+separate exact-source release boundary.
 
 ## Domain rule and narrow source change
 

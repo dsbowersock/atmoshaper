@@ -4,7 +4,8 @@
 Calendar journey, recovery-mail delivery and offered game connection have
 accepted bounded live checks. The updated release and purchase activation are
 published; payments and the original refund passed. A post-refund background
-access correction and final handoff remain in
+access correction passes local checks and awaits separate publication/live
+readback. Final handoff remains in
 [project state](project-state.md). Review this guide against the final offered
 build before sharing it.
 

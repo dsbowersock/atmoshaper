@@ -1,12 +1,15 @@
 # All three purchase flows before beta
 
-Status: **release published; two owned payments pass; refund permission recovery pending**.
+Status: **release published; owned payments and original refund recovery pass**.
 The owner approved the release/configuration and the bounded payments/refund
 below. See the [activation receipt](../../audits/2026-11-18-beta-purchase-activation.md).
 Preserve the finite counts, private financial handoffs and stop/cleanup rules.
 The original one-refund submission stopped at Stripe's confirmed 403 permission
-rejection; no automatic retry or expired release operation follows. A fresh
-permission/one-record recovery proposal is required, with no additional purchase.
+rejection; the separately approved [original-record recovery](../../audits/2026-11-18-owned-refund-recovery.md)
+then succeeds and closes. The [post-refund correction](../../audits/2026-11-18-post-refund-background-access.md)
+passes local checks and awaits its separate publication. Details below are the
+consumed activation/payment packet, not a reusable grant or instruction to
+repeat a payment.
 
 The prepared runtime source is now `99c297b` on
 [PR #70](https://github.com/dsbowersock/atmoshaper/pull/70). The first hosted run's

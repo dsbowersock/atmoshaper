@@ -6,6 +6,7 @@ import {
   backgroundCommerceReducer,
   buildBackgroundCartAuthReturnPath,
   formatCommerceAmount,
+  hasActivePermanentOwnership,
   normalizeBackgroundCommerceSnapshot,
   shouldApplyPreferenceOwnershipProof,
 } from "../lib/background-commerce-client.js"
@@ -470,7 +471,7 @@ describe("background commerce reducer", () => {
       background: { id: "pending-reversal", enabled: true, requiresSubscription: true },
       access: { canUse: true, accessSource: "subscription" },
       snapshot: next.snapshot,
-    }).state, "unavailable")
+    }).state, "included-subscription")
     assert.equal(backgroundCardCommerceState({
       background: { id: "restored", enabled: true, requiresSubscription: true },
       access: { canUse: true, accessSource: "ownership" },
@@ -553,7 +554,7 @@ describe("background card commerce states", () => {
     }).state, "locked-no-credit")
   })
 
-  it("treats inactive ownership as unavailable and reports cart/reservation state", () => {
+  it("keeps subscription access independent of pending refunds and reports cart/reservation state", () => {
     const unavailable = backgroundCardCommerceState({
       background: premium,
       access: { canUse: true, accessSource: "subscription" },
@@ -566,8 +567,10 @@ describe("background card commerce states", () => {
         }],
       }),
     })
-    assert.equal(unavailable.state, "unavailable")
-    assert.equal(unavailable.canSelect, false)
+    assert.equal(unavailable.state, "included-subscription")
+    assert.equal(unavailable.canSelect, true)
+    assert.equal(unavailable.showKeepPermanently, false)
+    assert.equal(hasActivePermanentOwnership(unavailable), false)
 
     const inCart = backgroundCardCommerceState({
       background: premium,
@@ -586,5 +589,52 @@ describe("background card commerce states", () => {
     assert.equal(inCart.isInCart, true)
     assert.equal(inCart.isReserved, true)
     assert.equal(inCart.canSelect, false)
+  })
+
+  for (const status of ["refund_pending", "refund_revoked", "dispute_suspended", "dispute_revoked", "retired"]) {
+    for (const source of ["subscription", "temporary", "admin"]) {
+      it(`preserves independent ${source} access with ${status} ownership`, () => {
+        const result = backgroundCardCommerceState({
+          background: premium,
+          access: { canUse: true, accessSource: source },
+          snapshot: snapshot({ ownerships: [{ backgroundId: premium.id, source: "purchase", status, acquiredAt: "2026-07-20T10:00:00.000Z" }] }),
+        })
+        assert.equal(result.state, `included-${source}`)
+        assert.equal(result.canSelect, true)
+        assert.equal(result.ownershipStatus, status)
+        assert.equal(hasActivePermanentOwnership(result), false)
+        assert.equal(result.showKeepPermanently, false)
+      })
+    }
+    it(`never revives ${status} ownership from a stale ownership-only bridge`, () => {
+      const result = backgroundCardCommerceState({
+        background: premium,
+        access: { canUse: true, accessSource: "ownership" },
+        snapshot: snapshot({ ownerships: [{ backgroundId: premium.id, source: "purchase", status, acquiredAt: "2026-07-20T10:00:00.000Z" }] }),
+      })
+      assert.equal(result.canSelect, false)
+      assert.equal(result.state, "unavailable")
+      assert.equal(hasActivePermanentOwnership(result), false)
+    })
+  }
+
+  it("keeps enabled free access independent of inactive ownership", () => {
+    const result = backgroundCardCommerceState({
+      background: free,
+      access: { canUse: true, accessSource: "free" },
+      snapshot: snapshot({ ownerships: [{ backgroundId: free.id, source: "purchase", status: "retired", acquiredAt: "2026-07-20T10:00:00.000Z" }] }),
+    })
+    assert.equal(result.state, "free")
+    assert.equal(result.canSelect, true)
+    assert.equal(hasActivePermanentOwnership(result), false)
+    assert.equal(result.showKeepPermanently, false)
+  })
+
+  it("requires both an enabled registry entry and a usable independent premium grant", () => {
+    const revoked = snapshot({ ownerships: [{ backgroundId: premium.id, source: "purchase", status: "refund_revoked", acquiredAt: "2026-07-20T10:00:00.000Z" }] })
+    for (const source of ["subscription", "temporary", "admin"]) {
+      assert.equal(backgroundCardCommerceState({ background: premium, access: { canUse: false, accessSource: source }, snapshot: revoked }).canSelect, false)
+      assert.equal(backgroundCardCommerceState({ background: { ...premium, enabled: false }, access: { canUse: true, accessSource: source }, snapshot: revoked }).canSelect, false)
+    }
   })
 })
