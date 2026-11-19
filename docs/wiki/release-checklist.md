@@ -2,16 +2,16 @@
 
 Use this checklist before inviting real users or tagging/deploying an alpha build. Keep SOAP notes, intake forms, journals, ROM sessions, and other professional-record workflows local-first in all testing.
 
-November 18 update: the separately approved all-payments release `8d89550` is
-published, including One-time support and $1 U.S. backgrounds. Its exact build,
-source maps, routing and offered Ably check pass. The two owner payments and
-background-only refund pass within the cap. The separately approved original-
-record recovery succeeds with signed reversal and preserved account state.
-The discovered post-refund client access correction passes local checks and
-awaits final validation/publication. Use the
-[source receipt](../audits/2026-11-18-post-refund-background-access.md),
-[current beta checkpoint](../audits/2026-11-18-beta-handoff.md)
-and [activation receipt](../audits/2026-11-18-beta-purchase-activation.md).
+November 18 update: approved `1748230` is published as tree-identical `adb137e`.
+All seven hosted jobs, actual Production migration/all-payments build, Sentry
+maps, same-artifact promotion and live post-refund readback pass. The unrelated
+homepage locator's configured retry is recorded. Google confirms the matched
+Calendar app is External/In production, with verified branding and no required
+scope verification. The documented small owner-led beta is ready. Use the
+[final receipt](../audits/2026-11-18-beta-final-publication.md),
+[current beta checkpoint](../audits/2026-11-18-beta-handoff.md) and
+[tester guide](../beta-tester-guide.md). The compatible READY `8d89550` artifact
+is retained; publication authority is closed and these docs trigger no rebuild.
 The disabled-flow statements below describe the earlier October 1 activation;
 they do not override the current canonical state or authorize another campaign.
 

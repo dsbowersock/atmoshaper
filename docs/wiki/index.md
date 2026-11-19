@@ -4,6 +4,12 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Breathing/Clock publication and hosted-review gates](../superpowers/plans/2026-11-19-breathing-clock-publication.md)
+- [Local breathing workspace and uninterrupted quick-access candidate](../superpowers/plans/2026-11-19-breathing-guide-mobile.md)
+- [Local Clock and timer bold/vertical-alignment correction](../superpowers/plans/2026-11-19-clock-vertical-centering.md)
+- [Accepted small-beta release and Google availability](../audits/2026-11-18-beta-final-publication.md)
+- [Small beta tester guide](../beta-tester-guide.md)
+- [Owner beta invitation and first-session plan](../beta-invitation-draft.md)
 - [Service, recovery and exact-release readiness](service-recovery-readiness.md)
 - [Shared database backups and failure response](database-backups.md)
 

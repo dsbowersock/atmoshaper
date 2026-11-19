@@ -2322,10 +2322,14 @@ test("stylesheet usage remains metadata-only uncertainty regardless of imports o
   assertPrivateSerialization(envelope, root, ["UNSTAGED_STYLESHEET_SENTINEL", "private-fixture-token", css])
 })
 
-test("stylesheet coverage inventories all 23 tracked repository CSS files exactly once", () => {
+test("stylesheet coverage inventories all tracked repository CSS files exactly once", () => {
   const index = buildTrackedTextIndex(repositoryRoot, realPolicy)
   const paths = index.trackedPaths.filter((path) => path.toLowerCase().endsWith(".css"))
-  assert.equal(paths.length, 23)
+  // Compare an independent Git census rather than a stale fixed file count.
+  // Every new tracked module must retain an exact audit row, bytes and object ID.
+  const trackedStylesheets = execFileSync("git", ["ls-files", "-z"], { cwd: repositoryRoot, encoding: "utf8" })
+    .split("\0").filter((path) => path.toLowerCase().endsWith(".css")).sort()
+  assert.deepEqual(paths, trackedStylesheets)
   const report = buildDeadCodeCandidateReport(index, realPolicy)
   const rows = report.uncertainties.stylesheetUsage ?? []
   assert.deepEqual(rows.map((row) => row.path), paths)
@@ -2334,6 +2338,7 @@ test("stylesheet coverage inventories all 23 tracked repository CSS files exactl
   // The Chimer browser fixture is tracked CSS and must keep an exact audit row.
   assert.ok(rows.some((row) => row.path === "tests/fixtures/secondary-display-layout-harness.css"))
   assert.ok(rows.some((row) => row.path === "components/backgrounds/BackgroundHost.module.css"))
+  assert.ok(rows.some((row) => row.path === "components/atmosphere/breathing-guide.module.css"))
   for (const row of rows) {
     const record = index.records.find((entry) => entry.path === row.path)
     assert.equal(row.bytes, record.bytes)

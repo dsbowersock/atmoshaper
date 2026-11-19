@@ -1,0 +1,67 @@
+/* One composition, sized by the shell rather than a stack of page cards. */
+.page { height: 100%; min-height: 0; overflow: auto; padding: clamp(0.65rem, 1.8dvh, 1.4rem) clamp(0.75rem, 3vw, 2rem); --ring: var(--button-calendar-leaf-bright); }
+.workspace { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.5dvh, 1rem); width: 100%; max-width: 44rem; height: 100%; min-height: 22rem; margin-inline: auto; container: breathing-layout / inline-size; }
+.header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.header h1 { font-size: clamp(1.2rem, 3vw, 1.75rem); font-weight: 600; line-height: 1.2; }
+.header p { margin-top: 0.3rem; color: hsl(var(--muted-foreground)); font-size: 0.75rem; }
+.links { display: flex; gap: 0.15rem; }
+.links a { min-width: 2.75rem; min-height: 2.75rem; padding: 0.5rem; color: hsl(var(--button-cta-face-bright)); }
+.links a:hover { background: hsl(var(--button-cta-face) / 0.12); }
+.links span { display: none; }
+.guide { display: grid; flex: 1; min-height: 0; container-type: inline-size; grid-template-areas: "presets" "visual" "phases" "controls" "comfort"; grid-template-rows: auto minmax(6rem, 1fr) auto auto auto; gap: clamp(0.5rem, 1.6dvh, 1rem); --ring: var(--button-calendar-leaf-bright); }
+.presets { grid-area: presets; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+/* Outrank the shared size utilities so label rows own their intrinsic height. */
+.presets .preset { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; justify-items: center; min-width: 0; height: auto; min-height: 3.25rem; gap: 0.15rem; padding: 0.4rem 0.35rem; font-size: clamp(0.75rem, 4.75cqi, 0.875rem); line-height: 1.25; }
+.preset span { max-width: 100%; }
+.presetTitle { white-space: nowrap; }
+.presetDescription { font-size: 0.7rem; line-height: 1.25; font-weight: 400; white-space: normal; opacity: 0.85; }
+.visual { grid-area: visual; display: grid; min-height: 0; place-items: center; container-type: size; }
+.orb { display: grid; inline-size: clamp(5rem, min(80cqb, 80cqi), 18rem); aspect-ratio: 1; padding: 0.4rem; border: 1px solid hsl(var(--button-calendar-leaf-bright) / 0.25); border-radius: 50%; background: conic-gradient(hsl(var(--button-calendar-leaf-bright)) var(--breathing-progress), hsl(var(--button-cta-face) / 0.2) var(--breathing-progress)); transition: transform 250ms linear; }
+.orbInner { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: hsl(var(--card)); box-shadow: inset 0 0 2rem hsl(var(--button-calendar-leaf) / 0.09); }
+.phase { color: hsl(var(--foreground)); font-size: clamp(0.85rem, 5cqb, 1.1rem); font-weight: 500; }
+.countdown { font-size: clamp(1.5rem, 17cqb, 4rem); font-weight: 500; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.cycle { margin-top: 0.2rem; color: hsl(var(--muted-foreground)); font-size: 0.7rem; }
+.phases { grid-area: phases; display: grid; grid-template-columns: repeat(var(--breathing-phases), minmax(0, 1fr)); gap: 0.4rem; }
+.phases li { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.2rem 0.45rem; min-height: 2.5rem; padding: 0.35rem; border-block-end: 2px solid hsl(var(--button-cta-face) / 0.2); color: hsl(var(--muted-foreground)); font-size: 0.75rem; }
+.phases li[aria-current="step"] { border-color: hsl(var(--button-calendar-leaf-bright)); color: hsl(var(--foreground)); background: hsl(var(--button-calendar-leaf) / 0.1); }
+.controls { grid-area: controls; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; }
+.controls .primary, .controls .reset { min-height: 2.75rem; height: auto; }
+.controls .primary { min-width: 0; white-space: normal; }
+.controls .reset { padding-inline: 1rem; }
+.comfort { grid-area: comfort; color: hsl(var(--muted-foreground)); font-size: 0.7rem; text-align: center; }
+.shortcut { color: hsl(var(--muted-foreground)); font-size: 0.65rem; text-align: center; }
+.shortcut kbd { color: hsl(var(--foreground)); font: inherit; }
+/* Same fluid tool in a focused overlay; unrelated dialog styles stay intact. */
+.dialog { width: calc(100% - 1.5rem); max-width: 30rem; height: min(38rem, calc(100dvh - var(--ml-safe-top, 0px) - var(--ml-safe-bottom, 0px) - 2rem)); min-height: 0; grid-template-rows: auto minmax(0, 1fr); gap: 1rem; padding: 1rem; overflow: auto; border-radius: 1rem; border-color: hsl(var(--button-cta-face) / 0.25); --ring: var(--button-calendar-leaf-bright); container: breathing-layout / inline-size; }
+/* The shell's sidebar/player reach 10015/10020. Keep this focused modal above
+   those layers without changing the shared dialog library or other tools. */
+.dialog[data-breathing-dialog] { z-index: 10040; }
+:global(body) .dialogBackdrop { z-index: 10030; background: hsl(var(--background) / 0.35); backdrop-filter: blur(2px); }
+.dialogHeader { padding-inline-end: 1.5rem; }
+.dialogHeader p { margin-top: 0.35rem; font-size: 0.75rem; }
+.dialog .guide { min-height: 19rem; }
+/* Text enlargement reduces the available measure in rems; stack actions then. */
+@container (max-width: 16rem) { .controls { grid-template-columns: minmax(0, 1fr); } }
+/* At large text sizes, give each complete preset name a full-width row. */
+@container (max-width: 12rem) {
+  .presets { grid-template-columns: minmax(0, 1fr); }
+  .presets .preset { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto; }
+  .presetTitle { justify-self: start; }
+}
+@media (min-width: 40rem) { .links span { display: inline; } .links a { padding-inline: 0.75rem; } }
+/* Keep touch targets at 44px in short landscape; borrow width for the pacer. */
+@media (min-width: 32rem) and (max-height: 34rem) {
+  .workspace { min-height: 15rem; max-width: 56rem; }
+  /* Media-query rems use the initial font size. Check the actual text-relative
+     container measure before committing to these two minimum-width columns. */
+  @container breathing-layout (min-width: 26rem) {
+    .guide { grid-template-areas: "visual presets" "visual phases" "visual controls" "comfort comfort"; grid-template-columns: minmax(8rem, 0.8fr) minmax(17rem, 1fr); grid-template-rows: auto auto 1fr auto; gap: 0.5rem 1rem; }
+  }
+  .controls { align-self: end; }
+  .presets .preset { min-height: 2.75rem; padding-block: 0.3rem; }
+  .phases li { min-height: 2rem; }
+  .dialog { max-width: 46rem; height: calc(100dvh - 1rem); padding: 0.75rem 1rem; gap: 0.5rem; }
+  .dialog .guide { min-height: 12rem; }
+  .shortcut { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .orb { transform: none !important; transition: none; } }

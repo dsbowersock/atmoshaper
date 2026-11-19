@@ -1,13 +1,7 @@
 # Small beta tester guide
 
-**Draft for owner review. Invitations have not been sent.** The bounded live
-Calendar journey, recovery-mail delivery and offered game connection have
-accepted bounded live checks. The updated release and purchase activation are
-published; payments and the original refund passed. A post-refund background
-access correction passes local checks and awaits separate publication/live
-readback. Final handoff remains in
-[project state](project-state.md). Review this guide against the final offered
-build before sharing it.
+Welcome to AtmoShaper's small beta. Try the tools you would actually use and
+report problems or confusing steps using the contact details below.
 
 ## Getting started
 
@@ -30,9 +24,10 @@ and recovery workflow for any local test material you want to keep.
   and resume. Report the exact selection if audio fails or keeps loading.
 - **Anatomime and education:** try the available study/game flows and report
   navigation problems, unclear instructions or visibly incorrect content.
-- **Calendar:** use an invented practice/appointment. Google connection grants
-  separate access and should be tested only with the account/calendar scope
-  agreed with the owner. Do not invite real clients as part of this beta test.
+- **Calendar:** use an invented practice/appointment. Google connection is
+  optional. Review its consent yourself: it lists your calendars, reads busy
+  times and manages events in a dedicated app-created calendar. Use your own
+  account and do not invite real clients as part of this beta test.
 - **Phone and desktop:** check readable text, menus, keyboard access and any
   offered install/offline behavior. Describe what remains usable when offline.
 

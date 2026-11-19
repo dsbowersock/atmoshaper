@@ -1,5 +1,222 @@
 # AtmoShaper Project Log
 
+## November 19 breathing/Clock publication and review correction
+
+The owner asks to publish the completed fixes. The first Vercel device sign-in
+expires; a fresh private authorization succeeds. Complete current metadata
+preflight verifies 87 unchanged Production settings, existing all-payments
+scope, disabled automatic domain assignment, READY rollback and six matching
+public aliases. A Windows batch launcher initially splits alias-query
+ampersands; invoking the same installed Vercel CLI's Node entry directly
+corrects the read-only request. No provider write occurs during that diagnosis.
+
+One push opens PR #72 at `e944178`. Its READY protected Preview passes nine
+entry pages, the reviewed bold font and actual Drone artwork. Its one expected
+new branch alias is recorded separately from the original 40-entry baseline.
+CodeRabbit skips; hosted Codex review reports a valid enlarged landscape
+overflow. The new regression reproduces 7px at 667x375/24px. A named-container
+condition now governs two-column layout by actual text-relative available
+measure, with enough width for intact preset names. Screenshot review also
+reveals the breathing overlay painted beneath the 10015 sidebar; a layer test
+fails at modal layer 50 before the scoped backdrop/content correction.
+
+All 16 final local runtime cases pass without retry/skip, including expanded
+landscape typography, page/overlay control reachability, correct overlay layers,
+focus return, native media/background continuity and Clock geometry. Focused
+lint and the inert 115-page build/TypeScript pass. The original hosted full-unit
+run separately finds two stale source contracts: 23 assumed stylesheets versus
+24 tracked, and an overbroad route-key guard. Exact independent Git inventory
+comparison replaces the fixed count; the sole ephemeral guide key is allowed
+while the remaining shared-shell key ban remains. Both checks pass through a
+named focused npm script before the PR update.
+
+These corrections stay within the requested breathing UI publication. The
+existing PR will receive the locally verified source once; original hosted
+results/Preview remain historical and are not substituted for new-head gates.
+The Production build/promotion slots are unused, the original operation window
+is retained and the separate local planner branch is excluded. The
+[publication plan](superpowers/plans/2026-11-19-breathing-clock-publication.md)
+owns the remaining gates and evidence.
+
+## November 19 owner-found button text spill and clock alignment corrections
+
+The owner's follow-up screenshot reveals Coherent wrapping mid-word and its
+timing outside the button. New rendered text-line measurements reproduce the
+spill at 320px/16px before the fix; the prior button/page box checks missed it.
+Computed styles show shared height/padding/gap utilities overriding the local
+preset declarations. Scoped higher-specificity rules establish intrinsic grid
+rows, appropriate padding/line heights and a responsive intact-title treatment.
+Action buttons also retain their intended intrinsic height. The original phone
+viewport/no-scroll and uninterrupted quick-access behavior are preserved.
+
+While that correction is active, the owner reports raised, thin Clock and setup
+digits on a work phone and requests bold. A real-font fixture identifies the
+visible-ink offset; Clock mode additionally has a deliberate -4dvh transform.
+Downloaded the author's original v0.46 release, verified its license is identical
+to the preserved notice and copied only the unmodified 5,176-byte Modern Bold
+font into source. Its separate `Digital Clock` alias normalizes line metrics and
+includes space to own the CSS line box. The original Regular face and unrelated
+consumers stay unchanged. Removed Clock's upward translation and centered setup's
+duration row. Existing saved choices, width fitting, unit/meridiem fallbacks,
+effects and immersive reservations remain in place.
+
+Strengthened font QA measures actual painted pixels beyond the line-box edges,
+so a clipped glyph cannot appear centered. Merely applying metric overrides
+without space coverage fails; including the required character fixes the offset.
+The author release and CSS Fonts first-available-font rule are linked in the
+[clock plan](superpowers/plans/2026-11-19-clock-vertical-centering.md).
+One intermediate mobile shortcut assertion races hydration; its fixture now
+proves real Start/Reset interaction before sending the ephemeral chord, rather
+than adding a delay or retry.
+
+The final inert build passes TypeScript and all 115 pages. All 49 focused clock/
+layout/font checks and 16 desktop/mobile browser cases pass without retry or skip,
+including text containment across 13 size/text combinations, ordinary breathing
+fit, key/focus guards, native media ownership, 12/24-hour seconds variants,
+Clock/setup/running-timer centering and short landscape. Focused lint passes.
+Connected Chrome confirms real bold/centered digits and Start/Reset/preset text
+within their controls; duration adjustment remains interactive. Screenshots and
+test output are outside source. The loopback inert preview stays available for
+owner review. No hosted publication, service write, live payment/email, clinical
+workflow or physical-phone/Safari acceptance occurs.
+
+## November 19 compact breathing guide and uninterrupted shortcut, local only
+
+The owner requests a phone-sized, app-like breathing interface using the existing
+green and purple buttons and a keyboard entry that preserves music/backgrounds.
+Reviewed the supplied screenshot and Moodist's visible breathing overlay as an
+interaction reference; no upstream code or media is copied. Repository ownership
+shows that route navigation preserves root music but can unmount route-owned
+Clock/Chimer activity, so retain the full page and use Alt+Shift+B for quick access
+above the current view. Escape restores focus; the dedicated page focuses its
+existing action. Other dialogs and editable fields keep their keyboard ownership.
+
+Extracted the unchanged three timing patterns into a tested elapsed-time helper,
+shared the responsive page/dialog view and added shell-scoped height reservation
+for navigation and active audio. The animation now spans each inhale/exhale and
+catches up after throttled ticks. Reduced motion retains the countdown/phase.
+Added a loopback QA start script using the established isolated environment.
+The first rendered checks reveal an immediate-pause label defect, then a 10px
+large-text overflow; both are corrected. A navigation fixture is corrected to
+expand its Tools group before selecting Breathing. The final run passes without
+retries: 15 browser cases and one device-inapplicable skip, including five phone/
+landscape sizes, active-player reservations, 200% text, reduced motion, guards,
+focus return and native media/background continuity. All 26 domain tests and
+162 QA boundary/harness tests pass, alongside lint, typecheck and the isolated
+115-page build. Windows' sandbox blocks Next's required junction and the native
+browser cache, so those checks run through the approved native path; no provider
+credentials or live database are loaded for this campaign.
+
+Connected Chrome confirms the rendered controls, themes and overlay above Clock,
+including the same Clock route and restored Close-clock focus after Escape.
+Temporary viewport overrides are reset. Screenshots and test output are outside
+tracked source. Chromium fixtures do not prove physical audio output or iOS/
+Safari behavior. The [plan](superpowers/plans/2026-11-19-breathing-guide-mobile.md)
+contains the verification commands and limits. Source is prepared locally only;
+the prior public release and closed live-service campaigns remain unchanged.
+
+## November 18 existing Voice number saved; final beta entry and handoff pass
+
+The owner identifies an existing active Google Voice line and authorizes its
+use for AtmoShaper. Fresh preflight verifies the temporary salon support contact
+and existing branding/display setting. Filled only the public support-phone
+field, checked the other visible public fields and submitted Save once. The
+saved summary shows the selected Voice number and no salon contact; reopened
+form comparison preserves all other public fields and receipt/invoice display
+off. Cancelled the read-only reopen without another save. Saved screenshot
+evidence privately in ignored output. No private verification/recovery-phone,
+account, subscription, forwarding, greeting, payment or deployment change.
+
+The canonical public host resolves read-only to READY `adb137e`; GitHub main
+still matches it. Thirteen selected anonymous entries/manifest return 200 with
+no generic server-error/personal-Gmail surface. Registration is open, offers
+Google and password entry and retains its onboarding target. Manifest branding,
+root entry, standalone display and four icons agree. These observations do not
+create a new user or prove a fresh user's completed sign-up/install/offline use.
+
+Prepared the owner's copyable [invitation and first-session plan](beta-invitation-draft.md),
+reconciled the [handoff](audits/2026-11-18-beta-handoff.md) and retained the tester
+guide. No invitations or other messages are sent. The remaining near-term owner
+checks are the Voice greeting/number maintenance and first regular November 19
+03:00 backup outcome. Prior scheduled/restore/alert and signed payment/Calendar/
+game campaigns remain closed. Local docs do not trigger another deployment or
+claim completion of broader migration/held-content/marketing work.
+
+## November 18 owner-confirmed salon support number replaces the personal cell
+
+The owner chooses the salon line temporarily and confirms the exact number and
+AtmoShaper message routing before any save. Fresh Stripe preflight verifies the
+reviewed account/public contact and receipt display off. The editor masks phone
+values in DOM reads, so the initial field-value guard correctly stops without
+editing; the fresh public summary then verifies the reviewed original contact.
+Filled only the approved support-phone field, compared all other visible fields
+and saved once. Static saved-summary readback shows the salon line and no
+personal cell. Reopening the editor verifies every other visible public field
+unchanged and receipt/invoice phone display still off. Cancelled this read-only
+reopen without a second save. Saved a screenshot in ignored operator output.
+
+Closed the public-phone privacy follow-up and restored the accepted small-beta
+handoff scope. Private verification/recovery settings, address, legal identity,
+branding, support email, payments and deployed application remain untouched.
+Researched free phone-number retention/business-use policies and the standalone
+paid Google Voice option; no new phone service, port, trial or billing change is
+started. The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) records
+the result and qualified research. Canonical documentation remains local-only.
+
+## November 18 public contact review finds a personal-cell exposure
+
+The owner clarifies that customer-visible branding/privacy is the goal, rather
+than moving private administrator logins. Public Support/Privacy/About reads,
+runtime source and live Stripe public/customer-email settings show correct
+AtmoShaper email/name branding on the checked surfaces. Carried forward the
+matched Google consent and delivered branded recovery-message evidence without
+a new grant or email. No personal Gmail is found on those checked surfaces.
+
+Stripe's public support phone is the owner's personal cell. Its receipt/invoice
+display checkbox is already off, while the editor and official US requirements
+confirm support-number exposure to card networks/cardmember statements. The
+owner wants to avoid that exposure. Prepared a replacement-only scope, awaiting
+an owner-selected business support number. Cancelled the editor without saving;
+no provider setting, legal identity, payment or deployment changed. Recorded the
+[privacy receipt](audits/2026-11-18-public-contact-privacy.md); payment beta
+outreach has this remaining contact-privacy item despite accepted release tests.
+
+## November 18 corrected release published; Google availability and beta handoff accepted
+
+After exact amendment approval, pushed `1748230` once to existing PR #71. All
+seven hosted jobs succeed: 5,721 JavaScript passes/five skips, 45 backup passes/
+one optional skip, and 615 first-attempt browser passes plus one configured-retry
+success/180 explicit matrix skips. The unchanged mobile heading test retried a
+two-match locator; no overflow assertion failed and no manual rerun was issued.
+Resolved the now-outdated fixture review finding. Merged once as `adb137e` and
+verified its tree exactly equals the approved candidate.
+
+The single automatic Production build passes the real 46-migration/all-payments
+gates and all 115 pages. Sentry accepts 521 client and 2,620 server files for the
+exact merge; an emitted script resolves to its new archive. Its unchanged debug
+ID also belongs to the prior archive, so it is not a unique source marker.
+Seven staged and seven public entry checks, 512-pixel Linux artwork and apex
+308 pass. Promoted that same artifact once; all six mappings complete, 34 other
+aliases and all 87 Production settings remain unchanged. Retained compatible
+READY `8d89550`; no rollback. Closed publication write slots after acceptance.
+
+Fresh live Clock/Admin reads confirm independent Admin selection after refund,
+revoked purchase ownership, no acquisition controls, two credits and the same
+successful original $1.07 refund/history. No financial or preference mutation.
+
+The owner enabled Google 2-step verification privately and installed the browser
+extension in the AtmoShaper profile. Switched to its browser controls, ending
+whole-PC input. Read-only matched-client inspection confirms External/In
+production, verified branding and no sensitive/restricted scopes or required
+data-access verification. No provider setting or OAuth grant changed.
+
+Reconciled the [publication receipt](audits/2026-11-18-beta-final-publication.md),
+canonical state, [handoff](audits/2026-11-18-beta-handoff.md) and
+[tester guide](beta-tester-guide.md) locally. The small owner-led beta is ready
+within that documented scope; no invitation is sent. The first regular 03:00
+backup remains a future follow-up. No new deployment accompanies these docs;
+broader migration/content/marketing/legacy-retirement gates remain separate.
+
 ## November 18 approved PR #71 held for a test-only review correction
 
 The owner approves `d04b785`. Fresh release preflight verifies unchanged public

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { BackgroundCheckoutReturnStatus } from "@/components/backgrounds/BackgroundCheckoutReturnStatus"
 import { BackgroundCommerceCart } from "@/components/backgrounds/BackgroundCommerceCart"
 import { BackgroundCommerceProvider } from "@/components/backgrounds/BackgroundCommerceProvider"
+import { BreathingQuickAccess } from "@/components/atmosphere/breathing-quick-access"
 import { CalendarOperatorTopBar } from "@/components/calendar/calendar-operator-top-bar"
 import { CalendarOperatorToolbarProvider } from "@/components/calendar/calendar-operator-toolbar-context"
 import { MovingBackground } from "@/components/moving-background"
@@ -34,6 +35,7 @@ export function LayoutWrapper({
   const isCalendarWorkspaceRoute = pathname === "/calendar"
   const isPublicBookingRoute = pathname.startsWith("/book/")
   const isMusicWorkspaceRoute = pathname === "/music"
+  const isBreathingWorkspaceRoute = pathname === "/wellness/breathing"
   const isChimerRoute = pathname.startsWith("/chimer")
     || pathname.startsWith("/clock")
     || pathname === "/dev/clock"
@@ -57,6 +59,7 @@ export function LayoutWrapper({
       data-app-bar-position={settings.appBarPosition}
       data-main-bar-visible={routeShowsMobileMainBar ? "true" : "false"}
       data-music-workspace-route={isMusicWorkspaceRoute ? "true" : "false"}
+      data-breathing-workspace-route={isBreathingWorkspaceRoute ? "true" : "false"}
     >
       {!routeOwnsBackground && (
         <>
@@ -74,14 +77,14 @@ export function LayoutWrapper({
       <div
         className={cn(
           "ml-app-scroll relative z-10 min-h-0 min-w-0 w-full flex-1 overscroll-contain",
-          isCalendarWorkspaceRoute || isMusicWorkspaceRoute ? "overflow-hidden" : "overflow-y-auto",
+          isCalendarWorkspaceRoute || isMusicWorkspaceRoute || isBreathingWorkspaceRoute ? "overflow-hidden" : "overflow-y-auto",
         )}
       >
         <div
           className={cn(
             "ml-app-content mx-auto min-w-0 w-full",
             isCalendarOperatorRoute || isPublicBookingRoute ? "max-w-none" : "max-w-screen-2xl",
-            (isCalendarWorkspaceRoute || isMusicWorkspaceRoute) && "h-full min-h-0",
+            (isCalendarWorkspaceRoute || isMusicWorkspaceRoute || isBreathingWorkspaceRoute) && "h-full min-h-0",
           )}
         >
           {children}
@@ -89,6 +92,8 @@ export function LayoutWrapper({
       </div>
       {routeShowsMobileMainBar && <MobileMainBar user={user} />}
       <MusicMiniPlayer placement={musicPlayerPlacement} />
+      {/* Only the quick-guide controller resets on navigation, not shared media. */}
+      <BreathingQuickAccess key={pathname} onBreathingPage={isBreathingWorkspaceRoute} />
     </div>
   )
 

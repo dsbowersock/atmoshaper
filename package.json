@@ -5,6 +5,9 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "test:breathing": "node --test tests/breathing-guide.test.mjs",
+    "test:breathing-guards": "node --test --test-name-pattern=\"persistent-shell navigation feedback|stylesheet coverage inventories all\" tests/interaction-feedback.test.mjs tests/repository-cleanup-audit.test.mjs",
+    "start:browser-qa": "node scripts/start-browser-qa.mjs",
     "test:calendar-personal-cancellation": "node --test tests/calendar-personal-cancellation.test.mjs tests/calendar-creation-routes.test.mjs tests/calendar-workspace.test.mjs tests/calendar-outbound-sync.test.mjs",
     "lint:calendar-personal-cancellation": "eslint app/calendar/actions/cancel-personal.ts app/calendar/actions.ts app/calendar/availability/page.tsx tests/calendar-personal-cancellation.test.mjs",
     "test:release-review-followup": "node --test tests/flashcard-prompt-availability.test.mjs tests/anatomy-media-delivery.test.mjs tests/pwa-service-worker.test.mjs tests/flashcard-community.test.mjs tests/flashcard-progress.test.mjs",

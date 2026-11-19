@@ -1,9 +1,16 @@
 # Preserve independent background access after a refund
 
-Status: **local correction and focused desktop/mobile checks pass; not published**.
+Status: **completed, published and verified on the owner account**. The approved
+amended candidate `1748230` merges as `adb137e`; actual Production checks and
+live readback pass. Selection through independent Admin access is available
+while purchase ownership and the original refund stay revoked/successful.
+See the [final receipt](../../audits/2026-11-18-beta-final-publication.md).
+The preparation requirements below are retained as historical implementation
+and validation scope, not another live-operation grant.
 The [monetary recovery](../../audits/2026-11-18-owned-refund-recovery.md) passed.
-The published Clock still disables the refunded background for an account with
-unchanged Admin authority. No additional financial test is required.
+The earlier published Clock disabled the refunded background despite unchanged
+Admin authority; the corrected release resolves it. No additional financial test
+is required.
 The [local receipt](../../audits/2026-11-18-post-refund-background-access.md)
 records the correction, green full regression and focused validation. The
 [publication packet](2026-11-18-beta-final-acceptance-publication.md) defines the

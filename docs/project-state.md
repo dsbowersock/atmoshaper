@@ -1,5 +1,207 @@
 # AtmoShaper Project State
 
+## November 19 approved breathing/Clock publication under review
+
+The owner requests publication of the breathing guide and Clock fixes. Fresh
+Vercel CLI sign-in succeeds. All 87 Production setting metadata entries match
+the accepted configuration, payment scope is `all-payments`, automatic domain
+assignment is off and the existing public release remains READY at `adb137e`.
+The original `e944178` is pushed once as
+[PR #72](https://github.com/dsbowersock/atmoshaper/pull/72); its protected Preview
+passes nine entry routes, the actual reviewed bold-font hash and artwork.
+
+Hosted review identifies enlarged-text landscape overflow, reproduced locally
+at 667x375/24px. A focused container-width correction and expanded page/overlay
+checks are being prepared before the PR update. Screenshot review also finds
+the breathing dialog below the wide-phone sidebar; the reproduced stacking
+defect receives a breathing-only correction. All 16 corrected-runtime local
+desktop/mobile cases, focused lint and the inert 115-page TypeScript/build
+pass. The original hosted unit job also flags two stale source guards: a fixed
+stylesheet count and a route-key ban that must remain on shared owners while
+permitting only the ephemeral guide controller. Both corrected checks pass with
+their protections intact before the single PR update. See the
+[publication plan](superpowers/plans/2026-11-19-breathing-clock-publication.md).
+No merge, actual Production build or public promotion has occurred yet.
+
+The Business Income Planner repair is independently ready locally at `0d48772`
+on `codex/business-income-mobile`, with its own records and inert port-3018
+preview. It is not included in this approved breathing/Clock release.
+
+## November 19 breathing text correction and centered bold clocks ready locally
+
+The owner identifies text spilling from the breathing preset buttons, then
+reports upward-shifted/thin digits in Clock and timer setup. These are corrected
+locally on `codex/breathing-guide-mobile`; the earlier viewport-bound checks
+below did not establish text containment inside each button.
+
+Breathing preset rules now outrank shared button size utilities, use intrinsic
+two-row sizing, retain intact names and widen to rows at large text sizes.
+Actual text-line rectangles remain inside every tested button face at 320,
+360 and 390px with 16/20/24/32px root text, plus short landscape. Ordinary phone
+fit, shortcut/focus and music/background continuity still pass.
+
+Clock/Chimer and duration setup use the author's unmodified DSEG7 Modern Bold
+v0.46 through a clock-only alias with normalized line metrics. Space is included
+so the browser uses those metrics rather than the fallback font's line box.
+Clock's explicit upward 4dvh translation is removed; setup centers its digit
+row. Saved `digital` selections, other font choices, readable unit labels and
+the original Regular `Digital` face used elsewhere remain intact. The existing
+original OFL notice matches the release byte for byte.
+
+Accepted checks: 49 clock/layout/font tests and 16 actual-app desktop/mobile
+browser cases pass with no skips, retries or terminal failures. Focused lint and
+the inert 115-page build, including TypeScript, pass. Tests cover centered visible
+font pixels, true bold loading, digit widths, 12/24-hour and seconds displays,
+phone/landscape/desktop Clock, setup and running-timer geometry, and enlarged
+breathing labels. Connected Chrome confirms centered bold Clock/setup digits,
+contained preset text and no captured browser warnings/errors. No physical-phone
+or Safari acceptance is claimed.
+
+The [breathing correction record](superpowers/plans/2026-11-19-breathing-guide-mobile.md)
+and [clock plan/results](superpowers/plans/2026-11-19-clock-vertical-centering.md)
+record the evidence and scope. A loopback-only inert preview remains available
+for review. No push, hosted Preview, provider write or deployment occurs; the
+accepted public release is unchanged.
+
+## November 19 breathing workspace and quick access ready locally
+
+The owner's phone screenshot drives a focused redesign on
+`codex/breathing-guide-mobile`. The full breathing page now uses one viewport
+workspace, the existing green/purple button materials, a continuously paced
+circle and compact timing/actions. It fits the tested normal phone and short
+landscape sizes with and without the active music player. Enlarged text can
+scroll vertically while keeping all actions reachable without horizontal overflow.
+
+Alt+Shift+B opens a lazy breathing dialog over other routes; Escape closes it
+and restores focus. The current route, background and media owners stay mounted.
+On the breathing page the chord focuses the existing primary action instead of
+creating another guide. Typing, composition, repeats, handled keys and unrelated
+dialogs retain their keyboard ownership. Preset durations remain unchanged.
+
+Accepted local verification: 26 timeline/chord tests, 162 QA-isolation/harness
+tests, 15 desktop/mobile browser passes and one desktop-inapplicable skip;
+lint, TypeScript and the inert-provider 115-page build pass. The browser matrix
+covers 320×568 through 412×824, 667×375 landscape, 200% root text and reduced
+motion. Native media calls and background-node continuity are unchanged while
+the overlay opens/runs/closes. Connected Chrome also verifies page controls,
+light/dark themes and quick access above Clock with focus restored afterward.
+These are local Chromium/fixture results, not physical-phone, Safari or speaker
+output acceptance. Early immediate-pause/large-text defects are fixed and the
+final selected browser run has no retry or terminal failure.
+
+The [implementation and validation record](superpowers/plans/2026-11-19-breathing-guide-mobile.md)
+records scope and limitations. No push, hosted Preview, merge, provider write or
+deployment is performed. The previously accepted public release below remains
+unchanged; publication requires separate authorization.
+
+## November 18 Google Voice support contact accepted; final invitation pass complete
+
+The owner supplies an existing active Google Voice number for AtmoShaper and
+authorizes using it instead of the temporary salon line. Fresh Stripe preflight
+matches the salon contact and branded public fields. Changed only the support
+phone and saved once. Static saved-summary and reopened-editor reads verify the
+Voice contact, absent salon contact, receipt/invoice phone display still off and
+all other visible public fields unchanged. Closed the editor without another
+save. Private verification/recovery settings and transactions remain untouched.
+The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) supersedes the
+temporary-contact choice without a new service, subscription, port or deployment.
+
+Fresh read-only Vercel resolution of the canonical public host is READY on the
+approved `adb137e`, and GitHub main remains that same source. All 13 selected
+anonymous public page/manifest requests return 200, with no generic server-error
+surface or personal Gmail in rendered content. Registration is open and offers
+Google and email/password entry with its onboarding target. The install manifest
+has AtmoShaper name/short name, root start URL, standalone display and four icons.
+These are entry/metadata checks, not new-account, install or offline acceptance.
+
+The [small-beta handoff](audits/2026-11-18-beta-handoff.md),
+[tester guide](beta-tester-guide.md) and copyable
+[invitation/first-session plan](beta-invitation-draft.md) are ready locally.
+No invitation, new account, mail, payment or live clinical-data workflow is
+created. No known blocker remains in the documented small-beta scope. The
+first regular 03:00 backup is still future; the owner should also check the Voice
+greeting/continued number activity. Broader migration/content/marketing gates,
+the recorded development-tooling finding and unrelated test retry remain separate
+follow-ups. Earlier temporary-phone and pending-contact sections are historical.
+
+## November 18 temporary business support phone saved and verified
+
+The owner selects the existing salon number for temporary AtmoShaper support,
+confirms its exact digits and that callers can reach the owner or leave an
+AtmoShaper message, and approves replacing only Stripe's public support phone.
+One save completes that field change. The saved public summary and reopened
+editor agree: the salon contact replaces the personal cell, receipt/invoice
+phone display stays off, and all other visible public-contact fields match the
+pre-save form. The editor is closed without a second save. Private verification
+and recovery phones are outside this operation and remain untouched.
+
+The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) closes the
+personal-cell item. The small-beta handoff is accepted again within its existing
+scope; a dedicated AtmoShaper phone service remains an optional later choice.
+Research finds inactivity/recycling limits on the examined free services, not a
+verified permanent free-number solution. No phone account, subscription, port,
+payment, email, application deployment or unrelated provider change occurs.
+The earlier pending-phone section below is historical and superseded.
+
+## November 18 customer-facing privacy review; support phone replacement pending
+
+The owner narrows account cleanup to information customers actually see.
+Fresh public-page/source and live Stripe reads find correct AtmoShaper support
+email/name branding on the checked surfaces. Prior verified Google consent and
+branded recovery-mail evidence are retained. No private administrator-account
+consolidation or new payment/mail campaign is needed for this goal.
+
+The owner identifies the configured Stripe public support phone as a personal
+cell number. Receipt/invoice display is already off, but Stripe says card/bank
+statements still show the support number. Its US requirements call for a valid
+customer-support number. A business replacement is needed to meet the owner's
+privacy preference before payment beta outreach. Await the selected number;
+do not invent one, change private verification phones or remove legal identity.
+The public editor is cancelled without a save. No provider/deployment change.
+The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) records the
+checked surfaces, source limits and one-field replacement scope. The accepted
+release checks below remain valid; this new customer-contact item is unresolved.
+
+## November 18 final release accepted; small beta handoff ready
+
+The owner-approved corrected head `1748230` passes all seven hosted CI jobs on
+PR #71 and merges once as `adb137e` with an identical Git tree. Hosted results:
+5,721 JavaScript passes/five skips; 45 backup passes/one optional skip; 615 browser
+first-attempt passes plus one configured-retry success and 180 matrix/opt-in
+skips, with zero terminal failures. The unrelated mobile heading locator retry
+is recorded, not hidden. The reviewed backup fixture finding is resolved.
+
+The one actual Production build passes all 46 migrations without applying one,
+live all-payments readiness, TypeScript and 115 pages. Its client/server Sentry
+uploads and emitted-script association pass. Seven staged and seven public
+entry requests, real Linux artwork and the canonical apex redirect pass. One
+same-artifact promotion completes all six mappings; 34 unrelated aliases and
+all 87 Production settings are unchanged. READY `8d89550` remains the compatible
+rollback. The publication operation is complete and its write authority closed.
+
+Live owner readback proves selectable Skybreak through independent Admin access,
+retained refunded ownership, no duplicate acquisition controls, unchanged two
+credits and the same successful original $1.07 refund/history. No preference,
+cart, payment, refund or entitlement mutation is repeated.
+
+The correct AtmoShaper-profile Chrome extension now works. Read-only Google
+inspection matches the deployed Calendar client and confirms External/In
+production, verified AtmoShaper branding and no required data-access verification.
+All three requested Calendar scopes are non-sensitive; no Google setting changes.
+
+The [final publication receipt](audits/2026-11-18-beta-final-publication.md),
+[small-beta handoff](audits/2026-11-18-beta-handoff.md) and
+[tester guide](beta-tester-guide.md) now support the documented small,
+owner-led beta. Derrick monitors `atmoshaper@gmail.com` and sends invitations;
+none are sent by the agent. Keep tests invented and clinical vaults local-first.
+The first regular backup is still due November 19 at 03:00 America/New_York;
+scheduled-context export, encrypted restore and failure-alert acceptance already
+pass. Review that run afterward without repeating a closed campaign. Broader
+migration, held media/rights, marketing and legacy retirement remain outside
+this acceptance. Postpublication documentation is local-only, not another build.
+Earlier pending-release/refund sections below are historical and superseded by
+this dated checkpoint.
+
 ## November 18 publication approved; test-only review correction prepared
 
 The owner approves candidate `d04b785` and its bounded publication/readback.
