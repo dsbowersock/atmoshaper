@@ -2,6 +2,13 @@
 
 ## November 19 planner guidance and Wellness hub ready locally
 
+The owner's follow-up replaces all 13 Wellness launchers with the existing
+filled purple button style, with icons above centered titles and subtitles.
+The two existing desktop/mobile Wellness flow cases pass again, including
+narrow/enlarged-text layouts and retained drafts. Focused lint, the inert
+115-page TypeScript/build and connected Chrome visual/interaction review pass.
+This remains a local preview, not a published update.
+
 The owner requests a compact Break-Even layout matching Income, visible money
 and time units, clearer input guidance in both planners, and a Wellness landing
 hub instead of every form stacked on one page. Local branch

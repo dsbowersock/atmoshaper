@@ -369,10 +369,10 @@ export function WellnessHubClient({
         <section aria-labelledby="wellness-reset-title">
           <h2 id="wellness-reset-title">Take a moment</h2>
           <div data-wellness-tool-grid>
-            <Button asChild variant="success" data-wellness-tile aria-label="Open breathing guide">
+            <Button asChild variant="cta" data-wellness-tile aria-label="Open breathing guide">
               <Link href="/wellness/breathing"><Wind aria-hidden="true" /><span><strong>Breathing guide</strong><small>Follow a calm rhythm</small></span></Link>
             </Button>
-            <Button asChild variant="glow" data-wellness-tile aria-label="Open music">
+            <Button asChild variant="cta" data-wellness-tile aria-label="Open music">
               <Link href="/music"><Radio aria-hidden="true" /><span><strong>Music</strong><small>Find your atmosphere</small></span></Link>
             </Button>
           </div>
@@ -381,11 +381,11 @@ export function WellnessHubClient({
           <h2 id="wellness-record-title">Record a check-in</h2>
           <div data-wellness-tool-grid>
             {recordingTools.map(({ category, title, hint, icon: Icon }) => (
-              <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant="outline" data-wellness-tile disabled={isPending} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
+              <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant="cta" data-wellness-tile disabled={isPending} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
                 <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
               </Button>
             ))}
-            <Button type="button" variant="outline" data-wellness-tile disabled={isPending} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
+            <Button type="button" variant="cta" data-wellness-tile disabled={isPending} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
               <MoveUpRight aria-hidden="true" /><span><strong>Range of motion</strong><small>Measure movement</small></span>
             </Button>
           </div>
@@ -394,7 +394,7 @@ export function WellnessHubClient({
           <h2 id="wellness-review-title">Review & plan</h2>
           <div data-wellness-tool-grid>
             {reviewTools.map(({ tool, title, hint, icon: Icon }) => (
-              <Button key={tool} type="button" variant="outline" data-wellness-tile disabled={isPending} aria-label={`Open ${title.toLowerCase()}`} onClick={(event) => openTool(tool, event.currentTarget)}>
+              <Button key={tool} type="button" variant="cta" data-wellness-tile disabled={isPending} aria-label={`Open ${title.toLowerCase()}`} onClick={(event) => openTool(tool, event.currentTarget)}>
                 <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
               </Button>
             ))}

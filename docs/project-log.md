@@ -1,5 +1,18 @@
 # AtmoShaper Project Log
 
+## November 19 Wellness purple button and centering follow-up
+
+The owner finds the outline launchers insufficiently button-like and requests
+the existing purple material with centered text. All 13 launchers now use the
+same `cta` variant as the breathing guide's purple controls. Icons sit above
+centered titles/subtitles; styles remain scoped to the Wellness launcher.
+The existing desktop/mobile Wellness flow cases pass again, including narrow
+widths, enlarged text, draft retention and keyboard return. Focused lint and
+the inert TypeScript/115-page build pass. Connected Chrome confirms all 13
+filled purple faces, label centering within 0.02px and working navigation with
+no captured warnings/errors. No new tests, dependency, provider write or
+deployment is introduced; the local preview is left open on port 3018.
+
 ## November 19 planner guidance and Wellness hub verified locally
 
 Break-Even now shares Income's compact heading, optional guidance and contained

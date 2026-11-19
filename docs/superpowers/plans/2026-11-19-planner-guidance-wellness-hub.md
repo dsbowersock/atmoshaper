@@ -81,3 +81,14 @@ open. Physical-phone, Safari, screen-reader listening and live signed-in save
 acceptance are not claimed. Original save/confirmation behavior has isolated
 action and privacy coverage. No release push, provider write or deployment
 occurs; the previously published source remains the public release.
+
+## Purple button follow-up
+
+The owner requests replacing outline launchers with the established purple
+button material and centering their text. All 13 now use the existing `cta`
+variant, with icons above centered title/description lines. Existing responsive
+and draft/navigation Wellness cases pass in desktop/mobile Chromium (two cases,
+no retry/skip). Focused lint and the inert 115-page TypeScript/build pass.
+Connected Chrome confirms the purple faces, centered text and working tool
+selection without captured warnings/errors. Screenshots are in the external
+`purple-buttons` evidence folder. This is still an unpublished local candidate.
