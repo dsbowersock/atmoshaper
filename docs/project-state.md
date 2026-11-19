@@ -1,5 +1,42 @@
 # AtmoShaper Project State
 
+## November 19 Business Income Planner publication approved
+
+The owner now requests publication of the planner fixes. Release branch
+`codex/business-income-release` integrates the previously verified `0d48772`
+patch with published `81b18e8` and its completion records. Existing breathing
+and Clock corrections remain included. The planner changes only its layout,
+presentation and corresponding synthetic fixtures; calculations, storage
+contracts and account synchronization remain unchanged.
+
+Integrated validation and fresh provider preflight precede one review PR and
+protected Preview, hosted checks, a real gated Production build with Sentry
+maps, same-artifact promotion and public readback. The current compatible
+published release stays available for rollback. See the
+[planner publication plan](superpowers/plans/2026-11-19-business-income-publication.md).
+Earlier local-only and pending-sign-in entries below are historical checkpoints.
+
+## November 19 breathing guide and centered bold clocks published
+
+Corrected `7577cec` on [PR #72](https://github.com/dsbowersock/atmoshaper/pull/72)
+passes all seven hosted jobs and merges as tree-identical `81b18e8`. Its actual
+Production build passes all 46 read-only migration status checks, all-payments
+readiness, TypeScript/115 pages and both Sentry uploads. The emitted script and
+referenced map resolve inside the new release archive. Nine staged/public entry
+routes, reviewed bold-font bytes, actual artwork and canonical redirect pass.
+
+One same-artifact promotion completes six public mappings; all 34 unrelated
+original aliases remain unchanged. One expected Preview alias makes 41 total.
+All 87 Production setting metadata entries remain unchanged. Live Chrome
+confirms breathing controls/viewport fit and centered 700-weight Clock/setup
+digits without captured warnings/errors. Physical-phone/Safari checks remain
+owner acceptance. See the [receipt](audits/2026-11-19-breathing-clock-publication.md).
+
+Previous compatible `adb137e` is retained READY; no rollback is needed. The
+operation is closed. These completion records remain local-only on
+`codex/breathing-clock-publication-receipt` and trigger no additional deployment.
+The separate planner candidate remains local at `0d48772`.
+
 ## November 19 approved breathing/Clock publication under review
 
 The owner requests publication of the breathing guide and Clock fixes. Fresh
@@ -26,6 +63,31 @@ No merge, actual Production build or public promotion has occurred yet.
 The Business Income Planner repair is independently ready locally at `0d48772`
 on `codex/business-income-mobile`, with its own records and inert port-3018
 preview. It is not included in this approved breathing/Clock release.
+## November 19 Business Income Planner phone repair ready locally
+
+The owner's phone screenshots reveal sideways scenario/input/result overflow
+and an oversized introductory callout. A separate local branch,
+`codex/business-income-mobile`, replaces the callout with a compact tool heading,
+save indicator, business-tools back link and optional guidance. Four compact
+scenario choices share one selected description. Explicit zero-minimum grid,
+field and chart sizing removes intrinsic overflow; result tiles adapt to their
+available width. Calculations, preset values, storage keys, account/device save
+behavior and shared theme components are preserved.
+
+The old QA build reproduces 223px of nested overflow at 320px. The repaired
+candidate passes four actual-app desktop/mobile cases covering 320–412px phones,
+enlarged text, landscape, desktop, all presets, result recalculation, device-draft
+reload and navigation. All 46 existing planner checks, focused lint and the inert
+115-page TypeScript/build pass. Connected Chrome confirms the compact default
+view and optional guidance with no horizontal overflow or captured errors.
+Physical-phone and Safari acceptance are not claimed. See the
+[planner implementation and results](superpowers/plans/2026-11-19-business-income-mobile.md).
+
+The local review tab uses `http://127.0.0.1:3018/tools/business-planner/income`.
+This branch remains unpublished. The owner-approved breathing/Clock release is
+separate and its source is unchanged at `e944178`; fresh Vercel CLI sign-in is
+required before publication can proceed. No release push, merge or deployment
+has occurred during this work.
 
 ## November 19 breathing text correction and centered bold clocks ready locally
 

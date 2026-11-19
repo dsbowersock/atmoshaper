@@ -1,5 +1,41 @@
 # AtmoShaper Project Log
 
+## November 19 owner approves planner publication
+
+After breathing/Clock publication, the owner requests publication of the
+Business Income Planner fixes too. A new release branch integrates the original
+local `0d48772` patch onto published `81b18e8` and its local completion records.
+Three documentation-only conflicts are combined without losing either history;
+application and browser-test changes merge cleanly. The original local branch
+is preserved. Integrated validation and a fresh release preflight are underway;
+this is a new publication operation, separate from the closed breathing release.
+The [publication plan](superpowers/plans/2026-11-19-business-income-publication.md)
+records its scope and remaining gates.
+
+## November 19 breathing/Clock release published and verified
+
+Corrected `7577cec` passes all seven hosted jobs: 5,749 JavaScript passes with
+five skips, 45 synthetic backup passes with one optional-tool skip, and 628
+browser passes with 180 matrix/opt-in skips and no reported configured retry.
+The reproduced finding is resolved. PR #72 merges once as tree-identical
+`81b18e8` and its one staged Production build passes real migration status,
+all-payments readiness, TypeScript/115 pages and two Sentry uploads.
+
+Sentry's new 521/2,608-file archives are linked to the merge release. An emitted
+script's debug ID and referenced map resolve inside the client archive; the
+unchanged common-chunk ID alone is not source identity. Nine staged/public
+routes, font bytes and artwork pass. One promotion maps the same READY artifact
+to six public aliases, preserving the other 34 original mappings, one expected
+Preview alias, all 87 Production settings and the apex redirect.
+
+Live Chrome confirms breathing Start/Reset, viewport fit and bold/centered
+Clock/setup digits without captured warnings/errors. Retained `adb137e` stays
+READY; no rollback is needed. No financial/email, clinical, NAS, migration-apply
+or service-setting campaign is repeated. The planner remains unpublished.
+The operation closes; this local-only documentation branch records the
+[receipt and limits](audits/2026-11-19-breathing-clock-publication.md) without
+triggering another build.
+
 ## November 19 breathing/Clock publication and review correction
 
 The owner asks to publish the completed fixes. The first Vercel device sign-in
@@ -37,6 +73,33 @@ The Production build/promotion slots are unused, the original operation window
 is retained and the separate local planner branch is excluded. The
 [publication plan](superpowers/plans/2026-11-19-breathing-clock-publication.md)
 owns the remaining gates and evidence.
+## November 19 Business Income Planner mobile layout repaired locally
+
+While the approved breathing/Clock publication is awaiting Vercel CLI sign-in,
+the owner reports phone-width overflow and an awkward oversized planner intro.
+Created a separate branch from the unchanged `e944178` release candidate. A real
+rendered regression reproduces 223px of nested overflow at 320px against that
+old planner. Zero-minimum grid/field sizing and removing the chart's combined
+aspect-ratio/minimum-height width constraint correct the cause without clipping
+content. A compact semantic header, optional guidance, two-column preset choices
+with one selected description and adaptive result tiles bring inputs forward.
+Financial calculations, field meanings and persistence are unchanged.
+
+The final candidate passes four actual-app desktop/mobile cases without retries
+or skips, all 46 existing planner checks, focused lint and the inert full build
+with TypeScript and 115 generated pages. Tests include all scenarios, 320–412px
+phones, 24px root text, short landscape, desktop, concrete recalculation and
+reload persistence, disclosure/back navigation, and anonymous traffic guards.
+The isolated storage fixture now uses the real Next CSS module loader/trace
+setup already established by the Clock fixture. Connected Chrome confirms the
+compact default view and optional guidance with no captured warnings/errors.
+Evidence and limits are recorded in the
+[planner plan](superpowers/plans/2026-11-19-business-income-mobile.md).
+
+No publication boundary was crossed. The breathing/Clock branch remains clean;
+the Vercel device authorization expired before completion, so a fresh private
+CLI sign-in is pending. The planner is a separate local candidate, with a
+loopback-only review tab on port 3018; it is outside the approved release.
 
 ## November 19 owner-found button text spill and clock alignment corrections
 

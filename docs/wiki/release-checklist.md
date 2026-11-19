@@ -2,6 +2,15 @@
 
 Use this checklist before inviting real users or tagging/deploying an alpha build. Keep SOAP notes, intake forms, journals, ROM sessions, and other professional-record workflows local-first in all testing.
 
+November 19 update: breathing/Clock candidate `7577cec` is published as
+tree-identical `81b18e8` after all seven hosted jobs, actual Production
+migration/all-payments/map gates, staged/public checks and same-artifact
+promotion. Previous compatible `adb137e` remains READY. All 87 Production
+settings and unrelated routing are preserved. See the
+[current receipt](../audits/2026-11-19-breathing-clock-publication.md).
+The operation is closed; these local completion records trigger no rebuild.
+The separate planner repair remains local.
+
 November 18 update: approved `1748230` is published as tree-identical `adb137e`.
 All seven hosted jobs, actual Production migration/all-payments build, Sentry
 maps, same-artifact promotion and live post-refund readback pass. The unrelated

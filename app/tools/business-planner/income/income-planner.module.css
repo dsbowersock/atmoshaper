@@ -1,0 +1,44 @@
+.page { min-width: 0; padding: 0.75rem; }
+.workspace { display: flex; flex-direction: column; gap: 1rem; min-width: 0; width: 100%; max-width: 80rem; margin-inline: auto; }
+.header { display: grid; gap: 0.5rem; min-width: 0; }
+.titleRow { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.titleRow h1 { flex: 1; min-width: 0; font-size: clamp(1.2rem, 2.5vw, 1.5rem); font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.titleIcon { flex: none; width: 1.25rem; height: 1.25rem; color: hsl(var(--primary)); }
+.workspace .backLink { flex: none; min-width: 2.75rem; min-height: 2.75rem; padding: 0.5rem; }
+.subtitle { color: hsl(var(--muted-foreground)); font-size: 0.8rem; line-height: 1.45; }
+.meta { display: flex; flex-wrap: wrap; align-items: start; gap: 0.5rem 1rem; min-width: 0; color: hsl(var(--muted-foreground)); font-size: 0.75rem; }
+.saveStatus { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; max-width: 100%; }
+.saveStatus svg { flex: none; width: 0.9rem; height: 0.9rem; color: hsl(var(--primary)); }
+.help { min-width: 0; max-width: 100%; }
+.help summary { cursor: pointer; color: hsl(var(--foreground)); }
+.help p { max-width: 65ch; margin-top: 0.5rem; line-height: 1.6; }
+.account { min-width: 0; font-size: 0.75rem; color: hsl(var(--muted-foreground)); overflow-wrap: anywhere; }
+/* Zero minimums fix intrinsic grid/chart overflow without hiding any content. */
+.main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; }
+.column { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.workspace .surface { min-width: 0; overflow-wrap: anywhere; }
+.workspace .sectionHeader { min-width: 0; padding: 1rem 1rem 0.75rem; }
+.workspace .sectionHeader h3 { font-size: 1rem; line-height: 1.35; }
+.workspace .sectionContent { min-width: 0; gap: 1rem; padding: 0 1rem 1rem; }
+.scenarioChoices { container-type: inline-size; min-width: 0; }
+.scenarioGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; min-width: 0; }
+.scenarioGrid .scenarioButton { min-width: 0; height: auto; min-height: 3.25rem; justify-content: start; padding: 0.5rem 0.65rem; font-size: 0.8rem; line-height: 1.35; text-align: start; white-space: normal; }
+.scenarioButton span { min-width: 0; max-width: 100%; }
+.scenarioDescription { margin-top: 0.65rem; color: hsl(var(--muted-foreground)); font-size: 0.75rem; line-height: 1.5; }
+.field { min-width: 0; }
+.field label { display: block; line-height: 1.5; }
+.workspace .numberInput { min-width: 0; max-width: 100%; width: 100%; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); gap: 0.75rem; min-width: 0; }
+.metric { min-width: 0; }
+.metric p { overflow-wrap: anywhere; }
+/* Explicit height frees this chart from its old aspect-ratio minimum width. */
+.workspace .chart { width: 100%; min-width: 0; height: 17rem; min-height: 0; aspect-ratio: auto; }
+@container (max-width: 12rem) { .scenarioGrid { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 40rem) {
+  .page { padding: 1.5rem; }
+  .workspace, .main, .column { gap: 1.25rem; }
+  .header { gap: 0.4rem; }
+}
+@media (min-width: 80rem) {
+  .main { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); align-items: start; }
+}

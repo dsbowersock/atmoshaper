@@ -1,6 +1,10 @@
 # Clock and timer: centered visible digits and a real bold face
 
-Status: implemented and verified locally; no publication authority.
+Status: published as `81b18e8` through
+[PR #72](https://github.com/dsbowersock/atmoshaper/pull/72). The separately
+owner-approved publication passes hosted and actual Production/map/public
+gates; see the [receipt](../../audits/2026-11-19-breathing-clock-publication.md).
+The original local implementation and acceptance record remain below.
 
 The owner's phone screenshots show both the running clock and duration setup
 digits above their intended center, with strokes thinner than desired. Preserve

@@ -1,8 +1,10 @@
 # Breathing guide: phone viewport and uninterrupted quick access
 
-Status: implemented locally; owner-approved publication is under hosted review
-on [PR #72](https://github.com/dsbowersock/atmoshaper/pull/72). The public release
-is unchanged while the focused review correction receives fresh checks.
+Status: published as `81b18e8` through
+[PR #72](https://github.com/dsbowersock/atmoshaper/pull/72), after the corrected
+source passes hosted checks and actual Production/map/public gates. See the
+[publication receipt](../../audits/2026-11-19-breathing-clock-publication.md).
+The original local acceptance and subsequent review correction remain below.
 
 November 19 correction: the owner finds text spilling within preset faces even
 though the page/control bounds pass. The follow-up below supersedes the initial

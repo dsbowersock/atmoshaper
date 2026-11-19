@@ -1111,6 +1111,78 @@ test("Chimer keeps the mobile main bar and opens quick actions above the plus bu
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
+test("Business Income Planner keeps phone fields and results within the viewport", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.goto("/tools/business-planner/income", { waitUntil: "domcontentloaded" })
+  await expect(page.getByText("Business Income Planner", { exact: true })).toBeVisible()
+  await page.waitForFunction(() => localStorage.getItem("massagelab-business-income-planner-income-v1") !== null)
+  for (const viewport of [{ width: 320, height: 714 }, { width: 360, height: 714 }, { width: 390, height: 714 }, { width: 412, height: 824 }, { width: 780, height: 360 }, { width: 1280, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    for (const scenario of ["Starting part-time", "Growing solo practice", "Full schedule", "Custom"]) {
+      const preset = page.getByRole("button", { name: new RegExp(`^${scenario}`) })
+      await preset.click()
+      await expect(preset).toHaveAttribute("aria-pressed", "true")
+      // Check nested scroll owners too: body width alone misses a grid that
+      // scrolls sideways inside the app's independent content scroller.
+      await expect.poll(() => page.locator(".ml-app-content").evaluate((root) => [root, ...root.querySelectorAll("div, section, article, button, input, p, label, h1")]
+        .filter((element) => element.clientWidth > 0 && element.getClientRects().length > 0 && element.scrollWidth > element.clientWidth + 1)
+        .slice(0, 8).map((element) => ({ tag: element.tagName, width: element.clientWidth, overflow: element.scrollWidth - element.clientWidth, text: element.textContent?.slice(0, 50) })))).toEqual([])
+    }
+    if (viewport.width <= 412) {
+      await page.evaluate(() => document.querySelector(".ml-app-scroll")?.scrollTo(0, 0))
+      const header = await page.locator("[data-income-header]").boundingBox()
+      expect(header).not.toBeNull()
+      expect(header!.height).toBeLessThanOrEqual(180)
+      await expect(page.getByLabel("Desired yearly take-home", { exact: true })).toBeInViewport({ ratio: 1 })
+    }
+    if (viewport.width === 390) {
+      await page.getByRole("button", { name: "Growing solo practice", exact: true }).click()
+      await expect(page.getByLabel("Desired yearly take-home", { exact: true })).toHaveValue("60000")
+      await page.evaluate(() => document.querySelector(".ml-app-scroll")?.scrollTo(0, 0))
+      await page.screenshot({ path: testInfo.outputPath("income-planner-phone.png") })
+    }
+  }
+  await page.setViewportSize({ width: 320, height: 714 })
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "24px" })
+  await expect.poll(() => page.locator(".ml-app-content").evaluate((root) => [root, ...root.querySelectorAll("div, button, input, p, label, h1")]
+    .filter((element) => element.clientWidth > 0 && element.getClientRects().length > 0 && element.scrollWidth > element.clientWidth + 1)
+    .map((element) => element.tagName))).toEqual([])
+  await page.getByLabel("Desired yearly take-home", { exact: true }).fill("65000")
+  await expect(page.getByLabel("Desired yearly take-home", { exact: true })).toHaveValue("65000")
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
+test("Business Income Planner preserves calculations and the device draft through its compact layout", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.setViewportSize({ width: 390, height: 714 })
+  await page.goto("/tools/business-planner/income", { waitUntil: "domcontentloaded" })
+  await page.waitForFunction(() => localStorage.getItem("massagelab-business-income-planner-income-v1") !== null)
+  const income = page.getByLabel("Desired yearly take-home", { exact: true })
+  await expect(income).toHaveValue("60000")
+  const revenue = page.getByText("Gross revenue needed", { exact: true }).locator("..").locator("p").nth(1)
+  await expect(revenue).toHaveText("$97,880")
+  await income.fill("65000")
+  await expect(revenue).toHaveText("$104,547")
+  await page.reload({ waitUntil: "domcontentloaded" })
+  await expect(income).toHaveValue("65000")
+  await expect(revenue).toHaveText("$104,547")
+  await expect(page.getByText("Saved on this device", { exact: true })).toBeVisible()
+  await page.getByText("How this planner works", { exact: true }).click()
+  await expect(page.getByText(/Change the assumptions below to see how schedule/)).toBeVisible()
+  await page.getByText("How this planner works", { exact: true }).click()
+  await page.getByText("What this means", { exact: true }).scrollIntoViewIfNeeded()
+  await page.screenshot({ path: testInfo.outputPath("income-planner-results-phone.png") })
+  await page.getByRole("link", { name: "Back to business tools", exact: true }).click()
+  await expect(page).toHaveURL(/\/tools\/business-planner$/)
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
 test("Clock keeps bold Digital digits centered in its available stage", async ({ page }, testInfo) => {
   const previewNames = ["massage-lab-hole-vertical", "massage-lab-stars-vertical", "massage-lab-moving-gradient-vertical"]
   const allowedExternalUrls = new Set([externalFontUrl, ...previewNames.map(chimerPreviewUrl)])

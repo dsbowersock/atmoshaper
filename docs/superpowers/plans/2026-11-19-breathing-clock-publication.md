@@ -1,9 +1,13 @@
 # Publish the breathing guide and centered bold clocks
 
-Status: owner-authorized publication in progress on
-[PR #72](https://github.com/dsbowersock/atmoshaper/pull/72). Production is still
-the accepted `adb137e` release. The separate Business Income Planner candidate
-on `codex/business-income-mobile` is outside this publication.
+Status: **completed and closed**. Corrected `7577cec` on
+[PR #72](https://github.com/dsbowersock/atmoshaper/pull/72) passes all seven hosted
+jobs, merges as tree-identical `81b18e8` and completes a verified Production
+build/map upload and same-artifact promotion. Compatible `adb137e` remains
+READY. See the [final receipt](../../audits/2026-11-19-breathing-clock-publication.md).
+The separate planner candidate stays local. Details below retain procedure and
+history; unused time/write capacity grants no further operation. These closing
+records are local-only and trigger no additional deployment.
 
 ## Scope and authority
 
