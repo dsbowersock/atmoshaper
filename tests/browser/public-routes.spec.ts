@@ -1827,6 +1827,158 @@ test("Breathing guide route runs separately from Music stations", async ({ page 
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
+test("Breathing guide fits phone and short landscape viewports", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.goto("/wellness/breathing", { waitUntil: "domcontentloaded" })
+  await expect(page.getByRole("button", { name: "Start breathing", exact: true })).toBeEnabled()
+
+  for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 640 }, { width: 390, height: 714 }, { width: 412, height: 824 }, { width: 667, height: 375 }]) {
+    await page.setViewportSize(viewport)
+    for (const pattern of ["Coherent", "Box", "Settle"]) {
+      const preset = page.getByRole("group", { name: "Breathing pattern" }).getByRole("button", { name: new RegExp(`^${pattern}`) })
+      await preset.click()
+      await expect(preset).toHaveAttribute("aria-pressed", "true")
+      await expect.poll(() => page.locator("[data-breathing-page]").evaluate((element) => ({
+        overflowY: element.scrollHeight - element.clientHeight,
+        overflowX: element.scrollWidth - element.clientWidth,
+      }))).toEqual({ overflowY: 0, overflowX: 0 })
+      const visual = await page.locator("[data-breathing-visual]").boundingBox()
+      const orb = await page.locator("[data-breathing-orb]").boundingBox()
+      expect(visual).not.toBeNull()
+      expect(orb!.y).toBeGreaterThanOrEqual(visual!.y - 1)
+      expect(orb!.y + orb!.height).toBeLessThanOrEqual(visual!.y + visual!.height + 1)
+      for (const control of await page.locator("[data-breathing-guide] button").all()) {
+        const box = await control.boundingBox()
+        expect(box!.height).toBeGreaterThanOrEqual(44)
+        expect(box!.x).toBeGreaterThanOrEqual(0)
+        expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width)
+        expect(box!.y + box!.height).toBeLessThan(viewport.height - 44)
+      }
+    }
+    if (viewport.width === 390) await page.screenshot({ path: testInfo.outputPath("breathing-mobile.png") })
+    if (viewport.width === 667) await page.screenshot({ path: testInfo.outputPath("breathing-landscape.png") })
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" })
+  await page.getByRole("button", { name: "Start breathing", exact: true }).click()
+  await expect(page.locator("[data-breathing-orb]")).toHaveCSS("transform", "none")
+  await expect(page.locator("[data-breathing-phase]")).toHaveText("Inhale")
+  await page.getByRole("button", { name: "Pause breathing", exact: true }).click()
+  await expect(page.locator("[data-breathing-phase]")).toHaveText("Paused")
+  await page.getByRole("button", { name: "Reset breathing", exact: true }).click()
+  await expect(page.locator("[data-breathing-phase]")).toHaveText("Ready")
+  await page.setViewportSize({ width: 390, height: 714 })
+  // Large text may scroll, but every control must remain reachable rather than clipped.
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "32px" })
+  await page.getByRole("button", { name: "Start breathing", exact: true }).click()
+  await expect(page.getByRole("button", { name: "Pause breathing", exact: true })).toBeInViewport()
+  await page.getByRole("button", { name: "Reset breathing", exact: true }).click()
+  await expect(page.getByRole("button", { name: "Reset breathing", exact: true })).toBeInViewport()
+  expect(await page.locator("[data-breathing-page]").evaluate((element) => element.scrollWidth - element.clientWidth)).toBe(0)
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+})
+
+test("Breathing shortcut protects typing and restores focus without duplicating the page", async ({ page }) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.goto("/login", { waitUntil: "domcontentloaded" })
+  const email = page.getByLabel("Email", { exact: true })
+  await email.fill("local-qa@example.invalid")
+  await email.press("Alt+Shift+B")
+  await expect(page.getByRole("dialog", { name: "Breathing guide" })).toHaveCount(0)
+  await expect(email).toBeFocused()
+
+  await page.goto("/wellness/breathing", { waitUntil: "domcontentloaded" })
+  await page.getByRole("link", { name: "Music stations", exact: true }).press("Alt+Shift+B")
+  await expect(page.locator("[data-breathing-primary]")).toBeFocused()
+  await expect(page.locator("[data-breathing-guide]")).toHaveCount(1)
+  await expect(page.getByRole("dialog", { name: "Breathing guide" })).toHaveCount(0)
+
+  await page.goto("/wellness", { waitUntil: "domcontentloaded" })
+  const originalFocus = page.getByRole("link", { name: /Open breathing guide/i })
+  await originalFocus.press("Alt+Shift+B")
+  const dialog = page.getByRole("dialog", { name: "Breathing guide" })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole("button", { name: "Start breathing", exact: true })).toBeFocused()
+  await expect(page).toHaveURL(/\/wellness$/)
+  await dialog.getByRole("button", { name: "Start breathing", exact: true }).click()
+  await expect(dialog.getByRole("button", { name: "Pause breathing", exact: true })).toBeVisible()
+  await dialog.press("Escape")
+  await expect(dialog).toHaveCount(0)
+  await expect(originalFocus).toBeFocused()
+  await originalFocus.press("Alt+Shift+B")
+  await expect(dialog.getByRole("button", { name: "Start breathing", exact: true })).toBeVisible()
+  await dialog.press("Alt+Shift+B")
+  await expect(dialog).toHaveCount(0)
+  await expect(originalFocus).toBeFocused()
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+})
+
+test("Breathing overlay leaves native music ownership and the current background mounted", async ({ page }, testInfo) => {
+  const previewNames = ["massage-lab-moving-gradient-vertical", "massage-lab-stars-vertical", "massage-lab-hole-vertical", "massage-lab-retro-grid-vertical"]
+  const allowedExternalUrls = new Set([externalFontUrl, ...atmosphereSampleIndexFixtureUrls, ...previewNames.map(chimerPreviewUrl)])
+  const health = await capturePageHealth(page, allowedExternalUrls)
+  await installExternalFontFixture(page, allowedExternalUrls)
+  await installAtmosphereFixtures(page, allowedExternalUrls, ["last-transit"])
+  await installChimerPreviewFixtures(page, previewNames, allowedExternalUrls)
+  // Observe real media ownership calls without replacing playback or contacting providers.
+  await page.addInitScript(() => {
+    const counts = { play: 0, pause: 0 }
+    Object.assign(window, { breathingMediaCalls: counts })
+    const play = HTMLMediaElement.prototype.play
+    const pause = HTMLMediaElement.prototype.pause
+    HTMLMediaElement.prototype.play = function () {
+      counts.play += 1
+      return play.call(this)
+    }
+    HTMLMediaElement.prototype.pause = function () {
+      counts.pause += 1
+      return pause.call(this)
+    }
+  })
+  await page.goto("/music", { waitUntil: "domcontentloaded" })
+  await page.getByRole("group", { name: "Station category" }).getByRole("button", { name: "Water, nature, and field textures" }).click()
+  await centerCarouselItem(page, "generative-fm-last-transit", "Next station")
+  await page.getByRole("button", { name: /^Play Last Transit$/i }).click()
+  const toolbar = page.getByTestId("music-player-toolbar")
+  await expect(toolbar).toHaveAttribute("data-playback-state", "playing", { timeout: 45_000 })
+  const background = await page.getByTestId("app-moving-background").elementHandle()
+  expect(background).not.toBeNull()
+  const callsBefore = await page.evaluate(() => ({ ...(window as typeof window & { breathingMediaCalls: { play: number; pause: number } }).breathingMediaCalls }))
+  await page.getByRole("button", { name: /^Stop Last Transit$/i }).press("Alt+Shift+B")
+  const dialog = page.getByRole("dialog", { name: "Breathing guide" })
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole("button", { name: "Start breathing", exact: true }).click()
+  await expect(dialog.getByRole("button", { name: "Pause breathing", exact: true })).toBeVisible()
+  await expect(toolbar).toHaveAttribute("data-playback-state", "playing")
+  await page.screenshot({ path: testInfo.outputPath("breathing-overlay.png") })
+  await dialog.press("Escape")
+  await expect(dialog).toHaveCount(0)
+  await expect(page).toHaveURL(/\/music$/)
+  expect(await background!.evaluate((element) => element.isConnected)).toBe(true)
+  expect(await page.evaluate(() => ({ ...(window as typeof window & { breathingMediaCalls: { play: number; pause: number } }).breathingMediaCalls }))).toEqual(callsBefore)
+  await expect(toolbar).toHaveAttribute("data-playback-state", "playing")
+  await page.setViewportSize({ width: 390, height: 714 })
+  await page.getByRole("button", { name: "Open navigation", exact: true }).click()
+  await page.getByRole("dialog").press("Alt+Shift+B")
+  await expect(page.getByRole("dialog", { name: "Breathing guide" })).toHaveCount(0)
+  const toolsGroup = page.getByRole("dialog").getByRole("button", { name: "Tools", exact: true })
+  if (await toolsGroup.getAttribute("aria-expanded") !== "true") await toolsGroup.click()
+  await page.getByRole("link", { name: "Breathing", exact: true }).click()
+  await expect(page.getByRole("heading", { name: "Breathing guide", exact: true })).toBeVisible()
+  await expect(toolbar).toHaveAttribute("data-playback-state", "playing")
+  for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 714 }, { width: 667, height: 375 }]) {
+    await page.setViewportSize(viewport)
+    await expect.poll(() => page.locator("[data-breathing-page]").evaluate((element) => element.scrollHeight - element.clientHeight)).toBe(0)
+  }
+  await toolbar.getByRole("button", { name: "Stop", exact: true }).click()
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+})
+
 test("first station Play activation stays hidden before carousel readiness", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-chromium", "Mobile Chromium owns the first-action contract.")
   const atmosphereFixtureUrls = new Set(atmosphereSampleIndexFixtureUrls)

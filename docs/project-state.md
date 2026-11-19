@@ -1,5 +1,36 @@
 # AtmoShaper Project State
 
+## November 19 breathing workspace and quick access ready locally
+
+The owner's phone screenshot drives a focused redesign on
+`codex/breathing-guide-mobile`. The full breathing page now uses one viewport
+workspace, the existing green/purple button materials, a continuously paced
+circle and compact timing/actions. It fits the tested normal phone and short
+landscape sizes with and without the active music player. Enlarged text can
+scroll vertically while keeping all actions reachable without horizontal overflow.
+
+Alt+Shift+B opens a lazy breathing dialog over other routes; Escape closes it
+and restores focus. The current route, background and media owners stay mounted.
+On the breathing page the chord focuses the existing primary action instead of
+creating another guide. Typing, composition, repeats, handled keys and unrelated
+dialogs retain their keyboard ownership. Preset durations remain unchanged.
+
+Accepted local verification: 26 timeline/chord tests, 162 QA-isolation/harness
+tests, 15 desktop/mobile browser passes and one desktop-inapplicable skip;
+lint, TypeScript and the inert-provider 115-page build pass. The browser matrix
+covers 320×568 through 412×824, 667×375 landscape, 200% root text and reduced
+motion. Native media calls and background-node continuity are unchanged while
+the overlay opens/runs/closes. Connected Chrome also verifies page controls,
+light/dark themes and quick access above Clock with focus restored afterward.
+These are local Chromium/fixture results, not physical-phone, Safari or speaker
+output acceptance. Early immediate-pause/large-text defects are fixed and the
+final selected browser run has no retry or terminal failure.
+
+The [implementation and validation record](superpowers/plans/2026-11-19-breathing-guide-mobile.md)
+records scope and limitations. No push, hosted Preview, merge, provider write or
+deployment is performed. The previously accepted public release below remains
+unchanged; publication requires separate authorization.
+
 ## November 18 Google Voice support contact accepted; final invitation pass complete
 
 The owner supplies an existing active Google Voice number for AtmoShaper and

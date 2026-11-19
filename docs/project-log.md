@@ -1,5 +1,40 @@
 # AtmoShaper Project Log
 
+## November 19 compact breathing guide and uninterrupted shortcut, local only
+
+The owner requests a phone-sized, app-like breathing interface using the existing
+green and purple buttons and a keyboard entry that preserves music/backgrounds.
+Reviewed the supplied screenshot and Moodist's visible breathing overlay as an
+interaction reference; no upstream code or media is copied. Repository ownership
+shows that route navigation preserves root music but can unmount route-owned
+Clock/Chimer activity, so retain the full page and use Alt+Shift+B for quick access
+above the current view. Escape restores focus; the dedicated page focuses its
+existing action. Other dialogs and editable fields keep their keyboard ownership.
+
+Extracted the unchanged three timing patterns into a tested elapsed-time helper,
+shared the responsive page/dialog view and added shell-scoped height reservation
+for navigation and active audio. The animation now spans each inhale/exhale and
+catches up after throttled ticks. Reduced motion retains the countdown/phase.
+Added a loopback QA start script using the established isolated environment.
+The first rendered checks reveal an immediate-pause label defect, then a 10px
+large-text overflow; both are corrected. A navigation fixture is corrected to
+expand its Tools group before selecting Breathing. The final run passes without
+retries: 15 browser cases and one device-inapplicable skip, including five phone/
+landscape sizes, active-player reservations, 200% text, reduced motion, guards,
+focus return and native media/background continuity. All 26 domain tests and
+162 QA boundary/harness tests pass, alongside lint, typecheck and the isolated
+115-page build. Windows' sandbox blocks Next's required junction and the native
+browser cache, so those checks run through the approved native path; no provider
+credentials or live database are loaded for this campaign.
+
+Connected Chrome confirms the rendered controls, themes and overlay above Clock,
+including the same Clock route and restored Close-clock focus after Escape.
+Temporary viewport overrides are reset. Screenshots and test output are outside
+tracked source. Chromium fixtures do not prove physical audio output or iOS/
+Safari behavior. The [plan](superpowers/plans/2026-11-19-breathing-guide-mobile.md)
+contains the verification commands and limits. Source is prepared locally only;
+the prior public release and closed live-service campaigns remain unchanged.
+
 ## November 18 existing Voice number saved; final beta entry and handoff pass
 
 The owner identifies an existing active Google Voice line and authorizes its

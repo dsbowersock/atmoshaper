@@ -1973,6 +1973,22 @@
     padding-bottom: var(--ml-page-bottom-safe);
   }
 
+  /* Breathing consumes the space above the measured navigation/audio stack.
+     Its inner page keeps accessible overflow for zoom or extreme heights. */
+  .ml-app-shell[data-breathing-workspace-route="true"] .ml-app-scroll {
+    scrollbar-gutter: auto;
+  }
+
+  .ml-app-shell[data-breathing-workspace-route="true"] .ml-app-content {
+    height: 100%;
+    min-height: 0;
+    padding-bottom: var(--ml-bottom-stack-height);
+  }
+
+  body.ml-music-player-active .ml-app-shell[data-breathing-workspace-route="true"] .ml-app-content {
+    padding-bottom: calc(var(--ml-bottom-stack-height) + var(--ml-audio-toolbar-height));
+  }
+
   /* Music is a viewport-owned workspace. Its content box, rather than an
      independently scrolling page, consumes the dynamic viewport left above
      the app bar and (while bottom-based) the player. */
