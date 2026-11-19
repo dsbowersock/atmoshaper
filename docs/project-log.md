@@ -1,5 +1,60 @@
 # AtmoShaper Project Log
 
+## November 19 planner guidance and Wellness hub verified locally
+
+Break-Even now shares Income's compact heading, optional guidance and contained
+card geometry. Both forms show currency/time/percentage affixes outside native
+numeric values and connect plain-language input help with `aria-describedby`.
+Break-Even money rows distinguish one-time/monthly/yearly amounts; its save
+label correctly reports device-storage failures. Calculators, defaults,
+compatibility keys, dependencies, schemas and server queries/actions are intact.
+
+Wellness opens on grouped calming, recording and review tools. Selecting one
+opens its pane with keyboard focus and a return to the launcher. Mounted hidden
+panes retain unfinished drafts; category prompts and optional body details
+match the selected check-in. Anonymous practice, private-save acknowledgment,
+pending-operation admission, confirmation flows and Quick Log hash access stay
+intact. Connected Chrome confirms all three local pages, guidance, category and
+appointment navigation without captured warnings/errors; preview is loopback
+only on port 3018.
+
+All 46 planner tests, 11 action lifecycle tests, 62 existing clinical/Wellness
+checks and two shared-shell/stylesheet guards pass, as do focused lint and the
+inert TypeScript/115-page build. Rendered checks reproduce cramped weekday
+numbers and enlarged Break-Even row/action overflow; card-width grid sizing,
+full-width narrow money amounts and wrapping actions correct them. Native text
+and date editors legitimately scroll internally, so the test checks their outer
+borders while retaining strict numeric-value containment.
+
+The final 14-case sweep passes 13 cases; the old Income text locator encounters
+duplicate hidden streamed headings. It is narrowed to the visible semantic h1,
+then that complete phone regression passes in both desktop/mobile projects.
+All 14 selected cases therefore have passing coverage, with no configured retry
+or skip in those accepted checks. They include 320–412px widths, landscape,
+desktop, 24px root text, open check-in/ROM panes, calculations, reload persistence,
+row add/remove/reset, draft retention, practice entry, timeline/pattern views,
+same-page Quick Log, keyboard return, breathing shortcut and global route/media
+layout continuity. Physical-phone/Safari acceptance and publication remain
+separate. See the [completed local plan](superpowers/plans/2026-11-19-planner-guidance-wellness-hub.md).
+
+## November 19 planner guidance and Wellness hub requested
+
+The owner asks to match Break-Even to the newly published Income layout, clarify
+monetary units and field meanings, and replace Wellness's large intro and stacked
+forms with individual tool choices. A new local branch retains the published
+source and receipt. Shared number fields now show optional units beside native
+numeric controls and link explanatory text through `aria-describedby`; model
+values and parsing remain unchanged. Break-Even shares compact planner card
+geometry. Wellness uses grouped launchers, mounted hidden panes, category-aware
+prompts, keyboard return and compatible Quick Log hash handling. Existing
+acknowledgments and synchronous action admission remain in place.
+
+Initial validation passes all 46 planner cases, 11 action lifecycle cases and 62
+existing clinical/Wellness cases, including privacy guards. The inert runtime
+build and rendered responsive/navigation tests are underway. No provider or
+deployment boundary is crossed. The
+[plan](superpowers/plans/2026-11-19-planner-guidance-wellness-hub.md) owns the work.
+
 ## November 19 Business Income Planner published and verified
 
 Integrated `dc37c3b` passes all 46 local planner checks, focused lint, the inert

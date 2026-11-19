@@ -43,6 +43,8 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
       return [slots[index], (value) => { slots[index] = typeof value === "function" ? value(slots[index]) : value }]
     },
     useRef(initial) { const index = cursor++; if (!(index in slots)) slots[index] = { current: initial }; return slots[index] },
+    // Navigation/focus effects are verified in the real-browser suite; action ownership stays inert here.
+    useEffect: () => {},
     useMemo: (callback) => callback(),
     useTransition: () => [transitionPending, (callback) => { transitionPending = true; track(callback()) }],
   }
@@ -54,7 +56,7 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     react, "react/jsx-runtime": { jsx: createElement, jsxs: createElement, Fragment: "fragment" },
     "next/link": { __esModule: true, default: passThroughElement("a") },
     "next/navigation": { unstable_rethrow },
-    "lucide-react": Object.fromEntries(["Download", "Save", "Trash2"].map((name) => [name, passThroughElement("svg")])),
+    "lucide-react": Object.fromEntries(["Activity", "ArrowLeft", "BarChart3", "BriefcaseBusiness", "CalendarDays", "Clock3", "Download", "HeartPulse", "Leaf", "Moon", "MoveUpRight", "Radio", "Save", "Smile", "Trash2", "TriangleAlert", "Wind"].map((name) => [name, passThroughElement("svg")])),
     "@/app/wellness/actions": {
       createClientWellnessEntryAction: action("create", create), deleteClientWellnessEntryAction: action("delete", remove),
       exportClientWellnessEntriesAction: action("export", exportAction),

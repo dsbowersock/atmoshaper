@@ -1,0 +1,26 @@
+.page { min-width: 0; padding: 0.75rem; }
+.workspace { display: flex; flex-direction: column; gap: 1rem; min-width: 0; max-width: 64rem; margin-inline: auto; }
+.header { display: grid; gap: 0.35rem; min-width: 0; }
+.titleRow { display: flex; align-items: center; gap: 0.5rem; }
+.titleRow svg { width: 1.25rem; height: 1.25rem; color: hsl(var(--primary)); flex: none; }
+.titleRow h1 { font-size: 1.5rem; font-weight: 600; line-height: 1.25; }
+.header p { font-size: 0.8rem; line-height: 1.5; color: hsl(var(--muted-foreground)); }
+.header .privacy { font-size: 0.7rem; }
+.page [data-wellness-home] { display: grid; gap: 1.1rem; container-type: inline-size; }
+.page [data-wellness-home] h2 { margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; }
+.page [data-wellness-tool-grid] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+.page [data-wellness-tile] { justify-content: start; height: auto; min-height: 4.5rem; min-width: 0; padding: 0.7rem; white-space: normal; text-align: start; line-height: 1.35; }
+.page [data-wellness-tile] > svg { flex: none; width: 1.1rem; height: 1.1rem; }
+.page [data-wellness-tile] span { display: grid; gap: 0.25rem; min-width: 0; overflow-wrap: anywhere; }
+.page [data-wellness-tile] strong { font-size: 0.875rem; font-weight: 600; }
+.page [data-wellness-tile] small { font-size: 0.7rem; opacity: 0.9; }
+.page [data-wellness-workspace], .page [data-wellness-pane], .page [data-wellness-pane] div { min-width: 0; }
+.page [data-wellness-pane] input, .page [data-wellness-pane] select, .page [data-wellness-pane] textarea { min-width: 0; max-width: 100%; }
+.page [data-wellness-pane] { overflow-wrap: anywhere; }
+.page [data-wellness-pane] button { max-width: 100%; min-height: 2.75rem; height: auto; white-space: normal; }
+/* Hidden panes retain drafts and pending owners, while leaving focus and the accessibility tree. */
+.page [data-wellness-home][hidden], .page [data-wellness-workspace][hidden], .page [data-wellness-pane][hidden] { display: none; }
+@media (min-width: 40rem) { .page { padding: 1.5rem; } .page [data-wellness-tool-grid] { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 60rem) { .page [data-wellness-tool-grid] { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 22rem) { .page [data-wellness-tile] { gap: 0.4rem; padding: 0.6rem; } }
+@container (max-width: 18rem) { .page [data-wellness-tool-grid] { grid-template-columns: minmax(0, 1fr); } }

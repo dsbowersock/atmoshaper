@@ -1,9 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { useMemo } from "react"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
-import { BadgeDollarSign, BriefcaseBusiness, Plus, RotateCcw, Trash2 } from "lucide-react"
-import { AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
+import { ArrowLeft, BadgeDollarSign, BriefcaseBusiness, Plus, RotateCcw, Save, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   calculateBreakEvenPlan,
@@ -11,12 +11,15 @@ import {
 } from "@/lib/business-plan-template-tools"
 import {
   BusinessDraftStorageNotice,
+  PlannerSection,
   MetricTile,
   NumberField,
   TextField,
   formatMoney,
   formatNumber,
 } from "../_components/business-tool-fields"
+
+import styles from "../_components/business-planner.module.css"
 
 type BreakEvenInput = ReturnType<typeof normalizeBreakEvenInput>
 type MoneyItem = BreakEvenInput["startupCosts"][number]
@@ -27,22 +30,22 @@ const STORAGE_KEY = "massagelab-business-planner-break-even-v1"
 const moneySectionLabels: Record<MoneySectionKey, { title: string; description: string; emptyLabel: string }> = {
   startupCosts: {
     title: "Startup costs",
-    description: "One-time setup purchases and opening costs from the template.",
+    description: "One-time costs to get started: equipment, deposits and opening supplies. Enter US dollars paid once.",
     emptyLabel: "Startup item",
   },
   monthlyExpenses: {
     title: "Monthly expenses",
-    description: "Recurring costs such as rent, supplies, phone, website, utilities, and maintenance.",
+    description: "Regular monthly bills, such as rent, phone, software and utilities. Enter each cost once; do not repeat it under yearly expenses.",
     emptyLabel: "Monthly item",
   },
   annualExpenses: {
     title: "Annual expenses",
-    description: "Yearly or annualized costs such as insurance, renewals, and professional fees.",
+    description: "Bills paid once a year, such as insurance and license renewals. Enter the full yearly amount; the estimate spreads it over 12 months.",
     emptyLabel: "Annual item",
   },
   fundingSources: {
     title: "Initial capital",
-    description: "Savings, loans, or other starting money available before opening.",
+    description: "Money available before opening: savings, loans or other funding. Enter available US dollars, not expected sales.",
     emptyLabel: "Funding source",
   },
 }
@@ -100,39 +103,48 @@ export function BreakEvenPlannerClient() {
   }
 
   return (
-    <AppPageShell width="full" contentClassName="gap-6">
+    <div className={styles.page} data-break-even-planner>
+      <div className={styles.workspace}>
       <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <AppSurface
-        title="Startup Costs and Break-Even"
-        description="Use the business plan template's finance questions to estimate startup funding, monthly operating costs, break-even sessions, tax set-aside, and projected income."
-        icon={<BadgeDollarSign className="h-5 w-5" aria-hidden="true" />}
-        badge="Browser worksheet"
-        className={appCalloutClassName}
-      >
-        <div className="grid gap-3 md:grid-cols-4">
-          <MetricTile label="Startup funding gap" value={formatMoney(plan.startupFundingGap)} />
-          <MetricTile label="Monthly operating cost" value={formatMoney(plan.monthlyOperatingCost)} />
-          <MetricTile label="Break-even sessions" value={breakEvenSessionLabel} description={breakEvenSessionDescription} />
-          <MetricTile label="Projected yearly gross" value={formatMoney(plan.projectedAnnualGross)} />
+      <header className={styles.header} data-break-even-header>
+        <div className={styles.titleRow}>
+          <BadgeDollarSign className={styles.titleIcon} aria-hidden="true" />
+          <h1>Startup Costs and Break-Even</h1>
+          <Button asChild variant="ghost" className={styles.backLink}>
+            <Link href="/tools/business-planner" aria-label="Back to business tools" title="Back to business tools"><ArrowLeft aria-hidden="true" /></Link>
+          </Button>
         </div>
-      </AppSurface>
+        <p className={styles.subtitle}>Plan opening costs and the sessions needed to cover your bills.</p>
+        <div className={styles.meta}>
+          <p className={styles.saveStatus} aria-live="polite" aria-atomic="true"><Save aria-hidden="true" />{storageUnavailable ? "Not saved on this device" : "Saved on this device"}</p>
+          <details className={styles.help}>
+            <summary>How this planner works</summary>
+            <p>Add your service price, working schedule and business costs in US dollars. Keep one-time, monthly and yearly costs separate so each expense is counted once.</p>
+            <p>Break-even covers operating costs before owner income or tax. Startup funding is shown separately. These are estimates based on the numbers you enter.</p>
+          </details>
+        </div>
+      </header>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(20rem,0.95fr)_minmax(0,1.25fr)]">
-        <div className="space-y-6">
-          <AppSurface
+      <div className={styles.main}>
+        <div className={styles.column}>
+          <PlannerSection
             title="Service and schedule"
-            description="These values connect the template's projected gross income and break-even questions."
+            description="Enter a typical appointment price and a realistic working schedule."
             icon={<BriefcaseBusiness className="h-5 w-5" aria-hidden="true" />}
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <NumberField
                 id="break-even-service-price"
+                unit="$"
+                description="US dollars charged for one typical appointment, before tips. Use an average if your services have different prices."
                 label="Main service price"
                 value={input.servicePrice}
                 onChange={(value) => updateTopLevel("servicePrice", value)}
               />
               <NumberField
                 id="break-even-sessions-week"
+                unit="sessions"
+                description="Appointments you expect to complete in a normal working week, not the number of open time slots."
                 label="Sessions per week"
                 value={input.sessionsPerWeek}
                 step="0.5"
@@ -140,12 +152,16 @@ export function BreakEvenPlannerClient() {
               />
               <NumberField
                 id="break-even-weeks-year"
+                unit="weeks"
+                description="Weeks you expect to work this year after vacations and other time off."
                 label="Working weeks per year"
                 value={input.weeksPerYear}
                 onChange={(value) => updateTopLevel("weeksPerYear", value)}
               />
               <NumberField
                 id="break-even-tax-rate"
+                unit="%"
+                description="Share of projected gross sales to reserve for taxes. Enter 25 for 25%; use your own planning estimate."
                 label="Tax set-aside percent"
                 value={Number((input.taxSetAsideRate * 100).toFixed(1))}
                 max={80}
@@ -153,11 +169,11 @@ export function BreakEvenPlannerClient() {
                 onChange={(value) => updateTopLevel("taxSetAsideRate", value)}
               />
             </div>
-            <Button type="button" variant="secondary" className="w-fit" onClick={resetWorksheet}>
+            <Button type="button" variant="secondary" className="h-auto min-h-11 w-fit max-w-full whitespace-normal" onClick={resetWorksheet}>
               <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
               Reset worksheet
             </Button>
-          </AppSurface>
+          </PlannerSection>
 
           {moneySectionOrder.map((section) => (
             <MoneySection
@@ -171,17 +187,25 @@ export function BreakEvenPlannerClient() {
           ))}
         </div>
 
-        <div className="space-y-6">
-          <AppSurface
+        <div className={styles.column}>
+          <PlannerSection title="Break-even estimate" description="Sessions needed to cover ongoing business costs, before paying yourself or setting aside tax.">
+            <div className={styles.metrics}>
+              <MetricTile label="Startup funding gap" value={formatMoney(plan.startupFundingGap)} />
+              <MetricTile label="Monthly operating cost" value={formatMoney(plan.monthlyOperatingCost)} />
+              <MetricTile label="Break-even sessions" value={breakEvenSessionLabel} description={breakEvenSessionDescription} />
+              <MetricTile label="Projected yearly gross" value={formatMoney(plan.projectedAnnualGross)} />
+            </div>
+          </PlannerSection>
+          <PlannerSection
             title="Financial analysis"
-            description="Use these numbers to write the finance section of a student business plan."
+            description="Gross is sales before costs. The final estimate subtracts operating costs and your tax set-aside; it does not repay startup funding."
           >
             {plan.warnings.length > 0 ? (
               <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                 {plan.warnings.join(" ")}
               </div>
             ) : null}
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className={styles.metrics}>
               <MetricTile label="Startup costs" value={formatMoney(plan.startupCostTotal)} />
               <MetricTile label="Initial capital" value={formatMoney(plan.fundingTotal)} />
               <MetricTile label="Monthly expenses" value={formatMoney(plan.monthlyExpenseTotal)} />
@@ -191,9 +215,9 @@ export function BreakEvenPlannerClient() {
               <MetricTile label="Tax set-aside" value={formatMoney(plan.taxSetAside)} description={`${Math.round(input.taxSetAsideRate * 100)}% of projected gross`} />
               <MetricTile label="After expenses and tax" value={formatMoney(plan.projectedNetAfterExpensesAndTax)} />
             </div>
-          </AppSurface>
+          </PlannerSection>
 
-          <AppSurface
+          <PlannerSection
             title="Business plan wording"
             description="A concise sentence students can adapt into the Financial Analysis section."
           >
@@ -203,10 +227,11 @@ export function BreakEvenPlannerClient() {
                 ? "Set a non-zero service price to estimate break-even sessions."
                 : `The practice needs about ${formatNumber(plan.monthlyBreakEvenSessions)} sessions per month to cover monthly operating costs before owner income.`}
             </p>
-          </AppSurface>
+          </PlannerSection>
         </div>
       </div>
-    </AppPageShell>
+      </div>
+    </div>
   )
 }
 
@@ -228,19 +253,20 @@ function MoneySection({
   const labels = moneySectionLabels[section]
 
   return (
-    <AppSurface title={labels.title} description={labels.description}>
+    <PlannerSection id={`break-even-${section}`} title={labels.title} description={labels.description}>
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={`${section}-${index}`} className="grid gap-3 rounded-md border border-border/80 bg-background/70 p-3 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end">
+          <div key={`${section}-${index}`} className={`${styles.moneyRow} rounded-md border border-border/80 bg-background/70 p-3`}>
             <TextField
               id={`${section}-${index}-label`}
-              label="Name"
+              label="Item"
               value={item.label}
               onChange={(value) => onUpdate(section, index, "label", value)}
             />
             <NumberField
               id={`${section}-${index}-amount`}
-              label="Amount"
+              label={section === "monthlyExpenses" ? "Monthly amount" : section === "annualExpenses" ? "Yearly amount" : "One-time amount"}
+              unit="$"
               value={item.amount}
               onChange={(value) => onUpdate(section, index, "amount", value)}
             />
@@ -248,7 +274,7 @@ function MoneySection({
               type="button"
               variant="ghost"
               size="icon"
-              className="h-10 w-10"
+              className="h-11 w-11"
               aria-label={`Remove ${item.label || labels.emptyLabel}`}
               onClick={() => onRemove(section, index)}
               disabled={items.length <= 1}
@@ -258,10 +284,10 @@ function MoneySection({
           </div>
         ))}
       </div>
-      <Button type="button" variant="secondary" className="w-fit" onClick={() => onAdd(section)}>
+      <Button type="button" variant="secondary" className="h-auto min-h-11 w-fit max-w-full whitespace-normal" onClick={() => onAdd(section)} aria-label={`Add row to ${labels.title}`}>
         <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
         Add row
       </Button>
-    </AppSurface>
+    </PlannerSection>
   )
 }

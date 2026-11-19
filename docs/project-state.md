@@ -1,5 +1,31 @@
 # AtmoShaper Project State
 
+## November 19 planner guidance and Wellness hub ready locally
+
+The owner requests a compact Break-Even layout matching Income, visible money
+and time units, clearer input guidance in both planners, and a Wellness landing
+hub instead of every form stacked on one page. Local branch
+`codex/planner-wellness-polish` starts from published `fa3a030` and its completion
+receipt. Shared field units/help and compact planner geometry are implemented;
+Wellness now has grouped launchers and one selected pane while retaining drafts,
+existing action owners and `/wellness#quick-log`. All 46 planner, 11 action
+lifecycle, 62 clinical/Wellness and two shared-shell/inventory checks pass.
+Focused lint and the inert TypeScript/115-page build pass. All 14 selected
+desktop/mobile browser cases have passing evidence across the final sweep and
+focused visible-heading readiness correction, recorded in the plan.
+
+Responsive checks cover 320–412px, landscape, desktop and 24px root text,
+including open check-in/ROM panes. Calculations, saved drafts, add/remove/reset,
+tool selection, unfinished-entry retention, practice entry, timeline/pattern
+access, Quick Log hash navigation, focus return and breathing shortcut pass.
+Connected Chrome confirms all three local views and appointment-tool navigation
+without captured warnings/errors. The loopback-only review preview runs on
+port 3018; physical-phone and Safari acceptance remain owner checks.
+
+Calculators, defaults, storage keys, server queries/actions and schemas remain
+unchanged. This work is not published and does not reopen the closed publication
+operation. See the [implementation plan](superpowers/plans/2026-11-19-planner-guidance-wellness-hub.md).
+
 ## November 19 Business Income Planner fixes published
 
 Reviewed `dc37c3b` on [PR #73](https://github.com/dsbowersock/atmoshaper/pull/73)

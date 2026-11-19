@@ -1,14 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ComponentProps } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { ArrowLeft, BadgeDollarSign, BriefcaseBusiness, CalendarDays, Clock3, Percent, Save, WalletCards } from "lucide-react"
-import { AppInset, AppSurface } from "@/components/ui/app-surface"
+import { AppInset } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   BUSINESS_INCOME_APP_SETTINGS_KEY,
   BUSINESS_INCOME_LOCAL_STORAGE_KEY,
@@ -20,8 +18,8 @@ import {
 } from "@/lib/business-income-planner"
 import { cn } from "@/lib/utils"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
-import { BusinessDraftStorageNotice } from "../_components/business-tool-fields"
-import styles from "./income-planner.module.css"
+import { BusinessDraftStorageNotice, NumberField, PlannerSection } from "../_components/business-tool-fields"
+import styles from "../_components/business-planner.module.css"
 
 type PlannerInput = ReturnType<typeof normalizeBusinessIncomePlannerInput>
 type PlannerPresetKey = keyof typeof BUSINESS_INCOME_PRESETS
@@ -254,24 +252,32 @@ export function IncomePlannerClient({
             <div className="grid gap-4 sm:grid-cols-2">
               <NumberField
                 id="desired-income"
+                unit="$"
+                description="US dollars you want left for yourself each year, after business costs and your tax set-aside."
                 label="Desired yearly take-home"
                 value={input.desiredTakeHomeIncome}
                 onChange={(value) => updateField("desiredTakeHomeIncome", value)}
               />
               <NumberField
                 id="monthly-fixed-expenses"
+                unit="$"
+                description="US dollars spent on regular monthly bills, such as rent, software and phone. Leave out costs counted per session."
                 label="Monthly fixed expenses"
                 value={input.monthlyFixedExpenses}
                 onChange={(value) => updateField("monthlyFixedExpenses", value)}
               />
               <NumberField
                 id="session-variable-cost"
+                unit="$"
+                description="Average US dollars spent for one appointment: supplies, laundry and payment fees. Do not include your monthly bills again."
                 label="Per-session variable cost"
                 value={input.perSessionVariableCost}
                 onChange={(value) => updateField("perSessionVariableCost", value)}
               />
               <NumberField
                 id="tax-set-aside"
+                unit="%"
+                description="Share of your income reserved for taxes. Enter 25 for 25%. Use your own planning estimate."
                 label="Tax/set-aside percent"
                 value={roundForInput(input.taxSetAsideRate * 100)}
                 onChange={updateTaxRate}
@@ -280,6 +286,8 @@ export function IncomePlannerClient({
               />
               <NumberField
                 id="average-session-length"
+                unit="min"
+                description="Hands-on minutes in your typical appointment. Leave out intake, cleanup and time between clients."
                 label="Average session minutes"
                 value={input.averageSessionMinutes}
                 onChange={(value) => updateField("averageSessionMinutes", value)}
@@ -287,6 +295,8 @@ export function IncomePlannerClient({
               />
               <NumberField
                 id="employee-wage"
+                unit="$"
+                description="Optional US dollars per hour for comparing an employee job. Leave 0 to skip this comparison."
                 label="Optional employee hourly wage"
                 value={input.employeeHourlyWage}
                 onChange={(value) => updateField("employeeHourlyWage", value)}
@@ -296,24 +306,30 @@ export function IncomePlannerClient({
 
           <PlannerSection
             title="Time and schedule"
-            description="Match the worksheet: days off reduce available weeks, and client hours drive revenue capacity."
+            description="Plan your time off and a typical client week. The calculator converts calendar days off into available working weeks."
             icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />}
           >
             <div className="grid gap-4 sm:grid-cols-3">
               <NumberField
                 id="vacation-days"
+                unit="days"
+                description="Calendar days away for vacation this year. A full week is 7 days."
                 label="Vacation days"
                 value={input.vacationDays}
                 onChange={(value) => updateField("vacationDays", value)}
               />
               <NumberField
                 id="holiday-days"
+                unit="days"
+                description="Additional calendar days off for holidays. Do not count vacation days again."
                 label="Holiday days"
                 value={input.holidayDays}
                 onChange={(value) => updateField("holidayDays", value)}
               />
               <NumberField
                 id="personal-days"
+                unit="days"
+                description="Other calendar days off for rest, illness or personal needs."
                 label="Personal days"
                 value={input.personalDays}
                 onChange={(value) => updateField("personalDays", value)}
@@ -321,16 +337,20 @@ export function IncomePlannerClient({
             </div>
             <NumberField
               id="weekly-admin-hours"
+                unit="h"
+                description="Unpaid hours each week on scheduling, cleaning and paperwork. These add to your total workload, not client hours."
               label="Weekly unpaid admin hours"
               value={input.weeklyAdminHours}
               onChange={(value) => updateField("weeklyAdminHours", value)}
             />
-            <div className="grid gap-3 sm:grid-cols-7">
+            <p id="client-week-help" className="text-xs leading-relaxed text-muted-foreground">Client hours in a typical week: count hands-on time only, without breaks, travel or admin. Use 0 on days you do not see clients.</p>
+            <div className={styles.weekGrid} aria-describedby="client-week-help">
               {BUSINESS_INCOME_WEEKDAY_KEYS.map((day) => (
                 <NumberField
                   key={day}
                   id={`client-hours-${day}`}
                   label={weekdayLabels[day] ?? day}
+                  unit="h"
                   value={input.weekdayClientHours[day]}
                   onChange={(value) => updateWeekdayHours(day, value)}
                   step="0.5"
@@ -422,48 +442,6 @@ export function IncomePlannerClient({
   )
 }
 
-/** Apply compact route-only spacing without changing the shared card library. */
-function PlannerSection({ className, headerClassName, contentClassName, ...props }: ComponentProps<typeof AppSurface>) {
-  return <AppSurface {...props} className={cn(styles.surface, className)} headerClassName={cn(styles.sectionHeader, headerClassName)} contentClassName={cn(styles.sectionContent, contentClassName)} />
-}
-
-function NumberField({
-  id,
-  label,
-  value,
-  onChange,
-  max,
-  step = "1",
-}: {
-  id: string
-  label: string
-  value: number
-  onChange: (value: number) => void
-  max?: number
-  step?: string
-}) {
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    onChange(numberFromInput(event.currentTarget.value))
-  }
-
-  return (
-    <div className={cn("space-y-2", styles.field)}>
-      <Label htmlFor={id} className="text-xs font-medium text-muted-foreground">{label}</Label>
-      <Input
-        id={id}
-        type="number"
-        inputMode="decimal"
-        className={styles.numberInput}
-        min={0}
-        max={max}
-        step={step}
-        value={Number.isFinite(value) ? value : 0}
-        onChange={handleChange}
-      />
-    </div>
-  )
-}
-
 function MetricTile({
   label,
   value,
@@ -489,13 +467,6 @@ function presetPayload(key: PlannerPresetKey) {
     presetKey: key,
     ...preset.values,
   }
-}
-
-function numberFromInput(value: string) {
-  if (value.trim() === "") return 0
-
-  const number = Number(value)
-  return Number.isFinite(number) ? number : 0
 }
 
 function roundForInput(value: number) {

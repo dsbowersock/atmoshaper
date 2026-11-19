@@ -1,10 +1,17 @@
 "use client"
 
-import { type ChangeEvent } from "react"
-import { AppInset, appCalloutClassName } from "@/components/ui/app-surface"
+import { type ChangeEvent, type ComponentProps } from "react"
+import { AppInset, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
+import styles from "./business-planner.module.css"
+
+/** Shares the compact card geometry without changing a worksheet's domain behavior. */
+export function PlannerSection(props: ComponentProps<typeof AppSurface>) {
+  return <AppSurface {...props} className={cn(styles.surface, props.className)} headerClassName={cn(styles.sectionHeader, props.headerClassName)} contentClassName={cn(styles.sectionContent, props.contentClassName)} />
+}
 
 const moneyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -30,6 +37,8 @@ export function BusinessDraftStorageNotice({ unavailable, unreadDraft }: { unava
   )
 }
 
+/** Displays units beside the control and links plain-language help without
+ * putting currency symbols or formatted text into the persisted number. */
 export function NumberField({
   id,
   label,
@@ -37,6 +46,8 @@ export function NumberField({
   onChange,
   max,
   step = "1",
+  unit,
+  description,
 }: {
   id: string
   label: string
@@ -44,24 +55,32 @@ export function NumberField({
   onChange: (value: number) => void
   max?: number
   step?: string
+  unit?: "$" | "%" | "h" | "days" | "min" | "weeks" | "sessions"
+  description?: string
 }) {
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     onChange(numberFromInput(event.currentTarget.value))
   }
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", styles.field)}>
       <Label htmlFor={id} className="text-xs font-medium text-muted-foreground">{label}</Label>
+      <div className="relative min-w-0">
+      {unit ? <span data-field-unit={unit} aria-hidden="true" className={cn("pointer-events-none absolute inset-y-0 z-10 flex items-center text-sm text-muted-foreground", unit === "$" ? "start-3" : "end-3")}>{unit}</span> : null}
       <Input
         id={id}
         type="number"
         inputMode="decimal"
+        className={cn(styles.numberInput, "tabular-nums", unit === "$" ? "ps-8" : unit ? "pe-20" : "", unit === "%" || unit === "h" ? "pe-8" : "")}
+        aria-describedby={description ? `${id}-help` : undefined}
         min={0}
         max={max}
         step={step}
         value={Number.isFinite(value) ? value : 0}
         onChange={handleChange}
       />
+      </div>
+      {description ? <p id={`${id}-help`} className="text-xs leading-relaxed text-muted-foreground">{description}</p> : null}
     </div>
   )
 }
@@ -78,7 +97,7 @@ export function TextField({
   onChange: (value: string) => void
 }) {
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <Label htmlFor={id} className="text-xs font-medium text-muted-foreground">{label}</Label>
       <Input id={id} value={value} onChange={(event) => onChange(event.currentTarget.value)} />
     </div>

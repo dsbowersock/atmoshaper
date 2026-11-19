@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import { unstable_rethrow } from "next/navigation"
-import { useMemo, useRef, useState } from "react"
-import { Download, Save, Trash2 } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { Activity, ArrowLeft, BarChart3, BriefcaseBusiness, CalendarDays, Clock3, Download, HeartPulse, Leaf, Moon, MoveUpRight, Radio, Save, Smile, Trash2, TriangleAlert, Wind } from "lucide-react"
 import {
   createClientWellnessEntryAction,
   deleteClientWellnessEntryAction,
@@ -61,6 +61,23 @@ const categoryLabels: Record<string, string> = {
   incident: "Incident",
 }
 
+type WellnessTool = "log" | "rom" | "timeline" | "patterns" | "calendar" | null
+
+const recordingTools = [
+  { category: "body_sensation", title: "Body check-in", hint: "Notice sensations", icon: HeartPulse },
+  { category: "emotion", title: "Feelings", hint: "Name how you feel", icon: Smile },
+  { category: "sleep", title: "Sleep", hint: "Reflect on your rest", icon: Moon },
+  { category: "activity", title: "Activity", hint: "Record movement", icon: Activity },
+  { category: "work_context", title: "Work context", hint: "Note your workday", icon: BriefcaseBusiness },
+  { category: "home_care", title: "Home care", hint: "Track your routine", icon: Leaf },
+  { category: "incident", title: "Incident", hint: "Note what happened", icon: TriangleAlert },
+] as const
+const reviewTools = [
+  { tool: "timeline", title: "Timeline", hint: "Review your entries", icon: Clock3 },
+  { tool: "patterns", title: "Patterns", hint: "Reflect on trends", icon: BarChart3 },
+  { tool: "calendar", title: "Appointments & reminders", hint: "Plan your check-ins", icon: CalendarDays },
+] as const
+
 const contextOptions = ["desk", "sleep", "work", "movement", "exercise", "stress", "commute", "home care"]
 const sensationOptions = ["tight", "achy", "sharp", "dull", "warm", "tingly", "numb", "tired", "burning", "pins and needles", "heavy", "tender"]
 const bodyPositionOptions = ["sitting", "standing", "lying down", "walking", "working", "exercising", "unsure"]
@@ -91,6 +108,45 @@ export function WellnessHubClient({
   appointments: WellnessAppointmentSummary[]
   reminderSchedules: ClientWellnessReminderSchedule[]
 }) {
+  const [activeTool, setActiveTool] = useState<WellnessTool>(null)
+  const [logCategory, setLogCategory] = useState("body_sensation")
+  const toolHeadingRef = useRef<HTMLHeadingElement>(null)
+  const defaultLauncherRef = useRef<HTMLButtonElement>(null)
+  const launcherRef = useRef<HTMLButtonElement | null>(null)
+  const moveFocus = useRef(false)
+
+  // Preserve the existing global Quick Log destination without remounting the
+  // page or shared music owner. Hash reads happen after hydration only.
+  useEffect(() => {
+    const openHashTool = () => {
+      if (window.location.hash === "#quick-log") {
+        moveFocus.current = true
+        setActiveTool("log")
+      }
+    }
+    const openQuickLogLink = (event: MouseEvent) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const anchor = event.target instanceof Element ? event.target.closest("a") : null
+      if (anchor?.origin === window.location.origin && anchor.pathname === "/wellness" && anchor.hash === "#quick-log") {
+        moveFocus.current = true
+        setActiveTool("log")
+      }
+    }
+    openHashTool()
+    document.addEventListener("click", openQuickLogLink, true)
+    window.addEventListener("hashchange", openHashTool)
+    return () => {
+      window.removeEventListener("hashchange", openHashTool)
+      document.removeEventListener("click", openQuickLogLink, true)
+    }
+  }, [])
+  useEffect(() => {
+    if (!moveFocus.current) return
+    moveFocus.current = false
+    if (activeTool) toolHeadingRef.current?.focus()
+    else (launcherRef.current ?? defaultLauncherRef.current)?.focus()
+  }, [activeTool])
+
   const formRef = useRef<HTMLFormElement>(null)
   const [entries, setEntries] = useState(initialEntries)
   const [reportEntries, setReportEntries] = useState(initialReportEntries)
@@ -125,6 +181,26 @@ export function WellnessHubClient({
       setIsPending(false)
     }
   }
+
+  /** Keep panes mounted so leaving a tool cannot discard an unfinished draft. */
+  function openTool(tool: WellnessTool, opener: HTMLButtonElement, category?: string) {
+    if (actionPending.current) return
+    launcherRef.current = opener
+    moveFocus.current = true
+    if (category) setLogCategory(category)
+    setActiveTool(tool)
+  }
+  function returnToTools() {
+    if (actionPending.current) return
+    if (window.location.hash === "#quick-log") {
+      window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search)
+    }
+    moveFocus.current = true
+    setActiveTool(null)
+  }
+  const activeTitle = activeTool === "log"
+    ? recordingTools.find((tool) => tool.category === logCategory)?.title ?? "Quick log"
+    : activeTool === "rom" ? "Range of motion" : reviewTools.find((tool) => tool.tool === activeTool)?.title
 
   const entryCounts = useMemo(() => ({
     total: entries.length,
@@ -288,9 +364,49 @@ export function WellnessHubClient({
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="flex flex-col gap-5">
-        <div className="rounded-md border border-border/80 bg-background/85 p-4">
+    <div data-wellness-hub>
+      <div hidden={activeTool !== null} data-wellness-home>
+        <section aria-labelledby="wellness-reset-title">
+          <h2 id="wellness-reset-title">Take a moment</h2>
+          <div data-wellness-tool-grid>
+            <Button asChild variant="success" data-wellness-tile aria-label="Open breathing guide">
+              <Link href="/wellness/breathing"><Wind aria-hidden="true" /><span><strong>Breathing guide</strong><small>Follow a calm rhythm</small></span></Link>
+            </Button>
+            <Button asChild variant="glow" data-wellness-tile aria-label="Open music">
+              <Link href="/music"><Radio aria-hidden="true" /><span><strong>Music</strong><small>Find your atmosphere</small></span></Link>
+            </Button>
+          </div>
+        </section>
+        <section aria-labelledby="wellness-record-title">
+          <h2 id="wellness-record-title">Record a check-in</h2>
+          <div data-wellness-tool-grid>
+            {recordingTools.map(({ category, title, hint, icon: Icon }) => (
+              <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant="outline" data-wellness-tile disabled={isPending} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
+                <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
+              </Button>
+            ))}
+            <Button type="button" variant="outline" data-wellness-tile disabled={isPending} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
+              <MoveUpRight aria-hidden="true" /><span><strong>Range of motion</strong><small>Measure movement</small></span>
+            </Button>
+          </div>
+        </section>
+        <section aria-labelledby="wellness-review-title">
+          <h2 id="wellness-review-title">Review & plan</h2>
+          <div data-wellness-tool-grid>
+            {reviewTools.map(({ tool, title, hint, icon: Icon }) => (
+              <Button key={tool} type="button" variant="outline" data-wellness-tile disabled={isPending} aria-label={`Open ${title.toLowerCase()}`} onClick={(event) => openTool(tool, event.currentTarget)}>
+                <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
+              </Button>
+            ))}
+          </div>
+        </section>
+      </div>
+      <div hidden={activeTool === null} data-wellness-workspace>
+        <div className="mb-4 flex min-w-0 flex-wrap items-center gap-3">
+          <Button type="button" variant="ghost" onClick={returnToTools} disabled={isPending}><ArrowLeft aria-hidden="true" />All wellness tools</Button>
+          <h2 ref={toolHeadingRef} tabIndex={-1} className="text-lg font-semibold">{activeTitle}</h2>
+        </div>
+        <div hidden={activeTool !== "log" && activeTool !== "rom"} data-wellness-pane className="mb-4 rounded-md border border-border/80 bg-background/85 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-medium">Client-owned self-tracking</p>
@@ -308,7 +424,7 @@ export function WellnessHubClient({
           </div>
           {!isSignedIn ? (
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild size="sm">
+              <Button asChild size="sm" variant="secondary">
                 <Link href="/login">Sign in</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
@@ -333,21 +449,24 @@ export function WellnessHubClient({
           )}
         </div>
 
+        <div hidden={activeTool !== "calendar"} data-wellness-pane>
         <WellnessCalendarCompanion
           isSignedIn={isSignedIn}
           appointments={appointments}
           reminderSchedules={reminderSchedules}
         />
+        </div>
 
-        <WellnessPatternReport entries={reportEntriesForPanel} isSignedIn={isSignedIn} />
+        <div hidden={activeTool !== "patterns"} data-wellness-pane><WellnessPatternReport entries={reportEntriesForPanel} isSignedIn={isSignedIn} /></div>
 
+        <div id="quick-log" hidden={activeTool !== "log"} data-wellness-pane>
         <form ref={formRef} className="rounded-md border border-border/80 bg-card/95 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold">Quick log</h2>
+              <h3 className="text-lg font-semibold">Quick log</h3>
               <p className="mt-1 text-sm text-muted-foreground">Capture the smallest useful note now and add detail only when it helps.</p>
             </div>
-            <Button type="button" onClick={saveQuickLog} disabled={isPending}>
+            <Button type="button" variant="success" onClick={saveQuickLog} disabled={isPending}>
               <Save className="h-4 w-4" aria-hidden="true" />
               {isSignedIn ? "Save" : "Practice"}
             </Button>
@@ -360,7 +479,8 @@ export function WellnessHubClient({
                 id="wellnessCategory"
                 name="category"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                defaultValue="body_sensation"
+                value={logCategory}
+                onChange={(event) => setLogCategory(event.target.value)}
               >
                 {CLIENT_WELLNESS_CATEGORIES.map((category) => (
                   <option key={category} value={category}>
@@ -371,13 +491,14 @@ export function WellnessHubClient({
             </div>
             <div className="space-y-2">
               <Label htmlFor="wellnessIntensity">How strong is it?</Label>
-              <Input id="wellnessIntensity" name="intensity" type="number" min="0" max="10" inputMode="numeric" defaultValue="5" />
+              <Input id="wellnessIntensity" name="intensity" type="number" min="0" max="10" inputMode="numeric" defaultValue="5" aria-describedby="wellness-intensity-help" />
+              <p id="wellness-intensity-help" className="text-xs text-muted-foreground">0 means none; 10 means the strongest you notice. Leave blank if this does not fit your check-in.</p>
             </div>
           </div>
 
           <div className="mt-4 space-y-2">
             <Label htmlFor="wellnessSummary">Short note</Label>
-            <Textarea id="wellnessSummary" name="summary" placeholder="What changed, what you noticed, or what happened." />
+            <Textarea id="wellnessSummary" name="summary" placeholder={logCategory === "sleep" ? "When you slept and how rested you felt." : logCategory === "emotion" ? "A few words about how you are feeling." : logCategory === "activity" ? "What you did, for how long, and what you noticed." : "What changed, what you noticed, or what happened."} />
           </div>
 
           <fieldset className="mt-4">
@@ -395,8 +516,8 @@ export function WellnessHubClient({
             </div>
           </fieldset>
 
-          <details className="mt-4 rounded-md border border-border/80 bg-background/80 p-3" open>
-            <summary className="cursor-pointer text-sm font-medium">Body sensations and timing</summary>
+          <details className="mt-4 rounded-md border border-border/80 bg-background/80 p-3" open={logCategory === "body_sensation" || logCategory === "incident"}>
+            <summary className="cursor-pointer text-sm font-medium">{logCategory === "body_sensation" ? "Body sensations and timing" : "Add body details or timing (optional)"}</summary>
             <div className="mt-4 grid gap-4">
               <BodyRegionSelector selectedRegions={selectedRegions} onChange={setSelectedRegions} />
 
@@ -463,8 +584,11 @@ export function WellnessHubClient({
             </div>
           </details>
         </form>
+        </div>
 
+        <div hidden={activeTool !== "rom"} data-wellness-pane>
         <RomMeasurementPanel isSignedIn={isSignedIn} disabled={isPending} onMeasurement={saveRomMeasurement} />
+        </div>
 
         {(status || error || isPending) ? (
           <div
@@ -479,11 +603,11 @@ export function WellnessHubClient({
         ) : null}
       </div>
 
-      <aside className="flex flex-col gap-4">
+      <aside hidden={activeTool !== "timeline"} data-wellness-pane className="mt-4 min-w-0">
         <div className="rounded-md border border-border/80 bg-card/95 p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold">Timeline</h2>
+              <h3 className="text-lg font-semibold">Timeline</h3>
               <p className="mt-1 text-sm text-muted-foreground">{displayName ? `${displayName}'s entries` : "Recent entries"}</p>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={exportEntries} disabled={!isSignedIn || isPending}>
