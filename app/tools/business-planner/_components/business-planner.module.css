@@ -28,6 +28,13 @@
 .field { min-width: 0; }
 .field label { display: block; line-height: 1.5; }
 .workspace .numberInput { min-width: 0; max-width: 100%; width: 100%; }
+.moneyRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name remove" "amount amount"; gap: 0.75rem; min-width: 0; align-items: end; }
+.moneyRow > :first-child { grid-area: name; }
+.moneyRow > :nth-child(2) { grid-area: amount; }
+.moneyRow > button { grid-area: remove; }
+@media (min-width: 40rem) {
+  .moneyRow { grid-template-columns: minmax(0, 1fr) minmax(0, 9rem) auto; grid-template-areas: "name amount remove"; }
+}
 .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); gap: 0.75rem; min-width: 0; }
 .metric { min-width: 0; }
 .metric p { overflow-wrap: anywhere; }
@@ -42,3 +49,6 @@
 @media (min-width: 80rem) {
   .main { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); align-items: start; }
 }
+
+/* Weekday inputs need room for the number, unit and native step controls inside narrow result columns. */
+.weekGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr)); gap: 0.75rem; min-width: 0; }

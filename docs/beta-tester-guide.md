@@ -27,6 +27,11 @@ and recovery workflow for any local test material you want to keep.
   current view. Check that music continues, and use Escape to return.
 - **Atmosphere:** choose an offered sound or station, adjust its volume, pause
   and resume. Report the exact selection if audio fails or keeps loading.
+- **Business Income Planner:** check its compact heading, scenario choices,
+  fields and results on your phone. Content should stay within the screen's
+  width, including with larger text. Use invented worksheet values for tests;
+  check calculations and saving/reloading without replacing a worksheet you
+  want to keep. Optional guidance opens from “How this planner works”.
 - **Anatomime and education:** try the available study/game flows and report
   navigation problems, unclear instructions or visibly incorrect content.
 - **Calendar:** use an invented practice/appointment. Google connection is

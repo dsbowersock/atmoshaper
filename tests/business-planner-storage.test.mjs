@@ -105,7 +105,7 @@ describe("Business planner draft storage recovery", { concurrency: false }, () =
           assert.deepEqual(state.errors, [])
           assert.deepEqual(f.requests.account, [])
           assertNoUnexpectedTraffic(f)
-          if (planner === "income") assert.equal(await f.page.getByText("Not saved on this device", { exact: true }).count(), 1)
+          if (planner === "income" || planner === "break-even") assert.equal(await f.page.getByText("Not saved on this device", { exact: true }).count(), 1)
         } finally { await f.context.close() }
       })
     }

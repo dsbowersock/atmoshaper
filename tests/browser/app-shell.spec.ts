@@ -1733,8 +1733,7 @@ test("global constrained landscape rail keeps route transitions, vinyl geometry,
     }
     if (route === "home") {
       await page.getByRole("link", { name: "Open wellness", exact: true }).first().click()
-      const wellnessLandmark = page.locator("#quick-log")
-        .getByRole("heading", { name: "Quick log", exact: true, level: 2 })
+      const wellnessLandmark = page.getByRole("heading", { name: "Wellness", exact: true, level: 1 })
       if (wellnessHoldActive && wellnessHold) {
         await wellnessHold.waitForRequest()
         await expectLocatorToRemainAbsent(

@@ -1,5 +1,180 @@
 # AtmoShaper Project Log
 
+## November 19 hosted SEO assertion aligned with compact hub
+
+Fresh review of `1719246` reports no findings; its protected Preview passes all
+12 route/asset checks and rendered groups, units, help and guidance. One initial
+recoverable hydration error is retained in evidence and does not recur after
+reload or in a fresh tab; its cause is not established. No existing worksheet
+is edited. The hosted unit run passes 5,748 cases with five skips and one failure:
+an old source guard expects the deliberately replaced long Wellness heading.
+The corrected guard checks the compact h1, the existing metadata binding and
+unchanged route-specific search description. All 17 SEO/public-identity checks
+pass locally, as does focused lint. All four hosted browser lanes finish
+successfully on the corrected application; the aggregate correctly stays
+failed because of the stale SEO assertion. The consolidated correction changes
+tests and records only, retaining the application for a fresh hosted run.
+
+## November 19 publication review catches draft relabeling
+
+The initial `772e54d` candidate opens PR #74. Fresh preflight preserves all 87
+Production setting metadata entries and 42 alias mappings; the protected Preview
+passes 12 routes, the existing reviewed clock font, artwork and emitted bundle
+readback. Hosted review identifies a shared-form defect: opening another
+recording launcher keeps input but changes its category. The new actual-app
+regression reproduces Incident becoming Sleep on the original build. Its first
+attempt lacked hydration readiness; waiting for the existing Quick Log effect
+corrects the harness before the accepted reproduction.
+
+The focused fix retains the entire edited draft, including manual category
+changes and body-map-only selections. A launcher seeds a category only while
+the form is fresh; successful practice/persisted saves release that guard.
+Failed saves preserve it. Save ownership and storage behavior remain intact.
+All 11 existing action lifecycle checks, focused lint and the inert 115-page
+TypeScript/build pass. Both original Wellness flow cases and both complete-draft
+regressions pass in desktop/mobile Chromium, with no retries/skips. The new
+checks cover category, note, intensity, context, manual category edits, fresh
+selection after save and body-map-only input. The verified correction updates
+the existing PR for fresh hosted QA/review before merge.
+
+## November 19 Wellness and planner publication requested
+
+The owner authorizes publication of the prepared Wellness and planner updates.
+The clean application head is `ae3d327`; main and the accepted public source
+remain `fa3a030`. Existing GitHub sign-in works in the native shell, and Vercel
+confirms the existing project, owner and normal build command. Preparation adds
+the scoped publication plan and these records, preserving the accepted source.
+Fresh metadata/routing, review and actual Production/source-map gates follow.
+
+## November 19 Wellness physical and context groups
+
+The owner requests the regular blue Breathing Guide button, unchanged Music,
+and separate check-in groups: orange Physical sensations (Range of motion,
+Activity, Incident, Body check-in) and teal Context (Work context, Feelings,
+Sleep, Home care). Existing Button materials supply these colors; Review & plan
+stays green and all launcher content stays centered. Group metadata organizes
+only the launchers; saved categories, ROM behavior and draft/focus handling
+retain their existing contracts. Focused lint, the inert TypeScript/115-page
+build and both existing desktop/mobile Wellness flow cases pass without retries
+or skips. Chrome confirms exact group membership/colors, working Feelings/return
+navigation and no captured warnings/errors. Phone and desktop screenshots are
+in the external `physical-context` evidence folder and
+`wellness-physical-context.jpg`. The unpublished preview remains on port 3018.
+
+## November 19 Wellness button colors clarified
+
+The owner clarifies that purple applies to the former blue-outline check-in
+tools, not every launcher. Breathing Guide and Music return to their original
+`success` and `glow` variants; the eight recording launchers stay `cta`, and
+the three Review & plan launchers use green `success`. Centered icons and text
+remain. Only three variant values change. Focused lint and the inert
+TypeScript/115-page build pass; connected Chrome confirms every group, centered
+labels, working Timeline/return navigation and no captured warnings/errors.
+No additional tests or live/provider operations are needed for this appearance
+correction. The local review preview remains open on port 3018.
+
+## November 19 Wellness purple button and centering follow-up
+
+The owner finds the outline launchers insufficiently button-like and requests
+the existing purple material with centered text. All 13 launchers now use the
+same `cta` variant as the breathing guide's purple controls. Icons sit above
+centered titles/subtitles; styles remain scoped to the Wellness launcher.
+The existing desktop/mobile Wellness flow cases pass again, including narrow
+widths, enlarged text, draft retention and keyboard return. Focused lint and
+the inert TypeScript/115-page build pass. Connected Chrome confirms all 13
+filled purple faces, label centering within 0.02px and working navigation with
+no captured warnings/errors. No new tests, dependency, provider write or
+deployment is introduced; the local preview is left open on port 3018.
+
+## November 19 planner guidance and Wellness hub verified locally
+
+Break-Even now shares Income's compact heading, optional guidance and contained
+card geometry. Both forms show currency/time/percentage affixes outside native
+numeric values and connect plain-language input help with `aria-describedby`.
+Break-Even money rows distinguish one-time/monthly/yearly amounts; its save
+label correctly reports device-storage failures. Calculators, defaults,
+compatibility keys, dependencies, schemas and server queries/actions are intact.
+
+Wellness opens on grouped calming, recording and review tools. Selecting one
+opens its pane with keyboard focus and a return to the launcher. Mounted hidden
+panes retain unfinished drafts; category prompts and optional body details
+match the selected check-in. Anonymous practice, private-save acknowledgment,
+pending-operation admission, confirmation flows and Quick Log hash access stay
+intact. Connected Chrome confirms all three local pages, guidance, category and
+appointment navigation without captured warnings/errors; preview is loopback
+only on port 3018.
+
+All 46 planner tests, 11 action lifecycle tests, 62 existing clinical/Wellness
+checks and two shared-shell/stylesheet guards pass, as do focused lint and the
+inert TypeScript/115-page build. Rendered checks reproduce cramped weekday
+numbers and enlarged Break-Even row/action overflow; card-width grid sizing,
+full-width narrow money amounts and wrapping actions correct them. Native text
+and date editors legitimately scroll internally, so the test checks their outer
+borders while retaining strict numeric-value containment.
+
+The final 14-case sweep passes 13 cases; the old Income text locator encounters
+duplicate hidden streamed headings. It is narrowed to the visible semantic h1,
+then that complete phone regression passes in both desktop/mobile projects.
+All 14 selected cases therefore have passing coverage, with no configured retry
+or skip in those accepted checks. They include 320–412px widths, landscape,
+desktop, 24px root text, open check-in/ROM panes, calculations, reload persistence,
+row add/remove/reset, draft retention, practice entry, timeline/pattern views,
+same-page Quick Log, keyboard return, breathing shortcut and global route/media
+layout continuity. Physical-phone/Safari acceptance and publication remain
+separate. See the [completed local plan](superpowers/plans/2026-11-19-planner-guidance-wellness-hub.md).
+
+## November 19 planner guidance and Wellness hub requested
+
+The owner asks to match Break-Even to the newly published Income layout, clarify
+monetary units and field meanings, and replace Wellness's large intro and stacked
+forms with individual tool choices. A new local branch retains the published
+source and receipt. Shared number fields now show optional units beside native
+numeric controls and link explanatory text through `aria-describedby`; model
+values and parsing remain unchanged. Break-Even shares compact planner card
+geometry. Wellness uses grouped launchers, mounted hidden panes, category-aware
+prompts, keyboard return and compatible Quick Log hash handling. Existing
+acknowledgments and synchronous action admission remain in place.
+
+Initial validation passes all 46 planner cases, 11 action lifecycle cases and 62
+existing clinical/Wellness cases, including privacy guards. The inert runtime
+build and rendered responsive/navigation tests are underway. No provider or
+deployment boundary is crossed. The
+[plan](superpowers/plans/2026-11-19-planner-guidance-wellness-hub.md) owns the work.
+
+## November 19 Business Income Planner published and verified
+
+Integrated `dc37c3b` passes all 46 local planner checks, focused lint, the inert
+115-page TypeScript/build and four actual-app desktop/mobile cases without
+retry/skip. Fresh complete preflight preserves 87 Production settings, the
+all-payments scope, disabled automatic domain assignment and the 41-alias
+baseline. One push opens PR #73 and its protected Preview.
+
+Hosted review completes with no findings; CodeRabbit skips automatic review.
+All seven CI jobs pass: 5,749 JavaScript passes/five skips, 45 synthetic backup
+passes/one optional-tool skip, and 632 browser passes/180 matrix or opt-in skips
+with no reported configured retry. The last lane's live log confirms continued
+music/interruption test progress during the longer wait. A guarded merge yields
+tree-identical `fa3a030` and one automatic staged Production build.
+
+Actual migration-status/all-payments gates, TypeScript/115 pages and two Sentry
+uploads pass. The operator verifier initially misses the planner chunk because
+it scans only script tags; including App Router's emitted module references
+finds the planner-specific script. Its debug ID and referenced map match the
+new release archive. This corrects read-only verification, not application code.
+
+An initial Preview load records one recoverable hydration warning; it does not
+recur on reload, a fresh Preview tab, staged Production or public readback.
+No root cause is established and no speculative source change is made. Staged
+and public entry routes, planner/font bytes, artwork, optional guidance and
+layout containment pass. Live worksheet values remain unchanged.
+
+One promotion completes all six public mappings, preserving the other 35
+baseline mappings, one expected new Preview alias and all 87 setting metadata
+entries. The apex redirect is unchanged. Prior compatible `81b18e8` stays READY;
+no rollback is needed. The operation closes with its
+[receipt](audits/2026-11-19-business-income-publication.md) on a local-only
+documentation branch, with no additional deployment.
+
 ## November 19 owner approves planner publication
 
 After breathing/Clock publication, the owner requests publication of the

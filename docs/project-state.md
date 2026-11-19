@@ -1,5 +1,95 @@
 # AtmoShaper Project State
 
+## November 19 Wellness and planner publication approved
+
+Corrected runtime `1719246` passes fresh hosted review with no findings and
+protected Preview acceptance. The hosted unit suite identifies one stale SEO
+source assertion expecting the intentionally replaced long Wellness heading.
+Its correction checks the compact heading, the unchanged metadata binding and
+the route's existing search description separately. All 17 SEO/identity checks
+pass locally. Application source is unchanged by this test-only correction;
+all four hosted browser lanes pass on the corrected runtime. The final
+candidate still requires fresh hosted checks before merge.
+
+PR [#74](https://github.com/dsbowersock/atmoshaper/pull/74) has a READY protected
+Preview and passing route/asset readback. Hosted review finds that switching
+recording launchers can relabel an unfinished shared draft. An isolated browser
+regression reproduces Incident becoming Sleep. The focused correction seeds a
+launcher category only for a fresh form and retains native/body-map edits until
+a successful save. All 11 action lifecycle checks, focused lint and the inert
+TypeScript/115-page build pass. All four desktop/mobile Wellness cases pass,
+including the complete-draft regression, with no retries/skips. The corrected
+source must pass fresh hosted checks before merge.
+
+The owner requests publication of the verified `ae3d327` application on
+`codex/planner-wellness-polish`: both planner guidance/layout improvements and
+the latest grouped, centered Wellness launchers. Fresh service preflight,
+current-head hosted review/QA, protected Preview, gated Production build,
+authenticated Sentry map proof and same-artifact promotion precede live
+acceptance. Public `fa3a030` remains the rollback baseline. The new
+[publication plan](superpowers/plans/2026-11-19-wellness-planner-publication.md)
+owns this operation; previous campaigns stay closed. Earlier local-only status
+below records the accepted implementation checkpoint.
+
+## November 19 planner guidance and Wellness hub ready locally
+
+The owner's latest Wellness grouping uses the regular blue Breathing Guide and
+unchanged Glow Music buttons. Physical sensations contains Range of motion,
+Activity, Incident and Body check-in in orange; Context contains Work context,
+Feelings, Sleep and Home care in teal. The three Review & plan buttons remain
+green, with centered icons, titles and subtitles throughout. Focused lint, the
+inert 115-page TypeScript/build and both existing desktop/mobile Wellness flow
+cases pass, including narrow widths, enlarged text and draft/navigation checks.
+Connected Chrome confirms all four groups, colors and Feelings/return navigation
+without captured warnings/errors. This remains an unpublished local preview.
+
+The owner requests a compact Break-Even layout matching Income, visible money
+and time units, clearer input guidance in both planners, and a Wellness landing
+hub instead of every form stacked on one page. Local branch
+`codex/planner-wellness-polish` starts from published `fa3a030` and its completion
+receipt. Shared field units/help and compact planner geometry are implemented;
+Wellness now has grouped launchers and one selected pane while retaining drafts,
+existing action owners and `/wellness#quick-log`. All 46 planner, 11 action
+lifecycle, 62 clinical/Wellness and two shared-shell/inventory checks pass.
+Focused lint and the inert TypeScript/115-page build pass. All 14 selected
+desktop/mobile browser cases have passing evidence across the final sweep and
+focused visible-heading readiness correction, recorded in the plan.
+
+Responsive checks cover 320–412px, landscape, desktop and 24px root text,
+including open check-in/ROM panes. Calculations, saved drafts, add/remove/reset,
+tool selection, unfinished-entry retention, practice entry, timeline/pattern
+access, Quick Log hash navigation, focus return and breathing shortcut pass.
+Connected Chrome confirms all three local views and appointment-tool navigation
+without captured warnings/errors. The loopback-only review preview runs on
+port 3018; physical-phone and Safari acceptance remain owner checks.
+
+Calculators, defaults, storage keys, server queries/actions and schemas remain
+unchanged. This work is not published and does not reopen the closed publication
+operation. See the [implementation plan](superpowers/plans/2026-11-19-planner-guidance-wellness-hub.md).
+
+## November 19 Business Income Planner fixes published
+
+Reviewed `dc37c3b` on [PR #73](https://github.com/dsbowersock/atmoshaper/pull/73)
+passes all seven hosted jobs and merges as tree-identical `fa3a030`. Its actual
+Production build passes read-only status for all 46 migrations, all-payments
+readiness, TypeScript/115 pages and both Sentry uploads. The emitted planner
+script and referenced map match the new release's 522/2,608-file archives.
+
+One same-artifact promotion completes six public mappings. All 35 unrelated
+baseline mappings and all 87 Production setting metadata entries are preserved;
+one expected planner Preview alias makes 42 total. Ten staged/public entry
+routes, emitted planner/clock-font bytes, artwork and canonical redirect pass.
+Live Chrome confirms the compact heading, contained fields/results and working
+optional guidance without captured warnings/errors or edits to the existing
+worksheet. Exact phone/enlarged-text coverage comes from synthetic browser QA;
+physical-phone and Safari acceptance remain owner checks.
+
+Compatible `81b18e8` remains READY for rollback. The operation is completed and
+closed. These completion records stay local on
+`codex/business-income-publication-receipt` and trigger no additional build.
+See the [receipt](audits/2026-11-19-business-income-publication.md). Earlier
+pending/local-only entries below are historical checkpoints.
+
 ## November 19 Business Income Planner publication approved
 
 The owner now requests publication of the planner fixes. Release branch
