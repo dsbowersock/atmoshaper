@@ -1,5 +1,41 @@
 # AtmoShaper Project State
 
+## November 19 breathing text correction and centered bold clocks ready locally
+
+The owner identifies text spilling from the breathing preset buttons, then
+reports upward-shifted/thin digits in Clock and timer setup. These are corrected
+locally on `codex/breathing-guide-mobile`; the earlier viewport-bound checks
+below did not establish text containment inside each button.
+
+Breathing preset rules now outrank shared button size utilities, use intrinsic
+two-row sizing, retain intact names and widen to rows at large text sizes.
+Actual text-line rectangles remain inside every tested button face at 320,
+360 and 390px with 16/20/24/32px root text, plus short landscape. Ordinary phone
+fit, shortcut/focus and music/background continuity still pass.
+
+Clock/Chimer and duration setup use the author's unmodified DSEG7 Modern Bold
+v0.46 through a clock-only alias with normalized line metrics. Space is included
+so the browser uses those metrics rather than the fallback font's line box.
+Clock's explicit upward 4dvh translation is removed; setup centers its digit
+row. Saved `digital` selections, other font choices, readable unit labels and
+the original Regular `Digital` face used elsewhere remain intact. The existing
+original OFL notice matches the release byte for byte.
+
+Accepted checks: 49 clock/layout/font tests and 16 actual-app desktop/mobile
+browser cases pass with no skips, retries or terminal failures. Focused lint and
+the inert 115-page build, including TypeScript, pass. Tests cover centered visible
+font pixels, true bold loading, digit widths, 12/24-hour and seconds displays,
+phone/landscape/desktop Clock, setup and running-timer geometry, and enlarged
+breathing labels. Connected Chrome confirms centered bold Clock/setup digits,
+contained preset text and no captured browser warnings/errors. No physical-phone
+or Safari acceptance is claimed.
+
+The [breathing correction record](superpowers/plans/2026-11-19-breathing-guide-mobile.md)
+and [clock plan/results](superpowers/plans/2026-11-19-clock-vertical-centering.md)
+record the evidence and scope. A loopback-only inert preview remains available
+for review. No push, hosted Preview, provider write or deployment occurs; the
+accepted public release is unchanged.
+
 ## November 19 breathing workspace and quick access ready locally
 
 The owner's phone screenshot drives a focused redesign on

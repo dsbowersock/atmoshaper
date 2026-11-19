@@ -1111,6 +1111,94 @@ test("Chimer keeps the mobile main bar and opens quick actions above the plus bu
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
+test("Clock keeps bold Digital digits centered in its available stage", async ({ page }, testInfo) => {
+  const previewNames = ["massage-lab-hole-vertical", "massage-lab-stars-vertical", "massage-lab-moving-gradient-vertical"]
+  const allowedExternalUrls = new Set([externalFontUrl, ...previewNames.map(chimerPreviewUrl)])
+  const health = await capturePageHealth(page, allowedExternalUrls)
+  await installExternalFontFixture(page, allowedExternalUrls)
+  await installChimerPreviewFixtures(page, previewNames, allowedExternalUrls)
+  await page.addInitScript(() => {
+    const seconds = sessionStorage.getItem("qa-clock-seconds") === "true"
+    localStorage.setItem("massagelab-chimer-settings", JSON.stringify({
+      clockFontFamily: "digital", timeFormat: seconds ? "24h" : "12h",
+      showCurrentTimeSeconds: seconds, clockShadowEnabled: false, clockGlowEnabled: false,
+    }))
+  })
+  await page.goto("/clock", { waitUntil: "domcontentloaded" })
+  const primary = page.getByTestId("running-current-time")
+  await expect(primary).toHaveAttribute("data-immersive-primary-display", "true")
+  await expect.poll(() => page.evaluate(() => [...document.fonts].some((face) => face.family === "Digital Clock" && face.weight === "700" && face.status === "loaded"))).toBe(true)
+
+  for (const seconds of [false, true]) {
+    if (seconds) {
+      await page.evaluate(() => sessionStorage.setItem("qa-clock-seconds", "true"))
+      await page.reload({ waitUntil: "domcontentloaded" })
+      await expect(primary).toContainText(/\d{2}:\d{2}:\d{2}/)
+    } else {
+      await expect(primary).toContainText(/AM|PM/)
+    }
+    for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 714 }, { width: 780, height: 360 }, { width: 1280, height: 900 }]) {
+      await page.setViewportSize(viewport)
+      await expect(primary).toHaveCSS("font-weight", "700")
+      await expect(primary).toHaveCSS("font-family", /Digital Clock/)
+      await expect.poll(() => primary.evaluate((element) => {
+        const content = element.querySelector("[data-display-content='true']")!.getBoundingClientRect()
+        const style = getComputedStyle(element)
+        const intendedCenter = (Number.parseFloat(style.top) + innerHeight - Number.parseFloat(style.bottom)) / 2
+        return Math.abs(content.top + content.height / 2 - intendedCenter)
+      })).toBeLessThanOrEqual(2)
+      if (!seconds && viewport.width === 390) await page.screenshot({ path: testInfo.outputPath("clock-centered-phone.png") })
+      if (seconds && viewport.width === 780) await page.screenshot({ path: testInfo.outputPath("clock-bold-landscape.png") })
+    }
+  }
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+})
+
+test("Timer setup and running timer use centered bold Digital digits", async ({ page }, testInfo) => {
+  const previewNames = ["massage-lab-hole-vertical", "massage-lab-stars-vertical", "massage-lab-moving-gradient-vertical"]
+  const allowedExternalUrls = new Set([externalFontUrl, ...previewNames.map(chimerPreviewUrl)])
+  const health = await capturePageHealth(page, allowedExternalUrls)
+  await installExternalFontFixture(page, allowedExternalUrls)
+  await installChimerPreviewFixtures(page, previewNames, allowedExternalUrls)
+  await page.goto("/chimer", { waitUntil: "domcontentloaded" })
+  const duration = page.getByRole("group", { name: /^Session duration:/ })
+  await expect(duration).toBeVisible()
+  await expect.poll(() => page.evaluate(() => [...document.fonts].some((face) => face.family === "Digital Clock" && face.weight === "700" && face.status === "loaded"))).toBe(true)
+  for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 714 }, { width: 746, height: 284 }, { width: 1280, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    await expect(duration).toHaveCSS("font-weight", "700")
+    await expect(duration).toHaveCSS("font-family", /Digital Clock/)
+    for (const digit of await duration.getByRole("button").all()) {
+      const alignment = await digit.evaluate((element) => {
+        const box = element.getBoundingClientRect()
+        const parent = element.parentElement!.getBoundingClientRect()
+        return { offset: Math.abs(box.top + box.height / 2 - parent.top - parent.height / 2), contained: box.top >= parent.top && box.bottom <= parent.bottom }
+      })
+      expect(alignment.offset).toBeLessThanOrEqual(1)
+      expect(alignment.contained).toBe(true)
+    }
+    if (viewport.width === 390) await page.screenshot({ path: testInfo.outputPath("timer-setup-centered-phone.png") })
+  }
+  await page.setViewportSize({ width: 390, height: 714 })
+  await page.getByRole("button", { name: "Increase minutes", exact: true }).click()
+  for (let step = 0; step < 4; step += 1) await page.getByRole("button", { name: "Continue", exact: true }).click()
+  await page.getByRole("button", { name: "Start Chimer", exact: true }).click()
+  const timer = page.getByTestId("running-timer-clock")
+  await expect(timer).toHaveAttribute("data-immersive-primary-display", "true")
+  await expect(timer).toHaveCSS("font-weight", "700")
+  await expect.poll(() => timer.evaluate((element) => {
+    const content = element.querySelector("[data-display-content='true']")!.getBoundingClientRect()
+    const box = element.getBoundingClientRect()
+    return Math.abs(content.top + content.height / 2 - box.top - box.height / 2)
+  })).toBeLessThanOrEqual(2)
+  await page.getByRole("button", { name: "End timer", exact: true }).click()
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+})
+
 test("mobile primary bar keeps lighting controls available with a compact theme toggle", async ({ page }) => {
   const atmosphereFixtureUrls = new Set(atmosphereSampleIndexFixtureUrls)
   const health = await capturePageHealth(page, atmosphereFixtureUrls)
@@ -1879,6 +1967,52 @@ test("Breathing guide fits phone and short landscape viewports", async ({ page }
   expect(health.failedLocalResponses).toEqual([])
 })
 
+test("Breathing button labels stay inside their faces at narrow widths and enlarged text", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.goto("/wellness/breathing", { waitUntil: "domcontentloaded" })
+  await expect(page.getByRole("button", { name: "Start breathing", exact: true })).toBeEnabled()
+
+  for (const width of [320, 360, 390, 667]) {
+    await page.setViewportSize({ width, height: width === 667 ? 375 : 714 })
+    for (const fontSize of width === 667 ? [16] : [16, 20, 24, 32]) {
+      await page.locator("html").evaluate((element, size) => { element.style.fontSize = `${size}px` }, fontSize)
+      // Element boxes alone miss overflowing glyphs when a fixed-height flex
+      // button shrinks its labels. Measure the actual text line rectangles.
+      const buttons = await page.locator("[data-breathing-guide] button").evaluateAll((elements) => elements.map((button) => {
+        const face = button.getBoundingClientRect()
+        const walker = document.createTreeWalker(button, NodeFilter.SHOW_TEXT)
+        const lines: Array<{ text: string; top: number; bottom: number; left: number; right: number }> = []
+        while (walker.nextNode()) {
+          const node = walker.currentNode
+          if (!node.textContent?.trim()) continue
+          const range = document.createRange()
+          range.selectNodeContents(node)
+          for (const line of Array.from(range.getClientRects())) {
+            lines.push({ text: node.textContent.trim(), top: line.top, bottom: line.bottom, left: line.left, right: line.right })
+          }
+        }
+        return { label: button.textContent, face: { top: face.top, bottom: face.bottom, left: face.left, right: face.right }, lines }
+      }))
+      for (const button of buttons) {
+        for (const line of button.lines) {
+          const context = `${width}px / ${fontSize}px text / ${button.label} / ${line.text}`
+          expect(line.top, `${context} clears the upper button edge`).toBeGreaterThanOrEqual(button.face.top + 2)
+          expect(line.bottom, `${context} clears the lower button edge`).toBeLessThanOrEqual(button.face.bottom - 2)
+          expect(line.left, `${context} clears the left button edge`).toBeGreaterThanOrEqual(button.face.left + 2)
+          expect(line.right, `${context} clears the right button edge`).toBeLessThanOrEqual(button.face.right - 2)
+        }
+      }
+      const coherentLines = buttons[0].lines.filter((line) => line.text === "Coherent")
+      expect(coherentLines, "keep the preset name intact rather than splitting a word").toHaveLength(1)
+      if (fontSize === 16 && width === 320) await page.screenshot({ path: testInfo.outputPath("breathing-button-fit-phone.png") })
+      if (fontSize === 20 && width === 390) await page.screenshot({ path: testInfo.outputPath("breathing-button-fit-larger-text.png") })
+    }
+  }
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+})
+
 test("Breathing shortcut protects typing and restores focus without duplicating the page", async ({ page }) => {
   const health = await capturePageHealth(page, new Set())
   await page.goto("/login", { waitUntil: "domcontentloaded" })
@@ -1889,6 +2023,10 @@ test("Breathing shortcut protects typing and restores focus without duplicating 
   await expect(email).toBeFocused()
 
   await page.goto("/wellness/breathing", { waitUntil: "domcontentloaded" })
+  // Prove hydration through a real control before sending an ephemeral key chord.
+  await page.getByRole("button", { name: "Start breathing", exact: true }).click()
+  await expect(page.getByRole("button", { name: "Pause breathing", exact: true })).toBeVisible()
+  await page.getByRole("button", { name: "Reset breathing", exact: true }).click()
   await page.getByRole("link", { name: "Music stations", exact: true }).press("Alt+Shift+B")
   await expect(page.locator("[data-breathing-primary]")).toBeFocused()
   await expect(page.locator("[data-breathing-guide]")).toHaveCount(1)

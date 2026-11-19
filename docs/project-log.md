@@ -1,5 +1,47 @@
 # AtmoShaper Project Log
 
+## November 19 owner-found button text spill and clock alignment corrections
+
+The owner's follow-up screenshot reveals Coherent wrapping mid-word and its
+timing outside the button. New rendered text-line measurements reproduce the
+spill at 320px/16px before the fix; the prior button/page box checks missed it.
+Computed styles show shared height/padding/gap utilities overriding the local
+preset declarations. Scoped higher-specificity rules establish intrinsic grid
+rows, appropriate padding/line heights and a responsive intact-title treatment.
+Action buttons also retain their intended intrinsic height. The original phone
+viewport/no-scroll and uninterrupted quick-access behavior are preserved.
+
+While that correction is active, the owner reports raised, thin Clock and setup
+digits on a work phone and requests bold. A real-font fixture identifies the
+visible-ink offset; Clock mode additionally has a deliberate -4dvh transform.
+Downloaded the author's original v0.46 release, verified its license is identical
+to the preserved notice and copied only the unmodified 5,176-byte Modern Bold
+font into source. Its separate `Digital Clock` alias normalizes line metrics and
+includes space to own the CSS line box. The original Regular face and unrelated
+consumers stay unchanged. Removed Clock's upward translation and centered setup's
+duration row. Existing saved choices, width fitting, unit/meridiem fallbacks,
+effects and immersive reservations remain in place.
+
+Strengthened font QA measures actual painted pixels beyond the line-box edges,
+so a clipped glyph cannot appear centered. Merely applying metric overrides
+without space coverage fails; including the required character fixes the offset.
+The author release and CSS Fonts first-available-font rule are linked in the
+[clock plan](superpowers/plans/2026-11-19-clock-vertical-centering.md).
+One intermediate mobile shortcut assertion races hydration; its fixture now
+proves real Start/Reset interaction before sending the ephemeral chord, rather
+than adding a delay or retry.
+
+The final inert build passes TypeScript and all 115 pages. All 49 focused clock/
+layout/font checks and 16 desktop/mobile browser cases pass without retry or skip,
+including text containment across 13 size/text combinations, ordinary breathing
+fit, key/focus guards, native media ownership, 12/24-hour seconds variants,
+Clock/setup/running-timer centering and short landscape. Focused lint passes.
+Connected Chrome confirms real bold/centered digits and Start/Reset/preset text
+within their controls; duration adjustment remains interactive. Screenshots and
+test output are outside source. The loopback inert preview stays available for
+owner review. No hosted publication, service write, live payment/email, clinical
+workflow or physical-phone/Safari acceptance occurs.
+
 ## November 19 compact breathing guide and uninterrupted shortcut, local only
 
 The owner requests a phone-sized, app-like breathing interface using the existing

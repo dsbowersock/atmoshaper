@@ -3,6 +3,11 @@
 Status: implemented and verified locally on `codex/breathing-guide-mobile`;
 not published.
 
+November 19 correction: the owner finds text spilling within preset faces even
+though the page/control bounds pass. The follow-up below supersedes the initial
+visual acceptance for text containment. The local candidate also includes the
+[requested Clock/timer typography correction](2026-11-19-clock-vertical-centering.md).
+
 ## User outcome
 
 The normal `/wellness/breathing` page should feel like one focused tool, fit a
@@ -128,3 +133,25 @@ Limits: no physical handset, Safari/iOS, screen-reader listening or speaker-outp
 acceptance is claimed. No provider writes, live media mutation, payments, email,
 deployment or account creation occurs. The loopback QA preview may be started
 with `npm run start:browser-qa -- --port 3014`; it does not deploy the candidate.
+
+## Owner-found text-containment correction
+
+Shared size utilities override the original local preset height/padding/gap;
+computed padding is 8px/16px and gap 8px instead of the intended compact values.
+At 320px, Coherent wraps mid-word and both text lines extend outside the face.
+A regression measuring actual text-line rectangles fails before the fix.
+
+Scoped higher-specificity preset rules now use intrinsic grid rows, readable
+line heights, intact names and smaller horizontal padding. Large-text layouts
+give presets full-width rows. Primary/reset heights also outrank shared size
+utilities. No shared button library or global palette changes are made.
+
+The new containment test covers widths 320/360/390 with 16/20/24/32px root text
+and 667px short landscape (13 combinations per browser). All text lines stay
+inside their button faces and Coherent remains a single word. The final combined
+Clock/breathing run passes all 16 selected desktop/mobile cases without retry or
+skip. Existing no-scroll fit, reduced motion, interactions, focus and native
+audio/background continuity still pass. Actual Chrome readback confirms the
+intended grid, 6.4px/5.6px padding and 2.4px gap at normal text size. Screenshots
+are visually inspected and retained outside source. The prior viewport tests
+alone did not prove this stronger text-containment condition.

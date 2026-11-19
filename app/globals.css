@@ -12,6 +12,21 @@
   unicode-range: U+002D-002E, U+0030-003A;
 }
 
+/* Clock-only alias: center the segment ink without changing other Digital users.
+   The original bold binary and existing author's OFL notice stay unmodified. */
+@font-face {
+  font-family: "Digital Clock";
+  src: url("../public/fonts/dseg/DSEG7Modern-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  ascent-override: 100%;
+  descent-override: 0%;
+  line-gap-override: 0%;
+  /* Space selects this face for CSS line metrics instead of fallback monospace. */
+  unicode-range: U+0020, U+002D-002E, U+0030-003A;
+}
+
 @layer base {
   :root {
     --button-orange-start: var(--brand-orange-glow);

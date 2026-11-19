@@ -3,7 +3,7 @@
   --chimer-bottom-control-space: calc(env(safe-area-inset-bottom, 0px) + 7.5rem);
   --chimer-timer-color: #ffffff;
   --chimer-clock-color: #ffffff;
-  --chimer-display-font-family: "Digital", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --chimer-display-font-family: "Digital Clock", "Digital", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --chimer-digit-stroke-width: 0px;
   --chimer-digit-stroke-color: #050505;
   --immersive-reserved-top: 0px;
@@ -45,8 +45,6 @@
 }
 
 .clockMode .primaryDisplay {
-  --chimer-display-base-transform: translateY(-4dvh);
-
   top: var(--immersive-reserved-top);
   bottom: var(--immersive-reserved-bottom);
 }
@@ -133,6 +131,7 @@
   padding: 0;
   overflow: hidden;
   font-family: var(--chimer-display-font-family);
+  font-weight: var(--chimer-clock-font-weight, inherit);
   font-size: var(--chimer-fit-font-size, var(--chimer-primary-font-size, 20vw));
   line-height: 1;
   letter-spacing: 0;
@@ -181,6 +180,7 @@
   transform: var(--chimer-display-base-transform);
   color: hsl(var(--brand-orange));
   font-family: var(--chimer-display-font-family);
+  font-weight: var(--chimer-clock-font-weight, inherit);
   font-size: calc(clamp(1.4rem, 6vw, 4rem) * var(--chimer-secondary-scale, 1));
   line-height: 1;
   letter-spacing: 0;
@@ -451,7 +451,7 @@
   justify-content: center;
   margin-left: 0.035em;
   margin-right: 0.035em;
-  font-family: var(--chimer-display-font-family);
+  font-family: var(--chimer-clock-label-font-family, var(--chimer-display-font-family));
   font-size: 0.22em;
   font-weight: 700;
   letter-spacing: 0;
@@ -462,7 +462,7 @@
 
 .currentTimeInlineMeridiem {
   display: inline-block;
-  font-family: var(--chimer-display-font-family);
+  font-family: var(--chimer-clock-label-font-family, var(--chimer-display-font-family));
   font-size: 0.3em;
   font-weight: 700;
   letter-spacing: 0;
@@ -504,6 +504,7 @@
   justify-content: center;
   margin-left: 0.035em;
   margin-right: 0.035em;
+  font-family: var(--chimer-clock-label-font-family, var(--chimer-display-font-family));
   font-size: 0.22em;
   font-weight: 700;
   line-height: 1;

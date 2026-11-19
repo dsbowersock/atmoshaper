@@ -148,7 +148,7 @@ function getClockFontStack(fontFamily: ChimerSettings["clockFontFamily"]) {
       return 'Georgia, Cambria, "Times New Roman", Times, serif'
     case "digital":
     default:
-      return '"Digital", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+      return '"Digital Clock", "Digital", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
   }
 }
 

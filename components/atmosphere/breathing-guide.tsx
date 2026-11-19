@@ -57,7 +57,7 @@ export function AtmosphereBreathingGuide({ focusOnMount = false }: { focusOnMoun
             className={styles.preset}
             onClick={() => resetBreathing(preset.id)}
           >
-            <span>{preset.title}</span>
+            <span className={styles.presetTitle}>{preset.title}</span>
             <span className={styles.presetDescription}>{preset.description}</span>
           </Button>
         ))}
