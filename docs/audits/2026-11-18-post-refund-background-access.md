@@ -1,6 +1,14 @@
 # Post-refund independent background access
 
-Status: **approved source pushed; test-only review amendment prepared, publication held**.
+Status: **published and accepted after the approved test-only amendment**.
+Corrected head `1748230` passes all seven hosted jobs and merges as `adb137e`
+with an identical tree. Actual Production gates/maps, one promotion and live
+readback pass: independent Admin selection is enabled, purchase ownership stays
+revoked, acquisition controls stay absent and the original refund is unchanged.
+See the [final publication receipt](2026-11-18-beta-final-publication.md) for
+qualified hosted totals and actual artifact/Google availability evidence.
+The review/prepublication sections below are historical snapshots, not current
+pending work or permission to replay a closed operation.
 The original live [refund recovery](2026-11-18-owned-refund-recovery.md) is
 complete and closed. This source correction requires no further payment,
 refund, entitlement edit or account repair.

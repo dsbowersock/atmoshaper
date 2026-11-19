@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Accepted small-beta release and Google availability](../audits/2026-11-18-beta-final-publication.md)
+- [Small beta tester guide](../beta-tester-guide.md)
 - [Service, recovery and exact-release readiness](service-recovery-readiness.md)
 - [Shared database backups and failure response](database-backups.md)
 

@@ -1,6 +1,12 @@
 # Publish the final beta access correction
 
-Status: **original `d04b785` approved and pushed; test-only amendment prepared**.
+Status: **completed and closed after exact amendment approval**. The approved
+`1748230` passes all seven hosted jobs, merges as `adb137e` with the same tree,
+and completes one actual Production build, Sentry upload, verified promotion
+and successful owner readback. Compatible READY `8d89550` is retained. See the
+[final receipt](../../audits/2026-11-18-beta-final-publication.md). All write slots
+are closed; remaining time is not authority for another operation. The original
+proposal/amendment below is retained as procedure and history.
 The [source receipt](../../audits/2026-11-18-post-refund-background-access.md)
 records the completed local regression and focused results. Freeze the exact
 head/tree on `codex/beta-final-acceptance` before requesting approval. Keep

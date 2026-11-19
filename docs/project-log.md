@@ -1,5 +1,41 @@
 # AtmoShaper Project Log
 
+## November 18 corrected release published; Google availability and beta handoff accepted
+
+After exact amendment approval, pushed `1748230` once to existing PR #71. All
+seven hosted jobs succeed: 5,721 JavaScript passes/five skips, 45 backup passes/
+one optional skip, and 615 first-attempt browser passes plus one configured-retry
+success/180 explicit matrix skips. The unchanged mobile heading test retried a
+two-match locator; no overflow assertion failed and no manual rerun was issued.
+Resolved the now-outdated fixture review finding. Merged once as `adb137e` and
+verified its tree exactly equals the approved candidate.
+
+The single automatic Production build passes the real 46-migration/all-payments
+gates and all 115 pages. Sentry accepts 521 client and 2,620 server files for the
+exact merge; an emitted script resolves to its new archive. Its unchanged debug
+ID also belongs to the prior archive, so it is not a unique source marker.
+Seven staged and seven public entry checks, 512-pixel Linux artwork and apex
+308 pass. Promoted that same artifact once; all six mappings complete, 34 other
+aliases and all 87 Production settings remain unchanged. Retained compatible
+READY `8d89550`; no rollback. Closed publication write slots after acceptance.
+
+Fresh live Clock/Admin reads confirm independent Admin selection after refund,
+revoked purchase ownership, no acquisition controls, two credits and the same
+successful original $1.07 refund/history. No financial or preference mutation.
+
+The owner enabled Google 2-step verification privately and installed the browser
+extension in the AtmoShaper profile. Switched to its browser controls, ending
+whole-PC input. Read-only matched-client inspection confirms External/In
+production, verified branding and no sensitive/restricted scopes or required
+data-access verification. No provider setting or OAuth grant changed.
+
+Reconciled the [publication receipt](audits/2026-11-18-beta-final-publication.md),
+canonical state, [handoff](audits/2026-11-18-beta-handoff.md) and
+[tester guide](beta-tester-guide.md) locally. The small owner-led beta is ready
+within that documented scope; no invitation is sent. The first regular 03:00
+backup remains a future follow-up. No new deployment accompanies these docs;
+broader migration/content/marketing/legacy-retirement gates remain separate.
+
 ## November 18 approved PR #71 held for a test-only review correction
 
 The owner approves `d04b785`. Fresh release preflight verifies unchanged public

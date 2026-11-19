@@ -1,5 +1,45 @@
 # AtmoShaper Project State
 
+## November 18 final release accepted; small beta handoff ready
+
+The owner-approved corrected head `1748230` passes all seven hosted CI jobs on
+PR #71 and merges once as `adb137e` with an identical Git tree. Hosted results:
+5,721 JavaScript passes/five skips; 45 backup passes/one optional skip; 615 browser
+first-attempt passes plus one configured-retry success and 180 matrix/opt-in
+skips, with zero terminal failures. The unrelated mobile heading locator retry
+is recorded, not hidden. The reviewed backup fixture finding is resolved.
+
+The one actual Production build passes all 46 migrations without applying one,
+live all-payments readiness, TypeScript and 115 pages. Its client/server Sentry
+uploads and emitted-script association pass. Seven staged and seven public
+entry requests, real Linux artwork and the canonical apex redirect pass. One
+same-artifact promotion completes all six mappings; 34 unrelated aliases and
+all 87 Production settings are unchanged. READY `8d89550` remains the compatible
+rollback. The publication operation is complete and its write authority closed.
+
+Live owner readback proves selectable Skybreak through independent Admin access,
+retained refunded ownership, no duplicate acquisition controls, unchanged two
+credits and the same successful original $1.07 refund/history. No preference,
+cart, payment, refund or entitlement mutation is repeated.
+
+The correct AtmoShaper-profile Chrome extension now works. Read-only Google
+inspection matches the deployed Calendar client and confirms External/In
+production, verified AtmoShaper branding and no required data-access verification.
+All three requested Calendar scopes are non-sensitive; no Google setting changes.
+
+The [final publication receipt](audits/2026-11-18-beta-final-publication.md),
+[small-beta handoff](audits/2026-11-18-beta-handoff.md) and
+[tester guide](beta-tester-guide.md) now support the documented small,
+owner-led beta. Derrick monitors `atmoshaper@gmail.com` and sends invitations;
+none are sent by the agent. Keep tests invented and clinical vaults local-first.
+The first regular backup is still due November 19 at 03:00 America/New_York;
+scheduled-context export, encrypted restore and failure-alert acceptance already
+pass. Review that run afterward without repeating a closed campaign. Broader
+migration, held media/rights, marketing and legacy retirement remain outside
+this acceptance. Postpublication documentation is local-only, not another build.
+Earlier pending-release/refund sections below are historical and superseded by
+this dated checkpoint.
+
 ## November 18 publication approved; test-only review correction prepared
 
 The owner approves candidate `d04b785` and its bounded publication/readback.
