@@ -2,13 +2,15 @@
 
 ## November 19 planner guidance and Wellness hub ready locally
 
-The owner's clarified Wellness grouping restores the original green Breathing
-Guide and Glow Music buttons, keeps all eight check-in launchers purple, and
-makes the three Review & plan buttons green. Centered icons, titles and subtitles
-remain. This color-only correction passes focused lint, the inert 115-page
-TypeScript/build and connected Chrome readback/navigation without captured
-warnings/errors. Earlier desktop/mobile flow coverage is retained below.
-This remains an unpublished local preview.
+The owner's latest Wellness grouping uses the regular blue Breathing Guide and
+unchanged Glow Music buttons. Physical sensations contains Range of motion,
+Activity, Incident and Body check-in in orange; Context contains Work context,
+Feelings, Sleep and Home care in teal. The three Review & plan buttons remain
+green, with centered icons, titles and subtitles throughout. Focused lint, the
+inert 115-page TypeScript/build and both existing desktop/mobile Wellness flow
+cases pass, including narrow widths, enlarged text and draft/navigation checks.
+Connected Chrome confirms all four groups, colors and Feelings/return navigation
+without captured warnings/errors. This remains an unpublished local preview.
 
 The owner requests a compact Break-Even layout matching Income, visible money
 and time units, clearer input guidance in both planners, and a Wellness landing

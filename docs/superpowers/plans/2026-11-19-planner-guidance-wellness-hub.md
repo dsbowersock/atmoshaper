@@ -101,3 +101,22 @@ TypeScript/build. Chrome confirms the final materials, centered labels and
 Timeline/return interaction without captured warnings/errors. The final image
 is `wellness-button-groups.jpg` in external evidence. No behavioral changes,
 additional tests, provider writes or publication are part of this correction.
+
+## Physical and context grouping follow-up
+
+The owner's next revision uses regular blue for Breathing Guide and leaves
+Music's Glow style intact. Physical sensations now groups Range of motion,
+Activity, Incident and Body check-in with orange buttons. Context groups Work
+context, Feelings, Sleep and Home care with the shared teal setup tone. Review
+& plan remains green; centered icons and label lines remain. Group metadata is
+presentation-only: existing category values, ROM pane and draft/focus behavior
+are preserved. No shared Button or global palette changes are required.
+
+Focused lint, the inert TypeScript/115-page build and the two existing Wellness
+desktop/mobile flow cases pass without retries/skips. Those cases cover widths
+320 through 1280, enlarged text, category selection, draft retention, practice
+entries, timeline/pattern/ROM panes and Quick Log/keyboard return. Connected
+Chrome confirms exact group membership and materials, Feelings/return navigation
+and no captured warnings/errors. The external `physical-context` directory has
+phone captures; `wellness-physical-context.jpg` shows the complete desktop hub.
+The preview remains on loopback port 3018; this revision is not published.

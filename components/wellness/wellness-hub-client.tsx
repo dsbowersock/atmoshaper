@@ -64,13 +64,18 @@ const categoryLabels: Record<string, string> = {
 type WellnessTool = "log" | "rom" | "timeline" | "patterns" | "calendar" | null
 
 const recordingTools = [
-  { category: "body_sensation", title: "Body check-in", hint: "Notice sensations", icon: HeartPulse },
-  { category: "emotion", title: "Feelings", hint: "Name how you feel", icon: Smile },
-  { category: "sleep", title: "Sleep", hint: "Reflect on your rest", icon: Moon },
-  { category: "activity", title: "Activity", hint: "Record movement", icon: Activity },
-  { category: "work_context", title: "Work context", hint: "Note your workday", icon: BriefcaseBusiness },
-  { category: "home_care", title: "Home care", hint: "Track your routine", icon: Leaf },
-  { category: "incident", title: "Incident", hint: "Note what happened", icon: TriangleAlert },
+  { group: "physical", category: "activity", title: "Activity", hint: "Record movement", icon: Activity },
+  { group: "physical", category: "incident", title: "Incident", hint: "Note what happened", icon: TriangleAlert },
+  { group: "physical", category: "body_sensation", title: "Body check-in", hint: "Notice sensations", icon: HeartPulse },
+  { group: "context", category: "work_context", title: "Work context", hint: "Note your workday", icon: BriefcaseBusiness },
+  { group: "context", category: "emotion", title: "Feelings", hint: "Name how you feel", icon: Smile },
+  { group: "context", category: "sleep", title: "Sleep", hint: "Reflect on your rest", icon: Moon },
+  { group: "context", category: "home_care", title: "Home care", hint: "Track your routine", icon: Leaf },
+] as const
+// Groups organize launchers only; saved check-in categories keep their existing meaning.
+const recordingGroups = [
+  { id: "physical", title: "Physical sensations", tone: "default" },
+  { id: "context", title: "Context", tone: "setup" },
 ] as const
 const reviewTools = [
   { tool: "timeline", title: "Timeline", hint: "Review your entries", icon: Clock3 },
@@ -369,7 +374,7 @@ export function WellnessHubClient({
         <section aria-labelledby="wellness-reset-title">
           <h2 id="wellness-reset-title">Take a moment</h2>
           <div data-wellness-tool-grid>
-            <Button asChild variant="success" data-wellness-tile aria-label="Open breathing guide">
+            <Button asChild variant="ctaBlue" data-wellness-tile aria-label="Open breathing guide">
               <Link href="/wellness/breathing"><Wind aria-hidden="true" /><span><strong>Breathing guide</strong><small>Follow a calm rhythm</small></span></Link>
             </Button>
             <Button asChild variant="glow" data-wellness-tile aria-label="Open music">
@@ -377,19 +382,23 @@ export function WellnessHubClient({
             </Button>
           </div>
         </section>
-        <section aria-labelledby="wellness-record-title">
-          <h2 id="wellness-record-title">Record a check-in</h2>
-          <div data-wellness-tool-grid>
-            {recordingTools.map(({ category, title, hint, icon: Icon }) => (
-              <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant="cta" data-wellness-tile disabled={isPending} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
-                <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
-              </Button>
-            ))}
-            <Button type="button" variant="cta" data-wellness-tile disabled={isPending} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
-              <MoveUpRight aria-hidden="true" /><span><strong>Range of motion</strong><small>Measure movement</small></span>
-            </Button>
-          </div>
-        </section>
+        {recordingGroups.map((group) => (
+          <section key={group.id} aria-labelledby={`wellness-${group.id}-title`}>
+            <h2 id={`wellness-${group.id}-title`}>{group.title}</h2>
+            <div data-wellness-tool-grid>
+              {group.id === "physical" && (
+                <Button type="button" variant="default" data-wellness-tile disabled={isPending} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
+                  <MoveUpRight aria-hidden="true" /><span><strong>Range of motion</strong><small>Measure movement</small></span>
+                </Button>
+              )}
+              {recordingTools.filter((tool) => tool.group === group.id).map(({ category, title, hint, icon: Icon }) => (
+                <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant="default" tone={group.tone} data-wellness-tile disabled={isPending} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
+                  <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
+                </Button>
+              ))}
+            </div>
+          </section>
+        ))}
         <section aria-labelledby="wellness-review-title">
           <h2 id="wellness-review-title">Review & plan</h2>
           <div data-wellness-tool-grid>

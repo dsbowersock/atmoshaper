@@ -1,5 +1,20 @@
 # AtmoShaper Project Log
 
+## November 19 Wellness physical and context groups
+
+The owner requests the regular blue Breathing Guide button, unchanged Music,
+and separate check-in groups: orange Physical sensations (Range of motion,
+Activity, Incident, Body check-in) and teal Context (Work context, Feelings,
+Sleep, Home care). Existing Button materials supply these colors; Review & plan
+stays green and all launcher content stays centered. Group metadata organizes
+only the launchers; saved categories, ROM behavior and draft/focus handling
+retain their existing contracts. Focused lint, the inert TypeScript/115-page
+build and both existing desktop/mobile Wellness flow cases pass without retries
+or skips. Chrome confirms exact group membership/colors, working Feelings/return
+navigation and no captured warnings/errors. Phone and desktop screenshots are
+in the external `physical-context` evidence folder and
+`wellness-physical-context.jpg`. The unpublished preview remains on port 3018.
+
 ## November 19 Wellness button colors clarified
 
 The owner clarifies that purple applies to the former blue-outline check-in
