@@ -1,5 +1,28 @@
 # AtmoShaper Project Log
 
+## November 18 approved PR #71 held for a test-only review correction
+
+The owner approves `d04b785`. Fresh release preflight verifies unchanged public
+source/rollback, all six mappings, manual assignment and all 87 Production
+metadata rows. The payment-scope row is encrypted Config rather than plain;
+reading only that non-secret setting confirms the existing all-payments value.
+No credential value or setting is changed. One branch push and PR #71 start
+hosted CI/protected Preview; the Preview reaches READY and its root returns
+200 using an existing automation access method, without a new share link.
+The hosted browser build passes. All 5,721 applicable hosted JavaScript tests
+pass, with five explicit skips out of 5,726. Code quality then fails precisely
+the reviewed backup fixture; four browser lanes remain in progress.
+
+The exact-head automated review flags an equal-timestamp fixture whose retention
+assertion assumes creation/iteration order. A native-Ubuntu temporary copy
+reproduces precisely that failure: 46 total, one error and one optional age skip.
+The local correction makes the designated run strictly newest and checks both
+forward/reverse iteration, preserving all ten recent invented recovery points.
+All 45 applicable backup tests pass on native Windows and isolated Ubuntu.
+No application or backup operator runtime changes. The approved source remains
+unmerged; no Production build/promotion/payment runs. Preparing a new exact-head
+amendment before another push, retaining the original grant/counters as history.
+
 ## November 18 post-refund access correction passes focused local checks
 
 The client adapter preserves independently authorized background use after

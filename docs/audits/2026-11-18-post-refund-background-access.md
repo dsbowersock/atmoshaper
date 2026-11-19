@@ -1,9 +1,31 @@
 # Post-refund independent background access
 
-Status: **local correction, full regression and focused checks pass; publication pending**.
+Status: **approved source pushed; test-only review amendment prepared, publication held**.
 The original live [refund recovery](2026-11-18-owned-refund-recovery.md) is
 complete and closed. This source correction requires no further payment,
 refund, entitlement edit or account repair.
+
+## Hosted review and test-only follow-up
+
+The owner approves `d04b785`; [PR #71](https://github.com/dsbowersock/atmoshaper/pull/71)
+holds that exact head. The protected Preview is READY and its authenticated root
+returns 200 without generic error content. Existing automation access is reused;
+no share link is created. Hosted browser build and all 5,721 applicable JavaScript
+tests pass, with five explicit skips out of 5,726. Code quality then fails only
+the reviewed backup fixture; four browser lanes are still running.
+The current public artifact remains `8d89550`, with no merge,
+Production build or promotion.
+
+The automated review identifies a real retention-fixture ordering assumption.
+The ten runs had equal completion times, so the selected fresh run depended on
+filesystem enumeration. A native-Ubuntu copy reproduces the exact failure
+(46 tests: one error, one optional age skip). The corrected fixture gives each
+run explicit increasing timestamps and tests both forward/reverse enumeration.
+Native Windows and native-Ubuntu synthetic suites each pass 45 tests with one
+optional age skip. All ten recent recovery points remain intact. No application
+or NAS backup runtime file changes. The table below remains dated `d04b785`
+evidence; a new exact-head hosted run is required after the separately approved
+[amendment](../superpowers/plans/2026-11-18-beta-final-acceptance-publication.md#test-only-review-amendment).
 
 ## Observed problem and correction
 

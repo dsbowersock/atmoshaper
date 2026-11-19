@@ -1,6 +1,6 @@
 # Small beta handoff checkpoint
 
-Status: **monetary checks passed; local carousel correction passes, publication pending**. No invitations
+Status: **monetary/local access checks pass; PR #71 publication held for test-only amendment**. No invitations
 have been sent. This checkpoint carries forward dated, scoped results rather
 than repeating closed campaigns or declaring the full migration complete.
 
@@ -40,6 +40,13 @@ The [source receipt](2026-11-18-post-refund-background-access.md) and
 distinguish completed local results from pending hosted and offered-artifact
 checks. Fresh metadata comparison preserves all 87 Production settings' names,
 types, targets and timestamps, with no secret decryption or setting write.
+The owner approves `d04b785` and PR #71's protected Preview is healthy. Hosted
+review exposes one nondeterministic backup fixture, subsequently confirmed as
+the sole Code quality failure after all 5,721 applicable JavaScript tests pass.
+Its local correction passes
+45 applicable tests on Windows and Ubuntu. The source/runtime is unchanged,
+but advancing the frozen PR head needs the prepared exact-head amendment.
+No merge or Production build/promotion has occurred.
 
 After those results, reconcile this checkpoint and the tester guide with the
 offered scope before inviting people. Held content, broader migration/marketing,

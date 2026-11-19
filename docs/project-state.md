@@ -1,5 +1,30 @@
 # AtmoShaper Project State
 
+## November 18 publication approved; test-only review correction prepared
+
+The owner approves candidate `d04b785` and its bounded publication/readback.
+Fresh preflight preserves main/public `8d89550`, its READY rollback, all six
+mappings and all 87 Production settings. Manual domain assignment and the
+existing all-payments scope are verified. One push and PR #71 create a healthy
+protected Preview; its authenticated root returns 200 through existing access,
+without creating a share link. The hosted browser build and all 5,721 applicable
+JavaScript checks pass, with five explicit skips out of 5,726. Code quality
+fails only the backup fixture described below; four browser lanes remain running.
+No merge, Production build, promotion or live transaction
+occurs.
+
+Hosted review finds a real filesystem-order dependency in one synthetic backup
+test. Ubuntu reproduces the failure. A local test-only correction gives the
+designated fresh run strictly later timestamps and exercises forward/reverse
+directory order. Windows and isolated native-Ubuntu backup suites both pass
+45 tests with one optional age-tool skip. Application/backup runtime source and
+the validated dependency/migration tree are unchanged. The full JavaScript and
+browser results below remain `d04b785` evidence, not new hosted-head results.
+The [amendment packet](superpowers/plans/2026-11-18-beta-final-acceptance-publication.md#test-only-review-amendment)
+requires approval for the new exact head and one additional PR push/Preview
+before the same gated publication can continue. Public source stays `8d89550`;
+invitations remain on hold. The consumed original refund stays closed.
+
 ## November 18 original refund recovered; local access correction passes
 
 The new exact approval is completed: one runtime key permission is saved and

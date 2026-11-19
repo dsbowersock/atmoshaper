@@ -32,8 +32,9 @@ class BackupMaintenanceTests(unittest.TestCase):
         self.assertEqual(self.directory.parent, self.parent)
         self.temporary.cleanup()
 
-    def pair(self, days=0, number=1):
-        started = self.started - datetime.timedelta(days=days)
+    def pair(self, days=0, number=1, seconds=0):
+        """Create invented runs with explicit recency, independent of file order."""
+        started = self.started - datetime.timedelta(days=days) + datetime.timedelta(seconds=seconds)
         completed = started + datetime.timedelta(seconds=10)
         run_id = format(number, "032x")
         stem = "atmoshaper-db-{}-{}".format(started.strftime("%Y%m%dT%H%M%SZ"), run_id)
@@ -68,10 +69,16 @@ class BackupMaintenanceTests(unittest.TestCase):
         self.assertEqual(self.retain(pairs[0][0], execute=True)['deletedPairs'], 0)
 
     def test_recent_copies_are_not_deleted_even_when_more_than_seven(self):
-        pairs = [self.pair(days=0, number=n+1) for n in range(10)]
-        # Equal completion times deliberately do not authorize retention with
-        # an arbitrary earlier receipt; use the list's most recent stable item.
-        self.assertEqual(self.retain(pairs[-1][0], execute=True)['deletedPairs'], 0)
+        pairs = [self.pair(days=0, number=n+1, seconds=n) for n in range(10)]
+        # The designated success must be strictly newest in either directory
+        # order; all ten recent recovery points must survive retention.
+        paths = sorted(self.directory.iterdir())
+        for reverse in (False, True):
+            with self.subTest(reverse=reverse):
+                order = list(reversed(paths)) if reverse else paths
+                with mock.patch.object(Path, 'iterdir', return_value=iter(order)):
+                    self.assertEqual(self.retain(pairs[-1][0], execute=True)['deletedPairs'], 0)
+                self.assertEqual(set(self.directory.iterdir()), set(paths))
 
     def test_previous_success_cannot_authorize_pruning_after_failed_export(self):
         old, unused, receipt = self.pair(days=1)

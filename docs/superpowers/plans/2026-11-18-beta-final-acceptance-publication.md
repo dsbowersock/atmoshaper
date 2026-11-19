@@ -1,10 +1,38 @@
 # Publish the final beta access correction
 
-Status: **prepared local packet; not authorized or submitted**.
+Status: **original `d04b785` approved and pushed; test-only amendment prepared**.
 The [source receipt](../../audits/2026-11-18-post-refund-background-access.md)
 records the completed local regression and focused results. Freeze the exact
 head/tree on `codex/beta-final-acceptance` before requesting approval. Keep
 private provider/deployment references in the ignored operator packet.
+
+## Test-only review amendment
+
+The owner approves the original exact source. One push opens
+[PR #71](https://github.com/dsbowersock/atmoshaper/pull/71), with a READY protected
+Preview and successful authenticated root request. Its browser build and 5,721
+applicable JavaScript checks pass, with five skips. Code quality fails only the
+backup fixture; four browser lanes remain running. No merge, Production build
+or promotion is issued.
+
+The exact-head review finds a genuine filesystem-order assumption in one backup
+fixture. Ubuntu reproduces it. The local correction changes only that fixture
+and operational records: explicit increasing run timestamps, both directory
+orders, and preservation of all ten recent invented copies. Windows/Ubuntu
+each pass 45 applicable tests with one optional age skip. Application and backup
+runtime source, dependencies, schema, live settings and original monetary
+receipts remain unchanged.
+
+Freeze the new head/tree locally. Request one amendment allowing one additional
+push to the existing PR and its automatic protected Preview/hosted checks, then
+the same once-only merge, Production build/map verification, promotion and
+existing-account readback below. Start a fresh 120-minute window only after
+approval/preflight; retain one compatible `8d89550` rollback. Preserve the first
+push/PR/Preview as history, never treat them as unused attempts. There is no
+second PR, extra payment, new share link, NAS write or provider setting change.
+Do not push the corrected head or merge the known-flaky original before this
+exact-source amendment is approved and new hosted gates pass. Original proposal
+details below remain the release procedure, not a grant to bypass review.
 
 ## Candidate and effect
 
