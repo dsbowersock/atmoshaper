@@ -1,5 +1,17 @@
 # AtmoShaper Project Log
 
+## November 19 Wellness button colors clarified
+
+The owner clarifies that purple applies to the former blue-outline check-in
+tools, not every launcher. Breathing Guide and Music return to their original
+`success` and `glow` variants; the eight recording launchers stay `cta`, and
+the three Review & plan launchers use green `success`. Centered icons and text
+remain. Only three variant values change. Focused lint and the inert
+TypeScript/115-page build pass; connected Chrome confirms every group, centered
+labels, working Timeline/return navigation and no captured warnings/errors.
+No additional tests or live/provider operations are needed for this appearance
+correction. The local review preview remains open on port 3018.
+
 ## November 19 Wellness purple button and centering follow-up
 
 The owner finds the outline launchers insufficiently button-like and requests

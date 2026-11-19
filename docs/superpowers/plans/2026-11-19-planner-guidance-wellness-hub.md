@@ -92,3 +92,12 @@ no retry/skip). Focused lint and the inert 115-page TypeScript/build pass.
 Connected Chrome confirms the purple faces, centered text and working tool
 selection without captured warnings/errors. Screenshots are in the external
 `purple-buttons` evidence folder. This is still an unpublished local candidate.
+
+The owner subsequently clarifies the final grouping: restore the original green
+Breathing Guide and Glow Music styles; retain purple for eight check-in tools;
+use green for all three Review & plan tools. Centered content remains. This
+three-variant correction passes focused lint and the inert 115-page
+TypeScript/build. Chrome confirms the final materials, centered labels and
+Timeline/return interaction without captured warnings/errors. The final image
+is `wellness-button-groups.jpg` in external evidence. No behavioral changes,
+additional tests, provider writes or publication are part of this correction.
