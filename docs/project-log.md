@@ -1,5 +1,32 @@
 # AtmoShaper Project Log
 
+## November 18 existing Voice number saved; final beta entry and handoff pass
+
+The owner identifies an existing active Google Voice line and authorizes its
+use for AtmoShaper. Fresh preflight verifies the temporary salon support contact
+and existing branding/display setting. Filled only the public support-phone
+field, checked the other visible public fields and submitted Save once. The
+saved summary shows the selected Voice number and no salon contact; reopened
+form comparison preserves all other public fields and receipt/invoice display
+off. Cancelled the read-only reopen without another save. Saved screenshot
+evidence privately in ignored output. No private verification/recovery-phone,
+account, subscription, forwarding, greeting, payment or deployment change.
+
+The canonical public host resolves read-only to READY `adb137e`; GitHub main
+still matches it. Thirteen selected anonymous entries/manifest return 200 with
+no generic server-error/personal-Gmail surface. Registration is open, offers
+Google and password entry and retains its onboarding target. Manifest branding,
+root entry, standalone display and four icons agree. These observations do not
+create a new user or prove a fresh user's completed sign-up/install/offline use.
+
+Prepared the owner's copyable [invitation and first-session plan](beta-invitation-draft.md),
+reconciled the [handoff](audits/2026-11-18-beta-handoff.md) and retained the tester
+guide. No invitations or other messages are sent. The remaining near-term owner
+checks are the Voice greeting/number maintenance and first regular November 19
+03:00 backup outcome. Prior scheduled/restore/alert and signed payment/Calendar/
+game campaigns remain closed. Local docs do not trigger another deployment or
+claim completion of broader migration/held-content/marketing work.
+
 ## November 18 owner-confirmed salon support number replaces the personal cell
 
 The owner chooses the salon line temporarily and confirms the exact number and

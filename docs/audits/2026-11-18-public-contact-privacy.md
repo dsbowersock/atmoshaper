@@ -1,11 +1,30 @@
 # Customer-facing branding and contact privacy
 
-Status: **temporary business support phone saved and verified; personal-cell item closed**.
+Status: **existing Google Voice support contact saved and verified; personal-cell item closed**.
 The owner narrowed the goal to what customers see, rather than consolidating
 private administrator logins. The initial personal-cell finding below is
 superseded by the approved business-number replacement in this receipt.
 
-## Approved replacement and readback
+## Existing Google Voice selection and readback
+
+The owner subsequently supplies an existing active Google Voice line and
+authorizes its use for AtmoShaper. Fresh preflight verifies the saved temporary
+salon contact and existing public-branding/display fields. Changed only the
+support-phone field, compared the other visible public fields and saved once.
+The static saved summary shows the selected Voice contact and no salon number.
+Reopening the editor confirms all other visible public fields unchanged and
+receipt/invoice phone display off. Cancelled that read-only reopen without a
+second save. Screenshot evidence remains in ignored operator output; actual
+phone values are omitted from Git.
+
+This supersedes the temporary salon choice below. The owner attests that the
+Voice line is active; no new service/account, port, subscription, test call,
+message, greeting/forwarding change or private verification/recovery setting
+change occurs. A later owner greeting/retention check is practical maintenance,
+not a claimed telephony test. Historical transaction displays are not proven
+rewritten by this current public-contact update.
+
+## Earlier temporary salon replacement and readback (historical)
 
 The owner selects the existing salon number as temporary AtmoShaper support and
 confirms the exact digits and that callers can reach the owner or leave an
@@ -86,7 +105,7 @@ without a separate Workspace subscription. Its current
 also reserve inactive-number removal; do not claim an unconditional retention
 guarantee or buy a plan without reviewing actual offered retention/billing terms.
 
-Recommendation for this beta is the existing owner-approved salon line, with
-the branded inbox as the normal written support route. A dedicated line can
-be selected later; no new account, reminder, paid plan or recurring charge is
-created by this research.
+At this research checkpoint, the temporary salon line was recommended. The
+owner's later existing-Voice selection above supersedes that recommendation,
+with the branded inbox retained as the normal written support route. No new
+account, reminder, paid plan or recurring charge is created by this research.

@@ -1,11 +1,11 @@
 # Small beta handoff checkpoint
 
 Status: **accepted for the documented small, owner-led beta**.
-The owner-confirmed temporary salon support number replaces the personal cell
-in Stripe. One save and saved-summary/reopened-editor checks pass; receipt phone
-display stays off and all other visible public fields are unchanged. The
-[contact item](2026-11-18-public-contact-privacy.md) is closed; a dedicated phone
-service remains an optional later choice. No invitations
+The owner-selected existing Google Voice number replaces the temporary salon
+support number in Stripe. One save and saved-summary/reopened-editor checks
+pass; receipt phone display stays off and all other visible public fields are
+unchanged. The [contact item](2026-11-18-public-contact-privacy.md) is closed;
+no new phone service is needed. No invitations
 have been sent. This checkpoint carries forward dated, scoped results rather
 than repeating closed campaigns or declaring the full migration complete.
 
@@ -21,6 +21,19 @@ than repeating closed campaigns or declaring the full migration complete.
 | Sentry | Existing scrubbed error-only/owner-alert acceptance is retained; this release uploads 521 client/2,620 server files. An actual emitted script resolves to the new exact-release archive; its unchanged debug ID also belongs to the prior archive. No additional synthetic error or email. [Current release receipt](2026-11-18-beta-final-publication.md). |
 | Hosted-data recovery | The encrypted export and isolated restore passed. Daily scheduling, guarded retention and an authenticated owner failure alert pass at the scheduled-test scope. First regular overnight run is November 19 at 03:00 America/New_York and is still future; a full hosting-outage cutover remains untested. [Daily acceptance](2026-11-18-daily-encrypted-backups-and-alerts.md), [operating runbook](../wiki/database-backups.md). |
 | Support and tester instructions | Derrick will monitor `atmoshaper@gmail.com`; the public support page is reachable. The [tester guide](../beta-tester-guide.md) provides invented-data checks and a private-data-free reporting format. No test support message is necessary or authorized. |
+
+## Final public entry pass
+
+Fresh read-only Vercel resolution of the canonical host is READY on approved
+`adb137e`; GitHub main still matches it. Anonymous GETs pass for `/`, `/login`,
+`/register`, `/pricing`, `/support`, `/legal/privacy`, `/legal/terms`,
+`/about/derrick`, `/clock`, `/chimer`, `/music`, `/anatomime` and
+`/manifest.webmanifest`: all 13 return 200, with no generic server-error surface
+or personal Gmail in rendered content. Registration is not paused and offers
+both Google and email/password entry with its onboarding target. Manifest name
+and short name are AtmoShaper, with root start URL, standalone display and four
+icons. No form is submitted. This is not a completed fresh-user registration,
+installed-app/offline acceptance or a repeat of the earlier full browser suite.
 
 ## Accepted payment and post-refund access checks
 
@@ -45,7 +58,11 @@ hosted and actual Production proofs are distinguished in the
 ## Owner handoff and follow-up
 
 The [tester guide](../beta-tester-guide.md) is reconciled with the offered scope.
-The owner can share it with a small group and monitor the named inbox. Review
+The copyable [invitation and first-session plan](../beta-invitation-draft.md)
+gives the owner a concrete first round across ordinary phones/computers. The
+owner can share it with a small group and monitor the named inbox. Check the
+selected Voice greeting for AtmoShaper and maintain the number if it is a free
+plan; no call, greeting/forwarding change or reminder was created here. Review
 the first regular overnight backup's saved result after November 19 at 03:00
 America/New_York; do not replay backup/alert acceptance just to update records.
 The recorded homepage locator retry and development-tooling dependency finding

@@ -1,5 +1,35 @@
 # AtmoShaper Project State
 
+## November 18 Google Voice support contact accepted; final invitation pass complete
+
+The owner supplies an existing active Google Voice number for AtmoShaper and
+authorizes using it instead of the temporary salon line. Fresh Stripe preflight
+matches the salon contact and branded public fields. Changed only the support
+phone and saved once. Static saved-summary and reopened-editor reads verify the
+Voice contact, absent salon contact, receipt/invoice phone display still off and
+all other visible public fields unchanged. Closed the editor without another
+save. Private verification/recovery settings and transactions remain untouched.
+The [privacy receipt](audits/2026-11-18-public-contact-privacy.md) supersedes the
+temporary-contact choice without a new service, subscription, port or deployment.
+
+Fresh read-only Vercel resolution of the canonical public host is READY on the
+approved `adb137e`, and GitHub main remains that same source. All 13 selected
+anonymous public page/manifest requests return 200, with no generic server-error
+surface or personal Gmail in rendered content. Registration is open and offers
+Google and email/password entry with its onboarding target. The install manifest
+has AtmoShaper name/short name, root start URL, standalone display and four icons.
+These are entry/metadata checks, not new-account, install or offline acceptance.
+
+The [small-beta handoff](audits/2026-11-18-beta-handoff.md),
+[tester guide](beta-tester-guide.md) and copyable
+[invitation/first-session plan](beta-invitation-draft.md) are ready locally.
+No invitation, new account, mail, payment or live clinical-data workflow is
+created. No known blocker remains in the documented small-beta scope. The
+first regular 03:00 backup is still future; the owner should also check the Voice
+greeting/continued number activity. Broader migration/content/marketing gates,
+the recorded development-tooling finding and unrelated test retry remain separate
+follow-ups. Earlier temporary-phone and pending-contact sections are historical.
+
 ## November 18 temporary business support phone saved and verified
 
 The owner selects the existing salon number for temporary AtmoShaper support,
