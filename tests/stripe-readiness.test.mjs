@@ -935,7 +935,7 @@ describe("Stripe readiness background-commerce contract", () => {
   })
 
   it("rejects Portal inventories without an explicit boolean end marker", () => {
-    for (const malformed of ["missing", "string"]) {
+    for (const malformed of ["missing", "string", "later-missing", "later-string"]) {
       const result = runReadinessWithStripeStub(
         liveV2OnlyOverrides({ STRIPE_READINESS_STUB_INVALID_PORTAL_PAGINATION: malformed }),
         ["--live", "--verify-stripe"],

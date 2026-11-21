@@ -1,5 +1,23 @@
 # AtmoShaper Project State
 
+## November 21 bounded CodeRabbit campaign complete; corrections remain local
+
+All eight remote reviews complete. The final pass at `07a3dcd` verifies all 28
+planned correction paths and raises four issues (three major, one minor).
+One slow-Checkout confirmation regression is reproduced and corrected locally;
+later-page pagination fails closed in the actual CLI fixtures. Two future audit
+compatibility cases remain deferred, with current proof unaffected. All 163
+post-review Stripe checks and focused lint pass. The last inert rebuild also
+passes, including TypeScript. See the [final disposition register](audits/2026-11-21-coderabbit-range-backfill-results.md).
+
+Historical range proof is complete for all 703 changed code/test histories at
+public `d7e30e0`. The final successful-create correction and its small supporting
+test/script delta are subsequent to the reviewed head: they still need ordinary
+PR review, fresh hosted checks and concrete publication authorization. No ninth
+remote request or automatic rewrite loop occurs. Earlier app and backup
+corrections are also local; NAS activation has its separate gate. No provider,
+database, NAS, mail, payment or public deployment is changed.
+
 ## November 21 historical review coverage closed; final correction review pending
 
 All seven remote requests so far complete: five initial cohorts, the 37-path

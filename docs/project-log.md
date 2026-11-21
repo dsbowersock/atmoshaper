@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 21 final planned CodeRabbit review completes
+
+Verify the actual completed 28-path correction review at `07a3dcd`: four issues,
+three major and one minor, with exact range/tree/path evidence. This is the
+eighth request and closes the finite remote campaign. Reproduce the late
+successful-create confirmation error, then give confirmation its own bounded
+five-second read while retaining the original deadline for further creates.
+Initial/retry success and slow-terminal fixtures pass. Later-page malformed
+Portal inventories also exit nonzero, refuting the proposed recovery concern.
+All 163 Stripe checks, focused lint and the last inert rebuild/TypeScript pass.
+
+Record the two audit compatibility follow-ups and all earlier deferred work in
+the [final register](audits/2026-11-21-coderabbit-range-backfill-results.md).
+Do not start another remote cycle or claim the subsequent small source delta
+has been reviewed. Its ordinary PR/CI/release gates remain, as does separate NAS
+activation. Preserve the complete 703-path public coverage result and all raw
+receipts. No push, deployment, provider or live-data change occurs.
+
 ## November 21 fixed range backfill completes and current-beta issues are triaged
 
 Admit the actual 60-file completed receipt after exact path/tree/outcome checks.

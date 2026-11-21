@@ -48,7 +48,7 @@ or provider evidence and must not be described as refuted or fixed.
 | R6 | Corrected locally | Iterate reminder candidate days from local midnight, retaining the exact requested start/end filter. A final partial day containing a reminder is no longer skipped. |
 | R7 | Conditional capacity | Cleanup's bounded whole-corpus read can fail closed above 128 MiB. No supported current corpus failure is established. Size-based batching needs a separate capacity fixture before increasing supported scope. |
 | R8 | Refuted | `membership-checkout.js` passes `supporterUse`; the helper rejects absent/mismatched use before Stripe work. The existing personal/business catalog and invalid-selection tests pass. |
-| R9 | Corrected locally | Freshly retrieve every created/replayed membership Session before exposing its URL. Require matching ID, open status and URL under the existing deadline. Cached expired responses reconcile and permit at most the existing one additional create; the second terminal result stops. |
+| R9 | Corrected locally | Freshly retrieve every created/replayed membership Session before exposing its URL. Require matching ID, open status and URL under a bounded confirmation read; the original deadline still gates further creates. Cached expired responses reconcile and permit at most the existing one additional create; the second terminal result stops. See final correction F1 below. |
 | R10 | Corrected locally | Construct each day end independently from a noon anchor. America/Havana March 2026 reproduces a point appearing on two days after a skipped midnight. |
 | R11 | Refuted | The classifier accepts nonempty composite identities and checks the explicit catalog version. Actual v2 expanded Product readiness and current Session compatibility controls pass; v1/wrong-use cases are rejected. |
 | R12 | Refuted | Production readiness is selected only by `VERCEL_ENV=production`; it runs before Prisma and reads inherited settings with `--no-dotenv`. Local inert builds and the Production rejection contract checks pass. |
@@ -105,6 +105,33 @@ or provider evidence and must not be described as refuted or fixed.
 | R63 | Deferred test | Exercise decreasing clock readings during the runtime call or remove the unsupported rollback claim; post-call timestamps alone do not test it. |
 | R64 | Refuted by CI configuration | The ordinary code-quality job explicitly provisions matching Chromium before `npm run test`. The browser jobs provision it separately. |
 
+## Final correction review and finite closure
+
+The eighth and final remote request completes at `07a3dcd`, covering every one
+of its 28 exact correction paths from `9712b16`. CodeRabbit raises **four issues:
+three major and one minor**. The raw completed outcome, matching issue count,
+Git tree and exact actual path set verify. There is no paid request or omitted
+path. Do not call this a zero-issue review.
+
+| ID | Severity | Disposition and concrete remaining scope |
+| --- | --- | --- |
+| F1 | Major | Confirmed in `lib/stripe-billing.js`: a successful create finishing after the reconciliation deadline cannot be confirmed. The synthetic slow-create regression fails before correction. Confirmation now has its own five-second read allowance; the original deadline still prevents further creates. Initial and retry successes pass; a slow terminal result cannot expose a URL or start another create. This small local correction is subsequent to the last reviewed head and needs ordinary PR review before release. |
+| F2 | Major | Deferred audit compatibility in `scripts/coderabbit-coverage-audit.mjs`: a future child-before-parent PR can have a first baseline already containing parent changes, stopping even a wider proven review. Current inventory has no such mismatch, so its 703-path result is unaffected. Before using that new history shape, choose the actual bootstrap blob/commit as the seed/backfill baseline and add the nested-PR fixture. Current behavior fails closed. |
+| F4 | Major | Refuted in `scripts/stripe-readiness-check.mjs`: the caller catches a malformed inventory, records failure and exits nonzero; it cannot recover earlier accumulated pages as complete evidence. New real-CLI fixtures cover missing/string `has_more` on a second page as well as the first, with no successful default-topology result. |
+| F3 | Minor | Deferred literal-filename compatibility in `scripts/coderabbit-coverage-proof.mjs` and the audit tree reader: use NUL-delimited Git paths without trimming, and add Unicode/tab/newline filenames. The current exact review manifests verify; future quoted names can reject valid evidence rather than silently grant coverage. |
+
+The final post-review Stripe suite passes 163/163, including the reproduced
+slow-create boundary, bounded terminal behavior and later-page failures.
+Focused lint and the subsequent inert application rebuild/TypeScript pass.
+The current inventory contains zero code/test paths requiring Git pathname
+quoting, confirming that F3 does not change this frozen result. This run also
+has no inherited Git repository/index redirect variables. Keep the R51 fixture
+use gate for future hook/custom-index runs, including the new coverage-proof
+fixture, until environment isolation is implemented.
+These later changes are not represented as CodeRabbit-
+reviewed merely because the earlier versions of their files were reviewed.
+No ninth request is started: all eight planned remote reviews are closed.
+
 ## Remaining boundary
 
 The additional Calendar checks pass 116/116, Stripe 161/161, route/security
@@ -115,10 +142,10 @@ none is a live financial or database operation. Earlier application changes
 retain their 16 native phone/desktop scenario receipts and applicable Windows/
 Linux backup tests. Hosted checks and a newly built release remain later gates.
 
-The final correction-delta review is the last request in the approved finite
+The final correction-delta review was the last request in this finite
 campaign. No further automatic review/fix loop, whole-source rewrite, old-PR
 reopening or paid review is included. Any serious issue from that final request
-must be reported concretely rather than silently expanding scope.
+has been reported concretely above rather than silently expanding scope.
 
 Deferred migration and cleanup work is not a hidden beta-application rewrite.
 The affected dormant operator paths must satisfy their listed gates before

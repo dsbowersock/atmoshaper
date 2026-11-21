@@ -45,6 +45,12 @@ service response. Never push or deploy review-only refs.
 
 ## Two remaining requests, then stop this campaign
 
+Final status: both requests have completed. The last 28-path review raises four
+issues, all dispositioned in the backfill/final register. One supported late-
+create correction and its focused fixtures are prepared afterward; they retain
+ordinary PR review and release gates. There is no ninth remote request or
+automatic continuation of this campaign.
+
 Update: request 1 completed with all 60 paths and 64 observations. The strict
 audit now proves all 703 public changed histories. The complete backfill
 disposition register separates seven additional current-beta corrections,

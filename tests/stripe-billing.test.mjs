@@ -656,6 +656,60 @@ describe("Stripe billing helpers", () => {
     assert.deepEqual(calls, ["create", "expire legacy", "create"])
   })
 
+  it("confirms slow successful initial and retry creates after the reconciliation deadline", async () => {
+    for (const retry of [false, true]) {
+      let clock = 0
+      let creates = 0
+      let reads = 0
+      const fresh = membershipCheckoutSession({ id: "cs_slow_success" })
+      const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+        reconciliationNowMs: () => clock,
+        stripeClient: { checkout: { sessions: {
+          list: async () => stripeCheckoutSessionList(),
+          create: async () => {
+            creates += 1
+            if (retry && creates === 1) throw Object.assign(new Error("Committed legacy conflict"), {
+              type: "StripeIdempotencyError", statusCode: 409,
+            })
+            clock = 6000
+            return fresh
+          },
+          retrieve: async (id, _params, options) => {
+            reads += 1
+            assert.equal(id, fresh.id)
+            assert.ok(options.timeout > 0 && options.timeout <= 5000)
+            assert.equal(options.maxNetworkRetries, 0)
+            return fresh
+          },
+        } } },
+      }))
+      assert.equal(result.id, fresh.id)
+      assert.equal(creates, retry ? 2 : 1)
+      assert.equal(reads, 1)
+    }
+  })
+
+  it("rejects a slow terminal create without starting another create after the deadline", async () => {
+    let clock = 0
+    let creates = 0
+    let reads = 0
+    let lists = 0
+    await assert.rejects(stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      reconciliationNowMs: () => clock,
+      stripeClient: { checkout: { sessions: {
+        list: async () => { lists += 1; return stripeCheckoutSessionList() },
+        create: async () => { creates += 1; clock = 6000; return membershipCheckoutSession() },
+        retrieve: async () => {
+          reads += 1
+          return membershipCheckoutSession({ status: "expired", url: null })
+        },
+      } } },
+    })))
+    assert.equal(creates, 1)
+    assert.equal(reads, 1)
+    assert.equal(lists, 1)
+  })
+
   it("uses Stripe's supported created.gte filter to bound Session reconciliation", async () => {
     let capturedListPayload = null
 
