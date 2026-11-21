@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises"
 import test from "node:test"
 import { createCompiledModuleLoader, createElement, elementText, findElement, renderFunctionComponents } from "./helpers/compiled-module.mjs"
 import { normalizeCalendarPreferences } from "../lib/calendar-preferences.js"
-import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow } from "../lib/calendar-workspace.js"
+import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow, calendarWorkspaceOwnerKey } from "../lib/calendar-workspace.js"
 
 const load = createCompiledModuleLoader(import.meta.url)
 const source = await readFile(new URL("../app/calendar/page.tsx", import.meta.url), "utf8")
@@ -46,7 +46,7 @@ function fixture(options = {}) {
     "@/app/calendar/actions": { createPracticeAction: () => { throw new Error("WRITES_ARE_FORBIDDEN_IN_THIS_FIXTURE") } },
     "@/lib/calendar-readiness": { isCalendarDatabaseReady: async () => read("readiness", options.ready !== false) },
     "@/lib/calendar-preferences": { normalizeCalendarPreferences },
-    "@/lib/calendar-workspace": { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow },
+    "@/lib/calendar-workspace": { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow, calendarWorkspaceOwnerKey },
     "@/lib/prisma": { prisma },
     "@/components/ui/app-surface": { AppSurface: nodes.AppSurface, appSurfaceClassName: "" },
     "@/components/ui/button": { Button: pass },
@@ -66,6 +66,7 @@ function fixture(options = {}) {
       return {
         text: elementText(renderFunctionComponents(tree)),
         workspace: findElement(tree, (node) => node.type === nodes.CalendarWorkspace)?.props ?? null,
+        workspaceKey: findElement(tree, (node) => node.type === nodes.CalendarWorkspace)?.key ?? null,
         personal: findElement(renderFunctionComponents(tree), (node) => node.type === "personal-calendar")?.props ?? null,
       }
     },
@@ -150,6 +151,17 @@ test("a requested distant day bounds both practice events and external busy read
       start: query.endsAt.gt.toISOString(), end: query.startsAt.lt.toISOString(),
     })
   }
+})
+
+test("the actual page key retains date intent across source changes but isolates practice ownership", async () => {
+  const practice = await fixture().run({ date: "2030-02-12", view: "practice" })
+  const together = await fixture().run({ date: "2026-11-20", view: "together" })
+  assert.equal(practice.workspaceKey, calendarWorkspaceOwnerKey(userId, practiceId))
+  assert.equal(together.workspaceKey, practice.workspaceKey)
+  const second = "fictional-second-practice"
+  const switched = await fixture({ memberships: [{ practiceId: second, practice: { id: second } }] }).run({ practice: second })
+  assert.notEqual(switched.workspaceKey, practice.workspaceKey)
+  assert.notEqual(calendarWorkspaceOwnerKey("fictional-second-owner", practiceId), practice.workspaceKey)
 })
 
 test("month-end replacement snapshots contain every leading and trailing grid day", async () => {

@@ -1,5 +1,17 @@
 # AtmoShaper Project Log
 
+## November 21 Calendar source-transition follow-up
+
+Codex review at `99a4da6` identifies a source-view remount that discards the
+new date-intent guard. Bind remounting to account/practice ownership, preserve
+newer date/source intents across automatic replies, and still apply explicit
+route changes. Share the page's actual ownership key with the native fixture;
+verify the page key is stable across source changes and different across owners
+or practices. All 120 Calendar layer checks and native phone/desktop acceptance
+pass, including the delayed Practice → Together sequence. Fresh included
+CodeRabbit coverage will include both follow-up commits. No public or provider
+change occurs during this amendment.
+
 ## November 21 completed correction review and focused follow-up
 
 The included CodeRabbit review completes at `60bdc9e` across 22 paths, raising

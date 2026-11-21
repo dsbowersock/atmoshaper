@@ -168,7 +168,9 @@ export function CalendarWorkspace({
   const [visibleWindow, setVisibleWindow] = useState({ start: "", end: "" })
   const requestedPracticeRange = useRef("")
   const dateIntent = useRef(0)
-  const requestedDateIntents = useRef(new Map<string, number>())
+  const scopeIntent = useRef(0)
+  const requestedRouteIntents = useRef(new Map<string, { date: number; scope: number }>())
+  const routeNavigationPending = useRef(false)
   // All navigation paths report their complete visible range through datesSet.
   // Never display a bookable practice grid outside the server-read snapshot.
   const practiceRangePending = Boolean(showPractice && loadedPracticeWindow && visibleWindow.start
@@ -187,18 +189,6 @@ export function CalendarWorkspace({
   const [calendarSlotDensity, setCalendarSlotDensity] = useState(preferences.calendarSlotDensity)
   const [message, setMessage] = useState("")
   const [isPending, startTransition] = useTransition()
-
-  useEffect(() => {
-    if (!practiceRangePending) { requestedPracticeRange.current = ""; return }
-    if (!selectedDate || !selectedPracticeId) return
-    const requestKey = `${selectedPracticeId}:${scope}:${visibleWindow.start}:${visibleWindow.end}`
-    if (requestedPracticeRange.current === requestKey) return
-    requestedPracticeRange.current = requestKey
-    const date = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
-    const query = new URLSearchParams({ practice: selectedPracticeId, view: scope, date })
-    requestedDateIntents.current.set(date, dateIntent.current)
-    router.replace(`/calendar?${query}`, { scroll: false })
-  }, [practiceRangePending, selectedDate, selectedPracticeId, scope, router, visibleWindow.start, visibleWindow.end])
 
   const hasMultipleProviders = providers.length > 1
   // Show the private layer once, never in each provider's split column.
@@ -329,25 +319,47 @@ export function CalendarWorkspace({
   }, [calendarApis, scrollCalendarsToUsefulTime])
 
   useEffect(() => {
+    routeNavigationPending.current = false
+    const requestKey = `${initialScope}:${initialDate ?? ""}`
+    const requestedIntent = requestedRouteIntents.current.get(requestKey)
+    requestedRouteIntents.current.delete(requestKey)
+    // Explicit route changes still select their source; an automatic response
+    // must retain any newer local source choice, just as it retains its date.
+    if (!requestedIntent || requestedIntent.scope === scopeIntent.current) setScope(hasPractice ? initialScope : "personal")
     if (!initialDate) return
-    const requestedIntent = requestedDateIntents.current.get(initialDate)
-    requestedDateIntents.current.delete(initialDate)
     // A replacement owns its original date intent, not a newer local choice
     // that happened to fit the old snapshot and therefore issued no request.
-    if (requestedIntent !== undefined && requestedIntent !== dateIntent.current) return
+    if (requestedIntent && requestedIntent.date !== dateIntent.current) return
     const intent = dateIntent.current
+    routeNavigationPending.current = true
 
     // This is a route-date change, not a layout effect. Replacing split columns
     // must keep the viewed date rather than replaying the original route date.
     const animationFrame = window.requestAnimationFrame(() => {
+      routeNavigationPending.current = false
       if (intent !== dateIntent.current) return
       for (const api of calendarApis()) {
         api?.gotoDate(initialDate)
         setSelectedDate(api?.getDate())
       }
     })
-    return () => window.cancelAnimationFrame(animationFrame)
-  }, [calendarApis, initialDate])
+    return () => { window.cancelAnimationFrame(animationFrame); routeNavigationPending.current = false }
+  }, [calendarApis, initialDate, initialScope, hasPractice])
+
+  useEffect(() => {
+    // Apply the incoming route before comparing its new snapshot with the old
+    // visible grid. Otherwise an external date change can request itself back.
+    if (routeNavigationPending.current) return
+    if (!practiceRangePending) { requestedPracticeRange.current = ""; return }
+    if (!selectedDate || !selectedPracticeId) return
+    const requestKey = `${selectedPracticeId}:${scope}:${visibleWindow.start}:${visibleWindow.end}`
+    if (requestedPracticeRange.current === requestKey) return
+    requestedPracticeRange.current = requestKey
+    const date = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
+    const query = new URLSearchParams({ practice: selectedPracticeId, view: scope, date })
+    requestedRouteIntents.current.set(`${scope}:${date}`, { date: dateIntent.current, scope: scopeIntent.current })
+    router.replace(`/calendar?${query}`, { scroll: false })
+  }, [practiceRangePending, selectedDate, selectedPracticeId, scope, router, visibleWindow.start, visibleWindow.end])
 
   const updateProviderViewMode = useCallback((value: string) => {
     const nextMode = hasMultipleProviders ? value : "only-me"
@@ -579,7 +591,7 @@ export function CalendarWorkspace({
       style={calendarSurfaceStyle}
     >
       <CardContent className="flex h-full flex-col p-0">
-        <CalendarSourceControls scope={scope} changeScope={(next) => { setOpenedPersonal(null); setScope(next) }} hasPractice={hasPractice}
+        <CalendarSourceControls scope={scope} changeScope={(next) => { scopeIntent.current += 1; setOpenedPersonal(null); setScope(next) }} hasPractice={hasPractice}
           practices={practiceOptions} practiceId={selectedPracticeId} changePractice={(id) => {
             const query = new URLSearchParams({ practice: id, view: scope })
             // Keep the viewed local day; UTC serialization can change its date.

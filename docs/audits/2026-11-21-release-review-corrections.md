@@ -44,7 +44,17 @@ raises three supported issues and one latent minor fallback, corrected together:
 | 4654913257, underlying confirmation transport | Use a request-owned confirmation client and abort signal through full body consumption. Normal SDK transport is preserved; no shared client is mutated. A real loopback response trickles past five seconds: the caller fails, the server observes body/socket closure, one committed create is retained, and a concurrent request on the original client succeeds. Normal confirmation also succeeds through the same real transport. |
 | Review summary, preselected feeling context | Resolve an externally supplied word through the wheel segments before falling back to a one-word path. Stored branch choices still take precedence; a controlled component regression preserves family context after choosing/removing another feeling. |
 
-All 165 Stripe, 23 page-read, five feelings lifecycle and native phone/desktop
+The Codex review at `99a4da6` identifies a further supported remount boundary
+(comment 4655007853): switching locally from Practice to Together before a
+replacement changes the route's source view, remounting the old source-based
+workspace key. Use a shared account/practice ownership key and associate each
+automatic response with both date and source intent. The actual-page key test
+proves stability across source changes and isolation across ownership changes;
+the native fixture uses that same helper and changes both returned route props.
+The browser regression now exercises Practice and Together delayed replies,
+newer Personal selection, and a later explicit external route change.
+
+All 165 Stripe, 120 Calendar layer, five feelings lifecycle and native phone/desktop
 Calendar checks pass. Current-source hosted CI, Codex and CodeRabbit review
 remain publication gates. Use the next included review slot without paid
 credits or another broad historical campaign. Original

@@ -1,5 +1,16 @@
 # AtmoShaper Project State
 
+## November 21 Calendar source-transition amendment
+
+Codex at `99a4da6` finds that the page's source-view key can remount away date
+ownership during Practice → Together replacement. Keep the account/practice
+ownership key stable across source changes, correlate automatic replies with
+both date and source intents, and retain explicit external route navigation.
+The page and native fixture share the actual ownership-key helper; page tests
+verify ownership isolation and browser tests exercise both source sequences.
+All 120 Calendar layer cases and native phone/desktop acceptance pass. Fresh
+review/CI/publication gates remain; public traffic is still `d7e30e0`.
+
 ## November 21 release follow-up corrections
 
 The actual CodeRabbit correction review at `60bdc9e` completes across all 22

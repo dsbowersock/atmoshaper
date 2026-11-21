@@ -4,7 +4,7 @@ import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
 import { createPracticeAction } from "@/app/calendar/actions"
 import { isCalendarDatabaseReady } from "@/lib/calendar-readiness"
 import { normalizeCalendarPreferences } from "@/lib/calendar-preferences"
-import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow } from "@/lib/calendar-workspace"
+import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow, calendarWorkspaceOwnerKey } from "@/lib/calendar-workspace"
 import { prisma } from "@/lib/prisma"
 import { AppSurface, appSurfaceClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
@@ -154,7 +154,7 @@ export default async function CalendarPage({
       />
 
       <CalendarWorkspace
-        key={`${session.user.id}:${practice.id}:${initialScope}`}
+        key={calendarWorkspaceOwnerKey(session.user.id, practice.id)}
         events={workspaceEvents}
         loadedPracticeWindow={workspaceData.loadedPracticeWindow}
         providers={providers}
