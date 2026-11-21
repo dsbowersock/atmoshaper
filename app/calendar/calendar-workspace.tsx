@@ -269,42 +269,13 @@ export function CalendarWorkspace({
   }, [calendarApis, effectiveProviderViewMode, range, visibleBounds.slotMaxTime, visibleBounds.slotMinTime])
 
   const persistPreferencePatch = useCallback((patch: Partial<CalendarPreferences>) => {
-    // Personal-only display choices are ephemeral and must not overwrite the
-    // practice preferences (including when no practice could be loaded).
+    // Personal choices may still be visible after switching sources. Send only
+    // the explicit change to the server's locked merge, never that display state.
     if (!showPractice) return
     startTransition(async () => {
-      await saveCalendarPreferencesAction({
-        defaultRange: range,
-        providerViewMode: hasMultipleProviders ? providerViewMode : "only-me",
-        selectedProviderId,
-        showCancelledEvents,
-        showStatusBadges,
-        colorMode,
-        showStaffPhotos: preferences.showStaffPhotos,
-        calendarDayStartMinute,
-        calendarDayEndMinute,
-        calendarSlotDensity,
-        appointmentAttributes: preferences.appointmentAttributes,
-        noticeDismissals: preferences.noticeDismissals,
-        ...patch,
-      })
+      await saveCalendarPreferencesAction(patch)
     })
-  }, [
-    calendarDayEndMinute,
-    calendarDayStartMinute,
-    calendarSlotDensity,
-    colorMode,
-    hasMultipleProviders,
-    providerViewMode,
-    preferences.appointmentAttributes,
-    preferences.noticeDismissals,
-    preferences.showStaffPhotos,
-    range,
-    selectedProviderId,
-    showCancelledEvents,
-    showStatusBadges,
-    showPractice,
-  ])
+  }, [showPractice])
 
   const setCalendarRange = useCallback((nextRange: string) => {
     setRange(nextRange)
@@ -336,9 +307,16 @@ export function CalendarWorkspace({
   useEffect(() => {
     if (!initialDate) return
 
-    const animationFrame = window.requestAnimationFrame(() => gotoDate(initialDate))
+    // This is a route-date change, not a layout effect. Replacing split columns
+    // must keep the viewed date rather than replaying the original route date.
+    const animationFrame = window.requestAnimationFrame(() => {
+      for (const api of calendarApis()) {
+        api?.gotoDate(initialDate)
+        setSelectedDate(api?.getDate())
+      }
+    })
     return () => window.cancelAnimationFrame(animationFrame)
-  }, [gotoDate, initialDate])
+  }, [calendarApis, initialDate])
 
   const updateProviderViewMode = useCallback((value: string) => {
     const nextMode = hasMultipleProviders ? value : "only-me"
@@ -439,7 +417,7 @@ export function CalendarWorkspace({
           }}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView={viewName}
-          initialDate={initialDate}
+          initialDate={selectedDate ?? initialDate}
           views={{
             timeGridFiveDay: {
               type: "timeGrid",

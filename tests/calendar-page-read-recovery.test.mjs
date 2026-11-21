@@ -169,6 +169,16 @@ test("an unowned requested practice never changes the authorized workspace query
   assert.deepEqual(input.calls.map((call) => call.name), ["readiness", "membership"])
 })
 
+test("a stale or unowned practice cannot block the independently owned personal layer", async () => {
+  for (const view of ["personal","together"]) {
+    const input=fixture(),result=await input.run({practice:"invented-unowned-practice",view})
+    assert.equal(result.workspace,null)
+    assert.equal(result.personal.ownerId,userId)
+    assert.equal(result.personal.practiceUnavailable,true)
+    assert.deepEqual(input.calls.map((call)=>call.name),["readiness","membership"])
+  }
+})
+
 test("personal and together views retain the owner when practice reads fail", async () => {
   for (const view of ["personal", "together"]) {
     assert.equal((await fixture().run({ view })).workspace.initialScope, view)

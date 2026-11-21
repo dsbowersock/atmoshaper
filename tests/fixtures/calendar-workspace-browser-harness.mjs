@@ -31,12 +31,13 @@ export async function createCalendarWorkspaceBrowserBundle() {
     window.__calendarReads=[];window.__calendarWrites=[];window.__calendarNavigation=[];window.__calendarOwner='fictional-owner';
     function Fixture(){const [owner,setOwner]=useState('fictional-owner');window.__switchCalendarOwner=()=>{window.__calendarOwner='fictional-second';setOwner('fictional-second')};
       const noPractice=new URL(location.href).searchParams.has('personalOnly');
+      const split=new URL(location.href).searchParams.has('split');
       return React.createElement(React.Fragment,null,
         React.createElement('p',{className:'px-3 py-2 text-xs text-muted-foreground'},'Local preview · fictional sample data'),
         React.createElement('div',{className:'flex min-h-0 flex-1 flex-col'},React.createElement(CalendarWorkspace,{
-          key:owner,currentUserId:owner,initialDate:'2026-11-20',initialScope:noPractice?'personal':'together',hasPractice:!noPractice,
+          key:owner,currentUserId:owner,initialDate:'2026-11-20',initialScope:noPractice?'personal':split?'practice':'together',hasPractice:!noPractice,
           selectedPracticeId:'fictional-practice',practiceOptions:noPractice?[]:[{id:'fictional-practice',name:'Example Studio'},{id:'fictional-second-practice',name:'Example Group'}],
-          providers:[{id:owner,label:'Example provider'}],providerAvailability:[],preferences:normalizeCalendarPreferences({defaultRange:'month'}),
+          providers:[{id:owner,label:'Example provider'},...(split?[{id:'fictional-colleague',label:'Example colleague'}]:[])],providerAvailability:[],preferences:normalizeCalendarPreferences({defaultRange:'month',providerViewMode:split?'split':'only-me'}),
           events:noPractice?[]:[{id:'fictional-appointment',title:'Example appointment',start:'2026-11-20T13:00:00Z',end:'2026-11-20T14:00:00Z',extendedProps:{ownerUserId:owner,statusBadge:'Confirmed'}}]
         })))
     }createRoot(document.getElementById('root')).render(React.createElement(Fixture));

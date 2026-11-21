@@ -6,8 +6,9 @@ import { createCalendarWorkspaceBrowserBundle, startCalendarWorkspaceBrowserFixt
 
 test("real calendar phone and desktop source selection stays private and contained", {timeout:120000}, async()=>{
   const server=await startCalendarWorkspaceBrowserFixture(await createCalendarWorkspaceBrowserBundle())
-  const browser=await chromium.launch({headless:true})
+  let browser
   try {
+    browser=await chromium.launch({headless:true})
     await mkdir("output/sidebar-calendar-workspace",{recursive:true})
     for(const [name,width,height] of [["phone",390,844],["desktop",1280,900]]){
       const context=await browser.newContext({viewport:{width,height},locale:"en-US",timezoneId:"America/New_York"}),page=await context.newPage(),errors=[],external=[]
@@ -40,5 +41,15 @@ test("real calendar phone and desktop source selection stays private and contain
     await expect(page.getByRole("button",{name:"Practice",exact:true})).toBeDisabled()
     await expect(page.getByRole("button",{name:"Together",exact:true})).toBeDisabled()
     await expect(page.locator(".fc-event").filter({hasText:"Activity"})).toBeVisible()
-  } finally {await browser.close();await server.close()}
+    const split=await browser.newPage({viewport:{width:1280,height:900}})
+    await split.goto(`${server.origin}/?split`)
+    await expect(split.locator(".fc")).toHaveCount(2)
+    await split.getByRole("button",{name:"Next range",exact:true}).click()
+    await expect(split.getByText("December 2026",{exact:true})).toBeVisible()
+    for(const [scope,calendars] of [["Together",1],["Personal",1],["Practice",2]]){
+      await split.getByRole("button",{name:scope,exact:true}).click()
+      await expect(split.locator(".fc")).toHaveCount(calendars)
+      await expect(split.getByText("December 2026",{exact:true})).toBeVisible()
+    }
+  } finally {try {await browser?.close()} finally {await server.close()}}
 })

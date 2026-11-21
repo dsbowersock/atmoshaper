@@ -115,19 +115,27 @@ test("actual calendar hides disabled private sources and prevents their drag cal
   const toolbar = () => findElement(tree, (node) => node.type?.name === "CalendarToolbarControls").props
   render(); assert.equal(calendar().events.length, 1)
   assert.equal(findElements(tree,(node)=>node.type===FullCalendar).length,2)
+  const viewedDate=new Date("2027-01-15T12:00:00Z")
+  calendar().datesSet({start:new Date("2027-01-01"),end:new Date("2027-02-01"),view:{title:"January 2027",calendar:{getDate:()=>viewedDate}}});render()
   sources().changeScope("together"); render()
   assert.equal(calendar().events.length, 2)
   assert.equal(findElements(tree,(node)=>node.type===FullCalendar).length,1)
+  assert.equal(calendar().initialDate,viewedDate)
   let reverted = false
   calendar().eventDrop({ event: { id: "private:record:private", start: new Date(start), end: new Date(end) }, revert: () => { reverted = true } })
   assert.equal(reverted, true); assert.equal(writes.length, 0)
   toolbar().onRangeChange("month");render()
-  assert.equal(writes[0].providerViewMode,"split")
+  assert.deepEqual(Object.keys(writes[0]),["defaultRange"])
+  assert.equal(writes[0].defaultRange,"month")
   assert.doesNotMatch(JSON.stringify(writes),/PRIVATE_SENTINEL|private:record/)
   writes.length=0
   sources().changeScope("personal"); render(); assert.equal(calendar().events.length, 1)
   toolbar().onRangeChange("day");render();assert.equal(writes.length,0)
   sources().changeScope("practice"); render(); assert.equal(calendar().events.length, 1)
+  assert.equal(calendar().initialDate,viewedDate)
+  toolbar().onShowStatusBadgesChange(false);render()
+  assert.deepEqual(Object.keys(writes[0]),["showStatusBadges"])
+  assert.equal(writes[0].showStatusBadges,false)
   sources().changePractice("practice-b"); assert.deepEqual(routes, ["/calendar?practice=practice-b&view=practice"])
 })
 

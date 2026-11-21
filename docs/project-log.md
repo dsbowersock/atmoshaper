@@ -2,6 +2,17 @@
 
 ## November 21 sidebar/Calendar release preparation
 
+PR #77 is open at initial `03675e4`. Codex identifies date resets on split/source
+transitions and personal display values leaking into later full preference
+saves. Explicit CodeRabbit CLI review covers all 40 changed files and raises
+four issues: those two, stale-practice handling and browser-fixture cleanup.
+The correction retains the active date across remounts, uses the existing locked
+server patch merge, preserves the independent personal layer and always closes
+the isolated test server. All 98 focused tests and actual phone/desktop,
+no-practice and split-transition journeys pass. Follow-up review/hosted gates
+remain before publication. The owner's separate bounded coverage audit stays
+on its own local branch, with no old-PR reopening or broad rewrite loop.
+
 The owner requests publishing the completed sidebar and Calendar updates. The
 publication branch starts at `db1790e` above public `0976d7d` and local receipt
 `f9f7d17`. Existing provider settings, payment gates and membership/clinical

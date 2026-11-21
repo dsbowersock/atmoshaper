@@ -50,3 +50,19 @@ only if this release fails acceptance; no older legacy-planner rollback is
 included. Bound live execution to four hours after fresh service preflight.
 Close with a local receipt after merged-source CI passes; receipt-only follow-up
 does not trigger another build. No live email/payment acceptance is repeated.
+
+## Explicit second-review pass
+
+The owner asks for actual CodeRabbit coverage, including a bounded retrospective
+audit of shipped changes. Skipped automatic CodeRabbit statuses do not count.
+The initial explicit CLI pass covers all 40 changed paths at `03675e4` and raises
+four issues. Two overlap the hosted Codex review: retain the viewed date across
+split/source changes and send only explicit preference patches. The other two
+preserve independent personal access when a requested practice is stale and
+guarantee browser-fixture server cleanup after launch/close failures.
+
+Apply these focused corrections, run the ownership/controller and actual
+split-view browser regressions, then obtain one CodeRabbit follow-up on this
+correction delta and fresh exact-head hosted checks/review before merge. The
+larger coverage inventory is isolated on `codex/coderabbit-coverage-audit`; old
+PRs remain closed and no broad automatic rewrite loop is authorized.

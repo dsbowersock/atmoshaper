@@ -106,7 +106,10 @@ export default async function CalendarPage({
   // A supplied workspace must be an actual membership; never silently substitute
   // another practice when a stale or forged workspace ID is requested.
   const membership = selectedPracticeId ? memberships.find((row) => row.practiceId === selectedPracticeId) : memberships[0]
-  if (!membership) return <CalendarShell><CalendarUnavailableNotice /></CalendarShell>
+  if (!membership) {
+    if (initialScope !== "practice") return personalFallback(true)
+    return <CalendarShell><CalendarUnavailableNotice /></CalendarShell>
+  }
   const practice = membership.practice
   const workspaceData = await loadCalendarWorkspaceData(practice.id, session.user.id).catch(() => null)
   if (!workspaceData) {

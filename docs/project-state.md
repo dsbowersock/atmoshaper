@@ -2,6 +2,16 @@
 
 ## November 21 sidebar/Calendar publication in preparation
 
+The initial PR #77 review finds two Calendar display issues. An explicit
+CodeRabbit CLI pass covers all 40 changed files at `03675e4`, repeats those two
+issues and adds stale-practice personal fallback and test-server cleanup issues.
+Focused corrections pass 98 ownership/navigation/controller checks and actual
+phone/desktop/no-practice/split-source journeys. The corrected head still needs
+fresh hosted checks/review and the bounded CodeRabbit follow-up before merge.
+The owner also requests a separate, bounded retrospective CodeRabbit coverage
+audit, isolated on `codex/coderabbit-coverage-audit`; that work does not reopen
+old PRs or authorize an automatic app-wide rewrite.
+
 The owner authorizes publication of the locally verified sidebar and private
 Calendar work `db1790e`. Branch `codex/sidebar-calendar-publication` retains public
 `0976d7d` and its local receipt. One reviewed/protected candidate, all current-head
