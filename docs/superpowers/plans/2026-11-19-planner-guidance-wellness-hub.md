@@ -1,7 +1,10 @@
 # Planner guidance and Wellness tool hub
 
-Status: **implemented and verified locally** on `codex/planner-wellness-polish`,
-based on published `fa3a030` and its local completion receipt. Not published.
+Status: **published and verified** as reviewed `724a151`/merge `7785ae6` on
+November 19, 2026. See the
+[publication receipt](../../audits/2026-11-19-wellness-planner-publication.md).
+The following local implementation and follow-up entries record the earlier
+checkpoints on `codex/planner-wellness-polish`, based on published `fa3a030`.
 
 ## Requested outcome
 

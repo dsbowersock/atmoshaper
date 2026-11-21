@@ -1,6 +1,8 @@
 # Wellness, Exercise and My calendar publication
 
-Status: preparation; no publication result is claimed by this plan.
+Status: published, verified and closed, including all seven merged-source checks.
+No unused write capacity remains. See the
+[publication receipt](../../audits/2026-11-20-wellness-beta-publication.md).
 
 ## Authorization and selected source
 

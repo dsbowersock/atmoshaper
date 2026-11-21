@@ -1,28 +1,38 @@
 "use client"
 
+import { PlannerHeader } from "../_components/planner-header"
+import { PlannerStep, PlannerStepper } from "../_components/planner-stepper"
+import styles from "../_components/business-planner.module.css"
 import { useMemo } from "react"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { NotebookPen, RotateCcw } from "lucide-react"
-import { AppInset, AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { BUSINESS_PLAN_OUTLINE_SECTIONS } from "@/lib/business-plan-template-tools"
-import { BusinessDraftStorageNotice, TextAreaField } from "../_components/business-tool-fields"
+import { BusinessDraftStorageNotice, PlannerSection, TextAreaField } from "../_components/business-tool-fields"
+import { normalizePlanOutline, outlineContextRows, PLAN_OUTLINE_STORAGE_KEY } from "@/lib/business-planner-reports"
+import { PlannerReportReview, SavedPlannerContext, usePlannerReportSources } from "../_components/planner-report"
 
 type OutlineState = Record<string, string>
 
-const STORAGE_KEY = "massagelab-business-planner-plan-outline-v1"
+// Presentation groups retain the original section IDs and browser draft schema.
+const outlineStepGroups = [
+  { id: "purpose", title: "Explain your purpose", shortTitle: "Purpose", sections: ["mission", "purpose"] },
+  { id: "operations", title: "Describe your services and operations", shortTitle: "Services and operations", sections: ["service", "operations"] },
+  { id: "marketing", title: "Plan your marketing and finances", shortTitle: "Marketing and finances", sections: ["marketing", "finances"] },
+  { id: "profile", title: "Introduce your professional background", shortTitle: "Profile and resume", sections: ["profile", "resume"] },
+]
 
 /** Keeps the local business outline editable even when its saved draft cannot be accessed. */
 export function PlanOutlineClient() {
-  const { value: outline, setValue: setOutline, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<OutlineState>({
-    storageKey: STORAGE_KEY,
-    initialValue: () => createEmptyOutline(),
-    normalize: normalizeOutlineState,
+  const { value: outline, setValue: setOutline, storageReady, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<OutlineState>({
+    storageKey: PLAN_OUTLINE_STORAGE_KEY,
+    initialValue: () => normalizePlanOutline({}),
+    normalize: normalizePlanOutline,
   })
+  const { sources, ready, refresh } = usePlannerReportSources()
   const completedSections = useMemo(() => (
     BUSINESS_PLAN_OUTLINE_SECTIONS.filter((section) => outline[section.id]?.trim()).length
   ), [outline])
-  const progressPercent = Math.round((completedSections / BUSINESS_PLAN_OUTLINE_SECTIONS.length) * 100)
 
   function updateSection(sectionId: string, value: string) {
     setOutline((current) => ({
@@ -32,83 +42,35 @@ export function PlanOutlineClient() {
   }
 
   function resetOutline() {
-    setOutline(createEmptyOutline())
+    setOutline(normalizePlanOutline({}))
   }
 
   return (
-    <AppPageShell width="full" contentClassName="gap-6">
-      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <AppSurface
-        title="Business Plan Outline"
-        description="Draft the template's mission, purpose, operations, marketing, finances, professional profile, and resume notes in one browser-local worksheet."
-        icon={<NotebookPen className="h-5 w-5" aria-hidden="true" />}
-        badge="Browser outline"
-        className={appCalloutClassName}
-      >
-        <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-          <AppInset className="p-3">
-            <p className="text-xs uppercase tracking-normal text-muted-foreground">Sections drafted</p>
-            <p className="mt-1 text-lg font-semibold">{completedSections} of {BUSINESS_PLAN_OUTLINE_SECTIONS.length}</p>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${progressPercent}%` }} />
-            </div>
-          </AppInset>
-          <Button type="button" variant="secondary" onClick={resetOutline}>
-            <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
-            Reset outline
-          </Button>
-        </div>
-      </AppSurface>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
-        <div className="space-y-4">
-          {BUSINESS_PLAN_OUTLINE_SECTIONS.map((section) => (
-            <AppSurface key={section.id} title={section.title} description={section.prompt}>
-              <TextAreaField
-                id={`outline-${section.id}`}
-                label={`${section.title} notes`}
-                value={outline[section.id] ?? ""}
-                placeholder={section.prompt}
-                rows={5}
-                onChange={(value) => updateSection(section.id, value)}
-              />
-            </AppSurface>
-          ))}
-        </div>
-
-        <AppSurface
-          title="Outline preview"
-          description="Use this as a quick review of which template sections already have usable notes."
+    <div className={styles.page} data-plan-outline-planner>
+      <div className={`${styles.workspace} ${styles.guidedWorkspace}`}>
+        <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
+        <PlannerHeader title="Business Plan Outline" description="Turn your ideas into a clear outline for your massage practice." icon={NotebookPen}
+          saveLabel={!storageReady ? "Opening saved draft" : storageUnavailable ? "Not saved on this device" : "Saved on this device"}
+          guide={<p>Saved checklist, services and financial planning facts are reused without overwriting your notes. Add only the narrative or explanation still needed. Open a source tool to change its facts, then refresh the report. This is a starting point for professional/lender discussion, not a complete loan application.</p>}
         >
-          <div className="space-y-3">
-            {BUSINESS_PLAN_OUTLINE_SECTIONS.map((section) => {
-              const value = outline[section.id]?.trim()
-              return (
-                <AppInset key={section.id} className="p-3">
-                  <p className="text-sm font-medium">{section.title}</p>
-                  <p className="mt-1 whitespace-pre-line text-sm leading-6 text-muted-foreground">
-                    {value || "No notes yet."}
-                  </p>
-                </AppInset>
-              )
-            })}
-          </div>
-        </AppSurface>
+          <p>{completedSections} of {BUSINESS_PLAN_OUTLINE_SECTIONS.length} sections with additional notes</p>
+          <Button type="button" variant="ghost" onClick={resetOutline}><RotateCcw aria-hidden="true" />Reset outline notes</Button>
+        </PlannerHeader>
+        <PlannerStepper label="Business plan outline steps">
+          {outlineStepGroups.map((group) => <PlannerStep key={group.id} id={group.id} title={group.title} shortTitle={group.shortTitle}>
+            {BUSINESS_PLAN_OUTLINE_SECTIONS.filter((section) => group.sections.includes(section.id)).map((section) => (
+              <PlannerSection key={section.id} title={section.title} description={section.prompt}>
+                <SavedPlannerContext rows={outlineContextRows(section.id, sources)} />
+                <TextAreaField id={`outline-${section.id}`} label={`${section.title} notes`} description="Add narrative or interpretation that is not already in the saved information. Your existing wording is preserved."
+                  value={outline[section.id] ?? ""} placeholder={section.prompt} rows={5} onChange={(value) => updateSection(section.id, value)} />
+              </PlannerSection>
+            ))}
+          </PlannerStep>)}
+          <PlannerStep id="review" title="Review your complete outline" shortTitle="Review">
+            <PlannerReportReview kind="outline" draft={outline} sources={sources} ready={ready && storageReady} refresh={refresh} />
+          </PlannerStep>
+        </PlannerStepper>
       </div>
-    </AppPageShell>
+    </div>
   )
-}
-
-function createEmptyOutline(): OutlineState {
-  return Object.fromEntries(BUSINESS_PLAN_OUTLINE_SECTIONS.map((section) => [section.id, ""])) as OutlineState
-}
-
-function normalizeOutlineState(value: unknown): OutlineState {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return createEmptyOutline()
-
-  const source = value as Record<string, unknown>
-  return Object.fromEntries(BUSINESS_PLAN_OUTLINE_SECTIONS.map((section) => [
-    section.id,
-    typeof source[section.id] === "string" ? source[section.id] : "",
-  ])) as OutlineState
 }

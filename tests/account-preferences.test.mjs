@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
+import { sanitizeBusinessIncomePlannerPreference } from "../lib/business-income-planner.js"
 import {
   USER_PREFERENCES_VERSION,
   areChimerPreferenceSnapshotsEqual,
@@ -23,6 +24,18 @@ import {
 } from "../components/backgrounds/backgroundPaletteRegistry.ts"
 
 describe("Account preference helpers", () => {
+  it("preserves named income expenses and benefit budgets through app-settings serialization", () => {
+    const planner = sanitizeBusinessIncomePlannerPreference({
+      monthlyExpenseItems: [{ id: "rent", name: "Rent", amount: 1000 }],
+      yearlyExpenseItems: [{ id: "renewal", name: "Renewal", amount: 200 }],
+      sessionExpenseItems: [{ id: "supplies", name: "Supplies budget", amount: 100, frequency: "month" }],
+      personalReserveItems: [{ id: "future", name: "Retirement", amount: 3000, frequency: "year" }],
+      sessionSupportMinutes: 15,
+    })
+    const payload = buildUserPreferencePayload({ appSettings: { businessIncomePlannerIncome: planner } })
+    assert.deepEqual(payload.app_settings.businessIncomePlannerIncome, planner)
+    assert.deepEqual(sanitizeBusinessIncomePlannerPreference(payload.app_settings.businessIncomePlannerIncome), planner)
+  })
   it("adopts the server-authoritative snapshot returned by an initial account seed", () => {
     const submitted = {
       backgroundId: "massage-lab-stars",

@@ -1,5 +1,35 @@
 # AtmoShaper Project State
 
+## November 20 remaining planner publication in preparation
+
+The owner authorizes publishing the remaining planner work, including PDF reports
+and cross-tool source reuse, plus the six Wellness Body buttons in the existing
+light blue Secondary material. Branch `codex/planner-beta-publication` starts
+from public `f6b80fb` and local receipt `f769ca7`, integrating four planner commits
+through `42006a9` while retaining the published Wellness features. Earlier local
+release records are included. Other recovery checkouts and September media masters
+remain preserved. Source review, focused/hosted checks and fresh service preflight
+precede staged same-artifact publication. See the
+[publication plan](superpowers/plans/2026-11-20-planner-beta-publication.md).
+
+## November 20 Wellness, Exercise and My calendar published
+
+[PR #75](https://github.com/dsbowersock/atmoshaper/pull/75) is merged as
+`f6b80fb85cd1c6bfbd3077b02b4a3fcdf55b51cb`, with the same tree as reviewed
+`b3fd1db`. The nine Wellness changes through `7446c75` are public; newer planner
+work remains separate. All seven reviewed-source checks and hosted review pass,
+including 5,806 unit checks, 45 backup checks, the inert TypeScript/116-page build
+and 54 focused desktop/phone cases. The staged Production migration/payment gates,
+Sentry script/map pairing, all 13 public routes and same-artifact byte readback
+pass. Settings and unrelated aliases are unchanged; the prior release remains
+available for rollback. Live Exercise, body loading and the signed-in owner's
+personal calendar read succeed without saving records. The public Wellness page
+is open; temporary viewport overrides are reset. All seven merged-source checks
+also pass, including 680 browser cases without retries and 180 configured skips.
+The publication operation is verified and closed; local receipt documentation
+causes no extra deployment. See the
+[publication receipt](audits/2026-11-20-wellness-beta-publication.md).
+
 ## November 20 Wellness publication in preparation
 
 The owner authorizes publication of all Wellness updates through Exercise and
@@ -228,6 +258,126 @@ body and close-up demonstration. Evidence is outside source. Preview:
 `http://127.0.0.1:3018/wellness` -> Range of motion. Sensor readings in QA are
 synthetic; real-phone comparison and measurement accuracy are not established.
 No publication, private recording, provider or database operation occurred.
+
+## November 20 launch answers, reused planner facts and PDF reports verified locally
+
+Local branch `codex/planner-reports-reuse`, from `37bdcbc`, adds written responses
+to all 25 launch tasks, shared practice details and a seventh Report stage.
+Checkmarks remain separate; resetting them preserves written work. The outline
+reuses saved checklist, services, policies and separate financial scenarios,
+without overwriting its eight narrative fields. Users can refresh sources and
+choose which tools to include. Missing/unreadable drafts are identified; they
+never become invented default estimates. See the
+[implementation and verification record](superpowers/plans/2026-11-20-planner-reports-reuse.md).
+
+Both tools offer on-device searchable PDF download and report-only printing.
+All planner headers visibly state informational use and no legal, financial,
+tax or accounting advice; reports require appropriately licensed/credentialed
+professional review and identify further lender documents, estimates and gaps.
+These are working drafts, not verified compliance or a completed loan package.
+Pinned lazy PDF dependencies and an unmodified licensed self-hosted report font
+leave the app fonts unchanged. Unsupported download characters have a visible
+print fallback. Sources are drafts in the same browser; existing account-sync
+ownership is unchanged. Export extended work before an old-client rollback,
+because the old checklist normalizer cannot preserve the new answer metadata.
+
+All 11 report/PDF tests, 49 planner tests, 24 preference tests, 17 SEO/identity
+checks, two shell/style guards and focused ESLint pass. The final inert build
+passes TypeScript and all 115 pages; all 30 desktop/mobile browser cases pass.
+They cover old-draft migration, answers/reload/reset, source refresh/exclusion,
+narrative preservation, actual PDF downloads, report-only print and failure
+fallback, 320px/enlarged text and the existing financial workflows. Fictional
+PDFs were text-extracted, rendered and visually reviewed, including long notes,
+accented names and print-page margins. Manual in-app review confirms answer
+fields and reused context. Evidence stays outside source. Preview:
+`http://127.0.0.1:3018/tools/business-planner`.
+No live account, provider, database or publication operation occurred.
+
+## November 19 Income Planner expenses, benefits and time expansion verified locally
+
+Income now has named monthly/yearly/session expense lists with add/remove and
+saved amounts, frequency-aware session budgets, optional personal benefits and
+reserves, desired-days-off/daily hands-on prompts, per-appointment support time,
+visible chart prices with cents and a result-to-wage-field return action.
+Local branch `codex/income-expenses-benefits` starts from `1e8c708`. The
+[implementation plan](superpowers/plans/2026-11-19-income-expenses-benefits.md)
+records the additive saved shape, legacy-total migration, budget/set-aside model,
+time assumptions and verification. Legacy totals become named rows, including
+fractional unit-cost precision; explicit empty lists stay empty. Personal reserve
+budgets add to spendable take-home before the user's set-aside is applied. No tax
+deductions or contribution limits are inferred. Monthly/yearly session budgets
+stay fixed in capacity comparisons; per-session costs scale with appointments.
+Support/admin hours add to displayed workload without silently reducing the
+hands-on hours entered. Existing default estimates remain unchanged.
+
+All 49 planner tests, 24 preference tests, 24 desktop/mobile browser cases,
+17 SEO/identity checks, two shell/style guards and focused ESLint pass. The final
+inert build passes TypeScript and all 115 pages. Browser checks cover named-row
+edits/frequencies, reload, last-row removal, exact estimates, visible bar labels,
+wage-jump focus and 320px/enlarged-text containment. Chrome review confirms
+prices with cents and a return to the actual wage field, without client errors.
+The local preview remains at `http://127.0.0.1:3018/tools/business-planner/income`.
+Evidence is outside source. No live account, provider, database or publication
+operation occurred. Older-client rollback needs an exported extended draft;
+reverse-schema compatibility is not claimed.
+
+## November 19 Business Planner polish and steppers completed locally
+
+Local branch `codex/business-planner-steppers`, from published `7785ae6` and its
+completion receipt, polishes the hub and all six tools. The compact hub shows
+six centered orange Glow outline tool buttons; every worksheet shares a
+compact header and accurate save state. Income, Break-Even, Service Menu, Launch Checklist and
+Plan Outline have staged navigation with Back/Continue and direct section
+jumps. Add-On Profit keeps its inputs and live results together. Monetary and
+duration fields have units and linked guidance. Original financial models,
+defaults, field IDs, storage schemas/keys and account-sync ownership remain.
+Input steps stay mounted; Income's result chart mounts only when visible.
+Visiting a step never marks checklist tasks or outline sections complete.
+
+Validation passes: all 46 planner calculation/source/storage tests, 22 actual-app
+desktop/mobile Chromium checks, 17 SEO/identity tests, two shell/style guards,
+focused ESLint and the inert TypeScript/115-page app build. Browser coverage
+includes all stages, Back/direct jumps/focus, draft reload, calculation results,
+add/remove/reset, 320–412px phones, landscape/desktop, 24px root text and the
+hub in both themes. A narrow enlarged-text Minutes field was corrected without
+weakening containment assertions. Manual Chrome review finds no client errors.
+The local preview is open at `http://127.0.0.1:3018/tools/business-planner`.
+Screenshots/build evidence stay outside source. See the
+[implementation and verification record](superpowers/plans/2026-11-19-business-planner-steppers.md).
+The owner's subsequent orange Glow refinement passes fresh focused ESLint,
+the inert TypeScript/115-page build and both hub browser cases (desktop/mobile,
+phone widths, enlarged text and both themes); the worksheet matrix above is
+the preceding implementation baseline. Chrome confirms all six links use Glow.
+This task has no publication, provider, database, payment, email or live-account
+operation. Hosted review/checks and a new publication remain separate work.
+
+## November 19 Wellness and planner updates published
+
+Reviewed `724a151` on [PR #74](https://github.com/dsbowersock/atmoshaper/pull/74)
+passes all seven hosted jobs and fresh review, then merges as tree-identical
+`7785ae6`. The compact Income/Break-Even guidance and grouped, centered Wellness
+hub are live. The complete-draft correction preserves category and details
+across launcher navigation. The stale SEO source assertion is aligned with the
+approved compact heading while retaining the existing search metadata.
+
+The actual Production build passes all 46 read-only migration checks,
+all-payments readiness, TypeScript/115 pages and both Sentry uploads. The
+emitted Wellness script and referenced map match the merge release's 523/2,612
+file archives. All 12 staged/public entry routes, font/artwork and canonical
+redirect pass. One same-artifact promotion updates six public mappings;
+36 unrelated baseline mappings, the expected new Preview alias and all 87
+Production setting metadata entries remain intact.
+
+Live Chrome confirms all three layouts, field units/help, colors, centering
+and breathing shortcut/focus return without captured warnings/errors or
+horizontal overflow. No worksheet values are edited or Wellness entries saved.
+One hosted mobile shortcut case passes its configured retry; earlier Preview
+hydration behavior does not recur on reload, a fresh tab, staged/public reads.
+Physical-phone and Safari acceptance remain owner checks. Compatible `fa3a030`
+remains READY for rollback. See the
+[completion receipt](audits/2026-11-19-wellness-planner-publication.md).
+The operation is closed; these local receipt records trigger no extra build.
+Earlier pending/local-only entries below are historical checkpoints.
 
 ## November 19 Wellness and planner publication approved
 

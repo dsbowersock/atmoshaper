@@ -29,6 +29,65 @@ const basePlannerInput = Object.freeze({
 })
 
 describe("Business income planner", () => {
+  it("carries legacy totals into named rows and never revives deliberately cleared lists", () => {
+    const migrated = normalizeBusinessIncomePlannerInput(basePlannerInput)
+    assert.equal(migrated.monthlyExpenseItems[0].amount, 1000)
+    assert.equal(migrated.sessionExpenseItems[0].amount, 6)
+    assert.deepEqual(normalizeBusinessIncomePlannerInput(migrated), migrated)
+    const cleared = normalizeBusinessIncomePlannerInput({ ...migrated, monthlyExpenseItems: [], sessionExpenseItems: [] })
+    assert.equal(cleared.monthlyFixedExpenses, 0)
+    assert.equal(cleared.perSessionVariableCost, 0)
+    assert.deepEqual(normalizeBusinessIncomePlannerInput(cleared), cleared)
+    const fractional = normalizeBusinessIncomePlannerInput({ ...basePlannerInput, monthlyFixedExpenses: 1000.005, perSessionVariableCost: 0.015 })
+    assert.equal(fractional.monthlyFixedExpenses, 1000.005)
+    assert.equal(fractional.perSessionVariableCost, 0.015)
+  })
+
+  it("annualizes expense frequencies and funds additional reserves without double counting totals", () => {
+    const plan = calculateBusinessIncomePlan({ ...basePlannerInput,
+      monthlyExpenseItems: [{ name: "Rent", amount: 1000 }],
+      yearlyExpenseItems: [{ name: "Renewals", amount: 1200 }],
+      sessionExpenseItems: [
+        { id: "supplies", name: "Supplies", amount: 6, frequency: "session" },
+        { id: "laundry", name: "Laundry", amount: 100, frequency: "month" },
+        { id: "linen", name: "Linen", amount: 600, frequency: "year" },
+      ],
+      personalReserveItems: [
+        { name: "Health", amount: 300, frequency: "month" },
+        { name: "Retirement", amount: 2400, frequency: "year" },
+      ],
+      sessionSupportMinutes: 15,
+    })
+    assert.equal(plan.annualBudgetedSessionCosts, 1800)
+    assert.equal(plan.annualFixedExpenses, 15000)
+    assert.equal(plan.annualVariableSessionCosts, 5880)
+    assert.equal(plan.annualBusinessCosts, 20880)
+    assert.equal(plan.annualPersonalReserves, 6000)
+    assert.equal(plan.annualPersonalTarget, 66000)
+    assert.equal(plan.targetBeforeTax, 88000)
+    assert.equal(plan.requiredGrossRevenue, 108880)
+    assert.equal(plan.weeklySessionSupportHours, 5)
+    assert.equal(plan.weeklyTotalWorkHours, 29)
+    // Budgeted monthly/yearly costs stay fixed; appointment costs scale.
+    assert.equal(plan.workloadScenarios[0].annualVariableSessionCosts, 2940)
+    assert.equal(plan.workloadScenarios[0].requiredGrossRevenue, 105940)
+    assert.equal(plan.workloadScenarios[3].requiredGrossRevenue, plan.requiredGrossRevenue)
+  })
+
+  it("keeps named rows safe, stable and round-trippable through account serialization", () => {
+    const input = sanitizeBusinessIncomePlannerPreference({ ...basePlannerInput,
+      monthlyExpenseItems: [{ id: "same", name: "Rent", amount: "$500.50", clientName: "private" },
+        { id: "same", name: "Phone", amount: -1 }, { id: "same", name: "Software", amount: 20 }],
+      personalReserveItems: [{ name: "Retirement", amount: 100, frequency: "session", soapDraft: "private" }],
+      sessionSupportMinutes: -1,
+    })
+    assert.equal(input.monthlyFixedExpenses, 520.5)
+    assert.equal(new Set(input.monthlyExpenseItems.map((item) => item.id)).size, 3)
+    assert.equal(input.personalReserveItems[0].frequency, "month")
+    assert.equal(input.sessionSupportMinutes, 0)
+    assert.equal(JSON.stringify(input).includes("private"), false)
+    assert.deepEqual(sanitizeBusinessIncomePlannerPreference(JSON.parse(JSON.stringify(input))), input)
+  })
   it("ships the expected scenario presets", () => {
     assert.ok(BUSINESS_INCOME_PRESETS.starting_part_time)
     assert.ok(BUSINESS_INCOME_PRESETS.growing_solo_practice)

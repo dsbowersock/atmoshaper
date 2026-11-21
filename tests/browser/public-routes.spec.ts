@@ -1,11 +1,15 @@
 import { expect, test as base, type Locator, type Page, type Request, type Response, type Route } from "@playwright/test"
 import { readFile } from "node:fs/promises"
 import sharp from "sharp"
+import { PDFDocument } from "pdf-lib"
+import { LAUNCH_REPORT_QUESTIONS, LAUNCH_CHECKLIST_STORAGE_KEY, PLAN_OUTLINE_STORAGE_KEY } from "../../lib/business-planner-reports.js"
+import { plannerReportSample } from "../fixtures/business-planner-report-sample.mjs"
 import { isBrowserQaDatabaseTargetAuthorized } from "../../scripts/assert-browser-qa-database-target.mjs"
 import { centerCarouselItem } from "./carousel-test-helpers"
 import { isHeldRouteTeardownCancellation } from "./held-route-teardown"
 import { installSignedInUserFixture, removeSignedInUserFixture } from "./signed-in-user-fixture"
 import { buildFeelingWheelSegments } from "../../lib/feelings-wheel-layout.js"
+import { revealPlannerControl, selectPlannerStep } from "../helpers/planner-navigation.mjs"
 
 type PublicNetworkGuardState = {
   allowedExternalUrls: Set<string>
@@ -1131,12 +1135,259 @@ async function expectToolContentContained(page: Page) {
   })).toEqual([])
 }
 
+test("Business Planner launch responses migrate, persist and export a local PDF", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  const sample = plannerReportSample()
+  sample.drafts.set(LAUNCH_CHECKLIST_STORAGE_KEY, JSON.stringify({ [LAUNCH_REPORT_QUESTIONS[0].key]: true }))
+  await page.addInitScript((entries) => { for (const [key, value] of entries) if (localStorage.getItem(key) === null) localStorage.setItem(key, value) }, [...sample.drafts])
+  await page.setViewportSize({ width: 390, height: 824 })
+  await page.goto("/tools/business-planner/launch-checklist", { waitUntil: "domcontentloaded" })
+  await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? "{}").schemaVersion === 2, LAUNCH_CHECKLIST_STORAGE_KEY)
+  const first = LAUNCH_REPORT_QUESTIONS[0]
+  const second = LAUNCH_REPORT_QUESTIONS[1]
+  await expect(page.getByRole("checkbox", { name: first.item, exact: true })).toBeChecked()
+  await page.getByLabel("Business name", { exact: true }).fill("Cedar Example Practice")
+  await page.getByLabel("Prepared by (optional)", { exact: true }).fill("Renée Example")
+  const answer = page.getByRole("textbox", { name: `${second.item} Response`, exact: true })
+  await answer.fill("Keep a small practice and discuss the structure with a licensed attorney.")
+  await expect(page.getByRole("checkbox", { name: second.item, exact: true })).not.toBeChecked()
+  await page.waitForFunction(({ key, answerKey }) => JSON.parse(localStorage.getItem(key) ?? "{}").answers?.[answerKey]?.startsWith("Keep a small"), { key: LAUNCH_CHECKLIST_STORAGE_KEY, answerKey: second.key })
+  await page.reload({ waitUntil: "domcontentloaded" })
+  await expect(answer).toHaveValue("Keep a small practice and discuss the structure with a licensed attorney.")
+  await expect(page.getByLabel("Business name", { exact: true })).toHaveValue("Cedar Example Practice")
+  await page.getByRole("button", { name: "Reset checkmarks", exact: true }).click()
+  await expect(page.getByRole("checkbox", { name: first.item, exact: true })).not.toBeChecked()
+  await expect(answer).toHaveValue("Keep a small practice and discuss the structure with a licensed attorney.")
+  await selectPlannerStep(page, 6)
+  const report = page.locator("[data-planner-report]")
+  await expect(report).toContainText("Cedar Example Practice")
+  await expect(report).toContainText("Keep a small practice")
+  await expect(report).toContainText("not legal, financial, tax or accounting advice")
+  await expect(report).toContainText("licensed or credentialed professionals")
+  await expect(report).toContainText("25 checklist tasks are not marked complete")
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Download PDF report", exact: true }).click()])
+  await download.saveAs(testInfo.outputPath("launch-report.pdf"))
+  const bytes = await readFile(testInfo.outputPath("launch-report.pdf"))
+  expect(bytes.subarray(0, 5).toString()).toBe("%PDF-")
+  expect((await PDFDocument.load(bytes)).getPageCount()).toBeGreaterThan(1)
+  for (const width of [320, 390, 780, 1280]) {
+    await page.setViewportSize({ width, height: width === 780 ? 360 : 824 })
+    for (const step of [0, 5, 6]) { await selectPlannerStep(page, step); await expectToolContentContained(page) }
+  }
+  await page.setViewportSize({ width: 320, height: 824 })
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "24px" })
+  for (const step of [0, 6]) { await selectPlannerStep(page, step); await expectToolContentContained(page) }
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
+test("Business Planner outline reuses saved facts without overwriting narrative and prints only the report", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  const sample = plannerReportSample()
+  sample.drafts.set(PLAN_OUTLINE_STORAGE_KEY, JSON.stringify({ mission: "My original mission wording.", finances: "Questions for my accountant and lender." }))
+  await page.addInitScript((entries) => { for (const [key, value] of entries) if (localStorage.getItem(key) === null) localStorage.setItem(key, value) }, [...sample.drafts])
+  await page.goto("/tools/business-planner/plan-outline", { waitUntil: "domcontentloaded" })
+  const mission = page.getByLabel("Mission Statement notes", { exact: true })
+  await expect(mission).toHaveValue("My original mission wording.")
+  await selectPlannerStep(page, 4)
+  const report = page.locator("[data-planner-report]")
+  await expect(report).toContainText("EXAMPLE-ANSWER-22")
+  await expect(report).toContainText("Service Menu - Therapeutic massage")
+  await expect(report).toContainText("Questions for my accountant and lender.")
+  await page.getByRole("checkbox", { name: /Business Income Planner/ }).uncheck()
+  await expect(report).not.toContainText("Income Planner -")
+  await page.getByRole("button", { name: "Refresh saved tools", exact: true }).click()
+  await expect(report).not.toContainText("Income Planner -")
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Download PDF report", exact: true }).click()])
+  await download.saveAs(testInfo.outputPath("business-plan.pdf"))
+  expect((await PDFDocument.load(await readFile(testInfo.outputPath("business-plan.pdf")))).getTitle()).toBe("Business Plan Working Draft")
+  if (testInfo.project.name === "desktop-chromium") {
+    await page.emulateMedia({ media: "print" })
+    await expect(report).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Business Plan Outline", exact: true })).toBeHidden()
+    await page.pdf({ path: testInfo.outputPath("printed-business-plan.pdf"), preferCSSPageSize: true, printBackground: true })
+    expect((await PDFDocument.load(await readFile(testInfo.outputPath("printed-business-plan.pdf")))).getPageCount()).toBeGreaterThan(1)
+    await page.emulateMedia({ media: null })
+  }
+  // Edit the actual source tool, then revisit: facts refresh while notes persist.
+  await page.goto("/tools/business-planner/service-menu", { waitUntil: "domcontentloaded" })
+  await page.getByLabel("Price", { exact: true }).first().fill("123")
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem("massagelab-business-planner-service-menu-v1") ?? "{}").services?.[0]?.price === 123)
+  await page.goto("/tools/business-planner/plan-outline", { waitUntil: "domcontentloaded" })
+  await expect(mission).toHaveValue("My original mission wording.")
+  await selectPlannerStep(page, 4)
+  await expect(report).toContainText("$123.00 per appointment")
+  for (const width of [320, 390, 780, 1280]) { await page.setViewportSize({ width, height: 824 }); await expectToolContentContained(page) }
+  await page.setViewportSize({ width: 320, height: 824 })
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "24px" })
+  await expectToolContentContained(page)
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
+test("Business Planner PDF failure preserves the draft and offers print fallback", async ({ page }) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.goto("/tools/business-planner/plan-outline", { waitUntil: "domcontentloaded" })
+  await page.getByLabel("Mission Statement notes", { exact: true }).fill("Preserve this exact wording after export failure.")
+  await selectPlannerStep(page, 4)
+  await page.route("**/fonts/reports/NotoSans-Regular.ttf", (route) => route.fulfill({ status: 503, body: "Intentional test failure" }))
+  await page.getByRole("button", { name: "Download PDF report", exact: true }).click()
+  await expect(page.getByRole("status")).toContainText("Your draft is unchanged")
+  await expect(page.getByRole("button", { name: "Print / save PDF", exact: true })).toBeEnabled()
+  await selectPlannerStep(page, 0)
+  await expect(page.getByLabel("Mission Statement notes", { exact: true })).toHaveValue("Preserve this exact wording after export failure.")
+  expect(health.pageErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([expect.stringContaining("NotoSans-Regular.ttf")])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
+test("Business Planner hub presents all six compact tools on phones", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.goto("/tools/business-planner", { waitUntil: "domcontentloaded" })
+  const tools = page.getByRole("navigation", { name: "Business planner tools", exact: true }).getByRole("link")
+  await expect(tools).toHaveCount(6)
+  await expect(page.getByText("Live", { exact: true })).toHaveCount(0)
+  for (const width of [320, 360, 390, 412, 780, 1280]) {
+    await page.setViewportSize({ width, height: 824 })
+    await expectToolContentContained(page)
+    if (width <= 412) await expect(tools.last()).toBeInViewport({ ratio: 1 })
+  }
+  await page.setViewportSize({ width: 390, height: 824 })
+  await page.screenshot({ path: testInfo.outputPath("business-planner-hub-phone.png") })
+  const lightToggle = page.getByRole("button", { name: "Use light theme", exact: true })
+  if (await lightToggle.isVisible()) await lightToggle.click()
+  await expect(page.getByRole("button", { name: "Use dark theme", exact: true })).toBeVisible()
+  await expect(page.locator("html")).toHaveClass(/light/)
+  await expect(page.locator("html[data-theme-transition], html[data-theme-transition-fallback]")).toHaveCount(0)
+  await expectToolContentContained(page)
+  await page.screenshot({ path: testInfo.outputPath("business-planner-hub-light.png") })
+  await page.getByRole("button", { name: "Use dark theme", exact: true }).click()
+  await expect(page.locator("html")).toHaveClass(/dark/)
+  await expect(page.locator("html[data-theme-transition], html[data-theme-transition-fallback]")).toHaveCount(0)
+  await page.setViewportSize({ width: 320, height: 824 })
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "24px" })
+  await expectToolContentContained(page)
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
+const guidedPlannerCases = [
+  { slug: "income", key: "massagelab-business-income-planner-income-v1", label: "Desired yearly take-home", edit: "68123", editStep: 1, steps: 4 },
+  { slug: "break-even", key: "massagelab-business-planner-break-even-v1", label: "Main service price", edit: "97", editStep: 0, steps: 4 },
+  { slug: "service-menu", key: "massagelab-business-planner-service-menu-v1", label: "Service", edit: "Invented test service", editStep: 0, steps: 3 },
+  { slug: "plan-outline", key: "massagelab-business-planner-plan-outline-v1", label: "Mission Statement notes", edit: "Invented practice mission for navigation", editStep: 0, steps: 5 },
+  { slug: "launch-checklist", key: "massagelab-business-planner-launch-checklist-v1", label: null, edit: "", editStep: 0, steps: 7 },
+] as const
+
+for (const planner of guidedPlannerCases) {
+  test(`Business Planner ${planner.slug} keeps drafts through steps and reload`, async ({ page }, testInfo) => {
+    const health = await capturePageHealth(page, new Set())
+    await page.setViewportSize({ width: 390, height: 824 })
+    await page.goto(`/tools/business-planner/${planner.slug}`, { waitUntil: "domcontentloaded" })
+    await page.waitForFunction((key) => localStorage.getItem(key) !== null, planner.key)
+    await expect(page.locator("[data-planner-step]")).toHaveCount(planner.steps)
+    const control = planner.label ? page.getByLabel(planner.label, { exact: true }).first() : page.getByRole("checkbox").first()
+    await revealPlannerControl(page, control)
+    if (planner.label) await control.fill(planner.edit)
+    else await control.check()
+    await page.waitForFunction(({ key, edit }) => {
+      const raw = localStorage.getItem(key)
+      return edit ? raw?.includes(edit) : Object.values(JSON.parse(raw ?? "{}")).some((value) => value === true)
+    }, { key: planner.key, edit: planner.edit })
+    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), planner.key)
+    let activeStep: number = planner.editStep
+    for (const viewport of [{ width: 320, height: 824 }, { width: 780, height: 360 }, { width: 1280, height: 900 }]) {
+      await page.setViewportSize(viewport)
+      for (let index = 0; index < planner.steps; index += 1) {
+        await selectPlannerStep(page, index)
+        await expect(page.locator("[data-planner-step]:not([hidden])")).toHaveCount(1)
+        // Reports have their own document title; focus belongs to the stage's
+        // deliberately focusable heading, not a heading inside the preview.
+        if (index !== activeStep) await expect(page.locator("[data-planner-step]").nth(index).locator('h2[tabindex="-1"]')).toBeFocused()
+        activeStep = index
+        await expectToolContentContained(page)
+      }
+    }
+    await page.getByRole("button", { name: "Back", exact: true }).click()
+    await expect(page.locator("[data-planner-stepper] nav select")).toHaveValue(String(planner.steps - 2))
+    await page.getByRole("button", { name: "Continue", exact: true }).click()
+    await expect(page.locator("[data-planner-stepper] nav select")).toHaveValue(String(planner.steps - 1))
+    await selectPlannerStep(page, planner.editStep)
+    if (planner.label) await expect(control).toHaveValue(planner.edit)
+    else await expect(control).toBeChecked()
+    // Merely visiting every step must not change a task, a value or a saved section.
+    await expect.poll(() => page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), planner.key)).toEqual(saved)
+    await page.reload({ waitUntil: "domcontentloaded" })
+    await page.waitForFunction((key) => localStorage.getItem(key) !== null, planner.key)
+    await revealPlannerControl(page, control)
+    if (planner.label) await expect(control).toHaveValue(planner.edit)
+    else await expect(control).toBeChecked()
+    await page.setViewportSize({ width: 320, height: 824 })
+    await page.locator("html").evaluate((element) => { element.style.fontSize = "24px" })
+    for (let index = 0; index < planner.steps; index += 1) {
+      await selectPlannerStep(page, index)
+      await expectToolContentContained(page)
+    }
+    await page.locator("html").evaluate((element) => { element.style.fontSize = "16px" })
+    await page.setViewportSize({ width: 390, height: 824 })
+    await selectPlannerStep(page, planner.editStep)
+    await page.screenshot({ path: testInfo.outputPath(`${planner.slug}-step-phone.png`) })
+    expect(health.pageErrors).toEqual([])
+    expect(health.consoleErrors).toEqual([])
+    expect(health.failedLocalResponses).toEqual([])
+    expect(health.forbiddenRequests).toEqual([])
+  })
+}
+
+test("Business Planner add-on profit keeps one live workspace with explicit units", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.setViewportSize({ width: 390, height: 824 })
+  await page.goto("/tools/business-planner/add-on-profit", { waitUntil: "domcontentloaded" })
+  await page.waitForFunction(() => localStorage.getItem("massagelab-business-planner-add-on-profit-v1") !== null)
+  await expect(page.locator("[data-planner-stepper]")).toHaveCount(0)
+  await page.getByLabel("Name", { exact: true }).first().fill("Invented test product")
+  await page.getByLabel("Cost per sale", { exact: true }).first().fill("4")
+  await page.getByLabel("Price per sale", { exact: true }).first().fill("9")
+  await page.getByLabel("Monthly sales", { exact: true }).first().fill("10")
+  await expect(page.getByLabel("Cost per sale", { exact: true }).first()).toHaveAccessibleDescription(/US dollars/)
+  await expect(page.getByText("Invented test product", { exact: true }).locator("..")).toContainText("$600.00 / year")
+  const rows = page.getByLabel("Name", { exact: true })
+  const originalRows = await rows.count()
+  await page.getByRole("button", { name: "Add product", exact: true }).click()
+  await expect(rows).toHaveCount(originalRows + 1)
+  await page.getByRole("button", { name: "Remove Product or add-on", exact: true }).last().click()
+  await expect(rows).toHaveCount(originalRows)
+  for (const width of [320, 390, 780, 1280]) {
+    await page.setViewportSize({ width, height: 824 })
+    await expectToolContentContained(page)
+  }
+  await page.setViewportSize({ width: 390, height: 824 })
+  await page.screenshot({ path: testInfo.outputPath("add-on-profit-phone.png") })
+  await page.getByRole("button", { name: "Reset worksheet", exact: true }).click()
+  await expect(rows.first()).not.toHaveValue("Invented test product")
+  await page.setViewportSize({ width: 320, height: 824 })
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "24px" })
+  await expectToolContentContained(page)
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
 test("Business planners show currency, units and readable field guidance", async ({ page }, testInfo) => {
   const health = await capturePageHealth(page, new Set())
   for (const path of ["/tools/business-planner/income", "/tools/business-planner/break-even"]) {
     await page.goto(path, { waitUntil: "domcontentloaded" })
+    await page.waitForFunction((route) => localStorage.getItem(route.endsWith("income") ? "massagelab-business-income-planner-income-v1" : "massagelab-business-planner-break-even-v1") !== null, path)
     const moneyId = path.endsWith("income") ? "desired-income" : "break-even-service-price"
     const money = page.locator(`#${moneyId}`)
+    await revealPlannerControl(page, money)
     await expect(money).toHaveAccessibleDescription(/US dollars/)
     await expect(money.locator("..").getByText("$", { exact: true })).toBeVisible()
     const tax = page.locator(path.endsWith("income") ? "#tax-set-aside" : "#break-even-tax-rate")
@@ -1167,13 +1418,16 @@ test("Break-even planner retains edits and money rows through its compact layout
   const price = page.getByLabel("Main service price", { exact: true })
   await expect(price).toHaveValue("85")
   await price.fill("90")
+  await selectPlannerStep(page, 3)
   await expect(page.getByText("Projected yearly gross", { exact: true }).first().locator("..").locator("p").nth(1)).toHaveText("$64,800")
+  await selectPlannerStep(page, 1)
   const startup = page.locator("#break-even-startupCosts")
   await startup.getByRole("button", { name: "Add row to Startup costs", exact: true }).click()
   await startup.getByLabel("Item", { exact: true }).last().fill("Invented equipment")
   await startup.getByLabel("One-time amount", { exact: true }).last().fill("125")
   await page.reload({ waitUntil: "domcontentloaded" })
   await expect(price).toHaveValue("90")
+  await selectPlannerStep(page, 1)
   await expect(startup.getByLabel("Item", { exact: true }).last()).toHaveValue("Invented equipment")
   await expect(startup.getByLabel("One-time amount", { exact: true }).last()).toHaveValue("125")
   await startup.getByRole("button", { name: "Remove Invented equipment", exact: true }).click()
@@ -1948,7 +2202,8 @@ test("Wellness Mind Body Context groups lead to private calendar recordings and 
   const mind=page.getByRole("region",{name:"Mind",exact:true}),body=page.getByRole("region",{name:"Body",exact:true}),context=page.getByRole("region",{name:"Context",exact:true})
   await expect(mind.getByRole("button")).toHaveCount(2);await expect(body.getByRole("button")).toHaveCount(6);await expect(context.getByRole("button")).toHaveCount(2)
   await expect(mind.getByRole("button",{name:"Record feelings",exact:true})).toHaveClass(/ml-button-cta/)
-  await expect(body.getByRole("button",{name:"Record exercise",exact:true})).toHaveClass(/ml-button-default/)
+  await expect(body.getByRole("button",{name:"Record exercise",exact:true})).toHaveClass(/ml-button-secondary/)
+  await expect(body.locator("[data-wellness-tile].ml-button-secondary")).toHaveCount(6)
   await expect(context.getByRole("button",{name:"Record work context",exact:true})).toHaveClass(/ml-button-tone-setup/)
   await page.screenshot({path:testInfo.outputPath("mind-body-context-phone.png")})
   await mind.getByRole("button",{name:"Record feelings",exact:true}).click()
@@ -2347,6 +2602,112 @@ test("Wellness Exercise supports PT OT holds task practice and cardio with separ
   expect(health.failedLocalResponses).toEqual([]); expect(health.forbiddenRequests).toEqual([])
 })
 
+test("Business Income Planner retains itemized expenses, reserves and guided wage comparison", async ({ page }, testInfo) => {
+  const health = await capturePageHealth(page, new Set())
+  await page.setViewportSize({ width: 390, height: 824 })
+  await page.addInitScript(() => {
+    const key = "massagelab-business-income-planner-income-v1"
+    if (localStorage.getItem(key) === null) localStorage.setItem(key, JSON.stringify({
+      desiredTakeHomeIncome: 60000, monthlyFixedExpenses: 1000, perSessionVariableCost: 6,
+      taxSetAsideRate: 0.25, vacationDays: 10, holidayDays: 6, personalDays: 5,
+      weeklyAdminHours: 4, averageSessionMinutes: 60,
+      weekdayClientHours: { monday: 4, tuesday: 4, wednesday: 4, thursday: 4, friday: 4 },
+    }))
+  })
+  await page.goto("/tools/business-planner/income", { waitUntil: "domcontentloaded" })
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem("massagelab-business-income-planner-income-v1") ?? "{}").monthlyExpenseItems?.length === 1)
+  await selectPlannerStep(page, 1)
+  const monthly = page.locator('[data-income-expenses="monthly-expenses"]')
+  const yearly = page.locator('[data-income-expenses="yearly-expenses"]')
+  const session = page.locator('[data-income-expenses="session-expenses"]')
+  const reserves = page.locator('[data-income-expenses="personal-reserves"]')
+  await expect(monthly.getByLabel("Amount", { exact: true })).toHaveValue("1000")
+  await expect(session.getByLabel("Amount", { exact: true })).toHaveValue("6")
+  await monthly.getByLabel("Name", { exact: true }).fill("Rent")
+  await monthly.getByLabel("Amount", { exact: true }).fill("1100")
+  await monthly.getByRole("button", { name: "Add monthly expense", exact: true }).click()
+  await expect(monthly.getByLabel("Name", { exact: true }).last()).toBeFocused()
+  await monthly.getByLabel("Name", { exact: true }).last().fill("Phone")
+  await monthly.getByLabel("Amount", { exact: true }).last().fill("50")
+  await yearly.getByRole("button", { name: "Add yearly expense", exact: true }).click()
+  await yearly.getByLabel("Name", { exact: true }).fill("Licensing and education")
+  await yearly.getByLabel("Amount", { exact: true }).fill("1200")
+  await session.getByLabel("Name", { exact: true }).fill("Supplies")
+  await session.getByRole("button", { name: "Add session cost", exact: true }).click()
+  await session.getByLabel("Name", { exact: true }).last().fill("Laundry")
+  await session.getByLabel("Amount", { exact: true }).last().fill("100")
+  await session.getByLabel("Frequency", { exact: true }).last().selectOption("month")
+  await session.getByRole("button", { name: "Add session cost", exact: true }).click()
+  await session.getByLabel("Name", { exact: true }).last().fill("Linen")
+  await session.getByLabel("Amount", { exact: true }).last().fill("600")
+  await session.getByLabel("Frequency", { exact: true }).last().selectOption("year")
+  await reserves.getByRole("button", { name: "Health insurance", exact: true }).click()
+  await reserves.getByLabel("Amount", { exact: true }).last().fill("300")
+  await reserves.getByRole("button", { name: "Retirement savings", exact: true }).click()
+  await reserves.getByLabel("Amount", { exact: true }).last().fill("2400")
+  await reserves.getByLabel("Frequency", { exact: true }).last().selectOption("year")
+  // Explicit frequencies survive reload; legacy scalar totals are derived only.
+  await page.waitForFunction(() => {
+    const draft = JSON.parse(localStorage.getItem("massagelab-business-income-planner-income-v1") ?? "{}")
+    return draft.personalReserveItems?.[1]?.frequency === "year" && draft.monthlyFixedExpenses === 1150
+  })
+  await page.reload({ waitUntil: "domcontentloaded" })
+  await revealPlannerControl(page, page.getByLabel("Desired yearly take-home", { exact: true }))
+  await expect(monthly.getByLabel("Name", { exact: true }).last()).toHaveValue("Phone")
+  await expect(yearly.getByLabel("Amount", { exact: true })).toHaveValue("1200")
+  await expect(session.getByLabel("Frequency", { exact: true }).last()).toHaveValue("year")
+  await expect(reserves.getByLabel("Amount", { exact: true }).last()).toHaveValue("2400")
+  await selectPlannerStep(page, 2)
+  await page.getByLabel("Intake and turnaround minutes per appointment", { exact: true }).fill("15")
+  await expect(page.getByLabel("Monday hands-on massage hours", { exact: true })).toHaveAccessibleDescription(/hands-on massage/)
+  await selectPlannerStep(page, 3)
+  const revenue = page.getByText("Gross revenue needed", { exact: true }).locator("..").locator("p").nth(1)
+  await expect(revenue).toHaveText("$110,680")
+  await expect(page.getByText("Total work hours / week", { exact: true }).locator("..")).toContainText("29")
+  const barLabels = page.locator(".recharts-label-list .recharts-label")
+  await expect(barLabels).toHaveCount(4)
+  await expect(barLabels).toHaveText(["$219.88", "$158.77", "$124.82", "$112.94"])
+  for (const label of await barLabels.all()) await expect(label).toBeVisible()
+  await page.locator("[data-chart]").screenshot({ path: testInfo.outputPath("income-price-labels-phone.png") })
+  await page.getByRole("button", { name: "Add an employee wage in Step 2", exact: true }).click()
+  const wage = page.getByLabel("Optional employee hourly wage", { exact: true })
+  await expect(wage).toBeFocused()
+  await expect(wage).toBeInViewport({ ratio: 1 })
+  await wage.fill("35")
+  await monthly.getByRole("button", { name: "Remove Phone", exact: true }).click()
+  await expect(monthly.getByLabel("Name", { exact: true })).toHaveCount(1)
+  await selectPlannerStep(page, 3)
+  await expect(revenue).toHaveText("$110,080")
+  await expect(page.getByText("Employee annual gross", { exact: true }).locator("..")).toContainText("$34,300")
+  for (const viewport of [{ width: 320, height: 824 }, { width: 390, height: 824 }, { width: 780, height: 360 }, { width: 1280, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    for (const step of [1, 2, 3]) {
+      await selectPlannerStep(page, step)
+      await expectToolContentContained(page)
+    }
+  }
+  await page.setViewportSize({ width: 320, height: 824 })
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "24px" })
+  for (const step of [1, 2, 3]) {
+    await selectPlannerStep(page, step)
+    await expectToolContentContained(page)
+  }
+  await page.locator("html").evaluate((element) => { element.style.fontSize = "16px" })
+  await page.setViewportSize({ width: 390, height: 824 })
+  await selectPlannerStep(page, 1)
+  await monthly.getByRole("button", { name: "Remove Rent", exact: true }).click()
+  await expect(monthly.getByLabel("Amount", { exact: true })).toHaveCount(0)
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem("massagelab-business-income-planner-income-v1") ?? "{}").monthlyExpenseItems?.length === 0)
+  await page.reload({ waitUntil: "domcontentloaded" })
+  await revealPlannerControl(page, page.getByLabel("Desired yearly take-home", { exact: true }))
+  await expect(monthly.getByLabel("Amount", { exact: true })).toHaveCount(0)
+  await expect(monthly.locator("summary")).toContainText("$0.00 / month")
+  expect(health.pageErrors).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
+})
+
 test("Business Income Planner keeps phone fields and results within the viewport", async ({ page }, testInfo) => {
   const health = await capturePageHealth(page, new Set())
   await page.goto("/tools/business-planner/income", { waitUntil: "domcontentloaded" })
@@ -2354,6 +2715,7 @@ test("Business Income Planner keeps phone fields and results within the viewport
   await page.waitForFunction(() => localStorage.getItem("massagelab-business-income-planner-income-v1") !== null)
   for (const viewport of [{ width: 320, height: 714 }, { width: 360, height: 714 }, { width: 390, height: 714 }, { width: 412, height: 824 }, { width: 780, height: 360 }, { width: 1280, height: 900 }]) {
     await page.setViewportSize(viewport)
+    await selectPlannerStep(page, 0)
     for (const scenario of ["Starting part-time", "Growing solo practice", "Full schedule", "Custom"]) {
       const preset = page.getByRole("button", { name: new RegExp(`^${scenario}`) })
       await preset.click()
@@ -2364,6 +2726,7 @@ test("Business Income Planner keeps phone fields and results within the viewport
         .filter((element) => element.clientWidth > 0 && element.getClientRects().length > 0 && element.scrollWidth > element.clientWidth + 1)
         .slice(0, 8).map((element) => ({ tag: element.tagName, width: element.clientWidth, overflow: element.scrollWidth - element.clientWidth, text: element.textContent?.slice(0, 50) })))).toEqual([])
     }
+    await selectPlannerStep(page, 1)
     if (viewport.width <= 412) {
       await page.evaluate(() => document.querySelector(".ml-app-scroll")?.scrollTo(0, 0))
       const header = await page.locator("[data-income-header]").boundingBox()
@@ -2372,8 +2735,10 @@ test("Business Income Planner keeps phone fields and results within the viewport
       await expect(page.getByLabel("Desired yearly take-home", { exact: true })).toBeInViewport({ ratio: 1 })
     }
     if (viewport.width === 390) {
+      await selectPlannerStep(page, 0)
       await page.getByRole("button", { name: "Growing solo practice", exact: true }).click()
       await expect(page.getByLabel("Desired yearly take-home", { exact: true })).toHaveValue("60000")
+      await selectPlannerStep(page, 1)
       await page.evaluate(() => document.querySelector(".ml-app-scroll")?.scrollTo(0, 0))
       await page.screenshot({ path: testInfo.outputPath("income-planner-phone.png") })
     }
@@ -2397,13 +2762,19 @@ test("Business Income Planner preserves calculations and the device draft throug
   await page.goto("/tools/business-planner/income", { waitUntil: "domcontentloaded" })
   await page.waitForFunction(() => localStorage.getItem("massagelab-business-income-planner-income-v1") !== null)
   const income = page.getByLabel("Desired yearly take-home", { exact: true })
+  await revealPlannerControl(page, income)
   await expect(income).toHaveValue("60000")
   const revenue = page.getByText("Gross revenue needed", { exact: true }).locator("..").locator("p").nth(1)
+  await selectPlannerStep(page, 3)
   await expect(revenue).toHaveText("$97,880")
+  await selectPlannerStep(page, 1)
   await income.fill("65000")
+  await selectPlannerStep(page, 3)
   await expect(revenue).toHaveText("$104,547")
   await page.reload({ waitUntil: "domcontentloaded" })
+  await revealPlannerControl(page, income)
   await expect(income).toHaveValue("65000")
+  await selectPlannerStep(page, 3)
   await expect(revenue).toHaveText("$104,547")
   await expect(page.getByText("Saved on this device", { exact: true })).toBeVisible()
   await page.getByText("How this planner works", { exact: true }).click()

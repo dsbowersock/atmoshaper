@@ -1,11 +1,49 @@
 .page { min-width: 0; padding: 0.75rem; }
 .workspace { display: flex; flex-direction: column; gap: 1rem; min-width: 0; width: 100%; max-width: 80rem; margin-inline: auto; }
-.header { display: grid; gap: 0.5rem; min-width: 0; }
+/* Keep the visible advice notice within the compact phone header budget. */
+.header { display: grid; gap: 0.35rem; min-width: 0; }
 .titleRow { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
 .titleRow h1 { flex: 1; min-width: 0; font-size: clamp(1.2rem, 2.5vw, 1.5rem); font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
 .titleIcon { flex: none; width: 1.25rem; height: 1.25rem; color: hsl(var(--primary)); }
 .workspace .backLink { flex: none; min-width: 2.75rem; min-height: 2.75rem; padding: 0.5rem; }
 .subtitle { color: hsl(var(--muted-foreground)); font-size: 0.8rem; line-height: 1.45; }
+.plannerGuidance { max-width: 70ch; color: hsl(var(--muted-foreground)); font-size: 0.7rem; line-height: 1.5; }
+.plannerGuidance summary { cursor: pointer; color: hsl(var(--foreground)); }
+.plannerGuidance p { margin-top: 0.5rem; }
+.savedContext { min-width: 0; padding: 0.65rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; font-size: 0.75rem; line-height: 1.6; }
+.savedContext summary { cursor: pointer; color: hsl(var(--primary)); }
+.savedContext p, .savedContext dl { margin-top: 0.5rem; }
+.savedContext dl > div { margin-top: 0.75rem; }
+.savedContext dt { font-weight: 600; }
+.savedContext dd { white-space: pre-wrap; overflow-wrap: anywhere; }
+.reportReview { display: grid; gap: 1rem; min-width: 0; }
+.reportSources { display: grid; gap: 0.75rem; min-width: 0; }
+.reportSources > div { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.4rem 0.65rem; align-items: start; min-width: 0; }
+.reportSources label { font-size: 0.8rem; line-height: 1.5; }
+.reportSources label span { font-size: 0.7rem; color: hsl(var(--muted-foreground)); }
+.reportSources a { grid-column: 2; color: hsl(var(--primary)); text-decoration: underline; font-size: 0.75rem; }
+.reportDocument { background: #fff; color: #26323d; min-width: 0; padding: clamp(1rem, 3vw, 2.5rem); border: 1px solid #cdd3d8; border-radius: 0.7rem; font-size: 0.85rem; line-height: 1.65; overflow-wrap: anywhere; }
+.reportBrand { font-size: 0.75rem; color: #536270; }
+.reportDocument h2 { margin-block: 0.5rem; font-size: 1.45rem; font-weight: 700; line-height: 1.4; }
+.reportPractice { font-size: 1.1rem; font-weight: 600; }
+.reportDocument h3 { margin-block: 1.5rem 0.5rem; font-size: 1rem; font-weight: 700; break-after: avoid; }
+.reportDocument p, .reportDocument dd { white-space: pre-wrap; }
+.reportNotice { padding-block: 0.5rem 1rem; border-bottom: 1px solid #cdd3d8; }
+.reportNotice p { font-size: 0.75rem; color: #465462; }
+.reportDocument dl > div { margin-block: 0.85rem; }
+.reportDocument dt { font-weight: 600; break-after: avoid; }
+.reportDocument dd { margin-top: 0.25rem; }
+@media print {
+  @page atmoshaper-planner-report { size: letter; margin: 18mm; background: white; }
+  /* The app's dark color scheme must not turn the printed page margins black. */
+  :global(html):has(.reportDocument), :global(body):has(.reportDocument) { color-scheme: only light !important; background: white !important; color: #26323d !important; height: auto !important; overflow: visible !important; position: static !important; }
+  /* Keep only the report and its ancestor path. Hiding siblings avoids printing
+     the app shell, form controls or duplicate mounted worksheet stages. */
+  :global(body):has(.reportDocument) *:not(:has(.reportDocument)):not(.reportDocument):not(.reportDocument *) { display: none !important; }
+  :global(body):has(.reportDocument) *:has(.reportDocument) { display: block !important; position: static !important; overflow: visible !important; height: auto !important; min-height: 0 !important; max-height: none !important; width: auto !important; max-width: none !important; padding: 0 !important; margin: 0 !important; transform: none !important; contain: none !important; }
+  .reportDocument { page: atmoshaper-planner-report; padding: 0; border: 0; border-radius: 0; background: white; color: #26323d; font-size: 10pt; }
+  .reportDocument *, .reportDocument { box-shadow: none !important; text-shadow: none !important; }
+}
 .meta { display: flex; flex-wrap: wrap; align-items: start; gap: 0.5rem 1rem; min-width: 0; color: hsl(var(--muted-foreground)); font-size: 0.75rem; }
 .saveStatus { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; max-width: 100%; }
 .saveStatus svg { flex: none; width: 0.9rem; height: 0.9rem; color: hsl(var(--primary)); }
@@ -26,6 +64,20 @@
 .scenarioButton span { min-width: 0; max-width: 100%; }
 .scenarioDescription { margin-top: 0.65rem; color: hsl(var(--muted-foreground)); font-size: 0.75rem; line-height: 1.5; }
 .field { min-width: 0; }
+.expenseGroup { min-width: 0; border: 1px solid hsl(var(--border)); border-radius: 0.75rem; }
+.expenseGroup > summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem 1rem; padding: 0.85rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+.expenseGroup > summary::before { content: "+"; color: hsl(var(--primary)); }
+.expenseGroup[open] > summary::before { content: "−"; }
+.expenseGroup > summary > :first-child { flex: 1; min-width: 0; }
+.expenseGroup > summary > :last-child { font-size: 0.75rem; color: hsl(var(--muted-foreground)); }
+.expenseBody { display: grid; min-width: 0; gap: 0.85rem; padding: 0 0.65rem 0.65rem; }
+/* Limit nested padding so enlarged currency values retain usable input space. */
+.expenseRow { min-width: 0; border-radius: 0.6rem; background: hsl(var(--background) / 0.65); padding: 0.5rem; container-type: inline-size; }
+.expenseAmounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; min-width: 0; }
+.expenseSelect { width: 100%; min-width: 0; min-height: 2.5rem; margin-top: 0.5rem; padding: 0.5rem; background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 0.4rem; font: inherit; font-size: 0.8rem; }
+.reserveIdeas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 0.5rem; min-width: 0; }
+.reserveIdeas > button { height: auto; min-height: 2.75rem; min-width: 0; padding: 0.5rem; white-space: normal; font-size: 0.75rem; }
+@container (max-width: 16rem) { .expenseAmounts { grid-template-columns: minmax(0, 1fr); } }
 .field label { display: block; line-height: 1.5; }
 .workspace .numberInput { min-width: 0; max-width: 100%; width: 100%; }
 .moneyRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name remove" "amount amount"; gap: 0.75rem; min-width: 0; align-items: end; }
@@ -52,3 +104,58 @@
 
 /* Weekday inputs need room for the number, unit and native step controls inside narrow result columns. */
 .weekGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr)); gap: 0.75rem; min-width: 0; }
+
+.headerTools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; min-width: 0; color: hsl(var(--muted-foreground)); font-size: 0.75rem; }
+.guidedWorkspace { max-width: 64rem; }
+.hubWorkspace { max-width: 56rem; container-type: inline-size; }
+.headerTools > * { min-width: 0; max-width: 100%; }
+.headerTools button { height: auto; min-height: 2.75rem; white-space: normal; }
+.stepper { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
+.stepNavigation { display: grid; gap: 0.6rem; min-width: 0; padding: 0.75rem; border: 1px solid hsl(var(--border) / 0.8); border-radius: 0.9rem; background: hsl(var(--card) / 0.8); }
+.stepProgress { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.3rem 0.75rem; color: hsl(var(--muted-foreground)); font-size: 0.7rem; line-height: 1.5; }
+.stepProgress > :first-child { color: hsl(var(--foreground)); font-weight: 600; }
+.stepSelect, .stepSelect select { min-width: 0; width: 100%; }
+.stepSelect select { display: block; min-height: 2.75rem; padding: 0.55rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; background: hsl(var(--background)); color: hsl(var(--foreground)); font: inherit; font-size: 0.85rem; }
+.stepSelect select:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+.stepList { display: none; list-style: none; margin: 0; padding: 0; min-width: 0; gap: 0.4rem; }
+.stepList li { min-width: 0; }
+.workspace .stepButton { width: 100%; min-width: 0; min-height: 3.2rem; height: auto; gap: 0.4rem; padding: 0.5rem; white-space: normal; font-size: 0.75rem; line-height: 1.4; }
+.stepButton > :last-child { min-width: 0; overflow-wrap: anywhere; }
+.stepNumber { display: inline-grid; flex: none; place-items: center; width: 1.4rem; height: 1.4rem; border: 1px solid currentColor; border-radius: 50%; font-size: 0.7rem; }
+.stepPanel { display: grid; min-width: 0; gap: 1rem; }
+/* Author display rules must not expose the mounted panels that retain drafts. */
+.stepPanel[hidden] { display: none; }
+.stepHeading { min-width: 0; }
+.stepHeading h2 { font-size: 1.05rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.stepHeading p { max-width: 65ch; margin-top: 0.25rem; color: hsl(var(--muted-foreground)); font-size: 0.8rem; line-height: 1.5; }
+.stepActions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; min-width: 0; padding-block: 0.25rem; }
+.stepActions > * { min-width: 0; max-width: 100%; height: auto; min-height: 2.75rem; white-space: normal; }
+.reviewGrid { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 1rem; min-width: 0; }
+.lineItem { min-width: 0; padding: 0.85rem; border: 1px solid hsl(var(--border) / 0.8); border-radius: 0.75rem; background: hsl(var(--background) / 0.65); container-type: inline-size; }
+.itemHeading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; align-items: end; min-width: 0; margin-bottom: 0.85rem; }
+.itemHeading button { min-height: 2.75rem; min-width: 2.75rem; }
+.productFields, .serviceFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; min-width: 0; }
+.productFields > :last-child { grid-column: 1 / -1; }
+.formActions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; min-width: 0; }
+.formActions > * { max-width: 100%; min-width: 0; min-height: 2.75rem; height: auto; white-space: normal; }
+.checklistItem { display: flex; align-items: start; gap: 0.75rem; min-width: 0; padding: 0.85rem; border: 1px solid hsl(var(--border) / 0.8); border-radius: 0.65rem; background: hsl(var(--background) / 0.65); }
+.checklistItem label { min-width: 0; overflow-wrap: anywhere; line-height: 1.6; }
+.checklistItem > :first-child { flex: none; margin-top: 0.2rem; }
+.hubGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; min-width: 0; }
+.workspace .hubTool { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; min-height: 6rem; height: auto; padding: 0.75rem; white-space: normal; text-align: center; gap: 0.35rem; line-height: 1.4; }
+.hubTool svg { flex: none; width: 1.2rem; height: 1.2rem; }
+.hubTool strong { max-width: 100%; font-size: 0.85rem; font-weight: 600; overflow-wrap: anywhere; }
+.hubTool small { max-width: 100%; font-size: 0.7rem; opacity: 0.9; overflow-wrap: anywhere; }
+.hubNote { min-width: 0; color: hsl(var(--muted-foreground)); font-size: 0.75rem; line-height: 1.6; }
+.hubNote summary { cursor: pointer; color: hsl(var(--foreground)); }
+.hubNote p, .hubNote a { margin-top: 0.5rem; max-width: 65ch; }
+@container (max-width: 15rem) { .productFields, .serviceFields { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 18rem) { .hubGrid { grid-template-columns: minmax(0, 1fr); } }
+@container (min-width: 28rem) { .productFields { grid-template-columns: repeat(3, minmax(0, 1fr)); } .productFields > :last-child { grid-column: auto; } }
+@media (min-width: 48rem) {
+  .stepSelect { display: none; }
+  .stepList { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+  .hubGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .reviewGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 22rem) { .workspace .hubTool { padding: 0.6rem; } }

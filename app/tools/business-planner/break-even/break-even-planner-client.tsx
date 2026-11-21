@@ -1,9 +1,8 @@
 "use client"
 
-import Link from "next/link"
 import { useMemo } from "react"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
-import { ArrowLeft, BadgeDollarSign, BriefcaseBusiness, Plus, RotateCcw, Save, Trash2 } from "lucide-react"
+import { BadgeDollarSign, BriefcaseBusiness, Plus, RotateCcw, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   calculateBreakEvenPlan,
@@ -19,6 +18,8 @@ import {
   formatNumber,
 } from "../_components/business-tool-fields"
 
+import { PlannerHeader } from "../_components/planner-header"
+import { PlannerStep, PlannerStepper } from "../_components/planner-stepper"
 import styles from "../_components/business-planner.module.css"
 
 type BreakEvenInput = ReturnType<typeof normalizeBreakEvenInput>
@@ -104,29 +105,17 @@ export function BreakEvenPlannerClient() {
 
   return (
     <div className={styles.page} data-break-even-planner>
-      <div className={styles.workspace}>
+      <div className={`${styles.workspace} ${styles.guidedWorkspace}`}>
       <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <header className={styles.header} data-break-even-header>
-        <div className={styles.titleRow}>
-          <BadgeDollarSign className={styles.titleIcon} aria-hidden="true" />
-          <h1>Startup Costs and Break-Even</h1>
-          <Button asChild variant="ghost" className={styles.backLink}>
-            <Link href="/tools/business-planner" aria-label="Back to business tools" title="Back to business tools"><ArrowLeft aria-hidden="true" /></Link>
-          </Button>
-        </div>
-        <p className={styles.subtitle}>Plan opening costs and the sessions needed to cover your bills.</p>
-        <div className={styles.meta}>
-          <p className={styles.saveStatus} aria-live="polite" aria-atomic="true"><Save aria-hidden="true" />{storageUnavailable ? "Not saved on this device" : "Saved on this device"}</p>
-          <details className={styles.help}>
-            <summary>How this planner works</summary>
-            <p>Add your service price, working schedule and business costs in US dollars. Keep one-time, monthly and yearly costs separate so each expense is counted once.</p>
-            <p>Break-even covers operating costs before owner income or tax. Startup funding is shown separately. These are estimates based on the numbers you enter.</p>
-          </details>
-        </div>
-      </header>
+      <PlannerHeader data-break-even-header title="Startup Costs and Break-Even" description="Plan opening costs and the sessions needed to cover your bills." icon={BadgeDollarSign}
+        saveLabel={storageUnavailable ? "Not saved on this device" : "Saved on this device"}
+        guide={<><p>Add your service price, working schedule and business costs in US dollars. Keep one-time, monthly and yearly costs separate so each expense is counted once.</p><p>Break-even covers operating costs before owner income or tax. Startup funding is shown separately. These are estimates based on the numbers you enter.</p></>}
+      >
+        <Button type="button" variant="ghost" onClick={resetWorksheet}><RotateCcw aria-hidden="true" />Reset worksheet</Button>
+      </PlannerHeader>
 
-      <div className={styles.main}>
-        <div className={styles.column}>
+      <PlannerStepper label="Break-even planning steps">
+        <PlannerStep id="service" title="Set your service and schedule" shortTitle="Service and schedule">
           <PlannerSection
             title="Service and schedule"
             description="Enter a typical appointment price and a realistic working schedule."
@@ -169,13 +158,11 @@ export function BreakEvenPlannerClient() {
                 onChange={(value) => updateTopLevel("taxSetAsideRate", value)}
               />
             </div>
-            <Button type="button" variant="secondary" className="h-auto min-h-11 w-fit max-w-full whitespace-normal" onClick={resetWorksheet}>
-              <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
-              Reset worksheet
-            </Button>
           </PlannerSection>
 
-          {moneySectionOrder.map((section) => (
+        </PlannerStep>
+        <PlannerStep id="opening" title="Plan what you need to open" shortTitle="Opening costs">
+          {moneySectionOrder.slice(0, 2).map((section) => (
             <MoneySection
               key={section}
               section={section}
@@ -185,9 +172,20 @@ export function BreakEvenPlannerClient() {
               onRemove={removeMoneyItem}
             />
           ))}
-        </div>
-
-        <div className={styles.column}>
+        </PlannerStep>
+        <PlannerStep id="ongoing" title="Add your regular business costs" shortTitle="Ongoing costs">
+          {moneySectionOrder.slice(2).map((section) => (
+            <MoneySection
+              key={section}
+              section={section}
+              items={input[section]}
+              onUpdate={updateMoneyItem}
+              onAdd={addMoneyItem}
+              onRemove={removeMoneyItem}
+            />
+          ))}
+        </PlannerStep>
+        <PlannerStep id="estimate" title="Review your break-even estimate" shortTitle="Estimate">
           <PlannerSection title="Break-even estimate" description="Sessions needed to cover ongoing business costs, before paying yourself or setting aside tax.">
             <div className={styles.metrics}>
               <MetricTile label="Startup funding gap" value={formatMoney(plan.startupFundingGap)} />
@@ -228,8 +226,8 @@ export function BreakEvenPlannerClient() {
                 : `The practice needs about ${formatNumber(plan.monthlyBreakEvenSessions)} sessions per month to cover monthly operating costs before owner income.`}
             </p>
           </PlannerSection>
-        </div>
-      </div>
+        </PlannerStep>
+      </PlannerStepper>
       </div>
     </div>
   )

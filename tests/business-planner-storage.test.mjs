@@ -4,12 +4,16 @@ import { existsSync } from "node:fs"
 import { after, before, describe, it } from "node:test"
 import { BUSINESS_INCOME_APP_SETTINGS_KEY } from "../lib/business-income-planner.js"
 import { buildPlannerFixture, openPlannerFixture, plannerKeys } from "./fixtures/business-planner-storage-harness.mjs"
+import { revealPlannerControl } from "./helpers/planner-navigation.mjs"
 
 const require = createRequire(import.meta.url)
 
 /** Edits a real control and returns its observable value; no input handlers are mocked. */
 async function editFirstControl(page) {
-  const control = page.locator('input:not([disabled]):not([readonly]),textarea:not([disabled]),button[role="checkbox"]:not([disabled])').first()
+  const control = await page.locator("[data-launch-checklist-planner]").count()
+    ? page.getByRole("checkbox").first()
+    : page.locator('input:not([disabled]):not([readonly]),textarea:not([disabled]),button[role="checkbox"]:not([disabled])').first()
+  await revealPlannerControl(page, control)
   if (await control.getAttribute("role") === "checkbox") {
     await control.click()
     return { checkbox: true, value: await control.getAttribute("aria-checked") }
@@ -65,7 +69,7 @@ describe("Business planner draft storage recovery", { concurrency: false }, () =
           for (const [key, value] of Object.entries(actual)) {
             if (!Object.hasOwn(expected, key)) assert.equal(value, false)
           }
-          for (const [key, value] of Object.entries(expected)) assert.equal(actual[key], value)
+          for (const [key, value] of Object.entries(expected)) assert.deepEqual(actual[key], value)
         } else {
           assert.deepEqual(actual, expected)
         }
@@ -168,6 +172,7 @@ describe("Business planner draft storage recovery", { concurrency: false }, () =
       await f.page.getByRole("status").waitFor({ state: "visible" })
       const input = f.page.locator('input[type="number"]').first()
       assert.equal(await input.inputValue(), "4321")
+      await revealPlannerControl(f.page, input)
       await f.page.clock.install()
       await f.page.clock.fastForward(1500)
       assert.deepEqual(f.requests.account, [])

@@ -1,9 +1,10 @@
 "use client"
 
+import { PlannerHeader } from "../_components/planner-header"
+import styles from "../_components/business-planner.module.css"
 import { useMemo } from "react"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { PackagePlus, Plus, RotateCcw, Trash2 } from "lucide-react"
-import { AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import {
   calculateAddOnProfitPlan,
@@ -16,6 +17,7 @@ import {
   TextField,
   formatMoney,
   formatNumber,
+  PlannerSection,
 } from "../_components/business-tool-fields"
 
 type AddOnInput = ReturnType<typeof normalizeAddOnProfitInput>
@@ -25,7 +27,7 @@ const STORAGE_KEY = "massagelab-business-planner-add-on-profit-v1"
 
 /** Keeps add-on calculations editable when this device cannot persist their draft. */
 export function AddOnProfitClient() {
-  const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<AddOnInput>({
+  const { value: input, setValue: setInput, storageReady, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<AddOnInput>({
     storageKey: STORAGE_KEY,
     initialValue: () => normalizeAddOnProfitInput({}),
     normalize: normalizeAddOnProfitInput,
@@ -60,101 +62,53 @@ export function AddOnProfitClient() {
   }
 
   return (
-    <AppPageShell width="full" contentClassName="gap-6">
-      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <AppSurface
-        title="Add-On Profit Calculator"
-        description="Estimate wholesale cost, retail price, expected sales, and yearly profit for products, upgrades, or service add-ons."
-        icon={<PackagePlus className="h-5 w-5" aria-hidden="true" />}
-        badge="Browser worksheet"
-        className={appCalloutClassName}
-      >
-        <div className="grid gap-3 md:grid-cols-3">
-          <MetricTile label="Monthly profit" value={formatMoney(plan.monthlyProfitTotal)} />
-          <MetricTile label="Yearly profit" value={formatMoney(plan.yearlyProfitTotal)} />
-          <MetricTile label="Average margin" value={plan.averageMarginPercent === null ? "Add price" : `${formatNumber(plan.averageMarginPercent)}%`} />
-        </div>
-      </AppSurface>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
-        <AppSurface
-          title="Products and add-ons"
-          description="Use the template's other-income section for retail, upgrades, or add-on services."
+    <div className={styles.page} data-add-on-profit-planner>
+      <div className={`${styles.workspace} ${styles.guidedWorkspace}`}>
+        <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
+        <PlannerHeader title="Add-On Profit Calculator" description="Compare what you charge, what each sale costs and what is left over." icon={PackagePlus}
+          saveLabel={!storageReady ? "Opening saved draft" : storageUnavailable ? "Not saved on this device" : "Saved on this device"}
+          guide={<p>Add each product or service upgrade, its cost per sale, your price and expected monthly sales. The estimate subtracts only that per-sale cost; it does not include other business expenses or taxes.</p>}
         >
-          <div className="space-y-3">
-            {input.products.map((product, index) => (
-              <div key={`product-${index}`} className="grid gap-3 rounded-md border border-border/80 bg-background/70 p-3 md:grid-cols-[minmax(0,1fr)_8rem_8rem_8rem_auto] md:items-end">
-                <TextField
-                  id={`product-${index}-name`}
-                  label="Name"
-                  value={product.name}
-                  onChange={(value) => updateProduct(index, "name", value)}
-                />
-                <NumberField
-                  id={`product-${index}-wholesale`}
-                  label="Wholesale"
-                  value={product.wholesaleCost}
-                  onChange={(value) => updateProduct(index, "wholesaleCost", value)}
-                />
-                <NumberField
-                  id={`product-${index}-retail`}
-                  label="Retail"
-                  value={product.retailPrice}
-                  onChange={(value) => updateProduct(index, "retailPrice", value)}
-                />
-                <NumberField
-                  id={`product-${index}-sales`}
-                  label="Monthly sales"
-                  value={product.estimatedMonthlySales}
-                  onChange={(value) => updateProduct(index, "estimatedMonthlySales", value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10"
-                  aria-label={`Remove ${product.name || "product"}`}
-                  onClick={() => removeProduct(index)}
-                  disabled={input.products.length <= 1}
-                >
-                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                </Button>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="secondary" onClick={addProduct}>
-              <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-              Add row
-            </Button>
-            <Button type="button" variant="secondary" onClick={resetWorksheet}>
-              <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
-              Reset worksheet
-            </Button>
-          </div>
-        </AppSurface>
-
-        <AppSurface
-          title="Profit summary"
-          description="Use this to decide whether an additional product or service is worth the space, money, and attention."
-        >
-          <div className="space-y-3">
-            {plan.rows.map((row, index) => (
-              <div key={`${row.name || "row"}-${index}`} className="rounded-md border border-border/80 bg-background/70 p-3">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium">{row.name}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {formatMoney(row.profitPerSale)} profit per sale
-                    </p>
+          <Button type="button" variant="ghost" onClick={resetWorksheet}><RotateCcw aria-hidden="true" />Reset worksheet</Button>
+        </PlannerHeader>
+        <div className={styles.main}>
+          <PlannerSection title="Products and add-ons" description="Start with one item. Add another row for each product or upgrade you want to compare.">
+            <div className="space-y-3">
+              {input.products.map((product, index) => (
+                <div key={`product-${index}`} className={styles.lineItem}>
+                  <div className={styles.itemHeading}>
+                    <TextField id={`product-${index}-name`} label="Name" value={product.name} onChange={(value) => updateProduct(index, "name", value)} />
+                    <Button type="button" variant="ghost" size="icon" aria-label={`Remove ${product.name || "product"}`} onClick={() => removeProduct(index)} disabled={input.products.length <= 1}><Trash2 aria-hidden="true" /></Button>
                   </div>
-                  <p className="text-sm font-semibold">{formatMoney(row.yearlyProfit)} / year</p>
+                  <div className={styles.productFields}>
+                    <NumberField id={`product-${index}-wholesale`} label="Cost per sale" unit="$" description="US dollars it costs you to provide one item or add-on, such as its purchase cost or supplies." value={product.wholesaleCost} onChange={(value) => updateProduct(index, "wholesaleCost", value)} />
+                    <NumberField id={`product-${index}-retail`} label="Price per sale" unit="$" description="US dollars you charge for one item or add-on, before tax." value={product.retailPrice} onChange={(value) => updateProduct(index, "retailPrice", value)} />
+                    <NumberField id={`product-${index}-sales`} label="Monthly sales" unit="sales" description="How many sales you expect in a typical month. Enter a count, not a dollar amount." value={product.estimatedMonthlySales} onChange={(value) => updateProduct(index, "estimatedMonthlySales", value)} />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </AppSurface>
+              ))}
+            </div>
+            <div className={styles.formActions}><Button type="button" variant="ctaBlue" onClick={addProduct}><Plus aria-hidden="true" />Add product</Button></div>
+          </PlannerSection>
+          <PlannerSection title="Profit summary" description="Estimates update as you change a cost, price or sales count.">
+            <div className={styles.metrics}>
+              <MetricTile label="Monthly profit" value={formatMoney(plan.monthlyProfitTotal)} />
+              <MetricTile label="Yearly profit" value={formatMoney(plan.yearlyProfitTotal)} />
+              <MetricTile label="Average margin" value={plan.averageMarginPercent === null ? "Add price" : `${formatNumber(plan.averageMarginPercent)}%`} />
+            </div>
+            <div className="space-y-3">
+              {plan.rows.map((row, index) => (
+                <div key={`${row.name || "row"}-${index}`} className={styles.lineItem}>
+                  <p className="text-sm font-medium">{row.name}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{formatMoney(row.profitPerSale)} profit per sale</p>
+                  <p className="mt-2 text-sm font-semibold tabular-nums">{formatMoney(row.yearlyProfit)} / year</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">Profit shown excludes other business expenses and taxes.</p>
+          </PlannerSection>
+        </div>
       </div>
-    </AppPageShell>
+    </div>
   )
 }

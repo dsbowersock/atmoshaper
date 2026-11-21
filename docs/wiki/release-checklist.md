@@ -2,7 +2,16 @@
 
 Use this checklist before inviting real users or tagging/deploying an alpha build. Keep SOAP notes, intake forms, journals, ROM sessions, and other professional-record workflows local-first in all testing.
 
-Latest November 19 update: planner `dc37c3b` is published as tree-identical
+Latest November 19 update: Wellness/planner `724a151` is published as
+tree-identical `7785ae6` after all seven hosted jobs, clear review, actual
+Production migration/all-payments/Sentry gates and staged/public acceptance.
+All 87 Production setting metadata entries and unrelated routing are preserved;
+prior compatible `fa3a030` remains READY. One hosted shortcut case passes its
+configured retry; live shortcut/focus readback passes. See the
+[Wellness/planner receipt](../audits/2026-11-19-wellness-planner-publication.md).
+The operation is closed; these local completion records trigger no extra build.
+
+Earlier November 19 update: planner `dc37c3b` is published as tree-identical
 `fa3a030` after all seven hosted jobs, actual Production migration/all-payments
 and Sentry gates, and staged/public verification. Prior `81b18e8` remains READY.
 All 87 Production settings and unrelated routing are preserved. See the
