@@ -84,9 +84,14 @@ test("real calendar phone and desktop source selection stays private and contain
       const query=new URL(requests[0],server.origin).searchParams
       assert.equal(query.get('practice'),'fictional-practice');assert.equal(query.get('view'),'practice')
       if(direction==='Today')assert.equal(query.get('date'),'2026-11-20')
-      await bounded.evaluate(()=>window.__loadPracticeWindow({start:'2020-01-01T00:00:00Z',end:'2040-01-01T00:00:00Z'}))
+      await bounded.evaluate((day)=>window.__loadPracticeDate(day),query.get('date'))
       await expect(bounded.locator('.fc')).toBeVisible()
       assert.deepEqual(await bounded.evaluate(()=>window.__calendarWrites),[])
     }
+    await bounded.goto(`${server.origin}/?bounded&monthEnd`)
+    await expect(bounded.getByText('January 2027',{exact:true})).toBeVisible()
+    await expect(bounded.locator('.fc')).toBeVisible()
+    await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toHaveCount(0)
+    assert.deepEqual(await bounded.evaluate(()=>window.__calendarNavigation),[])
   } finally {try {await browser?.close()} finally {await server.close()}}
 })

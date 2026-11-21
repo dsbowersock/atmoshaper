@@ -28,17 +28,20 @@ export async function createCalendarWorkspaceBrowserBundle() {
     import React,{useState} from 'react'; import {createRoot} from 'react-dom/client';
     import {CalendarWorkspace} from ${JSON.stringify(path.join(root,"app/calendar/calendar-workspace.tsx"))};
     import {normalizeCalendarPreferences} from ${JSON.stringify(path.join(root,"lib/calendar-preferences.js"))};
+    import {calendarWorkspaceReadWindow} from ${JSON.stringify(path.join(root,"lib/calendar-workspace.js"))};
     window.__calendarReads=[];window.__calendarWrites=[];window.__calendarNavigation=[];window.__calendarOwner='fictional-owner';
     function Fixture(){const [owner,setOwner]=useState('fictional-owner');window.__switchCalendarOwner=()=>{window.__calendarOwner='fictional-second';setOwner('fictional-second')};
-      const [loadedWindow,setLoadedWindow]=useState({start:'2030-01-13T00:00:00.000Z',end:'2030-08-11T00:00:00.000Z'});
-      window.__loadPracticeWindow=setLoadedWindow;
+      const initialDate=new URL(location.href).searchParams.has('monthEnd')?'2027-01-31':'2030-02-12';
+      const readWindow=(day)=>{const range=calendarWorkspaceReadWindow(day);return {start:range.start.toISOString(),end:range.end.toISOString()}};
+      const [loadedWindow,setLoadedWindow]=useState(()=>readWindow(initialDate));
+      window.__loadPracticeDate=(day)=>setLoadedWindow(readWindow(day));
       const bounded=new URL(location.href).searchParams.has('bounded');
       const noPractice=new URL(location.href).searchParams.has('personalOnly');
       const split=new URL(location.href).searchParams.has('split');
       return React.createElement(React.Fragment,null,
         React.createElement('p',{className:'px-3 py-2 text-xs text-muted-foreground'},'Local preview · fictional sample data'),
         React.createElement('div',{className:'flex min-h-0 flex-1 flex-col'},React.createElement(CalendarWorkspace,{
-          key:owner,currentUserId:owner,initialDate:bounded?'2030-02-12':'2026-11-20',initialScope:noPractice?'personal':split||bounded?'practice':'together',hasPractice:!noPractice,
+          key:owner,currentUserId:owner,initialDate:bounded?initialDate:'2026-11-20',initialScope:noPractice?'personal':split||bounded?'practice':'together',hasPractice:!noPractice,
           loadedPracticeWindow:bounded?loadedWindow:undefined,
           selectedPracticeId:'fictional-practice',practiceOptions:noPractice?[]:[{id:'fictional-practice',name:'Example Studio'},{id:'fictional-second-practice',name:'Example Group'}],
           providers:[{id:owner,label:'Example provider'},...(split?[{id:'fictional-colleague',label:'Example colleague'}]:[])],providerAvailability:[],preferences:normalizeCalendarPreferences({defaultRange:'month',providerViewMode:split?'split':'only-me'}),

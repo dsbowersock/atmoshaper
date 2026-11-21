@@ -1,5 +1,16 @@
 # AtmoShaper Project Log
 
+## November 21 Calendar month-end review amendment
+
+Codex review at `9e0c7df` identifies a month-end replacement range that can stay
+hidden behind loading. Share the bounded window rule between server reads and
+the native fixture, expand the lookback to cover month padding, and verify
+actual replacement windows plus January 31. All 33 applicable Calendar checks,
+focused lint and TypeScript pass. The attempted CodeRabbit correction review
+is OSS-rate-limited, not completed; wait for its included reset before release.
+Previously verified Wellness/payment/audit source is unchanged. No public
+traffic or provider setting moves during this amendment.
+
 ## November 21 release PR #78 grouped correction
 
 The requested full PR review completes across 57 paths at `bf58dca`, raising

@@ -24,8 +24,20 @@ optional sections open, and await drawer closure before targeting the active
 navigation dialog. Both Exercise journeys pass on phone/desktop, and the
 corrected drawer journey passes on phone (the desktop journey also passes).
 These test corrections change no application validation or navigation behavior.
+The Codex follow-up at `9e0c7df` identifies one additional supported boundary
+(comment 4654733330): a month-end anchor can place leading grid days before the
+old 30-day lookback, leaving the replacement grid loading indefinitely. A
+shared, bounded 45-day lookback now covers full month padding and local/UTC
+offsets. Native Today/Previous/Next acceptance uses that actual replacement
+window, and a January 31 month-grid case remains visible without a reload loop.
+Calendar/page/controller/workspace and native checks pass 33; focused lint and
+TypeScript pass. This focused amendment does not change the previously checked
+Wellness, payment or audit source.
 Fresh current-head hosted CI and correction-delta Codex/CodeRabbit review
-remain publication gates. Original
+remain publication gates. The GitHub app's attempted correction review is
+limited by the free OSS allowance; its selected-file list is not completed
+coverage. Wait for the included slot, without paid credits or another broad
+historical campaign. Original
 raw reviews and synthetic acceptance receipts are retained in ignored operator
 output. No live traffic, provider setting, record, credential, payment, email or
 NAS installation changes during this correction step.

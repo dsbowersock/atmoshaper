@@ -4,7 +4,7 @@ import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
 import { createPracticeAction } from "@/app/calendar/actions"
 import { isCalendarDatabaseReady } from "@/lib/calendar-readiness"
 import { normalizeCalendarPreferences } from "@/lib/calendar-preferences"
-import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent } from "@/lib/calendar-workspace"
+import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow } from "@/lib/calendar-workspace"
 import { prisma } from "@/lib/prisma"
 import { AppSurface, appSurfaceClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
@@ -178,9 +178,7 @@ export default async function CalendarPage({
 async function loadCalendarWorkspaceData(practiceId: string, userId: string, requestedDate?: string) {
   // A validated deep link or practice switch can display a distant day. Read
   // around that day so missing out-of-window data never looks like free time.
-  const anchor = requestedDate ? new Date(`${requestedDate}T12:00:00`) : new Date()
-  const windowStart = new Date(anchor.getTime() - 30 * 24 * 60 * 60 * 1000)
-  const windowEnd = new Date(anchor.getTime() + 180 * 24 * 60 * 60 * 1000)
+  const { start: windowStart, end: windowEnd } = calendarWorkspaceReadWindow(requestedDate)
   const [events, therapists, preferenceRow, availabilityRules, scheduleIntervals] = await Promise.all([
     prisma.calendarEvent.findMany({
       where: {

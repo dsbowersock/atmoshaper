@@ -2,6 +2,13 @@
 
 ## November 21 release PR review correction group
 
+The Codex follow-up at `9e0c7df` finds one month-end replacement-window boundary.
+The shared read window now includes full month padding; native tests use the
+actual replacement window rather than an oversized fixture. All 33 applicable
+Calendar checks, focused lint and TypeScript pass. The included CodeRabbit
+correction slot is temporarily exhausted; wait for its reset and completed
+coverage before publication. No paid review or broad new campaign is enabled.
+
 Authorized publication PR #78 at `bf58dca` receives completed Codex review with
 no issues and full CodeRabbit review of all 57 paths with eight issues. Five
 code behaviors and three outdated audit passages are corrected together; see

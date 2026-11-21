@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises"
 import test from "node:test"
 import { createCompiledModuleLoader, createElement, elementText, findElement, renderFunctionComponents } from "./helpers/compiled-module.mjs"
 import { normalizeCalendarPreferences } from "../lib/calendar-preferences.js"
-import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent } from "../lib/calendar-workspace.js"
+import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow } from "../lib/calendar-workspace.js"
 
 const load = createCompiledModuleLoader(import.meta.url)
 const source = await readFile(new URL("../app/calendar/page.tsx", import.meta.url), "utf8")
@@ -46,7 +46,7 @@ function fixture(options = {}) {
     "@/app/calendar/actions": { createPracticeAction: () => { throw new Error("WRITES_ARE_FORBIDDEN_IN_THIS_FIXTURE") } },
     "@/lib/calendar-readiness": { isCalendarDatabaseReady: async () => read("readiness", options.ready !== false) },
     "@/lib/calendar-preferences": { normalizeCalendarPreferences },
-    "@/lib/calendar-workspace": { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent },
+    "@/lib/calendar-workspace": { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow },
     "@/lib/prisma": { prisma },
     "@/components/ui/app-surface": { AppSurface: nodes.AppSurface, appSurfaceClassName: "" },
     "@/components/ui/button": { Button: pass },
@@ -145,10 +145,21 @@ test("a requested distant day bounds both practice events and external busy read
     const query = input.calls.find((call) => call.name === name).args.where
     assert.ok(query.startsAt.lt > day, `${name} must include the displayed day`)
     assert.ok(query.endsAt.gt <= day, `${name} must begin before the displayed day`)
-    assert.ok(query.startsAt.lt - query.endsAt.gt <= 211 * 86400000, "the read remains bounded")
+    assert.ok(query.startsAt.lt - query.endsAt.gt <= 226 * 86400000, "the read remains bounded")
     assert.deepEqual(result.workspace.loadedPracticeWindow, {
       start: query.endsAt.gt.toISOString(), end: query.startsAt.lt.toISOString(),
     })
+  }
+})
+
+test("month-end replacement snapshots contain every leading and trailing grid day", async () => {
+  for (const date of ["2027-01-31", "2027-05-31", "2028-02-29", "2030-03-31"]) {
+    const result = await fixture().run({ date })
+    const first = new Date(`${date.slice(0, 7)}-01T00:00:00`)
+    first.setDate(first.getDate() - first.getDay())
+    const end = new Date(first); end.setDate(end.getDate() + 42)
+    assert.ok(Date.parse(result.workspace.loadedPracticeWindow.start) <= first.getTime())
+    assert.ok(Date.parse(result.workspace.loadedPracticeWindow.end) >= end.getTime())
   }
 })
 
