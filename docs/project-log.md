@@ -1,5 +1,14 @@
 # AtmoShaper Project Log
 
+## November 21 sidebar/Calendar release preparation
+
+The owner requests publishing the completed sidebar and Calendar updates. The
+publication branch starts at `db1790e` above public `0976d7d` and local receipt
+`f9f7d17`. Existing provider settings, payment gates and membership/clinical
+boundaries remain unchanged. Review, exact-head CI and fresh service evidence
+precede one verified staged build and same-artifact promotion under the
+[publication plan](superpowers/plans/2026-11-21-sidebar-calendar-publication.md).
+
 ## November 21 navigation and private Calendar workspace completed locally
 
 The owner approves targeted sidebar groups, separate My Calendar/Practice

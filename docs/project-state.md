@@ -1,5 +1,15 @@
 # AtmoShaper Project State
 
+## November 21 sidebar/Calendar publication in preparation
+
+The owner authorizes publication of the locally verified sidebar and private
+Calendar work `db1790e`. Branch `codex/sidebar-calendar-publication` retains public
+`0976d7d` and its local receipt. One reviewed/protected candidate, all current-head
+checks, fresh settings/routing preflight and staged same-artifact verification
+precede public promotion. Personal/practice ownership and current subscriptions
+are preserved. No live result is claimed yet. See the
+[publication plan](superpowers/plans/2026-11-21-sidebar-calendar-publication.md).
+
 ## November 21 sidebar and private combined Calendar verified locally
 
 Local branch `codex/sidebar-calendar-workspace` reorganizes the sidebar into
