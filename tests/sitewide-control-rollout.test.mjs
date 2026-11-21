@@ -133,7 +133,7 @@ test("Wellness anatomical map remains outside the production rollout", async () 
   assert.match(plan, /Wellness anatomical map[\s\S]*excluded from S6 through S9/)
 })
 test("review fixes preserve live route controls and interaction cleanup", async () => {
-  const [runningTimer, backgroundHost, controlCss, stepper, themeSwitcher, sidebar, reviewLab, flashcards, businessPlanner] = await Promise.all([
+  const [runningTimer, backgroundHost, controlCss, stepper, themeSwitcher, sidebar, reviewLab, flashcards, businessPlanner, plannerHeader] = await Promise.all([
     read("app/chimer/running-timer.tsx"),
     read("components/backgrounds/BackgroundHost.tsx"),
     read("components/chimer-controls/chimer-controls.module.css"),
@@ -143,6 +143,7 @@ test("review fixes preserve live route controls and interaction cleanup", async 
     read("app/dev/buttons/page.tsx"),
     read("app/education/flashcards/flashcards-client.tsx"),
     read("app/tools/business-planner/page.tsx"),
+    read("app/tools/business-planner/_components/planner-header.tsx"),
   ])
 
   assert.doesNotMatch(runningTimer, /resolvePaletteDrivenColor|globalPalette/)
@@ -162,7 +163,10 @@ test("review fixes preserve live route controls and interaction cleanup", async 
   assert.match(sidebar, /\[activeGroupId, pathname\]/)
   assert.match(reviewLab, /Current rollout validation/)
   assert.match(flashcards, /\{sortedCommunityDecks\.length > 2 \? \(/)
-  assert.match(businessPlanner, /<h1 id="business-tools-heading"/)
+  // The compact hub delegates its h1 to the shared header. The planner browser
+  // journey separately checks the rendered level-one heading and all six links.
+  assert.match(businessPlanner, /<PlannerHeader title="Business planner tools"/)
+  assert.match(plannerHeader, /<h1>\{title\}<\/h1>/)
 })
 
 test("immersive display panels delegate toolbar actions to shared controls", async () => {

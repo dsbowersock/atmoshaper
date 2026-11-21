@@ -78,3 +78,13 @@ open, reset any temporary viewport, and close the operation with a local receipt
 without another deployment. Record configured skips/retries and actual limits.
 No provider setting, credential, schema/database, payment, email, NAS, remote
 media or accepted-legal-document change is included.
+
+## Integrated review correction
+
+The initial candidate `98377d5` passes the integrated build, 32 focused phone/
+desktop journeys, all 18 protected entry routes and hosted review. The full unit
+run passes 5,820 checks and finds one stale source guard that still requires the
+hub's old inline h1. Update that guard to verify the shared PlannerHeader and its
+real h1; the browser journey already checks the rendered heading and six links.
+All 18 focused control guards pass. Application code is unchanged by this
+correction. Require a fresh exact-head hosted review and complete CI before merge.

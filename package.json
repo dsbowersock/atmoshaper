@@ -5,6 +5,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "test:planner-controls": "node --test tests/sitewide-control-rollout.test.mjs",
     "test:planner-reports": "node --test tests/business-planner-reports.test.mjs tests/business-planner-pdf.test.mjs",
     "test:income-preferences": "node --test tests/account-preferences.test.mjs",
     "test:breathing": "node --test tests/breathing-guide.test.mjs",
