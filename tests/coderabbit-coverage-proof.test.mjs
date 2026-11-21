@@ -3,7 +3,31 @@ import { mkdtemp, mkdir, writeFile, rm, realpath } from "node:fs/promises"
 import path from "node:path"
 import { spawnSync } from "node:child_process"
 import test from "node:test"
-import { isGitAncestor, readGitDiffPaths, reachableReviewedBlobs } from "../scripts/coderabbit-coverage-proof.mjs"
+import { isGitAncestor, readGitDiffPaths, reachableReviewedBlobs, validateCompletedCliReceipt } from "../scripts/coderabbit-coverage-proof.mjs"
+
+test("a ledger cannot turn a failed, incomplete or different-scope review into coverage", () => {
+  const source = "a".repeat(40), base = "b".repeat(40), head = "c".repeat(40), tree = "d".repeat(40)
+  const record = { source, base, head, files: ["source.js"], log: "runs/fixture.ndjson" }
+  const meta = { source, base, head, state: "returned", exitCode: 0, creditsEnabled: false, expectedFiles: 1 }
+  const events = [{ type: "complete", status: "review_completed", outcome: "completed", findings: 0, reviewedFiles: ["source.js"] }]
+  const facts = { source, paths: ["source.js"], headTree: tree, sourceTree: tree }
+  assert.deepEqual(validateCompletedCliReceipt(record, meta, events, facts).paths, ["source.js"])
+  const cases = [
+    { meta: { ...meta, exitCode: 1 } },
+    { meta: { ...meta, state: "running" } },
+    { meta: { ...meta, creditsEnabled: true } },
+    { events: [...events, { type: "error" }] },
+    { events: [{ ...events[0], status: "review_in_progress" }] },
+    { events: [{ ...events[0], findings: 1 }] },
+    { events: [{ ...events[0], reviewedFiles: [] }] },
+    { events: [events[0], events[0]] },
+    { facts: { ...facts, paths: [] } },
+    { facts: { ...facts, headTree: "e".repeat(40) } },
+    { record: { ...record, log: "../private.ndjson" } },
+    { record: { ...record, files: ["source.js", "source.js"] } },
+  ]
+  for (const changed of cases) assert.throws(() => validateCompletedCliReceipt(changed.record ?? record, changed.meta ?? meta, changed.events ?? events, changed.facts ?? facts), /retrospective/i)
+})
 
 test("a later reviewed label does not certify an earlier unreviewed routine", () => {
   const partial = [{ from: "unreviewed-routine", to: "routine-and-reviewed-label" }]

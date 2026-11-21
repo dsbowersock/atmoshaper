@@ -24,7 +24,13 @@ completion, zero exit, issue count, exact path set and exact frozen head tree
 before admitting its range. Do not infer full inherited-file review from this.
 
 With the original five CLI receipts included, all 76 shipped PR diffs read
-successfully. Of 703 changed code/configuration/test paths, 643 have complete
+successfully. Every per-file seed also matches the actual inherited bootstrap
+tree; a nested PR cannot quietly introduce a newer unreviewed seed. The source's
+first-parent history has no unmatched post-bootstrap commit outside the recorded
+PR merges. The only previously unclassified changed paths are license notices;
+they are classified explicitly, and any other unknown changed format now stops
+the audit. Database migration SQL is unchanged from the inherited baseline.
+Of 703 changed code/configuration/test paths, 643 have complete
 post-baseline range evidence and 60 remain unproven: 30 runtime/configuration and
 30 tests. Fifty-one had been overstated by the old blob-only rule; nine previously
 selected paths need a wider range than their earlier synthetic baseline.

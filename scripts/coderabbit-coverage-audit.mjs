@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises'
-import {readGit,isGitAncestor,readGitDiffPaths,reachableReviewedBlobs} from './coderabbit-coverage-proof.mjs'
+import {readGit,isGitAncestor,readGitDiffPaths,reachableReviewedBlobs,assertCliReceiptIdentity,validateCompletedCliReceipt} from './coderabbit-coverage-proof.mjs'
 
 const folder='output/coderabbit-coverage'
 const source='d7e30e022d825d9f26ed37bd6636f11bae1e8314'
@@ -58,14 +58,10 @@ async function cliReceipts(){
   if(!Array.isArray(records))throw new Error('Invalid retrospective receipt ledger')
   const result=[]
   for(const record of records){
-    if(record.source!==source||!/^runs\/[a-z0-9-]+\.ndjson$/.test(record.log)||![record.base,record.head].every(value=>/^[a-f0-9]{40}$/.test(value))||!Array.isArray(record.files)||record.files.length===0||new Set(record.files).size!==record.files.length)throw new Error('Invalid retrospective receipt identity')
+    assertCliReceiptIdentity(record,source)
     const meta=JSON.parse(await readFile(`${folder}/${record.log.replace(/\.ndjson$/,'-attempt.json')}`,'utf8'))
     const events=(await readFile(`${folder}/${record.log}`,'utf8')).split(/\r?\n/).map(line=>line.trim()).filter(line=>line.startsWith('{')).map(line=>JSON.parse(line))
-    const complete=events.filter(event=>event.type==='complete'),issues=events.filter(event=>event.type==='finding')
-    if(meta.state!=='returned'||meta.exitCode!==0||meta.creditsEnabled!==false||meta.base!==record.base||meta.head!==record.head||meta.source!==source||meta.expectedFiles!==record.files.length||events.some(event=>event.type==='error')||complete.length!==1||complete[0].status!=='review_completed'||complete[0].outcome!=='completed'||complete[0].findings!==issues.length)throw new Error('Retrospective review did not complete')
-    const expected=[...record.files].sort(),actual=complete[0].reviewedFiles
-    if(!Array.isArray(actual)||new Set(actual).size!==actual.length||JSON.stringify([...actual].sort())!==JSON.stringify(expected)||JSON.stringify(readGitDiffPaths(record.base,record.head).sort())!==JSON.stringify(expected)||git(['rev-parse',`${record.head}^{tree}`]).trim()!==git(['rev-parse',`${source}^{tree}`]).trim())throw new Error('Retrospective review scope mismatch')
-    result.push({kind:'cli',base:record.base,head:record.head,at:meta.returnedAt,paths:record.files,selected:actual.length,parsed:actual.length})
+    result.push(validateCompletedCliReceipt(record,meta,events,{source,paths:readGitDiffPaths(record.base,record.head),headTree:git(['rev-parse',`${record.head}^{tree}`]).trim(),sourceTree:git(['rev-parse',`${source}^{tree}`]).trim()}))
   }
   return result
 }
@@ -73,6 +69,10 @@ const retrospective=await cliReceipts()
 const proof=[...new Map([...history.reviews.flatMap(receipts),...retrospective].map(item=>[JSON.stringify([item.pr,item.base,item.head,item.paths]),item])).values()]
 const current=tree(source),reviewed=new Map()
 if(!current)throw new Error('Frozen source tree is unavailable')
+const inheritedRoots=git(['rev-list','--max-parents=0',source]).trim().split('\n').filter(Boolean)
+if(inheritedRoots.length!==1)throw new Error('The inherited bootstrap baseline is ambiguous')
+const bootstrap=tree(inheritedRoots[0])
+if(!bootstrap)throw new Error('The inherited bootstrap tree is unavailable')
 const transitions=new Map()
 for(const receipt of proof){const files=tree(receipt.head),before=tree(receipt.base);if(!files||!before||receipt.selected!==receipt.parsed)continue
   for(const path of receipt.paths){const blob=files.get(path)??null
@@ -98,7 +98,7 @@ for(const pr of shipped){
  * from prose history, binary assets and generated catalog/lock data. */
 function category(path){
   if(/(?:^|\/)package-lock\.json$|^data\/|^public\/.*\.json$|^scripts\/repository-audit\/(?:brand-reference-baseline|cleanup-html-named-references)\.json$|\.(?:glb|png|jpg|webp|mp3|woff2?|ttf|pdf|ico)$/.test(path))return 'data-or-asset'
-  if(path.endsWith('.md')||path.startsWith('docs/'))return 'documentation'
+  if(path.endsWith('.md')||path.startsWith('docs/')||/(?:^|\/)(?:LICENSE|DSEG-LICENSE\.txt|CC0\.txt|OFL\.txt|third-party-notices\.txt)$/.test(path))return 'documentation'
   // Build inputs and audit policy are executable configuration too: extension-
   // only matching would miss the backup Dockerfile and its secret-exclusion rules.
   if(/\.(?:[cm]?[jt]sx?|css|scss|py|ps1|sh|ya?ml|prisma|json|html)$/.test(path)||/(?:^|\/)(?:Dockerfile|\.dockerignore|\.gitattributes|\.gitignore|\.env\.example)$/.test(path))return path.startsWith('tests/')?'test':'runtime-or-config'
@@ -108,12 +108,18 @@ const paths=[...touched.values()].map(entry=>{
   const inherited=tree(entry.firstBase)
   if(!inherited)throw new Error('A required pre-change baseline is unavailable')
   const seed=inherited.get(entry.path)??null
+  // A nested PR's first parent can already contain unreviewed branch work.
+  // Its seed is safe only if it equals the actual inherited bootstrap content.
+  if(seed!==(bootstrap.get(entry.path)??null))throw new Error('A PR baseline contains post-bootstrap changes; widen its range before reporting coverage')
   const covered=reachableReviewedBlobs(seed,transitions.get(entry.path)??[]).has(current.get(entry.path))
   // Start any backfill at the inherited pre-change version, not a possibly
   // partial recent review. This covers all surviving post-bootstrap changes.
   return {...entry,category:category(entry.path),covered,seedBlob:seed,review:reviewed.get(entry.path)??null,baseline:entry.firstBase}
 })
 const gaps=paths.filter(path=>!path.covered&&['runtime-or-config','test'].includes(path.category))
+// A new source/configuration format cannot silently disappear from the audit.
+// License notices are classified explicitly above; other unknown paths need review.
+if(paths.some(path=>path.category==='other'))throw new Error('Unclassified shipped paths remain; classify them before reporting coverage')
 const inherited=[...current.keys()].filter(path=>!touched.has(path)&&['runtime-or-config','test'].includes(category(path)))
 /** Fixed cohorts cover each gap once; later findings cannot silently expand this
  * initial pass or turn it into an automatic review/rewrite loop. */
@@ -132,7 +138,7 @@ if(retrospective.length){
   for(let offset=0;offset<group.length;offset+=70)batches.push({id:`${name}-${1+offset/70}`,source,paths:group.slice(offset,offset+70).map(item=>({path:item.path,baseline:item.baseline,blob:current.get(item.path)}))})
 }
 if(new Set(batches.flatMap(batch=>batch.paths.map(item=>item.path))).size!==gaps.length)throw new Error('Incomplete or duplicate review scope')
-const result={source,capturedAt:new Date().toISOString(),shippedPullRequests:rows.sort((a,b)=>a.pr-b.pr),receipts:proof,paths,gaps,inheritedOutsidePrDiffs:inherited,batches,summary:{shippedPrs:shipped.length,substantiveFileReceipts:proof.length,pathsTouched:paths.length,coveredCurrentBlobs:paths.filter(path=>path.covered).length,coveredCodeAndTestPaths:paths.filter(path=>path.covered&&['runtime-or-config','test'].includes(path.category)).length,uncoveredCodeAndTestPaths:gaps.length,inheritedCodeAndTestPaths:inherited.length,reviewBatches:batches.length}}
+const result={source,inheritedBootstrap:inheritedRoots[0],capturedAt:new Date().toISOString(),shippedPullRequests:rows.sort((a,b)=>a.pr-b.pr),receipts:proof,paths,gaps,inheritedOutsidePrDiffs:inherited,batches,summary:{shippedPrs:shipped.length,substantiveFileReceipts:proof.length,pathsTouched:paths.length,coveredCurrentBlobs:paths.filter(path=>path.covered).length,coveredCodeAndTestPaths:paths.filter(path=>path.covered&&['runtime-or-config','test'].includes(path.category)).length,uncoveredCodeAndTestPaths:gaps.length,inheritedCodeAndTestPaths:inherited.length,reviewBatches:batches.length}}
 await writeFile(`${folder}/coverage.json`,JSON.stringify(result,null,2))
 await writeFile(`${folder}/batches.json`,JSON.stringify(batches,null,2))
 console.log(JSON.stringify(result.summary,null,2))

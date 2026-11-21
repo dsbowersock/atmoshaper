@@ -27,6 +27,42 @@ export function readGitDiffPaths(base, head, cwd = process.cwd()) {
   return readGit(["diff", "--name-only", "--no-renames", base, head], { cwd }).trim().split("\n").filter(Boolean)
 }
 
+/** Validate identities before using a ledger's log path or Git revision. The
+ * server's raw completion and independently read Git facts are checked below. */
+export function assertCliReceiptIdentity(record, source) {
+  if (record?.source !== source || !/^runs\/[a-z0-9-]+\.ndjson$/.test(record?.log)
+    || ![record?.base, record?.head].every(value => /^[a-f0-9]{40}$/.test(value))
+    || !Array.isArray(record?.files) || record.files.length === 0
+    || record.files.some(file => typeof file !== "string") || new Set(record.files).size !== record.files.length) {
+    throw new Error("Invalid retrospective receipt identity")
+  }
+}
+
+/** A selected-file table or local success flag is insufficient. Admit only one
+ * actual completed outcome, matching issue count, clean attempt result, exact
+ * reviewed/Git path sets and the whole frozen source tree. Git facts must come
+ * from independent required reads, never from fields asserted by the ledger. */
+export function validateCompletedCliReceipt(record, meta, events, { source, paths, headTree, sourceTree }) {
+  assertCliReceiptIdentity(record, source)
+  const complete = events.filter(event => event.type === "complete")
+  const issues = events.filter(event => event.type === "finding")
+  if (meta?.state !== "returned" || meta.exitCode !== 0 || meta.creditsEnabled !== false
+    || meta.base !== record.base || meta.head !== record.head || meta.source !== source
+    || meta.expectedFiles !== record.files.length || events.some(event => event.type === "error")
+    || complete.length !== 1 || complete[0].status !== "review_completed"
+    || complete[0].outcome !== "completed" || complete[0].findings !== issues.length) {
+    throw new Error("Retrospective review did not complete")
+  }
+  const expected = [...record.files].sort(), actual = complete[0].reviewedFiles
+  if (!Array.isArray(actual) || new Set(actual).size !== actual.length
+    || JSON.stringify([...actual].sort()) !== JSON.stringify(expected)
+    || !Array.isArray(paths) || JSON.stringify([...paths].sort()) !== JSON.stringify(expected)
+    || !/^[a-f0-9]{40}$/.test(headTree) || headTree !== sourceTree) {
+    throw new Error("Retrospective review scope mismatch")
+  }
+  return { kind: "cli", base: record.base, head: record.head, at: meta.returnedAt, paths: record.files, selected: actual.length, parsed: actual.length }
+}
+
 /** Follow reviewed content transitions from the inherited pre-change baseline.
  * A later label-only range cannot certify an earlier unreviewed routine in its
  * base. Null represents an absent/new file. Order and review timestamps do not
