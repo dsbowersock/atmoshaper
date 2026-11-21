@@ -1,5 +1,12 @@
 # CodeRabbit coverage inventory
 
+Current result: the actual fixed 60-path backfill completes and its verified
+raw receipt closes all remaining public range gaps. All 703 changed code/test
+histories at `d7e30e0` have complete evidence, with zero unproven. Its 64 issues
+and dispositions are in the [backfill register](2026-11-21-coderabbit-range-backfill-results.md).
+The final review of subsequent local corrections is separate. Older 643/60 and
+537/166 counts below are preserved checkpoint history.
+
 The original blob-match inventory below is historical. The correction review
 demonstrated that an incremental review can leave earlier code unproven even
 when its head blob matches. The strict replacement reads every required Git

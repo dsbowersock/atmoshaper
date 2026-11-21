@@ -244,9 +244,11 @@ async function listPortalConfigurations(stripe) {
       limit: 100,
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     })
-    if (!Array.isArray(page?.data)) throw new Error("Invalid Portal configuration page")
+    if (!Array.isArray(page?.data) || typeof page?.has_more !== "boolean") {
+      throw new Error("Invalid Portal configuration page")
+    }
     configurations.push(...page.data)
-    if (page.has_more !== true) return configurations
+    if (page.has_more === false) return configurations
     const nextCursor = page.data.at(-1)?.id
     if (!nextCursor || nextCursor === startingAfter) {
       throw new Error("Portal configuration pagination did not advance")

@@ -23,7 +23,7 @@ function fixture({signedIn=true,rows=[],visits=[],fail}={}) {
     "@/lib/prisma":{prisma:{
       clientWellnessEntry:{findMany:async(args)=>query("records",rows,args)},
       appointment:{findMany:async(args)=>query("appointments",visits,args)},
-      clientWellnessPreference:{findUnique:async(args)=>query("preference",{settings:{reminderSchedules:[{id:"fictional-rule",kind:"check_in",cadence:"daily",timeOfDay:"09:00",enabled:true}],privateUnknown:"drop"}},args)},
+      clientWellnessPreference:{findUnique:async(args)=>query("preference",{settings:{reminderSchedules:[{id:"fictional-rule",kind:"check_in",cadence:"daily",timeOfDay:"09:00",enabled:true,privateUnknown:"drop"}],privateUnknown:"drop"}},args)},
     }},
     "@/lib/client-wellness":{normalizeClientWellnessEntryInput},
     "@/lib/client-wellness-reminders":{normalizeClientWellnessReminderSchedules},
@@ -49,7 +49,7 @@ describe("Private personal calendar",()=>{
   })
   it("keeps local midnight and DST bounds instead of assuming 24-hour days",()=>{
     const moduleUrl=new URL("../lib/wellness-calendar-view.js",import.meta.url).href
-    const code=`import assert from 'node:assert/strict'; import {calendarMonth,personalItemOnDay,personalReminderOccurrences} from ${JSON.stringify(moduleUrl)}; const month=calendarMonth('2026-11-20'); assert.equal(month.start,'2026-11-01T04:00:00.000Z'); assert.equal(month.end,'2026-12-01T05:00:00.000Z'); assert.equal(personalItemOnDay({at:'2026-11-21T04:30:00Z'},'2026-11-20'),true); assert.equal(personalItemOnDay({at:'2026-11-21T04:30:00Z'},'2026-11-21'),false); const rows=personalReminderOccurrences([{id:'daily',kind:'check_in',cadence:'daily',timeOfDay:'09:00',enabled:true}],month.start,month.end); assert.equal(rows.length,30); assert.equal(rows[0].at,'2026-11-01T14:00:00.000Z');`
+    const code=`import assert from 'node:assert/strict'; import {calendarMonth,personalItemOnDay,personalReminderOccurrences} from ${JSON.stringify(moduleUrl)}; const month=calendarMonth('2026-11-20'); assert.equal(month.start,'2026-11-01T04:00:00.000Z'); assert.equal(month.end,'2026-12-01T05:00:00.000Z'); assert.equal(personalItemOnDay({at:'2026-11-21T04:30:00Z'},'2026-11-20'),true); assert.equal(personalItemOnDay({at:'2026-11-21T04:30:00Z'},'2026-11-21'),false); const rows=personalReminderOccurrences([{id:'daily',kind:'check_in',cadence:'daily',timeOfDay:'09:00',enabled:true}],month.start,month.end); assert.equal(rows.length,30); assert.equal(rows[0].at,'2026-11-01T14:00:00.000Z'); assert.equal(rows[1].at,'2026-11-02T14:00:00.000Z');`
     const result=spawnSync(process.execPath,["--input-type=module","-e",code],{env:{...process.env,TZ:"America/New_York"},encoding:"utf8"})
     assert.equal(result.status,0,result.stderr)
   })
@@ -65,6 +65,23 @@ describe("Private personal calendar",()=>{
     assert.equal(reminders.filter((row)=>row.id.startsWith("reminder:weekly:")).length,5)
     assert.equal(reminders.some((row)=>row.id.includes(":off:")),false)
     assert.equal(new Set(reminders.map((row)=>row.id)).size,reminders.length)
+  })
+  it("includes a reminder on the final partial local day",()=>{
+    const start=new Date(2026,10,23,15),end=new Date(2026,10,24,12)
+    const rows=personalReminderOccurrences([{id:"daily",kind:"check_in",cadence:"daily",timeOfDay:"09:00",enabled:true}],start.toISOString(),end.toISOString())
+    assert.deepEqual(rows.map((row)=>row.at),[new Date(2026,10,24,9).toISOString()])
+  })
+  it("does not carry a skipped month-start midnight into the next month",()=>{
+    const moduleUrl=new URL("../lib/wellness-calendar-view.js",import.meta.url).href
+    const code=`import assert from 'node:assert/strict'; import {calendarMonth,localDayKey} from ${JSON.stringify(moduleUrl)}; const month=calendarMonth('2023-10-15'); const end=new Date(month.end); assert.equal(localDayKey(end),'2023-11-01'); assert.equal(end.getHours(),0);`
+    const result=spawnSync(process.execPath,["--input-type=module","-e",code],{env:{...process.env,TZ:"America/Asuncion"},encoding:"utf8"})
+    assert.equal(result.status,0,result.stderr)
+  })
+  it("a midnight clock change cannot put a point on two local days",()=>{
+    const moduleUrl=new URL("../lib/wellness-calendar-view.js",import.meta.url).href
+    const code=`import assert from 'node:assert/strict'; import {personalItemOnDay} from ${JSON.stringify(moduleUrl)}; const item={at:new Date(2026,2,9,0,30).toISOString()}; assert.equal(personalItemOnDay(item,'2026-03-08'),false); assert.equal(personalItemOnDay(item,'2026-03-09'),true);`
+    const result=spawnSync(process.execPath,["--input-type=module","-e",code],{env:{...process.env,TZ:"America/Havana"},encoding:"utf8"})
+    assert.equal(result.status,0,result.stderr)
   })
   it("rejects unauthenticated and unbounded requests before every read",async()=>{
     const anon=fixture({signedIn:false}); assert.equal((await anon.read()).reason,"sign-in-required"); assert.equal(anon.calls.length,0)

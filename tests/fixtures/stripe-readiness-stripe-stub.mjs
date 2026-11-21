@@ -317,7 +317,10 @@ export default class StripeReadinessStub {
             ?? "personal"
           return {
             data: [livemode ? supporterPortal(liveDefaultSupporterUse) : defaultPortal()],
-            has_more: false,
+            has_more: process.env.STRIPE_READINESS_STUB_INVALID_PORTAL_PAGINATION === "missing"
+              ? undefined
+              : process.env.STRIPE_READINESS_STUB_INVALID_PORTAL_PAGINATION === "string"
+                ? "false" : false,
           }
         },
         retrieve: async (configurationId, params) => {

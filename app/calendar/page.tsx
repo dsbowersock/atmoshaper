@@ -111,7 +111,7 @@ export default async function CalendarPage({
     return <CalendarShell><CalendarUnavailableNotice /></CalendarShell>
   }
   const practice = membership.practice
-  const workspaceData = await loadCalendarWorkspaceData(practice.id, session.user.id).catch(() => null)
+  const workspaceData = await loadCalendarWorkspaceData(practice.id, session.user.id, requestedDate).catch(() => null)
   if (!workspaceData) {
     if (initialScope !== "practice") return personalFallback(true)
     return (
@@ -174,9 +174,12 @@ export default async function CalendarPage({
  * hit cannot guarantee later queries succeed; callers must not present missing
  * events, availability or external busy windows as an empty, bookable calendar.
  */
-async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
-  const windowStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-  const windowEnd = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
+async function loadCalendarWorkspaceData(practiceId: string, userId: string, requestedDate?: string) {
+  // A validated deep link or practice switch can display a distant day. Read
+  // around that day so missing out-of-window data never looks like free time.
+  const anchor = requestedDate ? new Date(`${requestedDate}T12:00:00`) : new Date()
+  const windowStart = new Date(anchor.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const windowEnd = new Date(anchor.getTime() + 180 * 24 * 60 * 60 * 1000)
   const [events, therapists, preferenceRow, availabilityRules, scheduleIntervals] = await Promise.all([
     prisma.calendarEvent.findMany({
       where: {

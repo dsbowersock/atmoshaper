@@ -137,6 +137,18 @@ test("a successful genuinely empty calendar still renders with normalized prefer
   assert.equal(input.calls.some((call) => call.name === "busy"), false)
 })
 
+test("a requested distant day bounds both practice events and external busy reads", async () => {
+  const input = fixture(), day = new Date("2030-02-12T12:00:00")
+  const result = await input.run({ date: "2030-02-12" })
+  assert.equal(result.workspace.initialDate, "2030-02-12")
+  for (const name of ["events", "busy"]) {
+    const query = input.calls.find((call) => call.name === name).args.where
+    assert.ok(query.startsAt.lt > day, `${name} must include the displayed day`)
+    assert.ok(query.endsAt.gt <= day, `${name} must begin before the displayed day`)
+    assert.ok(query.startsAt.lt - query.endsAt.gt <= 211 * 86400000, "the read remains bounded")
+  }
+})
+
 test("successful reads preserve event mapping, provider availability and generic external busy privacy", async () => {
   const input = fixture({
     events: [{ id: "invented-event", kind: "APPOINTMENT", title: "Invented appointment", status: "CONFIRMED", ownerUserId: userId, startsAt: "2026-10-25T13:00:00.000Z", endsAt: "2026-10-25T14:00:00.000Z", blocksAvailability: true }],

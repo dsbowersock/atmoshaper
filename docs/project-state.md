@@ -1,5 +1,32 @@
 # AtmoShaper Project State
 
+## November 21 historical review coverage closed; final correction review pending
+
+All seven remote requests so far complete: five initial cohorts, the 37-path
+correction review and the fixed 60-path wider-range backfill. The backfill
+raises 64 observations (25 major, 31 minor, eight trivial), with no omitted
+manifest path. The strict audit now proves all 703 changed code/test histories
+at public `d7e30e0`; zero remain unproven. Untouched inherited code remains a
+separate baseline. Earlier 643/60 status below is superseded.
+
+Seven further supported current-beta behavior problems are corrected locally:
+requested-date practice reads, local month/day/reminder boundaries, cached
+membership Checkout state, complete Portal catalog evidence and explicit Portal
+pagination. Four existing tests are strengthened and a late legacy Session
+regression confirms expiration before replacement. Every backfill observation
+has an explicit disposition in the [backfill register](audits/2026-11-21-coderabbit-range-backfill-results.md).
+Dormant migration/cleanup tools and test-quality suggestions remain finite
+follow-ups with use gates; they are not claimed fixed or all refuted.
+
+The earlier app checkpoint has its inert build and 16 native phone/desktop
+scenarios. The new Calendar layer checks pass 116/116, Stripe checks 161/161,
+route/security checks 207/207, anatomy delivery 12/12 and build gates 20/20.
+The latest inert application build, full lint/TypeScript and three audit-proof
+regressions also pass. The final correction-delta review remains pending.
+This is the last review request under the finite range-proof plan; no automatic
+new loop is enabled. Everything remains local, with publication and NAS
+activation requiring their separate gates.
+
 ## November 21 correction review complete; range backfill prepared
 
 The actual 37-file correction review at `9712b16` completes with four major

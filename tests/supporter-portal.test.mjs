@@ -43,6 +43,10 @@ describe("Supporter Portal configuration selection", () => {
       supporterUse: "personal",
       configurationId: "bpc_personal",
     })
+    assert.deepEqual(resolveSupporterPortalForPrice("price_business_month", env), {
+      supporterUse: "business",
+      configurationId: "bpc_business",
+    })
     assert.deepEqual(resolveSupporterPortalForPrice("price_legacy", env), {
       supporterUse: null,
       configurationId: null,

@@ -45,6 +45,14 @@ service response. Never push or deploy review-only refs.
 
 ## Two remaining requests, then stop this campaign
 
+Update: request 1 completed with all 60 paths and 64 observations. The strict
+audit now proves all 703 public changed histories. The complete backfill
+disposition register separates seven additional current-beta corrections,
+four strengthened tests, refutations and finite follow-ups. Request 2 is the
+only remaining review; its baseline stays `9712b16`. Application source now
+also contains those supported backfill corrections; the earlier unchanged-
+application checkpoint paragraph at the end is historical.
+
 1. Run this one fixed range-backfill request using reopened included allowance.
    Preserve its raw receipt. Deduplicate observations against the already
    corrected application candidate; do not patch the old public snapshot.

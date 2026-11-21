@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 21 fixed range backfill completes and current-beta issues are triaged
+
+Admit the actual 60-file completed receipt after exact path/tree/outcome checks.
+All 703 changed post-bootstrap code/test histories now have complete range
+proof; zero gaps remain. Preserve the older 643/60 and blob-only inventories as
+history rather than rewriting their original receipts. CodeRabbit raises 64
+observations, each recorded in the [bounded backfill register](audits/2026-11-21-coderabbit-range-backfill-results.md).
+
+Reproduce and correct four Calendar boundary/date bugs and three Checkout/
+readiness safeguards. Strengthen four small existing tests and add the actual
+late-legacy-Session ordering regression. Current synthetic checks pass: Calendar
+116, Stripe 161, route/security 207, anatomy delivery 12 and Production build
+gates 20. The final inert build, full lint/TypeScript and three proof checks
+also pass. One correction-delta review remains; no
+further automatic review cycle is permitted. Older migration/cleanup and test
+suggestions have explicit deferred/conditional dispositions and use gates.
+No deployment, provider, database, NAS, payment or email operation occurs.
+
 ## November 21 correction receipt exposes incomplete range proof
 
 The 37-file follow-up at `9712b16` completes with four major observations.

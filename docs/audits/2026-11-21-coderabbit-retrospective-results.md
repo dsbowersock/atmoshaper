@@ -1,5 +1,12 @@
 # Bounded retrospective CodeRabbit results
 
+Current handoff: the fixed wider review has now completed with all 60 paths.
+Strict evidence covers all 703 changed post-bootstrap code/test histories at
+the public tree, with zero remaining gaps. Its 64 observations and subsequent
+local corrections are recorded in the [backfill register](2026-11-21-coderabbit-range-backfill-results.md).
+The final correction-delta review remains separate. Historical pending language
+below describes the checkpoints at which these original receipts were written.
+
 Status: all five initial passes complete, with their 166 frozen selected paths
 verified once each. CodeRabbit raised 46 issues (28 major, 18 minor), triaged
 below. The 37-file correction review at `9712b16` then raises four major issues:

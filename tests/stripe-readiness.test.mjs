@@ -934,6 +934,18 @@ describe("Stripe readiness background-commerce contract", () => {
     assert.match(result.stdout, /Stripe API retrieval performed: false/)
   })
 
+  it("rejects Portal inventories without an explicit boolean end marker", () => {
+    for (const malformed of ["missing", "string"]) {
+      const result = runReadinessWithStripeStub(
+        liveV2OnlyOverrides({ STRIPE_READINESS_STUB_INVALID_PORTAL_PAGINATION: malformed }),
+        ["--live", "--verify-stripe"],
+      )
+      assert.equal(result.status, 1, result.stderr || result.stdout)
+      assert.match(`${result.stdout}${result.stderr}`, /Portal|portal/)
+      assert.doesNotMatch(result.stdout, /Live default personal Portal topology verified: true/)
+    }
+  })
+
   it("verifies the dedicated live v2 topology without retained v1 mappings", () => {
     const result = runReadinessWithStripeStub(
       liveV2OnlyOverrides(),
@@ -1290,6 +1302,30 @@ describe("Stripe readiness background-commerce contract", () => {
       }, ["--verify-stripe"])
       assert.equal(result.status, 1, drift)
       assert.match(result.stderr, failure, drift)
+    }
+  })
+
+  it("requires six distinct usable Prices and three Products before accepting omitted Portal catalogs", () => {
+    const configuration = supporterPortalConfiguration()
+    delete configuration.features.subscription_update.products
+    const validate = (prices) => validateRetrievedSupporterPortalConfiguration(configuration, {
+      configurationId: "bpc_personal",
+      supporterUse: "personal",
+      retrievedMembershipPrices: prices,
+      livemode: false,
+      defaultConfiguration: defaultPortalConfiguration(),
+      managedPortalCatalogConfirmation: MANAGED_SUPPORTER_PORTAL_CATALOG_CONFIRMATION,
+    })
+    assert.deepEqual(validate(retrievedMembershipPricesForUse("personal")), [])
+    for (const mutate of [
+      (prices) => { delete prices[0].price.id },
+      (prices) => { prices[0].price.id = "" },
+      (prices) => { prices[0].price.id = prices[1].price.id },
+      (prices) => { prices[2].price.product = prices[0].price.product; prices[3].price.product = prices[0].price.product },
+    ]) {
+      const prices = retrievedMembershipPricesForUse("personal")
+      mutate(prices)
+      assert.ok(validate(prices).some((failure) => failure.includes("allowlist")))
     }
   })
 
