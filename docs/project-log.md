@@ -1,5 +1,22 @@
 # AtmoShaper Project Log
 
+## November 21 sidebar and private Calendar public acceptance
+
+The actual CodeRabbit follow-up completes at `61a7c6a`: 15 correction paths,
+zero actionable issues. Completed receipts match all 35 current changed code/
+configuration/test blobs; Codex is clear and all seven source-head checks pass.
+PR #77 merges as `d7e30e0`, with exactly the reviewed tree. One staged Production
+build passes the read-only migration/payment gates and both Sentry uploads.
+Authenticated dashboard metadata matches the emitted script and map debug IDs.
+Actual synthetic launch and outline PDF downloads pass readback before promotion.
+One same-artifact promotion succeeds. All 23 public routes, phone/desktop Calendar
+boundaries and emitted asset bytes pass; 87 setting metadata entries and unrelated
+aliases remain unchanged. No rollback or live record/payment/provider-setting
+change occurs. All seven merged-source CI jobs and final source/settings/routing
+readback pass; the operation is verified and closed. The retrospective
+audit remains separate and still needs private CLI authentication. See the
+[receipt](audits/2026-11-21-sidebar-calendar-publication.md).
+
 ## November 21 final date continuity correction and review cooldown
 
 Codex's `70b354a` review identifies loss of the viewed date when changing practices.

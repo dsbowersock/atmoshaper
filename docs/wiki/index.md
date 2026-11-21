@@ -4,6 +4,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Published sidebar and private Calendar verification](../audits/2026-11-21-sidebar-calendar-publication.md)
 - [Sidebar and private Calendar publication](../superpowers/plans/2026-11-21-sidebar-calendar-publication.md)
 - [Local sidebar and private combined Calendar verification](../audits/2026-11-21-sidebar-calendar-workspace.md)
 - [Sidebar organization and private combined Calendar](../superpowers/plans/2026-11-20-sidebar-calendar-workspace.md)

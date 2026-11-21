@@ -1,5 +1,28 @@
 # AtmoShaper Project State
 
+## November 21 sidebar and private Calendar published
+
+[PR #77](https://github.com/dsbowersock/atmoshaper/pull/77) is public as
+`d7e30e022d825d9f26ed37bd6636f11bae1e8314`, with the exact reviewed `61a7c6a`
+tree. The reorganized sidebar and Personal/Practice/Together Calendar are live;
+Together combines the owner's private layer with one selected authorized practice.
+Both Codex and actual CodeRabbit reviews complete, all supported issues are
+addressed, all seven reviewed-source checks succeed and all six threads resolve.
+The 15-file CodeRabbit correction follow-up reports no actionable issues;
+all 35 current changed code/configuration/test blobs have completed coverage.
+Staged migration/payment gates, both Sentry uploads and dashboard script/map
+pairing pass. Actual staged launch/outline PDFs preserve synthetic answers,
+Unicode and notices. All 23 public routes, phone/desktop sidebar/Calendar checks
+and same-artifact asset bytes pass, with settings/unrelated mappings unchanged.
+The prior compatible release remains READY; no rollback is used. All seven
+merged-source checks and final source/settings/routing readback pass; the
+publication operation is verified and closed. See the
+[publication receipt](audits/2026-11-21-sidebar-calendar-publication.md).
+
+The owner's bounded retrospective CodeRabbit campaign remains isolated on
+`codex/coderabbit-coverage-audit`, awaiting private CLI reauthentication. Old
+PRs stay closed; this publication does not claim that older coverage is complete.
+
 ## November 21 sidebar/Calendar publication in preparation
 
 The initial explicit CLI review covers all 40 paths at `03675e4`; its four
