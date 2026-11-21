@@ -66,3 +66,13 @@ split-view browser regressions, then obtain one CodeRabbit follow-up on this
 correction delta and fresh exact-head hosted checks/review before merge. The
 larger coverage inventory is isolated on `codex/coderabbit-coverage-audit`; old
 PRs remain closed and no broad automatic rewrite loop is authorized.
+
+
+The first hosted correction run also identifies intentional sidebar screenshot
+changes and a planner test that edits before draft hydration. Refresh only the
+four affected Linux references after verifying that every changed pixel stays
+inside the sidebar; use the form's existing readiness message before its autosave
+edit. These are test-only corrections. The six affected phone/desktop journeys
+pass against the exact inert CI runtime without snapshot updates. Include these
+corrections in the bounded final follow-up and fresh hosted checks; never waive
+a failed CI gate or count a reauthentication error as a completed review.

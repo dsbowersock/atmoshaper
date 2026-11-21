@@ -1,5 +1,18 @@
 # AtmoShaper Project Log
 
+## November 21 publication browser gates corrected
+
+Hosted browser CI identifies two expected sidebar screenshot differences and a
+planner save assertion that acts on a server-rendered input before device-draft
+hydration. Regenerate four Linux reference images from the exact inert CI build;
+all changed pixels stay inside the approved sidebar, with page geometry and all
+other pixels unchanged. The planner test now waits for its real saved-draft
+readiness signal before editing. All six focused Linux phone/desktop journeys
+pass without updating reference images. Application runtime code is unchanged.
+Fresh hosted CI/review and the actual CodeRabbit correction follow-up remain
+required before merge; the review service still requires private reauthentication.
+No source merge, Production build or public promotion occurs.
+
 ## November 21 sidebar/Calendar release preparation
 
 PR #77 is open at initial `03675e4`. Codex identifies date resets on split/source

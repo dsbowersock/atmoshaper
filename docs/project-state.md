@@ -6,8 +6,15 @@ The initial PR #77 review finds two Calendar display issues. An explicit
 CodeRabbit CLI pass covers all 40 changed files at `03675e4`, repeats those two
 issues and adds stale-practice personal fallback and test-server cleanup issues.
 Focused corrections pass 98 ownership/navigation/controller checks and actual
-phone/desktop/no-practice/split-source journeys. The corrected head still needs
-fresh hosted checks/review and the bounded CodeRabbit follow-up before merge.
+phone/desktop/no-practice/split-source journeys. Hosted CI exposes two stale
+sidebar screenshot baselines and a planner autosave check acting before draft
+hydration. Four Linux baselines are regenerated; every changed pixel is confined
+to the approved sidebar. The save check waits for the real readiness signal.
+All six affected Linux phone/desktop journeys pass without snapshot updates.
+The corrected head still needs fresh hosted checks/review and the bounded
+CodeRabbit follow-up before merge. Its saved login is reported authenticated,
+but the review service requires fresh private reauthentication; expired URLs
+cannot be reused.
 The owner also requests a separate, bounded retrospective CodeRabbit coverage
 audit, isolated on `codex/coderabbit-coverage-audit`; that work does not reopen
 old PRs or authorize an automatic app-wide rewrite.

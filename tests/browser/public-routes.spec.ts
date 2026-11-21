@@ -1213,6 +1213,9 @@ test("Business Planner outline reuses saved facts without overwriting narrative 
   }
   // Edit the actual source tool, then revisit: facts refresh while notes persist.
   await page.goto("/tools/business-planner/service-menu", { waitUntil: "domcontentloaded" })
+  // The server-rendered input is visible before the device draft has hydrated.
+  // Wait for the form's real readiness signal before exercising autosave.
+  await expect(page.getByText("Saved on this device", { exact: true })).toBeVisible()
   await page.getByLabel("Price", { exact: true }).first().fill("123")
   await page.waitForFunction(() => JSON.parse(localStorage.getItem("massagelab-business-planner-service-menu-v1") ?? "{}").services?.[0]?.price === 123)
   await page.goto("/tools/business-planner/plan-outline", { waitUntil: "domcontentloaded" })
