@@ -169,7 +169,7 @@ export function CalendarWorkspace({
   const requestedPracticeRange = useRef("")
   const dateIntent = useRef(0)
   const scopeIntent = useRef(0)
-  const requestedRouteIntents = useRef(new Map<string, { date: number; scope: number }>())
+  const pendingRouteIntent = useRef<{ key: string; date: number; scope: number } | null>(null)
   const routeNavigationPending = useRef(false)
   // All navigation paths report their complete visible range through datesSet.
   // Never display a bookable practice grid outside the server-read snapshot.
@@ -321,8 +321,8 @@ export function CalendarWorkspace({
   useEffect(() => {
     routeNavigationPending.current = false
     const requestKey = `${initialScope}:${initialDate ?? ""}`
-    const requestedIntent = requestedRouteIntents.current.get(requestKey)
-    requestedRouteIntents.current.delete(requestKey)
+    const requestedIntent = pendingRouteIntent.current?.key === requestKey ? pendingRouteIntent.current : null
+    pendingRouteIntent.current = null
     // Explicit route changes still select their source; an automatic response
     // must retain any newer local source choice, just as it retains its date.
     if (!requestedIntent || requestedIntent.scope === scopeIntent.current) setScope(hasPractice ? initialScope : "personal")
@@ -357,7 +357,9 @@ export function CalendarWorkspace({
     requestedPracticeRange.current = requestKey
     const date = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
     const query = new URLSearchParams({ practice: selectedPracticeId, view: scope, date })
-    requestedRouteIntents.current.set(`${scope}:${date}`, { date: dateIntent.current, scope: scopeIntent.current })
+    // Next replaces the previous navigation transition. Retain only its active
+    // owner so an abandoned request cannot intercept a later explicit route.
+    pendingRouteIntent.current = { key: `${scope}:${date}`, date: dateIntent.current, scope: scopeIntent.current }
     router.replace(`/calendar?${query}`, { scroll: false })
   }, [practiceRangePending, selectedDate, selectedPracticeId, scope, router, visibleWindow.start, visibleWindow.end])
 

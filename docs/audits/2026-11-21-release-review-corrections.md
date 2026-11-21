@@ -54,6 +54,14 @@ the native fixture uses that same helper and changes both returned route props.
 The browser regression now exercises Practice and Together delayed replies,
 newer Personal selection, and a later explicit external route change.
 
+The next complete CodeRabbit review covers all 13 paths in `60bdc9e..7da07ef`
+and raises one minor supported lifetime issue (4655155872). A superseded
+automatic request's retained history can intercept a later explicit route to
+the same day. The native regression reproduces October remaining displayed
+after a deliberate return to November. Track only the active Next navigation
+intent, replacing its predecessor when a newer request starts and consuming it
+when route props arrive. Existing delayed date/source sequences still pass.
+
 All 165 Stripe, 120 Calendar layer, five feelings lifecycle and native phone/desktop
 Calendar checks pass. Current-source hosted CI, Codex and CodeRabbit review
 remain publication gates. Use the next included review slot without paid

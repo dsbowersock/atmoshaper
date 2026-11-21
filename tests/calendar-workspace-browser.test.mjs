@@ -131,6 +131,21 @@ test("real calendar phone and desktop source selection stays private and contain
     await expect(bounded.getByRole('button',{name:'Together',exact:true})).toHaveAttribute('aria-pressed','true')
     await expect(bounded.getByRole('button',{name:'Date March 2030',exact:true})).toBeVisible()
     assert.equal((await bounded.evaluate(()=>window.__calendarNavigation)).length, 1, 'explicit route must not request the superseded visible range')
+    // Next replaces the active transition when another automatic request is
+    // issued. An abandoned request must not consume a later explicit route.
+    await bounded.goto(`${server.origin}/?bounded`)
+    await bounded.getByRole('button',{name:'Today',exact:true}).click()
+    await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+    await bounded.getByRole('button',{name:'Previous range',exact:true}).click()
+    await expect.poll(()=>bounded.evaluate(()=>window.__calendarNavigation.length)).toBe(2)
+    const replacement=await bounded.evaluate(()=>window.__calendarNavigation[1])
+    const replacementQuery=new URL(replacement,server.origin).searchParams
+    await bounded.evaluate(({day,scope})=>window.__loadPracticeDate(day,scope),{day:replacementQuery.get('date'),scope:replacementQuery.get('view')})
+    await expect(bounded.getByRole('button',{name:'Date October 2026',exact:true})).toBeVisible()
+    await expect(bounded.locator('.fc')).toBeVisible()
+    await bounded.evaluate(()=>window.__loadPracticeDate('2026-11-20','practice'))
+    await expect(bounded.getByRole('button',{name:'Date November 2026',exact:true})).toBeVisible()
+    assert.equal((await bounded.evaluate(()=>window.__calendarNavigation)).length, 2)
     await bounded.goto(`${server.origin}/?bounded&monthEnd`)
     await expect(bounded.getByText('January 2027',{exact:true})).toBeVisible()
     await expect(bounded.locator('.fc')).toBeVisible()

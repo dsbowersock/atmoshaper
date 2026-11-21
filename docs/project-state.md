@@ -1,5 +1,16 @@
 # AtmoShaper Project State
 
+## November 21 abandoned Calendar request amendment
+
+CodeRabbit's complete 13-path review at `7da07ef` raises one minor supported
+request-lifetime issue. A superseded request can intercept a later explicit
+route to its date. The native regression reproduces the wrong-month result;
+retain only the active Next navigation's intent instead of request history.
+All 120 Calendar layer checks, native phone/desktop acceptance, focused lint
+and TypeScript pass. Earlier current-head CI and Codex passed at `7da07ef`;
+this small amendment requires fresh reviews/CI before publication. The source
+is still local and public traffic remains on `d7e30e0`.
+
 ## November 21 Calendar source-transition amendment
 
 Codex at `99a4da6` finds that the page's source-view key can remount away date

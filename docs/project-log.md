@@ -1,5 +1,17 @@
 # AtmoShaper Project Log
 
+## November 21 abandoned Calendar request lifetime
+
+The included CodeRabbit follow-up completes its full 13-path correction range
+at `7da07ef` and finds one minor supported stale-intent issue (4655155872).
+Reproduce Today → Previous with the first response abandoned, commit only the
+latest response, then explicitly return to Today. The old request history
+incorrectly leaves October displayed. Replace that history with one active
+Next-transition owner; retain existing date/source guards for its response.
+The new regression and all existing native sequences pass, as do 120 Calendar
+layer cases, focused lint and TypeScript. Fresh current-source review/CI gates
+remain; no merge, public traffic or provider setting changes yet.
+
 ## November 21 Calendar source-transition follow-up
 
 Codex review at `99a4da6` identifies a source-view remount that discards the
