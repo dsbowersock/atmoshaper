@@ -4,6 +4,11 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Sidebar and private Calendar publication](../superpowers/plans/2026-11-21-sidebar-calendar-publication.md)
+- [Local sidebar and private combined Calendar verification](../audits/2026-11-21-sidebar-calendar-workspace.md)
+- [Sidebar organization and private combined Calendar](../superpowers/plans/2026-11-20-sidebar-calendar-workspace.md)
+- [Individual accounts and multiple practice/group workspaces](../superpowers/specs/2026-11-20-individual-accounts-practice-workspaces.md)
+- [Published planner reports and light blue Body verification](../audits/2026-11-20-planner-beta-publication.md)
 - [Remaining planner and light blue Body publication](../superpowers/plans/2026-11-20-planner-beta-publication.md)
 - [Checklist answers, shared planner information and PDF reports](../superpowers/plans/2026-11-20-planner-reports-reuse.md)
 - [Income expenses, benefits and realistic time](../superpowers/plans/2026-11-19-income-expenses-benefits.md)

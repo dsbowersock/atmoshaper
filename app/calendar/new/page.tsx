@@ -55,13 +55,17 @@ const flowCards = [
 export default async function NewCalendarItemPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ startsAt?: string }>
+  searchParams?: Promise<{ startsAt?: string; practice?: string }>
 }) {
   const session = await getCurrentSession()
-  const startsAt = (await searchParams)?.startsAt ?? ""
+  const params = await searchParams
+  const startsAt = params?.startsAt ?? ""
 
   function withStartsAt(href: string) {
-    return startsAt ? `${href}?startsAt=${encodeURIComponent(startsAt)}` : href
+    const query = new URLSearchParams()
+    if (startsAt) query.set("startsAt", startsAt)
+    if (params?.practice) query.set("practice", params.practice)
+    return query.size ? `${href}?${query}` : href
   }
 
   if (!session?.user?.id) {
@@ -81,7 +85,8 @@ export default async function NewCalendarItemPage({
   }
 
   const membership = await prisma.practiceMembership.findFirst({
-    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST", "STAFF"] } },
+    // Workspace choice narrows this actor's eligible memberships.
+    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST", "STAFF"] }, ...(params?.practice ? { practiceId: params.practice } : {}) },
     include: { practice: true },
     orderBy: { createdAt: "asc" },
   })
@@ -95,7 +100,7 @@ export default async function NewCalendarItemPage({
   }
 
   return (
-    <CalendarCreateShell>
+    <CalendarCreateShell practiceId={membership.practiceId}>
       <AppSurface
         title={membership.practice.name}
         description={
@@ -129,12 +134,12 @@ export default async function NewCalendarItemPage({
   )
 }
 
-function CalendarCreateShell({ children }: { children: React.ReactNode }) {
+function CalendarCreateShell({ children, practiceId }: { children: React.ReactNode; practiceId?: string }) {
   return (
     <CalendarOperatorShell width="standard">
       <div className="flex justify-end">
         <Button asChild variant="outline">
-          <Link href="/calendar">Back to calendar</Link>
+          <Link href={practiceId ? `/calendar?practice=${encodeURIComponent(practiceId)}` : "/calendar"}>Back to calendar</Link>
         </Button>
       </div>
       {children}

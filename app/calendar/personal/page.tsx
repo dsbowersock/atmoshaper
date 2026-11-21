@@ -1,8 +1,10 @@
 import { getCurrentRscSession } from "@/lib/rsc-session"
 import { PersonalCalendarHome } from "@/components/wellness/personal-calendar-home"
+import CalendarPage from "../page"
 
 /** A private user view, independent of practice membership and scheduling roles. */
-export default async function PersonalCalendarPage({ searchParams }: { searchParams?: Promise<{date?:string}> }) {
+export default async function PersonalCalendarPage({ searchParams }: { searchParams?: Promise<{date?:string; practice?:string; view?:string}> }) {
   const [session,params] = await Promise.all([getCurrentRscSession(),searchParams])
-  return <PersonalCalendarHome key={session?.user?.id ?? "anonymous"} isSignedIn={Boolean(session?.user?.id)} initialDay={params?.date} />
+  if (!session?.user?.id) return <PersonalCalendarHome key="anonymous" isSignedIn={false} />
+  return <CalendarPage key={session.user.id} searchParams={Promise.resolve({ ...params, view: params?.view === "together" ? "together" : "personal" })} />
 }

@@ -1,5 +1,82 @@
 # AtmoShaper Project State
 
+## November 21 sidebar/Calendar publication in preparation
+
+The initial explicit CLI review covers all 40 paths at `03675e4`; its four
+supported corrections pass the ownership/controller checks and actual browser
+journeys. The GitHub app subsequently completes a substantive 40-file review at
+`610c1ff`, with a clear independent Codex review. CodeRabbit raises four additional
+issues: wrong selected-practice service catalog, ineffective day-bound controls,
+role-denied return context, and an overstated historical PDF acceptance gate.
+These are one reported focused correction batch, with no broad cleanup.
+
+Service list/new/edit pages and mutation return links now preserve the selected
+actor-authorized practice. Explicit unowned requests fail closed; the default
+oldest eligible membership remains only when no practice is requested. Personal/
+Together hour controls cannot save ineffective settings. Role-denied links keep
+context. All 112 focused checks, focused lint, TypeScript and actual phone/desktop
+Calendar journeys pass.
+The historical PDF receipt now records its missed staged check. An actual
+six-page synthetic PDF from deployed `0976d7d` is downloaded and read back with
+all 25 answers, Unicode and professional notices; six aliases confirm the source.
+The next staged build must pass its own real PDF download before promotion.
+
+Codex additionally identifies a viewed-date reset when switching practices.
+The selected local day now travels in that navigation query; the focused checks
+and actual phone/desktop month-switch regression pass. Fresh current-head CI and
+the correction review remain before merge. CodeRabbit's next included review is
+not available until about 07:27 UTC; the rejected request does not count as a
+review, and no paid capacity is enabled. The separate five-cohort retrospective audit is prepared
+on `codex/coderabbit-coverage-audit`; its CLI authentication is still pending.
+No old PR is reopened or automatic app-wide rewrite authorized.
+
+The owner authorizes publication of the locally verified sidebar and private
+Calendar work `db1790e`. Branch `codex/sidebar-calendar-publication` retains public
+`0976d7d` and its local receipt. One reviewed/protected candidate, all current-head
+checks, fresh settings/routing preflight and staged same-artifact verification
+precede public promotion. Personal/practice ownership and current subscriptions
+are preserved. No live result is claimed yet. See the
+[publication plan](superpowers/plans/2026-11-21-sidebar-calendar-publication.md).
+
+## November 21 sidebar and private combined Calendar verified locally
+
+Local branch `codex/sidebar-calendar-workspace` reorganizes the sidebar into
+Atmosphere, My Wellness, My Practice and Learn & Play. Clock & timer and Business
+Planner each have one launcher. My Calendar and Practice Calendar open the same
+workspace with Personal, Practice and Together sources. Together displays the
+owner's private items beside one selected authorized practice; existing multiple
+memberships remain selectable. Selected-practice creation and return paths are
+preserved. Personal data stays owner-bound, read-only and outside scheduling
+writes, availability/free-busy, preferences and external sync.
+
+All 97 focused checks, 84 sync/isolation checks, 45 scheduling/cancellation checks,
+the fictional-data phone/desktop Calendar journeys and both full-app sidebar
+journeys pass. Whole-repository and focused lint pass. The final inert Next build
+passes TypeScript and all 116 generated pages. The owner's individual-account,
+multiple-practice and potential practice-fee note is recorded; billing design
+remains unresolved and no subscription or membership is changed. This candidate
+is not published; no live service or data operation occurs. See the
+[local verification receipt](audits/2026-11-21-sidebar-calendar-workspace.md).
+
+## November 20 remaining planners and light blue Body buttons published
+
+[PR #76](https://github.com/dsbowersock/atmoshaper/pull/76) is public as
+`0976d7d7ada270b9449be2c23a67bbe08e14f856`, with the same tree as reviewed
+`a4c23ef`. Guided planner tools, named expenses/reserves, checklist answers, local
+PDF reports and labelled cross-tool information reuse are published. All six
+Wellness Body launchers use the existing light blue Secondary material; other
+Wellness colors and features are preserved. Seven reviewed-source checks and
+hosted review pass, including 5,821 unit checks, 45 backup checks and 702 browser
+cases (two configured retries, then successful direct follow-up). All 32 focused
+desktop/phone checks pass. Production gates, Sentry pairing, all 18 public routes,
+same-artifact bytes, live phone containment and unchanged settings/mappings pass.
+All seven merged-source checks also pass after retrying only one runner's failed
+OS font installation. Three configured timing retries pass a six-case direct
+desktop/phone follow-up. Final source/configuration/routing readback passes, and
+the publication operation is verified and closed. See the
+[publication receipt](audits/2026-11-20-planner-beta-publication.md) for exact limits
+and draft recovery constraints. This local receipt causes no extra deployment.
+
 ## November 20 remaining planner publication in preparation
 
 The owner authorizes publishing the remaining planner work, including PDF reports

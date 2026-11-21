@@ -138,7 +138,7 @@ describe("calendar creation route wiring", () => {
 
     assert.match(workspace, /\/calendar\/new\?startsAt=/)
     assert.equal(workspace.includes("/calendar/new/appointment?startsAt="), false)
-    assert.match(creationMenu, /searchParams\?: Promise<\{ startsAt\?: string \}>/)
+    assert.match(creationMenu, /searchParams\?: Promise<\{ startsAt\?: string; practice\?: string \}>/)
     assert.match(creationMenu, /href=\{withStartsAt\(flow\.href\)\}/)
   })
 
@@ -164,7 +164,7 @@ describe("calendar creation route wiring", () => {
     assert.match(workspace, /\{toolbarControls\}/)
     assert.match(workspace, /CalendarDisplaySettings/)
     assert.match(workspace, /const hasMultipleProviders = providers\.length > 1/)
-    assert.match(workspace, /showProviderControls=\{hasMultipleProviders\}/)
+    assert.match(workspace, /showProviderControls=\{hasMultipleProviders && showPractice\}/)
     assert.match(workspace, /flex-wrap/)
     assert.doesNotMatch(workspace, /SheetTrigger/)
     assert.doesNotMatch(workspace, /SlidersHorizontal/)

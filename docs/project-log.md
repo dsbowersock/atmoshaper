@@ -1,5 +1,113 @@
 # AtmoShaper Project Log
 
+## November 21 final date continuity correction and review cooldown
+
+Codex's `70b354a` review identifies loss of the viewed date when changing practices.
+Retain the selected local calendar day in the new practice query, avoiding UTC
+serialization drift. The 112 focused cases and actual phone/desktop month-switch
+journey pass. This remains within the current Calendar behavior; no broad cleanup
+is included. The 14-file CodeRabbit follow-up is rejected before execution by its
+included OSS quota, with the next review available around 07:27 UTC. Keep the
+release unmerged and use the next included pass after the reset. The five
+retrospective cohorts separately await private CLI authentication.
+
+## November 21 substantive hosted second review and focused corrections
+
+An explicit command through the existing GitHub CodeRabbit app succeeds where
+the CLI needs reauthentication. It completes all 40 text paths at `610c1ff`,
+excluding only four independently verified PNG baselines, and raises one major
+and three minor issues beyond the initial CLI correction batch. Codex's current-
+head review is clear. The major issue opens the wrong eligible practice's service
+catalog; no unauthorized-membership access is demonstrated. List/new/edit routes
+and verified mutation redirects now retain the selected practice. Day-bound
+controls are disabled and write-guarded for full-day personal layers; role-denied
+creation links retain context. 112 focused cases, focused lint, TypeScript and actual phone/desktop Calendar
+journeys pass. Changes stay within one reported focused correction batch.
+
+The historical planner receipt is corrected to acknowledge the missed staged
+PDF download readback. An actual synthetic six-page report (23,049 bytes) from
+still-deployed `0976d7d` preserves every example answer, Unicode and professional
+notices. All six public aliases still identify that artifact. Only isolated local
+fictional drafts are used and no server writes occur. The upcoming staged build
+must pass the same actual-download check before promotion. Current-head hosted
+checks and correction review remain required; no merge or promotion occurs here.
+
+## November 21 publication browser gates corrected
+
+Hosted browser CI identifies two expected sidebar screenshot differences and a
+planner save assertion that acts on a server-rendered input before device-draft
+hydration. Regenerate four Linux reference images from the exact inert CI build;
+all changed pixels stay inside the approved sidebar, with page geometry and all
+other pixels unchanged. The planner test now waits for its real saved-draft
+readiness signal before editing. All six focused Linux phone/desktop journeys
+pass without updating reference images. Application runtime code is unchanged.
+Fresh hosted CI/review and the actual CodeRabbit correction follow-up remain
+required before merge; the review service still requires private reauthentication.
+No source merge, Production build or public promotion occurs.
+
+## November 21 sidebar/Calendar release preparation
+
+PR #77 is open at initial `03675e4`. Codex identifies date resets on split/source
+transitions and personal display values leaking into later full preference
+saves. Explicit CodeRabbit CLI review covers all 40 changed files and raises
+four issues: those two, stale-practice handling and browser-fixture cleanup.
+The correction retains the active date across remounts, uses the existing locked
+server patch merge, preserves the independent personal layer and always closes
+the isolated test server. All 98 focused tests and actual phone/desktop,
+no-practice and split-transition journeys pass. Follow-up review/hosted gates
+remain before publication. The owner's separate bounded coverage audit stays
+on its own local branch, with no old-PR reopening or broad rewrite loop.
+
+The owner requests publishing the completed sidebar and Calendar updates. The
+publication branch starts at `db1790e` above public `0976d7d` and local receipt
+`f9f7d17`. Existing provider settings, payment gates and membership/clinical
+boundaries remain unchanged. Review, exact-head CI and fresh service evidence
+precede one verified staged build and same-artifact promotion under the
+[publication plan](superpowers/plans/2026-11-21-sidebar-calendar-publication.md).
+
+## November 21 navigation and private Calendar workspace completed locally
+
+The owner approves targeted sidebar groups, separate My Calendar/Practice
+Calendar launchers and a shared Calendar display without personal-data sharing.
+They supply their earlier note about individual accounts/subscriptions, multiple
+practice/group memberships and a possible sponsored or consensually split
+practice fee. The note is retained as product direction; no billing model is
+chosen or activated.
+
+Branch `codex/sidebar-calendar-workspace` adds the groups and consolidated
+launchers while retaining legacy URLs and role gates. Both Calendar entry points
+reuse the existing scheduler, including people without practices. A bounded
+owner/range controller, authenticated response binding, read-only projection and
+private detail dialog support Personal/Practice/Together. Stale, mismatched,
+disabled and expired-session results cannot populate the private display.
+Practice switching verifies membership, preserves creation/return targets and
+deduplicates visits. Month weekday labels are corrected after visual QA.
+
+97 focused tests, 84 sync/isolation checks, 45 scheduling/cancellation checks,
+phone/desktop/no-practice synthetic Calendar journeys and two full-app sidebar
+journeys pass. Full and focused lint and the final inert TypeScript/116-page
+build pass. The local sample preview uses fictional data only. No publication,
+provider, membership, database, email, payment or NAS operation occurs. See the
+[local receipt](audits/2026-11-21-sidebar-calendar-workspace.md) and
+[implementation plan](superpowers/plans/2026-11-20-sidebar-calendar-workspace.md).
+
+## November 20 planner reports and Body palette published
+
+PR #76 merges reviewed `a4c23ef` as `0976d7d`, retaining the reviewed tree. The
+remaining four planner changes, local publication records and six light blue Body
+buttons are public. A stale h1 source guard was corrected without changing the
+application. All seven source checks and hosted review pass; two configured
+mobile timing retries pass a direct follow-up. One staged Production build passes
+the existing read-only gates, TypeScript and both Sentry uploads. Exact map/script
+pairing, 18 routes, PDF generation/reuse, asset hashes and public phone layout are
+verified before/after one same-artifact promotion. Settings and unrelated routing
+are unchanged. All seven automatic merge checks pass after retrying only a failed
+runner font installation. Three configured timing retries pass six direct
+desktop/phone follow-ups without retries. Final source/settings/routing readback
+passes and the operation is closed. No new provider, database, payment, email or
+NAS change occurs. The local receipt triggers no extra deployment. See the
+[publication receipt](audits/2026-11-20-planner-beta-publication.md).
+
 ## November 20 remaining planner release preparation
 
 The owner requests publishing the remaining Business Planner work and other local

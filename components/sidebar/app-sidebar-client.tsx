@@ -23,6 +23,7 @@ import {
   FileText,
   GraduationCap,
   Home,
+  HeartPulse,
   Info,
   Images,
   LayoutDashboard,
@@ -127,6 +128,7 @@ const routeIcons = {
   Download,
   FileText,
   Home,
+  HeartPulse,
   Info,
   Images,
   LayoutDashboard,
@@ -156,6 +158,8 @@ const ChessKnight = createLucideIcon("ChessKnight", [
 ])
 
 const primaryGroupIcons: Record<string, LucideIcon> = {
+  wellness: HeartPulse,
+  practice: BriefcaseBusiness,
   tools: Wrench,
   atmosphere: Waves,
   documentation: NotebookPen,
@@ -359,7 +363,7 @@ function NavPrimary({
                 <SidebarMenu>
                   {group.routes.map((route) => (
                     route.id === "calendar" ? (
-                      <CalendarSidebarRoute key={route.id} calendarMenuRoutes={calendarMenuRoutes} pathname={pathname} tooltipSide={tooltipSide} />
+                      <CalendarSidebarRoute key={route.id} route={route} calendarMenuRoutes={calendarMenuRoutes} pathname={pathname} tooltipSide={tooltipSide} />
                     ) : (
                       <SidebarRoute key={route.id} route={route} pathname={pathname} tooltipSide={tooltipSide} />
                     )
@@ -390,7 +394,7 @@ function NavPrimary({
                   <SidebarMenu className="gap-0.5">
                     {group.routes.map((route) => (
                       route.id === "calendar" ? (
-                        <CalendarSidebarRoute key={route.id} nested calendarMenuRoutes={calendarMenuRoutes} pathname={pathname} tooltipSide={tooltipSide} />
+                        <CalendarSidebarRoute key={route.id} route={route} nested calendarMenuRoutes={calendarMenuRoutes} pathname={pathname} tooltipSide={tooltipSide} />
                     ) : (
                         <SidebarRoute key={route.id} nested route={route} pathname={pathname} tooltipSide={tooltipSide} />
                       )
@@ -459,11 +463,13 @@ function CalendarRequestBadges({
 }
 
 function CalendarSidebarRoute({
+  route,
   calendarMenuRoutes,
   nested = false,
   pathname,
   tooltipSide,
 }: {
+  route: NavigationRoute
   calendarMenuRoutes: NavigationRoute[]
   nested?: boolean
   pathname: string
@@ -482,13 +488,13 @@ function CalendarSidebarRoute({
     <SidebarMenuItem>
       <SidebarMenuButton
         asChild
-        isActive={isNavigationRouteActive(pathname, "/calendar")}
-        tooltip={{ children: "Calendar", side: tooltipSide }}
+        isActive={isNavigationRouteActive(pathname, route.href)}
+        tooltip={{ children: route.label, side: tooltipSide }}
         className={cn("ml-sidebar-route max-w-full group-has-[[data-sidebar=menu-action]]/menu-item:pr-9 md:group-has-[[data-sidebar=menu-action]]/menu-item:pr-[5.75rem]", nested && primaryChildRouteButtonClass)}
       >
-        <Link href="/calendar" onNavigate={closeMobileSidebar} className="group relative">
+        <Link href={route.href} onNavigate={closeMobileSidebar} className="group relative">
           <SidebarPendingLinkContent icon={CalendarDays}>
-            <span>Calendar</span>
+            <span>{route.label}</span>
           </SidebarPendingLinkContent>
         </Link>
       </SidebarMenuButton>

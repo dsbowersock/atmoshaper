@@ -291,7 +291,7 @@ export async function createService(formData: FormData) {
 
   revalidatePath("/calendar")
   revalidatePath("/calendar/services")
-  redirect(`/calendar/services/${service.id}`)
+  redirect(`/calendar/services/${service.id}?practice=${encodeURIComponent(practiceId)}`)
 }
 
 export async function updateService(formData: FormData) {
@@ -455,5 +455,5 @@ export async function updateService(formData: FormData) {
   revalidatePath("/calendar")
   revalidatePath("/calendar/services")
   revalidatePath(`/calendar/services/${serviceId}`)
-  redirect(`/calendar/services/${serviceId}`)
+  redirect(`/calendar/services/${serviceId}?practice=${encodeURIComponent(practiceId)}`)
 }

@@ -10,9 +10,10 @@ import { AppointmentComposer } from "./appointment-composer"
 export default async function NewAppointmentPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ startsAt?: string }>
+  searchParams?: Promise<{ startsAt?: string; practice?: string }>
 }) {
   const session = await getCurrentSession()
+  const params = await searchParams
 
   if (!session?.user?.id) {
     return <AppointmentShell><Notice title="Sign in to create appointments" description="Practice scheduling requires an account." /></AppointmentShell>
@@ -23,7 +24,8 @@ export default async function NewAppointmentPage({
   }
 
   const membership = await prisma.practiceMembership.findFirst({
-    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST", "STAFF"] } },
+    // Preserve the chosen workspace while still verifying this actor's role.
+    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST", "STAFF"] }, ...(params?.practice ? { practiceId: params.practice } : {}) },
     include: { practice: true },
     orderBy: { createdAt: "asc" },
   })
@@ -77,10 +79,10 @@ export default async function NewAppointmentPage({
     eligibleProviderIds: service.eligibleProviderIds,
     resourceNames: variant.resourceRequirements.map((requirement) => requirement.resource.name),
   })))
-  const defaultStartsAt = (await searchParams)?.startsAt ?? ""
+  const defaultStartsAt = params?.startsAt ?? ""
 
   return (
-    <AppointmentShell>
+    <AppointmentShell practiceId={membership.practiceId}>
       {serviceOptions.length === 0 || therapists.length === 0 ? (
         <Notice title="Appointment setup needed" description="Appointment creation needs at least one active service and therapist. Clients can be created while scheduling an appointment." />
       ) : (
@@ -104,11 +106,11 @@ export default async function NewAppointmentPage({
   )
 }
 
-function AppointmentShell({ children }: { children: React.ReactNode }) {
+function AppointmentShell({ children, practiceId }: { children: React.ReactNode; practiceId?: string }) {
   return (
     <CalendarOperatorShell width="standard">
       <div className="flex justify-end">
-        <Button asChild variant="outline"><Link href="/calendar/new">Creation menu</Link></Button>
+        <Button asChild variant="outline"><Link href={practiceId ? `/calendar/new?practice=${encodeURIComponent(practiceId)}` : "/calendar/new"}>Creation menu</Link></Button>
       </div>
       {children}
     </CalendarOperatorShell>

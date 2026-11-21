@@ -5,6 +5,10 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "lint:calendar-workspace-layers": "eslint app/calendar/calendar-workspace.tsx app/calendar/calendar-source-controls.tsx app/calendar/page.tsx app/calendar/personal/page.tsx app/calendar/new app/calendar/actions/events.ts app/wellness/calendar-actions.ts components/sidebar/app-sidebar-client.tsx components/wellness/personal-calendar-home.tsx components/wellness/use-private-calendar-layer.ts components/wellness/private-calendar-record-details.tsx lib/private-calendar-layer.js lib/calendar-workspace.js lib/wellness-calendar-view.js lib/navigation.js tests/private-calendar-layer.test.mjs tests/calendar-workspace-browser.test.mjs tests/fixtures/calendar-workspace-browser-harness.mjs scripts/start-calendar-workspace-preview.mjs tests/navigation-model.test.mjs tests/calendar-page-read-recovery.test.mjs tests/calendar-creation-routes.test.mjs tests/wellness-personal-calendar.test.mjs app/calendar/services app/calendar/actions/services.ts tests/calendar-service-scope.test.mjs",
+    "preview:calendar-workspace": "node scripts/start-calendar-workspace-preview.mjs",
+    "test:calendar-workspace-browser": "node --test tests/calendar-workspace-browser.test.mjs",
+    "test:calendar-workspace-layers": "node --test tests/navigation-model.test.mjs tests/sidebar-*.test.mjs tests/private-calendar-layer.test.mjs tests/wellness-personal-calendar.test.mjs tests/calendar-page-read-recovery.test.mjs tests/calendar-creation-routes.test.mjs tests/calendar-workspace.test.mjs tests/calendar-service-scope.test.mjs",
     "test:planner-controls": "node --test tests/sitewide-control-rollout.test.mjs",
     "test:planner-reports": "node --test tests/business-planner-reports.test.mjs tests/business-planner-pdf.test.mjs",
     "test:income-preferences": "node --test tests/account-preferences.test.mjs",

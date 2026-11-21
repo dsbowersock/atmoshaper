@@ -100,7 +100,7 @@ describe("Private personal calendar",()=>{
       assert.equal(result.ok,false); assert.equal(result.data,undefined); assert.doesNotMatch(JSON.stringify(result),/PRIVATE_DATABASE_DETAIL|Fictional private/)
     }
     assert.doesNotMatch(source,/\.create\(|\.update\(|\.delete\(|\.createMany\(|\.updateMany\(|\.deleteMany\(|CalendarEvent|Sentry|sendEmail|console\./)
-    for (const path of ["../lib/google-calendar-adapter.ts","../lib/calendar-sync-service.ts","../app/calendar/calendar-workspace.tsx"]) assert.doesNotMatch(await readFile(new URL(path,import.meta.url),"utf8"),/loadPersonalWellnessCalendar|WellnessEntryCard|PersonalWellnessCalendar/)
+    for (const path of ["../lib/google-calendar-adapter.ts","../lib/calendar-sync-service.ts"]) assert.doesNotMatch(await readFile(new URL(path,import.meta.url),"utf8"),/loadPersonalWellnessCalendar|WellnessEntryCard|PersonalWellnessCalendar|private-calendar-layer/)
   })
   it("keys personal views to the authenticated account and resets Wellness on sign-out",async()=>{
     let userId="fictional-first-owner"
@@ -108,6 +108,7 @@ describe("Private personal calendar",()=>{
       "react/jsx-runtime":{jsx:createElement,jsxs:createElement},
       "@/lib/rsc-session":{getCurrentRscSession:async()=>userId?{user:{id:userId}}:null},
       "@/components/wellness/personal-calendar-home":{PersonalCalendarHome:()=>null},
+      "../page":{default:()=>null},
     }).default
     const first=await page({});userId="fictional-second-owner";const second=await page({})
     assert.notEqual(first.key,second.key);userId=null;const signedOut=await page({})

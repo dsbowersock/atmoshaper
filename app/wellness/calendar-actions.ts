@@ -16,7 +16,7 @@ const PAGE_SIZE = 200
  * filters inside that owner scope, never global cursors that look up another
  * person's row. Responses are private display data, not scheduling events or
  * outbound payloads. Required-read failure never returns a false empty month. */
-export async function loadPersonalWellnessCalendarAction(input: unknown): Promise<{ ok: boolean; reason?: string; data?: PersonalCalendarData }> {
+export async function loadPersonalWellnessCalendarAction(input: unknown): Promise<{ ok: boolean; reason?: string; ownerKey?: string; data?: PersonalCalendarData }> {
   const session = await getCurrentSession(), userId = session?.user?.id
   if (!userId) return { ok: false, reason: "sign-in-required" }
   const range = parsePersonalCalendarRequest(input)
@@ -38,7 +38,9 @@ export async function loadPersonalWellnessCalendarAction(input: unknown): Promis
     ])
     const recordPage = records.slice(0,PAGE_SIZE), appointmentPage = appointments.slice(0,PAGE_SIZE)
     const settings = preference?.settings && typeof preference.settings === "object" && !Array.isArray(preference.settings) ? preference.settings as Record<string,unknown> : {}
-    return { ok: true, data: {
+    // Bind private display responses to their authenticated actor. This is never
+    // a browser-supplied query scope or a practice-sharing permission.
+    return { ok: true, ownerKey: userId, data: {
       records: recordPage.map((row) => { const normalized = normalizeClientWellnessEntryInput(row); return { ...normalized, id: row.id, occurredAt: normalized.occurredAt.toISOString(), createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(), persisted: true } }),
       appointments: appointmentPage.map((row) => ({ id: row.id, at: row.startsAt.toISOString(), end: row.endsAt.toISOString(), status: row.status, practiceName: row.practice.name, title: row.serviceItems.map((item) => [item.serviceName,item.serviceVariantName].filter(Boolean).join(" - ")).filter(Boolean).join(" + ") || [row.serviceName,row.serviceVariantName].filter(Boolean).join(" - ") || "Appointment" })),
       schedules: normalizeClientWellnessReminderSchedules(settings.reminderSchedules),

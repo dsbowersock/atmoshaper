@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ComponentType, type CSSProperties } from "react"
+import { useRouter } from "next/navigation"
 import FullCalendar from "@fullcalendar/react"
 import dayGridPlugin from "@fullcalendar/daygrid"
 import timeGridPlugin from "@fullcalendar/timegrid"
@@ -36,6 +37,10 @@ import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ToggleControl } from "@/components/ui/toggle-control"
+import { usePrivateCalendarLayer } from "@/components/wellness/use-private-calendar-layer"
+import { PrivateCalendarRecordDetails } from "@/components/wellness/private-calendar-record-details"
+import { buildPrivateCalendarEvents, isPrivateCalendarEvent } from "@/lib/private-calendar-layer"
+import { CalendarSourceControls } from "./calendar-source-controls"
 import {
   deriveCalendarVisibleBounds,
   minuteToCalendarTime,
@@ -73,6 +78,8 @@ type WorkspaceEvent = {
     providerLabel?: string | null
     clientLabel?: string | null
     ownerUserId?: string | null
+    appointmentId?: string | null
+    personalRecordId?: string
   }
 }
 
@@ -130,6 +137,11 @@ export function CalendarWorkspace({
   preferences,
   currentUserId,
   initialDate,
+  initialScope = "practice",
+  hasPractice = true,
+  practiceOptions = [],
+  selectedPracticeId,
+  practiceUnavailable = false,
 }: {
   events: WorkspaceEvent[]
   providers: WorkspaceProvider[]
@@ -137,13 +149,24 @@ export function CalendarWorkspace({
   preferences: CalendarPreferences
   currentUserId: string
   initialDate?: string
+  initialScope?: "personal" | "practice" | "together"
+  hasPractice?: boolean
+  practiceOptions?: Array<{ id: string; name: string }>
+  selectedPracticeId?: string
+  practiceUnavailable?: boolean
 }) {
+  const router = useRouter()
   const calendarRef = useRef<FullCalendar | null>(null)
   const splitRefs = useRef<Record<string, FullCalendar | null>>({})
   const surfaceRef = useRef<HTMLDivElement | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const [viewTitle, setViewTitle] = useState("")
-  const [range, setRange] = useState(preferences.defaultRange)
+  const [scope, setScope] = useState(hasPractice ? initialScope : "personal")
+  const showPersonal = scope !== "practice", showPractice = hasPractice && scope !== "personal"
+  const [visibleWindow, setVisibleWindow] = useState({ start: "", end: "" })
+  const [openedPersonal, setOpenedPersonal] = useState<{ id: string; key: string } | null>(null)
+  const personal = usePrivateCalendarLayer({ enabled: showPersonal, ownerKey: currentUserId, ...visibleWindow })
+  const [range, setRange] = useState(initialScope === "personal" ? "month" : preferences.defaultRange)
   const [providerViewMode, setProviderViewMode] = useState(preferences.providerViewMode)
   const [selectedProviderId, setSelectedProviderId] = useState(preferences.selectedProviderId ?? currentUserId)
   const [showCancelledEvents, setShowCancelledEvents] = useState(preferences.showCancelledEvents)
@@ -156,7 +179,8 @@ export function CalendarWorkspace({
   const [isPending, startTransition] = useTransition()
 
   const hasMultipleProviders = providers.length > 1
-  const effectiveProviderViewMode = hasMultipleProviders ? providerViewMode : "only-me"
+  // Show the private layer once, never in each provider's split column.
+  const effectiveProviderViewMode = showPersonal && (!showPractice || providerViewMode === "split") ? "combined" : hasMultipleProviders ? providerViewMode : "only-me"
   const selectedProvider = providers.find((provider) => provider.id === selectedProviderId) ?? providers[0]
   const visibleProviders = effectiveProviderViewMode === "split" ? providers : [selectedProvider].filter(Boolean)
   const viewName = VIEW_NAMES[range] ?? VIEW_NAMES.week
@@ -166,10 +190,10 @@ export function CalendarWorkspace({
       : [selectedProvider?.id].filter(Boolean)
   ), [effectiveProviderViewMode, providers, selectedProvider?.id])
   const visibleBounds = useMemo(() => deriveCalendarVisibleBounds({
-    preferences: { calendarDayStartMinute, calendarDayEndMinute },
+    preferences: showPersonal ? { calendarDayStartMinute: 0, calendarDayEndMinute: 1440 } : { calendarDayStartMinute, calendarDayEndMinute },
     providerAvailability,
     providerIds: visibleProviderIds,
-  }), [calendarDayEndMinute, calendarDayStartMinute, providerAvailability, visibleProviderIds])
+  }), [calendarDayEndMinute, calendarDayStartMinute, providerAvailability, visibleProviderIds, showPersonal])
   const now = new Date()
   const scrollMinute = scrollMinuteForCalendarBounds({
     startMinute: visibleBounds.startMinute,
@@ -181,12 +205,18 @@ export function CalendarWorkspace({
   const calendarSurfaceStyle = { "--ml-calendar-slot-height": slotHeight } as CSSProperties
 
   const filteredEvents = useMemo(() => {
-    return events.filter((event) => {
+    return (showPractice ? events : []).filter((event) => {
       if (!showCancelledEvents && event.extendedProps.status === "CANCELLED") return false
       if (effectiveProviderViewMode === "combined" || effectiveProviderViewMode === "split") return true
       return event.extendedProps.ownerUserId === selectedProvider?.id
     })
-  }, [effectiveProviderViewMode, events, selectedProvider?.id, showCancelledEvents])
+  }, [effectiveProviderViewMode, events, selectedProvider?.id, showCancelledEvents, showPractice])
+  const privateEvents = useMemo(() => buildPrivateCalendarEvents(personal.data, {
+    ...visibleWindow, showCancelledEvents,
+    practiceAppointmentIds: filteredEvents.flatMap((event) => event.extendedProps.appointmentId ? [event.extendedProps.appointmentId] : []),
+  }), [personal.data, visibleWindow, showCancelledEvents, filteredEvents])
+  const privateEntry = showPersonal && openedPersonal?.key === personal.key
+    ? personal.data?.records.find((record) => record.id === openedPersonal.id) ?? null : null
 
   const calendarApis = useCallback(() => (
     [calendarRef.current, ...Object.values(splitRefs.current)]
@@ -239,37 +269,13 @@ export function CalendarWorkspace({
   }, [calendarApis, effectiveProviderViewMode, range, visibleBounds.slotMaxTime, visibleBounds.slotMinTime])
 
   const persistPreferencePatch = useCallback((patch: Partial<CalendarPreferences>) => {
+    // Personal choices may still be visible after switching sources. Send only
+    // the explicit change to the server's locked merge, never that display state.
+    if (!showPractice) return
     startTransition(async () => {
-      await saveCalendarPreferencesAction({
-        defaultRange: range,
-        providerViewMode: effectiveProviderViewMode,
-        selectedProviderId,
-        showCancelledEvents,
-        showStatusBadges,
-        colorMode,
-        showStaffPhotos: preferences.showStaffPhotos,
-        calendarDayStartMinute,
-        calendarDayEndMinute,
-        calendarSlotDensity,
-        appointmentAttributes: preferences.appointmentAttributes,
-        noticeDismissals: preferences.noticeDismissals,
-        ...patch,
-      })
+      await saveCalendarPreferencesAction(patch)
     })
-  }, [
-    calendarDayEndMinute,
-    calendarDayStartMinute,
-    calendarSlotDensity,
-    colorMode,
-    effectiveProviderViewMode,
-    preferences.appointmentAttributes,
-    preferences.noticeDismissals,
-    preferences.showStaffPhotos,
-    range,
-    selectedProviderId,
-    showCancelledEvents,
-    showStatusBadges,
-  ])
+  }, [showPractice])
 
   const setCalendarRange = useCallback((nextRange: string) => {
     setRange(nextRange)
@@ -301,9 +307,16 @@ export function CalendarWorkspace({
   useEffect(() => {
     if (!initialDate) return
 
-    const animationFrame = window.requestAnimationFrame(() => gotoDate(initialDate))
+    // This is a route-date change, not a layout effect. Replacing split columns
+    // must keep the viewed date rather than replaying the original route date.
+    const animationFrame = window.requestAnimationFrame(() => {
+      for (const api of calendarApis()) {
+        api?.gotoDate(initialDate)
+        setSelectedDate(api?.getDate())
+      }
+    })
     return () => window.cancelAnimationFrame(animationFrame)
-  }, [gotoDate, initialDate])
+  }, [calendarApis, initialDate])
 
   const updateProviderViewMode = useCallback((value: string) => {
     const nextMode = hasMultipleProviders ? value : "only-me"
@@ -333,10 +346,12 @@ export function CalendarWorkspace({
   }, [persistPreferencePatch])
 
   const updateDayBounds = useCallback((startMinute: number | null, endMinute: number | null) => {
+    // Personal layers require full-day bounds; these controls must not save hidden changes.
+    if (showPersonal) return
     setCalendarDayStartMinute(startMinute)
     setCalendarDayEndMinute(endMinute)
     persistPreferencePatch({ calendarDayStartMinute: startMinute, calendarDayEndMinute: endMinute })
-  }, [persistPreferencePatch])
+  }, [persistPreferencePatch, showPersonal])
 
   const updateSlotDensity = useCallback((value: string) => {
     setCalendarSlotDensity(value)
@@ -344,7 +359,7 @@ export function CalendarWorkspace({
   }, [persistPreferencePatch])
 
   async function persistEventChange(eventId: string, startsAt: string | null, endsAt: string | null, revert: () => void) {
-    if (!startsAt || !endsAt) {
+    if (isPrivateCalendarEvent(eventId) || !showPractice || !startsAt || !endsAt) {
       revert()
       return
     }
@@ -375,15 +390,16 @@ export function CalendarWorkspace({
   }
 
   function handleDateClick(info: DateClickArg) {
+    if (!showPractice) { gotoDate(info.date); setCalendarRange("day"); return }
     const startsAt = info.dateStr.slice(0, 16)
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Preserve the established full-document transition from FullCalendar during this dependency upgrade.
-    window.location.href = `/calendar/new?startsAt=${encodeURIComponent(startsAt)}`
+    window.location.href = `/calendar/new?startsAt=${encodeURIComponent(startsAt)}${selectedPracticeId ? `&practice=${encodeURIComponent(selectedPracticeId)}` : ""}`
   }
 
   function renderCalendar(provider?: WorkspaceProvider) {
     const calendarEvents = effectiveProviderViewMode === "split" && provider
       ? filteredEvents.filter((event) => event.extendedProps.ownerUserId === provider.id)
-      : filteredEvents
+      : [...filteredEvents, ...privateEvents]
 
     return (
       <div key={provider?.id ?? "combined"} className="min-h-0 h-full min-w-0">
@@ -403,7 +419,7 @@ export function CalendarWorkspace({
           }}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView={viewName}
-          initialDate={initialDate}
+          initialDate={selectedDate ?? initialDate}
           views={{
             timeGridFiveDay: {
               type: "timeGrid",
@@ -427,8 +443,12 @@ export function CalendarWorkspace({
           scrollTime={scrollTime}
           scrollTimeReset={false}
           events={calendarEvents}
-          dayHeaderContent={(arg) => renderDayHeader(arg.date)}
+          // Month headers use FullCalendar's weekday text; its placeholder dates
+          // are not real dates in the displayed month and must not be formatted.
+          dayHeaderContent={(arg) => arg.view.type === "dayGridMonth" ? arg.text : renderDayHeader(arg.date)}
           datesSet={(arg) => {
+            const start = arg.start.toISOString(), end = arg.end.toISOString()
+            setVisibleWindow((current) => current.start === start && current.end === end ? current : { start, end })
             setViewTitle(arg.view.title)
             setSelectedDate(arg.view.calendar.getDate())
             scrollCalendarsToUsefulTime()
@@ -437,10 +457,13 @@ export function CalendarWorkspace({
           eventDrop={(info: EventDropArg) => {
             void persistEventChange(info.event.id, info.event.start?.toISOString() ?? null, info.event.end?.toISOString() ?? null, info.revert)
           }}
+          eventClick={(info) => {
+            if (info.event.extendedProps.kind === "personal-record" && typeof info.event.extendedProps.personalRecordId === "string") setOpenedPersonal({ id: info.event.extendedProps.personalRecordId, key: personal.key })
+          }}
           eventContent={(arg) => (
             <div className="flex min-w-0 flex-col gap-1 px-1 py-0.5 text-[11px] leading-tight">
               <div className="truncate font-semibold">{arg.event.title}</div>
-              {showStatusBadges && arg.event.extendedProps.statusBadge ? (
+              {(showStatusBadges || isPrivateCalendarEvent(arg.event.id)) && arg.event.extendedProps.statusBadge ? (
                 <Badge variant="secondary" className="w-fit max-w-full truncate px-1 py-0 text-[10px] leading-4">
                   {arg.event.extendedProps.statusBadge}
                 </Badge>
@@ -463,7 +486,8 @@ export function CalendarWorkspace({
       providerViewMode={effectiveProviderViewMode}
       selectedProviderId={selectedProvider?.id ?? ""}
       providers={providers}
-      showProviderControls={hasMultipleProviders}
+      showProviderControls={hasMultipleProviders && showPractice}
+      dayBoundsDisabled={showPersonal}
       showCancelledEvents={showCancelledEvents}
       showStatusBadges={showStatusBadges}
       colorMode={colorMode}
@@ -490,6 +514,8 @@ export function CalendarWorkspace({
     effectiveProviderViewMode,
     gotoDate,
     hasMultipleProviders,
+    showPractice,
+    showPersonal,
     navigate,
     providers,
     range,
@@ -520,17 +546,27 @@ export function CalendarWorkspace({
       style={calendarSurfaceStyle}
     >
       <CardContent className="flex h-full flex-col p-0">
+        <CalendarSourceControls scope={scope} changeScope={(next) => { setOpenedPersonal(null); setScope(next) }} hasPractice={hasPractice}
+          practices={practiceOptions} practiceId={selectedPracticeId} changePractice={(id) => {
+            const query = new URLSearchParams({ practice: id, view: scope })
+            // Keep the viewed local day; UTC serialization can change its date.
+            if (selectedDate) query.set("date", `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`)
+            router.push(`/calendar?${query}`)
+          }}
+          practiceUnavailable={practiceUnavailable} loading={personal.loading || showPersonal && !visibleWindow.start} error={personal.error} refresh={personal.refresh}
+          recordCursor={personal.data?.recordCursor} appointmentCursor={personal.data?.appointmentCursor} more={personal.more} />
         <div className="flex shrink-0 items-center border-b border-border/70 bg-background/95 px-3 py-2 backdrop-blur sm:px-4">
           {toolbarControls}
         </div>
         <p className={cn("border-b border-border/60 px-3 py-1.5 text-xs text-muted-foreground", !(message || isPending) && "sr-only")}>
-          {isPending ? "Saving preferences..." : message || "Click a time to create. Drag existing items to reschedule."}
+          {isPending ? "Saving preferences..." : message || (showPractice ? "Click a time to create. Drag existing practice items to reschedule. Personal items are read-only here." : "Your personal calendar is private. Select a recording to view it.")}
         </p>
         <div className={cn("min-h-0 flex-1 p-1 sm:p-2", effectiveProviderViewMode === "split" && "grid gap-3 xl:grid-cols-2")}>
           {effectiveProviderViewMode === "split"
             ? visibleProviders.map((provider) => renderCalendar(provider))
             : renderCalendar()}
         </div>
+        <PrivateCalendarRecordDetails entry={privateEntry} close={() => setOpenedPersonal(null)} />
       </CardContent>
     </Card>
   )
@@ -544,6 +580,7 @@ function CalendarToolbarControls({
   selectedProviderId,
   providers,
   showProviderControls,
+  dayBoundsDisabled,
   showCancelledEvents,
   showStatusBadges,
   colorMode,
@@ -569,6 +606,7 @@ function CalendarToolbarControls({
   selectedProviderId: string
   providers: WorkspaceProvider[]
   showProviderControls: boolean
+  dayBoundsDisabled: boolean
   showCancelledEvents: boolean
   showStatusBadges: boolean
   colorMode: string
@@ -590,6 +628,7 @@ function CalendarToolbarControls({
   const rangeLabel = RANGE_LABELS.find(([value]) => value === range)?.[1] ?? "Week"
   const providerViewLabel = PROVIDER_VIEW_LABELS.find(([value]) => value === providerViewMode)?.[1] ?? "Only me"
   const settingsProps = {
+    dayBoundsDisabled,
     showCancelledEvents,
     showStatusBadges,
     colorMode,
@@ -726,6 +765,7 @@ function ToolbarSelect({
 }
 
 function CalendarDisplaySettings({
+  dayBoundsDisabled,
   showCancelledEvents,
   showStatusBadges,
   colorMode,
@@ -739,6 +779,7 @@ function CalendarDisplaySettings({
   onDayBoundsChange,
   onSlotDensityChange,
 }: {
+  dayBoundsDisabled: boolean
   showCancelledEvents: boolean
   showStatusBadges: boolean
   colorMode: string
@@ -796,17 +837,18 @@ function CalendarDisplaySettings({
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
                 <Label htmlFor="calendarDayStart">Day starts</Label>
-                <Input id="calendarDayStart" type="time" value={startValue} onChange={(event) => updateStart(event.currentTarget.value)} />
+                <Input id="calendarDayStart" type="time" disabled={dayBoundsDisabled} value={startValue} onChange={(event) => updateStart(event.currentTarget.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="calendarDayEnd">Day ends</Label>
-                <Input id="calendarDayEnd" type="time" value={endValue} onChange={(event) => updateEnd(event.currentTarget.value)} />
+                <Input id="calendarDayEnd" type="time" disabled={dayBoundsDisabled} value={endValue} onChange={(event) => updateEnd(event.currentTarget.value)} />
               </div>
             </div>
-            <Button type="button" variant="calendar" size="sm" onClick={() => onDayBoundsChange(null, null)}>
+            <Button type="button" variant="calendar" size="sm" disabled={dayBoundsDisabled} onClick={() => onDayBoundsChange(null, null)}>
               Use availability hours
             </Button>
           </div>
+          {dayBoundsDisabled ? <p className="text-xs text-muted-foreground">Personal items use the full day. Switch to Practice to change its displayed hours.</p> : null}
           <ToolbarSelect
             label="Cell height"
             value={calendarSlotDensity}

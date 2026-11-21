@@ -164,12 +164,41 @@ test("successful reads preserve event mapping, provider availability and generic
 
 test("an unowned requested practice never changes the authorized workspace query target", async () => {
   const input = fixture()
-  assert.ok((await input.run({ practice: "invented-unowned-practice" })).workspace)
+  assertUnavailable(await input.run({ practice: "invented-unowned-practice" }))
   assert.equal(input.calls.find((call) => call.name === "membership").args.where.userId, userId)
-  for (const name of ["events", "providers", "availability"]) {
-    assert.equal(input.calls.find((call) => call.name === name).args.where.practiceId, practiceId)
+  assert.deepEqual(input.calls.map((call) => call.name), ["readiness", "membership"])
+})
+
+test("a stale or unowned practice cannot block the independently owned personal layer", async () => {
+  for (const view of ["personal","together"]) {
+    const input=fixture(),result=await input.run({practice:"invented-unowned-practice",view})
+    assert.equal(result.workspace,null)
+    assert.equal(result.personal.ownerId,userId)
+    assert.equal(result.personal.practiceUnavailable,true)
+    assert.deepEqual(input.calls.map((call)=>call.name),["readiness","membership"])
   }
-  assert.equal(input.calls.find((call) => call.name === "intervals").args.where.schedule.practiceId, practiceId)
+})
+
+test("personal and together views retain the owner when practice reads fail", async () => {
+  for (const view of ["personal", "together"]) {
+    assert.equal((await fixture().run({ view })).workspace.initialScope, view)
+    for (const fail of ["membership", "events", "providers", "preferences", "availability", "intervals", "busy"]) {
+      const result = await fixture({ fail }).run({ view })
+      assert.equal(result.workspace, null)
+      assert.equal(result.personal.ownerId, userId)
+      assert.equal(result.personal.practiceUnavailable, true)
+      assert.doesNotMatch(result.text, new RegExp(privateFailure))
+    }
+  }
+})
+
+test("switching workspaces reads only the selected verified membership", async () => {
+  const second = "invented-second-practice"
+  const input = fixture({ memberships: [practiceId, second].map((id) => ({ practiceId: id, practice: { id, name: id } })) })
+  const result = await input.run({ practice: second, view: "together" })
+  assert.equal(result.workspace.selectedPracticeId, second)
+  assert.equal(result.workspace.practiceOptions.length, 2)
+  for (const name of ["events", "providers", "availability"]) assert.equal(input.calls.find((call) => call.name === name).args.where.practiceId, second)
 })
 
 test("invalid requested dates retain the existing safe default", async () => {
