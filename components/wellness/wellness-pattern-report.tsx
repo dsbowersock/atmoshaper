@@ -5,6 +5,7 @@ import { BarChart3, Download } from "lucide-react"
 import type { WellnessTimelineEntry } from "@/components/wellness/wellness-hub-client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import type { MovementComfortReference } from "@/lib/movement-comfort"
 import {
   buildClientWellnessPatternReport,
   clientWellnessReportFilename,
@@ -32,6 +33,9 @@ type PatternPrompt = {
 
 type RomMovementSummary = {
   movement: string
+  side?: string
+  axis?: string
+  source?: string
   entryCount: number
   latestDegrees: number
   previousDegrees: number
@@ -46,8 +50,10 @@ type WellnessPatternReportData = {
   topRegions: CountRow[]
   topSensations: CountRow[]
   topContexts: CountRow[]
+  topFeelings?: CountRow[]
   averageIntensity: number | null
   romMovements: RomMovementSummary[]
+  movementComfort: MovementComfortReference[]
   patternPrompts: PatternPrompt[]
 }
 
@@ -118,9 +124,11 @@ export function WellnessPatternReport({
             <TrendRows title="Regions" rows={report.topRegions} />
             <TrendRows title="Sensations" rows={report.topSensations} />
             <TrendRows title="Contexts" rows={report.topContexts} />
+            <TrendRows title="Feelings" rows={report.topFeelings ?? []} />
           </div>
 
           <PatternPrompts prompts={report.patternPrompts} />
+          <MovementComfortReferences movements={report.movementComfort} />
           <RomReferences movements={report.romMovements} />
         </div>
       )}
@@ -186,6 +194,21 @@ function PatternPrompts({ prompts }: { prompts: PatternPrompt[] }) {
   )
 }
 
+/** Ratings stay separate from degree changes and symptom intensity. A point
+ * difference describes a self-report; it is not a clinical improvement claim. */
+function MovementComfortReferences({ movements }: { movements: MovementComfortReference[] }) {
+  if (!movements.length) return null
+  return <section className="min-w-0 rounded-md border border-border/80 bg-background/85 p-3" aria-label="Movement comfort over time">
+    <h3 className="text-sm font-medium">Movement comfort over time</h3>
+    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">0 = not comfortable at all; 10 = completely comfortable. Compare the same movement and side using a similar position and effort. These ratings describe your experience.</p>
+    <div className="mt-3 grid gap-3">{movements.map((movement) => <div key={movement.key} className="min-w-0 rounded-md bg-card/80 p-3 text-sm">
+      <p className="font-medium [overflow-wrap:anywhere]">{formatLabel(movement.movement)}{movement.side !== "Center" ? ` · ${movement.side.toLowerCase()}` : ""}</p>
+      <p className="mt-2">Latest <strong>{movement.latestScore}/10</strong> · {new Date(movement.latestAt).toLocaleDateString()}</p>
+      {movement.previousScore !== null && movement.previousAt ? <><p className="mt-1 text-muted-foreground">Previous {movement.previousScore}/10 · {new Date(movement.previousAt).toLocaleDateString()}</p><p className="mt-2">{movement.changeSincePrevious === 0 ? "Same comfort rating" : `${movement.changeSincePrevious! > 0 ? "+" : ""}${movement.changeSincePrevious} comfort points since the previous recording`}</p></> : <p className="mt-2 text-xs text-muted-foreground">Your first rating for this movement and side.</p>}
+    </div>)}</div>
+  </section>
+}
+
 function RomReferences({ movements }: { movements: RomMovementSummary[] }) {
   if (movements.length === 0) {
     return null
@@ -196,9 +219,10 @@ function RomReferences({ movements }: { movements: RomMovementSummary[] }) {
       <h3 className="text-sm font-medium">ROM references</h3>
       <div className="mt-3 grid gap-2">
         {movements.map((movement) => (
-          <div key={movement.movement} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border/80 bg-card/80 p-3 text-sm">
+          <div key={JSON.stringify([movement.movement, movement.side, movement.axis, movement.source])} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border/80 bg-card/80 p-3 text-sm">
             <div>
-              <p className="font-medium">{formatLabel(movement.movement)}</p>
+              <p className="font-medium">{formatLabel(movement.movement)}{movement.side && movement.side !== "center" ? ` · ${movement.side}` : ""}</p>
+              {movement.source ? <p className="text-xs text-muted-foreground">{formatLabel(movement.source)}{movement.axis ? ` · ${movement.axis}` : ""}</p> : null}
               <p className="text-xs text-muted-foreground">{movement.entryCount} measurements</p>
             </div>
             <div className="text-right text-xs text-muted-foreground">

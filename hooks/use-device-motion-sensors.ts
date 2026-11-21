@@ -87,7 +87,8 @@ function preflightSensorRequest(): SensorRequestResult {
   return { state: "permission-needed", message: "Enable motion access to use device orientation." }
 }
 
-export function useDeviceMotionSensors() {
+/** Hidden recorders release their listener and resume with fresh readings. */
+export function useDeviceMotionSensors(enabled = true) {
   const [state, setState] = useState<SensorCapabilityState>("unsupported")
   const [message, setMessage] = useState<string | null>(null)
   const [orientation, setOrientation] = useState<DeviceOrientationReading>(emptyOrientation)
@@ -107,7 +108,8 @@ export function useDeviceMotionSensors() {
   }, [])
 
   useEffect(() => {
-    if (state !== "active") {
+    setOrientation(emptyOrientation)
+    if (state !== "active" || !enabled) {
       return
     }
 
@@ -121,7 +123,7 @@ export function useDeviceMotionSensors() {
 
     window.addEventListener("deviceorientation", handleOrientation)
     return () => window.removeEventListener("deviceorientation", handleOrientation)
-  }, [state])
+  }, [state, enabled])
 
   const requestAccess = useCallback(async (): Promise<SensorRequestResult> => {
     const preflight = preflightSensorRequest()

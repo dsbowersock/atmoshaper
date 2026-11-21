@@ -10,6 +10,7 @@ import {
   sanitizeClientWellnessLogMetadata,
 } from "@/lib/client-wellness"
 import { normalizeClientWellnessReminderSchedules } from "@/lib/client-wellness-reminders"
+import { isValidMovementRecording } from "@/lib/movement-comfort"
 import { prisma } from "@/lib/prisma"
 
 type WellnessActionResult<T = unknown> = {
@@ -300,7 +301,9 @@ async function createPrivateVocabularySuggestions(userId: string, category: stri
  * Persists one signed-in user's client-owned wellness entry.
  *
  * @param formData - Normal browser form data for quick logs or ROM measurements.
- * @returns ok/data with the serialized entry, sign-in-required, or save-failed.
+ * @returns ok/data with the serialized entry, sign-in-required, invalid-movement-recording, or save-failed.
+ * Explicit comfort/combined records must validate before any database write;
+ * older angle-only records keep their existing normalization contract.
  */
 export async function createClientWellnessEntryAction(formData: FormData): Promise<WellnessActionResult> {
   const userId = await currentUserId()
@@ -310,6 +313,10 @@ export async function createClientWellnessEntryAction(formData: FormData): Promi
   }
 
   const payload = normalizeClientWellnessEntryInput(entryInputFromFormData(formData))
+  if (payload.category === "rom" && !isValidMovementRecording(payload.metadata)) return { ok: false, reason: "invalid-movement-recording" }
+  // New Exercise entries must contain a validated versioned recording. Reject
+  // invalid measurements before storage instead of saving a category-only row.
+  if (payload.category === "exercise" && !payload.metadata.exerciseRecord) return { ok: false, reason: "invalid-exercise-recording" }
   const customTerms = customSensationsFromFormData(formData)
 
   try {

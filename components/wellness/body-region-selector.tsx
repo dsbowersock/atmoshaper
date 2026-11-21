@@ -1,24 +1,9 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-
-export const BODY_REGION_OPTIONS = [
-  "head",
-  "neck",
-  "shoulders",
-  "chest",
-  "abdomen",
-  "upper back",
-  "low back",
-  "hips",
-  "arms",
-  "hands",
-  "thighs",
-  "knees",
-  "calves",
-  "ankles",
-  "feet",
-] as const
+import { BodyJointViewer } from "@/components/body/body-joint-viewer"
+import { BODY_REGION_OPTIONS, toggleBodyRegion } from "@/lib/body-regions"
+export { BODY_REGION_OPTIONS } from "@/lib/body-regions"
 
 type BodyRegion = typeof BODY_REGION_OPTIONS[number]
 
@@ -61,28 +46,29 @@ const backRegions: RegionButton[] = [
 export function BodyRegionSelector({
   selectedRegions,
   onChange,
+  interactive = false,
+  active = true,
+  disabled = false,
 }: {
   selectedRegions: string[]
   onChange: (regions: string[]) => void
+  interactive?: boolean
+  active?: boolean
+  disabled?: boolean
 }) {
   const selectedSet = new Set(selectedRegions)
 
   const toggleRegion = (region: string) => {
-    if (selectedSet.has(region)) {
-      onChange(selectedRegions.filter((candidate) => candidate !== region))
-      return
-    }
-
-    onChange([...selectedRegions, region])
+    if (!disabled) onChange(toggleBodyRegion(selectedRegions, region))
   }
 
   return (
-    <fieldset>
+    <fieldset data-body-region-selector disabled={disabled}>
       <legend className="text-sm font-medium">Body regions</legend>
-      <div className="mt-2 grid gap-3 sm:grid-cols-2">
+      {interactive ? active ? <BodyJointViewer mode="regions" selectedRegions={selectedRegions} onChange={onChange} disabled={disabled} /> : null : <div className="mt-2 grid gap-3 sm:grid-cols-2">
         <BodyRegionMap title="Front" regions={frontRegions} selectedSet={selectedSet} onToggle={toggleRegion} />
         <BodyRegionMap title="Back" regions={backRegions} selectedSet={selectedSet} onToggle={toggleRegion} />
-      </div>
+      </div>}
       <div aria-hidden="true">
         {selectedRegions.map((region) => (
           <input key={region} name="regions" value={region} type="hidden" readOnly />

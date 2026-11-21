@@ -4,6 +4,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Wellness, Exercise and My calendar publication](../superpowers/plans/2026-11-20-wellness-beta-publication.md)
 - [Wellness and planner publication](../superpowers/plans/2026-11-19-wellness-planner-publication.md)
 - [Planner guidance and Wellness hub local work](../superpowers/plans/2026-11-19-planner-guidance-wellness-hub.md)
 - [Published Business Income Planner fixes and verification](../audits/2026-11-19-business-income-publication.md)

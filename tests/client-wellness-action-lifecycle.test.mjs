@@ -3,17 +3,54 @@ import test from "node:test"
 import { readFile } from "node:fs/promises"
 import { createRequire } from "node:module"
 import { runInNewContext } from "node:vm"
+import * as movementComfort from "../lib/movement-comfort.js"
+import * as reflection from "../lib/wellness-reflection.js"
+import * as exerciseRecording from "../lib/exercise-recording.js"
+import * as catalog from "../lib/wellness-catalog.js"
 import { compileCommonJsModule, createElement, findElement, findElements, renderFunctionComponents, elementText, passThroughElement } from "./helpers/compiled-module.mjs"
 
 const cached = createRequire(import.meta.url)
 const { unstable_rethrow } = cached("next/dist/client/components/unstable-rethrow.browser.js")
 const { getRedirectError } = cached("next/dist/client/components/redirect.js")
 const componentSource = await readFile(new URL("../components/wellness/wellness-hub-client.tsx", import.meta.url), "utf8")
+const cardSource = await readFile(new URL("../components/wellness/wellness-entry-card.tsx", import.meta.url), "utf8")
 const deferred = () => { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no }); return { promise, resolve, reject } }
 const entry = (id, summary = id) => ({ id, category: "activity", occurredAt: "2026-10-27T12:00:00.000Z", timezone: "America/New_York",
   summary, intensity: 0, regions: [], sensations: [], contexts: [], source: "quick-log", metadata: {},
   createdAt: "2026-10-27T12:00:00.000Z", updatedAt: "2026-10-27T12:00:00.000Z", persisted: true })
 const success = (id) => ({ ok: true, data: { entry: entry(id) } })
+
+test("actual quick-log adapter admits Work reflection but excludes hidden feeling and Home care fields", async () => {
+  const pending = deferred()
+  const page = owner({ create: () => pending.promise })
+  page.ack()
+  page.form.fields = { category: "work_context", summary: "Fictional task", intensity: "3", "reflection-activity": "Fictional reaching", "reflection-posture": "held position", "reflection-careAction": "hidden home routine", feelingWords: "Hopeful" }
+  page.click("Save")
+  const metadata = JSON.parse(page.calls[0].args[0].get("metadata"))
+  assert.equal(metadata.contextCheckIn.activity, "Fictional reaching")
+  assert.equal(metadata.contextCheckIn.posture, "held position")
+  assert.equal(metadata.contextCheckIn.careAction, undefined)
+  assert.equal(metadata.feelingWords, undefined)
+  pending.resolve(success("work-check")); await page.settled()
+  assert.equal(page.form.resets, 1)
+})
+
+test("Exercise validates before dispatch and keeps the shared privacy, pending and failure owner", async () => {
+  const pending = deferred(), page = owner({ initialEntries: [entry("existing")], create: () => pending.promise })
+  page.form.fields = { category: "exercise", exerciseRecord: JSON.stringify(exerciseRecording.createExerciseDraft()), summary: "Fictional exercise note", intensity: "9" }
+  page.click("Save"); page.render()
+  assert.equal(page.calls.length, 0); assert.match(page.status(), /exercise name/)
+  const draft = { ...exerciseRecording.createExerciseDraft(), name: "Fictional row", context: "pt", sets: [{ reps: "8", weight: "0.5", holdSeconds: "" }] }
+  page.form.fields.exerciseRecord = JSON.stringify(draft)
+  page.click("Save"); page.render(); assert.equal(page.calls.length, 0); assert.match(page.status(), /privacy boundary/)
+  page.ack(); const click = page.button("Save").props.onClick; const operation = click(); click(); page.render()
+  assert.equal(page.calls.length, 1); page.controlsPending(true)
+  const sent = page.calls[0].args[0]
+  assert.equal(sent.get("intensity"), null)
+  assert.deepEqual(JSON.parse(sent.get("metadata")).exerciseRecord.sets, [{ reps: 8, weight: 0.5 }])
+  pending.resolve({ ok: false, reason: "invalid-exercise-recording" }); await operation; await page.settled()
+  assert.equal(page.form.resets, 0); assert.equal(page.form.fields.exerciseRecord, JSON.stringify(draft)); page.controlsPending(false)
+})
 
 /** Only browser FormData construction is replaced; the real payload/handler functions execute. */
 class InertFormData {
@@ -44,7 +81,8 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     },
     useRef(initial) { const index = cursor++; if (!(index in slots)) slots[index] = { current: initial }; return slots[index] },
     // Navigation/focus effects are verified in the real-browser suite; action ownership stays inert here.
-    useEffect: () => {},
+    useEffect: () => {}, useLayoutEffect: () => {},
+    useSyncExternalStore: (_subscribe, snapshot) => snapshot(),
     useMemo: (callback) => callback(),
     useTransition: () => [transitionPending, (callback) => { transitionPending = true; track(callback()) }],
   }
@@ -56,13 +94,23 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     react, "react/jsx-runtime": { jsx: createElement, jsxs: createElement, Fragment: "fragment" },
     "next/link": { __esModule: true, default: passThroughElement("a") },
     "next/navigation": { unstable_rethrow },
-    "lucide-react": Object.fromEntries(["Activity", "ArrowLeft", "BarChart3", "BriefcaseBusiness", "CalendarDays", "Clock3", "Download", "HeartPulse", "Leaf", "Moon", "MoveUpRight", "Radio", "Save", "Smile", "Trash2", "TriangleAlert", "Wind"].map((name) => [name, passThroughElement("svg")])),
+    "lucide-react": Object.fromEntries(["Activity", "ArrowLeft", "BarChart3", "BriefcaseBusiness", "CalendarDays", "Clock3", "Download", "Dumbbell", "HeartPulse", "Leaf", "Moon", "MoveUpRight", "Radio", "Save", "Smile", "Trash2", "TriangleAlert", "Wind"].map((name) => [name, passThroughElement("svg")])),
     "@/app/wellness/actions": {
       createClientWellnessEntryAction: action("create", create), deleteClientWellnessEntryAction: action("delete", remove),
       exportClientWellnessEntriesAction: action("export", exportAction),
     },
     "@/components/wellness/body-region-selector": { BodyRegionSelector: passThroughElement("regions"), BODY_REGION_OPTIONS: [] },
     "@/components/wellness/rom-measurement-panel": { RomMeasurementPanel: passThroughElement("rom-panel") },
+    "@/lib/rom-movements": { ROM_MOVEMENTS: [] },
+    "@/lib/movement-comfort": movementComfort,
+    "@/lib/wellness-reflection": reflection,
+    "@/lib/exercise-recording": exerciseRecording,
+    "@/lib/wellness-catalog": catalog,
+    "./exercise-recorder": { ExerciseRecorder: passThroughElement("exercise-recorder") },
+    "./exercise-history": { ExerciseHistory: passThroughElement("exercise-history"), ExerciseDetails: passThroughElement("exercise-details") },
+    "./feelings-wheel": { FeelingsWheel: passThroughElement("feelings-wheel") },
+    "./context-reflection": { ContextReflection: passThroughElement("context-reflection") },
+    "./activity-recording.module.css": { __esModule: true, default: { form: "activity-form", privacy: "activity-privacy" } },
     "@/components/wellness/wellness-calendar-companion": { WellnessCalendarCompanion: passThroughElement("calendar-companion") },
     "@/components/wellness/wellness-pattern-report": { WellnessPatternReport: passThroughElement("pattern-report") },
     "@/lib/client-wellness": { CLIENT_WELLNESS_CATEGORIES: ["activity", "rom"] },
@@ -73,6 +121,11 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     modules[`@/components/ui/${name}`] = { [exported]: passThroughElement(tag) }
   }
   const record = { exports: {} }
+  const card = { exports: {} }
+  runInNewContext(compileCommonJsModule(cardSource,"wellness-entry-card.tsx"), {
+    exports:card.exports, module:card, require(name) { assert.ok(Object.hasOwn(modules,name)); return modules[name] }, Intl,
+  }, {timeout:1000})
+  modules["./wellness-entry-card"] = card.exports
   runInNewContext(compileCommonJsModule(componentSource, "wellness-hub-owner-inert.tsx"), {
     exports: record.exports, module: record, require(name) { assert.ok(Object.hasOwn(modules, name)); return modules[name] },
     FormData: InertFormData, Intl, Blob,
@@ -88,7 +141,8 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     return rendered
   }
   const button = (label) => {
-    const found = findElement(rendered, (node) => node.type === "button" && (node.props["aria-label"] ?? elementText(node)) === label)
+    // Action ownership is independent of the visible category-specific caption.
+    const found = findElement(rendered, (node) => node.type === "button" && ((label === "Save" || label === "Practice") ? node.props["data-activity-save"] !== undefined : (node.props["aria-label"] ?? elementText(node)) === label))
     assert.ok(found, "expected ordinary control exists"); return found
   }
   render()
@@ -96,7 +150,7 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     calls, caught, form, downloads, render, button,
     status: () => { const node = findElement(rendered, (value) => value.props.role === "status"); return node ? elementText(node) : "" },
     text: () => elementText(rendered),
-    rom: () => findElement(rendered, (node) => node.type === "rom-panel"),
+    rom: (focus = "range") => findElement(rendered, (node) => node.type === "rom-panel" && node.props.focus === focus),
     report: () => findElement(rendered, (node) => node.type === "pattern-report").props.entries,
     ack(value = true) { findElement(rendered, (node) => node.type === "checkbox").props.onCheckedChange(value); render() },
     click(label) { return track(button(label).props.onClick()) },
@@ -105,7 +159,7 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     async settled() { await Promise.all(tasks); render() },
     controlsPending(value) {
       assert.equal(button(signedIn ? "Save" : "Practice").props.disabled, value)
-      assert.equal(this.rom().props.disabled, value)
+      for (const panel of findElements(rendered, (node) => node.type === "rom-panel")) assert.equal(panel.props.disabled, value)
       if (signedIn) assert.equal(button(findElements(rendered, (node) => node.type === "button" && elementText(node) === "Confirm").length ? "Confirm" : "Export").props.disabled, value)
     },
   }
@@ -169,6 +223,32 @@ test("rejected, non-ok and invalid normalized replies preserve input and recover
 })
 
 const romDraft = { movement: "Cervical rotation", side: "Left", axis: "beta", baselineAngle: 0, endAngle: 1, changeDegrees: 1, source: "manual", note: "Neutral ROM" }
+test("comfort uses the shared privacy/pending owner without fabricating an angle", async () => {
+  const result = deferred(), hub = owner({ create: () => result.promise })
+  const draft = { movement: "Forearm pronation", side: "Left", comfortScore: 0, source: "manual", note: "Fictional comfort" }
+  hub.measure(draft); hub.render()
+  assert.equal(hub.calls.length, 0)
+  assert.match(hub.status(), /privacy boundary/)
+  hub.ack(); hub.measure(draft); hub.measure(romDraft); hub.render()
+  assert.equal(hub.calls.length, 1); hub.controlsPending(true)
+  const sent = JSON.parse(hub.calls[0].args[0].get("metadata"))
+  assert.equal(sent.recordingKind, "comfort"); assert.equal(sent.comfortScore, 0)
+  assert.equal(Object.hasOwn(sent, "changeDegrees"), false)
+  result.resolve({ ok: false, reason: "save-failed" }); await hub.settled()
+  assert.equal(hub.status(), "Could not save this movement check-in."); hub.controlsPending(false)
+})
+test("comfort practice and combined submissions retain separate rating and degree meanings", async () => {
+  const practice = owner({ signedIn: false })
+  const draft = { movement: "Cervical rotation", side: "Left", comfortScore: 10, source: "manual", note: "Fictional comfortable movement" }
+  practice.measure(draft); practice.render()
+  assert.equal(practice.calls.length, 0)
+  assert.equal(practice.report()[0].intensity, null)
+  assert.equal(practice.report()[0].metadata.comfortScore, 10)
+  const hub = owner({ create: async () => success("combined") })
+  hub.ack(); hub.measure({ ...romDraft, comfortScore: 6 }); await hub.settled()
+  const sent = JSON.parse(hub.calls[0].args[0].get("metadata"))
+  assert.equal(sent.recordingKind, "both"); assert.equal(sent.changeDegrees, 1); assert.equal(sent.comfortScore, 6)
+})
 test("actual ROM handler shares the lock and never calls normalized-null data Saved", async () => {
   const result = deferred(), hub = owner({ create: () => result.promise })
   hub.ack(); hub.measure(romDraft); hub.click("Save"); hub.render()

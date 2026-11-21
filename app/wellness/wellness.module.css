@@ -6,6 +6,8 @@
 .titleRow h1 { font-size: 1.5rem; font-weight: 600; line-height: 1.25; }
 .header p { font-size: 0.8rem; line-height: 1.5; color: hsl(var(--muted-foreground)); }
 .header .privacy { font-size: 0.7rem; }
+/* The active tool supplies its own h1 instead of repeating the hub introduction. */
+.workspace:has([data-wellness-workspace]:not([hidden])) > .header { display: none; }
 .page [data-wellness-home] { display: grid; gap: 1.1rem; container-type: inline-size; }
 .page [data-wellness-home] h2 { margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; }
 .page [data-wellness-tool-grid] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }

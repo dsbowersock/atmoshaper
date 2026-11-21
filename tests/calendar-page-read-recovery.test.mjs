@@ -56,6 +56,8 @@ function fixture(options = {}) {
     "./calendar-guidance-notice": { CalendarGuidanceNotice: pass },
     "./calendar-operator-shell": { CalendarOperatorShell: pass },
     "./calendar-workspace": { CalendarWorkspace: nodes.CalendarWorkspace },
+    "@/components/wellness/personal-calendar-home": { PersonalCalendarHome: (props) => createElement("personal-calendar",props) },
+    "@/components/wellness/calendar-view-navigation": { CalendarViewNavigation: pass },
   }).default
   return {
     calls,
@@ -64,6 +66,7 @@ function fixture(options = {}) {
       return {
         text: elementText(renderFunctionComponents(tree)),
         workspace: findElement(tree, (node) => node.type === nodes.CalendarWorkspace)?.props ?? null,
+        personal: findElement(renderFunctionComponents(tree), (node) => node.type === "personal-calendar")?.props ?? null,
       }
     },
   }
@@ -83,6 +86,15 @@ test("anonymous visitors keep the sign-in gate without reading calendar data", a
   assert.match(result.text, /Sign in to use practice scheduling/)
   assert.equal(result.workspace, null)
   assert.deepEqual(input.calls, [])
+})
+
+test("signed-in users without a practice get a personal view without creating a practice", async () => {
+  const input = fixture({memberships:[]}), result = await input.run({date:"2026-11-20"})
+  assert.equal(result.personal.isSignedIn,true); assert.equal(result.personal.initialDay,"2026-11-20")
+  assert.equal(result.workspace,null)
+  assert.deepEqual(input.calls.map((call) => call.name),["readiness","membership"])
+  const setup = await fixture({memberships:[]}).run({setup:"practice"})
+  assert.match(setup.text,/Create a practice calendar/); assert.equal(setup.personal,null)
 })
 
 test("unready schema keeps the existing unavailable surface without workspace reads", async () => {
@@ -106,9 +118,9 @@ for (const stage of ["events", "providers", "preferences", "availability", "inte
   })
 }
 
-test("no owned practice still offers practice creation without workspace queries", async () => {
+test("explicit practice setup still offers creation without workspace queries", async () => {
   const input = fixture({ memberships: [] })
-  const result = await input.run()
+  const result = await input.run({ setup: "practice" })
   assert.match(result.text, /Create a practice calendar/)
   assert.equal(result.workspace, null)
   assert.deepEqual(input.calls.map((call) => call.name), ["readiness", "membership"])
