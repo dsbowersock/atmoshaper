@@ -25,6 +25,7 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
   const [aspect, setAspect] = useState(1.15)
   const [dragging, setDragging] = useState(false)
   const [activePath, setActivePath] = useState<string[]>([])
+  const [chosenPaths, setChosenPaths] = useState(new Map<string, string[]>())
   const [focusKey, setFocusKey] = useState(SEGMENTS[0].key)
   const svg = useRef<SVGSVGElement>(null)
   const paths = useRef(new Map<string, SVGPathElement>())
@@ -33,7 +34,7 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
   const instructionsId = useId()
   const frame = feelingWheelFrame(aspect, zoom, pan)
   const selectedWord = selected.includes(activePath.at(-1) ?? "") ? activePath.at(-1) : selected.at(-1)
-  const selectedPath = selectedWord === activePath.at(-1) ? activePath : SEGMENTS.find((segment) => segment.word === selectedWord)?.path ?? (selectedWord ? [selectedWord] : [])
+  const selectedPath = selectedWord ? chosenPaths.get(selectedWord) ?? SEGMENTS.find((segment) => segment.word === selectedWord)?.path ?? [selectedWord] : []
 
   useEffect(() => {
     const element = svg.current
@@ -45,8 +46,13 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
 
   const choose = (word: string, context?: string[]) => {
     if (disabled || !word.trim() || multiple && selected.length >= 16 && !selected.includes(word)) return
-    setActivePath(context ?? SEGMENTS.find((segment) => segment.word === word)?.path ?? [word])
-    onChange(multiple ? selected.includes(word) ? selected.filter((item) => item !== word) : [...selected, word] : [word])
+    const path = context ?? chosenPaths.get(word) ?? SEGMENTS.find((segment) => segment.word === word)?.path ?? [word]
+    const next = multiple ? selected.includes(word) ? selected.filter((item) => item !== word) : [...selected, word] : [word]
+    // Duplicate words can belong to different families. Keep the chosen branch
+    // for each remaining word instead of reconstructing it from its spelling.
+    setChosenPaths((current) => new Map(next.map((item) => [item, item === word ? path : current.get(item) ?? [item]])))
+    setActivePath(path)
+    onChange(next)
   }
   const changeZoom = (next: number) => { setZoom(Math.max(1, Math.min(3.5, next))); setPan({ x: 0, y: 0 }) }
   const angleAt = (x: number, y: number) => {

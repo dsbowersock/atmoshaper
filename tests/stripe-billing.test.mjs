@@ -689,6 +689,27 @@ describe("Stripe billing helpers", () => {
     }
   })
 
+  it("bounds a confirmation read that never settles within the SDK inactivity timeout", async (t) => {
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+    let startRead, finishRead
+    const started = new Promise(resolve => { startRead = resolve })
+    const fresh = membershipCheckoutSession({ id: "cs_confirmation_deadline" })
+    let creates = 0
+    const checkout = stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      stripeClient: { checkout: { sessions: {
+        list: async () => stripeCheckoutSessionList(),
+        create: async () => { creates += 1; return fresh },
+        retrieve: () => { startRead(); return new Promise(resolve => { finishRead = resolve }) },
+      } } },
+    }))
+    await started
+    const rejected = assert.rejects(checkout, /confirmation exceeded the safe time limit/)
+    t.mock.timers.tick(5001)
+    await rejected
+    finishRead(fresh)
+    assert.equal(creates, 1)
+  })
+
   it("rejects a slow terminal create without starting another create after the deadline", async () => {
     let clock = 0
     let creates = 0

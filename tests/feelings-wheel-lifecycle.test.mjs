@@ -40,6 +40,11 @@ function wheel() {
     related: () => findElements(tree, node => node.props["data-related"] === true).length,
     levels: () => findElements(tree, node => node.props["data-feeling-level"] !== undefined).length,
     click(label) { const control = findElement(tree, node => node.type === "button" && (node.props["aria-label"] ?? elementText(node)) === label); assert.ok(control, label); control.props.onClick(); render() },
+    choosePath(path) {
+      const segment = layout.buildFeelingWheelSegments().find(item => item.path.join("/") === path.join("/"))
+      assert.ok(segment)
+      findElement(tree, node => node.props["data-feeling-key"] === segment.key).props.onClick({ detail: 0 }); render()
+    },
     pointer(type, id, x, y) {
       const node = findElement(tree, element => element.type === "svg")
       node.props[type]({ pointerId: id, pointerType: "touch", button: 0, clientX: x, clientY: y, currentTarget: svg, target: { closest: () => null } })
@@ -75,4 +80,14 @@ test("removing the latest of multiple feelings keeps the remaining word's contex
   page.click("Remove feeling Sad")
   assert.deepEqual(page.selected(), ["Happy"])
   assert.equal(page.context(), "Happy")
+})
+
+test("removing another feeling preserves the selected branch of a duplicate word", () => {
+  const page = wheel()
+  page.click("Choose multiple feelings")
+  page.choosePath(["Connected", "Understood", "Accepted"])
+  page.click("Sad"); page.click("Remove feeling Sad")
+  assert.deepEqual(page.selected(), ["Accepted"])
+  assert.equal(page.context(), "Connected › Understood › Accepted")
+  assert.ok(page.related() > 0)
 })

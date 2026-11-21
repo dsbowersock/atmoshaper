@@ -156,6 +156,7 @@ export default async function CalendarPage({
       <CalendarWorkspace
         key={`${session.user.id}:${practice.id}:${initialScope}`}
         events={workspaceEvents}
+        loadedPracticeWindow={workspaceData.loadedPracticeWindow}
         providers={providers}
         providerAvailability={providerAvailability}
         preferences={preferences}
@@ -260,7 +261,8 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string, req
       orderBy: { startsAt: "asc" },
     })
     : []
-  return { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks }
+  return { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks,
+    loadedPracticeWindow: { start: windowStart.toISOString(), end: windowEnd.toISOString() } }
 }
 
 /** Keeps sign-in, unavailable and ready states inside the same full-width operator geometry. */

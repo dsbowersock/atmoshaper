@@ -5,8 +5,10 @@ Strict evidence covers all 703 changed post-bootstrap code/test histories at
 the public tree, with zero remaining gaps. Its 64 observations and subsequent
 local corrections are recorded in the [backfill register](2026-11-21-coderabbit-range-backfill-results.md).
 The final 28-path correction review has since completed with four issues; its
-dispositions and the subsequent small unreviewed Checkout correction are in
-that register. Historical pending language
+dispositions and the subsequent Checkout correction are in that register.
+The later 16-path and six-path follow-ups complete at `dfe4198` and `1c9a8f1`,
+with zero issues in the final pass; see the [closure](2026-11-21-four-review-issues.md).
+Historical pending language
 below describes the checkpoints at which these original receipts were written.
 
 Status: all five initial passes complete, with their 166 frozen selected paths

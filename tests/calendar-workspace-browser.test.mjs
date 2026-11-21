@@ -66,5 +66,27 @@ test("real calendar phone and desktop source selection stays private and contain
       await expect(split.locator(".fc")).toHaveCount(calendars)
       await expect(split.getByText("December 2026",{exact:true})).toBeVisible()
     }
+    // A deep-linked distant schedule must not turn Today or boundary navigation
+    // into an empty bookable grid while the server's new snapshot is pending.
+    const bounded=await browser.newPage({viewport:{width:1280,height:900}})
+    await bounded.clock.setFixedTime(new Date('2026-11-20T12:00:00Z'))
+    for(const direction of ['Today','Previous range','Next range']){
+      await bounded.goto(`${server.origin}/?bounded`)
+      await expect(bounded.getByText('February 2030',{exact:true})).toBeVisible()
+      for(let attempt=0;attempt<7;attempt++){
+        await bounded.getByRole('button',{name:direction,exact:true}).click()
+        if(await bounded.getByRole('status').filter({hasText:'Loading practice schedule'}).isVisible())break
+      }
+      await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+      await expect(bounded.locator('.fc')).toBeHidden()
+      const requests=await bounded.evaluate(()=>window.__calendarNavigation)
+      assert.equal(requests.length,1)
+      const query=new URL(requests[0],server.origin).searchParams
+      assert.equal(query.get('practice'),'fictional-practice');assert.equal(query.get('view'),'practice')
+      if(direction==='Today')assert.equal(query.get('date'),'2026-11-20')
+      await bounded.evaluate(()=>window.__loadPracticeWindow({start:'2020-01-01T00:00:00Z',end:'2040-01-01T00:00:00Z'}))
+      await expect(bounded.locator('.fc')).toBeVisible()
+      assert.deepEqual(await bounded.evaluate(()=>window.__calendarWrites),[])
+    }
   } finally {try {await browser?.close()} finally {await server.close()}}
 })

@@ -29,15 +29,25 @@ export function readGitDiffPaths(base, head, cwd = process.cwd(), env = process.
   return readGit(["diff", "--name-only", "--no-renames", "-z", base, head], { cwd, env }).split("\0").filter(Boolean)
 }
 
+/** Shallow roots are fetch boundaries, not evidence of the inherited bootstrap.
+ * Require complete local history before enumerating ancestry or coverage. */
+export function assertCompleteGitHistory(cwd = process.cwd(), env = process.env) {
+  if (readGit(["rev-parse", "--is-shallow-repository"], { cwd, env }).trim() !== "false") {
+    throw new Error("Git review coverage requires complete history; shallow repositories are unsupported")
+  }
+}
+
 /** Reads exact tree identities without checkout. Use Git's default NUL-framed
  * records: custom %(path) formatting can still quote names even with -z. */
-export function readGitTree(commit, { cwd = process.cwd(), optional = false, env = process.env } = {}) {
+export function readGitTree(commit, { cwd = process.cwd(), optional = false, env = process.env, states = false } = {}) {
   const raw = readGit(["ls-tree", "-r", "-z", commit], { cwd, optional, env })
   return raw === null ? null : new Map(raw.split("\0").filter(Boolean).map(line => {
     const at = line.indexOf("\t")
-    const header = /^(\d{6}) (?:blob|commit) ([a-f0-9]+)$/.exec(line.slice(0, at))
+    const header = /^(\d{6}) (blob|commit) ([a-f0-9]+)$/.exec(line.slice(0, at))
     if (!header || at === line.length - 1) throw new Error("Invalid Git coverage tree record")
-    return [line.slice(at + 1), header[2]]
+    // Coverage states include mode and type; raw blob IDs remain available to
+    // callers that prepare objects rather than compare reviewed transitions.
+    return [line.slice(at + 1), states ? header[0] : header[3]]
   }))
 }
 

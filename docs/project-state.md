@@ -1,5 +1,18 @@
 # AtmoShaper Project State
 
+## November 21 release PR review correction group
+
+Authorized publication PR #78 at `bf58dca` receives completed Codex review with
+no issues and full CodeRabbit review of all 57 paths with eight issues. Five
+code behaviors and three outdated audit passages are corrected together; see
+the [disposition register](audits/2026-11-21-release-review-corrections.md).
+Focused checks pass 112 unit and 29 Calendar/controller/browser cases. The
+mode/type-aware frozen inventory still verifies all 703 changed code/test
+histories with zero gaps. Fresh correction review, hosted CI and same-artifact
+publication gates remain. Full lint/TypeScript pass. Diagnosed Exercise/native
+validation and mobile-drawer CI test corrections pass isolated hosted phone/
+desktop checks. Public traffic is still on `d7e30e0`.
+
 ## November 21 reviewed fixes publication authorized and in preparation
 
 The owner requests the release PR, publication checks and publication of all

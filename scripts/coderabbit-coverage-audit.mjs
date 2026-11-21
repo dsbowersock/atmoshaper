@@ -1,5 +1,7 @@
 import {readFile,writeFile} from 'node:fs/promises'
-import {readGit,isGitAncestor,readGitDiffPaths,readGitTree,selectReviewBaseline,reachableReviewedBlobs,assertCliReceiptIdentity,validateCompletedCliReceipt} from './coderabbit-coverage-proof.mjs'
+import {readGit,isGitAncestor,readGitDiffPaths,readGitTree,selectReviewBaseline,reachableReviewedBlobs,assertCliReceiptIdentity,validateCompletedCliReceipt,assertCompleteGitHistory} from './coderabbit-coverage-proof.mjs'
+
+assertCompleteGitHistory()
 
 const folder='output/coderabbit-coverage'
 const source='d7e30e022d825d9f26ed37bd6636f11bae1e8314'
@@ -12,12 +14,14 @@ function git(args,optional=false){
   return readGit(args,{optional})
 }
 const trees=new Map()
-/** Exact Git blobs distinguish reviewed content from later edits to the same path. */
+/** Exact Git states distinguish reviewed content, executable modes and types. */
 function tree(commit){
   if(trees.has(commit))return trees.get(commit)
-  const value=readGitTree(commit,{optional:true})
+  const value=readGitTree(commit,{optional:true,states:true})
   trees.set(commit,value);return value
 }
+/** Keep the batch object's content hash separate from its review-state identity. */
+function blobOf(state){return state===null?null:state.split(' ')[2]}
 /** Only substantive file-selection receipts count. Skipped checks, bot presence
  * and empty review submissions do not establish source coverage. */
 function receipts(record){
@@ -81,8 +85,8 @@ for(const receipt of proof){const files=tree(receipt.head),before=tree(receipt.b
     const previous=reviewed.get(path)
     // This human-readable receipt hint is not a coverage decision. Only the
     // complete reviewed range chain below can certify post-baseline changes.
-    const matches=blob===current.get(path),previousMatches=previous?.blob===current.get(path)
-    if(!previous||(matches&&!previousMatches)||(matches===previousMatches&&Date.parse(receipt.at)>Date.parse(previous.at)))reviewed.set(path,{...receipt,paths:undefined,blob})
+    const matches=blob===current.get(path),previousMatches=previous?.state===current.get(path)
+    if(!previous||(matches&&!previousMatches)||(matches===previousMatches&&Date.parse(receipt.at)>Date.parse(previous.at)))reviewed.set(path,{...receipt,paths:undefined,state:blob,blob:blobOf(blob)})
   }
 }
 const shipped=prs.filter(pr=>pr.merged_at&&pr.merge_commit_sha&&isGitAncestor(pr.merge_commit_sha,source)).sort((a,b)=>Date.parse(a.merged_at)-Date.parse(b.merged_at))
@@ -110,7 +114,7 @@ const paths=[...touched.values()].map(entry=>{
   const covered=reachableReviewedBlobs(seed,transitions.get(entry.path)??[]).has(current.get(entry.path))
   // Start any backfill at the inherited pre-change version, not a possibly
   // partial recent review. This covers all surviving post-bootstrap changes.
-  return {...entry,category:category(entry.path),covered,seedBlob:seed,review:reviewed.get(entry.path)??null,baseline}
+  return {...entry,category:category(entry.path),covered,seedBlob:blobOf(seed),seedState:seed,review:reviewed.get(entry.path)??null,baseline}
 })
 const gaps=paths.filter(path=>!path.covered&&['runtime-or-config','test'].includes(path.category))
 // A new source/configuration format cannot silently disappear from the audit.
@@ -128,10 +132,10 @@ function cohort(path){
 const batches=[]
 if(retrospective.length){
   const group=[...gaps].sort((a,b)=>a.path.localeCompare(b.path))
-  for(let offset=0;offset<group.length;offset+=70)batches.push({id:`range-proof-backfill-${1+offset/70}`,source,paths:group.slice(offset,offset+70).map(item=>({path:item.path,baseline:item.baseline,blob:current.get(item.path)}))})
+  for(let offset=0;offset<group.length;offset+=70)batches.push({id:`range-proof-backfill-${1+offset/70}`,source,paths:group.slice(offset,offset+70).map(item=>({path:item.path,baseline:item.baseline,blob:blobOf(current.get(item.path))}))})
 }else for(const name of ['accounts-calendar-payments','wellness-and-body','business-planners','operations-and-shared-ui']){
   const group=gaps.filter(item=>cohort(item.path)===name).sort((a,b)=>a.path.localeCompare(b.path))
-  for(let offset=0;offset<group.length;offset+=70)batches.push({id:`${name}-${1+offset/70}`,source,paths:group.slice(offset,offset+70).map(item=>({path:item.path,baseline:item.baseline,blob:current.get(item.path)}))})
+  for(let offset=0;offset<group.length;offset+=70)batches.push({id:`${name}-${1+offset/70}`,source,paths:group.slice(offset,offset+70).map(item=>({path:item.path,baseline:item.baseline,blob:blobOf(current.get(item.path))}))})
 }
 if(new Set(batches.flatMap(batch=>batch.paths.map(item=>item.path))).size!==gaps.length)throw new Error('Incomplete or duplicate review scope')
 const result={source,inheritedBootstrap:inheritedRoots[0],capturedAt:new Date().toISOString(),shippedPullRequests:rows.sort((a,b)=>a.pr-b.pr),receipts:proof,paths,gaps,inheritedOutsidePrDiffs:inherited,batches,summary:{shippedPrs:shipped.length,substantiveFileReceipts:proof.length,pathsTouched:paths.length,coveredCurrentBlobs:paths.filter(path=>path.covered).length,coveredCodeAndTestPaths:paths.filter(path=>path.covered&&['runtime-or-config','test'].includes(path.category)).length,uncoveredCodeAndTestPaths:gaps.length,inheritedCodeAndTestPaths:inherited.length,reviewBatches:batches.length}}

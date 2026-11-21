@@ -4,7 +4,7 @@ import path from "node:path"
 import { spawnSync } from "node:child_process"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
-import { isGitAncestor, readGitDiffPaths, readGitTree, selectReviewBaseline, reachableReviewedBlobs, validateCompletedCliReceipt } from "../scripts/coderabbit-coverage-proof.mjs"
+import { isGitAncestor, readGitDiffPaths, readGitTree, selectReviewBaseline, reachableReviewedBlobs, validateCompletedCliReceipt, assertCompleteGitHistory } from "../scripts/coderabbit-coverage-proof.mjs"
 
 /** Own every fixture object/index and cleanup path. Never inherit a caller's
  * Git index/repository redirects into fixture writes or the preparation worker. */
@@ -98,6 +98,33 @@ test("Git errors cannot become zero-file PRs or valid non-ancestor results", asy
     await rm(object)
     git(["cat-file", "-e", second])
     assert.throws(() => readGitDiffPaths(`${second}^1`, second, fixture, env), /read failed/)
+})
+
+test("a shallow boundary cannot masquerade as the inherited bootstrap", async (t) => {
+  const { root, git, env } = await fixtureRepository(t)
+  const base = commitFiles(git, { "source.js": "Inherited\n" })
+  const head = commitFiles(git, { "source.js": "Changed\n" }, base)
+  git(["update-ref", "HEAD", head])
+  assertCompleteGitHistory(root, env)
+  await writeFile(path.join(root, ".git/shallow"), head + "\n")
+  assert.equal(git(["rev-list", "--max-parents=0", head]), head)
+  assert.throws(() => assertCompleteGitHistory(root, env), /requires complete history/)
+})
+
+test("mode-only changes require review even when content hashes are identical", async (t) => {
+  const { root, git, env } = await fixtureRepository(t)
+  const base = commitFiles(git, { "script.sh": "echo fixture\n" })
+  const blob = readGitTree(base, { cwd: root, env }).get("script.sh")
+  for (const mode of ["100755", "120000"]) {
+    const tree = git(["mktree", "-z"], `${mode} blob ${blob}\tscript.sh\0`)
+    const head = git(["commit-tree", tree, "-p", base], "Mode-only fixture\n")
+    assert.equal(readGitTree(head, { cwd: root, env }).get("script.sh"), blob)
+    const before = readGitTree(base, { cwd: root, env, states: true }).get("script.sh")
+    const after = readGitTree(head, { cwd: root, env, states: true }).get("script.sh")
+    assert.notEqual(before, after)
+    assert.equal(reachableReviewedBlobs(before, []).has(after), false)
+    assert.equal(reachableReviewedBlobs(before, [{ from: before, to: after }]).has(after), true)
+  }
 })
 
 test("a nested PR baseline permits wider proof without certifying parent work", async (t) => {

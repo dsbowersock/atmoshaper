@@ -4,7 +4,9 @@ Current result: the actual fixed 60-path backfill completes and its verified
 raw receipt closes all remaining public range gaps. All 703 changed code/test
 histories at `d7e30e0` have complete evidence, with zero unproven. Its 64 issues
 and dispositions are in the [backfill register](2026-11-21-coderabbit-range-backfill-results.md).
-The final review of subsequent local corrections is separate. Older 643/60 and
+The subsequent correction reviews at `dfe4198` and `1c9a8f1` also complete;
+the latter raises zero issues. See the [closure](2026-11-21-four-review-issues.md).
+Older 643/60 and
 537/166 counts below are preserved checkpoint history.
 
 The original blob-match inventory below is historical. The correction review
@@ -21,7 +23,8 @@ Status: fresh authentication succeeds; all five initial review passes cover all
 166 frozen paths once each, with 46 triaged observations. See the
 [actual receipts and triage](2026-11-21-coderabbit-retrospective-results.md).
 The table below preserves the historical pre-review inventory, not the current
-retrospective completion count. A correction follow-up remains; no publication
+retrospective completion count. The subsequent correction follow-ups are now
+complete as recorded above; no publication
 occurs in this campaign.
 
 The owner requests actual CodeRabbit coverage alongside Codex and a bounded
@@ -75,5 +78,6 @@ The final 15-file CodeRabbit follow-up at `61a7c6a` completes with zero issues,
 and all 35 current changed code/configuration/test blobs match completed receipts.
 All seven source/merged CI checks, staged Sentry/PDF gates and public acceptance
 pass. No rejected or skipped attempt is counted. Fresh CLI authentication now
-succeeds; remaining completion and correction-review gates are recorded in the
-linked retrospective results. An expired login URL cannot be reused.
+succeeds; subsequent completion and correction-review gates close in the linked
+four-issue receipt. Publication has its separate authorized release gates.
+An expired login URL cannot be reused.

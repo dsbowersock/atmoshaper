@@ -131,9 +131,11 @@ slow-create boundary, bounded terminal behavior and later-page failures.
 Focused lint and the subsequent inert application rebuild/TypeScript pass.
 The current inventory contains zero code/test paths requiring Git pathname
 quoting, confirming that F3 does not change this frozen result. This run also
-has no inherited Git repository/index redirect variables. Keep the R51 fixture
-use gate for future hook/custom-index runs, including the new coverage-proof
-fixture, until environment isolation is implemented.
+has no inherited Git repository/index redirect variables. The coverage-proof
+fixture now passes isolated redirected-environment reads, writes and workers,
+as verified in the [closure](2026-11-21-four-review-issues.md). Keep the separate
+R51 cleanup-fixture use gate for future hook/custom-index runs until its
+environment isolation is implemented.
 These later changes are not represented as CodeRabbit-
 reviewed merely because the earlier versions of their files were reviewed.
 No ninth request is started: all eight planned remote reviews are closed.

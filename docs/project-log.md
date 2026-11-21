@@ -1,5 +1,21 @@
 # AtmoShaper Project Log
 
+## November 21 release PR #78 grouped correction
+
+The requested full PR review completes across 57 paths at `bf58dca`, raising
+five code issues and three stale audit passages; the independent Codex pass
+raises none. Correct Calendar range refresh/loading, duplicate-word feeling
+context, absolute Checkout confirmation timeout, shallow-history refusal and
+mode/type review identities. Align old handoffs with their completed reviews.
+Focused checks pass 112 unit and 29 Calendar/controller/native-browser cases;
+the frozen mode-aware inventory retains all 703 reviewed histories and zero
+gaps. See the [register](audits/2026-11-21-release-review-corrections.md).
+Full lint/TypeScript pass. Diagnose the initial hosted failures before retry:
+align two Exercise tests with native browser validation and await mobile-drawer
+closure before reopening; corrected isolated phone/desktop journeys pass.
+Current-head review/CI and staged/public acceptance still precede publication;
+public `d7e30e0`, provider settings and local/private records remain preserved.
+
 ## November 21 owner authorizes reviewed-fixes publication
 
 Prepare one release branch/PR from `6c7a75d`, carrying every reviewed correction

@@ -146,6 +146,9 @@ test("a requested distant day bounds both practice events and external busy read
     assert.ok(query.startsAt.lt > day, `${name} must include the displayed day`)
     assert.ok(query.endsAt.gt <= day, `${name} must begin before the displayed day`)
     assert.ok(query.startsAt.lt - query.endsAt.gt <= 211 * 86400000, "the read remains bounded")
+    assert.deepEqual(result.workspace.loadedPracticeWindow, {
+      start: query.endsAt.gt.toISOString(), end: query.startsAt.lt.toISOString(),
+    })
   }
 })
 
