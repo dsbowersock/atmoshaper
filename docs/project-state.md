@@ -1,13 +1,27 @@
 # AtmoShaper Project State
 
+## November 21 release follow-up corrections
+
+The actual CodeRabbit correction review at `60bdc9e` completes across all 22
+selected paths. Three supported issues are corrected together: late Calendar
+responses cannot rewind a newer date intent; event and external-busy reads use
+a sentinel row and refuse incomplete snapshots; Checkout confirmation owns an
+abort signal through full response-body consumption. The minor preselected-
+feeling context fallback is also corrected. The real loopback transport test
+observes stream closure and an unaffected concurrent SDK request. All 165 Stripe,
+23 page-read, five feelings lifecycle and native phone/desktop Calendar checks
+pass. The previous source's seven hosted jobs were green; this new delta still
+needs current reviews, CI and staged/public acceptance. Traffic remains on
+`d7e30e0`; no provider settings or live records are changed.
+
 ## November 21 release PR review correction group
 
 The Codex follow-up at `9e0c7df` finds one month-end replacement-window boundary.
 The shared read window now includes full month padding; native tests use the
 actual replacement window rather than an oversized fixture. All 33 applicable
 Calendar checks, focused lint and TypeScript pass. The included CodeRabbit
-correction slot is temporarily exhausted; wait for its reset and completed
-coverage before publication. No paid review or broad new campaign is enabled.
+correction review subsequently completes; its supported follow-up is recorded
+above. No paid review or broad new campaign is enabled.
 
 Authorized publication PR #78 at `bf58dca` receives completed Codex review with
 no issues and full CodeRabbit review of all 57 paths with eight issues. Five

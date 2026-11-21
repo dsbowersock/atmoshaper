@@ -50,7 +50,7 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
     const next = multiple ? selected.includes(word) ? selected.filter((item) => item !== word) : [...selected, word] : [word]
     // Duplicate words can belong to different families. Keep the chosen branch
     // for each remaining word instead of reconstructing it from its spelling.
-    setChosenPaths((current) => new Map(next.map((item) => [item, item === word ? path : current.get(item) ?? [item]])))
+    setChosenPaths((current) => new Map(next.map((item) => [item, item === word ? path : current.get(item) ?? SEGMENTS.find((segment) => segment.word === item)?.path ?? [item]])))
     setActivePath(path)
     onChange(next)
   }

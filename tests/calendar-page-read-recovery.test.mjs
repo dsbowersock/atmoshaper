@@ -185,8 +185,25 @@ test("successful reads preserve event mapping, provider availability and generic
   assert.equal(busyQuery.where.connection.status, "ACTIVE")
   assert.equal(busyQuery.where.source.selectedForBusySync, true)
   assert.deepEqual(Object.keys(busyQuery.select).sort(), ["endsAt", "id", "ownerUserId", "startsAt"])
-  assert.equal(busyQuery.take, 500)
+  assert.equal(busyQuery.take, 501)
 })
+
+for (const kind of ["events", "busy"]) {
+  test(`${kind} sentinel refuses a truncated snapshot but permits exactly 500 rows`, async () => {
+    const rows = Array.from({ length: 501 }, (_, i) => ({ id: `fictional-${i}`, kind: "APPOINTMENT", status: "CONFIRMED", ownerUserId: userId,
+      startsAt: new Date("2026-11-20T13:00:00Z"), endsAt: new Date("2026-11-20T14:00:00Z") }))
+    const complete = fixture({ [kind]: rows.slice(0, 500) })
+    const result = await complete.run()
+    assert.ok(result.workspace.loadedPracticeWindow)
+    assert.equal(result.workspace.events.length, 500)
+    assert.equal(complete.calls.find(call => call.name === kind).args.take, 501)
+    const truncated = fixture({ [kind]: rows })
+    assertUnavailable(await truncated.run())
+    const personal = await fixture({ [kind]: rows }).run({ view: "together" })
+    assert.equal(personal.workspace, null)
+    assert.ok(personal.personal, "private local calendar remains available without partial practice data")
+  })
+}
 
 test("an unowned requested practice never changes the authorized workspace query target", async () => {
   const input = fixture()

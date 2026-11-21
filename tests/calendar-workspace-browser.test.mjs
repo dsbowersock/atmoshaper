@@ -72,7 +72,7 @@ test("real calendar phone and desktop source selection stays private and contain
     await bounded.clock.setFixedTime(new Date('2026-11-20T12:00:00Z'))
     for(const direction of ['Today','Previous range','Next range']){
       await bounded.goto(`${server.origin}/?bounded`)
-      await expect(bounded.getByText('February 2030',{exact:true})).toBeVisible()
+      await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
       for(let attempt=0;attempt<7;attempt++){
         await bounded.getByRole('button',{name:direction,exact:true}).click()
         if(await bounded.getByRole('status').filter({hasText:'Loading practice schedule'}).isVisible())break
@@ -88,6 +88,30 @@ test("real calendar phone and desktop source selection stays private and contain
       await expect(bounded.locator('.fc')).toBeVisible()
       assert.deepEqual(await bounded.evaluate(()=>window.__calendarWrites),[])
     }
+    // A real replacement updates both route date and loaded window. A newer
+    // local date choice must survive that late response, even if no new fetch
+    // was needed until the old window was replaced.
+    await bounded.goto(`${server.origin}/?bounded`)
+    await bounded.getByRole('button',{name:'Today',exact:true}).click()
+    await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+    const oldRequest = await bounded.evaluate(()=>window.__calendarNavigation[0])
+    await bounded.getByRole('button',{name:/Date.*November 2026/}).click()
+    for (let month = 0; month < 39; month++) await bounded.getByRole('button',{name:'Go to the Next Month',exact:true}).click()
+    await bounded.locator('button[data-day="2/12/2030"]').click()
+    await bounded.keyboard.press('Escape')
+    await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
+    await expect(bounded.locator('.fc')).toBeVisible()
+    assert.equal((await bounded.evaluate(()=>window.__calendarNavigation)).length, 1)
+    await bounded.evaluate(day=>window.__loadPracticeDate(day),new URL(oldRequest,server.origin).searchParams.get('date'))
+    await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+    await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
+    await expect.poll(()=>bounded.evaluate(()=>window.__calendarNavigation.length)).toBe(2)
+    const latestRequest=await bounded.evaluate(()=>window.__calendarNavigation[1])
+    assert.equal(new URL(latestRequest,server.origin).searchParams.get('date'),'2030-02-12')
+    await bounded.evaluate(day=>window.__loadPracticeDate(day),'2030-02-12')
+    await expect(bounded.locator('.fc')).toBeVisible()
+    await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
+    assert.deepEqual(await bounded.evaluate(()=>window.__calendarWrites),[])
     await bounded.goto(`${server.origin}/?bounded&monthEnd`)
     await expect(bounded.getByText('January 2027',{exact:true})).toBeVisible()
     await expect(bounded.locator('.fc')).toBeVisible()

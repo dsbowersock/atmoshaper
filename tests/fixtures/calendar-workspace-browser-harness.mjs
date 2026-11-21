@@ -31,10 +31,10 @@ export async function createCalendarWorkspaceBrowserBundle() {
     import {calendarWorkspaceReadWindow} from ${JSON.stringify(path.join(root,"lib/calendar-workspace.js"))};
     window.__calendarReads=[];window.__calendarWrites=[];window.__calendarNavigation=[];window.__calendarOwner='fictional-owner';
     function Fixture(){const [owner,setOwner]=useState('fictional-owner');window.__switchCalendarOwner=()=>{window.__calendarOwner='fictional-second';setOwner('fictional-second')};
-      const initialDate=new URL(location.href).searchParams.has('monthEnd')?'2027-01-31':'2030-02-12';
+      const [initialDate,setInitialDate]=useState(new URL(location.href).searchParams.has('monthEnd')?'2027-01-31':'2030-02-12');
       const readWindow=(day)=>{const range=calendarWorkspaceReadWindow(day);return {start:range.start.toISOString(),end:range.end.toISOString()}};
       const [loadedWindow,setLoadedWindow]=useState(()=>readWindow(initialDate));
-      window.__loadPracticeDate=(day)=>setLoadedWindow(readWindow(day));
+      window.__loadPracticeDate=(day)=>{setInitialDate(day);setLoadedWindow(readWindow(day))};
       const bounded=new URL(location.href).searchParams.has('bounded');
       const noPractice=new URL(location.href).searchParams.has('personalOnly');
       const split=new URL(location.href).searchParams.has('split');

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { createHmac } from "node:crypto"
+import { createServer } from "node:http"
 import { describe, it } from "node:test"
 import {
   createStripeDonationCheckoutSession,
@@ -708,6 +709,48 @@ describe("Stripe billing helpers", () => {
     await rejected
     finishRead(fresh)
     assert.equal(creates, 1)
+  })
+
+  it("aborts a trickling confirmation body without cancelling another SDK request", { timeout: 15000 }, async () => {
+    let creates = 0, confirmationReads = 0, interval, unrelatedResponse, bodyClosed, trickle = false
+    const closed = new Promise(resolve => { bodyClosed = resolve })
+    const fresh = membershipCheckoutSession({ id: "cs_transport_deadline" })
+    const server = createServer((request, response) => {
+      const path = new URL(request.url, "http://127.0.0.1").pathname
+      response.setHeader("content-type", "application/json")
+      if (path === "/v1/customers/cus_unrelated") { unrelatedResponse = response; response.write('{"id":"cus_unrelated"'); return }
+      if (path === `/v1/checkout/sessions/${fresh.id}`) {
+        confirmationReads += 1
+        if (!trickle) { response.end(JSON.stringify(fresh)); return }
+        response.write('{"unfinished":')
+        interval = setInterval(() => response.write(" "), 25)
+        response.once("close", () => { clearInterval(interval); bodyClosed(); unrelatedResponse?.end("}") })
+        return
+      }
+      if (request.method === "POST" && path === "/v1/checkout/sessions") { creates += 1; response.end(JSON.stringify(fresh)); return }
+      if (request.method === "GET" && path === "/v1/checkout/sessions") { response.end(JSON.stringify(stripeCheckoutSessionList())); return }
+      response.writeHead(404); response.end(JSON.stringify({error:{message:"Unexpected loopback request"}}))
+    })
+    await new Promise(resolve => server.listen(0, "127.0.0.1", resolve))
+    try {
+      const stripe = stripeBilling.getStripeClient("sk_test_fictional_loopback", { host: "127.0.0.1", port: server.address().port, protocol: "http", telemetry: false })
+      assert.equal((await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({stripeClient:stripe}))).id, fresh.id)
+      assert.equal(creates, 1); assert.equal(confirmationReads, 1)
+      creates = 0; confirmationReads = 0; trickle = true
+      const unrelated = stripe.customers.retrieve("cus_unrelated")
+      const began = performance.now()
+      await assert.rejects(stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({stripeClient:stripe})), /exceeded the safe time limit/)
+      assert.ok(performance.now() - began < 7000)
+      // This must observe actual server-side body/socket closure, not just a
+      // rejected caller while the transport continues buffering indefinitely.
+      await Promise.race([closed, new Promise((_, reject) => { const timer = setTimeout(()=>reject(new Error("confirmation socket remained open")), 1500); closed.then(()=>clearTimeout(timer)) })])
+      assert.equal((await unrelated).id, "cus_unrelated")
+      assert.equal(creates, 1); assert.equal(confirmationReads, 1)
+    } finally {
+      clearInterval(interval)
+      server.closeAllConnections()
+      await new Promise(resolve => server.close(resolve))
+    }
   })
 
   it("rejects a slow terminal create without starting another create after the deadline", async () => {

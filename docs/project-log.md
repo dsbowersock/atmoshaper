@@ -1,5 +1,20 @@
 # AtmoShaper Project Log
 
+## November 21 completed correction review and focused follow-up
+
+The included CodeRabbit review completes at `60bdc9e` across 22 paths, raising
+three supported issues and a latent minor context fallback. Correct request-
+owned Calendar date intent, reject sentinel-detected truncated snapshots, and
+cancel only the confirmation read through response-body consumption. Preserve
+normal SDK transport and committed-create handling. The browser fixture now
+replies with the real route date as well as its actual read window. Verify a
+delayed reply after a newer date choice, exactly 500 versus 501 event/busy rows,
+and a trickling HTTP body with a concurrent unaffected SDK request. All 165
+Stripe, 23 page-read, five feelings lifecycle and native phone/desktop Calendar
+checks pass. The previous source's seven CI jobs pass; fresh current-source
+review/CI/publication gates remain. This does not change public traffic, provider
+settings, private records, live payments or NAS installation.
+
 ## November 21 Calendar month-end review amendment
 
 Codex review at `9e0c7df` identifies a month-end replacement range that can stay

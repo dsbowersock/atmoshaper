@@ -10,9 +10,9 @@ const load = createCompiledModuleLoader(import.meta.url)
 
 /** Execute controlled selection and real pointer handlers with inert SVG
  * geometry. Native touch/browser acceptance remains a separate check. */
-function wheel() {
+function wheel(initialSelected = []) {
   const slots = [], captured = new Set()
-  let cursor = 0, selected = [], tree
+  let cursor = 0, selected = initialSelected, tree
   const svg = { getScreenCTM: () => null, getBoundingClientRect: () => ({ left: 0, top: 0, width: 600, height: 600 }),
     setPointerCapture: id => captured.add(id), hasPointerCapture: id => captured.has(id), releasePointerCapture: id => captured.delete(id) }
   const react = {
@@ -89,5 +89,14 @@ test("removing another feeling preserves the selected branch of a duplicate word
   page.click("Sad"); page.click("Remove feeling Sad")
   assert.deepEqual(page.selected(), ["Accepted"])
   assert.equal(page.context(), "Connected › Understood › Accepted")
+  assert.ok(page.related() > 0)
+})
+
+test("preselected feeling words retain family context after removing another word", () => {
+  const page = wheel(["Accepted"])
+  const before = page.context()
+  assert.match(before, /›.*Accepted/)
+  page.click("Choose multiple feelings"); page.click("Sad"); page.click("Remove feeling Sad")
+  assert.equal(page.context(), before)
   assert.ok(page.related() > 0)
 })

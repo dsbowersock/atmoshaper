@@ -33,11 +33,21 @@ window, and a January 31 month-grid case remains visible without a reload loop.
 Calendar/page/controller/workspace and native checks pass 33; focused lint and
 TypeScript pass. This focused amendment does not change the previously checked
 Wellness, payment or audit source.
-Fresh current-head hosted CI and correction-delta Codex/CodeRabbit review
-remain publication gates. The GitHub app's attempted correction review is
-limited by the free OSS allowance; its selected-file list is not completed
-coverage. Wait for the included slot, without paid credits or another broad
-historical campaign. Original
+The included follow-up subsequently completes at `60bdc9e` across all 22
+selected paths. All seven CI jobs pass on that source. The completed review
+raises three supported issues and one latent minor fallback, corrected together:
+
+| Review comment | Follow-up disposition and verification |
+| --- | --- |
+| 4654913250, late Calendar replacement | Associate each automatic range request with its date-intent epoch. Ignore the reply's route-date reset after a newer local choice, and guard the scheduled animation frame too. The native fixture updates both the route date and the real read window; Today followed by a return to February 2030 survives the delayed reply and requests the newly needed snapshot. Normal completions still restore the grid. |
+| 4654913256, truncated reads | Read 501 sentinel rows for both events and external busy blocks. Exactly 500 is complete; 501 refuses the entire practice snapshot through the existing generic recovery surface. Actual-page regressions verify both collections and the independently available personal view. |
+| 4654913257, underlying confirmation transport | Use a request-owned confirmation client and abort signal through full body consumption. Normal SDK transport is preserved; no shared client is mutated. A real loopback response trickles past five seconds: the caller fails, the server observes body/socket closure, one committed create is retained, and a concurrent request on the original client succeeds. Normal confirmation also succeeds through the same real transport. |
+| Review summary, preselected feeling context | Resolve an externally supplied word through the wheel segments before falling back to a one-word path. Stored branch choices still take precedence; a controlled component regression preserves family context after choosing/removing another feeling. |
+
+All 165 Stripe, 23 page-read, five feelings lifecycle and native phone/desktop
+Calendar checks pass. Current-source hosted CI, Codex and CodeRabbit review
+remain publication gates. Use the next included review slot without paid
+credits or another broad historical campaign. Original
 raw reviews and synthetic acceptance receipts are retained in ignored operator
 output. No live traffic, provider setting, record, credential, payment, email or
 NAS installation changes during this correction step.

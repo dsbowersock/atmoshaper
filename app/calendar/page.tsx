@@ -205,7 +205,7 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string, req
         reminder: true,
       },
       orderBy: { startsAt: "asc" },
-      take: 500,
+      take: 501,
     }),
     prisma.practiceMembership.findMany({
       where: {
@@ -255,10 +255,15 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string, req
         endsAt: true,
         ownerUserId: true,
       },
-      take: 500,
+      take: 501,
       orderBy: { startsAt: "asc" },
     })
     : []
+  // Read one sentinel row: a truncated snapshot must never certify apparently
+  // free time. The caller's existing recovery surface hides all partial reads.
+  if (events.length > 500 || externalBusyBlocks.length > 500) {
+    throw new Error("Calendar snapshot exceeds its complete-read limit.")
+  }
   return { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks,
     loadedPracticeWindow: { start: windowStart.toISOString(), end: windowEnd.toISOString() } }
 }

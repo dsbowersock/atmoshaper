@@ -167,6 +167,8 @@ export function CalendarWorkspace({
   const showPersonal = scope !== "practice", showPractice = hasPractice && scope !== "personal"
   const [visibleWindow, setVisibleWindow] = useState({ start: "", end: "" })
   const requestedPracticeRange = useRef("")
+  const dateIntent = useRef(0)
+  const requestedDateIntents = useRef(new Map<string, number>())
   // All navigation paths report their complete visible range through datesSet.
   // Never display a bookable practice grid outside the server-read snapshot.
   const practiceRangePending = Boolean(showPractice && loadedPracticeWindow && visibleWindow.start
@@ -194,6 +196,7 @@ export function CalendarWorkspace({
     requestedPracticeRange.current = requestKey
     const date = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
     const query = new URLSearchParams({ practice: selectedPracticeId, view: scope, date })
+    requestedDateIntents.current.set(date, dateIntent.current)
     router.replace(`/calendar?${query}`, { scroll: false })
   }, [practiceRangePending, selectedDate, selectedPracticeId, scope, router, visibleWindow.start, visibleWindow.end])
 
@@ -305,6 +308,7 @@ export function CalendarWorkspace({
   }, [calendarApis, persistPreferencePatch, scrollCalendarsToUsefulTime])
 
   const navigate = useCallback((direction: "prev" | "next" | "today") => {
+    dateIntent.current += 1
     for (const api of calendarApis()) {
       if (direction === "today") api?.today()
       if (direction === "prev") api?.prev()
@@ -316,6 +320,7 @@ export function CalendarWorkspace({
 
   const gotoDate = useCallback((value: string | Date | undefined) => {
     if (!value) return
+    dateIntent.current += 1
     for (const api of calendarApis()) {
       api?.gotoDate(value)
       setSelectedDate(api?.getDate())
@@ -325,10 +330,17 @@ export function CalendarWorkspace({
 
   useEffect(() => {
     if (!initialDate) return
+    const requestedIntent = requestedDateIntents.current.get(initialDate)
+    requestedDateIntents.current.delete(initialDate)
+    // A replacement owns its original date intent, not a newer local choice
+    // that happened to fit the old snapshot and therefore issued no request.
+    if (requestedIntent !== undefined && requestedIntent !== dateIntent.current) return
+    const intent = dateIntent.current
 
     // This is a route-date change, not a layout effect. Replacing split columns
     // must keep the viewed date rather than replaying the original route date.
     const animationFrame = window.requestAnimationFrame(() => {
+      if (intent !== dateIntent.current) return
       for (const api of calendarApis()) {
         api?.gotoDate(initialDate)
         setSelectedDate(api?.getDate())
