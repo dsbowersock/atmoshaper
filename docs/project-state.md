@@ -2,22 +2,29 @@
 
 ## November 21 sidebar/Calendar publication in preparation
 
-The initial PR #77 review finds two Calendar display issues. An explicit
-CodeRabbit CLI pass covers all 40 changed files at `03675e4`, repeats those two
-issues and adds stale-practice personal fallback and test-server cleanup issues.
-Focused corrections pass 98 ownership/navigation/controller checks and actual
-phone/desktop/no-practice/split-source journeys. Hosted CI exposes two stale
-sidebar screenshot baselines and a planner autosave check acting before draft
-hydration. Four Linux baselines are regenerated; every changed pixel is confined
-to the approved sidebar. The save check waits for the real readiness signal.
-All six affected Linux phone/desktop journeys pass without snapshot updates.
-The corrected head still needs fresh hosted checks/review and the bounded
-CodeRabbit follow-up before merge. Its saved login is reported authenticated,
-but the review service requires fresh private reauthentication; expired URLs
-cannot be reused.
-The owner also requests a separate, bounded retrospective CodeRabbit coverage
-audit, isolated on `codex/coderabbit-coverage-audit`; that work does not reopen
-old PRs or authorize an automatic app-wide rewrite.
+The initial explicit CLI review covers all 40 paths at `03675e4`; its four
+supported corrections pass the ownership/controller checks and actual browser
+journeys. The GitHub app subsequently completes a substantive 40-file review at
+`610c1ff`, with a clear independent Codex review. CodeRabbit raises four additional
+issues: wrong selected-practice service catalog, ineffective day-bound controls,
+role-denied return context, and an overstated historical PDF acceptance gate.
+These are one reported focused correction batch, with no broad cleanup.
+
+Service list/new/edit pages and mutation return links now preserve the selected
+actor-authorized practice. Explicit unowned requests fail closed; the default
+oldest eligible membership remains only when no practice is requested. Personal/
+Together hour controls cannot save ineffective settings. Role-denied links keep
+context. All 112 focused checks, focused lint, TypeScript and actual phone/desktop
+Calendar journeys pass.
+The historical PDF receipt now records its missed staged check. An actual
+six-page synthetic PDF from deployed `0976d7d` is downloaded and read back with
+all 25 answers, Unicode and professional notices; six aliases confirm the source.
+The next staged build must pass its own real PDF download before promotion.
+
+Fresh current-head CI, independent review and the bounded correction follow-up
+remain before merge. The separate five-cohort retrospective audit is prepared
+on `codex/coderabbit-coverage-audit`; its CLI authentication is still pending.
+No old PR is reopened or automatic app-wide rewrite authorized.
 
 The owner authorizes publication of the locally verified sidebar and private
 Calendar work `db1790e`. Branch `codex/sidebar-calendar-publication` retains public

@@ -1,5 +1,26 @@
 # AtmoShaper Project Log
 
+## November 21 substantive hosted second review and focused corrections
+
+An explicit command through the existing GitHub CodeRabbit app succeeds where
+the CLI needs reauthentication. It completes all 40 text paths at `610c1ff`,
+excluding only four independently verified PNG baselines, and raises one major
+and three minor issues beyond the initial CLI correction batch. Codex's current-
+head review is clear. The major issue opens the wrong eligible practice's service
+catalog; no unauthorized-membership access is demonstrated. List/new/edit routes
+and verified mutation redirects now retain the selected practice. Day-bound
+controls are disabled and write-guarded for full-day personal layers; role-denied
+creation links retain context. 112 focused cases, focused lint, TypeScript and actual phone/desktop Calendar
+journeys pass. Changes stay within one reported focused correction batch.
+
+The historical planner receipt is corrected to acknowledge the missed staged
+PDF download readback. An actual synthetic six-page report (23,049 bytes) from
+still-deployed `0976d7d` preserves every example answer, Unicode and professional
+notices. All six public aliases still identify that artifact. Only isolated local
+fictional drafts are used and no server writes occur. The upcoming staged build
+must pass the same actual-download check before promotion. Current-head hosted
+checks and correction review remain required; no merge or promotion occurs here.
+
 ## November 21 publication browser gates corrected
 
 Hosted browser CI identifies two expected sidebar screenshot differences and a

@@ -8,25 +8,27 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalendarOperatorShell } from "../calendar-operator-shell"
 
-export default async function ServicesPage() {
+export default async function ServicesPage({ searchParams }: { searchParams?: Promise<{ practice?: string }> }) {
   const session = await getCurrentSession()
+  const requestedPractice = (await searchParams)?.practice
 
   if (!session?.user?.id) {
-    return <ServicesShell><Notice title="Sign in to manage services" description="Service management requires an account." /></ServicesShell>
+    return <ServicesShell practiceId={requestedPractice}><Notice title="Sign in to manage services" description="Service management requires an account." /></ServicesShell>
   }
 
   if (!(await isCalendarDatabaseReady())) {
-    return <ServicesShell><Notice title="Calendar is temporarily unavailable" description="Service tools are not available right now." /></ServicesShell>
+    return <ServicesShell practiceId={requestedPractice}><Notice title="Calendar is temporarily unavailable" description="Service tools are not available right now." /></ServicesShell>
   }
 
   const membership = await prisma.practiceMembership.findFirst({
-    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST", "STAFF"] } },
+    // A route choice only narrows this actor's eligible memberships.
+    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST", "STAFF"] }, ...(requestedPractice ? { practiceId: requestedPractice } : {}) },
     include: { practice: true },
     orderBy: { createdAt: "asc" },
   })
 
   if (!membership) {
-    return <ServicesShell><Notice title="No calendar workspace" description="Create or join a calendar workspace before managing services." /></ServicesShell>
+    return <ServicesShell practiceId={requestedPractice}><Notice title="No calendar workspace" description="Create or join a calendar workspace before managing services." /></ServicesShell>
   }
 
   const services = await prisma.serviceType.findMany({
@@ -40,7 +42,7 @@ export default async function ServicesPage() {
   })
 
   return (
-    <ServicesShell>
+    <ServicesShell practiceId={membership.practiceId} practiceName={membership.practice.name}>
       <Card className={appSurfaceClassName}>
         <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
           <div>
@@ -51,14 +53,14 @@ export default async function ServicesPage() {
             <CardDescription>Service variants drive appointment and class duration, buffers, pricing display, and resources.</CardDescription>
           </div>
           <Button asChild className="bg-primary hover:bg-brand-orange-glow">
-            <Link href="/calendar/services/new">New service</Link>
+            <Link href={`/calendar/services/new?practice=${encodeURIComponent(membership.practiceId)}`}>New service</Link>
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {services.length > 0 ? services.map((service) => (
             <Link
               key={service.id}
-              href={`/calendar/services/${service.id}`}
+              href={`/calendar/services/${service.id}?practice=${encodeURIComponent(membership.practiceId)}`}
               className="block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <AppInset className="block p-4 transition hover:border-brand-orange/60">
@@ -87,12 +89,13 @@ export default async function ServicesPage() {
   )
 }
 
-function ServicesShell({ children }: { children: React.ReactNode }) {
+function ServicesShell({ children, practiceId, practiceName }: { children: React.ReactNode; practiceId?: string; practiceName?: string }) {
   return (
     <CalendarOperatorShell width="standard">
       <div className="flex justify-end">
-        <Button asChild variant="outline"><Link href="/calendar">Calendar</Link></Button>
+        <Button asChild variant="outline"><Link href={practiceId ? `/calendar?practice=${encodeURIComponent(practiceId)}` : "/calendar"}>Calendar</Link></Button>
       </div>
+      {practiceName ? <p className="text-sm text-muted-foreground">Practice: {practiceName}</p> : null}
       {children}
     </CalendarOperatorShell>
   )

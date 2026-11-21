@@ -346,10 +346,12 @@ export function CalendarWorkspace({
   }, [persistPreferencePatch])
 
   const updateDayBounds = useCallback((startMinute: number | null, endMinute: number | null) => {
+    // Personal layers require full-day bounds; these controls must not save hidden changes.
+    if (showPersonal) return
     setCalendarDayStartMinute(startMinute)
     setCalendarDayEndMinute(endMinute)
     persistPreferencePatch({ calendarDayStartMinute: startMinute, calendarDayEndMinute: endMinute })
-  }, [persistPreferencePatch])
+  }, [persistPreferencePatch, showPersonal])
 
   const updateSlotDensity = useCallback((value: string) => {
     setCalendarSlotDensity(value)
@@ -485,6 +487,7 @@ export function CalendarWorkspace({
       selectedProviderId={selectedProvider?.id ?? ""}
       providers={providers}
       showProviderControls={hasMultipleProviders && showPractice}
+      dayBoundsDisabled={showPersonal}
       showCancelledEvents={showCancelledEvents}
       showStatusBadges={showStatusBadges}
       colorMode={colorMode}
@@ -512,6 +515,7 @@ export function CalendarWorkspace({
     gotoDate,
     hasMultipleProviders,
     showPractice,
+    showPersonal,
     navigate,
     providers,
     range,
@@ -571,6 +575,7 @@ function CalendarToolbarControls({
   selectedProviderId,
   providers,
   showProviderControls,
+  dayBoundsDisabled,
   showCancelledEvents,
   showStatusBadges,
   colorMode,
@@ -596,6 +601,7 @@ function CalendarToolbarControls({
   selectedProviderId: string
   providers: WorkspaceProvider[]
   showProviderControls: boolean
+  dayBoundsDisabled: boolean
   showCancelledEvents: boolean
   showStatusBadges: boolean
   colorMode: string
@@ -617,6 +623,7 @@ function CalendarToolbarControls({
   const rangeLabel = RANGE_LABELS.find(([value]) => value === range)?.[1] ?? "Week"
   const providerViewLabel = PROVIDER_VIEW_LABELS.find(([value]) => value === providerViewMode)?.[1] ?? "Only me"
   const settingsProps = {
+    dayBoundsDisabled,
     showCancelledEvents,
     showStatusBadges,
     colorMode,
@@ -753,6 +760,7 @@ function ToolbarSelect({
 }
 
 function CalendarDisplaySettings({
+  dayBoundsDisabled,
   showCancelledEvents,
   showStatusBadges,
   colorMode,
@@ -766,6 +774,7 @@ function CalendarDisplaySettings({
   onDayBoundsChange,
   onSlotDensityChange,
 }: {
+  dayBoundsDisabled: boolean
   showCancelledEvents: boolean
   showStatusBadges: boolean
   colorMode: string
@@ -823,17 +832,18 @@ function CalendarDisplaySettings({
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
                 <Label htmlFor="calendarDayStart">Day starts</Label>
-                <Input id="calendarDayStart" type="time" value={startValue} onChange={(event) => updateStart(event.currentTarget.value)} />
+                <Input id="calendarDayStart" type="time" disabled={dayBoundsDisabled} value={startValue} onChange={(event) => updateStart(event.currentTarget.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="calendarDayEnd">Day ends</Label>
-                <Input id="calendarDayEnd" type="time" value={endValue} onChange={(event) => updateEnd(event.currentTarget.value)} />
+                <Input id="calendarDayEnd" type="time" disabled={dayBoundsDisabled} value={endValue} onChange={(event) => updateEnd(event.currentTarget.value)} />
               </div>
             </div>
-            <Button type="button" variant="calendar" size="sm" onClick={() => onDayBoundsChange(null, null)}>
+            <Button type="button" variant="calendar" size="sm" disabled={dayBoundsDisabled} onClick={() => onDayBoundsChange(null, null)}>
               Use availability hours
             </Button>
           </div>
+          {dayBoundsDisabled ? <p className="text-xs text-muted-foreground">Personal items use the full day. Switch to Practice to change its displayed hours.</p> : null}
           <ToolbarSelect
             label="Cell height"
             value={calendarSlotDensity}

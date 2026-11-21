@@ -22,11 +22,11 @@ export default async function NewPersonalEventPage({
   const defaultStartsAt = params?.startsAt ?? ""
 
   if (!session?.user?.id) {
-    return <PersonalShell><Notice title="Sign in to block time" description="Personal calendar blocks belong to a practice calendar." /></PersonalShell>
+    return <PersonalShell practiceId={params?.practice}><Notice title="Sign in to block time" description="Personal calendar blocks belong to a practice calendar." /></PersonalShell>
   }
 
   if (!(await isCalendarDatabaseReady())) {
-    return <PersonalShell><Notice title="Calendar is temporarily unavailable" description="Personal event creation is not available right now." /></PersonalShell>
+    return <PersonalShell practiceId={params?.practice}><Notice title="Calendar is temporarily unavailable" description="Personal event creation is not available right now." /></PersonalShell>
   }
 
   const membership = await prisma.practiceMembership.findFirst({
@@ -37,7 +37,7 @@ export default async function NewPersonalEventPage({
   })
 
   if (!membership) {
-    return <PersonalShell><Notice title="No therapist calendar yet" description="Owners and therapists can create personal blocked time." /></PersonalShell>
+    return <PersonalShell practiceId={params?.practice}><Notice title="No therapist calendar yet" description="Owners and therapists can create personal blocked time." /></PersonalShell>
   }
 
   const therapists = await prisma.practiceMembership.findMany({

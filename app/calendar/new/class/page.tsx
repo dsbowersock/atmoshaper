@@ -23,11 +23,11 @@ export default async function NewClassPage({
   const defaultStartsAt = params?.startsAt ?? ""
 
   if (!session?.user?.id) {
-    return <ClassShell><Notice title="Sign in to create classes" description="Class creation belongs to practice scheduling." /></ClassShell>
+    return <ClassShell practiceId={params?.practice}><Notice title="Sign in to create classes" description="Class creation belongs to practice scheduling." /></ClassShell>
   }
 
   if (!(await isCalendarDatabaseReady())) {
-    return <ClassShell><Notice title="Calendar is temporarily unavailable" description="Class creation is not available right now." /></ClassShell>
+    return <ClassShell practiceId={params?.practice}><Notice title="Calendar is temporarily unavailable" description="Class creation is not available right now." /></ClassShell>
   }
 
   const membership = await prisma.practiceMembership.findFirst({
@@ -38,7 +38,7 @@ export default async function NewClassPage({
   })
 
   if (!membership) {
-    return <ClassShell><Notice title="Practice scheduling access required" description="Owners and staff can create class events." /></ClassShell>
+    return <ClassShell practiceId={params?.practice}><Notice title="Practice scheduling access required" description="Owners and staff can create class events." /></ClassShell>
   }
 
   const [instructors, services] = await Promise.all([

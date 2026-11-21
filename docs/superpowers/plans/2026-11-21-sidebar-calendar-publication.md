@@ -76,3 +76,22 @@ edit. These are test-only corrections. The six affected phone/desktop journeys
 pass against the exact inert CI runtime without snapshot updates. Include these
 corrections in the bounded final follow-up and fresh hosted checks; never waive
 a failed CI gate or count a reauthentication error as a completed review.
+
+
+## Reported additional blocker and finite correction batch
+
+The substantive GitHub-app review at `610c1ff` raises a major selected-practice
+service-catalog issue, alongside ineffective day controls, role-denied context
+and the historical PDF receipt. These supported issues form one reported focused
+batch. Preserve actor/role membership checks, default only when no practice is
+requested, keep verified practice IDs on service redirects, and prevent hidden
+hour-bound preference writes while personal items require full-day visibility.
+112 focused tests and actual phone/desktop Calendar journeys pass. Subsequent
+unrelated cleanup belongs in the retrospective backlog, not this release.
+
+The original PDF readback omission is documented honestly. A real synthetic
+six-page PDF is read back from the still-public planner artifact, including all
+25 answers, Unicode and professional notices. Require an actual download/readback
+from the new staged artifact as well, then ordinary current-head review/CI and
+fresh provider/source/routing gates before promotion. The retrospective CLI login
+is separate; the existing GitHub app can review this active PR without it.

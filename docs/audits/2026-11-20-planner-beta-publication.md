@@ -103,5 +103,23 @@ five/one configured skips. The merged tree matches the reviewed source.
 
 Final source, settings and complete routing readback pass again at closure. One
 review PR, guarded merge, staged Production build and same-artifact promotion are
-complete; there are no rollbacks or remaining publication gates. Local receipt
+complete; there are no rollbacks. The staged PDF download readback required
+by the plan was not completed, so that acceptance gate remained unverified at
+closure. Isolated QA and the deployed source/font checks do not replace that
+staged check. A synthetic export must be read back from the deployed artifact
+before treating this outstanding evidence gap as cleared. Local receipt
 documentation causes no further deployment.
+
+
+## November 21 PDF evidence follow-up
+
+CodeRabbit identifies that the original closure overstated acceptance of the
+staged export. The text above now records that missed check. A subsequent check
+reads an actual synthetic report from the still-deployed `0976d7d` artifact,
+with all six public aliases verified against that release. The download is a
+valid six-page PDF (23,049 bytes); all 25 fictional answers, the Unicode example
+name and the professional-review notices survive text extraction. Only isolated
+anonymous device storage is populated; no server writes or owner worksheets are
+used. This closes the outstanding deployed-export evidence gap at follow-up,
+without changing the fact that staged readback was missed during publication.
+The next release must read back its own staged report before promotion.
