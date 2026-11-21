@@ -1,5 +1,16 @@
 # AtmoShaper Project State
 
+## November 21 reviewed fixes publication authorized and in preparation
+
+The owner requests the release PR, publication checks and publication of all
+reviewed fixes. Branch `codex/reviewed-beta-fixes-publication` starts at `6c7a75d`,
+retaining reviewed application source `1c9a8f1` and public `d7e30e0` for rollback.
+One reviewed PR/protected Preview, current hosted gates, fresh service snapshots
+and same-artifact staged/public acceptance precede promotion. No publication is
+claimed yet. The [operative plan](superpowers/plans/2026-11-21-reviewed-fixes-publication.md)
+preserves settings, private/local records and unrelated work. NAS script
+activation remains separate from publishing its source.
+
 ## November 21 four final review issues resolved and reviewed
 
 The owner's F1–F4 follow-up is complete. Slow successful Checkout confirmation

@@ -1,5 +1,14 @@
 # AtmoShaper Project Log
 
+## November 21 owner authorizes reviewed-fixes publication
+
+Prepare one release branch/PR from `6c7a75d`, carrying every reviewed correction
+and its complete range/path receipts. Public source remains `d7e30e0`. Require
+current hosted review/CI, fresh unchanged settings/routing, protected acceptance,
+staged migration/payment/Sentry proof and same-artifact public verification.
+No provider setting, new credential, schema, live payment/mail/clinical/Calendar
+write or NAS activation is included. Record live outcomes only after readback.
+
 ## November 21 four-issue follow-up verified and closed
 
 The actual 16-path review at `dfe4198` completes with one minor fixture-reader

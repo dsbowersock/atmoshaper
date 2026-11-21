@@ -4,6 +4,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Publication of the reviewed beta fixes](../superpowers/plans/2026-11-21-reviewed-fixes-publication.md)
 - [Verified closure of the four final review issues](../audits/2026-11-21-four-review-issues.md)
 - [Resolution of the four final review issues](../superpowers/plans/2026-11-21-four-review-issues.md)
 - [Completed range backfill and all 64 dispositions](../audits/2026-11-21-coderabbit-range-backfill-results.md)
