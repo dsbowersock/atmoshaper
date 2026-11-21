@@ -1,16 +1,20 @@
 # AtmoShaper Project State
 
-## November 21 bounded review corrections in local preparation
+## November 21 retrospective passes complete; local corrections awaiting review
 
-Fresh CodeRabbit authentication succeeds. The isolated coverage-audit branch has
-three completed initial cohorts (136 files, 42 observations); two frozen-source
-cohorts await included allowance. Local branch `codex/coderabbit-review-fixes`
-starts from public `d7e30e0` and receipt `1a94dab`. Focused reproductions confirm
-stale cancellation, background display, ROM and backup failure-path cases, while
-session/Portal and several Wellness helper concerns are refuted by current code
-and passing checks. Prepare supported corrections without changing the frozen
-review source. Final consolidation, one correction review, tests and a separate
-concrete publication decision remain. No live service or NAS change occurs.
+Fresh CodeRabbit authentication succeeds. All five initial cohorts complete:
+166 exact frozen paths, 46 observations (28 major, 18 minor), no omissions or
+overlap. Triage identifies 21 corrected behavior issues, one strengthened test,
+two prepared operator-runbook clarifications, 20 refutations and two conditional
+follow-ups. Local branch `codex/coderabbit-review-fixes` starts from public
+`d7e30e0` and receipt `1a94dab`; checkpoint `ce08c01` contains the first grouped
+corrections. The final Planner source fix passes focused report/PDF regressions.
+Ten phone/desktop Wellness browser scenarios, inert build, TypeScript, lint and
+applicable Windows/Linux backup tests pass before that last helper change.
+Its rebuild and final lint, one correction review and later ordinary independent
+Codex/hosted CI gates remain. A separate concrete publication decision is needed.
+No live service or NAS change occurs. See the
+[complete triage](audits/2026-11-21-coderabbit-retrospective-results.md).
 See the [correction plan](superpowers/plans/2026-11-21-coderabbit-corrections.md).
 
 ## November 21 sidebar and private Calendar published

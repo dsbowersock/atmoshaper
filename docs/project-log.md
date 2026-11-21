@@ -5,8 +5,9 @@
 Fresh private CodeRabbit sign-in completes with the existing account. Freeze
 the 166 previously unsupported shipped file versions at public `d7e30e0` and
 retain their exact manifests and actual completed receipts. Three initial
-passes cover 136 paths and raise 42 observations; the final 25/5-path passes
-await verified included allowance. Paid credits remain disabled. Keep the
+passes cover 136 paths and raise 42 observations. After included allowance
+reopens, the final 25/5-path passes raise four/zero issues. All 166 paths verify
+once each, totaling 46 observations (28 major, 18 minor). Paid credits remain disabled. Keep the
 older dirty Linux QA checkout intact and use independent native worktrees.
 
 Reproduce supported stale-cancellation, inactive-background-ownership, movement
@@ -17,6 +18,13 @@ Prepare an explicit Codex/CodeRabbit review policy and one correction follow-up;
 CI or a skipped bot check cannot substitute for actual completed review.
 The source changes, runbook and checks remain local. This task changes no live
 service, NAS file/task, database, payment, email or deployment.
+
+All initial observations are triaged: 21 behavior corrections, one strengthened
+test, two runbook clarifications, 20 refutations and two conditional follow-ups.
+Checkpoint `ce08c01` passes lint/TypeScript, an inert build, ten phone/desktop
+Wellness scenarios and focused regressions. A final empty-list report-source
+correction passes 13 report/PDF tests; its rebuild and one correction review
+remain pending. Preserve the finite review boundary and later publication gates.
 
 ## November 21 sidebar and private Calendar public acceptance
 

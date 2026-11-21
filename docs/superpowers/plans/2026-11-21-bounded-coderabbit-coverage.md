@@ -78,10 +78,11 @@ retrospective pass. Explicit completion evidence excludes in-progress/rejected
 file lists, and any exact matching review remains valid despite later comments
 about old versions. The current five heads must exactly match the new frozen tree.
 
-Fresh private CLI authentication now succeeds. Three passes complete with exact
-18/48/70-file lists and 3/25/14 issues. The 25/5-file passes wait for verified
-included allowance; the observed limit is three reviews per rolling hour.
-No paid credits are enabled. See the
+Fresh private CLI authentication now succeeds. All five passes complete with
+exact 18/48/25/70/5-file lists and 3/25/4/14/0 issues. Actual receipts verify all
+166 paths once each. All 46 observations are triaged; local corrections and one
+follow-up review remain. The observed included limit is three reviews per rolling
+hour; the last two passes waited for its reopening. No paid credits are enabled. See the
 [receipt/disposition record](../../audits/2026-11-21-coderabbit-retrospective-results.md).
 The older `reauthentication_required` attempt and expired callback are historical
 failures, not completed reviews; the successful fresh session supersedes them.

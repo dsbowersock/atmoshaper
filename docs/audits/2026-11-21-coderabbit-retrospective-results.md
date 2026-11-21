@@ -1,7 +1,8 @@
 # Bounded retrospective CodeRabbit results
 
-Status: three initial passes complete; two await included slots. Triage and
-corrections are in progress, not published or claimed fully verified.
+Status: all five initial passes complete, with all 166 frozen paths verified
+once each. CodeRabbit raised 46 issues (28 major, 18 minor), each triaged below.
+Local corrections await their single follow-up review; nothing is published.
 
 The frozen source is `d7e30e022d825d9f26ed37bd6636f11bae1e8314`.
 Fresh private authentication succeeds with the existing CodeRabbit account and
@@ -13,16 +14,16 @@ tree and local-only synthetic per-file baselines. No review refs are pushed.
 | --- | ---: | ---: | --- |
 | Accounts, Calendar and payments | 18 | 3 | Complete |
 | Wellness and body | 48 | 25 | Complete |
-| Business Planner | 0 / 25 | — | Waiting for included slot |
+| Business Planner | 25 | 4 | Complete |
 | Operations/shared UI, first group | 70 | 14 | Complete |
-| Operations/shared UI, second group | 0 / 5 | — | Waiting for included slot |
+| Operations/shared UI, second group | 5 | 0 | Complete |
 
 Each completion has exit zero, a completed outcome, an exact reviewed-path list
 and an issue count matching its NDJSON records. One local CLI preflight error
 required an explicit base branch; it submitted no completed review and is not
 counted. The included allowance is three reviews per rolling hour. Paid credits,
-billing changes and new credentials are not enabled. The remaining requests
-wait for a verified available included slot, with no automatic review retry.
+billing changes and new credentials are not enabled. The last two requests ran
+only after the included allowance reopened, with no automatic review retry.
 
 Issues are reviewer observations, not automatically confirmed defects. IDs below
 use receipt order within each cohort. Raw receipts and exact path manifests are
@@ -71,6 +72,15 @@ review remain pending. Neither checkout is published.
 | W24 | Refuted | `summarizeMovementComfort` uses `new Date(entry.occurredAt)`, accepting Date objects as well as timestamp strings. Existing pattern/comfort contracts pass. |
 | W25 | Test strengthened locally | The source regex can cross into a later query's `take`. Assert the actual exercise query arguments or isolate its boundary. No oversized live query is demonstrated. |
 
+## Business Planner
+
+| ID | Disposition | Evidence / correction |
+| --- | --- | --- |
+| B1 | Refuted | Each storage read is inside `readPlannerReportSources`' try/catch and returns an unavailable-source result. The throwing-adapter checks pass without propagating. |
+| B2 | Refuted | `text` preserves spaces, tabs and newlines. Character-by-character normalization of a multiword answer and practice name preserves every separator. |
+| B3 | Refuted | Outline normalization uses the default infinite text limit, independently of the 12,000-character checklist answer cap. A 15,000-character note survives normalization and report generation; reports intentionally trim surrounding whitespace. |
+| B4 | Corrected locally | Empty arrays are accepted as saved source rows, but these calculators synthesize zero-valued editable placeholder rows. Mark those report sources incomplete instead of representing a placeholder service/budget as a saved fact. Preserve Income Planner's genuine empty-expense semantics. |
+
 ## Operations and shared UI
 
 | ID | Disposition | Evidence / intended correction |
@@ -93,7 +103,14 @@ review remain pending. Neither checkout is published.
 The libpq syntax check uses the primary
 [PostgreSQL 18 service-file parser](https://github.com/postgres/postgres/blob/REL_18_STABLE/src/interfaces/libpq/fe-connect.c#L5680-L5784).
 
-## Validation so far
+## Validation and remaining gate
+
+The 46 initial observations resolve to 21 locally corrected behavior issues,
+one strengthened query-bound test, two prepared operator-runbook clarifications,
+20 refutations and two conditional workload/portability follow-ups. No initial
+observation is left untriaged. The two conditional cases are finite backlog
+items, not demonstrated failures on the current beta setup. Dependency advisory
+maintenance is tracked separately and no package versions are changed.
 
 The unchanged RSC session checks pass 10/10; focused auth/Portal checks pass
 21/21; Wellness detail contracts pass 90/90; owner/Calendar checks pass 33/33.
@@ -105,7 +122,10 @@ cases pass. Lint and TypeScript pass before the final browser additions; the
 complete inert production build then passes with those additions. Ten native
 Chromium scenarios pass across desktop and phone: body focus, a replaced
 three-finger pinch pair, comfort/optional-angle flow, ordinary ROM recording and
-sensor-baseline context changes. A fresh final lint pass is running.
+sensor-baseline context changes. The fresh final lint pass succeeds, and the
+Linux backup suite is repeated against the checkpoint's exact Python source.
+Planner report/PDF checks pass 13/13 after the final source correction. Its fresh
+build, focused lint and native report/PDF readback are still completing.
 These are fixture-only checks, with fictional files, inert subprocesses and
 fake HTTP/Docker calls. These browser checks use fictional signed-out entries
 and block external requests. Final correction review remains pending. No live

@@ -1,10 +1,11 @@
 # CodeRabbit coverage inventory
 
-Status: fresh authentication succeeds; three initial review passes cover 136
-of 166 frozen paths. Two await included allowance. See the
+Status: fresh authentication succeeds; all five initial review passes cover all
+166 frozen paths once each, with 46 triaged observations. See the
 [actual receipts and triage](2026-11-21-coderabbit-retrospective-results.md).
 The table below preserves the historical pre-review inventory, not the current
-retrospective completion count. No publication occurs in this campaign.
+retrospective completion count. A correction follow-up remains; no publication
+occurs in this campaign.
 
 The owner requests actual CodeRabbit coverage alongside Codex and a bounded
 retrospective pass. Source is frozen at public `d7e30e0`. All 76 merged PRs are

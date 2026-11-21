@@ -95,4 +95,39 @@ describe("Business planner answers and sourced reports", () => {
     assert.equal(sources.find((source) => source.id === "breakEven").status, "incomplete")
     assert.ok(outlineContextRows("finances", sources).every((row) => row.label.startsWith("Add-On Profit")))
   })
+
+  it("preserves editable separators and long outline notes while unavailable reads remain usable", () => {
+    const key = LAUNCH_REPORT_QUESTIONS[0].key
+    let draft = normalizeLaunchDraft({})
+    for (const character of "Need insurance\nAsk an adviser ") {
+      draft = normalizeLaunchDraft({ ...draft, answers: { ...draft.answers, [key]: draft.answers[key] + character },
+        practice: { ...draft.practice, businessName: draft.practice.businessName + character } })
+    }
+    assert.equal(draft.answers[key], "Need insurance\nAsk an adviser ")
+    assert.equal(draft.practice.businessName, draft.answers[key])
+    const longNotes = "Existing notes\n".repeat(1000)
+    const outline = normalizePlanOutline({ mission: longNotes })
+    assert.equal(outline.mission, longNotes)
+    assert.equal(buildPlannerReport("outline", outline, []).sections[0].paragraphs[0], longNotes.trim())
+    assert.ok(readPlannerReportSources({ getItem() { throw new Error("blocked") } }).every((source) => source.status === "unavailable"))
+  })
+
+  it("does not label synthesized placeholder services and budgets as saved facts", () => {
+    const { drafts } = plannerReportSample()
+    for (const [id, keys] of [["serviceMenu", ["services"]], ["breakEven", ["startupCosts", "monthlyExpenses", "annualExpenses", "fundingSources"]], ["addOn", ["products"]]]) {
+      const source = PLANNER_REPORT_SOURCES.find((item) => item.id === id)
+      const draft = JSON.parse(drafts.get(source.key))
+      for (const key of keys) draft[key] = []
+      drafts.set(source.key, JSON.stringify(draft))
+    }
+    const sources = readPlannerReportSources({ getItem: (key) => drafts.get(key) ?? null })
+    for (const id of ["serviceMenu", "breakEven", "addOn"]) assert.equal(sources.find((source) => source.id === id).status, "incomplete")
+    assert.deepEqual(outlineContextRows("service", sources), [])
+    assert.ok(outlineContextRows("finances", sources).every((row) => row.label.startsWith("Income Planner")))
+    const income = PLANNER_REPORT_SOURCES.find((source) => source.id === "income")
+    const incomeDraft = JSON.parse(drafts.get(income.key))
+    for (const key of ["monthlyExpenseItems", "sessionExpenseItems", "yearlyExpenseItems", "personalReserveItems"]) incomeDraft[key] = []
+    drafts.set(income.key, JSON.stringify(incomeDraft))
+    assert.equal(readPlannerReportSources({ getItem: (key) => drafts.get(key) ?? null }).find((source) => source.id === "income").status, "saved")
+  })
 })

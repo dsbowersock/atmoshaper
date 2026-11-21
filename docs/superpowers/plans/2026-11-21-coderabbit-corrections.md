@@ -2,9 +2,9 @@
 
 Prepare one local correction batch from public `d7e30e0` plus its receipt
 `1a94dab`. The independent audit branch freezes five initial review cohorts
-covering 166 previously unsupported current file versions. Three passes have
-completed with exact path lists; the two remaining frozen-source passes wait
-for included allowance. They use independent Linux worktrees, so local
+covering 166 previously unsupported current file versions. All five passes have
+completed with exact path lists and 46 triaged observations. The last two used
+verified reopened included allowance. They use independent Linux worktrees, so local
 correction preparation does not change the source they review.
 
 Verify each observation against current code. Prepare supported local fixes and
@@ -16,7 +16,8 @@ credits, add a paid model or enter an automatic review/rewrite cycle.
 Initial confirmed corrections concern stale cancellation forms, the free-
 background ownership bridge, ROM context/baseline handling, Quick Log field/
 validation ownership, body/feelings gestures and focus, and backup deadline/
-reporting/input boundaries. Preserve actor/owner checks, accepted legal text,
+reporting/input boundaries, plus incomplete Planner report-source handling.
+Preserve actor/owner checks, accepted legal text,
 storage keys and schemas, existing successful workflows and independent feature
 grants. Backup execution remains inert by default; all reproductions use local
 fictional files/subprocesses and fake Docker/HTTP calls.
