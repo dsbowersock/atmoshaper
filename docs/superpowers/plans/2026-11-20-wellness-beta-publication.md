@@ -65,3 +65,14 @@ Physical-phone, Safari and screen-reader listening remain owner acceptance.
 Close with a tracked local receipt without causing another deployment. This
 release does not authorize provider configuration, credential, payment, email,
 NAS, database/schema, remote media or legal changes.
+
+## Integrated hosted-check correction
+
+PR #75 at `03b61c4` passes hosted lint, TypeScript and browser build. Hosted
+unit checks find one stale closed inventory: the RSC-session consumer list omits
+the new `app/calendar/personal/page.tsx`. Add that expected Server Component
+caller and the separately compiled Calendar Server Action while retaining the
+existing request-scoped cache and direct-action authentication checks. The new
+action exception explicitly requires its server directive; it is not a broad
+filename exemption. Application code is unchanged. The corrected head requires
+fresh hosted checks, review and protected Preview before merge.
