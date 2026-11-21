@@ -26,17 +26,15 @@ describe("Navigation IA model", () => {
   it("keeps visible alpha product routes grouped without exposing placeholders", () => {
     const groups = getVisibleNavigationGroups()
 
-    assert.deepEqual(groups.map((group) => group.id), ["tools", "atmosphere", "documentation", "education", "games", "about"])
+    assert.deepEqual(groups.map((group) => group.id), ["atmosphere", "wellness", "practice", "education", "about"])
     assert.deepEqual(groups.flatMap((group) => group.routes.map((route) => route.href)), [
-      "/chimer",
-      "/tools/business-planner",
-      "/tools/business-planner/income",
-      "/tools/business-planner/break-even",
-      "/wellness",
-      "/wellness/breathing",
-      "/calendar",
       "/music",
       "/clock",
+      "/wellness/breathing",
+      "/wellness",
+      "/calendar/personal",
+      "/tools/business-planner",
+      "/calendar?setup=practice",
       "/notes",
       "/education/flashcards",
       "/anatomime",
@@ -48,7 +46,7 @@ describe("Navigation IA model", () => {
   })
 
   it("separates primary, secondary, and account menu navigation", () => {
-    assert.deepEqual(primaryNavigationGroups.map((group) => group.id), ["tools", "atmosphere", "documentation", "education", "games", "about"])
+    assert.deepEqual(primaryNavigationGroups.map((group) => group.id), ["atmosphere", "wellness", "practice", "education", "about"])
     assert.deepEqual(secondaryNavigationRoutes.map((route) => route.href), [])
     assert.deepEqual(accountMenuRoutes.map((route) => route.href), [
       "/account",
@@ -94,9 +92,9 @@ describe("Navigation IA model", () => {
     const sidebarSource = readFileSync(new URL("../components/sidebar/app-sidebar-client.tsx", import.meta.url), "utf8")
 
     assert.match(sidebarSource, /atmosphere:\s*Waves/)
-    assert.match(sidebarSource, /documentation:\s*NotebookPen/)
+    assert.match(sidebarSource, /wellness:\s*HeartPulse/)
+    assert.match(sidebarSource, /practice:\s*BriefcaseBusiness/)
     assert.match(sidebarSource, /education:\s*GraduationCap/)
-    assert.match(sidebarSource, /games:\s*ChessKnight/)
   })
 
   it("matches only the approved global tool route families", () => {
@@ -104,8 +102,10 @@ describe("Navigation IA model", () => {
     assert.equal(isNavigationRouteActive("/music/stations", "/music"), true)
     assert.equal(isNavigationRouteActive("/clock", "/clock"), true)
     assert.equal(isNavigationRouteActive("/clock/presentation", "/clock"), true)
-    assert.equal(isNavigationRouteActive("/chimer", "/clock"), false)
+    assert.equal(isNavigationRouteActive("/chimer", "/clock"), true)
     assert.equal(isNavigationRouteActive("/calendar/requests", "/calendar"), true)
+    assert.equal(isNavigationRouteActive("/calendar/personal", "/calendar?setup=practice"), false)
+    assert.equal(isNavigationRouteActive("/calendar/requests", "/calendar?setup=practice"), true)
   })
 
   it("retains hidden home and news groups as model-only placeholders", () => {
@@ -173,17 +173,15 @@ describe("Navigation IA model", () => {
   it("resolves anonymous navigation without account or calendar actions", () => {
     const navigation = resolveNavigation({ authState: "anonymous" })
 
-    assert.deepEqual(primaryGroupIds(navigation), ["tools", "atmosphere", "documentation", "education", "games", "about"])
+    assert.deepEqual(primaryGroupIds(navigation), ["atmosphere", "wellness", "practice", "education", "about"])
     assert.deepEqual(primaryHrefs(navigation), [
-      "/chimer",
-      "/tools/business-planner",
-      "/tools/business-planner/income",
-      "/tools/business-planner/break-even",
-      "/wellness",
-      "/wellness/breathing",
-      "/calendar",
       "/music",
       "/clock",
+      "/wellness/breathing",
+      "/wellness",
+      "/calendar/personal",
+      "/tools/business-planner",
+      "/calendar?setup=practice",
       "/notes",
       "/education/flashcards",
       "/anatomime",
@@ -237,7 +235,7 @@ describe("Navigation IA model", () => {
       practiceRoles: [],
     })
 
-    assert.deepEqual(primaryGroupIds(navigation), ["tools", "atmosphere", "documentation", "education", "games", "about"])
+    assert.deepEqual(primaryGroupIds(navigation), ["atmosphere", "wellness", "practice", "education", "about"])
     assert.deepEqual(navigation.accountMenuRoutes.map((route) => route.href), [
       "/account",
       "/account?tab=app-settings",

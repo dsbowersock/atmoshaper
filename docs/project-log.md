@@ -1,5 +1,31 @@
 # AtmoShaper Project Log
 
+## November 21 navigation and private Calendar workspace completed locally
+
+The owner approves targeted sidebar groups, separate My Calendar/Practice
+Calendar launchers and a shared Calendar display without personal-data sharing.
+They supply their earlier note about individual accounts/subscriptions, multiple
+practice/group memberships and a possible sponsored or consensually split
+practice fee. The note is retained as product direction; no billing model is
+chosen or activated.
+
+Branch `codex/sidebar-calendar-workspace` adds the groups and consolidated
+launchers while retaining legacy URLs and role gates. Both Calendar entry points
+reuse the existing scheduler, including people without practices. A bounded
+owner/range controller, authenticated response binding, read-only projection and
+private detail dialog support Personal/Practice/Together. Stale, mismatched,
+disabled and expired-session results cannot populate the private display.
+Practice switching verifies membership, preserves creation/return targets and
+deduplicates visits. Month weekday labels are corrected after visual QA.
+
+97 focused tests, 84 sync/isolation checks, 45 scheduling/cancellation checks,
+phone/desktop/no-practice synthetic Calendar journeys and two full-app sidebar
+journeys pass. Full and focused lint and the final inert TypeScript/116-page
+build pass. The local sample preview uses fictional data only. No publication,
+provider, membership, database, email, payment or NAS operation occurs. See the
+[local receipt](audits/2026-11-21-sidebar-calendar-workspace.md) and
+[implementation plan](superpowers/plans/2026-11-20-sidebar-calendar-workspace.md).
+
 ## November 20 planner reports and Body palette published
 
 PR #76 merges reviewed `a4c23ef` as `0976d7d`, retaining the reviewed tree. The

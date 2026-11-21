@@ -271,7 +271,8 @@ async function createAppointmentMutation(formData: FormData) {
   }
 
   revalidateCalendarRoutes(practice.slug)
-  return "/calendar"
+  // Return to the authorized workspace that received the new item.
+  return `/calendar?practice=${encodeURIComponent(practiceId)}`
 }
 
 export async function createAppointment(formData: FormData) {
@@ -314,7 +315,7 @@ export async function createPersonalEvent(formData: FormData) {
   const startsAt = localDateTimeToUtc(fieldString(formData, "startsAt"), practice.timezone)
   const endsAt = localDateTimeToUtc(fieldString(formData, "endsAt"), practice.timezone)
   const reason = fieldString(formData, "reason")
-  const returnTo = fieldString(formData, "returnTo") || "/calendar"
+  const returnTo = fieldString(formData, "returnTo") || `/calendar?practice=${encodeURIComponent(practiceId)}`
 
   await assertPracticeTherapist(practiceId, therapistId)
   await assertCalendarFlowAccess({ flow: "PERSONAL", practiceId, userId, targetUserId: therapistId })
@@ -463,7 +464,7 @@ export async function createClass(formData: FormData) {
   }
 
   revalidateCalendarRoutes(practice.slug)
-  redirect("/calendar")
+  redirect(`/calendar?practice=${encodeURIComponent(practiceId)}`)
 }
 
 export async function createReminder(formData: FormData) {
@@ -520,7 +521,7 @@ export async function createReminder(formData: FormData) {
   })
 
   revalidateCalendarRoutes(practice.slug)
-  redirect("/calendar")
+  redirect(`/calendar?practice=${encodeURIComponent(practiceId)}`)
 }
 
 export async function requestAppointment(formData: FormData) {

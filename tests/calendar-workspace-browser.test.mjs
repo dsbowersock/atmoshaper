@@ -1,0 +1,44 @@
+import assert from "node:assert/strict"
+import { mkdir } from "node:fs/promises"
+import test from "node:test"
+import { chromium, expect } from "@playwright/test"
+import { createCalendarWorkspaceBrowserBundle, startCalendarWorkspaceBrowserFixture } from "./fixtures/calendar-workspace-browser-harness.mjs"
+
+test("real calendar phone and desktop source selection stays private and contained", {timeout:120000}, async()=>{
+  const server=await startCalendarWorkspaceBrowserFixture(await createCalendarWorkspaceBrowserBundle())
+  const browser=await chromium.launch({headless:true})
+  try {
+    await mkdir("output/sidebar-calendar-workspace",{recursive:true})
+    for(const [name,width,height] of [["phone",390,844],["desktop",1280,900]]){
+      const context=await browser.newContext({viewport:{width,height},locale:"en-US",timezoneId:"America/New_York"}),page=await context.newPage(),errors=[],external=[]
+      page.on("pageerror",(error)=>errors.push(error.message))
+      await page.route("**/*",(route)=>route.request().url().startsWith(server.origin)?route.continue():(external.push(route.request().url()),route.abort()))
+      await page.goto(server.origin)
+      await expect(page.getByRole("button",{name:"Together",exact:true})).toHaveAttribute("aria-pressed","true")
+      await expect(page.locator(".fc-event").filter({hasText:"Activity"})).toBeVisible()
+      await expect(page.locator(".fc-event").filter({hasText:"Example appointment"})).toBeVisible()
+      assert.deepEqual(await page.locator(".fc-col-header-cell-cushion").allTextContents(),["Sun","Mon","Tue","Wed","Thu","Fri","Sat"])
+      await page.locator(".fc-event").filter({hasText:"Activity"}).click()
+      await expect(page.getByRole("dialog")).toContainText("Fictional private recording")
+      await page.keyboard.press("Escape")
+      await page.getByRole("button",{name:"Practice",exact:true}).click()
+      await expect(page.locator(".fc-event").filter({hasText:"Activity"})).toHaveCount(0)
+      await page.getByRole("button",{name:"Personal",exact:true}).click()
+      await expect(page.locator(".fc-event").filter({hasText:"Example appointment"})).toHaveCount(0)
+      await expect(page.locator(".fc-event").filter({hasText:"Activity"})).toBeVisible()
+      await page.getByRole("button",{name:"Together",exact:true}).click()
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true)
+      assert.deepEqual(await page.evaluate(()=>window.__calendarWrites),[])
+      await page.screenshot({path:`output/sidebar-calendar-workspace/${name}.png`})
+      await page.getByLabel("Choose practice calendar").selectOption("fictional-second-practice")
+      assert.deepEqual(await page.evaluate(()=>window.__calendarNavigation),["/calendar?practice=fictional-second-practice&view=together"])
+      assert.deepEqual(errors,[]);assert.deepEqual(external,[])
+      await context.close()
+    }
+    const page=await browser.newPage({viewport:{width:390,height:844}})
+    await page.goto(`${server.origin}/?personalOnly`)
+    await expect(page.getByRole("button",{name:"Practice",exact:true})).toBeDisabled()
+    await expect(page.getByRole("button",{name:"Together",exact:true})).toBeDisabled()
+    await expect(page.locator(".fc-event").filter({hasText:"Activity"})).toBeVisible()
+  } finally {await browser.close();await server.close()}
+})

@@ -3111,7 +3111,7 @@ test("Atmosphere visualizer action retains selected station across client routes
     }
   }
 
-  const educationTrigger = page.getByRole("button", { name: /^Education$/i }).first()
+  const educationTrigger = page.getByRole("button", { name: /^Learn & Play$/i }).first()
   if (await educationTrigger.isVisible().catch(() => false)) {
     const isExpanded = (await educationTrigger.getAttribute("aria-expanded")) === "true"
     if (!isExpanded) await educationTrigger.click()
@@ -3812,9 +3812,9 @@ test("Breathing overlay leaves native music ownership and the current background
   await page.getByRole("button", { name: "Open navigation", exact: true }).click()
   await page.getByRole("dialog").press("Alt+Shift+B")
   await expect(page.getByRole("dialog", { name: "Breathing guide" })).toHaveCount(0)
-  const toolsGroup = page.getByRole("dialog").getByRole("button", { name: "Tools", exact: true })
+  const toolsGroup = page.getByRole("dialog").getByRole("button", { name: "Atmosphere", exact: true })
   if (await toolsGroup.getAttribute("aria-expanded") !== "true") await toolsGroup.click()
-  await page.getByRole("link", { name: "Breathing", exact: true }).click()
+  await page.getByRole("link", { name: "Breathing guide", exact: true }).click()
   await expect(page.getByRole("heading", { name: "Breathing guide", exact: true })).toBeVisible()
   await expect(toolbar).toHaveAttribute("data-playback-state", "playing")
   for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 714 }, { width: 667, height: 375 }]) {

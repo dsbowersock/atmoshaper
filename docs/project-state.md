@@ -1,5 +1,25 @@
 # AtmoShaper Project State
 
+## November 21 sidebar and private combined Calendar verified locally
+
+Local branch `codex/sidebar-calendar-workspace` reorganizes the sidebar into
+Atmosphere, My Wellness, My Practice and Learn & Play. Clock & timer and Business
+Planner each have one launcher. My Calendar and Practice Calendar open the same
+workspace with Personal, Practice and Together sources. Together displays the
+owner's private items beside one selected authorized practice; existing multiple
+memberships remain selectable. Selected-practice creation and return paths are
+preserved. Personal data stays owner-bound, read-only and outside scheduling
+writes, availability/free-busy, preferences and external sync.
+
+All 97 focused checks, 84 sync/isolation checks, 45 scheduling/cancellation checks,
+the fictional-data phone/desktop Calendar journeys and both full-app sidebar
+journeys pass. Whole-repository and focused lint pass. The final inert Next build
+passes TypeScript and all 116 generated pages. The owner's individual-account,
+multiple-practice and potential practice-fee note is recorded; billing design
+remains unresolved and no subscription or membership is changed. This candidate
+is not published; no live service or data operation occurs. See the
+[local verification receipt](audits/2026-11-21-sidebar-calendar-workspace.md).
+
 ## November 20 remaining planners and light blue Body buttons published
 
 [PR #76](https://github.com/dsbowersock/atmoshaper/pull/76) is public as

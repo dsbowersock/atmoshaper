@@ -15,10 +15,11 @@ import { CalendarOperatorShell } from "../../calendar-operator-shell"
 export default async function NewPersonalEventPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ startsAt?: string }>
+  searchParams?: Promise<{ startsAt?: string; practice?: string }>
 }) {
   const session = await getCurrentSession()
-  const defaultStartsAt = (await searchParams)?.startsAt ?? ""
+  const params = await searchParams
+  const defaultStartsAt = params?.startsAt ?? ""
 
   if (!session?.user?.id) {
     return <PersonalShell><Notice title="Sign in to block time" description="Personal calendar blocks belong to a practice calendar." /></PersonalShell>
@@ -29,7 +30,8 @@ export default async function NewPersonalEventPage({
   }
 
   const membership = await prisma.practiceMembership.findFirst({
-    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST"] } },
+    // Workspace choice narrows this actor's eligible memberships.
+    where: { userId: session.user.id, role: { in: ["OWNER", "THERAPIST"] }, ...(params?.practice ? { practiceId: params.practice } : {}) },
     include: { practice: true },
     orderBy: { createdAt: "asc" },
   })
@@ -49,7 +51,7 @@ export default async function NewPersonalEventPage({
   })
 
   return (
-    <PersonalShell>
+    <PersonalShell practiceId={membership.practiceId}>
       <Card className={appSurfaceClassName}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -94,11 +96,11 @@ export default async function NewPersonalEventPage({
   )
 }
 
-function PersonalShell({ children }: { children: React.ReactNode }) {
+function PersonalShell({ children, practiceId }: { children: React.ReactNode; practiceId?: string }) {
   return (
     <CalendarOperatorShell width="standard">
       <div className="flex justify-end">
-        <Button asChild variant="outline"><Link href="/calendar/new">Creation menu</Link></Button>
+        <Button asChild variant="outline"><Link href={practiceId ? `/calendar/new?practice=${encodeURIComponent(practiceId)}` : "/calendar/new"}>Creation menu</Link></Button>
       </div>
       {children}
     </CalendarOperatorShell>

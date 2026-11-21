@@ -15,13 +15,12 @@ import { CalendarGuidanceNotice } from "./calendar-guidance-notice"
 import { CalendarOperatorShell } from "./calendar-operator-shell"
 import { CalendarWorkspace } from "./calendar-workspace"
 import { PersonalCalendarHome } from "@/components/wellness/personal-calendar-home"
-import { CalendarViewNavigation } from "@/components/wellness/calendar-view-navigation"
 
 /** Scopes workspace reads to the signed-in member and shows safe unavailability when a required read fails. */
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ practice?: string; date?: string; setup?: string }>
+  searchParams?: Promise<{ practice?: string; date?: string; setup?: string; view?: string }>
 }) {
   const session = await getCurrentSession()
 
@@ -40,7 +39,18 @@ export default async function CalendarPage({
     )
   }
 
+  const params = await searchParams
+  const initialScope = params?.view === "personal" || params?.view === "together" ? params.view : "practice"
+  const selectedPracticeId = params?.practice
+  const requestedDate = normalizeCalendarDateParam(params?.date)
+  // Practice failures cannot turn a partial calendar into a bookable one. The
+  // independent owner-only layer can still load through its own authenticated read.
+  function personalFallback(practiceUnavailable = false) {
+    return <PersonalCalendarHome key={session!.user.id} isSignedIn ownerId={session!.user.id} initialDay={requestedDate} practiceUnavailable={practiceUnavailable} />
+  }
+
   if (!(await isCalendarDatabaseReady())) {
+    if (initialScope !== "practice") return personalFallback(true)
     return (
       <CalendarShell>
         <CalendarUnavailableNotice />
@@ -48,9 +58,6 @@ export default async function CalendarPage({
     )
   }
 
-  const params = await searchParams
-  const selectedPracticeId = params?.practice
-  const requestedDate = normalizeCalendarDateParam(params?.date)
   let memberships
 
   try {
@@ -62,6 +69,7 @@ export default async function CalendarPage({
       orderBy: { createdAt: "asc" },
     })
   } catch {
+    if (initialScope !== "practice") return personalFallback(true)
     return (
       <CalendarShell>
         <CalendarUnavailableNotice />
@@ -70,7 +78,7 @@ export default async function CalendarPage({
   }
 
   if (memberships.length === 0) {
-    if (params?.setup !== "practice") return <PersonalCalendarHome key={session.user.id} isSignedIn initialDay={requestedDate} />
+    if (params?.setup !== "practice") return personalFallback()
     return (
       <CalendarShell>
         <Card className={appSurfaceClassName}>
@@ -95,10 +103,14 @@ export default async function CalendarPage({
     )
   }
 
-  const membership = memberships.find((row) => row.practiceId === selectedPracticeId) ?? memberships[0]
+  // A supplied workspace must be an actual membership; never silently substitute
+  // another practice when a stale or forged workspace ID is requested.
+  const membership = selectedPracticeId ? memberships.find((row) => row.practiceId === selectedPracticeId) : memberships[0]
+  if (!membership) return <CalendarShell><CalendarUnavailableNotice /></CalendarShell>
   const practice = membership.practice
   const workspaceData = await loadCalendarWorkspaceData(practice.id, session.user.id).catch(() => null)
   if (!workspaceData) {
+    if (initialScope !== "practice") return personalFallback(true)
     return (
       <CalendarShell>
         <CalendarUnavailableNotice />
@@ -139,12 +151,16 @@ export default async function CalendarPage({
       />
 
       <CalendarWorkspace
+        key={`${session.user.id}:${practice.id}:${initialScope}`}
         events={workspaceEvents}
         providers={providers}
         providerAvailability={providerAvailability}
         preferences={preferences}
         currentUserId={session.user.id}
         initialDate={requestedDate}
+        initialScope={initialScope}
+        practiceOptions={memberships.map((row) => ({ id: row.practiceId, name: row.practice.name }))}
+        selectedPracticeId={practice.id}
       />
     </CalendarShell>
   )
@@ -243,7 +259,7 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
 
 /** Keeps sign-in, unavailable and ready states inside the same full-width operator geometry. */
 function CalendarShell({ children }: { children: React.ReactNode }) {
-  return <CalendarOperatorShell width="full" flush><div className="p-3"><CalendarViewNavigation /></div>{children}</CalendarOperatorShell>
+  return <CalendarOperatorShell width="full" flush>{children}</CalendarOperatorShell>
 }
 
 /** Hides failed or partial private reads behind the established generic recovery message. */

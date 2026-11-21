@@ -937,9 +937,9 @@ async function expectCanonicalSidebarSectionIcons(page: Page) {
   const sidebar = page.locator(".ml-app-sidebar-frame")
   const icons = [
     ["Atmosphere", "lucide-waves"],
-    ["Documentation", "lucide-notebook-pen"],
-    ["Education", "lucide-graduation-cap"],
-    ["Games", "lucide-chess-knight"],
+    ["My Wellness", "lucide-heart-pulse"],
+    ["My Practice", "lucide-briefcase-business"],
+    ["Learn & Play", "lucide-graduation-cap"],
   ] as const
 
   for (const [label, iconClass] of icons) {
@@ -5661,3 +5661,39 @@ async function expectFinalMarkBrandFits(brand: Locator) {
     )
   }), { message: "final brand mark fits without clipping" }).toBeLessThanOrEqual(1)
 }
+
+/** Public shell proof needs no signed-in account or private calendar rows. */
+test("sidebar categories keep personal and practice calendars separate with consolidated tools", async ({page},testInfo)=>{
+  await gotoShell(page,"/wellness")
+  await page.getByRole("button",{name:"Open navigation",exact:true}).click()
+  const sidebar=page.locator('[data-sidebar="sidebar"]:visible').first()
+  for(const label of ["Atmosphere","My Wellness","My Practice","Learn & Play"]){
+    await expect(sidebar.getByRole("button",{name:label,exact:true})).toBeVisible()
+  }
+  for(const [group,links] of [
+    ["Atmosphere",["Music","Clock & timer","Breathing guide"]],
+    ["My Wellness",["Wellness","My Calendar"]],
+    ["My Practice",["Business Planner","Practice Calendar","Notes"]],
+    ["Learn & Play",["Flashcards","Anatomime"]],
+  ] as const){
+    const trigger=sidebar.getByRole("button",{name:group,exact:true})
+    if(await trigger.getAttribute("aria-expanded")!=="true")await trigger.click()
+    for(const label of links)await expect(sidebar.getByRole("link",{name:label,exact:true})).toBeVisible()
+  }
+  await expect(sidebar.getByRole("link",{name:"Chimer",exact:true})).toHaveCount(0)
+  await expect(sidebar.getByRole("link",{name:"Income Planner",exact:true})).toHaveCount(0)
+  const wellness=sidebar.getByRole("button",{name:"My Wellness",exact:true})
+  if(await wellness.getAttribute("aria-expanded")!=="true")await wellness.click()
+  await expect(sidebar.getByRole("link",{name:"My Calendar",exact:true})).toHaveAttribute("href","/calendar/personal")
+  await page.screenshot({path:testInfo.outputPath("sidebar-categories.png")})
+  await sidebar.getByRole("link",{name:"My Calendar",exact:true}).click()
+  await expect(page).toHaveURL(/\/calendar\/personal$/)
+  await expect(page.getByText("Sign in to see your private calendar. A practice account is not required.",{exact:true})).toBeVisible()
+  const reopen=page.getByRole("button",{name:"Open navigation",exact:true})
+  if(await reopen.isVisible())await reopen.click()
+  const practice=sidebar.getByRole("button",{name:"My Practice",exact:true})
+  if(await practice.getAttribute("aria-expanded")!=="true")await practice.click()
+  await sidebar.getByRole("link",{name:"Practice Calendar",exact:true}).click()
+  await expect(page).toHaveURL(/\/calendar\?setup=practice$/)
+  await expect(page.getByText("Sign in to use practice scheduling",{exact:true})).toBeVisible()
+})
