@@ -2,8 +2,10 @@
 
 Current follow-up: the owner requests closure of F1–F4. F1's local Checkout fix
 and F4's fail-closed pagination checks remain passing; the F2/F3 deferred work
-is now corrected and tested. All six real-Git proof cases and 163 Stripe checks
-pass. One focused review from `07a3dcd` remains. See the
+is now corrected and tested. The actual 16-path review at `dfe4198` raises one
+minor fixture-reader environment issue, now corrected with a failing-then-passing
+redirected-worker regression. All seven proof cases and 163 Stripe checks pass.
+One final two-source-file harness review remains. See the
 [specific follow-up plan](../superpowers/plans/2026-11-21-four-review-issues.md).
 
 ## Actual completed review

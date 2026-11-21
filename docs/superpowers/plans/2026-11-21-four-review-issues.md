@@ -38,3 +38,12 @@ Literal pathname framing follows the primary Git
 objects, including names Windows cannot check out, without creating such files
 or changing the real index. Custom `%(path)` formatting still quotes names on
 the tested Git version, so the tree reader uses default NUL-framed records.
+
+The 16-path follow-up at `dfe4198` completes with one minor issue: readers in
+the synthetic Git fixtures still inherit caller redirects. Reproduce four
+lookup failures in a child test process with absolute original repository/index
+paths. Propagate the already sanitized environment through the reader APIs;
+defaults for real audit callers remain unchanged. All seven proof checks and
+lint pass, and the original index remains byte-for-byte unchanged. One final
+included review is limited to these two source files plus their receipt updates;
+do not repeat the wider source review or change application behavior.

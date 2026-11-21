@@ -10,8 +10,14 @@ NUL-framed default tree records, exact diff names and literal preparation paths.
 All six proof checks, 163 Stripe checks, audit lint and TypeScript pass. The
 fresh whole inventory still proves 703 changed code/test histories, zero gaps,
 and exactly the same baseline/coverage decisions for all 1,017 touched paths.
-One included-allowance correction review remains in this bounded
-follow-up. No live/provider/NAS/release operation is included.
+The actual included-allowance review at `dfe4198` completes across all 16 paths,
+raising one minor fixture-reader environment issue and no further comments on
+F1–F4. Reproduce the issue in a fresh Node worker with absolute `GIT_DIR` and
+`GIT_INDEX_FILE` redirects. Explicit sanitized environments now reach all fixture
+readers as well as writes. Seven proof checks pass, including four actual child
+cases and byte-for-byte preservation of the caller's real index. One final
+two-source-file correction review remains. No live/provider/NAS/release
+operation is included.
 
 ## November 21 final planned CodeRabbit review completes
 

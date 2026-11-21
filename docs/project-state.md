@@ -10,8 +10,12 @@ review coverage, and NUL-framed Git readers/preparation preserve literal names.
 All six real-Git proof checks and all 163 payment checks pass locally. Fresh
 inventory confirms the same 703 reviewed code/test histories and zero gaps,
 with every existing path's baseline/coverage unchanged. TypeScript and focused
-audit lint pass. One focused review of the correction delta from `07a3dcd`
-remains. This explicit follow-up supersedes the deferred
+audit lint pass. The actual 16-path review at `dfe4198` completes with one minor
+fixture-environment issue and no further F1–F4 comments. The seven proof tests
+now also exercise absolute caller Git repository/index redirects: sanitized
+read environments preserve both fixture lookup and the real index. One final
+review of this two-source-file harness correction and its records remains.
+This explicit follow-up supersedes the deferred
 F2/F3 status below; no publication or provider/NAS/live-data write is included.
 See the [four-issue plan](superpowers/plans/2026-11-21-four-review-issues.md).
 

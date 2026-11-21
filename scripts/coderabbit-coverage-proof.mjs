@@ -1,9 +1,10 @@
 import { spawnSync } from "node:child_process"
 
 /** Read local Git data. Optional missing historical objects cannot prove coverage;
- * process-launch failures always stop the audit. No network or checkout occurs. */
-export function readGit(args, { cwd = process.cwd(), optional = false } = {}) {
-  const result = spawnSync("git", args, { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, windowsHide: true })
+ * process-launch failures always stop the audit. No network or checkout occurs.
+ * Fixtures supply their sanitized environment for reads as well as writes. */
+export function readGit(args, { cwd = process.cwd(), optional = false, env = process.env } = {}) {
+  const result = spawnSync("git", args, { cwd, env, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, windowsHide: true })
   if (result.error) throw new Error(`Git coverage command could not start: ${args[0]}`, { cause: result.error })
   if (result.status !== 0) {
     if (optional) return null
@@ -14,8 +15,8 @@ export function readGit(args, { cwd = process.cwd(), optional = false } = {}) {
 
 /** Git status 1 means a valid non-ancestor; every other failure is unavailable
  * evidence and must stop source-scope enumeration instead of dropping a PR. */
-export function isGitAncestor(ancestor, descendant, cwd = process.cwd()) {
-  const result = spawnSync("git", ["merge-base", "--is-ancestor", ancestor, descendant], { cwd, encoding: "utf8", windowsHide: true })
+export function isGitAncestor(ancestor, descendant, cwd = process.cwd(), env = process.env) {
+  const result = spawnSync("git", ["merge-base", "--is-ancestor", ancestor, descendant], { cwd, env, encoding: "utf8", windowsHide: true })
   if (result.error) throw new Error("Git ancestry command could not start", { cause: result.error })
   if (result.status === 0) return true
   if (result.status === 1) return false
@@ -24,14 +25,14 @@ export function isGitAncestor(ancestor, descendant, cwd = process.cwd()) {
 
 /** An actual empty diff is valid; an unreadable first parent is never an empty
  * PR. NUL framing preserves literal names, including whitespace and newlines. */
-export function readGitDiffPaths(base, head, cwd = process.cwd()) {
-  return readGit(["diff", "--name-only", "--no-renames", "-z", base, head], { cwd }).split("\0").filter(Boolean)
+export function readGitDiffPaths(base, head, cwd = process.cwd(), env = process.env) {
+  return readGit(["diff", "--name-only", "--no-renames", "-z", base, head], { cwd, env }).split("\0").filter(Boolean)
 }
 
 /** Reads exact tree identities without checkout. Use Git's default NUL-framed
  * records: custom %(path) formatting can still quote names even with -z. */
-export function readGitTree(commit, { cwd = process.cwd(), optional = false } = {}) {
-  const raw = readGit(["ls-tree", "-r", "-z", commit], { cwd, optional })
+export function readGitTree(commit, { cwd = process.cwd(), optional = false, env = process.env } = {}) {
+  const raw = readGit(["ls-tree", "-r", "-z", commit], { cwd, optional, env })
   return raw === null ? null : new Map(raw.split("\0").filter(Boolean).map(line => {
     const at = line.indexOf("\t")
     const header = /^(\d{6}) (?:blob|commit) ([a-f0-9]+)$/.exec(line.slice(0, at))
