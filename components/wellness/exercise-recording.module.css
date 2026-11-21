@@ -1,0 +1,20 @@
+.recorder { display: grid; gap: 1rem; min-width: 0; }
+.columns, .setFields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0.75rem; }
+.setFields { grid-template-columns: repeat(3,minmax(0,1fr)); align-items: end; }
+.set { min-width: 0; padding: 0.75rem; border: 1px solid hsl(var(--border)); border-radius: 0.75rem; }
+.set legend { padding-inline: 0.25rem; font-size: 0.8rem; font-weight: 600; }
+.recorder p, .history p { font-size: 0.8rem; line-height: 1.6; color: hsl(var(--muted-foreground)); }
+.history { display: grid; gap: 1rem; min-width: 0; }
+.history select { width: 100%; min-width: 0; min-height: 2.75rem; border: 1px solid hsl(var(--input)); border-radius: 0.5rem; background: hsl(var(--background)); padding: 0.5rem; }
+.history [hidden], .recorder [hidden] { display: none; }
+.chart { width: 100%; height: auto; display: block; }
+.chart text { fill: hsl(var(--muted-foreground)); font-family: inherit; font-size: 11px; }
+.chart path { fill: none; stroke: hsl(var(--primary)); stroke-width: 2.5; }
+.chart circle { fill: hsl(var(--primary)); }
+.chart line { stroke: hsl(var(--border)); stroke-dasharray: 3 3; }
+.entry { min-width: 0; padding: 0.9rem; border: 1px solid hsl(var(--border)); border-radius: 0.75rem; }
+.readback { display: grid; gap: 0.6rem; min-width: 0; font-size: 0.85rem; }
+.readback ul { display: grid; gap: 0.4rem; }
+.readback li { overflow-wrap: anywhere; }
+@media (max-width: 30rem) { .columns { grid-template-columns: minmax(0,1fr); } }
+@media (max-width: 23rem) { .setFields { grid-template-columns: minmax(0,1fr); } }

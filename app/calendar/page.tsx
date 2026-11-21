@@ -14,12 +14,14 @@ import { Label } from "@/components/ui/label"
 import { CalendarGuidanceNotice } from "./calendar-guidance-notice"
 import { CalendarOperatorShell } from "./calendar-operator-shell"
 import { CalendarWorkspace } from "./calendar-workspace"
+import { PersonalCalendarHome } from "@/components/wellness/personal-calendar-home"
+import { CalendarViewNavigation } from "@/components/wellness/calendar-view-navigation"
 
 /** Scopes workspace reads to the signed-in member and shows safe unavailability when a required read fails. */
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ practice?: string; date?: string }>
+  searchParams?: Promise<{ practice?: string; date?: string; setup?: string }>
 }) {
   const session = await getCurrentSession()
 
@@ -68,6 +70,7 @@ export default async function CalendarPage({
   }
 
   if (memberships.length === 0) {
+    if (params?.setup !== "practice") return <PersonalCalendarHome key={session.user.id} isSignedIn initialDay={requestedDate} />
     return (
       <CalendarShell>
         <Card className={appSurfaceClassName}>
@@ -240,7 +243,7 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
 
 /** Keeps sign-in, unavailable and ready states inside the same full-width operator geometry. */
 function CalendarShell({ children }: { children: React.ReactNode }) {
-  return <CalendarOperatorShell width="full" flush>{children}</CalendarOperatorShell>
+  return <CalendarOperatorShell width="full" flush><div className="p-3"><CalendarViewNavigation /></div>{children}</CalendarOperatorShell>
 }
 
 /** Hides failed or partial private reads behind the established generic recovery message. */

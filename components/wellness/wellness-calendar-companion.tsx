@@ -1,7 +1,8 @@
 "use client"
 
 import { useMemo, useRef, useState, useTransition } from "react"
-import { Bell, CalendarDays, Plus, Trash2 } from "lucide-react"
+import Link from "next/link"
+import { Bell, Plus, Trash2 } from "lucide-react"
 import { updateClientWellnessReminderSchedulesAction } from "@/app/wellness/actions"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,6 +15,8 @@ import {
   normalizeClientWellnessReminderSchedules,
 } from "@/lib/client-wellness-reminders"
 import { cn } from "@/lib/utils"
+import { PersonalWellnessCalendar } from "./personal-wellness-calendar"
+import type { WellnessTimelineEntry } from "./wellness-hub-client"
 
 export type ClientWellnessReminderSchedule = {
   id: string
@@ -60,10 +63,14 @@ export function WellnessCalendarCompanion({
   isSignedIn,
   appointments,
   reminderSchedules,
+  entries = [],
+  active = true,
 }: {
   isSignedIn: boolean
   appointments: WellnessAppointmentSummary[]
   reminderSchedules: ClientWellnessReminderSchedule[]
+  entries?: WellnessTimelineEntry[]
+  active?: boolean
 }) {
   const [schedules, setSchedules] = useState(() => normalizeClientWellnessReminderSchedules(reminderSchedules))
   const [kind, setKind] = useState("check_in")
@@ -170,24 +177,11 @@ export function WellnessCalendarCompanion({
   }
 
   return (
-    <section className="rounded-md border border-border/80 bg-card/95 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <CalendarDays className="h-5 w-5 text-brand-orange" aria-hidden="true" />
-            Calendar
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isSignedIn ? "Appointment summaries and generic wellness reminders." : "Try reminder setup here; sign in to save schedules."}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{upcomingAppointments.length} upcoming</Badge>
-          <Badge variant="secondary">{schedules.length} reminders</Badge>
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
+    <section className="grid min-w-0 gap-4">
+      <PersonalWellnessCalendar isSignedIn={isSignedIn} active={active} entries={entries} appointments={appointments.map((item) => ({id:item.id,at:item.startsAt,end:item.endsAt,title:item.serviceLabel,practiceName:item.practiceName,status:item.status}))} schedules={schedules} />
+      <Button asChild variant="glow" className="justify-self-start"><Link href="/calendar/personal">Open Calendar</Link></Button>
+      <details><summary className="min-h-11 cursor-pointer content-center text-sm font-medium">Appointment summaries and reminder settings</summary>
+      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <div className="grid gap-3">
           <AppointmentList title="Upcoming" appointments={upcomingAppointments} emptyLabel={isSignedIn ? "No upcoming appointments found." : "Sign in to see appointment summaries."} />
           <AppointmentList title="Past" appointments={pastAppointments} emptyLabel={isSignedIn ? "No past appointments found." : "Saved appointment history requires sign-in."} />
@@ -271,12 +265,12 @@ export function WellnessCalendarCompanion({
           {schedules.length > 0 ? (
             <div className="mt-4 grid gap-2">
               {schedules.map((schedule) => (
-                <div key={schedule.id} className="flex items-center justify-between gap-3 rounded-md border border-border/80 bg-card/80 p-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{reminderKindLabel(schedule.kind)}</p>
+                <div key={schedule.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border/80 bg-card/80 p-2">
+                  <div className="min-w-0 flex-1 basis-40">
+                    <p className="break-words text-sm font-medium">{reminderKindLabel(schedule.kind)}</p>
                     <p className="text-xs text-muted-foreground">{scheduleLabel(schedule)}</p>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex shrink-0 items-center gap-2">
                     <Checkbox
                       checked={schedule.enabled}
                       onCheckedChange={() => toggleSchedule(schedule.id)}
@@ -301,7 +295,7 @@ export function WellnessCalendarCompanion({
               <p className="text-sm font-medium">Next reminders</p>
               <div className="mt-2 grid gap-2">
                 {nextReminders.map((reminder) => (
-                  <div key={`${reminder.scheduleId}-${reminder.startsAt.toISOString()}`} className="flex items-center justify-between gap-3 text-sm">
+                  <div key={`${reminder.scheduleId}-${reminder.startsAt.toISOString()}`} className="flex flex-wrap items-center justify-between gap-2 text-sm">
                     <span>{reminder.label}</span>
                     <span className="text-xs text-muted-foreground">{formatDateTime(reminder.startsAt.toISOString())}</span>
                   </div>
@@ -322,7 +316,7 @@ export function WellnessCalendarCompanion({
             </p>
           ) : null}
         </div>
-      </div>
+      </div></details>
     </section>
   )
 }
@@ -347,7 +341,7 @@ function AppointmentList({
             <div key={appointment.id} className="rounded-md border border-border/80 bg-card/80 p-2">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{appointment.serviceLabel}</p>
+                  <p className="break-words text-sm font-medium">{appointment.serviceLabel}</p>
                   <p className="text-xs text-muted-foreground">{appointment.practiceName}</p>
                 </div>
                 <Badge variant="outline">{appointment.status.toLowerCase()}</Badge>

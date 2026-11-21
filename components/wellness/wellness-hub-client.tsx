@@ -2,22 +2,22 @@
 
 import Link from "next/link"
 import { unstable_rethrow } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { Activity, ArrowLeft, BarChart3, BriefcaseBusiness, CalendarDays, Clock3, Download, HeartPulse, Leaf, Moon, MoveUpRight, Radio, Save, Smile, Trash2, TriangleAlert, Wind } from "lucide-react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
+import { Activity, ArrowLeft, BarChart3, BriefcaseBusiness, CalendarDays, Clock3, Download, Dumbbell, HeartPulse, Leaf, Moon, MoveUpRight, Radio, Save, Smile, TriangleAlert, Wind } from "lucide-react"
 import {
   createClientWellnessEntryAction,
   deleteClientWellnessEntryAction,
   exportClientWellnessEntriesAction,
 } from "@/app/wellness/actions"
 import { BodyRegionSelector, BODY_REGION_OPTIONS } from "@/components/wellness/body-region-selector"
-import { RomMeasurementPanel, type RomMeasurementDraft } from "@/components/wellness/rom-measurement-panel"
+import { RomMeasurementPanel, type MovementRecordingDraft } from "@/components/wellness/rom-measurement-panel"
+import { MOVEMENT_COMFORT_SCALE, summarizeMovementComfort } from "@/lib/movement-comfort"
 import {
   WellnessCalendarCompanion,
   type ClientWellnessReminderSchedule,
   type WellnessAppointmentSummary,
 } from "@/components/wellness/wellness-calendar-companion"
 import { WellnessPatternReport } from "@/components/wellness/wellness-pattern-report"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -25,6 +25,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CLIENT_WELLNESS_CATEGORIES } from "@/lib/client-wellness"
 import { cn } from "@/lib/utils"
+import activityStyles from "./activity-recording.module.css"
+import { FeelingsWheel } from "./feelings-wheel"
+import { ContextReflection } from "./context-reflection"
+import { normalizeContextCheckIn, reflectionWords } from "@/lib/wellness-reflection"
+import { createExerciseDraft, exerciseComparisonKey, exerciseSessions, validateExerciseRecord, type ExerciseDraft } from "@/lib/exercise-recording"
+import { ExerciseRecorder } from "./exercise-recorder"
+import { ExerciseHistory } from "./exercise-history"
+import { WellnessEntryCard } from "./wellness-entry-card"
+import { WELLNESS_CATEGORY_LABELS } from "@/lib/wellness-catalog"
 
 export type WellnessTimelineEntry = {
   id: string
@@ -50,37 +59,31 @@ type ActionData = {
   exportedAt?: string
 }
 
-const categoryLabels: Record<string, string> = {
-  body_sensation: "Body sensation",
-  emotion: "Feeling",
-  rom: "Range of motion",
-  sleep: "Sleep",
-  activity: "Activity",
-  work_context: "Work context",
-  home_care: "Home care",
-  incident: "Incident",
-}
+const categoryLabels: Record<string, string> = WELLNESS_CATEGORY_LABELS
 
-type WellnessTool = "log" | "rom" | "timeline" | "patterns" | "calendar" | null
+type WellnessTool = "log" | "rom" | "comfort" | "timeline" | "patterns" | "calendar" | "exercise-history" | null
 
 const recordingTools = [
-  { group: "physical", category: "activity", title: "Activity", hint: "Record movement", icon: Activity },
-  { group: "physical", category: "incident", title: "Incident", hint: "Note what happened", icon: TriangleAlert },
-  { group: "physical", category: "body_sensation", title: "Body check-in", hint: "Notice sensations", icon: HeartPulse },
+  { group: "body", category: "activity", title: "Activity", hint: "Movement or tasks", icon: Activity },
+  { group: "body", category: "exercise", title: "Exercise", hint: "Sets, reps or timed practice", icon: Dumbbell },
+  { group: "body", category: "incident", title: "Incident", hint: "Something that happened", icon: TriangleAlert },
+  { group: "body", category: "body_sensation", title: "Body check-in", hint: "Physical sensations", icon: HeartPulse },
   { group: "context", category: "work_context", title: "Work context", hint: "Note your workday", icon: BriefcaseBusiness },
-  { group: "context", category: "emotion", title: "Feelings", hint: "Name how you feel", icon: Smile },
-  { group: "context", category: "sleep", title: "Sleep", hint: "Reflect on your rest", icon: Moon },
+  { group: "mind", category: "emotion", title: "Feelings", hint: "Name how you feel", icon: Smile },
+  { group: "mind", category: "sleep", title: "Sleep", hint: "Reflect on your rest", icon: Moon },
   { group: "context", category: "home_care", title: "Home care", hint: "Track your routine", icon: Leaf },
 ] as const
 // Groups organize launchers only; saved check-in categories keep their existing meaning.
 const recordingGroups = [
-  { id: "physical", title: "Physical sensations", tone: "default" },
+  { id: "mind", title: "Mind", tone: "default" },
+  { id: "body", title: "Body", tone: "default" },
   { id: "context", title: "Context", tone: "setup" },
 ] as const
 const reviewTools = [
   { tool: "timeline", title: "Timeline", hint: "Review your entries", icon: Clock3 },
+  { tool: "exercise-history", title: "Exercise progress", hint: "Compare your recordings", icon: BarChart3 },
   { tool: "patterns", title: "Patterns", hint: "Reflect on trends", icon: BarChart3 },
-  { tool: "calendar", title: "Appointments & reminders", hint: "Plan your check-ins", icon: CalendarDays },
+  { tool: "calendar", title: "My calendar", hint: "Recordings, visits & reminders", icon: CalendarDays },
 ] as const
 
 const contextOptions = ["desk", "sleep", "work", "movement", "exercise", "stress", "commute", "home care"]
@@ -93,6 +96,26 @@ const movementEffectOptions = [
   { value: "unchanged", label: "Unchanged" },
 ]
 
+const recordingQuestions: Record<string, { note: string; placeholder: string; hint: string }> = {
+  activity: { note: "What were you doing?", placeholder: "A walk, gardening, lifting, or another activity…", hint: "Record a movement or task and what you noticed." },
+  exercise: { note: "Anything you want to note?", placeholder: "How it went, a change you noticed, or something to remember…", hint: "Log one exercise or task. Add only the measurements you want to track." },
+  incident: { note: "What happened?", placeholder: "Describe the event and anything you noticed afterward…", hint: "Record a specific event, such as a slip, bump or sudden change." },
+  body_sensation: { note: "What do you notice?", placeholder: "Describe how this area feels, in your own words…", hint: "Mark an area or describe a physical sensation." },
+  emotion: { note: "Anything you want to add?", placeholder: "A few words about how you feel…", hint: "Choose a feeling, write a note, or do both." },
+  sleep: { note: "What was your sleep like?", placeholder: "When you slept and how rested you felt…", hint: "Record your rest and how you felt afterward." },
+  work_context: { note: "What did you notice at work?", placeholder: "A task, repeated movement, position or workstation setup…", hint: "Notice tasks, positions or surroundings in your workday." },
+  home_care: { note: "What did you notice at home?", placeholder: "A home routine, your surroundings, or something you did for yourself…", hint: "Record home routines, surroundings or self-care." },
+  rom: { note: "Anything to note about the movement?", placeholder: "A note to keep with this check-in…", hint: "Open the guided recorder to measure a movement." },
+}
+
+type QuickLogDraft = { values: Record<string, string[]>; sections: Record<string, boolean>; regions: string[]; feelings: string[]; bodyOpen: boolean; exercise: ExerciseDraft }
+
+// Server-rendered launchers wait for hydration so an early tap cannot be lost
+// before React attaches their handlers. This static store has no subscriptions.
+const subscribeHydration = () => () => {}
+const hydratedSnapshot = () => true
+const serverSnapshot = () => false
+
 /** Render supplied timeline/report entries, display name and calendar context.
  * Signed-out additions stay in page state; signed-in saves require self-tracking
  * acknowledgment. Therapist sharing is disabled; these are not professional records.
@@ -103,6 +126,7 @@ export function WellnessHubClient({
   displayName,
   initialEntries,
   initialReportEntries,
+  initialExerciseEntries = [],
   appointments,
   reminderSchedules,
 }: {
@@ -110,11 +134,19 @@ export function WellnessHubClient({
   displayName: string | null
   initialEntries: WellnessTimelineEntry[]
   initialReportEntries: WellnessTimelineEntry[]
+  initialExerciseEntries?: WellnessTimelineEntry[]
   appointments: WellnessAppointmentSummary[]
   reminderSchedules: ClientWellnessReminderSchedule[]
 }) {
+  const launchersReady = useSyncExternalStore(subscribeHydration, hydratedSnapshot, serverSnapshot)
   const [activeTool, setActiveTool] = useState<WellnessTool>(null)
   const [logCategory, setLogCategory] = useState("body_sensation")
+  const [bodyDetailsOpen, setBodyDetailsOpen] = useState(true)
+  const isActivity = logCategory === "activity"
+  const [selectedFeelings, setSelectedFeelings] = useState<string[]>([])
+  const [exerciseDraft, setExerciseDraft] = useState<ExerciseDraft>(() => createExerciseDraft())
+  const [exerciseHistoryKey, setExerciseHistoryKey] = useState("")
+  const [exerciseEntries, setExerciseEntries] = useState(initialExerciseEntries)
   const toolHeadingRef = useRef<HTMLHeadingElement>(null)
   const defaultLauncherRef = useRef<HTMLButtonElement>(null)
   const launcherRef = useRef<HTMLButtonElement | null>(null)
@@ -153,7 +185,8 @@ export function WellnessHubClient({
   }, [activeTool])
 
   const formRef = useRef<HTMLFormElement>(null)
-  const logDraftChanged = useRef(false)
+  const categoryDrafts = useRef(new Map<string, QuickLogDraft>())
+  const draftToRestore = useRef<{ draft?: QuickLogDraft } | null>(null)
   const [entries, setEntries] = useState(initialEntries)
   const [reportEntries, setReportEntries] = useState(initialReportEntries)
   const [selectedRegions, setSelectedRegions] = useState<string[]>([])
@@ -167,6 +200,27 @@ export function WellnessHubClient({
   const [confirmExport, setConfirmExport] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const actionPending = useRef(false)
+
+  // Restore native inputs after the new category's controls commit. Controlled
+  // region/feeling values are restored by React; only this page owns the drafts.
+  useLayoutEffect(() => {
+    if (!draftToRestore.current || !formRef.current) return
+    restoreQuickLogDraft(formRef.current, draftToRestore.current.draft, logCategory)
+    draftToRestore.current = null
+  }, [logCategory])
+
+  function selectRecordingCategory(category: string) {
+    if (actionPending.current || category === logCategory || !CLIENT_WELLNESS_CATEGORIES.includes(category)) return
+    if (formRef.current) categoryDrafts.current.set(logCategory, captureQuickLogDraft(formRef.current, selectedRegions, selectedFeelings, bodyDetailsOpen, exerciseDraft))
+    const draft = categoryDrafts.current.get(category)
+    draftToRestore.current = { draft }
+    setLogCategory(category)
+    setSelectedRegions(draft?.regions ?? [])
+    setSelectedFeelings(draft?.feelings ?? [])
+    setExerciseDraft(draft?.exercise ?? createExerciseDraft())
+    setBodyDetailsOpen(draft?.bodyOpen ?? category === "body_sensation")
+    setStatus(null); setError(null)
+  }
 
   /** Own only this component's action promise and result application. Next still
    * owns dispatch/revalidation; local completion alone does not prove queue readiness.
@@ -188,16 +242,14 @@ export function WellnessHubClient({
     }
   }
 
-  /** Keep the entire mounted draft, including deliberate category edits. A
-   * launcher seeds only a fresh form; navigating cannot relabel existing input. */
+  /** A named launcher always opens that recording type. Keep each type's native
+   * fields and controlled choices separately instead of silently relabeling or
+   * reopening another tool's unfinished entry. Pending actions still own the lock. */
   function openTool(tool: WellnessTool, opener: HTMLButtonElement, category?: string) {
     if (actionPending.current) return
     launcherRef.current = opener
     moveFocus.current = true
-    if (category && !logDraftChanged.current) setLogCategory(category)
-    else if (category && category !== logCategory) {
-      setStatus("Continuing your unfinished check-in with its category and details preserved.")
-    }
+    if (category) selectRecordingCategory(category)
     setActiveTool(tool)
   }
   function returnToTools() {
@@ -209,17 +261,11 @@ export function WellnessHubClient({
     setActiveTool(null)
   }
   const activeTitle = activeTool === "log"
-    ? recordingTools.find((tool) => tool.category === logCategory)?.title ?? "Quick log"
-    : activeTool === "rom" ? "Range of motion" : reviewTools.find((tool) => tool.tool === activeTool)?.title
-
-  const entryCounts = useMemo(() => ({
-    total: entries.length,
-    rom: entries.filter((entry) => entry.category === "rom").length,
-    practice: entries.filter((entry) => !entry.persisted).length,
-  }), [entries])
+    ? categoryLabels[logCategory] ?? "Check-in"
+    : activeTool === "rom" ? "Range of motion" : activeTool === "comfort" ? "Movement comfort" : reviewTools.find((tool) => tool.tool === activeTool)?.title
 
   const timelineSignalOptions = useMemo(() => (
-    [...new Set(entries.flatMap((entry) => [...entry.sensations, ...entry.contexts]))].sort((a, b) => a.localeCompare(b))
+    [...new Set(entries.flatMap((entry) => [...entry.sensations, ...entry.contexts, ...reflectionWords(entry.metadata.feelingWords), ...reflectionWords(normalizeContextCheckIn(entry.category, entry.metadata.contextCheckIn)?.prompts)]))].sort((a, b) => a.localeCompare(b))
   ), [entries])
   const timelineRegionOptions = useMemo(() => (
     [...new Set([...BODY_REGION_OPTIONS, ...entries.flatMap((entry) => entry.regions)])].sort((a, b) => a.localeCompare(b))
@@ -232,6 +278,8 @@ export function WellnessHubClient({
   const reportEntriesForPanel = useMemo(() => (
     isSignedIn ? reportEntries : entries
   ), [entries, isSignedIn, reportEntries])
+  const comfortReferences = useMemo(() => summarizeMovementComfort(reportEntriesForPanel), [reportEntriesForPanel])
+  const exerciseHistorySessions = useMemo(() => exerciseSessions([...exerciseEntries, ...entries]), [exerciseEntries, entries])
 
   const saveQuickLog = () => {
     if (actionPending.current) return
@@ -242,6 +290,10 @@ export function WellnessHubClient({
     }
 
     const formData = wellnessFormData(form)
+    if (stringFormValue(formData, "category") === "exercise") {
+      const result = validateExerciseRecord(parseJsonRecord(stringFormValue(formData, "exerciseRecord")))
+      if (result.error) { setError(result.error); form.reportValidity?.(); return }
+    }
 
     if (!isSignedIn) {
       const entry = localEntryFromFormData(formData)
@@ -249,8 +301,10 @@ export function WellnessHubClient({
       setStatus("Practice entry added for this page session. Sign in before saving anything permanently.")
       setError(null)
       form.reset()
-      logDraftChanged.current = false
+      categoryDrafts.current.delete(logCategory)
       setSelectedRegions([])
+      setSelectedFeelings([])
+      setExerciseDraft(createExerciseDraft())
       return
     }
 
@@ -272,27 +326,31 @@ export function WellnessHubClient({
       if (!entry) { setError("Could not save this entry."); return }
       setEntries((current) => upsertTimelineEntry(entry, current))
       setReportEntries((current) => upsertTimelineEntry(entry, current))
+      if (entry.category === "exercise") setExerciseEntries((current) => upsertTimelineEntry(entry, current))
       setStatus("Saved to your client-owned wellness timeline.")
       form.reset()
-      logDraftChanged.current = false
+      categoryDrafts.current.delete(logCategory)
       setSelectedRegions([])
+      setSelectedFeelings([])
+      setExerciseDraft(createExerciseDraft())
     }, "Could not save this entry.")
   }
 
-  const saveRomMeasurement = (draft: RomMeasurementDraft) => {
+  const saveRomMeasurement = (draft: MovementRecordingDraft) => {
     if (actionPending.current) return
     const formData = romFormData(draft)
+    const label = draft.comfortScore !== undefined ? "movement check-in" : "ROM measurement"
 
     if (!isSignedIn) {
       const entry = localEntryFromFormData(formData)
       setEntries((current) => upsertTimelineEntry(entry, current))
-      setStatus("Practice ROM measurement added for this page session. Sign in to keep measurements over time.")
+      setStatus(`Practice ${label} added for this page session. Sign in to keep recordings over time.`)
       setError(null)
       return
     }
 
     if (!acknowledged) {
-      setError("Acknowledge the self-tracking privacy boundary before saving a ROM measurement.")
+      setError(`Acknowledge the self-tracking privacy boundary before saving a ${label}.`)
       return
     }
 
@@ -300,17 +358,17 @@ export function WellnessHubClient({
       const result = await createClientWellnessEntryAction(formData)
 
       if (result?.ok !== true) {
-        setError(actionReason(result?.reason, "Could not save this ROM measurement."))
+        setError(actionReason(result?.reason, `Could not save this ${label}.`))
         return
       }
 
       const data = actionData(result.data)
       const entry = normalizeTimelineEntry(data.entry, true)
-      if (!entry) { setError("Could not save this ROM measurement."); return }
+      if (!entry) { setError(`Could not save this ${label}.`); return }
       setEntries((current) => upsertTimelineEntry(entry, current))
       setReportEntries((current) => upsertTimelineEntry(entry, current))
-      setStatus("ROM measurement saved to your wellness timeline.")
-    }, "Could not save this ROM measurement.")
+      setStatus(`${label === "ROM measurement" ? "ROM measurement" : "Movement check-in"} saved to your wellness timeline.`)
+    }, `Could not save this ${label}.`)
   }
 
   const deleteEntry = (entry: WellnessTimelineEntry) => {
@@ -340,6 +398,7 @@ export function WellnessHubClient({
 
       setEntries((current) => removeTimelineEntry(entry.id, current))
       setReportEntries((current) => removeTimelineEntry(entry.id, current))
+      setExerciseEntries((current) => removeTimelineEntry(entry.id, current))
       setConfirmDeleteId(null)
       setStatus("Entry deleted from your wellness timeline.")
     }, "Could not delete this entry.")
@@ -375,6 +434,15 @@ export function WellnessHubClient({
     }, "Could not export wellness entries.")
   }
 
+  const question = recordingQuestions[logCategory]
+  const showSensationTerms = ["body_sensation", "activity", "incident", "work_context", "home_care"].includes(logCategory)
+  const bodyRegionControl = <details data-log-body className={activityStyles.body} open={bodyDetailsOpen} onToggle={(event) => {
+    if (event.target === event.currentTarget && event.currentTarget.open !== bodyDetailsOpen) setBodyDetailsOpen(event.currentTarget.open)
+  }}>
+    <summary>{logCategory === "body_sensation" ? "Where do you notice it?" : isActivity ? "Body regions (optional)" : logCategory === "incident" ? "Where on your body? (optional)" : "Body regions (optional)"}</summary>
+    <div className="mt-3"><BodyRegionSelector interactive active={activeTool === "log" && bodyDetailsOpen} disabled={isPending} selectedRegions={selectedRegions} onChange={setSelectedRegions} /></div>
+  </details>
+
   return (
     <div data-wellness-hub>
       <div hidden={activeTool !== null} data-wellness-home>
@@ -393,13 +461,16 @@ export function WellnessHubClient({
           <section key={group.id} aria-labelledby={`wellness-${group.id}-title`}>
             <h2 id={`wellness-${group.id}-title`}>{group.title}</h2>
             <div data-wellness-tool-grid>
-              {group.id === "physical" && (
-                <Button type="button" variant="default" data-wellness-tile disabled={isPending} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
+              {group.id === "body" && <>
+                <Button type="button" variant="default" data-wellness-tile disabled={isPending || !launchersReady} aria-label="Open movement comfort" onClick={(event) => openTool("comfort", event.currentTarget)}>
+                  <HeartPulse aria-hidden="true" /><span><strong>Movement comfort</strong><small>How movement feels</small></span>
+                </Button>
+                <Button type="button" variant="default" data-wellness-tile disabled={isPending || !launchersReady} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
                   <MoveUpRight aria-hidden="true" /><span><strong>Range of motion</strong><small>Measure movement</small></span>
                 </Button>
-              )}
+              </>}
               {recordingTools.filter((tool) => tool.group === group.id).map(({ category, title, hint, icon: Icon }) => (
-                <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant="default" tone={group.tone} data-wellness-tile disabled={isPending} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
+                <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant={group.id === "mind" ? "cta" : "default"} tone={group.tone} data-wellness-tile disabled={isPending || !launchersReady} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
                   <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
                 </Button>
               ))}
@@ -410,7 +481,7 @@ export function WellnessHubClient({
           <h2 id="wellness-review-title">Review & plan</h2>
           <div data-wellness-tool-grid>
             {reviewTools.map(({ tool, title, hint, icon: Icon }) => (
-              <Button key={tool} type="button" variant="success" data-wellness-tile disabled={isPending} aria-label={`Open ${title.toLowerCase()}`} onClick={(event) => openTool(tool, event.currentTarget)}>
+              <Button key={tool} type="button" variant="success" data-wellness-tile disabled={isPending || !launchersReady} aria-label={`Open ${title.toLowerCase()}`} onClick={(event) => openTool(tool, event.currentTarget)}>
                 <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
               </Button>
             ))}
@@ -420,195 +491,101 @@ export function WellnessHubClient({
       <div hidden={activeTool === null} data-wellness-workspace>
         <div className="mb-4 flex min-w-0 flex-wrap items-center gap-3">
           <Button type="button" variant="ghost" onClick={returnToTools} disabled={isPending}><ArrowLeft aria-hidden="true" />All wellness tools</Button>
-          <h2 ref={toolHeadingRef} tabIndex={-1} className="text-lg font-semibold">{activeTitle}</h2>
+          <h1 data-wellness-tool-title ref={toolHeadingRef} tabIndex={-1} className="text-lg font-semibold">{activeTitle}</h1>
         </div>
-        <div hidden={activeTool !== "log" && activeTool !== "rom"} data-wellness-pane className="mb-4 rounded-md border border-border/80 bg-background/85 p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium">Client-owned self-tracking</p>
-              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                {isSignedIn
-                  ? "Saved entries are private to your account. Therapist viewing and sharing are not enabled."
-                  : "You can try the tools here, but nothing saves after you leave this page until you sign in."}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline">{entryCounts.total} entries</Badge>
-              <Badge variant="secondary">{entryCounts.rom} ROM</Badge>
-              {entryCounts.practice > 0 ? <Badge variant="outline">{entryCounts.practice} practice</Badge> : null}
-            </div>
-          </div>
-          {!isSignedIn ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild size="sm" variant="secondary">
-                <Link href="/login">Sign in</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/register">Create account</Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="mt-4 flex items-start gap-3 rounded-md border border-border/80 bg-card/70 p-3">
-              <Checkbox
-                id="wellnessPrivacy"
-                checked={acknowledged}
-                onCheckedChange={(value) => setAcknowledged(value === true)}
-                aria-describedby="wellnessPrivacyDescription"
-              />
-              <div className="min-w-0">
-                <Label htmlFor="wellnessPrivacy">Save as self-tracking data</Label>
-                <p id="wellnessPrivacyDescription" className="mt-1 text-sm text-muted-foreground">
-                  These entries are not therapist professional records, diagnosis, emergency monitoring, or a live therapist dashboard.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
         <div hidden={activeTool !== "calendar"} data-wellness-pane>
         <WellnessCalendarCompanion
           isSignedIn={isSignedIn}
           appointments={appointments}
           reminderSchedules={reminderSchedules}
+          entries={entries}
+          active={activeTool === "calendar"}
         />
         </div>
 
         <div hidden={activeTool !== "patterns"} data-wellness-pane><WellnessPatternReport entries={reportEntriesForPanel} isSignedIn={isSignedIn} /></div>
+        <div hidden={activeTool !== "exercise-history"} data-wellness-pane>{activeTool === "exercise-history" ? <ExerciseHistory sessions={exerciseHistorySessions} selectedKey={exerciseHistoryKey} onSelect={setExerciseHistoryKey} isSignedIn={isSignedIn} /> : null}</div>
 
         <div id="quick-log" hidden={activeTool !== "log"} data-wellness-pane>
-        <form ref={formRef} onChange={() => { logDraftChanged.current = true }} className="rounded-md border border-border/80 bg-card/95 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold">Quick log</h3>
-              <p className="mt-1 text-sm text-muted-foreground">Capture the smallest useful note now and add detail only when it helps.</p>
-            </div>
-            <Button type="button" variant="success" onClick={saveQuickLog} disabled={isPending}>
-              <Save className="h-4 w-4" aria-hidden="true" />
-              {isSignedIn ? "Save" : "Practice"}
-            </Button>
-          </div>
-
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="wellnessCategory">Category</Label>
-              <select
-                id="wellnessCategory"
-                name="category"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={logCategory}
-                onChange={(event) => setLogCategory(event.target.value)}
-              >
-                {CLIENT_WELLNESS_CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {categoryLabels[category] ?? category}
-                  </option>
-                ))}
+        <form ref={formRef} onSubmit={(event) => { event.preventDefault(); void saveQuickLog() }} data-activity-form={isActivity || undefined} data-check-in-category={logCategory} className={activityStyles.form} aria-busy={isPending}>
+          <fieldset disabled={isPending} className={activityStyles.fields}>
+            <div data-log-type className={activityStyles.typeChoice}>
+              <Label htmlFor="wellnessCategory">What would you like to record?</Label>
+              <select id="wellnessCategory" name="category" value={logCategory} onChange={(event) => selectRecordingCategory(event.target.value)}>
+                {CLIENT_WELLNESS_CATEGORIES.map((category) => <option key={category} value={category}>{categoryLabels[category] ?? category}</option>)}
               </select>
+              <p>{question.hint}</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="wellnessIntensity">How strong is it?</Label>
-              <Input id="wellnessIntensity" name="intensity" type="number" min="0" max="10" inputMode="numeric" defaultValue="5" aria-describedby="wellness-intensity-help" />
-              <p id="wellness-intensity-help" className="text-xs text-muted-foreground">0 means none; 10 means the strongest you notice. Leave blank if this does not fit your check-in.</p>
+
+            {logCategory === "body_sensation" ? bodyRegionControl : null}
+            {logCategory === "exercise" ? <ExerciseRecorder draft={exerciseDraft} onChange={setExerciseDraft} sessions={exerciseHistorySessions} disabled={isPending} onHistory={() => {
+              const record = validateExerciseRecord(exerciseDraft).record
+              setExerciseHistoryKey(record ? exerciseComparisonKey(record) : "")
+              moveFocus.current = true; setActiveTool("exercise-history")
+            }} /> : null}
+            <div data-log-feelings hidden={logCategory !== "emotion"}><FeelingsWheel selected={selectedFeelings} disabled={isPending} onChange={setSelectedFeelings} /></div>
+            {logCategory === "rom" ? <div data-log-reflection><Button type="button" variant="ctaBlue" disabled={isPending} onClick={(event) => openTool("rom", event.currentTarget)}>Open range of motion recorder</Button></div> : null}
+
+            <div data-log-note className="space-y-2">
+              <Label htmlFor="wellnessSummary">{question.note} <span className={activityStyles.optional}>(optional)</span></Label>
+              <Textarea id="wellnessSummary" name="summary" placeholder={question.placeholder} />
             </div>
-          </div>
 
-          <div className="mt-4 space-y-2">
-            <Label htmlFor="wellnessSummary">Short note</Label>
-            <Textarea id="wellnessSummary" name="summary" placeholder={logCategory === "sleep" ? "When you slept and how rested you felt." : logCategory === "emotion" ? "A few words about how you are feeling." : logCategory === "activity" ? "What you did, for how long, and what you noticed." : "What changed, what you noticed, or what happened."} />
-          </div>
+            <details data-log-reflection data-draft-section="reflection" hidden={logCategory !== "work_context" && logCategory !== "home_care"}>
+              <summary>{logCategory === "home_care" ? "Home routines and self-care (optional)" : "Work situation (optional)"}</summary>
+              <div className="mt-3"><ContextReflection category={logCategory} disabled={isPending} /></div>
+            </details>
+            {logCategory !== "body_sensation" ? bodyRegionControl : null}
 
-          <fieldset className="mt-4">
-            <legend className="text-sm font-medium">Context</legend>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {contextOptions.map((context) => (
-                <label
-                  key={context}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-md border border-border/80 bg-background px-3 py-2 text-sm"
-                >
-                  <input name="contexts" value={context} type="checkbox" className="h-4 w-4" />
-                  {context}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <details className="mt-4 rounded-md border border-border/80 bg-background/80 p-3" open={logCategory === "body_sensation" || logCategory === "incident"}>
-            <summary className="cursor-pointer text-sm font-medium">{logCategory === "body_sensation" ? "Body sensations and timing" : "Add body details or timing (optional)"}</summary>
-            <div className="mt-4 grid gap-4">
-              <BodyRegionSelector selectedRegions={selectedRegions} onChange={(regions) => {
-                // Region buttons update React state rather than emitting a native form change.
-                logDraftChanged.current = true
-                setSelectedRegions(regions)
-              }} />
-
-              <fieldset>
-                <legend className="text-sm font-medium">Sensation terms</legend>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {sensationOptions.map((sensation) => (
-                    <label
-                      key={sensation}
-                      className="inline-flex min-h-10 items-center gap-2 rounded-md border border-border/80 bg-card px-3 py-2 text-sm"
-                    >
-                      <input name="sensations" value={sensation} type="checkbox" className="h-4 w-4" />
-                      {sensation}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="wellnessCustomTerm">Custom sensation term</Label>
-                  <Input id="wellnessCustomTerm" name="customTerm" placeholder="Your words" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="wellnessDuration">Duration in minutes</Label>
-                  <Input id="wellnessDuration" name="durationMinutes" type="number" min="0" max="10080" inputMode="numeric" placeholder="15" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="wellnessBodyPosition">Body position</Label>
-                  <select
-                    id="wellnessBodyPosition"
-                    name="bodyPosition"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    defaultValue=""
-                  >
-                    <option value="">Not selected</option>
-                    {bodyPositionOptions.map((position) => (
-                      <option key={position} value={position}>{position}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="wellnessMovementEffect">Movement effect</Label>
-                  <select
-                    id="wellnessMovementEffect"
-                    name="movementEffect"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    defaultValue="unsure"
-                  >
-                    {movementEffectOptions.map((effect) => (
-                      <option key={effect.value} value={effect.value}>{effect.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="wellnessActivityContext">Activity detail</Label>
-                  <Input id="wellnessActivityContext" name="activityContext" placeholder="Typing, driving, lifting, gardening" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="wellnessOccurredAt">Time</Label>
-                  <Input id="wellnessOccurredAt" name="occurredAt" type="datetime-local" />
-                </div>
+            <details data-log-sensations data-activity-extra data-draft-section="sensations" hidden={logCategory === "exercise"}>
+              <summary>{showSensationTerms ? "Sensations and intensity (optional)" : "Intensity (optional)"}</summary>
+              <div className="mt-3 grid gap-4">
+                <fieldset hidden={!showSensationTerms}>
+                  <legend className="text-sm font-medium">How does it feel?</legend>
+                  <div className={activityStyles.chips}>{sensationOptions.map((sensation) => <label key={sensation}><input name="sensations" value={sensation} type="checkbox" />{sensation}</label>)}</div>
+                  <div className="mt-3 space-y-2"><Label htmlFor="wellnessCustomTerm">Your own sensation word</Label><Input id="wellnessCustomTerm" name="customTerm" placeholder="Your words" /></div>
+                </fieldset>
+                <div className="space-y-2"><Label htmlFor="wellnessIntensity">How strong is it?</Label><Input id="wellnessIntensity" name="intensity" type="number" min="0" max="10" inputMode="numeric" placeholder="0–10" aria-describedby="wellness-intensity-help" /><p id="wellness-intensity-help">0 = none · 10 = strongest you notice. Leave blank to skip.</p></div>
               </div>
+            </details>
+
+            <details data-log-context data-draft-section="timing">
+              <summary>Timing and context (optional)</summary>
+              <div className="mt-3 grid gap-4">
+                <div className={activityStyles.twoColumns}>
+                  <div className="space-y-2"><Label htmlFor="wellnessOccurredAt">When was this?</Label><Input id="wellnessOccurredAt" name="occurredAt" type="datetime-local" /></div>
+                  <div hidden={logCategory === "exercise"} className="space-y-2"><Label htmlFor="wellnessDuration">Duration in minutes</Label><Input id="wellnessDuration" name="durationMinutes" type="number" min="0" max="10080" inputMode="numeric" placeholder="15" /></div>
+                </div>
+                <div hidden={!showSensationTerms} className={activityStyles.twoColumns}>
+                  <div hidden={isActivity} className="space-y-2"><Label htmlFor="wellnessBodyPosition">Body position</Label><select id="wellnessBodyPosition" name="bodyPosition" defaultValue=""><option value="">Not selected</option>{bodyPositionOptions.map((position) => <option key={position} value={position}>{position}</option>)}</select></div>
+                  <div hidden={isActivity} className="space-y-2"><Label htmlFor="wellnessMovementEffect">Movement effect</Label><select id="wellnessMovementEffect" name="movementEffect" defaultValue="unsure">{movementEffectOptions.map((effect) => <option key={effect.value} value={effect.value}>{effect.label}</option>)}</select></div>
+                  <div className="space-y-2"><Label htmlFor="wellnessActivityContext">Activity detail</Label><Input id="wellnessActivityContext" name="activityContext" placeholder="Typing, driving, lifting, gardening" /></div>
+                </div>
+                <fieldset><legend className="text-sm font-medium">What else was going on?</legend><div className={activityStyles.chips}>{contextOptions.map((context) => <label key={context}><input name="contexts" value={context} type="checkbox" />{context}</label>)}</div></fieldset>
+              </div>
+            </details>
+
+            <div className={activityStyles.privacy}>
+              {!isSignedIn ? <p>Practice entries stay on this page. <Link href="/login" className="text-primary underline">Sign in</Link> to keep your history.</p> : <div className="flex items-start gap-3">
+                <Checkbox id="wellnessPrivacy" checked={acknowledged} onCheckedChange={(value) => setAcknowledged(value === true)} aria-describedby="wellnessPrivacyDescription" />
+                <div className="min-w-0"><Label htmlFor="wellnessPrivacy">Save as self-tracking data</Label><p id="wellnessPrivacyDescription" className="mt-1">These entries are not therapist professional records, diagnosis, emergency monitoring, or a live therapist dashboard.</p></div>
+              </div>}
             </div>
-          </details>
+            <Button data-activity-save type="button" variant={recordingTools.find((tool) => tool.category === logCategory)?.group === "mind" ? "cta" : "default"} tone={recordingTools.find((tool) => tool.category === logCategory)?.group === "context" ? "setup" : "default"} onClick={saveQuickLog} disabled={isPending}><Save aria-hidden="true" />{isSignedIn ? "Save" : "Add practice"} {activeTitle?.toLowerCase()}</Button>
+          </fieldset>
         </form>
         </div>
 
-        <div hidden={activeTool !== "rom"} data-wellness-pane>
-        <RomMeasurementPanel isSignedIn={isSignedIn} disabled={isPending} onMeasurement={saveRomMeasurement} />
-        </div>
+        {/* Separate mounted drafts preserve each tool's focus and unsaved work;
+            only the active instance can own sensors or a 3D scene. */}
+        {(["rom", "comfort"] as const).map((tool) => <div key={tool} hidden={activeTool !== tool} data-wellness-pane>
+        <RomMeasurementPanel focus={tool === "rom" ? "range" : "comfort"} comfortReferences={comfortReferences} isSignedIn={isSignedIn} disabled={isPending} active={activeTool === tool} onMeasurement={saveRomMeasurement}
+          privacyControl={isSignedIn ? <div className="flex items-start gap-3 rounded-md border border-border/80 bg-card/70 p-3">
+            <Checkbox id={`${tool}WellnessPrivacy`} checked={acknowledged} onCheckedChange={(value) => setAcknowledged(value === true)} aria-describedby={`${tool}WellnessPrivacyDescription`} />
+            <div className="min-w-0"><Label htmlFor={`${tool}WellnessPrivacy`}>Save as self-tracking data</Label><p id={`${tool}WellnessPrivacyDescription`} className="mt-1 text-xs leading-relaxed text-muted-foreground">These entries are not therapist professional records, diagnosis, emergency monitoring, or a live therapist dashboard.</p></div>
+          </div> : <p className="text-xs leading-relaxed text-muted-foreground">Practice recordings stay on this page only. <Link href="/login" className="text-primary underline">Sign in</Link> to keep recordings over time.</p>}
+        />
+        </div>)}
 
         {(status || error || isPending) ? (
           <div
@@ -653,7 +630,7 @@ export function WellnessHubClient({
                   <option value="all">All categories</option>
                   {CLIENT_WELLNESS_CATEGORIES.map((category) => (
                     <option key={category} value={category}>
-                      {categoryLabels[category] ?? category}
+                      {category === "rom" ? "Movement comfort & ROM" : categoryLabels[category] ?? category}
                     </option>
                   ))}
                 </select>
@@ -686,7 +663,7 @@ export function WellnessHubClient({
                   No entries match these filters.
                 </div>
               ) : filteredEntries.map((entry) => (
-                <TimelineEntry
+                <WellnessEntryCard
                   key={entry.id}
                   entry={entry}
                   confirmDelete={confirmDeleteId === entry.id}
@@ -708,65 +685,32 @@ export function WellnessHubClient({
   )
 }
 
-function TimelineEntry({
-  entry,
-  confirmDelete,
-  disabled,
-  onDelete,
-}: {
-  entry: WellnessTimelineEntry
-  confirmDelete: boolean
-  disabled: boolean
-  onDelete: () => void
-}) {
-  const changeDegrees = typeof entry.metadata.changeDegrees === "number" ? entry.metadata.changeDegrees : null
-  const durationMinutes = numberMetadata(entry.metadata.durationMinutes)
-  const bodyPosition = stringMetadata(entry.metadata.bodyPosition)
-  const activityContext = stringMetadata(entry.metadata.activityContext)
-  const movementEffect = stringMetadata(entry.metadata.movementEffect)
-
-  return (
-    <div className="rounded-md border border-border/80 bg-background/80 p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-medium">{categoryLabels[entry.category] ?? entry.category}</p>
-            {!entry.persisted ? <Badge variant="outline">Practice</Badge> : null}
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(entry.occurredAt)}</p>
-        </div>
-        <Button type="button" variant={confirmDelete ? "destructive" : "ghost"} size="icon" onClick={onDelete} disabled={disabled} aria-label={confirmDelete ? "Confirm delete entry" : "Delete entry"}>
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
-        </Button>
-      </div>
-      {entry.summary ? <p className="mt-3 text-sm">{entry.summary}</p> : null}
-      <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-        {entry.intensity !== null ? <span>Intensity {entry.intensity}/10</span> : null}
-        {changeDegrees !== null ? <span>ROM {changeDegrees} deg</span> : null}
-        {durationMinutes !== null ? <span>{formatDuration(durationMinutes)}</span> : null}
-        {bodyPosition ? <span>{bodyPosition}</span> : null}
-        {movementEffect ? <span>Movement {movementEffect}</span> : null}
-        {activityContext ? <span>{activityContext}</span> : null}
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {entry.regions.slice(0, 5).map((region) => <TimelineChip key={`region-${region}`} label={region} />)}
-        {entry.sensations.slice(0, 5).map((sensation) => <TimelineChip key={`sensation-${sensation}`} label={sensation} />)}
-        {entry.contexts.slice(0, 4).map((context) => <TimelineChip key={`context-${context}`} label={context} muted />)}
-      </div>
-      {confirmDelete ? <p className="mt-2 text-xs text-destructive">Select delete again to remove this saved entry.</p> : null}
-    </div>
-  )
+/** In-memory snapshots include unchecked native controls via restore defaults,
+ * plus explicit controlled selections. Nothing is written to browser storage,
+ * diagnostics, preferences or the server until the existing save action runs. */
+function captureQuickLogDraft(form: HTMLFormElement, regions: string[], feelings: string[], bodyOpen: boolean, exercise: ExerciseDraft): QuickLogDraft {
+  const values: Record<string, string[]> = {}
+  for (const [name, value] of new FormData(form)) if (typeof value === "string" && name !== "category") (values[name] ??= []).push(value)
+  const sections = Object.fromEntries([...form.querySelectorAll<HTMLDetailsElement>("details[data-draft-section]")].map((section) => [section.dataset.draftSection!, section.open]))
+  return { values, sections, regions: [...regions], feelings: [...feelings], bodyOpen, exercise }
 }
 
-function TimelineChip({ label, muted = false }: { label: string; muted?: boolean }) {
-  return (
-    <span className={cn(
-      "rounded-md border px-2 py-1 text-xs",
-      muted ? "border-border/80 bg-muted/60 text-muted-foreground" : "border-primary/20 bg-primary/10 text-foreground",
-    )}>
-      {label}
-    </span>
-  )
+/** Run after a category commit so native values and optional-section expansion
+ * match that category's own draft. Controlled category/hidden choices stay with
+ * React; resetting one completed entry never clears another category's draft. */
+function restoreQuickLogDraft(form: HTMLFormElement, draft: QuickLogDraft | undefined, category: string) {
+  form.reset()
+  // Native reset restores the select's original default, even though React has
+  // already committed the next category. Keep the DOM payload and view aligned.
+  const categoryField = form.querySelector<HTMLSelectElement>("#wellnessCategory")
+  if (categoryField) categoryField.value = category
+  if (draft) for (const element of form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("input[name],select[name],textarea[name]")) {
+    if (element.name === "category" || element.type === "hidden") continue
+    const values = draft.values[element.name] ?? []
+    if (element.type === "checkbox" || element.type === "radio") (element as HTMLInputElement).checked = values.includes(element.value)
+    else element.value = values[0] ?? ""
+  }
+  for (const section of form.querySelectorAll<HTMLDetailsElement>("details[data-draft-section]")) section.open = draft?.sections[section.dataset.draftSection!] ?? false
 }
 
 function wellnessFormData(form: HTMLFormElement) {
@@ -789,16 +733,27 @@ function wellnessFormData(form: HTMLFormElement) {
 
   formData.set("timezone", browserTimezone())
   formData.set("source", "quick-log")
+  const category = stringFormValue(formData, "category")
+  const feelingWords = category === "emotion" ? reflectionWords(formData.getAll("feelingWords")) : []
+  const prompts = category === "work_context" ? formData.getAll("workPrompts") : category === "home_care" ? [...formData.getAll("homePrompts"), ...formData.getAll("carePrompts")] : []
+  const contextCheckIn = normalizeContextCheckIn(category, { ...Object.fromEntries(["activity", "posture", "repetition", "surroundings", "noticed", "careAction", "careEffect"].map((key) => [key, stringFormValue(formData, `reflection-${key}`)])), prompts })
+  const exerciseRecord = category === "exercise" ? validateExerciseRecord(parseJsonRecord(stringFormValue(formData, "exerciseRecord"))).record : null
+  if (category === "exercise") formData.delete("intensity")
+  for (const prompt of prompts) formData.append("contexts", prompt)
   formData.set("metadata", JSON.stringify({
     durationMinutes: durationMinutesOrNull(stringFormValue(formData, "durationMinutes")),
-    bodyPosition: stringFormValue(formData, "bodyPosition"),
     activityContext: stringFormValue(formData, "activityContext"),
-    movementEffect: stringFormValue(formData, "movementEffect"),
+    ...(stringFormValue(formData, "category") !== "activity" ? { bodyPosition: stringFormValue(formData, "bodyPosition"), movementEffect: stringFormValue(formData, "movementEffect") } : {}),
+    ...(feelingWords.length ? { feelingWords } : {}),
+    ...(contextCheckIn ? { contextCheckIn } : {}),
+    ...(exerciseRecord ? { exerciseRecord } : {}),
   }))
   return formData
 }
 
-function romFormData(draft: RomMeasurementDraft) {
+/** Keep angle-only payloads compatible. Comfort is a separately versioned
+ * self-rating, never a substitute value for degrees or symptom intensity. */
+function romFormData(draft: MovementRecordingDraft) {
   const formData = new FormData()
   formData.set("category", "rom")
   formData.set("occurredAt", new Date().toISOString())
@@ -812,6 +767,7 @@ function romFormData(draft: RomMeasurementDraft) {
     baselineAngle: draft.baselineAngle,
     endAngle: draft.endAngle,
     changeDegrees: draft.changeDegrees,
+    ...(draft.comfortScore !== undefined ? { recordingKind: draft.changeDegrees !== undefined ? "both" : "comfort", comfortScore: draft.comfortScore, comfortScale: MOVEMENT_COMFORT_SCALE } : {}),
   }))
   return formData
 }
@@ -870,6 +826,7 @@ function normalizeTimelineEntry(value: unknown, persisted: boolean): WellnessTim
 }
 
 function actionReason(reason: string | undefined, fallback: string) {
+  if (reason === "invalid-exercise-recording") return "Check the exercise name, measurements and units before saving."
   if (reason === "sign-in-required") {
     return "Sign in before saving wellness entries."
   }
@@ -885,7 +842,7 @@ function matchesTimelineFilter(entry: WellnessTimelineEntry, category: string, r
     return false
   }
 
-  if (signal !== "all" && !entry.sensations.includes(signal) && !entry.contexts.includes(signal)) {
+  if (signal !== "all" && !entry.sensations.includes(signal) && !entry.contexts.includes(signal) && !reflectionWords(entry.metadata.feelingWords).includes(signal) && !reflectionWords(normalizeContextCheckIn(entry.category, entry.metadata.contextCheckIn)?.prompts).includes(signal)) {
     return false
   }
 
@@ -916,6 +873,7 @@ function stringList(values: FormDataEntryValue[]) {
 }
 
 function numberOrNull(value: string) {
+  if (!value.trim()) return null
   const number = Number(value)
   return Number.isFinite(number) ? Math.min(Math.max(Math.trunc(number), 0), 10) : null
 }
@@ -946,14 +904,6 @@ function browserTimezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York"
 }
 
-function numberMetadata(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : null
-}
-
-function stringMetadata(value: unknown) {
-  return typeof value === "string" && value.trim() ? value : ""
-}
-
 function downloadJson(filename: string, payload: unknown) {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
   const url = URL.createObjectURL(blob)
@@ -962,29 +912,4 @@ function downloadJson(filename: string, payload: unknown) {
   anchor.download = filename
   anchor.click()
   URL.revokeObjectURL(url)
-}
-
-function formatDateTime(value: string) {
-  const date = new Date(value)
-
-  if (!Number.isFinite(date.getTime())) {
-    return "Unknown time"
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date)
-}
-
-function formatDuration(minutes: number) {
-  if (minutes < 60) {
-    return `${minutes} min`
-  }
-
-  const hours = Math.floor(minutes / 60)
-  const remainingMinutes = minutes % 60
-  return remainingMinutes > 0 ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`
 }

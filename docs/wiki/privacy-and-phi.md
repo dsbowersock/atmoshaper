@@ -32,6 +32,13 @@ Encrypted `.mlab` full-vault bundles are the normal user-controlled transfer and
 
 ## Client Wellness Boundary
 
+My calendar is an owner-only read view of the original self-tracking records,
+the owner's client-linked appointment summaries, and generic reminder schedules.
+This view does not create practice scheduling events, block availability, sync
+recordings to Google, notify other people, or grant therapist access. Professional
+records remain in the local vault. Private Calendar routes remain excluded from
+the PWA cache. The scheduling/provider payload boundary below still applies.
+
 `/wellness` lets anonymous users practice quick logs and ROM measurement in memory only. Signed-in users can save client-owned self-tracking entries, export their entries, and soft-delete their entries. These records are not therapist professional records, diagnosis, emergency monitoring, or a live therapist dashboard.
 
 Client wellness entries must stay out of account preferences, calendar payloads, notification payloads, Sentry metadata, analytics, email/SMS bodies, and the therapist professional-record vault. A future therapist sharing bridge requires explicit consent scope, revocation, audit language, and a deliberate professional-record reference step before any shared wellness data is used in treatment planning or notes.

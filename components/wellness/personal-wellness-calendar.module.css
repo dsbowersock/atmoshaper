@@ -1,0 +1,30 @@
+.calendar { display: grid; gap: 1rem; min-width: 0; overflow-wrap: anywhere; }
+.toolbar, .monthNav, .tools { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.toolbar { flex-wrap: wrap; justify-content: space-between; }
+.monthNav { display: grid; flex: 1 1 16rem; grid-template-columns: auto minmax(0,1fr) auto; }
+.monthNav h2 { font-size: 1rem; font-weight: 600; text-align: center; min-width: 0; }
+.calendar button { min-height: 2.75rem; max-width: 100%; white-space: normal; height: auto; }
+.calendar select, .calendar input { width: 100%; min-width: 0; min-height: 2.75rem; border: 1px solid hsl(var(--input)); border-radius: 0.5rem; padding: 0.5rem; background: hsl(var(--background)); }
+.filters { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,10rem),1fr)); gap: 0.75rem; }
+.filters > div { display: grid; gap: 0.35rem; min-width: 0; }
+.note, .agenda p, .partial { color: hsl(var(--muted-foreground)); font-size: 0.8rem; line-height: 1.6; }
+.layout { display: grid; gap: 1rem; min-width: 0; align-items: start; }
+.month { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 0.25rem; min-width: 0; }
+.weekday { text-align: center; padding-block: 0.4rem; font-size: 0.7rem; color: hsl(var(--muted-foreground)); }
+.month button { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; gap: 0.2rem; min-width: 0; min-height: 3.3rem; padding: 0.35rem 0.1rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; font-size: 0.85rem; background: hsl(var(--card)); }
+.month button small { min-width: 1.1rem; border-radius: 1rem; background: hsl(var(--primary)/0.15); font-size: 0.65rem; font-weight: 600; padding-inline: 0.2rem; }
+.month button[aria-pressed=true] { background: hsl(var(--primary)/0.15); border-color: hsl(var(--primary)); box-shadow: inset 0 0 0 1px hsl(var(--primary)); }
+.month button[aria-current=date] > span { font-weight: 700; text-decoration: underline; text-underline-offset: 0.2rem; }
+.month button[data-other-month] { color: hsl(var(--muted-foreground)); background: transparent; }
+.month button:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+.agenda { display: grid; gap: 0.75rem; min-width: 0; }
+.agenda h3 { font-size: 1rem; font-weight: 600; }
+.agenda ul { display: grid; gap: 0.7rem; }
+.agenda li { display: grid; gap: 0.5rem; padding: 0.85rem; border: 1px solid hsl(var(--border)); border-radius: 0.75rem; min-width: 0; }
+.agenda .kind { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem; font-size: 0.7rem; }
+.agenda .preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.partial, .error { border: 1px solid hsl(var(--border)); border-radius: 0.75rem; padding: 0.8rem; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.partial p, .error p { flex-basis: 100%; }
+.error { border-color: hsl(var(--destructive)/0.5); }
+.detail { max-width: min(40rem,calc(100vw - 1.5rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; overflow-wrap: anywhere; }
+@media (min-width: 48rem) { .layout { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } .month button { min-height: 4rem; } }

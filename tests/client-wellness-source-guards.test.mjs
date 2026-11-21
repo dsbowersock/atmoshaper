@@ -13,6 +13,11 @@ const forbiddenWellnessPreferenceKeys = [
   "clientWellnessEntries",
   "bodySensationEntries",
   "emotionEntries",
+  "feelingWords",
+  "exerciseRecord",
+  "exerciseRecords",
+  "exerciseDraft",
+  "contextCheckIn",
   "sleepEntries",
   "activityEntries",
   "wellnessJournal",
@@ -22,6 +27,11 @@ const forbiddenWellnessPreferenceKeys = [
 ]
 
 describe("Client wellness source guards", () => {
+  it("loads exercise history only for the signed-in owner with a bounded window", () => {
+    const source = readFileSync(new URL("../app/wellness/page.tsx", import.meta.url), "utf8")
+    assert.match(source, /where:\s*\{\s*userId,\s*deletedAt:\s*null,\s*category:\s*"exercise"\s*\}[\s\S]*?take:\s*250/)
+    assert.match(source, /initialExerciseEntries=\{exerciseEntries\.map\(serializeWellnessEntry\)\}/)
+  })
   it("actually scans each required implementation directory", () => {
     const requiredFiles = {
       "app/wellness": "app/wellness/page.tsx",

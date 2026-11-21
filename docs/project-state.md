@@ -1,5 +1,234 @@
 # AtmoShaper Project State
 
+## November 20 Wellness publication in preparation
+
+The owner authorizes publication of all Wellness updates through Exercise and
+My calendar. The isolated `codex/wellness-beta-publication` branch starts from
+public `7785ae6` and integrates only the nine Wellness changes through `7446c75`.
+The newer planner runtime remains outside this release. Source integration,
+fresh service preflight, review and hosted checks precede a staged Production
+build and verified same-artifact promotion. No live result is claimed yet. See
+the [publication plan](superpowers/plans/2026-11-20-wellness-beta-publication.md).
+
+## November 20 Mind, Body, Context and private Calendar verified locally
+
+The owner requests Mind for internal state, Body for physical recordings,
+Context for surroundings, and recordings visible in Calendar. Branch
+`codex/wellness-mind-body-calendar`, from `2598102`, regroups display-only
+launchers and adds an owner-only My calendar view for every signed-in user,
+without practice creation. Existing practice members retain scheduling and can
+switch views; nonmembers open the private view by default, with explicit setup
+still available. The Wellness companion uses the same calendar, including
+anonymous in-memory practice entries. Month reads are owner-scoped, paginated
+and independent of Timeline/report limits. Recordings remain separate from
+practice events, Google sync and therapist access. All 85 Wellness checks and
+30 Calendar/domain/controller/recovery checks pass, including account-change
+isolation. Lint, two guards and the final inert TypeScript/116-page build pass.
+All 54 desktop/mobile browser journeys pass in 6.4 minutes, including older
+dates, record readback/deletion, reminder previews, keyboard controls, both
+themes and narrow/enlarged text, plus existing body/feelings/ROM/Exercise flows.
+In-app phone/desktop review passes. The temporary viewport is reset and the new preview
+uses `http://127.0.0.1:3022/wellness`, open to the grouped tools. No publication
+or live private-data, provider or database change occurred. See the
+[implementation record](superpowers/plans/2026-11-20-wellness-mind-body-calendar.md).
+
+## November 20 Exercise self-tracking verified locally
+
+The owner requests a distinct exercise recorder with sets, reps, weight and
+progress, also useful for recording an existing PT/OT routine. Local branch
+`codex/wellness-exercise-tracking`, from `c158f69`, adds named exercises, optional
+measurements and ratings, identity-only reuse and separate exercise history.
+Consumer self-tracking uses the existing privacy/action/export/deletion owners;
+anonymous recordings remain in memory. No therapist professional-record storage,
+prescription, migration, dependency or publication is introduced. All 85 focused
+checks, focused lint, both shell/style guards and the final inert TypeScript/
+115-page build pass. All 50 desktop/mobile browser cases pass in 6.8 minutes,
+including optional measurements, PT/OT, cardio, category drafts, latest-setup
+reuse, distinct contexts/sides/units, history, deletion, delayed-script launchers
+and existing body/feelings/ROM flows. Themes, narrow widths and enlarged text
+pass. In-app phone/desktop review confirms a fresh Exercise form and aligned
+set inputs; the temporary viewport is reset. Evidence is outside source. No
+private recording, live provider/database operation or publication occurred.
+Preview: `http://127.0.0.1:3021/wellness`, open to Exercise; existing tabs remain
+untouched. See the
+[implementation record](superpowers/plans/2026-11-20-wellness-exercise-tracking.md).
+
+## November 20 Wellness recording flow verified locally
+
+The owner finds Activity/Incident/Body check-in unclear and the recording type
+buried beneath unrelated fields. Branch `codex/wellness-recording-flow`, from
+`3e923dd`, puts the type first, tailors primary prompts and optional sections,
+and gives each category its own in-memory draft. Named launchers now select
+their named tool rather than continuing another category's draft. Stored tokens,
+save/pending/privacy ownership and export contracts remain. All 76 focused checks,
+focused lint, two shell/style guards and the final inert TypeScript/115-page build
+pass. All 44 desktop/mobile browser cases pass, including exact launchers, first
+control order, distinct prompts, native/controlled draft and section restoration,
+separate saves, metadata isolation, body/ROM behavior and feelings touch gestures.
+Both themes, narrow widths and enlarged text pass. In-app phone and normal
+desktop views were reviewed; an Activity draft returned correctly after a type
+change. Fictional review notes were discarded and the temporary viewport reset.
+New clean preview: `http://127.0.0.1:3020/wellness`, open to Activity; existing
+preview tabs remain untouched. Evidence is outside source. No publication or
+private recording/live provider/database write occurred. See the
+[implementation record](superpowers/plans/2026-11-20-wellness-recording-flow.md).
+
+## November 20 continuous feelings wheel verified locally
+
+The owner requests all word levels together and direct touch/mouse rotation,
+preserving the reference wheel's comparative context. Branch
+`codex/feelings-wheel-context`, from `695e260`, replaces drill-in navigation with
+one three-ring wheel, direct drag rotation, pinch zoom/two-finger pan, overview
+and reading views, keyboard navigation and full named alternatives. Selection
+keeps parents and neighbors mounted. Gesture navigation never adds a feeling.
+All 76 focused checks, focused lint, two shell/style guards and the inert
+TypeScript/115-page build pass. Four final desktop/mobile browser cases pass,
+including native Chromium touch emulation for rotation, tapping, pinch/pan and
+cancellation, plus mouse, keyboard, multi/search/custom choices, draft retention,
+timeline readback and theme/narrow/enlarged-text containment. In-app phone and
+desktop views were reviewed and direct dragging confirmed; the temporary viewport
+is reset. This is emulated touch coverage, not a physical-device check.
+Stored words, draft/save/privacy ownership and local-first handling are unchanged.
+See the [implementation record](superpowers/plans/2026-11-20-continuous-feelings-wheel.md).
+New preview: `http://127.0.0.1:3019/wellness`; the existing preview tab was left
+untouched. Evidence is outside source. No publication or private recording/live
+provider/database change occurred.
+
+## November 20 surface detail and category flows verified locally
+
+The owner requests independent front/back/inner/outer surfaces, diagonal/top/
+bottom views, optional body-part close-ups and finer points, with a general-area
+choice. They also request a shared body for Body sensation/Incident, a feelings
+wheel, a ROM shortcut, observational Work/Home prompts and distinct home
+self-care. Three My Feelings Wheel screenshots subsequently supplied the word
+navigation reference. Branch `codex/wellness-surface-detail` starts at `366951f`.
+See the [implementation record](superpowers/plans/2026-11-20-wellness-surface-detail.md).
+
+The local source adds a surface catalog, optional close-up explorer, original
+wheel with named/search/custom alternatives, bounded emotion/context metadata,
+timeline/report visibility and preference-sync exclusions. Old labels remain
+unchanged. Existing save/pending/privacy ownership is retained; refinements
+change only a current draft's broad parent. All 73 focused tests, 76 Sentry
+checks, 24 preference checks, two shell/style guards, focused lint and the inert
+TypeScript/115-page build pass. All 42 final desktop/mobile browser cases pass,
+including actual surface taps, optional close-ups, independent saved labels,
+wheel levels/multiple/search/custom choices, category drafts, timeline readback,
+Work/Home prompts and existing ROM/comfort behavior. In-app 390x844 review
+confirms the wheel and inner-forearm selection; the temporary viewport is reset.
+Evidence remains outside source. Preview: `http://127.0.0.1:3018/wellness`, left
+open to Feelings with a clean draft. No publication, private recording or live
+provider/database write occurred. Drawing and reviewed tissue-atlas layers
+remain separate follow-ons.
+
+## November 20 sided and detailed Activity regions verified locally
+
+The owner corrects the initial grouped Activity map: laterality, arm segments,
+shins and profile views need more detail. Branch `codex/activity-sided-regions`
+starts at `6efe58c`. Activity now offers 52 distinct left/right surface regions,
+explicit Left side/Right side views, camera-facing marker visibility, grouped
+named choices and individually removable selections. Old unsided values remain
+unchanged and removable; other quick-log maps retain their broad choices. The
+existing 16-region bound is visible/enforced so saves cannot silently truncate
+new selections. Timeline can reveal every selected region beyond its first five.
+
+Named areas are the default recommendation; optional drawing is a later
+surface-annotation design, not an implemented sketch or tissue-identification
+claim. The existing CC0 asset is one surface/rig, not a muscle/bone atlas.
+See the [design and validation record](superpowers/plans/2026-11-20-activity-sided-regions.md).
+All 64 focused tests, two style/shell guards, focused lint and the inert
+TypeScript/115-page build pass. All 36 final desktop/mobile browser cases pass
+after screenshot-led correction of floating markers using actual skin patches.
+They include real profile/forearm and bilateral shin taps, arm-segment separation,
+saved labels, full timeline readback, fallback/draft lifecycle, both themes and
+narrow/enlarged-text containment. Rendered 390x844 profile/front screenshots were
+reviewed. In-app control was unavailable due to a Windows cursor-access failure;
+there was no manual in-app interaction with this build. Evidence remains outside
+source. Preview: `http://127.0.0.1:3018/wellness` -> Activity. No private recording,
+live provider/database operation or publication occurred. The regions remain
+illustrative surface locations, without reviewed tissue identification.
+
+## November 20 Activity polish and shared body regions verified locally
+
+Branch `codex/activity-body-polish`, from `cd1ea12`, gives Activity a compact
+form, optional context/detail sections and a bottom save action. Its Body
+regions section reuses the existing free CC0 blue body with front/back/orbit
+views, multiple selected regions, a selection summary and named alternatives.
+The 15 existing unsided storage tokens remain compatible; this is broad region
+selection, separate from ROM joint/movement IDs. Other quick-log tools retain
+their region grids. Only the active, expanded Activity section owns a scene;
+closing it preserves the selected values and all native draft fields.
+
+The existing save/pending/privacy owner remains. Activity duration and activity
+detail now survive the existing metadata normalizer with the same bounds as
+body-sensation entries. No schema or clinical-store change is involved. All 61
+focused tests, both shell/style guards, focused lint, TypeScript and the inert
+115-page build pass. All 34 desktop/mobile browser cases pass, including real
+front/back taps, multiple-region removal, retained drafts, duration/detail
+timeline readback, no-model note-only recording and failed-model alternatives.
+Narrow/enlarged-text containment and both themes pass. Manual phone review
+confirms the body and selected regions; the viewport override was reset.
+Evidence stays outside source.
+See the [implementation record](superpowers/plans/2026-11-20-activity-body-polish.md).
+Local preview: `http://127.0.0.1:3018/wellness` -> Activity. No publication,
+private recording, live provider or database operation is included.
+
+## November 20 expanded movements and separate comfort tool verified locally
+
+The owner requests missing shoulder/forearm/hip/knee/foot motions plus hand,
+finger and toe movements. Their clarification calls for separate Movement
+comfort and Range of motion tools, each leading with its own recording and
+offering the other optionally. Branch `codex/movement-comfort-checkins` starts
+at `1c32975`. The shared recorder has independent drafts, explicit 0-10 comfort
+ratings, optional combined records and descriptive same-movement/side trends.
+The expanded rig uses actual finger bones; unsupported individual-toe animations
+remain written guidance. The camera fits actual selected-limb geometry across
+the authored motion so moving hands/feet remain visible. Ratings have an explicit
+scale/direction and never replace degrees or generic symptom intensity. The
+existing shared save owner, acknowledgement and clinical separation remain.
+
+All 57 focused movement/Wellness checks, 76 Sentry checks, 24 preference checks,
+two shared shell/style guards and consolidated lint pass. The final inert build
+passes TypeScript and all 115 pages. All 28 final desktop/mobile browser cases
+pass, including independent drafts, comfort-only/combined/angle-only practice
+records, zero/endpoints, optional-field exclusion, same-movement/side rating
+comparisons, new real-rig demos on both sides, written-only toe guidance and the
+existing ROM sensor/baseline/fallback lifecycle. Phone/enlarged-text containment
+and both themes pass. Manual in-app review confirms complete moving limbs and
+the focused comfort form; the viewport override was reset. Evidence is outside
+source. Preview: `http://127.0.0.1:3018/wellness`. See the
+[implementation plan](superpowers/plans/2026-11-20-movement-comfort-checkins.md).
+This work is local only. No private recording, live provider/database operation
+or publication occurred. Real-phone repeatability/calibration and validated
+biomechanics remain unestablished; the model is a direction illustration.
+
+## November 20 guided ROM recorder and reusable body verified locally
+
+The owner requests a phone-oriented joint -> movement -> recording flow,
+plain-language presets and an interactive human body with movement previews.
+Reference images allow blue illumination, skin or accurate muscles. The owner
+clarifies that assets must be free; attribution is acceptable. Local branch
+`codex/rom-guided-mobile`, from `42006a9`, uses a free CC0 surface/rig asset and
+local Three.js, with no paid license or viewer service. The
+[implementation plan](superpowers/plans/2026-11-20-guided-rom-body.md) records
+provenance, preservation and test boundaries. Eight body areas and 26 everyday
+movement choices lead through Body area, Movement and Record. The shared blue
+surface viewer supports joint taps, rotation, closer demonstrations, bounded
+pausable playback and reduced-motion still positions. Named choices and written
+cues remain usable without 3D. The illustration never supplies a measured angle.
+Manual entry, optional phone readings, custom movements and the existing save
+owner/privacy boundary remain. Timeline entries now identify movement and side.
+
+All 42 focused ROM/Wellness checks, two shared style/shell guards, focused ESLint,
+TypeScript and the final inert 115-page build pass. All 22 selected desktop/mobile
+browser cases pass across the acceptance run and targeted playback rerun. They
+cover manual practice saves, phone permission/baseline lifecycle, failure paths,
+actual joint picking/rotation, playback/reset/pause, reduced motion and narrow/
+enlarged-text containment. Manual in-app review confirms the realistic blue
+body and close-up demonstration. Evidence is outside source. Preview:
+`http://127.0.0.1:3018/wellness` -> Range of motion. Sensor readings in QA are
+synthetic; real-phone comparison and measurement accuracy are not established.
+No publication, private recording, provider or database operation occurred.
+
 ## November 19 Wellness and planner publication approved
 
 Corrected runtime `1719246` passes fresh hosted review with no findings and

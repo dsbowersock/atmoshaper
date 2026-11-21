@@ -202,7 +202,19 @@
     "test:action-answer-compatibility": "node --test tests/anatomy-action-answer-compatibility.test.mjs",
     "test:temple-action-citations": "node --test tests/anatomy-temple-action-citations.test.mjs",
     "audit:temple-action-citations": "node scripts/audit-temple-action-citations.mjs",
-    "lint:temple-action-citations": "eslint lib/anatomy-temple-action-provenance.js lib/anatomy-foundation.ts lib/anatomy-study.ts lib/anatomy-seed/sources.ts scripts/audit-temple-action-citations.mjs scripts/audit-action-backlog-citations.mjs tests/anatomy-temple-action-citations.test.mjs tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-study.test.mjs"
+    "lint:temple-action-citations": "eslint lib/anatomy-temple-action-provenance.js lib/anatomy-foundation.ts lib/anatomy-study.ts lib/anatomy-seed/sources.ts scripts/audit-temple-action-citations.mjs scripts/audit-action-backlog-citations.mjs tests/anatomy-temple-action-citations.test.mjs tests/anatomy-action-backlog-citations.test.mjs tests/anatomy-foundation.test.mjs tests/anatomy-study.test.mjs",
+    "body-model:inspect": "node scripts/inspect-wellness-body.mjs",
+    "test:rom": "node --test tests/rom-recorder.test.mjs tests/movement-comfort.test.mjs tests/client-wellness.test.mjs tests/client-wellness-patterns.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/client-wellness-source-guards.test.mjs",
+    "test:activity-body": "node --test tests/activity-body.test.mjs tests/rom-recorder.test.mjs tests/movement-comfort.test.mjs tests/client-wellness.test.mjs tests/client-wellness-patterns.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/client-wellness-source-guards.test.mjs",
+    "lint:activity-body": "eslint components/body/body-joint-scene.tsx components/body/body-joint-viewer.tsx components/wellness/body-region-selector.tsx components/wellness/wellness-hub-client.tsx lib/body-regions.js lib/client-wellness.js tests/activity-body.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/browser/public-routes.spec.ts",
+    "test:wellness-detail": "node --test tests/exercise-recording.test.mjs tests/feelings-wheel-layout.test.mjs tests/wellness-surface-detail.test.mjs tests/activity-body.test.mjs tests/rom-recorder.test.mjs tests/movement-comfort.test.mjs tests/client-wellness.test.mjs tests/client-wellness-patterns.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/client-wellness-source-guards.test.mjs",
+    "test:wellness-calendar": "node --test tests/wellness-personal-calendar.test.mjs tests/wellness-calendar-controller.test.mjs tests/calendar-page-read-recovery.test.mjs",
+    "test:wellness-session": "node --test tests/rsc-session.test.mjs",
+    "lint:wellness-calendar": "eslint app/calendar/page.tsx app/calendar/personal/page.tsx app/wellness/page.tsx app/wellness/calendar-actions.ts components/wellness/wellness-hub-client.tsx components/wellness/wellness-calendar-companion.tsx components/wellness/wellness-entry-card.tsx components/wellness/personal-wellness-calendar.tsx components/wellness/personal-calendar-home.tsx components/wellness/calendar-view-navigation.tsx lib/wellness-catalog.js lib/wellness-calendar-view.js tests/wellness-personal-calendar.test.mjs tests/wellness-calendar-controller.test.mjs tests/calendar-page-read-recovery.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/browser/public-routes.spec.ts",
+    "lint:exercise": "eslint app/wellness/page.tsx app/wellness/actions.ts components/wellness/wellness-hub-client.tsx components/wellness/exercise-recorder.tsx components/wellness/exercise-history.tsx lib/exercise-recording.js lib/client-wellness.js lib/client-wellness-patterns.js lib/account-preferences.js tests/exercise-recording.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/client-wellness-source-guards.test.mjs tests/client-wellness.test.mjs tests/browser/public-routes.spec.ts",
+    "lint:feelings-wheel": "eslint components/wellness/feelings-wheel.tsx lib/feelings-wheel-layout.js tests/feelings-wheel-layout.test.mjs tests/browser/public-routes.spec.ts",
+    "lint:wellness-detail": "eslint components/body/body-joint-scene.tsx components/body/body-joint-viewer.tsx components/body/body-region-explorer.tsx components/wellness/body-region-selector.tsx components/wellness/wellness-hub-client.tsx components/wellness/feelings-wheel.tsx components/wellness/context-reflection.tsx components/wellness/wellness-pattern-report.tsx lib/account-preferences.js lib/body-regions.js lib/body-surface-regions.js lib/client-wellness.js lib/wellness-reflection.js lib/client-wellness-patterns.js tests/wellness-surface-detail.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/client-wellness-source-guards.test.mjs tests/browser/public-routes.spec.ts",
+    "lint:movement-checkins": "eslint app/wellness/actions.ts components/body/body-joint-scene.tsx components/body/body-joint-viewer.tsx components/wellness/rom-measurement-panel.tsx components/wellness/wellness-hub-client.tsx components/wellness/wellness-pattern-report.tsx lib/body-view-framing.js lib/account-preferences.js lib/sentry-privacy.js lib/rom-movements.js lib/movement-presets.js lib/movement-comfort.js lib/client-wellness.js lib/client-wellness-patterns.js tests/rom-recorder.test.mjs tests/movement-comfort.test.mjs tests/client-wellness-patterns.test.mjs tests/client-wellness-action-lifecycle.test.mjs tests/browser/public-routes.spec.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
@@ -335,6 +347,7 @@
     "stripe": "^22.1.1",
     "tailwind-merge": "2.6.0",
     "tailwindcss-animate": "1.0.7",
+    "three": "0.187.0",
     "tone": "14.9.17",
     "ws": "^8.21.0"
   },
@@ -346,6 +359,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "@types/three": "0.187.0",
     "autoprefixer": "10.4.20",
     "dotenv": "^17.4.2",
     "eslint": "9.39.4",

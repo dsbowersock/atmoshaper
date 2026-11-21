@@ -74,6 +74,7 @@ describe("Client wellness pattern reports", () => {
 
     assert.deepEqual(report.romMovements[0], {
       movement: "neck rotation",
+      source: "quick-log",
       entryCount: 2,
       latestDegrees: 42,
       previousDegrees: 35,

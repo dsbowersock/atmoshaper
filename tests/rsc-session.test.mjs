@@ -18,6 +18,7 @@ const rscSessionConsumers = [
   "app/admin/page.tsx",
   "app/anatomy/corrections/page.tsx",
   "app/calendar/page.tsx",
+  "app/calendar/personal/page.tsx",
   "app/calendar/availability/page.tsx",
   "app/calendar/booking/page.tsx",
   "app/calendar/new/page.tsx",
@@ -252,6 +253,12 @@ describe("RSC session snapshot proof boundary", () => {
     const unexpectedDirectAuthConsumers = renderSources.filter((relativePath) => {
       if (!/from "@\/auth"/.test(renderSourceContents.get(relativePath))) return false
       if (relativePath === "app/legal/accept/page.tsx") return false
+      // The owner-scoped Calendar read is a separately compiled Server Action,
+      // so it must authenticate each invocation rather than share render cache.
+      if (relativePath === "app/wellness/calendar-actions.ts") {
+        assert.match(renderSourceContents.get(relativePath), /^"use server"/)
+        return false
+      }
       return !relativePath.startsWith("app/api/")
         && !relativePath.endsWith("/actions.ts")
         && !relativePath.includes("/actions/")
@@ -297,6 +304,7 @@ describe("RSC session snapshot proof boundary", () => {
       "app/api/billing/portal/route.ts",
       "app/api/book/[practiceSlug]/sequence-options/route.ts",
       "app/account/actions.ts",
+      "app/wellness/calendar-actions.ts",
     ]) {
       const route = source(relativePath)
       assert.match(route, /from "@\/auth"/)

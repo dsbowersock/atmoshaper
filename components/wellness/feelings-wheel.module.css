@@ -1,0 +1,24 @@
+.wheel { min-width: 0; display: grid; gap: 0.65rem; }
+.wheel legend { font-weight: 600; margin-bottom: 0.65rem; }
+.wheel p { font-size: 0.85rem; line-height: 1.6; }
+.actions, .words, .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.wheel button { height: auto; min-height: 2.75rem; white-space: normal; overflow-wrap: anywhere; }
+.diagram { display: block; width: 100%; max-width: 48rem; height: clamp(24rem, 64svh, 36rem); margin-inline: auto; overflow: hidden; border-radius: 0.75rem; background: hsl(var(--background) / 0.35); touch-action: none; user-select: none; cursor: grab; }
+.diagram[data-dragging="true"] { cursor: grabbing; }
+.diagram[aria-disabled="true"] { cursor: default; opacity: 0.7; }
+.diagram path { stroke: hsl(var(--background)); stroke-width: 0.65; }
+.diagram path[data-related="true"] { stroke: #e2c59d; stroke-width: 0.8; }
+.diagram path:focus { outline: none; stroke: #ff9c43; stroke-width: 2; }
+.diagram path[aria-pressed="true"] { stroke: #ffb968; stroke-width: 2.2; filter: brightness(1.25); }
+.diagram text { fill: white; pointer-events: none; }
+.diagram .familyWord { font-size: 14px; font-weight: 600; }
+.diagram .groupWord { font-size: 11.5px; }
+.diagram .specificWord { font-size: 11px; }
+.diagram .center { fill: hsl(var(--card)); }
+.diagram .centerText { fill: hsl(var(--foreground)); font-size: 9px; }
+.context { min-height: 2.75rem; align-content: center; }
+.wordList { display: grid; gap: 1rem; }
+.wordList h4 { margin-bottom: 0.4rem; font-weight: 600; }
+.custom { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.custom input { min-width: 0; flex: 1 1 10rem; }
+.wheel summary { cursor: pointer; min-height: 2.75rem; align-content: center; }

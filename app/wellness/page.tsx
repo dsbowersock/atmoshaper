@@ -33,7 +33,7 @@ export default async function WellnessPage() {
   const userId = session?.user?.id
   const now = new Date()
   const reportWindowStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-  const [entries, reportEntries, upcomingAppointments, pastAppointments, preference] = userId
+  const [entries, reportEntries, exerciseEntries, upcomingAppointments, pastAppointments, preference] = userId
     ? await Promise.all([
         prisma.clientWellnessEntry.findMany({
           where: { userId, deletedAt: null },
@@ -43,6 +43,13 @@ export default async function WellnessPage() {
         // Pattern reports need the full bounded window; the visible timeline stays page-sized.
         prisma.clientWellnessEntry.findMany({
           where: { userId, deletedAt: null, occurredAt: { gte: reportWindowStart } },
+          orderBy: { occurredAt: "desc" },
+          take: 250,
+        }),
+        // Exercise history spans beyond the general 30-day report window while
+        // staying owner-scoped and bounded. Other actors cannot read this log.
+        prisma.clientWellnessEntry.findMany({
+          where: { userId, deletedAt: null, category: "exercise" },
           orderBy: { occurredAt: "desc" },
           take: 250,
         }),
@@ -69,7 +76,7 @@ export default async function WellnessPage() {
           select: { settings: true },
         }),
       ])
-    : [[], [], [], [], null]
+    : [[], [], [], [], [], null]
 
   return (
     <div className={styles.page}>
@@ -80,10 +87,12 @@ export default async function WellnessPage() {
           <p className={styles.privacy}>Client-owned self-tracking · {userId ? "Private to your account" : "Try without an account; sign in to save"}</p>
         </header>
         <WellnessHubClient
+          key={userId ?? "anonymous"}
           isSignedIn={Boolean(userId)}
           displayName={session?.user?.name ?? session?.user?.email ?? null}
           initialEntries={entries.map(serializeWellnessEntry)}
           initialReportEntries={reportEntries.map(serializeWellnessEntry)}
+          initialExerciseEntries={exerciseEntries.map(serializeWellnessEntry)}
           appointments={[...upcomingAppointments, ...pastAppointments].map(serializeWellnessAppointment)}
           reminderSchedules={reminderSchedulesFromPreference(preference?.settings)}
         />

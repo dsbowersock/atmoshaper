@@ -23,6 +23,7 @@ describe("Client wellness helpers", () => {
       "rom",
       "sleep",
       "activity",
+      "exercise",
       "work_context",
       "home_care",
       "incident",
