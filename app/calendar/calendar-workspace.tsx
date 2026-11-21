@@ -547,7 +547,12 @@ export function CalendarWorkspace({
     >
       <CardContent className="flex h-full flex-col p-0">
         <CalendarSourceControls scope={scope} changeScope={(next) => { setOpenedPersonal(null); setScope(next) }} hasPractice={hasPractice}
-          practices={practiceOptions} practiceId={selectedPracticeId} changePractice={(id) => router.push(`/calendar?practice=${encodeURIComponent(id)}&view=${scope}`)}
+          practices={practiceOptions} practiceId={selectedPracticeId} changePractice={(id) => {
+            const query = new URLSearchParams({ practice: id, view: scope })
+            // Keep the viewed local day; UTC serialization can change its date.
+            if (selectedDate) query.set("date", `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`)
+            router.push(`/calendar?${query}`)
+          }}
           practiceUnavailable={practiceUnavailable} loading={personal.loading || showPersonal && !visibleWindow.start} error={personal.error} refresh={personal.refresh}
           recordCursor={personal.data?.recordCursor} appointmentCursor={personal.data?.appointmentCursor} more={personal.more} />
         <div className="flex shrink-0 items-center border-b border-border/70 bg-background/95 px-3 py-2 backdrop-blur sm:px-4">

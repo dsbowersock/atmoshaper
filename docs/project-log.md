@@ -1,5 +1,16 @@
 # AtmoShaper Project Log
 
+## November 21 final date continuity correction and review cooldown
+
+Codex's `70b354a` review identifies loss of the viewed date when changing practices.
+Retain the selected local calendar day in the new practice query, avoiding UTC
+serialization drift. The 112 focused cases and actual phone/desktop month-switch
+journey pass. This remains within the current Calendar behavior; no broad cleanup
+is included. The 14-file CodeRabbit follow-up is rejected before execution by its
+included OSS quota, with the next review available around 07:27 UTC. Keep the
+release unmerged and use the next included pass after the reset. The five
+retrospective cohorts separately await private CLI authentication.
+
 ## November 21 substantive hosted second review and focused corrections
 
 An explicit command through the existing GitHub CodeRabbit app succeeds where

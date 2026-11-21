@@ -95,3 +95,11 @@ six-page PDF is read back from the still-public planner artifact, including all
 from the new staged artifact as well, then ordinary current-head review/CI and
 fresh provider/source/routing gates before promotion. The retrospective CLI login
 is separate; the existing GitHub app can review this active PR without it.
+
+
+The final Codex pass identifies practice-switch date loss. Preserve the viewed
+local day in that route query and verify a moved-month practice switch on phone
+and desktop. The CodeRabbit follow-up is explicitly rate-limited before execution;
+the next included pass is expected around 07:27 UTC. Hold source merge until a
+real completion record covers the correction delta. No paid upgrade or capacity
+activation is included. Keep the unchanged source head frozen for that pass.

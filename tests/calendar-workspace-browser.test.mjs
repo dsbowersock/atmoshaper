@@ -39,8 +39,15 @@ test("real calendar phone and desktop source selection stays private and contain
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true)
       assert.deepEqual(await page.evaluate(()=>window.__calendarWrites),[])
       await page.screenshot({path:`output/sidebar-calendar-workspace/${name}.png`})
+      await page.getByRole("button",{name:"Next range",exact:true}).click()
+      await expect(page.getByText("December 2026",{exact:true})).toBeVisible()
       await page.getByLabel("Choose practice calendar").selectOption("fictional-second-practice")
-      assert.deepEqual(await page.evaluate(()=>window.__calendarNavigation),["/calendar?practice=fictional-second-practice&view=together"])
+      const navigation=await page.evaluate(()=>window.__calendarNavigation)
+      assert.equal(navigation.length,1)
+      const query=new URL(navigation[0],server.origin).searchParams
+      assert.equal(query.get("practice"),"fictional-second-practice")
+      assert.equal(query.get("view"),"together")
+      assert.match(query.get("date"),/^2026-12-\d{2}$/)
       assert.deepEqual(errors,[]);assert.deepEqual(external,[])
       await context.close()
     }

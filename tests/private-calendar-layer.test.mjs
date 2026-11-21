@@ -106,7 +106,7 @@ test("actual calendar hides disabled private sources and prevents their drag cal
     "@/lib/calendar-display": display, "@/lib/utils": { cn: (...values) => values.filter(Boolean).join(" ") },
   }
   for (const name of ["badge", "button", "calendar", "card", "dropdown-menu", "input", "label", "popover", "select", "toggle-control"]) deps[`@/components/ui/${name}`] = pass
-  const Workspace = compile(await readFile(new URL("../app/calendar/calendar-workspace.tsx", import.meta.url), "utf8"), "workspace.tsx", deps, { window: { location: {}, requestAnimationFrame:()=>0 } }).CalendarWorkspace
+  const Workspace = compile(await readFile(new URL("../app/calendar/calendar-workspace.tsx", import.meta.url), "utf8"), "workspace.tsx", deps, { URLSearchParams, window: { location: {}, requestAnimationFrame:()=>0 } }).CalendarWorkspace
   const props = { events: [{ id: "practice-event", start, end, title: "Practice", extendedProps: { ownerUserId: "owner-a" } }], providers: [{ id: "owner-a", label: "Me" }, {id:"provider-b",label:"Another provider"}], providerAvailability: [], preferences: normalizeCalendarPreferences({providerViewMode:"split"}), currentUserId: "owner-a", selectedPracticeId: "practice-a" }
   let tree
   const render = () => { host.begin(); tree = Workspace(props); return tree }
@@ -115,7 +115,7 @@ test("actual calendar hides disabled private sources and prevents their drag cal
   const toolbar = () => findElement(tree, (node) => node.type?.name === "CalendarToolbarControls").props
   render(); assert.equal(calendar().events.length, 1)
   assert.equal(findElements(tree,(node)=>node.type===FullCalendar).length,2)
-  const viewedDate=new Date("2027-01-15T12:00:00Z")
+  const viewedDate=new Date(2027,0,15,23,0,0)
   calendar().datesSet({start:new Date("2027-01-01"),end:new Date("2027-02-01"),view:{title:"January 2027",calendar:{getDate:()=>viewedDate}}});render()
   sources().changeScope("together"); render()
   assert.equal(calendar().events.length, 2)
@@ -136,7 +136,10 @@ test("actual calendar hides disabled private sources and prevents their drag cal
   toolbar().onShowStatusBadgesChange(false);render()
   assert.deepEqual(Object.keys(writes[0]),["showStatusBadges"])
   assert.equal(writes[0].showStatusBadges,false)
-  sources().changePractice("practice-b"); assert.deepEqual(routes, ["/calendar?practice=practice-b&view=practice"])
+  sources().changePractice("practice-b")
+  assert.equal(routes.length,1)
+  const target=new URL(routes[0],"https://example.test").searchParams
+  assert.equal(target.get("practice"),"practice-b");assert.equal(target.get("view"),"practice");assert.equal(target.get("date"),"2027-01-15")
 })
 
 test("every creation entry binds a chosen practice to the authenticated actor and existing eligible roles", async () => {

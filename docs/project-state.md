@@ -21,8 +21,12 @@ six-page synthetic PDF from deployed `0976d7d` is downloaded and read back with
 all 25 answers, Unicode and professional notices; six aliases confirm the source.
 The next staged build must pass its own real PDF download before promotion.
 
-Fresh current-head CI, independent review and the bounded correction follow-up
-remain before merge. The separate five-cohort retrospective audit is prepared
+Codex additionally identifies a viewed-date reset when switching practices.
+The selected local day now travels in that navigation query; the focused checks
+and actual phone/desktop month-switch regression pass. Fresh current-head CI and
+the correction review remain before merge. CodeRabbit's next included review is
+not available until about 07:27 UTC; the rejected request does not count as a
+review, and no paid capacity is enabled. The separate five-cohort retrospective audit is prepared
 on `codex/coderabbit-coverage-audit`; its CLI authentication is still pending.
 No old PR is reopened or automatic app-wide rewrite authorized.
 
