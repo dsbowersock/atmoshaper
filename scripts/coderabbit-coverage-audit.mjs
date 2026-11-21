@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises'
-import {readGit,isGitAncestor,readGitDiffPaths,reachableReviewedBlobs,assertCliReceiptIdentity,validateCompletedCliReceipt} from './coderabbit-coverage-proof.mjs'
+import {readGit,isGitAncestor,readGitDiffPaths,readGitTree,selectReviewBaseline,reachableReviewedBlobs,assertCliReceiptIdentity,validateCompletedCliReceipt} from './coderabbit-coverage-proof.mjs'
 
 const folder='output/coderabbit-coverage'
 const source='d7e30e022d825d9f26ed37bd6636f11bae1e8314'
@@ -15,8 +15,7 @@ const trees=new Map()
 /** Exact Git blobs distinguish reviewed content from later edits to the same path. */
 function tree(commit){
   if(trees.has(commit))return trees.get(commit)
-  const raw=git(['ls-tree','-r','--format=%(objectname)%x09%(path)',commit],true)
-  const value=raw===null?null:new Map(raw.trim().split('\n').filter(Boolean).map(line=>{const at=line.indexOf('\t');return [line.slice(at+1),line.slice(0,at)]}))
+  const value=readGitTree(commit,{optional:true})
   trees.set(commit,value);return value
 }
 /** Only substantive file-selection receipts count. Skipped checks, bot presence
@@ -107,14 +106,11 @@ function category(path){
 const paths=[...touched.values()].map(entry=>{
   const inherited=tree(entry.firstBase)
   if(!inherited)throw new Error('A required pre-change baseline is unavailable')
-  const seed=inherited.get(entry.path)??null
-  // A nested PR's first parent can already contain unreviewed branch work.
-  // Its seed is safe only if it equals the actual inherited bootstrap content.
-  if(seed!==(bootstrap.get(entry.path)??null))throw new Error('A PR baseline contains post-bootstrap changes; widen its range before reporting coverage')
+  const {seed,baseline}=selectReviewBaseline({file:entry.path,firstBase:entry.firstBase,inheritedTree:inherited,bootstrapTree:bootstrap,bootstrapCommit:inheritedRoots[0]})
   const covered=reachableReviewedBlobs(seed,transitions.get(entry.path)??[]).has(current.get(entry.path))
   // Start any backfill at the inherited pre-change version, not a possibly
   // partial recent review. This covers all surviving post-bootstrap changes.
-  return {...entry,category:category(entry.path),covered,seedBlob:seed,review:reviewed.get(entry.path)??null,baseline:entry.firstBase}
+  return {...entry,category:category(entry.path),covered,seedBlob:seed,review:reviewed.get(entry.path)??null,baseline}
 })
 const gaps=paths.filter(path=>!path.covered&&['runtime-or-config','test'].includes(path.category))
 // A new source/configuration format cannot silently disappear from the audit.

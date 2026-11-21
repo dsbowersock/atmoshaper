@@ -1,5 +1,20 @@
 # AtmoShaper Project State
 
+## November 21 owner-requested closure of the four final issues
+
+The owner requests resolution of F1–F4 after the bounded campaign closes. Keep
+F1's tested local Checkout correction and F4's first/later-page failure checks.
+The two remaining audit cases now have reproduced and corrected behavior:
+nested PR baselines fall back to the actual bootstrap without granting partial
+review coverage, and NUL-framed Git readers/preparation preserve literal names.
+All six real-Git proof checks and all 163 payment checks pass locally. Fresh
+inventory confirms the same 703 reviewed code/test histories and zero gaps,
+with every existing path's baseline/coverage unchanged. TypeScript and focused
+audit lint pass. One focused review of the correction delta from `07a3dcd`
+remains. This explicit follow-up supersedes the deferred
+F2/F3 status below; no publication or provider/NAS/live-data write is included.
+See the [four-issue plan](superpowers/plans/2026-11-21-four-review-issues.md).
+
 ## November 21 bounded CodeRabbit campaign complete; corrections remain local
 
 All eight remote reviews complete. The final pass at `07a3dcd` verifies all 28

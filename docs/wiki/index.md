@@ -4,6 +4,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Resolution of the four final review issues](../superpowers/plans/2026-11-21-four-review-issues.md)
 - [Completed range backfill and all 64 dispositions](../audits/2026-11-21-coderabbit-range-backfill-results.md)
 - [Corrected range proof and fixed review backfill](../superpowers/plans/2026-11-21-coderabbit-range-proof.md)
 - [Retrospective CodeRabbit receipts and triage](../audits/2026-11-21-coderabbit-retrospective-results.md)

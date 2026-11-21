@@ -1,5 +1,18 @@
 # AtmoShaper Project Log
 
+## November 21 owner requests resolution of F1–F4
+
+Continue from local `b316461`, preserving the closed campaign's receipts and
+reviewed `07a3dcd` baseline. Reproduce the remaining nested-PR and literal-name
+failures with real synthetic Git objects; keep a staged unrelated index entry
+unchanged through actual batch preparation. Correct baseline selection and use
+NUL-framed default tree records, exact diff names and literal preparation paths.
+All six proof checks, 163 Stripe checks, audit lint and TypeScript pass. The
+fresh whole inventory still proves 703 changed code/test histories, zero gaps,
+and exactly the same baseline/coverage decisions for all 1,017 touched paths.
+One included-allowance correction review remains in this bounded
+follow-up. No live/provider/NAS/release operation is included.
+
 ## November 21 final planned CodeRabbit review completes
 
 Verify the actual completed 28-path correction review at `07a3dcd`: four issues,

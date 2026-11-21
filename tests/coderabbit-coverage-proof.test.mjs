@@ -1,9 +1,47 @@
 import assert from "node:assert/strict"
-import { mkdtemp, mkdir, writeFile, rm, realpath } from "node:fs/promises"
+import { mkdtemp, mkdir, readFile, writeFile, rm, realpath } from "node:fs/promises"
 import path from "node:path"
 import { spawnSync } from "node:child_process"
 import test from "node:test"
-import { isGitAncestor, readGitDiffPaths, reachableReviewedBlobs, validateCompletedCliReceipt } from "../scripts/coderabbit-coverage-proof.mjs"
+import { isGitAncestor, readGitDiffPaths, readGitTree, selectReviewBaseline, reachableReviewedBlobs, validateCompletedCliReceipt } from "../scripts/coderabbit-coverage-proof.mjs"
+
+/** Own every fixture object/index and cleanup path. Never inherit a caller's
+ * Git index/repository redirects into fixture writes or the preparation worker. */
+async function fixtureRepository(t) {
+  const parent = path.resolve("output/coderabbit-corrections/git-proof-fixtures")
+  await mkdir(parent, { recursive: true })
+  const workspace = await realpath(process.cwd()), resolvedParent = await realpath(parent)
+  assert.ok(resolvedParent.startsWith(workspace + path.sep))
+  const root = await mkdtemp(path.join(parent, "owned-"))
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)))
+  t.after(async () => {
+    const target = await realpath(root)
+    assert.equal(path.dirname(target), resolvedParent)
+    await rm(target, { recursive: true, force: true })
+  })
+  function git(args, input) {
+    const result = spawnSync("git", ["-c", "user.name=Review Fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "-c", `core.hooksPath=${path.join(root, "no-hooks")}`, "-c", "core.fsmonitor=false", ...args], { cwd: root, env, input, encoding: "utf8", windowsHide: true })
+    assert.equal(result.status, 0, `fixture Git ${args[0]} succeeds`)
+    return result.stdout.trim()
+  }
+  git(["init", "--quiet", "--template="])
+  git(["config", "user.name", "Review Fixture"])
+  git(["config", "user.email", "fixture@example.invalid"])
+  git(["config", "core.hooksPath", path.join(root, "no-hooks")])
+  git(["config", "core.fsmonitor", "false"])
+  git(["config", "commit.gpgsign", "false"])
+  return { root, git, env }
+}
+
+/** Build real Git history without checking out names unsupported by Windows. */
+function commitFiles(git, files, parent) {
+  const entries = Object.entries(files).map(([name, content]) => {
+    const blob = git(["hash-object", "-w", "--stdin"], content)
+    return `100644 blob ${blob}\t${name}\0`
+  }).join("")
+  const tree = git(["mktree", "-z"], entries)
+  return git(["commit-tree", tree, ...(parent ? ["-p", parent] : [])], "Synthetic review fixture\n")
+}
 
 test("a ledger cannot turn a failed, incomplete or different-scope review into coverage", () => {
   const source = "a".repeat(40), base = "b".repeat(40), head = "c".repeat(40), tree = "d".repeat(40)
@@ -38,19 +76,8 @@ test("a later reviewed label does not certify an earlier unreviewed routine", ()
   assert.equal(reachableReviewedBlobs("old", [{ from: null, to: "replacement" }, { from: "old", to: null }]).has("replacement"), true)
 })
 
-test("Git errors cannot become zero-file PRs or valid non-ancestor results", async () => {
-  const parent = path.resolve("output/coderabbit-corrections/git-proof-fixtures")
-  await mkdir(parent, { recursive: true })
-  const workspace = await realpath(process.cwd()), resolvedParent = await realpath(parent)
-  assert.ok(resolvedParent.startsWith(workspace + path.sep))
-  const fixture = await mkdtemp(path.join(parent, "owned-"))
-  function git(args, input) {
-    const result = spawnSync("git", ["-c", "user.name=Review Fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "-c", `core.hooksPath=${path.join(fixture, "no-hooks")}`, "-c", "core.fsmonitor=false", ...args], { cwd: fixture, input, encoding: "utf8", windowsHide: true })
-    assert.equal(result.status, 0, `fixture Git ${args[0]} succeeds`)
-    return result.stdout.trim()
-  }
-  try {
-    git(["init", "--quiet", "--template="])
+test("Git errors cannot become zero-file PRs or valid non-ancestor results", async (t) => {
+    const { root: fixture, git } = await fixtureRepository(t)
     await writeFile(path.join(fixture, "source.txt"), "Inherited content\n")
     git(["add", "source.txt"]); git(["commit", "--quiet", "-m", "Fixture baseline"])
     const first = git(["rev-parse", "HEAD"])
@@ -70,9 +97,74 @@ test("Git errors cannot become zero-file PRs or valid non-ancestor results", asy
     await rm(object)
     git(["cat-file", "-e", second])
     assert.throws(() => readGitDiffPaths(`${second}^1`, second, fixture), /read failed/)
-  } finally {
-    const target = await realpath(fixture)
-    assert.equal(path.dirname(target), resolvedParent)
-    await rm(target, { recursive: true, force: true })
+})
+
+test("a nested PR baseline permits wider proof without certifying parent work", async (t) => {
+  const { root, git } = await fixtureRepository(t)
+  const bootstrapCommit = commitFiles(git, { "source.js": "Inherited\n", "unchanged.js": "Stable\n" })
+  const firstBase = commitFiles(git, { "source.js": "Parent work\n", "unchanged.js": "Stable\n", "new.js": "Parent addition\n" }, bootstrapCommit)
+  const head = commitFiles(git, { "source.js": "Parent and child work\n", "unchanged.js": "Stable\n", "new.js": "Child edit\n" }, firstBase)
+  const bootstrapTree = readGitTree(bootstrapCommit, { cwd: root })
+  const inheritedTree = readGitTree(firstBase, { cwd: root })
+  const current = readGitTree(head, { cwd: root })
+  for (const file of ["source.js", "new.js"]) {
+    const choice = selectReviewBaseline({ file, firstBase, inheritedTree, bootstrapTree, bootstrapCommit })
+    assert.deepEqual(choice, { seed: bootstrapTree.get(file) ?? null, baseline: bootstrapCommit })
+    const childOnly = { from: inheritedTree.get(file), to: current.get(file) }
+    assert.equal(reachableReviewedBlobs(choice.seed, [childOnly]).has(current.get(file)), false)
+    assert.equal(reachableReviewedBlobs(choice.seed, [{ from: choice.seed, to: current.get(file) }]).has(current.get(file)), true)
+    assert.equal(reachableReviewedBlobs(choice.seed, [{ from: choice.seed, to: childOnly.from }, childOnly]).has(current.get(file)), true)
   }
+  assert.deepEqual(selectReviewBaseline({ file: "unchanged.js", firstBase, inheritedTree, bootstrapTree, bootstrapCommit }), {
+    seed: bootstrapTree.get("unchanged.js"), baseline: firstBase,
+  })
+})
+
+test("Git diff and tree readers preserve literal names regardless of quotePath", async (t) => {
+  const { root, git } = await fixtureRepository(t)
+  const base = commitFiles(git, {})
+  const names = ["café.js", " leading.js", "trailing.js ", "tab\tname.js", "line\nname.js", 'quote"name.js']
+  const head = commitFiles(git, Object.fromEntries(names.map(name => [name, `Content for ${JSON.stringify(name)}\n`])), base)
+  for (const quotePath of ["true", "false"]) {
+    git(["config", "core.quotePath", quotePath])
+    assert.deepEqual(readGitDiffPaths(base, head, root).sort(), [...names].sort())
+    const tree = readGitTree(head, { cwd: root })
+    assert.deepEqual([...tree.keys()].sort(), [...names].sort())
+    for (const name of names) assert.equal(tree.get(name), git(["hash-object", "--stdin"], `Content for ${JSON.stringify(name)}\n`))
+    const treeId = git(["rev-parse", `${head}^{tree}`])
+    const admitted = validateCompletedCliReceipt(
+      { source: head, base, head, log: "runs/literal-fixture.ndjson", files: names },
+      { source: head, base, head, state: "returned", exitCode: 0, creditsEnabled: false, expectedFiles: names.length },
+      [{ type: "complete", status: "review_completed", outcome: "completed", findings: 0, reviewedFiles: names }],
+      { source: head, paths: readGitDiffPaths(base, head, root), sourceTree: treeId, headTree: treeId },
+    )
+    assert.deepEqual(admitted.paths, names)
+    assert.equal(readGitTree("f".repeat(40), { cwd: root, optional: true }), null)
+    assert.throws(() => readGitTree("f".repeat(40), { cwd: root }), /read failed/)
+  }
+})
+
+test("review batch preparation preserves literal paths and the ordinary index", async (t) => {
+  const { root, git, env } = await fixtureRepository(t)
+  const retainedNames = ["café.js", "two words.js", "square[1].js", "square1.js", "comma,name.js"]
+  const base = commitFiles(git, Object.fromEntries(retainedNames.map(name => [name, "Original\n"])))
+  const names = [...retainedNames, "added.js"]
+  const source = commitFiles(git, Object.fromEntries(names.map(name => [name, "Synthetic\n"])), base)
+  const blob = git(["hash-object", "--stdin"], "Synthetic\n")
+  git(["config", "core.quotePath", "true"])
+  const folder = path.join(root, "output/coderabbit-coverage")
+  await mkdir(folder, { recursive: true })
+  await writeFile(path.join(folder, "batches.json"), JSON.stringify([{ id: "literal-fixture", source, paths: names.map(name => ({ path: name, baseline: base, blob })) }]))
+  await writeFile(path.join(root, "unrelated.txt"), "Keep this staged work\n")
+  git(["add", "unrelated.txt"])
+  const beforeIndex = await readFile(path.join(root, ".git/index")).catch(error => { if (error.code === "ENOENT") return null; throw error })
+  const beforeRefs = git(["for-each-ref", "refs/heads/"])
+  const result = spawnSync(process.execPath, [path.resolve("scripts/prepare-coderabbit-review-batches.mjs")], { cwd: root, env, encoding: "utf8", windowsHide: true })
+  assert.equal(result.status, 0, result.stderr)
+  const [prepared] = JSON.parse(await readFile(path.join(folder, "prepared-batches.json"), "utf8"))
+  assert.deepEqual(prepared.paths, [...names].sort())
+  assert.deepEqual(readGitDiffPaths(prepared.base, prepared.head, root).sort(), [...names].sort())
+  assert.deepEqual(readGitTree(prepared.head, { cwd: root }), readGitTree(source, { cwd: root }))
+  assert.deepEqual(await readFile(path.join(root, ".git/index")).catch(error => { if (error.code === "ENOENT") return null; throw error }), beforeIndex)
+  assert.equal(git(["for-each-ref", "refs/heads/"]), beforeRefs)
 })

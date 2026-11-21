@@ -10,8 +10,8 @@ const prepared = []
 
 /** Creates local review objects only. The worktree, normal index, branches and
  * remote refs remain untouched; review-only refs must never be published. */
-function git(args, { input, index } = {}) {
-  const result = spawnSync("git", args, {
+function git(args, { input, index, raw = false } = {}) {
+  const result = spawnSync("git", ["--literal-pathspecs", ...args], {
     encoding: "utf8",
     input,
     env: index ? { ...process.env, GIT_INDEX_FILE: index } : process.env,
@@ -19,12 +19,13 @@ function git(args, { input, index } = {}) {
     windowsHide: true,
   })
   if (result.status !== 0) throw new Error(`Review preparation failed at git ${args[0]}: ${result.stderr}`)
-  return result.stdout.trimEnd()
+  // Commit IDs may be trimmed; pathname records must keep their exact framing.
+  return raw ? result.stdout : result.stdout.trimEnd()
 }
 
 /** Preserve each baseline path's real mode and blob, including absent/new files. */
 function entry(commit, file) {
-  const raw = git(["ls-tree", "-z", commit, "--", file])
+  const raw = git(["ls-tree", "-z", commit, "--", file], { raw: true })
   if (!raw) return null
   const match = /^(\d+) blob ([a-f0-9]{40})\t([^\0]+)\0$/.exec(raw)
   if (!match || match[3] !== file) throw new Error(`Unsupported review path: ${file}`)
@@ -55,7 +56,7 @@ for (const batch of batches) {
       }
     }
     const baseTree = git(["write-tree"], { index })
-    const changed = git(["diff", "--name-only", "--no-renames", baseTree, sourceTree]).split("\n").filter(Boolean).sort()
+    const changed = git(["diff", "--name-only", "--no-renames", "-z", baseTree, sourceTree], { raw: true }).split("\0").filter(Boolean).sort()
     if (JSON.stringify(changed) !== JSON.stringify(targets)) throw new Error(`Cohort diff does not match its manifest: ${batch.id}`)
     const base = git(["commit-tree", baseTree, "-p", batch.source], {
       input: `Review-only baseline for ${batch.id}\n\nSynthetic per-file baselines. Never merge or deploy.\n`,

@@ -1,5 +1,11 @@
 # CodeRabbit range backfill: results and bounded triage
 
+Current follow-up: the owner requests closure of F1–F4. F1's local Checkout fix
+and F4's fail-closed pagination checks remain passing; the F2/F3 deferred work
+is now corrected and tested. All six real-Git proof cases and 163 Stripe checks
+pass. One focused review from `07a3dcd` remains. See the
+[specific follow-up plan](../superpowers/plans/2026-11-21-four-review-issues.md).
+
 ## Actual completed review
 
 The fixed wider-range request completes on November 21 at the public `d7e30e0`
@@ -116,9 +122,9 @@ path. Do not call this a zero-issue review.
 | ID | Severity | Disposition and concrete remaining scope |
 | --- | --- | --- |
 | F1 | Major | Confirmed in `lib/stripe-billing.js`: a successful create finishing after the reconciliation deadline cannot be confirmed. The synthetic slow-create regression fails before correction. Confirmation now has its own five-second read allowance; the original deadline still prevents further creates. Initial and retry successes pass; a slow terminal result cannot expose a URL or start another create. This small local correction is subsequent to the last reviewed head and needs ordinary PR review before release. |
-| F2 | Major | Deferred audit compatibility in `scripts/coderabbit-coverage-audit.mjs`: a future child-before-parent PR can have a first baseline already containing parent changes, stopping even a wider proven review. Current inventory has no such mismatch, so its 703-path result is unaffected. Before using that new history shape, choose the actual bootstrap blob/commit as the seed/backfill baseline and add the nested-PR fixture. Current behavior fails closed. |
+| F2 | Major | Corrected locally in `scripts/coderabbit-coverage-audit.mjs` and its shared proof helper. A nested PR whose first parent contains branch work now uses the actual bootstrap blob/commit. Matching baselines stay unchanged. The real-Git regression proves a child-only review remains insufficient, while a wider complete range or full transition chain is accepted. Current 703-path proof remains unchanged. Focused follow-up review pending. |
 | F4 | Major | Refuted in `scripts/stripe-readiness-check.mjs`: the caller catches a malformed inventory, records failure and exits nonzero; it cannot recover earlier accumulated pages as complete evidence. New real-CLI fixtures cover missing/string `has_more` on a second page as well as the first, with no successful default-topology result. |
-| F3 | Minor | Deferred literal-filename compatibility in `scripts/coderabbit-coverage-proof.mjs` and the audit tree reader: use NUL-delimited Git paths without trimming, and add Unicode/tab/newline filenames. The current exact review manifests verify; future quoted names can reject valid evidence rather than silently grant coverage. |
+| F3 | Minor | Corrected locally in `scripts/coderabbit-coverage-proof.mjs` and batch preparation. Default NUL-framed tree records and diff paths preserve Unicode, tab, newline, quote and edge whitespace names under both quotePath modes. Synthetic completed-receipt admission and actual Unicode/space/bracket/comma batch preparation pass; an unrelated staged index entry is preserved. Focused follow-up review pending. |
 
 The final post-review Stripe suite passes 163/163, including the reproduced
 slow-create boundary, bounded terminal behavior and later-page failures.

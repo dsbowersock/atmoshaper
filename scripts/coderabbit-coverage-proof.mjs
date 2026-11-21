@@ -22,9 +22,34 @@ export function isGitAncestor(ancestor, descendant, cwd = process.cwd()) {
   throw new Error("Git ancestry evidence is unavailable")
 }
 
-/** An actual empty diff is valid; an unreadable first parent is never an empty PR. */
+/** An actual empty diff is valid; an unreadable first parent is never an empty
+ * PR. NUL framing preserves literal names, including whitespace and newlines. */
 export function readGitDiffPaths(base, head, cwd = process.cwd()) {
-  return readGit(["diff", "--name-only", "--no-renames", base, head], { cwd }).trim().split("\n").filter(Boolean)
+  return readGit(["diff", "--name-only", "--no-renames", "-z", base, head], { cwd }).split("\0").filter(Boolean)
+}
+
+/** Reads exact tree identities without checkout. Use Git's default NUL-framed
+ * records: custom %(path) formatting can still quote names even with -z. */
+export function readGitTree(commit, { cwd = process.cwd(), optional = false } = {}) {
+  const raw = readGit(["ls-tree", "-r", "-z", commit], { cwd, optional })
+  return raw === null ? null : new Map(raw.split("\0").filter(Boolean).map(line => {
+    const at = line.indexOf("\t")
+    const header = /^(\d{6}) (?:blob|commit) ([a-f0-9]+)$/.exec(line.slice(0, at))
+    if (!header || at === line.length - 1) throw new Error("Invalid Git coverage tree record")
+    return [line.slice(at + 1), header[2]]
+  }))
+}
+
+/** Chooses the pre-change seed without treating a branch's existing changes as
+ * inherited evidence. A nested PR's first parent may contain unreviewed parent
+ * work: fall back to the real bootstrap blob (null for a new file) and commit.
+ * Callers still need a complete reviewed transition chain from that seed. */
+export function selectReviewBaseline({ file, firstBase, inheritedTree, bootstrapTree, bootstrapCommit }) {
+  const seed = inheritedTree.get(file) ?? null
+  const bootstrapSeed = bootstrapTree.get(file) ?? null
+  return seed === bootstrapSeed
+    ? { seed, baseline: firstBase }
+    : { seed: bootstrapSeed, baseline: bootstrapCommit }
 }
 
 /** Validate identities before using a ledger's log path or Git revision. The
