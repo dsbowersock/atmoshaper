@@ -50,7 +50,16 @@ function fixture(options = {}) {
       assertPracticeAccess: async () => ({ role: options.role ?? "THERAPIST" }),
     },
   })
+  // Form state may be older than the first database read made during submission.
+  const displayed = { ...snapshot, ...options.displayed }
   const data = new FormData(); data.set("eventId", snapshot.id)
+  data.set("expectedStartsAt", displayed.startsAt.toISOString())
+  data.set("expectedEndsAt", displayed.endsAt.toISOString())
+  data.set("expectedOwnerUserId", displayed.ownerUserId ?? "")
+  data.set("expectedPracticeId", displayed.practiceId)
+  if (options.missingDisplayState) {
+    for (const name of ["expectedStartsAt", "expectedEndsAt", "expectedOwnerUserId", "expectedPracticeId"]) data.delete(name)
+  }
   return { run: () => actionModule.cancelPersonalEvent(data), calls, updated: () => updated }
 }
 
@@ -90,6 +99,26 @@ describe("personal block cancellation", () => {
   it("does not duplicate audit/history for an already cancelled block", async () => {
     const f = fixture({ current: { status: "CANCELLED", blocksAvailability: false } }); await f.run()
     assert.equal(f.updated(), undefined); assert.equal(f.calls.includes("audit"), false); assert.equal(f.calls.includes("google"), true)
+  })
+  for (const displayed of [
+    { startsAt: new Date("2026-11-20T16:00:00Z") },
+    { endsAt: new Date("2026-11-20T18:00:00Z") },
+    { ownerUserId: "previous-provider" },
+    { practiceId: "previous-practice" },
+  ]) {
+    it(`rejects changes made before submission instead of cancelling a different displayed block ${JSON.stringify(displayed)}`, async () => {
+      const f = fixture({ displayed, role: "OWNER", actor: "practice-owner" })
+      await assert.rejects(f.run(), /changed|Refresh/i)
+      assert.equal(f.updated(), undefined)
+      assert.equal(f.calls.includes("commit"), false)
+      assert.equal(f.calls.includes("google"), false)
+    })
+  }
+  it("requires an old form without displayed scheduling state to be refreshed", async () => {
+    const f = fixture({ missingDisplayState: true })
+    await assert.rejects(f.run(), /changed|Refresh/i)
+    assert.equal(f.updated(), undefined)
+    assert.equal(f.calls.includes("google"), false)
   })
   it("reports a Google failure after retaining the committed local cancellation", async () => {
     const f = fixture({ googleFailure: true }); await f.run()

@@ -1,5 +1,18 @@
 # AtmoShaper Project State
 
+## November 21 bounded review corrections in local preparation
+
+Fresh CodeRabbit authentication succeeds. The isolated coverage-audit branch has
+three completed initial cohorts (136 files, 42 observations); two frozen-source
+cohorts await included allowance. Local branch `codex/coderabbit-review-fixes`
+starts from public `d7e30e0` and receipt `1a94dab`. Focused reproductions confirm
+stale cancellation, background display, ROM and backup failure-path cases, while
+session/Portal and several Wellness helper concerns are refuted by current code
+and passing checks. Prepare supported corrections without changing the frozen
+review source. Final consolidation, one correction review, tests and a separate
+concrete publication decision remain. No live service or NAS change occurs.
+See the [correction plan](superpowers/plans/2026-11-21-coderabbit-corrections.md).
+
 ## November 21 sidebar and private Calendar published
 
 [PR #77](https://github.com/dsbowersock/atmoshaper/pull/77) is public as

@@ -2026,6 +2026,36 @@ test("Wellness surface detail keeps front back inner and sole locations independ
   expect(health.failedLocalResponses).toEqual([]); expect(health.forbiddenRequests).toEqual([])
 })
 
+test("Wellness body refinement and removed choices retain visible keyboard focus", async ({ page }) => {
+  // The named fallback exercises the same replacement controls without needing
+  // a GPU; focus must remain useful when the selected button disappears.
+  await page.route("**/body-models/human-base-rigged.glb", (route) => route.fulfill({ status: 503, body: "Intentional model failure" }))
+  await page.goto("/wellness", { waitUntil: "domcontentloaded" })
+  await page.getByRole("button", { name: "Record body check-in", exact: true }).click()
+  const viewer = page.locator('[data-body-mode="regions"]')
+  await expect(viewer).toHaveAttribute("data-body-state", "failed", { timeout: 30_000 })
+  await viewer.getByText("Arms and hands", { exact: true }).click()
+  await viewer.locator('[data-body-part-choice="left forearm"] > summary').click()
+  await viewer.getByRole("button", { name: "More detail: Left forearm", exact: true }).click()
+  const part = viewer.getByLabel("Zoom into a body part", { exact: true })
+  await expect(part).toBeFocused()
+  await viewer.locator('[data-surface-choice="left front forearm"] > summary').click()
+  await viewer.getByRole("button", { name: "Whole area: Left front forearm", exact: true }).click()
+  await viewer.getByRole("button", { name: "Whole body", exact: true }).click()
+  await expect(part).toBeFocused()
+  await viewer.getByRole("button", { name: "Be more specific: Left front forearm", exact: true }).click()
+  await expect(part).toBeFocused()
+  await viewer.getByRole("button", { name: "Remove left front forearm", exact: true }).click()
+  await expect(part).toBeFocused()
+  await viewer.getByRole("button", { name: "General area: Left forearm", exact: true }).click()
+  await viewer.getByRole("button", { name: "Clear selected regions", exact: true }).click()
+  await expect(part).toBeFocused()
+  await page.locator("#wellnessCategory").selectOption("rom")
+  await page.getByRole("button", { name: "Open range of motion recorder", exact: true }).click()
+  await page.getByRole("button", { name: "All wellness tools", exact: true }).click()
+  await expect(page.getByRole("button", { name: "Record body check-in", exact: true })).toBeFocused()
+})
+
 test("Wellness feelings wheel supports word levels multiple choices search and retained drafts", async ({ page }, testInfo) => {
   const health = await capturePageHealth(page, new Set())
   await page.setViewportSize({ width: 390, height: 844 })
@@ -2114,6 +2144,14 @@ test("Wellness continuous feelings wheel rotates by drag and touch without selec
     const box = (await diagram.boundingBox())!, x = box.x + box.width * 0.55, y = box.y + box.height * 0.5
     await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ id: 1, x: x - 30, y }, { id: 2, x: x + 30, y }] })
     await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ id: 1, x: x - 50, y: y + 12 }, { id: 2, x: x + 50, y: y + 12 }] })
+    // Replacing one finger after a third contact starts a fresh pinch baseline.
+    // An unchanged remaining pair must not jump back to the old pair's scale.
+    const pair = [{ id: 1, x: x - 50, y: y + 12 }, { id: 2, x: x + 50, y: y + 12 }, { id: 3, x: x + 10, y: y + 30 }]
+    await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: pair })
+    const before = Number(await diagram.getAttribute("data-wheel-zoom"))
+    await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: pair.slice(1) })
+    await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ ...pair[1], x: pair[1].x + 1 }, pair[2]] })
+    await expect.poll(async () => Math.abs(Number(await diagram.getAttribute("data-wheel-zoom")) - before)).toBeLessThan(0.15)
     await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
     await expect.poll(async () => Number(await diagram.getAttribute("data-wheel-zoom"))).toBeGreaterThan(2.5)
     await expect(wheel.locator('input[name="feelingWords"][value="Hopeful"]')).toHaveCount(1)

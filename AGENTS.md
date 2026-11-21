@@ -15,6 +15,16 @@ Read these files first, in order:
 - Do not document secrets, database rows, private provider or project identifiers, credentials, connection strings, or `.env.local` values.
 - Use feature-key entitlement checks such as `premium_backgrounds`; customization follows the canonical selected-background access decision, never displayed plan names.
 - Prefer targeted, branch-sized changes over broad cleanup.
+- Before merging application changes, require substantive Codex and CodeRabbit
+  coverage of the source being shipped, including any correction delta. A skipped
+  CodeRabbit check, bot presence without completion, rejected run or stale review is not a completed
+  second review. Report authentication/quota blockers explicitly; do not silently
+  substitute another reviewer. Use bounded passes and grouped supported fixes;
+  keep speculative or out-of-scope findings in a separate backlog instead of an
+  automatic whole-codebase review/rewrite loop. Receipt-only closeout does not
+  require re-reviewing unchanged application code. Follow
+  `docs/wiki/code-review.md`, including explicit GitHub-app review triggering
+  when automatic CodeRabbit review is skipped.
 - Add detailed implementation plans under `docs/superpowers/plans/` when a task spans multiple subsystems or needs future agent handoff.
 - For every branch, add useful docstrings/JSDoc or focused comments when writing new or changed non-obvious code, especially shared helpers, domain rules, server actions, data adapters, and scripts. Treat this as current branch work, not something to defer entirely to the later repo-wide docstring cleanup. Keep documentation focused on intent, inputs, outputs, and constraints; avoid noisy comments that restate self-explanatory code.
 

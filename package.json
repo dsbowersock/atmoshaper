@@ -5,6 +5,13 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "review:coderabbit-coverage": "node scripts/coderabbit-coverage-audit.mjs",
+    "lint:coderabbit-coverage": "eslint scripts/coderabbit-coverage-audit.mjs scripts/prepare-coderabbit-review-batches.mjs",
+    "review:coderabbit-prepare-batches": "node scripts/prepare-coderabbit-review-batches.mjs",
+    "test:feelings-lifecycle": "node --test tests/feelings-wheel-lifecycle.test.mjs",
+    "test:body-scene-lifecycle": "node --test tests/body-scene-lifecycle.test.mjs",
+    "test:rom-lifecycle": "node --test tests/rom-measurement-lifecycle.test.mjs",
+    "test:review-auth-portal": "node --test tests/auth-session-version.test.mjs tests/supporter-portal.test.mjs",
     "lint:calendar-workspace-layers": "eslint app/calendar/calendar-workspace.tsx app/calendar/calendar-source-controls.tsx app/calendar/page.tsx app/calendar/personal/page.tsx app/calendar/new app/calendar/actions/events.ts app/wellness/calendar-actions.ts components/sidebar/app-sidebar-client.tsx components/wellness/personal-calendar-home.tsx components/wellness/use-private-calendar-layer.ts components/wellness/private-calendar-record-details.tsx lib/private-calendar-layer.js lib/calendar-workspace.js lib/wellness-calendar-view.js lib/navigation.js tests/private-calendar-layer.test.mjs tests/calendar-workspace-browser.test.mjs tests/fixtures/calendar-workspace-browser-harness.mjs scripts/start-calendar-workspace-preview.mjs tests/navigation-model.test.mjs tests/calendar-page-read-recovery.test.mjs tests/calendar-creation-routes.test.mjs tests/wellness-personal-calendar.test.mjs app/calendar/services app/calendar/actions/services.ts tests/calendar-service-scope.test.mjs",
     "preview:calendar-workspace": "node scripts/start-calendar-workspace-preview.mjs",
     "test:calendar-workspace-browser": "node --test tests/calendar-workspace-browser.test.mjs",

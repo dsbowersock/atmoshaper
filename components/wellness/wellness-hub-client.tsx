@@ -151,11 +151,13 @@ export function WellnessHubClient({
   const defaultLauncherRef = useRef<HTMLButtonElement>(null)
   const launcherRef = useRef<HTMLButtonElement | null>(null)
   const moveFocus = useRef(false)
+  const actionPending = useRef(false)
 
   // Preserve the existing global Quick Log destination without remounting the
   // page or shared music owner. Hash reads happen after hydration only.
   useEffect(() => {
     const openHashTool = () => {
+      if (actionPending.current) return
       if (window.location.hash === "#quick-log") {
         moveFocus.current = true
         setActiveTool("log")
@@ -165,6 +167,7 @@ export function WellnessHubClient({
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
       const anchor = event.target instanceof Element ? event.target.closest("a") : null
       if (anchor?.origin === window.location.origin && anchor.pathname === "/wellness" && anchor.hash === "#quick-log") {
+        if (actionPending.current) { event.preventDefault(); event.stopPropagation(); return }
         moveFocus.current = true
         setActiveTool("log")
       }
@@ -181,7 +184,14 @@ export function WellnessHubClient({
     if (!moveFocus.current) return
     moveFocus.current = false
     if (activeTool) toolHeadingRef.current?.focus()
-    else (launcherRef.current ?? defaultLauncherRef.current)?.focus()
+    else {
+      // Inline tool links can be hidden when returning home. Restore focus to
+      // their visible launcher only, with the persistent home control as fallback.
+      const launcher = launcherRef.current
+      const visible = launcher?.isConnected && launcher.getClientRects().length > 0
+      const target = visible ? launcher : defaultLauncherRef.current
+      target?.focus()
+    }
   }, [activeTool])
 
   const formRef = useRef<HTMLFormElement>(null)
@@ -199,7 +209,6 @@ export function WellnessHubClient({
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [confirmExport, setConfirmExport] = useState(false)
   const [isPending, setIsPending] = useState(false)
-  const actionPending = useRef(false)
 
   // Restore native inputs after the new category's controls commit. Controlled
   // region/feeling values are restored by React; only this page owns the drafts.
@@ -288,6 +297,8 @@ export function WellnessHubClient({
     if (!form) {
       return
     }
+
+    if (form.reportValidity?.() === false) return
 
     const formData = wellnessFormData(form)
     if (stringFormValue(formData, "category") === "exercise") {
@@ -545,7 +556,7 @@ export function WellnessHubClient({
                   <div className={activityStyles.chips}>{sensationOptions.map((sensation) => <label key={sensation}><input name="sensations" value={sensation} type="checkbox" />{sensation}</label>)}</div>
                   <div className="mt-3 space-y-2"><Label htmlFor="wellnessCustomTerm">Your own sensation word</Label><Input id="wellnessCustomTerm" name="customTerm" placeholder="Your words" /></div>
                 </fieldset>
-                <div className="space-y-2"><Label htmlFor="wellnessIntensity">How strong is it?</Label><Input id="wellnessIntensity" name="intensity" type="number" min="0" max="10" inputMode="numeric" placeholder="0–10" aria-describedby="wellness-intensity-help" /><p id="wellness-intensity-help">0 = none · 10 = strongest you notice. Leave blank to skip.</p></div>
+                <div className="space-y-2"><Label htmlFor="wellnessIntensity">How strong is it?</Label><Input id="wellnessIntensity" name="intensity" type="number" min="0" max="10" disabled={logCategory === "exercise"} inputMode="numeric" placeholder="0–10" aria-describedby="wellness-intensity-help" /><p id="wellness-intensity-help">0 = none · 10 = strongest you notice. Leave blank to skip.</p></div>
               </div>
             </details>
 
@@ -554,7 +565,7 @@ export function WellnessHubClient({
               <div className="mt-3 grid gap-4">
                 <div className={activityStyles.twoColumns}>
                   <div className="space-y-2"><Label htmlFor="wellnessOccurredAt">When was this?</Label><Input id="wellnessOccurredAt" name="occurredAt" type="datetime-local" /></div>
-                  <div hidden={logCategory === "exercise"} className="space-y-2"><Label htmlFor="wellnessDuration">Duration in minutes</Label><Input id="wellnessDuration" name="durationMinutes" type="number" min="0" max="10080" inputMode="numeric" placeholder="15" /></div>
+                  <div hidden={logCategory === "exercise"} className="space-y-2"><Label htmlFor="wellnessDuration">Duration in minutes</Label><Input id="wellnessDuration" name="durationMinutes" type="number" min="0" max="10080" disabled={logCategory === "exercise"} inputMode="numeric" placeholder="15" /></div>
                 </div>
                 <div hidden={!showSensationTerms} className={activityStyles.twoColumns}>
                   <div hidden={isActivity} className="space-y-2"><Label htmlFor="wellnessBodyPosition">Body position</Label><select id="wellnessBodyPosition" name="bodyPosition" defaultValue=""><option value="">Not selected</option>{bodyPositionOptions.map((position) => <option key={position} value={position}>{position}</option>)}</select></div>
@@ -738,12 +749,14 @@ function wellnessFormData(form: HTMLFormElement) {
   const prompts = category === "work_context" ? formData.getAll("workPrompts") : category === "home_care" ? [...formData.getAll("homePrompts"), ...formData.getAll("carePrompts")] : []
   const contextCheckIn = normalizeContextCheckIn(category, { ...Object.fromEntries(["activity", "posture", "repetition", "surroundings", "noticed", "careAction", "careEffect"].map((key) => [key, stringFormValue(formData, `reflection-${key}`)])), prompts })
   const exerciseRecord = category === "exercise" ? validateExerciseRecord(parseJsonRecord(stringFormValue(formData, "exerciseRecord"))).record : null
+  // Match the categories that actually display these optional physical fields.
+  const physicalContext = ["body_sensation", "incident", "work_context", "home_care"].includes(category)
   if (category === "exercise") formData.delete("intensity")
   for (const prompt of prompts) formData.append("contexts", prompt)
   formData.set("metadata", JSON.stringify({
     durationMinutes: durationMinutesOrNull(stringFormValue(formData, "durationMinutes")),
     activityContext: stringFormValue(formData, "activityContext"),
-    ...(stringFormValue(formData, "category") !== "activity" ? { bodyPosition: stringFormValue(formData, "bodyPosition"), movementEffect: stringFormValue(formData, "movementEffect") } : {}),
+    ...(physicalContext ? { bodyPosition: stringFormValue(formData, "bodyPosition"), movementEffect: stringFormValue(formData, "movementEffect") } : {}),
     ...(feelingWords.length ? { feelingWords } : {}),
     ...(contextCheckIn ? { contextCheckIn } : {}),
     ...(exerciseRecord ? { exerciseRecord } : {}),

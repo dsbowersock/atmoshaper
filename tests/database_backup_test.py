@@ -12,6 +12,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import types
 import unittest
 from unittest import mock
 
@@ -66,6 +67,30 @@ class DatabaseBackupTests(unittest.TestCase):
         with self.assertRaisesRegex(backup.BackupError, "DATABASE_EXPORT_FAILED"):
             self.run_fixture(export="import sys;sys.stdout.buffer.write(b'partial');sys.exit(3)")
         self.assertEqual(self.data_files(), [])
+
+    def assert_expired_finalization_is_not_published(self, expire_on_sync):
+        """Advance only the injected clock at a durability boundary, without sleeping."""
+        elapsed = [0]
+        sync_calls = [0]
+        def sync(unused_descriptor):
+            sync_calls[0] += 1
+            if sync_calls[0] == expire_on_sync:
+                elapsed[0] = backup.TIMEOUT_SECONDS + 1
+        with mock.patch.object(backup, "time", types.SimpleNamespace(monotonic=lambda: elapsed[0]), create=True), \
+             mock.patch.object(backup.threading, "Timer"), mock.patch.object(backup.os, "fsync", side_effect=sync):
+            with self.assertRaisesRegex(backup.BackupError, "BACKUP_TIMEOUT"):
+                self.run_fixture()
+        self.assertEqual(self.data_files(), [])
+
+    def test_archive_sync_cannot_cross_the_publication_deadline(self):
+        self.assert_expired_finalization_is_not_published(1)
+
+    def test_receipt_sync_cannot_cross_the_publication_deadline(self):
+        self.assert_expired_finalization_is_not_published(2)
+
+    @unittest.skipUnless(os.name == "posix", "Directory durability sync is POSIX-only")
+    def test_directory_sync_cannot_return_success_after_the_deadline(self):
+        self.assert_expired_finalization_is_not_published(3)
 
     def test_encryptor_failure_preserves_an_existing_completed_copy(self):
         previous = self.directory / "previous-good.dump.age"
@@ -157,7 +182,8 @@ class DatabaseBackupTests(unittest.TestCase):
             path.chmod(0o600)
         variants = [base+"password=do-not-load\n", base.replace("ep-invented", "ep-invented-pooler"),
                     base.replace("ep-invented", "other.invalid,ep-invented"),
-                    base.replace("verify-full", "disable"), base+"port=70000\n", "[DEFAULT]\nhost=other.invalid\n"+base]
+                    base.replace("verify-full", "disable"), base+"port=70000\n", "[DEFAULT]\nhost=other.invalid\n"+base,
+                    base.replace("host=", "host =")]
         for content in variants:
             service.write_text(content)
             service.chmod(0o600)

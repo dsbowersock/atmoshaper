@@ -35,6 +35,45 @@ test("actual quick-log adapter admits Work reflection but excludes hidden feelin
   assert.equal(page.form.resets, 1)
 })
 
+for (const category of ["emotion", "sleep"]) {
+  test(`the ${category} adapter does not invent hidden physical observations`, async () => {
+    const page = owner({ create: () => Promise.resolve({ ok: false, reason: "fictional-held-save" }) })
+    page.ack()
+    page.form.fields = { category, summary: "Fictional check-in", bodyPosition: "sitting", movementEffect: "unsure" }
+    page.click("Save")
+    const metadata = JSON.parse(page.calls[0].args[0].get("metadata"))
+    assert.equal(metadata.bodyPosition, undefined)
+    assert.equal(metadata.movementEffect, undefined)
+    await page.settled()
+  })
+}
+
+test("invalid native fields keep a practice draft instead of silently clamping and saving", async () => {
+  const page = owner({ signedIn: false })
+  page.form.fields = { category: "body_sensation", summary: "Fictional entry", intensity: "11" }
+  page.form.valid = false
+  page.click("Practice"); await page.settled()
+  assert.equal(page.form.validityCalls, 1)
+  assert.equal(page.form.resets, 0)
+  assert.equal(page.form.fields.intensity, "11")
+  assert.doesNotMatch(page.status(), /Practice entry added/)
+})
+
+for (const entrypoint of ["link", "hash"]) {
+  test(`global Quick Log ${entrypoint} keeps an in-flight ROM recorder active`, async () => {
+    const pending = deferred(), page = owner({ navigation: true, create: () => pending.promise })
+    page.ack()
+    page.button("Open range of motion").props.onClick({ currentTarget: { focus() {} } }); page.render()
+    page.measure({ movement: "Fictional knee bend", side: "Left", source: "manual", axis: "beta", baselineAngle: 0, endAngle: 30, changeDegrees: 30, note: "" })
+    page.render(); assert.equal(page.calls.length, 1)
+    page.quickLog(entrypoint)
+    assert.equal(page.rom().props.active, true)
+    pending.resolve({ ok: false, reason: "fictional-save-failure" }); await page.settled()
+    page.quickLog(entrypoint)
+    assert.equal(page.rom().props.active, false)
+  })
+}
+
 test("Exercise validates before dispatch and keeps the shared privacy, pending and failure owner", async () => {
   const pending = deferred(), page = owner({ initialEntries: [entry("existing")], create: () => pending.promise })
   page.form.fields = { category: "exercise", exerciseRecord: JSON.stringify(exerciseRecording.createExerciseDraft()), summary: "Fictional exercise note", intensity: "9" }
@@ -64,11 +103,17 @@ class InertFormData {
 
 /** Execute the actual component with persistent inert hooks and explicit action/UI boundaries.
  * A held transition models the observed mask; it does not emulate or prove Next queue behavior. */
-function owner({ signedIn = true, initialEntries = [], create, remove, exportAction } = {}) {
+function owner({ signedIn = true, initialEntries = [], create, remove, exportAction, navigation = false } = {}) {
   const slots = [], calls = [], caught = [], tasks = [], downloads = []
   let cursor = 0, transitionPending = false, rendered
+  let navigationMounted = false
+  const navigationEffects = [], documentEvents = new Map(), windowEvents = new Map()
+  class Anchor { closest() { return { origin: "https://fixture.example", pathname: "/wellness", hash: "#quick-log" } } }
+  const fakeWindow = { location: { origin: "https://fixture.example", hash: "" }, addEventListener: (name, callback) => windowEvents.set(name, callback), removeEventListener: name => windowEvents.delete(name) }
   const form = { fields: { category: "activity", intensity: "0", summary: "First neutral entry", occurredAt: "" },
-    resets: 0, reset() { this.resets++ } }
+    resets: 0, valid: true, validityCalls: 0,
+    reportValidity() { this.validityCalls++; return this.valid },
+    reset() { this.resets++ } }
   const track = (value) => {
     if (value && typeof value.then === "function") tasks.push(Promise.resolve(value).catch((error) => { caught.push(error) }))
     return value
@@ -80,8 +125,9 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
       return [slots[index], (value) => { slots[index] = typeof value === "function" ? value(slots[index]) : value }]
     },
     useRef(initial) { const index = cursor++; if (!(index in slots)) slots[index] = { current: initial }; return slots[index] },
-    // Navigation/focus effects are verified in the real-browser suite; action ownership stays inert here.
-    useEffect: () => {}, useLayoutEffect: () => {},
+    // Optionally run the real mount listener to test its pending-action admission;
+    // native focus and browser routing remain covered separately.
+    useEffect: (callback, deps) => { if (navigation && !navigationMounted && deps?.length === 0) navigationEffects.push(callback) }, useLayoutEffect: () => {},
     useSyncExternalStore: (_subscribe, snapshot) => snapshot(),
     useMemo: (callback) => callback(),
     useTransition: () => [transitionPending, (callback) => { transitionPending = true; track(callback()) }],
@@ -130,7 +176,8 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
     exports: record.exports, module: record, require(name) { assert.ok(Object.hasOwn(modules, name)); return modules[name] },
     FormData: InertFormData, Intl, Blob,
     URL: { createObjectURL: () => "blob:invented", revokeObjectURL: () => {} },
-    document: { createElement: () => ({ click() { downloads.push(true) } }) },
+    document: { createElement: () => ({ click() { downloads.push(true) } }), addEventListener: (name, callback) => documentEvents.set(name, callback), removeEventListener: name => documentEvents.delete(name) },
+    window: fakeWindow, Element: Anchor,
   }, { timeout: 1000 })
   function render() {
     cursor = 0
@@ -138,6 +185,7 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
       initialReportEntries: initialEntries, appointments: [], reminderSchedules: [] })
     findElement(raw, (node) => node.type === "form").props.ref.current = form
     rendered = renderFunctionComponents(raw)
+    if (navigation && !navigationMounted) { navigationMounted = true; for (const effect of navigationEffects.splice(0)) effect() }
     return rendered
   }
   const button = (label) => {
@@ -148,6 +196,14 @@ function owner({ signedIn = true, initialEntries = [], create, remove, exportAct
   render()
   return {
     calls, caught, form, downloads, render, button,
+    quickLog(entrypoint) {
+      if (entrypoint === "link") {
+        const event = { button: 0, target: new Anchor(), defaultPrevented: false, preventDefault() { this.defaultPrevented = true }, stopPropagation() {} }
+        documentEvents.get("click")(event)
+        if (event.defaultPrevented) { render(); return }
+      }
+      fakeWindow.location.hash = "#quick-log"; windowEvents.get("hashchange")(); render()
+    },
     status: () => { const node = findElement(rendered, (value) => value.props.role === "status"); return node ? elementText(node) : "" },
     text: () => elementText(rendered),
     rom: (focus = "range") => findElement(rendered, (node) => node.type === "rom-panel" && node.props.focus === focus),

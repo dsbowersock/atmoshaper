@@ -47,6 +47,33 @@ not included. A missing NAS is detected externally by Sentry.
    treating protection as restored. Never use an older success to authorize
    deleting retained copies.
 
+## Held files and manual maintenance
+
+An orphaned archive or malformed receipt intentionally stops retention; it does
+not authorize deleting the file or repeatedly starting exports. For recovery,
+first preserve the daily failure receipt and inventory the exact held names,
+sizes and hashes privately. Verify every complete pair before choosing any
+file to move. If a receipt is absent, do not fabricate one from the ciphertext.
+
+Prepare an owner-reviewed maintenance plan naming only the suspect files and
+an owner-only quarantine directory outside the scanned `backups` directory,
+on the same filesystem. Stop the named scheduled task and confirm no backup
+or retention process is active before the approved move. Preserve the suspect
+files, their metadata and the inventory; move neither healthy pairs nor the
+recovery key. A successful scan of the remaining complete pairs is only a
+validation step. Older-copy deletion still requires a fresh successful export
+through the normal daily operator. Do not clear the failed day's attempt marker
+to force a retry. Resume the task and monitor after verifying the exact plan's
+checks, and confirm the next normal run succeeds.
+
+The daily operator's operation lock serializes its export and retention phases.
+The standalone exporter's archive lock protects overlapping standalone exports;
+it does not coordinate independent retention. After daily activation, use the
+daily operator as the only writer. Manual standalone exports or retention need
+the same separately approved task pause and proof that no operator is active.
+Do not run them beside the scheduler. This procedure is prepared documentation;
+the retrospective review has changed no NAS files, tasks or archives.
+
 ## Recovery evidence and limits
 
 The [earlier isolated restore](../audits/2026-11-18-first-encrypted-backup-and-restore.md)

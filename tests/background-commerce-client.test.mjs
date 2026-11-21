@@ -616,6 +616,18 @@ describe("background card commerce states", () => {
       assert.equal(result.state, "unavailable")
       assert.equal(hasActivePermanentOwnership(result), false)
     })
+    it(`keeps free access without permanent ownership when ${status} has a stale ownership-only bridge`, () => {
+      const result = backgroundCardCommerceState({
+        background: free,
+        access: { canUse: true, accessSource: "ownership" },
+        snapshot: snapshot({ ownerships: [{ backgroundId: free.id, source: "purchase", status, acquiredAt: "2026-07-20T10:00:00.000Z" }] }),
+      })
+      assert.equal(result.state, "free")
+      assert.equal(result.canSelect, true)
+      assert.equal(result.ownershipStatus, status)
+      assert.equal(hasActivePermanentOwnership(result), false)
+      assert.equal(result.showKeepPermanently, false)
+    })
   }
 
   it("keeps enabled free access independent of inactive ownership", () => {

@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 21 retrospective reviews and local correction preparation
+
+Fresh private CodeRabbit sign-in completes with the existing account. Freeze
+the 166 previously unsupported shipped file versions at public `d7e30e0` and
+retain their exact manifests and actual completed receipts. Three initial
+passes cover 136 paths and raise 42 observations; the final 25/5-path passes
+await verified included allowance. Paid credits remain disabled. Keep the
+older dirty Linux QA checkout intact and use independent native worktrees.
+
+Reproduce supported stale-cancellation, inactive-background-ownership, movement
+recorder, touch/focus, Quick Log and backup failure-path cases in a separate
+local correction branch. Record refutations and conditional workload/portability
+items in the [triage](audits/2026-11-21-coderabbit-retrospective-results.md).
+Prepare an explicit Codex/CodeRabbit review policy and one correction follow-up;
+CI or a skipped bot check cannot substitute for actual completed review.
+The source changes, runbook and checks remain local. This task changes no live
+service, NAS file/task, database, payment, email or deployment.
+
 ## November 21 sidebar and private Calendar public acceptance
 
 The actual CodeRabbit follow-up completes at `61a7c6a`: 15 correction paths,

@@ -81,6 +81,8 @@ export default function BodyJointScene(props: BodySceneProps) {
     let previousPlaying = false
     let playbackStart = 0
     let playedMilliseconds = 0
+    let lastDisplayedMilliseconds = 0
+    let refitRequested = false
     let heldProgress = 0
     let previousEndPose = false
     let completed = false
@@ -173,7 +175,7 @@ export default function BodyJointScene(props: BodySceneProps) {
 
     function render(now: number) {
       frame = 0
-      if (disposed) return
+      if (disposed || document.hidden) return
       const config = latest.current
       controls.enableRotate = config.rotate
       controls.enableZoom = config.rotate
@@ -191,18 +193,24 @@ export default function BodyJointScene(props: BodySceneProps) {
         }
         previousView = config.view
         previousReset = config.resetKey
-        heldProgress = config.endPose ? 1 : 0; playedMilliseconds = 0; previousPlaying = false; completed = false
+        heldProgress = config.endPose ? 1 : 0; playedMilliseconds = 0; lastDisplayedMilliseconds = 0; previousPlaying = false; completed = false
       }
-      if (config.endPose !== previousEndPose) { heldProgress = config.endPose ? 1 : 0; playedMilliseconds = 0 }
+      if (config.endPose !== previousEndPose) { heldProgress = config.endPose ? 1 : 0; playedMilliseconds = 0; lastDisplayedMilliseconds = 0 }
       previousEndPose = config.endPose
       if (config.playing && !previousPlaying) { playbackStart = now; completed = false }
-      if (!config.playing && previousPlaying && !completed) playedMilliseconds += now - playbackStart
+      // A hidden document may defer this stop frame. Resume from the last pose
+      // actually displayed rather than charging that hidden interval as playback.
+      if (!config.playing && previousPlaying && !completed) playedMilliseconds = lastDisplayedMilliseconds
       previousPlaying = config.playing
       const elapsed = Math.min(1, (playedMilliseconds + now - playbackStart) / 5000)
-      if (config.playing) heldProgress = (1 - Math.cos(elapsed * Math.PI * 2)) / 2
+      if (config.playing) {
+        lastDisplayedMilliseconds = Math.min(5000, playedMilliseconds + now - playbackStart)
+        heldProgress = (1 - Math.cos(elapsed * Math.PI * 2)) / 2
+      }
       const progress = heldProgress
       const movement = config.movement
-      if (resetting) {
+      if (resetting || refitRequested) {
+        refitRequested = false
         poseModel(movement, config.side, 0)
         const target = new THREE.Vector3(0, 0.85, 0)
         const distances: Record<string, number> = { neck: 1.1, shoulder: 1.8, elbow: 1.5, wrist: 0.85, hand: 0.65, back: 2.8, hip: 2.2, knee: 1.7, ankle: 0.9, toes: 0.65 }
@@ -269,7 +277,7 @@ export default function BodyJointScene(props: BodySceneProps) {
       }
       renderer.render(scene, camera)
       if (config.playing && elapsed < 1) schedule()
-      else if (config.playing) { completed = true; playedMilliseconds = 0; latest.current.onPlaybackEnd() }
+      else if (config.playing) { completed = true; playedMilliseconds = 0; lastDisplayedMilliseconds = 0; latest.current.onPlaybackEnd() }
     }
     function schedule() { if (!disposed && !frame) frame = requestAnimationFrame(render) }
     invalidate.current = schedule
@@ -279,7 +287,7 @@ export default function BodyJointScene(props: BodySceneProps) {
       const height = container.clientHeight
       if (!width || !height) return
       renderer.setSize(width, height)
-      camera.aspect = width / height; camera.updateProjectionMatrix(); previousView = ""; schedule()
+      camera.aspect = width / height; camera.updateProjectionMatrix(); refitRequested = true; schedule()
     })
     observer.observe(container)
     const abort = new AbortController()
@@ -349,10 +357,27 @@ export default function BodyJointScene(props: BodySceneProps) {
         }
         previousView = ""; latest.current.onReady("ready"); schedule()
       }).catch(() => { if (!disposed) latest.current.onReady("failed") })
-    let down = { x: 0, y: 0 }
-    function pointerDown(event: PointerEvent) { down = { x: event.clientX, y: event.clientY } }
+    const activePointers = new Set<number>()
+    let down: { pointerId: number; x: number; y: number } | null = null
+    let multiplePointers = false
+    function pointerDown(event: PointerEvent) {
+      activePointers.add(event.pointerId)
+      if (activePointers.size > 1 || multiplePointers) { down = null; multiplePointers = true; return }
+      down = { pointerId: event.pointerId, x: event.clientX, y: event.clientY }
+    }
+    function pointerCancel(event: PointerEvent) {
+      if (!activePointers.delete(event.pointerId)) return
+      down = null
+      if (!activePointers.size) multiplePointers = false
+    }
     function pointerUp(event: PointerEvent) {
-      if (Math.hypot(event.clientX - down.x, event.clientY - down.y) > 8 || latest.current.movement || latest.current.disabled) return
+      if (!activePointers.delete(event.pointerId)) return
+      const tap = down
+      const singleTap = !multiplePointers && !activePointers.size && tap?.pointerId === event.pointerId
+      down = null
+      if (!activePointers.size) multiplePointers = false
+      // Pinching/cancellation never becomes a selection when either finger lifts.
+      if (!singleTap || !tap || Math.hypot(event.clientX - tap.x, event.clientY - tap.y) > 8 || latest.current.movement || latest.current.disabled) return
       const box = renderer.domElement.getBoundingClientRect()
       let closest: typeof targets[number] | undefined
       const candidates: { target: typeof targets[number]; distance: number }[] = []
@@ -379,9 +404,21 @@ export default function BodyJointScene(props: BodySceneProps) {
       }
     }
     function contextLost(event: Event) { event.preventDefault(); latest.current.onReady("failed") }
-    function visibilityChange() { if (document.hidden && latest.current.playing) latest.current.onPlaybackEnd() }
+    function visibilityChange() {
+      if (document.hidden && latest.current.playing) {
+        // Stop the local clock immediately, even if React's parent update and
+        // passive effect are deferred until the tab becomes visible again.
+        playedMilliseconds = lastDisplayedMilliseconds
+        previousPlaying = false
+        cancelAnimationFrame(frame); frame = 0
+        latest.current.onPlaybackEnd()
+      }
+      if (!document.hidden) schedule()
+    }
     renderer.domElement.addEventListener("pointerdown", pointerDown)
     renderer.domElement.addEventListener("pointerup", pointerUp)
+    renderer.domElement.addEventListener("pointercancel", pointerCancel)
+    renderer.domElement.addEventListener("lostpointercapture", pointerCancel)
     renderer.domElement.addEventListener("webglcontextlost", contextLost)
     document.addEventListener("visibilitychange", visibilityChange)
     schedule()
@@ -391,6 +428,8 @@ export default function BodyJointScene(props: BodySceneProps) {
       document.removeEventListener("visibilitychange", visibilityChange)
       renderer.domElement.removeEventListener("pointerdown", pointerDown)
       renderer.domElement.removeEventListener("pointerup", pointerUp)
+      renderer.domElement.removeEventListener("pointercancel", pointerCancel)
+      renderer.domElement.removeEventListener("lostpointercapture", pointerCancel)
       renderer.domElement.removeEventListener("webglcontextlost", contextLost)
       disposeObject(scene); renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove()
       invalidate.current = () => {}

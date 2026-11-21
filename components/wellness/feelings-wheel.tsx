@@ -32,6 +32,8 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
   const gesture = useRef<{ moved: boolean; angle: number; pinched: boolean; pinch?: Pinch }>({ moved: false, angle: 0, pinched: false })
   const instructionsId = useId()
   const frame = feelingWheelFrame(aspect, zoom, pan)
+  const selectedWord = selected.includes(activePath.at(-1) ?? "") ? activePath.at(-1) : selected.at(-1)
+  const selectedPath = selectedWord === activePath.at(-1) ? activePath : SEGMENTS.find((segment) => segment.word === selectedWord)?.path ?? (selectedWord ? [selectedWord] : [])
 
   useEffect(() => {
     const element = svg.current
@@ -53,17 +55,21 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
     const point = new DOMPoint(x, y).matrixTransform(matrix.inverse())
     return Math.atan2(point.y, point.x)
   }
+  /** A new pair needs its own distance/anchor; a third finger must not leave
+   * the surviving pair using the previous pair's baseline. */
+  const rebasePinch = (element: SVGSVGElement) => {
+    if (pointers.current.size !== 2) { gesture.current.pinch = undefined; return }
+    const [a, b] = [...pointers.current.values()], box = element.getBoundingClientRect()
+    gesture.current.moved = true; gesture.current.pinched = true
+    gesture.current.pinch = { distance: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), zoom, anchorX: frame.x + ((a.x + b.x) / 2 - box.left) / box.width * frame.width, anchorY: frame.y + ((a.y + b.y) / 2 - box.top) / box.height * frame.height }
+  }
   const startPointer = (event: PointerEvent<SVGSVGElement>) => {
     if (disabled || event.pointerType === "mouse" && event.button !== 0) return
     const key = (event.target as Element).closest("[data-feeling-key]")?.getAttribute("data-feeling-key")
     if (!pointers.current.size) gesture.current = { moved: false, angle: angleAt(event.clientX, event.clientY), pinched: false }
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, word: key ? SEGMENT_BY_KEY.get(key) : undefined })
     event.currentTarget.setPointerCapture(event.pointerId)
-    if (pointers.current.size === 2) {
-      const [a, b] = [...pointers.current.values()], box = event.currentTarget.getBoundingClientRect()
-      gesture.current.moved = true; gesture.current.pinched = true
-      gesture.current.pinch = { distance: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), zoom, anchorX: frame.x + ((a.x + b.x) / 2 - box.left) / box.width * frame.width, anchorY: frame.y + ((a.y + b.y) / 2 - box.top) / box.height * frame.height }
-    }
+    if (pointers.current.size >= 2) rebasePinch(event.currentTarget)
   }
   const movePointer = (event: PointerEvent<SVGSVGElement>) => {
     const pointer = pointers.current.get(event.pointerId)
@@ -86,6 +92,7 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
   const endPointer = (event: PointerEvent<SVGSVGElement>, cancelled = false) => {
     const pointer = pointers.current.get(event.pointerId)
     pointers.current.delete(event.pointerId)
+    if (gesture.current.pinched) rebasePinch(event.currentTarget)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
     if (!pointers.current.size) setDragging(false)
     if (!cancelled && !gesture.current.moved && pointer?.word) choose(pointer.word.word, pointer.word.path)
@@ -116,7 +123,7 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
           const flip = Math.abs(screenAngle) > Math.PI / 2 ? 180 : 0
           return <g key={segment.key}>
             <desc id={`${instructionsId}-${segment.key}`}>{segment.path.join(", ")}</desc>
-            <path ref={(node) => { if (node) paths.current.set(segment.key, node); else paths.current.delete(segment.key) }} d={feelingSectorPath(segment)} fill={segment.color} role="button" tabIndex={!disabled && focusKey === segment.key ? 0 : -1} aria-label={`Choose ${segment.word}`} aria-describedby={`${instructionsId}-${segment.key}`} aria-pressed={selected.includes(segment.word)} data-feeling-key={segment.key} data-feeling-level={segment.level} data-related={activePath[0] === segment.path[0]} onFocus={() => setFocusKey(segment.key)} onKeyDown={(event) => navigateWord(event, segment)} onClick={(event) => { if (event.detail === 0) choose(segment.word, segment.path) }} />
+            <path ref={(node) => { if (node) paths.current.set(segment.key, node); else paths.current.delete(segment.key) }} d={feelingSectorPath(segment)} fill={segment.color} role="button" tabIndex={!disabled && focusKey === segment.key ? 0 : -1} aria-label={`Choose ${segment.word}`} aria-describedby={`${instructionsId}-${segment.key}`} aria-pressed={selected.includes(segment.word)} data-feeling-key={segment.key} data-feeling-level={segment.level} data-related={selectedPath[0] === segment.path[0]} onFocus={() => setFocusKey(segment.key)} onKeyDown={(event) => navigateWord(event, segment)} onClick={(event) => { if (event.detail === 0) choose(segment.word, segment.path) }} />
             <text x={x} y={y} transform={`rotate(${middle * 180 / Math.PI + flip} ${x} ${y})`} dominantBaseline="middle" textAnchor="middle" className={segment.level === 1 ? styles.familyWord : segment.level === 2 ? styles.groupWord : styles.specificWord} aria-hidden="true">{segment.word}</text>
           </g>
         })}
@@ -128,7 +135,7 @@ export function FeelingsWheel({ selected, onChange, disabled }: { selected: stri
       <Button type="button" variant="glow" aria-label="Zoom out" disabled={disabled || zoom <= 1} onClick={() => changeZoom(zoom - 0.25)}>−</Button><Button type="button" variant="glow" aria-label="Zoom in" disabled={disabled || zoom >= 3.5} onClick={() => changeZoom(zoom + 0.25)}>+</Button>
       <Button type="button" variant="ghost" onClick={() => changeZoom(1)}>Show whole wheel</Button><Button type="button" variant="ghost" onClick={() => { changeZoom(2); setRotation(0) }}>Reset view</Button>
     </div>
-    <p className={styles.context} aria-live="polite">{activePath.length ? activePath.join(" › ") : "Broad feelings are at the center; more specific words are toward the edge."}</p>
+    <p className={styles.context} aria-live="polite">{selectedPath.length ? selectedPath.join(" › ") : "Broad feelings are at the center; more specific words are toward the edge."}</p>
     <details><summary>Choose from a word list</summary><p>On the wheel, arrow keys move between words and levels. Enter or Space chooses a word.</p><div className={styles.wordList}>{SEGMENTS.filter((segment) => segment.level === 1).map((family) => <section key={family.key}><h4>{family.word}</h4><div className={styles.words}>{SEGMENTS.filter((segment) => segment.path[0] === family.word).map((segment) => <Button key={segment.key} type="button" variant={selected.includes(segment.word) ? "cta" : "secondary"} aria-pressed={selected.includes(segment.word)} aria-describedby={`${instructionsId}-${segment.key}`} onClick={() => choose(segment.word, segment.path)}>{segment.word}</Button>)}</div></section>)}</div></details>
     <label htmlFor="feelingSearch">Find a feeling word</label><Input id="feelingSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search the wheel" />
     {search.trim() ? <div className={styles.words}>{ALL_FEELING_WORDS.filter((word) => word.toLowerCase().includes(search.trim().toLowerCase())).slice(0, 24).map((word) => <Button key={word} type="button" variant="secondary" onClick={() => choose(word)}>{word}</Button>)}</div> : null}

@@ -71,8 +71,14 @@ claim an existing daily schedule, or infer cleanup authority for unrelated files
 network connection. `npm run test:database-backup` now covers the one-shot exporter,
 retention/receipt validation and daily operator, with fake Docker/HTTP calls and
 invented local copies. The optional age fixture remains a genuine round-trip.
-See the [daily activation plan](../../docs/superpowers/plans/2026-11-18-daily-backup-activation.md)
-for the still-pending live installation, monitoring and scheduling approval.
+The original daily installation is recorded in the
+[November 18 activation receipt](../../docs/audits/2026-11-18-daily-encrypted-backups-and-alerts.md).
+Repository edits do not update those installed NAS files. Later script changes
+require a separately approved checksum-bound activation and readback; publishing
+the website does not install them. Use the
+[daily activation plan](../../docs/superpowers/plans/2026-11-18-daily-backup-activation.md)
+and [maintenance procedure](../../docs/wiki/database-backups.md#held-files-and-manual-maintenance)
+when preparing that work.
 
 Install the three Python files together in a new private operator directory only
 after approval. They need owner-only access; the host helper and the readonly
