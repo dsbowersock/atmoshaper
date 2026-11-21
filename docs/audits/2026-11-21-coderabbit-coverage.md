@@ -1,5 +1,15 @@
 # CodeRabbit coverage inventory
 
+The original blob-match inventory below is historical. The correction review
+demonstrated that an incremental review can leave earlier code unproven even
+when its head blob matches. The strict replacement reads every required Git
+diff and follows completed review transitions from each inherited baseline.
+With the first five CLI passes included, it verifies 643 of 703 changed code/test
+histories and freezes the remaining 60 for a wider backfill. See the
+[amended plan and exact manifest](../superpowers/plans/2026-11-21-coderabbit-range-proof.md)
+and [current receipt/triage](2026-11-21-coderabbit-retrospective-results.md).
+Do not interpret the old 537/166 split as completed range coverage.
+
 Status: fresh authentication succeeds; all five initial review passes cover all
 166 frozen paths once each, with 46 triaged observations. See the
 [actual receipts and triage](2026-11-21-coderabbit-retrospective-results.md).

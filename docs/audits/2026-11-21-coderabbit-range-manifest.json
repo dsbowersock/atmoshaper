@@ -1,0 +1,306 @@
+{
+  "source": "d7e30e022d825d9f26ed37bd6636f11bae1e8314",
+  "baselineMeaning": "Inherited pre-change file version; review all surviving post-bootstrap changes",
+  "paths": [
+    {
+      "path": "app/api/billing/portal/route.ts",
+      "baseline": "4b5ef0580668f8abf54a0c6be79008390df3f427^1",
+      "blob": "35da17f9dd67300c8235579f5e498eb9022adb11"
+    },
+    {
+      "path": "app/calendar/calendar-workspace.tsx",
+      "baseline": "8d89550ab4529f1807b9ae69af43a1e117fb6e65^1",
+      "blob": "d136a6a2844bd4229968a8e8708f3462285ba8cb"
+    },
+    {
+      "path": "app/calendar/page.tsx",
+      "baseline": "d0d4c1524f777dd5c9f6130b9136276d0339afdc^1",
+      "blob": "66fc661bac2d3a5d5efa325dcee30b056d65074b"
+    },
+    {
+      "path": "app/calendar/personal/page.tsx",
+      "baseline": "f6b80fb85cd1c6bfbd3077b02b4a3fcdf55b51cb^1",
+      "blob": "d51152d6a69ee4de8e94315c91d0edc7fabcf0a1"
+    },
+    {
+      "path": "app/layout.tsx",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "a40d32255ad1049cf647d139714d736432ed6a06"
+    },
+    {
+      "path": "app/wellness/calendar-actions.ts",
+      "baseline": "f6b80fb85cd1c6bfbd3077b02b4a3fcdf55b51cb^1",
+      "blob": "0589172d31df543ca7cb66980f53afdc3589a3d2"
+    },
+    {
+      "path": "components/shell/app-bar-brand-link.tsx",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "a57ca04a2284e2e06ee7d22640669c8d2a64c962"
+    },
+    {
+      "path": "components/sidebar/app-sidebar-client.tsx",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "68f7c8724d319931fb4c8a9dc0154fdbe429073e"
+    },
+    {
+      "path": "components/wellness/personal-calendar-home.tsx",
+      "baseline": "f6b80fb85cd1c6bfbd3077b02b4a3fcdf55b51cb^1",
+      "blob": "5989f0f123d035366bcb9e136b3d39f605a8f2dc"
+    },
+    {
+      "path": "lib/admin/billing-goodwill.ts",
+      "baseline": "e6267f9cb37107de410f565b42dd7496d9ec6ab2^1",
+      "blob": "f8c15bc8e9c28e7afeffada11394c18cdc4a9ec8"
+    },
+    {
+      "path": "lib/anatomy-foundation.ts",
+      "baseline": "d0d4c1524f777dd5c9f6130b9136276d0339afdc^1",
+      "blob": "fa581f2632cbc67acdca7c8b470d789fd938b88a"
+    },
+    {
+      "path": "lib/anatomy-seed/atlas-completeness-closure.ts",
+      "baseline": "f5acb9df5ce65fa6ceb20ea3aedcc7293c50b05b^1",
+      "blob": "0ae1a34af7d8441fab58d66c672bf1d42151a7ff"
+    },
+    {
+      "path": "lib/anatomy-seed/atlas-gap-closure.ts",
+      "baseline": "f5acb9df5ce65fa6ceb20ea3aedcc7293c50b05b^1",
+      "blob": "6e59370bd395b6dce8b506ead7d3e2867f5f6b43"
+    },
+    {
+      "path": "lib/anatomy-seed/trunk-spine-pelvis.ts",
+      "baseline": "f5acb9df5ce65fa6ceb20ea3aedcc7293c50b05b^1",
+      "blob": "7d3c315688b6ba14f520bb4c0793bd44f15df751"
+    },
+    {
+      "path": "lib/public-product-identity.js",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "34dd06f861cbac271cbd93310c8d04d0e731b8c8"
+    },
+    {
+      "path": "lib/seo.js",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "14a28ba6410996b3b676d63413f29cdd263abf7f"
+    },
+    {
+      "path": "lib/stripe-billing.js",
+      "baseline": "fe66328c3c47ff2321654eea1749334f347bb1ce^1",
+      "blob": "5a66ed40d4e53ac9dc07772db833322e7b84fc4b"
+    },
+    {
+      "path": "lib/stripe-price-contract.js",
+      "baseline": "5e659560ae801d8765de2b6c1190c5c9c0ddb76d^1",
+      "blob": "2427beb3a1c335ef78a47b3871b2a2c187a8d0ea"
+    },
+    {
+      "path": "lib/stripe-readiness.js",
+      "baseline": "fe66328c3c47ff2321654eea1749334f347bb1ce^1",
+      "blob": "48d393642ea7f358ce91d8e826966a82f918128c"
+    },
+    {
+      "path": "lib/stripe-supporter-portal-contract.js",
+      "baseline": "4b5ef0580668f8abf54a0c6be79008390df3f427^1",
+      "blob": "642065ffacaaeef9cda15831b0758ec76ab5db16"
+    },
+    {
+      "path": "lib/wellness-calendar-view.js",
+      "baseline": "f6b80fb85cd1c6bfbd3077b02b4a3fcdf55b51cb^1",
+      "blob": "52e778df82e5eb1e2d750640ed46f9000f45131c"
+    },
+    {
+      "path": "package.json",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "82d5a7897703b60759f79079279ccbaf725cfa7f"
+    },
+    {
+      "path": "scripts/repository-audit/cleanup-core.mjs",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "0b1f821e42fcd40576b4c4520df291a331f377ae"
+    },
+    {
+      "path": "scripts/repository-audit/cleanup-environment-evidence.mjs",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "292e6e0ba0a9f8e06b643d2e5103570ccc7ae2b0"
+    },
+    {
+      "path": "scripts/repository-audit/cleanup-module-evidence.mjs",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "84f975bba06928deb3b5f03212a3898264ca705d"
+    },
+    {
+      "path": "scripts/repository-audit/cleanup-policy.json",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "68f859d657de875c725d1ba882d32ae1463096cb"
+    },
+    {
+      "path": "scripts/repository-audit/dead-code.mjs",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "13cb00406cca2d86b791ad35cc3e43d773725add"
+    },
+    {
+      "path": "scripts/stripe-readiness-check.mjs",
+      "baseline": "b6652e0c2ed0dd5ce5e583cabdc9a8273d71bff2^1",
+      "blob": "2bc2a860b7b4b14ef7cf875d226ac13d05c09c90"
+    },
+    {
+      "path": "scripts/stripe-supporter-membership-migration.mjs",
+      "baseline": "5e659560ae801d8765de2b6c1190c5c9c0ddb76d^1",
+      "blob": "8af0decaed8c41972ab3305292dcb1225d91b0b0"
+    },
+    {
+      "path": "scripts/stripe-supporter-v2-sandbox-catalog-migration.mjs",
+      "baseline": "4b5ef0580668f8abf54a0c6be79008390df3f427^1",
+      "blob": "806ded566c2a236687bbb643e6bc995ec7a5cfc6"
+    },
+    {
+      "path": "tests/account-security-routes.test.mjs",
+      "baseline": "cfb9c682d4c05aa01b2842116157f2efc6df4947^1",
+      "blob": "605928bbdfdbc702af71b6b94d939cd5838804d1"
+    },
+    {
+      "path": "tests/admin-billing-goodwill.test.mjs",
+      "baseline": "cfb9c682d4c05aa01b2842116157f2efc6df4947^1",
+      "blob": "1c88dabe39a232e214c683f1931eb59d9a21db61"
+    },
+    {
+      "path": "tests/anatomy-foundation.test.mjs",
+      "baseline": "d0d4c1524f777dd5c9f6130b9136276d0339afdc^1",
+      "blob": "99b14bd0ec9d4fbc279e509d232a867b0a8f52a3"
+    },
+    {
+      "path": "tests/anatomy-media-delivery.test.mjs",
+      "baseline": "34344f0e7cbb0f7d00eb7e542ea5fbc1525f333f^1",
+      "blob": "44e34986cf041f87c3cdceaa836949d9bb68aec4"
+    },
+    {
+      "path": "tests/app-settings.test.mjs",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "b0d93db0287654e102f1742b481442cef547dc9f"
+    },
+    {
+      "path": "tests/billing-portal-route.test.mjs",
+      "baseline": "4b5ef0580668f8abf54a0c6be79008390df3f427^1",
+      "blob": "5b3262e355c6a1fb1da95ec23a5418c193bc1498"
+    },
+    {
+      "path": "tests/browser-qa-harness.test.mjs",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "e9ebd80cb8810caea5c9e4c9e2c877d87e49fefe"
+    },
+    {
+      "path": "tests/browser/app-shell.spec.ts",
+      "baseline": "8036bae32e454f9a0caea521d13486838cee9a01^1",
+      "blob": "d4dc945c4f665843c06f15ddecfcdcf5cc21784a"
+    },
+    {
+      "path": "tests/browser/phase6-preview-rebrand.spec.ts",
+      "baseline": "b1c93dcee37f5eff38b1490a12e271d0165bb00e^1",
+      "blob": "705470191b48680275bec3dc91533d7e5648873f"
+    },
+    {
+      "path": "tests/browser/public-routes.spec.ts",
+      "baseline": "8036bae32e454f9a0caea521d13486838cee9a01^1",
+      "blob": "1db695fcc649458023c8daf94597c95b145b02be"
+    },
+    {
+      "path": "tests/calendar-page-read-recovery.test.mjs",
+      "baseline": "68bb79745d462a3792aca157db8e8b0befabb157^1",
+      "blob": "b43f59484c0f6276f01b3b82e043dddd21336a9f"
+    },
+    {
+      "path": "tests/client-wellness-source-guards.test.mjs",
+      "baseline": "d0b9ffbe79d2d1670d9fe3b19b3c2be51ed03692^1",
+      "blob": "2f8f17c8db95b2f22f2c66c4c19b220c2c68f2c5"
+    },
+    {
+      "path": "tests/family-friends-server-workload.test.mjs",
+      "baseline": "f59e1b9371b06e7401740ae011f6dc911430a97c^1",
+      "blob": "9ffa9b4508bb890c5879bc73ad43b3f8bf0a750e"
+    },
+    {
+      "path": "tests/fixtures/app-main-landmark-harness.mjs",
+      "baseline": "21d5739e13ce30c7eb7262a074046b6fe9eb4865^1",
+      "blob": "82a6bb32a500ad68faee162574d051a86f9abd37"
+    },
+    {
+      "path": "tests/fixtures/stripe-readiness-stripe-stub.mjs",
+      "baseline": "5e659560ae801d8765de2b6c1190c5c9c0ddb76d^1",
+      "blob": "804a0d2c2b3746feceea5ca45198978f690ec9eb"
+    },
+    {
+      "path": "tests/helpers/membership-pricing-cards.mjs",
+      "baseline": "5e659560ae801d8765de2b6c1190c5c9c0ddb76d^1",
+      "blob": "daead7601a37b594655c6ba81d854d692bd04d9f"
+    },
+    {
+      "path": "tests/membership-pricing.test.mjs",
+      "baseline": "d0d4c1524f777dd5c9f6130b9136276d0339afdc^1",
+      "blob": "3f32652fcb9576fd01759aa7fdc4d2d7cd367fc7"
+    },
+    {
+      "path": "tests/public-product-identity.test.mjs",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "fcf9522fe751d5586d581dc9c137afcefa6fce79"
+    },
+    {
+      "path": "tests/pwa-install.test.mjs",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "01dfdb524a99eb060b88feb43b2100c2947db5a3"
+    },
+    {
+      "path": "tests/repository-cleanup-audit.test.mjs",
+      "baseline": "a43d1a315e95d80d6570fb5e49d1e2dce5ce7ddb^1",
+      "blob": "3e7fbb90b91de56ac6ddcf920decabcef3dfc41d"
+    },
+    {
+      "path": "tests/seo.test.mjs",
+      "baseline": "cdfa99e49cebf100fac1a5080d60514806eb17db^1",
+      "blob": "f303fcc4bbe7693dbd50b5bf72585f1e8abb3456"
+    },
+    {
+      "path": "tests/stripe-billing.test.mjs",
+      "baseline": "fe66328c3c47ff2321654eea1749334f347bb1ce^1",
+      "blob": "84046c12a8db194ff85dc3351b724a4153c74ab2"
+    },
+    {
+      "path": "tests/stripe-readiness.test.mjs",
+      "baseline": "935413ce84c8b79d430e5bb55706a3958eabab5a^1",
+      "blob": "a3f7d07cb119f1c031c7da94fdaa3151c464b71b"
+    },
+    {
+      "path": "tests/stripe-secret-key.test.mjs",
+      "baseline": "e6267f9cb37107de410f565b42dd7496d9ec6ab2^1",
+      "blob": "2049c7c3d3d2fb153870c38480863fe03d13cde8"
+    },
+    {
+      "path": "tests/stripe-supporter-membership-migration.test.mjs",
+      "baseline": "5e659560ae801d8765de2b6c1190c5c9c0ddb76d^1",
+      "blob": "135cc23aca3084765c9c4d2ddb76469368ef79b0"
+    },
+    {
+      "path": "tests/stripe-supporter-v2-sandbox-catalog-migration.test.mjs",
+      "baseline": "4b5ef0580668f8abf54a0c6be79008390df3f427^1",
+      "blob": "0b7bf97cb233340943a53901034d0ced2b1c4eef"
+    },
+    {
+      "path": "tests/supporter-membership-final-review.test.mjs",
+      "baseline": "d0d4c1524f777dd5c9f6130b9136276d0339afdc^1",
+      "blob": "01a583732aca69e944f06f740e1fabbad237024a"
+    },
+    {
+      "path": "tests/supporter-portal.test.mjs",
+      "baseline": "4b5ef0580668f8abf54a0c6be79008390df3f427^1",
+      "blob": "50beac13e89f98ec1b622b6a9f3a31edcc30ecf7"
+    },
+    {
+      "path": "tests/task-4a-browser-harness-contract.test.mjs",
+      "baseline": "cfb9c682d4c05aa01b2842116157f2efc6df4947^1",
+      "blob": "ceef7897dcb9f23510312feeedc622c4a0b56898"
+    },
+    {
+      "path": "tests/wellness-personal-calendar.test.mjs",
+      "baseline": "f6b80fb85cd1c6bfbd3077b02b4a3fcdf55b51cb^1",
+      "blob": "5e7307e8c1d8398d1b01257eaeb654d401c3f703"
+    }
+  ]
+}

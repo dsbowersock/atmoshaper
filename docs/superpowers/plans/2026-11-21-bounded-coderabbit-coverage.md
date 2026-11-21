@@ -1,5 +1,12 @@
 # Bounded CodeRabbit coverage audit
 
+Amendment: the actual 37-file correction review identifies an audit range-proof
+defect. Matching head blobs cannot prove review of earlier changes already in
+their base. The first five receipts remain valid for their recorded ranges;
+the [finite range-proof correction](2026-11-21-coderabbit-range-proof.md) supersedes
+the old completeness implication and freezes 60 wider ranges plus one final
+correction-delta review. It preserves the no-paid-credit/no-automatic-loop boundary.
+
 The owner requests the second CodeRabbit perspective on shipped changes that
 missed it, without reopening old PRs or creating an endless review/rewrite loop.
 This campaign is isolated from the now-completed sidebar/Calendar publication.

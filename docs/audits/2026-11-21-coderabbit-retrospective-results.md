@@ -1,8 +1,12 @@
 # Bounded retrospective CodeRabbit results
 
-Status: all five initial passes complete, with all 166 frozen paths verified
-once each. CodeRabbit raised 46 issues (28 major, 18 minor), each triaged below.
-Local corrections await their single follow-up review; nothing is published.
+Status: all five initial passes complete, with their 166 frozen selected paths
+verified once each. CodeRabbit raised 46 issues (28 major, 18 minor), triaged
+below. The 37-file correction review at `9712b16` then raises four major issues:
+two Calendar questions are refuted and two audit defects are corrected locally.
+The corrected range proof leaves a fixed 60-path wider backfill and one final
+correction-delta request. Nothing is published. Selected-path completion alone
+did not prove that every earlier change in those files had been reviewed.
 
 The frozen source is `d7e30e022d825d9f26ed37bd6636f11bae1e8314`.
 Fresh private authentication succeeds with the existing CodeRabbit account and
@@ -124,9 +128,38 @@ Chromium scenarios pass across desktop and phone: body focus, a replaced
 three-finger pinch pair, comfort/optional-angle flow, ordinary ROM recording and
 sensor-baseline context changes. The fresh final lint pass succeeds, and the
 Linux backup suite is repeated against the checkpoint's exact Python source.
-Planner report/PDF checks pass 13/13 after the final source correction. Its fresh
-build, focused lint and native report/PDF readback are still completing.
+Planner report/PDF checks pass 13/13 after the final application correction.
+Its fresh build, TypeScript and lint succeed, as do six further native Planner
+report/PDF scenarios on desktop and phone (16 native scenarios total).
 These are fixture-only checks, with fictional files, inert subprocesses and
 fake HTTP/Docker calls. These browser checks use fictional signed-out entries
-and block external requests. Final correction review remains pending. No live
+and block external requests. The range backfill and final audit/correction review
+remain pending. No live
 record, provider, payment, email, NAS or deployment operation occurs.
+
+## Correction review and amended coverage gate
+
+The actual 37-file review at `9712b16` completes with exactly its expected path
+set, zero exit and four major issues. Its receipt is retained separately in
+ignored `output/coderabbit-corrections/`. Do not label it a zero-issue review.
+
+| ID | Disposition | Evidence / correction |
+| --- | --- | --- |
+| C1 | Refuted in supported writers | Personal creation writes the event and block in one transaction. Rescheduling updates both intervals under the same transaction/locks. Google sync reads the owned event and updates external links, not its local interval. The direct edits in its gated acceptance worker affect synthetic fixtures without blocks. |
+| C2 | Corrected locally; final review pending | Required diff reads now throw. Ancestry status 1 is a valid non-ancestor; command/launch errors stop enumeration. Real-Git fixtures prove a readable head with a missing parent cannot become an empty diff. All 76 actual PR diffs still read successfully. |
+| C3 | Confirmed and corrected locally; wider proof pending | A matching reviewed head did not prove earlier code in that receipt's base was reviewed. The audit now follows completed `base..head` content transitions from the inherited pre-change baseline. It and an independent implementation agree on all 60 remaining unproven histories. |
+| C4 | Refuted | Availability submits `expectedStartsAt`, `expectedEndsAt`, `expectedOwnerUserId` and `expectedPracticeId`. Dates use ISO strings accepted by the action; owner/practice fields match the displayed block. |
+
+The corrected inventory verifies 643 of 703 changed code/test histories and
+leaves exactly 60 (30 runtime/configuration, 30 tests). Fifty-one had been
+overstated by the old blob-only rule; nine selected in the first five passes
+need a wider baseline. These are missing proof, not 60 demonstrated code bugs.
+The 1,021 untouched inherited paths remain a separate baseline. The old 537/166
+inventory is historical and cannot be presented as complete range coverage.
+
+The [finite range-proof plan](../superpowers/plans/2026-11-21-coderabbit-range-proof.md)
+freezes one 60-file request at the public tree and one final correction-delta
+request, using included allowance only. Original manifests/receipts are kept.
+No automatic retry, whole-codebase rewrite or provider/NAS/publication change
+is added. Real-Git and incremental-range regression checks pass; raw receipt
+admission verifies the actual outcome, manifest, Git diff and frozen tree.

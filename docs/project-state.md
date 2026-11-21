@@ -1,5 +1,29 @@
 # AtmoShaper Project State
 
+## November 21 correction review complete; range backfill prepared
+
+The actual 37-file correction review at `9712b16` completes with four major
+observations. Two Calendar questions are refuted by the matching form fields
+and transactional event/block writers. Two audit defects are confirmed and
+corrected locally: Git errors must stop enumeration, and matching reviewed
+blobs alone do not prove earlier changes were reviewed. Real-Git and incremental-
+range regressions pass. All 76 PR diffs read successfully under the strict audit.
+
+The revised method and an independent implementation agree on 643 of 703
+changed code/test histories with complete evidence; exactly 60 remain unproven
+(30 runtime/configuration, 30 tests). One fixed wider-range backfill is prepared
+at the exact public `d7e30e0` tree, followed by one final correction-delta review.
+The included slot reopens around 09:13 America/New_York. No paid credits or
+automatic review retries are enabled. See the
+[finite range-proof plan](superpowers/plans/2026-11-21-coderabbit-range-proof.md)
+and its exact manifest. The older blob-only completeness language below is
+superseded; the five initial 166-path receipts remain valid for their ranges.
+
+The final application build, TypeScript, lint, focused regressions, all 16
+desktop/phone Wellness and Planner/PDF scenarios, and applicable Windows/Linux
+backup tests pass at the application checkpoint. Only audit code, tests and
+review records are changing now. No deployment or NAS activation occurs.
+
 ## November 21 retrospective passes complete; local corrections awaiting review
 
 Fresh CodeRabbit authentication succeeds. All five initial cohorts complete:

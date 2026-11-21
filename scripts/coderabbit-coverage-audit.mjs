@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises'
-import {spawnSync} from 'node:child_process'
+import {readGit,isGitAncestor,readGitDiffPaths,reachableReviewedBlobs} from './coderabbit-coverage-proof.mjs'
 
 const folder='output/coderabbit-coverage'
 const source='d7e30e022d825d9f26ed37bd6636f11bae1e8314'
@@ -9,9 +9,7 @@ const prs=JSON.parse((await readFile(`${folder}/raw-prs.json`,'utf8')).replace(/
 
 /** Read Git objects without checkout, network access or repository mutation. */
 function git(args,optional=false){
-  const result=spawnSync('git',args,{encoding:'utf8',maxBuffer:64*1024*1024,windowsHide:true})
-  if(result.status!==0){if(optional)return null;throw new Error(`Git coverage read failed: ${args[0]}`)}
-  return result.stdout
+  return readGit(args,{optional})
 }
 const trees=new Map()
 /** Exact Git blobs distinguish reviewed content from later edits to the same path. */
@@ -51,20 +49,47 @@ function receipts(record){
     return [{pr:record.pr,id:review.id,at:review.submitted_at??review.updated_at??review.created_at,base:range[1],head:range[2],selected:Number(selected[1]),parsed:paths.length,paths:paths.filter(path=>!unavailable.has(path)),unavailable:[...unavailable]}]
   })
 }
-const proof=[...new Map(history.reviews.flatMap(receipts).map(item=>[JSON.stringify([item.pr,item.base,item.head,item.paths]),item])).values()]
+/** Admit only completed CLI ranges with their raw outcome, exact Git diff and
+ * frozen source tree. The ledger alone is not proof of a successful review. */
+async function cliReceipts(){
+  let records
+  try{records=JSON.parse(await readFile(`${folder}/completed-retrospective-reviews.json`,'utf8'))}
+  catch(error){if(error.code==='ENOENT')return [];throw error}
+  if(!Array.isArray(records))throw new Error('Invalid retrospective receipt ledger')
+  const result=[]
+  for(const record of records){
+    if(record.source!==source||!/^runs\/[a-z0-9-]+\.ndjson$/.test(record.log)||![record.base,record.head].every(value=>/^[a-f0-9]{40}$/.test(value))||!Array.isArray(record.files)||record.files.length===0||new Set(record.files).size!==record.files.length)throw new Error('Invalid retrospective receipt identity')
+    const meta=JSON.parse(await readFile(`${folder}/${record.log.replace(/\.ndjson$/,'-attempt.json')}`,'utf8'))
+    const events=(await readFile(`${folder}/${record.log}`,'utf8')).split(/\r?\n/).map(line=>line.trim()).filter(line=>line.startsWith('{')).map(line=>JSON.parse(line))
+    const complete=events.filter(event=>event.type==='complete'),issues=events.filter(event=>event.type==='finding')
+    if(meta.state!=='returned'||meta.exitCode!==0||meta.creditsEnabled!==false||meta.base!==record.base||meta.head!==record.head||meta.source!==source||meta.expectedFiles!==record.files.length||events.some(event=>event.type==='error')||complete.length!==1||complete[0].status!=='review_completed'||complete[0].outcome!=='completed'||complete[0].findings!==issues.length)throw new Error('Retrospective review did not complete')
+    const expected=[...record.files].sort(),actual=complete[0].reviewedFiles
+    if(!Array.isArray(actual)||new Set(actual).size!==actual.length||JSON.stringify([...actual].sort())!==JSON.stringify(expected)||JSON.stringify(readGitDiffPaths(record.base,record.head).sort())!==JSON.stringify(expected)||git(['rev-parse',`${record.head}^{tree}`]).trim()!==git(['rev-parse',`${source}^{tree}`]).trim())throw new Error('Retrospective review scope mismatch')
+    result.push({kind:'cli',base:record.base,head:record.head,at:meta.returnedAt,paths:record.files,selected:actual.length,parsed:actual.length})
+  }
+  return result
+}
+const retrospective=await cliReceipts()
+const proof=[...new Map([...history.reviews.flatMap(receipts),...retrospective].map(item=>[JSON.stringify([item.pr,item.base,item.head,item.paths]),item])).values()]
 const current=tree(source),reviewed=new Map()
-for(const receipt of proof){const files=tree(receipt.head);if(!files||receipt.selected!==receipt.parsed)continue
-  for(const path of receipt.paths){const blob=files.get(path);if(!blob)continue;const previous=reviewed.get(path)
-    // A later edit to an old PR comment cannot revoke a completed review of the
-    // exact shipped bytes. Prefer any matching blob, then recency within that tier.
+if(!current)throw new Error('Frozen source tree is unavailable')
+const transitions=new Map()
+for(const receipt of proof){const files=tree(receipt.head),before=tree(receipt.base);if(!files||!before||receipt.selected!==receipt.parsed)continue
+  for(const path of receipt.paths){const blob=files.get(path)??null
+    const edges=transitions.get(path)??[]
+    edges.push({from:before.get(path)??null,to:blob});transitions.set(path,edges)
+    if(!blob)continue
+    const previous=reviewed.get(path)
+    // This human-readable receipt hint is not a coverage decision. Only the
+    // complete reviewed range chain below can certify post-baseline changes.
     const matches=blob===current.get(path),previousMatches=previous?.blob===current.get(path)
     if(!previous||(matches&&!previousMatches)||(matches===previousMatches&&Date.parse(receipt.at)>Date.parse(previous.at)))reviewed.set(path,{...receipt,paths:undefined,blob})
   }
 }
-const shipped=prs.filter(pr=>pr.merged_at&&pr.merge_commit_sha&&git(['merge-base','--is-ancestor',pr.merge_commit_sha,source],true)!==null).sort((a,b)=>Date.parse(a.merged_at)-Date.parse(b.merged_at))
+const shipped=prs.filter(pr=>pr.merged_at&&pr.merge_commit_sha&&isGitAncestor(pr.merge_commit_sha,source)).sort((a,b)=>Date.parse(a.merged_at)-Date.parse(b.merged_at))
 const touched=new Map(),rows=[]
 for(const pr of shipped){
-  const paths=(git(['diff','--name-only','--no-renames',`${pr.merge_commit_sha}^1`,pr.merge_commit_sha],true)??'').trim().split('\n').filter(Boolean)
+  const paths=readGitDiffPaths(`${pr.merge_commit_sha}^1`,pr.merge_commit_sha)
   const hasRabbit=proof.some(item=>item.pr===pr.number)
   rows.push({pr:pr.number,title:pr.title,head:pr.head.sha,merge:pr.merge_commit_sha,files:paths.length,substantiveRabbitSubmission:hasRabbit,parsedReceipts:proof.filter(item=>item.pr===pr.number).length})
   for(const path of paths){if(!current.has(path))continue;const entry=touched.get(path)??{path,prs:[],firstBase:`${pr.merge_commit_sha}^1`};entry.prs.push(pr.number);touched.set(path,entry)}
@@ -79,7 +104,15 @@ function category(path){
   if(/\.(?:[cm]?[jt]sx?|css|scss|py|ps1|sh|ya?ml|prisma|json|html)$/.test(path)||/(?:^|\/)(?:Dockerfile|\.dockerignore|\.gitattributes|\.gitignore|\.env\.example)$/.test(path))return path.startsWith('tests/')?'test':'runtime-or-config'
   return 'other'
 }
-const paths=[...touched.values()].map(entry=>{const prior=reviewed.get(entry.path),covered=prior?.blob===current.get(entry.path);return {...entry,category:category(entry.path),covered,review:prior??null,baseline:prior?.head??entry.firstBase}})
+const paths=[...touched.values()].map(entry=>{
+  const inherited=tree(entry.firstBase)
+  if(!inherited)throw new Error('A required pre-change baseline is unavailable')
+  const seed=inherited.get(entry.path)??null
+  const covered=reachableReviewedBlobs(seed,transitions.get(entry.path)??[]).has(current.get(entry.path))
+  // Start any backfill at the inherited pre-change version, not a possibly
+  // partial recent review. This covers all surviving post-bootstrap changes.
+  return {...entry,category:category(entry.path),covered,seedBlob:seed,review:reviewed.get(entry.path)??null,baseline:entry.firstBase}
+})
 const gaps=paths.filter(path=>!path.covered&&['runtime-or-config','test'].includes(path.category))
 const inherited=[...current.keys()].filter(path=>!touched.has(path)&&['runtime-or-config','test'].includes(category(path)))
 /** Fixed cohorts cover each gap once; later findings cannot silently expand this
@@ -91,7 +124,10 @@ function cohort(path){
   return 'operations-and-shared-ui'
 }
 const batches=[]
-for(const name of ['accounts-calendar-payments','wellness-and-body','business-planners','operations-and-shared-ui']){
+if(retrospective.length){
+  const group=[...gaps].sort((a,b)=>a.path.localeCompare(b.path))
+  for(let offset=0;offset<group.length;offset+=70)batches.push({id:`range-proof-backfill-${1+offset/70}`,source,paths:group.slice(offset,offset+70).map(item=>({path:item.path,baseline:item.baseline,blob:current.get(item.path)}))})
+}else for(const name of ['accounts-calendar-payments','wellness-and-body','business-planners','operations-and-shared-ui']){
   const group=gaps.filter(item=>cohort(item.path)===name).sort((a,b)=>a.path.localeCompare(b.path))
   for(let offset=0;offset<group.length;offset+=70)batches.push({id:`${name}-${1+offset/70}`,source,paths:group.slice(offset,offset+70).map(item=>({path:item.path,baseline:item.baseline,blob:current.get(item.path)}))})
 }

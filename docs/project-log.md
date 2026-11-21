@@ -1,5 +1,24 @@
 # AtmoShaper Project Log
 
+## November 21 correction receipt exposes incomplete range proof
+
+The 37-file follow-up at `9712b16` completes with four major observations.
+Calendar form/writer questions are refuted. The audit's fail-open Git reads and
+blob-only coverage assumption are confirmed; correct them with real-Git missing-
+parent tests and an incremental-label counterexample. Sixteen native browser
+scenarios, final inert build, TypeScript, lint and relevant application/backup
+regressions pass. No application source change is needed for the two refutations.
+
+Reconstruct reviewed content transitions from each inherited pre-change file.
+All 76 PR diffs read successfully. Both the strict audit and an independent
+read-only reconciliation identify the same 60 unproven histories among 703
+changed code/test paths; 643 have complete evidence. Freeze one 60-path wider
+review at public `d7e30e0`, with one final correction-delta request afterward.
+Preserve initial receipts, their exact ranges and the earlier inventory as
+history; withdraw the old implication that a matching blob proves all earlier
+changes. The explicit [bounded extension](superpowers/plans/2026-11-21-coderabbit-range-proof.md)
+reuses only included allowance, without provider/NAS/deployment writes.
+
 ## November 21 retrospective reviews and local correction preparation
 
 Fresh private CodeRabbit sign-in completes with the existing account. Freeze

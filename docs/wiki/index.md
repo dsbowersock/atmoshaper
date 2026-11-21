@@ -4,6 +4,7 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Corrected range proof and fixed review backfill](../superpowers/plans/2026-11-21-coderabbit-range-proof.md)
 - [Retrospective CodeRabbit receipts and triage](../audits/2026-11-21-coderabbit-retrospective-results.md)
 - [Code review before publication](code-review.md)
 - [CodeRabbit coverage inventory](../audits/2026-11-21-coderabbit-coverage.md)

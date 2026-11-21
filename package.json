@@ -5,8 +5,10 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "test:coderabbit-coverage-proof": "node --test tests/coderabbit-coverage-proof.test.mjs",
+    "review:coderabbit-prepare-range-backfill": "node scripts/prepare-coderabbit-review-batches.mjs --range-backfill",
     "review:coderabbit-coverage": "node scripts/coderabbit-coverage-audit.mjs",
-    "lint:coderabbit-coverage": "eslint scripts/coderabbit-coverage-audit.mjs scripts/prepare-coderabbit-review-batches.mjs",
+    "lint:coderabbit-coverage": "eslint scripts/coderabbit-coverage-audit.mjs scripts/coderabbit-coverage-proof.mjs scripts/prepare-coderabbit-review-batches.mjs tests/coderabbit-coverage-proof.test.mjs",
     "review:coderabbit-prepare-batches": "node scripts/prepare-coderabbit-review-batches.mjs",
     "test:feelings-lifecycle": "node --test tests/feelings-wheel-lifecycle.test.mjs",
     "test:body-scene-lifecycle": "node --test tests/body-scene-lifecycle.test.mjs",

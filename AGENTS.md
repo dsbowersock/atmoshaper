@@ -18,7 +18,8 @@ Read these files first, in order:
 - Before merging application changes, require substantive Codex and CodeRabbit
   coverage of the source being shipped, including any correction delta. A skipped
   CodeRabbit check, bot presence without completion, rejected run or stale review is not a completed
-  second review. Report authentication/quota blockers explicitly; do not silently
+  second review. A matching head blob alone cannot certify earlier unreviewed
+  changes; verify the recorded review ranges. Report authentication/quota blockers explicitly; do not silently
   substitute another reviewer. Use bounded passes and grouped supported fixes;
   keep speculative or out-of-scope findings in a separate backlog instead of an
   automatic whole-codebase review/rewrite loop. Receipt-only closeout does not

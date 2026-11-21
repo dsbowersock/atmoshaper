@@ -1,5 +1,12 @@
 # Bounded retrospective correction batch
 
+The initial correction review completes at `9712b16`: 37 exact paths, four major
+observations. Calendar questions are refuted; two audit defects are corrected
+locally with tests. The [explicit range-proof amendment](2026-11-21-coderabbit-range-proof.md)
+freezes one additional 60-file range request and one final small correction
+review. This supersedes the earlier assumption that the first five selected-path
+receipts would close all historical coverage. No application deployment follows.
+
 Prepare one local correction batch from public `d7e30e0` plus its receipt
 `1a94dab`. The independent audit branch freezes five initial review cohorts
 covering 166 previously unsupported current file versions. All five passes have

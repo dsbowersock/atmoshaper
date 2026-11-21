@@ -3,6 +3,8 @@ import { spawnSync } from "node:child_process"
 import path from "node:path"
 
 const folder = path.resolve("output/coderabbit-coverage")
+const rangeBackfill = process.argv.length === 3 && process.argv[2] === "--range-backfill"
+if (process.argv.length > 2 && !rangeBackfill) throw new Error("Use only --range-backfill for the supplemental range manifest")
 const batches = JSON.parse(await readFile(path.join(folder, "batches.json"), "utf8"))
 const prepared = []
 
@@ -72,5 +74,5 @@ for (const batch of batches) {
   }
 }
 
-await writeFile(path.join(folder, "prepared-batches.json"), JSON.stringify(prepared, null, 2))
+await writeFile(path.join(folder, rangeBackfill ? "range-prepared-batches.json" : "prepared-batches.json"), JSON.stringify(prepared, null, 2))
 console.log(JSON.stringify(prepared.map(({ id, paths, sourceTree }) => ({ id, files: paths.length, sourceTree })), null, 2))

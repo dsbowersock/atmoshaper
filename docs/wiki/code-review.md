@@ -9,12 +9,14 @@ that second review.
 
 1. Identify the current PR head and changes. Read the actual review receipt,
    reviewed commit range, selected paths and any unavailable files.
-2. If CodeRabbit skips automatic review, explicitly request `@coderabbitai review`
-   through its existing GitHub app. Do not interpret the skipped check as approval.
+2. If CodeRabbit skips automatic review and no completed initial PR-range review
+   exists, explicitly request `@coderabbitai full review` through its existing
+   GitHub app. Use `review` for a later correction range only when the earlier
+   PR changes already have completed evidence. Do not interpret a skipped check as approval.
    The owner has requested this review workflow; requesting a review does not
    authorize CodeRabbit Autofix or provider changes.
 3. Check that the completed receipt covers the current source files. An old review
-   may support unchanged Git blobs, but it does not cover later edits. Keep missing
+   may support unchanged reviewed changes, but it does not cover later edits. Keep missing
    or partially processed files as gaps. Preserve the actual receipt and source
    identity in the release evidence.
    A zero-issue review can finish by updating the bot's walkthrough comment rather
@@ -22,8 +24,11 @@ that second review.
    range and file list, supported by the finished acknowledgement or exact-head
    reviewed-coverage metadata. Do not count in-progress or rate-limited comments
    merely because they already contain a selected-file list. When comparing
-   receipts, any completed exact Git-blob match supports that file version; a
-   newer comment about an older version does not revoke that coverage.
+   receipts, a matching head blob is insufficient if its review base already
+   contained unreviewed code. Retrospective proof needs a complete chain of
+   reviewed content transitions from the inherited pre-change baseline, or a
+   wider reviewed range covering the gap. A newer comment about an older
+   version does not revoke an otherwise complete reviewed chain.
 4. Consolidate Codex and CodeRabbit issues. Verify each against current behavior,
    fix supported problems with focused tests, and record why others are deferred.
 5. Obtain one bounded correction follow-up and current-head CI before merge.
@@ -54,3 +59,8 @@ remain visible; they do not authorize paid credits or a new key.
 
 Review approval is one release gate. It does not itself authorize publication,
 database/provider changes, live email or payment activity.
+
+CodeRabbit's [command reference](https://docs.coderabbit.ai/reference/review-commands)
+distinguishes incremental `review` from a fresh `full review` of the PR. See the
+[finite range-proof correction](../superpowers/plans/2026-11-21-coderabbit-range-proof.md)
+for the November 21 audit correction and its fixed 60-path backfill.
