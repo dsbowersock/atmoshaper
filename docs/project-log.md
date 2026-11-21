@@ -1,5 +1,22 @@
 # AtmoShaper Project Log
 
+## November 20 planner reports and Body palette published
+
+PR #76 merges reviewed `a4c23ef` as `0976d7d`, retaining the reviewed tree. The
+remaining four planner changes, local publication records and six light blue Body
+buttons are public. A stale h1 source guard was corrected without changing the
+application. All seven source checks and hosted review pass; two configured
+mobile timing retries pass a direct follow-up. One staged Production build passes
+the existing read-only gates, TypeScript and both Sentry uploads. Exact map/script
+pairing, 18 routes, PDF generation/reuse, asset hashes and public phone layout are
+verified before/after one same-artifact promotion. Settings and unrelated routing
+are unchanged. All seven automatic merge checks pass after retrying only a failed
+runner font installation. Three configured timing retries pass six direct
+desktop/phone follow-ups without retries. Final source/settings/routing readback
+passes and the operation is closed. No new provider, database, payment, email or
+NAS change occurs. The local receipt triggers no extra deployment. See the
+[publication receipt](audits/2026-11-20-planner-beta-publication.md).
+
 ## November 20 remaining planner release preparation
 
 The owner requests publishing the remaining Business Planner work and other local

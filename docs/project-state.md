@@ -1,5 +1,24 @@
 # AtmoShaper Project State
 
+## November 20 remaining planners and light blue Body buttons published
+
+[PR #76](https://github.com/dsbowersock/atmoshaper/pull/76) is public as
+`0976d7d7ada270b9449be2c23a67bbe08e14f856`, with the same tree as reviewed
+`a4c23ef`. Guided planner tools, named expenses/reserves, checklist answers, local
+PDF reports and labelled cross-tool information reuse are published. All six
+Wellness Body launchers use the existing light blue Secondary material; other
+Wellness colors and features are preserved. Seven reviewed-source checks and
+hosted review pass, including 5,821 unit checks, 45 backup checks and 702 browser
+cases (two configured retries, then successful direct follow-up). All 32 focused
+desktop/phone checks pass. Production gates, Sentry pairing, all 18 public routes,
+same-artifact bytes, live phone containment and unchanged settings/mappings pass.
+All seven merged-source checks also pass after retrying only one runner's failed
+OS font installation. Three configured timing retries pass a six-case direct
+desktop/phone follow-up. Final source/configuration/routing readback passes, and
+the publication operation is verified and closed. See the
+[publication receipt](audits/2026-11-20-planner-beta-publication.md) for exact limits
+and draft recovery constraints. This local receipt causes no extra deployment.
+
 ## November 20 remaining planner publication in preparation
 
 The owner authorizes publishing the remaining planner work, including PDF reports

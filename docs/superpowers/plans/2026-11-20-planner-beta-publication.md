@@ -1,6 +1,8 @@
 # Remaining planner work and Wellness Body palette publication
 
-Status: preparation; no new public deployment is claimed here.
+Status: published, verified and closed as `0976d7d` (PR #76). All seven source and
+merged-source checks pass. See the
+[publication receipt](../../audits/2026-11-20-planner-beta-publication.md).
 
 ## Owner authorization and source
 
