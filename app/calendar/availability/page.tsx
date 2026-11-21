@@ -348,6 +348,10 @@ export default async function CalendarAvailabilityPage({ searchParams }: { searc
                 {(membership.role === "OWNER" || block.therapistId === session.user.id) && (
                   <form action={cancelPersonalEventAction} className="mt-3">
                     <input type="hidden" name="eventId" value={block.eventId} />
+                    <input type="hidden" name="expectedStartsAt" value={block.startsAt.toISOString()} />
+                    <input type="hidden" name="expectedEndsAt" value={block.endsAt.toISOString()} />
+                    <input type="hidden" name="expectedOwnerUserId" value={block.therapistId} />
+                    <input type="hidden" name="expectedPracticeId" value={block.practiceId} />
                     <Button type="submit" variant="outline" size="sm">Cancel block</Button>
                   </form>
                 )}

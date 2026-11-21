@@ -65,7 +65,9 @@ export function RomMeasurementPanel({ isSignedIn, disabled, onMeasurement, activ
   const sidesNeeded = areaInfo?.paired || movement?.mirror || movementId === "custom"
   useEffect(() => { if (step !== previousStep.current) { previousStep.current = step; heading.current?.focus() } }, [step])
   useEffect(() => { setBaseline(null) }, [context, mode, active, step])
-  useEffect(() => { setManualEnd("") }, [context])
+  // A starting reading belongs to the same movement/side/axis as its ending
+  // reading. Ordinary save failures do not change this context or erase either.
+  useEffect(() => { setManualStart("0"); setManualEnd("") }, [context])
   useEffect(() => { setComfort("") }, [selectionContext])
   useEffect(() => { if (step === 1 && movementId) heading.current?.focus() }, [movementId, step])
 
@@ -79,7 +81,7 @@ export function RomMeasurementPanel({ isSignedIn, disabled, onMeasurement, activ
     setMovementId(id); setChoosingMovement(false); setManualEnd(""); setBaseline(null); setMessage(null)
     const next = ROM_MOVEMENTS.find((item) => item.id === id)
     if (next && !areaInfo?.paired && !next.mirror) setSide("Center")
-    else if (side === "Center") setSide("Left")
+    else if (side === "Center" && (id !== "custom" || areaInfo?.paired)) setSide("Left")
   }
   function captureBaseline() {
     if (currentAngle === null || state !== "active") { setMessage("Wait for a phone reading, or choose manual entry."); return }
@@ -115,7 +117,7 @@ export function RomMeasurementPanel({ isSignedIn, disabled, onMeasurement, activ
     <p>Rate only the movement you just tried. Use a similar position and effort when comparing another day.</p>
     {previousComfort ? <p className={styles.previous}>Your last rating for this movement and side: <strong>{previousComfort.latestScore}/10</strong> · {new Date(previousComfort.latestAt).toLocaleDateString()}</p> : null}
   </div>
-  const optionalRecording = <label className={styles.optional}><input type="checkbox" checked={addOther} disabled={pending} onChange={(event) => { setAddOther(event.target.checked); setBaseline(null) }} />{focus === "comfort" ? "Add an angle measurement (optional)" : "Add a comfort rating (optional)"}</label>
+  const optionalRecording = <label className={styles.optional}><input type="checkbox" checked={addOther} disabled={pending} onChange={(event) => { setAddOther(event.target.checked); if (focus === "comfort") setBaseline(null) }} />{focus === "comfort" ? "Add an angle measurement (optional)" : "Add a comfort rating (optional)"}</label>
 
   return <section className={styles.recorder} data-rom-recorder data-recording-focus={focus}>
     <nav className={styles.steps} aria-label="Measurement steps">
@@ -133,7 +135,7 @@ export function RomMeasurementPanel({ isSignedIn, disabled, onMeasurement, activ
       {!movement || choosingMovement ? <fieldset className={styles.movements}><legend className="sr-only">Movement choices</legend>
         {ROM_MOVEMENTS.filter((item) => item.area === area && (!item.part || item.part === part)).map((item) => <Button key={item.id} type="button" variant={movementId === item.id ? "default" : "secondary"} aria-pressed={movementId === item.id} disabled={pending} onClick={() => chooseMovement(item.id)}>{item.label}</Button>)}
         <Button type="button" variant="glow" aria-pressed={movementId === "custom"} disabled={pending} onClick={() => chooseMovement("custom")}>Other movement</Button>
-        {movementId === "custom" ? <div className={styles.field}><Label htmlFor={`${idPrefix}Movement`}>Movement name</Label><Input id={`${idPrefix}Movement`} maxLength={120} value={customMovement} onChange={(event) => setCustomMovement(event.target.value)} placeholder="Use the name given by your clinician" /><p>Use this for a movement or method your clinician has already shown you.</p></div> : null}
+        {movementId === "custom" ? <><div className={styles.field}><Label htmlFor={`${idPrefix}Movement`}>Movement name</Label><Input id={`${idPrefix}Movement`} maxLength={120} value={customMovement} onChange={(event) => setCustomMovement(event.target.value)} placeholder="Use the name given by your clinician" /><p>Use this for a movement or method your clinician has already shown you.</p></div><SideChoices side={side} disabled={pending} allowCenter={!areaInfo?.paired} onChange={setSide} /></> : null}
       </fieldset> : null}
       {movement && !choosingMovement ? <div className={styles.demonstration}>
         <Button type="button" variant="glow" onClick={() => setChoosingMovement(true)}>Choose a different movement</Button>
@@ -178,7 +180,7 @@ export function RomMeasurementPanel({ isSignedIn, disabled, onMeasurement, activ
   </section>
 }
 
-function SideChoices({ side, onChange, disabled }: { side: string; onChange: (value: string) => void; disabled: boolean }) {
-  return <fieldset className={styles.side}><legend>Which side of your body?</legend><div>{["Left", "Right"].map((value) => <Button key={value} type="button" variant={side === value ? "default" : "secondary"} aria-pressed={side === value} disabled={disabled} onClick={() => onChange(value)}>{value}</Button>)}</div><p>Left and right refer to your body, even when it faces you.</p></fieldset>
+function SideChoices({ side, onChange, disabled, allowCenter = false }: { side: string; onChange: (value: string) => void; disabled: boolean; allowCenter?: boolean }) {
+  return <fieldset className={styles.side}><legend>Which side of your body?</legend><div>{["Left", "Right", ...(allowCenter ? ["Center"] : [])].map((value) => <Button key={value} type="button" variant={side === value ? "default" : "secondary"} aria-pressed={side === value} disabled={disabled} onClick={() => onChange(value)}>{value}</Button>)}</div><p>Left and right refer to your body, even when it faces you.</p></fieldset>
 }
 function RomStatus({ label, value }: { label: string; value: string }) { return <div><dt>{label}</dt><dd>{value}</dd></div> }

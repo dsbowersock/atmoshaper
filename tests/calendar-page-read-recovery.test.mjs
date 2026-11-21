@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises"
 import test from "node:test"
 import { createCompiledModuleLoader, createElement, elementText, findElement, renderFunctionComponents } from "./helpers/compiled-module.mjs"
 import { normalizeCalendarPreferences } from "../lib/calendar-preferences.js"
-import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent } from "../lib/calendar-workspace.js"
+import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow, calendarWorkspaceOwnerKey } from "../lib/calendar-workspace.js"
 
 const load = createCompiledModuleLoader(import.meta.url)
 const source = await readFile(new URL("../app/calendar/page.tsx", import.meta.url), "utf8")
@@ -46,7 +46,7 @@ function fixture(options = {}) {
     "@/app/calendar/actions": { createPracticeAction: () => { throw new Error("WRITES_ARE_FORBIDDEN_IN_THIS_FIXTURE") } },
     "@/lib/calendar-readiness": { isCalendarDatabaseReady: async () => read("readiness", options.ready !== false) },
     "@/lib/calendar-preferences": { normalizeCalendarPreferences },
-    "@/lib/calendar-workspace": { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent },
+    "@/lib/calendar-workspace": { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow, calendarWorkspaceOwnerKey },
     "@/lib/prisma": { prisma },
     "@/components/ui/app-surface": { AppSurface: nodes.AppSurface, appSurfaceClassName: "" },
     "@/components/ui/button": { Button: pass },
@@ -66,6 +66,7 @@ function fixture(options = {}) {
       return {
         text: elementText(renderFunctionComponents(tree)),
         workspace: findElement(tree, (node) => node.type === nodes.CalendarWorkspace)?.props ?? null,
+        workspaceKey: findElement(tree, (node) => node.type === nodes.CalendarWorkspace)?.key ?? null,
         personal: findElement(renderFunctionComponents(tree), (node) => node.type === "personal-calendar")?.props ?? null,
       }
     },
@@ -137,6 +138,43 @@ test("a successful genuinely empty calendar still renders with normalized prefer
   assert.equal(input.calls.some((call) => call.name === "busy"), false)
 })
 
+test("a requested distant day bounds both practice events and external busy reads", async () => {
+  const input = fixture(), day = new Date("2030-02-12T12:00:00")
+  const result = await input.run({ date: "2030-02-12" })
+  assert.equal(result.workspace.initialDate, "2030-02-12")
+  for (const name of ["events", "busy"]) {
+    const query = input.calls.find((call) => call.name === name).args.where
+    assert.ok(query.startsAt.lt > day, `${name} must include the displayed day`)
+    assert.ok(query.endsAt.gt <= day, `${name} must begin before the displayed day`)
+    assert.ok(query.startsAt.lt - query.endsAt.gt <= 226 * 86400000, "the read remains bounded")
+    assert.deepEqual(result.workspace.loadedPracticeWindow, {
+      start: query.endsAt.gt.toISOString(), end: query.startsAt.lt.toISOString(),
+    })
+  }
+})
+
+test("the actual page key retains date intent across source changes but isolates practice ownership", async () => {
+  const practice = await fixture().run({ date: "2030-02-12", view: "practice" })
+  const together = await fixture().run({ date: "2026-11-20", view: "together" })
+  assert.equal(practice.workspaceKey, calendarWorkspaceOwnerKey(userId, practiceId))
+  assert.equal(together.workspaceKey, practice.workspaceKey)
+  const second = "fictional-second-practice"
+  const switched = await fixture({ memberships: [{ practiceId: second, practice: { id: second } }] }).run({ practice: second })
+  assert.notEqual(switched.workspaceKey, practice.workspaceKey)
+  assert.notEqual(calendarWorkspaceOwnerKey("fictional-second-owner", practiceId), practice.workspaceKey)
+})
+
+test("month-end replacement snapshots contain every leading and trailing grid day", async () => {
+  for (const date of ["2027-01-31", "2027-05-31", "2028-02-29", "2030-03-31"]) {
+    const result = await fixture().run({ date })
+    const first = new Date(`${date.slice(0, 7)}-01T00:00:00`)
+    first.setDate(first.getDate() - first.getDay())
+    const end = new Date(first); end.setDate(end.getDate() + 42)
+    assert.ok(Date.parse(result.workspace.loadedPracticeWindow.start) <= first.getTime())
+    assert.ok(Date.parse(result.workspace.loadedPracticeWindow.end) >= end.getTime())
+  }
+})
+
 test("successful reads preserve event mapping, provider availability and generic external busy privacy", async () => {
   const input = fixture({
     events: [{ id: "invented-event", kind: "APPOINTMENT", title: "Invented appointment", status: "CONFIRMED", ownerUserId: userId, startsAt: "2026-10-25T13:00:00.000Z", endsAt: "2026-10-25T14:00:00.000Z", blocksAvailability: true }],
@@ -159,8 +197,25 @@ test("successful reads preserve event mapping, provider availability and generic
   assert.equal(busyQuery.where.connection.status, "ACTIVE")
   assert.equal(busyQuery.where.source.selectedForBusySync, true)
   assert.deepEqual(Object.keys(busyQuery.select).sort(), ["endsAt", "id", "ownerUserId", "startsAt"])
-  assert.equal(busyQuery.take, 500)
+  assert.equal(busyQuery.take, 501)
 })
+
+for (const kind of ["events", "busy"]) {
+  test(`${kind} sentinel refuses a truncated snapshot but permits exactly 500 rows`, async () => {
+    const rows = Array.from({ length: 501 }, (_, i) => ({ id: `fictional-${i}`, kind: "APPOINTMENT", status: "CONFIRMED", ownerUserId: userId,
+      startsAt: new Date("2026-11-20T13:00:00Z"), endsAt: new Date("2026-11-20T14:00:00Z") }))
+    const complete = fixture({ [kind]: rows.slice(0, 500) })
+    const result = await complete.run()
+    assert.ok(result.workspace.loadedPracticeWindow)
+    assert.equal(result.workspace.events.length, 500)
+    assert.equal(complete.calls.find(call => call.name === kind).args.take, 501)
+    const truncated = fixture({ [kind]: rows })
+    assertUnavailable(await truncated.run())
+    const personal = await fixture({ [kind]: rows }).run({ view: "together" })
+    assert.equal(personal.workspace, null)
+    assert.ok(personal.personal, "private local calendar remains available without partial practice data")
+  })
+}
 
 test("an unowned requested practice never changes the authorized workspace query target", async () => {
   const input = fixture()

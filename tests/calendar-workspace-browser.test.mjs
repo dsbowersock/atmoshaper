@@ -66,5 +66,90 @@ test("real calendar phone and desktop source selection stays private and contain
       await expect(split.locator(".fc")).toHaveCount(calendars)
       await expect(split.getByText("December 2026",{exact:true})).toBeVisible()
     }
+    // A deep-linked distant schedule must not turn Today or boundary navigation
+    // into an empty bookable grid while the server's new snapshot is pending.
+    const bounded=await browser.newPage({viewport:{width:1280,height:900}})
+    await bounded.clock.setFixedTime(new Date('2026-11-20T12:00:00Z'))
+    for(const direction of ['Today','Previous range','Next range']){
+      await bounded.goto(`${server.origin}/?bounded`)
+      await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
+      for(let attempt=0;attempt<7;attempt++){
+        await bounded.getByRole('button',{name:direction,exact:true}).click()
+        if(await bounded.getByRole('status').filter({hasText:'Loading practice schedule'}).isVisible())break
+      }
+      await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+      await expect(bounded.locator('.fc')).toBeHidden()
+      const requests=await bounded.evaluate(()=>window.__calendarNavigation)
+      assert.equal(requests.length,1)
+      const query=new URL(requests[0],server.origin).searchParams
+      assert.equal(query.get('practice'),'fictional-practice');assert.equal(query.get('view'),'practice')
+      if(direction==='Today')assert.equal(query.get('date'),'2026-11-20')
+      await bounded.evaluate((day)=>window.__loadPracticeDate(day),query.get('date'))
+      await expect(bounded.locator('.fc')).toBeVisible()
+      assert.deepEqual(await bounded.evaluate(()=>window.__calendarWrites),[])
+    }
+    // A real replacement updates both route date and loaded window. A newer
+    // local date choice must survive that late response, even if no new fetch
+    // was needed until the old window was replaced.
+    for (const scope of ['Practice', 'Together']) {
+      await bounded.goto(`${server.origin}/?bounded`)
+      if (scope === 'Together') await bounded.getByRole('button',{name:scope,exact:true}).click()
+      await bounded.getByRole('button',{name:'Today',exact:true}).click()
+      await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+      const oldRequest = await bounded.evaluate(()=>window.__calendarNavigation[0])
+      await bounded.getByRole('button',{name:/Date.*November 2026/}).click()
+      for (let month = 0; month < 39; month++) await bounded.getByRole('button',{name:'Go to the Next Month',exact:true}).click()
+      await bounded.locator('button[data-day="2/12/2030"]').click()
+      await bounded.keyboard.press('Escape')
+      await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
+      await expect(bounded.locator('.fc')).toBeVisible()
+      assert.equal((await bounded.evaluate(()=>window.__calendarNavigation)).length, 1)
+      const oldQuery = new URL(oldRequest,server.origin).searchParams
+      await bounded.evaluate(({day,scope})=>window.__loadPracticeDate(day,scope),{day:oldQuery.get('date'),scope:oldQuery.get('view')})
+      await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+      await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
+      await expect.poll(()=>bounded.evaluate(()=>window.__calendarNavigation.length)).toBe(2)
+      const latestRequest=await bounded.evaluate(()=>window.__calendarNavigation[1])
+      assert.equal(new URL(latestRequest,server.origin).searchParams.get('date'),'2030-02-12')
+      await bounded.evaluate(day=>window.__loadPracticeDate(day),'2030-02-12')
+      await expect(bounded.locator('.fc')).toBeVisible()
+      await expect(bounded.getByRole('button',{name:'Date February 2030',exact:true})).toBeVisible()
+      await expect(bounded.getByRole('button',{name:scope,exact:true})).toHaveAttribute('aria-pressed','true')
+      assert.deepEqual(await bounded.evaluate(()=>window.__calendarWrites),[])
+    }
+    // A later source choice also owns the UI; an explicit external route still
+    // applies its source/date when it is not a response to our range request.
+    await bounded.goto(`${server.origin}/?bounded`)
+    await bounded.getByRole('button',{name:'Today',exact:true}).click()
+    await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+    await bounded.getByRole('button',{name:'Personal',exact:true}).click()
+    await bounded.evaluate(()=>window.__loadPracticeDate('2026-11-20','practice'))
+    await expect(bounded.getByRole('button',{name:'Personal',exact:true})).toHaveAttribute('aria-pressed','true')
+    await expect(bounded.locator('.fc')).toBeVisible()
+    assert.equal((await bounded.evaluate(()=>window.__calendarNavigation)).length, 1)
+    await bounded.evaluate(()=>window.__loadPracticeDate('2030-03-12','together'))
+    await expect(bounded.getByRole('button',{name:'Together',exact:true})).toHaveAttribute('aria-pressed','true')
+    await expect(bounded.getByRole('button',{name:'Date March 2030',exact:true})).toBeVisible()
+    assert.equal((await bounded.evaluate(()=>window.__calendarNavigation)).length, 1, 'explicit route must not request the superseded visible range')
+    // Next replaces the active transition when another automatic request is
+    // issued. An abandoned request must not consume a later explicit route.
+    await bounded.goto(`${server.origin}/?bounded`)
+    await bounded.getByRole('button',{name:'Today',exact:true}).click()
+    await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toBeVisible()
+    await bounded.getByRole('button',{name:'Previous range',exact:true}).click()
+    await expect.poll(()=>bounded.evaluate(()=>window.__calendarNavigation.length)).toBe(2)
+    const replacement=await bounded.evaluate(()=>window.__calendarNavigation[1])
+    const replacementQuery=new URL(replacement,server.origin).searchParams
+    await bounded.evaluate(({day,scope})=>window.__loadPracticeDate(day,scope),{day:replacementQuery.get('date'),scope:replacementQuery.get('view')})
+    await expect(bounded.getByRole('button',{name:'Date October 2026',exact:true})).toBeVisible()
+    await expect(bounded.locator('.fc')).toBeVisible()
+    await bounded.evaluate(()=>window.__loadPracticeDate('2026-11-20','practice'))
+    await expect(bounded.getByRole('button',{name:'Date November 2026',exact:true})).toBeVisible()
+    assert.equal((await bounded.evaluate(()=>window.__calendarNavigation)).length, 2)
+    await bounded.goto(`${server.origin}/?bounded&monthEnd`)
+    await expect(bounded.getByText('January 2027',{exact:true})).toBeVisible()
+    await expect(bounded.locator('.fc')).toBeVisible()
+    await expect(bounded.getByRole('status').filter({hasText:'Loading practice schedule'})).toHaveCount(0)
+    assert.deepEqual(await bounded.evaluate(()=>window.__calendarNavigation),[])
   } finally {try {await browser?.close()} finally {await server.close()}}
 })

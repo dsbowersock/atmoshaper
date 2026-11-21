@@ -4,6 +4,7 @@ import { join } from "node:path"
 import { describe, it } from "node:test"
 import { fileURLToPath } from "node:url"
 import { removeForbiddenPreferenceFields } from "../lib/account-preferences.js"
+import { createCompiledModuleLoader, createElement, passThroughElement } from "./helpers/compiled-module.mjs"
 
 // URL.pathname keeps /C:/ on Windows and leaves escapes in paths with spaces.
 // Decode a native path before source traversal so privacy checks inspect files.
@@ -27,9 +28,28 @@ const forbiddenWellnessPreferenceKeys = [
 ]
 
 describe("Client wellness source guards", () => {
-  it("loads exercise history only for the signed-in owner with a bounded window", () => {
+  it("loads exercise history only for the signed-in owner with a bounded window", async () => {
     const source = readFileSync(new URL("../app/wellness/page.tsx", import.meta.url), "utf8")
-    assert.match(source, /where:\s*\{\s*userId,\s*deletedAt:\s*null,\s*category:\s*"exercise"\s*\}[\s\S]*?take:\s*250/)
+    // Check the actual query, so a later unrelated take cannot satisfy the bound.
+    const queries = []
+    const load = createCompiledModuleLoader(import.meta.url)
+    const { default: Page } = load(source, "app/wellness/page.tsx", {
+      "react/jsx-runtime": { jsx: createElement, jsxs: createElement },
+      "lucide-react": { HeartPulse: passThroughElement("svg") },
+      "@/lib/rsc-session": { getCurrentRscSession: async () => ({ user: { id: "fictional-owner" } }) },
+      "@/components/wellness/wellness-hub-client": { WellnessHubClient: passThroughElement("wellness") },
+      "@/lib/client-wellness-reminders": { normalizeClientWellnessReminderSchedules: () => [] },
+      "@/lib/seo": { createPublicPageMetadata: () => ({}) },
+      "./wellness.module.css": { __esModule: true, default: {} },
+      "@/lib/prisma": { prisma: {
+        clientWellnessEntry: { findMany: async query => { queries.push(query); return [] } },
+        appointment: { findMany: async () => [] },
+        clientWellnessPreference: { findUnique: async () => null },
+      } },
+    })
+    await Page()
+    const exercise = queries.filter(query => query.where?.category === "exercise")
+    assert.deepEqual(exercise, [{ where: { userId: "fictional-owner", deletedAt: null, category: "exercise" }, orderBy: { occurredAt: "desc" }, take: 250 }])
     assert.match(source, /initialExerciseEntries=\{exerciseEntries\.map\(serializeWellnessEntry\)\}/)
   })
   it("actually scans each required implementation directory", () => {

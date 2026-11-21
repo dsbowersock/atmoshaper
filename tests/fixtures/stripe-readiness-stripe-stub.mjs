@@ -315,9 +315,16 @@ export default class StripeReadinessStub {
           const livemode = usesLiveStripeKey()
           const liveDefaultSupporterUse = process.env.STRIPE_READINESS_STUB_LIVE_DEFAULT_USE
             ?? "personal"
+          const pagination = process.env.STRIPE_READINESS_STUB_INVALID_PORTAL_PAGINATION ?? ""
+          if (pagination.startsWith("later-") && !params?.starting_after) {
+            return { data: [livemode ? supporterPortal(liveDefaultSupporterUse) : defaultPortal()], has_more: true }
+          }
           return {
             data: [livemode ? supporterPortal(liveDefaultSupporterUse) : defaultPortal()],
-            has_more: false,
+            has_more: pagination.endsWith("missing")
+              ? undefined
+              : pagination.endsWith("string")
+                ? "false" : false,
           }
         },
         retrieve: async (configurationId, params) => {

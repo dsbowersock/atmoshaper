@@ -5666,7 +5666,11 @@ async function expectFinalMarkBrandFits(brand: Locator) {
 test("sidebar categories keep personal and practice calendars separate with consolidated tools", async ({page},testInfo)=>{
   await gotoShell(page,"/wellness")
   await page.getByRole("button",{name:"Open navigation",exact:true}).click()
-  const sidebar=page.locator('[data-sidebar="sidebar"]:visible').first()
+  // A closing drawer can still be CSS-visible during route transition. Bind
+  // phone interactions to the active navigation dialog, not that old surface.
+  const sidebar=testInfo.project.name === mobileProject
+    ? page.getByRole("dialog",{name:"AtmoShaper navigation",exact:true})
+    : page.locator('[data-sidebar="sidebar"]:visible').first()
   for(const label of ["Atmosphere","My Wellness","My Practice","Learn & Play"]){
     await expect(sidebar.getByRole("button",{name:label,exact:true})).toBeVisible()
   }
@@ -5689,6 +5693,7 @@ test("sidebar categories keep personal and practice calendars separate with cons
   await sidebar.getByRole("link",{name:"My Calendar",exact:true}).click()
   await expect(page).toHaveURL(/\/calendar\/personal$/)
   await expect(page.getByText("Sign in to see your private calendar. A practice account is not required.",{exact:true})).toBeVisible()
+  if(testInfo.project.name === mobileProject)await expect(sidebar).toBeHidden()
   const reopen=page.getByRole("button",{name:"Open navigation",exact:true})
   if(await reopen.isVisible())await reopen.click()
   const practice=sidebar.getByRole("button",{name:"My Practice",exact:true})

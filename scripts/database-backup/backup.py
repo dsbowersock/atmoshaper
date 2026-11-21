@@ -17,6 +17,7 @@ import stat
 import subprocess
 import sys
 import threading
+import time
 import uuid
 
 
@@ -93,6 +94,7 @@ def run_backup(output_dir, exporter, encryptor, env, timeout_seconds=TIMEOUT_SEC
     if not 0 < timeout_seconds <= TIMEOUT_SECONDS or not 0 < max_bytes <= MAX_BYTES:
         raise BackupError("INVALID_BACKUP_LIMITS")
     with exclusive_lock(directory):
+        deadline = time.monotonic() + timeout_seconds
         started = utc_now()
         run_id = uuid.uuid4().hex
         basename = "atmoshaper-db-{}-{}".format(started.strftime("%Y%m%dT%H%M%SZ"), run_id)
@@ -107,6 +109,11 @@ def run_backup(output_dir, exporter, encryptor, env, timeout_seconds=TIMEOUT_SEC
         timed_out = threading.Event()
         timer = None
         success = False
+
+        def check_deadline():
+            """Include durable publication in the budget, even after children exit."""
+            if timed_out.is_set() or time.monotonic() >= deadline:
+                raise BackupError("BACKUP_TIMEOUT")
 
         def kill_children():
             for child in processes:
@@ -148,7 +155,7 @@ def run_backup(output_dir, exporter, encryptor, env, timeout_seconds=TIMEOUT_SEC
                 age_reader = threading.Thread(target=discard_stderr, args=(age.stderr,), daemon=True)
                 age_reader.start()
                 readers.append(age_reader)
-                timer = threading.Timer(timeout_seconds, expire)
+                timer = threading.Timer(max(0, deadline - time.monotonic()), expire)
                 timer.daemon = True
                 timer.start()
                 length = 0
@@ -169,8 +176,7 @@ def run_backup(output_dir, exporter, encryptor, env, timeout_seconds=TIMEOUT_SEC
                     child.wait()
                 for reader in readers:
                     reader.join()
-                if timed_out.is_set():
-                    raise BackupError("BACKUP_TIMEOUT")
+                check_deadline()
                 if dump.returncode != 0:
                     raise BackupError("DATABASE_EXPORT_FAILED")
                 if age.returncode != 0:
@@ -181,7 +187,7 @@ def run_backup(output_dir, exporter, encryptor, env, timeout_seconds=TIMEOUT_SEC
                     raise BackupError("INVALID_ENCRYPTED_OUTPUT")
                 destination.flush()
                 os.fsync(destination.fileno())
-            timer.cancel()
+                check_deadline()
             public_receipt = {
                 "schemaVersion": 1, "state": "complete", "runId": run_id,
                 "startedUtc": started.isoformat(), "completedUtc": utc_now().isoformat(),
@@ -194,15 +200,18 @@ def run_backup(output_dir, exporter, encryptor, env, timeout_seconds=TIMEOUT_SEC
                 json.dump(public_receipt, handle)
                 handle.flush()
                 os.fsync(handle.fileno())
+            check_deadline()
             # Exclusive hard links publish complete files without replacing an
             # existing path; partial files never count as recovery points.
             os.link(partial, archive)
             owned_paths.append(archive)
+            check_deadline()
             os.link(receipt_partial, receipt)
             owned_paths.append(receipt)
             partial.unlink()
             receipt_partial.unlink()
             sync_directory(directory)
+            check_deadline()
             success = True
             return public_receipt
         except BackupError:
@@ -231,8 +240,18 @@ def live_commands(config_dir=Path("/config")):
     service = require_private_path(config_dir / "pg_service.conf")
     passfile = require_private_path(config_dir / "pgpass")
     recipient = require_private_path(config_dir / "recipient.txt")
+    # libpq preserves key whitespace/case at '='. ConfigParser normalizes it,
+    # so validate the same original bytes before accepting the service file.
+    service_text = service.read_text(encoding="utf-8")
+    for raw_line in service_text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or line.startswith("["):
+            continue
+        key, separator, value = line.partition("=")
+        if not separator or not re.fullmatch(r"[a-z_]+", key) or value != value.lstrip():
+            raise BackupError("INVALID_DATABASE_SERVICE")
     parsed = configparser.ConfigParser(interpolation=None)
-    parsed.read(service)
+    parsed.read_string(service_text)
     if parsed.defaults() or parsed.sections() != ["backup"]:
         raise BackupError("INVALID_DATABASE_SERVICE")
     entry = parsed["backup"]

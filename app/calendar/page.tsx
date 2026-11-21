@@ -4,7 +4,7 @@ import { getCurrentRscSession as getCurrentSession } from "@/lib/rsc-session"
 import { createPracticeAction } from "@/app/calendar/actions"
 import { isCalendarDatabaseReady } from "@/lib/calendar-readiness"
 import { normalizeCalendarPreferences } from "@/lib/calendar-preferences"
-import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent } from "@/lib/calendar-workspace"
+import { buildCalendarWorkspaceEvent, buildExternalCalendarBusyWorkspaceEvent, calendarWorkspaceReadWindow, calendarWorkspaceOwnerKey } from "@/lib/calendar-workspace"
 import { prisma } from "@/lib/prisma"
 import { AppSurface, appSurfaceClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
@@ -111,7 +111,7 @@ export default async function CalendarPage({
     return <CalendarShell><CalendarUnavailableNotice /></CalendarShell>
   }
   const practice = membership.practice
-  const workspaceData = await loadCalendarWorkspaceData(practice.id, session.user.id).catch(() => null)
+  const workspaceData = await loadCalendarWorkspaceData(practice.id, session.user.id, requestedDate).catch(() => null)
   if (!workspaceData) {
     if (initialScope !== "practice") return personalFallback(true)
     return (
@@ -154,8 +154,9 @@ export default async function CalendarPage({
       />
 
       <CalendarWorkspace
-        key={`${session.user.id}:${practice.id}:${initialScope}`}
+        key={calendarWorkspaceOwnerKey(session.user.id, practice.id)}
         events={workspaceEvents}
+        loadedPracticeWindow={workspaceData.loadedPracticeWindow}
         providers={providers}
         providerAvailability={providerAvailability}
         preferences={preferences}
@@ -174,9 +175,10 @@ export default async function CalendarPage({
  * hit cannot guarantee later queries succeed; callers must not present missing
  * events, availability or external busy windows as an empty, bookable calendar.
  */
-async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
-  const windowStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-  const windowEnd = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
+async function loadCalendarWorkspaceData(practiceId: string, userId: string, requestedDate?: string) {
+  // A validated deep link or practice switch can display a distant day. Read
+  // around that day so missing out-of-window data never looks like free time.
+  const { start: windowStart, end: windowEnd } = calendarWorkspaceReadWindow(requestedDate)
   const [events, therapists, preferenceRow, availabilityRules, scheduleIntervals] = await Promise.all([
     prisma.calendarEvent.findMany({
       where: {
@@ -203,7 +205,7 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
         reminder: true,
       },
       orderBy: { startsAt: "asc" },
-      take: 500,
+      take: 501,
     }),
     prisma.practiceMembership.findMany({
       where: {
@@ -253,11 +255,17 @@ async function loadCalendarWorkspaceData(practiceId: string, userId: string) {
         endsAt: true,
         ownerUserId: true,
       },
-      take: 500,
+      take: 501,
       orderBy: { startsAt: "asc" },
     })
     : []
-  return { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks }
+  // Read one sentinel row: a truncated snapshot must never certify apparently
+  // free time. The caller's existing recovery surface hides all partial reads.
+  if (events.length > 500 || externalBusyBlocks.length > 500) {
+    throw new Error("Calendar snapshot exceeds its complete-read limit.")
+  }
+  return { events, therapists, preferenceRow, availabilityRules, scheduleIntervals, externalBusyBlocks,
+    loadedPracticeWindow: { start: windowStart.toISOString(), end: windowEnd.toISOString() } }
 }
 
 /** Keeps sign-in, unavailable and ready states inside the same full-width operator geometry. */

@@ -142,6 +142,7 @@ export function CalendarWorkspace({
   practiceOptions = [],
   selectedPracticeId,
   practiceUnavailable = false,
+  loadedPracticeWindow,
 }: {
   events: WorkspaceEvent[]
   providers: WorkspaceProvider[]
@@ -154,6 +155,7 @@ export function CalendarWorkspace({
   practiceOptions?: Array<{ id: string; name: string }>
   selectedPracticeId?: string
   practiceUnavailable?: boolean
+  loadedPracticeWindow?: { start: string; end: string }
 }) {
   const router = useRouter()
   const calendarRef = useRef<FullCalendar | null>(null)
@@ -164,6 +166,16 @@ export function CalendarWorkspace({
   const [scope, setScope] = useState(hasPractice ? initialScope : "personal")
   const showPersonal = scope !== "practice", showPractice = hasPractice && scope !== "personal"
   const [visibleWindow, setVisibleWindow] = useState({ start: "", end: "" })
+  const requestedPracticeRange = useRef("")
+  const dateIntent = useRef(0)
+  const scopeIntent = useRef(0)
+  const pendingRouteIntent = useRef<{ key: string; date: number; scope: number } | null>(null)
+  const routeNavigationPending = useRef(false)
+  // All navigation paths report their complete visible range through datesSet.
+  // Never display a bookable practice grid outside the server-read snapshot.
+  const practiceRangePending = Boolean(showPractice && loadedPracticeWindow && visibleWindow.start
+    && !(Date.parse(visibleWindow.start) >= Date.parse(loadedPracticeWindow.start)
+      && Date.parse(visibleWindow.end) <= Date.parse(loadedPracticeWindow.end)))
   const [openedPersonal, setOpenedPersonal] = useState<{ id: string; key: string } | null>(null)
   const personal = usePrivateCalendarLayer({ enabled: showPersonal, ownerKey: currentUserId, ...visibleWindow })
   const [range, setRange] = useState(initialScope === "personal" ? "month" : preferences.defaultRange)
@@ -286,6 +298,7 @@ export function CalendarWorkspace({
   }, [calendarApis, persistPreferencePatch, scrollCalendarsToUsefulTime])
 
   const navigate = useCallback((direction: "prev" | "next" | "today") => {
+    dateIntent.current += 1
     for (const api of calendarApis()) {
       if (direction === "today") api?.today()
       if (direction === "prev") api?.prev()
@@ -297,6 +310,7 @@ export function CalendarWorkspace({
 
   const gotoDate = useCallback((value: string | Date | undefined) => {
     if (!value) return
+    dateIntent.current += 1
     for (const api of calendarApis()) {
       api?.gotoDate(value)
       setSelectedDate(api?.getDate())
@@ -305,18 +319,49 @@ export function CalendarWorkspace({
   }, [calendarApis, scrollCalendarsToUsefulTime])
 
   useEffect(() => {
+    routeNavigationPending.current = false
+    const requestKey = `${initialScope}:${initialDate ?? ""}`
+    const requestedIntent = pendingRouteIntent.current?.key === requestKey ? pendingRouteIntent.current : null
+    pendingRouteIntent.current = null
+    // Explicit route changes still select their source; an automatic response
+    // must retain any newer local source choice, just as it retains its date.
+    if (!requestedIntent || requestedIntent.scope === scopeIntent.current) setScope(hasPractice ? initialScope : "personal")
     if (!initialDate) return
+    // A replacement owns its original date intent, not a newer local choice
+    // that happened to fit the old snapshot and therefore issued no request.
+    if (requestedIntent && requestedIntent.date !== dateIntent.current) return
+    const intent = dateIntent.current
+    routeNavigationPending.current = true
 
     // This is a route-date change, not a layout effect. Replacing split columns
     // must keep the viewed date rather than replaying the original route date.
     const animationFrame = window.requestAnimationFrame(() => {
+      routeNavigationPending.current = false
+      if (intent !== dateIntent.current) return
       for (const api of calendarApis()) {
         api?.gotoDate(initialDate)
         setSelectedDate(api?.getDate())
       }
     })
-    return () => window.cancelAnimationFrame(animationFrame)
-  }, [calendarApis, initialDate])
+    return () => { window.cancelAnimationFrame(animationFrame); routeNavigationPending.current = false }
+  }, [calendarApis, initialDate, initialScope, hasPractice])
+
+  useEffect(() => {
+    // Apply the incoming route before comparing its new snapshot with the old
+    // visible grid. Otherwise an external date change can request itself back.
+    if (routeNavigationPending.current) return
+    if (!practiceRangePending) { requestedPracticeRange.current = ""; return }
+    if (!selectedDate || !selectedPracticeId) return
+    const requestKey = `${selectedPracticeId}:${scope}:${visibleWindow.start}:${visibleWindow.end}`
+    if (requestedPracticeRange.current === requestKey) return
+    requestedPracticeRange.current = requestKey
+    const date = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
+    const query = new URLSearchParams({ practice: selectedPracticeId, view: scope, date })
+    // Next replaces the previous navigation transition. Retain only its active
+    // owner so an abandoned request cannot intercept a later explicit route.
+    pendingRouteIntent.current = { key: `${scope}:${date}`, date: dateIntent.current, scope: scopeIntent.current }
+    router.replace(`/calendar?${query}`, { scroll: false })
+  }, [practiceRangePending, selectedDate, selectedPracticeId, scope, router, visibleWindow.start, visibleWindow.end])
 
   const updateProviderViewMode = useCallback((value: string) => {
     const nextMode = hasMultipleProviders ? value : "only-me"
@@ -359,6 +404,7 @@ export function CalendarWorkspace({
   }, [persistPreferencePatch])
 
   async function persistEventChange(eventId: string, startsAt: string | null, endsAt: string | null, revert: () => void) {
+    if (practiceRangePending) { revert(); return }
     if (isPrivateCalendarEvent(eventId) || !showPractice || !startsAt || !endsAt) {
       revert()
       return
@@ -390,6 +436,7 @@ export function CalendarWorkspace({
   }
 
   function handleDateClick(info: DateClickArg) {
+    if (practiceRangePending) return
     if (!showPractice) { gotoDate(info.date); setCalendarRange("day"); return }
     const startsAt = info.dateStr.slice(0, 16)
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Preserve the established full-document transition from FullCalendar during this dependency upgrade.
@@ -546,7 +593,7 @@ export function CalendarWorkspace({
       style={calendarSurfaceStyle}
     >
       <CardContent className="flex h-full flex-col p-0">
-        <CalendarSourceControls scope={scope} changeScope={(next) => { setOpenedPersonal(null); setScope(next) }} hasPractice={hasPractice}
+        <CalendarSourceControls scope={scope} changeScope={(next) => { scopeIntent.current += 1; setOpenedPersonal(null); setScope(next) }} hasPractice={hasPractice}
           practices={practiceOptions} practiceId={selectedPracticeId} changePractice={(id) => {
             const query = new URLSearchParams({ practice: id, view: scope })
             // Keep the viewed local day; UTC serialization can change its date.
@@ -561,7 +608,8 @@ export function CalendarWorkspace({
         <p className={cn("border-b border-border/60 px-3 py-1.5 text-xs text-muted-foreground", !(message || isPending) && "sr-only")}>
           {isPending ? "Saving preferences..." : message || (showPractice ? "Click a time to create. Drag existing practice items to reschedule. Personal items are read-only here." : "Your personal calendar is private. Select a recording to view it.")}
         </p>
-        <div className={cn("min-h-0 flex-1 p-1 sm:p-2", effectiveProviderViewMode === "split" && "grid gap-3 xl:grid-cols-2")}>
+        {practiceRangePending ? <p role="status" className="p-4 text-sm text-muted-foreground">Loading practice schedule for this date…</p> : null}
+        <div aria-busy={practiceRangePending} aria-hidden={practiceRangePending || undefined} inert={practiceRangePending || undefined} className={cn("min-h-0 flex-1 p-1 sm:p-2", practiceRangePending && "invisible", effectiveProviderViewMode === "split" && "grid gap-3 xl:grid-cols-2")}>
           {effectiveProviderViewMode === "split"
             ? visibleProviders.map((provider) => renderCalendar(provider))
             : renderCalendar()}

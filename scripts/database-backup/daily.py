@@ -34,15 +34,16 @@ class DeadlineExpired(BaseException):
 
 
 @contextlib.contextmanager
-def operation_deadline():
-    """Reserve one minute of the 20-minute cap for cleanup and final reporting."""
-    if not hasattr(signal, "setitimer") or signal.getitimer(signal.ITIMER_REAL) != (0.0, 0.0):
+def operation_deadline(seconds=1140):
+    """Bound one phase without replacing another alarm; export reserves a minute."""
+    if (not 0 < seconds <= 1140 or not hasattr(signal, "setitimer")
+            or signal.getitimer(signal.ITIMER_REAL) != (0.0, 0.0)):
         raise backup.BackupError("DAILY_DEADLINE_UNAVAILABLE")
     previous = signal.getsignal(signal.SIGALRM)
     def expire(unused_signal, unused_frame):
         raise DeadlineExpired()
     signal.signal(signal.SIGALRM, expire)
-    signal.setitimer(signal.ITIMER_REAL, 1140)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
     try:
         yield
     finally:
@@ -187,10 +188,21 @@ def execute(config, now_fn=backup.utc_now, notify=check_in):
             result = {"state": "failed", "code": str(error)}
         except Exception:
             result = {"state": "failed", "code": "DAILY_OPERATION_FAILED"}
-        delivered = notify(config["checkinUrl"], "ok" if result["state"] == "complete" else "error", run_id)
+        delivered = False
+        try:
+            # Socket timeouts do not bound a slow trickle response. Preserve a
+            # wall-clock reporting budget and five seconds for the local receipt.
+            remaining = 1200 - (time.monotonic() - tick) - 5
+            if remaining > 0:
+                with operation_deadline(min(30, remaining)):
+                    delivered = notify(config["checkinUrl"], "ok" if result["state"] == "complete" else "error", run_id) is True
+        except (DeadlineExpired, Exception):
+            delivered = False
         result["monitoringDelivered"] = delivered
         if not delivered:
-            result.update({"state": "failed", "code": "MONITOR_COMPLETION_FAILED"})
+            result["monitoringFailureCode"] = "MONITOR_COMPLETION_FAILED"
+            if result["state"] == "complete":
+                result.update({"state": "failed", "code": "MONITOR_COMPLETION_FAILED"})
         result["elapsedSeconds"] = round(time.monotonic() - tick, 3)
         private_json(root / "operation" / ("daily-" + day + ".result.json"), result)
         return result

@@ -4,6 +4,19 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Release PR review corrections](../audits/2026-11-21-release-review-corrections.md)
+
+- [Publication of the reviewed beta fixes](../superpowers/plans/2026-11-21-reviewed-fixes-publication.md)
+- [Verified closure of the four final review issues](../audits/2026-11-21-four-review-issues.md)
+- [Resolution of the four final review issues](../superpowers/plans/2026-11-21-four-review-issues.md)
+- [Completed range backfill and all 64 dispositions](../audits/2026-11-21-coderabbit-range-backfill-results.md)
+- [Corrected range proof and fixed review backfill](../superpowers/plans/2026-11-21-coderabbit-range-proof.md)
+- [Retrospective CodeRabbit receipts and triage](../audits/2026-11-21-coderabbit-retrospective-results.md)
+- [Code review before publication](code-review.md)
+- [CodeRabbit coverage inventory](../audits/2026-11-21-coderabbit-coverage.md)
+- [Dependency advisory triage](../audits/2026-11-21-dependency-advisory-triage.md)
+- [Bounded review corrections](../superpowers/plans/2026-11-21-coderabbit-corrections.md)
+- [Published sidebar and private Calendar verification](../audits/2026-11-21-sidebar-calendar-publication.md)
 - [Sidebar and private Calendar publication](../superpowers/plans/2026-11-21-sidebar-calendar-publication.md)
 - [Local sidebar and private combined Calendar verification](../audits/2026-11-21-sidebar-calendar-workspace.md)
 - [Sidebar organization and private combined Calendar](../superpowers/plans/2026-11-20-sidebar-calendar-workspace.md)

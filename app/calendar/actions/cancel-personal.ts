@@ -30,6 +30,16 @@ export async function cancelPersonalEvent(formData: FormData) {
   await assertCalendarDatabaseReady()
   const eventId = fieldString(formData, "eventId")
   if (!eventId) throw new Error("Choose a personal block to cancel.")
+  // Bind the action to what was displayed, not a newer snapshot first read at
+  // submission. Old clients must refresh rather than cancel a changed block.
+  const expectedStartsAt = Date.parse(fieldString(formData, "expectedStartsAt"))
+  const expectedEndsAt = Date.parse(fieldString(formData, "expectedEndsAt"))
+  const expectedOwnerUserId = fieldString(formData, "expectedOwnerUserId")
+  const expectedPracticeId = fieldString(formData, "expectedPracticeId")
+  if (!Number.isFinite(expectedStartsAt) || !Number.isFinite(expectedEndsAt)
+    || !expectedOwnerUserId || !expectedPracticeId) {
+    throw new Error("This personal block changed. Refresh availability and try again.")
+  }
   const snapshot = await prisma.calendarEvent.findUnique({ where: { id: eventId }, include: CANCEL_EVENT_INCLUDE })
   if (!snapshot) throw new Error("Choose a valid personal block.")
   const membership = await assertPracticeAccess(snapshot.practiceId, userId, THERAPIST_ROLES)
@@ -46,7 +56,9 @@ export async function cancelPersonalEvent(formData: FormData) {
       where: { practiceId_userId: { practiceId: snapshot.practiceId, userId } },
     })
     if (!event || event.practiceId !== snapshot.practiceId || event.ownerUserId !== ownerUserId
-      || event.startsAt.getTime() !== snapshot.startsAt.getTime() || event.endsAt.getTime() !== snapshot.endsAt.getTime()) {
+      || event.startsAt.getTime() !== snapshot.startsAt.getTime() || event.endsAt.getTime() !== snapshot.endsAt.getTime()
+      || event.practiceId !== expectedPracticeId || event.ownerUserId !== expectedOwnerUserId
+      || event.startsAt.getTime() !== expectedStartsAt || event.endsAt.getTime() !== expectedEndsAt) {
       throw new Error("This personal block changed. Refresh availability and try again.")
     }
     assertCancellationAccess(currentMembership?.role, userId, event)

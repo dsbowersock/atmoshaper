@@ -89,6 +89,40 @@ class DailyBackupTests(unittest.TestCase):
         self.assertEqual(result['code'], 'MONITOR_COMPLETION_FAILED')
         self.assertEqual(invoke.call_count, 2)
 
+    def test_monitor_failure_retains_the_original_export_failure(self):
+        failed = subprocess.CompletedProcess([], 1, stdout='', stderr='')
+        result, unused_invoke, unused_retain, unused_notify = self.run_fake(exported=failed, notifications=[True, False])
+        self.assertEqual(result['code'], 'DAILY_EXPORT_FAILED')
+        self.assertFalse(result['monitoringDelivered'])
+
+    def test_final_monitor_timeout_still_persists_a_result(self):
+        result, unused_invoke, unused_retain, unused_notify = self.run_fake(notifications=[True, daily.DeadlineExpired()])
+        self.assertEqual(result['code'], 'MONITOR_COMPLETION_FAILED')
+        self.assertFalse(result['monitoringDelivered'])
+        persisted = json.loads(next((self.root/'operation').glob('*.result.json')).read_text())
+        self.assertEqual(persisted['code'], result['code'])
+
+    def test_final_monitor_call_has_a_wall_clock_alarm(self):
+        # Supply a fake signal API so this contract runs on Windows without
+        # installing an actual process-wide timer or making any network call.
+        alarm = [0.0]
+        fake_signal = types.SimpleNamespace(ITIMER_REAL=0, SIGALRM=14,
+            getitimer=lambda unused: (alarm[0], 0.0), getsignal=lambda unused: 0,
+            signal=lambda *unused: None,
+            setitimer=lambda unused, seconds: alarm.__setitem__(0, seconds))
+        observed = []
+        def notify(unused_url, status, unused_id):
+            observed.append((status, alarm[0] > 0))
+            return True
+        image = subprocess.CompletedProcess([], 0, stdout=self.config['image']+'\n', stderr='')
+        exported = subprocess.CompletedProcess([], 0, stdout=json.dumps({'state':'complete','runId':'c'*32}), stderr='')
+        with mock.patch.object(daily, 'signal', fake_signal), \
+             mock.patch.object(daily.subprocess, 'run', side_effect=[image, exported]), \
+             mock.patch.object(daily.maintenance, 'retention_after_success', return_value=self.retention), \
+             mock.patch.object(daily.shutil, 'disk_usage', return_value=types.SimpleNamespace(free=2**40)):
+            self.assertEqual(daily.execute(self.config, now_fn=lambda:self.now, notify=notify)['state'], 'complete')
+        self.assertEqual(observed, [('in_progress', True), ('ok', True)])
+
     def test_retention_corruption_does_not_report_healthy_job(self):
         result, invoke, retain, notify = self.run_fake(retention_error=backup.BackupError('RECOVERY_CHECKSUM_MISMATCH'))
         self.assertEqual(result['code'], 'RECOVERY_CHECKSUM_MISMATCH')

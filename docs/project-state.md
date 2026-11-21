@@ -1,5 +1,204 @@
 # AtmoShaper Project State
 
+## November 21 abandoned Calendar request amendment
+
+CodeRabbit's complete 13-path review at `7da07ef` raises one minor supported
+request-lifetime issue. A superseded request can intercept a later explicit
+route to its date. The native regression reproduces the wrong-month result;
+retain only the active Next navigation's intent instead of request history.
+All 120 Calendar layer checks, native phone/desktop acceptance, focused lint
+and TypeScript pass. Earlier current-head CI and Codex passed at `7da07ef`;
+this small amendment requires fresh reviews/CI before publication. The source
+is still local and public traffic remains on `d7e30e0`.
+
+## November 21 Calendar source-transition amendment
+
+Codex at `99a4da6` finds that the page's source-view key can remount away date
+ownership during Practice → Together replacement. Keep the account/practice
+ownership key stable across source changes, correlate automatic replies with
+both date and source intents, and retain explicit external route navigation.
+The page and native fixture share the actual ownership-key helper; page tests
+verify ownership isolation and browser tests exercise both source sequences.
+All 120 Calendar layer cases and native phone/desktop acceptance pass. Fresh
+review/CI/publication gates remain; public traffic is still `d7e30e0`.
+
+## November 21 release follow-up corrections
+
+The actual CodeRabbit correction review at `60bdc9e` completes across all 22
+selected paths. Three supported issues are corrected together: late Calendar
+responses cannot rewind a newer date intent; event and external-busy reads use
+a sentinel row and refuse incomplete snapshots; Checkout confirmation owns an
+abort signal through full response-body consumption. The minor preselected-
+feeling context fallback is also corrected. The real loopback transport test
+observes stream closure and an unaffected concurrent SDK request. All 165 Stripe,
+23 page-read, five feelings lifecycle and native phone/desktop Calendar checks
+pass. The previous source's seven hosted jobs were green; this new delta still
+needs current reviews, CI and staged/public acceptance. Traffic remains on
+`d7e30e0`; no provider settings or live records are changed.
+
+## November 21 release PR review correction group
+
+The Codex follow-up at `9e0c7df` finds one month-end replacement-window boundary.
+The shared read window now includes full month padding; native tests use the
+actual replacement window rather than an oversized fixture. All 33 applicable
+Calendar checks, focused lint and TypeScript pass. The included CodeRabbit
+correction review subsequently completes; its supported follow-up is recorded
+above. No paid review or broad new campaign is enabled.
+
+Authorized publication PR #78 at `bf58dca` receives completed Codex review with
+no issues and full CodeRabbit review of all 57 paths with eight issues. Five
+code behaviors and three outdated audit passages are corrected together; see
+the [disposition register](audits/2026-11-21-release-review-corrections.md).
+Focused checks pass 112 unit and 29 Calendar/controller/browser cases. The
+mode/type-aware frozen inventory still verifies all 703 changed code/test
+histories with zero gaps. Fresh correction review, hosted CI and same-artifact
+publication gates remain. Full lint/TypeScript pass. Diagnosed Exercise/native
+validation and mobile-drawer CI test corrections pass isolated hosted phone/
+desktop checks. Public traffic is still on `d7e30e0`.
+
+## November 21 reviewed fixes publication authorized and in preparation
+
+The owner requests the release PR, publication checks and publication of all
+reviewed fixes. Branch `codex/reviewed-beta-fixes-publication` starts at `6c7a75d`,
+retaining reviewed application source `1c9a8f1` and public `d7e30e0` for rollback.
+One reviewed PR/protected Preview, current hosted gates, fresh service snapshots
+and same-artifact staged/public acceptance precede promotion. No publication is
+claimed yet. The [operative plan](superpowers/plans/2026-11-21-reviewed-fixes-publication.md)
+preserves settings, private/local records and unrelated work. NAS script
+activation remains separate from publishing its source.
+
+## November 21 four final review issues resolved and reviewed
+
+The owner's F1–F4 follow-up is complete. Slow successful Checkout confirmation
+is corrected; nested baselines and literal Git paths are corrected and tested;
+first/later malformed pagination is verified fail-closed. The actual 16-path
+review at `dfe4198` raises one minor fixture-reader environment issue. Its
+correction passes the actual six-path review at `1c9a8f1` with **zero issues**.
+All planned paths, raw completions and frozen trees verify, using included
+allowance only. No unresolved F1–F4 or fixture-reader issue remains.
+
+All 163 payment and seven Git proof checks pass, including a fresh redirected
+child process and unchanged real index. Focused lint and TypeScript pass. The
+fresh public inventory retains 703 proven changed code/test histories, zero
+gaps, and all 1,017 original baseline/coverage decisions. Application source
+retains its passing inert build; this follow-up changes audit tooling/fixtures.
+Reviewed correction source is `1c9a8f10a40f77e6596ff164f1d9fd0523b545fa`;
+subsequent closeout is documentation only. See the
+[verification receipt](audits/2026-11-21-four-review-issues.md).
+
+The F2/F3 deferred and later unreviewed-delta status below is superseded.
+Independent Codex/hosted CI/publication and separate NAS activation gates
+remain. No push, deployment, provider/NAS/live-data write occurs.
+
+## November 21 bounded CodeRabbit campaign complete; corrections remain local
+
+All eight remote reviews complete. The final pass at `07a3dcd` verifies all 28
+planned correction paths and raises four issues (three major, one minor).
+One slow-Checkout confirmation regression is reproduced and corrected locally;
+later-page pagination fails closed in the actual CLI fixtures. Two future audit
+compatibility cases remain deferred, with current proof unaffected. All 163
+post-review Stripe checks and focused lint pass. The last inert rebuild also
+passes, including TypeScript. See the [final disposition register](audits/2026-11-21-coderabbit-range-backfill-results.md).
+
+Historical range proof is complete for all 703 changed code/test histories at
+public `d7e30e0`. The final successful-create correction and its small supporting
+test/script delta are subsequent to the reviewed head: they still need ordinary
+PR review, fresh hosted checks and concrete publication authorization. No ninth
+remote request or automatic rewrite loop occurs. Earlier app and backup
+corrections are also local; NAS activation has its separate gate. No provider,
+database, NAS, mail, payment or public deployment is changed.
+
+## November 21 historical review coverage closed; final correction review pending
+
+All seven remote requests so far complete: five initial cohorts, the 37-path
+correction review and the fixed 60-path wider-range backfill. The backfill
+raises 64 observations (25 major, 31 minor, eight trivial), with no omitted
+manifest path. The strict audit now proves all 703 changed code/test histories
+at public `d7e30e0`; zero remain unproven. Untouched inherited code remains a
+separate baseline. Earlier 643/60 status below is superseded.
+
+Seven further supported current-beta behavior problems are corrected locally:
+requested-date practice reads, local month/day/reminder boundaries, cached
+membership Checkout state, complete Portal catalog evidence and explicit Portal
+pagination. Four existing tests are strengthened and a late legacy Session
+regression confirms expiration before replacement. Every backfill observation
+has an explicit disposition in the [backfill register](audits/2026-11-21-coderabbit-range-backfill-results.md).
+Dormant migration/cleanup tools and test-quality suggestions remain finite
+follow-ups with use gates; they are not claimed fixed or all refuted.
+
+The earlier app checkpoint has its inert build and 16 native phone/desktop
+scenarios. The new Calendar layer checks pass 116/116, Stripe checks 161/161,
+route/security checks 207/207, anatomy delivery 12/12 and build gates 20/20.
+The latest inert application build, full lint/TypeScript and three audit-proof
+regressions also pass. The final correction-delta review remains pending.
+This is the last review request under the finite range-proof plan; no automatic
+new loop is enabled. Everything remains local, with publication and NAS
+activation requiring their separate gates.
+
+## November 21 correction review complete; range backfill prepared
+
+The actual 37-file correction review at `9712b16` completes with four major
+observations. Two Calendar questions are refuted by the matching form fields
+and transactional event/block writers. Two audit defects are confirmed and
+corrected locally: Git errors must stop enumeration, and matching reviewed
+blobs alone do not prove earlier changes were reviewed. Real-Git and incremental-
+range regressions pass. All 76 PR diffs read successfully under the strict audit.
+
+The revised method and an independent implementation agree on 643 of 703
+changed code/test histories with complete evidence; exactly 60 remain unproven
+(30 runtime/configuration, 30 tests). One fixed wider-range backfill is prepared
+at the exact public `d7e30e0` tree, followed by one final correction-delta review.
+The included slot reopens around 09:13 America/New_York. No paid credits or
+automatic review retries are enabled. See the
+[finite range-proof plan](superpowers/plans/2026-11-21-coderabbit-range-proof.md)
+and its exact manifest. The older blob-only completeness language below is
+superseded; the five initial 166-path receipts remain valid for their ranges.
+
+The final application build, TypeScript, lint, focused regressions, all 16
+desktop/phone Wellness and Planner/PDF scenarios, and applicable Windows/Linux
+backup tests pass at the application checkpoint. Only audit code, tests and
+review records are changing now. No deployment or NAS activation occurs.
+
+## November 21 retrospective passes complete; local corrections awaiting review
+
+Fresh CodeRabbit authentication succeeds. All five initial cohorts complete:
+166 exact frozen paths, 46 observations (28 major, 18 minor), no omissions or
+overlap. Triage identifies 21 corrected behavior issues, one strengthened test,
+two prepared operator-runbook clarifications, 20 refutations and two conditional
+follow-ups. Local branch `codex/coderabbit-review-fixes` starts from public
+`d7e30e0` and receipt `1a94dab`; checkpoint `ce08c01` contains the first grouped
+corrections. The final Planner source fix passes focused report/PDF regressions.
+Ten phone/desktop Wellness browser scenarios, inert build, TypeScript, lint and
+applicable Windows/Linux backup tests pass before that last helper change.
+Its rebuild and final lint, one correction review and later ordinary independent
+Codex/hosted CI gates remain. A separate concrete publication decision is needed.
+No live service or NAS change occurs. See the
+[complete triage](audits/2026-11-21-coderabbit-retrospective-results.md).
+See the [correction plan](superpowers/plans/2026-11-21-coderabbit-corrections.md).
+
+## November 21 sidebar and private Calendar published
+
+[PR #77](https://github.com/dsbowersock/atmoshaper/pull/77) is public as
+`d7e30e022d825d9f26ed37bd6636f11bae1e8314`, with the exact reviewed `61a7c6a`
+tree. The reorganized sidebar and Personal/Practice/Together Calendar are live;
+Together combines the owner's private layer with one selected authorized practice.
+Both Codex and actual CodeRabbit reviews complete, all supported issues are
+addressed, all seven reviewed-source checks succeed and all six threads resolve.
+The 15-file CodeRabbit correction follow-up reports no actionable issues;
+all 35 current changed code/configuration/test blobs have completed coverage.
+Staged migration/payment gates, both Sentry uploads and dashboard script/map
+pairing pass. Actual staged launch/outline PDFs preserve synthetic answers,
+Unicode and notices. All 23 public routes, phone/desktop sidebar/Calendar checks
+and same-artifact asset bytes pass, with settings/unrelated mappings unchanged.
+The prior compatible release remains READY; no rollback is used. All seven
+merged-source checks and final source/settings/routing readback pass; the
+publication operation is verified and closed. See the
+[publication receipt](audits/2026-11-21-sidebar-calendar-publication.md).
+
+The owner's bounded retrospective CodeRabbit campaign remains isolated on
+`codex/coderabbit-coverage-audit`, awaiting private CLI reauthentication. Old
+PRs stay closed; this publication does not claim that older coverage is complete.
+
 ## November 21 sidebar/Calendar publication in preparation
 
 The initial explicit CLI review covers all 40 paths at `03675e4`; its four

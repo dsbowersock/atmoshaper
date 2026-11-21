@@ -23,19 +23,27 @@ export async function createCalendarWorkspaceBrowserBundle() {
   export async function saveCalendarPreferencesAction(input){window.__calendarWrites.push(input)}
   export async function rescheduleCalendarEventAction(input){window.__calendarWrites.push(input)}
   `)
-  const router = dataModule(`export const useRouter=()=>({push:(url)=>window.__calendarNavigation.push(url)});`)
+  const router = dataModule(`export const useRouter=()=>({push:(url)=>window.__calendarNavigation.push(url),replace:(url)=>window.__calendarNavigation.push(url)});`)
   const entry = dataModule(`
     import React,{useState} from 'react'; import {createRoot} from 'react-dom/client';
     import {CalendarWorkspace} from ${JSON.stringify(path.join(root,"app/calendar/calendar-workspace.tsx"))};
     import {normalizeCalendarPreferences} from ${JSON.stringify(path.join(root,"lib/calendar-preferences.js"))};
+    import {calendarWorkspaceReadWindow,calendarWorkspaceOwnerKey} from ${JSON.stringify(path.join(root,"lib/calendar-workspace.js"))};
     window.__calendarReads=[];window.__calendarWrites=[];window.__calendarNavigation=[];window.__calendarOwner='fictional-owner';
     function Fixture(){const [owner,setOwner]=useState('fictional-owner');window.__switchCalendarOwner=()=>{window.__calendarOwner='fictional-second';setOwner('fictional-second')};
+      const [initialDate,setInitialDate]=useState(new URL(location.href).searchParams.has('monthEnd')?'2027-01-31':'2030-02-12');
+      const readWindow=(day)=>{const range=calendarWorkspaceReadWindow(day);return {start:range.start.toISOString(),end:range.end.toISOString()}};
+      const [loadedWindow,setLoadedWindow]=useState(()=>readWindow(initialDate));
+      const [routeScope,setRouteScope]=useState(new URL(location.href).searchParams.has('personalOnly')?'personal':new URL(location.href).searchParams.has('split')||new URL(location.href).searchParams.has('bounded')?'practice':'together');
+      window.__loadPracticeDate=(day,scope)=>{setInitialDate(day);setLoadedWindow(readWindow(day));if(scope)setRouteScope(scope)};
+      const bounded=new URL(location.href).searchParams.has('bounded');
       const noPractice=new URL(location.href).searchParams.has('personalOnly');
       const split=new URL(location.href).searchParams.has('split');
       return React.createElement(React.Fragment,null,
         React.createElement('p',{className:'px-3 py-2 text-xs text-muted-foreground'},'Local preview · fictional sample data'),
         React.createElement('div',{className:'flex min-h-0 flex-1 flex-col'},React.createElement(CalendarWorkspace,{
-          key:owner,currentUserId:owner,initialDate:'2026-11-20',initialScope:noPractice?'personal':split?'practice':'together',hasPractice:!noPractice,
+          key:calendarWorkspaceOwnerKey(owner,'fictional-practice'),currentUserId:owner,initialDate:bounded?initialDate:'2026-11-20',initialScope:routeScope,hasPractice:!noPractice,
+          loadedPracticeWindow:bounded?loadedWindow:undefined,
           selectedPracticeId:'fictional-practice',practiceOptions:noPractice?[]:[{id:'fictional-practice',name:'Example Studio'},{id:'fictional-second-practice',name:'Example Group'}],
           providers:[{id:owner,label:'Example provider'},...(split?[{id:'fictional-colleague',label:'Example colleague'}]:[])],providerAvailability:[],preferences:normalizeCalendarPreferences({defaultRange:'month',providerViewMode:split?'split':'only-me'}),
           events:noPractice?[]:[{id:'fictional-appointment',title:'Example appointment',start:'2026-11-20T13:00:00Z',end:'2026-11-20T14:00:00Z',extendedProps:{ownerUserId:owner,statusBadge:'Confirmed'}}]

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { createHmac } from "node:crypto"
+import { createServer } from "node:http"
 import { describe, it } from "node:test"
 import {
   createStripeDonationCheckoutSession,
@@ -520,7 +521,7 @@ describe("Stripe billing helpers", () => {
   it("creates Supporter Checkout with exclusive automatic tax and address collection", async () => {
     let capturedPayload = null
 
-    await stripeBilling.createStripeCheckoutSession({
+    await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
       customerId: "cus_123",
       priceId: DEFAULT_SUPPORTER_PRICE_ID,
       userId: "user_123",
@@ -535,12 +536,12 @@ describe("Stripe billing helpers", () => {
             list: async () => stripeCheckoutSessionList(),
             create: async (payload) => {
               capturedPayload = payload
-              return { id: "cs_123", url: "https://checkout.stripe.com/c/test" }
+              return membershipCheckoutSession({ id: "cs_123", url: "https://checkout.stripe.com/c/test" })
             },
           },
         },
       },
-    })
+    }))
 
     assert.deepEqual(capturedPayload.automatic_tax, { enabled: true })
     assert.equal(capturedPayload.billing_address_collection, "required")
@@ -560,7 +561,7 @@ describe("Stripe billing helpers", () => {
   it("routes business use through the business Price and metadata contract", async () => {
     let capturedPayload = null
 
-    await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
       priceId: SUPPORTER_1_BUSINESS_MONTHLY_PRICE_ID,
       supporterUse: "business",
       stripeClient: {
@@ -569,7 +570,7 @@ describe("Stripe billing helpers", () => {
             list: async () => stripeCheckoutSessionList(),
             create: async (payload) => {
               capturedPayload = payload
-              return membershipCheckoutSession({ id: "cs_business" })
+              return membershipCheckoutSession({ id: "cs_business", supporterUse: "business" })
             },
           },
         },
@@ -582,6 +583,195 @@ describe("Stripe billing helpers", () => {
     }])
     assert.equal(capturedPayload.metadata.supporterUse, "business")
     assert.equal(capturedPayload.subscription_data.metadata.supporterUse, "business")
+    assert.equal(result.id, "cs_business")
+  })
+
+  it("reconciles an expired Session hidden behind a cached successful create response", async () => {
+    const calls = []
+    let lists = 0
+    const expired = membershipCheckoutSession({ id: "cs_cached", status: "expired", url: null })
+    const fresh = membershipCheckoutSession({ id: "cs_fresh", url: "https://checkout.stripe.com/c/fresh" })
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      stripeClient: { checkout: { sessions: {
+        list: async () => stripeCheckoutSessionList(++lists === 1 ? [] : [expired]),
+        create: async (_payload, options) => {
+          calls.push(options.idempotencyKey)
+          return calls.length === 1 ? membershipCheckoutSession({ id: expired.id }) : fresh
+        },
+        retrieve: async (id) => id === expired.id ? expired : fresh,
+      } } },
+    }))
+    assert.equal(result.id, fresh.id)
+    assert.equal(result.url, fresh.url)
+    assert.deepEqual(calls, [
+      "massagelab-membership-checkout:user_123:after:initial",
+      "massagelab-membership-checkout:user_123:after:cs_cached",
+    ])
+  })
+
+  it("never exposes a cached payable URL or creates a third Session when the retry is terminal", async () => {
+    let creates = 0
+    const expired = membershipCheckoutSession({ id: "cs_cached", status: "expired", url: null })
+    let lists = 0
+    await assert.rejects(stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      stripeClient: { checkout: { sessions: {
+        list: async () => stripeCheckoutSessionList(++lists === 1 ? [] : [expired]),
+        create: async () => { creates += 1; return membershipCheckoutSession({ id: expired.id }) },
+        retrieve: async () => expired,
+      } } },
+    })), /no longer open/)
+    assert.equal(creates, 2)
+  })
+
+  it("expires a late legacy Session after a payload conflict before creating its replacement", async () => {
+    const calls = []
+    const legacy = membershipCheckoutSession({
+      id: "cs_late_legacy", purpose: null, checkoutContractVersion: null,
+    })
+    const fresh = membershipCheckoutSession({ id: "cs_new_contract" })
+    let lists = 0
+    let creates = 0
+    const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      stripeClient: { checkout: { sessions: {
+        list: async () => stripeCheckoutSessionList(++lists === 1 ? [] : [legacy]),
+        create: async () => {
+          calls.push("create")
+          if (++creates === 1) throw Object.assign(new Error("Legacy payload mismatch"), {
+            type: "StripeIdempotencyError", statusCode: 409,
+          })
+          assert.equal(legacy.status, "expired")
+          return fresh
+        },
+        expire: async (id) => {
+          assert.equal(id, legacy.id)
+          calls.push("expire legacy")
+          legacy.status = "expired"
+          legacy.url = null
+          return legacy
+        },
+        retrieve: async (id) => id === legacy.id ? legacy : fresh,
+        listLineItems: async () => { throw new Error("A purpose-less legacy Session cannot be reused") },
+      } } },
+    }))
+    assert.equal(result.id, fresh.id)
+    assert.deepEqual(calls, ["create", "expire legacy", "create"])
+  })
+
+  it("confirms slow successful initial and retry creates after the reconciliation deadline", async () => {
+    for (const retry of [false, true]) {
+      let clock = 0
+      let creates = 0
+      let reads = 0
+      const fresh = membershipCheckoutSession({ id: "cs_slow_success" })
+      const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+        reconciliationNowMs: () => clock,
+        stripeClient: { checkout: { sessions: {
+          list: async () => stripeCheckoutSessionList(),
+          create: async () => {
+            creates += 1
+            if (retry && creates === 1) throw Object.assign(new Error("Committed legacy conflict"), {
+              type: "StripeIdempotencyError", statusCode: 409,
+            })
+            clock = 6000
+            return fresh
+          },
+          retrieve: async (id, _params, options) => {
+            reads += 1
+            assert.equal(id, fresh.id)
+            assert.ok(options.timeout > 0 && options.timeout <= 5000)
+            assert.equal(options.maxNetworkRetries, 0)
+            return fresh
+          },
+        } } },
+      }))
+      assert.equal(result.id, fresh.id)
+      assert.equal(creates, retry ? 2 : 1)
+      assert.equal(reads, 1)
+    }
+  })
+
+  it("bounds a confirmation read that never settles within the SDK inactivity timeout", async (t) => {
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+    let startRead, finishRead
+    const started = new Promise(resolve => { startRead = resolve })
+    const fresh = membershipCheckoutSession({ id: "cs_confirmation_deadline" })
+    let creates = 0
+    const checkout = stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      stripeClient: { checkout: { sessions: {
+        list: async () => stripeCheckoutSessionList(),
+        create: async () => { creates += 1; return fresh },
+        retrieve: () => { startRead(); return new Promise(resolve => { finishRead = resolve }) },
+      } } },
+    }))
+    await started
+    const rejected = assert.rejects(checkout, /confirmation exceeded the safe time limit/)
+    t.mock.timers.tick(5001)
+    await rejected
+    finishRead(fresh)
+    assert.equal(creates, 1)
+  })
+
+  it("aborts a trickling confirmation body without cancelling another SDK request", { timeout: 15000 }, async () => {
+    let creates = 0, confirmationReads = 0, interval, unrelatedResponse, bodyClosed, trickle = false
+    const closed = new Promise(resolve => { bodyClosed = resolve })
+    const fresh = membershipCheckoutSession({ id: "cs_transport_deadline" })
+    const server = createServer((request, response) => {
+      const path = new URL(request.url, "http://127.0.0.1").pathname
+      response.setHeader("content-type", "application/json")
+      if (path === "/v1/customers/cus_unrelated") { unrelatedResponse = response; response.write('{"id":"cus_unrelated"'); return }
+      if (path === `/v1/checkout/sessions/${fresh.id}`) {
+        confirmationReads += 1
+        if (!trickle) { response.end(JSON.stringify(fresh)); return }
+        response.write('{"unfinished":')
+        interval = setInterval(() => response.write(" "), 25)
+        response.once("close", () => { clearInterval(interval); bodyClosed(); unrelatedResponse?.end("}") })
+        return
+      }
+      if (request.method === "POST" && path === "/v1/checkout/sessions") { creates += 1; response.end(JSON.stringify(fresh)); return }
+      if (request.method === "GET" && path === "/v1/checkout/sessions") { response.end(JSON.stringify(stripeCheckoutSessionList())); return }
+      response.writeHead(404); response.end(JSON.stringify({error:{message:"Unexpected loopback request"}}))
+    })
+    await new Promise(resolve => server.listen(0, "127.0.0.1", resolve))
+    try {
+      const stripe = stripeBilling.getStripeClient("sk_test_fictional_loopback", { host: "127.0.0.1", port: server.address().port, protocol: "http", telemetry: false })
+      assert.equal((await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({stripeClient:stripe}))).id, fresh.id)
+      assert.equal(creates, 1); assert.equal(confirmationReads, 1)
+      creates = 0; confirmationReads = 0; trickle = true
+      const unrelated = stripe.customers.retrieve("cus_unrelated")
+      const began = performance.now()
+      await assert.rejects(stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({stripeClient:stripe})), /exceeded the safe time limit/)
+      assert.ok(performance.now() - began < 7000)
+      // This must observe actual server-side body/socket closure, not just a
+      // rejected caller while the transport continues buffering indefinitely.
+      await Promise.race([closed, new Promise((_, reject) => { const timer = setTimeout(()=>reject(new Error("confirmation socket remained open")), 1500); closed.then(()=>clearTimeout(timer)) })])
+      assert.equal((await unrelated).id, "cus_unrelated")
+      assert.equal(creates, 1); assert.equal(confirmationReads, 1)
+    } finally {
+      clearInterval(interval)
+      server.closeAllConnections()
+      await new Promise(resolve => server.close(resolve))
+    }
+  })
+
+  it("rejects a slow terminal create without starting another create after the deadline", async () => {
+    let clock = 0
+    let creates = 0
+    let reads = 0
+    let lists = 0
+    await assert.rejects(stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
+      reconciliationNowMs: () => clock,
+      stripeClient: { checkout: { sessions: {
+        list: async () => { lists += 1; return stripeCheckoutSessionList() },
+        create: async () => { creates += 1; clock = 6000; return membershipCheckoutSession() },
+        retrieve: async () => {
+          reads += 1
+          return membershipCheckoutSession({ status: "expired", url: null })
+        },
+      } } },
+    })))
+    assert.equal(creates, 1)
+    assert.equal(reads, 1)
+    assert.equal(lists, 1)
   })
 
   it("uses Stripe's supported created.gte filter to bound Session reconciliation", async () => {
@@ -1100,7 +1290,7 @@ describe("Stripe billing helpers", () => {
 
     const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
       reconciliationBudgetMs: 10,
-      reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+      reconciliationNowMs: monotonicNowMsSequence(...Array(14).fill(100)),
       stripeClient,
     }))
 
@@ -1139,7 +1329,7 @@ describe("Stripe billing helpers", () => {
 
     const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
       reconciliationBudgetMs: 10,
-      reconciliationNowMs: monotonicNowMsSequence(...Array(12).fill(100)),
+      reconciliationNowMs: monotonicNowMsSequence(...Array(14).fill(100)),
       stripeClient: {
         checkout: {
           sessions: {
@@ -1243,11 +1433,9 @@ describe("Stripe billing helpers", () => {
             expiredSessions.push(sessionId)
             return { id: sessionId, object: "checkout.session", status: "expired" }
           },
-          retrieve: async (sessionId) => ({
-            id: sessionId,
-            object: "checkout.session",
-            status: "expired",
-          }),
+          retrieve: async (sessionId) => expiredSessions.includes(sessionId)
+            ? { id: sessionId, object: "checkout.session", status: "expired" }
+            : createdSessions.find(({ id }) => id === sessionId),
           create: async (payload, requestOptions) => {
             const priceId = payload.line_items[0].price
             const idempotencyKey = requestOptions?.idempotencyKey
@@ -1467,6 +1655,8 @@ describe("Stripe billing helpers", () => {
         109,
         109,
         109,
+        109,
+        109,
       ),
       stripeClient: {
         checkout: {
@@ -1480,6 +1670,7 @@ describe("Stripe billing helpers", () => {
               return { id: sessionId, object: "checkout.session", status: "expired" }
             },
             retrieve: async (sessionId) => {
+              if (sessionId === "cs_after_open_expiry") return membershipCheckoutSession({ id: sessionId })
               calls.push(["retrieve", sessionId])
               return { id: sessionId, object: "checkout.session", status: "expired" }
             },
@@ -2157,6 +2348,7 @@ describe("Stripe billing helpers", () => {
               return { id: sessionId, object: "checkout.session", status: "expired" }
             },
             retrieve: async (sessionId) => {
+              if (sessionId === "cs_open_yearly") return membershipCheckoutSession({ id: sessionId })
               calls.push(["retrieve", sessionId])
               return { id: sessionId, object: "checkout.session", status: "expired" }
             },
@@ -2216,6 +2408,7 @@ describe("Stripe billing helpers", () => {
               return { id: sessionId, object: "checkout.session", status: "expired" }
             },
             retrieve: async (sessionId) => {
+              if (sessionId === "cs_current") return membershipCheckoutSession({ id: sessionId })
               calls.push(["retrieve", sessionId])
               return { id: sessionId, object: "checkout.session", status: "expired" }
             },
@@ -2322,7 +2515,7 @@ describe("Stripe billing helpers", () => {
               expired.push(sessionId)
               return { id: sessionId, object: "checkout.session", status: "expired" }
             },
-            retrieve: async (sessionId) => ({
+            retrieve: async (sessionId) => sessionId === "cs_current" ? membershipCheckoutSession({ id: sessionId }) : ({
               id: sessionId,
               object: "checkout.session",
               status: "expired",
@@ -2360,7 +2553,7 @@ describe("Stripe billing helpers", () => {
             expire: async () => {
               throw new Error("connection closed after Stripe committed expiration")
             },
-            retrieve: async (sessionId) => ({
+            retrieve: async (sessionId) => sessionId === "cs_current" ? membershipCheckoutSession({ id: sessionId }) : ({
               id: sessionId,
               object: "checkout.session",
               status: "expired",
@@ -3574,7 +3767,7 @@ describe("Stripe billing helpers", () => {
     let listCalls = 0
     const result = await stripeBilling.createStripeCheckoutSession(membershipCheckoutOptions({
       reconciliationBudgetMs: 10,
-      reconciliationNowMs: monotonicNowMsSequence(...Array(11).fill(100)),
+      reconciliationNowMs: monotonicNowMsSequence(...Array(13).fill(100)),
       stripeClient: {
         checkout: {
           sessions: {
@@ -4201,6 +4394,22 @@ function monotonicNowMsSequence(...timestamps) {
 
 /** Builds one valid membership Checkout request with narrow per-test overrides. */
 function membershipCheckoutOptions(overrides = {}) {
+  // Simple fixtures model Stripe's persisted create response. Tests supplying
+  // retrieve keep full control of provider state, including stale POST replays.
+  const sessions = overrides.stripeClient?.checkout?.sessions
+  if (sessions?.create && !sessions.retrieve) {
+    const created = new Map()
+    const create = sessions.create.bind(sessions)
+    sessions.create = async (...args) => {
+      const session = await create(...args)
+      created.set(session.id, session)
+      return session
+    }
+    sessions.retrieve = async (id) => {
+      assert.ok(created.has(id), `Unexpected Session read: ${id}`)
+      return created.get(id)
+    }
+  }
   return {
     customerId: "cus_123",
     priceId: DEFAULT_SUPPORTER_PRICE_ID,
