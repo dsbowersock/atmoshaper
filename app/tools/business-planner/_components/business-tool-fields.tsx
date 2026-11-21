@@ -45,7 +45,7 @@ export function NumberField({
   value,
   onChange,
   max,
-  step = "1",
+  step,
   unit,
   description,
 }: {
@@ -55,12 +55,18 @@ export function NumberField({
   onChange: (value: number) => void
   max?: number
   step?: string
-  unit?: "$" | "%" | "h" | "days" | "min" | "weeks" | "sessions"
+  unit?: "$" | "%" | "h" | "days" | "min" | "weeks" | "sessions" | "sales"
   description?: string
 }) {
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     onChange(numberFromInput(event.currentTarget.value))
   }
+
+  // Short units leave room for enlarged digits and native controls in narrow rows.
+  const unitPadding = unit === "$" ? "ps-8"
+    : unit === "%" || unit === "h" ? "pe-8"
+    : unit === "min" || unit === "sales" ? "pe-14"
+    : unit ? "pe-20" : ""
 
   return (
     <div className={cn("space-y-2", styles.field)}>
@@ -71,11 +77,11 @@ export function NumberField({
         id={id}
         type="number"
         inputMode="decimal"
-        className={cn(styles.numberInput, "tabular-nums", unit === "$" ? "ps-8" : unit ? "pe-20" : "", unit === "%" || unit === "h" ? "pe-8" : "")}
+        className={cn(styles.numberInput, "tabular-nums", unitPadding)}
         aria-describedby={description ? `${id}-help` : undefined}
         min={0}
         max={max}
-        step={step}
+        step={step ?? (unit === "$" ? "0.01" : "1")}
         value={Number.isFinite(value) ? value : 0}
         onChange={handleChange}
       />
@@ -111,6 +117,9 @@ export function TextAreaField({
   onChange,
   placeholder,
   rows = 5,
+  description,
+  maxLength,
+  ariaLabel,
 }: {
   id: string
   label: string
@@ -118,17 +127,24 @@ export function TextAreaField({
   onChange: (value: string) => void
   placeholder?: string
   rows?: number
+  description?: string
+  maxLength?: number
+  ariaLabel?: string
 }) {
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 ${styles.field}`}>
       <Label htmlFor={id} className="text-xs font-medium text-muted-foreground">{label}</Label>
       <Textarea
         id={id}
         value={value}
         placeholder={placeholder}
         rows={rows}
+        maxLength={maxLength}
+        aria-label={ariaLabel}
+        aria-describedby={description ? `${id}-help` : undefined}
         onChange={(event) => onChange(event.currentTarget.value)}
       />
+      {description ? <p id={`${id}-help`} className="text-xs leading-relaxed text-muted-foreground">{description}</p> : null}
     </div>
   )
 }
@@ -143,8 +159,8 @@ export function MetricTile({
   description?: string
 }) {
   return (
-    <AppInset className="p-3">
-      <p className="text-xs uppercase tracking-normal text-muted-foreground">{label}</p>
+    <AppInset className={`p-3 ${styles.metric}`}>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-lg font-semibold">{value}</p>
       {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
     </AppInset>

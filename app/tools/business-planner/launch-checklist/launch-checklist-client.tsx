@@ -1,103 +1,93 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { PlannerHeader } from "../_components/planner-header"
+import { PlannerStep, PlannerStepper } from "../_components/planner-stepper"
+import styles from "../_components/business-planner.module.css"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
-import { BusinessDraftStorageNotice } from "../_components/business-tool-fields"
+import { BusinessDraftStorageNotice, PlannerSection, TextAreaField, TextField } from "../_components/business-tool-fields"
+import { PlannerReportReview, SavedPlannerContext, usePlannerReportSources } from "../_components/planner-report"
 import { ListChecks, RotateCcw } from "lucide-react"
-import { AppInset, AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { BUSINESS_LAUNCH_CHECKLIST_SECTIONS } from "@/lib/business-plan-template-tools"
+import { checklistContextRows, LAUNCH_REPORT_QUESTIONS, LAUNCH_CHECKLIST_STORAGE_KEY, normalizeLaunchDraft, PLANNER_ANSWER_LIMIT } from "@/lib/business-planner-reports"
 
-type ChecklistState = Record<string, boolean>
-
-const STORAGE_KEY = "massagelab-business-planner-launch-checklist-v1"
+const checklistStepLabels = ["Structure", "Licensing", "Location", "Management", "Policies", "Presentation"]
 
 /** Hydrates known checklist keys and preserves unread device work when storage is denied. */
 export function LaunchChecklistClient() {
-  const allKeys = useMemo(() => BUSINESS_LAUNCH_CHECKLIST_SECTIONS.flatMap((section) => (
-    section.items.map((item) => checklistKey(section.id, item))
-  )), [])
-  const normalizeDraft = useCallback((value: unknown) => normalizeChecklistState(value, allKeys), [allKeys])
-  const { value: checkedItems, setValue: setCheckedItems, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<ChecklistState>({
-    storageKey: STORAGE_KEY,
-    initialValue: () => ({}),
-    normalize: normalizeDraft,
+  const { value: draft, setValue: setDraft, storageReady, storageUnavailable, unreadDraft } = useBusinessPlannerDraft({
+    storageKey: LAUNCH_CHECKLIST_STORAGE_KEY,
+    initialValue: () => normalizeLaunchDraft({}),
+    normalize: normalizeLaunchDraft,
   })
-  const completedCount = allKeys.filter((key) => checkedItems[key]).length
-  const progressPercent = allKeys.length > 0 ? Math.round((completedCount / allKeys.length) * 100) : 0
+  const { sources, ready, refresh } = usePlannerReportSources()
+  const completedCount = LAUNCH_REPORT_QUESTIONS.filter(({ key }) => draft[key] === true).length
 
   function setItemChecked(key: string, checked: boolean) {
-    setCheckedItems((current) => ({
+    setDraft((current) => ({
       ...current,
       [key]: checked,
     }))
   }
 
   function resetChecklist() {
-    setCheckedItems({})
+    // Written work survives the original checkmark-reset action.
+    setDraft((current) => normalizeLaunchDraft({ ...current, ...Object.fromEntries(LAUNCH_REPORT_QUESTIONS.map(({ key }) => [key, false])) }))
+  }
+
+  function setAnswer(key: string, value: string) {
+    setDraft((current) => normalizeLaunchDraft({ ...current, answers: { ...current.answers, [key]: value } }))
+  }
+
+  function setPractice(field: keyof typeof draft.practice, value: string) {
+    setDraft((current) => normalizeLaunchDraft({ ...current, practice: { ...current.practice, [field]: value } }))
   }
 
   return (
-    <AppPageShell width="full" contentClassName="gap-6">
-      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <AppSurface
-        title="Practice Launch Checklist"
-        description="Turn the business plan template into concrete launch tasks for legal structure, licenses, location, management, client policies, and presentation."
-        icon={<ListChecks className="h-5 w-5" aria-hidden="true" />}
-        badge="Browser checklist"
-        className={appCalloutClassName}
-      >
-        <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-          <AppInset className="p-3">
-            <p className="text-xs uppercase tracking-normal text-muted-foreground">Progress</p>
-            <p className="mt-1 text-lg font-semibold">{completedCount} of {allKeys.length} tasks complete</p>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${progressPercent}%` }} />
-            </div>
-          </AppInset>
-          <Button type="button" variant="secondary" onClick={resetChecklist}>
-            <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
-            Reset checklist
-          </Button>
-        </div>
-      </AppSurface>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        {BUSINESS_LAUNCH_CHECKLIST_SECTIONS.map((section) => (
-          <AppSurface key={section.id} title={section.title} description={`${section.items.length} template tasks`}>
-            <div className="space-y-3">
-              {section.items.map((item) => {
-                const key = checklistKey(section.id, item)
-                return (
-                  <div key={key} className="flex items-start gap-3 rounded-md border border-border/80 bg-background/70 p-3">
-                    <Checkbox
-                      id={key}
-                      checked={Boolean(checkedItems[key])}
-                      onCheckedChange={(value) => setItemChecked(key, value === true)}
-                    />
-                    <Label htmlFor={key} className="cursor-pointer text-sm leading-5">
-                      {item}
-                    </Label>
+    <div className={styles.page} data-launch-checklist-planner>
+      <div className={`${styles.workspace} ${styles.guidedWorkspace}`}>
+        <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
+        <PlannerHeader title="Practice Launch Checklist" description="Work through the practical tasks for opening your massage practice." icon={ListChecks}
+          saveLabel={!storageReady ? "Opening saved draft" : storageUnavailable ? "Not saved on this device" : "Saved on this device"}
+          guide={<p>Write your responses and mark tasks you have actually completed. Writing or visiting a step does not check a task. At the end, review and download a working report for discussion with licensed professionals. Do not enter client information, tax IDs, bank details or credentials.</p>}
+        >
+          <p>{completedCount} of {LAUNCH_REPORT_QUESTIONS.length} tasks checked · responses save on this device</p>
+          <Button type="button" variant="ghost" onClick={resetChecklist}><RotateCcw aria-hidden="true" />Reset checkmarks</Button>
+        </PlannerHeader>
+        <PlannerStepper label="Practice launch sections">
+          {BUSINESS_LAUNCH_CHECKLIST_SECTIONS.map((section, index) => (
+            <PlannerStep key={section.id} id={section.id} title={section.title} shortTitle={checklistStepLabels[index]}
+              description={`${LAUNCH_REPORT_QUESTIONS.filter((question) => question.sectionId === section.id && draft[question.key] === true).length} of ${section.items.length} tasks checked in this section. Responses and completion are separate.`}
+            >
+              {index === 0 ? <PlannerSection title="Practice details" description="Collected once and reused in reports. Use business contact information you want included in the document.">
+                <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+                  <TextField id="launch-business-name" label="Business name" value={draft.practice.businessName} onChange={(value) => setPractice("businessName", value)} />
+                  <TextField id="launch-prepared-by" label="Prepared by (optional)" value={draft.practice.preparedBy} onChange={(value) => setPractice("preparedBy", value)} />
+                </div>
+                <TextAreaField id="launch-business-contact" label="Business contact (optional)" rows={2} maxLength={600} value={draft.practice.contact} onChange={(value) => setPractice("contact", value)} />
+              </PlannerSection> : null}
+              <div className="grid min-w-0 gap-3">
+                {LAUNCH_REPORT_QUESTIONS.filter((question) => question.sectionId === section.id).map(({ key, item, hint }) => {
+                  return <div key={key} className={styles.checklistItem}>
+                    <Checkbox id={key} checked={draft[key] === true} onCheckedChange={(value) => setItemChecked(key, value === true)} />
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <Label htmlFor={key} className="cursor-pointer text-sm">{item}</Label>
+                      <SavedPlannerContext rows={checklistContextRows(key, sources)} />
+                      <TextAreaField id={`${key}-answer`} label="Response / notes" ariaLabel={`${item} Response`} description={hint} rows={3} maxLength={PLANNER_ANSWER_LIMIT}
+                        value={draft.answers[key]} onChange={(value) => setAnswer(key, value)} />
+                    </div>
                   </div>
-                )
-              })}
-            </div>
-          </AppSurface>
-        ))}
+                })}
+              </div>
+            </PlannerStep>
+          ))}
+          <PlannerStep id="report" title="Review and download your launch report" shortTitle="Report">
+            <PlannerReportReview kind="launch" draft={draft} sources={sources} ready={ready && storageReady} refresh={refresh} />
+          </PlannerStep>
+        </PlannerStepper>
       </div>
-    </AppPageShell>
+    </div>
   )
-}
-
-function checklistKey(sectionId: string, item: string) {
-  return `${sectionId}:${item}`
-}
-
-function normalizeChecklistState(value: unknown, allowedKeys: string[]) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return {}
-
-  const source = value as Record<string, unknown>
-  return Object.fromEntries(allowedKeys.map((key) => [key, source[key] === true]))
 }

@@ -1,9 +1,11 @@
 "use client"
 
+import { PlannerHeader } from "../_components/planner-header"
+import { PlannerStep, PlannerStepper } from "../_components/planner-stepper"
+import styles from "../_components/business-planner.module.css"
 import { useMemo } from "react"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { ClipboardList, Plus, RotateCcw, Trash2 } from "lucide-react"
-import { AppPageShell, AppSurface, appCalloutClassName } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import {
   calculateServiceMenuPlan,
@@ -17,6 +19,7 @@ import {
   TextField,
   formatMoney,
   formatNumber,
+  PlannerSection,
 } from "../_components/business-tool-fields"
 
 type ServiceMenuInput = ReturnType<typeof normalizeServiceMenuInput>
@@ -26,7 +29,7 @@ const STORAGE_KEY = "massagelab-business-planner-service-menu-v1"
 
 /** Edits one device-local service menu without letting storage access disable its controls. */
 export function ServiceMenuClient() {
-  const { value: input, setValue: setInput, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<ServiceMenuInput>({
+  const { value: input, setValue: setInput, storageReady, storageUnavailable, unreadDraft } = useBusinessPlannerDraft<ServiceMenuInput>({
     storageKey: STORAGE_KEY,
     initialValue: () => normalizeServiceMenuInput({}),
     normalize: normalizeServiceMenuInput,
@@ -78,139 +81,67 @@ export function ServiceMenuClient() {
   }
 
   return (
-    <AppPageShell width="full" contentClassName="gap-6">
-      <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <AppSurface
-        title="Service Menu and Policies"
-        description="Draft the service, pricing, scheduling, cancellation, no-show, and documentation privacy pieces of the business plan template."
-        icon={<ClipboardList className="h-5 w-5" aria-hidden="true" />}
-        badge="Browser worksheet"
-        className={appCalloutClassName}
-      >
-        <div className="grid gap-3 md:grid-cols-4">
-          <MetricTile label="Services" value={String(plan.serviceCount)} />
-          <MetricTile label="Average hourly rate" value={formatMoney(plan.averageHourlyRate)} />
-          <MetricTile label="Lowest price" value={formatMoney(plan.lowestPrice)} />
-          <MetricTile label="Highest price" value={formatMoney(plan.highestPrice)} />
-        </div>
-      </AppSurface>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
-        <div className="space-y-6">
-          <AppSurface
-            title="Service menu"
-            description="List each service students plan to offer, then compare the implied hourly rate."
-          >
-            <div className="space-y-3">
-              {input.services.map((service, index) => (
-                <div key={`service-${index}`} className="grid gap-3 rounded-md border border-border/80 bg-background/70 p-3 md:grid-cols-[minmax(0,1fr)_8rem_8rem_auto] md:items-end">
-                  <TextField
-                    id={`service-${index}-name`}
-                    label="Service"
-                    value={service.name}
-                    onChange={(value) => updateService(index, "name", value)}
-                  />
-                  <NumberField
-                    id={`service-${index}-minutes`}
-                    label="Minutes"
-                    value={service.minutes}
-                    step="15"
-                    onChange={(value) => updateService(index, "minutes", value)}
-                  />
-                  <NumberField
-                    id={`service-${index}-price`}
-                    label="Price"
-                    value={service.price}
-                    onChange={(value) => updateService(index, "price", value)}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10"
-                    aria-label={`Remove ${service.name || "service"}`}
-                    onClick={() => removeService(index)}
-                    disabled={input.services.length <= 1}
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="secondary" onClick={addService}>
-                <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-                Add service
-              </Button>
-              <Button type="button" variant="secondary" onClick={resetWorksheet}>
-                <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
-                Reset worksheet
-              </Button>
-            </div>
-          </AppSurface>
-
-          <AppSurface
-            title="Client policies"
-            description="Write the template's scheduling, cancellation, no-show, and client-documentation privacy rules."
-          >
-            <div className="grid gap-4 sm:grid-cols-3">
-              <NumberField
-                id="policy-cancellation-hours"
-                label="Cancellation notice hours"
-                value={input.cancellationNoticeHours}
-                onChange={(value) => updatePolicy("cancellationNoticeHours", value)}
-              />
-              <NumberField
-                id="policy-late-fee"
-                label="Late-cancellation fee"
-                value={input.lateCancellationFee}
-                onChange={(value) => updatePolicy("lateCancellationFee", value)}
-              />
-              <NumberField
-                id="policy-no-show-fee"
-                label="No-show fee"
-                value={input.noShowFee}
-                onChange={(value) => updatePolicy("noShowFee", value)}
-              />
-            </div>
-            <TextAreaField
-              id="policy-privacy-steps"
-              label="Documentation privacy steps"
-              value={input.privacySteps.join("\n")}
-              rows={5}
-              onChange={updatePrivacySteps}
-            />
-          </AppSurface>
-        </div>
-
-        <div className="space-y-6">
-          <AppSurface
-            title="Menu summary"
-            description="A practical view of the service list and hourly-rate spread."
-          >
-            <div className="space-y-3">
-              {plan.rows.map((service, index) => (
-                <div key={`${service.name}-${index}`} className="rounded-md border border-border/80 bg-background/70 p-3">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-medium">{service.name}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{formatNumber(service.minutes)} minutes at {formatMoney(service.price)}</p>
+    <div className={styles.page} data-service-menu-planner>
+      <div className={`${styles.workspace} ${styles.guidedWorkspace}`}>
+        <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
+        <PlannerHeader title="Service Menu and Policies" description="Build your service list, then draft the policies clients need to know." icon={ClipboardList}
+          saveLabel={!storageReady ? "Opening saved draft" : storageUnavailable ? "Not saved on this device" : "Saved on this device"}
+          guide={<p>List services and prices, set cancellation and privacy policies, then review the complete draft. This worksheet does not change your booking calendar or publish a client policy.</p>}
+        >
+          <Button type="button" variant="ghost" onClick={resetWorksheet}><RotateCcw aria-hidden="true" />Reset worksheet</Button>
+        </PlannerHeader>
+        <PlannerStepper label="Service menu planning steps">
+          <PlannerStep id="services" title="Build your service menu" shortTitle="Services and prices">
+            <PlannerSection title="Service menu" description="Add the services you plan to offer. Use hands-on minutes and the price of one appointment.">
+              <div className="space-y-3">
+                {input.services.map((service, index) => (
+                  <div key={`service-${index}`} className={styles.lineItem}>
+                    <div className={styles.itemHeading}>
+                      <TextField id={`service-${index}-name`} label="Service" value={service.name} onChange={(value) => updateService(index, "name", value)} />
+                      <Button type="button" variant="ghost" size="icon" aria-label={`Remove ${service.name || "service"}`} onClick={() => removeService(index)} disabled={input.services.length <= 1}><Trash2 aria-hidden="true" /></Button>
                     </div>
-                    <p className="text-sm font-semibold">{formatMoney(service.hourlyRate)} / hour</p>
+                    <div className={styles.serviceFields}>
+                      <NumberField id={`service-${index}-minutes`} label="Minutes" unit="min" description="Hands-on minutes for one appointment. Leave out cleanup and time between clients." value={service.minutes} step="15" onChange={(value) => updateService(index, "minutes", value)} />
+                      <NumberField id={`service-${index}-price`} label="Price" unit="$" description="US dollars charged for one appointment, before tips or tax." value={service.price} onChange={(value) => updateService(index, "price", value)} />
+                    </div>
                   </div>
+                ))}
+              </div>
+              <div className={styles.formActions}><Button type="button" variant="ctaBlue" onClick={addService}><Plus aria-hidden="true" />Add service</Button></div>
+            </PlannerSection>
+          </PlannerStep>
+          <PlannerStep id="policies" title="Set your client policies" shortTitle="Client policies">
+            <PlannerSection title="Client policies" description="Describe how cancellations and missed appointments will be handled.">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <NumberField id="policy-cancellation-hours" label="Cancellation notice hours" unit="h" description="Minimum notice in hours. Enter 24 for one day." value={input.cancellationNoticeHours} onChange={(value) => updatePolicy("cancellationNoticeHours", value)} />
+                <NumberField id="policy-late-fee" label="Late-cancellation fee" unit="$" description="US dollars charged when a client cancels inside that notice period. Use 0 if there is no fee." value={input.lateCancellationFee} onChange={(value) => updatePolicy("lateCancellationFee", value)} />
+                <NumberField id="policy-no-show-fee" label="No-show fee" unit="$" description="US dollars charged for a missed appointment without notice. Use 0 if there is no fee." value={input.noShowFee} onChange={(value) => updatePolicy("noShowFee", value)} />
+              </div>
+              <TextAreaField id="policy-privacy-steps" label="Documentation privacy steps" description="Write one step per line, such as locking devices or limiting access to records. Describe your process; do not enter client information." value={input.privacySteps.join("\n")} rows={5} onChange={updatePrivacySteps} />
+            </PlannerSection>
+          </PlannerStep>
+          <PlannerStep id="review" title="Review your menu and policies" shortTitle="Review">
+            <div className={styles.reviewGrid}>
+              <PlannerSection title="Menu summary" description="Compare the prices and hourly rates implied by your service list.">
+                <div className={styles.metrics}>
+                  <MetricTile label="Services" value={String(plan.serviceCount)} />
+                  <MetricTile label="Average hourly rate" value={formatMoney(plan.averageHourlyRate)} />
+                  <MetricTile label="Lowest price" value={formatMoney(plan.lowestPrice)} />
+                  <MetricTile label="Highest price" value={formatMoney(plan.highestPrice)} />
                 </div>
-              ))}
+                <div className="space-y-3">
+                  {plan.rows.map((service, index) => <div key={`${service.name}-${index}`} className={styles.lineItem}>
+                    <p className="text-sm font-medium">{service.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{formatNumber(service.minutes)} minutes at {formatMoney(service.price)}</p>
+                    <p className="mt-2 text-sm font-semibold tabular-nums">{formatMoney(service.hourlyRate)} / hour</p>
+                  </div>)}
+                </div>
+              </PlannerSection>
+              <PlannerSection title="Policy summary" description="Review this draft before using it in your business plan."><p className="text-sm leading-relaxed text-muted-foreground">{plan.policySummary}</p></PlannerSection>
             </div>
-          </AppSurface>
-
-          <AppSurface
-            title="Policy summary"
-            description="A draft sentence students can adapt into the Business Operation section."
-          >
-            <p className="text-sm leading-6 text-muted-foreground">{plan.policySummary}</p>
-          </AppSurface>
-        </div>
+          </PlannerStep>
+        </PlannerStepper>
       </div>
-    </AppPageShell>
+    </div>
   )
 }

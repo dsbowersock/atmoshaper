@@ -462,15 +462,15 @@ export function WellnessHubClient({
             <h2 id={`wellness-${group.id}-title`}>{group.title}</h2>
             <div data-wellness-tool-grid>
               {group.id === "body" && <>
-                <Button type="button" variant="default" data-wellness-tile disabled={isPending || !launchersReady} aria-label="Open movement comfort" onClick={(event) => openTool("comfort", event.currentTarget)}>
+                <Button type="button" variant="secondary" data-wellness-tile disabled={isPending || !launchersReady} aria-label="Open movement comfort" onClick={(event) => openTool("comfort", event.currentTarget)}>
                   <HeartPulse aria-hidden="true" /><span><strong>Movement comfort</strong><small>How movement feels</small></span>
                 </Button>
-                <Button type="button" variant="default" data-wellness-tile disabled={isPending || !launchersReady} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
+                <Button type="button" variant="secondary" data-wellness-tile disabled={isPending || !launchersReady} aria-label="Open range of motion" onClick={(event) => openTool("rom", event.currentTarget)}>
                   <MoveUpRight aria-hidden="true" /><span><strong>Range of motion</strong><small>Measure movement</small></span>
                 </Button>
               </>}
               {recordingTools.filter((tool) => tool.group === group.id).map(({ category, title, hint, icon: Icon }) => (
-                <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant={group.id === "mind" ? "cta" : "default"} tone={group.tone} data-wellness-tile disabled={isPending || !launchersReady} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
+                <Button key={category} ref={category === "body_sensation" ? defaultLauncherRef : undefined} type="button" variant={group.id === "mind" ? "cta" : group.id === "body" ? "secondary" : "default"} tone={group.tone} data-wellness-tile disabled={isPending || !launchersReady} aria-label={`Record ${title.toLowerCase()}`} onClick={(event) => openTool("log", event.currentTarget, category)}>
                   <Icon aria-hidden="true" /><span><strong>{title}</strong><small>{hint}</small></span>
                 </Button>
               ))}

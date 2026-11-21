@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import Link from "next/link"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { ArrowLeft, BadgeDollarSign, BriefcaseBusiness, CalendarDays, Clock3, Percent, Save, WalletCards } from "lucide-react"
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
+import { BadgeDollarSign, BriefcaseBusiness, CalendarDays, Clock3, Percent, WalletCards } from "lucide-react"
 import { AppInset } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -11,6 +10,7 @@ import {
   BUSINESS_INCOME_APP_SETTINGS_KEY,
   BUSINESS_INCOME_LOCAL_STORAGE_KEY,
   BUSINESS_INCOME_PRESETS,
+  BUSINESS_INCOME_RESERVE_IDEAS,
   BUSINESS_INCOME_WEEKDAY_KEYS,
   calculateBusinessIncomePlan,
   normalizeBusinessIncomePlannerInput,
@@ -19,6 +19,9 @@ import {
 import { cn } from "@/lib/utils"
 import { useBusinessPlannerDraft } from "@/lib/use-business-planner-draft"
 import { BusinessDraftStorageNotice, NumberField, PlannerSection } from "../_components/business-tool-fields"
+import { PlannerHeader } from "../_components/planner-header"
+import { PlannerStep, PlannerStepper, PlannerStepJump } from "../_components/planner-stepper"
+import { IncomeExpenseList } from "./income-expense-list"
 import styles from "../_components/business-planner.module.css"
 
 type PlannerInput = ReturnType<typeof normalizeBusinessIncomePlannerInput>
@@ -38,13 +41,13 @@ const presetKeys: PlannerPresetKey[] = [
 ]
 
 const weekdayLabels: Record<string, string> = {
-  monday: "Mon",
-  tuesday: "Tue",
-  wednesday: "Wed",
-  thursday: "Thu",
-  friday: "Fri",
-  saturday: "Sat",
-  sunday: "Sun",
+  monday: "Monday",
+  tuesday: "Tuesday",
+  wednesday: "Wednesday",
+  thursday: "Thursday",
+  friday: "Friday",
+  saturday: "Saturday",
+  sunday: "Sunday",
 }
 
 const chartConfig = {
@@ -167,6 +170,11 @@ export function IncomePlannerClient({
     }))
   }
 
+  /** Named rows are authoritative; normalization derives compatibility totals. */
+  function updateExpenseItems(field: "monthlyExpenseItems" | "yearlyExpenseItems" | "sessionExpenseItems" | "personalReserveItems", items: PlannerInput["monthlyExpenseItems"]) {
+    setInput((current) => normalizeBusinessIncomePlannerInput({ ...current, presetKey: "custom", [field]: items }))
+  }
+
   function updateWeekdayHours(day: string, value: number) {
     setInput((current) => normalizeBusinessIncomePlannerInput({
       ...current,
@@ -189,32 +197,16 @@ export function IncomePlannerClient({
 
   return (
     <div className={styles.page} data-income-planner>
-      <div className={styles.workspace}>
+      <div className={`${styles.workspace} ${styles.guidedWorkspace}`}>
       <BusinessDraftStorageNotice unavailable={storageUnavailable} unreadDraft={unreadDraft} />
-      <header className={styles.header} data-income-header>
-        <div className={styles.titleRow}>
-          <BriefcaseBusiness className={styles.titleIcon} aria-hidden="true" />
-          <h1>Business Income Planner</h1>
-          <Button asChild variant="ghost" className={styles.backLink}>
-            <Link href="/tools/business-planner" aria-label="Back to business tools" title="Back to business tools"><ArrowLeft aria-hidden="true" /></Link>
-          </Button>
-        </div>
-        <p className={styles.subtitle}>Pricing and workload for your massage practice.</p>
-        <div className={styles.meta}>
-          <p className={styles.saveStatus} aria-live="polite" aria-atomic="true"><Save aria-hidden="true" /><span>{savedLabel}</span></p>
-          <details className={styles.help}>
-            <summary>How this planner works</summary>
-            <p>Estimate session pricing, workload, time off, and take-home possibilities for massage practice planning.</p>
-            <p>Change the assumptions below to see how schedule, expenses, taxes, and session length affect the prices and workload needed to reach a personal take-home target.</p>
-          </details>
-        </div>
-        {displayName ? (
-          <p className={styles.account}>Current worksheet for {displayName}.</p>
-        ) : null}
-      </header>
+      <PlannerHeader data-income-header title="Business Income Planner" description="Pricing and workload for your massage practice." icon={BriefcaseBusiness} saveLabel={savedLabel}
+        guide={<><p>Estimate session pricing, workload, time off, and take-home possibilities for massage practice planning.</p><p>Change the assumptions below to see how schedule, expenses, taxes, and session length affect the prices and workload needed to reach a personal take-home target.</p></>}
+      >
+        {displayName ? <p className={styles.account}>Current worksheet for {displayName}.</p> : null}
+      </PlannerHeader>
 
-      <div className={styles.main}>
-        <div className={styles.column}>
+      <PlannerStepper label="Income planning steps">
+        <PlannerStep id="scenario" title="Choose a starting point" shortTitle="Scenario">
           <PlannerSection
             title="Scenario"
             description="Start with a realistic pattern, then customize the numbers."
@@ -244,40 +236,26 @@ export function IncomePlannerClient({
             </div>
           </PlannerSection>
 
+        </PlannerStep>
+        <PlannerStep id="income" title="Set your income target" shortTitle="Income and costs">
           <PlannerSection
             title="Income and costs"
-            description="Use take-home income as the personal amount you want left after your set-aside."
+            description="Start with the money you want left to spend, then plan business costs and benefits below."
             icon={<BadgeDollarSign className="h-5 w-5" aria-hidden="true" />}
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <NumberField
                 id="desired-income"
                 unit="$"
-                description="US dollars you want left for yourself each year, after business costs and your tax set-aside."
+                description="US dollars you want for everyday personal spending each year, after business costs, tax set-aside and any additional benefits/reserves below. Count each amount only once."
                 label="Desired yearly take-home"
                 value={input.desiredTakeHomeIncome}
                 onChange={(value) => updateField("desiredTakeHomeIncome", value)}
               />
               <NumberField
-                id="monthly-fixed-expenses"
-                unit="$"
-                description="US dollars spent on regular monthly bills, such as rent, software and phone. Leave out costs counted per session."
-                label="Monthly fixed expenses"
-                value={input.monthlyFixedExpenses}
-                onChange={(value) => updateField("monthlyFixedExpenses", value)}
-              />
-              <NumberField
-                id="session-variable-cost"
-                unit="$"
-                description="Average US dollars spent for one appointment: supplies, laundry and payment fees. Do not include your monthly bills again."
-                label="Per-session variable cost"
-                value={input.perSessionVariableCost}
-                onChange={(value) => updateField("perSessionVariableCost", value)}
-              />
-              <NumberField
                 id="tax-set-aside"
                 unit="%"
-                description="Share of your income reserved for taxes. Enter 25 for 25%. Use your own planning estimate."
+                description="Estimated share of business income reserved for income and self-employment taxes. Enter 25 for 25%; the planner uses your estimate, not an actual tax calculation."
                 label="Tax/set-aside percent"
                 value={roundForInput(input.taxSetAsideRate * 100)}
                 onChange={updateTaxRate}
@@ -287,7 +265,7 @@ export function IncomePlannerClient({
               <NumberField
                 id="average-session-length"
                 unit="min"
-                description="Hands-on minutes in your typical appointment. Leave out intake, cleanup and time between clients."
+                description="Hands-on massage minutes in a typical appointment. Enter intake, cleanup and turnaround separately in Step 3 so you can see the full workload."
                 label="Average session minutes"
                 value={input.averageSessionMinutes}
                 onChange={(value) => updateField("averageSessionMinutes", value)}
@@ -296,7 +274,7 @@ export function IncomePlannerClient({
               <NumberField
                 id="employee-wage"
                 unit="$"
-                description="Optional US dollars per hour for comparing an employee job. Leave 0 to skip this comparison."
+                description="What would an employer pay you per paid hour of massage? Enter gross US dollars per hour to compare wages for the same hands-on hours and weeks. Tips, commissions and employer benefits are not added. Leave 0 to skip."
                 label="Optional employee hourly wage"
                 value={input.employeeHourlyWage}
                 onChange={(value) => updateField("employeeHourlyWage", value)}
@@ -304,6 +282,32 @@ export function IncomePlannerClient({
             </div>
           </PlannerSection>
 
+          <PlannerSection title="Business expenses" description="Name each cost so you can return and update it. Use business labels only, without client information. Enter each expense once.">
+            <IncomeExpenseList id="monthly-expenses" title="Monthly fixed expenses" frequency="month"
+              description="Regular monthly business bills, such as rent, software and phone. Totals are multiplied by 12. Rename the carried-over estimate as you replace it with your own items."
+              items={input.monthlyExpenseItems} total={`${formatMoney(input.monthlyFixedExpenses)} / month`} addLabel="Add monthly expense"
+              onChange={(items) => updateExpenseItems("monthlyExpenseItems", items)} />
+            <IncomeExpenseList id="yearly-expenses" title="Yearly business expenses" frequency="year"
+              description="Bills paid once a year, such as license renewal, professional liability insurance, continuing education or equipment replacement. Leave out costs already in another list."
+              items={input.yearlyExpenseItems} total={`${formatMoney(input.yearlyFixedExpenses)} / year`} addLabel="Add yearly expense"
+              onChange={(items) => updateExpenseItems("yearlyExpenseItems", items)} />
+            <IncomeExpenseList id="session-expenses" title="Per-session costs" frequency="session" frequencies={["session", "month", "year"]}
+              description="Supplies, laundry or payment fees. Enter the cost per appointment, or choose Monthly/Yearly if that is how you track it. Do not also enter it in the lists above. Monthly/yearly budgets stay fixed across capacity comparisons; per-session amounts scale with appointments."
+              items={input.sessionExpenseItems} total={`${formatMoney(input.perSessionVariableCost)} / session + ${formatMoney(plan.annualBudgetedSessionCosts)} / year`}
+              addLabel="Add session cost" onChange={(items) => updateExpenseItems("sessionExpenseItems", items)} />
+          </PlannerSection>
+
+          <PlannerSection title="Benefits and personal reserves" description="Make room for the benefits an employer might otherwise help provide, and for your own financial safety net.">
+            <IncomeExpenseList id="personal-reserves" title="Plan for your future" frequency="month" frequencies={["month", "year"]}
+              description="Add amounts you want to fund on top of your desired yearly take-home. If you already included an amount in take-home or business costs, leave it out here. Suggestions start at $0; enter your own monthly or yearly budget."
+              items={input.personalReserveItems} total={`${formatMoney(plan.annualPersonalReserves)} / year`} addLabel="Add another reserve"
+              ideas={BUSINESS_INCOME_RESERVE_IDEAS} onChange={(items) => updateExpenseItems("personalReserveItems", items)} />
+            <p className="text-xs leading-relaxed text-muted-foreground">These reserves increase the income target before your tax set-aside is applied. This budget does not calculate tax deductions or retirement contribution limits. Time off is planned in Step 3; business renewals and training belong in business expenses.</p>
+            <details className={styles.help}><summary>About benefit and tax assumptions</summary><p>Eligibility and deductions depend on your circumstances. See the <a className="underline" href="https://www.irs.gov/retirement-plans/self-employed-individuals-calculating-your-own-retirement-plan-contribution-and-deduction" target="_blank" rel="noreferrer">IRS retirement rules</a> and <a className="underline" href="https://www.irs.gov/instructions/i7206" target="_blank" rel="noreferrer">self-employed health insurance instructions</a> when reviewing your own plan.</p></details>
+          </PlannerSection>
+
+        </PlannerStep>
+        <PlannerStep id="schedule" title="Plan your working time" shortTitle="Time and schedule">
           <PlannerSection
             title="Time and schedule"
             description="Plan your time off and a typical client week. The calculator converts calendar days off into available working weeks."
@@ -314,7 +318,7 @@ export function IncomePlannerClient({
                 id="vacation-days"
                 unit="days"
                 description="Calendar days away for vacation this year. A full week is 7 days."
-                label="Vacation days"
+                label="Vacation days you want off"
                 value={input.vacationDays}
                 onChange={(value) => updateField("vacationDays", value)}
               />
@@ -322,7 +326,7 @@ export function IncomePlannerClient({
                 id="holiday-days"
                 unit="days"
                 description="Additional calendar days off for holidays. Do not count vacation days again."
-                label="Holiday days"
+                label="Holiday days you want off"
                 value={input.holidayDays}
                 onChange={(value) => updateField("holidayDays", value)}
               />
@@ -330,26 +334,32 @@ export function IncomePlannerClient({
                 id="personal-days"
                 unit="days"
                 description="Other calendar days off for rest, illness or personal needs."
-                label="Personal days"
+                label="Personal or sick days you want off"
                 value={input.personalDays}
                 onChange={(value) => updateField("personalDays", value)}
               />
             </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+            <NumberField id="session-support-minutes" unit="min" label="Intake and turnaround minutes per appointment"
+              description="Average extra minutes for intake, cleanup and time between clients. These add to workload without adding paid massage hours. Leave 0 only if you include all this time in weekly admin below."
+              value={input.sessionSupportMinutes} onChange={(value) => updateField("sessionSupportMinutes", value)} step="5" />
             <NumberField
               id="weekly-admin-hours"
                 unit="h"
-                description="Unpaid hours each week on scheduling, cleaning and paperwork. These add to your total workload, not client hours."
+                description="Other unpaid hours for scheduling, bookkeeping, marketing and paperwork. Do not count intake/turnaround time entered beside this field again. These add to workload, not client hours."
               label="Weekly unpaid admin hours"
               value={input.weeklyAdminHours}
               onChange={(value) => updateField("weeklyAdminHours", value)}
             />
-            <p id="client-week-help" className="text-xs leading-relaxed text-muted-foreground">Client hours in a typical week: count hands-on time only, without breaks, travel or admin. Use 0 on days you do not see clients.</p>
+            </div>
+            <p id="client-week-help" className="text-xs leading-relaxed text-muted-foreground">Client hours in a typical week: how many hours will you devote to hands-on massage with clients on each day? Leave out intake, cleanup, breaks, travel and admin. Use 0 on days you do not see clients.</p>
             <div className={styles.weekGrid} aria-describedby="client-week-help">
               {BUSINESS_INCOME_WEEKDAY_KEYS.map((day) => (
                 <NumberField
                   key={day}
                   id={`client-hours-${day}`}
-                  label={weekdayLabels[day] ?? day}
+                  label={`${weekdayLabels[day] ?? day} hands-on massage hours`}
+                  description="Hours of hands-on massage with clients on this day."
                   unit="h"
                   value={input.weekdayClientHours[day]}
                   onChange={(value) => updateWeekdayHours(day, value)}
@@ -358,9 +368,9 @@ export function IncomePlannerClient({
               ))}
             </div>
           </PlannerSection>
-        </div>
-
-        <div className={styles.column}>
+        </PlannerStep>
+        <PlannerStep id="estimate" title="Review your estimate" shortTitle="Estimate" keepMounted={false}>
+          <div className={styles.reviewGrid}>
           <PlannerSection
             title="What this means"
             description={buildInterpretation(plan)}
@@ -376,6 +386,8 @@ export function IncomePlannerClient({
               <MetricTile label="Hourly target" value={formatMoney(plan.hourlyRevenueTarget)} />
               <MetricTile label="Sessions each week" value={formatNumber(plan.sessionsPerWeek)} />
               <MetricTile label="Available weeks" value={String(plan.availableWeeks)} />
+              <MetricTile label="Business costs each year" value={formatMoney(plan.annualBusinessCosts)} description="Monthly/yearly budgets plus appointment costs" />
+              <MetricTile label="Benefits and reserves each year" value={formatMoney(plan.annualPersonalReserves)} description="Additional to desired spendable take-home" />
             </div>
             <div className={styles.metrics}>
               <MetricTile label="30 min" value={formatMoney(plan.sessionPrices[30])} description="Suggested session price" />
@@ -391,14 +403,26 @@ export function IncomePlannerClient({
             icon={<Clock3 className="h-5 w-5" aria-hidden="true" />}
           >
             <ChartContainer config={chartConfig} className={styles.chart}>
-              <BarChart data={chartData} margin={{ left: 0, right: 12, top: 12, bottom: 0 }}>
+              <BarChart data={chartData} margin={{ left: 0, right: 12, top: 30, bottom: 0 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="capacity" tickLine={false} axisLine={false} />
                 <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} width={48} />
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                <Bar dataKey="sessionPrice60" fill="var(--color-sessionPrice60)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sessionPrice60" fill="var(--color-sessionPrice60)" radius={[4, 4, 0, 0]}>
+                  <LabelList dataKey="sessionPrice60" position="top" fill="hsl(var(--foreground))" fontSize={11}
+                    formatter={(value: unknown) => typeof value === "number" ? formatMoney(value) : ""} />
+                </Bar>
               </BarChart>
             </ChartContainer>
+          </PlannerSection>
+
+          <PlannerSection title="Time behind the sessions" description="Your session prices fund the annual target across hands-on massage hours. Support and admin time increase your workload; they are not automatically subtracted from the client hours you enter.">
+            <div className={styles.metrics}>
+              <MetricTile label="Hands-on hours / week" value={formatNumber(plan.weeklyClientHours)} />
+              <MetricTile label="Intake and turnaround / week" value={formatNumber(plan.weeklySessionSupportHours)} description="Hours based on your average appointment length" />
+              <MetricTile label="Other admin hours / week" value={formatNumber(plan.weeklyAdminHours)} />
+              <MetricTile label="Total work hours / week" value={formatNumber(plan.weeklyTotalWorkHours)} />
+            </div>
           </PlannerSection>
 
           <PlannerSection
@@ -424,19 +448,22 @@ export function IncomePlannerClient({
 
           <PlannerSection
             title="Employee wage comparison"
-            description="A simple same-client-hours comparison for discussing employment, booth rent, and independent-practice tradeoffs."
+            description="Estimated employee wages for the same hands-on massage hours and working weeks. Uses the same tax set-aside, without tips, commissions or employer benefits."
           >
             {plan.employeeComparison ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 <MetricTile label="Employee annual gross" value={formatMoney(plan.employeeComparison.annualGross)} />
-                <MetricTile label="Estimated take-home" value={formatMoney(plan.employeeComparison.estimatedTakeHome)} />
+                <MetricTile label="Pay after the same set-aside" value={formatMoney(plan.employeeComparison.estimatedTakeHome)} />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Add an employee hourly wage to compare the same client-hour schedule against an hourly job.</p>
+              <div className="space-y-3"><p className="text-sm text-muted-foreground">Add an employee hourly wage to compare the same client-hour schedule against an hourly job.</p>
+                <div className={styles.formActions}><PlannerStepJump stepId="income" focusId="employee-wage">Add an employee wage in Step 2</PlannerStepJump></div>
+              </div>
             )}
           </PlannerSection>
-        </div>
-      </div>
+          </div>
+        </PlannerStep>
+      </PlannerStepper>
       </div>
     </div>
   )
@@ -453,7 +480,7 @@ function MetricTile({
 }) {
   return (
     <AppInset className={cn("p-3", styles.metric)}>
-      <p className="text-xs uppercase tracking-normal text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-lg font-semibold">{value}</p>
       {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
     </AppInset>

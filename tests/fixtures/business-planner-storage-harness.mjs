@@ -33,7 +33,9 @@ export async function buildPlannerFixture() {
       const compiler = webpack({
         mode: "development", devtool: false, context: projectRoot,
         entry: fileURLToPath(new URL("./business-planner-storage-entry.jsx", import.meta.url)),
-        output: { path: path.join(fixture, "dist"), filename: "fixture.js" },
+        // The fixture runs inline, so lazy PDF code must not infer its public
+        // path from a missing script URL. Export itself is covered in app QA.
+        output: { path: path.join(fixture, "dist"), filename: "fixture.js", publicPath: "/" },
         resolve: {
           extensions: [".tsx", ".ts", ".jsx", ".js"],
           alias: { "@": projectRoot, "next/link$": link },

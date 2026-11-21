@@ -4,6 +4,11 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Remaining planner and light blue Body publication](../superpowers/plans/2026-11-20-planner-beta-publication.md)
+- [Checklist answers, shared planner information and PDF reports](../superpowers/plans/2026-11-20-planner-reports-reuse.md)
+- [Income expenses, benefits and realistic time](../superpowers/plans/2026-11-19-income-expenses-benefits.md)
+- [Guided Business Planner tools](../superpowers/plans/2026-11-19-business-planner-steppers.md)
+- [November 19 Wellness/planner publication receipt](../audits/2026-11-19-wellness-planner-publication.md)
 - [Published Wellness, Exercise and My calendar verification](../audits/2026-11-20-wellness-beta-publication.md)
 - [Wellness, Exercise and My calendar publication](../superpowers/plans/2026-11-20-wellness-beta-publication.md)
 - [Wellness and planner publication](../superpowers/plans/2026-11-19-wellness-planner-publication.md)

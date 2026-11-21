@@ -1,6 +1,12 @@
 # Wellness and planner publication
 
-Status: **approved; fresh preflight and review in progress**.
+Status: **published, verified and closed**. Reviewed `724a151` on PR #74 passes
+all seven hosted jobs and merges as tree-identical `7785ae6`. Actual Production
+gates, authenticated Sentry map matching, staged/public checks and one
+same-artifact promotion pass. Compatible `fa3a030` remains READY. See the
+[completion receipt](../../audits/2026-11-19-wellness-planner-publication.md).
+Closing records stay local and trigger no extra build; unused time/capacity
+grants no further operation. The procedure below records the completed campaign.
 
 ## Scope
 
