@@ -1,5 +1,23 @@
 # AtmoShaper Project State
 
+## November 20 Wellness, Exercise and My calendar published
+
+[PR #75](https://github.com/dsbowersock/atmoshaper/pull/75) is merged as
+`f6b80fb85cd1c6bfbd3077b02b4a3fcdf55b51cb`, with the same tree as reviewed
+`b3fd1db`. The nine Wellness changes through `7446c75` are public; newer planner
+work remains separate. All seven reviewed-source checks and hosted review pass,
+including 5,806 unit checks, 45 backup checks, the inert TypeScript/116-page build
+and 54 focused desktop/phone cases. The staged Production migration/payment gates,
+Sentry script/map pairing, all 13 public routes and same-artifact byte readback
+pass. Settings and unrelated aliases are unchanged; the prior release remains
+available for rollback. Live Exercise, body loading and the signed-in owner's
+personal calendar read succeed without saving records. The public Wellness page
+is open; temporary viewport overrides are reset. All seven merged-source checks
+also pass, including 680 browser cases without retries and 180 configured skips.
+The publication operation is verified and closed; local receipt documentation
+causes no extra deployment. See the
+[publication receipt](audits/2026-11-20-wellness-beta-publication.md).
+
 ## November 20 Wellness publication in preparation
 
 The owner authorizes publication of all Wellness updates through Exercise and

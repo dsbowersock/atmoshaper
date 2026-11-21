@@ -1,5 +1,28 @@
 # AtmoShaper Project Log
 
+## November 20 Wellness release published and read back
+
+The authorized publication is live as merge `f6b80fb` from reviewed `b3fd1db`
+in PR #75. An isolated branch excluded four newer planner commits while preserving
+all nine Wellness changes through `7446c75`. One stale session-consumer inventory
+was corrected and all seven hosted checks and current-head review passed. Local
+focused browser QA passed all 54 cases. Two configured hosted retries were
+investigated; readiness-aware shortcut and unchanged scaling diagnostics pass
+without runtime or CI-setting changes.
+
+One staged Production build passed read-only migration and all-payments gates,
+uploaded Sentry client/server maps and passed route, font, artwork and body-model
+readback. Authenticated archive inspection matched the actual emitted debug ID
+and script/map pair. Fresh configuration/routing checks admitted one promotion
+of that exact artifact. All six public aliases, 37 other baseline mappings,
+one Preview alias and all 87 Production settings verify correctly afterward.
+All 13 public route checks and staged/public byte identity pass. Live browser
+review confirms Exercise, the 3D body and My calendar; the signed-in owner read
+completes without errors or saved records. The previous release remains READY.
+All seven main checks pass in run `44855104944`, including 680 browser cases
+without retries and 180 configured skips. Local receipt closure consumes no extra
+deployment. The operation is verified and closed with no remaining write capacity.
+
 ## November 20 Wellness publication preparation
 
 The owner requests publishing all Wellness work including Exercise and My
