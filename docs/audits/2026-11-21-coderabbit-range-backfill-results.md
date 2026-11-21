@@ -1,12 +1,10 @@
 # CodeRabbit range backfill: results and bounded triage
 
-Current follow-up: the owner requests closure of F1–F4. F1's local Checkout fix
-and F4's fail-closed pagination checks remain passing; the F2/F3 deferred work
-is now corrected and tested. The actual 16-path review at `dfe4198` raises one
-minor fixture-reader environment issue, now corrected with a failing-then-passing
-redirected-worker regression. All seven proof cases and 163 Stripe checks pass.
-One final two-source-file harness review remains. See the
-[specific follow-up plan](../superpowers/plans/2026-11-21-four-review-issues.md).
+Current follow-up: F1–F4 are resolved. The actual 16-path review at `dfe4198`
+raises one minor fixture-reader issue, subsequently corrected. The final six-path
+review at `1c9a8f1` completes with zero issues. All seven proof cases and 163
+Stripe checks pass. Historical pending/deferred status below is superseded by
+the [verified closure](2026-11-21-four-review-issues.md).
 
 ## Actual completed review
 
@@ -123,10 +121,10 @@ path. Do not call this a zero-issue review.
 
 | ID | Severity | Disposition and concrete remaining scope |
 | --- | --- | --- |
-| F1 | Major | Confirmed in `lib/stripe-billing.js`: a successful create finishing after the reconciliation deadline cannot be confirmed. The synthetic slow-create regression fails before correction. Confirmation now has its own five-second read allowance; the original deadline still prevents further creates. Initial and retry successes pass; a slow terminal result cannot expose a URL or start another create. This small local correction is subsequent to the last reviewed head and needs ordinary PR review before release. |
-| F2 | Major | Corrected locally in `scripts/coderabbit-coverage-audit.mjs` and its shared proof helper. A nested PR whose first parent contains branch work now uses the actual bootstrap blob/commit. Matching baselines stay unchanged. The real-Git regression proves a child-only review remains insufficient, while a wider complete range or full transition chain is accepted. Current 703-path proof remains unchanged. Focused follow-up review pending. |
+| F1 | Major | Corrected and reviewed in `lib/stripe-billing.js`: confirmation has its own bounded five-second read; the original deadline still prevents further creates. Slow initial/retry successes and terminal replay checks pass. The completed 16-path follow-up covers the correction; ordinary release gates remain. |
+| F2 | Major | Corrected and reviewed in `scripts/coderabbit-coverage-audit.mjs` and its shared helper. A nested PR whose first parent contains branch work uses the actual bootstrap blob/commit; matching baselines stay unchanged. A child-only review remains insufficient, while a wider complete range or full transition chain is accepted. Current 703-path proof remains unchanged. Both follow-up receipts verify. |
 | F4 | Major | Refuted in `scripts/stripe-readiness-check.mjs`: the caller catches a malformed inventory, records failure and exits nonzero; it cannot recover earlier accumulated pages as complete evidence. New real-CLI fixtures cover missing/string `has_more` on a second page as well as the first, with no successful default-topology result. |
-| F3 | Minor | Corrected locally in `scripts/coderabbit-coverage-proof.mjs` and batch preparation. Default NUL-framed tree records and diff paths preserve Unicode, tab, newline, quote and edge whitespace names under both quotePath modes. Synthetic completed-receipt admission and actual Unicode/space/bracket/comma batch preparation pass; an unrelated staged index entry is preserved. Focused follow-up review pending. |
+| F3 | Minor | Corrected and reviewed in `scripts/coderabbit-coverage-proof.mjs` and batch preparation. Default NUL-framed records preserve Unicode, tab, newline, quote and edge whitespace names under both quotePath modes. Completed-receipt admission and actual Unicode/space/bracket/comma preparation pass; an unrelated staged index entry is preserved. The final six-path reader-environment correction raises zero issues. |
 
 The final post-review Stripe suite passes 163/163, including the reproduced
 slow-create boundary, bounded terminal behavior and later-page failures.

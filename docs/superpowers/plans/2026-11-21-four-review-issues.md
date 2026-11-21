@@ -1,5 +1,10 @@
 # Resolve the four final review issues
 
+Status: complete. The actual 16-path follow-up raises one minor fixture-reader
+issue, subsequently corrected. The final six-path review at `1c9a8f1` completes
+with zero issues. See the [verified closure](../../audits/2026-11-21-four-review-issues.md).
+Pending language below records earlier checkpoints, superseded by that receipt.
+
 The owner now requests resolution of F1–F4 from the completed review at
 `07a3dcd`. This is a new bounded follow-up to the closed eight-request campaign.
 Preserve its receipts and the already tested local checkpoint `b316461`.

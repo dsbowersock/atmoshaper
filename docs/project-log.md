@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 21 four-issue follow-up verified and closed
+
+The actual 16-path review at `dfe4198` completes with one minor fixture-reader
+environment issue. Reproduce it with four failing child cases, propagate the
+sanitized environment through all reader helpers, and verify actual execution
+and byte-for-byte preservation of the caller's index. All seven proof cases,
+163 payment checks, focused lint and TypeScript pass. Public inventory remains
+703 reviewed changed code/test histories, zero gaps, with all 1,017 existing
+baseline/coverage decisions unchanged.
+
+The final actual six-path review at `1c9a8f1` completes with zero issues and
+exact tree/path evidence. F1–F4 and the extra fixture-reader issue are closed.
+Save the [verification receipt](audits/2026-11-21-four-review-issues.md) in a
+documentation-only closeout; no additional automatic review cycle occurs.
+Application build receipts remain valid for unchanged application source.
+No push, merge, deployment, provider, database, NAS, payment or email occurs;
+ordinary independent review/CI/publication and NAS activation remain separate.
+
 ## November 21 owner requests resolution of F1–F4
 
 Continue from local `b316461`, preserving the closed campaign's receipts and

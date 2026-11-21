@@ -1,23 +1,27 @@
 # AtmoShaper Project State
 
-## November 21 owner-requested closure of the four final issues
+## November 21 four final review issues resolved and reviewed
 
-The owner requests resolution of F1–F4 after the bounded campaign closes. Keep
-F1's tested local Checkout correction and F4's first/later-page failure checks.
-The two remaining audit cases now have reproduced and corrected behavior:
-nested PR baselines fall back to the actual bootstrap without granting partial
-review coverage, and NUL-framed Git readers/preparation preserve literal names.
-All six real-Git proof checks and all 163 payment checks pass locally. Fresh
-inventory confirms the same 703 reviewed code/test histories and zero gaps,
-with every existing path's baseline/coverage unchanged. TypeScript and focused
-audit lint pass. The actual 16-path review at `dfe4198` completes with one minor
-fixture-environment issue and no further F1–F4 comments. The seven proof tests
-now also exercise absolute caller Git repository/index redirects: sanitized
-read environments preserve both fixture lookup and the real index. One final
-review of this two-source-file harness correction and its records remains.
-This explicit follow-up supersedes the deferred
-F2/F3 status below; no publication or provider/NAS/live-data write is included.
-See the [four-issue plan](superpowers/plans/2026-11-21-four-review-issues.md).
+The owner's F1–F4 follow-up is complete. Slow successful Checkout confirmation
+is corrected; nested baselines and literal Git paths are corrected and tested;
+first/later malformed pagination is verified fail-closed. The actual 16-path
+review at `dfe4198` raises one minor fixture-reader environment issue. Its
+correction passes the actual six-path review at `1c9a8f1` with **zero issues**.
+All planned paths, raw completions and frozen trees verify, using included
+allowance only. No unresolved F1–F4 or fixture-reader issue remains.
+
+All 163 payment and seven Git proof checks pass, including a fresh redirected
+child process and unchanged real index. Focused lint and TypeScript pass. The
+fresh public inventory retains 703 proven changed code/test histories, zero
+gaps, and all 1,017 original baseline/coverage decisions. Application source
+retains its passing inert build; this follow-up changes audit tooling/fixtures.
+Reviewed correction source is `1c9a8f10a40f77e6596ff164f1d9fd0523b545fa`;
+subsequent closeout is documentation only. See the
+[verification receipt](audits/2026-11-21-four-review-issues.md).
+
+The F2/F3 deferred and later unreviewed-delta status below is superseded.
+Independent Codex/hosted CI/publication and separate NAS activation gates
+remain. No push, deployment, provider/NAS/live-data write occurs.
 
 ## November 21 bounded CodeRabbit campaign complete; corrections remain local
 
