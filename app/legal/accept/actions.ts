@@ -15,6 +15,7 @@ import {
 } from "@/lib/legal-acceptance-gate"
 import { requiredLegalDocumentsForEvent } from "@/lib/legal-documents"
 import { prisma } from "@/lib/prisma"
+import { postSignInSetupDestination } from "@/lib/onboarding-setup-service"
 
 /**
  * Records registration acceptance after preserving the login -> legal gate -> final callback chain.
@@ -47,5 +48,5 @@ export async function acceptRegistrationLegalDocumentsAction(formData: FormData)
     metadata: legalHeadersMetadata(requestHeaders),
   })
 
-  redirect(callbackUrl)
+  redirect(await postSignInSetupDestination(prisma,session.user.id,callbackUrl))
 }

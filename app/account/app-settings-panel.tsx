@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ToggleControl } from "@/components/ui/toggle-control"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
+import { AccountSetupOptions } from "@/components/account/account-setup-options"
 
 const sidebarSides = [
   {
@@ -84,6 +85,7 @@ export function AccountAppSettingsPanel() {
 
   return (
     <div className="flex flex-col gap-5">
+      <AccountSetupOptions />
       <SettingsSurface
         id="app-layout-settings"
         title="Layout and sidebar"

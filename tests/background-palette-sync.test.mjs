@@ -236,7 +236,7 @@ describe("Shared background preference access and retry wiring", () => {
   })
 
   it("keeps ChimerPage as local-first owner and retries the exact stale body", async () => {
-    const source = await readFile(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const source = await readFile(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(source, /prepareChimerBackgroundPreferenceMigration/)
     assert.match(source, /localStorage\.setItem\(storageKey/)

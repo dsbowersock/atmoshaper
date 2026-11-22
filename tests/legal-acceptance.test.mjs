@@ -228,10 +228,10 @@ describe("legal acceptance helpers", () => {
   it("normalizes post-acceptance callback paths for the signed-in legal gate", () => {
     assert.equal(safePostLegalAcceptanceCallback("/wellness"), "/wellness")
     assert.equal(safePostLegalAcceptanceCallback("/calendar/new?startsAt=2026-06-23T10%3A00"), "/calendar/new?startsAt=2026-06-23T10%3A00")
-    assert.equal(safePostLegalAcceptanceCallback("https://example.com"), "/onboarding")
-    assert.equal(safePostLegalAcceptanceCallback("//example.com"), "/onboarding")
-    assert.equal(safePostLegalAcceptanceCallback("/legal/accept?callbackUrl=%2Fwellness"), "/onboarding")
-    assert.equal(safePostLegalAcceptanceCallback("/api/account/preferences"), "/onboarding")
+    assert.equal(safePostLegalAcceptanceCallback("https://example.com"), "/")
+    assert.equal(safePostLegalAcceptanceCallback("//example.com"), "/")
+    assert.equal(safePostLegalAcceptanceCallback("/legal/accept?callbackUrl=%2Fwellness"), "/")
+    assert.equal(safePostLegalAcceptanceCallback("/api/account/preferences"), "/")
     for (const unsafeCallback of [
       "/api",
       "/api?operation=account",
@@ -245,10 +245,10 @@ describe("legal acceptance helpers", () => {
       "/%6cegal/accept",
       "/%E0%A4%A",
     ]) {
-      assert.equal(safePostLegalAcceptanceCallback(unsafeCallback), "/onboarding", unsafeCallback)
+      assert.equal(safePostLegalAcceptanceCallback(unsafeCallback), "/", unsafeCallback)
       assert.equal(
         buildRegistrationLegalProviderRedirectPath(unsafeCallback),
-        "/legal/accept?callbackUrl=%2Fonboarding",
+        "/legal/accept?callbackUrl=%2F",
         `provider redirect: ${unsafeCallback}`,
       )
     }
@@ -257,7 +257,7 @@ describe("legal acceptance helpers", () => {
 
   it("builds the signed-in registration legal acceptance route with a safe callback", () => {
     assert.equal(buildRegistrationLegalAcceptancePath("/wellness"), "/legal/accept?callbackUrl=%2Fwellness")
-    assert.equal(buildRegistrationLegalAcceptancePath("//example.com"), "/legal/accept?callbackUrl=%2Fonboarding")
+    assert.equal(buildRegistrationLegalAcceptancePath("//example.com"), "/legal/accept?callbackUrl=%2F")
   })
 
   it("rebuilds an existing legal gate from only its first safe nested callback", () => {
@@ -274,7 +274,7 @@ describe("legal acceptance helpers", () => {
     assert.equal(buildRegistrationLegalProviderRedirectPath("/wellness"), "/legal/accept?callbackUrl=%2Fwellness")
   })
 
-  it("replaces malicious or malformed nested legal-gate callbacks with onboarding", () => {
+  it("replaces malicious or malformed nested legal-gate callbacks with home", () => {
     for (const callbackUrl of [
       "/legal/accept?callbackUrl=https%3A%2F%2Fevil.example",
       "/legal/accept?callbackUrl=%2F%2Fevil.example",
@@ -292,7 +292,7 @@ describe("legal acceptance helpers", () => {
     ]) {
       assert.equal(
         buildRegistrationLegalProviderRedirectPath(callbackUrl),
-        "/legal/accept?callbackUrl=%2Fonboarding",
+        "/legal/accept?callbackUrl=%2F",
         callbackUrl,
       )
     }

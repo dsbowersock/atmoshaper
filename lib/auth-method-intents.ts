@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto"
 import type { Prisma, PrismaClient } from "@prisma/client"
+import { initialOnboardingSetup } from "./onboarding-setup.js"
 import { getAuthSecret } from "@/lib/auth-env"
 import { normalizeEmail } from "@/lib/auth-security"
 import { ensureUserRole } from "@/lib/auth-users"
@@ -303,6 +304,7 @@ export async function prepareGoogleAuthentication({
         name: profileProof.name,
         image: profileProof.image,
         profile: { create: { displayName: profileProof.name } },
+        preference: { create: { appSettings: { onboardingSetup: initialOnboardingSetup() } } },
         accounts: { create: accountProof },
       },
     })

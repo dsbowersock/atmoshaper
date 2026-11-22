@@ -3,6 +3,8 @@ import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
 
+import * as onboardingSetup from "../lib/onboarding-setup.js"
+
 const proofModule = await import("../lib/auth-method-intent-proof.ts")
 const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const authMethodIntentsSource = await readFile(
@@ -13,6 +15,7 @@ const { SESSION_BOUND_PURPOSES } = loadCompiledModule(
   authMethodIntentsSource,
   "auth-method-intent-purposes.test.ts",
   {
+    "./onboarding-setup.js": onboardingSetup,
     "@/lib/auth-env": {},
     "@/lib/auth-security": {},
     "@/lib/auth-users": {},

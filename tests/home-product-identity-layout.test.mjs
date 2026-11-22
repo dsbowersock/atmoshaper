@@ -1,210 +1,92 @@
 import assert from "node:assert/strict"
-import { readFileSync } from "node:fs"
-import { createRequire } from "node:module"
-import { fileURLToPath } from "node:url"
-import { describe, it } from "node:test"
-import postcss from "postcss"
-import tailwindcss from "tailwindcss"
-import { getSidebarRenderMode } from "../lib/sidebar-layout.js"
+import { mkdir } from "node:fs/promises"
+import test from "node:test"
+import { chromium, expect } from "@playwright/test"
+import { createHomeDashboardBundle, startHomeDashboardFixture } from "./fixtures/home-dashboard-browser-harness.mjs"
 
-function readProjectFile(path) {
-  return readFileSync(new URL(`../${path}`, import.meta.url), "utf8")
-}
-
-function capture(source, pattern, label) {
-  const match = source.match(pattern)
-  assert.ok(match, `missing ${label}`)
-  return match[1]
-}
-
-const pageSource = readProjectFile("app/page.tsx")
-const appSurfaceSource = readProjectFile("components/ui/app-surface.tsx")
-const sidebarSource = readProjectFile("components/ui/sidebar.tsx")
-const globalsSource = readProjectFile("app/globals.css")
-
-const pageShellClass = capture(
-  appSurfaceSource,
-  /export const appPageShellClassName = "([^"]+)"/,
-  "AppPageShell outer classes",
-)
-const pageShellInnerClass = capture(
-  appSurfaceSource,
-  /<div className=\{cn\("([^"]+)", appPageWidthClassNames\[width\], contentClassName\)\}>/,
-  "AppPageShell inner classes",
-)
-const fullWidthClass = capture(appSurfaceSource, /\n\s*full: "([^"]+)"/, "AppPageShell full width")
-const pageShellOverrideClass = capture(
-  pageSource,
-  /<AppPageShell width="full" className="([^"]+)" contentClassName="[^"]+">/,
-  "homepage AppPageShell override",
-)
-const pageContentClass = capture(
-  pageSource,
-  /<AppPageShell width="full" className="[^"]+" contentClassName="([^"]+)">/,
-  "homepage content classes",
-)
-const heroSectionClass = capture(
-  pageSource,
-  /<section className="([^"]*lg:grid-cols-\[[^"]+)"/,
-  "homepage hero section classes",
-)
-const heroColumnClass = capture(
-  pageSource,
-  /<div className="([^"]*\[container-type:inline-size\][^"]*)">\s*\{\/\* At lg widths,[\s\S]*?<h1/,
-  "homepage hero copy container classes",
-)
-const headingClass = capture(
-  pageSource,
-  /<h1\s+className="([^"]+)"\s+data-testid="home-brand-wordmark"/,
-  "homepage product heading classes",
-)
-const expandedSidebarRem = Number(capture(sidebarSource, /const SIDEBAR_WIDTH = "([\d.]+)rem"/, "expanded sidebar width"))
-const collapsedSidebarRem = Number(capture(sidebarSource, /const SIDEBAR_WIDTH_ICON = "([\d.]+)rem"/, "collapsed sidebar width"))
-
-const adaptiveHeadingClass = "lg:text-[clamp(3rem,16cqi,6rem)]"
-const previousHeadingClass = "lg:text-8xl"
-
-function effectiveSidebarWidth(viewportWidth, state) {
-  const renderMode = getSidebarRenderMode({ width: viewportWidth, height: 900 })
-  if (renderMode === "drawer") return 0
-  if (viewportWidth >= 601 && viewportWidth <= 767) return collapsedSidebarRem * 16
-  return (state === "expanded" ? expandedSidebarRem : collapsedSidebarRem) * 16
-}
-
-describe("homepage product identity layout", () => {
-  it("owns adaptive nowrap sizing in the hero column and preserves the sidebar width contracts", () => {
-    assert.match(heroColumnClass, /\[container-type:inline-size\]/)
-    assert.ok(headingClass.includes(adaptiveHeadingClass))
-    assert.equal(headingClass.includes(previousHeadingClass), false)
-    assert.equal((pageSource.match(/<h1\b/g) ?? []).length, 1)
-    assert.doesNotMatch(pageSource, /home-brand-wordmark-image/)
-    assert.equal(expandedSidebarRem, 17)
-    assert.equal(collapsedSidebarRem, 3.25)
-    assert.match(
-      globalsSource,
-      /@media \(min-width: 601px\) and \(max-width: 767px\) \{[\s\S]*?\.ml-app-sidebar-spacer \{\s*width: var\(--sidebar-width-icon\)/,
-    )
-    assert.equal(getSidebarRenderMode({ width: 320, height: 900 }), "drawer")
-    assert.equal(getSidebarRenderMode({ width: 768, height: 900 }), "desktop")
-    assert.equal(getSidebarRenderMode({ width: 1023, height: 390 }), "compact-rail")
-    assert.equal(getSidebarRenderMode({ width: 1023, height: 900 }), "desktop")
-  })
-
-  it("keeps the actual source heading inside its column across shell breakpoints and sidebar states", async (t) => {
-    const tailwindConfigPath = fileURLToPath(new URL("../tailwind.config.ts", import.meta.url))
-    const globalsPath = fileURLToPath(new URL("../app/globals.css", import.meta.url))
-    const require = createRequire(import.meta.url)
-    const loadTailwindConfig = require("tailwindcss/loadConfig")
-    const tailwindConfig = loadTailwindConfig(tailwindConfigPath)
-    // Keep the exact superseded utility available only for the negative old-code control.
-    const compiled = await postcss([tailwindcss({
-      ...tailwindConfig,
-      safelist: [...(tailwindConfig.safelist ?? []), previousHeadingClass],
-    })]).process(globalsSource, {
-      from: globalsPath,
-    })
-    const { chromium } = await import("@playwright/test")
-    const browser = await chromium.launch()
-    const context = await browser.newContext({ serviceWorkers: "block", viewport: { width: 1280, height: 900 } })
-    let requests = 0
-    await context.route("**/*", async (route) => {
-      requests += 1
-      await route.abort()
-    })
-
-    const render = async (page, viewportWidth, state, previousCode = false) => {
-      await page.setViewportSize({ width: viewportWidth, height: 900 })
-      const sidebarWidth = effectiveSidebarWidth(viewportWidth, state)
-      const renderedHeroColumnClass = previousCode
-        ? heroColumnClass.replace("[container-type:inline-size]", "")
-        : heroColumnClass
-      const renderedHeadingClass = previousCode
-        ? headingClass.replace(adaptiveHeadingClass, previousHeadingClass)
-        : headingClass
-      await page.setContent(`<style>${compiled.css}</style><style>
-        html, body { margin: 0; min-height: 100%; font-family: Arial, sans-serif; }
-        .fixture-root { display: flex; width: 100vw; }
-        .fixture-sidebar { flex: 0 0 ${sidebarWidth}px; }
-        .fixture-main { min-width: 0; flex: 1 1 auto; }
-      </style>
-      <div class="fixture-root">
-        <div class="fixture-sidebar" aria-hidden="true"></div>
-        <main class="fixture-main">
-          <div class="${pageShellClass} ${pageShellOverrideClass}">
-            <div class="${pageShellInnerClass} ${fullWidthClass} ${pageContentClass}">
-              <section class="${heroSectionClass}">
-                <div class="${renderedHeroColumnClass}">
-                  <h1 class="${renderedHeadingClass}" data-testid="home-brand-wordmark">AtmoShaper</h1>
-                </div>
-                <div aria-hidden="true"></div>
-              </section>
-            </div>
-          </div>
-        </main>
-      </div>`)
-      return page.getByTestId("home-brand-wordmark").evaluate((heading) => ({
-        clientWidth: heading.clientWidth,
-        scrollWidth: heading.scrollWidth,
-        fontSize: Number.parseFloat(getComputedStyle(heading).fontSize),
-        containerType: getComputedStyle(heading.parentElement).containerType,
-        containerWidth: heading.parentElement.getBoundingClientRect().width,
-        whiteSpace: getComputedStyle(heading).whiteSpace,
-        text: heading.textContent,
-        visible: Boolean(heading.getClientRects().length),
-        headingCount: document.querySelectorAll("h1").length,
-        artworkCount: document.querySelectorAll("img, picture, svg").length,
-        fontsLoaded: document.fonts.status === "loaded",
-      }))
-    }
-
-    const cases = [
-      { width: 320, states: ["drawer"] },
-      ...[639, 640, 641, 767, 768, 769, 1023, 1024, 1025, 1100, 1280]
-        .map((width) => ({ width, states: ["expanded", "collapsed"] })),
-    ]
-
-    try {
-      const page = await context.newPage()
-      for (const shellCase of cases) {
-        for (const state of shellCase.states) {
-          await t.test(`${shellCase.width}px ${state}`, async () => {
-            const metrics = await render(page, shellCase.width, state)
-            assert.equal(metrics.text, "AtmoShaper")
-            assert.equal(metrics.visible, true)
-            assert.equal(metrics.headingCount, 1)
-            assert.equal(metrics.artworkCount, 0)
-            assert.equal(metrics.fontsLoaded, true)
-            assert.equal(metrics.whiteSpace, "nowrap")
-            assert.equal(metrics.containerType, "inline-size")
-            assert.ok(
-              metrics.scrollWidth <= metrics.clientWidth,
-              `AtmoShaper overflowed at ${shellCase.width}px ${state}: ${metrics.scrollWidth} > ${metrics.clientWidth}`,
-            )
-            assert.ok(metrics.fontSize >= 48 && metrics.fontSize <= 96)
-            if (shellCase.width === 1024 && state === "expanded") {
-              assert.equal(metrics.containerWidth, 368)
-              assert.equal(metrics.fontSize, 58.88)
-            }
-            if (shellCase.width === 1100 && state === "expanded") {
-              assert.equal(metrics.containerWidth, 443.984375)
-              assert.equal(metrics.fontSize, 71.0375)
-            }
-          })
-        }
+test("real home dashboard stays contained and supports visitor, returning and account states", {timeout:120000},async()=>{
+  const server=await startHomeDashboardFixture(await createHomeDashboardBundle())
+  const browser=await chromium.launch()
+  await mkdir("output/home-dashboard",{recursive:true})
+  try {
+    for (const [name,width,height,sidebar] of [["phone",390,844,0],["narrow",320,640,0],["tablet",768,1024,272],["desktop",1280,900,272],["short",844,390,52]]) {
+      const context=await browser.newContext({viewport:{width,height},serviceWorkers:"block",reducedMotion:"reduce"})
+      const page=await context.newPage();const errors=[];const external=[]
+      page.on("pageerror",(error)=>errors.push(error.message))
+      page.on("console",(message)=>{if(["error","warning"].includes(message.type()))errors.push(message.text())})
+      await context.route("**/*",(route)=>{if(new URL(route.request().url()).origin!==server.origin){external.push(route.request().url());return route.abort()}return route.continue()})
+      await page.goto(server.origin)
+      // Reserve the actual expanded/collapsed sidebar footprint without loading
+      // account services. The dashboard and CSS are unmodified production source.
+      if(sidebar)await page.locator("#root").evaluate((el,pixels)=>{el.style.marginLeft=`${pixels}px`},sidebar)
+      try {await expect(page.getByRole("heading",{level:1,name:"AtmoShaper",exact:true})).toHaveCount(1)}
+      catch(error){throw new Error(`${error.message}\nBrowser errors: ${JSON.stringify(errors)}`,{cause:error})}
+      await expect(page.getByRole("heading",{name:"Start here",exact:true})).toBeVisible()
+      const launcher=page.getByTestId("home-launcher")
+      assert.equal(await launcher.locator(":scope > *").count(),6)
+      const bounds=await launcher.locator(":scope > *").evaluateAll((els)=>els.map((el)=>({width:el.clientWidth,scroll:el.scrollWidth,height:el.getBoundingClientRect().height,left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right})))
+      for(const item of bounds){assert.ok(item.scroll<=item.width+1,`${name}: clipped tile`);assert.ok(item.height>=44);assert.ok(item.left>=0&&item.right<=width)}
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth))
+      if(name==="phone"){
+        assert.ok(await page.getByRole("button",{name:"Use dashboard",exact:true}).evaluate((el)=>el.getBoundingClientRect().bottom<innerHeight-72))
+        await page.screenshot({path:"output/home-dashboard/fixture-first-visit.png"})
       }
-
-      for (const width of [1024, 1100]) {
-        await t.test(`old viewport-sized heading overflows at ${width}px expanded`, async () => {
-          const metrics = await render(page, width, "expanded", true)
-          assert.equal(metrics.fontSize, 96)
-          assert.equal(metrics.containerType, "normal")
-          assert.ok(metrics.scrollWidth > metrics.clientWidth)
-        })
-      }
-      assert.equal(requests, 0, "provider-free geometry fixture must make no network requests")
-    } finally {
+      await page.getByRole("button",{name:"Use dashboard",exact:true}).click()
+      await expect(page.getByRole("heading",{name:"Your tools",exact:true})).toBeVisible()
+      await page.reload()
+      await expect(page.getByRole("heading",{name:"Your tools",exact:true})).toBeVisible()
+      await page.getByRole("button",{name:"All tools",exact:true}).click()
+      const dialog=page.getByRole("dialog")
+      await expect(dialog.getByRole("link",{name:"Practice Calendar",exact:true})).toHaveAttribute("href","/calendar?setup=practice")
+      await expect(dialog.getByRole("link",{name:"My Calendar",exact:true})).toHaveAttribute("href","/calendar/personal")
+      await dialog.getByRole("button",{name:"Close",exact:true}).press("Escape")
+      await expect(dialog).toHaveCount(0)
+      await expect(page.getByRole("button",{name:"All tools",exact:true})).toBeFocused()
+      await page.getByRole("button",{name:"Study & play",exact:true}).click()
+      await expect(dialog.getByRole("link",{name:"Flashcards",exact:true})).toBeVisible()
+      await expect(dialog.getByRole("link",{name:"Business Planner",exact:true})).toHaveCount(0)
+      await dialog.getByRole("button",{name:"Close",exact:true}).click()
+      await page.getByRole("button",{name:"About AtmoShaper",exact:true}).click()
+      await expect(dialog.getByRole("link",{name:"Privacy",exact:true})).toHaveAttribute("href","/legal/privacy")
+      await dialog.getByRole("button",{name:"Close",exact:true}).click()
+      await page.evaluate(()=>{document.documentElement.className="light"})
+      await expect(page.getByTestId("home-brand-wordmark")).toBeVisible()
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth))
+      assert.deepEqual(errors,[]);assert.deepEqual(external,[])
       await context.close()
-      await browser.close()
     }
-  })
+    // Hold the actual client bundle so the server markup is observed first.
+    // A saved return preference must update only after matching SSR hydration.
+    const hydratedContext=await browser.newContext({viewport:{width:390,height:844}})
+    await hydratedContext.addInitScript(()=>localStorage.setItem("atmoshaper.home.visited.v1","1"))
+    const hydratedPage=await hydratedContext.newPage();const hydrationErrors=[]
+    hydratedPage.on("pageerror",(error)=>hydrationErrors.push(error.message))
+    hydratedPage.on("console",(message)=>{if(["error","warning"].includes(message.type()))hydrationErrors.push(message.text())})
+    let releaseBundle
+    const heldBundle=new Promise((resolve)=>{releaseBundle=resolve})
+    await hydratedContext.route("**/fixture.js",async(route)=>{await heldBundle;await route.continue()})
+    await hydratedPage.goto(`${server.origin}/?hydrate`,{waitUntil:"commit"})
+    await expect(hydratedPage.getByRole("heading",{name:"Start here",exact:true})).toBeVisible()
+    await expect(hydratedPage.getByRole("button",{name:"All tools",exact:true})).toBeDisabled()
+    releaseBundle()
+    await expect(hydratedPage.getByRole("heading",{name:"Your tools",exact:true})).toBeVisible()
+    await hydratedPage.getByRole("button",{name:"All tools",exact:true}).click()
+    await expect(hydratedPage.getByRole("dialog",{name:"All tools",exact:true})).toBeVisible()
+    assert.deepEqual(await hydratedPage.evaluate(()=>window.__homeHydrationErrors),[])
+    assert.deepEqual(hydrationErrors,[])
+    await hydratedContext.close()
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    await context.addInitScript(()=>{Object.defineProperty(Storage.prototype,"getItem",{value(){throw new Error("denied")}});Object.defineProperty(Storage.prototype,"setItem",{value(){throw new Error("denied")}})})
+    const page=await context.newPage()
+    await page.goto(server.origin)
+    await page.getByRole("button",{name:"Use dashboard",exact:true}).click()
+    await expect(page.getByRole("heading",{name:"Your tools",exact:true})).toBeVisible()
+    await page.goto(`${server.origin}/?signedIn&custom`)
+    await expect(page.getByRole("link",{name:"Account",exact:true})).toBeVisible()
+    await expect(page.getByRole("link",{name:"Account settings",exact:true})).toHaveAttribute("href","/account?tab=app-settings")
+    assert.deepEqual(await page.getByTestId("home-launcher").locator(":scope > *").allTextContents(),["Anatomime","Business income planner","Chimer","Music","Calendar and booking","Local-first notes"])
+    await page.screenshot({path:"output/home-dashboard/fixture-custom-shortcuts.png"})
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth))
+    await context.close()
+  }finally{await browser.close();await server.close()}
 })

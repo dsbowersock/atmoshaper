@@ -34,17 +34,16 @@ const ERROR_MESSAGES: Record<string, string> = {
 export function LoginForm({ googleEnabled }: LoginFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const hasCallbackUrl = searchParams.has("callbackUrl")
   const requestedCallbackUrl = searchParams.get("callbackUrl")
   const callbackUrl = isRegistrationLegalAcceptancePath(requestedCallbackUrl)
     ? buildRegistrationLegalProviderRedirectPath(requestedCallbackUrl)
-    : safePostLegalAcceptanceCallback(requestedCallbackUrl, "/account")
+    : safePostLegalAcceptanceCallback(requestedCallbackUrl, "/")
   const emailRedirectTo = isRegistrationLegalAcceptancePath(callbackUrl)
     ? callbackUrl
     : buildRegistrationLegalAcceptancePath(callbackUrl)
-  // Google OAuth defaults to onboarding only when no callback was requested.
-  const googleCallbackUrl = hasCallbackUrl ? callbackUrl : "/onboarding"
-  const googleRedirectTo = buildRegistrationLegalProviderRedirectPath(googleCallbackUrl)
+  // Both methods return home by default. The unchanged legal gate routes new
+  // accounts to an optional invitation and unfinished drafts to continuation.
+  const googleRedirectTo = buildRegistrationLegalProviderRedirectPath(callbackUrl)
   const verificationRequestHref = buildVerificationRequestPath(callbackUrl)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")

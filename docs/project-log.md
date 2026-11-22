@@ -1,5 +1,134 @@
 # AtmoShaper Project Log
 
+## November 22 Clock AM/PM placement and digital lettering
+
+The owner selects the trailing AM/PM on an enlarged clock and requests moving it
+into the spare leading-hour space. They also request digital lettering. Extract
+the shared current-time renderer, retain stable hour cells, hide the 12-hour
+leading zero and inset the label without adding row width. Preserve the visible
+leading 1, seconds, 24-hour/localized/fallback-font behavior and sizing safety.
+
+Use the same author's unmodified DSEG14 Modern Bold alphabet companion for a
+recognizable M beside unchanged DSEG7 Modern Bold numerals. Compare the original
+release notice byte-for-byte and retain its binary hash/notice. All 111 focused
+checks and 238 existing Clock regressions pass; route type generation and full
+type checking pass. Local actual-route acceptance verifies enlargement and
+trailing-digit geometry. See the [receipt](audits/2026-11-22-clock-meridiem.md).
+No publication or live service/account change is included.
+
+## November 21 optional setup, saved drafts and continuation
+
+The owner requests a one-time setup choice at signup, permanent re-entry from
+Account settings, and independent editing without reminders. Their follow-up
+clarifies that unfinished guided setup should retain its progress and offer
+continuation on return. Seed invitations only in actual new password/Google
+account transactions; keep existing verification, consent and linking rules.
+Return ordinary sign-ins Home/their safe callback instead of always onboarding.
+
+Claim invitations through owner-checked POST actions under the preference owner
+lock, keeping GET/prefetch read-only. Add separate bounded account drafts with
+serial autosave, shortcut-reorder capture and acknowledgement before explicit
+Leave/Finish. Prefill saved answers, offer one continuation on Home or sign-in,
+and preserve progress after declining. Generic preference sync cannot reset
+this lifecycle or overwrite the draft. Revision checks reject stale saves and
+late writes after completion. Account settings retains manual setup and direct
+profile/credentials/preferences controls.
+
+Local auth/setup checks pass 167 cases and home regressions pass all 94. Browser
+fixtures use the actual UI/CSS with fictional owners and no live services;
+responsive choices, restore/reorder, continuation, failures and stale/unmounted
+effects are exercised. Final focused lint and the ordinary full type check pass;
+the embedded browser also verifies restoration and continuation. See the
+[verification receipt](audits/2026-11-21-optional-onboarding.md). Source remains
+local on the existing home dashboard branch, with review/release gates pending.
+
+## November 21 Practice tools launcher color
+
+The owner requests the regular orange style for the home-page Practice tools
+button. Remove its teal setup tone so the existing default orange material
+applies. Its category sheet and other launcher styles are unchanged. Local only.
+
+## November 21 home header wordmark
+
+The owner selects the home-page title and requests the existing wordmark.
+Render the canonical brand PNG at a responsive width with its original aspect
+ratio; retain one accessible heading through visually hidden product text and
+decorative image alt text. No artwork, identity registry or app-bar changes.
+Verify the actual loaded asset beside Sign in on the phone preview and update
+the earlier text-only browser contracts. Streamed ownership checks pass, and
+the real-component responsive/SSR journey passes after supplying Next's client
+environment defaults to its isolated bundler. The historical Phase 6 home crop
+baselines intentionally describe the earlier design and require explicit
+platform-specific refresh before a later Phase 6 screenshot run. Save the
+current proof as `output/home-dashboard/home-wordmark.jpg`; no publication.
+
+## November 21 Clock route types and preview warning resolved locally
+
+The owner asks what the Clock check means, reports a home hydration warning,
+then explicitly requests the Clock correction. Move the unchanged Clock/Chimer
+screen into `app/chimer/chimer-screen.tsx`; `/chimer`, `/clock` and the
+production-disabled `/dev/clock` use thin route entry points. Preview options
+remain ordinary screen inputs instead of unsupported Next page inputs. The
+extracted screen matches the base implementation exactly after line-ending
+normalization. Existing source-level regressions follow its new location.
+
+Generate actual Next route validators with `npm run typegen`, then run the
+ordinary full `npm run typecheck`: both pass, without the earlier source-only
+configuration. All 238 related checks and Clock lint pass. Add an actual SSR
+hydration case that delays the browser bundle, observes disabled pre-hydration
+controls, then verifies returning state and a working directory without React
+warnings. All 94 home checks and focused lint pass.
+
+The user's warning references the older `useDashboard` client while the server
+already emits the newer hydration guard. Confirm that the server's emitted
+bundle contains the new handler and guard. Ordinary reload retains the mixed
+version. Restart the owned preview and open the same server at
+http://localhost:3025/; verify enabled controls, directory open/close and no
+current error overlay. Do not clear browser storage, vaults, settings or records.
+The screenshot is `output/home-dashboard/preview-hydration-fixed.jpg`. This
+remains local work, with no provider change, remote push or deployment.
+
+## November 21 home dashboard local redesign
+
+The owner asks for an app-like mobile/tablet home screen and chooses balanced
+emphasis across music, clock, wellness, calendar, study and practice. Implement
+six default launchers, a concise introduction, returning mode, category sheets
+and a filtered full directory. Preserve explicit shortcut order, current button
+materials, shell/player, metadata and all destination authorization. Home reads
+preferences and permissions only; browser state retains an intro-dismissal
+boolean without account identity or private records.
+
+Add keyboard focus restoration, native sheet descriptions, 44 px sheet close
+target and a first-tap hydration guard. Replace obsolete home-hero tests with
+actual component/geometry/state tests and current public-route assertions.
+Prepare a restartable loopback preview isolated from live service credentials.
+Record the unchanged Clock dev-validator conflict separately from passing
+source validation. See the [home dashboard receipt](audits/2026-11-21-home-dashboard.md).
+This work remains local for visual review; publication and source reviews are
+not claimed complete.
+
+## November 21 reviewed fixes published at 6:10 p.m. Eastern
+
+CodeRabbit's actual five-path `7da07ef..f243ff4` follow-up completes with no
+actionable findings; current-source Codex has none. All 14 threads are resolved,
+all seven PR checks pass, and the mode/type-aware proof verifies complete state
+chains for all 43 changed code/test paths. Fresh unchanged settings/routing and
+protected acceptance admit one merge of PR #78 as `22010d0`; its tree matches
+reviewed `f243ff4` exactly.
+
+One automatic Production build passes live migration/all-payments checks and
+both Sentry uploads. Actual Sentry UI readback matches the emitted script/map
+debug ID to the merged release. Staged and public acceptance each pass 23 routes,
+12 native journeys and both synthetic PDF downloads. Wait for all seven merged-
+source CI jobs, then promote the same READY artifact once. Final public bytes,
+canonical redirect, six public mappings, 40 unrelated mappings and 87 unchanged
+Production setting metadata entries verify. The prior READY release is retained;
+no rollback or additional live data/payment/email/provider-setting change occurs.
+
+Save the [publication receipt](audits/2026-11-21-reviewed-fixes-publication.md)
+and a local documentation-only closeout. Do not push that receipt to create
+another build. NAS backup-script activation remains a separate operation.
+
 ## November 21 abandoned Calendar request lifetime
 
 The included CodeRabbit follow-up completes its full 13-path correction range

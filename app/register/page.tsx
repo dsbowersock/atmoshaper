@@ -2,6 +2,7 @@ import { hasGoogleAuthConfig } from "@/lib/auth-env"
 import { getPublicLaunchControls } from "@/lib/public-launch-controls"
 import { AppPageShell } from "@/components/ui/app-surface"
 import { RegisterForm } from "./register-form"
+import { safePostLegalAcceptanceCallback } from "@/lib/legal-acceptance-gate"
 
 type RegisterSearchParams = {
   callbackUrl?: string | string[]
@@ -9,8 +10,7 @@ type RegisterSearchParams = {
 
 // Only allow same-origin, root-relative post-registration redirects.
 function safeCallbackUrl(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return "/onboarding"
-  return value
+  return safePostLegalAcceptanceCallback(value)
 }
 
 function firstQueryValue(value: string | string[] | undefined) {

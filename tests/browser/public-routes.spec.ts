@@ -2963,62 +2963,29 @@ test("mobile primary bar keeps lighting controls available with a compact theme 
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
-test("anonymous homepage presents landing copy and tool discovery rails", async ({ page }) => {
+test("anonymous homepage presents a compact launcher and tool directory", async ({ page }) => {
   const health = await capturePageHealth(page, new Set())
-
   await page.goto("/", { waitUntil: "domcontentloaded" })
-
   await expect(page.getByRole("heading", { level: 1, name: "AtmoShaper", exact: true, includeHidden: false })).toBeVisible()
-  await expect(page.getByRole("heading", { level: 2, name: /AtmoShaper helps/i, includeHidden: false })).toBeVisible()
-  await expect(page.getByRole("heading", { level: 2, name: /AtmoShaper helps/i, includeHidden: false }).getByTestId("home-flip-word")).toBeVisible()
-  await expect(page.getByRole("link", { name: /^Create a free account$/i }).first()).toHaveAttribute("href", "/register")
-  await expect(page.getByRole("link", { name: /^Explore tools$/i }).first()).toHaveAttribute("href", "#available-tools")
-
-  await expect(page.getByRole("heading", { name: "What are you here for today?" })).toBeVisible()
-  await expect(page.getByRole("link", { name: /Study anatomy/i })).toHaveAttribute("href", "/education/flashcards")
-  await expect(page.getByRole("link", { name: /Teach or play/i })).toHaveAttribute("href", "/anatomime")
-  await expect(page.getByRole("link", { name: /Run a session/i })).toHaveAttribute("href", "/chimer")
-  await expect(page.getByRole("link", { name: /Organize a practice/i })).toHaveAttribute("href", "/register?callbackUrl=%2Fcalendar")
-  await expect(page.getByRole("link", { name: /Document locally/i })).toHaveAttribute("href", "/notes")
-  await expect(page.getByRole("link", { name: /Just exploring/i })).toHaveAttribute("href", "#available-tools")
-
-  await expect(page.getByRole("region", { name: /^Practice tools$/i })).toBeVisible()
-  await expect(page.getByRole("region", { name: /^Study tools$/i })).toBeVisible()
-  await expect(page.getByRole("region", { name: /^Wellness tools$/i })).toBeVisible()
-  await expect(page.getByRole("region", { name: /^Music and focus$/i })).toBeVisible()
-  await expect(page.getByRole("region", { name: /^Business tools$/i })).toBeVisible()
-
-  await expect(page.getByRole("heading", { name: "Available tools" })).toBeVisible()
-  for (const name of [
-    "Chimer",
-    "Business income planner",
-    "Music",
-    "Education flashcards",
-    "Anatomime",
-    "Local-first notes",
-    "Calendar and booking",
-    "Account and memberships",
-    "Roadmap and support",
-  ]) {
-    await expect(page.getByText(name).first()).toBeVisible()
-  }
-
-  const availableTools = page.locator("#available-tools")
-  await expect(availableTools.getByRole("link", { name: /Open Chimer/i })).toHaveAttribute("href", "/chimer")
-  await expect(availableTools.getByRole("link", { name: /Open planner/i })).toHaveAttribute("href", "/tools/business-planner/income")
-  await expect(availableTools.getByRole("link", { name: /Open Music/i })).toHaveAttribute("href", "/music")
-  await expect(availableTools.getByRole("link", { name: /Study flashcards/i })).toHaveAttribute("href", "/education/flashcards")
-  await expect(availableTools.getByRole("link", { name: /Play Anatomime/i })).toHaveAttribute("href", "/anatomime")
-  await expect(availableTools.getByRole("link", { name: /Open notes/i })).toHaveAttribute("href", "/notes")
-  await expect(availableTools.getByRole("link", { name: /Open calendar/i })).toHaveAttribute("href", "/calendar")
-  await expect(availableTools.getByRole("link", { name: /^Create account$/i })).toHaveAttribute("href", "/register")
-  await expect(availableTools.getByRole("link", { name: /Open roadmap/i })).toHaveAttribute("href", "/roadmap")
-
-  expect(health.pageErrors, "uncaught page errors").toEqual([])
-  expect(health.unexpectedExternalRequests, "unexpected external requests").toEqual([])
-  expect(health.consoleErrors, "browser console errors").toEqual([])
-  expect(health.failedLocalResponses, "local 4xx/5xx responses").toEqual([])
-  expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
+  await expect(page.getByRole("heading", { level: 2, name: "Start here", exact: true, includeHidden: false })).toBeVisible()
+  const launcher = page.getByTestId("home-launcher")
+  await expect(launcher.getByRole("link", { name: "Music", exact: true })).toHaveAttribute("href", "/music")
+  await expect(launcher.getByRole("link", { name: "Clock & timer", exact: true })).toHaveAttribute("href", "/clock")
+  await expect(launcher.getByRole("link", { name: "My Calendar", exact: true })).toHaveAttribute("href", "/calendar/personal")
+  await page.getByRole("button", { name: "All tools", exact: true }).click()
+  const directory = page.getByRole("dialog", { name: "All tools", exact: true })
+  await expect(directory.getByRole("link", { name: "Practice Calendar", exact: true })).toHaveAttribute("href", "/calendar?setup=practice")
+  await expect(directory.getByRole("link", { name: "Flashcards", exact: true })).toHaveAttribute("href", "/education/flashcards")
+  await directory.getByRole("button", { name: "Close", exact: true }).click()
+  await page.getByRole("button", { name: "Use dashboard", exact: true }).click()
+  await expect(page.getByRole("heading", { name: "Your tools", exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole("heading", { name: "Your tools", exact: true })).toBeVisible()
+  expect(health.pageErrors).toEqual([])
+  expect(health.unexpectedExternalRequests).toEqual([])
+  expect(health.consoleErrors).toEqual([])
+  expect(health.failedLocalResponses).toEqual([])
+  expect(health.forbiddenRequests).toEqual([])
 })
 
 test("Roadmap presents an unordered product portfolio", async ({ page }) => {
@@ -4399,7 +4366,7 @@ test("register defaults new accounts toward post-account onboarding", async ({ p
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
-test("homepage uses accessible AtmoShaper text for light and dark themes", async ({ page }) => {
+test("homepage wordmark retains an accessible AtmoShaper heading in both themes", async ({ page }) => {
   const health = await capturePageHealth(page, new Set())
 
   await page.goto("/", { waitUntil: "domcontentloaded" })
@@ -4407,7 +4374,8 @@ test("homepage uses accessible AtmoShaper text for light and dark themes", async
   const brand = page.getByRole("heading", { level: 1, name: "AtmoShaper", exact: true })
   await expect(brand).toHaveAttribute("data-testid", "home-brand-wordmark")
   await expect(brand).toHaveText("AtmoShaper")
-  await expect(page.getByTestId("home-brand-wordmark-image")).toHaveCount(0)
+  await expect(page.getByTestId("home-brand-wordmark-image")).toHaveAttribute("src", "/brand/atmoshaper-wordmark.png")
+  await expect.poll(() => page.getByTestId("home-brand-wordmark-image").evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)).toBe(true)
 
   await page.evaluate(() => {
     document.documentElement.classList.remove("dark")
@@ -4456,107 +4424,17 @@ test("theme switcher uses the compact toggle below desktop widths", async ({ pag
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
-test("homepage flip words advance when motion is allowed", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "no-preference" })
-  const health = await capturePageHealth(page, new Set())
-
-  await page.goto("/", { waitUntil: "domcontentloaded" })
-
-  const flipWord = page.getByTestId("home-flip-word")
-  await expect(flipWord).toBeVisible()
-  const firstWord = await flipWord.textContent()
-  await expect
-    .poll(async () => flipWord.textContent(), {
-      message: "expected the homepage role word to advance",
-      timeout: 5_000,
-    })
-    .not.toBe(firstWord)
-
-  expect(health.pageErrors, "uncaught page errors").toEqual([])
-  expect(health.unexpectedExternalRequests, "unexpected external requests").toEqual([])
-  expect(health.consoleErrors, "browser console errors").toEqual([])
-  expect(health.failedLocalResponses, "local 4xx/5xx responses").toEqual([])
-  expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
-})
-
-test("homepage audience phrases reserve stable heading layout at 704px", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "desktop-chromium", "Homepage phrase layout is covered once in desktop Chromium.")
-  await page.emulateMedia({ reducedMotion: "no-preference" })
-  await page.setViewportSize({ width: 704, height: 597 })
-  await page.goto("/", { waitUntil: "domcontentloaded" })
-
-  const flipWord = page.getByTestId("home-flip-word")
-  const heading = page.locator("h2").filter({ has: flipWord })
-  const followingParagraph = heading.locator("xpath=following-sibling::p[1]")
-  const metrics: Array<{ word: string; headingHeight: number; lineCount: number; paragraphY: number }> = []
-
-  await page.evaluate(async () => {
-    await document.fonts.ready
-  })
-  await expect(heading).toBeVisible()
-  await expect
-    .poll(async () => {
-      const headingHeight = await heading.evaluate((element) => element.getBoundingClientRect().height)
-      return Number.isFinite(headingHeight) ? headingHeight : 0
-    }, { message: "expected a positive finite homepage heading height" })
-    .toBeGreaterThan(0)
-
-  for (const word of ["therapists", "students", "educators", "clients", "curious people"]) {
-    await expect(flipWord).toHaveText(word, { timeout: 3_000 })
-    metrics.push(await heading.evaluate((element, currentWord) => {
-      const rect = element.getBoundingClientRect()
-      const lineHeight = Number.parseFloat(getComputedStyle(element).lineHeight)
-      const paragraph = element.nextElementSibling
-      return {
-        word: currentWord,
-        headingHeight: rect.height,
-        lineCount: Math.round(rect.height / lineHeight),
-        paragraphY: paragraph?.getBoundingClientRect().y ?? Number.NaN,
-      }
-    }, word))
-  }
-
-  const baseline = metrics[0]
-  expect(baseline.headingHeight, "baseline heading height").toBeGreaterThan(0)
-  for (const metric of metrics) {
-    expect(metric.headingHeight, `${metric.word} heading height`).toBeCloseTo(baseline.headingHeight, 0)
-    expect(metric.lineCount, `${metric.word} heading lines`).toBe(baseline.lineCount)
-    expect(metric.paragraphY, `${metric.word} paragraph y`).toBeCloseTo(baseline.paragraphY, 0)
-  }
-  await expect(followingParagraph).toBeVisible()
-})
-
-test("homepage widest audience phrase does not overflow at 390px", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile-chromium", "Narrow homepage overflow is covered in mobile Chromium.")
-  await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto("/", { waitUntil: "domcontentloaded" })
-
-  const flipWord = page.getByTestId("home-flip-word")
-  const heading = page.locator("h2").filter({ has: flipWord })
-  await expect(heading).toBeVisible()
-  await expect(flipWord).toHaveText("curious people", { timeout: 15_000 })
-  expect(await heading.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-})
-
-test("homepage flip words stay stable when reduced motion is requested", async ({ page }) => {
+test("homepage launcher labels remain contained on narrow and tablet screens", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" })
-  const health = await capturePageHealth(page, new Set())
-
-  await page.goto("/", { waitUntil: "domcontentloaded" })
-
-  const flipWord = page.getByTestId("home-flip-word").filter({ visible: true })
-  await expect(flipWord).toHaveCount(1)
-  const firstWord = await flipWord.textContent()
-  await page.waitForTimeout(3_500)
-  await expect(flipWord).toHaveCount(1)
-  await expect(flipWord).toHaveText(firstWord ?? "")
-
-  expect(health.pageErrors, "uncaught page errors").toEqual([])
-  expect(health.unexpectedExternalRequests, "unexpected external requests").toEqual([])
-  expect(health.consoleErrors, "browser console errors").toEqual([])
-  expect(health.failedLocalResponses, "local 4xx/5xx responses").toEqual([])
-  expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
+  for (const viewport of [{width:320,height:640},{width:390,height:844},{width:768,height:1024}]) {
+    await page.setViewportSize(viewport)
+    await page.goto("/", { waitUntil: "domcontentloaded" })
+    await expect(page.getByTestId("home-launcher")).toBeVisible()
+    const metrics = await page.getByTestId("home-launcher").locator(":scope > *").evaluateAll((elements) => elements.map((element) => ({client:element.clientWidth,scroll:element.scrollWidth})))
+    expect(metrics).toHaveLength(6)
+    for (const metric of metrics) expect(metric.scroll).toBeLessThanOrEqual(metric.client+1)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  }
 })
 
 test("anonymous flashcards setup keeps prompt controls usable before count hydration", async ({ page }) => {

@@ -1,5 +1,5 @@
 import { handlers } from "@/auth"
-import { buildRegistrationLegalProviderRedirectPath } from "@/lib/legal-acceptance-gate"
+import { buildRegistrationLegalProviderRedirectPath, DEFAULT_POST_ACCOUNT_CALLBACK } from "@/lib/legal-acceptance-gate"
 import { NextRequest } from "next/server"
 
 const GOOGLE_SIGN_IN_PATH = "/api/auth/signin/google"
@@ -15,7 +15,7 @@ async function withRegistrationLegalCallback(request: NextRequest) {
   }
 
   if (request.method === "GET") {
-    url.searchParams.set("callbackUrl", buildRegistrationLegalProviderRedirectPath(url.searchParams.get("callbackUrl") ?? "/onboarding"))
+    url.searchParams.set("callbackUrl", buildRegistrationLegalProviderRedirectPath(url.searchParams.get("callbackUrl") ?? DEFAULT_POST_ACCOUNT_CALLBACK))
     return new NextRequest(url, {
       headers: request.headers,
       method: request.method,
@@ -24,7 +24,7 @@ async function withRegistrationLegalCallback(request: NextRequest) {
 
   const headers = new Headers(request.headers)
   const body = new URLSearchParams(await request.text())
-  body.set("callbackUrl", buildRegistrationLegalProviderRedirectPath(body.get("callbackUrl") ?? "/onboarding"))
+  body.set("callbackUrl", buildRegistrationLegalProviderRedirectPath(body.get("callbackUrl") ?? DEFAULT_POST_ACCOUNT_CALLBACK))
   headers.set("content-type", "application/x-www-form-urlencoded")
   headers.delete("content-length")
 

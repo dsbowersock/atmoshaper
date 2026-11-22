@@ -38,6 +38,7 @@ import { getTwistedCubesBackgroundOptionsFromChimerSettings, toTwistedCubesChime
 import { getStaticGradientBackgroundOptionsFromChimerSettings, toStaticGradientChimerSettingsPatch } from "@/lib/static-gradient-background"
 import { MASSAGE_LAB_ASTRAL_FLOW_DISPLAY_SPEED_MAX, MASSAGE_LAB_ASTRAL_FLOW_DISPLAY_SPEED_MIN, MASSAGE_LAB_ASTRAL_FLOW_DISPLAY_SPEED_STEP, MASSAGE_LAB_DEEP_SPACE_NEBULA_DISPLAY_SPEED_MAX, MASSAGE_LAB_DEEP_SPACE_NEBULA_DISPLAY_SPEED_MIN, MASSAGE_LAB_DEEP_SPACE_NEBULA_DISPLAY_SPEED_STEP, MASSAGE_LAB_GRID_BLOOM_DISPLAY_SPEED_MAX, MASSAGE_LAB_GRID_BLOOM_DISPLAY_SPEED_MIN, MASSAGE_LAB_GRID_BLOOM_DISPLAY_SPEED_STEP, MASSAGE_LAB_LIQUID_CHROME_DISPLAY_FLOW_SPEED_MAX, MASSAGE_LAB_LIQUID_CHROME_DISPLAY_FLOW_SPEED_MIN, MASSAGE_LAB_LIQUID_CHROME_DISPLAY_FLOW_SPEED_STEP, MASSAGE_LAB_LIQUID_CHROME_DISPLAY_TIME_SCALE_MAX, MASSAGE_LAB_LIQUID_CHROME_DISPLAY_TIME_SCALE_MIN, MASSAGE_LAB_LIQUID_CHROME_DISPLAY_TIME_SCALE_STEP, MASSAGE_LAB_WAVES_DISPLAY_SPEED_MAX, MASSAGE_LAB_WAVES_DISPLAY_SPEED_MIN, MASSAGE_LAB_WAVES_DISPLAY_SPEED_STEP, MASSAGE_LAB_SYNTHESIS_DISPLAY_SPEED_MAX, MASSAGE_LAB_SYNTHESIS_DISPLAY_SPEED_MIN, MASSAGE_LAB_SYNTHESIS_DISPLAY_SPEED_STEP, MASSAGE_LAB_NOVATRIX_DISPLAY_AMPLITUDE_MAX, MASSAGE_LAB_NOVATRIX_DISPLAY_AMPLITUDE_MIN, MASSAGE_LAB_NOVATRIX_DISPLAY_AMPLITUDE_STEP, MASSAGE_LAB_NOVATRIX_DISPLAY_SPEED_MAX, MASSAGE_LAB_NOVATRIX_DISPLAY_SPEED_MIN, MASSAGE_LAB_NOVATRIX_DISPLAY_SPEED_STEP, MASSAGE_LAB_HACKER_DISPLAY_SPEED_MAX, MASSAGE_LAB_HACKER_DISPLAY_SPEED_MIN, MASSAGE_LAB_HACKER_DISPLAY_SPEED_STEP, MASSAGE_LAB_PHOTON_BEAM_DISPLAY_SPEED_MAX, MASSAGE_LAB_PHOTON_BEAM_DISPLAY_SPEED_MIN, MASSAGE_LAB_PHOTON_BEAM_DISPLAY_SPEED_STEP, getMassageLabAstralFlowDisplaySpeed, getMassageLabAstralFlowSourceSpeed, getMassageLabDeepSpaceNebulaDisplaySpeed, getMassageLabDeepSpaceNebulaSourceSpeed, getMassageLabGridBloomDisplaySpeed, getMassageLabGridBloomSourceSpeed, getMassageLabChromeFlowDisplayFlowSpeed, getMassageLabChromeFlowDisplayTimeScale, getMassageLabChromeFlowSourceFlowSpeed, getMassageLabChromeFlowSourceTimeScale, getMassageLabCatalogChromeFlowDisplaySpeed, getMassageLabCatalogChromeFlowSourceSpeed, getMassageLabWaveCurrentDisplaySpeed, getMassageLabWaveCurrentSourceSpeed, getMassageLabSynthesisDisplaySpeed, getMassageLabSynthesisSourceSpeed, getMassageLabNovatrixDisplayAmplitude, getMassageLabNovatrixDisplaySpeed, getMassageLabNovatrixSourceAmplitude, getMassageLabNovatrixSourceSpeed, getMassageLabMatrixRainDisplaySpeed, getMassageLabMatrixRainSourceSpeed, getMassageLab3DGlobeScaleDisplayPercent, getMassageLab3DGlobeScaleFromDisplayPercent, getMassageLabShapeGridSpeedDisplayPercent, getMassageLabShapeGridSpeedFromDisplayPercent, getMassageLabPhotonBeamDisplaySpeed, getMassageLabPhotonBeamSourceSpeed, type MassageLabPrismAnimationType, type MassageLabLightPillarBlendMode, type MassageLabFloatingLinesBlendMode, type MassageLabSideRaysOrigin, type MassageLabLightRaysOrigin, type MassageLabPixelBlastVariant, type MassageLabPlasmaDirection, type MassageLabGradientBlindsBlendMode, type MassageLabGradientBlindsShineDirection, type MassageLabGridScanDirection, type MassageLabGridScanLineStyle, type MassageLabPixelSnowVariant, type MassageLabPrismaticBurstAnimationType, type MassageLabPrismaticBurstMixBlendMode, type MassageLabLightPillarQuality, type ChimerSettings } from "./set-timer"
 import styles from "./running-timer.module.css"
+import { CurrentTimeDisplay } from "./current-time-display"
 import { GridMotionMantraEditor } from "./grid-motion-mantra-editor"
 import { ImmersivePanelShell, type ImmersivePanelId } from "./immersive-panel-shell"
 import { readVisualPanelOpened, writeVisualPanelOpened } from "./immersive-panel-visual-hint.js"
@@ -12552,8 +12553,6 @@ export function RunningTimer({
     </span>
   )
 
-  const renderCurrentTimeMeridiem = (meridiem = currentTime.meridiem) => (meridiem ? <span className={styles.currentTimeMeridiem}>{meridiem}</span> : null)
-
   const renderTimerDisplay = () => {
     const hasHours = timeDisplay.hours !== "00"
     const hasSeconds = Boolean(timeDisplay.seconds)
@@ -12580,47 +12579,9 @@ export function RunningTimer({
     )
   }
 
-  const renderCurrentTimeDisplay = (isPrimary: boolean) => {
-    const [hour = "", minute = "", second = ""] = currentTime.time.split(":")
-
-    const renderDigitSlots = (value: string) =>
-      value
-        .padStart(2, "0")
-        .split("")
-        .map((digit, index) => (
-          <span key={`${value}-${index}`} className={styles.currentTimeDigit}>
-            {digit}
-          </span>
-        ))
-
-    if (!minute) {
-      return (
-        <span className={isPrimary ? styles.currentTimeStack : styles.currentTimeInline}>
-          <span className={styles.currentTimeRow}>
-            <span className={styles.currentTimeValue}>{currentTime.time}</span>
-            {renderCurrentTimeMeridiem()}
-          </span>
-        </span>
-      )
-    }
-
-    const renderTimeRow = (rowHour: string, rowMinute: string, rowSecond: string, meridiem: string) => (
-      <span className={styles.currentTimeRow}>
-        <span className={`${styles.timeUnit} ${styles.currentTimeUnit}`}>{renderDigitSlots(rowHour)}</span>
-        <span className={`${styles.colon} ${styles.clockColon}`}>:</span>
-        <span className={`${styles.timeUnit} ${styles.currentTimeUnit}`}>{renderDigitSlots(rowMinute)}</span>
-        {rowSecond && (
-          <>
-            <span className={`${styles.colon} ${styles.clockColon}`}>:</span>
-            <span className={`${styles.timeUnit} ${styles.currentTimeUnit}`}>{renderDigitSlots(rowSecond)}</span>
-          </>
-        )}
-        {renderCurrentTimeMeridiem(meridiem)}
-      </span>
-    )
-
-    return <span className={isPrimary ? styles.currentTimeStack : styles.currentTimeInline}>{renderTimeRow(hour, minute, second, currentTime.meridiem)}</span>
-  }
+  const renderCurrentTimeDisplay = (isPrimary: boolean) => (
+    <CurrentTimeDisplay currentTime={currentTime} isPrimary={isPrimary} fontFamily={clockFontFamily} />
+  )
 
   /**
    * Keeps the safe-stage measurement wrapper stable while applying optional

@@ -13,28 +13,37 @@ import {
 } from "@/lib/onboarding-preferences"
 import { prisma } from "@/lib/prisma"
 import { cn } from "@/lib/utils"
-import { saveOnboardingAction } from "@/app/onboarding/actions"
+import { OnboardingDraftForm } from "@/components/account/onboarding-draft-form"
 import { HomeShortcutEditor } from "@/components/home/home-shortcut-editor"
 import { AppInset, AppPageShell, AppSurface } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
+import { guidedOnboardingPath, onboardingDraftRevision, onboardingReturnTo } from "@/lib/onboarding-setup"
 
 export const dynamic = "force-dynamic"
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({ searchParams }: {
+  searchParams: Promise<{ returnTo?: string }>
+}) {
+  const params = await searchParams
+  const returnTo = typeof params.returnTo === "string" ? onboardingReturnTo(params.returnTo) : null
   const session = await getCurrentSession()
 
   if (!session?.user?.id) {
-    redirect("/login?callbackUrl=%2Fonboarding")
+    const destination = returnTo === null ? "/onboarding" : guidedOnboardingPath(returnTo)
+    redirect(`/login?callbackUrl=${encodeURIComponent(destination)}`)
   }
 
   const preferences = await prisma.userPreference.findUnique({
     where: { userId: session.user.id },
   })
   const appSettings = objectRecord(preferences?.appSettings)
-  const savedOnboarding = objectRecord(appSettings.onboarding)
+  const draft = objectRecord(appSettings.onboardingDraft)
+  const hasDraft = draft.version === 1
+  const savedOnboarding = objectRecord(hasDraft ? draft.answers : appSettings.onboarding)
+  const draftRevision = onboardingDraftRevision(appSettings)
   const savedRole = typeof savedOnboarding.primaryRole === "string" ? savedOnboarding.primaryRole : "public_wellness"
   const savedUseCases = new Set(Array.isArray(savedOnboarding.useCases) ? savedOnboarding.useCases.filter((value) => typeof value === "string") : [])
   const savedJurisdiction = typeof savedOnboarding.jurisdiction === "string" ? savedOnboarding.jurisdiction : ""
@@ -47,11 +56,12 @@ export default async function OnboardingPage() {
     <AppPageShell title="Onboarding">
       <section className="grid gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(18rem,0.42fr)]">
         <AppSurface
-          title="Choose your starting path"
-          description={`A few account-safe answers help ${PUBLIC_PRODUCT_IDENTITY.name} put the right tools in reach after sign-in. You can skip this or change it later.`}
+          title={<h1>Guided account setup</h1>}
+          description={`Choose the ${PUBLIC_PRODUCT_IDENTITY.name} tools and preferences that suit you. You can leave anytime and change these in Account settings.`}
           contentClassName="gap-6"
         >
-          <form action={saveOnboardingAction} className="space-y-6">
+          <OnboardingDraftForm key={session.user.id} ownerKey={session.user.id} initialRevision={draftRevision} hasDraft={hasDraft}>
+            {returnTo !== null ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
             <div className="grid gap-3 md:grid-cols-2">
               {onboardingRoleOptions.map((role) => (
                 <label
@@ -138,10 +148,10 @@ export default async function OnboardingPage() {
                 Save and continue
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/account">Skip for now</Link>
+                <Link data-leave-setup href={returnTo ?? "/account?tab=app-settings"}>Save & leave setup</Link>
               </Button>
             </div>
-          </form>
+          </OnboardingDraftForm>
         </AppSurface>
 
         <aside className="space-y-4">

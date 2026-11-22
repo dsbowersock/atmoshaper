@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import ChimerPage from "@/app/chimer/page"
+import ChimerPage from "@/app/chimer/chimer-screen"
 
 export const metadata = {
   title: "Clock Background Review",

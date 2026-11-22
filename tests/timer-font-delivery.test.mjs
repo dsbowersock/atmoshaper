@@ -145,4 +145,11 @@ describe("Owned Digital timer font", { timeout: 120_000 }, () => {
     // Segment tips differ by a pixel across numerals; the old offset was 8px.
     assert.ok(result.glyphBoxes.every(({ inkCenterError }) => Math.abs(inkCenterError) <= 1.5), JSON.stringify(result.glyphBoxes))
   })
+
+  it("keeps the Modern alphabet companion unmodified and limits it to clock labels", () => {
+    const { body, face } = digitalAsset("Digital Clock Labels")
+    assert.equal(createHash("sha256").update(body).digest("hex"), "7d5b08c7de47886ee688b8cc0546d8edf89cc05a2624ae7c834f02162e5d1e71")
+    assert.match(face, /unicode-range:\s*U\+0020, U\+0041, U\+004D, U\+0050/)
+    assert.match(face, /font-weight:\s*700/)
+  })
 })

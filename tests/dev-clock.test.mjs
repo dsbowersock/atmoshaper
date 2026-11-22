@@ -154,7 +154,7 @@ describe("development Clock review route", () => {
 
   it("uses paid feature keys without account sync and isolates review settings", async () => {
     const source = await readFile(
-      new URL("../app/chimer/page.tsx", import.meta.url),
+      new URL("../app/chimer/chimer-screen.tsx", import.meta.url),
       "utf8",
     )
 
@@ -176,7 +176,7 @@ describe("development Clock review route", () => {
 
   it("keeps the retired custom-color contract out of runtime sources", async () => {
     const sources = await Promise.all([
-      "../app/chimer/page.tsx",
+      "../app/chimer/chimer-screen.tsx",
       "../app/chimer/running-timer.tsx",
       "../app/account/page.tsx",
       "../components/sidebar/sidebar.tsx",

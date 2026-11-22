@@ -45,7 +45,7 @@ const serviceFormSource = await readFile(
   "utf8",
 )
 const chimerPageSource = await readFile(
-  new URL("../app/chimer/page.tsx", import.meta.url),
+  new URL("../app/chimer/chimer-screen.tsx", import.meta.url),
   "utf8",
 )
 const SET_TIMER_VALUE_CALLBACK_PATTERN = /onValueChange: \(nextColor: string\) => void/

@@ -239,7 +239,7 @@ test("presents the product identity across homepage and responsive app bars", as
 
   const homeBrand = page.getByRole("heading", { level: 1, name: PRODUCT_NAME, exact: true, includeHidden: false })
   await expect(homeBrand).toHaveText(PRODUCT_NAME)
-  await expect(homeBrand.locator("img")).toHaveCount(0)
+  await expect(homeBrand.locator("img")).toHaveCount(1)
   await expect(page.getByRole("heading", { level: 1, name: PRODUCT_NAME, exact: true })).toHaveCount(1)
   await expect(homeBrand).toHaveScreenshot("home-product.png", { animations: "disabled" })
 

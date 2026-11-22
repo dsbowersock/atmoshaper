@@ -4,7 +4,7 @@ import test from "node:test"
 
 const read = async (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8")
 
-const pageSource = await read("app/chimer/page.tsx")
+const pageSource = await read("app/chimer/chimer-screen.tsx")
 const runningTimerSource = await read("app/chimer/running-timer.tsx")
 const runningTimerStyles = await read("app/chimer/running-timer.module.css")
 const providerSource = await read("components/providers/music-provider.tsx")

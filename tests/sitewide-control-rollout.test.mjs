@@ -71,7 +71,7 @@ test("S6 ordinary action routes delegate to the shared Button family", async () 
 test("Chimer and Flashcards use the approved shared interaction hierarchy", async () => {
   const [chimer, chimerPage, globals, flashcardPage, flashcardBuilder, flashcardRunner] = await Promise.all([
     read("app/chimer/set-timer.tsx"),
-    read("app/chimer/page.tsx"),
+    read("app/chimer/chimer-screen.tsx"),
     read("app/globals.css"),
     read("app/education/flashcards/page.tsx"),
     read("app/education/flashcards/flashcard-setup-builder.tsx"),
@@ -486,7 +486,7 @@ test("background palette browser review fails closed and reads real Host diagnos
 
 test("shared background access and palette resolver inputs stay authoritative and tick-stable", async () => {
   const [pageSource, runningSource, hostSource, pickerSource, indexSource] = await Promise.all([
-    read("app/chimer/page.tsx"),
+    read("app/chimer/chimer-screen.tsx"),
     read("app/chimer/running-timer.tsx"),
     read("components/backgrounds/BackgroundHost.tsx"),
     read("components/chimer-controls/GlobalColorPicker.tsx"),
