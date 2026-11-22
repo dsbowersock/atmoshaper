@@ -1,5 +1,9 @@
 # PWA Offline Strategy
 
+This describes the current limited web cache. It does not certify the Android
+prototype as a fully offline app. The November 22 owner requirement is broader;
+see the [offline Android implementation plan](../superpowers/plans/2026-11-22-offline-android-core.md).
+
 AtmoShaper supports offline use of selected anonymous public tools during private alpha. Account, billing, calendar, booking, admin and hosted clinical workflows require a connection.
 
 ## Offline-Capable Routes

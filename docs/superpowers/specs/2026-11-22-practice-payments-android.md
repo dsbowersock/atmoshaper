@@ -71,6 +71,13 @@ that payments are enabled. Never connect the salon account for the owner pilot.
 
 ## Shared Android/web architecture
 
+Subsequent owner clarification: core app use must work offline, including Clock,
+backgrounds and as many tools as practical. The browser-backed launcher below is
+an initial prototype, not the final architecture. Deliver a locally bundled
+shared core and complete downloaded assets with explicit online boundaries.
+Follow the [offline plan](../plans/2026-11-22-offline-android-core.md); the current
+APK has not implemented or verified that requirement.
+
 Start with an Android browser-backed application shell (Trusted Web Activity)
 and native payment activities. This reuses the actual responsive web UI and its
 browser authentication/storage, instead of maintaining a second full React UI or

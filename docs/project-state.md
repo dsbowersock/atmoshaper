@@ -1,5 +1,21 @@
 # AtmoShaper Project State
 
+## November 22 Android offline requirement and prototype limitation
+
+Before installing the first APK, the owner clarifies that Clock, backgrounds and
+as many other tools as practical must work offline. The current Android launcher
+packages no tool UI/media and depends on the remote site on a fresh launch.
+Its build verification does not meet this offline requirement. Existing web
+caching covers selected anonymous pages, not the full newer toolset or explicit
+media downloads. No physical offline acceptance has occurred.
+
+The next app milestone must provide a locally bundled shared core, essential
+assets and explicit downloaded media; preserve browser records, feature access
+and online auth/booking/payment boundaries. See the
+[offline implementation plan](superpowers/plans/2026-11-22-offline-android-core.md).
+This supersedes treating the remote-only launcher as the final app architecture.
+The source/APK and live services are unchanged by this requirement update.
+
 ## November 22 practice payments and whole-platform Android foundation
 
 The owner requests optional Stripe/Square client payments and expands the mobile

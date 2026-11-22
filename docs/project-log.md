@@ -1,5 +1,20 @@
 # AtmoShaper Project Log
 
+## November 22 offline use clarified before Android installation
+
+The owner asks whether the browser-backed APK needs internet and requests offline
+Clock, backgrounds and as much of the toolset as possible. Inspect the actual
+launcher, service worker, registration and existing PWA test. Confirm the current
+APK has no bundled tool payload and web caching has narrower coverage than the
+requested app. Do not equate local data or a successful build with offline use.
+
+Record a locally bundled shared-core direction, downloadable media, preservation
+of existing browser records and owner boundaries, and fresh-install/restart/
+airplane-mode acceptance. Keep sign-in, authoritative shared scheduling and
+financial actions online. No runtime/app/provider/storage change is made while
+clarifying this architecture requirement. See the
+[offline implementation plan](superpowers/plans/2026-11-22-offline-android-core.md).
+
 ## November 22 practice payment workflows and Android foundation
 
 Record the owner's Stripe/Square appointment/deposit/prepayment/reviewed-fee

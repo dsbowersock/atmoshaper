@@ -1,5 +1,11 @@
 # AtmoShaper Android foundation
 
+**Offline limitation:** this initial APK has no bundled tool screens or media.
+It requires the website on a fresh launch; selected browser-cached tools are not
+full-app offline support. The owner's subsequent offline requirement changes the
+next implementation milestone to a locally bundled shared core. See the
+[offline plan](../../docs/superpowers/plans/2026-11-22-offline-android-core.md).
+
 This is the whole-platform Android launcher, not a separate payment-only app.
 Google's Android Browser Helper opens the current AtmoShaper web interface using
 the device's compatible browser. It does not fork the web tools or extract the
