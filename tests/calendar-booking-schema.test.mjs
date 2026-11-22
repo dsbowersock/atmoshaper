@@ -152,7 +152,7 @@ describe("calendar booking settings schema and route surface", () => {
     assert.equal(loginForm.match(/buildRegistrationLegalAcceptancePath\(callbackUrl\)/g)?.length, 1)
     assert.match(loginForm, /router\.push\(emailRedirectTo\)/)
     assert.match(loginForm, /buildRegistrationLegalProviderRedirectPath/)
-    assert.match(loginForm, /const googleCallbackUrl = hasCallbackUrl \? callbackUrl : "\/onboarding"/)
+    assert.match(loginForm, /const googleRedirectTo = buildRegistrationLegalProviderRedirectPath\(callbackUrl\)/)
     assert.match(loginForm, /startGoogleAuthMethodIntent\(googleRedirectTo\)/)
     assert.match(
       authEntryActions,
@@ -161,8 +161,8 @@ describe("calendar booking settings schema and route surface", () => {
     assert.match(authEntryActions, /!response\.ok \|\| !result\.ok \|\| !result\.callbackUrl/)
     assert.match(authEntryActions, /signInImpl\("google", \{ redirectTo: result\.callbackUrl \}\)/)
     assert.match(authRoute, /GOOGLE_SIGN_IN_PATH = "\/api\/auth\/signin\/google"/)
-    assert.match(authRoute, /buildRegistrationLegalProviderRedirectPath\(url\.searchParams\.get\("callbackUrl"\) \?\? "\/onboarding"\)/)
-    assert.match(authRoute, /buildRegistrationLegalProviderRedirectPath\(body\.get\("callbackUrl"\) \?\? "\/onboarding"\)/)
+    assert.match(authRoute, /buildRegistrationLegalProviderRedirectPath\(url\.searchParams\.get\("callbackUrl"\) \?\? DEFAULT_POST_ACCOUNT_CALLBACK\)/)
+    assert.match(authRoute, /buildRegistrationLegalProviderRedirectPath\(body\.get\("callbackUrl"\) \?\? DEFAULT_POST_ACCOUNT_CALLBACK\)/)
     assert.match(registerPage, /callbackUrl/)
   })
 
