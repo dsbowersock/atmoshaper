@@ -144,7 +144,7 @@ test("finishing guided setup merges preferences and preserves the original task;
   const form = new FormData()
   form.set("primaryRole", "public_wellness")
   form.set("returnTo", "/calendar?date=2030-01-02#events")
-  await assert.rejects(save("fictional-owner", setup.onboardingDraftRevision(owner.settings), form), goesTo("/calendar?date=2030-01-02#events"))
+  assert.deepEqual(await save("fictional-owner", setup.onboardingDraftRevision(owner.settings), form), { ok: true, redirectTo: "/calendar?date=2030-01-02#events" })
   assert.deepEqual(owner.events, ["lock", "read", "write"])
   assert.equal(owner.settings.onboardingSetup.phase, "completed")
   assert.equal(owner.settings.themeMode, "dark")
@@ -152,7 +152,9 @@ test("finishing guided setup merges preferences and preserves the original task;
   assert.ok(owner.settings.onboarding.completedAt)
   assert.equal(await routing.postSignInSetupDestination(owner.db, "fictional-owner", "/"), "/")
   form.delete("returnTo")
-  await assert.rejects(save("fictional-owner", setup.onboardingDraftRevision(owner.settings), form), goesTo(preferences.getOnboardingRecommendedPath("public_wellness")))
+  assert.deepEqual(await save("fictional-owner", setup.onboardingDraftRevision(owner.settings), form), { ok: true, redirectTo: preferences.getOnboardingRecommendedPath("public_wellness") })
+  form.set("returnTo", "//untrusted.example")
+  assert.deepEqual(await save("fictional-owner", setup.onboardingDraftRevision(owner.settings), form), { ok: true, redirectTo: "/" })
   signedIn = false
   form.set("returnTo", "/calendar")
   const count = owner.events.length

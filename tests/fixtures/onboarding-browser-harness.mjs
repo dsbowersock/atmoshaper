@@ -47,8 +47,9 @@ export async function createOnboardingBundle() {
     }
     export async function saveOnboardingAction(owner,revision,data){
       const state=window.__setupFixture;state.finishes.push({owner,revision,entries:[...data.entries()]});
+      if(state.deferFinish)await new Promise(resolve=>state.releaseFinish=resolve);
       sessionStorage.setItem('fixture.optional-setup','completed');
-      state.router.replace('/');
+      state.finishAcknowledged=true;return {ok:true,redirectTo:'/'};
     }`)
   const entry = moduleUrl(`import React from 'react';import {createRoot} from 'react-dom/client';
     import Link from 'next/link';
@@ -61,7 +62,7 @@ export async function createOnboardingBundle() {
     const params=new URL(location.href).searchParams;
     const root=createRoot(document.getElementById('root'));
     const saved=JSON.parse(sessionStorage.getItem('fixture.progress')||'null');
-    const state=window.__setupFixture={claims:0,choices:[],owners:[],destinations:[],saves:[],finishes:[],revision:saved?.revision||0,savedEntries:saved?.entries||[],deferClaim:params.has('deferClaim'),deferChoice:params.has('deferChoice'),failChoice:params.has('failChoice'),deferProgress:params.has('deferProgress'),failProgress:params.has('failProgress'),conflictProgress:params.has('conflictProgress'),resume:params.has('resume'),router:{replace(destination){state.destinations.push(destination);render(React.createElement('div',{className:'p-4 space-y-4'},React.createElement('h1',null,destination.startsWith('/onboarding?')?'Guided setup selected':'You’re ready to continue'),React.createElement('p',null,'Local preview only. No account was created or changed.'),React.createElement(AccountSetupOptions))) },push(destination){this.replace(destination)}},unmount:()=>root.unmount()};
+    const state=window.__setupFixture={claims:0,choices:[],owners:[],destinations:[],saves:[],finishes:[],revision:saved?.revision||0,savedEntries:saved?.entries||[],deferClaim:params.has('deferClaim'),deferChoice:params.has('deferChoice'),failChoice:params.has('failChoice'),deferProgress:params.has('deferProgress'),failProgress:params.has('failProgress'),deferFinish:params.has('deferFinish'),finishAcknowledged:false,conflictProgress:params.has('conflictProgress'),resume:params.has('resume'),router:{replace(destination){state.destinations.push(destination);render(React.createElement('div',{className:'p-4 space-y-4'},React.createElement('h1',null,destination.startsWith('/onboarding?')?'Guided setup selected':'You’re ready to continue'),React.createElement('p',null,'Local preview only. No account was created or changed.'),React.createElement(AccountSetupOptions))) },push(destination){this.replace(destination)}},unmount:()=>root.unmount()};
     function render(content){root.render(React.createElement(AppRouterContext.Provider,{value:state.router},React.createElement(React.StrictMode,null,content)))}
     const answers=new FormData();for(const [key,value]of state.savedEntries)answers.append(key,value);
     const tools=[{key:'chimer',title:'Clock',description:'Timer',status:'Public'},{key:'atmosphere',title:'Music',description:'Audio',status:'Public'}];

@@ -95,6 +95,12 @@ export function OnboardingDraftForm({ ownerKey, initialRevision, hasDraft, child
       if (!mounted.current) return
       if (conflicted.current) return
       const result = await saveOnboardingAction(ownerKey, revision.current, snapshot)
+      // Completion may commit after departure. Preserve that acknowledged save,
+      // but only the still-mounted form may navigate to its returned target.
+      if (result?.ok) {
+        if (mounted.current) router.push(result.redirectTo)
+        return
+      }
       if (result && !result.ok) {
         queued.current ??= snapshot
         conflicted.current = "conflict" in result && result.conflict === true

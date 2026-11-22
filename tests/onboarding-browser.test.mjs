@@ -148,6 +148,25 @@ test("optional setup supports touch layouts, one claim, explicit choices, retry 
     assert.deepEqual(await abandonedFinish.evaluate(() => window.__setupFixture.destinations), [])
     await abandonedFinish.close()
 
+    for (const depart of [false, true]) {
+      const completing = await browser.newPage()
+      completing.on("pageerror", (error) => errors.push(error.message))
+      await completing.goto(`${server.origin}/form?deferFinish`)
+      await expect(completing.getByRole("status")).toContainText("Progress saved")
+      await completing.getByRole("button", { name: "Save and continue", exact: true }).click()
+      await expect.poll(() => completing.evaluate(() => typeof window.__setupFixture.releaseFinish)).toBe("function")
+      await completing.evaluate((depart) => { if (depart) window.__setupFixture.unmount(); window.__setupFixture.releaseFinish() }, depart)
+      await expect.poll(() => completing.evaluate(() => window.__setupFixture.finishAcknowledged)).toBe(true)
+      if (depart) {
+        await completing.evaluate(() => new Promise(requestAnimationFrame))
+        assert.deepEqual(await completing.evaluate(() => window.__setupFixture.destinations), [], "an acknowledged completion cannot replace navigation after departure")
+      } else {
+        await expect(completing.getByRole("heading", { name: "You’re ready to continue", exact: true })).toBeVisible()
+        assert.deepEqual(await completing.evaluate(() => window.__setupFixture.destinations), ["/"])
+      }
+      await completing.close()
+    }
+
     const failed = await browser.newPage()
     await failed.goto(`${server.origin}/form?failProgress`)
     await expect(failed.getByRole("alert")).toContainText("Couldn’t save progress")

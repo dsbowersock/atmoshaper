@@ -40,6 +40,11 @@ results; the repository's actual lint, type and build checks remain required.
   The bounded Codex correction review identifies the same wait-before-action
   window on Finish. Guard it before starting the redirecting completion action;
   a matching regression preserves the draft but starts no abandoned completion.
+  The final hosted review also covers departure while completion itself is
+  already in flight. Preserve the requested server save, return its sanitized
+  destination as data, and navigate only from the still-mounted client after
+  acknowledgement. Deferred-response tests cover both departure and ordinary
+  mounted success; changed-owner/signed-out rejection stays unchanged.
 - **Registration return task:** unwrap one recognized legal-gate callback and
   sanitize its nested destination. The actual Register page is exercised for
   ordinary, duplicate, unsafe, malformed and recursively nested callbacks.

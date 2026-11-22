@@ -1,6 +1,5 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { getCurrentSession } from "@/auth"
 import { clearAccountSurfaceDataCache } from "@/lib/account-surface-data"
 import { buildOnboardingPreference } from "@/lib/onboarding-preferences"
@@ -18,7 +17,8 @@ export async function saveOnboardingDraftAction(expectedOwner: string, revision:
 }
 
 /** Finishing advances the draft revision so an older tab or late autosave can
- * never overwrite the completed answers. Auth/consent still guard every write. */
+ * never overwrite the completed answers. Return the safe destination as data:
+ * the client may have unmounted before acknowledgement and owns navigation. */
 export async function saveOnboardingAction(expectedOwner: string, revision: number, formData: FormData) {
   const session = await getCurrentSession()
   if (!session?.user?.id || session.user.id !== expectedOwner) return { ok: false as const }
@@ -29,6 +29,6 @@ export async function saveOnboardingAction(expectedOwner: string, revision: numb
   clearAccountSurfaceDataCache(session.user.id, "sync")
   clearAccountSurfaceDataCache(session.user.id, "overview")
   const requestedReturnTo = formData.get("returnTo")
-  redirect(typeof requestedReturnTo === "string"
-    ? onboardingReturnTo(requestedReturnTo) : buildOnboardingPreference(formData).recommendedPath)
+  return { ok: true as const, redirectTo: typeof requestedReturnTo === "string"
+    ? onboardingReturnTo(requestedReturnTo) : buildOnboardingPreference(formData).recommendedPath }
 }
