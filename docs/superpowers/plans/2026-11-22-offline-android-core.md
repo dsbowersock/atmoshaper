@@ -50,7 +50,7 @@ not proof of an entitlement and are not a new license to unlock paid content.
 | Home/navigation | Bundled launcher and local tool navigation | New account/session, remote information |
 | Clock/timer/breathing | Full local calculations, controls, fonts and bundled alerts | Optional account preference sync |
 | Backgrounds | Bundled starter choices; user-selected complete downloaded packs | Browse/download additional assets, buy content, verify access when required |
-| Audio | Local generation and downloaded licensed tracks/sound packs | Radio/live streams and new downloads |
+| Audio | Local generation, including complete downloaded Generative.fm stations, and licensed tracks/sound packs | External live broadcasts and new downloads |
 | Planner | Local worksheets/calculations/reuse, saved drafts and PDF generation | Optional authorized account sync |
 | Wellness/local recording | Device-owned recording and review with all required UI/body assets available | Existing authorized hosted functions; no new clinical upload implied |
 | Study/Anatomime | Bundled or downloaded study content and supported solo modes | Shared rooms, community updates and multiplayer |
@@ -106,8 +106,35 @@ that cached availability is current.
    separately authorized website/app publication. Improving the web PWA is a
    parallel delivery path, not proof of an offline-first native package.
 
-No runtime, APK, service worker, provider or storage behavior changes in this
-requirements/plan update. Current APK remains a network-backed prototype.
+The initial requirement-only checkpoint made no runtime changes. The subsequent
+Clock/timer/breathing/free-background implementation is recorded in the
+[offline verification receipt](../../audits/2026-11-22-offline-android-core.md).
+The web service worker and production site remain unchanged by this app work.
+
+## Generative station clarification and next audio boundary
+
+The owner correctly identifies Generative.fm's offline support. These stations
+generate music locally from code and sample instruments, rather than receiving
+an endless live broadcast. The published sample provider supports local caching;
+the current AtmoShaper integration already uses it. Do not classify all UI labels
+containing "radio" or "station" as inherently online-only.
+
+Reliable offline station availability still needs a complete, versioned set of
+generator code/chunks, sample-index metadata and every required sample. A
+partial prewarm or browser online flag does not certify that set. The initial
+native core includes the synthesized Clock chime, not the station player.
+
+Next audio delivery should offer explicit per-station downloads with sizes,
+progress/removal, rights/attribution and verified completion. Retain an existing
+working set on interruption and verify cold offline playback after a process
+restart through the actual generator. Preserve the existing catalog identities
+and transport ownership; do not substitute a recorded loop for generation.
+Native downloads require a separately designed controlled network path; the
+current core APK deliberately declares no Internet permission.
+
+See the [published sample-provider contract](https://github.com/generative-music/web-provider)
+and the current `lib/atmosphere/generative-fm-runtime.ts` /
+`lib/atmosphere/generative-fm-sample-index.js` integration.
 
 ## Primary references checked
 

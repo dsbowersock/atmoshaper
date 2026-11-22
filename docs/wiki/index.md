@@ -4,6 +4,8 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Offline Android core build and airplane-mode verification](../audits/2026-11-22-offline-android-core.md)
+
 - [Offline Android core, downloaded media and acceptance plan](../superpowers/plans/2026-11-22-offline-android-core.md)
 
 - [Practice payments and Android foundation verification](../audits/2026-11-22-practice-payments-android-foundation.md)

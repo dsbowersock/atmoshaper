@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="app_background">#171616</color>
-    <string name="asset_statements" translatable="false">[{\"relation\":[\"delegate_permission/common.handle_all_urls\"],\"target\":{\"namespace\":\"web\",\"site\":\"https://www.atmoshaper.com\"}}]</string>
     <style name="AtmoShaperTheme" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:statusBarColor">@color/app_background</item>

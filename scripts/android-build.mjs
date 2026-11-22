@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url"
 import { spawnSync } from "node:child_process"
 import { createHash } from "node:crypto"
 import { readFile } from "node:fs/promises"
+import { buildOfflineCore } from "./build-offline-core.mjs"
 
 const root=fileURLToPath(new URL("..",import.meta.url))
 const tools=path.join(root,"output/android-tools"), isWindows=process.platform==="win32"
@@ -25,6 +26,7 @@ const mode=process.argv[2]
 if(mode==="doctor")console.log(JSON.stringify({ready:missing.length===0,checks,missing,financialProvidersEnabled:false,physicalDeviceVerified:false},null,2))
 else if(mode==="build"){
   if(missing.length)throw new Error(`Android build prerequisites missing: ${missing.join(", ")}. Run android:doctor and complete the approved tool setup first.`)
+  await buildOfflineCore()
   const env={...process.env,JAVA_HOME:jdk,ANDROID_HOME:sdk,ANDROID_SDK_ROOT:sdk,ANDROID_USER_HOME:path.join(tools,"android-user"),GRADLE_USER_HOME:path.join(tools,"gradle-home")}
   const key=path.join(tools,"debug.keystore")
   // This disposable debug key never authorizes a public/release distribution.
@@ -38,7 +40,7 @@ else if(mode==="build"){
   await mkdir(path.dirname(destination),{recursive:true})
   await copyFile(path.join(root,"native/android/app/build/outputs/apk/debug/app-debug.apk"),destination)
   const sha256=createHash("sha256").update(await readFile(destination)).digest("hex")
-  const proof={apk:"output/android/AtmoShaper-preview.apk",sha256,lintPassed:true,assembled:true,physicalDeviceVerified:false,financialProvidersEnabled:false,checkedAt:new Date().toISOString()}
+  const proof={apk:"output/android/AtmoShaper-preview.apk",sha256,lintPassed:true,assembled:true,offlineCoreBundled:true,physicalDeviceVerified:false,financialProvidersEnabled:false,checkedAt:new Date().toISOString()}
   await writeFile(path.join(root,"output/android/build-proof.json"),JSON.stringify(proof,null,2))
   console.log(JSON.stringify(proof,null,2))
 }else throw new Error("Choose doctor or build. This command never installs tools or accepts licenses.")

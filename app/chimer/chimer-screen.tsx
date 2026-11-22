@@ -54,6 +54,7 @@ import { fetchJsonWithTimeout, fetchWithTimeout } from "@/lib/client-fetch"
 import { sanitizeAccessibleChimerSettings } from "@/lib/chimer-accessible-settings"
 import { FEATURE_KEYS } from "@/lib/membership"
 import { triggerHapticFeedback } from "@/lib/haptics"
+import { playChimerChime } from "@/lib/chimer-chime"
 import { isBackgroundId } from "@/lib/background-options"
 import {
   resolveMusicVisualizerBackground,
@@ -881,27 +882,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
       return
     }
 
-    const now = context.currentTime
-    const gain = context.createGain()
-    const peakGain = Math.max(0.0001, Math.min(0.18, 0.2 * volume))
-    gain.gain.setValueAtTime(0.0001, now)
-    gain.gain.exponentialRampToValueAtTime(peakGain, now + 0.02)
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9)
-    gain.connect(context.destination)
-
-    const firstTone = context.createOscillator()
-    firstTone.type = "sine"
-    firstTone.frequency.setValueAtTime(784, now)
-    firstTone.connect(gain)
-    firstTone.start(now)
-    firstTone.stop(now + 0.32)
-
-    const secondTone = context.createOscillator()
-    secondTone.type = "sine"
-    secondTone.frequency.setValueAtTime(1046.5, now + 0.28)
-    secondTone.connect(gain)
-    secondTone.start(now + 0.28)
-    secondTone.stop(now + 0.9)
+    playChimerChime(context, volume)
   }, [setError])
 
   const triggerAlert = useCallback(() => {

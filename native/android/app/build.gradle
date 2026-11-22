@@ -8,8 +8,8 @@ android {
         applicationId 'com.atmoshaper.app'
         minSdk 28
         targetSdk 36
-        versionCode 1
-        versionName '0.1.0-preview'
+        versionCode 2
+        versionName '0.2.0-offline-preview'
         resValue 'string', 'app_name', 'AtmoShaper'
     }
     signingConfigs {
@@ -33,9 +33,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    buildFeatures { buildConfig true }
+    // The named npm build creates this verified, app-owned asset set first.
+    sourceSets.main.assets.srcDir rootProject.file('../../output/offline-core')
     lint { abortOnError true }
 }
 
 dependencies {
-    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
+    implementation 'androidx.activity:activity:1.10.1'
+    implementation 'androidx.webkit:webkit:1.14.0'
 }

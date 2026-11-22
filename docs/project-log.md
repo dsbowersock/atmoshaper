@@ -1,5 +1,30 @@
 # AtmoShaper Project Log
 
+## November 22 offline native core and actual airplane-mode acceptance
+
+Implement the owner's priority Clock/timer/breathing/background slice with a
+locally bundled shared client and an Android asset loader. Remove the remote
+startup and Internet permission. Preserve the web UI contracts, stable background
+IDs, fonts/license, account boundaries and browser records; retain the three
+canonically free backgrounds without assuming paid ownership.
+
+Share the procedural gradient surface and actual two-tone chime with the website.
+Browser acceptance discovers that the repository notification MP3 is a placeholder;
+use the existing synthesis instead. Actual emulator process-stop testing exposes
+an unflushed localStorage save; replace native preferences with serialized strict
+IndexedDB commits and match save acknowledgement to the displayed snapshot.
+Visual acceptance corrects a landscape status overlap. Keep emulator cold-start/
+commit waits bounded to observed latency; actual S24 acceptance remains separate.
+
+All 262 focused/regression cases, three fresh network-disabled browser journeys,
+focused lint/type checking and Android lint/build pass. Verify the exact final
+APK's assets, no Internet permission, fresh airplane-mode launch, all four tools,
+sound synthesis and real process-stop restore on the empty Android emulator.
+The owner correctly distinguishes offline Generative.fm generation from live
+broadcasts; document complete station packs as the next audio boundary. No
+station player, paid access or production/provider/DB operation is claimed.
+See the [verification receipt](audits/2026-11-22-offline-android-core.md).
+
 ## November 22 offline use clarified before Android installation
 
 The owner asks whether the browser-backed APK needs internet and requests offline

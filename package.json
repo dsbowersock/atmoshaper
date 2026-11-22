@@ -253,7 +253,13 @@
     "preview:practice-payments": "node scripts/start-practice-payments-preview.mjs",
     "test:practice-payments-browser": "node --test tests/practice-payments-browser.test.mjs",
     "android:doctor": "node scripts/android-build.mjs doctor",
-    "android:build": "node scripts/android-build.mjs build"
+    "android:build": "node scripts/android-build.mjs build",
+    "build:offline-core": "node scripts/build-offline-core.mjs",
+    "test:offline-core": "node --test tests/offline-core.test.mjs",
+    "test:offline-core-browser": "node --test tests/offline-core-browser.test.mjs",
+    "lint:offline-core": "eslint lib/offline-core*.js native/web components/moving-background.tsx components/backgrounds/moving-gradient-surface.tsx scripts/build-offline-core.mjs scripts/loaders/offline-*.cjs scripts/android-build.mjs tests/offline-core*.test.mjs lib/chimer-chime.js app/chimer/chimer-screen.tsx lib/chimer-timer.js",
+    "test:offline-core-android": "node --test tests/offline-core-android.test.mjs",
+    "test:offline-core-regression": "node --test --test-concurrency=2 tests/background-options.test.mjs tests/background-animation-autonomy.test.mjs tests/static-gradient-background.test.mjs tests/motion-preferences.test.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

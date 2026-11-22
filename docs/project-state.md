@@ -1,5 +1,27 @@
 # AtmoShaper Project State
 
+## November 22 offline Android core built and verified
+
+The app now packages Clock, timer, breathing and all three existing free
+backgrounds locally. The remote-only launcher is replaced by an app-content
+asset loader with no Internet permission, account extraction or generic bridge.
+Actual shared display/font/renderer/calculation code is reused. Preferences and
+timer deadlines use isolated serialized IndexedDB saves with strict commit and
+snapshot-matched acknowledgement; existing browser records are untouched.
+
+All 262 focused/regression cases, three network-disabled browser journeys,
+focused lint, full type checking and Android lint/assembly pass. The exact debug
+APK also passes fresh airplane-mode launch and real process-stop recovery in
+the isolated Android emulator; its packaged assets match their build manifest.
+See the [verification receipt](audits/2026-11-22-offline-android-core.md).
+
+Physical S24 acceptance remains. Alerts are foreground-only in this build;
+closed-app alarms are not implemented. The broader app, paid-background access,
+station download packs and native payments keep their separate gates. The owner
+correctly clarifies that Generative.fm stations can generate offline from saved
+code/samples; they are included in the audio plan, not treated as live streams.
+No website/service publication or live financial/data operation occurs.
+
 ## November 22 Android offline requirement and prototype limitation
 
 Before installing the first APK, the owner clarifies that Clock, backgrounds and

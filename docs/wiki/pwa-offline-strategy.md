@@ -3,6 +3,9 @@
 This describes the current limited web cache. It does not certify the Android
 prototype as a fully offline app. The November 22 owner requirement is broader;
 see the [offline Android implementation plan](../superpowers/plans/2026-11-22-offline-android-core.md).
+The subsequent four-tool native core packages its own verified assets; its
+[airplane-mode receipt](../audits/2026-11-22-offline-android-core.md) does not
+broaden this web service worker's route/data caching policy.
 
 AtmoShaper supports offline use of selected anonymous public tools during private alpha. Account, billing, calendar, booking, admin and hosted clinical workflows require a connection.
 
