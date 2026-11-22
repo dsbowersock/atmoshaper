@@ -4,6 +4,9 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Offline audio/backgrounds final verification and remaining minor issue](../audits/2026-11-22-offline-audio-backgrounds.md)
+- [Prepared offline access activation and owner APK handoff](../superpowers/plans/2026-11-22-offline-access-activation.md)
+
 - [Offline audio and signed background access review](../audits/2026-11-22-offline-audio-review.md)
 - [Downloaded stations, Atmosphere sounds and offline background access](../superpowers/plans/2026-11-22-offline-audio-background-access.md)
 

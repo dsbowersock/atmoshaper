@@ -1,5 +1,30 @@
 # AtmoShaper Project Log
 
+## November 22 offline media and background verification closeout
+
+Freeze application source at `194e385`. Complete the initial CodeRabbit range
+`0eb02e0..c1d0def`, grouped corrections `c1d0def..2e0b90d`, and the final narrow
+`2e0b90d..194e385` range after an actual built-page smoke exposes a missing
+scoped SessionProvider. Correct receipt/Forget/Refresh races and blocked-open
+recovery with real browser reproductions. Completed receipts cover every changed
+text path in those transitions; publisher/license/hash evidence covers the two
+new texture binaries. Retain one final minor retry-before-close migration edge
+as an explicit follow-up; first installs use v2. Avoid another automatic loop.
+
+All 326 focused/regression cases, three concurrent browser suites, focused lint,
+ordinary type checking, inert-provider Next build and built-page/issuer HTTP
+checks pass. The final normal debug APK passes actual airplane-mode media restart
+and fresh Core persistence/rotation/two-note-chime acceptance; all packaged
+assets and build/media/Core hashes match. See the
+[verification receipt](audits/2026-11-22-offline-audio-backgrounds.md).
+
+The owner explicitly selects verified paid-through dates, including the paid
+annual period, and no scheduled expiry for active individual ownership. Public
+verifier keys remain empty; no real premium receipt has been issued. Prepare
+one exact signing/provider/release/APK/owner-check activation plan for approval.
+No push, merge, deployment, provider, hosted database/payment/email or account
+preference write occurs. Physical S24 and broader native/lifecycle gates remain.
+
 ## November 22 downloaded audio and offline background access implementation
 
 Implement the owner's expanded native scope: explicit complete station/sound

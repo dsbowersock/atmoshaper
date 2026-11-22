@@ -81,7 +81,23 @@ The final batch therefore requires a rebuilt page smoke check and one narrow
 source review; this is an explicit finite extension for the observed blocker,
 not a whole-codebase review/rewrite loop.
 
-Final batch checks/review remain in progress. The image binaries require
-publisher/license/hash verification rather than a claim of text-bot pixel review.
+Final source `194e385` passes all three browser suites, focused lint/unit checks,
+the inert-provider Next build and built-page/issuer smoke checks. The rebuilt
+normal APK passes media restart and Core/rotation/chime acceptance. See the
+[final verification receipt](2026-11-22-offline-audio-backgrounds.md).
+
+The completed `2e0b90d..194e385` CodeRabbit review covers all six changed text
+paths. It raises one minor issue: a retry before the blocking v1 connection
+closes may enqueue an open behind the abandoned request and wait indefinitely.
+The existing test verifies recovery after closing that connection; it does not
+claim retry-before-close is bounded. Retain an acquisition timeout/blocked-state
+guard plus that regression as an older-preview migration follow-up. First
+installs use v2 directly, and actual single-Activity Android acceptance passes.
+This explicit minor backlog closes the finite review campaign; no zero-issue
+claim, silent waiver or further automatic review/rewrite loop is implied.
+
+All changed text paths in the three transitions are covered: 71 initial, 29
+correction and six final paths, with no missing text paths. The image binaries
+require publisher/license/hash verification rather than a text-bot pixel claim.
 Live signing-key configuration, publication and physical S24 acceptance remain
 separate gates. No reviewer output authorizes Autofix, provider or payment work.

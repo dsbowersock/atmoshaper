@@ -85,5 +85,10 @@ globe source images in Git with their publisher notice so clean offline builds
 need no image host. A narrow native display adapter removes one legacy audit
 caption without changing immutable media identity or the checked catalog.
 
-Final correction-range review, exact-APK rotation/audio checks, physical S24 and
-separately approved signing/provider/release activation remain distinct gates.
+Final source `194e385` has completed Codex/CodeRabbit coverage, 326 focused/
+regression cases, three concurrent browser journeys, the inert-provider Next
+build/page/issuer smoke checks and exact-APK Android media/Core/rotation/chime
+acceptance. See the [final receipt](../../audits/2026-11-22-offline-audio-backgrounds.md).
+One minor retry-before-close issue in the older-preview storage-upgrade path is
+retained explicitly; first installs use v2 and current Android flows pass.
+Physical S24 and separately approved signing/provider/release activation remain.

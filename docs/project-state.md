@@ -17,11 +17,22 @@ with no redirects/cookies; browser account verification has a separate signed,
 install/challenge-bound receipt handoff. The public verifier key list is empty
 and the live issuer is unconfigured: no real premium access is fabricated.
 
-Final integrated source checks, exact-APK Android audio acceptance and a bounded
-review are in progress. Physical S24, live signing/provider configuration,
-account verification publication and release approval remain. No provider,
-database/payment/email or Production change occurs. See the
-[implementation and acceptance plan](superpowers/plans/2026-11-22-offline-audio-background-access.md).
+Source `194e385` completes Codex and CodeRabbit coverage across all changed text
+transitions. All 326 focused/regression cases, three concurrent browser suites,
+focused lint/full type checking, inert-provider Next build/page/issuer checks,
+Android lint/assembly and exact-APK airplane-mode media/Core acceptance pass.
+Rotation retains the live WebView/deadline and a single two-note completion
+chime. The final debug APK and matching receipts are recorded in the
+[verification receipt](audits/2026-11-22-offline-audio-backgrounds.md).
+
+One minor review item is retained: retrying a media-store upgrade before an old
+v1 connection closes can wait behind that blocked open. First installs use v2;
+the current single-Activity Android flow passes. Do not call that edge fixed or
+claim a zero-issue review. Physical S24, reliable background audio/closed-app
+alarms, live signing/provider configuration and publication remain. The
+[prepared activation plan](superpowers/plans/2026-11-22-offline-access-activation.md)
+is not authorized/executed. No provider, database/payment/email or Production
+change occurs.
 
 ## November 22 offline Android core built and verified
 
