@@ -7,6 +7,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { _android as android } from "playwright"
 import { expect } from "@playwright/test"
+import { offlineAudioCatalog } from "../lib/offline-media.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 const adb = path.join(root, "output/android-tools/sdk/platform-tools", process.platform === "win32" ? "adb.exe" : "adb")
@@ -51,10 +52,11 @@ test("Android saves actual audio online then generates and mixes it after airpla
     const catalog = JSON.parse(await readFile(path.join(root, "data/atmoshaper/production-audio-catalog.json")))
     const size = item => item.sources.reduce((sum, source) => sum + source.formats.find(format => format.id === "opus").byteSize, 0)
     const ambient = [...catalog.concepts].sort((a, b) => size(a) - size(b))[0]
+    const ambientTitle = offlineAudioCatalog(catalog).find(item => item.id === ambient.id).title
     await page.getByRole("button", { name: "Atmosphere sounds", exact: true }).click()
-    await page.getByLabel("Find a sound").fill(ambient.label)
-    await page.getByRole("button", { name: `Download ${ambient.label}`, exact: true }).click()
-    await expect(page.getByText(`${ambient.label} is ready offline.`, { exact: true })).toBeVisible({ timeout: 90000 })
+    await page.getByLabel("Find a sound").fill(ambientTitle)
+    await page.getByRole("button", { name: `Download ${ambientTitle}`, exact: true }).click()
+    await expect(page.getByText(`${ambientTitle} is ready offline.`, { exact: true })).toBeVisible({ timeout: 90000 })
     shell("shell", "cmd", "connectivity", "airplane-mode", "enable")
     shell("shell", "svc", "wifi", "disable"); shell("shell", "svc", "data", "disable")
     assert.equal(shell("shell", "settings", "get", "global", "airplane_mode_on"), "1")
@@ -80,9 +82,9 @@ test("Android saves actual audio online then generates and mixes it after airpla
     await expect(page.getByText("Little Bells is playing from this device.", { exact: true })).toBeVisible({ timeout: 60000 })
     await expect.poll(() => page.evaluate(() => window.__offlineSampleStarts), { timeout: 45000 }).toBeGreaterThan(0)
     await page.getByRole("button", { name: "Atmosphere sounds", exact: true }).click()
-    await page.getByLabel("Find a sound").fill(ambient.label)
-    await page.getByRole("button", { name: `Play ${ambient.label}`, exact: true }).click()
-    await expect(page.getByText(`${ambient.label} is playing from this device.`, { exact: true })).toBeVisible()
+    await page.getByLabel("Find a sound").fill(ambientTitle)
+    await page.getByRole("button", { name: `Play ${ambientTitle}`, exact: true }).click()
+    await expect(page.getByText(`${ambientTitle} is playing from this device.`, { exact: true })).toBeVisible()
     await expect.poll(() => page.evaluate(() => window.__offlineMedia.some(audio => audio.src.startsWith("blob:") && audio.currentTime > 0)), { timeout: 15000 }).toBe(true)
     await page.getByRole("button", { name: "Clock", exact: true }).click()
     await expect(page.getByRole("heading", { name: "Clock", exact: true })).toBeVisible()
@@ -90,7 +92,7 @@ test("Android saves actual audio online then generates and mixes it after airpla
     await page.getByRole("button", { name: "Music", exact: true }).click()
     await page.getByRole("button", { name: "Stop all audio", exact: true }).click()
     assert.deepEqual(errors, []); assert.deepEqual(offlineRequests, [])
-    const proof = { apkSha256: createHash("sha256").update(await readFile(apk)).digest("hex"), actualStation: "Little Bells", ambient: ambient.label, airplaneMode: true, wifi: false, cellular: false, actualProcessRestart: true, generativeNonSilentSamples: true, ambientLocalPlayback: true, offlineAudioRequests: 0, syntheticReceiptAuthority: false, physicalDeviceVerified: false, checkedAt: new Date().toISOString() }
+    const proof = { apkSha256: createHash("sha256").update(await readFile(apk)).digest("hex"), actualStation: "Little Bells", ambient: ambientTitle, airplaneMode: true, wifi: false, cellular: false, actualProcessRestart: true, generativeNonSilentSamples: true, ambientLocalPlayback: true, offlineAudioRequests: 0, syntheticReceiptAuthority: false, physicalDeviceVerified: false, checkedAt: new Date().toISOString() }
     await writeFile(path.join(root, "output/android/offline-media-proof.json"), JSON.stringify(proof, null, 2))
   } finally { await Promise.all(devices.map(value => value.close())) }
 })

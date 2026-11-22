@@ -1,8 +1,9 @@
-import { Component, useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react"
+import { Component, useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react"
 import { backgroundRegistry, getBackgroundDefinition, userCanUseBackground, type BackgroundAccessSnapshot } from "@/components/backgrounds/backgroundRegistry"
 import { resolveBackgroundEffectProps } from "@/components/backgrounds/resolveBackgroundEffectProps"
 import type { BackgroundEffectProps } from "@/components/backgrounds/effects/css-backgrounds"
 import { useAmbientReducedMotion } from "@/components/backgrounds/use-ambient-reduced-motion"
+import { useMediaQuery, BACKGROUND_COMPACT_VIEWPORT_QUERY } from "@/components/backgrounds/use-media-query"
 import { createOfflineAccessStore, offlineBackgroundSnapshot, randomOfflineAccessId, verifyOfflineAccessReceipt, OFFLINE_ACCESS_REQUEST_TTL } from "@/lib/offline-background-access"
 import publicKeys from "@/native/offline-access-public-keys.json"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbCol
   const entry = userCanUseBackground(selected, access) ? selected : getBackgroundDefinition("massage-lab-moving-gradient")
   const [loaded, setLoaded] = useState<{ id: string; component: ComponentType<BackgroundEffectProps> } | null>(null)
   const reduce = useAmbientReducedMotion(motion ? "system" : "reduced")
+  const compactViewport = useMediaQuery(BACKGROUND_COMPACT_VIEWPORT_QUERY)
   useEffect(() => {
     let current = true
     void entry.component?.().then(module => { if (current) setLoaded({ id: entry.id, component: module.default }) }).catch(() => { if (current) setLoaded(null) })
@@ -34,9 +36,9 @@ export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbCol
   const effectProps = useMemo(() => resolveBackgroundEffectProps({
     selectedId: entry.id, canCustomize: true,
     palette: { mode: "custom", primaryColor: mainColor, swatches: [mainColor, orbColor] },
-    effectProps: { ...structuredDefaults, mainColor, orbColor, solidColor: mainColor, reduceMotion: reduce,
+    effectProps: { ...structuredDefaults, mainColor, orbColor, solidColor: mainColor, reduceMotion: reduce, compactViewport,
       staticGradient: { type: "linear", angle: 145, colorCount: 2, colors: [mainColor, orbColor], stopPositions: [0, 100] } },
-  }), [entry.id, mainColor, orbColor, reduce])
+  }), [entry.id, mainColor, orbColor, reduce, compactViewport])
   const Effect = loaded?.id === entry.id ? loaded.component : null
   return <div className={styles.background} data-offline-background={entry.id} style={entry.fallbackStyle}>
     {Effect && <OfflineReducedMotion.Provider value={reduce}><EffectBoundary key={entry.id}><Effect {...effectProps} className={styles.surface} /></EffectBoundary></OfflineReducedMotion.Provider>}
@@ -52,14 +54,16 @@ export function useOfflineBackgroundAccess() {
   const [claims, setClaims] = useState<any>(null)
   const [message, setMessage] = useState("")
   const [now, setNow] = useState(Date.now)
+  const epoch = useRef(0)
   useEffect(() => {
     let current = true
+    const startedAtEpoch = epoch.current
     void store.update(value => ({ ...value, lastSeen: Math.max(value.lastSeen, Date.now()) })).then(async value => {
       if (current) setRecord(value)
       try {
         const verified = value.receipt ? await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys) : null
-        if (current) setClaims(verified)
-      } catch { if (current) setMessage("Saved access could not be verified. Refresh account access; free backgrounds remain available.") }
+        if (current && epoch.current === startedAtEpoch) setClaims(verified)
+      } catch { if (current && epoch.current === startedAtEpoch) setMessage("Saved access could not be verified. Refresh account access; free backgrounds remain available.") }
     }).catch(() => { if (current) setMessage("Offline account access could not be loaded. Free backgrounds are available.") })
     const tick = window.setInterval(() => setNow(Date.now()), 1000)
     const remember = window.setInterval(() => { void store.update(value => ({ ...value, lastSeen: Math.max(value.lastSeen, Date.now()) })).then(value => { if (current) setRecord(value) }).catch(() => undefined) }, 30000)
@@ -67,16 +71,21 @@ export function useOfflineBackgroundAccess() {
   }, [store])
   useEffect(() => {
     const receive = (event: Event) => {
+      const operationEpoch = ++epoch.current
       delete (window as Window & { atmoOfflineReceipt?: string }).atmoOfflineReceipt
       const receipt = (event as CustomEvent).detail
       void store.update(async value => {
         const verified = await verifyOfflineAccessReceipt(receipt, value.device, publicKeys)
         if (!value.pending || verified.challenge !== value.pending.challenge || Date.now() > value.pending.at + OFFLINE_ACCESS_REQUEST_TTL
           || verified.issuedAt < value.pending.at - 60000 || verified.issuedAt > Date.now() + 60000 || verified.issuedAt <= value.lastIssuedAt) throw new Error("This approval expired or was replaced. Verify access again from this app.")
-        return { ...value, receipt, pending: null, lastIssuedAt: verified.issuedAt, lastSeen: Math.max(value.lastSeen, Date.now()) }
+        // A fresh challenge-bound server timestamp can recover a legitimately
+        // corrected device clock; an offline cache cannot reset this floor.
+        return { ...value, receipt, pending: null, lastIssuedAt: verified.issuedAt, lastSeen: Math.max(verified.issuedAt, Date.now()) }
       }).then(async value => {
-        setClaims(await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys)); setRecord(value); setMessage("Background access saved for offline use.")
-      }).catch(error => setMessage(error instanceof Error ? error.message : "Offline access could not be saved."))
+        const verified = await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys)
+        if (operationEpoch !== epoch.current) return
+        setClaims(verified); setRecord(value); setMessage("Background access saved for offline use.")
+      }).catch(error => { if (operationEpoch === epoch.current) setMessage(error instanceof Error ? error.message : "Offline access could not be saved.") })
     }
     window.addEventListener("atmoshaper:offline-access", receive)
     // Native launch returns can precede React's effect registration.
@@ -85,6 +94,7 @@ export function useOfflineBackgroundAccess() {
     return () => window.removeEventListener("atmoshaper:offline-access", receive)
   }, [store])
   async function refresh() {
+    ++epoch.current
     try {
       const value = await store.update(previous => ({ ...previous, pending: { challenge: randomOfflineAccessId(), at: Date.now() } }))
       setRecord(value)
@@ -92,6 +102,8 @@ export function useOfflineBackgroundAccess() {
     } catch { setMessage("The app could not save a verification request. Retry when local storage is available.") }
   }
   async function forget() {
+    ++epoch.current
+    setClaims(null)
     try {
       const value = await store.update(() => ({ device: randomOfflineAccessId(), receipt: null, pending: null, lastIssuedAt: 0, lastSeen: Date.now() }))
       setRecord(value); setClaims(null); setMessage("Account access removed from this app. Downloads and free tools are unchanged.")
@@ -111,7 +123,7 @@ export function OfflineBackgroundChoices({ selectedId, onSelect, account }: {
       <p>{account.claims?.premiumUntil ? `Premium background access verified through ${new Date(account.claims.premiumUntil).toLocaleString()}.` : "Purchased backgrounds have no scheduled expiry."} Refresh access after renewal or account changes.</p>
       <Button variant="glow" disabled={!account.ready} onClick={() => void account.refresh()}>Verify or refresh account access</Button>
       {account.claims && <Button variant="glow" onClick={() => void account.forget()}>Forget account access</Button>}
-      {!account.ready && <p>Online access verification requires the matching app and service activation.</p>}
+      {!account.ready && <p>Account verification is not available in this preview yet. Free backgrounds are ready to use.</p>}
       <p role="status">{account.message}</p>
     </div>
     <label>Find a background<input className={styles.search} value={search} onChange={event => setSearch(event.target.value)} type="search" /></label>

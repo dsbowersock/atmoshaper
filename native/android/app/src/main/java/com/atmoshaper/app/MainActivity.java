@@ -96,14 +96,24 @@ public final class MainActivity extends ComponentActivity {
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         receiveReceipt(intent);
+        // Do not replay a consumed return URI if Android recreates the Activity.
+        intent.setData(null);
+        setIntent(intent);
         deliverReceipt();
+    }
+
+    @Override protected void onSaveInstanceState(Bundle state) {
+        if (pendingReceipt != null) state.putString("offline.pendingReceipt", pendingReceipt);
+        super.onSaveInstanceState(state);
     }
 
     @SuppressLint("SetJavaScriptEnabled") // Executes the bundled React tools only.
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+        if (state != null) pendingReceipt = state.getString("offline.pendingReceipt");
         receiveReceipt(getIntent());
+        getIntent().setData(null);
         // Match Clock's existing keep-awake default while these focused tools
         // are visible. Android releases this with the Activity's window.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

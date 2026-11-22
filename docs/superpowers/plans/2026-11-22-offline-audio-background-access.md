@@ -41,6 +41,11 @@ authorized by this source task.
 
 ## Implementation and acceptance
 
+The owner explicitly selected verified paid-through dates: an annual payment may
+remain available for that verified year; monthly access needs verification after
+renewal. Individual ownership has no scheduled expiry. This confirms the rules
+above without an additional rolling 30-day cap on paid subscriptions.
+
 1. Inspect current catalogs, dependency and asset contracts; freeze complete
    public pack metadata and retain licenses/source attribution.
 2. Add transactional pack storage, bounded verified downloads, cancellation,
@@ -61,3 +66,24 @@ authorized by this source task.
 Browser plugin/skill is not listed in this session. Use installed Playwright
 and the task-owned empty Android emulator for repeatable acceptance; never
 target a real phone or real user records automatically.
+
+## Implementation checkpoint
+
+Candidate `c1d0def` implements the complete catalog/download surface, native
+media boundary, all renderers and signed access protocol. Real browser and
+Android acceptance verify Little Bells plus one existing ambient category after
+network-disabled process restart. All 84 renderers load under signed synthetic
+access; normal APK acceptance asserts no synthetic authority. First-pass
+CodeRabbit coverage is `0eb02e0..c1d0def`. See the
+[18 dispositions and bounded correction batch](../../audits/2026-11-22-offline-audio-review.md).
+
+The correction batch adds transactional cancellation and metadata-only listing,
+v1 media-store migration, recoverable Core storage opening, account-operation
+epochs/context-bound approval, rotation/pending-receipt handling, independent
+acceptance output trees and explicit real-media test opt-in. Pin the existing
+globe source images in Git with their publisher notice so clean offline builds
+need no image host. A narrow native display adapter removes one legacy audit
+caption without changing immutable media identity or the checked catalog.
+
+Final correction-range review, exact-APK rotation/audio checks, physical S24 and
+separately approved signing/provider/release activation remain distinct gates.

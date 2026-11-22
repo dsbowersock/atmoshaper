@@ -66,7 +66,7 @@ test("Android APK cold-launches and retains timer/background state in airplane m
     assert.ok(await page.evaluate(()=>document.fonts.check('700 32px "Digital Clock"')))
     if(evidence)await writeFile(path.join(evidence,"android-clock.png"),await device.screenshot())
     await page.getByRole("button",{name:"Backgrounds",exact:true}).click()
-    await page.getByRole("button",{name:"Static gradient",exact:true}).click()
+    await page.getByRole("button",{name:"In Transition",exact:true}).click()
     await page.getByLabel("Main color",{exact:true}).fill("#146b73")
     await page.getByRole("button",{name:"Timer",exact:true}).click()
     await page.getByLabel("Timer hours",{exact:true}).fill("0")
@@ -93,12 +93,25 @@ test("Android APK cold-launches and retains timer/background state in airplane m
     await expect(page.locator("[data-offline-timer]")).toHaveText(paused)
     await page.getByRole("button",{name:"Reset timer",exact:true}).click()
     await page.getByLabel("Timer minutes",{exact:true}).fill("0")
-    await page.getByLabel("Timer seconds",{exact:true}).fill("4")
+    await page.getByLabel("Timer seconds",{exact:true}).fill("20")
     await page.getByRole("button",{name:"Test alert",exact:true}).click()
     await expect(page.getByRole("status").last()).toHaveText("Test alert played.")
+    await page.evaluate(()=>{
+      window.__timerChimeOscillators=0
+      const start=OscillatorNode.prototype.start
+      OscillatorNode.prototype.start=function(...args){window.__timerChimeOscillators++;return start.apply(this,args)}
+    })
     await page.getByRole("button",{name:"Start timer",exact:true}).click()
-    await expect(page.locator("[data-timer-status]")).toHaveText("complete",{timeout:10000})
+    const rotationDeadline=(await savedState(page)).timer.endsAt
+    const rotationPid=(await device.webView({pkg})).pid()
+    shell("shell","wm","user-rotation","lock","1")
+    await expect.poll(()=>page.evaluate(()=>innerWidth>innerHeight),{timeout:10000}).toBe(true)
+    assert.equal((await device.webView({pkg})).pid(),rotationPid,"rotation preserves the live WebView/audio context")
+    assert.equal((await savedState(page)).timer.endsAt,rotationDeadline)
+    await expect(page.locator("[data-timer-status]")).toHaveText("complete",{timeout:25000})
+    assert.equal(await page.evaluate(()=>window.__timerChimeOscillators),2,"one completion chime schedules its two notes, without another gesture")
     await expect(page.getByRole("status").last()).toHaveText("Timer finished.")
+    shell("shell","wm","user-rotation","lock","0")
     if(evidence)await writeFile(path.join(evidence,"android-timer.png"),await device.screenshot())
     await page.getByRole("button",{name:"Breathing",exact:true}).click()
     await page.getByRole("button",{name:"Start breathing",exact:true}).click()

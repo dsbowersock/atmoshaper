@@ -9,7 +9,7 @@ import { buildOfflineCore } from "../scripts/build-offline-core.mjs"
 import { backgroundRegistry } from "../components/backgrounds/backgroundRegistry.ts"
 import { signOfflineBackgroundReceipt } from "../lib/server/offline-background-receipt.ts"
 
-const root = fileURLToPath(new URL("..", import.meta.url)), core = path.join(root, "output/offline-core/core")
+const root = fileURLToPath(new URL("..", import.meta.url)), core = path.join(root, "output/offline-acceptance-backgrounds/core")
 const entry = "https://appassets.androidplatform.net/assets/core/index.html"
 const evidence = process.env.ATMOSHAPER_OFFLINE_EVIDENCE_DIR
 const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2", ".txt": "text/plain" }
@@ -19,8 +19,9 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
   // Android build is rebuilt without it and its manifest proves that boundary.
   const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "prime256v1" })
   const publicKeysPath = path.join(root, "output/offline-acceptance-public-keys.json")
+  await mkdir(path.dirname(publicKeysPath), { recursive: true })
   await writeFile(publicKeysPath, JSON.stringify([{ id: "synthetic-acceptance", jwk: publicKey.export({ format: "jwk" }) }]))
-  await buildOfflineCore({ testPublicKeysPath: publicKeysPath })
+  await buildOfflineCore({ testPublicKeysPath: publicKeysPath, outputName: "offline-acceptance-backgrounds" })
   const environment = { ATMOSHAPER_OFFLINE_ACCESS_ENABLED: "true", ATMOSHAPER_OFFLINE_ACCESS_KEY_ID: "synthetic-acceptance", ATMOSHAPER_OFFLINE_ACCESS_PRIVATE_KEY: privateKey.export({ type: "pkcs8", format: "pem" }) }
   const browser = await chromium.launch()
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" })
@@ -37,13 +38,17 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
   const page = await context.newPage()
   page.on("pageerror", error => errors.push(error.message))
   page.on("console", value => { if (value.type() === "error") errors.push(value.text()) })
-  async function approve({ premiumUntil, owned }) {
+  async function requestReceipt({ premiumUntil, owned }) {
     await page.getByRole("button", { name: "Verify or refresh account access", exact: true }).click()
     await expect(page).toHaveURL(/www\.atmoshaper\.com\/account\/offline-access\?/)
     const query = new URL(page.url()).searchParams
     const receipt = signOfflineBackgroundReceipt({ device: query.get("device"), challenge: query.get("challenge"), userId: "synthetic-owner", now: Date.now(), premiumUntil, owned }, environment)
     await page.goto(entry)
     await expect(page.getByRole("heading", { name: "Backgrounds", exact: true })).toBeVisible()
+    return receipt
+  }
+  async function approve(input) {
+    const receipt = await requestReceipt(input)
     await page.evaluate(receipt => window.dispatchEvent(new CustomEvent("atmoshaper:offline-access", { detail: receipt })), receipt)
     await expect(page.getByText("Background access saved for offline use.", { exact: true })).toBeVisible()
     return receipt
@@ -54,7 +59,7 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
     const premium = backgroundRegistry.filter(item => item.enabled && item.requiresSubscription)
     await page.getByLabel("Find a background").fill(premium[0].label)
     await expect(page.getByRole("button", { name: `${premium[0].label} · Verify access online`, exact: true })).toBeDisabled()
-    const expiry = Date.now() + 120000
+    const expiry = Date.now() + 15 * 60 * 1000
     await approve({ premiumUntil: expiry, owned: [] })
     const enabled = backgroundRegistry.filter(item => item.enabled)
     for (const background of enabled) {
@@ -84,6 +89,28 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
     await expect(page.getByText("This approval expired or was replaced. Verify access again from this app.", { exact: true })).toBeVisible()
     await page.getByLabel("Find a background").fill(premium[0].label)
     await expect(page.getByRole("button", { name: `${premium[0].label} · Verify access online`, exact: true })).toBeDisabled()
+    // Delay the post-commit verification, forget the account, then release the
+    // old completion. It must not resurrect removed access in memory or on disk.
+    const delayed = await requestReceipt({ premiumUntil: null, owned: [premium[0].id] })
+    await expect(page.getByRole("button", { name: "Forget account access", exact: true })).toBeVisible()
+    await page.evaluate(() => {
+      let count = 0
+      const verify = crypto.subtle.verify.bind(crypto.subtle)
+      crypto.subtle.verify = (...args) => {
+        const result = verify(...args)
+        if (++count !== 2) return result
+        return new Promise(resolve => { window.__releaseOfflineVerification = () => result.then(resolve) })
+      }
+    })
+    await page.evaluate(receipt => window.dispatchEvent(new CustomEvent("atmoshaper:offline-access", { detail: receipt })), delayed)
+    await expect.poll(() => page.evaluate(() => Boolean(window.__releaseOfflineVerification))).toBe(true)
+    await page.getByRole("button", { name: "Forget account access", exact: true }).click()
+    await expect(page.getByText("Account access removed from this app. Downloads and free tools are unchanged.", { exact: true })).toBeVisible()
+    await page.evaluate(async () => { await window.__releaseOfflineVerification(); await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
+    await expect(page.getByRole("button", { name: "Forget account access", exact: true })).toHaveCount(0)
+    await expect(page.locator('[data-offline-background="massage-lab-moving-gradient"]')).toBeVisible()
+    await page.reload()
+    await expect(page.getByRole("button", { name: "Forget account access", exact: true })).toHaveCount(0)
     assert.deepEqual(foreign, [])
     assert.deepEqual(errors, [])
     console.log(`Loaded all ${enabled.length} enabled renderers offline with signed synthetic access.`)

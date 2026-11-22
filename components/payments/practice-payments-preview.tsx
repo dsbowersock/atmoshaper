@@ -39,8 +39,8 @@ export function PracticePaymentsPreview() {
   const settings = useMemo(() => {
     try {
       const priceCents = parseMoneyCents(total)
-      const noticeHours = Number(notice)
-      if (!/^\d{1,3}$/.test(notice)) throw new Error("Enter cancellation notice as whole hours.")
+      const noticeHours = protection ? Number(notice) : 24
+      if (protection && !/^\d{1,3}$/.test(notice)) throw new Error("Enter cancellation notice as whole hours.")
       const policy = { version: "fictional-policy-v1", mode, noShowProtection: protection,
         deposit: { kind: "fixed", value: mode === "deposit" ? parseMoneyCents(deposit) : 0 },
         fee: { kind: "fixed", value: protection ? parseMoneyCents(fee) : 0 }, cancelHours: noticeHours, graceMinutes: 15 }

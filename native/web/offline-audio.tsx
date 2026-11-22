@@ -83,7 +83,7 @@ export const OfflineAudio = memo(function OfflineAudio() {
   return <div className={styles.audio}>
     <div className={styles.title}><h1>Music &amp; Atmosphere</h1><span>{packs.length} downloads · {mb(packs.reduce((sum, pack) => sum + pack.bytes, 0))}</span></div>
     <div className={styles.actions}>{[["station", "Stations"], ["ambient", "Atmosphere sounds"], ["generated", "Generated sounds"]].map(([id, title]) => <Button key={id} variant={section === id ? "ctaBlue" : "glow"} aria-pressed={section === id} onClick={() => setSection(id)}>{title}</Button>)}</div>
-    <p className={styles.hint}>Choose what to keep on this device. Downloads use your current connection and storage. Playback stays local, including after restart. Clearing app data or uninstalling removes downloads.</p>
+    <p className={styles.hint}>Download the sounds you want to keep. Saved sounds work offline after app restarts. Uninstalling or clearing app data removes downloads. Keep the app open for reliable playback in this preview.</p>
     <label>Find a sound<input className={styles.search} type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     {download && <div role="status" className={styles.downloadNotice}><p>Downloading {catalog.find(item => item.id === download.id)?.title}: {download.total ? `${mb(download.loaded)} / ${mb(download.total)}` : "Reading complete pack…"}</p><progress aria-label="Download progress" max={download.total || 1} value={download.loaded} /><Button variant="glow" onClick={() => abortRef.current?.abort()}>Cancel download</Button></div>}
     <p role="status">{message}</p>
@@ -96,7 +96,7 @@ export const OfflineAudio = memo(function OfflineAudio() {
         <p className={styles.hint}>{pack ? `Ready offline · ${mb(pack.bytes)}` : item.kind === "generated" ? "Ready offline" : "Not downloaded"}</p>
         <div className={styles.actions}><Button variant="success" disabled={!ready} onClick={() => void (playing || loading ? stop(item.id) : play(item))}>{playing || loading ? "Stop" : "Play"} {item.title}</Button>
           {item.kind !== "generated" && (!pack ? <Button variant="glow" disabled={Boolean(download)} onClick={() => void save(item as (typeof catalog)[number])}>Download {item.title}</Button> : <Button variant="glow" onClick={() => void remove(item.id)}>Remove download</Button>)}</div>
-        {playing && <label>Volume<input aria-label={`${item.title} volume`} type="range" min="0" max="1" step="0.05" defaultValue="0.5" onChange={event => runtimeRef.current?.volume(item.id, Number(event.target.value))} /></label>}
+        {playing && <label>Volume<input aria-label={`${item.title} volume`} type="range" min="0" max="1" step="0.05" defaultValue={item.kind === "station" ? "0.75" : "0.5"} onChange={event => runtimeRef.current?.volume(item.id, Number(event.target.value))} /></label>}
         {item.attribution && <details className={styles.hint}><summary>Credits</summary>{item.attribution.artist} · {item.attribution.license}{item.attribution.sourceUrl && <p>{item.attribution.sourceUrl}</p>}</details>}
       </article>
     })}</div>

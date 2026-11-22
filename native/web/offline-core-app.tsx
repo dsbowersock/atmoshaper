@@ -158,7 +158,9 @@ export function OfflineCoreApp({ store, initial }: {
       <section className={`${styles.tool} ${styles.breathing}`} hidden={state.tool !== "breathing"} aria-labelledby="breathing-title"><div className={styles.title}><h1 id="breathing-title">Breathing guide</h1><span>One calm breath at a time.</span></div><AtmosphereBreathingGuide /></section>
       <section className={`${styles.tool} ${styles.longTool}`} hidden={state.tool !== "backgrounds"} aria-labelledby="backgrounds-title">
         <div className={styles.title}><h1 id="backgrounds-title">Backgrounds</h1><span>Included on your device</span></div>
-        <OfflineBackgroundChoices selectedId={state.backgroundId} account={account} onSelect={backgroundId => setState(previous => ({ ...previous, backgroundId }))} />
+        {/* Selectors have no ongoing work; keep the hidden 84-button grid out
+            of Clock's quarter-second render loop. Access stays in the root. */}
+        {state.tool === "backgrounds" && <OfflineBackgroundChoices selectedId={state.backgroundId} account={account} onSelect={backgroundId => setState(previous => ({ ...previous, backgroundId }))} />}
         <div className={styles.colors}><label>Main color<input type="color" value={state.mainColor} onChange={event => setState(previous => ({ ...previous, mainColor: event.target.value }))} /></label>{state.backgroundId !== "solid-color" && <label>Second color<input type="color" value={state.orbColor} onChange={event => setState(previous => ({ ...previous, orbColor: event.target.value }))} /></label>}</div>
         <label className={styles.check}><input type="checkbox" checked={state.motion} onChange={event => setState(previous => ({ ...previous, motion: event.target.checked }))} />Animate backgrounds</label>
         <p className={styles.hint}>Backgrounds need no download. Your accessible choice stays with every tool.</p>

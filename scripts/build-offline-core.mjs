@@ -11,24 +11,31 @@ export const bundleRoot = path.join(root, "output/offline-core")
 export const coreRoot = path.join(bundleRoot, "core")
 
 /** This build owns this single generated directory, never browser/user data. */
-async function resetOutput() {
+async function resetOutput(bundleRoot) {
   const target = path.resolve(bundleRoot)
-  if (target !== path.resolve(root, "output/offline-core") || path.relative(root, target).startsWith("..")) throw new Error("Unexpected offline build directory.")
+  if (path.dirname(target) !== path.resolve(root, "output") || !["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds"].includes(path.basename(target))) throw new Error("Unexpected offline build directory.")
   const existing = await lstat(target).catch(error => { if (error.code !== "ENOENT") throw error })
   if (existing?.isSymbolicLink()) throw new Error("The offline build output cannot be a link.")
   const physicalRoot = await realpath(root)
   const physicalParent = await realpath(path.dirname(target))
-  if (path.relative(physicalRoot, physicalParent).startsWith("..")) throw new Error("Offline output resolves outside this workspace.")
+  const relativeParent = path.relative(physicalRoot, physicalParent)
+  if (relativeParent.startsWith("..") || path.isAbsolute(relativeParent)) throw new Error("Offline output resolves outside this workspace.")
   await rm(target, { recursive: true, force: true })
-  await mkdir(coreRoot, { recursive: true })
+  await mkdir(path.join(target, "core"), { recursive: true })
 }
 
 /** Build actual product components into an app-owned, network-free asset set. */
-export async function buildOfflineCore({ testPublicKeysPath = null } = {}) {
+export async function buildOfflineCore({ testPublicKeysPath = null, outputName = "offline-core" } = {}) {
   // Only acceptance can substitute an ephemeral public authority. The normal
   // Android build never supplies this argument and cannot ship a test key.
   if (testPublicKeysPath && path.resolve(testPublicKeysPath) !== path.join(root, "output/offline-acceptance-public-keys.json")) throw new Error("Unexpected receipt acceptance key path.")
-  await resetOutput()
+  // Acceptance readers get independent trees. Parallel wildcard tests cannot
+  // delete each other's assets or replace Android's normal trust configuration.
+  if (!["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds"].includes(outputName)) throw new Error("Unexpected offline build output.")
+  if (testPublicKeysPath && outputName !== "offline-acceptance-backgrounds") throw new Error("Synthetic authority requires isolated acceptance output.")
+  const bundleRoot = path.join(root, "output", outputName), coreRoot = path.join(bundleRoot, "core")
+  await mkdir(path.dirname(bundleRoot), { recursive: true })
+  await resetOutput(bundleRoot)
   const { webpack } = require("next/dist/compiled/webpack/webpack")
   const compiler = webpack({
     mode: "production", target: ["web", "es2020"], devtool: false,
@@ -69,14 +76,14 @@ export async function buildOfflineCore({ testPublicKeysPath = null } = {}) {
       if (!failure && stats.hasErrors()) failure = new Error(stats.toString({ all: false, errors: true }))
       if (!failure) {
         const resources = new Set()
-        const visit = module => { if (module.resource) resources.add(module.resource); if (module.modules) for (const nested of module.modules) visit(nested) }
-        for (const module of stats.compilation.modules) visit(module)
+        const visit = bundledModule => { if (bundledModule.resource) resources.add(bundledModule.resource); if (bundledModule.modules) for (const nested of bundledModule.modules) visit(nested) }
+        for (const bundledModule of stats.compilation.modules) visit(bundledModule)
         sources = [...resources]
       }
     } catch (cause) { failure = cause }
     compiler.close(cause => failure || cause ? reject(failure || cause) : resolve(sources))
   }))
-  const forbidden = modules.filter(name => /(?:node_modules[\\/](?:@prisma|next-auth)|next[\\/]dist[\\/]server|[\\/]app[\\/]api[\\/]|[\\/]tests[\\/])/.test(name))
+  const forbidden = modules.filter(name => /(?:node_modules[\\/](?:@prisma|next-auth)|next[\\/]dist[\\/]server|[\\/]app[\\/]api[\\/]|[\\/]lib[\\/]server[\\/]|[\\/]tests[\\/])/.test(name))
   if (forbidden.length) throw new Error("Server, authentication or test code leaked into the offline bundle: " + forbidden.join(", "))
 
   const globals = path.join(root, "app/globals.css")
@@ -93,8 +100,8 @@ export async function buildOfflineCore({ testPublicKeysPath = null } = {}) {
     ["earth-blue-marble.jpg", "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01"],
     ["earth-topology.png", "839b12da2e4dd346b256cebae72e10c479a102c8980a22084c41275e4b9a0e12"],
   ]) {
-    const source = path.join(root, "output/offline-textures", name)
-    const payload = await readFile(source).catch(() => { throw new Error("Run npm run prepare:offline-textures before this build.") })
+    const source = path.join(root, "native/assets/textures", name)
+    const payload = await readFile(source)
     if (createHash("sha256").update(payload).digest("hex") !== expected) throw new Error("Offline globe texture checksum mismatch.")
     await copyFile(source, path.join(coreRoot, "textures", name))
   }

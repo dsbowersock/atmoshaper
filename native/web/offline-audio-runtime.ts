@@ -7,6 +7,8 @@ import { mediaUrl, readVerifiedOfflinePack } from "@/lib/offline-media"
 
 type Handle = { stop(): Promise<void>; volume(value: number): void }
 type PackFile = { url: string; data: ArrayBuffer }
+// Match the website's conservative -60..-12 dB station output policy.
+const stationGain = (value: number) => 10 ** ((-60 + Math.max(0, Math.min(1, value)) * 48) / 20)
 
 /** One app-owned mixer: station replacement is serialized, ambient layers may
  * coexist, and an obsolete async start cannot claim the output after Stop. */
@@ -42,7 +44,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
       if (!isCurrent()) return false
       let handle: Handle
       if (item.kind === "station") {
-        const output = new Tone.Gain(0.4).connect(master)
+        const output = new Tone.Gain(stationGain(0.75)).connect(master)
         const decoded = new Map<string, AudioBuffer>()
         const raw = Tone.getContext().rawContext as AudioContext
         const provider = {
@@ -50,6 +52,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
           async request(_context: unknown, urls: string[]) {
             const result = []
             for (const url of urls) {
+              if (!isCurrent()) throw new Error("Playback was stopped.")
               if (decoded.has(url)) { result.push(decoded.get(url)!); continue }
               const file = pack.files.find((file: PackFile) => file.url === url)
               if (!file) throw new Error("A required sample is missing. Download the station again.")
@@ -77,7 +80,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
         } catch (error) { output.dispose(); throw error }
         handle = {
           async stop() { try { unschedule?.() } finally { try { deactivate?.() } finally { output.dispose(); decoded.clear() } } },
-          volume(value) { output.gain.rampTo(Math.max(0, Math.min(1, value)) * 0.5, 0.2) },
+          volume(value) { output.gain.rampTo(stationGain(value), 0.2) },
         }
       } else {
         const blobs = new Map<string, string>()
@@ -96,6 +99,12 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
             return blobs.get(url)!
           },
         }).catch(error => { for (const url of blobs.values()) URL.revokeObjectURL(url); throw error })
+        // Ambient startup loads media asynchronously into a muted graph. Stop
+        // during that wait must dispose it before any audible fade-in starts.
+        if (!isCurrent()) {
+          try { await adapter.fadeOutAndDispose() } finally { for (const url of blobs.values()) URL.revokeObjectURL(url) }
+          return false
+        }
         await adapter.fadeIn()
         handle = {
           async stop() { try { await adapter.fadeOutAndDispose() } finally { for (const url of blobs.values()) URL.revokeObjectURL(url) } },

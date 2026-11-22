@@ -12,6 +12,7 @@
         android:theme="@style/AtmoShaperTheme">
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|density|uiMode"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>

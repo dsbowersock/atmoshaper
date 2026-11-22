@@ -1,7 +1,7 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 import { generateKeyPairSync } from "node:crypto"
-import { signOfflineBackgroundReceipt } from "../lib/server/offline-background-receipt.ts"
+import { signOfflineBackgroundReceipt, createOfflineBackgroundAccessHandler } from "../lib/server/offline-background-receipt.ts"
 import { offlinePremiumUntil, offlineBackgroundSnapshot, verifyOfflineAccessReceipt, randomOfflineAccessId } from "../lib/offline-background-access.js"
 
 const now = Date.UTC(2026, 10, 22)
@@ -51,4 +51,31 @@ test("monthly and annual leases use real paid-through evidence, missing expiry d
   for (const expiresAt of [null, "invalid", new Date(now).toISOString()]) assert.equal(offlinePremiumUntil(source([{ source: "membership", expiresAt }]), now), null)
   assert.equal(offlinePremiumUntil(source([{ source: "temporary", expiresAt: new Date(monthEnd).toISOString() }]), now), monthEnd)
   assert.equal(offlinePremiumUntil([{ featureKey: "made_up_plan", sources: [{ source: "membership", expiresAt: new Date(yearEnd).toISOString() }] }], now), null)
+})
+
+test("the issuer binds the session owner and ignores caller-supplied account/payment grants", async () => {
+  const reads = []
+  const handler = createOfflineBackgroundAccessHandler({ environment, getUserId: async () => "actual-synthetic-owner",
+    async loadAccess(userId) { reads.push(userId); return { featureAccess: [], owned: [] } } })
+  const request = new Request("https://www.atmoshaper.com/api/account/offline-background-access", { method: "POST", headers: { Origin: "https://www.atmoshaper.com" }, body: JSON.stringify({ device, challenge, userId: "other-owner", premiumUntil: now + 999999, owned: input.owned }) })
+  const response = await handler(request)
+  assert.equal(response.status, 200)
+  assert.equal(response.headers.get("cache-control"), "private, no-store")
+  const claims = await verifyOfflineAccessReceipt((await response.json()).receipt, device, keys)
+  assert.deepEqual(reads, ["actual-synthetic-owner"])
+  assert.equal(claims.premiumUntil, null); assert.deepEqual(claims.owned, [])
+})
+
+test("cross-origin, anonymous, oversized, malformed and unconfigured requests cannot query/sign access", async () => {
+  let reads = 0
+  const deps = { environment, getUserId: async () => "owner", async loadAccess() { reads++; throw new Error("must not read") } }
+  const request = (body, origin = "https://www.atmoshaper.com", method = "POST") => new Request("https://www.atmoshaper.com/api/account/offline-background-access", { method, headers: { Origin: origin }, ...(method === "POST" ? { body } : {}) })
+  const valid = JSON.stringify({ device, challenge })
+  assert.equal((await createOfflineBackgroundAccessHandler(deps)(request(valid, "https://attacker.invalid"))).status, 403)
+  assert.equal((await createOfflineBackgroundAccessHandler({ ...deps, getUserId: async () => null })(request(valid))).status, 401)
+  assert.equal((await createOfflineBackgroundAccessHandler(deps)(request("x".repeat(2048)))).status, 400)
+  assert.equal((await createOfflineBackgroundAccessHandler(deps)(request("not json"))).status, 400)
+  assert.equal((await createOfflineBackgroundAccessHandler(deps)(request(valid, undefined, "GET"))).status, 405)
+  assert.equal((await createOfflineBackgroundAccessHandler({ ...deps, environment: {} })(request(valid))).status, 503)
+  assert.equal(reads, 0)
 })

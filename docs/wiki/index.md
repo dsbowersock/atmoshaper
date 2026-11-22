@@ -4,6 +4,9 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Offline audio and signed background access review](../audits/2026-11-22-offline-audio-review.md)
+- [Downloaded stations, Atmosphere sounds and offline background access](../superpowers/plans/2026-11-22-offline-audio-background-access.md)
+
 - [Offline Android core build and airplane-mode verification](../audits/2026-11-22-offline-android-core.md)
 
 - [Offline Android core, downloaded media and acceptance plan](../superpowers/plans/2026-11-22-offline-android-core.md)

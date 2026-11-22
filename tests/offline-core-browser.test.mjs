@@ -8,7 +8,7 @@ import { OFFLINE_CORE_STORAGE_KEY } from "../lib/offline-core.js"
 import { buildOfflineCore } from "../scripts/build-offline-core.mjs"
 
 const root=fileURLToPath(new URL("..",import.meta.url))
-const core=path.join(root,"output/offline-core/core")
+const core=path.join(root,"output/offline-acceptance-core/core")
 const entry="https://appassets.androidplatform.net/assets/core/index.html"
 const evidence=process.env.ATMOSHAPER_OFFLINE_EVIDENCE_DIR
 const mime={".html":"text/html",".js":"text/javascript",".css":"text/css",".png":"image/png",".woff2":"font/woff2",".mp3":"audio/mpeg",".txt":"text/plain"}
@@ -29,7 +29,7 @@ async function attachAssets(context, violations) {
 }
 
 test("packaged Clock, timer, breathing and backgrounds work from a first offline launch",{timeout:180000},async()=>{
-  await buildOfflineCore()
+  await buildOfflineCore({outputName:"offline-acceptance-core"})
   const violations=[],errors=[]
   const browser=await chromium.launch()
   if(evidence)await mkdir(evidence,{recursive:true})
@@ -53,7 +53,7 @@ test("packaged Clock, timer, breathing and backgrounds work from a first offline
       if(evidence)await page.screenshot({path:path.join(evidence,`${name}-clock.png`)})
 
       await page.getByRole("button",{name:"Backgrounds",exact:true}).click()
-      for(const [label,id] of [["Static gradient","static-gradient"],["Solid Color","solid-color"],["Lava Lamp","massage-lab-moving-gradient"]]){
+      for(const [label,id] of [["In Transition","static-gradient"],["Solid Color","solid-color"],["Lava Lamp","massage-lab-moving-gradient"]]){
         await page.getByRole("button",{name:label,exact:true}).click()
         await expect(page.locator("[data-offline-background]")).toHaveAttribute("data-offline-background",id)
       }
