@@ -1,6 +1,9 @@
 # Prepared offline access activation and owner APK handoff
 
-Status: prepared, not authorized/executed. November 22, 2026.
+Status: owner approved November 22, 2026; first settings upload failed and the
+operation stopped with no new provider settings. Publication has not started.
+See the [one-key recovery amendment](2026-11-22-offline-activation-recovery.md),
+which is prepared but not authorized.
 Application candidate: `194e385`, plus receipt-only documentation closeout.
 The owner selected verified subscription paid-through dates and non-expiring
 active individual ownership. Local verification and the three source review

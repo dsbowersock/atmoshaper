@@ -1,5 +1,29 @@
 # AtmoShaper Project Log
 
+## November 22 approved offline activation attempt and bounded recovery
+
+The owner approves the prepared activation plan. Recheck source `6490c75`, live
+`0eb02e0`, all 87 settings, 48 aliases, manual promotion, existing protection and
+the READY rollback. The prior explicit Vercel profile is valid; the CLI default
+profile's logged-out state does not justify a new sign-in or account change.
+
+Generate one authority in an isolated process, save only its public verifier and
+attempt one bulk settings upload. The CLI exits unsuccessfully. Withhold raw
+private-bearing output; provider HTTP status is not retained. Read-back confirms
+all three requested names absent and the existing 87 settings unchanged. The
+private key is discarded on exit. Preserve the discarded public key in ignored
+operator evidence, restore source's verifier to `[]`, and stop rather than
+regenerating or replaying the upload. No push, PR, deployment, promotion, account
+receipt or other live-data/provider effect occurs.
+
+Inspect the installed CLI and reproduce its array-body encoding with synthetic
+Request objects and zero network calls. Prepare direct explicit-JSON HTTPS with
+no automatic retry. Its existing-profile read-only project check passes; settings,
+site, empty verifier and rollback still match. Prepare the
+[one replacement-key amendment](superpowers/plans/2026-11-22-offline-activation-recovery.md)
+for approval, preserving the already authorized publication scope and unchanged
+application logic. No second key is generated under the first authorization.
+
 ## November 22 offline media and background verification closeout
 
 Freeze application source at `194e385`. Complete the initial CodeRabbit range

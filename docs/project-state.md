@@ -1,5 +1,25 @@
 # AtmoShaper Project State
 
+## November 22 offline activation upload stopped; recovery prepared
+
+The owner approves the prepared activation/publication plan. Fresh preflight
+matches reviewed source, live `0eb02e0`, all 87 setting metadata entries, 48
+aliases, existing protection/manual promotion and the READY rollback. One
+isolated key-generation/bulk-upload attempt fails in the installed CLI request
+path. Read-back confirms no requested settings were created and all 87 existing
+settings remain unchanged. No push, PR, deployment, promotion or real receipt
+occurs. The temporary private key is discarded and source's verifier is `[]`.
+
+A no-network synthetic reproduction confirms the installed CLI's bulk-array
+encoding problem. An explicit JSON HTTPS client is prepared and its read-only
+authentication/project check passes. The
+[recovery amendment](superpowers/plans/2026-11-22-offline-activation-recovery.md)
+requests one additional replacement key and one corrected Production-only
+upload, then continuation of the already approved release. It remains pending;
+the original plan forbids replacing the key without another authorization.
+Application source remains `194e385`; local verification and the documented
+minor migration follow-up are unchanged. Real premium verification is not live.
+
 ## November 22 offline audio and signed background access candidate
 
 The owner expands the native milestone to explicitly downloaded generative
