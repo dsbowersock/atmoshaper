@@ -36,6 +36,7 @@ const rscSessionConsumers = [
   "app/education/flashcards/decks/[slug]/page.tsx",
   "app/notes/page.tsx",
   "app/onboarding/page.tsx",
+  "app/onboarding/welcome/page.tsx",
   "app/pricing/page.tsx",
   "app/support/page.tsx",
   "app/tools/business-planner/income/page.tsx",

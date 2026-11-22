@@ -95,7 +95,7 @@ describe("calendar booking settings schema and route surface", () => {
     assert.match(loginForm, /const requestedCallbackUrl = searchParams\.get\("callbackUrl"\)/)
     assert.match(loginForm, /isRegistrationLegalAcceptancePath\(requestedCallbackUrl\)/)
     assert.match(loginForm, /buildRegistrationLegalProviderRedirectPath\(requestedCallbackUrl\)/)
-    assert.match(loginForm, /safePostLegalAcceptanceCallback\(requestedCallbackUrl, "\/account"\)/)
+    assert.match(loginForm, /safePostLegalAcceptanceCallback\(requestedCallbackUrl, "\/"\)/)
     for (const callback of ["/calendar/booking", "/book/ohio/example-practice?step=time"]) {
       assert.equal(safePostLegalAcceptanceCallback(callback, "/account"), callback)
     }

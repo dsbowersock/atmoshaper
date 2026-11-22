@@ -107,10 +107,15 @@ export function OnboardingDraftForm({ ownerKey, initialRevision, hasDraft, child
     event.preventDefault()
     if (finishing.current) return
     if ((queued.current || active.current) && !await flush()) return
+    // A pending save may outlive the page; keep saving, but never replace the
+    // destination the user chose after leaving this form.
+    if (!mounted.current) return
     router.push(target.getAttribute("href") || "/account?tab=app-settings")
   }
 
-  return <form ref={form} onChange={capture} onSubmit={finish} onClick={leave} className="space-y-6">
+  // Capture before a child Next Link handles the click; bubbling is too late
+  // to hold client navigation while the draft is pending or failed.
+  return <form ref={form} onChange={capture} onSubmit={finish} onClickCapture={leave} className="space-y-6">
     <p role={state === "error" || state === "conflict" ? "alert" : "status"} className="text-sm text-muted-foreground">
       {state === "saving" ? "Saving your progress…" : state === "saved" ? "Progress saved to your account. You can return later." : state === "error" ? "Couldn’t save progress. Retry before leaving setup." : state === "conflict" ? "Setup changed in another tab. Reload to use the latest saved progress." : "Your progress saves as you make changes."}
     </p>

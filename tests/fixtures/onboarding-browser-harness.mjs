@@ -12,7 +12,11 @@ const moduleUrl = (source) => `data:text/javascript;base64,${Buffer.from(source)
  * No auth, database, email, provider environment or external requests are used. */
 export async function createOnboardingBundle() {
   const { webpack } = require("next/dist/compiled/webpack/webpack")
-  const link = moduleUrl(`import React from 'react';export default React.forwardRef(function Link({children,...props},ref){return React.createElement('a',{...props,ref},children)})`)
+  // Keep Next's real app-router click handler: an inert anchor would miss the
+  // child navigation that occurs before a form's bubbling save/leave handler.
+  const link = moduleUrl(`import React from 'react';import NextLink from ${JSON.stringify(path.join(root, "node_modules/next/dist/client/app-dir/link.js"))};export default function Link(props){return React.createElement(NextLink,{...props,prefetch:false})}`)
+  const linkLifecycle = moduleUrl(`export const IDLE_LINK_STATUS={pending:false};export function mountLinkInstance(){return null}export function unmountLinkForCurrentNavigation(){}export function unmountPrefetchableInstance(){}export function onNavigationIntent(){}`)
+  const linkNavigator = moduleUrl(`export function navigate(href){window.__setupFixture.router.push(href)}`)
   const navigation = moduleUrl(`export function useRouter(){return window.__setupFixture.router}`)
   const actions = moduleUrl(`
     const key='fixture.optional-setup';
@@ -47,6 +51,8 @@ export async function createOnboardingBundle() {
       state.router.replace('/');
     }`)
   const entry = moduleUrl(`import React from 'react';import {createRoot} from 'react-dom/client';
+    import Link from 'next/link';
+    import {AppRouterContext} from ${JSON.stringify(path.join(root, "node_modules/next/dist/shared/lib/app-router-context.shared-runtime.js"))};
     import {OnboardingInvitation} from ${JSON.stringify(path.join(root, "components/account/onboarding-invitation.tsx"))};
     import {AccountSetupOptions} from ${JSON.stringify(path.join(root, "components/account/account-setup-options.tsx"))};
     import {OnboardingDraftForm} from ${JSON.stringify(path.join(root, "components/account/onboarding-draft-form.tsx"))};
@@ -55,16 +61,17 @@ export async function createOnboardingBundle() {
     const params=new URL(location.href).searchParams;
     const root=createRoot(document.getElementById('root'));
     const saved=JSON.parse(sessionStorage.getItem('fixture.progress')||'null');
-    const state=window.__setupFixture={claims:0,choices:[],owners:[],destinations:[],saves:[],finishes:[],revision:saved?.revision||0,savedEntries:saved?.entries||[],deferClaim:params.has('deferClaim'),deferChoice:params.has('deferChoice'),failChoice:params.has('failChoice'),deferProgress:params.has('deferProgress'),failProgress:params.has('failProgress'),conflictProgress:params.has('conflictProgress'),resume:params.has('resume'),router:{replace(destination){state.destinations.push(destination);root.render(React.createElement('div',{className:'p-4 space-y-4'},React.createElement('h1',null,destination.startsWith('/onboarding?')?'Guided setup selected':'You’re ready to continue'),React.createElement('p',null,'Local preview only. No account was created or changed.'),React.createElement(AccountSetupOptions))) },push(destination){this.replace(destination)}},unmount:()=>root.unmount()};
+    const state=window.__setupFixture={claims:0,choices:[],owners:[],destinations:[],saves:[],finishes:[],revision:saved?.revision||0,savedEntries:saved?.entries||[],deferClaim:params.has('deferClaim'),deferChoice:params.has('deferChoice'),failChoice:params.has('failChoice'),deferProgress:params.has('deferProgress'),failProgress:params.has('failProgress'),conflictProgress:params.has('conflictProgress'),resume:params.has('resume'),router:{replace(destination){state.destinations.push(destination);render(React.createElement('div',{className:'p-4 space-y-4'},React.createElement('h1',null,destination.startsWith('/onboarding?')?'Guided setup selected':'You’re ready to continue'),React.createElement('p',null,'Local preview only. No account was created or changed.'),React.createElement(AccountSetupOptions))) },push(destination){this.replace(destination)}},unmount:()=>root.unmount()};
+    function render(content){root.render(React.createElement(AppRouterContext.Provider,{value:state.router},React.createElement(React.StrictMode,null,content)))}
     const answers=new FormData();for(const [key,value]of state.savedEntries)answers.append(key,value);
     const tools=[{key:'chimer',title:'Clock',description:'Timer',status:'Public'},{key:'atmosphere',title:'Music',description:'Audio',status:'Public'}];
     const form=React.createElement('div',{className:'p-4 max-w-xl mx-auto'},React.createElement('h1',null,'Guided setup — fictional preview'),React.createElement(OnboardingDraftForm,{ownerKey:'fictional-owner',initialRevision:state.revision,hasDraft:!!saved},
       React.createElement('label',null,'Therapist state',React.createElement('input',{name:'jurisdiction',defaultValue:answers.get('jurisdiction')||'',maxLength:2,className:'block bg-background border p-2'})),
       React.createElement(HomeShortcutEditor,{tools,defaultSelection:answers.getAll('homeShortcuts').length?answers.getAll('homeShortcuts'):['chimer','atmosphere'],fieldName:'homeShortcuts',persistSelection:answers.has('homeShortcuts')}),
       React.createElement(Button,{type:'submit'},'Save and continue'),
-      React.createElement('a',{href:'/account','data-leave-setup':true},'Save & leave setup')));
+      React.createElement(Link,{href:'/account','data-leave-setup':true},'Save & leave setup')));
     const content=location.pathname==='/form'?form:location.pathname==='/account'?React.createElement('div',{className:'p-4'},React.createElement(AccountSetupOptions)):React.createElement(OnboardingInvitation,{ownerKey:'fictional-owner',returnTo:'/calendar?date=2030-01-02',kind:state.resume?'resume':'new'});
-    root.render(React.createElement(React.StrictMode,null,content));`)
+    render(content);`)
   const compiler = webpack({ mode: "development", target: "web", entry, devtool: false, cache: false,
     output: { path: root, filename: "onboarding-fixture.js" },
     resolve: { alias: { "@": root }, modules: [path.join(root, "node_modules"), "node_modules"], extensions: [".js", ".mjs", ".tsx", ".ts"] },
@@ -72,6 +79,10 @@ export async function createOnboardingBundle() {
     plugins: [
       new webpack.DefinePlugin({ "process.env": JSON.stringify({ NODE_ENV: "development" }) }),
       new webpack.NormalModuleReplacementPlugin(/^next\/link$/, (resource) => { resource.request = link }),
+      // Network prefetch and the app's navigation dispatcher remain fictional;
+      // Next's event ordering and defaultPrevented check are left untouched.
+      new webpack.NormalModuleReplacementPlugin(/^\.\.\/components\/links$/, (resource) => { if (resource.context.endsWith(`${path.sep}app-dir`)) resource.request = linkLifecycle }),
+      new webpack.NormalModuleReplacementPlugin(/^\.\.\/components\/navigator$/, (resource) => { if (resource.context.endsWith(`${path.sep}app-dir`)) resource.request = linkNavigator }),
       new webpack.NormalModuleReplacementPlugin(/^next\/navigation$/, (resource) => { resource.request = navigation }),
       new webpack.NormalModuleReplacementPlugin(/^@\/app\/onboarding\/welcome\/actions$/, (resource) => { resource.request = actions }),
       new webpack.NormalModuleReplacementPlugin(/^@\/app\/onboarding\/actions$/, (resource) => { resource.request = progress }),

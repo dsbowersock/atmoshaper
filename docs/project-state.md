@@ -1,5 +1,17 @@
 # AtmoShaper Project State
 
+## November 22 Home, optional setup and Clock publication in progress
+
+The owner authorizes separate Codex/CodeRabbit review, release checks and
+publication. PR #79 starts on the verified public baseline with the identical
+local candidate tree. Both reviewers complete substantive initial coverage;
+supported corrections protect save/leave navigation, registration callbacks,
+setup answers against old preference sync and Home keyboard focus. Test/tooling
+contracts and only the four intended Home wordmark baselines are updated.
+See the [review receipt](audits/2026-11-22-home-onboarding-clock-review.md).
+Corrected-source follow-up, full hosted CI and staged release gates remain
+pending. The public site has not changed under this operation yet.
+
 ## November 22 digital AM/PM in the leading clock space local for review
 
 The owner requests moving AM/PM into the spare part of the first hour cell and

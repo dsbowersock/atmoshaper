@@ -1,5 +1,22 @@
 # AtmoShaper Project Log
 
+## November 22 Home/setup/Clock initial reviews and grouped corrections
+
+The owner requests Codex and CodeRabbit review followed by publication. Preserve
+the local source commit and prepare PR #79 on current public main with the same
+tree. Hosted and separate read-only Codex reviews complete; the standalone CLI
+environment failure is excluded. Manually request the existing CodeRabbit app's
+full review after its automatic skip. Its completed full-range review selects
+all 79 text/source paths and records eight actionable comments.
+
+Group the supported corrections, reproduce the Next Link save/leave bug with
+the actual handler, and protect current setup answers from ordinary sync replay.
+Preserve registration return tasks, prevent late navigation after unmount and
+restore Home keyboard focus. Correct obsolete contracts and visually verify
+only the intended Home wordmark baselines on Linux and Windows. Full corrected
+head coverage/checks and publication gates remain pending; no public promotion
+has occurred. See the [review receipt](audits/2026-11-22-home-onboarding-clock-review.md).
+
 ## November 22 Clock AM/PM placement and digital lettering
 
 The owner selects the trailing AM/PM on an enlarged clock and requests moving it

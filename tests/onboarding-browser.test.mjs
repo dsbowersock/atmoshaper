@@ -5,11 +5,12 @@ import { chromium, expect } from "@playwright/test"
 import { createOnboardingBundle, startOnboardingFixture } from "./fixtures/onboarding-browser-harness.mjs"
 
 test("optional setup supports touch layouts, one claim, explicit choices, retry and later manual access", { timeout: 120000 }, async () => {
-  const server = await startOnboardingFixture(await createOnboardingBundle())
-  const browser = await chromium.launch()
+  let server, browser
   const errors = [], external = []
-  await mkdir("output/optional-onboarding", { recursive: true })
   try {
+    server = await startOnboardingFixture(await createOnboardingBundle())
+    browser = await chromium.launch()
+    await mkdir("output/optional-onboarding", { recursive: true })
     for (const [name, width, height, choice] of [["narrow", 320, 640, "Not now"], ["phone", 390, 844, "Start guided setup"], ["tablet", 768, 1024, "Not now"], ["desktop", 1280, 900, "Start guided setup"]]) {
       const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce", serviceWorkers: "block" })
       await context.route("**/*", (route) => {
@@ -105,6 +106,36 @@ test("optional setup supports touch layouts, one claim, explicit choices, retry 
     assert.equal(await draft.evaluate(() => window.__setupFixture.finishes[0].revision === window.__setupFixture.revision), true)
     await draftContext.close()
 
+    const leaving = await browser.newPage()
+    leaving.on("pageerror", (error) => errors.push(error.message))
+    await leaving.goto(`${server.origin}/form?deferProgress&failProgress`)
+    await expect.poll(() => leaving.evaluate(() => typeof window.__setupFixture.releaseProgress)).toBe("function")
+    await leaving.getByRole("textbox", { name: "Therapist state" }).fill("OH")
+    await leaving.getByRole("link", { name: "Save & leave setup", exact: true }).click()
+    await leaving.evaluate(() => new Promise(requestAnimationFrame))
+    await expect(leaving.getByRole("textbox", { name: "Therapist state" })).toBeVisible()
+    assert.deepEqual(await leaving.evaluate(() => window.__setupFixture.destinations), [], "Next Link cannot navigate before the pending save is acknowledged")
+    await leaving.evaluate(() => { window.__setupFixture.deferProgress = false; window.__setupFixture.releaseProgress() })
+    await expect(leaving.getByRole("alert")).toContainText("Couldn’t save progress")
+    await expect(leaving.getByRole("textbox", { name: "Therapist state" })).toHaveValue("OH")
+    assert.deepEqual(await leaving.evaluate(() => window.__setupFixture.destinations), [], "a failed save keeps the form mounted")
+    await leaving.getByRole("link", { name: "Save & leave setup", exact: true }).click()
+    await expect(leaving.getByRole("heading", { name: "You’re ready to continue", exact: true })).toBeVisible()
+    assert.deepEqual(await leaving.evaluate(() => window.__setupFixture.destinations), ["/account"])
+    assert.equal(await leaving.evaluate(() => window.__setupFixture.savedEntries.find(([key]) => key === "jurisdiction")[1]), "OH")
+    await leaving.close()
+
+    const departed = await browser.newPage()
+    departed.on("pageerror", (error) => errors.push(error.message))
+    await departed.goto(`${server.origin}/form?deferProgress`)
+    await expect.poll(() => departed.evaluate(() => typeof window.__setupFixture.releaseProgress)).toBe("function")
+    await departed.getByRole("textbox", { name: "Therapist state" }).fill("MI")
+    await departed.getByRole("link", { name: "Save & leave setup", exact: true }).click()
+    await departed.evaluate(() => { window.__setupFixture.unmount(); window.__setupFixture.deferProgress = false; window.__setupFixture.releaseProgress() })
+    await expect.poll(() => departed.evaluate(() => window.__setupFixture.savedEntries.find(([key]) => key === "jurisdiction")?.[1])).toBe("MI")
+    assert.deepEqual(await departed.evaluate(() => window.__setupFixture.destinations), [], "save completion cannot navigate after the user has left")
+    await departed.close()
+
     const failed = await browser.newPage()
     await failed.goto(`${server.origin}/form?failProgress`)
     await expect(failed.getByRole("alert")).toContainText("Couldn’t save progress")
@@ -123,5 +154,7 @@ test("optional setup supports touch layouts, one claim, explicit choices, retry 
     await stale.close()
     assert.deepEqual(errors, [])
     assert.deepEqual(external, [])
-  } finally { await browser.close(); await server.close() }
+  } finally {
+    try { await browser?.close() } finally { await server?.close() }
+  }
 })

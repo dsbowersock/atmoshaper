@@ -13,6 +13,7 @@ import {
   buildRegistrationLegalProviderRedirectPath,
   isRegistrationLegalAcceptancePath,
   safePostLegalAcceptanceCallback,
+  safeRegistrationCallback,
 } from "../lib/legal-acceptance-gate.js"
 import { requiredLegalDocumentsForEvent } from "../lib/legal-documents.js"
 
@@ -271,6 +272,7 @@ describe("legal acceptance helpers", () => {
       buildRegistrationLegalProviderRedirectPath("/legal/accept?callbackUrl=%2Fwellness&callbackUrl=%2Fclock&ignored=1"),
       "/legal/accept?callbackUrl=%2Fwellness",
     )
+    assert.equal(safeRegistrationCallback("/legal/accept?callbackUrl=%2Fwellness&callbackUrl=%2Fclock&ignored=1"), "/wellness")
     assert.equal(buildRegistrationLegalProviderRedirectPath("/wellness"), "/legal/accept?callbackUrl=%2Fwellness")
   })
 
@@ -290,6 +292,7 @@ describe("legal acceptance helpers", () => {
       "/legal/accept?callbackUrl=%2Flegal%2Fterms",
       "/legal/accept?callbackUrl=%2F%256cegal%2Faccept",
     ]) {
+      assert.equal(safeRegistrationCallback(callbackUrl), "/", callbackUrl)
       assert.equal(
         buildRegistrationLegalProviderRedirectPath(callbackUrl),
         "/legal/accept?callbackUrl=%2F",

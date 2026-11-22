@@ -4,6 +4,7 @@ import { getCurrentSession } from "@/auth"
 import {
   USER_PREFERENCES_VERSION,
   buildUserPreferencePayload,
+  mergeSyncedAppSettings,
 } from "@/lib/account-preferences"
 import { clearAccountSurfaceDataCache } from "@/lib/account-surface-data"
 import {
@@ -161,10 +162,7 @@ export async function PUT(request: Request) {
     })
     // The locked read is the only projection used for a JSON merge. A concurrent
     // writer for this owner must commit before this request can read and merge.
-    const mergedAppSettings = {
-      ...objectRecord(existing?.appSettings),
-      ...payload.app_settings,
-    }
+    const mergedAppSettings = mergeSyncedAppSettings(existing?.appSettings, payload.app_settings)
     const retainedChimerSettings = objectRecord(existing?.chimerSettings)
     // Always sanitize the returned projection against fresh access. Persist it
     // only when Chimer was explicitly supplied; unrelated patches must not

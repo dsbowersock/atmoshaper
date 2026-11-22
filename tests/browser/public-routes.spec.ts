@@ -4350,14 +4350,14 @@ test("anonymous registration legal gate routes through login before acceptance",
   expect(health.forbiddenRequests, "anonymous account sync requests").toEqual([])
 })
 
-test("register defaults new accounts toward post-account onboarding", async ({ page }) => {
+test("register defaults to Home before the optional account setup offer", async ({ page }) => {
   const health = await capturePageHealth(page, new Set())
 
   await page.goto("/register", { waitUntil: "domcontentloaded" })
 
   await expect(page.getByRole("heading", { name: /Create AtmoShaper account/i })).toBeVisible()
   await expect(page.getByRole("button", { name: /Create account/i })).toBeVisible()
-  await expect(page.getByRole("link", { name: /Sign in instead/i })).toHaveAttribute("href", "/login?callbackUrl=%2Fonboarding")
+  await expect(page.getByRole("link", { name: /Sign in instead/i })).toHaveAttribute("href", "/login?callbackUrl=%2F")
 
   expect(health.pageErrors, "uncaught page errors").toEqual([])
   expect(health.unexpectedExternalRequests, "unexpected external requests").toEqual([])

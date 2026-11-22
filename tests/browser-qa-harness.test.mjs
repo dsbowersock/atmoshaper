@@ -792,13 +792,17 @@ test("migration parity requires unique visible Pricing and route-owned Clock con
   assert.doesNotMatch(clock, /page\.getByTestId\("(?:chimer-premium-background|running-current-time)"\)/)
 })
 
-test("migration parity remounts Home at the G-proven clock phase without pixel allowances", async () => {
+test("historical migration parity retains its frozen Home capture alongside the new launcher", async () => {
   const spec = await readProjectFile("tests/browser/atmoshaper-repository-migration-parity.spec.ts")
-  const homeOwner = await readProjectFile("app/page.tsx")
+  const homeOwner = await readProjectFile("components/home/home-dashboard.tsx")
   const ringOwner = await readProjectFile("components/ui/metal-attention-button.tsx")
   const metal = await readProjectFile("node_modules/metal-fx/dist/index.es.js")
   assert.match(homeOwner, /data-testid="home-brand-wordmark"/)
-  assert.match(homeOwner, /<MetalAttentionButton asChild size="lg">/)
+  // The rebrand comparison fixture documents its original animated hero.
+  // Current Home intentionally replaces that hero with the reviewed launcher;
+  // its real browser journeys live in the Home dashboard acceptance fixture.
+  assert.match(homeOwner, /data-testid="home-launcher"/)
+  assert.doesNotMatch(homeOwner, /MetalAttentionButton|home-flip-word/)
   assert.match(ringOwner, /if \(reducedMotion\) \{\s*setMotionState\("paused"\)/)
   assert.match(ringOwner, /metalPaused=\{motionState === "paused"\}/)
   assert.match(metal, /startMs: performance\.now\(\)/)

@@ -16,21 +16,21 @@ export default async function Home() {
   const session = await getCurrentRscSession()
   const userId = session?.user?.id
   const signedIn = typeof userId === "string" && userId.length > 0
-  let onboarding = {}
-  let resumeSetup = false
-  if (signedIn) {
+  // Independent owner preference and navigation reads start together. A
+  // preference outage must still leave public tools usable without disclosure.
+  const [preference, navigationContext] = await Promise.all([(async () => {
+    if (!signedIn) return null
     try {
-      const preference = await prisma.userPreference.findUnique({
+      return await prisma.userPreference.findUnique({
         where: { userId }, select: { appSettings: true },
       })
-      onboarding = objectRecord(objectRecord(preference?.appSettings).onboarding)
-      resumeSetup = onboardingInvitationKind(preference?.appSettings) === "resume"
     } catch {
-      // Preference outages must not prevent access to public tools. Never log
-      // account data or expose provider errors through the client projection.
+      return null
     }
-  }
-  const navigation = resolveNavigation(await getSidebarNavigationContext(session?.user))
+  })(), getSidebarNavigationContext(session?.user)])
+  const onboarding = objectRecord(objectRecord(preference?.appSettings).onboarding)
+  const resumeSetup = onboardingInvitationKind(preference?.appSettings) === "resume"
+  const navigation = resolveNavigation(navigationContext)
   const dashboard = resolveHomeDashboard(onboarding, navigation.primaryNavigationGroups)
   return <HomeDashboard key={userId ?? "anonymous"} signedIn={signedIn} {...dashboard}
     setupReminder={resumeSetup && userId ? <OnboardingInvitation key={userId} ownerKey={userId} returnTo="/" kind="resume" inline /> : undefined}

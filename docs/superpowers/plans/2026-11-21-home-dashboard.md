@@ -18,8 +18,11 @@ publication is a separate request.
 5. Verify actual components on phone, tablet, desktop and short/narrow screens,
    both themes, keyboard operation, returning state and denied storage. Verify
    saved shortcut compatibility and permission-filtered Notes visibility.
-6. Update obsolete home tests, record concept/render comparisons, keep a
-   loopback preview with synthetic signed-in state for owner review.
+6. Update obsolete home tests and record concept/render comparisons. The
+   `npm run preview:home-dashboard` loopback preview is guest-only. Synthetic
+   signed-in/saved-shortcut states are exercised by the actual-component test
+   `node --test tests/home-product-identity-layout.test.mjs`; its screenshots in
+   `output/home-dashboard/` support review without a live account or sign-in.
 7. Owner-requested follow-up: extract the unchanged Clock implementation into a
    shared client screen; leave framework page entry points free of internal
    preview inputs. Regenerate real route types and pass the full type check,

@@ -5,6 +5,7 @@ import { describe, it } from "node:test"
 import {
   USER_PREFERENCES_VERSION,
   buildUserPreferencePayload,
+  mergeSyncedAppSettings,
 } from "../lib/account-preferences.js"
 import {
   backgroundPreferenceNormalizationOptions,
@@ -174,6 +175,7 @@ function loadRoute({
       "@/lib/account-preferences": {
         USER_PREFERENCES_VERSION,
         buildUserPreferencePayload,
+        mergeSyncedAppSettings,
       },
       "@/lib/account-surface-data": {
         clearAccountSurfaceDataCache: () => undefined,
@@ -229,6 +231,34 @@ function assertOwnedOnlySnapshot(settings) {
   assert.equal(settings.backgroundVisualPreferences.palette.mode, "custom")
   assert.equal(settings.primaryFontColor, "#010203")
 }
+
+it("ordinary sync preserves server-owned setup answers against older and current browser snapshots", async () => {
+  const route = loadRoute()
+  const current = {
+    onboarding: { primaryRole: "therapist", jurisdiction: "OH", homeShortcuts: ["chimer"], completedAt: "2030-01-02T12:00:00.000Z" },
+    onboardingSetup: { version: 1, phase: "completed", draftRevision: 8 },
+  }
+  route.readPreferenceRecord().appSettings = structuredClone(current)
+  for (const incoming of [
+    { onboarding: { primaryRole: "student", homeShortcuts: ["anatomime"] }, onboardingSetup: { version: 1, phase: "pending" } },
+    { onboarding: current.onboarding },
+    { onboarding: null, onboardingDraft: { answers: { primaryRole: "student" } } },
+  ]) {
+    const response = await route.PUT(new Request("https://massagelab.app/api/account/preferences", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ appSettings: { ...incoming, themeMode: "light" } }),
+    }))
+    assert.equal(response.status, 200)
+    assert.deepEqual(response.body.appSettings, { ...current, themeMode: "light" })
+    assert.deepEqual(route.readPreferenceRecord().appSettings, response.body.appSettings)
+  }
+  const fresh = loadRoute()
+  await fresh.PUT(new Request("https://massagelab.app/api/account/preferences", {
+    method: "PUT", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ appSettings: { onboarding: current.onboarding, themeMode: "dark" } }),
+  }))
+  assert.deepEqual(fresh.readPreferenceRecord().appSettings, { themeMode: "dark" }, "ordinary sync cannot create setup answers either")
+})
 
 function unownedSettings() {
   return {

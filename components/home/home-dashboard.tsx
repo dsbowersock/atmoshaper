@@ -40,6 +40,7 @@ export function HomeDashboard({signedIn,shortcuts,groups,setupReminder}: {
   const [panel,setPanel] = useState("all")
   const [panelOpen,setPanelOpen] = useState(false)
   const panelTrigger = useRef<HTMLButtonElement | null>(null)
+  const toolsHeading = useRef<HTMLHeadingElement | null>(null)
   const returning = signedIn || visited || visitedThisMount
   const selectedGroups = panel === "all" ? groups : groups.filter((group) => group.id === panel)
   const panelTitle = panel === "about" ? "About AtmoShaper" : panel === "all" ? "All tools" : panel === "education" ? "Study & play" : "Practice tools"
@@ -83,7 +84,7 @@ export function HomeDashboard({signedIn,shortcuts,groups,setupReminder}: {
       {setupReminder}
       <section aria-labelledby="home-tools-heading" className="space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <h2 id="home-tools-heading" className="text-xl font-semibold sm:text-2xl">{returning ? "Your tools" : "Start here"}</h2>
+          <h2 ref={toolsHeading} tabIndex={-1} id="home-tools-heading" className="text-xl font-semibold sm:text-2xl">{returning ? "Your tools" : "Start here"}</h2>
           <Button variant="ghost" disabled={!hydrated} className="min-h-11 px-2" onClick={(event) => openPanel("all",event.currentTarget)}>All tools <ChevronRight aria-hidden="true" /></Button>
         </div>
         <div data-testid="home-launcher" className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
@@ -107,7 +108,7 @@ export function HomeDashboard({signedIn,shortcuts,groups,setupReminder}: {
           <span aria-hidden="true" className="text-muted-foreground">·</span>
           <Button asChild variant="link" className="min-h-11 px-1 text-foreground"><Link href={signedIn ? "/account?tab=app-settings" : "/register"}>{signedIn ? "Account settings" : "Create an account"}</Link></Button>
         </div>
-        {!returning && <><p className="text-center text-xs text-muted-foreground">Use public tools without an account.</p><Button variant="link" disabled={!hydrated} className="min-h-11 text-muted-foreground" onClick={dismissIntroduction}>Use dashboard</Button></>}
+        {!returning && <><p className="text-center text-xs text-muted-foreground">Use public tools without an account.</p><Button variant="link" disabled={!hydrated} className="min-h-11 text-muted-foreground" onClick={() => {dismissIntroduction();toolsHeading.current?.focus()}}>Use dashboard</Button></>}
       </footer>
       <Sheet open={panelOpen} onOpenChange={setPanelOpen}>
         <SheetContent side="bottom" className="mx-auto max-h-[85dvh] max-w-2xl overflow-y-auto rounded-t-2xl pb-8 pt-6 motion-reduce:animate-none [&>button]:right-2 [&>button]:top-2 [&>button]:grid [&>button]:size-11 [&>button]:place-items-center" onCloseAutoFocus={(event) => {event.preventDefault();panelTrigger.current?.focus()}}>

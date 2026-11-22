@@ -159,8 +159,10 @@ describe("SEO route contract", () => {
       .join(" ")
       .toLowerCase()
 
-    assert.match(readProjectFile("app/page.tsx"), /massage anatomy flashcards/)
-    assert.match(readProjectFile("app/page.tsx"), /massage session timer/)
+    // The compact Home introduces the platform; the tool directory and route
+    // metadata retain the specific search descriptions without a crowded hero.
+    assert.match(readProjectFile("app/page.tsx"), /createpublicpagemetadata\("\/"\)/)
+    assert.match(readProjectFile("components/home/home-dashboard.tsx"), /everyday tools for wellbeing, learning and massage practice/)
     assert.match(readProjectFile("app/education/flashcards/page.tsx"), /massage anatomy flashcards/)
     assert.match(readProjectFile("app/anatomime/page.tsx"), /massage anatomy classroom game/)
     assert.match(readProjectFile("app/tools/business-planner/page.tsx"), /business planner/)

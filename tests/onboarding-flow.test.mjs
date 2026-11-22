@@ -19,6 +19,33 @@ const documents = [{ key: "terms", version: "existing-version", label: "Terms", 
 function redirect(destination) { throw Object.assign(new Error("redirect"), { destination }) }
 const goesTo = (destination) => (error) => error.destination === destination
 
+test("registration retains Login's legal-gate destination for both verification and OAuth", async () => {
+  const page = compile(await source("app/register/page.tsx"), "register-page.tsx", {
+    "react/jsx-runtime": jsx,
+    "@/lib/auth-env": { hasGoogleAuthConfig: () => true },
+    "@/lib/public-launch-controls": { getPublicLaunchControls: () => ({ registrationOpen: true }) },
+    "@/components/ui/app-surface": surfaces,
+    "./register-form": { RegisterForm: "register-form" },
+    "@/lib/legal-acceptance-gate": legalGate,
+  }).default
+  const handoff = legalGate.buildRegistrationLegalProviderRedirectPath("/wellness?view=feelings#record")
+  for (const [callbackUrl, expected] of [
+    [handoff, "/wellness?view=feelings#record"],
+    [[handoff, "/clock"], "/wellness?view=feelings#record"],
+    ["/legal/accept?callbackUrl=%2Fwellness&callbackUrl=%2Fclock&ignored=1", "/wellness"],
+    ["/legal/accept?callbackUrl=%2F%2Fevil.example", "/"],
+    ["/legal/accept?callbackUrl=%2Fapi%2Faccount%2Fpreferences", "/"],
+    ["/legal/accept?callbackUrl=%2Flegal%2Faccept%3FcallbackUrl%3D%252Fwellness", "/"],
+    ["/legal/accept?callbackUrl=%E0%A4%A", "/"],
+    [undefined, "/"],
+  ]) {
+    const tree = await page({ searchParams: Promise.resolve({ callbackUrl }) })
+    const registration = findElement(tree, (node) => node.type === "register-form")
+    assert.equal(registration.props.initialCallbackUrl, expected, JSON.stringify(callbackUrl))
+    assert.equal(legalGate.buildRegistrationLegalProviderRedirectPath(registration.props.initialCallbackUrl), legalGate.buildRegistrationLegalAcceptancePath(expected))
+  }
+})
+
 /** A fictional preference owner; all service writes must still target this owner. */
 function fixture(settings = { onboardingSetup: setup.initialOnboardingSetup() }) {
   const events = []

@@ -6,17 +6,20 @@ import { chromium, expect } from "@playwright/test"
 // with fictional settings and a fixed local clock; no real browser data changes.
 const origin = "http://127.0.0.1:3025"
 const directory = "output/clock-leading-period"
+const cases = [
+  ["phone-1am", 390, 844, 1, false, "12h"],
+  ["landscape-10pm", 844, 390, 22, false, "12h"],
+  ["desktop-noon", 1440, 900, 12, false, "12h"],
+  ["desktop-seconds", 1440, 900, 10, true, "12h"],
+  ["desktop-24h", 1440, 900, 23, true, "24h"],
+]
+// Reject a mistyped filter before acquiring resources or replacing a receipt.
+assert.ok(!process.env.CLOCK_CASE || cases.some(([name]) => name === process.env.CLOCK_CASE), "Unknown CLOCK_CASE")
 await mkdir(directory, { recursive: true })
 const browser = await chromium.launch()
 const receipts = []
 try {
-  for (const [name, width, height, hour, seconds, format] of [
-    ["phone-1am", 390, 844, 1, false, "12h"],
-    ["landscape-10pm", 844, 390, 22, false, "12h"],
-    ["desktop-noon", 1440, 900, 12, false, "12h"],
-    ["desktop-seconds", 1440, 900, 10, true, "12h"],
-    ["desktop-24h", 1440, 900, 23, true, "24h"],
-  ]) {
+  for (const [name, width, height, hour, seconds, format] of cases) {
     if (process.env.CLOCK_CASE && process.env.CLOCK_CASE !== name) continue
     const context = await browser.newContext({ viewport: { width, height }, locale: "en-US", timezoneId: "America/New_York", reducedMotion: "reduce", serviceWorkers: "block" })
     const page = await context.newPage(), errors = [], unexpected = []

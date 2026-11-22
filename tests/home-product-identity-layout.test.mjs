@@ -31,7 +31,9 @@ test("real home dashboard stays contained and supports visitor, returning and ac
         assert.ok(await page.getByRole("button",{name:"Use dashboard",exact:true}).evaluate((el)=>el.getBoundingClientRect().bottom<innerHeight-72))
         await page.screenshot({path:"output/home-dashboard/fixture-first-visit.png"})
       }
-      await page.getByRole("button",{name:"Use dashboard",exact:true}).click()
+      await page.getByRole("button",{name:"Use dashboard",exact:true}).focus()
+      await page.keyboard.press("Enter")
+      await expect(page.getByRole("heading",{name:"Your tools",exact:true})).toBeFocused()
       await expect(page.getByRole("heading",{name:"Your tools",exact:true})).toBeVisible()
       await page.reload()
       await expect(page.getByRole("heading",{name:"Your tools",exact:true})).toBeVisible()

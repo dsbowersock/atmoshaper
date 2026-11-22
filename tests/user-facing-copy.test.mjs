@@ -23,7 +23,7 @@ describe("user-facing copy", () => {
       readFile(new URL("../components/membership/pricing-cards.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/pricing/page.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/roadmap/page.tsx", import.meta.url), "utf8"),
-      readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../components/home/home-dashboard.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/api/billing/donation/route.ts", import.meta.url), "utf8"),
       readFile(new URL("../lib/stripe-billing.js", import.meta.url), "utf8"),
       readFile(new URL("../docs/wiki/billing-memberships.md", import.meta.url), "utf8"),
@@ -69,7 +69,8 @@ describe("user-facing copy", () => {
     assert.doesNotMatch(roadmapPage, /\bDonate\b/i)
     assert.doesNotMatch(roadmapPage, /Memberships and donations/i)
     assert.doesNotMatch(roadmapPage, /\bdonations?\b/i)
-    assert.match(homePage, /Memberships and one-time support help build/i)
+    assert.match(homePage, /Some features require membership/)
+    assert.match(homePage, /href:"\/pricing",title:"Memberships"/)
     assert.doesNotMatch(homePage, /\bdonations?\b/i)
 
     assert.match(donationRoute, /Unsupported one-time support amount/)
