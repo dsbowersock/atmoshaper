@@ -90,6 +90,9 @@ export function OnboardingDraftForm({ ownerKey, initialRevision, hasDraft, child
     setSubmitting(true)
     try {
       if (queued.current || active.current) { if (!await flush()) return }
+      // Finish may have waited behind autosave while the user chose a different
+      // page. Do not start the redirecting completion action after unmount.
+      if (!mounted.current) return
       if (conflicted.current) return
       const result = await saveOnboardingAction(ownerKey, revision.current, snapshot)
       if (result && !result.ok) {

@@ -37,6 +37,9 @@ results; the repository's actual lint, type and build checks remain required.
 - **Navigation after unmount:** finish an already captured draft save but never
   navigate to the old Leave destination after the form unmounts. The browser
   regression waits for the saved answers and verifies no stale navigation.
+  The bounded Codex correction review identifies the same wait-before-action
+  window on Finish. Guard it before starting the redirecting completion action;
+  a matching regression preserves the draft but starts no abandoned completion.
 - **Registration return task:** unwrap one recognized legal-gate callback and
   sanitize its nested destination. The actual Register page is exercised for
   ordinary, duplicate, unsafe, malformed and recursively nested callbacks.

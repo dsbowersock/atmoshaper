@@ -136,6 +136,18 @@ test("optional setup supports touch layouts, one claim, explicit choices, retry 
     assert.deepEqual(await departed.evaluate(() => window.__setupFixture.destinations), [], "save completion cannot navigate after the user has left")
     await departed.close()
 
+    const abandonedFinish = await browser.newPage()
+    abandonedFinish.on("pageerror", (error) => errors.push(error.message))
+    await abandonedFinish.goto(`${server.origin}/form?deferProgress`)
+    await expect.poll(() => abandonedFinish.evaluate(() => typeof window.__setupFixture.releaseProgress)).toBe("function")
+    await abandonedFinish.getByRole("textbox", { name: "Therapist state" }).fill("PA")
+    await abandonedFinish.getByRole("button", { name: "Save and continue", exact: true }).click()
+    await abandonedFinish.evaluate(() => { window.__setupFixture.unmount(); window.__setupFixture.deferProgress = false; window.__setupFixture.releaseProgress() })
+    await expect.poll(() => abandonedFinish.evaluate(() => window.__setupFixture.savedEntries.find(([key]) => key === "jurisdiction")?.[1])).toBe("PA")
+    assert.deepEqual(await abandonedFinish.evaluate(() => window.__setupFixture.finishes), [], "no redirecting completion starts after the form unmounts")
+    assert.deepEqual(await abandonedFinish.evaluate(() => window.__setupFixture.destinations), [])
+    await abandonedFinish.close()
+
     const failed = await browser.newPage()
     await failed.goto(`${server.origin}/form?failProgress`)
     await expect(failed.getByRole("alert")).toContainText("Couldn’t save progress")
