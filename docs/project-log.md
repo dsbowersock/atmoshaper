@@ -1,5 +1,28 @@
 # AtmoShaper Project Log
 
+## November 22 Home/setup/Clock reviewed release published
+
+Completed all source review amendments through `aaf422f`, including late
+completion navigation after unmount. Independent Codex closure and three
+completed CodeRabbit CLI correction ranges follow the initial actual full app
+review; no skip/quota response is counted as coverage. All ten review threads
+are resolved. All seven PR checks pass, including the full zero-failure suite.
+
+Took fresh service admission at 18:18 UTC, merged PR #79 once as `0eb02e0`, and
+verified its tree is identical to the reviewed source. The existing Git integration
+builds one staged Production artifact with unchanged settings. Read-only live
+readiness gates, TypeScript, both Sentry uploads and the actual script/map debug
+ID pair pass. Wait for all seven merged-source checks before promotion.
+
+Promoted the same artifact once; staged and public acceptance each verified 13
+routes, three Home viewport journeys, five Clock cases, both fonts and actual
+anonymous session behavior. Public script bytes/debug ID match the staged build.
+All six public mappings are correct; 41 unrelated baseline aliases and 87
+Production setting metadata entries remain unchanged. Keep READY `22010d0` for
+rollback; none is needed. No real account/payment/mail/legal/record write occurs.
+See the [publication receipt](audits/2026-11-22-home-onboarding-clock-publication.md).
+Closed with local documentation only, without triggering another app build.
+
 ## November 22 Home/setup/Clock initial reviews and grouped corrections
 
 The owner requests Codex and CodeRabbit review followed by publication. Preserve

@@ -1,18 +1,31 @@
 # AtmoShaper Project State
 
-## November 22 Home, optional setup and Clock publication in progress
+## November 22 Home, optional setup and Clock published and verified
 
-The owner authorizes separate Codex/CodeRabbit review, release checks and
-publication. PR #79 starts on the verified public baseline with the identical
-local candidate tree. Both reviewers complete substantive initial coverage;
-supported corrections protect save/leave navigation, registration callbacks,
-setup answers against old preference sync and Home keyboard focus. Test/tooling
-contracts and only the four intended Home wordmark baselines are updated.
-See the [review receipt](audits/2026-11-22-home-onboarding-clock-review.md).
-Corrected-source follow-up, full hosted CI and staged release gates remain
-pending. The public site has not changed under this operation yet.
+[PR #79](https://github.com/dsbowersock/atmoshaper/pull/79) is merged and public
+release `0eb02e0` is verified at https://www.atmoshaper.com/. Its tree exactly
+matches reviewed source `aaf422f`. Independent Codex and CodeRabbit review
+chains cover the final source; all ten review threads are resolved. All seven
+checks pass on both the PR and merged commit.
 
-## November 22 digital AM/PM in the leading clock space local for review
+Home now provides the compact balanced launcher, approved wordmark and orange
+Practice tools. Optional signup setup, saved drafts/continuation and permanent
+Account re-entry are published with owner/revision and stale-navigation guards.
+The Clock route type correction and leading digital AM/PM are published.
+
+The same staged Production artifact passes 13 route checks and eight native
+Home/Clock journeys before and after one promotion. Both digital font hashes
+and the actual Sentry script/map pair match. Actual Production anonymous session
+checks pass. All six public mappings change as intended; 41 unrelated baseline
+aliases and all 87 Production setting metadata entries are preserved. Prior
+READY `22010d0` remains available for rollback. No rollback or live account,
+payment, mail, legal-acceptance or clinical/calendar write occurs.
+See the [publication receipt](audits/2026-11-22-home-onboarding-clock-publication.md) and
+[review dispositions](audits/2026-11-22-home-onboarding-clock-review.md).
+This receipt is a local documentation closeout, without another application
+build. Other beta/provider work retains its separate status below.
+
+## November 22 digital AM/PM implementation and prepublication verification
 
 The owner requests moving AM/PM into the spare part of the first hour cell and
 restoring digital lettering. The shared current-time renderer now reserves
@@ -27,10 +40,10 @@ generation and ordinary full type checking pass. Actual local Clock acceptance
 and screenshots use fictional settings with inert services. See the
 [verification receipt](audits/2026-11-22-clock-meridiem.md) and
 [plan](superpowers/plans/2026-11-22-clock-meridiem.md).
-This remains unpublished with the home and onboarding changes; no live service
-or account operation occurs. Reviews and release gates remain pending.
+The local verification above precedes the completed PR #79 publication;
+the current release outcome is recorded at the top of this file.
 
-## November 21 optional onboarding and saved progress local for review
+## November 21 optional onboarding implementation and prepublication verification
 
 The owner requests optional setup after signup, independent account controls and
 an explicit setup entry in Account settings. They subsequently request saved
@@ -54,10 +67,10 @@ and the ordinary full type check both pass. The embedded browser also verifies
 saved-answer restoration and the continuation offer.
 See the [verification receipt](audits/2026-11-21-optional-onboarding.md) and
 [operative plan](superpowers/plans/2026-11-21-optional-onboarding.md).
-This remains unpublished with the home/Clock work. No live signup, email,
-provider/database change, migration or deployment is performed.
+The local verification above precedes PR #79 publication. Its completed
+reviews and release outcome are recorded at the top of this file.
 
-## November 21 compact home dashboard local for review
+## November 21 compact home dashboard implementation and prepublication verification
 
 Branch `codex/home-dashboard` replaces the crowded home page with a balanced
 six-area launcher, a short first-visitor introduction and returning-user mode.
@@ -75,13 +88,13 @@ thin and the development preview option remains internal to the shared screen.
 related regressions and focused lint pass. Home SSR hydration is also tested
 with its client script delayed. The embedded browser's stale-code warning is
 cleared in the refreshed http://localhost:3025/ preview, with working controls
-verified. Existing local data is preserved. Reviews and applicable release
-checks remain required before publication.
+verified. Existing local data is preserved. The later PR #79 review and release
+checks pass, as recorded above.
 
 The owner also requests the branded wordmark in the home header. The canonical
 existing wordmark replaces visible heading text, while a hidden text label
 preserves one accessible AtmoShaper heading. Phone layout, actual asset loading,
-SSR hydration and streamed-heading ownership checks pass. This remains local.
+SSR hydration and streamed-heading ownership checks pass. Published in PR #79.
 The Practice tools launcher uses the owner's requested orange button style.
 
 ## November 21 reviewed beta fixes published and verified
