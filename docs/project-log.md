@@ -1,5 +1,29 @@
 # AtmoShaper Project Log
 
+## November 22 practice payment workflows and Android foundation
+
+Record the owner's Stripe/Square appointment/deposit/prepayment/reviewed-fee
+scope, new-merchant onboarding and whole-platform Android expansion. Clarify
+that his own contractor business is the sole pilot; the salon remains outside.
+Check current official provider/native documentation and complete the Stripe
+implementation planning guide read-only, without financial/provider mutation.
+
+Isolate source from current public `0eb02e0`. Add integer-cents payment rules,
+scoped offline processor contracts and fictional mobile setup/booking/collection/
+fee review. All 20 focused cases and eight Chromium journeys pass, including
+consent invalidation on edits, prior-payment credit and processor-change reset.
+Correct the phone notice/button overlap after actual screenshot inspection.
+Focused lint, route type generation and the ordinary full type check pass.
+
+After explicit tool/license approval, verify official archive SHA-256 values
+and install the JDK/Gradle/Android SDK under ignored project output. Build the
+whole-platform browser-backed Android launcher with lint, inspect its actual
+debug signature/package/permissions and exclude native backup/transfer storage.
+No SDK payment capability or physical device success is claimed. The local
+receipt distinguishes all unfinished durable/provider/native/service/review/
+publication gates. Public traffic and existing services are unchanged. See the
+[verification receipt](audits/2026-11-22-practice-payments-android-foundation.md).
+
 ## November 22 Home/setup/Clock reviewed release published
 
 Completed all source review amendments through `aaf422f`, including late

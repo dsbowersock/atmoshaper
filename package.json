@@ -247,7 +247,13 @@
     "preview:optional-onboarding": "node scripts/start-optional-onboarding-preview.mjs",
     "test:clock-meridiem": "node --test tests/clock-meridiem-layout.test.mjs tests/timer-font-delivery.test.mjs tests/chimer-timer.test.mjs",
     "lint:clock-meridiem": "eslint app/chimer/current-time-display.tsx app/chimer/running-timer.tsx tests/clock-meridiem-layout.test.mjs tests/timer-font-delivery.test.mjs lib/chimer-clock-font-metrics.js scripts/verify-clock-meridiem-preview.mjs",
-    "verify:clock-meridiem-preview": "node scripts/verify-clock-meridiem-preview.mjs"
+    "verify:clock-meridiem-preview": "node scripts/verify-clock-meridiem-preview.mjs",
+    "test:practice-payments": "node --test tests/practice-payments.test.mjs",
+    "lint:practice-payments": "eslint lib/practice-payments components/payments/practice-payments-preview.tsx tests/practice-payments.test.mjs tests/practice-payments-browser.test.mjs tests/fixtures/practice-payments-preview.mjs scripts/start-practice-payments-preview.mjs scripts/android-build.mjs",
+    "preview:practice-payments": "node scripts/start-practice-payments-preview.mjs",
+    "test:practice-payments-browser": "node --test tests/practice-payments-browser.test.mjs",
+    "android:doctor": "node scripts/android-build.mjs doctor",
+    "android:build": "node scripts/android-build.mjs build"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

@@ -1,5 +1,29 @@
 # AtmoShaper Project State
 
+## November 22 practice payments and whole-platform Android foundation
+
+The owner requests optional Stripe/Square client payments and expands the mobile
+work to the whole AtmoShaper platform. The pilot is the owner's own contractor
+business using a separate Stripe merchant, not the salon. The accepted
+[specification](superpowers/specs/2026-11-22-practice-payments-android.md) and
+[plan](superpowers/plans/2026-11-22-practice-payments-android.md) preserve merchant
+ownership, explicit fee review and local clinical-record boundaries.
+
+Local source on `codex/practice-payments` adds pure payment rules, offline
+processor contracts, and a fictional four-step mobile preview at
+http://127.0.0.1:3034/. All 20 focused tests, eight Chromium processor/viewport
+journeys, focused lint and the ordinary full type check pass. No real payment
+endpoint or active application route is added. The Android launcher builds and
+passes Android lint using the owner-approved isolated official tools/license.
+Its actual debug APK and signing/manifest readback are local artifacts.
+
+This is the first foundation milestone, not working practice payment collection.
+Durable payment services, actual provider/web/native adapters, sandbox acceptance,
+S24 device tests, origin/release signing association, reviews and approved pilot/
+publication remain. No provider/DB/payment/email or public deployment change
+occurs; public source remains `0eb02e0`. See the
+[verification receipt](audits/2026-11-22-practice-payments-android-foundation.md).
+
 ## November 22 Home, optional setup and Clock published and verified
 
 [PR #79](https://github.com/dsbowersock/atmoshaper/pull/79) is merged and public

@@ -4,6 +4,10 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Practice payments and Android foundation verification](../audits/2026-11-22-practice-payments-android-foundation.md)
+- [Practice payments and whole-platform Android specification](../superpowers/specs/2026-11-22-practice-payments-android.md)
+- [Practice payments and Android implementation sequence](../superpowers/plans/2026-11-22-practice-payments-android.md)
+
 - [Published Home, optional setup and Clock verification](../audits/2026-11-22-home-onboarding-clock-publication.md)
 
 - [Home, optional setup and Clock release review](../audits/2026-11-22-home-onboarding-clock-review.md)
