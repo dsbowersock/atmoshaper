@@ -1,0 +1,123 @@
+import { Component, useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react"
+import { backgroundRegistry, getBackgroundDefinition, userCanUseBackground, type BackgroundAccessSnapshot } from "@/components/backgrounds/backgroundRegistry"
+import { resolveBackgroundEffectProps } from "@/components/backgrounds/resolveBackgroundEffectProps"
+import type { BackgroundEffectProps } from "@/components/backgrounds/effects/css-backgrounds"
+import { useAmbientReducedMotion } from "@/components/backgrounds/use-ambient-reduced-motion"
+import { createOfflineAccessStore, offlineBackgroundSnapshot, randomOfflineAccessId, verifyOfflineAccessReceipt, OFFLINE_ACCESS_REQUEST_TTL } from "@/lib/offline-background-access"
+import publicKeys from "@/native/offline-access-public-keys.json"
+import { Button } from "@/components/ui/button"
+import styles from "./offline-core.module.css"
+import { OfflineReducedMotion } from "./offline-moving-background"
+import { resolveDnaTwistedCubesBackgroundHostProps } from "@/lib/dna-twisted-cubes-background-host"
+
+const structuredDefaults = resolveDnaTwistedCubesBackgroundHostProps({ settings: {}, category: "clock" })
+
+/** A failed effect cannot take the clock/timer with it. A new selection retries. */
+class EffectBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+  static getDerivedStateFromError() { return { failed: true } }
+  render() { return this.state.failed ? null : this.props.children }
+}
+
+export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbColor, motion }: {
+  selectedId: string; access: BackgroundAccessSnapshot; mainColor: string; orbColor: string; motion: boolean
+}) {
+  const selected = getBackgroundDefinition(selectedId)
+  const entry = userCanUseBackground(selected, access) ? selected : getBackgroundDefinition("massage-lab-moving-gradient")
+  const [loaded, setLoaded] = useState<{ id: string; component: ComponentType<BackgroundEffectProps> } | null>(null)
+  const reduce = useAmbientReducedMotion(motion ? "system" : "reduced")
+  useEffect(() => {
+    let current = true
+    void entry.component?.().then(module => { if (current) setLoaded({ id: entry.id, component: module.default }) }).catch(() => { if (current) setLoaded(null) })
+    return () => { current = false }
+  }, [entry])
+  const effectProps = useMemo(() => resolveBackgroundEffectProps({
+    selectedId: entry.id, canCustomize: true,
+    palette: { mode: "custom", primaryColor: mainColor, swatches: [mainColor, orbColor] },
+    effectProps: { ...structuredDefaults, mainColor, orbColor, solidColor: mainColor, reduceMotion: reduce,
+      staticGradient: { type: "linear", angle: 145, colorCount: 2, colors: [mainColor, orbColor], stopPositions: [0, 100] } },
+  }), [entry.id, mainColor, orbColor, reduce])
+  const Effect = loaded?.id === entry.id ? loaded.component : null
+  return <div className={styles.background} data-offline-background={entry.id} style={entry.fallbackStyle}>
+    {Effect && <OfflineReducedMotion.Provider value={reduce}><EffectBoundary key={entry.id}><Effect {...effectProps} className={styles.surface} /></EffectBoundary></OfflineReducedMotion.Provider>}
+  </div>
+}
+
+/** Receipt acceptance is one serialized compare-and-replace, bound to the most
+ * recent user-requested challenge. Out-of-order browser returns never restore
+ * an older account's purchases. No session token enters this origin. */
+export function useOfflineBackgroundAccess() {
+  const [store] = useState(() => createOfflineAccessStore())
+  const [record, setRecord] = useState<any>(null)
+  const [claims, setClaims] = useState<any>(null)
+  const [message, setMessage] = useState("")
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => {
+    let current = true
+    void store.update(value => ({ ...value, lastSeen: Math.max(value.lastSeen, Date.now()) })).then(async value => {
+      if (current) setRecord(value)
+      try {
+        const verified = value.receipt ? await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys) : null
+        if (current) setClaims(verified)
+      } catch { if (current) setMessage("Saved access could not be verified. Refresh account access; free backgrounds remain available.") }
+    }).catch(() => { if (current) setMessage("Offline account access could not be loaded. Free backgrounds are available.") })
+    const tick = window.setInterval(() => setNow(Date.now()), 1000)
+    const remember = window.setInterval(() => { void store.update(value => ({ ...value, lastSeen: Math.max(value.lastSeen, Date.now()) })).then(value => { if (current) setRecord(value) }).catch(() => undefined) }, 30000)
+    return () => { current = false; window.clearInterval(tick); window.clearInterval(remember) }
+  }, [store])
+  useEffect(() => {
+    const receive = (event: Event) => {
+      delete (window as Window & { atmoOfflineReceipt?: string }).atmoOfflineReceipt
+      const receipt = (event as CustomEvent).detail
+      void store.update(async value => {
+        const verified = await verifyOfflineAccessReceipt(receipt, value.device, publicKeys)
+        if (!value.pending || verified.challenge !== value.pending.challenge || Date.now() > value.pending.at + OFFLINE_ACCESS_REQUEST_TTL
+          || verified.issuedAt < value.pending.at - 60000 || verified.issuedAt > Date.now() + 60000 || verified.issuedAt <= value.lastIssuedAt) throw new Error("This approval expired or was replaced. Verify access again from this app.")
+        return { ...value, receipt, pending: null, lastIssuedAt: verified.issuedAt, lastSeen: Math.max(value.lastSeen, Date.now()) }
+      }).then(async value => {
+        setClaims(await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys)); setRecord(value); setMessage("Background access saved for offline use.")
+      }).catch(error => setMessage(error instanceof Error ? error.message : "Offline access could not be saved."))
+    }
+    window.addEventListener("atmoshaper:offline-access", receive)
+    // Native launch returns can precede React's effect registration.
+    const pending = (window as Window & { atmoOfflineReceipt?: string }).atmoOfflineReceipt
+    if (pending) { delete (window as Window & { atmoOfflineReceipt?: string }).atmoOfflineReceipt; receive(new CustomEvent("atmoshaper:offline-access", { detail: pending })) }
+    return () => window.removeEventListener("atmoshaper:offline-access", receive)
+  }, [store])
+  async function refresh() {
+    try {
+      const value = await store.update(previous => ({ ...previous, pending: { challenge: randomOfflineAccessId(), at: Date.now() } }))
+      setRecord(value)
+      window.location.href = `https://www.atmoshaper.com/account/offline-access?device=${value.device}&challenge=${value.pending.challenge}`
+    } catch { setMessage("The app could not save a verification request. Retry when local storage is available.") }
+  }
+  async function forget() {
+    try {
+      const value = await store.update(() => ({ device: randomOfflineAccessId(), receipt: null, pending: null, lastIssuedAt: 0, lastSeen: Date.now() }))
+      setRecord(value); setClaims(null); setMessage("Account access removed from this app. Downloads and free tools are unchanged.")
+    } catch { setMessage("Account access could not be removed. Check local storage and retry.") }
+  }
+  return { access: claims ? offlineBackgroundSnapshot(claims, now, record?.lastSeen) : { featureKeys: [], ownedBackgroundIds: [] },
+    claims, message, refresh, forget, ready: publicKeys.length > 0 && record !== null }
+}
+
+export function OfflineBackgroundChoices({ selectedId, onSelect, account }: {
+  selectedId: string; onSelect(id: string): void; account: ReturnType<typeof useOfflineBackgroundAccess>
+}) {
+  const [search, setSearch] = useState("")
+  return <>
+    <div className={styles.downloadNotice}>
+      <p>All backgrounds are included on your device. Free backgrounds work immediately. Connect once to verify a subscription or individual purchase.</p>
+      <p>{account.claims?.premiumUntil ? `Premium background access verified through ${new Date(account.claims.premiumUntil).toLocaleString()}.` : "Purchased backgrounds have no scheduled expiry."} Refresh access after renewal or account changes.</p>
+      <Button variant="glow" disabled={!account.ready} onClick={() => void account.refresh()}>Verify or refresh account access</Button>
+      {account.claims && <Button variant="glow" onClick={() => void account.forget()}>Forget account access</Button>}
+      {!account.ready && <p>Online access verification requires the matching app and service activation.</p>}
+      <p role="status">{account.message}</p>
+    </div>
+    <label>Find a background<input className={styles.search} value={search} onChange={event => setSearch(event.target.value)} type="search" /></label>
+    <div className={styles.backgroundChoices}>{backgroundRegistry.filter(entry => entry.enabled && entry.label.toLowerCase().includes(search.toLowerCase())).map(entry => {
+      const allowed = userCanUseBackground(entry, account.access)
+      return <Button key={entry.id} variant={selectedId === entry.id && allowed ? "success" : "glow"} aria-pressed={selectedId === entry.id && allowed} disabled={!allowed} onClick={() => onSelect(entry.id)}>{entry.label}{!allowed ? " · Verify access online" : account.access.ownedBackgroundIds.includes(entry.id) ? " · Owned" : ""}</Button>
+    })}</div>
+  </>
+}

@@ -28,7 +28,9 @@ test("Android APK cold-launches and retains timer/background state in airplane m
   assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
   assert.equal(shell("shell","settings","get","global","mobile_data"),"0")
   shell("install","-r",apk)
-  assert.doesNotMatch(shell("shell","dumpsys","package",pkg),/android\.permission\.INTERNET/)
+  // Downloads need Internet permission; this core check still starts cold with
+  // airplane mode enabled and never depends on a successful network request.
+  assert.match(shell("shell","dumpsys","package",pkg),/android\.permission\.INTERNET/)
   assert.equal(shell("shell","pm","clear",pkg),"Success")
   shell("shell","am","start","-n",`${pkg}/com.atmoshaper.app.MainActivity`)
   const devices=await android.devices({omitDriverInstall:true})
@@ -107,7 +109,7 @@ test("Android APK cold-launches and retains timer/background state in airplane m
     if(evidence)await writeFile(path.join(evidence,"android-breathing.png"),await device.screenshot())
     assert.deepEqual(errors,[])
     assert.ok(requests.every(url=>url.startsWith("https://appassets.androidplatform.net/assets/core/")))
-    const proof={apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),airplaneMode:true,wifi:false,cellular:false,internetPermission:false,firstLaunch:true,processRestart:true,coreToolsPassed:true,assetCount:manifest.files.length,physicalDeviceVerified:false,checkedAt:new Date().toISOString()}
+    const proof={apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),airplaneMode:true,wifi:false,cellular:false,internetPermission:true,firstLaunch:true,processRestart:true,coreToolsPassed:true,assetCount:manifest.files.length,physicalDeviceVerified:false,checkedAt:new Date().toISOString()}
     await writeFile(path.join(root,"output/android/offline-emulator-proof.json"),JSON.stringify(proof,null,2))
   }finally{await Promise.all(devices.map(item=>item.close()))}
 })

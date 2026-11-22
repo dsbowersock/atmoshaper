@@ -24,16 +24,27 @@ async function resetOutput() {
 }
 
 /** Build actual product components into an app-owned, network-free asset set. */
-export async function buildOfflineCore() {
+export async function buildOfflineCore({ testPublicKeysPath = null } = {}) {
+  // Only acceptance can substitute an ephemeral public authority. The normal
+  // Android build never supplies this argument and cannot ship a test key.
+  if (testPublicKeysPath && path.resolve(testPublicKeysPath) !== path.join(root, "output/offline-acceptance-public-keys.json")) throw new Error("Unexpected receipt acceptance key path.")
   await resetOutput()
   const { webpack } = require("next/dist/compiled/webpack/webpack")
   const compiler = webpack({
     mode: "production", target: ["web", "es2020"], devtool: false,
     entry: path.join(root, "native/web/index.tsx"),
     output: { path: coreRoot, filename: "app.js", publicPath: "./" },
-    resolve: { alias: { "@": root }, modules: [path.join(root, "node_modules"), "node_modules"], extensions: [".tsx", ".ts", ".js", ".mjs"] },
+    resolve: { alias: {
+      "@/native/offline-access-public-keys.json$": testPublicKeysPath ?? path.join(root, "native/offline-access-public-keys.json"),
+      "@/components/moving-background$": path.join(root, "native/web/offline-moving-background.tsx"),
+      "regenerator-runtime/runtime.js$": path.join(root, "lib/atmosphere/regenerator-runtime-shim.js"),
+      "tone$": path.join(root, "node_modules/tone/build/esm/index.js"),
+      "@": root,
+    }, modules: [path.join(root, "node_modules"), "node_modules"], extensions: [".tsx", ".ts", ".js", ".mjs"] },
     module: { rules: [
-      { test: /\.tsx?$/, exclude: /node_modules/, use: [path.join(root, "scripts/loaders/offline-typescript-loader.cjs")] },
+      { test: /\.m?js$/, resolve: { fullySpecified: false } },
+      { scheme: "data", type: "asset/inline" },
+      { test: /\.tsx?$/, exclude: /node_modules/, use: [path.join(root, "scripts/loaders/offline-typescript-loader.cjs"), path.join(root, "scripts/loaders/offline-local-assets-loader.cjs")] },
       { test: /\.module\.css$/, use: [path.join(root, "scripts/loaders/offline-style-loader.cjs"), {
         loader: path.join(root, "scripts/loaders/offline-css-loader.cjs"),
         options: { esModule: true, postcss: async () => ({ postcss: require("postcss") }), modules: {
@@ -48,13 +59,20 @@ export async function buildOfflineCore() {
     // minifier path in this standalone compiler. APK compression handles size.
     optimization: { minimize: false, splitChunks: false, runtimeChunk: false },
     performance: { hints: false },
-    plugins: [new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("production") })],
+    // No .env values enter the native client. Shared public metadata may read
+    // absent optional web bindings; provide an empty compile-time environment.
+    plugins: [new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("production"), "process.env": "{}" })],
   })
   const modules = await new Promise((resolve, reject) => compiler.run((error, stats) => {
     let failure = error, sources
     try {
       if (!failure && stats.hasErrors()) failure = new Error(stats.toString({ all: false, errors: true }))
-      if (!failure) sources = [...stats.compilation.modules].map(module => module.resource).filter(Boolean)
+      if (!failure) {
+        const resources = new Set()
+        const visit = module => { if (module.resource) resources.add(module.resource); if (module.modules) for (const nested of module.modules) visit(nested) }
+        for (const module of stats.compilation.modules) visit(module)
+        sources = [...resources]
+      }
     } catch (cause) { failure = cause }
     compiler.close(cause => failure || cause ? reject(failure || cause) : resolve(sources))
   }))
@@ -70,12 +88,44 @@ export async function buildOfflineCore() {
     await copyFile(path.join(root, "public/fonts/dseg", name), path.join(coreRoot, "fonts/dseg", name))
   }
   await copyFile(path.join(root, "public", PUBLIC_PRODUCT_IDENTITY.assets.appBarWordmark), path.join(coreRoot, "wordmark.png"))
-  await writeFile(path.join(coreRoot, "index.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'"><title>AtmoShaper Offline Tools</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./app.css"></head><body><div id="root"></div><script defer src="./app.js"></script></body></html>`)
+  await mkdir(path.join(coreRoot, "textures"), { recursive: true })
+  for (const [name, expected] of [
+    ["earth-blue-marble.jpg", "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01"],
+    ["earth-topology.png", "839b12da2e4dd346b256cebae72e10c479a102c8980a22084c41275e4b9a0e12"],
+  ]) {
+    const source = path.join(root, "output/offline-textures", name)
+    const payload = await readFile(source).catch(() => { throw new Error("Run npm run prepare:offline-textures before this build.") })
+    if (createHash("sha256").update(payload).digest("hex") !== expected) throw new Error("Offline globe texture checksum mismatch.")
+    await copyFile(source, path.join(coreRoot, "textures", name))
+  }
+  await writeFile(path.join(coreRoot, "THIRD-PARTY-NOTICES.txt"), await offlineNotices(modules))
+  await writeFile(path.join(coreRoot, "index.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: https://media.atmoshaper.com/atmosphere/; frame-src 'none'; worker-src blob:; base-uri 'none'; form-action 'none'"><title>AtmoShaper Offline Tools</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./app.css"></head><body><div id="root"></div><script defer src="./app.js"></script></body></html>`)
   const files = await fileInventory(coreRoot)
-  const manifest = { version: 1, entry: "core/index.html", networkRequired: false, tools: ["clock", "timer", "breathing", "backgrounds"], sourceModuleCount: modules.length, files }
+  const manifest = { version: 1, entry: "core/index.html", networkRequired: false, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["clock", "timer", "breathing", "backgrounds", "music"], sourceModuleCount: modules.length, files }
   await writeFile(path.join(bundleRoot, "bundle-proof.json"), JSON.stringify(manifest, null, 2))
   console.log(JSON.stringify({ entry: manifest.entry, fileCount: files.length, bytes: files.reduce((sum, item) => sum + item.bytes, 0), networkRequired: false }))
   return manifest
+}
+
+/** Retain license notices for every bundled package, plus the existing globe
+ * image source's MIT notice. Audio credits remain attached to catalog entries. */
+async function offlineNotices(modules) {
+  const packages = new Set()
+  for (const resource of modules) {
+    const parts = resource.replaceAll("\\", "/").split("/node_modules/")
+    if (parts.length < 2) continue
+    const tail = parts.at(-1).split("/")
+    packages.add(tail[0].startsWith("@") ? tail.slice(0, 2).join("/") : tail[0])
+  }
+  const notices = []
+  for (const name of [...packages].sort()) {
+    const directory = path.join(root, "node_modules", name)
+    const entries = await readdir(directory).catch(() => [])
+    const license = entries.find(value => /^(?:licen[cs]e|copying|notice)(?:[.-]|$)/i.test(value))
+    if (license) notices.push(name + "\n" + await readFile(path.join(directory, license), "utf8"))
+  }
+  notices.push("Globe textures: three-globe v2.31.0, example/img; https://github.com/vasturiano/three-globe/tree/v2.31.0/example/img\n" + await readFile(path.join(root, "native/three-globe-LICENSE.txt"), "utf8"))
+  return notices.join("\n\n---\n\n")
 }
 
 async function fileInventory(directory, prefix = "core") {

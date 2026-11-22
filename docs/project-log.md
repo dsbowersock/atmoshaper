@@ -1,5 +1,29 @@
 # AtmoShaper Project Log
 
+## November 22 downloaded audio and offline background access implementation
+
+Implement the owner's expanded native scope: explicit complete station/sound
+downloads, strict durable pack saves, size/hash checks, cancellation/removal,
+local-only generation and ambient scheduler playback, with generated noise.
+Preserve existing public catalogs, sample IDs, source sequencing and rights.
+Metadata-only reads verify all 57 station dependency closures. Actual offline
+browser playback verifies Little Bells and one existing ambient category.
+
+Bundle all 84 enabled background renderers and the existing globe image bytes.
+Use the existing palette/default-geometry contracts, including required DNA/
+Twisted Cubes inputs found by the all-renderer acceptance. Add signed background
+capabilities derived from canonical feature provenance and active ownership;
+subscriptions expire at their verified finite date and individual ownership
+has no scheduled expiry. Synthetic acceptance covers expiry, revocation and
+replay without touching any real account. Normal builds contain no synthetic
+authority; live signing keys/configuration and publication remain unapproved.
+
+Prepare Android's narrow public-media HTTP adapter and external-browser receipt
+handoff. No account cookies/remote HTML/generic script bridge is introduced.
+Final integrated checks, exact-APK emulator acceptance and bounded source review
+are in progress. See the
+[plan](superpowers/plans/2026-11-22-offline-audio-background-access.md).
+
 ## November 22 offline native core and actual airplane-mode acceptance
 
 Implement the owner's priority Clock/timer/breathing/background slice with a

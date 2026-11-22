@@ -1,25 +1,26 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
-import { Clock3, Hourglass, Wind, Palette, Pause, Play, RotateCcw, Maximize, Minimize } from "lucide-react"
+import { Clock3, Hourglass, Wind, Palette, Music, Pause, Play, RotateCcw, Maximize, Minimize } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CurrentTimeDisplay } from "@/app/chimer/current-time-display"
 import { AtmosphereBreathingGuide } from "@/components/atmosphere/breathing-guide"
-import { MovingGradientSurface } from "@/components/backgrounds/moving-gradient-surface"
 import { formatCurrentTimeParts, formatDurationParts } from "@/lib/chimer-timer"
 import { getChimerClockFontMetrics } from "@/lib/chimer-clock-font-metrics"
-import { buildStaticGradientCss } from "@/lib/static-gradient-background"
 import { playChimerChime } from "@/lib/chimer-chime"
 import {
-  OFFLINE_CORE_BACKGROUNDS, defaultOfflineCoreState,
+  defaultOfflineCoreState,
   getOfflineTimerInterval, readOfflineTimer, startOfflineTimer, pauseOfflineTimer, resumeOfflineTimer,
 } from "@/lib/offline-core"
 import type { createOfflineCoreStorage } from "@/lib/offline-core-storage"
 import styles from "./offline-core.module.css"
+import { OfflineAudio } from "./offline-audio"
+import { OfflineBackgroundChoices, OfflineBackgroundSurface, useOfflineBackgroundAccess } from "./offline-backgrounds"
 
 const tools = [
   { id: "clock", title: "Clock", icon: Clock3, variant: "ctaBlue" },
   { id: "timer", title: "Timer", icon: Hourglass, variant: "default" },
   { id: "breathing", title: "Breathing", icon: Wind, variant: "cta" },
   { id: "backgrounds", title: "Backgrounds", icon: Palette, variant: "success" },
+  { id: "music", title: "Music", icon: Music, variant: "glow" },
 ] as const
 
 /** The bundled entry uses only device-owned preferences and local product code.
@@ -28,6 +29,7 @@ export function OfflineCoreApp({ store, initial }: {
   store: ReturnType<typeof createOfflineCoreStorage>,
   initial: { state: ReturnType<typeof defaultOfflineCoreState>, ready: boolean },
 }) {
+  const account = useOfflineBackgroundAccess()
   const [state, setState] = useState(initial.state)
   const [now, setNow] = useState(() => Date.now())
   const [message, setMessage] = useState("")
@@ -127,10 +129,7 @@ export function OfflineCoreApp({ store, initial }: {
   }
 
   return <main className={`${styles.app} ${immersive ? styles.immersive : ""} ${flash ? styles.flash : ""}`} data-offline-save-state={saveStatus}>
-    <div className={styles.background} data-offline-background={state.backgroundId}>
-      {state.backgroundId === "massage-lab-moving-gradient" ? <MovingGradientSurface className={styles.surface} mainColor={state.mainColor} orbColor={state.orbColor} motionEnabled={state.motion} />
-        : <div className={styles.surface} style={{ background: state.backgroundId === "solid-color" ? state.mainColor : buildStaticGradientCss({ type: "linear", angle: 145, colorCount: 2, colors: [state.mainColor, state.orbColor], stopPositions: [0, 100] }) }} />}
-    </div>
+    <OfflineBackgroundSurface selectedId={state.backgroundId} access={account.access} mainColor={state.mainColor} orbColor={state.orbColor} motion={state.motion} />
     <header className={styles.header}>
       {/* eslint-disable-next-line @next/next/no-img-element -- Packaged local PNG, without a Next image server. */}
       <img src="./wordmark.png" alt="AtmoShaper" width="188" height="54" />
@@ -157,13 +156,14 @@ export function OfflineCoreApp({ store, initial }: {
         <p className={styles.hint}>Your end time is saved on this device. Alerts play while the app is open.</p>
       </section>
       <section className={`${styles.tool} ${styles.breathing}`} hidden={state.tool !== "breathing"} aria-labelledby="breathing-title"><div className={styles.title}><h1 id="breathing-title">Breathing guide</h1><span>One calm breath at a time.</span></div><AtmosphereBreathingGuide /></section>
-      <section className={styles.tool} hidden={state.tool !== "backgrounds"} aria-labelledby="backgrounds-title">
+      <section className={`${styles.tool} ${styles.longTool}`} hidden={state.tool !== "backgrounds"} aria-labelledby="backgrounds-title">
         <div className={styles.title}><h1 id="backgrounds-title">Backgrounds</h1><span>Included on your device</span></div>
-        <div className={styles.backgroundChoices}>{OFFLINE_CORE_BACKGROUNDS.map(background => <Button key={background.id} variant={state.backgroundId === background.id ? "success" : "glow"} aria-pressed={state.backgroundId === background.id} onClick={() => setState(previous => ({ ...previous, backgroundId: background.id }))}>{background.label}</Button>)}</div>
+        <OfflineBackgroundChoices selectedId={state.backgroundId} account={account} onSelect={backgroundId => setState(previous => ({ ...previous, backgroundId }))} />
         <div className={styles.colors}><label>Main color<input type="color" value={state.mainColor} onChange={event => setState(previous => ({ ...previous, mainColor: event.target.value }))} /></label>{state.backgroundId !== "solid-color" && <label>Second color<input type="color" value={state.orbColor} onChange={event => setState(previous => ({ ...previous, orbColor: event.target.value }))} /></label>}</div>
-        {state.backgroundId === "massage-lab-moving-gradient" && <label className={styles.check}><input type="checkbox" checked={state.motion} onChange={event => setState(previous => ({ ...previous, motion: event.target.checked }))} />Animate Lava Lamp</label>}
-        <p className={styles.hint}>These backgrounds need no download or connection. Your choice stays with Clock, timer and breathing.</p>
+        <label className={styles.check}><input type="checkbox" checked={state.motion} onChange={event => setState(previous => ({ ...previous, motion: event.target.checked }))} />Animate backgrounds</label>
+        <p className={styles.hint}>Backgrounds need no download. Your accessible choice stays with every tool.</p>
       </section>
+      <section className={`${styles.tool} ${styles.longTool}`} hidden={state.tool !== "music"} aria-label="Music and Atmosphere"><OfflineAudio /></section>
       <p className={styles.status} role="status">{saveStatus === "failed" ? "Changes could not be saved on this device. Keep the app open to retain this timer." : saveStatus === "saving" ? "Saving on this device…" : message}</p>
     </div>
     <nav className={styles.nav} aria-label="Offline tools">{tools.map(tool => <Button key={tool.id} variant={tool.variant} aria-current={state.tool === tool.id ? "page" : undefined} onClick={() => { setState(previous => ({ ...previous, tool: tool.id })); setImmersive(false) }}><tool.icon aria-hidden="true" /><span>{tool.title}</span></Button>)}</nav>

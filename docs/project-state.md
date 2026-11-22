@@ -1,5 +1,28 @@
 # AtmoShaper Project State
 
+## November 22 offline audio and signed background access candidate
+
+The owner expands the native milestone to explicitly downloaded generative
+stations/Atmosphere sounds and all backgrounds subject to verified access.
+The local candidate lists all 57 generators and 51 reviewed ambient concepts,
+stores complete checked packs with strict commit, and plays from local bytes.
+Actual Little Bells generation and ambient playback pass a network-disabled
+browser restart without audio requests. All 84 enabled background renderers
+load offline under synthetic signed access; expiry, permanent ownership,
+authoritative revocation and stale-return rejection pass that browser flow.
+
+Native downloads now require Internet permission, but startup and saved
+playback remain local. Native HTTP is restricted to existing public audio GETs
+with no redirects/cookies; browser account verification has a separate signed,
+install/challenge-bound receipt handoff. The public verifier key list is empty
+and the live issuer is unconfigured: no real premium access is fabricated.
+
+Final integrated source checks, exact-APK Android audio acceptance and a bounded
+review are in progress. Physical S24, live signing/provider configuration,
+account verification publication and release approval remain. No provider,
+database/payment/email or Production change occurs. See the
+[implementation and acceptance plan](superpowers/plans/2026-11-22-offline-audio-background-access.md).
+
 ## November 22 offline Android core built and verified
 
 The app now packages Clock, timer, breathing and all three existing free

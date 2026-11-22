@@ -259,7 +259,14 @@
     "test:offline-core-browser": "node --test tests/offline-core-browser.test.mjs",
     "lint:offline-core": "eslint lib/offline-core*.js native/web components/moving-background.tsx components/backgrounds/moving-gradient-surface.tsx scripts/build-offline-core.mjs scripts/loaders/offline-*.cjs scripts/android-build.mjs tests/offline-core*.test.mjs lib/chimer-chime.js app/chimer/chimer-screen.tsx lib/chimer-timer.js",
     "test:offline-core-android": "node --test tests/offline-core-android.test.mjs",
-    "test:offline-core-regression": "node --test --test-concurrency=2 tests/background-options.test.mjs tests/background-animation-autonomy.test.mjs tests/static-gradient-background.test.mjs tests/motion-preferences.test.mjs"
+    "test:offline-core-regression": "node --test --test-concurrency=2 tests/background-options.test.mjs tests/background-animation-autonomy.test.mjs tests/static-gradient-background.test.mjs tests/motion-preferences.test.mjs",
+    "prepare:offline-textures": "node scripts/prepare-offline-textures.mjs",
+    "test:offline-media": "node --test tests/offline-media.test.mjs tests/offline-background-access.test.mjs",
+    "test:offline-media-browser": "node --test tests/offline-media-browser.test.mjs",
+    "check:offline-station-catalog": "node scripts/check-offline-station-catalog.mjs",
+    "lint:offline-media": "eslint lib/offline-media.js lib/offline-background-access.js lib/server/offline-background-receipt.ts lib/atmoshaper/ambient-audio-runtime.ts native/web app/account/offline-access app/api/account/offline-background-access scripts/build-offline-core.mjs scripts/prepare-offline-textures.mjs scripts/check-offline-station-catalog.mjs tests/offline-media*.test.mjs tests/offline-background-access.test.mjs",
+    "test:offline-background-browser": "node --test tests/offline-background-browser.test.mjs",
+    "test:offline-media-android": "node --test tests/offline-media-android.test.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
