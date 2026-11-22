@@ -1,5 +1,112 @@
 # AtmoShaper Project State
 
+## November 22 Home, optional setup and Clock publication in progress
+
+The owner authorizes separate Codex/CodeRabbit review, release checks and
+publication. PR #79 starts on the verified public baseline with the identical
+local candidate tree. Both reviewers complete substantive initial coverage;
+supported corrections protect save/leave navigation, registration callbacks,
+setup answers against old preference sync and Home keyboard focus. Test/tooling
+contracts and only the four intended Home wordmark baselines are updated.
+See the [review receipt](audits/2026-11-22-home-onboarding-clock-review.md).
+Corrected-source follow-up, full hosted CI and staged release gates remain
+pending. The public site has not changed under this operation yet.
+
+## November 22 digital AM/PM in the leading clock space local for review
+
+The owner requests moving AM/PM into the spare part of the first hour cell and
+restoring digital lettering. The shared current-time renderer now reserves
+stable hour cells, hides the 12-hour leading zero and places the label inside
+the first cell. The final time digit has no trailing label consuming row width.
+The same author's unmodified DSEG14 Modern Bold companion supplies clear AM/PM
+letters beside unchanged DSEG7 Modern Bold numbers. Other selected fonts,
+localized labels, 24-hour mode, seconds and the existing fitter are preserved.
+
+All 111 focused clock/font checks and 238 entry-point regressions pass. Type
+generation and ordinary full type checking pass. Actual local Clock acceptance
+and screenshots use fictional settings with inert services. See the
+[verification receipt](audits/2026-11-22-clock-meridiem.md) and
+[plan](superpowers/plans/2026-11-22-clock-meridiem.md).
+This remains unpublished with the home and onboarding changes; no live service
+or account operation occurs. Reviews and release gates remain pending.
+
+## November 21 optional onboarding and saved progress local for review
+
+The owner requests optional setup after signup, independent account controls and
+an explicit setup entry in Account settings. They subsequently request saved
+unfinished progress and an offer to continue on return. New accounts receive
+one Start guided setup / Not now invitation after the existing verification and
+legal acceptance gates. Ordinary sign-in no longer forces the onboarding form.
+Existing accounts are not retroactively prompted.
+
+Guided setup autosaves a constrained account draft separately from applied
+preferences. Save & leave and Finish wait for acknowledgement. Returning to Home
+or signing in can offer one continuation for an unfinished started draft;
+declining/consuming that offer ends further automatic reminders while preserving
+the draft in Account settings. Owner checks, serialized saves, owner-row locking
+and monotonic revisions protect against cross-account replies, stale tabs,
+preference-sync replay and late autosaves after completion.
+
+All 167 focused account/auth/setup checks and 94 home regressions pass. Native
+browser checks cover phone/tablet/desktop choices, draft persistence, shortcut
+reorder, continuation and failures using a fictional local account. Focused lint
+and the ordinary full type check both pass. The embedded browser also verifies
+saved-answer restoration and the continuation offer.
+See the [verification receipt](audits/2026-11-21-optional-onboarding.md) and
+[operative plan](superpowers/plans/2026-11-21-optional-onboarding.md).
+This remains unpublished with the home/Clock work. No live signup, email,
+provider/database change, migration or deployment is performed.
+
+## November 21 compact home dashboard local for review
+
+Branch `codex/home-dashboard` replaces the crowded home page with a balanced
+six-area launcher, a short first-visitor introduction and returning-user mode.
+Study/practice and All tools open focused sheets; explicit account shortcuts
+retain their order and destinations. The shared shell/player and record privacy
+boundaries are preserved. No provider write, remote push or publication occurs.
+
+The loopback guest preview is available through `npm run preview:home-dashboard`.
+See the [design and verification receipt](audits/2026-11-21-home-dashboard.md)
+for screenshots, responsive checks, limitations and remaining release gates.
+The owner subsequently requests the Clock type-check correction. The unchanged
+screen is extracted into `app/chimer/chimer-screen.tsx`; page entry points stay
+thin and the development preview option remains internal to the shared screen.
+`npm run typegen` and the normal full `npm run typecheck` now pass. All 238
+related regressions and focused lint pass. Home SSR hydration is also tested
+with its client script delayed. The embedded browser's stale-code warning is
+cleared in the refreshed http://localhost:3025/ preview, with working controls
+verified. Existing local data is preserved. Reviews and applicable release
+checks remain required before publication.
+
+The owner also requests the branded wordmark in the home header. The canonical
+existing wordmark replaces visible heading text, while a hidden text label
+preserves one accessible AtmoShaper heading. Phone layout, actual asset loading,
+SSR hydration and streamed-heading ownership checks pass. This remains local.
+The Practice tools launcher uses the owner's requested orange button style.
+
+## November 21 reviewed beta fixes published and verified
+
+[PR #78](https://github.com/dsbowersock/atmoshaper/pull/78) is merged and public
+release `22010d0` is verified at https://www.atmoshaper.com/. Its tree exactly
+matches reviewed source `f243ff4`. Final Codex and CodeRabbit reviews have no
+findings/actionable findings, all 14 threads are resolved, and all seven checks
+pass on both PR and merged source. The completed review chains cover all 43
+changed code/test paths; no skipped/rate-limited review is counted as completion.
+
+The same staged artifact is promoted once. Staged/public acceptance verifies
+23 routes, 12 native phone/desktop journeys, both actual fictional planner PDFs,
+Sentry script/map pairing, fonts/model/artwork and canonical routing. All six
+public mappings move to the verified release, while 40 unrelated mappings and
+all 87 Production setting metadata entries are preserved. Prior READY `d7e30e0`
+remains available for rollback. No additional live payment, email, scheduling or
+clinical-record write is performed. See the
+[publication receipt](audits/2026-11-21-reviewed-fixes-publication.md).
+
+This supersedes the pending-publication statuses below. Backup/recovery fixes
+are published as repository source; **NAS activation remains separate** and is
+not claimed complete. The final closeout is local documentation only, with no
+new application build or promotion.
+
 ## November 21 abandoned Calendar request amendment
 
 CodeRabbit's complete 13-path review at `7da07ef` raises one minor supported

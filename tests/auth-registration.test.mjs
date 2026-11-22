@@ -209,7 +209,7 @@ describe("registration email delivery policy", () => {
       "prevent-default",
       "begin:email",
       "sign-in:credentials",
-      "push:/legal/accept?callbackUrl=%2Faccount",
+      "push:/legal/accept?callbackUrl=%2F",
       "refresh",
     ])
 
@@ -243,7 +243,7 @@ describe("registration email delivery policy", () => {
       "prevent-default",
       "begin:email",
       "sign-in:credentials",
-      "push:/legal/accept?callbackUrl=%2Faccount",
+      "push:/legal/accept?callbackUrl=%2F",
       "refresh",
       "finish",
     ])
@@ -304,7 +304,7 @@ describe("registration email delivery policy", () => {
     assert.match(loginForm, /const requestedCallbackUrl = searchParams\.get\("callbackUrl"\)/)
     assert.match(
       loginForm,
-      /isRegistrationLegalAcceptancePath\(requestedCallbackUrl\)[\s\S]*buildRegistrationLegalProviderRedirectPath\(requestedCallbackUrl\)[\s\S]*safePostLegalAcceptanceCallback\(requestedCallbackUrl, "\/account"\)/,
+      /isRegistrationLegalAcceptancePath\(requestedCallbackUrl\)[\s\S]*buildRegistrationLegalProviderRedirectPath\(requestedCallbackUrl\)[\s\S]*safePostLegalAcceptanceCallback\(requestedCallbackUrl, "\/"\)/,
     )
     assert.match(
       loginForm,
@@ -368,11 +368,11 @@ describe("registration email delivery policy", () => {
       new URL(
         buildVerificationEmailUrl("https://www.massagelab.app", "token-safe", "https://example.com"),
       ).searchParams.get("callbackUrl"),
-      "/onboarding",
+      "/",
     )
     assert.equal(
       buildVerificationLoginPath(false, "https://example.com"),
-      "/login?callbackUrl=%2Fonboarding",
+      "/login?callbackUrl=%2F",
     )
 
     const unsafeCallbacks = [
@@ -387,14 +387,14 @@ describe("registration email delivery policy", () => {
       const unsafeVerificationUrl = new URL(
         buildVerificationEmailUrl("https://www.massagelab.app", "token-safe", unsafeCallback),
       )
-      assert.equal(unsafeVerificationUrl.searchParams.get("callbackUrl"), "/onboarding")
+      assert.equal(unsafeVerificationUrl.searchParams.get("callbackUrl"), "/")
       assert.equal(
         buildVerificationLoginPath(false, unsafeCallback),
-        "/login?callbackUrl=%2Fonboarding",
+        "/login?callbackUrl=%2F",
       )
       assert.equal(
         buildVerificationLoginPath(true, unsafeCallback),
-        "/login?callbackUrl=%2Fonboarding&verified=1",
+        "/login?callbackUrl=%2F&verified=1",
       )
     }
 
@@ -410,14 +410,14 @@ describe("registration email delivery policy", () => {
         token: ["token-safe", "token-repeated"],
         callbackUrl: ["//example.com", callbackUrl],
       }),
-      { token: "", callbackUrl: "/onboarding" },
+      { token: "", callbackUrl: "/" },
     )
     assert.deepEqual(
       normalizeEmailVerificationParams({
         token: "token-safe",
         callbackUrl: [callbackUrl, "/other"],
       }),
-      { token: "token-safe", callbackUrl: "/onboarding" },
+      { token: "token-safe", callbackUrl: "/" },
     )
 
     let delivered
@@ -434,7 +434,7 @@ describe("registration email delivery policy", () => {
     assert.deepEqual(delivered, {
       email: "person@example.com",
       token: "token-safe",
-      callbackUrl: "/onboarding",
+      callbackUrl: "/",
     })
 
     assert.match(authMail, /buildVerificationEmailUrl\(getSiteUrl\(\), token, callbackUrl\)/)

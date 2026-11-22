@@ -12,7 +12,7 @@ const providerPath = new URL("../components/backgrounds/BackgroundCommerceProvid
 const commerceClientPath = new URL("../lib/background-commerce-client.js", import.meta.url)
 const layoutPath = new URL("../components/layout-wrapper.tsx", import.meta.url)
 const carouselPath = new URL("../components/backgrounds/background-carousel.tsx", import.meta.url)
-const chimerPath = new URL("../app/chimer/page.tsx", import.meta.url)
+const chimerPath = new URL("../app/chimer/chimer-screen.tsx", import.meta.url)
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const require = createRequire(import.meta.url)
 

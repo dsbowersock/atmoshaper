@@ -16,7 +16,7 @@ const loadCompiledModule = createCompiledModuleLoader(import.meta.url)
 const reviewPath = new URL("../components/backgrounds/BackgroundCheckoutReview.tsx", import.meta.url)
 const cartPath = new URL("../components/backgrounds/BackgroundCommerceCart.tsx", import.meta.url)
 const returnPath = new URL("../components/backgrounds/BackgroundCheckoutReturnStatus.tsx", import.meta.url)
-const chimerPagePath = new URL("../app/chimer/page.tsx", import.meta.url)
+const chimerPagePath = new URL("../app/chimer/chimer-screen.tsx", import.meta.url)
 const setTimerPath = new URL("../app/chimer/set-timer.tsx", import.meta.url)
 
 describe("background checkout review", () => {

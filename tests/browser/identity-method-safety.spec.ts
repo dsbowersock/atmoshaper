@@ -260,7 +260,7 @@ test.describe("public account-entry recovery", () => {
     await expect(page.locator("body")).not.toContainText("private-provider-id-991")
 
     expect(requests).toBe(3)
-    expect(requestBody).toEqual({ email: submittedEmail, callbackUrl: "/onboarding" })
+    expect(requestBody).toEqual({ email: submittedEmail, callbackUrl: "/" })
     expect(page.url()).not.toContain(submittedEmail)
     expect(new URL(page.url()).searchParams.has("email")).toBe(false)
     expect(providerRequests).toEqual([])

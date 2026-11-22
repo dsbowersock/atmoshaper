@@ -25,6 +25,14 @@ const GOOGLE_ACCOUNT = {
 }
 
 describe("registerPasswordAccount", () => {
+  it("never resets a declined setup invitation when an existing account requests registration again", async () => {
+    const user = existingUser({ emailVerified: null, passwordCredential: { passwordHash: "stored-hash" }, preference: { appSettings: { onboardingSetup: { version: 1, phase: "skipped" } } } })
+    const db = createRegistrationDatabase({ user })
+    await registerPasswordAccount(registrationInput(db))
+    await db.runScheduledDeliveries()
+    assert.equal(db.userCreateAttempts, 0)
+    assert.equal(db.preferences[0].appSettings.onboardingSetup.phase, "skipped")
+  })
   it("consumes both quotas before hashing or account work and creates the complete account atomically", async () => {
     const db = createRegistrationDatabase()
 
@@ -36,6 +44,9 @@ describe("registerPasswordAccount", () => {
     assert.deepEqual(db.events.slice(0, 5), ["limit:ACCOUNT", "limit:NETWORK", "delivery.schedule", "normalized-email.query", "hashPassword"])
     assert.equal(db.users.length, 1)
     assert.equal(db.profiles.length, 1)
+    assert.deepEqual(db.preferences, [{
+      userId: db.users[0].id, appSettings: { onboardingSetup: { version: 1, phase: "pending" } },
+    }])
     assert.equal(db.passwordCredentials.length, 1)
     assert.equal(db.verificationTokens.length, 1)
     assert.equal(db.legalAcceptances.length, DOCUMENTS.length)
@@ -56,6 +67,7 @@ describe("registerPasswordAccount", () => {
     assert.equal(db.userCreateAttempts, 1)
     assert.equal(db.sentExistingMessages.length, 1)
     assert.equal(db.sentVerificationMessages.length, 0)
+    assert.deepEqual(db.preferences, [], "a lost creation race must not seed or reset the winning account")
   })
 
   for (const [name, constraint] of [
@@ -424,6 +436,7 @@ function createRegistrationDatabase({
   let state = {
     users: user ? [structuredClone(user)] : [],
     profiles: [],
+    preferences: user?.preference ? [{ userId: user.id, ...structuredClone(user.preference) }] : [],
     passwordCredentials: user?.passwordCredential ? [{ userId: user.id, ...structuredClone(user.passwordCredential) }] : [],
     verificationTokens: [],
     resetTokens: [],
@@ -476,6 +489,7 @@ function createRegistrationDatabase({
           const created = { id: "user-new", email: data.email, name: data.name, emailVerified: null }
           snapshot.users.push(created)
           snapshot.profiles.push({ userId: created.id, ...data.profile.create })
+          if (data.preference?.create) snapshot.preferences.push({ userId: created.id, ...data.preference.create })
           snapshot.passwordCredentials.push({ userId: created.id, ...data.passwordCredential.create })
           snapshot.verificationTokens.push({ id: "verification-new", userId: created.id, consumedAt: null, ...data.emailVerificationTokens.create })
           return structuredClone(created)
@@ -573,6 +587,7 @@ function createRegistrationDatabase({
   Object.defineProperties(database, {
     users: { get: () => state.users },
     profiles: { get: () => state.profiles },
+    preferences: { get: () => state.preferences },
     passwordCredentials: { get: () => state.passwordCredentials },
     verificationTokens: { get: () => state.verificationTokens },
     resetTokens: { get: () => state.resetTokens },

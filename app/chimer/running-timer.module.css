@@ -423,6 +423,7 @@
 }
 
 .currentTimeRow {
+  position: relative;
   display: inline-flex;
   grid-area: 1 / 1;
   align-items: center;
@@ -451,13 +452,32 @@
   justify-content: center;
   margin-left: 0.035em;
   margin-right: 0.035em;
-  font-family: var(--chimer-clock-label-font-family, var(--chimer-display-font-family));
+  font-family: var(--chimer-clock-meridiem-font-family, var(--chimer-display-font-family));
   font-size: 0.22em;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
   text-align: center;
+  text-transform: uppercase;
   transform: translateY(0.04em);
+}
+
+/* This wrapper keeps the digit-sized ch unit while its label uses smaller type.
+   Being out of flow gives the fitted clock the width formerly used by AM/PM. */
+.currentTimeLeadingMeridiem {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  display: inline-flex;
+  width: calc(var(--chimer-clock-digit-width, 0.54em) * 0.64);
+  align-items: center;
+  justify-content: center;
+}
+
+.currentTimeLeadingMeridiem .currentTimeMeridiem {
+  margin: 0;
+  font-size: 0.18em;
+  transform: none;
 }
 
 .currentTimeInlineMeridiem {

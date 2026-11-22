@@ -1732,7 +1732,7 @@ test("global constrained landscape rail keeps route transitions, vinyl geometry,
       return
     }
     if (route === "home") {
-      await page.getByRole("link", { name: "Open wellness", exact: true }).first().click()
+      await page.getByTestId("home-launcher").getByRole("link", { name: "Wellness", exact: true }).click()
       const wellnessLandmark = page.getByRole("heading", { name: "Wellness", exact: true, level: 1 })
       if (wellnessHoldActive && wellnessHold) {
         await wellnessHold.waitForRequest()

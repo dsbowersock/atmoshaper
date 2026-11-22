@@ -24,7 +24,7 @@ const runningTimerStyles = readFileSync(
   "utf8",
 )
 const runningTimerSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-const chimerPageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+const chimerPageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 const backgroundSelectorSource = readFileSync(
   new URL("../components/backgrounds/BackgroundSelector.tsx", import.meta.url),
   "utf8",
@@ -914,7 +914,7 @@ describe("premium background registry", () => {
       "utf8",
     )
     const musicWorkspaceSource = readFileSync(new URL("../app/browse/workspace.tsx", import.meta.url), "utf8")
-    const chimerPageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const chimerPageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const chimerRunningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
     const setupControlsSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
 
@@ -962,7 +962,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-light-speed/)
     assert.match(registrySource, /Light Speed/)
@@ -1021,7 +1021,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-electric-mist/)
     assert.match(registrySource, /Electric Mist/)
@@ -1087,7 +1087,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-astral-flow/)
     assert.match(registrySource, /Astral Flow/)
@@ -1154,7 +1154,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-deep-space-nebula/)
     assert.match(registrySource, /Deep Space Nebula/)
@@ -1217,7 +1217,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-grid-bloom/)
     assert.match(registrySource, /Grid Bloom/)
@@ -1297,7 +1297,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-chrome-flow/)
     assert.match(registrySource, /Chrome Flow/)
@@ -1369,7 +1369,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-wave-current/)
     assert.match(registrySource, /Waves/)
@@ -1442,7 +1442,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-ferrofluid/)
@@ -1525,7 +1525,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-lightfall/)
@@ -1623,7 +1623,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-liquid-ether/)
@@ -1762,7 +1762,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-prism/)
@@ -1893,7 +1893,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
     const controlSource = readFileSync(
       new URL("../components/chimer-controls/DarkVeilBackgroundControls.tsx", import.meta.url),
@@ -2038,7 +2038,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-light-pillar/)
@@ -2149,7 +2149,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-silk/)
@@ -2241,7 +2241,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-floating-lines/)
@@ -2348,7 +2348,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-side-rays/)
@@ -2439,7 +2439,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-light-rays/)
@@ -2528,7 +2528,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-pixel-blast/)
@@ -2635,7 +2635,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-color-bends/)
@@ -2734,7 +2734,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-evil-eye/)
@@ -2829,7 +2829,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-line-waves/)
@@ -2927,7 +2927,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-radar/)
@@ -3031,7 +3031,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-soft-aurora/)
@@ -3135,7 +3135,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-plasma/)
@@ -3217,7 +3217,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-plasma-wave/)
@@ -3307,7 +3307,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-particles/)
@@ -3400,7 +3400,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-gradient-blinds/)
@@ -3492,7 +3492,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-grainient/)
@@ -3592,7 +3592,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-grid-scan/)
@@ -3706,7 +3706,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-beams/)
@@ -3781,7 +3781,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-pixel-snow/)
@@ -3858,7 +3858,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-lightning/)
@@ -3931,7 +3931,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-prismatic-burst/)
@@ -4022,7 +4022,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-galaxy/)
@@ -4110,7 +4110,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-dither/)
@@ -4193,7 +4193,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-faulty-terminal/)
@@ -4286,7 +4286,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-ripple-grid/)
@@ -4386,7 +4386,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-dot-field/)
@@ -4472,7 +4472,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-dot-grid/)
@@ -4557,7 +4557,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-threads/)
@@ -4621,7 +4621,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-iridescence/)
@@ -4687,7 +4687,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-waves/)
@@ -4761,7 +4761,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-grid-distortion/)
@@ -4837,7 +4837,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     const cases = [
@@ -5112,7 +5112,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-novatrix/)
     assert.match(registrySource, /Novatrix Field/)
@@ -5187,7 +5187,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-matrix-rain/)
     assert.match(registrySource, /Matrix Rain/)
@@ -5257,7 +5257,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-photon-beam/)
     assert.match(registrySource, /Photon Beam/)
@@ -5363,7 +5363,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-3d-globe/)
@@ -5530,7 +5530,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-retro-grid/)
@@ -5608,7 +5608,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const docsSource = readFileSync(new URL("../docs/background-sources.md", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-aerial-rays/)
@@ -5970,7 +5970,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-synthesis/)
     assert.match(registrySource, /Synthesis/)
@@ -6019,7 +6019,7 @@ describe("premium background registry", () => {
   })
 
   it("keeps selected visual backgrounds off setup while restoring the shared site backdrop", () => {
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
 
     assert.doesNotMatch(pageSource, /<BackgroundHost/)
@@ -6031,7 +6031,7 @@ describe("premium background registry", () => {
   })
 
   it("aligns editor and renderer customization with selected-background access", () => {
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
     const hostSource = readFileSync(
       new URL("../components/backgrounds/BackgroundHost.tsx", import.meta.url),
       "utf8",
@@ -6160,7 +6160,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-stars/)
     assert.match(registrySource, /Star field/)
@@ -6208,7 +6208,7 @@ describe("premium background registry", () => {
     )
     const setupSource = readFileSync(new URL("../app/chimer/set-timer.tsx", import.meta.url), "utf8")
     const runningSource = readFileSync(new URL("../app/chimer/running-timer.tsx", import.meta.url), "utf8")
-    const pageSource = readFileSync(new URL("../app/chimer/page.tsx", import.meta.url), "utf8")
+    const pageSource = readFileSync(new URL("../app/chimer/chimer-screen.tsx", import.meta.url), "utf8")
 
     assert.match(registrySource, /massage-lab-hole/)
     assert.match(registrySource, /Depth well/)

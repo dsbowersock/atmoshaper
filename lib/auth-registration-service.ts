@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "@prisma/client"
 import type { consumeEmailWorkRateLimit } from "./auth-rate-limit.ts"
 import { resolveNormalizedUserId } from "./normalized-user-email.ts"
 import { isUserEmailUniqueConstraint } from "./prisma-identity-unique-constraint.ts"
+import { initialOnboardingSetup } from "./onboarding-setup.js"
 
 export type PublicAuthWorkResult =
   | { status: "ACCEPTED" }
@@ -104,6 +105,7 @@ async function runRegistrationAccountWork(
           name: input.name,
           passwordCredential: { create: { passwordHash } },
           profile: { create: { displayName: input.name } },
+          preference: { create: { appSettings: { onboardingSetup: initialOnboardingSetup() } } },
           emailVerificationTokens: {
             create: {
               email,

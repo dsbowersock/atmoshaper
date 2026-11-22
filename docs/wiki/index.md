@@ -4,6 +4,16 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Home, optional setup and Clock release review](../audits/2026-11-22-home-onboarding-clock-review.md)
+
+- [Clock leading AM/PM and digital lettering](../audits/2026-11-22-clock-meridiem.md)
+
+- [Optional setup, saved progress and continuation](../audits/2026-11-21-optional-onboarding.md)
+
+- [Local home dashboard design and verification](../audits/2026-11-21-home-dashboard.md)
+
+- [Published reviewed beta fixes and final verification](../audits/2026-11-21-reviewed-fixes-publication.md)
+
 - [Release PR review corrections](../audits/2026-11-21-release-review-corrections.md)
 
 - [Publication of the reviewed beta fixes](../superpowers/plans/2026-11-21-reviewed-fixes-publication.md)

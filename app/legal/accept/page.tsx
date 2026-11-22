@@ -13,6 +13,7 @@ import { createNoindexPageMetadata } from "@/lib/seo"
 import { acceptRegistrationLegalDocumentsAction } from "./actions"
 import { AppInset, AppPageShell, AppSurface } from "@/components/ui/app-surface"
 import { Button } from "@/components/ui/button"
+import { postSignInSetupDestination } from "@/lib/onboarding-setup-service"
 
 export const dynamic = "force-dynamic"
 
@@ -42,7 +43,7 @@ export default async function RegistrationLegalAcceptancePage({
   })
 
   if (alreadyAccepted) {
-    redirect(callbackUrl)
+    redirect(await postSignInSetupDestination(prisma,session.user.id,callbackUrl))
   }
 
   const showMissingMessage = params.legal === "registration-required"

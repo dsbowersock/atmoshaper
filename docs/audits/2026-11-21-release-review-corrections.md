@@ -1,5 +1,13 @@
 # Release PR review corrections
 
+**Closed:** the actual `7da07ef..f243ff4` five-path follow-up completes with no
+actionable findings; current-source Codex has none and all 14 threads resolve.
+PR #78 is published as `22010d0` after seven passing PR checks, seven passing
+merged-source checks and same-artifact staged/public acceptance. The
+[publication receipt](2026-11-21-reviewed-fixes-publication.md) supersedes the
+pending review/publication gates recorded at the checkpoints below. NAS script
+activation remains separate.
+
 PR [#78](https://github.com/dsbowersock/atmoshaper/pull/78) receives a substantive
 full CodeRabbit review of all 57 selected paths at `bf58dca`. It raises eight
 issues: five code behaviors and three outdated status passages. Codex's review

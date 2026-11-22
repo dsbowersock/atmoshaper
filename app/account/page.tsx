@@ -450,8 +450,8 @@ async function OverviewTab({ userId, sessionUser }: { userId: string; sessionUse
           <AccountActionLink
             href="/onboarding"
             icon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
-            title="Tune your starting path"
-            description={`Update the role and tool priorities ${PUBLIC_PRODUCT_IDENTITY.name} uses to shape account shortcuts.`}
+            title="Guided account setup"
+            description="Optional help with your preferences and shortcuts. You can also edit your profile and settings directly."
           />
           {sessionUser.capabilities?.canManageAnatomyContent ? (
             <AccountActionLink

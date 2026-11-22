@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 import { createCompiledModuleLoader } from "./helpers/compiled-module.mjs"
+import * as onboardingSetup from "../lib/onboarding-setup.js"
 import { consumeFreshGoogleReauth, isFreshConsumedGoogleReauth } from "../lib/auth-method-intent-proof.ts"
 import {
   noStoreJsonHeaders,
@@ -31,6 +32,7 @@ async function loadService({
 } = {}) {
   const source = await readFile(new URL("../lib/auth-method-intents.ts", import.meta.url), "utf8")
   return loadCompiledModule(source, "auth-method-intents.test.ts", {
+    "./onboarding-setup.js": onboardingSetup,
     "@/lib/auth-env": { getAuthSecret: () => "intent-test-secret" },
     "@/lib/auth-security": { normalizeEmail: (value) => typeof value === "string" ? value.trim().toLowerCase() : "" },
     "@/lib/auth-users": { ensureUserRole: async () => "USER" },
@@ -138,7 +140,7 @@ describe("private Google auth-method intents", () => {
       })
       assert.equal(
         db.intent(started.intentId).callbackPath,
-        "/legal/accept?callbackUrl=%2Fonboarding",
+        "/legal/accept?callbackUrl=%2F",
         label,
       )
       assert.ok(db.intent(started.intentId).callbackPath.length <= 2048, label)
@@ -283,6 +285,9 @@ describe("private Google auth-method intents", () => {
     assert.equal(result.created, true)
     assert.equal(db.state.users[0].email, "family@example.com")
     assert.equal(db.state.users[0].profile.create.displayName, "Family Person")
+    assert.deepEqual(db.state.users[0].preference.create, {
+      appSettings: { onboardingSetup: { version: 1, phase: "pending" } },
+    })
     assert.deepEqual(db.state.accounts[0], {
       id: "account-1", userId: result.userId, type: "oauth", provider: "google", providerAccountId: "google-sub-a",
     })
@@ -301,7 +306,10 @@ describe("private Google auth-method intents", () => {
       },
     })
     const db = createIntentDatabase({
-      users: [{ id: "existing-google-user", email: "existing@example.com", emailVerified: new Date() }],
+      users: [{
+        id: "existing-google-user", email: "existing@example.com", emailVerified: new Date(),
+        preference: { appSettings: { onboardingSetup: { version: 1, phase: "skipped" } } },
+      }],
       accounts: [{
         id: "existing-google-account",
         userId: "existing-google-user",
@@ -319,6 +327,7 @@ describe("private Google auth-method intents", () => {
     assert.deepEqual(result, { kind: "CONTINUE", userId: "existing-google-user" })
     assert.equal(db.intent(intent.intentId).status, "CONSUMED")
     assert.deepEqual(provisionedUserIds, [])
+    assert.equal(db.state.users[0].preference.appSettings.onboardingSetup.phase, "skipped")
   })
 
   it("keeps matching-email Google proof available for same-account linking while registration is paused", async () => {

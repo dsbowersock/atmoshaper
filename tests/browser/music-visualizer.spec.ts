@@ -486,6 +486,9 @@ test("anonymous visualizer journey preserves playback, exact origin, and stopped
 test("Music Show clock persists across reload without changing ordinary Clock", async ({ page }) => {
   await seedDeviceVisualizer(page, { backgroundId: "static-gradient", showClock: false })
   await page.goto("/clock?source=music&returnTo=%2Fmusic", { waitUntil: "domcontentloaded" })
+  // App Router can retain a hidden outgoing stage until hydration commits.
+  // Require one settled owner before asserting its visibility and controls.
+  await expect(page.getByLabel("Music visualizer")).toHaveCount(1)
   await expect(page.getByLabel("Music visualizer")).toBeVisible()
   await page.getByRole("button", { name: "Clock", exact: true }).click()
   const musicShowClock = page.getByRole("switch", { name: /^Show clock:/ })

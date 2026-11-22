@@ -223,7 +223,7 @@ describe("verification resend form contract", () => {
       "/verify-email?callbackUrl=%2Fclock%3Fsource%3Dmusic%26panel%3Dbackground",
     )
     for (const unsafeCallback of ["//example.com/clock", "https://example.com/clock", "/api/account/preferences"]) {
-      assert.equal(buildVerificationRequestPath(unsafeCallback), "/verify-email?callbackUrl=%2Fonboarding")
+      assert.equal(buildVerificationRequestPath(unsafeCallback), "/verify-email?callbackUrl=%2F")
     }
     assert.match(loginSource, /buildVerificationRequestPath\(callbackUrl\)/)
     assert.match(loginSource, /href=\{verificationRequestHref\}[\s\S]*Resend verification email/)
