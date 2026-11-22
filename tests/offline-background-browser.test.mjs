@@ -89,6 +89,51 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
     await expect(page.getByText("This approval expired or was replaced. Verify access again from this app.", { exact: true })).toBeVisible()
     await page.getByLabel("Find a background").fill(premium[0].label)
     await expect(page.getByRole("button", { name: `${premium[0].label} · Verify access online`, exact: true })).toBeDisabled()
+    // A duplicate rejected return must not invalidate a prior committed result
+    // whose final verification is still pending.
+    const duplicate = await requestReceipt({ premiumUntil: null, owned: [premium[1].id] })
+    await page.evaluate(() => {
+      let count = 0
+      const verify = crypto.subtle.verify.bind(crypto.subtle)
+      window.__restoreOfflineVerification = () => { crypto.subtle.verify = verify }
+      crypto.subtle.verify = (...args) => {
+        const result = verify(...args)
+        if (++count !== 2) return result
+        return new Promise(resolve => { window.__releaseOfflineVerification = () => result.then(resolve) })
+      }
+    })
+    await page.evaluate(receipt => window.dispatchEvent(new CustomEvent("atmoshaper:offline-access", { detail: receipt })), duplicate)
+    await expect.poll(() => page.evaluate(() => Boolean(window.__releaseOfflineVerification))).toBe(true)
+    await page.evaluate(receipt => window.dispatchEvent(new CustomEvent("atmoshaper:offline-access", { detail: receipt })), duplicate)
+    await expect(page.getByText("This approval expired or was replaced. Verify access again from this app.", { exact: true })).toBeVisible()
+    await page.evaluate(async () => { await window.__releaseOfflineVerification(); window.__restoreOfflineVerification() })
+    await page.getByLabel("Find a background").fill(premium[1].label)
+    await expect(page.getByRole("button", { name: `${premium[1].label} · Owned`, exact: true })).toBeEnabled()
+    // Native browser handoff leaves this document alive. A 204 navigation models
+    // that while initial saved-receipt verification is intentionally delayed.
+    await page.addInitScript(() => {
+      if (!sessionStorage.getItem("delay-saved-offline-verification")) return
+      sessionStorage.removeItem("delay-saved-offline-verification")
+      const verify = crypto.subtle.verify.bind(crypto.subtle)
+      let first = true
+      crypto.subtle.verify = (...args) => {
+        const result = verify(...args)
+        if (!first) return result
+        first = false
+        return new Promise(resolve => { window.__releaseSavedVerification = () => result.then(resolve) })
+      }
+    })
+    await page.evaluate(() => sessionStorage.setItem("delay-saved-offline-verification", "1"))
+    await page.reload()
+    await expect.poll(() => page.evaluate(() => Boolean(window.__releaseSavedVerification))).toBe(true)
+    await page.route("https://www.atmoshaper.com/account/offline-access?**", route => route.fulfill({ status: 204 }))
+    const handoff = page.waitForRequest(url => url.url().startsWith("https://www.atmoshaper.com/account/offline-access?"))
+    await page.getByRole("button", { name: "Verify or refresh account access", exact: true }).click()
+    await handoff
+    await page.evaluate(async () => { await window.__releaseSavedVerification() })
+    await page.getByLabel("Find a background").fill(premium[1].label)
+    await expect(page.getByRole("button", { name: `${premium[1].label} · Owned`, exact: true })).toBeEnabled()
+    await page.unroute("https://www.atmoshaper.com/account/offline-access?**")
     // Delay the post-commit verification, forget the account, then release the
     // old completion. It must not resurrect removed access in memory or on disk.
     const delayed = await requestReceipt({ premiumUntil: null, owned: [premium[0].id] })

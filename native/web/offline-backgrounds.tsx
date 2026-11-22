@@ -54,24 +54,33 @@ export function useOfflineBackgroundAccess() {
   const [claims, setClaims] = useState<any>(null)
   const [message, setMessage] = useState("")
   const [now, setNow] = useState(Date.now)
+  const recordRef = useRef<any>(null)
+  // Forget invalidates all older work. Refresh changes only the pending nonce;
+  // rejected/duplicate replies must not invalidate an already committed receipt.
   const epoch = useRef(0)
   useEffect(() => {
     let current = true
     const startedAtEpoch = epoch.current
     void store.update(value => ({ ...value, lastSeen: Math.max(value.lastSeen, Date.now()) })).then(async value => {
-      if (current) setRecord(value)
+      if (!current || epoch.current !== startedAtEpoch) return
+      recordRef.current = value; setRecord(value)
       try {
         const verified = value.receipt ? await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys) : null
-        if (current && epoch.current === startedAtEpoch) setClaims(verified)
+        if (current && epoch.current === startedAtEpoch && recordRef.current?.device === value.device && recordRef.current?.receipt === value.receipt) setClaims(verified)
       } catch { if (current && epoch.current === startedAtEpoch) setMessage("Saved access could not be verified. Refresh account access; free backgrounds remain available.") }
     }).catch(() => { if (current) setMessage("Offline account access could not be loaded. Free backgrounds are available.") })
     const tick = window.setInterval(() => setNow(Date.now()), 1000)
-    const remember = window.setInterval(() => { void store.update(value => ({ ...value, lastSeen: Math.max(value.lastSeen, Date.now()) })).then(value => { if (current) setRecord(value) }).catch(() => undefined) }, 30000)
+    const remember = window.setInterval(() => {
+      const operationEpoch = epoch.current
+      void store.update(value => ({ ...value, lastSeen: Math.max(value.lastSeen, Date.now()) })).then(value => {
+        if (current && operationEpoch === epoch.current) { recordRef.current = value; setRecord(value) }
+      }).catch(() => undefined)
+    }, 30000)
     return () => { current = false; window.clearInterval(tick); window.clearInterval(remember) }
   }, [store])
   useEffect(() => {
     const receive = (event: Event) => {
-      const operationEpoch = ++epoch.current
+      const operationEpoch = epoch.current
       delete (window as Window & { atmoOfflineReceipt?: string }).atmoOfflineReceipt
       const receipt = (event as CustomEvent).detail
       void store.update(async value => {
@@ -82,8 +91,10 @@ export function useOfflineBackgroundAccess() {
         // corrected device clock; an offline cache cannot reset this floor.
         return { ...value, receipt, pending: null, lastIssuedAt: verified.issuedAt, lastSeen: Math.max(verified.issuedAt, Date.now()) }
       }).then(async value => {
-        const verified = await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys)
         if (operationEpoch !== epoch.current) return
+        recordRef.current = value; setRecord(value)
+        const verified = await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys)
+        if (operationEpoch !== epoch.current || recordRef.current?.device !== value.device || recordRef.current?.receipt !== value.receipt) return
         setClaims(verified); setRecord(value); setMessage("Background access saved for offline use.")
       }).catch(error => { if (operationEpoch === epoch.current) setMessage(error instanceof Error ? error.message : "Offline access could not be saved.") })
     }
@@ -94,19 +105,21 @@ export function useOfflineBackgroundAccess() {
     return () => window.removeEventListener("atmoshaper:offline-access", receive)
   }, [store])
   async function refresh() {
-    ++epoch.current
+    const operationEpoch = epoch.current
     try {
       const value = await store.update(previous => ({ ...previous, pending: { challenge: randomOfflineAccessId(), at: Date.now() } }))
-      setRecord(value)
+      if (operationEpoch !== epoch.current) return
+      recordRef.current = value; setRecord(value)
       window.location.href = `https://www.atmoshaper.com/account/offline-access?device=${value.device}&challenge=${value.pending.challenge}`
     } catch { setMessage("The app could not save a verification request. Retry when local storage is available.") }
   }
   async function forget() {
     ++epoch.current
+    recordRef.current = null
     setClaims(null)
     try {
       const value = await store.update(() => ({ device: randomOfflineAccessId(), receipt: null, pending: null, lastIssuedAt: 0, lastSeen: Date.now() }))
-      setRecord(value); setClaims(null); setMessage("Account access removed from this app. Downloads and free tools are unchanged.")
+      recordRef.current = value; setRecord(value); setClaims(null); setMessage("Account access removed from this app. Downloads and free tools are unchanged.")
     } catch { setMessage("Account access could not be removed. Check local storage and retry.") }
   }
   return { access: claims ? offlineBackgroundSnapshot(claims, now, record?.lastSeen) : { featureKeys: [], ownedBackgroundIds: [] },

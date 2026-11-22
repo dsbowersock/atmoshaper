@@ -60,23 +60,30 @@ test("real station and ambient downloads play after an offline restart without f
     await route.fulfill({ body: await readFile(filename), contentType: mime[path.extname(filename)] ?? "application/octet-stream" })
   })
   const page = await context.newPage()
+  const legacy = await context.newPage()
   page.on("pageerror", error => errors.push(error.message))
   page.on("console", value => { if (value.type() === "error") errors.push(value.text()) })
   try {
     // Seed an earlier-version synthetic download, then let the actual product
     // upgrade it. Payloads are retained; metadata listing never reads all blobs.
-    await page.goto(entry.replace("index.html", "seed.html"))
-    await page.evaluate(() => new Promise((resolve, reject) => {
+    await legacy.goto(entry.replace("index.html", "seed.html"))
+    await legacy.evaluate(() => new Promise((resolve, reject) => {
       const request = indexedDB.open("atmoshaper.android.media.v1", 1)
       request.onupgradeneeded = () => request.result.createObjectStore("packs", { keyPath: "id" })
       request.onsuccess = () => {
         const tx = request.result.transaction("packs", "readwrite")
         tx.objectStore("packs").put({ id: "migration-fixture", bytes: 1048576, revision: "legacy-v1", files: [{ data: new ArrayBuffer(1048576) }] })
-        tx.oncomplete = () => { request.result.close(); resolve() }; tx.onabort = () => reject(tx.error)
+        // Intentionally retain the v1 connection to reproduce a real blocked
+        // upgrade, then close it only after the product reports the failure.
+        tx.oncomplete = () => { window.__legacyMediaDatabase = request.result; resolve() }; tx.onabort = () => reject(tx.error)
       }
     }))
     await page.goto(entry)
     await expect(page.getByRole("heading", { name: "Clock", exact: true })).toBeVisible()
+    await page.getByRole("button", { name: "Music", exact: true }).click()
+    await expect(page.getByText("Downloads could not be loaded. Check device storage.", { exact: true })).toBeVisible()
+    await legacy.evaluate(() => window.__legacyMediaDatabase.close())
+    await legacy.close()
     const migrated = await page.evaluate(() => new Promise((resolve, reject) => {
       const request = indexedDB.open("atmoshaper.android.media.v1", 2)
       request.onsuccess = () => {

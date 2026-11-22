@@ -2,12 +2,18 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { useSession, signIn } from "next-auth/react"
+import { SessionProvider, useSession, signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 
 /** Browser-only approval retains existing sign-in/payment boundaries. Its return
  * is a signed backgrounds receipt, not a session token or caller-selected URL. */
 export function OfflineAccessApproval() {
+  // The shared shell deliberately uses a server bootstrap, not SessionProvider.
+  // Only this approval surface needs live account/focus/sign-out reconciliation.
+  return <SessionProvider><OfflineAccessApprovalContent /></SessionProvider>
+}
+
+function OfflineAccessApprovalContent() {
   const params = useSearchParams(), { status, data: session } = useSession()
   const device = params.get("device"), challenge = params.get("challenge")
   const account = session?.user?.email ?? session?.user?.name ?? "your current account"

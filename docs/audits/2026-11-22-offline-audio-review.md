@@ -52,11 +52,36 @@ script; ordinary wildcard tests remain independent of the media host. Preserve
 the original checked audio catalog; native presentation only removes one old
 candidate label and corrects its copied footstep description.
 
-## Remaining review boundary
+## Completed correction follow-up and focused final batch
 
-One bounded correction-range CodeRabbit review and final exact-APK checks remain
-before this receipt can close. Initial source coverage alone does not cover the
-correction delta. The two added texture binaries require publisher/license/hash
-verification rather than claiming automated text review of their pixels.
+The completed `c1d0def..2e0b90d` review covers 29 changed text paths and excludes
+the two pinned image binaries. It raises four issues: one major question and
+three minor recovery problems. The major question asks whether the extracted
+issuer retains the foreign-origin guard. It does: the first checks reject a
+foreign Origin with 403 before session/access lookup or signing. The direct
+handler regression passes with authenticated synthetic dependencies and zero
+access reads. No application correction is needed for that question.
+
+The three supported problems are a permanently rejected media-store opening
+after a blocked v1 upgrade, duplicate rejected receipts invalidating an earlier
+committed receipt's delayed verifier, and Refresh invalidating initialization
+even though only the pending challenge changed. A focused final batch makes
+blocked openings retryable and closes abandoned late connections; compares the
+actual committed receipt/install binding after async verification; and reserves
+the invalidation epoch for Forget. Real browser journeys hold a v1 connection,
+duplicate a receipt during delayed verification, and model an external-browser
+handoff with a 204 while saved access verification remains pending. The previous
+Forget race check is retained.
+
+An additional inert-provider Next build passes, but its page smoke check exposes
+a concrete integration blocker: the shared shell intentionally has no NextAuth
+SessionProvider. Scope one provider to this approval page only, preserving its
+live account/focus/sign-out reconciliation without changing the common shell.
+The final batch therefore requires a rebuilt page smoke check and one narrow
+source review; this is an explicit finite extension for the observed blocker,
+not a whole-codebase review/rewrite loop.
+
+Final batch checks/review remain in progress. The image binaries require
+publisher/license/hash verification rather than a claim of text-bot pixel review.
 Live signing-key configuration, publication and physical S24 acceptance remain
 separate gates. No reviewer output authorizes Autofix, provider or payment work.
