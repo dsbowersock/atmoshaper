@@ -1,10 +1,15 @@
 import { createAmbientAtmoShaperAdapter as createSharedAdapter } from "@/lib/atmoshaper/ambient-audio-runtime"
 import { createOfflineMediaStore, mediaUrl, readVerifiedOfflinePack } from "@/lib/offline-media"
+import { createNativePlaybackStore } from "@/lib/native-media-source"
+import { getAtmoShaperProductionConcept } from "@/lib/atmoshaper/production-catalog-runtime"
 
 /** The website mixer and recording-selection UI keep their original behavior;
- * only the audio URL binding changes to verified bytes from the saved pack. */
+ * only the audio URL binding changes to verified saved or temporary online bytes. */
 export const createAmbientAtmoShaperAdapter: typeof createSharedAdapter = async options => {
-  const pack = await readVerifiedOfflinePack(options.layer.sourceId, createOfflineMediaStore())
+  const id = options.layer.sourceId
+  const pack = await readVerifiedOfflinePack(id, createNativePlaybackStore(
+    { id, kind: "ambient", concept: getAtmoShaperProductionConcept(id) }, createOfflineMediaStore(),
+  ))
   const blobs = new Map<string, string>()
   const release = () => { for (const url of blobs.values()) URL.revokeObjectURL(url); blobs.clear() }
   try {

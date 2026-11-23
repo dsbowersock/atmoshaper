@@ -209,7 +209,7 @@ test("decorative metal buttons keep the shared Music page usable when WebGL is u
   } finally {await f.close()}
 })
 
-test("the shared Music player generates a downloaded station after an offline restart and keeps it across tool navigation", {timeout:180000,skip:process.env.ATMOSHAPER_OFFLINE_REAL_MEDIA_TEST!=="1"}, async()=>{
+test("shared Music plays online without saving, then uses explicit downloads offline across tool navigation", {timeout:240000,skip:process.env.ATMOSHAPER_OFFLINE_REAL_MEDIA_TEST!=="1"}, async()=>{
   const f=await fixture({allowMedia:true}),{page,context}=f
   try {
     await page.addInitScript(({key,value})=>{
@@ -224,6 +224,12 @@ test("the shared Music player generates a downloaded station after an offline re
       const play=HTMLMediaElement.prototype.play
       HTMLMediaElement.prototype.play=function(...args){window.__localMedia.push(this);return play.apply(this,args)}
     },{key:ATMOSPHERE_STORAGE_KEY,value:{...createDefaultAtmosphereStorage(),favorites:["generative-fm-little-bells"]}})
+    // The ordinary Play action must work before the user has saved any pack.
+    await page.goto(entry+"#/music")
+    await page.getByRole("group",{name:"Station category"}).getByRole("button",{name:"Favorites",exact:true}).click()
+    await page.getByRole("button",{name:"Play Little Bells",exact:true}).click()
+    await expect.poll(()=>page.evaluate(()=>window.__nonSilentStarts),{timeout:90000}).toBeGreaterThan(0)
+    assert.equal(await readDatabase(page,"atmoshaper.android.media.v1","packs","generative-fm-little-bells"),undefined)
     await page.goto(entry+"#/downloads")
     await page.getByLabel("Find a sound").fill("Little Bells")
     await page.getByRole("button",{name:"Download Little Bells",exact:true}).click()
@@ -232,12 +238,21 @@ test("the shared Music player generates a downloaded station after an offline re
     const size=item=>item.sources.reduce((sum,source)=>sum+source.formats.find(format=>format.id==="opus").byteSize,0)
     const ambient=[...catalog.concepts].sort((a,b)=>size(a)-size(b))[0]
     const title=offlineAudioCatalog(catalog).find(item=>item.id===ambient.id).title
+    await go(page,"/music")
+    await page.getByRole("group",{name:"Station category"}).getByRole("button",{name:"Atmosphere",exact:true}).click()
+    await page.getByRole("tab",{name:"Ambient sounds",exact:true}).click()
+    await page.getByLabel("Search ambient sounds",{exact:true}).fill(title)
+    await page.getByRole("button",{name:`Preview ${ambient.label}`,exact:true}).click()
+    await expect.poll(()=>page.evaluate(()=>window.__localMedia.some(audio=>audio.src.startsWith("blob:")&&audio.currentTime>0)),{timeout:30000}).toBe(true)
+    assert.equal(await readDatabase(page,"atmoshaper.android.media.v1","packs",ambient.id),undefined)
+    await go(page,"/downloads")
     await page.getByRole("button",{name:"Atmosphere sounds",exact:true}).click()
     await page.getByLabel("Find a sound").fill(title)
     await page.getByRole("button",{name:`Download ${title}`,exact:true}).click()
     await expect(page.getByText(`${title} is ready offline.`,{exact:true})).toBeVisible({timeout:90000})
     await context.setOffline(true)
     await page.goto(entry+"#/music")
+    await page.reload() // A hash change alone retains the online audio graph.
     await page.getByRole("group",{name:"Station category"}).getByRole("button",{name:"Favorites",exact:true}).click()
     await page.getByRole("button",{name:"Play Little Bells",exact:true}).click()
     await expect.poll(()=>page.evaluate(()=>window.__nonSilentStarts),{timeout:45000}).toBeGreaterThan(0)

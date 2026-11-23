@@ -21,6 +21,13 @@ writes preserve deadline and adjustment order. The normal bundle excludes server
 authentication implementation and test code, and inventories all packaged bytes.
 The seven Inter subsets retain their original bytes and included OFL provenance.
 
+Online Play also works without a prior saved download. It loads the same bounded,
+verified public sample pack into playback-owned memory; the Downloads action is
+still the only path that persists it. Offline playback requires a complete saved
+pack. A damaged pack or failed storage read cannot silently fall back to network.
+Temporary station requests check playback ownership before further network reads
+and before claiming output. Prewarm does not start a download.
+
 ## Review coverage and grouped disposition
 
 Codex inspects the shared-component boundaries, Android entry/intent/document
@@ -79,6 +86,14 @@ a fresh CI checkout needs no Android SDK and concurrent APK output cannot race i
   shared-tool navigation. The owner-receipt emulator and physical phone are not
   cleared or modified. Final corrected APK/fullscreen/document-dialog checks
   are still pending.
+
+The full regression run completes with 5,929 passes, 15 failures and seven
+optional skips. All failures are inert fixture imports after adding the no-DOM
+native navigation component and separating the safe calendar contract from the
+server loader. The corrected main-landmark fixture passes all seven cases; the
+calendar/provider fixture rerun passes all 23 cases. The three additional native
+online-source tests pass. No application behavior is weakened to satisfy those
+fixtures; final grouped review and Android acceptance remain pending.
 
 The proposed app-origin association is source-only. It names the existing preview
 package and actual public signing fingerprint. Browser origin verification,

@@ -77,9 +77,11 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     assert.ok(bounds && bounds.width>0 && bounds.height>0)
     const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2
     assert.ok(x>=0 && x<size.width && y>=0 && y<size.height,"touch target is inside the visible viewport")
+    await expect.poll(()=>target.evaluate((element,{x,y})=>element.contains(document.elementFromPoint(x,y)),{x,y})).toBe(true)
     let session=touchSessions.get(page)
     if(!session){session=await page.context().newCDPSession(page);touchSessions.set(page,session)}
     await session.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x,y}]})
+    await page.waitForTimeout(50) // Give Android a real touch interval across its surface transition.
     const released=session.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]})
     if(nativeTransition) {
       // WebView can withhold the input ack while a native fullscreen/picker
@@ -163,6 +165,7 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     await writeFile(path.join(output,"android-shared-breathing.png"),await device.screenshot())
     await go(page,"/downloads")
     await tap(page,page.getByRole("button",{name:"Atmosphere sounds",exact:true}))
+    await expect(page.getByRole("button",{name:"Atmosphere sounds",exact:true})).toHaveAttribute("aria-pressed","true")
     await page.getByLabel("Find a sound").fill(title)
     await expect(page.getByText(/Ready offline/)).toBeVisible()
     await go(page,"/tools/business-planner/plan-outline")

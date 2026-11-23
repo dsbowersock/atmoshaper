@@ -47,7 +47,7 @@ function loadCoordinator(loadContext, options = {}) {
         useState: (initial) => [typeof initial === "function" ? initial() : initial, () => undefined],
       },
       "@/lib/client-fetch": { fetchJsonWithTimeout },
-      "@/lib/sidebar-calendar-context": { emptySidebarCalendarContext },
+      "@/lib/sidebar-calendar-contract": { emptySidebarCalendarContext },
     },
   )
   assert.equal(
@@ -111,7 +111,7 @@ function createSidebarProviderEffectHarness(fetchJsonWithTimeout) {
       react,
       "react/jsx-runtime": { Fragment: "fragment", jsx: createElement, jsxs: createElement },
       "@/lib/client-fetch": { fetchJsonWithTimeout },
-      "@/lib/sidebar-calendar-context": { emptySidebarCalendarContext },
+      "@/lib/sidebar-calendar-contract": { emptySidebarCalendarContext },
     },
   )
 
