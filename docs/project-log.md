@@ -1,5 +1,20 @@
 # AtmoShaper Project Log
 
+## November 22 approved replacement-key upload succeeds
+
+The owner approves the prepared recovery amendment. Recheck the live/source,
+settings, aliases, existing credential and rollback baseline and open its fresh
+120-minute admission. Generate one replacement key and make one explicit JSON
+HTTPS upload without automatic retry. Read-back verifies all three settings
+are Production-only, the private key is sensitive, and the original 87 setting
+metadata entries are unchanged. Keep only the matching public verifier in source
+and pass signature/install/challenge self-checks. No private key file is written.
+
+Continue the already approved release under the recorded scope. The previous
+public release is still active; no real receipt or phone installation occurs at
+this checkpoint. See the
+[activation receipt](audits/2026-11-22-offline-access-activation.md).
+
 ## November 22 approved offline activation attempt and bounded recovery
 
 The owner approves the prepared activation plan. Recheck source `6490c75`, live

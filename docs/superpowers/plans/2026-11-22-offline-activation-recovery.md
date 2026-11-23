@@ -1,6 +1,10 @@
 # One replacement key after the failed offline activation upload
 
-Status: prepared, not authorized or executed. November 22, 2026.
+Status: owner approved November 22, 2026. Fresh preflight and the one corrected
+replacement-key upload pass; the three new Production settings are verified,
+with all 87 original settings unchanged. Publication/owner acceptance continues
+under the original scope. See the
+[activation receipt](../../audits/2026-11-22-offline-access-activation.md).
 
 The owner approved the original
 [offline activation plan](2026-11-22-offline-access-activation.md).

@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "backgrounds-20261122-cbad752f",
+    "jwk": {
+      "kty": "EC",
+      "x": "D0ZRi-q3o7Frtm9u9hsi5mPNwThaTfN-9c6KHJOILjU",
+      "y": "ELTcgp93zKnKBvupSXc4Ln7KIiFZG68jpP5sK2fcBy8",
+      "crv": "P-256"
+    }
+  }
+]

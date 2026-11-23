@@ -1,5 +1,21 @@
 # AtmoShaper Project State
 
+## November 22 offline verification settings configured; publication in progress
+
+The owner approves one replacement key and the corrected HTTPS upload. Fresh
+preflight passes; one replacement P-256 authority and one direct JSON upload
+configure the three Production-only offline-access settings. The private key is
+a sensitive Secret; all 87 original setting metadata entries and other targets
+are unchanged. Only the matching public verifier is added to native source.
+Signature/install/challenge self-checks pass. No private key file is created.
+
+The current public release remains `0eb02e0`; the verification page/issuer is not
+yet published. Final binding review, the release PR/hosted checks, verified
+Production/Sentry build and same-artifact promotion, matching APK and one owner
+receipt check remain in progress. See the
+[activation receipt](audits/2026-11-22-offline-access-activation.md). Existing
+application logic, clinical boundaries and the minor migration follow-up remain.
+
 ## November 22 offline activation upload stopped; recovery prepared
 
 The owner approves the prepared activation/publication plan. Fresh preflight
