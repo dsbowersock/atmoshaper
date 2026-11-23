@@ -4,6 +4,9 @@ This directory is the repo-backed project wiki. Keep operational, implementation
 
 ## Pages
 
+- [Prepared startup-recovery correction and preservation regression](../audits/2026-11-22-offline-startup-recovery.md)
+- [Changed-candidate amendment for PR #80](../superpowers/plans/2026-11-22-offline-startup-recovery-release.md)
+
 - [Offline verification settings and publication receipt](../audits/2026-11-22-offline-access-activation.md)
 
 - [Offline activation upload failure and one-key recovery amendment](../superpowers/plans/2026-11-22-offline-activation-recovery.md)

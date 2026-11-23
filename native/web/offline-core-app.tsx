@@ -36,7 +36,7 @@ export function OfflineCoreApp({ store, initial }: {
   const [saveResult, setSaveResult] = useState<{ snapshot: typeof state | null, ok: boolean }>({ snapshot: null, ok: initial.ready })
   // Correlate acknowledgement with the exact immutable snapshot being shown;
   // an old successful write must never mark a newly started timer as saved.
-  const saveStatus = saveResult.snapshot !== state ? "saving" : saveResult.ok ? "saved" : "failed"
+  const saveStatus = !initial.ready ? "failed" : saveResult.snapshot !== state ? "saving" : saveResult.ok ? "saved" : "failed"
   const [immersive, setImmersive] = useState(false)
   const [flash, setFlash] = useState(false)
   const audioRef = useRef<AudioContext | null>(null)
@@ -55,10 +55,13 @@ export function OfflineCoreApp({ store, initial }: {
   }, [state.sound])
 
   useEffect(() => {
+    // A fallback load is not an empty durable record. Keep this mount ephemeral;
+    // reopening must read the saved record successfully before autosave resumes.
+    if (!initial.ready) return
     let current = true
     void store.save(state).then(ok => { if (current) setSaveResult({ snapshot: state, ok: ok === true }) })
     return () => { current = false }
-  }, [state, store])
+  }, [state, store, initial.ready])
   useEffect(() => {
     const update = () => setNow(Date.now())
     const interval = window.setInterval(update, 250)
@@ -153,7 +156,7 @@ export function OfflineCoreApp({ store, initial }: {
           <Button variant="cta" onClick={reset}><RotateCcw />Reset timer</Button>
         </div>
         <div className={styles.timerOptions}><label>Interval alert <select aria-label="Interval alert" disabled={active} value={state.intervalMinutes} onChange={event => setState(previous => ({ ...previous, intervalMinutes: Number(event.target.value) }))}>{[0, 1, 5, 10, 15, 20, 30, 60].map(value => <option key={value} value={value}>{value ? `Every ${value} minutes` : "Off"}</option>)}</select></label><label className={styles.check}><input type="checkbox" checked={state.sound} onChange={event => setState(previous => ({ ...previous, sound: event.target.checked }))} />Sound alerts</label><Button variant="glow" onClick={() => unlockSound(true)} disabled={!state.sound}>Test alert</Button></div>
-        <p className={styles.hint}>Your end time is saved on this device. Alerts play while the app is open.</p>
+        <p className={styles.hint}>{saveStatus === "saved" ? "Your end time is saved on this device." : "This timer has not been saved."} Alerts play while the app is open.</p>
       </section>
       <section className={`${styles.tool} ${styles.breathing}`} hidden={state.tool !== "breathing"} aria-labelledby="breathing-title"><div className={styles.title}><h1 id="breathing-title">Breathing guide</h1><span>One calm breath at a time.</span></div><AtmosphereBreathingGuide /></section>
       <section className={`${styles.tool} ${styles.longTool}`} hidden={state.tool !== "backgrounds"} aria-labelledby="backgrounds-title">
@@ -166,7 +169,7 @@ export function OfflineCoreApp({ store, initial }: {
         <p className={styles.hint}>Backgrounds need no download. Your accessible choice stays with every tool.</p>
       </section>
       <section className={`${styles.tool} ${styles.longTool}`} hidden={state.tool !== "music"} aria-label="Music and Atmosphere"><OfflineAudio /></section>
-      <p className={styles.status} role="status">{saveStatus === "failed" ? "Changes could not be saved on this device. Keep the app open to retain this timer." : saveStatus === "saving" ? "Saving on this device…" : message}</p>
+      <p className={styles.status} role="status">{!initial.ready ? "Saved settings could not be opened. This session will not replace them. Reopen the app to retry." : saveStatus === "failed" ? "Changes could not be saved on this device. Keep the app open to retain this timer." : saveStatus === "saving" ? "Saving on this device…" : message}</p>
     </div>
     <nav className={styles.nav} aria-label="Offline tools">{tools.map(tool => <Button key={tool.id} variant={tool.variant} aria-current={state.tool === tool.id ? "page" : undefined} onClick={() => { setState(previous => ({ ...previous, tool: tool.id })); setImmersive(false) }}><tool.icon aria-hidden="true" /><span>{tool.title}</span></Button>)}</nav>
   </main>

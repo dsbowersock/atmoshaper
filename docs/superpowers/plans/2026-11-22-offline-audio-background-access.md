@@ -91,4 +91,7 @@ build/page/issuer smoke checks and exact-APK Android media/Core/rotation/chime
 acceptance. See the [final receipt](../../audits/2026-11-22-offline-audio-backgrounds.md).
 One minor retry-before-close issue in the older-preview storage-upgrade path is
 retained explicitly; first installs use v2 and current Android flows pass.
-Physical S24 and separately approved signing/provider/release activation remain.
+The separately approved signing settings are now configured; guarded publication
+is held for the confirmed startup-recovery correction. See the
+[activation receipt](../../audits/2026-11-22-offline-access-activation.md).
+Physical S24 and the remaining publication/account acceptance gates remain.

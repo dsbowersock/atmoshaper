@@ -3,6 +3,8 @@
 November 22, 2026. Application source frozen at `194e385` on
 `codex/practice-payments`. This is local implementation and acceptance evidence;
 it is not a publication, provider-activation or physical-phone receipt.
+These are historical pre-activation checks. Subsequent configuration/release
+state is recorded in the [activation receipt](2026-11-22-offline-access-activation.md).
 
 ## Implemented behavior
 
@@ -36,8 +38,9 @@ installation binding and removes local access; obsolete async verification
 cannot restore it afterward. A fresh signed server timestamp permits recovery
 after correcting a device clock.
 
-The normal public verifier list is **empty** and the live issuer is
-**unconfigured**. Synthetic acceptance keys are isolated to their test output.
+At this verification checkpoint the normal public verifier list is **empty**
+and the live issuer is **unconfigured**. Synthetic acceptance keys are isolated
+to their test output.
 Real-account verification therefore remains unavailable until the separately
 approved activation. No subscription or purchase has been fabricated.
 
@@ -144,7 +147,8 @@ not a claim that a text review bot inspected the image pixels.
 The [prepared activation plan](../superpowers/plans/2026-11-22-offline-access-activation.md)
 names the one new signing authority, three Production-only settings, matching
 public key/APK, reviewed website publication and one owner receipt check. None
-has been executed. Physical S24 sound/battery acceptance, reliable background
+had been executed at this checkpoint; the later activation receipt supersedes
+that pending status. Physical S24 sound/battery acceptance, reliable background
 media, closed-app alarms, whole-platform native parity, real practice payments
 and public app-store distribution retain their separate gates. Existing browser
 clinical records remain untouched. No push, merge, deployment, provider setting,

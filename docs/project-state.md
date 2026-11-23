@@ -1,5 +1,27 @@
 # AtmoShaper Project State
 
+The first dated update is current. Later sections are retained historical
+checkpoints; their earlier pending/unauthorized statuses are superseded by it.
+
+## November 22 publication held for a confirmed startup-recovery correction
+
+The approved replacement-key upload succeeds and all three new Production-only
+settings remain configured, with the original 87 unchanged. PR #80 is open at
+`5f76890` and its protected Preview is READY; the public site/rollback remains
+`0eb02e0`. Hosted Codex review then identifies a real overwrite when an initial
+Core read fails and the fallback defaults are later autosaved over saved state.
+
+A local synthetic Chromium/IndexedDB regression confirms the failure. The
+prepared guard keeps that fallback session unsaved; the regression passes and
+reopening restores the original timer/settings. Both Core browser cases, 11
+Core/storage unit cases, focused lint and full type checking pass. Delta review
+and the matching corrected APK are in progress. See the
+[correction receipt](audits/2026-11-22-offline-startup-recovery.md) and
+[prepared source amendment](superpowers/plans/2026-11-22-offline-startup-recovery-release.md).
+The correction is not pushed, merged or published. No Production build,
+promotion or real account receipt occurs. Signing configuration remains intact;
+no additional key or provider setting is proposed.
+
 ## November 22 offline verification settings configured; publication in progress
 
 The owner approves one replacement key and the corrected HTTPS upload. Fresh

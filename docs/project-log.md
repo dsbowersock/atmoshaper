@@ -1,5 +1,23 @@
 # AtmoShaper Project Log
 
+## November 22 release PR review catches a startup overwrite
+
+Push approved public binding `5f76890`, open PR #80 and obtain its READY protected
+Preview. The narrow CodeRabbit binding review completes with two stale-status
+documentation issues and a request for the planned real issuer/native key check.
+Request one full hosted CodeRabbit review after the automatic low-star skip;
+the app acknowledges the trigger. Hosted Codex independently reports a Core
+fallback-autosave overwrite and provides a reproduction. Hold publication.
+
+Add a real synthetic IndexedDB/browser regression. It fails before the fix with
+the saved timer/color replaced after a transient initial open failure. Prepare
+a mount-level autosave guard and truthful unsaved-session/timer copy. The same
+test passes and confirms restoration after reopening. Broader local validation
+and bounded delta review follow before any changed-candidate publication request.
+The original PR checks/reviews cover `5f76890`, not this unpushed correction.
+Keep the working signing settings; no new key, merge or promotion is attempted.
+See the [local correction receipt](audits/2026-11-22-offline-startup-recovery.md).
+
 ## November 22 approved replacement-key upload succeeds
 
 The owner approves the prepared recovery amendment. Recheck the live/source,

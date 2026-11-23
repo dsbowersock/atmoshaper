@@ -4,7 +4,7 @@ import { readFile, mkdir } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { chromium, expect } from "@playwright/test"
-import { OFFLINE_CORE_STORAGE_KEY } from "../lib/offline-core.js"
+import { OFFLINE_CORE_STORAGE_KEY, defaultOfflineCoreState, startOfflineTimer } from "../lib/offline-core.js"
 import { buildOfflineCore } from "../scripts/build-offline-core.mjs"
 
 const root=fileURLToPath(new URL("..",import.meta.url))
@@ -107,4 +107,65 @@ test("packaged Clock, timer, breathing and backgrounds work from a first offline
     assert.deepEqual(violations,[])
     assert.deepEqual(errors,[])
   }finally{await browser.close()}
+})
+
+test("a failed initial settings load cannot replace a committed running timer",{timeout:120000},async()=>{
+  await buildOfflineCore({outputName:"offline-acceptance-core"})
+  const browser=await chromium.launch()
+  const context=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:"block"})
+  const violations=[],errors=[]
+  await attachAssets(context,violations)
+  const seed=entry.replace("index.html","recovery-seed.html")
+  await context.route(seed,route=>route.fulfill({contentType:"text/html",body:"Local recovery fixture"}))
+  const page=await context.newPage()
+  page.on("pageerror",error=>errors.push(error.message))
+  const original={...defaultOfflineCoreState(),tool:"timer",mainColor:"#146b73",durationMs:300000,timer:startOfflineTimer(300000)}
+  async function readSettings(){return page.evaluate(key=>new Promise((resolve,reject)=>{
+    const request=indexedDB.open(key,1)
+    request.onsuccess=()=>{const db=request.result,tx=db.transaction("state");const query=tx.objectStore("state").get("preferences");let value;query.onsuccess=()=>{value=query.result};tx.oncomplete=()=>{db.close();resolve(value)};tx.onabort=()=>reject(tx.error)}
+    request.onerror=()=>reject(request.error)
+  }),OFFLINE_CORE_STORAGE_KEY)}
+  try{
+    await page.goto(seed)
+    await page.evaluate(({key,state})=>new Promise((resolve,reject)=>{
+      const request=indexedDB.open(key,1)
+      request.onupgradeneeded=()=>request.result.createObjectStore("state")
+      request.onsuccess=()=>{const db=request.result,tx=db.transaction("state","readwrite",{durability:"strict"});tx.objectStore("state").put(state,"preferences");tx.oncomplete=()=>{db.close();resolve()};tx.onabort=()=>reject(tx.error)}
+      request.onerror=()=>reject(request.error)
+    }),{key:OFFLINE_CORE_STORAGE_KEY,state:original})
+    await page.addInitScript(key=>{
+      const open=indexedDB.open.bind(indexedDB)
+      indexedDB.open=(name,...args)=>{
+        if(name===key&&!sessionStorage.getItem("core-load-failed-once")){
+          sessionStorage.setItem("core-load-failed-once","1")
+          const request={error:new DOMException("Synthetic transient open failure","UnknownError")}
+          queueMicrotask(()=>request.onerror?.())
+          return request
+        }
+        return open(name,...args)
+      }
+    },OFFLINE_CORE_STORAGE_KEY)
+    await page.goto(entry)
+    await expect(page.getByRole("heading",{name:"Clock",exact:true})).toBeVisible()
+    await page.getByRole("button",{name:"Timer",exact:true}).click()
+    await page.getByLabel("Timer hours",{exact:true}).fill("0")
+    await page.getByLabel("Timer minutes",{exact:true}).fill("1")
+    await page.getByRole("button",{name:"Start timer",exact:true}).click()
+    await expect(page.locator("[data-timer-status]")).toHaveText("running")
+    await expect(page.locator("main")).not.toHaveAttribute("data-offline-save-state","saving")
+    assert.deepEqual(await readSettings(),original,"fallback interaction must never overwrite the prior committed record")
+    await expect(page.locator("main")).toHaveAttribute("data-offline-save-state","failed")
+    await page.getByRole("button",{name:"Breathing",exact:true}).click()
+    await page.getByRole("button",{name:"Start breathing",exact:true}).click()
+    await expect(page.locator("[data-breathing-phase]")).toHaveText("Inhale")
+    // Reopening retries the real store and restores the original deadline,
+    // rather than adopting the unsaved fallback session as an implicit reset.
+    await page.reload()
+    await expect(page.locator("[data-timer-status]")).toHaveText("running")
+    await expect(page.locator("main")).toHaveAttribute("data-offline-save-state","saved")
+    assert.equal((await readSettings()).timer.endsAt,original.timer.endsAt)
+    await page.getByRole("button",{name:"Backgrounds",exact:true}).click()
+    await expect(page.getByLabel("Main color",{exact:true})).toHaveValue(original.mainColor)
+    assert.deepEqual(errors,[]);assert.deepEqual(violations,[])
+  }finally{await context.close();await browser.close()}
 })

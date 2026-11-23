@@ -2,6 +2,11 @@
 
 November 22, 2026. Publication is in progress, not complete.
 
+PR #80 at `5f76890` has a READY protected Preview. Hosted Codex review identifies
+a confirmed startup fallback-autosave overwrite; publication is held while the
+[focused correction](2026-11-22-offline-startup-recovery.md) is prepared locally.
+No merge/Production build/promotion or real-account receipt has occurred.
+
 The owner approves the original activation plan and then its one-key recovery
 amendment after the installed CLI's failed bulk-array request. Fresh recovery
 preflight matches application source `194e385` plus documentation, live main
