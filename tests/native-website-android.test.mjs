@@ -6,11 +6,14 @@ import { createHash } from "node:crypto"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { _android as android } from "playwright"
-import { expect } from "@playwright/test"
+import { expect as playwrightExpect } from "@playwright/test"
 import { offlineAudioCatalog } from "../lib/offline-media.js"
 import { createDefaultAtmosphereStorage, ATMOSPHERE_STORAGE_KEY } from "../lib/atmosphere/storage.js"
 
 const root=fileURLToPath(new URL("..",import.meta.url))
+// A cold software-rendered WebView can need more than Playwright's desktop
+// five-second assertion default to parse a newly opened shared tool chunk.
+const expect=playwrightExpect.configure({timeout:20000})
 const adb=path.join(root,"output/android-tools/sdk/platform-tools",process.platform==="win32"?"adb.exe":"adb")
 const serial="emulator-5582",avd="AtmoShaper_WebParity_35",pkg="com.atmoshaper.app.development"
 const shell=(...args)=>execFileSync(adb,["-s",serial,...args],{encoding:"utf8",timeout:45000,windowsHide:true}).trim()
@@ -86,7 +89,12 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     await expect(target).toBeVisible()
     let bounds=await target.boundingBox()
     const size=await page.evaluate(()=>({width:innerWidth,height:innerHeight}))
-    if(bounds && (bounds.y<0 || bounds.y+bounds.height>size.height || bounds.x<0 || bounds.x+bounds.width>size.width)) {
+    const covered=bounds && !await target.evaluate(element=>{
+      const rect=element.getBoundingClientRect()
+      return element.contains(document.elementFromPoint(rect.x+rect.width/2,rect.y+rect.height/2))
+    })
+    // The fixed music player can cover a control that is still in the viewport.
+    if(bounds && (covered || bounds.y<0 || bounds.y+bounds.height>size.height || bounds.x<0 || bounds.x+bounds.width>size.width)) {
       await target.evaluate(element=>element.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"}))
       bounds=await target.boundingBox()
     }
@@ -111,6 +119,10 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
   try {
     page=await connect()
     console.log("Android fixture: connected to the earlier preview.")
+    // Prepare the shared Music UI preference well before force-stop. WebView's
+    // localStorage disk flush is asynchronous, unlike the strict IndexedDB data
+    // whose actual durability this upgrade check asserts below.
+    await page.evaluate(({key,value})=>localStorage.setItem(key,JSON.stringify(value)),{key:ATMOSPHERE_STORAGE_KEY,value:{...createDefaultAtmosphereStorage(),favorites:["generative-fm-little-bells"]}})
     await tap(page,page.getByRole("button",{name:"Music",exact:true}))
     await page.getByLabel("Find a sound").fill("Little Bells")
     await tap(page,page.getByRole("button",{name:"Download Little Bells",exact:true}))
@@ -166,10 +178,6 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(false)
     assert.equal(page.url(),beforeFullscreen,"Back exits fullscreen before navigating away")
     console.log("Android check: shared countdown and fullscreen Back passed.")
-    await page.evaluate(({key,value})=>localStorage.setItem(key,JSON.stringify(value)),{key:ATMOSPHERE_STORAGE_KEY,value:{...createDefaultAtmosphereStorage(),favorites:["generative-fm-little-bells"]}})
-    await page.reload()
-    // This explicit process-like reload creates a fresh audio context too.
-    await tap(page,page.getByRole("button",{name:"Enable timer sound",exact:true}))
     await page.evaluate(()=>{
       window.__nonSilentStarts=0
       const start=AudioBufferSourceNode.prototype.start
@@ -183,6 +191,7 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     await tap(page,page.getByRole("button",{name:"Start breathing",exact:true}))
     await expect(page.getByRole("button",{name:"Pause breathing",exact:true})).toBeVisible()
     await writeFile(path.join(output,"android-shared-breathing.png"),await device.screenshot())
+    console.log("Android check: actual saved music and shared breathing passed offline.")
     await go(page,"/downloads")
     await tap(page,page.getByRole("button",{name:"Atmosphere sounds",exact:true}))
     await expect(page.getByRole("button",{name:"Atmosphere sounds",exact:true})).toHaveAttribute("aria-pressed","true")
