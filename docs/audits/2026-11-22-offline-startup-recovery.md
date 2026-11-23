@@ -2,6 +2,13 @@
 
 November 22, 2026. Prepared locally; not pushed, merged or published.
 
+Current closeout: the startup delta completes CodeRabbit review with zero issues
+on all 10 changed paths. The later [grouped hosted-review correction receipt](2026-11-22-offline-hosted-review-corrections.md)
+supersedes the in-progress validation checkpoint below: application `15b7f55`
+passes its local checks and exact normal APK acceptance. The grouped delta is
+also reviewed; fresh hosted checks/review and the source/publication amendment
+remain required before updating PR #80.
+
 Hosted Codex review on PR #80 identifies a real preservation failure in the
 initial native settings load. `store.load()` fulfills with fallback defaults and
 `ready:false` after a transient opening failure. The app previously autosaved

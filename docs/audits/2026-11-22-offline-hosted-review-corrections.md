@@ -48,14 +48,53 @@ assertions remain intact. Original-head CI is not proof for this correction.
 Focused synthetic tests cover owned/repeated Transport scheduling and failure
 cleanup, media connection reacquisition, blank merchant evidence, timer limit,
 durable initial-load preservation, failed receipt removal/retry, active volume
-remount and damaged download readiness. Updated browser, lint/type and exact
-APK acceptance are in progress at this checkpoint. A redirected sandbox browser
+remount and damaged download readiness. Browser acceptance passes all 84 enabled
+renderers, subscription expiry, revocation/replay, failed removal/retry, real
+downloaded audio and volume/damaged-pack handling. Both Core browser cases pass,
+including seeded timer preservation and the maximum-duration editor. Focused
+checks pass: media/access/Transport 15 cases, Core/storage 11, existing audio
+regression 30, and release regression 184. These suite counts overlap.
+
+The frozen application candidate is `15b7f55`. Its normal debug APK is
+`8abbb7c366aa75d03f207428e19bafa0f673fff104d7e34c92dc3500ff43af4a`
+(SHA-256). Android lint/build, v2 signature and both serial exact-artifact emulator
+suites pass. The build/media/Core receipts match the actual APK hash. Its 143
+assets contain the one expected public authority and no synthetic authority.
+Downloaded Little Bells and Grinding Pepper play after an actual airplane-mode
+process restart, with non-silent generated samples and advancing local ambient
+playback. Cold-launch Core, timer deadlines, saved state and rotation checks
+pass. This is headless emulator evidence; physical S24 and speaker audibility
+remain unverified.
+
+Source ESLint passes with only generated Android `build`/`.gradle` directories
+excluded from the repository script's traversal. Clean hosted CI has no locally
+generated native bundle. Ordinary full TypeScript passes. Codex inspects the
+grouped source/correction diff; fresh hosted correction review remains a gate
+after the authorized PR update.
+
+CodeRabbit completes `1ef8453..15b7f55`, reviewing all 30 changed text paths (the
+actual list matches Git's delta). It raises two major-labelled **questions**, one
+on the runner and one on the test, about a possible mismatched Android media
+opt-in. Both are refuted: the package entrypoints delegate to the same runner,
+which sets `ATMOSHAPER_ANDROID_MEDIA_TEST=1` for media; the test checks that exact
+variable. The legacy variable is unset. The actual combined execution runs both
+suites, with one pass and zero skipped in each. No additional source correction
+is warranted. Preserve these as dispositioned questions, not a zero-issue claim.
+
+The complete reviewed chain now includes the original source/recovery ranges,
+the public-binding delta, startup delta `5f76890..1ef8453` (10 paths; zero issues),
+and this grouped delta (30 paths; two refuted questions). Receipt-only closeout
+changes do not alter the tested application or trust file. Original-head hosted
+browser build and all four Browser QA lanes pass; its Code quality/aggregate fail
+on the three diagnosed checks. Those results do not replace fresh corrected-head
+CI/reviews after the amendment.
+A redirected sandbox browser
 lookup is an environment failure; reruns use the existing outside-sandbox
 Chromium, with no browser installation. The SIM-less emulator's stale default
 cellular preference is explicitly disabled along with airplane mode/radios.
 
 The original minor legacy-v1 blocked-open early-retry edge remains recorded in
 the audio review backlog. No additional key or signing-setting operation is
-proposed. All 90 setting metadata entries, existing public release and rollback
+proposed. The successfully configured 90 setting metadata entries, public release and rollback
 are retained. One new source/publication amendment is required before updating
 the existing PR; see the [prepared plan](../superpowers/plans/2026-11-22-offline-startup-recovery-release.md).

@@ -10,9 +10,15 @@ comments across 77 processed text paths. It confirms Codex's initial-load
 overwrite and a station Transport-repeat leak. One local correction group
 addresses those and the supported recovery/control, documentation and test
 issues; see the [grouped disposition receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
-Focused release regression (184 cases), media/access/transport units, Core
-units, audio regressions, background and real-media browser acceptance pass;
-the Core browser/normal APK and correction-delta review are being finalized.
+Application source `15b7f55` passes focused release regression (184 cases),
+media/access/Transport (15), Core/storage (11), audio regressions (30), both Core
+browser cases, all 84 renderers and real-media browser acceptance. Suite counts
+overlap. Source lint/full TypeScript and the normal APK's lint/build/signature
+and both serial emulator acceptance suites pass. CodeRabbit completes the
+30-path correction delta with two test-switch questions, both refuted by matching
+source and the actual non-skipped media/Core execution. Codex inspects the
+correction source. No further application change follows that reviewed candidate;
+fresh hosted correction review/CI remain required after the approved PR update.
 The three configured Production-only signing settings are retained. PR #80 is
 still at `5f76890`; the public site/rollback remains `0eb02e0`. The prepared
 [source amendment](superpowers/plans/2026-11-22-offline-startup-recovery-release.md)

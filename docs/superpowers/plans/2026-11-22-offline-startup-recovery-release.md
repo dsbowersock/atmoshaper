@@ -2,6 +2,13 @@
 
 Status: prepared locally, not authorized for push/publication. November 22, 2026.
 
+Frozen application candidate: `15b7f55`, plus receipt-only closeout. The complete
+30-path correction review finishes with two test-switch questions, refuted by
+source and actual serial execution. Local browser, unit/regression, source lint,
+full TypeScript and matching normal APK lint/build/signature/emulator acceptance
+pass; see the grouped receipt. This is the concrete source amendment presented
+for owner review, not permission to replace the existing signing authority.
+
 The original activation and one replacement-key recovery are approved. The three
 Production-only settings are successfully configured, with the original 87
 metadata entries unchanged. PR #80 is open at `5f76890`; its protected Preview is

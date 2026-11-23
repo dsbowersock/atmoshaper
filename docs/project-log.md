@@ -8,9 +8,14 @@ startup overwrite and identifies an abandoned generative Transport repeat.
 Prepare one bounded group of supported corrections and original-head CI fixes;
 record each in the [disposition receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
 The narrower CLI startup delta `5f76890..1ef8453` completes with zero issues;
-the subsequent grouped delta requires its own review. Focused synthetic checks
-and corrected normal APK acceptance are being completed before one new source/
-publication amendment. Keep the configured signing authority and all 90 setting
+the subsequent grouped delta `1ef8453..15b7f55` also completes, covering all 30
+changed text paths. Its two test-switch questions are refuted by matching runner/
+guard source and real combined Android execution with neither suite skipped.
+Focused units/regressions, four browser cases, source lint/full TypeScript and
+the matching normal APK build/signature/both serial emulator suites pass.
+The tested APK hash matches all three build/media/Core receipts. Codex inspects
+the correction diff; current-head hosted review/CI and one new source/publication
+amendment remain before updating PR #80. Keep the configured signing authority and all 90 setting
 metadata entries; make no additional provider, payment, email or database write.
 
 ## November 22 release PR review catches a startup overwrite
