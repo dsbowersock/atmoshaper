@@ -1,5 +1,22 @@
 # AtmoShaper Project State
 
+## November 22 Android website parity in local verification
+
+The owner requests the actual website Home, navigation and tools inside Android,
+including the full connected account/calendar/practice experience. Local branch
+`codex/android-website-parity` replaces the earlier five-tool entry with shared
+website components and styles. Browser-owned Trusted Web Activity hosts connected
+pages; packaged shared screens retain offline Clock/timer, breathing, backgrounds,
+saved audio and planner drafts. Account sessions are not copied into the WebView.
+
+Shared-screen browser checks pass Home/navigation, breathing/Music/planners,
+read-only legacy settings/deadline import, failed-read protection and actual local
+PDF generation. Android build/lint pass on an initial candidate; final media,
+upgrade, review and APK verification are still in progress. The public website
+remains the already published `5758fcb`; the new app association/navigation source
+is not published. Connected-origin and physical-phone acceptance remain gates.
+See the [local implementation plan](superpowers/plans/2026-11-22-android-website-parity.md).
+
 ## November 22 offline Android release published
 
 [PR #80](https://github.com/dsbowersock/atmoshaper/pull/80) is merged and reviewed

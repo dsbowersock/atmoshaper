@@ -100,6 +100,16 @@ type ChimerPageProps = {
    * surface. The dev route keeps its preferences separate and never syncs them.
    */
   developmentSubscriberReview?: boolean
+  /** A packaged client supplies a verified backgrounds-only capability and
+   * device persistence. It never represents an authenticated web account. */
+  deviceRuntime?: {
+    backgroundAccess: BackgroundAccessSnapshot
+    initialSettings?: unknown
+    initialTimer?: TimerState
+    onChange?: (settings: ChimerSettings, timer: TimerState) => void
+  }
+  /** A retained timer may keep ticking while another native route is visible. */
+  active?: boolean
 }
 
 type CurrentTimeParts = {
@@ -119,7 +129,7 @@ type WakeLockCapableNavigator = Navigator & {
   }
 }
 
-interface TimerState {
+export interface TimerState {
   status: TimerStatus
   totalMs: number
   remainingMs: number
@@ -161,7 +171,9 @@ function areChimerSettingsEqual(left: ChimerSettings, right: ChimerSettings) {
   })
 }
 
-export default function ChimerPage({ developmentSubscriberReview = false }: ChimerPageProps) {
+export default function ChimerPage({ developmentSubscriberReview = false, deviceRuntime, active = true }: ChimerPageProps) {
+  const deviceMode = Boolean(deviceRuntime)
+  const initialDeviceRuntime = useRef(deviceRuntime)
   const pathname = usePathname() ?? ""
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -203,7 +215,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   )
   const [settings, setSettings] = useState<ChimerSettings>(DEFAULT_CHIMER_SETTINGS as ChimerSettings)
   const [timerState, setTimerState] = useState<TimerState>(() => (
-    startsInClockMode ? createClockTimerState() : idleTimerState
+    deviceRuntime?.initialTimer ?? (startsInClockMode ? createClockTimerState() : idleTimerState)
   ))
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [currentTime, setCurrentTime] = useState<CurrentTimeParts>({ time: "", meridiem: "" })
@@ -216,7 +228,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   const [hasLoadedSettings, setHasLoadedSettings] = useState(false)
   const [canSync, setCanSync] = useState(false)
   const [accountSyncStatus, setAccountSyncStatus] = useState<AccountSyncStatus>(
-    developmentSubscriberReview ? "synced" : "checking",
+    developmentSubscriberReview ? "synced" : deviceMode ? "local" : "checking",
   )
   const [accountSettings, setAccountSettings] = useState<ChimerSettings | null>(null)
   const [hasEditedLocalConflictSettings, setHasEditedLocalConflictSettings] = useState(false)
@@ -259,9 +271,9 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   )
 
   useEffect(() => {
-    if (developmentSubscriberReview) return
+    if (developmentSubscriberReview || deviceMode) return
     void ensureBackgroundCommerceSnapshot()
-  }, [developmentSubscriberReview, ensureBackgroundCommerceSnapshot])
+  }, [developmentSubscriberReview, deviceMode, ensureBackgroundCommerceSnapshot])
   const timerInterval = useRef<ReturnType<typeof setInterval> | null>(null)
   const alertTimeout = useRef<number | null>(null)
   const timerStateRef = useRef(timerState)
@@ -360,7 +372,9 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
 
     const loadLocalSettings = () => {
       const prepared = prepareChimerBackgroundPreferenceMigration({
-        rawChimerSettings: window.localStorage.getItem(storageKey),
+        rawChimerSettings: deviceMode && initialDeviceRuntime.current?.initialSettings
+          ? JSON.stringify(initialDeviceRuntime.current.initialSettings)
+          : window.localStorage.getItem(storageKey),
         rawLegacyGlobalColors: developmentSubscriberReview
           ? null
           : window.localStorage.getItem(LEGACY_CHIMER_GLOBAL_COLOR_STORAGE_KEY),
@@ -631,7 +645,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
 
     /** Coalesces focus/pageshow bursts while guaranteeing one post-wake retry. */
     function requestAccountSync() {
-      if (!isMounted || developmentSubscriberReview) return
+      if (!isMounted || developmentSubscriberReview || deviceMode) return
       if (accountSyncInFlight) {
         accountSyncQueued = true
         return
@@ -652,7 +666,10 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
     }
 
     loadLocalSettings()
-    if (developmentSubscriberReview) {
+    if (deviceMode) {
+      setCanSync(false)
+      setAccountSyncStatus("local")
+    } else if (developmentSubscriberReview) {
       setFeatureKeys(DEV_CLOCK_FEATURE_KEYS)
       setPremiumBackgroundAccessSource("subscription")
       setPermanentlyOwnedBackgroundIds([])
@@ -676,9 +693,26 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   }, [
     captureBackgroundCommerceOwnershipRevision,
     developmentSubscriberReview,
+    deviceMode,
     reconcileBackgroundCommerceOwnership,
     storageKey,
   ])
+
+  // Only the verified native adapter can supply this local snapshot. Account
+  // reads/writes remain disabled; refresh/expiry replace rather than merge it.
+  const deviceAccessKey = deviceRuntime ? JSON.stringify(deviceRuntime.backgroundAccess) : ""
+  useEffect(() => {
+    if (!deviceMode) return
+    const access = JSON.parse(deviceAccessKey) as BackgroundAccessSnapshot
+    setFeatureKeys([...(access.featureKeys ?? [])])
+    setPremiumBackgroundAccessSource(access.featureKeys?.includes(FEATURE_KEYS.premiumBackgrounds) ? "temporary" : null)
+    setPermanentlyOwnedBackgroundIds([...access.ownedBackgroundIds])
+  }, [deviceMode, deviceAccessKey])
+
+  const onDeviceChange = deviceRuntime?.onChange
+  useEffect(() => {
+    if (hasLoadedSettings && onDeviceChange) onDeviceChange(settings, timerState)
+  }, [onDeviceChange, hasLoadedSettings, settings, timerState])
 
   useEffect(() => {
     if (hasLoadedSettings) {
@@ -725,14 +759,14 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   }, [])
 
   useEffect(() => {
-    document.body.classList.toggle("chimer-running", timerState.status !== "idle")
+    document.body.classList.toggle("chimer-running", active && timerState.status !== "idle")
     return () => document.body.classList.remove("chimer-running")
-  }, [timerState.status])
+  }, [active, timerState.status])
 
   useEffect(() => {
-    document.body.classList.toggle("chimer-alerting", isAlerting)
+    document.body.classList.toggle("chimer-alerting", active && isAlerting)
     return () => document.body.classList.remove("chimer-alerting")
-  }, [isAlerting])
+  }, [active, isAlerting])
 
   const releaseWakeLock = useCallback(() => {
     const sentinel = wakeLockRef.current
@@ -963,6 +997,16 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
     timerInterval.current = setInterval(tick, 250)
     window.setTimeout(tick, 0)
   }, [clearTimerInterval, tick])
+
+  useEffect(() => {
+    if (deviceMode && timerStateRef.current.status === "running") startTicking()
+  }, [deviceMode, startTicking])
+
+  useEffect(() => {
+    if (!deviceMode) return
+    setTimerState(current => current.status === "idle" || current.status === "clock"
+      ? (startsInClockMode ? createClockTimerState() : idleTimerState) : current)
+  }, [deviceMode, startsInClockMode])
 
   const updateSettings = (
     nextSettings: Partial<ChimerSettings>,
@@ -1542,6 +1586,9 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
         }),
         onClose: endTimer,
       }
+  // A retained native timer keeps its hooks/alerts alive while another route
+  // is visible. Unmount the view, including its portaled immersive controls.
+  if (!active) return null
   return (
     <div className="relative min-h-full px-4 py-[7px]">
       {!isTimerActive && (

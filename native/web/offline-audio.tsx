@@ -11,7 +11,7 @@ const mb = (size: number) => `${(size / 1048576).toFixed(1)} MB`
 
 /** Explicit downloads and local-only playback. Kept mounted across tool tabs so
  * navigating to Clock or breathing never stops music or an in-progress save. */
-export const OfflineAudio = memo(function OfflineAudio() {
+export const OfflineAudio = memo(function OfflineAudio({ downloadOnly = false }: { downloadOnly?: boolean } = {}) {
   const [store] = useState(() => createOfflineMediaStore())
   const [packs, setPacks] = useState<Array<{ id: string; bytes: number }>>([])
   const [section, setSection] = useState("station"), [search, setSearch] = useState("")
@@ -97,8 +97,8 @@ export const OfflineAudio = memo(function OfflineAudio() {
   }
   const items: Array<{id:string; title:string; description:string; kind:string; station?:any; attribution?: {artist:string;license:string;sourceUrl?:string}}> = (section === "generated" ? generated : catalog.filter(item => item.kind === section)).filter(item => item.title.toLowerCase().includes(search.toLowerCase()))
   return <div className={styles.audio}>
-    <div className={styles.title}><h1>Music &amp; Atmosphere</h1><span>{packs.length} downloads · {mb(packs.reduce((sum, pack) => sum + pack.bytes, 0))}</span></div>
-    <div className={styles.actions}>{[["station", "Stations"], ["ambient", "Atmosphere sounds"], ["generated", "Generated sounds"]].map(([id, title]) => <Button key={id} variant={section === id ? "ctaBlue" : "glow"} aria-pressed={section === id} onClick={() => setSection(id)}>{title}</Button>)}</div>
+    <div className={styles.title}><h1>{downloadOnly ? "Music downloads" : "Music & Atmosphere"}</h1><span>{packs.length} downloads · {mb(packs.reduce((sum, pack) => sum + pack.bytes, 0))}</span></div>
+    <div className={styles.actions}>{[["station", "Stations"], ["ambient", "Atmosphere sounds"], ...(!downloadOnly ? [["generated", "Generated sounds"]] : [])].map(([id, title]) => <Button key={id} variant={section === id ? "ctaBlue" : "glow"} aria-pressed={section === id} onClick={() => setSection(id)}>{title}</Button>)}</div>
     <p className={styles.hint}>Download the sounds you want to keep. Saved sounds work offline after app restarts. Uninstalling or clearing app data removes downloads. Keep the app open for reliable playback in this preview.</p>
     <label>Find a sound<input className={styles.search} type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     {download && <div role="status" className={styles.downloadNotice}><p>Downloading {catalog.find(item => item.id === download.id)?.title}: {download.total ? `${mb(download.loaded)} / ${mb(download.total)}` : "Reading complete pack…"}</p><progress aria-label="Download progress" max={download.total || 1} value={download.loaded} /><Button variant="glow" onClick={() => abortRef.current?.abort()}>Cancel download</Button></div>}
@@ -110,7 +110,7 @@ export const OfflineAudio = memo(function OfflineAudio() {
       return <article key={item.id} className={styles.audioCard} data-offline-audio={item.id}>
         <h2>{item.title}</h2><p className={styles.hint}>{item.description}</p>
         <p className={styles.hint}>{invalid ? "Download damaged · Remove and download again" : pack ? `Ready offline · ${mb(pack.bytes)}` : item.kind === "generated" ? "Ready offline" : "Not downloaded"}</p>
-        <div className={styles.actions}><Button variant="success" disabled={!ready} onClick={() => void (playing || loading ? stop(item.id) : play(item))}>{playing || loading ? "Stop" : "Play"} {item.title}</Button>
+        <div className={styles.actions}>{!downloadOnly && <Button variant="success" disabled={!ready} onClick={() => void (playing || loading ? stop(item.id) : play(item))}>{playing || loading ? "Stop" : "Play"} {item.title}</Button>}
           {item.kind !== "generated" && (!pack ? <Button variant="glow" disabled={Boolean(download)} onClick={() => void save(item as (typeof catalog)[number])}>Download {item.title}</Button> : <Button variant="glow" onClick={() => void remove(item.id)}>Remove download</Button>)}</div>
         {playing && <label>Volume<input aria-label={`${item.title} volume`} type="range" min="0" max="1" step="0.05" value={volumes[item.id] ?? (item.kind === "station" ? 0.75 : 0.5)} onChange={event => { const value = Number(event.target.value); setVolumes(previous => ({ ...previous, [item.id]: value })); runtimeRef.current?.volume(item.id, value) }} /></label>}
         {item.attribution && <details className={styles.hint}><summary>Credits</summary>{item.attribution.artist} · {item.attribution.license}{item.attribution.sourceUrl && <p>{item.attribution.sourceUrl}</p>}</details>}

@@ -1,5 +1,22 @@
 # AtmoShaper Project Log
 
+## November 22 Android shares the website UI; local verification underway
+
+Respond to the owner's installed-APK design mismatch by reusing the actual Home,
+sidebar/main bar, Chimer, breathing, Music and planner components. The owner
+chooses connected pages inside the app. Prepare browser-owned Trusted Web Activity
+integration without transferring browser cookies, credentials or private records.
+Keep the application/signing identity, media store and receipt authority. Import
+the old timer/settings read-only into a separate atomic shared-screen snapshot;
+failed initial reads cannot overwrite earlier data. Add native save/print and
+fullscreen ports, bounded to packaged content and user-visible Android dialogs.
+
+Initial shared-screen browser, storage/deadline and PDF checks pass. A shared Music
+playback check identifies remaining online carrier/notification artwork bindings;
+prepare packaged bindings. Continue fresh-emulator upgrade/media acceptance and
+Codex/CodeRabbit review. Do not publish or hand off this candidate as complete yet.
+The previous release remains live; its completed approval window is not reused.
+
 ## November 22 offline Android release published
 
 Complete the approved PR #80 amendment: push `92585d9`, obtain fresh hosted

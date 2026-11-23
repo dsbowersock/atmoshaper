@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { fetchJsonWithTimeout } from "@/lib/client-fetch"
-import { emptySidebarCalendarContext } from "@/lib/sidebar-calendar-context"
+import { emptySidebarCalendarContext } from "@/lib/sidebar-calendar-contract"
 
 export type SidebarCalendarContext = {
   practice: {

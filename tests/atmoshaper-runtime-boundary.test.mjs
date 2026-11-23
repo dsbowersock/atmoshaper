@@ -52,7 +52,8 @@ test("runtime.ts is the sole AtmoShaper composition root", () => {
   assert.match(runtime, /from\s+["']\.\/mix-controller\.js["']/)
   assert.match(runtime, /from\s+["']\.\/generated-audio-runtime["']/)
   assert.match(runtime, /from\s+["']\.\.\/atmosphere\/stations\.js["']/)
-  assert.match(runtime, /from\s+["']\.\.\/atmosphere\/generative-fm-runtime["']/)
+  assert.match(runtime, /from\s+["']\.\.\/atmosphere\/generative-fm-platform["']/)
+  assert.match(readRequiredSource("lib/atmosphere/generative-fm-platform.ts"), /from\s+["']\.\/generative-fm-runtime["']/)
   assert.match(runtime, /from\s+["']\.\.\/atmosphere\/tone-proof-runtime["']/)
 
   const forbiddenCompositionImports = /(?:mix-controller|atmosphere\/stations|generative-fm-runtime|tone-proof-runtime)/

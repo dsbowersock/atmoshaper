@@ -8,8 +8,8 @@ android {
         applicationId 'com.atmoshaper.app'
         minSdk 28
         targetSdk 36
-        versionCode 3
-        versionName '0.3.0-offline-media-preview'
+        versionCode 4
+        versionName '0.4.0-shared-website-preview'
         resValue 'string', 'app_name', 'AtmoShaper'
     }
     signingConfigs {
@@ -42,4 +42,5 @@ android {
 dependencies {
     implementation 'androidx.activity:activity:1.10.1'
     implementation 'androidx.webkit:webkit:1.14.0'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
 }

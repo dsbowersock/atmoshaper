@@ -5,6 +5,7 @@ import { createAmbientAtmoShaperAdapter } from "@/lib/atmoshaper/ambient-audio-r
 import { createGeneratedAtmoShaperAdapter } from "@/lib/atmoshaper/generated-audio-runtime"
 import { mediaUrl, readVerifiedOfflinePack } from "@/lib/offline-media"
 import { createStationTransportScope } from "@/lib/offline-station-transport"
+import type { InputNode } from "tone/build/esm/core/context/ToneAudioNode"
 
 type Handle = { stop(): Promise<void>; volume(value: number): void }
 type PackFile = { url: string; data: ArrayBuffer }
@@ -13,10 +14,12 @@ const stationGain = (value: number) => 10 ** ((-60 + Math.max(0, Math.min(1, val
 
 /** One app-owned mixer: station replacement is serialized, ambient layers may
  * coexist, and an obsolete async start cannot claim the output after Stop. */
-export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedOfflinePack>[1]) {
+export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedOfflinePack>[1], options: { destination?: InputNode; masterVolume?: number } = {}) {
   const layers = new Map<string, Handle>()
   const generations = new Map<string, number>()
-  const master = new Tone.Gain(0.6).toDestination()
+  const master = new Tone.Gain(options.masterVolume ?? 0.6)
+  if (options.destination) master.connect(options.destination)
+  else master.toDestination()
   let activeStation: string | null = null
   let disposed = false
   async function stop(id: string) {

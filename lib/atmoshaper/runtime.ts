@@ -2,14 +2,14 @@ import { Volume } from "tone/build/esm/component/channel/Volume"
 import { start } from "tone/build/esm/core/Global"
 import type { InputNode } from "tone/build/esm/core/context/ToneAudioNode"
 
-import { startGenerativeFmPiece } from "../atmosphere/generative-fm-runtime"
+import { startGenerativeFmPiece } from "../atmosphere/generative-fm-platform"
 import { getAtmosphereStationById } from "../atmosphere/stations.js"
 import { startToneProofDrone } from "../atmosphere/tone-proof-runtime"
 import {
   createGeneratedAtmoShaperAdapter,
   type AtmoShaperAudioLayerHandle,
 } from "./generated-audio-runtime"
-import { createAmbientAtmoShaperAdapter } from "./ambient-audio-runtime"
+import { createAmbientAtmoShaperAdapter } from "./ambient-platform"
 import { createAtmoShaperMixController } from "./mix-controller.js"
 import { rampSeconds } from "./audio-parameters.js"
 import type { AtmoShaperLayer, AtmoShaperRecipe } from "./recipe.js"

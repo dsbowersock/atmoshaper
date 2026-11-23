@@ -4,13 +4,14 @@ import { describe, it } from "node:test"
 
 const providerSourcePath = new URL("../components/providers/music-provider.tsx", import.meta.url)
 const providerSource = await readFile(providerSourcePath, "utf8")
+const awaitedPlatformSource = await readFile(new URL("../lib/atmosphere/generative-fm-platform.ts", import.meta.url), "utf8")
 
 describe("Atmosphere provider lazy-loading boundary", () => {
   it("keeps heavy audio runtime modules out of the global provider's static imports", () => {
     const heavyRuntimeModules = [
       "stations",
       "runtime-controller",
-      "generative-fm-runtime",
+      "generative-fm-platform",
       "tone-proof-runtime",
     ]
 
@@ -26,6 +27,7 @@ describe("Atmosphere provider lazy-loading boundary", () => {
         `${moduleName} should still be loaded by the runtime path`,
       )
     }
+    assert.match(awaitedPlatformSource, /from ["']\.\/generative-fm-runtime["']/)
   })
 
   it("loads AtmoShaper through its single composition root only", () => {

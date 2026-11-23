@@ -18,7 +18,7 @@ const PwaInstallContext = React.createContext<{
   requestInstall: () => Promise<InstallRequestResult>
 } | null>(null)
 
-export function PwaInstallProvider({ children }: { children: React.ReactNode }) {
+export function PwaInstallProvider({ children, installed = false }: { children: React.ReactNode; installed?: boolean }) {
   const promptRef = React.useRef<BeforeInstallPromptEvent | null>(null)
   const [hasPrompt, setHasPrompt] = React.useState(false)
   const [isStandalone, setIsStandalone] = React.useState(false)
@@ -53,7 +53,7 @@ export function PwaInstallProvider({ children }: { children: React.ReactNode }) 
     }
   }, [])
 
-  const status = resolvePwaInstallStatus({ hasPrompt, isStandalone, isIosSafari }) as PwaInstallStatus
+  const status = resolvePwaInstallStatus({ hasPrompt, isStandalone: installed || isStandalone, isIosSafari }) as PwaInstallStatus
 
   const requestInstall = React.useCallback(async (): Promise<InstallRequestResult> => {
     if (status === "instructions") return "instructions"

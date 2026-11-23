@@ -15,6 +15,7 @@ import { createPublicPageMetadata, createSeoJsonLd } from "@/lib/seo"
 import { getBackgroundCommercePurchaseReadiness } from "@/lib/commerce/catalog"
 import { PUBLIC_PRODUCT_IDENTITY } from "@/lib/public-product-identity"
 import "./globals.css"
+import { NativeAppNavigation } from "@/components/native/native-app-navigation"
 
 const inter = Inter({ subsets: ["latin"] })
 const rootMetadata = createPublicPageMetadata("/")
@@ -61,6 +62,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(seoJsonLd) }}
         />
         <ServiceWorkerProvider />
+        <NativeAppNavigation />
         <PwaInstallProvider>
           <AccountShellBootstrapProvider
             key={accountBootstrap.ownerKey ?? "anonymous"}

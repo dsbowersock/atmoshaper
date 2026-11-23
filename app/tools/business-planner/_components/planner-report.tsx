@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { buildPlannerReport, PLANNER_REPORT_SOURCES, PLANNER_SOURCE_STATUS_LABELS, readPlannerReportSources } from "@/lib/business-planner-reports"
 import { PlannerSection } from "./business-tool-fields"
 import styles from "./business-planner.module.css"
+import { savePlannerPdf, printPlannerReport } from "@/lib/planner-export"
 
 type PlannerSources = ReturnType<typeof readPlannerReportSources>
 type Report = ReturnType<typeof buildPlannerReport>
@@ -83,13 +84,7 @@ export function PlannerReportReview({ kind, draft, sources, ready, refresh }: {
       ])
       if (!response.ok) throw new Error("REPORT_FONT_UNAVAILABLE")
       const bytes = await createBusinessPlannerPdf(snapshot, await response.arrayBuffer())
-      const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }))
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `atmoshaper-${snapshot.kind}-working-draft-${snapshot.generatedAt.slice(0, 10)}.pdf`
-      link.click()
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
-      setMessage("PDF download prepared. Review it before sharing.")
+      setMessage(await savePlannerPdf(new Uint8Array(bytes), `atmoshaper-${snapshot.kind}-working-draft-${snapshot.generatedAt.slice(0, 10)}.pdf`))
     } catch (error) {
       setMessage(error instanceof Error && error.message === "REPORT_UNSUPPORTED_TEXT"
         ? "Some characters are not supported by the download font. Use Print / save PDF to preserve the original text. Your draft is unchanged."
@@ -110,7 +105,7 @@ export function PlannerReportReview({ kind, draft, sources, ready, refresh }: {
       <div className={styles.formActions}>
         <Button type="button" variant="glow" onClick={refresh}><RefreshCw aria-hidden="true" />Refresh saved tools</Button>
         <Button type="button" variant="ctaBlue" disabled={!ready || exportState === "working"} onClick={downloadPdf}><Download aria-hidden="true" />{exportState === "working" ? "Preparing PDF…" : "Download PDF report"}</Button>
-        <Button type="button" variant="glow" disabled={!ready || exportState === "working"} onClick={() => window.print()}><Printer aria-hidden="true" />Print / save PDF</Button>
+        <Button type="button" variant="glow" disabled={!ready || exportState === "working"} onClick={printPlannerReport}><Printer aria-hidden="true" />Print / save PDF</Button>
       </div>
       {message ? <p role="status" className="text-sm">{message}</p> : null}
       {!ready ? <p role="status">Loading saved planner information…</p> : null}

@@ -14,7 +14,7 @@ const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css
 const evidence = process.env.ATMOSHAPER_OFFLINE_EVIDENCE_DIR
 
 test("real station and ambient downloads play after an offline restart without fetching audio", { timeout: 240000, skip: process.env.ATMOSHAPER_OFFLINE_REAL_MEDIA_TEST !== "1" }, async () => {
-  await buildOfflineCore({ outputName: "offline-acceptance-media" })
+  await buildOfflineCore({ legacyAcceptance: true, outputName: "offline-acceptance-media" })
   const browser = await chromium.launch()
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" })
   const errors = [], offlineRequests = []
