@@ -13,10 +13,11 @@ export function useLinkStatus() { return { pending: false } }
 export default forwardRef<HTMLAnchorElement, LinkProps>(function NativeLink({ href, replace, prefetch, scroll, onClick, ...props }, ref) {
   void [prefetch, scroll] // Next-only hints have no local asset-loader equivalent.
   const path = typeof href === "string" ? href : (href.pathname ?? "/") + (href.query ? "?" + new URLSearchParams(href.query) : "")
+  const internal = path.startsWith("/") && !path.startsWith("//")
   function click(event: MouseEvent<HTMLAnchorElement>) {
     onClick?.(event)
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || props.target === "_blank") return
-    if (path.startsWith("/") && !path.startsWith("//")) {
+    if (internal) {
       event.preventDefault()
       // Connected Home/planners retain the account session and saved drafts in
       // the trusted browser. Offline planners stay local and remain available.
@@ -27,6 +28,6 @@ export default forwardRef<HTMLAnchorElement, LinkProps>(function NativeLink({ hr
       } else navigateNative(path, replace)
     }
   }
-  return <a {...props} ref={ref} href={path.startsWith("/") ? "#" + path : path} onClick={click} />
+  return <a {...props} ref={ref} href={internal ? "#" + path : path} onClick={click} />
 })
 

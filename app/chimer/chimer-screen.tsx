@@ -1,6 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import { Button } from "@/components/ui/button"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { MovingBackground } from "@/components/moving-background"
@@ -280,6 +282,8 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
   const settingsRef = useRef(settings)
   const backgroundAccessRef = useRef(backgroundAccess)
   const audioContextRef = useRef<AudioContext | null>(null)
+  const [needsRestoredAudio, setNeedsRestoredAudio] = useState(() => Boolean(deviceRuntime?.initialTimer && ["running", "paused"].includes(deviceRuntime.initialTimer.status)))
+  const [restoredAudioMessage, setRestoredAudioMessage] = useState("")
   const wakeLockRef = useRef<ChimerWakeLockSentinel | null>(null)
   const wakeLockRequestRef = useRef<Promise<void> | null>(null)
   const shouldKeepWakeLockRef = useRef(false)
@@ -897,7 +901,9 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
           }),
         ])
       }
-      return context.state === "running"
+      const ready = context.state === "running"
+      if (ready) setNeedsRestoredAudio(false)
+      return ready
     } catch {
       return false
     } finally {
@@ -905,7 +911,7 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
         window.clearTimeout(timeoutId)
       }
     }
-  }, [getAudioContext])
+  }, [getAudioContext, setNeedsRestoredAudio])
 
   const playChime = useCallback((volume: number = DEFAULT_CHIMER_SETTINGS.alertVolume) => {
     const context = audioContextRef.current
@@ -1522,7 +1528,11 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
     : null
   const initialMusicPanel = requestedInitialPanel
     ?? (musicSelectionHydrated && selectedMusicBackgroundId === null ? "background" : null)
-  const immersiveMode: ImmersiveDisplayMode = immersiveContext === "musicVisualizer"
+  // The native Clock & timer entry can restore an already-running countdown.
+  // Pure Clock intentionally hides timer digits, so retain the timer stage.
+  const displayContext = deviceMode && immersiveContext === "clock" && ["running", "paused", "complete"].includes(timerState.status)
+    ? "chimer" : immersiveContext
+  const immersiveMode: ImmersiveDisplayMode = displayContext === "musicVisualizer"
     ? {
       context: "musicVisualizer",
       backgroundCategory: "music",
@@ -1550,7 +1560,7 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
         onRetry: retryVisualizerAccountSync,
       },
     }
-    : immersiveContext === "clock"
+    : displayContext === "clock"
       ? {
         context: "clock",
         backgroundCategory: "clock",
@@ -1588,8 +1598,16 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
       }
   // A retained native timer keeps its hooks/alerts alive while another route
   // is visible. Unmount the view, including its portaled immersive controls.
-  if (!active) return null
+  const audioRecoveryPrompt = deviceMode && hasLoadedSettings && needsRestoredAudio
+    && ["running", "paused"].includes(timerState.status) && SOUND_ALERT_TYPES.has(settings.alertType)
+    ? createPortal(<aside role="alert" className="fixed left-1/2 top-3 z-[30000] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 space-y-2 rounded-xl border border-border bg-background p-3 shadow-lg">
+      <p className="text-sm">Timer restored. Enable its sound on this device; your remaining time stays the same.</p>
+      <Button variant="ctaBlue" onClick={async () => { if (!(await unlockAudio())) setRestoredAudioMessage("Sound is not ready. Check sound permissions and try again.") }}>Enable timer sound</Button>
+      {restoredAudioMessage && <p className="text-sm">{restoredAudioMessage}</p>}
+    </aside>, document.body) : null
+  if (!active) return audioRecoveryPrompt
   return (
+    <>{audioRecoveryPrompt}
     <div className="relative min-h-full px-4 py-[7px]">
       {!isTimerActive && (
         <>
@@ -2331,5 +2349,6 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
         )}
       </div>
     </div>
+    </>
   )
 }

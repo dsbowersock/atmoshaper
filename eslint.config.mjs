@@ -16,6 +16,7 @@ const eslintConfig = [
       ".next/**",
       "out/**",
       "build/**",
+      "native/android/**/build/**",
       "coverage/**",
       ".codex/**",
       ".playwright-cli/**",

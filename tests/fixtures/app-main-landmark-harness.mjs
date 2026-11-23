@@ -36,6 +36,7 @@ export async function renderLandmarkDocument(kind, { backgroundPurchasesAvailabl
     "@/components/providers/account-shell-bootstrap-provider": { AccountShellBootstrapProvider: childrenOnly },
     "@/components/providers/settings-provider": { SettingsProvider: childrenOnly },
     "@/components/providers/service-worker-provider": { ServiceWorkerProvider: () => null },
+    "@/components/native/native-app-navigation": { NativeAppNavigation: () => null },
     "@/components/providers/pwa-install-provider": { PwaInstallProvider: childrenOnly },
     "@/components/providers/therapist-settings-provider": { TherapistSettingsProvider: childrenOnly },
     "@/components/providers/music-provider": { MusicProvider: childrenOnly },

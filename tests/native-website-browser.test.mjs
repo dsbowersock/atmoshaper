@@ -1,4 +1,4 @@
-import test from "node:test"
+import test, { before } from "node:test"
 import assert from "node:assert/strict"
 import { readFile, mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
@@ -8,12 +8,17 @@ import { defaultOfflineCoreState, startOfflineTimer } from "../lib/offline-core.
 import { createDefaultAtmosphereStorage, ATMOSPHERE_STORAGE_KEY } from "../lib/atmosphere/storage.js"
 import { PDFDocument } from "pdf-lib"
 import { offlineAudioCatalog } from "../lib/offline-media.js"
+import { buildOfflineCore } from "../scripts/build-offline-core.mjs"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
-const core = path.join(root, "output/offline-core/core")
+const core = path.join(root, "output/offline-acceptance-website/core")
 const entry = "https://appassets.androidplatform.net/assets/core/index.html"
 const output = path.join(root, "output/native-website-preview")
 const mime = { ".html":"text/html", ".js":"text/javascript", ".css":"text/css", ".png":"image/png", ".svg":"image/svg+xml", ".jpg":"image/jpeg", ".woff2":"font/woff2", ".ttf":"font/ttf" }
+
+// Fresh checkouts need no Android SDK or prebuilt output, and a concurrent APK
+// build cannot replace the files being read by this browser's asset loader.
+before(async()=>{await buildOfflineCore({outputName:"offline-acceptance-website"})},{timeout:180000})
 
 /** Uses the exact normal APK asset tree in a cold, network-disabled context. */
 async function fixture({ allowMedia = false } = {}) {
@@ -53,7 +58,7 @@ test("shared home, navigation, breathing, Music and planner screens work on a co
   const f = await fixture(), {page}=f
   await mkdir(output,{recursive:true})
   try {
-    await page.goto(entry)
+    await page.goto(entry+"#/?from=clock")
     await expect(page.getByTestId("home-launcher")).toBeVisible()
     await expect(page.getByRole("link",{name:"Clock & timer",exact:true})).toBeVisible()
     await page.getByRole("button",{name:"Practice tools",exact:true}).click()
@@ -96,6 +101,8 @@ test("read-only upgrade preserves the earlier state and restores a running deadl
     await expect(page.locator("[data-native-shared-clock]")).toBeVisible()
     const read=()=>readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state")
     await expect.poll(async()=> (await read())?.timer.status).toBe("running")
+    await expect(page.getByTestId("running-timer-clock")).toBeVisible()
+    await expect(page.getByTestId("running-timer-clock")).toHaveAttribute("data-immersive-primary-display","true")
     assert.equal((await read()).timer.endsAtMs,original.timer.endsAt)
     await go(page,"/wellness/breathing")
     await expect(page.getByRole("heading",{name:"Breathing guide",exact:true})).toBeVisible()
@@ -134,6 +141,31 @@ async function contextFailure(page) {
     }
   })
 }
+
+test("a restored timer requests sound readiness without restarting its deadline, then chimes once",{timeout:30000},async()=>{
+  const f=await fixture(),{page}=f
+  const original={...defaultOfflineCoreState(),tool:"timer",durationMs:15000,timer:startOfflineTimer(15000)}
+  try {
+    await page.goto(entry.replace("index.html","seed.html"))
+    await page.evaluate(state=>new Promise(resolve=>{
+      const open=indexedDB.open("atmoshaper.android.offline-core.v1",1)
+      open.onupgradeneeded=()=>open.result.createObjectStore("state")
+      open.onsuccess=()=>{const db=open.result,tx=db.transaction("state","readwrite");tx.objectStore("state").put(state,"preferences");tx.oncomplete=()=>{db.close();resolve()}}
+    }),original)
+    await page.addInitScript(()=>{
+      window.__timerTones=0
+      const start=OscillatorNode.prototype.start
+      OscillatorNode.prototype.start=function(...args){window.__timerTones++;return start.apply(this,args)}
+    })
+    await page.goto(entry)
+    await page.getByRole("button",{name:"Enable timer sound",exact:true}).click()
+    await expect(page.getByRole("button",{name:"Enable timer sound",exact:true})).toHaveCount(0)
+    assert.equal((await readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state")).timer.endsAtMs,original.timer.endsAt)
+    await expect.poll(()=>page.evaluate(()=>window.__timerTones),{timeout:20000}).toBe(2)
+    await expect.poll(async()=>(await readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state")).timer.status).toBe("complete")
+    assert.deepEqual(f.errors,[]);assert.deepEqual(f.foreign,[])
+  }finally{await f.close()}
+})
 
 test("offline outline report uses the packaged font and hands actual PDF bytes to the save dialog port", {timeout:60000}, async()=>{
   const f=await fixture(),{page}=f
@@ -217,7 +249,7 @@ test("the shared Music player generates a downloaded station after an offline re
     await page.getByRole("group",{name:"Station category"}).getByRole("button",{name:"Atmosphere",exact:true}).click()
     await page.getByRole("tab",{name:"Ambient sounds",exact:true}).click()
     await page.getByLabel("Search ambient sounds",{exact:true}).fill(title)
-    await page.getByRole("button",{name:`Preview ${title}`,exact:true}).click()
+    await page.getByRole("button",{name:`Preview ${ambient.label}`,exact:true}).click()
     await expect.poll(()=>page.evaluate(()=>window.__localMedia.some(audio=>audio.src.startsWith("blob:")&&audio.currentTime>0)),{timeout:20000}).toBe(true)
     assert.deepEqual(f.errors,[]);assert.deepEqual(f.foreign,[])
   } catch(error){await writeFile(path.join(output,"audio-failure.json"),JSON.stringify({body:await page.locator("body").innerText(),errors:f.errors,foreign:f.foreign},null,2));throw error}

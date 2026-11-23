@@ -26,7 +26,8 @@ const bootstrap = { ownerKey: null, syncEnabled: false, preferenceStatus: "anony
  * adapters; this component does not define another dashboard or navigation UI. */
 export function WebsiteApp() {
   const route = useNativeRoute()
-  const clockRoute = route.split("?")[0] === "/clock" || route.split("?")[0] === "/chimer"
+  const path = route.split("?")[0]
+  const clockRoute = path === "/clock" || path === "/chimer"
   return <NativeAccessProvider><PwaInstallProvider installed><AccountShellBootstrapProvider initialBootstrap={bootstrap}>
     <SettingsProvider><TherapistSettingsProvider><MusicProvider>
       <SidebarProvider className="h-[100dvh] min-h-0 overflow-hidden bg-background">
@@ -35,7 +36,7 @@ export function WebsiteApp() {
           <SidebarInset className="min-h-0 overflow-hidden bg-transparent">
             <div className="relative h-full min-w-0 overflow-hidden">
               <LayoutWrapper user={null} navigation={navigation} backgroundPurchasesAvailable={false}>
-                {route === "/" && <HomeDashboard signedIn={false} {...dashboard} />}
+                {path === "/" && <HomeDashboard signedIn={false} {...dashboard} />}
                 <NativeClock route={route} active={clockRoute} />
                 <ToolRoutes />
               </LayoutWrapper>

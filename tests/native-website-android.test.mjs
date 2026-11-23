@@ -63,29 +63,57 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     }),{name,store,key})
   }
   const go=(page,route)=>page.evaluate(route=>window.dispatchEvent(new CustomEvent("atmoshaper:native-navigation",{detail:route})),route)
+  const touchSessions = new WeakMap()
+  /** Android's CDP context has no desktop hasTouch option. Send actual mobile
+   * input after checking geometry, instead of its unreliable mouse auto-scroll. */
+  async function tap(page, target, nativeTransition = false) {
+    await expect(target).toBeVisible()
+    let bounds=await target.boundingBox()
+    const size=await page.evaluate(()=>({width:innerWidth,height:innerHeight}))
+    if(bounds && (bounds.y<0 || bounds.y+bounds.height>size.height || bounds.x<0 || bounds.x+bounds.width>size.width)) {
+      await target.evaluate(element=>element.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"}))
+      bounds=await target.boundingBox()
+    }
+    assert.ok(bounds && bounds.width>0 && bounds.height>0)
+    const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2
+    assert.ok(x>=0 && x<size.width && y>=0 && y<size.height,"touch target is inside the visible viewport")
+    let session=touchSessions.get(page)
+    if(!session){session=await page.context().newCDPSession(page);touchSessions.set(page,session)}
+    await session.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x,y}]})
+    const released=session.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]})
+    if(nativeTransition) {
+      // WebView can withhold the input ack while a native fullscreen/picker
+      // owns its surface. Mandatory postconditions below verify the real effect.
+      let timeout
+      try {await Promise.race([released,new Promise(resolve=>{timeout=setTimeout(resolve,1000)})])}
+      finally {clearTimeout(timeout);void released.catch(()=>{})}
+    } else await released
+  }
   let page
   try {
     page=await connect()
-    await page.getByRole("button",{name:"Music",exact:true}).click()
+    console.log("Android fixture: connected to the earlier preview.")
+    await tap(page,page.getByRole("button",{name:"Music",exact:true}))
     await page.getByLabel("Find a sound").fill("Little Bells")
-    await page.getByRole("button",{name:"Download Little Bells",exact:true}).click()
+    await tap(page,page.getByRole("button",{name:"Download Little Bells",exact:true}))
     await expect(page.getByText("Little Bells is ready offline.",{exact:true})).toBeVisible({timeout:90000})
     const catalog=JSON.parse(await readFile(path.join(root,"data/atmoshaper/production-audio-catalog.json")))
     const size=item=>item.sources.reduce((sum,source)=>sum+source.formats.find(format=>format.id==="opus").byteSize,0)
     const ambient=[...catalog.concepts].sort((a,b)=>size(a)-size(b))[0]
     const title=offlineAudioCatalog(catalog).find(item=>item.id===ambient.id).title
-    await page.getByRole("button",{name:"Atmosphere sounds",exact:true}).click()
+    await tap(page,page.getByRole("button",{name:"Atmosphere sounds",exact:true}))
     await page.getByLabel("Find a sound").fill(title)
-    await page.getByRole("button",{name:`Download ${title}`,exact:true}).click()
+    await tap(page,page.getByRole("button",{name:`Download ${title}`,exact:true}))
     await expect(page.getByText(`${title} is ready offline.`,{exact:true})).toBeVisible({timeout:90000})
-    await page.getByRole("button",{name:"Backgrounds",exact:true}).click()
-    await page.getByRole("button",{name:"In Transition",exact:true}).click()
+    console.log("Android fixture: both real downloads saved; preparing the upgrade.")
+    await tap(page,page.getByRole("button",{name:"Backgrounds",exact:true}))
+    await tap(page,page.getByRole("button",{name:"In Transition",exact:true}))
     await page.getByLabel("Main color",{exact:true}).fill("#146b73")
-    await page.getByRole("button",{name:"Timer",exact:true}).click()
+    await tap(page,page.getByRole("button",{name:"Timer",exact:true}))
     await page.getByLabel("Timer hours",{exact:true}).fill("0")
     await page.getByLabel("Timer minutes",{exact:true}).fill("5")
     await page.getByLabel("Timer seconds",{exact:true}).fill("0")
-    await page.getByRole("button",{name:"Start timer",exact:true}).click()
+    await tap(page,page.getByRole("button",{name:"Start timer",exact:true}))
     await expect(page.locator("main")).toHaveAttribute("data-offline-save-state","saved")
     const old=await read(page,"atmoshaper.android.offline-core.v1","state","preferences")
     const packs=await page.evaluate(()=>new Promise(resolve=>{const open=indexedDB.open("atmoshaper.android.media.v1");open.onsuccess=()=>{const db=open.result,request=db.transaction("metadata").objectStore("metadata").getAll();request.onsuccess=()=>{db.close();resolve(request.result)}}}))
@@ -99,14 +127,25 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     shell("shell","am","start","-n",`${pkg}/com.atmoshaper.app.MainActivity`)
     page=await connect()
     await expect(page.getByTestId("home-launcher")).toBeVisible()
+    await tap(page,page.getByRole("button",{name:"Enable timer sound",exact:true}))
+    await expect(page.getByRole("button",{name:"Enable timer sound",exact:true})).toHaveCount(0)
     await writeFile(path.join(output,"android-shared-home.png"),await device.screenshot())
     assert.deepEqual(await read(page,"atmoshaper.android.offline-core.v1","state","preferences"),old)
     const nextAccess=await read(page,"atmoshaper.android.background-access.v1","access","state")
     assert.equal(nextAccess.device,oldAccess.device);assert.equal(nextAccess.receipt,oldAccess.receipt)
-    await page.getByRole("link",{name:"Clock & timer",exact:true}).click()
+    await tap(page,page.getByRole("link",{name:"Clock & timer",exact:true}))
     await expect(page.locator("[data-native-shared-clock]")).toBeVisible()
     await expect.poll(async()=>(await read(page,"atmoshaper.android.chimer-runtime.v1","clock","state"))?.timer.endsAtMs).toBe(old.timer.endsAt)
+    await expect(page.getByTestId("running-timer-clock")).toBeVisible()
+    await expect(page.getByTestId("running-timer-clock")).toHaveAttribute("data-immersive-primary-display","true")
     await writeFile(path.join(output,"android-shared-clock.png"),await device.screenshot())
+    const beforeFullscreen=page.url()
+    await tap(page,page.getByRole("button",{name:"Toggle fullscreen",exact:true}),true)
+    await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(true)
+    shell("shell","input","keyevent","KEYCODE_BACK")
+    await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(false)
+    assert.equal(page.url(),beforeFullscreen,"Back exits fullscreen before navigating away")
+    console.log("Android check: shared countdown and fullscreen Back passed.")
     await page.evaluate(({key,value})=>localStorage.setItem(key,JSON.stringify(value)),{key:ATMOSPHERE_STORAGE_KEY,value:{...createDefaultAtmosphereStorage(),favorites:["generative-fm-little-bells"]}})
     await page.reload()
     await page.evaluate(()=>{
@@ -115,22 +154,28 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
       AudioBufferSourceNode.prototype.start=function(...args){if(this.context instanceof AudioContext && this.buffer?.getChannelData(0).some(value=>Math.abs(value)>0.00001))window.__nonSilentStarts++;return start.apply(this,args)}
     })
     await go(page,"/music")
-    await page.getByRole("group",{name:"Station category"}).getByRole("button",{name:"Favorites",exact:true}).click()
-    await page.getByRole("button",{name:"Play Little Bells",exact:true}).click()
+    await tap(page,page.getByRole("group",{name:"Station category"}).getByRole("button",{name:"Favorites",exact:true}))
+    await tap(page,page.getByRole("button",{name:"Play Little Bells",exact:true}))
     await expect.poll(()=>page.evaluate(()=>window.__nonSilentStarts),{timeout:45000}).toBeGreaterThan(0)
     await go(page,"/wellness/breathing")
-    await page.getByRole("button",{name:"Start breathing",exact:true}).click()
+    await tap(page,page.getByRole("button",{name:"Start breathing",exact:true}))
     await expect(page.getByRole("button",{name:"Pause breathing",exact:true})).toBeVisible()
     await writeFile(path.join(output,"android-shared-breathing.png"),await device.screenshot())
     await go(page,"/downloads")
-    await page.getByRole("button",{name:"Atmosphere sounds",exact:true}).click()
+    await tap(page,page.getByRole("button",{name:"Atmosphere sounds",exact:true}))
     await page.getByLabel("Find a sound").fill(title)
     await expect(page.getByText(/Ready offline/)).toBeVisible()
+    await go(page,"/tools/business-planner/plan-outline")
+    await page.getByLabel("Go to planning step").selectOption({label:"5. Review"})
+    await tap(page,page.getByRole("button",{name:"Download PDF report",exact:true}),true)
+    await expect.poll(()=>shell("shell","dumpsys","activity","activities"),{timeout:20000}).toMatch(/com\.android\.documentsui/)
+    shell("shell","input","keyevent","KEYCODE_BACK")
+    await expect(page.getByRole("status")).toContainText("Save cancelled. Your draft is unchanged.")
     assert.equal(packs.length,2)
     assert.equal(shell("shell","settings","get","global","airplane_mode_on"),"1")
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
-    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),sharedWebsite:true,upgradeFromVersion:3,readOnlyLegacyImport:true,downloadCount:2,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
+    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),sharedWebsite:true,upgradeFromVersion:3,readOnlyLegacyImport:true,downloadCount:2,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
   } catch(error) { if(page&&!page.isClosed())await writeFile(path.join(output,"failure.json"),JSON.stringify({body:await page.locator("body").innerText(),errors,network},null,2));throw error }
   finally {await Promise.all(devices.map(value=>value.close()))}
 })

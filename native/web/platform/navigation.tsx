@@ -38,7 +38,7 @@ export function useNativeRoute() {
   return override ?? route
 }
 export function usePathname() { return useNativeRoute().split("?")[0] }
-export function useSearchParams() { const route = useNativeRoute(); return useMemo(() => new URLSearchParams(route.split("?")[1] ?? ""), [route]) }
+export function useSearchParams() { const route = useNativeRoute(); return useMemo(() => new URLSearchParams(route.includes("?") ? route.slice(route.indexOf("?") + 1) : ""), [route]) }
 const router = { push: (href: string) => navigateNative(href), replace: (href: string) => navigateNative(href, true),
   back: () => history.back(), forward: () => history.forward(), refresh: () => window.dispatchEvent(new Event(changed)), prefetch: async () => {} }
 export function useRouter() { return router }

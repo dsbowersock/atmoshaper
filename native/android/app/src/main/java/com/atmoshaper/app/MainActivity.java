@@ -1,6 +1,7 @@
 package com.atmoshaper.app;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.ConnectivityManager;
@@ -40,6 +41,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.json.JSONObject;
 
 /** The website runs in a browser-owned trusted app window. Packaged shared
@@ -54,23 +57,42 @@ public final class MainActivity extends ComponentActivity {
     private WebChromeClient.CustomViewCallback fullscreenCallback;
     private byte[] pendingPdf;
     private int pendingDocumentId;
+    private final ExecutorService documentWriter = Executors.newSingleThreadExecutor();
     private final ActivityResultLauncher<String> saveDocument = registerForActivityResult(
         new ActivityResultContracts.CreateDocument("application/pdf"), uri -> {
             byte[] bytes = pendingPdf;
             int id = pendingDocumentId;
             pendingPdf = null;
-            if (bytes == null) return;
-            String result = uri == null ? "cancelled" : "failed";
-            if (uri != null) {
-                try (java.io.OutputStream output = getContentResolver().openOutputStream(uri)) {
-                    if (output != null) { output.write(bytes); result = "saved"; }
-                } catch (IOException ignored) { /* Keep the draft; expose only a save result. */ }
+            pendingDocumentId = 0;
+            if (bytes == null) {
+                // Drafts remain in local planner storage. Do not silently leave
+                // a selected destination empty after Android reclaims the app.
+                if (id > 0 && uri != null) new AlertDialog.Builder(this)
+                    .setTitle("Save the report again")
+                    .setMessage("The app restarted before the PDF could be saved. No report was written to that destination. Your draft is unchanged; please save it again.")
+                    .setPositiveButton("OK", null).show();
+                return;
             }
-            documentResult(id, result);
+            if (uri == null) { documentResult(id, "cancelled"); return; }
+            // A user-selected document provider can be slow (including cloud
+            // storage). Never block the app's UI thread while it writes bytes.
+            documentWriter.execute(() -> {
+                String result = "failed";
+                try {
+                    try (java.io.OutputStream output = getContentResolver().openOutputStream(uri)) {
+                        if (output == null) throw new IOException("No document stream");
+                        output.write(bytes);
+                    }
+                    // A provider can fail on close/flush after accepting writes.
+                    result = "saved";
+                } catch (IOException | SecurityException ignored) { /* Keep the draft; expose only a save result. */ }
+                String status = result;
+                runOnUiThread(() -> documentResult(id, status));
+            });
         });
 
     private void documentResult(int id, String status) {
-        if (!isEntry()) return;
+        if (isDestroyed() || !isEntry()) return;
         webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('atmoshaper:document-result',{detail:{id:"
             + id + ",status:" + JSONObject.quote(status) + "}}));", null);
     }
@@ -109,6 +131,7 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void closeFullscreen() {
+        if (!isDestroyed() && isEntry()) webView.evaluateJavascript("if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});", null);
         if (fullscreenView == null) return;
         ((FrameLayout) webView.getParent()).removeView(fullscreenView);
         fullscreenView = null;
@@ -265,6 +288,7 @@ public final class MainActivity extends ComponentActivity {
     @Override protected void onSaveInstanceState(Bundle state) {
         if (pendingReceipt != null) state.putString("offline.pendingReceipt", pendingReceipt);
         if (pendingRoute != null) state.putString("offline.pendingRoute", pendingRoute);
+        if (pendingPdf != null) state.putInt("document.pendingId", pendingDocumentId);
         super.onSaveInstanceState(state);
     }
 
@@ -274,6 +298,7 @@ public final class MainActivity extends ComponentActivity {
         super.onCreate(state);
         if (state != null) pendingReceipt = state.getString("offline.pendingReceipt");
         if (state != null) pendingRoute = state.getString("offline.pendingRoute");
+        if (state != null) pendingDocumentId = state.getInt("document.pendingId", 0);
         boolean connectedStart = state == null && Intent.ACTION_MAIN.equals(getIntent().getAction()) && isOnline();
         receiveReceipt(getIntent());
         receiveRoute(getIntent());
@@ -343,6 +368,14 @@ public final class MainActivity extends ComponentActivity {
                     openWebsite(uri);
                     return true;
                 }
+                // Explicit links to credits/help may open the system browser.
+                // Foreign content never loads inside the packaged WebView.
+                if (request.isForMainFrame() && request.hasGesture() && isEntry()
+                    && "https".equals(uri.getScheme()) && uri.getHost() != null && uri.getUserInfo() == null) {
+                    try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); }
+                    catch (android.content.ActivityNotFoundException ignored) { /* No external browser installed. */ }
+                    return true;
+                }
                 return !isLocal(request.getUrl());
             }
 
@@ -351,9 +384,18 @@ public final class MainActivity extends ComponentActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (fullscreenView != null) closeFullscreen();
-                else if (webView.canGoBack()) webView.goBack();
-                else finish();
+                // A custom fullscreen View hides the WebView. Restore it before
+                // awaiting JS callbacks, which some providers defer while hidden.
+                if (fullscreenView != null) { closeFullscreen(); return; }
+                // HTML fullscreen need not provide a separate custom View on
+                // every WebView version. Exit the document before app history.
+                webView.evaluateJavascript("(()=>{if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});return true}return false})()", fullscreen -> {
+                    if (isDestroyed()) return;
+                    if ("true".equals(fullscreen)) closeFullscreen();
+                    else if (fullscreenView != null) closeFullscreen();
+                    else if (webView.canGoBack()) webView.goBack();
+                    else finish();
+                });
             }
         });
         // Incoming intents/extras never choose the WebView URL or executable code.
@@ -364,6 +406,7 @@ public final class MainActivity extends ComponentActivity {
     @Override
     protected void onDestroy() {
         if (websiteLauncher != null) websiteLauncher.destroy();
+        documentWriter.shutdown();
         webView.destroy();
         super.onDestroy();
     }

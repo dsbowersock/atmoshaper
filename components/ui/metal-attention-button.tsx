@@ -15,7 +15,7 @@ let metalGraphicsAvailable: boolean | undefined
 /** Match the shader library's context choice once. A disabled GPU must leave
  * the underlying control usable instead of throwing from a decorative effect. */
 function useMetalGraphics() {
-  const [available, setAvailable] = React.useState(false)
+  const [available, setAvailable] = React.useState<boolean | null>(null)
   React.useEffect(() => {
     if (metalGraphicsAvailable === undefined) {
       try {
@@ -254,6 +254,9 @@ export function MetalRing({
     "--ml-metal-attention-transition-ms": `${metalTransitionMs}ms`,
   } as React.CSSProperties
 
+  // Server and first client render agree. Children mount only after the platform
+  // decision, so an auto-focused child is never replaced by a different wrapper.
+  if (graphicsAvailable === null) return <span aria-hidden="true" className={cn("ml-metal-attention-root ml-metal-attention-root-idle", className)} style={{ minWidth:3, minHeight:3, ...style }} />
   if (!graphicsAvailable) return <span className={cn("ml-metal-attention-root ml-metal-attention-root-idle", className)} data-ml-metal-full-width={metalFullWidth ? "true" : undefined} style={style}>{children}</span>
 
   return (
