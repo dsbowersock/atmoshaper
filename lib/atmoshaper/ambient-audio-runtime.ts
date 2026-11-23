@@ -31,6 +31,8 @@ export async function createAmbientAtmoShaperAdapter({
   reportFailure: (error: unknown) => void
   /** Native downloads supply committed blob URLs; website streaming is unchanged. */
   localAudioUrl?: (source: AtmoShaperProductionSource) => string
+  /** Native temporary loading shares the mixer's pending-layer ownership. */
+  isCurrent?: () => boolean
 }): Promise<AtmoShaperAudioLayerHandle> {
   if (initialLayer.kind !== "ambient") throw new Error("AtmoShaper ambient adapter needs an ambient layer")
   const concept = getAtmoShaperProductionConcept(initialLayer.sourceId)

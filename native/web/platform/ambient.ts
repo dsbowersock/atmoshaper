@@ -9,7 +9,9 @@ export const createAmbientAtmoShaperAdapter: typeof createSharedAdapter = async 
   const id = options.layer.sourceId
   const pack = await readVerifiedOfflinePack(id, createNativePlaybackStore(
     { id, kind: "ambient", concept: getAtmoShaperProductionConcept(id) }, createOfflineMediaStore(),
+    { isCurrent: options.isCurrent },
   ))
+  if (options.isCurrent && !options.isCurrent()) throw new Error("Playback was stopped.")
   const blobs = new Map<string, string>()
   const release = () => { for (const url of blobs.values()) URL.revokeObjectURL(url); blobs.clear() }
   try {

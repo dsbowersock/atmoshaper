@@ -54,8 +54,18 @@ allowance. A grouped follow-up will use the correct hosted remote identity.
 | Protocol-relative external link becomes a hash | Use one internal-route predicate for both rendering and interception. Explicit external HTTPS taps open the system browser. |
 | Embedded question mark truncates query | Preserve everything after the first question mark. |
 
-Grouped correction review and final APK verification remain in progress. Do not
-count the completed initial review as coverage of this later correction delta.
+CodeRabbit completes the grouped `856adbf..4de2927` correction review across all
+21 changed paths. Four issues receive these dispositions:
+
+| Follow-up issue | Disposition |
+| --- | --- |
+| Document request ID lost after a second Activity recreation | Supported; preserve any positive pending ID independently of whether PDF bytes survived. The result callback remains responsible for clearing it. |
+| Online pack might require a persisted readback | Refuted: `downloadOfflinePack` returns the complete pack after `put`; the memory store returns those exact bytes directly for verification. Real online ambient playback passes with no saved record. |
+| Stopped temporary ambient loading lacks ownership | Supported; pass the mixer's existing `isCurrent` callback through the ambient port. Further requests and stale handoff stop when the layer is removed. Existing ownership/controller and native-source checks pass. |
+| Saved stations might require a network-first lookup | Refuted: the first lookup reads the saved store and returns it before checking online state. Unit checks and actual offline restart/playback pass without network. |
+
+Codex confirms these dispositions against source and actual execution. A narrow
+final correction review and final APK verification remain pending.
 
 The same correction group includes two findings from actual APK inspection:
 retain the timer display stage for an imported running timer reached through the
@@ -65,6 +75,15 @@ its desktop mouse auto-scroll and fullscreen-transition acknowledgement were
 unreliable on this Android WebView. State/visibility/fullscreen postconditions
 remain mandatory. Browser fixtures now build their own isolated asset tree, so
 a fresh CI checkout needs no Android SDK and concurrent APK output cannot race it.
+
+Further native acceptance identifies Chromium's later default-priority fullscreen
+Back callback consuming the ordinary Activity callback. The app registers a
+higher-priority dismissal callback only while its custom fullscreen overlay is
+attached, removes it on dismissal/destruction, and restores the visible WebView
+before queued document exit. Normal history/IME Back keeps its ordinary owner.
+This matches the callback ordering in [Chromium's FullScreenView source](https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/java/src/org/chromium/android_webview/FullScreenView.java)
+and Android's [overlay-priority contract](https://developer.android.com/reference/android/window/OnBackInvokedDispatcher).
+Final actual APK evidence must confirm the behavior before publication admission.
 
 ## Completed local evidence and remaining gates
 

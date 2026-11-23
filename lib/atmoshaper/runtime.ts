@@ -72,7 +72,7 @@ export async function createAtmoShaperRuntime({
       return createStationFoundationAdapter({ layer, destination: master, isCurrent })
     }
     if (layer.kind === "ambient") {
-      return createAmbientAtmoShaperAdapter({ layer, destination: master, reportFailure })
+      return createAmbientAtmoShaperAdapter({ layer, destination: master, reportFailure, isCurrent })
     }
     throw new Error(`Unsupported AtmoShaper layer kind: ${layer.kind}`)
   }
