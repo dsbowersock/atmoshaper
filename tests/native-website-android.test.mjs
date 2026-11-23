@@ -158,6 +158,7 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     await expect(page.getByTestId("running-timer-clock")).toHaveAttribute("data-immersive-primary-display","true")
     await writeFile(path.join(output,"android-shared-clock.png"),await device.screenshot())
     const beforeFullscreen=page.url()
+    await page.mouse.move(2,2) // Wake the Clock's intentionally auto-hidden controls.
     await tap(page,page.getByRole("button",{name:"Toggle fullscreen",exact:true}),true)
     await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(true)
     await acknowledgeImmersiveTutorial()
@@ -167,6 +168,8 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     console.log("Android check: shared countdown and fullscreen Back passed.")
     await page.evaluate(({key,value})=>localStorage.setItem(key,JSON.stringify(value)),{key:ATMOSPHERE_STORAGE_KEY,value:{...createDefaultAtmosphereStorage(),favorites:["generative-fm-little-bells"]}})
     await page.reload()
+    // This explicit process-like reload creates a fresh audio context too.
+    await tap(page,page.getByRole("button",{name:"Enable timer sound",exact:true}))
     await page.evaluate(()=>{
       window.__nonSilentStarts=0
       const start=AudioBufferSourceNode.prototype.start
@@ -189,6 +192,10 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     await page.getByLabel("Go to planning step").selectOption({label:"5. Review"})
     await tap(page,page.getByRole("button",{name:"Download PDF report",exact:true}),true)
     await expect.poll(()=>shell("shell","dumpsys","activity","activities"),{timeout:20000}).toMatch(/com\.android\.documentsui/)
+    if (/mInputShown=true/.test(shell("shell","dumpsys","input_method"))) {
+      shell("shell","input","keyevent","KEYCODE_BACK")
+      await expect.poll(()=>shell("shell","dumpsys","input_method")).not.toMatch(/mInputShown=true/)
+    }
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect(page.getByRole("status")).toContainText("Save cancelled. Your draft is unchanged.")
     assert.equal(packs.length,2)
