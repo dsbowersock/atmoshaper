@@ -98,6 +98,17 @@ The older Android test commands delegate to this guard. They never target the
 owner-receipt emulator 5580 or a physical phone. Evidence stays under ignored
 output. No real user/clinical/payment data belongs in those tests.
 
+The upgrade baseline is the retained, owner-accepted version 0.3.0 installer
+from the [completed offline release](../../docs/audits/2026-11-22-offline-android-publication.md),
+not a newly built copy. This linked-worktree test resolves it at
+`../../output/android/AtmoShaper-offline-preview-0.3.0-8abbb7c3.apk` relative to
+the repository root. Its required SHA-256 is
+`8abbb7c366aa75d03f207428e19bafa0f673fff104d7e34c92dc3500ff43af4a`.
+On a fresh checkout, obtain that retained artifact from the owner and place it
+at that exact path before running the opt-in Android check. Do not substitute
+the current build or remove the checksum requirement. All ordinary browser
+tests build their own fixtures and do not need this historical APK.
+
 Actual S24 upgrade, speaker audibility, battery/OS behavior and browser origin
 validation remain separate acceptance. Connected pages still require networking;
 there is no automatic merge of device-local offline planner drafts into website

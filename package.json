@@ -273,7 +273,7 @@
     "preview:native-website": "node scripts/start-native-website-preview.mjs",
     "build:native-website-preview": "node scripts/build-offline-core.mjs --development",
     "verify:native-website-preview": "node scripts/verify-native-website-preview.mjs",
-    "test:native-website-contract": "node --test tests/native-website-contract.test.mjs tests/native-media-source.test.mjs",
+    "test:native-website-contract": "node --test tests/native-website-contract.test.mjs tests/native-media-source.test.mjs tests/native-website-review.test.mjs",
     "test:native-website-browser": "node --test tests/native-website-browser.test.mjs",
     "lint:native-website": "eslint native/web components/native lib/native-*.js lib/planner-export.ts lib/sidebar-calendar-contract.js lib/atmosphere/generative-fm-platform.ts lib/atmoshaper/ambient-platform.ts scripts/build-offline-core.mjs scripts/start-native-website-preview.mjs scripts/verify-native-website-preview.mjs scripts/fixtures/offline-legacy-entry.tsx tests/native-website*.test.mjs app/chimer/chimer-screen.tsx app/tools/business-planner/_components/planner-report.tsx app/browse/workspace.tsx app/layout.tsx components/providers/pwa-install-provider.tsx components/providers/music-provider.tsx components/sidebar/sidebar-calendar-provider.tsx",
     "test:native-website-android": "node scripts/test-native-website-android.mjs",

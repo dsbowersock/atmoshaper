@@ -10,7 +10,7 @@ import type { InputNode } from "tone/build/esm/core/context/ToneAudioNode"
 type Handle = { stop(): Promise<void>; volume(value: number): void }
 type PackFile = { url: string; data: ArrayBuffer }
 // Match the website's conservative -60..-12 dB station output policy.
-const stationGain = (value: number) => 10 ** ((-60 + Math.max(0, Math.min(1, value)) * 48) / 20)
+const stationGain = (value: number) => value <= 0 ? 0 : 10 ** ((-60 + Math.max(0, Math.min(1, value)) * 48) / 20)
 
 /** One app-owned mixer: station replacement is serialized, ambient layers may
  * coexist, and an obsolete async start cannot claim the output after Stop. */
@@ -29,7 +29,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
     await handle?.stop()
   }
   return {
-    async play(item: { id: string; kind: string; station?: { runtime: { pieceId: string } } }, onProgress: (value: number) => void = () => {}) {
+    async play(item: { id: string; kind: string; station?: { runtime: { pieceId: string } } }, onProgress: (value: number) => void = () => {}, initialStationVolume = 0.75) {
       // Called directly by a user gesture before any IndexedDB/decode awaits.
       if (disposed) return false
       const activated = Tone.start()
@@ -52,7 +52,9 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
         // leaving an unreachable gain connected to the app mixer.
         const piece = await loadGenerativeFmPieceModule(item.station!.runtime.pieceId) as (input: object) => Promise<[() => void, () => (() => void)]>
         if (!isCurrent()) return false
-        const output = new Tone.Gain(stationGain(0.75)).connect(master)
+        // Set the requested level before connecting/scheduling. A paused layer
+        // starts silent; callers without an explicit level retain the old gain.
+        const output = new Tone.Gain(stationGain(initialStationVolume)).connect(master)
         const decoded = new Map<string, AudioBuffer>()
         const raw = Tone.getContext().rawContext as AudioContext
         const provider = {

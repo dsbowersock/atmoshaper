@@ -180,8 +180,17 @@ public final class MainActivity extends ComponentActivity {
      * hidden WebView bypass. An unavailable browser fails with its own dialog. */
     private void openWebsite(Uri uri) {
         if (!isWebsitePage(uri)) return;
+        // All entry points, including a first background-access handoff, retain
+        // the public navigation marker without changing device/challenge data.
+        Uri.Builder connected = uri.buildUpon().clearQuery();
+        for (String name : uri.getQueryParameterNames()) {
+            if (!"android_app".equals(name)) {
+                for (String value : uri.getQueryParameters(name)) connected.appendQueryParameter(name, value);
+            }
+        }
+        connected.appendQueryParameter("android_app", "1");
         if (websiteLauncher == null) websiteLauncher = new TwaLauncher(this);
-        websiteLauncher.launch(new TrustedWebActivityIntentBuilder(uri), new QualityEnforcer(), null, null,
+        websiteLauncher.launch(new TrustedWebActivityIntentBuilder(connected.build()), new QualityEnforcer(), null, null,
             TwaLauncher.getBlockedDialogFallbackStrategy("a compatible browser"));
     }
 

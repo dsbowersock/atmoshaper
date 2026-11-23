@@ -5,6 +5,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { chromium, expect } from "@playwright/test"
 import { defaultOfflineCoreState, startOfflineTimer } from "../lib/offline-core.js"
+import { importLegacyNativeClock } from "../lib/native-clock-state.js"
 import { createDefaultAtmosphereStorage, ATMOSPHERE_STORAGE_KEY } from "../lib/atmosphere/storage.js"
 import { PDFDocument } from "pdf-lib"
 import { offlineAudioCatalog } from "../lib/offline-media.js"
@@ -89,6 +90,10 @@ test("read-only upgrade preserves the earlier state and restores a running deadl
   const f=await fixture(),{page}=f
   const original={...defaultOfflineCoreState(),tool:"timer",mainColor:"#146b73",durationMs:180000,timer:startOfflineTimer(180000)}
   try {
+    await page.addInitScript(()=>{
+      window.__wakeRequests=0;window.__wakeReleases=0
+      Object.defineProperty(navigator,"wakeLock",{configurable:true,value:{async request(){window.__wakeRequests++;return {released:false,addEventListener(){},async release(){this.released=true;window.__wakeReleases++}}}}})
+    })
     await page.goto(entry.replace("index.html","seed.html"))
     await page.evaluate(state=>new Promise((resolve,reject)=>{
       const open=indexedDB.open("atmoshaper.android.offline-core.v1",1)
@@ -104,8 +109,11 @@ test("read-only upgrade preserves the earlier state and restores a running deadl
     await expect(page.getByTestId("running-timer-clock")).toBeVisible()
     await expect(page.getByTestId("running-timer-clock")).toHaveAttribute("data-immersive-primary-display","true")
     assert.equal((await read()).timer.endsAtMs,original.timer.endsAt)
+    await expect.poll(()=>page.evaluate(()=>window.__wakeRequests)).toBeGreaterThan(0)
     await go(page,"/wellness/breathing")
     await expect(page.getByRole("heading",{name:"Breathing guide",exact:true})).toBeVisible()
+    await expect.poll(()=>page.evaluate(()=>window.__wakeReleases)).toBeGreaterThan(0)
+    assert.equal((await read()).timer.endsAtMs,original.timer.endsAt)
     await go(page,"/chimer")
     await page.reload()
     await expect(page.locator("[data-native-shared-clock]")).toBeVisible()
@@ -117,15 +125,77 @@ test("read-only upgrade preserves the earlier state and restores a running deadl
 
 test("a failed initial native Clock read blocks changes and cannot overwrite the old saved timer", {timeout:60000}, async()=>{
   const f=await fixture(),{page}=f
+  const original=importLegacyNativeClock({...defaultOfflineCoreState(),mainColor:'#146b73',timer:startOfflineTimer(180000)})
   try {
+    await page.goto(entry.replace("index.html","seed.html"))
+    await page.evaluate(state=>new Promise((resolve,reject)=>{
+      const open=indexedDB.open("atmoshaper.android.chimer-runtime.v1",1)
+      open.onupgradeneeded=()=>open.result.createObjectStore("clock")
+      open.onsuccess=()=>{const db=open.result,tx=db.transaction("clock","readwrite",{durability:"strict"});tx.objectStore("clock").put(state,"state");tx.oncomplete=()=>{db.close();resolve()};tx.onabort=()=>reject(tx.error)}
+    }),original)
     await contextFailure(page)
     await page.goto(entry+"#/clock")
     await expect(page.getByRole("button",{name:"Retry saved Clock",exact:true})).toBeVisible()
     await expect(page.locator("[data-native-shared-clock]")).toHaveCount(0)
+    assert.deepEqual(await readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state"),original)
     await page.getByRole("button",{name:"Retry saved Clock",exact:true}).click()
     await expect(page.locator("[data-native-shared-clock]")).toBeVisible()
+    assert.equal((await readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state")).timer.endsAtMs,original.timer.endsAtMs)
     assert.deepEqual(f.errors,[]);assert.deepEqual(f.foreign,[])
   } finally { await f.close() }
+})
+
+test("an imported disabled interval stays disabled on the actual timer setup screen",{timeout:60000},async()=>{
+  const f=await fixture(),{page}=f,original={...defaultOfflineCoreState(),intervalMinutes:0}
+  try {
+    await page.goto(entry.replace("index.html","seed.html"))
+    await page.evaluate(state=>new Promise((resolve,reject)=>{
+      const open=indexedDB.open("atmoshaper.android.offline-core.v1",1)
+      open.onupgradeneeded=()=>open.result.createObjectStore("state")
+      open.onsuccess=()=>{const db=open.result,tx=db.transaction("state","readwrite",{durability:"strict"});tx.objectStore("state").put(state,"preferences");tx.oncomplete=()=>{db.close();resolve()};tx.onabort=()=>reject(tx.error)}
+    }),original)
+    await page.goto(entry+"#/chimer")
+    await page.getByRole("button",{name:"Continue",exact:true}).click()
+    await expect(page.getByRole("combobox",{name:"Interval cue",exact:true})).toHaveValue("none")
+    await expect(page.getByLabel("Custom minutes",{exact:true})).toHaveCount(0)
+    await page.reload()
+    await page.getByRole("button",{name:"Continue",exact:true}).click()
+    await expect(page.getByRole("combobox",{name:"Interval cue",exact:true})).toHaveValue("none")
+    assert.equal((await readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state")).settings.intervalType,"none")
+    assert.deepEqual(await readDatabase(page,"atmoshaper.android.offline-core.v1","state","preferences"),original)
+    assert.deepEqual(f.errors,[]);assert.deepEqual(f.foreign,[])
+  } catch(error){await writeFile(path.join(output,"interval-off-failure.json"),JSON.stringify({body:await page.locator("body").innerText(),errors:f.errors},null,2));throw error}
+  finally {await f.close()}
+})
+
+test("a restarted shared timer consumes a missed interval and sounds the following interval",{timeout:60000},async()=>{
+  const f=await fixture(),{page}=f,now=Date.now(),minute=60000
+  const original=importLegacyNativeClock({...defaultOfflineCoreState(),timer:startOfflineTimer(4*minute,now),intervalMinutes:1},now)
+  try {
+    await page.clock.install({time:now+75*1000})
+    await page.clock.pauseAt(now+75*1000)
+    await page.goto(entry.replace("index.html","seed.html"))
+    await page.evaluate(state=>new Promise((resolve,reject)=>{
+      const open=indexedDB.open("atmoshaper.android.chimer-runtime.v1",1)
+      open.onupgradeneeded=()=>open.result.createObjectStore("clock")
+      open.onsuccess=()=>{const db=open.result,tx=db.transaction("clock","readwrite",{durability:"strict"});tx.objectStore("clock").put(state,"state");tx.oncomplete=()=>{db.close();resolve()};tx.onabort=()=>reject(tx.error)}
+    }),original)
+    await page.addInitScript(()=>{window.__timerTones=0;const start=OscillatorNode.prototype.start;OscillatorNode.prototype.start=function(...args){window.__timerTones++;return start.apply(this,args)}})
+    await page.goto(entry)
+    await page.clock.runFor(1000)
+    await page.getByRole("button",{name:"Enable timer sound",exact:true}).click()
+    await go(page,"/chimer")
+    await expect(page.getByTestId("running-timer-clock")).toBeVisible()
+    const read=()=>readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state")
+    await expect.poll(async()=>(await read())?.timer.nextAlertAtMs).toBe(now+2*minute)
+    assert.equal(await page.evaluate(()=>window.__timerTones),0)
+    await page.clock.fastForward(46*1000)
+    await expect.poll(()=>page.evaluate(()=>window.__timerTones)).toBe(2)
+    await expect.poll(async()=>(await read())?.timer.nextAlertAtMs).toBe(now+3*minute)
+    assert.equal((await read()).timer.endsAtMs,original.timer.endsAtMs)
+    assert.deepEqual(f.errors,[]);assert.deepEqual(f.foreign,[])
+  } catch(error){await writeFile(path.join(output,"interval-resume-failure.json"),JSON.stringify({body:await page.locator("body").innerText(),now:await page.evaluate(()=>Date.now()),state:await readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state"),errors:f.errors},null,2));throw error}
+  finally {await f.close()}
 })
 
 async function contextFailure(page) {
@@ -157,7 +227,7 @@ test("a restored timer requests sound readiness without restarting its deadline,
       const start=OscillatorNode.prototype.start
       OscillatorNode.prototype.start=function(...args){window.__timerTones++;return start.apply(this,args)}
     })
-    await page.goto(entry)
+    await page.goto(entry+"#/chimer")
     await page.getByRole("button",{name:"Enable timer sound",exact:true}).click()
     await expect(page.getByRole("button",{name:"Enable timer sound",exact:true})).toHaveCount(0)
     assert.equal((await readDatabase(page,"atmoshaper.android.chimer-runtime.v1","clock","state")).timer.endsAtMs,original.timer.endsAt)

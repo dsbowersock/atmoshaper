@@ -21,7 +21,7 @@ test("ChimerPage resolves and safely closes the shared Music visualizer route", 
   assert.match(pageSource, /resolveImmersiveDisplayContext/)
   assert.match(pageSource, /sanitizeMusicVisualizerReturnTo/)
   assert.match(pageSource, /router\.replace\(safeReturnTo\)/)
-  assert.match(pageSource, /immersiveContext === "musicVisualizer"/)
+  assert.match(pageSource, /displayContext === "musicVisualizer"/)
 })
 
 test("Music selection waits for hydration and uses explicit registry eligibility", () => {

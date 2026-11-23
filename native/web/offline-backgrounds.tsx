@@ -70,8 +70,10 @@ export function useOfflineBackgroundAccess() {
         const verified = value.receipt ? await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys) : null
         if (current && epoch.current === startedAtEpoch && recordRef.current?.device === value.device && recordRef.current?.receipt === value.receipt) setClaims(verified)
       } catch { if (current && epoch.current === startedAtEpoch) setMessage("Saved access could not be verified. Refresh account access; free backgrounds remain available.") }
-      if (current && epoch.current === startedAtEpoch) setLoaded(true)
-    }).catch(() => { if (current) { setMessage("Offline account access could not be loaded. Free backgrounds are available."); setLoaded(true) } })
+    }).catch(() => { if (current && epoch.current === startedAtEpoch) setMessage("Offline account access could not be loaded. Free backgrounds are available.") })
+      // Readiness belongs to this mount; Forget invalidates entitlement work,
+      // but must not leave free tools waiting on a superseded startup epoch.
+      .finally(() => { if (current) setLoaded(true) })
     const tick = window.setInterval(() => setNow(Date.now()), 1000)
     const remember = window.setInterval(() => {
       const operationEpoch = epoch.current

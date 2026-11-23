@@ -17,9 +17,9 @@ export const startGenerativeFmPiece: typeof webStart = async ({ station, destina
   const owner = { volume: (value: number) => runtime.volume(station.id, value) }
   async function dispose() { if (disposed) return; disposed = true; if (active === owner) active = null; await runtime.dispose() }
   try {
-    const played = await runtime.play({ id: source.id, kind: "station", station: source as never }, onLoadProgress)
+    const played = await runtime.play({ id: source.id, kind: "station", station: source as never }, onLoadProgress, volume)
     if (!played || !isCurrent()) { await dispose(); throw new Error("Playback was stopped.") }
-    owner.volume(volume); active = owner
+    active = owner
     const handle = Object.assign(() => { void dispose() }, { dispose, setVolume: owner.volume })
     return handle
   } catch (error) { await dispose(); throw error }

@@ -343,7 +343,7 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
     () => getTotalTimerMs(settings.hours, settings.minutes),
     [settings.hours, settings.minutes],
   )
-  const shouldKeepScreenAwake = shouldRequestImmersiveWakeLock({
+  const shouldKeepScreenAwake = active && shouldRequestImmersiveWakeLock({
     context: immersiveContext,
     timerStatus: timerState.status,
     keepScreenAwake: settings.keepTimerScreenAwake,
@@ -1598,13 +1598,15 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
       }
   // A retained native timer keeps its hooks/alerts alive while another route
   // is visible. Unmount the view, including its portaled immersive controls.
+  // Immersive CSS hides sidebar <aside> elements. This alert must remain visible
+  // on a direct restored-timer launch as well as on the Home screen.
   const audioRecoveryPrompt = deviceMode && hasLoadedSettings && needsRestoredAudio
     && ["running", "paused"].includes(timerState.status) && SOUND_ALERT_TYPES.has(settings.alertType)
-    ? createPortal(<aside role="alert" className="fixed left-1/2 top-3 z-[30000] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 space-y-2 rounded-xl border border-border bg-background p-3 shadow-lg">
+    ? createPortal(<div role="alert" className="fixed left-1/2 top-3 z-[30000] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 space-y-2 rounded-xl border border-border bg-background p-3 shadow-lg">
       <p className="text-sm">Timer restored. Enable its sound on this device; your remaining time stays the same.</p>
       <Button variant="ctaBlue" onClick={async () => { if (!(await unlockAudio())) setRestoredAudioMessage("Sound is not ready. Check sound permissions and try again.") }}>Enable timer sound</Button>
       {restoredAudioMessage && <p className="text-sm">{restoredAudioMessage}</p>}
-    </aside>, document.body) : null
+    </div>, document.body) : null
   if (!active) return audioRecoveryPrompt
   return (
     <>{audioRecoveryPrompt}
