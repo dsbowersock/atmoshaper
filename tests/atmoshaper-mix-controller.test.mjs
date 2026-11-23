@@ -435,6 +435,36 @@ test("a stale asynchronous start cannot publish playing after a newer request", 
   assert.ok(log.some((entry) => entry[0] === "dispose" && entry[1] === "slow"))
 })
 
+test("a cancelled ambient rejection cannot fail a replacement of the same layer", async () => {
+  let releaseOld, requested
+  const oldRead = new Promise(resolve => { releaseOld = resolve })
+  const oldRequested = new Promise(resolve => { requested = resolve })
+  let first = true
+  const log = []
+  const controller = createAtmoShaperMixController({
+    async createAdapter(nextLayer, isCurrent) {
+      if (first) {
+        first = false; requested()
+        await oldRead
+        assert.equal(isCurrent(), false)
+        throw new Error("Playback was stopped.")
+      }
+      return createFakeHandle(log, nextLayer)
+    },
+  })
+  const sameRecipe = recipe([layer("same-sound", "ambient")])
+  const oldStart = controller.start(sameRecipe)
+  await oldRequested
+  await controller.stop()
+  await controller.start(sameRecipe)
+  releaseOld()
+  await oldStart
+  assert.equal(controller.getSnapshot().status, "playing")
+  assert.deepEqual(controller.getSnapshot().layers, { "same-sound": { status: "playing" } })
+  assert.deepEqual(log, [["fadeIn", "same-sound"]])
+  await controller.dispose()
+})
+
 test("stopped recipe edits publish without creating an adapter", async () => {
   const snapshots = []
   const controller = createAtmoShaperMixController({

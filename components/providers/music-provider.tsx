@@ -24,8 +24,7 @@ import {
   resolveAtmosphereStationArtworkInput,
   type AtmosphereStationArtworkInput,
 } from "@/lib/atmosphere/station-artwork"
-import { createAtmosphereMediaCarrier } from "@/lib/atmosphere/media-playback-carrier"
-import { createAtmosphereMediaSessionController } from "@/lib/atmosphere/media-session-controller"
+import { createAtmosphereMediaCarrier, createAtmosphereMediaSessionController } from "@/lib/atmosphere/media-platform"
 import { createAtmosphereInterruptionMonitor } from "@/lib/atmosphere/media-interruption-monitor"
 import {
   readAtmosphereInterruptionPreference,
@@ -3074,7 +3073,7 @@ async function loadAtmosphereRuntimeModules(): Promise<AtmosphereRuntimeModules>
   ] = await Promise.all([
     import("@/lib/atmosphere/stations"),
     import("@/lib/atmosphere/runtime-controller"),
-    import("@/lib/atmosphere/generative-fm-runtime"),
+    import("@/lib/atmosphere/generative-fm-platform"),
     import("@/lib/atmosphere/tone-proof-runtime"),
     import("tone/build/esm/core/Global"),
   ])

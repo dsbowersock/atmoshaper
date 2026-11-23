@@ -52,6 +52,7 @@ export function useOfflineBackgroundAccess() {
   const [store] = useState(() => createOfflineAccessStore())
   const [record, setRecord] = useState<any>(null)
   const [claims, setClaims] = useState<any>(null)
+  const [loaded, setLoaded] = useState(false)
   const [message, setMessage] = useState("")
   const [removalPending, setRemovalPending] = useState(false)
   const [now, setNow] = useState(Date.now)
@@ -69,7 +70,10 @@ export function useOfflineBackgroundAccess() {
         const verified = value.receipt ? await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys) : null
         if (current && epoch.current === startedAtEpoch && recordRef.current?.device === value.device && recordRef.current?.receipt === value.receipt) setClaims(verified)
       } catch { if (current && epoch.current === startedAtEpoch) setMessage("Saved access could not be verified. Refresh account access; free backgrounds remain available.") }
-    }).catch(() => { if (current) setMessage("Offline account access could not be loaded. Free backgrounds are available.") })
+    }).catch(() => { if (current && epoch.current === startedAtEpoch) setMessage("Offline account access could not be loaded. Free backgrounds are available.") })
+      // Readiness belongs to this mount; Forget invalidates entitlement work,
+      // but must not leave free tools waiting on a superseded startup epoch.
+      .finally(() => { if (current) setLoaded(true) })
     const tick = window.setInterval(() => setNow(Date.now()), 1000)
     const remember = window.setInterval(() => {
       const operationEpoch = epoch.current
@@ -124,7 +128,7 @@ export function useOfflineBackgroundAccess() {
     } catch { setMessage("Account access could not be removed. Check local storage and retry.") }
   }
   return { access: claims ? offlineBackgroundSnapshot(claims, now, record?.lastSeen) : { featureKeys: [], ownedBackgroundIds: [] },
-    claims, canForget: Boolean(claims) || removalPending, message, refresh, forget, ready: publicKeys.length > 0 && record !== null }
+    claims, loaded, canForget: Boolean(claims) || removalPending, message, refresh, forget, ready: publicKeys.length > 0 && record !== null }
 }
 
 export function OfflineBackgroundChoices({ selectedId, onSelect, account }: {

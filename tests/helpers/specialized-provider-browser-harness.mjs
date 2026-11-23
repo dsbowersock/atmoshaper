@@ -20,7 +20,7 @@ const calendarProviderPath = path.join(
 const supportedSpecializedProviderImports = new Set([
   "@/components/providers/account-shell-bootstrap-provider",
   "@/lib/client-fetch",
-  "@/lib/sidebar-calendar-context",
+  "@/lib/sidebar-calendar-contract",
   "react",
 ])
 
@@ -264,7 +264,7 @@ const specializedProviderBundle = createSpecializedProviderBundleLoader(async ()
             alias: {
               "@/components/providers/account-shell-bootstrap-provider": supportModulePath,
               "@/lib/client-fetch": supportModulePath,
-              "@/lib/sidebar-calendar-context": supportModulePath,
+              "@/lib/sidebar-calendar-contract": supportModulePath,
             },
             modules: [path.join(projectRoot, "node_modules"), "node_modules"],
           },

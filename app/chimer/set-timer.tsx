@@ -442,7 +442,7 @@ export function getMassageLabSynthesisSourceSpeed(displaySpeed: number) {
 export interface ChimerSettings {
   hours: number
   minutes: number
-  intervalType: "preset" | "custom" | "areas"
+  intervalType: "none" | "preset" | "custom" | "areas"
   customInterval: number
   areasToMassage: number
   alertType: "chime" | "flash" | "both" | "haptic" | "chime-haptic" | "flash-haptic" | "all" | "silent"
@@ -11474,7 +11474,7 @@ export function SetTimer({ settings, totalDurationMs, error, syncStatus, suppres
                 </select>
               </label>
 
-              {!skipIntervalCues &&
+              {!skipIntervalCues && settings.intervalType !== "none" &&
                 (settings.intervalType === "areas" ? (
                   <NumberField label="Body areas" value={settings.areasToMassage} min={1} max={24} step={1} hapticsEnabled={hapticsEnabled} onChange={(value) => onSettingsChange({ areasToMassage: value })} />
                 ) : settings.intervalType === "preset" ? (

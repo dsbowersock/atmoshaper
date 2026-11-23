@@ -1,10 +1,17 @@
 package com.atmoshaper.app;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.view.WindowManager;
+import android.view.View;
+import android.webkit.WebChromeClient;
+import android.print.PrintManager;
+import android.util.Base64;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -13,12 +20,19 @@ import android.webkit.CookieManager;
 import android.widget.FrameLayout;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
+import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
+import com.google.androidbrowserhelper.trusted.TwaLauncher;
+import com.google.androidbrowserhelper.trusted.QualityEnforcer;
 import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -26,14 +40,106 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.json.JSONObject;
 
-/** Locally packaged tools, bounded public media downloads and signed receipt
- * handoff. No remote page, account cookies or generic JavaScript bridge. */
+/** The website runs in a browser-owned trusted app window. Packaged shared
+ * tools remain on the isolated local origin, with no account-cookie bridge. */
 public final class MainActivity extends ComponentActivity {
     private static final String ENTRY = "https://appassets.androidplatform.net/assets/core/index.html";
     private WebView webView;
     private String pendingReceipt;
+    private String pendingRoute;
+    private TwaLauncher websiteLauncher;
+    private View fullscreenView;
+    private WebChromeClient.CustomViewCallback fullscreenCallback;
+    private byte[] pendingPdf;
+    private int pendingDocumentId;
+    private final ExecutorService documentWriter = Executors.newSingleThreadExecutor();
+    private final ActivityResultLauncher<String> saveDocument = registerForActivityResult(
+        new ActivityResultContracts.CreateDocument("application/pdf"), uri -> {
+            byte[] bytes = pendingPdf;
+            int id = pendingDocumentId;
+            pendingPdf = null;
+            pendingDocumentId = 0;
+            if (bytes == null) {
+                // Drafts remain in local planner storage. Do not silently leave
+                // a selected destination empty after Android reclaims the app.
+                if (id > 0 && uri != null) new AlertDialog.Builder(this)
+                    .setTitle("Save the report again")
+                    .setMessage("The app restarted before the PDF could be saved. No report was written to that destination. Your draft is unchanged; please save it again.")
+                    .setPositiveButton("OK", null).show();
+                return;
+            }
+            if (uri == null) { documentResult(id, "cancelled"); return; }
+            // A user-selected document provider can be slow (including cloud
+            // storage). Never block the app's UI thread while it writes bytes.
+            documentWriter.execute(() -> {
+                String result = "failed";
+                try {
+                    try (java.io.OutputStream output = getContentResolver().openOutputStream(uri)) {
+                        if (output == null) throw new IOException("No document stream");
+                        output.write(bytes);
+                    }
+                    // A provider can fail on close/flush after accepting writes.
+                    result = "saved";
+                } catch (IOException | SecurityException ignored) { /* Keep the draft; expose only a save result. */ }
+                String status = result;
+                runOnUiThread(() -> documentResult(id, status));
+            });
+        });
+
+    private void documentResult(int id, String status) {
+        if (isDestroyed() || !isEntry()) return;
+        webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('atmoshaper:document-result',{detail:{id:"
+            + id + ",status:" + JSONObject.quote(status) + "}}));", null);
+    }
+
+    /** No general JavaScript bridge: only main-frame packaged PDF bytes and a
+     * user-visible Android save/print dialog. No path or network target is accepted. */
+    private void installDocumentPort() {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
+        WebViewCompat.addWebMessageListener(webView, "AtmoShaperDocuments",
+            Collections.singleton("https://appassets.androidplatform.net"), (view, message, origin, mainFrame, reply) -> {
+                if (!mainFrame || !isEntry()) return;
+                int id = 0;
+                try {
+                    String raw = message.getData();
+                    if (raw == null || raw.length() > 8 * 1024 * 1024 + 1024) return;
+                    JSONObject request = new JSONObject(raw);
+                    String type = request.optString("type");
+                    if ("print".equals(type)) {
+                        PrintManager manager = (PrintManager) getSystemService(PRINT_SERVICE);
+                        if (manager != null) manager.print("AtmoShaper working draft", webView.createPrintDocumentAdapter("AtmoShaper working draft"), null);
+                        return;
+                    }
+                    id = request.getInt("id");
+                    if (!"save-pdf".equals(type) || id <= 0) return;
+                    if (pendingPdf != null) { documentResult(id, "failed"); return; }
+                    String filename = request.getString("filename");
+                    if (!filename.matches("atmoshaper-[a-z-]+-working-draft-[0-9-]+\\.pdf")) { documentResult(id, "failed"); return; }
+                    byte[] bytes = Base64.decode(request.getString("data"), Base64.NO_WRAP);
+                    if (bytes.length < 5 || bytes.length > 6 * 1024 * 1024
+                        || bytes[0] != '%' || bytes[1] != 'P' || bytes[2] != 'D' || bytes[3] != 'F' || bytes[4] != '-') { documentResult(id, "failed"); return; }
+                    pendingDocumentId = id;
+                    pendingPdf = bytes;
+                    saveDocument.launch(filename);
+                } catch (Exception ignored) { pendingPdf = null; if (id > 0) documentResult(id, "failed"); }
+            });
+    }
+
+    private void closeFullscreen() {
+        if (!isDestroyed() && isEntry()) webView.evaluateJavascript("if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});", null);
+        if (fullscreenView == null) return;
+        ((FrameLayout) webView.getParent()).removeView(fullscreenView);
+        fullscreenView = null;
+        webView.setVisibility(View.VISIBLE);
+        new WindowInsetsControllerCompat(getWindow(), webView).show(WindowInsetsCompat.Type.systemBars());
+        if (fullscreenCallback != null) fullscreenCallback.onCustomViewHidden();
+        fullscreenCallback = null;
+    }
 
     /** Only the packaged origin/path can load; all other resources fail locally. */
     private static boolean isLocal(Uri uri) {
@@ -41,6 +147,82 @@ public final class MainActivity extends ComponentActivity {
             && "appassets.androidplatform.net".equals(uri.getHost())
             && uri.getPort() == -1 && uri.getUserInfo() == null
             && uri.getPath() != null && uri.getPath().startsWith("/assets/core/");
+    }
+
+    /** Hash navigation must not invalidate an otherwise exact packaged entry. */
+    private boolean isEntry() {
+        if (webView == null || webView.getUrl() == null) return false;
+        Uri uri = Uri.parse(webView.getUrl());
+        return isLocal(uri) && "/assets/core/index.html".equals(uri.getPath()) && uri.getQuery() == null;
+    }
+
+    /** Only first-party page destinations can open the connected app window.
+     * They remain subject to the website's ordinary session/authorization. */
+    private static boolean isWebsitePage(Uri uri) {
+        if (!"https".equals(uri.getScheme()) || !"www.atmoshaper.com".equals(uri.getHost())
+            || uri.getPort() != -1 || uri.getUserInfo() != null || uri.getPath() == null) return false;
+        String path = uri.getPath();
+        if ("/".equals(path)) return true;
+        for (String prefix : new String[]{"account", "calendar", "login", "register", "onboarding", "wellness", "notes", "education", "anatomime", "anatomy", "book", "browse", "help", "music", "settings", "admin", "tools", "about", "pricing", "support", "roadmap", "legal", "forgot-password", "reset-password", "verify-email"}) {
+            if (path.equals("/" + prefix) || path.startsWith("/" + prefix + "/")) return true;
+        }
+        return false;
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkCapabilities capabilities = manager == null ? null : manager.getNetworkCapabilities(manager.getActiveNetwork());
+        return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+    }
+
+    /** Origin verification belongs to the browser/Digital Asset Links, never a
+     * hidden WebView bypass. An unavailable browser fails with its own dialog. */
+    private void openWebsite(Uri uri) {
+        if (!isWebsitePage(uri)) return;
+        // All entry points, including a first background-access handoff, retain
+        // the public navigation marker without changing device/challenge data.
+        Uri.Builder connected = uri.buildUpon().clearQuery();
+        for (String name : uri.getQueryParameterNames()) {
+            if (!"android_app".equals(name)) {
+                for (String value : uri.getQueryParameters(name)) connected.appendQueryParameter(name, value);
+            }
+        }
+        connected.appendQueryParameter("android_app", "1");
+        if (websiteLauncher == null) websiteLauncher = new TwaLauncher(this);
+        websiteLauncher.launch(new TrustedWebActivityIntentBuilder(connected.build()), new QualityEnforcer(), null, null,
+            TwaLauncher.getBlockedDialogFallbackStrategy("a compatible browser"));
+    }
+
+    /** Public tool intent only: a fixed route set and bounded query, not an
+     * incoming page URL, credential or executable script. */
+    private void receiveRoute(Intent intent) {
+        Uri uri = intent == null ? null : intent.getData();
+        if (uri == null || !Intent.ACTION_VIEW.equals(intent.getAction()) || !"atmoshaper".equals(uri.getScheme())
+            || !"tool".equals(uri.getHost()) || uri.getPort() != -1 || uri.getUserInfo() != null) return;
+        String value = uri.getQueryParameter("path");
+        if (value == null || value.length() > 1024 || !value.startsWith("/") || value.startsWith("//")
+            || value.matches(".*[\\\\#\\p{Cntrl}].*")) return;
+        Uri route = Uri.parse(value);
+        String path = route.getPath();
+        for (String allowed : new String[]{"/", "/clock", "/chimer", "/music", "/downloads", "/wellness/breathing", "/account/offline-access", "/tools/business-planner", "/tools/business-planner/income", "/tools/business-planner/break-even", "/tools/business-planner/launch-checklist", "/tools/business-planner/service-menu", "/tools/business-planner/plan-outline", "/tools/business-planner/add-on-profit"}) {
+            if (allowed.equals(path)) {
+                Uri.Builder canonical = new Uri.Builder().path(path);
+                if ("/clock".equals(path) || "/chimer".equals(path)) {
+                    if ("background".equals(route.getQueryParameter("panel"))) canonical.appendQueryParameter("panel", "background");
+                    if ("music".equals(route.getQueryParameter("source"))) canonical.appendQueryParameter("source", "music");
+                    if ("/music".equals(route.getQueryParameter("returnTo"))) canonical.appendQueryParameter("returnTo", "/music");
+                }
+                pendingRoute = canonical.build().toString();
+                return;
+            }
+        }
+    }
+
+    private void deliverRoute() {
+        if (pendingRoute == null || !isEntry()) return;
+        String path = JSONObject.quote(pendingRoute); pendingRoute = null;
+        webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('atmoshaper:native-navigation',{detail:" + path + "}));", null);
     }
 
     /** Only these existing public audio paths may use the native HTTP client. */
@@ -95,7 +277,7 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void deliverReceipt() {
-        if (pendingReceipt == null || webView == null || !ENTRY.equals(webView.getUrl())) return;
+        if (pendingReceipt == null || !isEntry()) return;
         String value = JSONObject.quote(pendingReceipt);
         pendingReceipt = null;
         webView.evaluateJavascript("window.atmoOfflineReceipt=" + value + ";window.dispatchEvent(new CustomEvent('atmoshaper:offline-access',{detail:" + value + "}));", null);
@@ -104,14 +286,20 @@ public final class MainActivity extends ComponentActivity {
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         receiveReceipt(intent);
+        receiveRoute(intent);
         // Do not replay a consumed return URI if Android recreates the Activity.
         intent.setData(null);
         setIntent(intent);
         deliverReceipt();
+        deliverRoute();
     }
 
     @Override protected void onSaveInstanceState(Bundle state) {
         if (pendingReceipt != null) state.putString("offline.pendingReceipt", pendingReceipt);
+        if (pendingRoute != null) state.putString("offline.pendingRoute", pendingRoute);
+        // Preserve the recovery warning across repeated picker recreations,
+        // including when an earlier recreation already discarded the PDF bytes.
+        if (pendingDocumentId > 0) state.putInt("document.pendingId", pendingDocumentId);
         super.onSaveInstanceState(state);
     }
 
@@ -120,7 +308,11 @@ public final class MainActivity extends ComponentActivity {
     public void onCreate(Bundle state) {
         super.onCreate(state);
         if (state != null) pendingReceipt = state.getString("offline.pendingReceipt");
+        if (state != null) pendingRoute = state.getString("offline.pendingRoute");
+        if (state != null) pendingDocumentId = state.getInt("document.pendingId", 0);
+        boolean connectedStart = state == null && Intent.ACTION_MAIN.equals(getIntent().getAction()) && isOnline();
         receiveReceipt(getIntent());
+        receiveRoute(getIntent());
         getIntent().setData(null);
         // Match Clock's existing keep-awake default while these focused tools
         // are visible. Android releases this with the Activity's window.
@@ -152,6 +344,18 @@ public final class MainActivity extends ComponentActivity {
         CookieManager.getInstance().setAcceptCookie(false);
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         webView.setBackgroundColor(0xff171616);
+        installDocumentPort();
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override public void onShowCustomView(View view, CustomViewCallback callback) {
+                if (fullscreenView != null) { callback.onCustomViewHidden(); return; }
+                fullscreenView = view;
+                fullscreenCallback = callback;
+                webView.setVisibility(View.GONE);
+                root.addView(view, new FrameLayout.LayoutParams(-1, -1));
+                new WindowInsetsControllerCompat(getWindow(), root).hide(WindowInsetsCompat.Type.systemBars());
+            }
+            @Override public void onHideCustomView() { closeFullscreen(); }
+        });
         WebViewAssetLoader assets = new WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this)).build();
         webView.setWebViewClient(new WebViewClientCompat() {
@@ -171,31 +375,49 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
-                if (request.isForMainFrame() && "https".equals(uri.getScheme()) && "www.atmoshaper.com".equals(uri.getHost())
-                    && uri.getPort() == -1 && uri.getUserInfo() == null && "/account/offline-access".equals(uri.getPath())
-                    && uri.getQueryParameter("device") != null && uri.getQueryParameter("device").matches("[A-Za-z0-9_-]{43}")
-                    && uri.getQueryParameter("challenge") != null && uri.getQueryParameter("challenge").matches("[A-Za-z0-9_-]{43}")) {
-                    try { startActivity(new Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE)); } catch (android.content.ActivityNotFoundException ignored) { /* The user can retry with a browser installed. */ }
+                if (request.isForMainFrame() && isEntry() && isWebsitePage(uri)) {
+                    openWebsite(uri);
+                    return true;
+                }
+                // Explicit links to credits/help may open the system browser.
+                // Foreign content never loads inside the packaged WebView.
+                if (request.isForMainFrame() && request.hasGesture() && isEntry()
+                    && "https".equals(uri.getScheme()) && uri.getHost() != null && uri.getUserInfo() == null) {
+                    try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); }
+                    catch (android.content.ActivityNotFoundException ignored) { /* No external browser installed. */ }
                     return true;
                 }
                 return !isLocal(request.getUrl());
             }
 
-            @Override public void onPageFinished(WebView view, String url) { deliverReceipt(); }
+            @Override public void onPageFinished(WebView view, String url) { deliverReceipt(); deliverRoute(); }
         });
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (webView.canGoBack()) webView.goBack();
-                else finish();
+                // A custom fullscreen View hides the WebView. Restore it before
+                // awaiting JS callbacks, which some providers defer while hidden.
+                if (fullscreenView != null) { closeFullscreen(); return; }
+                // HTML fullscreen need not provide a separate custom View on
+                // every WebView version. Exit the document before app history.
+                webView.evaluateJavascript("(()=>{if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});return true}return false})()", fullscreen -> {
+                    if (isDestroyed()) return;
+                    if ("true".equals(fullscreen)) closeFullscreen();
+                    else if (fullscreenView != null) closeFullscreen();
+                    else if (webView.canGoBack()) webView.goBack();
+                    else finish();
+                });
             }
         });
         // Incoming intents/extras never choose the WebView URL or executable code.
         webView.loadUrl(ENTRY);
+        if (connectedStart) webView.post(() -> openWebsite(Uri.parse("https://www.atmoshaper.com/?android_app=1")));
     }
 
     @Override
     protected void onDestroy() {
+        if (websiteLauncher != null) websiteLauncher.destroy();
+        documentWriter.shutdown();
         webView.destroy();
         super.onDestroy();
     }

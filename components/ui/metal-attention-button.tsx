@@ -11,6 +11,25 @@ type MetalAttentionMotionState = "playing" | "settling" | "paused" | "off"
 
 type MetalReflectionTargets = ReadonlyArray<React.RefObject<HTMLElement | null>>
 
+let metalGraphicsAvailable: boolean | undefined
+/** Match the shader library's context choice once. A disabled GPU must leave
+ * the underlying control usable instead of throwing from a decorative effect. */
+function useMetalGraphics() {
+  const [available, setAvailable] = React.useState<boolean | null>(null)
+  React.useEffect(() => {
+    if (metalGraphicsAvailable === undefined) {
+      try {
+        const canvas = typeof OffscreenCanvas === "function" ? new OffscreenCanvas(2, 2) : document.createElement("canvas")
+        const context = canvas.getContext("webgl") as WebGLRenderingContext | null
+        metalGraphicsAvailable = Boolean(context)
+        context?.getExtension("WEBGL_lose_context")?.loseContext()
+      } catch { metalGraphicsAvailable = false }
+    }
+    setAvailable(metalGraphicsAvailable)
+  }, [])
+  return available
+}
+
 interface MetalRingOptions {
   /** MetalFx preset from the upstream package. */
   metalPreset?: MetalFxPreset
@@ -227,12 +246,18 @@ export function MetalRing({
   style,
 }: MetalRingProps) {
   const resolvedTheme = useResolvedAppMetalTheme(metalTheme)
+  const graphicsAvailable = useMetalGraphics()
   const ringStyle = {
     ...style,
     "--ml-metal-attention-opacity": clampMetalOpacity(metalOpacity),
     "--ml-metal-attention-ring-size": `${metalRingCssPx}px`,
     "--ml-metal-attention-transition-ms": `${metalTransitionMs}ms`,
   } as React.CSSProperties
+
+  // Server and first client render agree. Children mount only after the platform
+  // decision, so an auto-focused child is never replaced by a different wrapper.
+  if (graphicsAvailable === null) return <span aria-hidden="true" className={cn("ml-metal-attention-root ml-metal-attention-root-idle", className)} style={{ minWidth:3, minHeight:3, ...style }} />
+  if (!graphicsAvailable) return <span className={cn("ml-metal-attention-root ml-metal-attention-root-idle", className)} data-ml-metal-full-width={metalFullWidth ? "true" : undefined} style={style}>{children}</span>
 
   return (
     <MetalFx

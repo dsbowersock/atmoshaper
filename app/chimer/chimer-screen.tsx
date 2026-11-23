@@ -1,6 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import { Button } from "@/components/ui/button"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { MovingBackground } from "@/components/moving-background"
@@ -100,6 +102,16 @@ type ChimerPageProps = {
    * surface. The dev route keeps its preferences separate and never syncs them.
    */
   developmentSubscriberReview?: boolean
+  /** A packaged client supplies a verified backgrounds-only capability and
+   * device persistence. It never represents an authenticated web account. */
+  deviceRuntime?: {
+    backgroundAccess: BackgroundAccessSnapshot
+    initialSettings?: unknown
+    initialTimer?: TimerState
+    onChange?: (settings: ChimerSettings, timer: TimerState) => void
+  }
+  /** A retained timer may keep ticking while another native route is visible. */
+  active?: boolean
 }
 
 type CurrentTimeParts = {
@@ -119,7 +131,7 @@ type WakeLockCapableNavigator = Navigator & {
   }
 }
 
-interface TimerState {
+export interface TimerState {
   status: TimerStatus
   totalMs: number
   remainingMs: number
@@ -161,7 +173,9 @@ function areChimerSettingsEqual(left: ChimerSettings, right: ChimerSettings) {
   })
 }
 
-export default function ChimerPage({ developmentSubscriberReview = false }: ChimerPageProps) {
+export default function ChimerPage({ developmentSubscriberReview = false, deviceRuntime, active = true }: ChimerPageProps) {
+  const deviceMode = Boolean(deviceRuntime)
+  const initialDeviceRuntime = useRef(deviceRuntime)
   const pathname = usePathname() ?? ""
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -203,7 +217,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   )
   const [settings, setSettings] = useState<ChimerSettings>(DEFAULT_CHIMER_SETTINGS as ChimerSettings)
   const [timerState, setTimerState] = useState<TimerState>(() => (
-    startsInClockMode ? createClockTimerState() : idleTimerState
+    deviceRuntime?.initialTimer ?? (startsInClockMode ? createClockTimerState() : idleTimerState)
   ))
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [currentTime, setCurrentTime] = useState<CurrentTimeParts>({ time: "", meridiem: "" })
@@ -216,7 +230,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   const [hasLoadedSettings, setHasLoadedSettings] = useState(false)
   const [canSync, setCanSync] = useState(false)
   const [accountSyncStatus, setAccountSyncStatus] = useState<AccountSyncStatus>(
-    developmentSubscriberReview ? "synced" : "checking",
+    developmentSubscriberReview ? "synced" : deviceMode ? "local" : "checking",
   )
   const [accountSettings, setAccountSettings] = useState<ChimerSettings | null>(null)
   const [hasEditedLocalConflictSettings, setHasEditedLocalConflictSettings] = useState(false)
@@ -259,15 +273,17 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   )
 
   useEffect(() => {
-    if (developmentSubscriberReview) return
+    if (developmentSubscriberReview || deviceMode) return
     void ensureBackgroundCommerceSnapshot()
-  }, [developmentSubscriberReview, ensureBackgroundCommerceSnapshot])
+  }, [developmentSubscriberReview, deviceMode, ensureBackgroundCommerceSnapshot])
   const timerInterval = useRef<ReturnType<typeof setInterval> | null>(null)
   const alertTimeout = useRef<number | null>(null)
   const timerStateRef = useRef(timerState)
   const settingsRef = useRef(settings)
   const backgroundAccessRef = useRef(backgroundAccess)
   const audioContextRef = useRef<AudioContext | null>(null)
+  const [needsRestoredAudio, setNeedsRestoredAudio] = useState(() => Boolean(deviceRuntime?.initialTimer && ["running", "paused"].includes(deviceRuntime.initialTimer.status)))
+  const [restoredAudioMessage, setRestoredAudioMessage] = useState("")
   const wakeLockRef = useRef<ChimerWakeLockSentinel | null>(null)
   const wakeLockRequestRef = useRef<Promise<void> | null>(null)
   const shouldKeepWakeLockRef = useRef(false)
@@ -327,7 +343,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
     () => getTotalTimerMs(settings.hours, settings.minutes),
     [settings.hours, settings.minutes],
   )
-  const shouldKeepScreenAwake = shouldRequestImmersiveWakeLock({
+  const shouldKeepScreenAwake = active && shouldRequestImmersiveWakeLock({
     context: immersiveContext,
     timerStatus: timerState.status,
     keepScreenAwake: settings.keepTimerScreenAwake,
@@ -360,7 +376,9 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
 
     const loadLocalSettings = () => {
       const prepared = prepareChimerBackgroundPreferenceMigration({
-        rawChimerSettings: window.localStorage.getItem(storageKey),
+        rawChimerSettings: deviceMode && initialDeviceRuntime.current?.initialSettings
+          ? JSON.stringify(initialDeviceRuntime.current.initialSettings)
+          : window.localStorage.getItem(storageKey),
         rawLegacyGlobalColors: developmentSubscriberReview
           ? null
           : window.localStorage.getItem(LEGACY_CHIMER_GLOBAL_COLOR_STORAGE_KEY),
@@ -631,7 +649,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
 
     /** Coalesces focus/pageshow bursts while guaranteeing one post-wake retry. */
     function requestAccountSync() {
-      if (!isMounted || developmentSubscriberReview) return
+      if (!isMounted || developmentSubscriberReview || deviceMode) return
       if (accountSyncInFlight) {
         accountSyncQueued = true
         return
@@ -652,7 +670,10 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
     }
 
     loadLocalSettings()
-    if (developmentSubscriberReview) {
+    if (deviceMode) {
+      setCanSync(false)
+      setAccountSyncStatus("local")
+    } else if (developmentSubscriberReview) {
       setFeatureKeys(DEV_CLOCK_FEATURE_KEYS)
       setPremiumBackgroundAccessSource("subscription")
       setPermanentlyOwnedBackgroundIds([])
@@ -676,9 +697,26 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   }, [
     captureBackgroundCommerceOwnershipRevision,
     developmentSubscriberReview,
+    deviceMode,
     reconcileBackgroundCommerceOwnership,
     storageKey,
   ])
+
+  // Only the verified native adapter can supply this local snapshot. Account
+  // reads/writes remain disabled; refresh/expiry replace rather than merge it.
+  const deviceAccessKey = deviceRuntime ? JSON.stringify(deviceRuntime.backgroundAccess) : ""
+  useEffect(() => {
+    if (!deviceMode) return
+    const access = JSON.parse(deviceAccessKey) as BackgroundAccessSnapshot
+    setFeatureKeys([...(access.featureKeys ?? [])])
+    setPremiumBackgroundAccessSource(access.featureKeys?.includes(FEATURE_KEYS.premiumBackgrounds) ? "temporary" : null)
+    setPermanentlyOwnedBackgroundIds([...access.ownedBackgroundIds])
+  }, [deviceMode, deviceAccessKey])
+
+  const onDeviceChange = deviceRuntime?.onChange
+  useEffect(() => {
+    if (hasLoadedSettings && onDeviceChange) onDeviceChange(settings, timerState)
+  }, [onDeviceChange, hasLoadedSettings, settings, timerState])
 
   useEffect(() => {
     if (hasLoadedSettings) {
@@ -725,14 +763,14 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
   }, [])
 
   useEffect(() => {
-    document.body.classList.toggle("chimer-running", timerState.status !== "idle")
+    document.body.classList.toggle("chimer-running", active && timerState.status !== "idle")
     return () => document.body.classList.remove("chimer-running")
-  }, [timerState.status])
+  }, [active, timerState.status])
 
   useEffect(() => {
-    document.body.classList.toggle("chimer-alerting", isAlerting)
+    document.body.classList.toggle("chimer-alerting", active && isAlerting)
     return () => document.body.classList.remove("chimer-alerting")
-  }, [isAlerting])
+  }, [active, isAlerting])
 
   const releaseWakeLock = useCallback(() => {
     const sentinel = wakeLockRef.current
@@ -863,7 +901,9 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
           }),
         ])
       }
-      return context.state === "running"
+      const ready = context.state === "running"
+      if (ready) setNeedsRestoredAudio(false)
+      return ready
     } catch {
       return false
     } finally {
@@ -871,7 +911,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
         window.clearTimeout(timeoutId)
       }
     }
-  }, [getAudioContext])
+  }, [getAudioContext, setNeedsRestoredAudio])
 
   const playChime = useCallback((volume: number = DEFAULT_CHIMER_SETTINGS.alertVolume) => {
     const context = audioContextRef.current
@@ -963,6 +1003,16 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
     timerInterval.current = setInterval(tick, 250)
     window.setTimeout(tick, 0)
   }, [clearTimerInterval, tick])
+
+  useEffect(() => {
+    if (deviceMode && timerStateRef.current.status === "running") startTicking()
+  }, [deviceMode, startTicking])
+
+  useEffect(() => {
+    if (!deviceMode) return
+    setTimerState(current => current.status === "idle" || current.status === "clock"
+      ? (startsInClockMode ? createClockTimerState() : idleTimerState) : current)
+  }, [deviceMode, startsInClockMode])
 
   const updateSettings = (
     nextSettings: Partial<ChimerSettings>,
@@ -1478,7 +1528,11 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
     : null
   const initialMusicPanel = requestedInitialPanel
     ?? (musicSelectionHydrated && selectedMusicBackgroundId === null ? "background" : null)
-  const immersiveMode: ImmersiveDisplayMode = immersiveContext === "musicVisualizer"
+  // The native Clock & timer entry can restore an already-running countdown.
+  // Pure Clock intentionally hides timer digits, so retain the timer stage.
+  const displayContext = deviceMode && immersiveContext === "clock" && ["running", "paused", "complete"].includes(timerState.status)
+    ? "chimer" : immersiveContext
+  const immersiveMode: ImmersiveDisplayMode = displayContext === "musicVisualizer"
     ? {
       context: "musicVisualizer",
       backgroundCategory: "music",
@@ -1506,7 +1560,7 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
         onRetry: retryVisualizerAccountSync,
       },
     }
-    : immersiveContext === "clock"
+    : displayContext === "clock"
       ? {
         context: "clock",
         backgroundCategory: "clock",
@@ -1542,7 +1596,20 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
         }),
         onClose: endTimer,
       }
+  // A retained native timer keeps its hooks/alerts alive while another route
+  // is visible. Unmount the view, including its portaled immersive controls.
+  // Immersive CSS hides sidebar <aside> elements. This alert must remain visible
+  // on a direct restored-timer launch as well as on the Home screen.
+  const audioRecoveryPrompt = deviceMode && hasLoadedSettings && needsRestoredAudio
+    && ["running", "paused"].includes(timerState.status) && SOUND_ALERT_TYPES.has(settings.alertType)
+    ? createPortal(<div role="alert" className="fixed left-1/2 top-3 z-[30000] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 space-y-2 rounded-xl border border-border bg-background p-3 shadow-lg">
+      <p className="text-sm">Timer restored. Enable its sound on this device; your remaining time stays the same.</p>
+      <Button variant="ctaBlue" onClick={async () => { if (!(await unlockAudio())) setRestoredAudioMessage("Sound is not ready. Check sound permissions and try again.") }}>Enable timer sound</Button>
+      {restoredAudioMessage && <p className="text-sm">{restoredAudioMessage}</p>}
+    </div>, document.body) : null
+  if (!active) return audioRecoveryPrompt
   return (
+    <>{audioRecoveryPrompt}
     <div className="relative min-h-full px-4 py-[7px]">
       {!isTimerActive && (
         <>
@@ -2284,5 +2351,6 @@ export default function ChimerPage({ developmentSubscriberReview = false }: Chim
         )}
       </div>
     </div>
+    </>
   )
 }

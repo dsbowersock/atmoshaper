@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.atmoshaper.app.development",
+      "sha256_cert_fingerprints": ["DD:C6:46:10:DF:C7:18:89:39:B1:55:5C:4D:59:F5:0E:81:F2:DA:4D:C4:27:02:0B:30:6B:85:2D:76:78:A0:4D"]
+    }
+  }
+]

@@ -26,6 +26,7 @@ import { ATMOSPHERE_PUBLIC_LABELS } from "@/lib/atmosphere/public-labels"
 import { groupAtmosphereStations } from "@/lib/atmosphere/station-groups"
 import { getVisibleAtmosphereStations } from "@/lib/atmosphere/stations"
 import { cn } from "@/lib/utils"
+import { NativeMusicTools } from "@/components/native/native-app-navigation"
 
 const stations = getVisibleAtmosphereStations()
 const stationGroups = groupAtmosphereStations(stations)
@@ -137,6 +138,7 @@ export function AtmosphereWorkspace({ layout = "grid" }: { layout?: AtmosphereWo
         )}
         contentClassName={cn(!isRailLayout && "pb-28", isRailLayout && "ml-atmosphere-rail-content")}
       >
+      <NativeMusicTools />
       {isRailLayout ? (
         <h1 className="sr-only">{ATMOSPHERE_PUBLIC_LABELS.name}</h1>
       ) : (

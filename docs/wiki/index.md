@@ -1,6 +1,16 @@
 # AtmoShaper Wiki
 
-- [Grouped PR #80 hosted-review corrections](../audits/2026-11-22-offline-hosted-review-corrections.md): local recovery corrections and publication hold.
+- [PR #81 grouped Android review corrections](../audits/2026-11-23-android-hosted-review-corrections.md): validated findings, local candidate and remaining release gates.
+- [Prepared changed-candidate amendment](../superpowers/plans/2026-11-23-android-website-parity-corrections.md): one additional PR update, existing publication continuation and matching APK.
+
+- [Shared Android candidate review and verification](../audits/2026-11-22-android-website-parity.md): completed application coverage, frozen APK and remaining native/origin/phone gates.
+- [Prepared shared Android publication](../superpowers/plans/2026-11-22-android-website-parity-publication.md): candidate identities, existing checks, rollback and required separate approval.
+
+- [Shared website screen implementation](../superpowers/plans/2026-11-22-android-website-parity.md): shared screens, storage preservation and remaining connected-origin gates.
+
+- [Published offline Android release and owner receipt](../audits/2026-11-22-offline-android-publication.md): live release, verified APK and remaining device gates.
+
+- [Grouped PR #80 hosted-review corrections](../audits/2026-11-22-offline-hosted-review-corrections.md): completed application correction coverage; publication is recorded above.
 
 This directory is the repo-backed project wiki. Keep operational, implementation, and release documentation here so the README can stay public-facing.
 

@@ -21,7 +21,7 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
   const publicKeysPath = path.join(root, "output/offline-acceptance-public-keys.json")
   await mkdir(path.dirname(publicKeysPath), { recursive: true })
   await writeFile(publicKeysPath, JSON.stringify([{ id: "synthetic-acceptance", jwk: publicKey.export({ format: "jwk" }) }]))
-  await buildOfflineCore({ testPublicKeysPath: publicKeysPath, outputName: "offline-acceptance-backgrounds" })
+  await buildOfflineCore({ legacyAcceptance: true, testPublicKeysPath: publicKeysPath, outputName: "offline-acceptance-backgrounds" })
   const environment = { ATMOSHAPER_OFFLINE_ACCESS_ENABLED: "true", ATMOSHAPER_OFFLINE_ACCESS_KEY_ID: "synthetic-acceptance", ATMOSHAPER_OFFLINE_ACCESS_PRIVATE_KEY: privateKey.export({ type: "pkcs8", format: "pem" }) }
   const browser = await chromium.launch()
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" })

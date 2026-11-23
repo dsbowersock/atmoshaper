@@ -1,5 +1,136 @@
 # AtmoShaper Project State
 
+## November 23 PR #81 held for the mobile drawer correction
+
+The owner approves corrected candidate `b2053cb`. Its additional push/protected
+Preview and anonymous acceptance pass: 21 entry pages, three Home layouts, five
+Clock layouts, both fonts, app marker and Digital Asset Links; no real writes or
+page errors. Current-head Codex review identifies one supported native Link
+callback omission. Hold before merge, Production build and promotion; public
+`5758fcb` remains unchanged. Keep PR #81 and earlier operation receipts.
+
+Local correction `2b06d64`, finalized by `d61de9a`, honors cancellable `onNavigate`, closes the mobile
+drawer after tool selection and restores opener focus. Fourteen contract/runtime
+and ten real-media/shared-screen browser cases, native-source lint, full
+TypeScript and normal Android build/lint/signature checks pass. Codex Standards
+and Spec reviews report zero issues against the final application source.
+CodeRabbit completes its four-file review; its one null-download edge case is
+corrected and regression-tested. The matching version 0.4.2 APK SHA-256 starts
+`8f603319`. The final matching normal APK passes the complete emulator upgrade,
+retained-download/settings/deadline, offline audio, fullscreen and PDF journey
+with zero failures/skips. The fixed test emulator is stopped without deleting
+its data; owner devices remain untouched. Physical S24 and actual connected-origin
+acceptance remain publication/handoff gates.
+All seven hosted checks pass for the prior approved `b2053cb`; the final head
+will require fresh checks after approval/push.
+See the [correction record](audits/2026-11-23-android-navigation-correction.md)
+and [prepared amendment](superpowers/plans/2026-11-23-android-navigation-correction-publication.md).
+Another source push/publication requires approval of the final corrected head.
+
+## November 23 PR #81 held for grouped review corrections
+
+The owner approves the shared Android publication candidate `57e4957`. Its one
+branch push, release [PR #81](https://github.com/dsbowersock/atmoshaper/pull/81)
+and protected Preview are created. The hosted browser build and all four browser
+lanes pass. The full unit run has 5,945 passes, two outdated source-assertion
+failures and eight optional skips; the corrected fixture files pass all 14 cases.
+Codex completes its review with two timer findings. An explicitly triggered
+CodeRabbit full review completes with seven comments, including the same overdue
+timer finding. These are consolidated into one local correction, `6f8c107`.
+
+The correction preserves disabled/overdue timer intervals and their original
+phase, retains the connected-app marker, fixes access-loading completion and
+initial audio gain, and releases the screen wake lock when Clock is hidden.
+Actual screen verification also finds and fixes an immersive CSS rule hiding the
+restored-sound prompt. Failure tests now seed and check retained timer data.
+The historical upgrade APK source/path/hash are documented. No financial,
+credential, signing-authority or account-storage boundary changes.
+
+All nine shared-screen browser cases pass, including real online Play, explicit
+downloads and offline playback. Thirteen focused source/runtime cases, 111 Clock
+checks and the 14 hosted-failure regressions pass. The version 0.4.1 normal APK
+build/lint and unchanged-certificate verification pass; SHA-256 starts `5d6c467f`.
+The complete emulator upgrade/offline/fullscreen/PDF case passes with no skips.
+The task-owned emulator is stopped afterward; its data and other devices remain.
+Codex completes local correction inspection; CodeRabbit's bounded follow-up
+reviews all 16 changed paths and raises zero issues. Full lint and TypeScript
+pass. Later receipt-only documentation leaves the reviewed source/APK unchanged.
+The original operation is held before merge/build/promotion. Public release
+`5758fcb` remains unchanged. The operative source freeze requires fresh candidate
+approval before another push or publication. See the [correction record](audits/2026-11-23-android-hosted-review-corrections.md)
+and [prepared amendment](superpowers/plans/2026-11-23-android-website-parity-corrections.md).
+
+## November 23 shared Android candidate verified locally; publication pending
+
+The actual website Home, navigation, Clock/timer, breathing, Music and six
+business planner screens now run from shared components in the packaged app.
+Connected account, calendar, practice and other website pages remain inside a
+browser-owned Trusted Web Activity. The owner explicitly chooses that full
+in-app connected experience. Website/app association is prepared, not published;
+browser origin verification and the physical S24 check remain required.
+
+Application source is frozen at `a9ddca1`; later changes affect only the Android
+fixture and verification records. Codex inspects the final source. Five completed
+CodeRabbit ranges cover every changed text path through fixture head `a2a24e1`.
+The last application correction pass raises zero issues. The later fixture pass
+raises one question, refuted by the old app's separate Music implementation and
+the successful full upgrade run. A temporary free CLI rate limit is resolved by
+waiting and using the existing account, without a billing/key/provider change.
+
+Shared-screen browser acceptance passes all seven cases, including real online
+Play without saving, downloaded music/ambient playback after an offline restart,
+restored timer sound readiness and actual PDF generation. Focused source checks,
+lint and TypeScript pass. The normal APK passes Android lint/build and unchanged
+certificate verification; its SHA-256 begins `af746820`. The complete fixed-
+emulator case passes with no skips: upgrade readback preserves both packs,
+original settings, receipt identity and timer deadline. Actual saved music runs
+across breathing in airplane mode; fullscreen Back and the native PDF save
+dialog/cancel pass. Android's first-use fullscreen tutorial, auto-hidden controls,
+cold chunk loading and the floating player required fixture corrections; extra
+speculative fullscreen ports are removed. The app and APK remain unchanged during
+those fixture corrections. The task-created emulator is stopped after acceptance;
+owner emulators and the physical phone are untouched.
+
+This candidate has not been published. The prior publication checkpoint remains
+historical evidence; fresh public/rollback preflight is required before a new
+release. See the [review and verification record](audits/2026-11-22-android-website-parity.md)
+and [prepared, unapproved publication plan](superpowers/plans/2026-11-22-android-website-parity-publication.md).
+Earlier checkpoints below are retained as history and superseded by this update.
+
+## November 22 Android website parity in local verification
+
+The owner requests the actual website Home, navigation and tools inside Android,
+including the full connected account/calendar/practice experience. Local branch
+`codex/android-website-parity` replaces the earlier five-tool entry with shared
+website components and styles. Browser-owned Trusted Web Activity hosts connected
+pages; packaged shared screens retain offline Clock/timer, breathing, backgrounds,
+saved audio and planner drafts. Account sessions are not copied into the WebView.
+
+Shared-screen browser checks pass Home/navigation, breathing/Music/planners,
+read-only legacy settings/deadline import, failed-read protection and actual local
+PDF generation. Android build/lint pass on an initial candidate; final media,
+upgrade, review and APK verification are still in progress. The public website
+remains the already published `5758fcb`; the new app association/navigation source
+is not published. Connected-origin and physical-phone acceptance remain gates.
+See the [local implementation plan](superpowers/plans/2026-11-22-android-website-parity.md).
+
+## November 22 offline Android release published
+
+[PR #80](https://github.com/dsbowersock/atmoshaper/pull/80) is merged and reviewed
+release `5758fcb` is public. Codex/CodeRabbit application coverage is complete,
+all 25 review threads are resolved, and all seven CI checks pass on the final
+receipt-only PR head and merge. The same Production artifact passes Sentry
+script/map matching, 14 entry pages, eight Home/Clock journeys, fonts and issuer
+denials before and after promotion. All 90 setting metadata entries and the
+signing authority are preserved; `0eb02e0` remains READY for rollback.
+
+The matching APK passes build/signature and actual serial Core/media emulator
+acceptance. One real owner backgrounds-only receipt verifies the public signer,
+install/challenge binding, durable save and allowed-background retention after
+airplane mode/process restart. Physical S24, reliable screen-off audio/closed-app
+alarms, full native parity/payment collection and the minor older-preview retry
+edge remain. See the [publication receipt](audits/2026-11-22-offline-android-publication.md).
+The approved operation is complete; following checkpoints are historical.
 The first dated update is current. Later sections are retained historical
 checkpoints; their earlier pending/unauthorized statuses are superseded by it.
 

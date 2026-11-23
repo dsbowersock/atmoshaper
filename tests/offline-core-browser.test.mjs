@@ -29,7 +29,7 @@ async function attachAssets(context, violations) {
 }
 
 test("packaged Clock, timer, breathing and backgrounds work from a first offline launch",{timeout:180000},async()=>{
-  await buildOfflineCore({outputName:"offline-acceptance-core"})
+  await buildOfflineCore({ legacyAcceptance: true,outputName:"offline-acceptance-core"})
   const violations=[],errors=[]
   const browser=await chromium.launch()
   if(evidence)await mkdir(evidence,{recursive:true})
@@ -115,7 +115,7 @@ test("packaged Clock, timer, breathing and backgrounds work from a first offline
 })
 
 test("a failed initial settings load cannot replace a committed running timer",{timeout:120000},async()=>{
-  await buildOfflineCore({outputName:"offline-acceptance-core"})
+  await buildOfflineCore({ legacyAcceptance: true,outputName:"offline-acceptance-core"})
   const browser=await chromium.launch()
   const context=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:"block"})
   const violations=[],errors=[]

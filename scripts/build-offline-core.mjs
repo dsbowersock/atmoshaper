@@ -13,7 +13,7 @@ export const coreRoot = path.join(bundleRoot, "core")
 /** This build owns this single generated directory, never browser/user data. */
 async function resetOutput(bundleRoot) {
   const target = path.resolve(bundleRoot)
-  if (path.dirname(target) !== path.resolve(root, "output") || !["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds"].includes(path.basename(target))) throw new Error("Unexpected offline build directory.")
+  if (path.dirname(target) !== path.resolve(root, "output") || !["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds", "offline-acceptance-website"].includes(path.basename(target))) throw new Error("Unexpected offline build directory.")
   const existing = await lstat(target).catch(error => { if (error.code !== "ENOENT") throw error })
   if (existing?.isSymbolicLink()) throw new Error("The offline build output cannot be a link.")
   const physicalRoot = await realpath(root)
@@ -25,25 +25,31 @@ async function resetOutput(bundleRoot) {
 }
 
 /** Build actual product components into an app-owned, network-free asset set. */
-export async function buildOfflineCore({ testPublicKeysPath = null, outputName = "offline-core" } = {}) {
+export async function buildOfflineCore({ testPublicKeysPath = null, outputName = "offline-core", development = false, legacyAcceptance = false } = {}) {
   // Only acceptance can substitute an ephemeral public authority. The normal
   // Android build never supplies this argument and cannot ship a test key.
   if (testPublicKeysPath && path.resolve(testPublicKeysPath) !== path.join(root, "output/offline-acceptance-public-keys.json")) throw new Error("Unexpected receipt acceptance key path.")
   // Acceptance readers get independent trees. Parallel wildcard tests cannot
   // delete each other's assets or replace Android's normal trust configuration.
-  if (!["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds"].includes(outputName)) throw new Error("Unexpected offline build output.")
+  if (!["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds", "offline-acceptance-website"].includes(outputName)) throw new Error("Unexpected offline build output.")
   if (testPublicKeysPath && outputName !== "offline-acceptance-backgrounds") throw new Error("Synthetic authority requires isolated acceptance output.")
+  if (legacyAcceptance && outputName === "offline-core") throw new Error("The earlier preview is acceptance-only.")
   const bundleRoot = path.join(root, "output", outputName), coreRoot = path.join(bundleRoot, "core")
   await mkdir(path.dirname(bundleRoot), { recursive: true })
   await resetOutput(bundleRoot)
   const { webpack } = require("next/dist/compiled/webpack/webpack")
   const compiler = webpack({
-    mode: "production", target: ["web", "es2020"], devtool: false,
-    entry: path.join(root, "native/web/index.tsx"),
-    output: { path: coreRoot, filename: "app.js", publicPath: "./" },
+    mode: development ? "development" : "production", target: ["web", "es2020"], devtool: false,
+    entry: path.join(root, legacyAcceptance ? "scripts/fixtures/offline-legacy-entry.tsx" : "native/web/index.tsx"),
+    output: { path: coreRoot, filename: "app.js", chunkFilename: "chunks/[name].[contenthash:12].js", publicPath: "./" },
     resolve: { alias: {
       "@/native/offline-access-public-keys.json$": testPublicKeysPath ?? path.join(root, "native/offline-access-public-keys.json"),
-      "@/components/moving-background$": path.join(root, "native/web/offline-moving-background.tsx"),
+      ...(legacyAcceptance ? { "@/components/moving-background$": path.join(root,"native/web/offline-moving-background.tsx") } : {}),
+      "next/link$": path.join(root, "native/web/platform/link.tsx"),
+      "next/image$": path.join(root, "native/web/platform/image.tsx"),
+      "next/navigation$": path.join(root, "native/web/platform/navigation.tsx"),
+      "next/dynamic$": path.join(root, "native/web/platform/dynamic.tsx"),
+      "next-auth/react$": path.join(root, "native/web/platform/auth.ts"),
       "regenerator-runtime/runtime.js$": path.join(root, "lib/atmosphere/regenerator-runtime-shim.js"),
       "tone$": path.join(root, "node_modules/tone/build/esm/index.js"),
       "@": root,
@@ -68,8 +74,14 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     performance: { hints: false },
     // No .env values enter the native client. Shared public metadata may read
     // absent optional web bindings; provide an empty compile-time environment.
-    plugins: [new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("production"), "process.env": "{}" })],
+    plugins: [new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("production"), "process.env": "{}" }),
+      new webpack.NormalModuleReplacementPlugin(/generative-fm-platform$/, resource => { resource.request = path.join(root, "native/web/platform/generative-fm.ts") }),
+      new webpack.NormalModuleReplacementPlugin(/ambient-platform$/, resource => { resource.request = path.join(root, "native/web/platform/ambient.ts") }),
+      new webpack.NormalModuleReplacementPlugin(/media-platform$/, resource => { resource.request = path.join(root, "native/web/platform/media.ts") }),
+      new webpack.NormalModuleReplacementPlugin(/lib[\\/]planner-export$/, resource => { resource.request = path.join(root, "native/web/platform/planner-export.ts") }),
+    ],
   })
+  let forbiddenTrace = ""
   const modules = await new Promise((resolve, reject) => compiler.run((error, stats) => {
     let failure = error, sources
     try {
@@ -79,22 +91,50 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
         const visit = bundledModule => { if (bundledModule.resource) resources.add(bundledModule.resource); if (bundledModule.modules) for (const nested of bundledModule.modules) visit(nested) }
         for (const bundledModule of stats.compilation.modules) visit(bundledModule)
         sources = [...resources]
+        for (const sourceModule of stats.compilation.modules) {
+          if (!/[\\/]lib[\\/]prisma\./.test(sourceModule.resource ?? "")) continue
+          const chain = [], seen = new Set()
+          for (let owner = sourceModule; owner && !seen.has(owner) && chain.length < 24; owner = stats.compilation.moduleGraph.getIssuer(owner)) {
+            seen.add(owner); if (owner.resource) chain.push(path.relative(root, owner.resource))
+          }
+          forbiddenTrace = chain.join(" <- ")
+        }
       }
     } catch (cause) { failure = cause }
     compiler.close(cause => failure || cause ? reject(failure || cause) : resolve(sources))
   }))
-  const forbidden = modules.filter(name => /(?:node_modules[\\/](?:@prisma|next-auth)|next[\\/]dist[\\/]server|[\\/]app[\\/]api[\\/]|[\\/]lib[\\/]server[\\/]|[\\/]tests[\\/])/.test(name))
-  if (forbidden.length) throw new Error("Server, authentication or test code leaked into the offline bundle: " + forbidden.join(", "))
+  const forbidden = modules.filter(name => /(?:node_modules[\\/](?:@prisma|next-auth)|next[\\/]dist[\\/]server|[\\/]app[\\/]api[\\/]|[\\/]lib[\\/](?:server[\\/]|prisma\.)|[\\/]tests[\\/])/.test(name))
+  if (forbidden.length) throw new Error("Server, authentication or test code leaked into the offline bundle: " + forbidden.join(", ") + "; import chain: " + forbiddenTrace)
 
   const globals = path.join(root, "app/globals.css")
   const compiled = await require("postcss")([require("tailwindcss")(path.join(root, "tailwind.config.ts"))]).process(await readFile(globals, "utf8"), { from: globals, map: false })
   const css = compiled.css.replaceAll("../public/fonts/", "./fonts/")
+    + "\n" + await readFile(path.join(root, "native/web/website-fonts.css"), "utf8")
   await writeFile(path.join(coreRoot, "app.css"), css)
   await mkdir(path.join(coreRoot, "fonts/dseg"), { recursive: true })
   for (const name of ["DSEG7Modern-Regular.woff2", "DSEG7Modern-Bold.woff2", "DSEG14Modern-Bold.woff2", "DSEG-LICENSE.txt"]) {
     await copyFile(path.join(root, "public/fonts/dseg", name), path.join(coreRoot, "fonts/dseg", name))
   }
   await copyFile(path.join(root, "public", PUBLIC_PRODUCT_IDENTITY.assets.appBarWordmark), path.join(coreRoot, "wordmark.png"))
+  // Preserve the website's public image URLs so shared markup needs no second
+  // product-identity mapping. Only public brand images enter this directory.
+  for (const asset of new Set(Object.values(PUBLIC_PRODUCT_IDENTITY.assets))) {
+    if (typeof asset !== "string" || !asset.startsWith("/brand/") || !/\.(png|svg|webp|jpg)$/.test(asset)) continue
+    await mkdir(path.join(coreRoot, "public/brand"), { recursive: true })
+    await copyFile(path.join(root, "public", asset), path.join(coreRoot, "public", asset))
+  }
+  for (const family of ["inter", "reports"]) {
+    for (const name of await readdir(path.join(root, "public/fonts", family))) {
+      await mkdir(path.join(coreRoot, "fonts", family), { recursive: true })
+      await mkdir(path.join(coreRoot, "public/fonts", family), { recursive: true })
+      await copyFile(path.join(root, "public/fonts", family, name), path.join(coreRoot, "fonts", family, name))
+      await copyFile(path.join(root, "public/fonts", family, name), path.join(coreRoot, "public/fonts", family, name))
+    }
+  }
+  for (const asset of ["audio/atmosphere/media-session-carrier.mp3", "icons/icon-512.png"]) {
+    await mkdir(path.dirname(path.join(coreRoot,"public",asset)),{recursive:true})
+    await copyFile(path.join(root,"public",asset),path.join(coreRoot,"public",asset))
+  }
   await mkdir(path.join(coreRoot, "textures"), { recursive: true })
   for (const [name, expected] of [
     ["earth-blue-marble.jpg", "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01"],
@@ -106,9 +146,9 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     await copyFile(source, path.join(coreRoot, "textures", name))
   }
   await writeFile(path.join(coreRoot, "THIRD-PARTY-NOTICES.txt"), await offlineNotices(modules))
-  await writeFile(path.join(coreRoot, "index.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: https://media.atmoshaper.com/atmosphere/; frame-src 'none'; worker-src blob:; base-uri 'none'; form-action 'none'"><title>AtmoShaper Offline Tools</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./app.css"></head><body><div id="root"></div><script defer src="./app.js"></script></body></html>`)
+  await writeFile(path.join(coreRoot, "index.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: https://media.atmoshaper.com/atmosphere/; frame-src 'none'; worker-src blob:; base-uri 'none'; form-action 'none'"><title>${legacyAcceptance ? "AtmoShaper Offline Tools" : "AtmoShaper"}</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./app.css"></head><body><div id="root"></div><script defer src="./app.js"></script></body></html>`)
   const files = await fileInventory(coreRoot)
-  const manifest = { version: 1, entry: "core/index.html", networkRequired: false, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["clock", "timer", "breathing", "backgrounds", "music"], sourceModuleCount: modules.length, files }
+  const manifest = { version: 2, entry: "core/index.html", networkRequired: false, sharedWebsite: !legacyAcceptance, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["home", "navigation", "clock", "timer", "breathing", "backgrounds", "music", "downloads", "business-planners"], sourceModuleCount: modules.length, files }
   await writeFile(path.join(bundleRoot, "bundle-proof.json"), JSON.stringify(manifest, null, 2))
   console.log(JSON.stringify({ entry: manifest.entry, fileCount: files.length, bytes: files.reduce((sum, item) => sum + item.bytes, 0), networkRequired: false }))
   return manifest
@@ -145,4 +185,4 @@ async function fileInventory(directory, prefix = "core") {
   return result
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await buildOfflineCore()
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await buildOfflineCore({ development: process.argv.includes("--development") })

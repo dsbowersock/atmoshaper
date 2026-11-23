@@ -1,9 +1,10 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { OfflineCoreApp } from "./offline-core-app"
-import { createOfflineCoreStorage } from "@/lib/offline-core-storage"
+import { WebsiteApp } from "./website-app"
+import { installPackagedFontFetch } from "./platform/assets"
 
 const root = document.getElementById("root")
 if (!root) throw new Error("The offline app root is missing.")
-const store = createOfflineCoreStorage()
-void store.load().then(initial => createRoot(root).render(<StrictMode><OfflineCoreApp store={store} initial={initial} /></StrictMode>))
+document.documentElement.dataset.nativeApp = "local"
+installPackagedFontFetch()
+createRoot(root).render(<StrictMode><WebsiteApp /></StrictMode>)
