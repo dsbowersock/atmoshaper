@@ -1,5 +1,22 @@
 # AtmoShaper Project State
 
+## November 22 offline Android release published
+
+[PR #80](https://github.com/dsbowersock/atmoshaper/pull/80) is merged and reviewed
+release `5758fcb` is public. Codex/CodeRabbit application coverage is complete,
+all 25 review threads are resolved, and all seven CI checks pass on the final
+receipt-only PR head and merge. The same Production artifact passes Sentry
+script/map matching, 14 entry pages, eight Home/Clock journeys, fonts and issuer
+denials before and after promotion. All 90 setting metadata entries and the
+signing authority are preserved; `0eb02e0` remains READY for rollback.
+
+The matching APK passes build/signature and actual serial Core/media emulator
+acceptance. One real owner backgrounds-only receipt verifies the public signer,
+install/challenge binding, durable save and allowed-background retention after
+airplane mode/process restart. Physical S24, reliable screen-off audio/closed-app
+alarms, full native parity/payment collection and the minor older-preview retry
+edge remain. See the [publication receipt](audits/2026-11-22-offline-android-publication.md).
+The approved operation is complete; following checkpoints are historical.
 The first dated update is current. Later sections are retained historical
 checkpoints; their earlier pending/unauthorized statuses are superseded by it.
 

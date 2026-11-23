@@ -1,5 +1,21 @@
 # AtmoShaper Project Log
 
+## November 22 offline Android release published
+
+Complete the approved PR #80 amendment: push `92585d9`, obtain fresh hosted
+Codex/CodeRabbit review and all checks, then close three minor documentation
+comments in receipt-only `8a6d096`. All 25 threads are resolved. Seven CI checks
+pass on that head and merged `5758fcb`. One automatic Production build passes
+existing gates and both Sentry uploads; actual script/map IDs match. Stage and
+publicly verify the same artifact (14 pages, eight journeys, two fonts and issuer
+denials). Promote once, retain `0eb02e0` for rollback, and preserve all settings.
+
+Verify the matching APK's single owner backgrounds-only receipt from the live
+issuer in the fixed task emulator, including durable access after airplane mode
+and process restart. Close within the approved window without another key,
+provider setting, payment, mail, migration or clinical/account-preference write.
+Record the [full receipt](audits/2026-11-22-offline-android-publication.md); physical S24 and documented native
+limitations remain. Save this local documentation closeout without redeploying.
 ## November 22 approved corrected head passes hosted review and CI
 
 The owner explicitly approves `92585d9` and continuation of the guarded release.

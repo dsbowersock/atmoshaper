@@ -1,5 +1,11 @@
 # Offline background access activation and release
 
+Current outcome: publication and the one real owner emulator receipt are complete.
+See the [final publication receipt](2026-11-22-offline-android-publication.md). The successful signing authority
+and all setting metadata are preserved; the following checkpoint is historical.
+
+## Historical pre-publication checkpoint
+
 November 22, 2026. Publication is in progress, not complete.
 
 PR #80 receives the owner-approved corrected candidate `92585d9`. Its protected
