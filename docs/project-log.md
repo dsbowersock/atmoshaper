@@ -1,5 +1,40 @@
 # AtmoShaper Project Log
 
+## November 23 approved Android release reaches hosted review; corrections held locally
+
+Admit the owner-approved `57e4957` publication after fresh provider/source
+preflight. Push once and open PR #81. Confirm protected Preview and existing
+manual public promotion. Keep all 90 Production setting metadata entries,
+the public background authority, prior READY release and existing aliases.
+Do not merge or build Production after the hosted reviews identify corrections.
+
+Codex raises two timer migration issues. CodeRabbit's automatic skip is followed
+by an explicit full-review request and completed 81-path selection, with seven
+comments. Consolidate the duplicate overdue-cue issue. Fix interval Off,
+overdue/original-phase/paused scheduling, connected navigation markers,
+startup-access readiness after Forget, gain before playback and inactive wake
+locks. Strengthen saved-state failure coverage and document the retained upgrade
+baseline. Actual browser execution also reveals that immersive sidebar CSS hides
+the restored-audio alert's aside element; use an alert container that stays
+visible on a direct timer launch. Do not change the global sidebar policy.
+
+The first hosted full unit run records 5,945 passes, two stale variable-name
+assertions and eight optional skips. Correct those two fixtures and pass all
+14 cases; preserve their Music/background contracts. The browser build and all
+four hosted browser lanes pass. Freeze local correction `6f8c107`; nine shared
+browser cases, 13 focused contracts/runtime cases and 111 Clock cases pass.
+Build version 0.4.1 with the existing certificate and prepare the distinct
+`5d6c467f` installer. The complete emulator case passes: upgrade from version 3,
+retained packs/settings/deadline, actual offline audio across breathing,
+fullscreen Back and native PDF save dialog/cancel. Stop only the named task
+emulator and retain its data. Codex inspects the grouped correction. After fixing
+the isolated review clone's missing base branch and a Windows/WSL quoting issue,
+the existing authenticated CodeRabbit CLI completes all 16 correction paths with
+zero issues; failed setup attempts are not counted. Full lint and TypeScript pass.
+Only receipt documentation follows the application freeze; no new APK build.
+The approved publication is held for its required changed-candidate amendment;
+no merge, Production build, promotion, provider setting or real account write.
+
 ## November 23 shared Android UI reviewed and local APK acceptance complete
 
 Freeze application source at `a9ddca1` and the normal signed preview APK whose

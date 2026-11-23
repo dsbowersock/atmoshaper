@@ -1,5 +1,38 @@
 # AtmoShaper Project State
 
+## November 23 PR #81 held for grouped review corrections
+
+The owner approves the shared Android publication candidate `57e4957`. Its one
+branch push, release [PR #81](https://github.com/dsbowersock/atmoshaper/pull/81)
+and protected Preview are created. The hosted browser build and all four browser
+lanes pass. The full unit run has 5,945 passes, two outdated source-assertion
+failures and eight optional skips; the corrected fixture files pass all 14 cases.
+Codex completes its review with two timer findings. An explicitly triggered
+CodeRabbit full review completes with seven comments, including the same overdue
+timer finding. These are consolidated into one local correction, `6f8c107`.
+
+The correction preserves disabled/overdue timer intervals and their original
+phase, retains the connected-app marker, fixes access-loading completion and
+initial audio gain, and releases the screen wake lock when Clock is hidden.
+Actual screen verification also finds and fixes an immersive CSS rule hiding the
+restored-sound prompt. Failure tests now seed and check retained timer data.
+The historical upgrade APK source/path/hash are documented. No financial,
+credential, signing-authority or account-storage boundary changes.
+
+All nine shared-screen browser cases pass, including real online Play, explicit
+downloads and offline playback. Thirteen focused source/runtime cases, 111 Clock
+checks and the 14 hosted-failure regressions pass. The version 0.4.1 normal APK
+build/lint and unchanged-certificate verification pass; SHA-256 starts `5d6c467f`.
+The complete emulator upgrade/offline/fullscreen/PDF case passes with no skips.
+The task-owned emulator is stopped afterward; its data and other devices remain.
+Codex completes local correction inspection; CodeRabbit's bounded follow-up
+reviews all 16 changed paths and raises zero issues. Full lint and TypeScript
+pass. Later receipt-only documentation leaves the reviewed source/APK unchanged.
+The original operation is held before merge/build/promotion. Public release
+`5758fcb` remains unchanged. The operative source freeze requires fresh candidate
+approval before another push or publication. See the [correction record](audits/2026-11-23-android-hosted-review-corrections.md)
+and [prepared amendment](superpowers/plans/2026-11-23-android-website-parity-corrections.md).
+
 ## November 23 shared Android candidate verified locally; publication pending
 
 The actual website Home, navigation, Clock/timer, breathing, Music and six

@@ -1,7 +1,10 @@
 # Prepared Android website parity publication
 
-Status: prepared, not approved. The local implementation request does not
-authorize this publication. The completed earlier release window is not reused.
+Status: approved for `57e4957`, admitted and held before merge/publication.
+One push/PR/protected Preview completes. Hosted review requires grouped source
+corrections; the [prepared amendment](2026-11-23-android-website-parity-corrections.md)
+identifies their continuation boundary. The original source freeze below remains
+operative. A completed earlier release window is not reused.
 
 ## Candidate and admission
 

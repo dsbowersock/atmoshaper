@@ -1,5 +1,8 @@
 # AtmoShaper Wiki
 
+- [PR #81 grouped Android review corrections](../audits/2026-11-23-android-hosted-review-corrections.md): validated findings, local candidate and remaining release gates.
+- [Prepared changed-candidate amendment](../superpowers/plans/2026-11-23-android-website-parity-corrections.md): one additional PR update, existing publication continuation and matching APK.
+
 - [Shared Android candidate review and verification](../audits/2026-11-22-android-website-parity.md): completed application coverage, frozen APK and remaining native/origin/phone gates.
 - [Prepared shared Android publication](../superpowers/plans/2026-11-22-android-website-parity-publication.md): candidate identities, existing checks, rollback and required separate approval.
 
