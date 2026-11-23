@@ -5,13 +5,37 @@ import ts from 'typescript'
 
 /** Execute the authored runtime with a closed dependency set; no real audio,
  * device store, provider or production authority enters these regressions. */
-async function loadRuntime(relative,mocks){
+async function loadRuntime(relative,mocks,globals={}){
  const source=await readFile(new URL(relative,import.meta.url),'utf8')
- const {outputText}=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}})
+ const {outputText}=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true,jsx:ts.JsxEmit.ReactJSX}})
  const compiled={exports:{}}
- new Function('require','module','exports',outputText)(name=>{assert.ok(name in mocks,'Unexpected dependency: '+name);return mocks[name]},compiled,compiled.exports)
+ new Function('require','module','exports',...Object.keys(globals),outputText)(name=>{assert.ok(name in mocks,'Unexpected dependency: '+name);return mocks[name]},compiled,compiled.exports,...Object.values(globals))
  return compiled.exports
 }
+
+test('native links invoke the cancellable navigation callback only for handled navigation',async()=>{
+ const calls=[]
+ const {default:Link}=await loadRuntime('../native/web/platform/link.tsx',{
+  react:{forwardRef:render=>render},'react/jsx-runtime':{jsx:(type,props)=>({type,props})},
+  './navigation':{navigateNative:(path,replace)=>calls.push(['route',path,replace])},
+ },{navigator:{onLine:false}})
+ const event=overrides=>({button:0,defaultPrevented:false,preventDefault(){this.defaultPrevented=true},...overrides})
+ const props={href:'/music',replace:true,onClick:()=>calls.push(['click']),onNavigate:()=>calls.push(['navigate'])}
+ const anchor=Link(props,null),click=event()
+ assert.equal('onNavigate' in anchor.props,false,'Next-only lifecycle callbacks never reach the DOM')
+ anchor.props.onClick(click)
+ assert.equal(click.defaultPrevented,true)
+ assert.deepEqual(calls,[['click'],['navigate'],['route','/music',true]])
+ calls.length=0
+ const cancelled=event()
+ Link({...props,onNavigate:notice=>{calls.push(['cancel']);notice.preventDefault()}},null).props.onClick(cancelled)
+ assert.equal(cancelled.defaultPrevented,true);assert.deepEqual(calls,[['click'],['cancel']])
+ for(const [overrides,gesture] of [[{}, {ctrlKey:true}],[{target:'_blank'},{}],[{download:true},{}],[{href:'https://example.com'},{}],[{href:'//example.com'},{}],[{}, {button:1}],[{onClick:e=>e.preventDefault()},{}]]){
+  calls.length=0
+  Link({...props,...overrides},null).props.onClick(event(gesture))
+  assert.equal(calls.some(([kind])=>kind==='navigate'||kind==='route'),false)
+ }
+})
 
 test('station startup honors zero and reduced volume before transport starts; omitted volume retains its level',async()=>{
  const gains=[],atStart=[]

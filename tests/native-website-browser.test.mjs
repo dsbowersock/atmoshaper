@@ -55,6 +55,24 @@ async function readDatabase(page, name, store, key) {
   }), {name,store,key})
 }
 
+test("mobile sidebar closes after selecting device tools", {timeout:60000}, async()=>{
+  const f=await fixture(),{page}=f
+  try {
+    await page.goto(entry)
+    const drawer=page.getByRole("dialog",{name:"AtmoShaper navigation",exact:true})
+    for(const [link,destination] of [["Music",page.getByRole("navigation",{name:"Device music tools"})],["Breathing guide",page.getByRole("heading",{name:"Breathing guide",exact:true})]]) {
+      await page.getByRole("button",{name:"Open navigation",exact:true}).click()
+      await expect(drawer).toBeVisible()
+      if(!await drawer.getByRole("link",{name:link,exact:true}).isVisible()) await drawer.getByRole("button",{name:"Atmosphere",exact:true}).click()
+      await drawer.getByRole("link",{name:link,exact:true}).click()
+      await expect(drawer).toBeHidden()
+      await expect(destination).toBeVisible()
+      await expect(page.getByRole("button",{name:"Open navigation",exact:true})).toBeFocused()
+    }
+    assert.deepEqual(f.errors,[]);assert.deepEqual(f.foreign,[])
+  } finally { await f.close() }
+})
+
 test("shared home, navigation, breathing, Music and planner screens work on a cold offline launch", {timeout:120000}, async()=>{
   const f = await fixture(), {page}=f
   await mkdir(output,{recursive:true})
