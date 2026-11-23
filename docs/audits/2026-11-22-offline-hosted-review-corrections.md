@@ -2,6 +2,19 @@
 
 November 22, 2026. Local preparation; no additional push, merge or publication.
 
+Current operational update: the owner approves `92585d9`; that source push,
+protected Preview acceptance and all seven hosted CI checks complete. Hosted
+Codex reviews the exact head with no findings. The bounded CodeRabbit follow-up
+also completes on `92585d9`, processing all 34 correction paths. Its three minor
+comments (4661162692, 4661162695, 4661162702) concern only pre-approval PR/plan
+status and wording that made accepted APK checks sound pending. This receipt-
+only closeout corrects those documents under the amendment's explicit allowance.
+No application, trust-file or APK bytes change after `15b7f55`; the completed
+application reviews and exact-artifact acceptance therefore remain applicable.
+Fresh CI/Preview on the documentation head remain required before merge. The
+original admission deadline, signing authority and all 90 settings are retained;
+no additional key or application candidate is introduced.
+
 Hosted Codex reviews `5f76890` and reports one confirmed initial-load overwrite.
 Hosted CodeRabbit's explicitly requested full review completes on the same head,
 processing 77 text paths and posting 21 comments. It independently confirms that

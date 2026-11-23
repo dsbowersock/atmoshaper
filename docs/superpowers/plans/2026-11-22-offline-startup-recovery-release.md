@@ -1,6 +1,12 @@
 # Reviewed recovery corrections for the existing release PR
 
-Status: prepared locally, not authorized for push/publication. November 22, 2026.
+Status: owner approved candidate `92585d9`, the PR #80 update, remaining reviews/
+checks and guarded publication on November 22, 2026. Fresh admission begins at
+8:34 p.m. Eastern and ends at 10:34 p.m. Eastern. The approved source push is
+complete; the expressly included receipt-only status corrections are being
+closed out. Application/trust source remains `15b7f55`. Remaining corrected-head
+CI/Preview, one merge/Production/Sentry build, staged acceptance, promotion and
+one owner receipt gate remain. This records approval; it does not remove gates.
 
 Frozen application candidate: `15b7f55`, plus receipt-only closeout. The complete
 30-path correction review finishes with two test-switch questions, refuted by

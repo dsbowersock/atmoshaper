@@ -2,9 +2,12 @@
 
 November 22, 2026. Publication is in progress, not complete.
 
-PR #80 at `5f76890` has a READY protected Preview. Hosted Codex review identifies
-a confirmed startup fallback-autosave overwrite; publication is held while the
-[focused correction](2026-11-22-offline-startup-recovery.md) is prepared locally.
+PR #80 receives the owner-approved corrected candidate `92585d9`. Its protected
+Preview/CI and hosted Codex/CodeRabbit correction coverage are complete. The
+three new CodeRabbit comments concern status documents only; this receipt-only
+closeout corrects them while preserving application/trust source `15b7f55` and
+the verified APK. Fresh documentation-head checks/Preview remain merge gates.
+See the [grouped correction receipt](2026-11-22-offline-hosted-review-corrections.md).
 No merge/Production build/promotion or real-account receipt has occurred.
 
 The owner approves the original activation plan and then its one-key recovery
@@ -29,9 +32,10 @@ install/challenge self-checks pass. The discarded first authority is not reused.
 
 The live site still uses the previous release. These new settings take effect
 for a later build; the account verification page/issuer has not been published.
-No real account receipt or native phone installation has occurred. PR checks,
-review of the final public binding, Production/Sentry build, same-artifact staged
-acceptance/promotion, matching APK and the one owner receipt check remain.
+No real account receipt or native phone installation has occurred. Source/key
+binding reviews and matching-APK acceptance pass. After the documentation-head
+CI/Preview gates, Production/Sentry build, same-artifact staged acceptance/
+promotion and the one owner receipt check remain.
 
 The [recovery amendment](../superpowers/plans/2026-11-22-offline-activation-recovery.md)
 and [original activation scope](../superpowers/plans/2026-11-22-offline-access-activation.md)

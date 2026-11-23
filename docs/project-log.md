@@ -1,5 +1,22 @@
 # AtmoShaper Project Log
 
+## November 22 approved corrected head passes hosted review and CI
+
+The owner explicitly approves `92585d9` and continuation of the guarded release.
+Fresh preflight preserves all 90 setting metadata entries, the signing authority,
+manual promotion, aliases and READY `0eb02e0` rollback. Push that candidate once
+to existing PR #80. Its protected Preview passes 14 entry pages/eight journeys;
+all seven hosted CI checks pass. Codex reviews the exact head with no findings.
+Resolve the 22 original supported threads with recorded fixes/dispositions.
+
+One bounded hosted CodeRabbit correction review completes across all 34 changed
+paths. It reports three minor status-document issues and no new application
+issue. Prepare this receipt-only closeout under the approved amendment's express
+documentation-correction allowance. Keep application/trust source `15b7f55`, the
+accepted APK and the existing admission deadline; recheck CI/Preview on the new
+documentation head before merge. No new source review loop, key/settings change,
+Production build or real owner receipt is performed at this checkpoint.
+
 ## November 22 full hosted review consolidated into one correction group
 
 The explicitly requested hosted CodeRabbit full pass completes on `5f76890`,

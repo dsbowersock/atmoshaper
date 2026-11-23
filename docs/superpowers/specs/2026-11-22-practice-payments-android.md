@@ -78,8 +78,12 @@ shared core and complete downloaded assets with explicit online boundaries.
 Follow the [offline plan](../plans/2026-11-22-offline-android-core.md). The
 [offline-core audit](../../audits/2026-11-22-offline-android-core.md) records a
 locally bundled core and emulator airplane-mode acceptance. Physical-device
-checks, closed-app alarms and full native parity remain open. The current
-review-correction candidate must pass matching-artifact acceptance again.
+checks, closed-app alarms and full native parity remain open. Application source
+`15b7f55` passes matching normal-APK emulator acceptance on November 22, 2026;
+the [grouped receipt](../../audits/2026-11-22-offline-hosted-review-corrections.md)
+records its exact APK hash. The `15b7f55..92585d9` changes are documentation only.
+Repeat matching-artifact acceptance after a later application, trust-asset or
+native-build change; a receipt-only status correction does not invalidate it.
 
 Start with an Android browser-backed application shell (Trusted Web Activity)
 and native payment activities. This reuses the actual responsive web UI and its

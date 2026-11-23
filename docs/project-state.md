@@ -3,7 +3,30 @@
 The first dated update is current. Later sections are retained historical
 checkpoints; their earlier pending/unauthorized statuses are superseded by it.
 
-## November 22 publication held for grouped hosted-review corrections
+## November 22 approved offline release; receipt-only status closeout
+
+The owner approves candidate `92585d9`, the existing PR #80 update, remaining
+reviews/checks and guarded publication. That approved push is complete. Its
+protected Preview passes 14 entry pages and eight Home/Clock journeys; all seven
+hosted CI checks pass (5,933 unit passes, eight optional skips, no failures).
+Codex completes its hosted review on `92585d9` with no findings. CodeRabbit's
+bounded hosted follow-up covers all 34 correction paths and raises only three
+minor documentation-status issues. This receipt-only closeout corrects those;
+application/trust assets remain exactly `15b7f55` and its accepted APK remains
+unchanged. The amendment explicitly includes necessary receipt/documentation
+corrections. Fresh CI/Preview on this documentation head remain merge gates;
+the unchanged application does not need another review or APK acceptance run.
+
+The signing authority and all 90 setting metadata entries are preserved. The
+public release and rollback remain `0eb02e0`; no merge, Production build,
+promotion or real owner receipt has happened. The existing admission ends at
+10:34 p.m. Eastern on November 22. After the remaining gates, complete one
+Production/Sentry build, staged acceptance, same-artifact promotion and the one
+owner backgrounds-only receipt check. See the
+[approved amendment](superpowers/plans/2026-11-22-offline-startup-recovery-release.md)
+and [grouped review receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
+
+## November 22 grouped hosted-review correction checkpoint
 
 The full hosted CodeRabbit review completes on PR #80's `5f76890`, with 21
 comments across 77 processed text paths. It confirms Codex's initial-load
