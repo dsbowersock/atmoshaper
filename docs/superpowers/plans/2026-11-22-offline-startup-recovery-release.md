@@ -1,4 +1,4 @@
-# Corrected startup-recovery candidate for the existing release PR
+# Reviewed recovery corrections for the existing release PR
 
 Status: prepared locally, not authorized for push/publication. November 22, 2026.
 
@@ -12,12 +12,22 @@ storage read fails and a later autosave succeeds. The
 [local correction receipt](../../audits/2026-11-22-offline-startup-recovery.md)
 records a failing-before/passing-after real IndexedDB reproduction. The focused
 change keeps fallback sessions unsaved until reopening successfully loads the
-existing record. It also makes the saved-timer wording truthful. No account,
-clinical, audio-engine, entitlement or payment rule changes are proposed.
+existing record. It also makes the saved-timer wording truthful.
+
+The completed hosted CodeRabbit pass reports 21 comments, including the same
+startup overwrite and a station Transport-event leak. Consolidate these in one
+bounded correction group: scoped station scheduling/cleanup, startup-failure
+cleanup, storage reopening, truthful download readiness/cancellation, runtime
+retry and stop/volume controls, retryable receipt removal, consistent timer
+limits, missing merchant-readiness evidence, Android connection/build-proof
+cleanup, serial emulator acceptance and stale documentation/test synchronization.
+The [grouped disposition receipt](../../audits/2026-11-22-offline-hosted-review-corrections.md)
+identifies each comment and its validation. This does not activate practice
+payments or change entitlement, clinical, account, billing or provider policy.
 
 ## Prepared publication amendment
 
-1. Identify the completed local correction's source/tree, actual focused checks
+1. Identify the completed local corrections' source/tree, actual focused checks
    and bounded Codex/CodeRabbit delta review. Consolidate any supported remaining
    hosted issues before freezing the candidate. Do not treat CI on `5f76890` as
    validation of the unpushed correction.
@@ -25,7 +35,9 @@ clinical, audio-engine, entitlement or payment rule changes are proposed.
    120-minute admission. Permit one additional push to the existing PR #80, its
    protected Preview and current-head hosted checks/reviews. Necessary test and
    receipt/documentation corrections within this recovery scope are included;
-   do not broaden application behavior or start an automatic rewrite loop.
+   do not broaden beyond this enumerated correction group or start an automatic
+   rewrite loop. Request the existing hosted Codex correction review and one
+   bounded CodeRabbit follow-up; a quota/authentication blocker stays explicit.
 3. Once substantive reviews and required checks pass, complete the already
    approved one merge, one Production build with existing Sentry maps/settings,
    staged acceptance and promotion of that same verified artifact. Retain the

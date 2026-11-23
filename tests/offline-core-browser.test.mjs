@@ -64,6 +64,11 @@ test("packaged Clock, timer, breathing and backgrounds work from a first offline
       if(evidence)await page.screenshot({path:path.join(evidence,`${name}-backgrounds.png`)})
 
       await page.getByRole("button",{name:"Timer",exact:true}).click()
+      await page.getByLabel("Timer hours",{exact:true}).fill("23")
+      await page.getByLabel("Timer minutes",{exact:true}).fill("59")
+      await page.getByLabel("Timer seconds",{exact:true}).fill("59")
+      await expect(page.getByLabel("Timer seconds",{exact:true})).toHaveValue("0")
+      await expect(page.getByRole("status").last()).toHaveText("The longest timer is 23 hours and 59 minutes.")
       await page.getByLabel("Timer hours",{exact:true}).fill("0")
       await page.getByLabel("Timer minutes",{exact:true}).fill("0")
       await page.getByLabel("Timer seconds",{exact:true}).fill("8")

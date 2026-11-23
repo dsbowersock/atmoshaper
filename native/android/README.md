@@ -46,10 +46,10 @@ A fresh online receipt replaces the entire snapshot, including refunds/revocatio
 Offline revocation cannot be immediate. Forget removes the receipt; old async
 verification cannot resurrect it. No login/payment token enters the WebView.
 
-The normal verifier-key file is currently empty. Live issuance is not activated.
-Its separately approved binding needs a dedicated P-256 private signing key in
-Production only, `ATMOSHAPER_OFFLINE_ACCESS_KEY_ID`, and
-`ATMOSHAPER_OFFLINE_ACCESS_ENABLED=true`; the matching public JWK alone is bundled.
+The approved public authority is bundled, and its three Production-only signing
+settings are configured. Website issuance/publication and the real owner receipt
+check remain pending; see the [activation record](../../docs/audits/2026-11-22-offline-access-activation.md).
+Do not repeat the completed key setup. The matching public JWK alone is bundled.
 Do not print/persist the private key in source, logs, receipts or `.env` files.
 The current return link targets the development package. Release signing, proper
 store association/policies and publication require their own reviewed scope.

@@ -4,6 +4,7 @@ import { loadGenerativeFmPieceModule } from "@/lib/atmosphere/generative-fm-piec
 import { createAmbientAtmoShaperAdapter } from "@/lib/atmoshaper/ambient-audio-runtime"
 import { createGeneratedAtmoShaperAdapter } from "@/lib/atmoshaper/generated-audio-runtime"
 import { mediaUrl, readVerifiedOfflinePack } from "@/lib/offline-media"
+import { createStationTransportScope } from "@/lib/offline-station-transport"
 
 type Handle = { stop(): Promise<void>; volume(value: number): void }
 type PackFile = { url: string; data: ArrayBuffer }
@@ -44,6 +45,10 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
       if (!isCurrent()) return false
       let handle: Handle
       if (item.kind === "station") {
+        // Imports allocate no audio graph. Failed imports can be retried without
+        // leaving an unreachable gain connected to the app mixer.
+        const piece = await loadGenerativeFmPieceModule(item.station!.runtime.pieceId) as (input: object) => Promise<[() => void, () => (() => void)]>
+        if (!isCurrent()) return false
         const output = new Tone.Gain(stationGain(0.75)).connect(master)
         const decoded = new Map<string, AudioBuffer>()
         const raw = Tone.getContext().rawContext as AudioContext
@@ -69,17 +74,21 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
           },
         }
         ;(window as Window & { generativeMusic?: { rng: () => number } }).generativeMusic ??= { rng: Math.random }
-        const library = createWebLibrary({ sampleIndex: pack.sampleIndex, provider })
-        const piece = await loadGenerativeFmPieceModule(item.station!.runtime.pieceId) as (input: object) => Promise<[() => void, () => (() => void)]>
+        const transport = createStationTransportScope(Tone.Transport)
         let deactivate: (() => void) | undefined
         let unschedule: (() => void) | undefined
+        const release = () => {
+          transport.stop()
+          try { unschedule?.() } finally { try { deactivate?.() } finally { output.dispose(); decoded.clear() } }
+        }
         try {
+          const library = createWebLibrary({ sampleIndex: pack.sampleIndex, provider })
           const result = await piece({ context: Tone.getContext(), destination: output, sampleLibrary: library, onProgress })
           deactivate = result[0]
-          if (isCurrent()) { unschedule = result[1](); Tone.Transport.start() }
-        } catch (error) { output.dispose(); throw error }
+          if (isCurrent()) { unschedule = transport.run(result[1]); Tone.Transport.start() }
+        } catch (error) { release(); throw error }
         handle = {
-          async stop() { try { unschedule?.() } finally { try { deactivate?.() } finally { output.dispose(); decoded.clear() } } },
+          async stop() { release() },
           volume(value) { output.gain.rampTo(stationGain(value), 0.2) },
         }
       } else {

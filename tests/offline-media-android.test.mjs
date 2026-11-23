@@ -15,7 +15,7 @@ const serial = "emulator-5580", avd = "AtmoShaper_Offline_35", pkg = "com.atmosh
 const shell = (...args) => execFileSync(adb, ["-s", serial, ...args], { encoding: "utf8", timeout: 30000, windowsHide: true }).trim()
 const evidence = process.env.ATMOSHAPER_OFFLINE_EVIDENCE_DIR
 
-test("Android saves actual audio online then generates and mixes it after airplane-mode restart", { timeout: 240000, skip: process.env.ATMOSHAPER_ANDROID_OFFLINE_TEST !== "1" }, async () => {
+test("Android saves actual audio online then generates and mixes it after airplane-mode restart", { timeout: 240000, skip: process.env.ATMOSHAPER_ANDROID_MEDIA_TEST !== "1" }, async () => {
   assert.equal(shell("emu", "avd", "name").split(/\r?\n/)[0].trim(), avd)
   const apk = path.join(root, "output/android/AtmoShaper-preview.apk")
   const manifest = JSON.parse(execFileSync("python", [path.join(root, "tests/helpers/offline-apk-inventory.py"), apk], { encoding: "utf8", windowsHide: true }))
@@ -59,6 +59,7 @@ test("Android saves actual audio online then generates and mixes it after airpla
     await expect(page.getByText(`${ambientTitle} is ready offline.`, { exact: true })).toBeVisible({ timeout: 90000 })
     shell("shell", "cmd", "connectivity", "airplane-mode", "enable")
     shell("shell", "svc", "wifi", "disable"); shell("shell", "svc", "data", "disable")
+    shell("shell", "settings", "put", "global", "mobile_data", "0")
     assert.equal(shell("shell", "settings", "get", "global", "airplane_mode_on"), "1")
     assert.equal(shell("shell", "settings", "get", "global", "wifi_on"), "0")
     assert.equal(shell("shell", "settings", "get", "global", "mobile_data"), "0")

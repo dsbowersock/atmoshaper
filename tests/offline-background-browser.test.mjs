@@ -82,6 +82,8 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
     await page.getByLabel("Find a background").fill(premium[0].label)
     await page.getByRole("button", { name: `${premium[0].label} · Owned`, exact: true }).click()
     await page.evaluate(() => { const future = Date.now() + 500 * 86400000; Date.now = () => future })
+    // Let the actual one-second access observer see the future clock.
+    await page.waitForTimeout(1100)
     await expect(page.locator(`[data-offline-background="${premium[0].id}"]`)).toBeVisible()
     await page.reload()
     await approve({ premiumUntil: null, owned: [] })
@@ -92,6 +94,7 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
     // A duplicate rejected return must not invalidate a prior committed result
     // whose final verification is still pending.
     const duplicate = await requestReceipt({ premiumUntil: null, owned: [premium[1].id] })
+    await expect(page.getByRole("button", { name: "Forget account access", exact: true })).toBeVisible()
     await page.evaluate(() => {
       let count = 0
       const verify = crypto.subtle.verify.bind(crypto.subtle)
@@ -149,6 +152,16 @@ test("signed access unlocks all bundled renderers offline; expiry, revocation an
     })
     await page.evaluate(receipt => window.dispatchEvent(new CustomEvent("atmoshaper:offline-access", { detail: receipt })), delayed)
     await expect.poll(() => page.evaluate(() => Boolean(window.__releaseOfflineVerification))).toBe(true)
+    await page.evaluate(() => {
+      const put = IDBObjectStore.prototype.put
+      IDBObjectStore.prototype.put = function (...args) {
+        if (this.name === "access" && args[0]?.receipt === null) { IDBObjectStore.prototype.put = put; throw new Error("Synthetic removal failure") }
+        return put.apply(this, args)
+      }
+    })
+    await page.getByRole("button", { name: "Forget account access", exact: true }).click()
+    await expect(page.getByText("Account access could not be removed. Check local storage and retry.", { exact: true })).toBeVisible()
+    await expect(page.locator('[data-offline-background="massage-lab-moving-gradient"]')).toBeVisible()
     await page.getByRole("button", { name: "Forget account access", exact: true }).click()
     await expect(page.getByText("Account access removed from this app. Downloads and free tools are unchanged.", { exact: true })).toBeVisible()
     await page.evaluate(async () => { await window.__releaseOfflineVerification(); await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })

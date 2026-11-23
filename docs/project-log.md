@@ -1,5 +1,18 @@
 # AtmoShaper Project Log
 
+## November 22 full hosted review consolidated into one correction group
+
+The explicitly requested hosted CodeRabbit full pass completes on `5f76890`,
+processing 77 text paths and posting 21 comments. It independently confirms the
+startup overwrite and identifies an abandoned generative Transport repeat.
+Prepare one bounded group of supported corrections and original-head CI fixes;
+record each in the [disposition receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
+The narrower CLI startup delta `5f76890..1ef8453` completes with zero issues;
+the subsequent grouped delta requires its own review. Focused synthetic checks
+and corrected normal APK acceptance are being completed before one new source/
+publication amendment. Keep the configured signing authority and all 90 setting
+metadata entries; make no additional provider, payment, email or database write.
+
 ## November 22 release PR review catches a startup overwrite
 
 Push approved public binding `5f76890`, open PR #80 and obtain its READY protected

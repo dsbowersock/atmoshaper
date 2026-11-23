@@ -75,8 +75,11 @@ Subsequent owner clarification: core app use must work offline, including Clock,
 backgrounds and as many tools as practical. The browser-backed launcher below is
 an initial prototype, not the final architecture. Deliver a locally bundled
 shared core and complete downloaded assets with explicit online boundaries.
-Follow the [offline plan](../plans/2026-11-22-offline-android-core.md); the current
-APK has not implemented or verified that requirement.
+Follow the [offline plan](../plans/2026-11-22-offline-android-core.md). The
+[offline-core audit](../../audits/2026-11-22-offline-android-core.md) records a
+locally bundled core and emulator airplane-mode acceptance. Physical-device
+checks, closed-app alarms and full native parity remain open. The current
+review-correction candidate must pass matching-artifact acceptance again.
 
 Start with an Android browser-backed application shell (Trusted Web Activity)
 and native payment activities. This reuses the actual responsive web UI and its

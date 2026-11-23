@@ -3,7 +3,23 @@
 The first dated update is current. Later sections are retained historical
 checkpoints; their earlier pending/unauthorized statuses are superseded by it.
 
-## November 22 publication held for a confirmed startup-recovery correction
+## November 22 publication held for grouped hosted-review corrections
+
+The full hosted CodeRabbit review completes on PR #80's `5f76890`, with 21
+comments across 77 processed text paths. It confirms Codex's initial-load
+overwrite and a station Transport-repeat leak. One local correction group
+addresses those and the supported recovery/control, documentation and test
+issues; see the [grouped disposition receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
+Focused release regression (184 cases), media/access/transport units, Core
+units, audio regressions, background and real-media browser acceptance pass;
+the Core browser/normal APK and correction-delta review are being finalized.
+The three configured Production-only signing settings are retained. PR #80 is
+still at `5f76890`; the public site/rollback remains `0eb02e0`. The prepared
+[source amendment](superpowers/plans/2026-11-22-offline-startup-recovery-release.md)
+now enumerates this bounded group. No additional push, merge, Production build,
+promotion, real owner receipt, key or provider setting operation occurs.
+
+## November 22 initial startup-recovery correction checkpoint
 
 The approved replacement-key upload succeeds and all three new Production-only
 settings remain configured, with the original 87 unchanged. PR #80 is open at

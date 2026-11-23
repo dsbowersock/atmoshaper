@@ -40,7 +40,14 @@ export async function createAmbientAtmoShaperAdapter({
   let paused = true
   let disposed = false
   let failed = false
-  let engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl })
+  let engine: Awaited<ReturnType<typeof startConceptEngine>>
+  try {
+    engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl })
+  } catch (error) {
+    // No handle owns this graph until startup fulfills.
+    output.dispose()
+    throw error
+  }
 
   /** Stops the failed scheduler before exposing the controller-owned retry state. */
   function handleEngineFailure(error: unknown) {

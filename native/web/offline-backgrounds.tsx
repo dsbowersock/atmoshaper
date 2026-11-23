@@ -53,6 +53,7 @@ export function useOfflineBackgroundAccess() {
   const [record, setRecord] = useState<any>(null)
   const [claims, setClaims] = useState<any>(null)
   const [message, setMessage] = useState("")
+  const [removalPending, setRemovalPending] = useState(false)
   const [now, setNow] = useState(Date.now)
   const recordRef = useRef<any>(null)
   // Forget invalidates all older work. Refresh changes only the pending nonce;
@@ -116,14 +117,14 @@ export function useOfflineBackgroundAccess() {
   async function forget() {
     ++epoch.current
     recordRef.current = null
-    setClaims(null)
+    setClaims(null); setRemovalPending(true)
     try {
       const value = await store.update(() => ({ device: randomOfflineAccessId(), receipt: null, pending: null, lastIssuedAt: 0, lastSeen: Date.now() }))
-      recordRef.current = value; setRecord(value); setClaims(null); setMessage("Account access removed from this app. Downloads and free tools are unchanged.")
+      recordRef.current = value; setRecord(value); setClaims(null); setRemovalPending(false); setMessage("Account access removed from this app. Downloads and free tools are unchanged.")
     } catch { setMessage("Account access could not be removed. Check local storage and retry.") }
   }
   return { access: claims ? offlineBackgroundSnapshot(claims, now, record?.lastSeen) : { featureKeys: [], ownedBackgroundIds: [] },
-    claims, message, refresh, forget, ready: publicKeys.length > 0 && record !== null }
+    claims, canForget: Boolean(claims) || removalPending, message, refresh, forget, ready: publicKeys.length > 0 && record !== null }
 }
 
 export function OfflineBackgroundChoices({ selectedId, onSelect, account }: {
@@ -135,7 +136,7 @@ export function OfflineBackgroundChoices({ selectedId, onSelect, account }: {
       <p>All backgrounds are included on your device. Free backgrounds work immediately. Connect once to verify a subscription or individual purchase.</p>
       <p>{account.claims?.premiumUntil ? `Premium background access verified through ${new Date(account.claims.premiumUntil).toLocaleString()}.` : "Purchased backgrounds have no scheduled expiry."} Refresh access after renewal or account changes.</p>
       <Button variant="glow" disabled={!account.ready} onClick={() => void account.refresh()}>Verify or refresh account access</Button>
-      {account.claims && <Button variant="glow" onClick={() => void account.forget()}>Forget account access</Button>}
+      {account.canForget && <Button variant="glow" onClick={() => void account.forget()}>Forget account access</Button>}
       {!account.ready && <p>Account verification is not available in this preview yet. Free backgrounds are ready to use.</p>}
       <p role="status">{account.message}</p>
     </div>

@@ -128,6 +128,9 @@ test("setup return and pending/revoked evidence do not mark an account ready",()
   assert.equal(paymentConnectionState({...f,evidence:{...f.evidence,cardPaymentsActive:false}}),"SETUP_REQUIRED")
   assert.equal(paymentConnectionState({...f,evidence:{...f.evidence,merchantRef:"other"}}),"NEEDS_REVIEW")
   assert.equal(paymentConnectionState({...f,evidence:{...f.evidence,revoked:true}}),"DISCONNECTED")
+  for (const missing of [undefined, "", "   "]) {
+    assert.equal(paymentConnectionState({...f,expectedMerchantRef:missing,evidence:{...f.evidence,merchantRef:missing}}),"NEEDS_REVIEW")
+  }
 })
 
 test("web NFC and an assumed S24 model never substitute for native SDK eligibility",()=> {

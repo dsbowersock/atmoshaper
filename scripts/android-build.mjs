@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs"
-import { mkdir, copyFile, readdir, writeFile } from "node:fs/promises"
+import { mkdir, copyFile, readdir, writeFile, rename, rm } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { spawnSync } from "node:child_process"
@@ -38,9 +38,15 @@ else if(mode==="build"){
   if(result.status!==0)throw new Error("Android verification/build failed; no artifact is certified.")
   const destination=path.join(root,"output/android/AtmoShaper-preview.apk")
   await mkdir(path.dirname(destination),{recursive:true})
-  await copyFile(path.join(root,"native/android/app/build/outputs/apk/debug/app-debug.apk"),destination)
-  const sha256=createHash("sha256").update(await readFile(destination)).digest("hex")
+  const staged=destination+".pending",proofPath=path.join(root,"output/android/build-proof.json")
+  await copyFile(path.join(root,"native/android/app/build/outputs/apk/debug/app-debug.apk"),staged)
+  const sha256=createHash("sha256").update(await readFile(staged)).digest("hex")
   const proof={apk:"output/android/AtmoShaper-preview.apk",sha256,lintPassed:true,assembled:true,offlineCoreBundled:true,physicalDeviceVerified:false,financialProvidersEnabled:false,checkedAt:new Date().toISOString()}
-  await writeFile(path.join(root,"output/android/build-proof.json"),JSON.stringify(proof,null,2))
+  await writeFile(proofPath+".pending",JSON.stringify(proof,null,2))
+  // A failure may leave no certified artifact; it must never certify new bytes
+  // using the previous build's receipt. The new receipt is published last.
+  await rm(proofPath,{force:true})
+  await rename(staged,destination)
+  await rename(proofPath+".pending",proofPath)
   console.log(JSON.stringify(proof,null,2))
 }else throw new Error("Choose doctor or build. This command never installs tools or accepts licenses.")

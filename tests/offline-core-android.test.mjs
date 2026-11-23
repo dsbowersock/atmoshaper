@@ -14,7 +14,7 @@ const serial="emulator-5580",avd="AtmoShaper_Offline_35",pkg="com.atmoshaper.app
 const shell=(...args)=>execFileSync(adb,["-s",serial,...args],{encoding:"utf8",timeout:30000,windowsHide:true}).trim()
 const evidence=process.env.ATMOSHAPER_OFFLINE_EVIDENCE_DIR
 
-test("Android APK cold-launches and retains timer/background state in airplane mode",{timeout:180000,skip:process.env.ATMOSHAPER_ANDROID_OFFLINE_TEST!=="1"},async()=>{
+test("Android APK cold-launches and retains timer/background state in airplane mode",{timeout:180000,skip:process.env.ATMOSHAPER_ANDROID_CORE_TEST!=="1"},async()=>{
   // No caller-supplied serial/package is accepted. Test mutations belong only
   // to this task's named empty emulator and development package, never a phone.
   assert.equal(shell("emu","avd","name").split(/\r?\n/)[0].trim(),avd)
@@ -24,6 +24,9 @@ test("Android APK cold-launches and retains timer/background state in airplane m
   shell("shell","cmd","connectivity","airplane-mode","enable")
   shell("shell","svc","wifi","disable")
   shell("shell","svc","data","disable")
+  // This SIM-less emulator can retain a stale default preference after svc.
+  // Disable that preference as well; airplane mode/radios are asserted below.
+  shell("shell","settings","put","global","mobile_data","0")
   assert.equal(shell("shell","settings","get","global","airplane_mode_on"),"1")
   assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
   assert.equal(shell("shell","settings","get","global","mobile_data"),"0")

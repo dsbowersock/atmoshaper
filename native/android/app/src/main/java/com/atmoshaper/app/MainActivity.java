@@ -57,6 +57,8 @@ public final class MainActivity extends ComponentActivity {
      * or script; the client additionally enforces media type, byte and hash limits. */
     private static WebResourceResponse download(Uri uri) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(uri.toString()).openConnection();
+        boolean handedOff = false;
+        try {
         connection.setInstanceFollowRedirects(false);
         connection.setConnectTimeout(15000);
         connection.setReadTimeout(15000);
@@ -70,10 +72,16 @@ public final class MainActivity extends ComponentActivity {
         headers.put("Access-Control-Allow-Origin", "https://appassets.androidplatform.net");
         headers.put("Cache-Control", "no-store");
         if (connection.getContentLengthLong() > 0) headers.put("Content-Length", Long.toString(connection.getContentLengthLong()));
-        return new WebResourceResponse(json ? "application/json" : "audio/ogg", json ? "utf-8" : null, 200, "OK", headers,
+        WebResourceResponse response = new WebResourceResponse(json ? "application/json" : "audio/ogg", json ? "utf-8" : null, 200, "OK", headers,
             new FilterInputStream(connection.getInputStream()) {
                 @Override public void close() throws IOException { try { super.close(); } finally { connection.disconnect(); } }
             });
+        handedOff = true;
+        return response;
+        } finally {
+            // Until a response owns the stream, setup failures belong here.
+            if (!handedOff) connection.disconnect();
+        }
     }
 
     /** Untrusted custom-scheme input is data only. Signature, install nonce and

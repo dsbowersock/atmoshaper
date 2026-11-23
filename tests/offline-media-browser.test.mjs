@@ -124,12 +124,28 @@ test("real station and ambient downloads play after an offline restart without f
     await expect(page.getByRole("heading", { name: "Clock", exact: true })).toBeVisible()
     await page.getByRole("button", { name: "Music", exact: true }).click()
     await expect(page.getByRole("button", { name: "Stop Little Bells", exact: true })).toBeVisible()
+    await page.getByLabel("Little Bells volume", { exact: true }).fill("0.1")
+    await page.getByRole("button", { name: "Atmosphere sounds", exact: true }).click()
+    await page.getByRole("button", { name: "Stations", exact: true }).click()
+    await expect(page.getByLabel("Little Bells volume", { exact: true })).toHaveValue("0.1")
     await page.getByRole("button", { name: "Atmosphere sounds", exact: true }).click()
     await page.getByLabel("Find a sound").fill(ambientTitle)
     await page.getByRole("button", { name: `Play ${ambientTitle}`, exact: true }).click()
     await expect(page.getByText(`${ambientTitle} is playing from this device.`, { exact: true })).toBeVisible({ timeout: 20000 })
     await expect.poll(() => page.evaluate(() => window.__offlineMediaElements.some(audio => audio.src.startsWith("blob:") && audio.readyState >= 2 && audio.currentTime > 0)), { timeout: 15000 }).toBe(true)
     if (evidence) { await mkdir(evidence, { recursive: true }); await page.screenshot({ path: path.join(evidence, "offline-music-phone.png") }) }
+    await page.getByRole("button", { name: `Stop ${ambientTitle}`, exact: true }).click()
+    await page.evaluate(id => new Promise((resolve, reject) => {
+      const request = indexedDB.open("atmoshaper.android.media.v1", 2)
+      request.onsuccess = () => {
+        const tx = request.result.transaction("packs", "readwrite"), store = tx.objectStore("packs"), get = store.get(id)
+        get.onsuccess = () => { const pack = get.result; pack.files[0].data = new ArrayBuffer(pack.files[0].bytes); store.put(pack) }
+        tx.oncomplete = () => { request.result.close(); resolve() }; tx.onabort = () => reject(tx.error)
+      }
+    }), ambient.id)
+    await page.getByRole("button", { name: `Play ${ambientTitle}`, exact: true }).click()
+    await expect(page.getByText("Download damaged · Remove and download again", { exact: true })).toBeVisible()
+    await expect(page.getByRole("button", { name: `Play ${ambientTitle}`, exact: true })).toBeDisabled()
     await page.getByRole("button", { name: "Remove download", exact: true }).click()
     await expect(page.getByRole("button", { name: `Play ${ambientTitle}`, exact: true })).toBeDisabled()
     await page.getByRole("button", { name: "Stop all audio", exact: true }).click()

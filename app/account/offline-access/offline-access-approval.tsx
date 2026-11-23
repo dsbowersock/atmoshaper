@@ -38,7 +38,7 @@ function OfflineAccessApprovalForm({ device, challenge, account, status }: { dev
       if (!controller.signal.aborted) setReceipt(result.receipt)
     } catch (error) { if (!controller.signal.aborted) setMessage(error instanceof Error ? error.message : "Access verification failed.") } finally { if (!controller.signal.aborted) setBusy(false) }
   }
-  return <main className="mx-auto flex w-full max-w-xl flex-col gap-5 p-5">
+  return <section aria-label="Offline background approval" className="mx-auto flex w-full max-w-xl flex-col gap-5 p-5">
     <h1 className="text-2xl font-semibold">Use backgrounds offline</h1>
     <p>Save your current background access to this AtmoShaper app installation. Subscription access lasts through its verified paid period. Individually owned backgrounds have no scheduled expiry.</p>
     <p className="text-sm text-muted-foreground">This shares background access only. Your password, payment details and private records stay out of the app handoff. Refreshing replaces its previous access, including refunded purchases.</p>
@@ -48,5 +48,5 @@ function OfflineAccessApprovalForm({ device, challenge, account, status }: { dev
       : <Button disabled={busy || status !== "authenticated"} onClick={() => void approve()}>{busy ? "Verifying…" : "Approve offline background access"}</Button>}
     {receipt && <a className="rounded-xl border border-primary p-4 text-center text-primary" href={`intent://offline-access?receipt=${encodeURIComponent(receipt)}#Intent;scheme=atmoshaper;package=com.atmoshaper.app.development;end`}>Return to AtmoShaper app</a>}
     <p role="status">{message}</p>
-  </main>
+  </section>
 }

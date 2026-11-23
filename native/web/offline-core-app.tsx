@@ -8,6 +8,7 @@ import { getChimerClockFontMetrics } from "@/lib/chimer-clock-font-metrics"
 import { playChimerChime } from "@/lib/chimer-chime"
 import {
   defaultOfflineCoreState,
+  MAX_OFFLINE_TIMER_DURATION_MS,
   getOfflineTimerInterval, readOfflineTimer, startOfflineTimer, pauseOfflineTimer, resumeOfflineTimer,
 } from "@/lib/offline-core"
 import type { createOfflineCoreStorage } from "@/lib/offline-core-storage"
@@ -115,6 +116,7 @@ export function OfflineCoreApp({ store, initial }: {
     const values = { hours: Number(config.hours), minutes: Number(config.minutes), seconds: Number(config.seconds), [part]: Number(value || 0) }
     if (values.hours > 23 || values.minutes > 59 || values.seconds > 59) return
     const durationMs = (values.hours * 3600 + values.minutes * 60 + values.seconds) * 1000
+    if (durationMs > MAX_OFFLINE_TIMER_DURATION_MS) { setMessage("The longest timer is 23 hours and 59 minutes."); return }
     setState(previous => ({ ...previous, durationMs, timer: { status: "idle", durationMs, remainingMs: durationMs, endsAt: null, lastAlertIndex: 0 } }))
   }
 
