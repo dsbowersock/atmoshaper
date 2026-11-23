@@ -7,11 +7,8 @@ import android.net.Uri;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
-import android.os.Build;
 import android.view.WindowManager;
 import android.view.View;
-import android.window.OnBackInvokedCallback;
-import android.window.OnBackInvokedDispatcher;
 import android.webkit.WebChromeClient;
 import android.print.PrintManager;
 import android.util.Base64;
@@ -58,7 +55,6 @@ public final class MainActivity extends ComponentActivity {
     private TwaLauncher websiteLauncher;
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
-    private OnBackInvokedCallback fullscreenBackCallback;
     private byte[] pendingPdf;
     private int pendingDocumentId;
     private final ExecutorService documentWriter = Executors.newSingleThreadExecutor();
@@ -135,23 +131,14 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void closeFullscreen() {
-        if (Build.VERSION.SDK_INT >= 33 && fullscreenBackCallback != null) {
-            getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(fullscreenBackCallback);
-            fullscreenBackCallback = null;
-        }
-        View retired = fullscreenView;
-        WebChromeClient.CustomViewCallback callback = fullscreenCallback;
+        if (!isDestroyed() && isEntry()) webView.evaluateJavascript("if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});", null);
+        if (fullscreenView == null) return;
+        ((FrameLayout) webView.getParent()).removeView(fullscreenView);
         fullscreenView = null;
-        fullscreenCallback = null;
-        if (retired != null) ((FrameLayout) webView.getParent()).removeView(retired);
         webView.setVisibility(View.VISIBLE);
         new WindowInsetsControllerCompat(getWindow(), webView).show(WindowInsetsCompat.Type.systemBars());
-        if (callback != null) callback.onCustomViewHidden();
-        // Hidden WebViews may defer JS. Queue exit only after restoring the
-        // visible surface; callback re-entry cannot retain the retired view.
-        webView.post(() -> {
-            if (!isDestroyed() && isEntry()) webView.evaluateJavascript("if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});", null);
-        });
+        if (fullscreenCallback != null) fullscreenCallback.onCustomViewHidden();
+        fullscreenCallback = null;
     }
 
     /** Only the packaged origin/path can load; all other resources fail locally. */
@@ -301,8 +288,8 @@ public final class MainActivity extends ComponentActivity {
     @Override protected void onSaveInstanceState(Bundle state) {
         if (pendingReceipt != null) state.putString("offline.pendingReceipt", pendingReceipt);
         if (pendingRoute != null) state.putString("offline.pendingRoute", pendingRoute);
-        // The bytes can be gone after an earlier recreation while the picker
-        // remains open. Keep the ID so a later result still explains recovery.
+        // Preserve the recovery warning across repeated picker recreations,
+        // including when an earlier recreation already discarded the PDF bytes.
         if (pendingDocumentId > 0) state.putInt("document.pendingId", pendingDocumentId);
         super.onSaveInstanceState(state);
     }
@@ -357,13 +344,6 @@ public final class MainActivity extends ComponentActivity {
                 webView.setVisibility(View.GONE);
                 root.addView(view, new FrameLayout.LayoutParams(-1, -1));
                 new WindowInsetsControllerCompat(getWindow(), root).hide(WindowInsetsCompat.Type.systemBars());
-                // Chromium installs its own default-priority Back callback
-                // when this view attaches. The app owns dismissal of this
-                // temporary overlay, then restores ordinary history/IME Back.
-                if (Build.VERSION.SDK_INT >= 33) {
-                    fullscreenBackCallback = MainActivity.this::closeFullscreen;
-                    getOnBackInvokedDispatcher().registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY, fullscreenBackCallback);
-                }
             }
             @Override public void onHideCustomView() { closeFullscreen(); }
         });
@@ -427,7 +407,6 @@ public final class MainActivity extends ComponentActivity {
 
     @Override
     protected void onDestroy() {
-        if (Build.VERSION.SDK_INT >= 33 && fullscreenBackCallback != null) getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(fullscreenBackCallback);
         if (websiteLauncher != null) websiteLauncher.destroy();
         documentWriter.shutdown();
         webView.destroy();

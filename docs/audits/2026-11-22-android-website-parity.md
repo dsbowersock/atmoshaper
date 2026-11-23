@@ -64,8 +64,14 @@ CodeRabbit completes the grouped `856adbf..4de2927` correction review across all
 | Stopped temporary ambient loading lacks ownership | Supported; pass the mixer's existing `isCurrent` callback through the ambient port. Further requests and stale handoff stop when the layer is removed. Existing ownership/controller and native-source checks pass. |
 | Saved stations might require a network-first lookup | Refuted: the first lookup reads the saved store and returns it before checking online state. Unit checks and actual offline restart/playback pass without network. |
 
-Codex confirms these dispositions against source and actual execution. A narrow
-final correction review and final APK verification remain pending.
+Codex confirms these dispositions against source and actual execution. CodeRabbit
+completes `4de2927..5f66407` across all seven changed paths. Its one major-labeled
+question asks whether a cancelled ambient rejection can fail a replacement. Both
+preview and recipe rejection handlers check their operation lease before changing
+state, so this is refuted. A controlled same-ID stop/restart test releases the old
+rejection after the replacement is playing and confirms it stays playing. The
+39-case source/controller boundary set passes. Final fixture/revert review and
+actual APK acceptance remain pending.
 
 The same correction group includes two findings from actual APK inspection:
 retain the timer display stage for an imported running timer reached through the
@@ -76,13 +82,14 @@ unreliable on this Android WebView. State/visibility/fullscreen postconditions
 remain mandatory. Browser fixtures now build their own isolated asset tree, so
 a fresh CI checkout needs no Android SDK and concurrent APK output cannot race it.
 
-Further native acceptance identifies Chromium's later default-priority fullscreen
-Back callback consuming the ordinary Activity callback. The app registers a
-higher-priority dismissal callback only while its custom fullscreen overlay is
-attached, removes it on dismissal/destruction, and restores the visible WebView
-before queued document exit. Normal history/IME Back keeps its ordinary owner.
-This matches the callback ordering in [Chromium's FullScreenView source](https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/java/src/org/chromium/android_webview/FullScreenView.java)
-and Android's [overlay-priority contract](https://developer.android.com/reference/android/window/OnBackInvokedDispatcher).
+Native window/focus inspection identifies Android's first-use immersive-mode
+tutorial as the consumer of Back, rather than the application's fullscreen
+handler. Its exact system window has focus and its native hierarchy contains
+"Viewing full screen" and "Got it". The test acknowledges only that tutorial
+on its synthetic emulator before checking Back. Speculative extra fullscreen
+ports/overlay callbacks are removed; the earlier reviewed handler is retained.
+No system setting, browser-origin check or owner device is changed. The temporary
+loopback debugger used to confirm callback state is detached and removed.
 Final actual APK evidence must confirm the behavior before publication admission.
 
 ## Completed local evidence and remaining gates

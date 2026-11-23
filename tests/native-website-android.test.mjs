@@ -63,6 +63,22 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     }),{name,store,key})
   }
   const go=(page,route)=>page.evaluate(route=>window.dispatchEvent(new CustomEvent("atmoshaper:native-navigation",{detail:route})),route)
+  /** A fresh Android fixture shows a system tutorial above the app on first
+   * immersive use. Dismiss only that exact tutorial; never treat its swallowed
+   * Back as an app navigation result or alter system settings to bypass it. */
+  async function acknowledgeImmersiveTutorial() {
+    // Android schedules first-use help after the system-bar animation.
+    await new Promise(resolve=>setTimeout(resolve,1000))
+    const focus=shell("shell","dumpsys","window","displays")
+    if(!/mCurrentFocus=Window\{[^\n]*ImmersiveModeConfirmation/.test(focus))return
+    shell("shell","uiautomator","dump","/data/local/tmp/atmoshaper-parity-ui.xml")
+    const xml=shell("shell","cat","/data/local/tmp/atmoshaper-parity-ui.xml")
+    assert.match(xml,/resource-id="android:id\/immersive_cling_title"/)
+    const ok=xml.match(/<node\b[^>]*resource-id="android:id\/ok"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/)
+    assert.ok(ok,"the exact fullscreen tutorial has its confirmation button")
+    shell("shell","input","tap",String(Math.round((Number(ok[1])+Number(ok[3]))/2)),String(Math.round((Number(ok[2])+Number(ok[4]))/2)))
+    await expect.poll(()=>shell("shell","dumpsys","window","displays")).not.toMatch(/mCurrentFocus=Window\{[^\n]*ImmersiveModeConfirmation/)
+  }
   const touchSessions = new WeakMap()
   /** Android's CDP context has no desktop hasTouch option. Send actual mobile
    * input after checking geometry, instead of its unreliable mouse auto-scroll. */
@@ -144,6 +160,7 @@ test("replacement APK upgrades the earlier preview without losing downloads/sett
     const beforeFullscreen=page.url()
     await tap(page,page.getByRole("button",{name:"Toggle fullscreen",exact:true}),true)
     await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(true)
+    await acknowledgeImmersiveTutorial()
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(false)
     assert.equal(page.url(),beforeFullscreen,"Back exits fullscreen before navigating away")
