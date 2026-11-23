@@ -17,7 +17,7 @@ export default forwardRef<HTMLAnchorElement, LinkProps>(function NativeLink({ hr
   const internal = path.startsWith("/") && !path.startsWith("//")
   function click(event: MouseEvent<HTMLAnchorElement>) {
     onClick?.(event)
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || props.target === "_blank" || (props.download !== undefined && props.download !== false)) return
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || props.target === "_blank" || (props.download != null && props.download !== false)) return
     if (internal) {
       event.preventDefault()
       // Match Next Link's cancellable navigation lifecycle. Shared drawers use

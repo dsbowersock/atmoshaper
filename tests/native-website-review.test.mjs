@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFile} from 'node:fs/promises'
 import ts from 'typescript'
+import React from 'react'
+import {renderToStaticMarkup} from 'react-dom/server'
 
 /** Execute the authored runtime with a closed dependency set; no real audio,
  * device store, provider or production authority enters these regressions. */
@@ -30,7 +32,15 @@ test('native links invoke the cancellable navigation callback only for handled n
  const cancelled=event()
  Link({...props,onNavigate:notice=>{calls.push(['cancel']);notice.preventDefault()}},null).props.onClick(cancelled)
  assert.equal(cancelled.defaultPrevented,true);assert.deepEqual(calls,[['click'],['cancel']])
- for(const [overrides,gesture] of [[{}, {ctrlKey:true}],[{target:'_blank'},{}],[{download:true},{}],[{href:'https://example.com'},{}],[{href:'//example.com'},{}],[{}, {button:1}],[{onClick:e=>e.preventDefault()},{}]]){
+ // Verify React's actual overloaded-boolean attribute semantics rather than
+ // assuming null means a download. Missing attributes keep native routing.
+ for(const download of [undefined,null,false]){
+  assert.doesNotMatch(renderToStaticMarkup(React.createElement('a',{href:'/music',download})),/\sdownload(?:=|\s|>)/)
+  calls.length=0;Link({...props,download},null).props.onClick(event())
+  assert.deepEqual(calls,[['click'],['navigate'],['route','/music',true]])
+ }
+ for(const download of [true,'','report.pdf'])assert.match(renderToStaticMarkup(React.createElement('a',{href:'/music',download})),/\sdownload=/)
+ for(const [overrides,gesture] of [[{}, {ctrlKey:true}],[{target:'_blank'},{}],[{download:true},{}],[{download:''},{}],[{download:'report.pdf'},{}],[{href:'https://example.com'},{}],[{href:'//example.com'},{}],[{}, {button:1}],[{onClick:e=>e.preventDefault()},{}]]){
   calls.length=0
   Link({...props,...overrides},null).props.onClick(event(gesture))
   assert.equal(calls.some(([kind])=>kind==='navigate'||kind==='route'),false)
