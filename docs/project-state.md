@@ -1,5 +1,42 @@
 # AtmoShaper Project State
 
+## November 23 shared Android candidate verified locally; publication pending
+
+The actual website Home, navigation, Clock/timer, breathing, Music and six
+business planner screens now run from shared components in the packaged app.
+Connected account, calendar, practice and other website pages remain inside a
+browser-owned Trusted Web Activity. The owner explicitly chooses that full
+in-app connected experience. Website/app association is prepared, not published;
+browser origin verification and the physical S24 check remain required.
+
+Application source is frozen at `a9ddca1`; later changes affect only the Android
+fixture and verification records. Codex inspects the final source. Five completed
+CodeRabbit ranges cover every changed text path through fixture head `a2a24e1`.
+The last application correction pass raises zero issues. The later fixture pass
+raises one question, refuted by the old app's separate Music implementation and
+the successful full upgrade run. A temporary free CLI rate limit is resolved by
+waiting and using the existing account, without a billing/key/provider change.
+
+Shared-screen browser acceptance passes all seven cases, including real online
+Play without saving, downloaded music/ambient playback after an offline restart,
+restored timer sound readiness and actual PDF generation. Focused source checks,
+lint and TypeScript pass. The normal APK passes Android lint/build and unchanged
+certificate verification; its SHA-256 begins `af746820`. The complete fixed-
+emulator case passes with no skips: upgrade readback preserves both packs,
+original settings, receipt identity and timer deadline. Actual saved music runs
+across breathing in airplane mode; fullscreen Back and the native PDF save
+dialog/cancel pass. Android's first-use fullscreen tutorial, auto-hidden controls,
+cold chunk loading and the floating player required fixture corrections; extra
+speculative fullscreen ports are removed. The app and APK remain unchanged during
+those fixture corrections. The task-created emulator is stopped after acceptance;
+owner emulators and the physical phone are untouched.
+
+This candidate has not been published. The prior publication checkpoint remains
+historical evidence; fresh public/rollback preflight is required before a new
+release. See the [review and verification record](audits/2026-11-22-android-website-parity.md)
+and [prepared, unapproved publication plan](superpowers/plans/2026-11-22-android-website-parity-publication.md).
+Earlier checkpoints below are retained as history and superseded by this update.
+
 ## November 22 Android website parity in local verification
 
 The owner requests the actual website Home, navigation and tools inside Android,

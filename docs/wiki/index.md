@@ -1,6 +1,9 @@
 # AtmoShaper Wiki
 
-- [Android website parity in local verification](../superpowers/plans/2026-11-22-android-website-parity.md): shared screens, storage preservation and remaining connected-origin gates.
+- [Shared Android candidate review and verification](../audits/2026-11-22-android-website-parity.md): completed application coverage, frozen APK and remaining native/origin/phone gates.
+- [Prepared shared Android publication](../superpowers/plans/2026-11-22-android-website-parity-publication.md): candidate identities, existing checks, rollback and required separate approval.
+
+- [Shared website screen implementation](../superpowers/plans/2026-11-22-android-website-parity.md): shared screens, storage preservation and remaining connected-origin gates.
 
 - [Published offline Android release and owner receipt](../audits/2026-11-22-offline-android-publication.md): live release, verified APK and remaining device gates.
 

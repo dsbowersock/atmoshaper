@@ -1,5 +1,40 @@
 # AtmoShaper Project Log
 
+## November 23 shared Android UI reviewed and local APK acceptance complete
+
+Freeze application source at `a9ddca1` and the normal signed preview APK whose
+SHA-256 starts `af746820`. Reuse the website's actual screens and keep connected
+account/calendar/practice destinations inside a browser-owned trusted app window.
+Keep the previous application/signing identity, device stores and background
+authority. Online Play can use temporary verified bytes without implicitly saving
+a download; offline access still requires complete saved packs.
+
+Complete Codex inspection and four substantive CodeRabbit ranges, matching every
+changed application path against Git's file lists. Resolve supported timer-audio,
+document recovery and ambient-cancellation issues; refute speculative questions
+against source and execution. Add the controlled same-ID stale-rejection check;
+all 39 source/controller cases pass. Seven shared browser cases, responsive
+previews, source lint/type checking and normal APK build/signature pass.
+
+Consolidate Android fixture diagnostics: the system immersive-mode tutorial owns
+Back until acknowledged, Clock controls intentionally hide, cold shared chunks
+need mobile waits, and the fixed player can cover an in-viewport report button.
+Remove speculative native fullscreen changes and correct user-input handling in
+the synthetic fixture. Observe retained downloads/settings/deadline, actual
+offline saved music across breathing, fullscreen Back and the native PDF dialog/
+cancel tail on the unchanged APK. The final combined case passes all steps with
+no skips. Stop only the task-created emulator after verifying its exact name.
+
+After the stated free-review wait, the existing CLI completes the fixture-only
+`a9ddca1..a2a24e1` pass. Refute its one conditional favorite-overwrite question:
+the old app uses its separate offline player and never initializes the shared
+Music preference store; the full run demonstrates the seeded favorite remains
+available after upgrade. No application change is needed. Complete the local
+review/acceptance record and prepare a distinct matching upgrade APK. Website
+origin validation and the physical S24 check remain post-publication gates. No
+provider/billing change, publication, real account/clinical write or physical-
+phone command is performed. The publication plan remains unapproved.
+
 ## November 22 Android shares the website UI; local verification underway
 
 Respond to the owner's installed-APK design mismatch by reusing the actual Home,

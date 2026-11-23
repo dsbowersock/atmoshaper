@@ -50,7 +50,7 @@ APK. Three backgrounds are free: Lava Lamp, In Transition (static gradient) and
 Solid Color. Paid use follows the same `premium_backgrounds`/active-ownership
 contract as the website; a cached plan name cannot unlock anything.
 
-Account verification opens the normal external browser. Its explicit account
+Account verification uses the normal website in the browser-owned app window. Its explicit account
 approval returns only an ES256 signed backgrounds capability bound to this app
 installation and its latest challenge. The app verifies it before saving access.
 Subscriptions last through their verified paid-through date (monthly or annual),

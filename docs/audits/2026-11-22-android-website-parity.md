@@ -3,7 +3,8 @@
 The owner requests the website's Home, navigation and tools inside Android while
 preserving offline features, and explicitly chooses the full connected experience
 inside the app. Implementation is on `codex/android-website-parity`, based on
-`b55c4ab`. The public website remains `5758fcb`; this work is not published.
+`b55c4ab`. The last recorded publication is `5758fcb`. This candidate is not
+published; fresh live-state preflight remains required.
 
 ## Implementation and preservation
 
@@ -41,7 +42,7 @@ font binaries explicitly excluded, eight issues (one major, seven minor). Its
 exact-base/head context and completed reviewed-file manifest are retained in the
 ignored local receipt. The isolated clone's local source remote is not recognized
 as the hosted repository, so this completed initial pass uses its free CLI
-allowance. A grouped follow-up will use the correct hosted remote identity.
+allowance. Subsequent completed passes use the correct hosted remote identity.
 
 | Issue | Grouped correction |
 | --- | --- |
@@ -70,8 +71,29 @@ question asks whether a cancelled ambient rejection can fail a replacement. Both
 preview and recipe rejection handlers check their operation lease before changing
 state, so this is refuted. A controlled same-ID stop/restart test releases the old
 rejection after the replacement is playing and confirms it stays playing. The
-39-case source/controller boundary set passes. Final fixture/revert review and
-actual APK acceptance remain pending.
+39-case source/controller boundary set passes. The final fixture/revert review
+completes with zero issues. Actual APK acceptance and the later fixture-only
+review are also complete, as recorded below.
+
+Completed receipts match Git's complete changed-file lists for every range:
+
+| Base to head | Reviewed text paths | Explicit binary exclusions | Issues |
+| --- | ---: | ---: | ---: |
+| `b55c4ab..856adbf` | 68 | 7 licensed font binaries | 8 |
+| `856adbf..4de2927` | 21 | 0 | 4 |
+| `4de2927..5f66407` | 7 | 0 | 1 refuted question |
+| `5f66407..a9ddca1` | 5 | 0 | 0 |
+| `a9ddca1..a2a24e1` | 1 | 0 | 1 refuted question |
+
+There is no application-file coverage gap through `a9ddca1`. A later request for
+the Android fixture interactions returns `rate_limit`, with a 17-minute free CLI
+wait. That failed request is not counted. After the wait, the existing CLI
+completes coverage through `a2a24e1`. Its question asks whether the old app could
+overwrite the seeded shared Music favorite. The old app uses `OfflineAudio`, not
+the website Music provider, and never reads/writes that preference key. The
+complete real upgrade run also reaches the favorite and plays it offline, so the
+concern is refuted. No source rewrite follows. No seat, billing, key or provider
+change bypasses the limit. Current-head hosted checks remain publication gates.
 
 The same correction group includes two findings from actual APK inspection:
 retain the timer display stage for an imported running timer reached through the
@@ -90,7 +112,8 @@ on its synthetic emulator before checking Back. Speculative extra fullscreen
 ports/overlay callbacks are removed; the earlier reviewed handler is retained.
 No system setting, browser-origin check or owner device is changed. The temporary
 loopback debugger used to confirm callback state is detached and removed.
-Final actual APK evidence must confirm the behavior before publication admission.
+The final actual APK case confirms fullscreen entry and Back after that normal
+system tutorial, without a native fullscreen state bridge or origin bypass.
 
 ## Completed local evidence and remaining gates
 
@@ -106,12 +129,26 @@ Final actual APK evidence must confirm the behavior before publication admission
   Clock browser regressions also pass, including the 50-case secondary Clock set.
 - Earlier-preview compatibility remains an explicitly separate test-only entry;
   both Core browser cases pass. The normal app cannot select that legacy entry.
-- An initial normal APK passes Android lint/build and a fresh-emulator upgrade
-  from the prior accepted APK. Both downloads, settings, receipt identity and
-  running deadline survive; actual saved music plays in airplane mode across
-  shared-tool navigation. The owner-receipt emulator and physical phone are not
-  cleared or modified. Final corrected APK/fullscreen/document-dialog checks
-  are still pending.
+- The final normal APK passes Android lint/build, v2 signature verification and
+  the complete fixed-emulator upgrade case (one pass, zero failures/skips). It
+  upgrades the prior accepted version 3 without uninstalling. Both downloads,
+  original settings, device/receipt identity and running deadline survive; actual
+  saved music plays in airplane mode across shared breathing. Fullscreen/Back,
+  download readiness and the actual Android PDF dialog/cancel all pass. No
+  unexpected script error or offline media request is recorded. Stop only the
+  exact task-created emulator afterward; the owner-receipt emulator, other
+  emulators and physical phone are untouched.
+
+The frozen application is `a9ddca1d7d7cd5d6bbcc2741c5ed739107b42b5b`; the corrected
+fixture is reviewed at `a2a24e1`. The normal APK's SHA-256 is
+`af74682094ff6b0b8786ebc7e01d19fc9f68d29dd1db4eabe78ad61929259ea8`.
+Its existing signing certificate is retained. The complete acceptance receipt is
+checked at `2026-11-23T06:53:48.550Z`; normal bundle inventory reports 188 files,
+26,752,904 bytes, shared website entry and no synthetic receipt authority. The
+distinct matching handoff file is
+`output/android/AtmoShaper-shared-website-preview-0.4.0-af746820.apk`. Keep the
+previous accepted installer. Documentation-only closeout does not rebuild or
+change this APK.
 
 The full regression run completes with 5,929 passes, 15 failures and seven
 optional skips. All failures are inert fixture imports after adding the no-DOM
@@ -119,7 +156,8 @@ native navigation component and separating the safe calendar contract from the
 server loader. The corrected main-landmark fixture passes all seven cases; the
 calendar/provider fixture rerun passes all 23 cases. The three additional native
 online-source tests pass. No application behavior is weakened to satisfy those
-fixtures; final grouped review and Android acceptance remain pending.
+fixtures. Final grouped review and Android acceptance are complete; fresh
+current-head hosted checks remain publication gates.
 
 The proposed app-origin association is source-only. It names the existing preview
 package and actual public signing fingerprint. Browser origin verification,

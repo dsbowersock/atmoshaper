@@ -5,12 +5,24 @@ authorize this publication. The completed earlier release window is not reused.
 
 ## Candidate and admission
 
-Finish the grouped source corrections in the [local review receipt](../../audits/2026-11-22-android-website-parity.md),
-record exact Codex/CodeRabbit coverage through the final application head, and
-complete source checks, normal APK build/signature and fixed-emulator upgrade/
-offline/fullscreen/document-save acceptance. Keep all existing phone/user stores
-and the previous accepted APK. Freeze the reviewed source head and matching APK
-before requesting approval; receipt-only closeout can describe unchanged source.
+The reviewed application freeze is `a9ddca1d7d7cd5d6bbcc2741c5ed739107b42b5b`.
+The matching normal preview APK has SHA-256
+`af74682094ff6b0b8786ebc7e01d19fc9f68d29dd1db4eabe78ad61929259ea8`;
+its existing public debug signing certificate and development package are retained.
+Later local changes concern the Android UI fixture and verification records only.
+Final APK acceptance passes the complete upgrade/offline/fullscreen/document
+journey. The free CLI wait elapses and the fixture-only review through `a2a24e1`
+completes; its one conditional question is refuted by source and execution.
+Codex inspects all final source and dispositions. There is no remaining local
+application/test review gap. No paid capacity or provider change is included.
+
+The [local review receipt](../../audits/2026-11-22-android-website-parity.md) records
+completed source corrections, exact Codex/CodeRabbit coverage, source checks,
+normal APK build/signature and fixed-emulator upgrade/offline/fullscreen/document
+acceptance. Keep all existing phone/user stores and the previous accepted APK.
+The reviewed application and matching APK are frozen; the final documentation
+head is identified in the approval request. Receipt-only closeout does not change
+the application or require another APK build.
 
 After explicit approval, perform fresh read-only release preflight: repository,
 public main, candidate, Vercel Git linkage, existing Production setting metadata,
