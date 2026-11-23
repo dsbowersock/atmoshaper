@@ -1,5 +1,32 @@
 # AtmoShaper Project Log
 
+## November 23 corrected Preview passes; final mobile drawer issue held locally
+
+After the owner approves `b2053cb`, renew the separate Vercel CLI session and
+complete fresh read-only preflight. Push once to existing PR #81, verify its
+protected Preview and pass 21 anonymous entry pages plus eight Home/Clock browser
+journeys. Attach fixes/test evidence to all eight earlier threads and resolve
+them. Request the current-head Codex review. Its one supported comment identifies
+the native Link adapter omitting the shared drawer-closing navigation callback.
+Hold before any merge, Production build or promotion. Public `5758fcb` stays live.
+
+Reproduce the actual old asset-tree behavior, then commit focused correction
+`2b06d64`, finalized by `d61de9a`: consume/invoke cancellable `onNavigate`, preserve ordinary link actions,
+and add runtime plus actual drawer/focus regressions. Advance only the matching
+development APK version. All 14 focused cases and ten shared browser cases pass;
+lint/TypeScript and Android build/lint/signature pass. Independent Codex Standards
+and Spec reviews report zero issues at the final application head. CodeRabbit
+completes the four-file review and raises one null-download edge case, corrected
+with actual React markup/routing coverage. All seven hosted checks also pass for
+the previously approved `b2053cb`. Final `8f603319` normal-APK emulator acceptance
+passes the upgrade/retained-downloads/settings/deadline, airplane-mode playback,
+fullscreen Back and actual PDF-dialog journey with zero failures/skips. Stop
+only the exact synthetic test emulator, preserving its data and owner devices.
+Record the actual physical/connected-origin gates and
+the [new amendment](superpowers/plans/2026-11-23-android-navigation-correction-publication.md)
+before requesting approval for the final corrected head. Keep earlier installers,
+provider settings, signing authority and real account/calendar/clinical data.
+
 ## November 23 approved Android release reaches hosted review; corrections held locally
 
 Admit the owner-approved `57e4957` publication after fresh provider/source

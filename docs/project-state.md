@@ -1,5 +1,32 @@
 # AtmoShaper Project State
 
+## November 23 PR #81 held for the mobile drawer correction
+
+The owner approves corrected candidate `b2053cb`. Its additional push/protected
+Preview and anonymous acceptance pass: 21 entry pages, three Home layouts, five
+Clock layouts, both fonts, app marker and Digital Asset Links; no real writes or
+page errors. Current-head Codex review identifies one supported native Link
+callback omission. Hold before merge, Production build and promotion; public
+`5758fcb` remains unchanged. Keep PR #81 and earlier operation receipts.
+
+Local correction `2b06d64`, finalized by `d61de9a`, honors cancellable `onNavigate`, closes the mobile
+drawer after tool selection and restores opener focus. Fourteen contract/runtime
+and ten real-media/shared-screen browser cases, native-source lint, full
+TypeScript and normal Android build/lint/signature checks pass. Codex Standards
+and Spec reviews report zero issues against the final application source.
+CodeRabbit completes its four-file review; its one null-download edge case is
+corrected and regression-tested. The matching version 0.4.2 APK SHA-256 starts
+`8f603319`. The final matching normal APK passes the complete emulator upgrade,
+retained-download/settings/deadline, offline audio, fullscreen and PDF journey
+with zero failures/skips. The fixed test emulator is stopped without deleting
+its data; owner devices remain untouched. Physical S24 and actual connected-origin
+acceptance remain publication/handoff gates.
+All seven hosted checks pass for the prior approved `b2053cb`; the final head
+will require fresh checks after approval/push.
+See the [correction record](audits/2026-11-23-android-navigation-correction.md)
+and [prepared amendment](superpowers/plans/2026-11-23-android-navigation-correction-publication.md).
+Another source push/publication requires approval of the final corrected head.
+
 ## November 23 PR #81 held for grouped review corrections
 
 The owner approves the shared Android publication candidate `57e4957`. Its one
