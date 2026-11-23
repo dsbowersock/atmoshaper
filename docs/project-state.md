@@ -1,18 +1,230 @@
 # AtmoShaper Project State
 
-## November 22 Home, optional setup and Clock publication in progress
+The first dated update is current. Later sections are retained historical
+checkpoints; their earlier pending/unauthorized statuses are superseded by it.
 
-The owner authorizes separate Codex/CodeRabbit review, release checks and
-publication. PR #79 starts on the verified public baseline with the identical
-local candidate tree. Both reviewers complete substantive initial coverage;
-supported corrections protect save/leave navigation, registration callbacks,
-setup answers against old preference sync and Home keyboard focus. Test/tooling
-contracts and only the four intended Home wordmark baselines are updated.
-See the [review receipt](audits/2026-11-22-home-onboarding-clock-review.md).
-Corrected-source follow-up, full hosted CI and staged release gates remain
-pending. The public site has not changed under this operation yet.
+## November 22 approved offline release; receipt-only status closeout
 
-## November 22 digital AM/PM in the leading clock space local for review
+The owner approves candidate `92585d9`, the existing PR #80 update, remaining
+reviews/checks and guarded publication. That approved push is complete. Its
+protected Preview passes 14 entry pages and eight Home/Clock journeys; all seven
+hosted CI checks pass (5,933 unit passes, eight optional skips, no failures).
+Codex completes its hosted review on `92585d9` with no findings. CodeRabbit's
+bounded hosted follow-up covers all 34 correction paths and raises only three
+minor documentation-status issues. This receipt-only closeout corrects those;
+application/trust assets remain exactly `15b7f55` and its accepted APK remains
+unchanged. The amendment explicitly includes necessary receipt/documentation
+corrections. Fresh CI/Preview on this documentation head remain merge gates;
+the unchanged application does not need another review or APK acceptance run.
+
+The signing authority and all 90 setting metadata entries are preserved. The
+public release and rollback remain `0eb02e0`; no merge, Production build,
+promotion or real owner receipt has happened. The existing admission ends at
+10:34 p.m. Eastern on November 22. After the remaining gates, complete one
+Production/Sentry build, staged acceptance, same-artifact promotion and the one
+owner backgrounds-only receipt check. See the
+[approved amendment](superpowers/plans/2026-11-22-offline-startup-recovery-release.md)
+and [grouped review receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
+
+## November 22 grouped hosted-review correction checkpoint
+
+The full hosted CodeRabbit review completes on PR #80's `5f76890`, with 21
+comments across 77 processed text paths. It confirms Codex's initial-load
+overwrite and a station Transport-repeat leak. One local correction group
+addresses those and the supported recovery/control, documentation and test
+issues; see the [grouped disposition receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
+Application source `15b7f55` passes focused release regression (184 cases),
+media/access/Transport (15), Core/storage (11), audio regressions (30), both Core
+browser cases, all 84 renderers and real-media browser acceptance. Suite counts
+overlap. Source lint/full TypeScript and the normal APK's lint/build/signature
+and both serial emulator acceptance suites pass. CodeRabbit completes the
+30-path correction delta with two test-switch questions, both refuted by matching
+source and the actual non-skipped media/Core execution. Codex inspects the
+correction source. No further application change follows that reviewed candidate;
+fresh hosted correction review/CI remain required after the approved PR update.
+The three configured Production-only signing settings are retained. PR #80 is
+still at `5f76890`; the public site/rollback remains `0eb02e0`. The prepared
+[source amendment](superpowers/plans/2026-11-22-offline-startup-recovery-release.md)
+now enumerates this bounded group. No additional push, merge, Production build,
+promotion, real owner receipt, key or provider setting operation occurs.
+
+## November 22 initial startup-recovery correction checkpoint
+
+The approved replacement-key upload succeeds and all three new Production-only
+settings remain configured, with the original 87 unchanged. PR #80 is open at
+`5f76890` and its protected Preview is READY; the public site/rollback remains
+`0eb02e0`. Hosted Codex review then identifies a real overwrite when an initial
+Core read fails and the fallback defaults are later autosaved over saved state.
+
+A local synthetic Chromium/IndexedDB regression confirms the failure. The
+prepared guard keeps that fallback session unsaved; the regression passes and
+reopening restores the original timer/settings. Both Core browser cases, 11
+Core/storage unit cases, focused lint and full type checking pass. Delta review
+and the matching corrected APK are in progress. See the
+[correction receipt](audits/2026-11-22-offline-startup-recovery.md) and
+[prepared source amendment](superpowers/plans/2026-11-22-offline-startup-recovery-release.md).
+The correction is not pushed, merged or published. No Production build,
+promotion or real account receipt occurs. Signing configuration remains intact;
+no additional key or provider setting is proposed.
+
+## November 22 offline verification settings configured; publication in progress
+
+The owner approves one replacement key and the corrected HTTPS upload. Fresh
+preflight passes; one replacement P-256 authority and one direct JSON upload
+configure the three Production-only offline-access settings. The private key is
+a sensitive Secret; all 87 original setting metadata entries and other targets
+are unchanged. Only the matching public verifier is added to native source.
+Signature/install/challenge self-checks pass. No private key file is created.
+
+The current public release remains `0eb02e0`; the verification page/issuer is not
+yet published. Final binding review, the release PR/hosted checks, verified
+Production/Sentry build and same-artifact promotion, matching APK and one owner
+receipt check remain in progress. See the
+[activation receipt](audits/2026-11-22-offline-access-activation.md). Existing
+application logic, clinical boundaries and the minor migration follow-up remain.
+
+## November 22 offline activation upload stopped; recovery prepared
+
+The owner approves the prepared activation/publication plan. Fresh preflight
+matches reviewed source, live `0eb02e0`, all 87 setting metadata entries, 48
+aliases, existing protection/manual promotion and the READY rollback. One
+isolated key-generation/bulk-upload attempt fails in the installed CLI request
+path. Read-back confirms no requested settings were created and all 87 existing
+settings remain unchanged. No push, PR, deployment, promotion or real receipt
+occurs. The temporary private key is discarded and source's verifier is `[]`.
+
+A no-network synthetic reproduction confirms the installed CLI's bulk-array
+encoding problem. An explicit JSON HTTPS client is prepared and its read-only
+authentication/project check passes. The
+[recovery amendment](superpowers/plans/2026-11-22-offline-activation-recovery.md)
+requests one additional replacement key and one corrected Production-only
+upload, then continuation of the already approved release. It remains pending;
+the original plan forbids replacing the key without another authorization.
+Application source remains `194e385`; local verification and the documented
+minor migration follow-up are unchanged. Real premium verification is not live.
+
+## November 22 offline audio and signed background access candidate
+
+The owner expands the native milestone to explicitly downloaded generative
+stations/Atmosphere sounds and all backgrounds subject to verified access.
+The local candidate lists all 57 generators and 51 reviewed ambient concepts,
+stores complete checked packs with strict commit, and plays from local bytes.
+Actual Little Bells generation and ambient playback pass a network-disabled
+browser restart without audio requests. All 84 enabled background renderers
+load offline under synthetic signed access; expiry, permanent ownership,
+authoritative revocation and stale-return rejection pass that browser flow.
+
+Native downloads now require Internet permission, but startup and saved
+playback remain local. Native HTTP is restricted to existing public audio GETs
+with no redirects/cookies; browser account verification has a separate signed,
+install/challenge-bound receipt handoff. The public verifier key list is empty
+and the live issuer is unconfigured: no real premium access is fabricated.
+
+Source `194e385` completes Codex and CodeRabbit coverage across all changed text
+transitions. All 326 focused/regression cases, three concurrent browser suites,
+focused lint/full type checking, inert-provider Next build/page/issuer checks,
+Android lint/assembly and exact-APK airplane-mode media/Core acceptance pass.
+Rotation retains the live WebView/deadline and a single two-note completion
+chime. The final debug APK and matching receipts are recorded in the
+[verification receipt](audits/2026-11-22-offline-audio-backgrounds.md).
+
+One minor review item is retained: retrying a media-store upgrade before an old
+v1 connection closes can wait behind that blocked open. First installs use v2;
+the current single-Activity Android flow passes. Do not call that edge fixed or
+claim a zero-issue review. Physical S24, reliable background audio/closed-app
+alarms, live signing/provider configuration and publication remain. The
+[prepared activation plan](superpowers/plans/2026-11-22-offline-access-activation.md)
+is not authorized/executed. No provider, database/payment/email or Production
+change occurs.
+
+## November 22 offline Android core built and verified
+
+The app now packages Clock, timer, breathing and all three existing free
+backgrounds locally. The remote-only launcher is replaced by an app-content
+asset loader with no Internet permission, account extraction or generic bridge.
+Actual shared display/font/renderer/calculation code is reused. Preferences and
+timer deadlines use isolated serialized IndexedDB saves with strict commit and
+snapshot-matched acknowledgement; existing browser records are untouched.
+
+All 262 focused/regression cases, three network-disabled browser journeys,
+focused lint, full type checking and Android lint/assembly pass. The exact debug
+APK also passes fresh airplane-mode launch and real process-stop recovery in
+the isolated Android emulator; its packaged assets match their build manifest.
+See the [verification receipt](audits/2026-11-22-offline-android-core.md).
+
+Physical S24 acceptance remains. Alerts are foreground-only in this build;
+closed-app alarms are not implemented. The broader app, paid-background access,
+station download packs and native payments keep their separate gates. The owner
+correctly clarifies that Generative.fm stations can generate offline from saved
+code/samples; they are included in the audio plan, not treated as live streams.
+No website/service publication or live financial/data operation occurs.
+
+## November 22 Android offline requirement and prototype limitation
+
+Before installing the first APK, the owner clarifies that Clock, backgrounds and
+as many other tools as practical must work offline. The current Android launcher
+packages no tool UI/media and depends on the remote site on a fresh launch.
+Its build verification does not meet this offline requirement. Existing web
+caching covers selected anonymous pages, not the full newer toolset or explicit
+media downloads. No physical offline acceptance has occurred.
+
+The next app milestone must provide a locally bundled shared core, essential
+assets and explicit downloaded media; preserve browser records, feature access
+and online auth/booking/payment boundaries. See the
+[offline implementation plan](superpowers/plans/2026-11-22-offline-android-core.md).
+This supersedes treating the remote-only launcher as the final app architecture.
+The source/APK and live services are unchanged by this requirement update.
+
+## November 22 practice payments and whole-platform Android foundation
+
+The owner requests optional Stripe/Square client payments and expands the mobile
+work to the whole AtmoShaper platform. The pilot is the owner's own contractor
+business using a separate Stripe merchant, not the salon. The accepted
+[specification](superpowers/specs/2026-11-22-practice-payments-android.md) and
+[plan](superpowers/plans/2026-11-22-practice-payments-android.md) preserve merchant
+ownership, explicit fee review and local clinical-record boundaries.
+
+Local source on `codex/practice-payments` adds pure payment rules, offline
+processor contracts, and a fictional four-step mobile preview at
+http://127.0.0.1:3034/. All 20 focused tests, eight Chromium processor/viewport
+journeys, focused lint and the ordinary full type check pass. No real payment
+endpoint or active application route is added. The Android launcher builds and
+passes Android lint using the owner-approved isolated official tools/license.
+Its actual debug APK and signing/manifest readback are local artifacts.
+
+This is the first foundation milestone, not working practice payment collection.
+Durable payment services, actual provider/web/native adapters, sandbox acceptance,
+S24 device tests, origin/release signing association, reviews and approved pilot/
+publication remain. No provider/DB/payment/email or public deployment change
+occurs; public source remains `0eb02e0`. See the
+[verification receipt](audits/2026-11-22-practice-payments-android-foundation.md).
+
+## November 22 Home, optional setup and Clock published and verified
+
+[PR #79](https://github.com/dsbowersock/atmoshaper/pull/79) is merged and public
+release `0eb02e0` is verified at https://www.atmoshaper.com/. Its tree exactly
+matches reviewed source `aaf422f`. Independent Codex and CodeRabbit review
+chains cover the final source; all ten review threads are resolved. All seven
+checks pass on both the PR and merged commit.
+
+Home now provides the compact balanced launcher, approved wordmark and orange
+Practice tools. Optional signup setup, saved drafts/continuation and permanent
+Account re-entry are published with owner/revision and stale-navigation guards.
+The Clock route type correction and leading digital AM/PM are published.
+
+The same staged Production artifact passes 13 route checks and eight native
+Home/Clock journeys before and after one promotion. Both digital font hashes
+and the actual Sentry script/map pair match. Actual Production anonymous session
+checks pass. All six public mappings change as intended; 41 unrelated baseline
+aliases and all 87 Production setting metadata entries are preserved. Prior
+READY `22010d0` remains available for rollback. No rollback or live account,
+payment, mail, legal-acceptance or clinical/calendar write occurs.
+See the [publication receipt](audits/2026-11-22-home-onboarding-clock-publication.md) and
+[review dispositions](audits/2026-11-22-home-onboarding-clock-review.md).
+This receipt is a local documentation closeout, without another application
+build. Other beta/provider work retains its separate status below.
+
+## November 22 digital AM/PM implementation and prepublication verification
 
 The owner requests moving AM/PM into the spare part of the first hour cell and
 restoring digital lettering. The shared current-time renderer now reserves
@@ -27,10 +239,10 @@ generation and ordinary full type checking pass. Actual local Clock acceptance
 and screenshots use fictional settings with inert services. See the
 [verification receipt](audits/2026-11-22-clock-meridiem.md) and
 [plan](superpowers/plans/2026-11-22-clock-meridiem.md).
-This remains unpublished with the home and onboarding changes; no live service
-or account operation occurs. Reviews and release gates remain pending.
+The local verification above precedes the completed PR #79 publication;
+the current release outcome is recorded at the top of this file.
 
-## November 21 optional onboarding and saved progress local for review
+## November 21 optional onboarding implementation and prepublication verification
 
 The owner requests optional setup after signup, independent account controls and
 an explicit setup entry in Account settings. They subsequently request saved
@@ -54,10 +266,10 @@ and the ordinary full type check both pass. The embedded browser also verifies
 saved-answer restoration and the continuation offer.
 See the [verification receipt](audits/2026-11-21-optional-onboarding.md) and
 [operative plan](superpowers/plans/2026-11-21-optional-onboarding.md).
-This remains unpublished with the home/Clock work. No live signup, email,
-provider/database change, migration or deployment is performed.
+The local verification above precedes PR #79 publication. Its completed
+reviews and release outcome are recorded at the top of this file.
 
-## November 21 compact home dashboard local for review
+## November 21 compact home dashboard implementation and prepublication verification
 
 Branch `codex/home-dashboard` replaces the crowded home page with a balanced
 six-area launcher, a short first-visitor introduction and returning-user mode.
@@ -75,13 +287,13 @@ thin and the development preview option remains internal to the shared screen.
 related regressions and focused lint pass. Home SSR hydration is also tested
 with its client script delayed. The embedded browser's stale-code warning is
 cleared in the refreshed http://localhost:3025/ preview, with working controls
-verified. Existing local data is preserved. Reviews and applicable release
-checks remain required before publication.
+verified. Existing local data is preserved. The later PR #79 review and release
+checks pass, as recorded above.
 
 The owner also requests the branded wordmark in the home header. The canonical
 existing wordmark replaces visible heading text, while a hidden text label
 preserves one accessible AtmoShaper heading. Phone layout, actual asset loading,
-SSR hydration and streamed-heading ownership checks pass. This remains local.
+SSR hydration and streamed-heading ownership checks pass. Published in PR #79.
 The Practice tools launcher uses the owner's requested orange button style.
 
 ## November 21 reviewed beta fixes published and verified

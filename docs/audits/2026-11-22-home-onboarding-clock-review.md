@@ -3,9 +3,9 @@
 The owner requests Codex and CodeRabbit reviews followed by publication.
 PR [#79](https://github.com/dsbowersock/atmoshaper/pull/79) starts from public
 baseline `22010d0`; initial candidate `4aed130` has the identical tree as the
-preserved local Home/setup/Clock source. Publication remains pending the
-corrected-source follow-up, complete hosted checks and staged release gates in
-the [operative plan](../superpowers/plans/2026-11-22-home-onboarding-clock-publication.md).
+preserved local Home/setup/Clock source. The completed review chain and publication are recorded in the
+[final receipt](2026-11-22-home-onboarding-clock-publication.md), following the
+[operative plan](../superpowers/plans/2026-11-22-home-onboarding-clock-publication.md).
 
 ## Actual initial coverage
 
@@ -91,6 +91,11 @@ are visually checked. Both complete Windows identity journeys then pass with
 snapshot updating disabled; unrelated baselines are preserved.
 
 Initial hosted checks correctly expose obsolete expectations; that run is not
-release evidence. Full corrected-head hosted CI, the separate correction reviews,
-protected Preview acceptance and live artifact/source-map verification remain
-required. No real signup, email, payment, clinical record or calendar write occurs.
+release evidence. Subsequent corrected-source and merged-source checks pass all
+seven jobs each. The final full PR suite passes 5,883 tests with zero failures
+and five skips. Three completed authenticated CodeRabbit correction ranges cover
+29, one and six text/source paths through `aaf422f`, all with zero findings.
+Independent and hosted Codex close on that source with no remaining findings;
+all ten review threads are resolved. Actual Preview, staged/public and Sentry
+checks pass as recorded in the [publication receipt](2026-11-22-home-onboarding-clock-publication.md).
+No real signup, email, payment, clinical record or calendar write occurs.

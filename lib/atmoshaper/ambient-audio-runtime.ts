@@ -24,10 +24,13 @@ export async function createAmbientAtmoShaperAdapter({
   destination,
   layer: initialLayer,
   reportFailure,
+  localAudioUrl,
 }: {
   destination: InputNode
   layer: AtmoShaperLayer
   reportFailure: (error: unknown) => void
+  /** Native downloads supply committed blob URLs; website streaming is unchanged. */
+  localAudioUrl?: (source: AtmoShaperProductionSource) => string
 }): Promise<AtmoShaperAudioLayerHandle> {
   if (initialLayer.kind !== "ambient") throw new Error("AtmoShaper ambient adapter needs an ambient layer")
   const concept = getAtmoShaperProductionConcept(initialLayer.sourceId)
@@ -37,7 +40,14 @@ export async function createAmbientAtmoShaperAdapter({
   let paused = true
   let disposed = false
   let failed = false
-  let engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure })
+  let engine: Awaited<ReturnType<typeof startConceptEngine>>
+  try {
+    engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl })
+  } catch (error) {
+    // No handle owns this graph until startup fulfills.
+    output.dispose()
+    throw error
+  }
 
   /** Stops the failed scheduler before exposing the controller-owned retry state. */
   function handleEngineFailure(error: unknown) {
@@ -72,7 +82,7 @@ export async function createAmbientAtmoShaperAdapter({
       layer = nextLayer
       if (priorSelectedSource !== nextSelectedSource) {
         engine.stop()
-        engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure })
+        engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl })
       }
       rampOutput()
     },
@@ -107,14 +117,16 @@ async function startConceptEngine({
   layer,
   output,
   reportFailure,
+  localAudioUrl,
 }: {
   concept: AtmoShaperProductionConcept
   layer: AtmoShaperLayer
   output: Gain
   reportFailure: (error: unknown) => void
+  localAudioUrl?: (source: AtmoShaperProductionSource) => string
 }) {
   if (concept.playbackMode?.kind === "prebaked-intro-loop") {
-    return startPrebakedLoop(concept, output)
+    return startPrebakedLoop(concept, output, localAudioUrl)
   }
   const rawContext = requireRealtimeAudioContext(output)
   const capabilityProbe = document.createElement("audio")
@@ -131,6 +143,7 @@ async function startConceptEngine({
       return audio
     },
     resolveAudioUrl(source: AtmoShaperProductionSource) {
+      if (localAudioUrl) return localAudioUrl(source)
       return selectAtmoShaperProductionAudioUrl(source, (contentType) => (
         capabilityProbe.canPlayType(contentType)
       ))
@@ -167,13 +180,13 @@ async function startConceptEngine({
 }
 
 /** Keeps the processed one-time opening outside the repeated artifact region. */
-async function startPrebakedLoop(concept: AtmoShaperProductionConcept, output: Gain) {
+async function startPrebakedLoop(concept: AtmoShaperProductionConcept, output: Gain, localAudioUrl?: (source: AtmoShaperProductionSource) => string) {
   const source = concept.sources[0]
   if (!source || concept.sources.length !== 1 || concept.playbackMode?.kind !== "prebaked-intro-loop") {
     throw new Error("AtmoShaper processed loop needs exactly one artifact")
   }
   const probe = document.createElement("audio")
-  const url = selectAtmoShaperProductionAudioUrl(source, (contentType) => probe.canPlayType(contentType))
+  const url = localAudioUrl?.(source) ?? selectAtmoShaperProductionAudioUrl(source, (contentType) => probe.canPlayType(contentType))
   const response = await fetch(url)
   if (!response.ok) throw new Error("AtmoShaper processed loop could not be loaded")
   const rawContext = requireRealtimeAudioContext(output)

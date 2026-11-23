@@ -1,5 +1,233 @@
 # AtmoShaper Project Log
 
+## November 22 approved corrected head passes hosted review and CI
+
+The owner explicitly approves `92585d9` and continuation of the guarded release.
+Fresh preflight preserves all 90 setting metadata entries, the signing authority,
+manual promotion, aliases and READY `0eb02e0` rollback. Push that candidate once
+to existing PR #80. Its protected Preview passes 14 entry pages/eight journeys;
+all seven hosted CI checks pass. Codex reviews the exact head with no findings.
+Resolve the 22 original supported threads with recorded fixes/dispositions.
+
+One bounded hosted CodeRabbit correction review completes across all 34 changed
+paths. It reports three minor status-document issues and no new application
+issue. Prepare this receipt-only closeout under the approved amendment's express
+documentation-correction allowance. Keep application/trust source `15b7f55`, the
+accepted APK and the existing admission deadline; recheck CI/Preview on the new
+documentation head before merge. No new source review loop, key/settings change,
+Production build or real owner receipt is performed at this checkpoint.
+
+## November 22 full hosted review consolidated into one correction group
+
+The explicitly requested hosted CodeRabbit full pass completes on `5f76890`,
+processing 77 text paths and posting 21 comments. It independently confirms the
+startup overwrite and identifies an abandoned generative Transport repeat.
+Prepare one bounded group of supported corrections and original-head CI fixes;
+record each in the [disposition receipt](audits/2026-11-22-offline-hosted-review-corrections.md).
+The narrower CLI startup delta `5f76890..1ef8453` completes with zero issues;
+the subsequent grouped delta `1ef8453..15b7f55` also completes, covering all 30
+changed text paths. Its two test-switch questions are refuted by matching runner/
+guard source and real combined Android execution with neither suite skipped.
+Focused units/regressions, four browser cases, source lint/full TypeScript and
+the matching normal APK build/signature/both serial emulator suites pass.
+The tested APK hash matches all three build/media/Core receipts. Codex inspects
+the correction diff; current-head hosted review/CI and one new source/publication
+amendment remain before updating PR #80. Keep the configured signing authority and all 90 setting
+metadata entries; make no additional provider, payment, email or database write.
+
+## November 22 release PR review catches a startup overwrite
+
+Push approved public binding `5f76890`, open PR #80 and obtain its READY protected
+Preview. The narrow CodeRabbit binding review completes with two stale-status
+documentation issues and a request for the planned real issuer/native key check.
+Request one full hosted CodeRabbit review after the automatic low-star skip;
+the app acknowledges the trigger. Hosted Codex independently reports a Core
+fallback-autosave overwrite and provides a reproduction. Hold publication.
+
+Add a real synthetic IndexedDB/browser regression. It fails before the fix with
+the saved timer/color replaced after a transient initial open failure. Prepare
+a mount-level autosave guard and truthful unsaved-session/timer copy. The same
+test passes and confirms restoration after reopening. Broader local validation
+and bounded delta review follow before any changed-candidate publication request.
+The original PR checks/reviews cover `5f76890`, not this unpushed correction.
+Keep the working signing settings; no new key, merge or promotion is attempted.
+See the [local correction receipt](audits/2026-11-22-offline-startup-recovery.md).
+
+## November 22 approved replacement-key upload succeeds
+
+The owner approves the prepared recovery amendment. Recheck the live/source,
+settings, aliases, existing credential and rollback baseline and open its fresh
+120-minute admission. Generate one replacement key and make one explicit JSON
+HTTPS upload without automatic retry. Read-back verifies all three settings
+are Production-only, the private key is sensitive, and the original 87 setting
+metadata entries are unchanged. Keep only the matching public verifier in source
+and pass signature/install/challenge self-checks. No private key file is written.
+
+Continue the already approved release under the recorded scope. The previous
+public release is still active; no real receipt or phone installation occurs at
+this checkpoint. See the
+[activation receipt](audits/2026-11-22-offline-access-activation.md).
+
+## November 22 approved offline activation attempt and bounded recovery
+
+The owner approves the prepared activation plan. Recheck source `6490c75`, live
+`0eb02e0`, all 87 settings, 48 aliases, manual promotion, existing protection and
+the READY rollback. The prior explicit Vercel profile is valid; the CLI default
+profile's logged-out state does not justify a new sign-in or account change.
+
+Generate one authority in an isolated process, save only its public verifier and
+attempt one bulk settings upload. The CLI exits unsuccessfully. Withhold raw
+private-bearing output; provider HTTP status is not retained. Read-back confirms
+all three requested names absent and the existing 87 settings unchanged. The
+private key is discarded on exit. Preserve the discarded public key in ignored
+operator evidence, restore source's verifier to `[]`, and stop rather than
+regenerating or replaying the upload. No push, PR, deployment, promotion, account
+receipt or other live-data/provider effect occurs.
+
+Inspect the installed CLI and reproduce its array-body encoding with synthetic
+Request objects and zero network calls. Prepare direct explicit-JSON HTTPS with
+no automatic retry. Its existing-profile read-only project check passes; settings,
+site, empty verifier and rollback still match. Prepare the
+[one replacement-key amendment](superpowers/plans/2026-11-22-offline-activation-recovery.md)
+for approval, preserving the already authorized publication scope and unchanged
+application logic. No second key is generated under the first authorization.
+
+## November 22 offline media and background verification closeout
+
+Freeze application source at `194e385`. Complete the initial CodeRabbit range
+`0eb02e0..c1d0def`, grouped corrections `c1d0def..2e0b90d`, and the final narrow
+`2e0b90d..194e385` range after an actual built-page smoke exposes a missing
+scoped SessionProvider. Correct receipt/Forget/Refresh races and blocked-open
+recovery with real browser reproductions. Completed receipts cover every changed
+text path in those transitions; publisher/license/hash evidence covers the two
+new texture binaries. Retain one final minor retry-before-close migration edge
+as an explicit follow-up; first installs use v2. Avoid another automatic loop.
+
+All 326 focused/regression cases, three concurrent browser suites, focused lint,
+ordinary type checking, inert-provider Next build and built-page/issuer HTTP
+checks pass. The final normal debug APK passes actual airplane-mode media restart
+and fresh Core persistence/rotation/two-note-chime acceptance; all packaged
+assets and build/media/Core hashes match. See the
+[verification receipt](audits/2026-11-22-offline-audio-backgrounds.md).
+
+The owner explicitly selects verified paid-through dates, including the paid
+annual period, and no scheduled expiry for active individual ownership. Public
+verifier keys remain empty; no real premium receipt has been issued. Prepare
+one exact signing/provider/release/APK/owner-check activation plan for approval.
+No push, merge, deployment, provider, hosted database/payment/email or account
+preference write occurs. Physical S24 and broader native/lifecycle gates remain.
+
+## November 22 downloaded audio and offline background access implementation
+
+Implement the owner's expanded native scope: explicit complete station/sound
+downloads, strict durable pack saves, size/hash checks, cancellation/removal,
+local-only generation and ambient scheduler playback, with generated noise.
+Preserve existing public catalogs, sample IDs, source sequencing and rights.
+Metadata-only reads verify all 57 station dependency closures. Actual offline
+browser playback verifies Little Bells and one existing ambient category.
+
+Bundle all 84 enabled background renderers and the existing globe image bytes.
+Use the existing palette/default-geometry contracts, including required DNA/
+Twisted Cubes inputs found by the all-renderer acceptance. Add signed background
+capabilities derived from canonical feature provenance and active ownership;
+subscriptions expire at their verified finite date and individual ownership
+has no scheduled expiry. Synthetic acceptance covers expiry, revocation and
+replay without touching any real account. Normal builds contain no synthetic
+authority; live signing keys/configuration and publication remain unapproved.
+
+Prepare Android's narrow public-media HTTP adapter and external-browser receipt
+handoff. No account cookies/remote HTML/generic script bridge is introduced.
+Final integrated checks, exact-APK emulator acceptance and bounded source review
+are in progress. See the
+[plan](superpowers/plans/2026-11-22-offline-audio-background-access.md).
+
+## November 22 offline native core and actual airplane-mode acceptance
+
+Implement the owner's priority Clock/timer/breathing/background slice with a
+locally bundled shared client and an Android asset loader. Remove the remote
+startup and Internet permission. Preserve the web UI contracts, stable background
+IDs, fonts/license, account boundaries and browser records; retain the three
+canonically free backgrounds without assuming paid ownership.
+
+Share the procedural gradient surface and actual two-tone chime with the website.
+Browser acceptance discovers that the repository notification MP3 is a placeholder;
+use the existing synthesis instead. Actual emulator process-stop testing exposes
+an unflushed localStorage save; replace native preferences with serialized strict
+IndexedDB commits and match save acknowledgement to the displayed snapshot.
+Visual acceptance corrects a landscape status overlap. Keep emulator cold-start/
+commit waits bounded to observed latency; actual S24 acceptance remains separate.
+
+All 262 focused/regression cases, three fresh network-disabled browser journeys,
+focused lint/type checking and Android lint/build pass. Verify the exact final
+APK's assets, no Internet permission, fresh airplane-mode launch, all four tools,
+sound synthesis and real process-stop restore on the empty Android emulator.
+The owner correctly distinguishes offline Generative.fm generation from live
+broadcasts; document complete station packs as the next audio boundary. No
+station player, paid access or production/provider/DB operation is claimed.
+See the [verification receipt](audits/2026-11-22-offline-android-core.md).
+
+## November 22 offline use clarified before Android installation
+
+The owner asks whether the browser-backed APK needs internet and requests offline
+Clock, backgrounds and as much of the toolset as possible. Inspect the actual
+launcher, service worker, registration and existing PWA test. Confirm the current
+APK has no bundled tool payload and web caching has narrower coverage than the
+requested app. Do not equate local data or a successful build with offline use.
+
+Record a locally bundled shared-core direction, downloadable media, preservation
+of existing browser records and owner boundaries, and fresh-install/restart/
+airplane-mode acceptance. Keep sign-in, authoritative shared scheduling and
+financial actions online. No runtime/app/provider/storage change is made while
+clarifying this architecture requirement. See the
+[offline implementation plan](superpowers/plans/2026-11-22-offline-android-core.md).
+
+## November 22 practice payment workflows and Android foundation
+
+Record the owner's Stripe/Square appointment/deposit/prepayment/reviewed-fee
+scope, new-merchant onboarding and whole-platform Android expansion. Clarify
+that his own contractor business is the sole pilot; the salon remains outside.
+Check current official provider/native documentation and complete the Stripe
+implementation planning guide read-only, without financial/provider mutation.
+
+Isolate source from current public `0eb02e0`. Add integer-cents payment rules,
+scoped offline processor contracts and fictional mobile setup/booking/collection/
+fee review. All 20 focused cases and eight Chromium journeys pass, including
+consent invalidation on edits, prior-payment credit and processor-change reset.
+Correct the phone notice/button overlap after actual screenshot inspection.
+Focused lint, route type generation and the ordinary full type check pass.
+
+After explicit tool/license approval, verify official archive SHA-256 values
+and install the JDK/Gradle/Android SDK under ignored project output. Build the
+whole-platform browser-backed Android launcher with lint, inspect its actual
+debug signature/package/permissions and exclude native backup/transfer storage.
+No SDK payment capability or physical device success is claimed. The local
+receipt distinguishes all unfinished durable/provider/native/service/review/
+publication gates. Public traffic and existing services are unchanged. See the
+[verification receipt](audits/2026-11-22-practice-payments-android-foundation.md).
+
+## November 22 Home/setup/Clock reviewed release published
+
+Completed all source review amendments through `aaf422f`, including late
+completion navigation after unmount. Independent Codex closure and three
+completed CodeRabbit CLI correction ranges follow the initial actual full app
+review; no skip/quota response is counted as coverage. All ten review threads
+are resolved. All seven PR checks pass, including the full zero-failure suite.
+
+Took fresh service admission at 18:18 UTC, merged PR #79 once as `0eb02e0`, and
+verified its tree is identical to the reviewed source. The existing Git integration
+builds one staged Production artifact with unchanged settings. Read-only live
+readiness gates, TypeScript, both Sentry uploads and the actual script/map debug
+ID pair pass. Wait for all seven merged-source checks before promotion.
+
+Promoted the same artifact once; staged and public acceptance each verified 13
+routes, three Home viewport journeys, five Clock cases, both fonts and actual
+anonymous session behavior. Public script bytes/debug ID match the staged build.
+All six public mappings are correct; 41 unrelated baseline aliases and 87
+Production setting metadata entries remain unchanged. Keep READY `22010d0` for
+rollback; none is needed. No real account/payment/mail/legal/record write occurs.
+See the [publication receipt](audits/2026-11-22-home-onboarding-clock-publication.md).
+Closed with local documentation only, without triggering another app build.
+
 ## November 22 Home/setup/Clock initial reviews and grouped corrections
 
 The owner requests Codex and CodeRabbit review followed by publication. Preserve

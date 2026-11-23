@@ -1,0 +1,45 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.atmoshaper.app'
+    compileSdk 36
+    buildToolsVersion '35.0.0'
+    defaultConfig {
+        applicationId 'com.atmoshaper.app'
+        minSdk 28
+        targetSdk 36
+        versionCode 3
+        versionName '0.3.0-offline-media-preview'
+        resValue 'string', 'app_name', 'AtmoShaper'
+    }
+    signingConfigs {
+        // Publicly known debug credentials only; never use this for distribution.
+        debug {
+            storeFile rootProject.file('../../output/android-tools/debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix '.development'
+            resValue 'string', 'app_name', 'AtmoShaper Preview'
+            signingConfig signingConfigs.debug
+        }
+        release { minifyEnabled false }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures { buildConfig true }
+    // The named npm build creates this verified, app-owned asset set first.
+    sourceSets.main.assets.srcDir rootProject.file('../../output/offline-core')
+    lint { abortOnError true }
+}
+
+dependencies {
+    implementation 'androidx.activity:activity:1.10.1'
+    implementation 'androidx.webkit:webkit:1.14.0'
+}

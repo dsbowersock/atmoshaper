@@ -1,8 +1,33 @@
 # AtmoShaper Wiki
 
+- [Grouped PR #80 hosted-review corrections](../audits/2026-11-22-offline-hosted-review-corrections.md): local recovery corrections and publication hold.
+
 This directory is the repo-backed project wiki. Keep operational, implementation, and release documentation here so the README can stay public-facing.
 
 ## Pages
+
+- [Prepared startup-recovery correction and preservation regression](../audits/2026-11-22-offline-startup-recovery.md)
+- [Changed-candidate amendment for PR #80](../superpowers/plans/2026-11-22-offline-startup-recovery-release.md)
+
+- [Offline verification settings and publication receipt](../audits/2026-11-22-offline-access-activation.md)
+
+- [Offline activation upload failure and one-key recovery amendment](../superpowers/plans/2026-11-22-offline-activation-recovery.md)
+
+- [Offline audio/backgrounds final verification and remaining minor issue](../audits/2026-11-22-offline-audio-backgrounds.md)
+- [Prepared offline access activation and owner APK handoff](../superpowers/plans/2026-11-22-offline-access-activation.md)
+
+- [Offline audio and signed background access review](../audits/2026-11-22-offline-audio-review.md)
+- [Downloaded stations, Atmosphere sounds and offline background access](../superpowers/plans/2026-11-22-offline-audio-background-access.md)
+
+- [Offline Android core build and airplane-mode verification](../audits/2026-11-22-offline-android-core.md)
+
+- [Offline Android core, downloaded media and acceptance plan](../superpowers/plans/2026-11-22-offline-android-core.md)
+
+- [Practice payments and Android foundation verification](../audits/2026-11-22-practice-payments-android-foundation.md)
+- [Practice payments and whole-platform Android specification](../superpowers/specs/2026-11-22-practice-payments-android.md)
+- [Practice payments and Android implementation sequence](../superpowers/plans/2026-11-22-practice-payments-android.md)
+
+- [Published Home, optional setup and Clock verification](../audits/2026-11-22-home-onboarding-clock-publication.md)
 
 - [Home, optional setup and Clock release review](../audits/2026-11-22-home-onboarding-clock-review.md)
 

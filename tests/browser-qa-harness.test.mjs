@@ -728,6 +728,7 @@ test("migration parity pins Clock to the real app reduced-motion background befo
   const settingsOwner = await readProjectFile("components/providers/settings-provider.tsx")
   const motionOwner = await readProjectFile("lib/motion-preferences.js")
   const renderer = await readProjectFile("components/moving-background.tsx")
+  const surface = await readProjectFile("components/backgrounds/moving-gradient-surface.tsx")
   const host = await readProjectFile("components/backgrounds/BackgroundHost.tsx")
   const { shouldAnimateAmbientBackground } = await import("../lib/motion-preferences.js")
   assert.equal(shouldAnimateAmbientBackground({
@@ -737,7 +738,8 @@ test("migration parity pins Clock to the real app reduced-motion background befo
   assert.match(publicOwner, /localStorage\.setItem\("massage-lab-settings", JSON\.stringify\(\{ ambientMotionMode: "reduced" \}\)\)/)
   assert.match(settingsOwner, /localStorage\.getItem\("massage-lab-settings"\)/)
   assert.match(motionOwner, /classList\.contains\("chimer-running"\)/)
-  assert.match(renderer, /x: Math\.random\(\) \* canvas\.width/)
+  assert.match(renderer, /<MovingGradientSurface/)
+  assert.match(surface, /x: Math\.random\(\) \* canvas\.width/)
   assert.match(host, /\(!reduceMotion \|\| entry\.motionIntensity === "static" \|\| entry\.supportsReducedMotionStatic\)/)
   assert.match(spec, /ambientMotionMode: "reduced",\s*backgroundId: "massage-lab-moving-gradient",\s*backgroundPresentation: "static-fallback"/)
   const setup = sliceBetweenMarkers(spec, 'if (surface.name === "clock") {', "const response = await page.goto", "Clock pre-navigation preference").slice
