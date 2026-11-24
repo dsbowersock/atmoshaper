@@ -1,6 +1,8 @@
 import { createContext, useContext, useMemo, useSyncExternalStore } from "react"
 
 const changed = "atmoshaper:native-route"
+const clockBackgroundRoute = "/clock?panel=background"
+let clockBackgroundRequest = 0
 const listeners = new Set<() => void>()
 function subscribe(listener: () => void) {
   listeners.add(listener)
@@ -48,8 +50,22 @@ if (typeof window !== "undefined") {
   window.addEventListener(changed, listen)
   window.addEventListener("atmoshaper:native-navigation", event => {
     const path = (event as CustomEvent<unknown>).detail
-    if (typeof path === "string") navigateNative(path)
+    if (typeof path !== "string") return
+    if (path === clockBackgroundRoute && hasNativeTimer()) {
+      // Every explicit Android picker launch is a new request, even when it
+      // returns to the same document and neither the route nor history changes.
+      clockBackgroundRequest += 1
+      if (path === readRoute()) {
+        listen()
+        return
+      }
+    }
+    navigateNative(path)
   })
+}
+function readClockBackgroundRequest() { return readRoute() === clockBackgroundRoute ? clockBackgroundRequest : 0 }
+export function useNativeClockBackgroundRequest() {
+  return useSyncExternalStore(subscribe, readClockBackgroundRequest, () => 0)
 }
 export const NativeRouteContext = createContext<string | null>(null)
 export function useNativeRoute() {

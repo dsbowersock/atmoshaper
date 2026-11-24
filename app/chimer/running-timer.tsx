@@ -253,6 +253,7 @@ export interface ImmersiveDisplayMode {
 
 interface RunningTimerProps {
   mode: ImmersiveDisplayMode
+  nativeBackgroundPanelRequest?: number
   timeDisplay: { hours: string; minutes: string; seconds: string }
   activeTimeDisplay: { hours: string; minutes: string; seconds: string }
   currentTime: CurrentTimeParts
@@ -928,6 +929,7 @@ interface RunningTimerProps {
 
 export function RunningTimer({
   mode,
+  nativeBackgroundPanelRequest,
   timeDisplay,
   activeTimeDisplay,
   currentTime,
@@ -1717,13 +1719,16 @@ export function RunningTimer({
   const visualPanelOpenedHydratedRef = useRef(false)
   const visualHintTimeoutRef = useRef<number | null>(null)
   const initialPanelAppliedRef = useRef(false)
+  const handledNativeBackgroundPanelRequest = useRef(0)
 
   useEffect(() => {
-    if (!initialPanelAppliedRef.current && mode.initialPanel) {
+    if (nativeBackgroundPanelRequest) {
+      initialPanelAppliedRef.current = true
+    } else if (!initialPanelAppliedRef.current && mode.initialPanel) {
       initialPanelAppliedRef.current = true
       setActivePanel(mode.initialPanel)
     }
-  }, [mode.initialPanel])
+  }, [mode.initialPanel, nativeBackgroundPanelRequest])
 
   useEffect(() => {
     if (mode.unavailableBackgroundMessage) {
@@ -2403,6 +2408,17 @@ export function RunningTimer({
     },
     [setPendingVisualIntent, visualDraft?.dirty],
   )
+
+  useEffect(() => {
+    if (!nativeBackgroundPanelRequest || handledNativeBackgroundPanelRequest.current === nativeBackgroundPanelRequest) return
+    handledNativeBackgroundPanelRequest.current = nativeBackgroundPanelRequest
+    // The external picker action respects the same dirty draft decision as
+    // the toolbar and leaves any open decision dialog in control.
+    if (pendingVisualIntent || activePanel === "background") return
+    if (activePanel !== "visual" || handlePanelChangeRequest("background")) {
+      handleActivePanelChange("background")
+    }
+  }, [activePanel, handleActivePanelChange, handlePanelChangeRequest, nativeBackgroundPanelRequest, pendingVisualIntent])
 
   const handleVisualNavigationAttempt = useCallback(
     (navigation: VisualDraftNavigationIntent) => {
