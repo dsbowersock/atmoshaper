@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clock_title">Clock</string>
+    <string name="clock_close">Close Clock</string>
+    <string name="clock_fullscreen">Fullscreen</string>
+    <string name="clock_exit_fullscreen">Exit fullscreen</string>
+    <string name="clock_settings">Clock settings</string>
+    <string name="clock_opening">Opening your saved Clock…</string>
+    <string name="clock_transfer_failed">Saved Clock settings could not be opened.</string>
+    <string name="clock_retry">Retry saved Clock</string>
+    <string name="clock_readout">Current time %1$s</string>
+    <string name="clock_time_format">24-hour time</string>
+    <string name="clock_seconds">Show seconds</string>
+    <string name="clock_font">Clock font</string>
+    <string name="clock_font_digital">Digital</string>
+    <string name="clock_font_mono">Monospace</string>
+    <string name="clock_font_sans">Sans serif</string>
+    <string name="clock_font_serif">Serif</string>
+    <string name="clock_color">Clock color (#RRGGBB)</string>
+    <string name="clock_keep_awake">Keep screen awake</string>
+    <string name="clock_glow">Clock outer glow</string>
+    <string name="clock_shadow">Clock drop shadow</string>
+    <string name="clock_save_failed">Clock settings could not be saved. Try again.</string>
+    <string name="clock_done">Done</string>
+</resources>

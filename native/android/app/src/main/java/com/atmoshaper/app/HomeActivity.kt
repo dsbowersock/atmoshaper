@@ -74,8 +74,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.IOException
 
-/** The launcher owns presentation only. Saved work remains with the existing
- * WebView and browser sessions, which are opened only through explicit actions. */
+/** Native launcher and Clock share a task. Previous tools retain their
+ * existing separate host and open through explicit actions. */
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +85,7 @@ class HomeActivity : ComponentActivity() {
         )
         setContent {
             HomeTheme {
-                Home(onOpenPreviousTools = ::openPreviousTools)
+                Home(this, onOpenPreviousTools = ::openPreviousTools)
             }
         }
     }
@@ -113,10 +113,14 @@ private enum class HomeTool(
 }
 
 @Composable
-private fun Home(onOpenPreviousTools: () -> Unit) {
+private fun Home(activity: HomeActivity, onOpenPreviousTools: () -> Unit) {
     var tool by rememberSaveable { mutableStateOf<HomeTool?>(null) }
     val selectedTool = tool
     val gridState = rememberLazyGridState()
+    if (selectedTool == HomeTool.Clock) {
+        ClockScreen(activity, onClose = { tool = null })
+        return
+    }
     BackHandler(enabled = selectedTool != null) { tool = null }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {

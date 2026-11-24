@@ -36,13 +36,13 @@ class HomeJourneyTest {
         val categories = listOf("Music", "Clock & timer", "Wellness", "My Calendar", "Study & play", "Practice tools")
         for ((index, category) in categories.withIndex()) {
             findCategory(category).click()
-            waitForText("Coming to the native app")
-            waitForText(category)
             assertFalse(device.hasObject(webView))
-            if (index % 2 == 0) {
-                device.pressBack()
+            if (category == "Clock & timer") {
+                waitForText("Close Clock").click()
             } else {
-                waitForText("Back to Home").click()
+                waitForText("Coming to the native app")
+                waitForText(category)
+                if (index % 2 == 0) device.pressBack() else waitForText("Back to Home").click()
             }
             assertTrue(device.wait(Until.gone(By.text("Coming to the native app")), 10_000))
             waitForText(category)
@@ -60,14 +60,14 @@ class HomeJourneyTest {
 
         launchFromAppIcon()
         assertNativeHome()
-        findCategory("Clock & timer").click()
+        findCategory("Music").click()
         waitForText("Coming to the native app")
         waitForText("Open previous tools").click()
         assertTrue("Expected previous tools to reopen the existing WebView", device.wait(Until.hasObject(webView), 10_000))
 
         device.pressBack()
         waitForText("Coming to the native app")
-        waitForText("Clock & timer")
+        waitForText("Music")
         device.pressBack()
         assertNativeHome()
     }

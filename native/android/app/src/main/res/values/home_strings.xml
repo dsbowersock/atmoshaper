@@ -10,6 +10,6 @@
     <string name="home_practice">Practice tools</string>
     <string name="home_back">Back to Home</string>
     <string name="home_tool_unavailable">Coming to the native app</string>
-    <string name="home_preview_details">This preview includes native Home. Use the previous tools for features already available in the app and to open your existing saved work.</string>
+    <string name="home_preview_details">This preview includes native Home and Clock. Open previous tools for the timer, other existing features and your saved work.</string>
     <string name="home_open_previous_tools">Open previous tools</string>
 </resources>

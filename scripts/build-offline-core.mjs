@@ -40,8 +40,11 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
   const { webpack } = require("next/dist/compiled/webpack/webpack")
   const compiler = webpack({
     mode: development ? "development" : "production", target: ["web", "es2020"], devtool: false,
-    entry: path.join(root, legacyAcceptance ? "scripts/fixtures/offline-legacy-entry.tsx" : "native/web/index.tsx"),
-    output: { path: coreRoot, filename: "app.js", chunkFilename: "chunks/[name].[contenthash:12].js", publicPath: "./" },
+    entry: legacyAcceptance ? { app: path.join(root, "scripts/fixtures/offline-legacy-entry.tsx") } : {
+      app: path.join(root, "native/web/index.tsx"),
+      "clock-appearance-export": path.join(root, "native/web/clock-appearance-export.js"),
+    },
+    output: { path: coreRoot, filename: "[name].js", chunkFilename: "chunks/[name].[contenthash:12].js", publicPath: "./" },
     resolve: { alias: {
       "@/native/offline-access-public-keys.json$": testPublicKeysPath ?? path.join(root, "native/offline-access-public-keys.json"),
       ...(legacyAcceptance ? { "@/components/moving-background$": path.join(root,"native/web/offline-moving-background.tsx") } : {}),
@@ -149,6 +152,9 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
   }
   await writeFile(path.join(coreRoot, "THIRD-PARTY-NOTICES.txt"), await offlineNotices(modules))
   await writeFile(path.join(coreRoot, "index.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: https://media.atmoshaper.com/atmosphere/; frame-src 'none'; worker-src blob:; base-uri 'none'; form-action 'none'"><title>${legacyAcceptance ? "AtmoShaper Offline Tools" : "AtmoShaper"}</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./app.css"></head><body><div id="root"></div><script defer src="./app.js"></script></body></html>`)
+  if (!legacyAcceptance) {
+    await writeFile(path.join(coreRoot, "clock-appearance-export.html"), '<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\'; base-uri \'none\'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js"></script>')
+  }
   const files = await fileInventory(coreRoot)
   const manifest = { version: 2, entry: "core/index.html", networkRequired: false, sharedWebsite: !legacyAcceptance, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["home", "navigation", "clock", "timer", "breathing", "backgrounds", "music", "downloads", "business-planners"], sourceModuleCount: modules.length, files }
   await writeFile(path.join(bundleRoot, "bundle-proof.json"), JSON.stringify(manifest, null, 2))
