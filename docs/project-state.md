@@ -11,6 +11,8 @@ uses the existing packaged stores and retains their records. The packaged
 Clock and music visualizer keep their existing WebView origin.
 
 The Android v9 development preview plays cues on the visible timer screen.
+The Android 35 emulator verified an offline v8-to-v9 update, fresh setup,
+cold links and all six timer tests at 100% and 160% font scale.
 Background alert delivery and physical-device acceptance are separate.
 See the [timer implementation and verification plan](superpowers/plans/2026-11-24-native-timer.md)
 for the local and review gates.

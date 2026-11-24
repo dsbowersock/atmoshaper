@@ -16,6 +16,14 @@ valid setup edits, restores the preset, keeps adjustment in the timer
 window, and imports consumed cue positions. Previously saved and last-used
 setup choices also remain available locally.
 
+CodeRabbit identified a due paused-cue transfer error and a cold packaged
+link readiness race. The correction skips the overdue cue without losing
+the paused timer and defers packaged navigation until the page has loaded.
+The Android 35 emulator confirmed the v8-to-v9 transfer, process-stop
+recovery, cold links, clean setup and all six timer tests at both scales.
+The guarded v3-to-v6-to-v9 journey retained both downloaded files, the
+deadline, settings and the planner draft. Offline music playback passed.
+
 ## November 24 native Clock swipe and acceptance follow-up
 
 Reproduce low-contrast system icons after an immersive swipe on the guarded
