@@ -21,7 +21,7 @@ internal fun loadClockBackgrounds(context: Context): List<ClockBackgroundChoice>
             val entry = catalog.getJSONObject(index)
             val id = entry.getString("id")
             val defaults = if (entry.getBoolean("guestAccess") && !entry.isNull("defaults")) {
-                ClockAppearance.decode(entry.getJSONObject("defaults").toString()).also {
+                ClockAppearance.decodePackaged(entry.getJSONObject("defaults").toString()).also {
                     require(it.background != ClockBackground.Neutral && it.background.key == id)
                     require(it.rememberedBackgroundId == id)
                 }
@@ -39,9 +39,9 @@ internal val ClockAppearance.needsBackgroundRecovery: Boolean
     get() = rememberedBackgroundId == null && background == ClockBackground.Neutral
 
 /** Preserve unrelated Clock preferences when applying or recovering a style. */
-internal fun ClockAppearance.withBackground(source: ClockAppearance): ClockAppearance = copy(
+internal fun ClockAppearance.withBackground(source: ClockBackgroundStyle, rememberedId: String?): ClockAppearance = copy(
     background = source.background,
-    rememberedBackgroundId = source.selectedBackgroundId,
+    rememberedBackgroundId = rememberedId,
     firstColor = source.firstColor,
     secondColor = source.secondColor,
     motion = source.motion,

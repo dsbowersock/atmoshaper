@@ -71,4 +71,33 @@ class ClockAppearanceFileTest {
         }
     }
 
+    @Test
+    fun savingAnOlderClockSettingsDraftKeepsTheRecoveredBackground() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = Files.createTempDirectory(context.cacheDir.toPath(), "clock-recovery-test").toFile()
+        val path = File(directory, "appearance.json")
+        val store = ClockAppearanceFile(path)
+        val native = ClockAppearance.readOnly
+        val earlier = native.copy(
+            background = ClockBackground.StaticGradient,
+            rememberedBackgroundId = "static-gradient",
+            gradientType = ClockGradientType.Radial,
+            gradientCenterX = 8.33f,
+            gradientCenterY = 33.33f,
+            gradientColors = listOf("#704B25", "#0F2237"),
+            gradientStops = listOf(10f, 25f),
+        )
+        try {
+            store.save(native)
+            val draft = checkNotNull(store.read()).copy(font = ClockTypeface.Serif)
+            store.recoverBackgroundIfUnrecorded(earlier)
+            val saved = store.saveSettings(draft)
+            assertEquals(earlier.copy(font = ClockTypeface.Serif), saved)
+            assertEquals(saved, ClockAppearanceFile(path).read())
+        } finally {
+            AtomicFile(path).delete()
+            directory.delete()
+        }
+    }
+
 }

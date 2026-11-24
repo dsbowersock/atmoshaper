@@ -101,11 +101,11 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
     var catalog by remember { mutableStateOf<List<ClockBackgroundChoice>?>(null) }
     var attempt by remember { mutableIntStateOf(0) }
     var appearance by remember { mutableStateOf<ClockAppearance?>(null) }
-    var loadFailed by remember { mutableStateOf(false) }
+    var appearanceLoading by remember { mutableStateOf(true) }
     val store = remember(activity) { ClockAppearanceFile(activity) }
 
     LaunchedEffect(store, attempt) {
-        loadFailed = false
+        appearanceLoading = true
         catalog = withContext(Dispatchers.IO) { runCatching { loadClockBackgrounds(activity) }.getOrNull() }
         try {
             val saved = withContext(Dispatchers.IO) { store.read() }
@@ -123,7 +123,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
         } catch (_: Exception) {
             // A failed earlier-format read leaves a valid native snapshot usable.
         }
-        loadFailed = appearance == null
+        appearanceLoading = false
     }
 
     BackHandler {
@@ -151,7 +151,8 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
             ) {
                 ClockCloseButton(onClose)
                 ClockFullscreenButton(fullscreen) { fullscreen = !fullscreen }
-                if (current != null && !fullscreen) {
+                // A neutral snapshot can be visible while the legacy choice is being recovered.
+                if (current != null && !appearanceLoading && !fullscreen) {
                     ClockButton(R.string.clock_settings) { settingsOpen = true }
                     if (choices != null) ClockButton(R.string.clock_backgrounds) { backgroundsOpen = true }
                 }
@@ -176,7 +177,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 if (shown != null) {
                     ClockReadout(shown)
-                } else if (loadFailed) {
+                } else if (!appearanceLoading) {
                     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(Modifier.weight(1f)) { ClockReadout(ClockAppearance.readOnly) }
                         Column(
@@ -192,7 +193,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                 }
             }
         }
-        if (backgroundsOpen && current != null && choices != null) {
+        if (backgroundsOpen && !appearanceLoading && current != null && choices != null) {
             ClockBackgroundPicker(
                 appearance = current,
                 choices = choices,
@@ -211,7 +212,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                 },
             )
         }
-        if (settingsOpen && current != null) {
+        if (settingsOpen && !appearanceLoading && current != null) {
             ClockSettings(current, store, onDismiss = { settingsOpen = false }) {
                 appearance = it
                 settingsOpen = false

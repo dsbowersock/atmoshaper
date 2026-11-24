@@ -56,6 +56,77 @@ internal object ClockEffectRange {
 
 internal val clockHexColor = Regex("#[a-fA-F0-9]{6}")
 
+internal data class ClockBackgroundStyle(
+    val background: ClockBackground,
+    val firstColor: String,
+    val secondColor: String,
+    val motion: Boolean,
+    val gradientColors: List<String>,
+    val gradientStops: List<Float>,
+    val gradientAngle: Float,
+    val gradientType: ClockGradientType,
+    val gradientCenterX: Float,
+    val gradientCenterY: Float,
+    val gradientRadialShape: ClockGradientShape,
+    val gradientRadialSize: ClockGradientExtent,
+) {
+    fun encode(json: JSONObject = JSONObject()): JSONObject = json
+        .put("background", background.key)
+        .put("firstColor", firstColor)
+        .put("secondColor", secondColor)
+        .put("motion", motion)
+        .put("gradientColors", JSONArray(gradientColors))
+        .put("gradientStops", JSONArray(gradientStops))
+        .put("gradientAngle", gradientAngle.toDouble())
+        .put("gradientType", gradientType.key)
+        .put("gradientCenterX", gradientCenterX.toDouble())
+        .put("gradientCenterY", gradientCenterY.toDouble())
+        .put("gradientRadialShape", gradientRadialShape.key)
+        .put("gradientRadialSize", gradientRadialSize.key)
+
+    companion object {
+        fun decode(json: JSONObject): ClockBackgroundStyle {
+            fun <T> option(key: String, values: List<T>, fallback: T, keyOf: (T) -> String): T {
+                if (!json.has(key)) return fallback
+                val value = json.get(key)
+                return values.first { keyOf(it) == value }
+            }
+            val colors = if (json.has("gradientColors")) json.getJSONArray("gradientColors") else null
+            val stops = if (json.has("gradientStops")) json.getJSONArray("gradientStops") else null
+            val gradientColors = colors?.let { values ->
+                require(values.length() in 0..7)
+                List(values.length()) { (values.get(it) as String).also { hex -> require(clockHexColor.matches(hex)) } }
+            }.orEmpty()
+            val gradientStops = stops?.let { values ->
+                require(values.length() == gradientColors.size)
+                List(values.length()) { (values.get(it) as Number).toFloat().also { stop -> require(stop in 0f..100f) } }
+            }.orEmpty()
+            require(gradientColors.size == gradientStops.size && gradientColors.size != 1)
+            require(gradientStops.zipWithNext().all { (first, second) -> first <= second })
+            return ClockBackgroundStyle(
+                background = ClockBackground.entries.first { it.key == json.get("background") },
+                firstColor = json.clockColor("firstColor"),
+                secondColor = json.clockColor("secondColor"),
+                motion = json.get("motion") as Boolean,
+                gradientColors = gradientColors,
+                gradientStops = gradientStops,
+                gradientAngle = json.clockNumber("gradientAngle", 145f, 0f..360f),
+                gradientType = option("gradientType", ClockGradientType.entries, ClockGradientType.Linear) { it.key },
+                gradientCenterX = json.clockNumber("gradientCenterX", 50f, 0f..100f),
+                gradientCenterY = json.clockNumber("gradientCenterY", 50f, 0f..100f),
+                gradientRadialShape = option("gradientRadialShape", ClockGradientShape.entries, ClockGradientShape.Ellipse) { it.key },
+                gradientRadialSize = option("gradientRadialSize", ClockGradientExtent.entries, ClockGradientExtent.FarthestCorner) { it.key },
+            )
+        }
+    }
+}
+
+private fun JSONObject.clockColor(key: String, default: String? = null): String =
+    ((if (has(key)) get(key) else checkNotNull(default)) as String).also { require(clockHexColor.matches(it)) }
+
+private fun JSONObject.clockNumber(key: String, default: Float, range: ClosedFloatingPointRange<Float>): Float =
+    (if (has(key)) (get(key) as Number).toFloat() else default).also { require(it in range) }
+
 internal data class ClockAppearance(
     val twentyFourHour: Boolean,
     val seconds: Boolean,
@@ -94,8 +165,16 @@ internal data class ClockAppearance(
     val gradientCenterY: Float = 50f,
     val gradientRadialShape: ClockGradientShape = ClockGradientShape.Ellipse,
     val gradientRadialSize: ClockGradientExtent = ClockGradientExtent.FarthestCorner,
+    val savedBackgroundStyles: Map<String, ClockBackgroundStyle> = emptyMap(),
 ) {
-    fun encode(): String = JSONObject()
+    val backgroundStyle: ClockBackgroundStyle
+        get() = ClockBackgroundStyle(
+            background, firstColor, secondColor, motion, gradientColors, gradientStops, gradientAngle,
+            gradientType, gradientCenterX, gradientCenterY, gradientRadialShape, gradientRadialSize,
+        )
+
+    /** Keep the active style in the v1 fields and store only inactive native styles alongside it. */
+    fun encode(): String = backgroundStyle.encode(JSONObject()
         .put("version", 1)
         .put("format", if (twentyFourHour) "24h" else "12h")
         .put("seconds", seconds)
@@ -121,53 +200,47 @@ internal data class ClockAppearance(
         .put("forwardGlowStrength", forwardGlowStrength.toDouble())
         .put("forwardGlowLength", forwardGlowLength.toDouble())
         .put("forwardGlowBlur", forwardGlowBlur.toDouble())
-        .put("gradientColors", JSONArray(gradientColors))
-        .put("gradientStops", JSONArray(gradientStops))
-        .put("gradientAngle", gradientAngle.toDouble())
-        .put("rememberedBackgroundId", rememberedBackgroundId)
-        .put("gradientType", gradientType.key)
-        .put("gradientCenterX", gradientCenterX.toDouble())
-        .put("gradientCenterY", gradientCenterY.toDouble())
-        .put("gradientRadialShape", gradientRadialShape.key)
-        .put("gradientRadialSize", gradientRadialSize.key)
-        .put("background", background.key)
-        .put("firstColor", firstColor)
-        .put("secondColor", secondColor)
-        .put("motion", motion)
-        .toString()
+        .put("rememberedBackgroundId", rememberedBackgroundId))
+        .apply {
+            if (savedBackgroundStyles.isNotEmpty()) {
+                val styles = JSONObject()
+                savedBackgroundStyles.forEach { (id, style) -> styles.put(id, style.encode()) }
+                put("savedBackgroundStyles", styles)
+            }
+        }.toString()
 
     companion object {
         val readOnly = ClockAppearance(false, false, ClockTypeface.Digital, "#FFFFFF",
             false, false, "#FF7A1A", false, ClockBackground.Neutral, "#000000", "#000000", false)
 
-        /** Validate the bounded payload both at the WebView boundary and on disk. */
-        fun decode(value: String): ClockAppearance {
-            require(value.length <= 2048)
+        /** Native-only profiles may extend the original bounded transfer payload on disk. */
+        fun decode(value: String): ClockAppearance = decode(value, allowSavedStyles = true)
+
+        fun decodePackaged(value: String): ClockAppearance = decode(value, allowSavedStyles = false)
+
+        private fun decode(value: String, allowSavedStyles: Boolean): ClockAppearance {
+            require(value.length <= if (allowSavedStyles) 4096 else 2048)
             val json = JSONObject(value)
             require(json.get("version") == 1)
             val format = json.get("format")
             require(format == "12h" || format == "24h")
-            fun color(key: String, default: String? = null) =
-                ((if (json.has(key)) json.get(key) else checkNotNull(default)) as String).also { require(clockHexColor.matches(it)) }
-            fun number(key: String, default: Float, range: ClosedFloatingPointRange<Float>): Float =
-                (if (json.has(key)) (json.get(key) as Number).toFloat() else default).also { require(it in range) }
-            fun <T> option(key: String, values: List<T>, fallback: T, keyOf: (T) -> String): T {
-                if (!json.has(key)) return fallback
-                val value = json.get(key)
-                return values.first { keyOf(it) == value }
-            }
-            val colors = if (json.has("gradientColors")) json.getJSONArray("gradientColors") else null
-            val stops = if (json.has("gradientStops")) json.getJSONArray("gradientStops") else null
-            val gradientColors = colors?.let { values ->
-                require(values.length() in 0..7)
-                List(values.length()) { (values.get(it) as String).also { hex -> require(clockHexColor.matches(hex)) } }
-            }.orEmpty()
-            val gradientStops = stops?.let { values ->
-                require(values.length() == gradientColors.size)
-                List(values.length()) { (values.get(it) as Number).toFloat().also { stop -> require(stop in 0f..100f) } }
-            }.orEmpty()
-            require(gradientColors.size == gradientStops.size && gradientColors.size != 1)
-            require(gradientStops.zipWithNext().all { (first, second) -> first <= second })
+            fun color(key: String, default: String? = null) = json.clockColor(key, default)
+            fun number(key: String, default: Float, range: ClosedFloatingPointRange<Float>) =
+                json.clockNumber(key, default, range)
+            val style = ClockBackgroundStyle.decode(json)
+            val rememberedId = if (json.has("rememberedBackgroundId")) {
+                (json.get("rememberedBackgroundId") as String).also { require(clockBackgroundIdPattern.matches(it)) }
+            } else null
+            val savedStyles = if (json.has("savedBackgroundStyles")) {
+                require(allowSavedStyles)
+                val styles = json.getJSONObject("savedBackgroundStyles")
+                styles.keys().asSequence().associateWith { id ->
+                    ClockBackgroundStyle.decode(styles.getJSONObject(id)).also {
+                        require(it.background != ClockBackground.Neutral && it.background.key == id)
+                        require(id != (rememberedId ?: style.background.key))
+                    }
+                }
+            } else emptyMap()
             return ClockAppearance(
                 twentyFourHour = format == "24h",
                 seconds = json.get("seconds") as Boolean,
@@ -177,10 +250,10 @@ internal data class ClockAppearance(
                 glow = json.get("glow") as Boolean,
                 glowColor = color("glowColor"),
                 shadow = json.get("shadow") as Boolean,
-                background = ClockBackground.entries.first { it.key == json.get("background") },
-                firstColor = color("firstColor"),
-                secondColor = color("secondColor"),
-                motion = json.get("motion") as Boolean,
+                background = style.background,
+                firstColor = style.firstColor,
+                secondColor = style.secondColor,
+                motion = style.motion,
                 glowStrength = number("glowStrength", 0.72f, ClockEffectRange.strength),
                 shadowColor = color("shadowColor", "#000000"),
                 shadowStrength = number("shadowStrength", 0.42f, ClockEffectRange.strength),
@@ -197,17 +270,16 @@ internal data class ClockAppearance(
                 forwardGlowStrength = number("forwardGlowStrength", 1f, ClockEffectRange.strength),
                 forwardGlowLength = number("forwardGlowLength", 1f, ClockEffectRange.forwardGlowLength),
                 forwardGlowBlur = number("forwardGlowBlur", 28f, ClockEffectRange.forwardGlowBlur),
-                gradientColors = gradientColors,
-                gradientStops = gradientStops,
-                gradientAngle = number("gradientAngle", 145f, 0f..360f),
-                rememberedBackgroundId = if (json.has("rememberedBackgroundId")) {
-                    (json.get("rememberedBackgroundId") as String).also { require(clockBackgroundIdPattern.matches(it)) }
-                } else null,
-                gradientType = option("gradientType", ClockGradientType.entries, ClockGradientType.Linear) { it.key },
-                gradientCenterX = number("gradientCenterX", 50f, 0f..100f),
-                gradientCenterY = number("gradientCenterY", 50f, 0f..100f),
-                gradientRadialShape = option("gradientRadialShape", ClockGradientShape.entries, ClockGradientShape.Ellipse) { it.key },
-                gradientRadialSize = option("gradientRadialSize", ClockGradientExtent.entries, ClockGradientExtent.FarthestCorner) { it.key },
+                gradientColors = style.gradientColors,
+                gradientStops = style.gradientStops,
+                gradientAngle = style.gradientAngle,
+                rememberedBackgroundId = rememberedId,
+                gradientType = style.gradientType,
+                gradientCenterX = style.gradientCenterX,
+                gradientCenterY = style.gradientCenterY,
+                gradientRadialShape = style.gradientRadialShape,
+                gradientRadialSize = style.gradientRadialSize,
+                savedBackgroundStyles = savedStyles,
             )
         }
     }
@@ -231,8 +303,28 @@ internal class ClockAppearanceFile(path: File) {
     fun recoverBackgroundIfUnrecorded(appearance: ClockAppearance): ClockAppearance = synchronized(lock) {
         val current = checkNotNull(file.read())
         if (current.needsBackgroundRecovery && appearance.rememberedBackgroundId != null) {
-            file.write(current.withBackground(appearance))
+            file.write(current.withBackground(appearance.backgroundStyle, appearance.rememberedBackgroundId))
         } else current
+    }
+
+    /** Settings drafts can outlive a view. Merge only their time and text preferences. */
+    fun saveSettings(draft: ClockAppearance): ClockAppearance = synchronized(lock) {
+        val current = checkNotNull(file.read())
+        file.write(draft.withBackground(current.backgroundStyle, current.rememberedBackgroundId)
+            .copy(savedBackgroundStyles = current.savedBackgroundStyles))
+    }
+
+    /** Commit the selection and inactive styles together so a switch cannot lose the old style. */
+    fun saveBackground(id: String, style: ClockBackgroundStyle): ClockAppearance = synchronized(lock) {
+        require(style.background != ClockBackground.Neutral && style.background.key == id)
+        val current = checkNotNull(file.read())
+        val previousId = current.selectedBackgroundId
+        val savedStyles = current.savedBackgroundStyles - id
+        val keepPrevious = previousId != id && current.background != ClockBackground.Neutral &&
+            current.background.key == previousId
+        file.write(current.withBackground(style, id).copy(
+            savedBackgroundStyles = if (keepPrevious) savedStyles + (previousId to current.backgroundStyle) else savedStyles,
+        ))
     }
 
     fun save(appearance: ClockAppearance): ClockAppearance = synchronized(lock) { file.write(appearance) }
@@ -249,7 +341,7 @@ internal enum class PackagedExport(val asset: String, val channel: String) {
 }
 
 internal suspend fun readPackagedClockAppearance(context: Context): ClockAppearance? =
-    readPackagedExport(context, PackagedExport.Clock, ClockAppearance::decode)
+    readPackagedExport(context, PackagedExport.Clock, ClockAppearance::decodePackaged)
 
 /** Open only the packaged read-only exporter on the original WebView profile.
  * The temporary WebView has no visible surface, general bridge or network path. */

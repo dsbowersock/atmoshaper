@@ -21,6 +21,8 @@ import org.junit.runner.RunWith
 class ClockBackgroundJourneyTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val device = UiDevice.getInstance(instrumentation)
+    // Side gutters here stay below the wrapping toolbar and above the system navigation band.
+    private val backdropRow = 0.8f
 
     @Test
     fun freeSolidColorRendersAndSurvivesClockReentryAndRecreation() {
@@ -31,6 +33,7 @@ class ClockBackgroundJourneyTest {
             val original = checkNotNull(store.read())
             try {
                 text("Backgrounds").click()
+                assertTrue(text("Open previous background tools").isEnabled)
                 pickerControl(By.text("Solid Color"), "Solid Color").click()
                 pickerControl(By.text("Customize background"), "Customize background", Direction.UP).click()
                 val color = pickerControl(By.clazz("android.widget.EditText").textStartsWith("#"), "Background color")
@@ -39,6 +42,10 @@ class ClockBackgroundJourneyTest {
                 checkNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText").text("#704B25")), 5_000))
                 device.pressBack()
                 text("Apply background").click()
+                awaitBackdrop(0xFF704B25.toInt())
+
+                applyBackground("Lava Lamp")
+                applyBackground("Solid Color")
                 awaitBackdrop(0xFF704B25.toInt())
 
                 text("Close Clock").click()
@@ -70,6 +77,7 @@ class ClockBackgroundJourneyTest {
                     rememberedBackgroundId = "massage-lab-3d-globe",
                     firstColor = "#FF00FF",
                     secondColor = "#FF00FF",
+                    savedBackgroundStyles = emptyMap(),
                 ))
                 text("Clock & timer").click()
                 text("Saved background needs verified access.").also { assertTrue(it.isEnabled) }
@@ -102,18 +110,34 @@ class ClockBackgroundJourneyTest {
             text("Close Clock").click()
             try {
                 store.save(original.copy(
+                    background = ClockBackground.Neutral,
+                    rememberedBackgroundId = null,
+                    savedBackgroundStyles = emptyMap(),
+                ))
+                store.recoverBackgroundIfUnrecorded(original.copy(
                     background = ClockBackground.StaticGradient,
                     rememberedBackgroundId = "static-gradient",
+                    firstColor = "#A50316",
+                    secondColor = "#19418D",
                     gradientType = ClockGradientType.Radial,
                     gradientCenterX = 8.33f,
-                    gradientCenterY = 33.33f,
+                    gradientCenterY = backdropRow * 100f,
                     gradientRadialShape = ClockGradientShape.Circle,
                     gradientColors = listOf("#704B25", "#0F2237"),
                     gradientStops = listOf(10f, 25f),
+                    savedBackgroundStyles = emptyMap(),
                 ))
                 text("Clock & timer").click()
-                awaitBackdrop(0xFF704B25.toInt(), across = 1f / 12, down = 1f / 3)
-                awaitBackdrop(0xFF0F2237.toInt(), across = 0.9f, down = 0.75f)
+                awaitBackdrop(0xFF704B25.toInt())
+                awaitBackdrop(0xFF0F2237.toInt(), across = 0.9f)
+                applyBackground("Lava Lamp")
+                applyBackground("Static gradient")
+                awaitBackdrop(0xFF704B25.toInt())
+                awaitBackdrop(0xFF0F2237.toInt(), across = 0.9f)
+                val restored = checkNotNull(store.read())
+                assertEquals("#A50316", restored.firstColor)
+                assertEquals("#19418D", restored.secondColor)
+                assertEquals(listOf("#704B25", "#0F2237"), restored.gradientColors)
                 text("Close Clock").click()
                 text("Your tools")
             } finally {
@@ -137,6 +161,7 @@ class ClockBackgroundJourneyTest {
                     firstColor = "#FF9900",
                     secondColor = "#5599FF",
                     motion = true,
+                    savedBackgroundStyles = emptyMap(),
                 ))
                 text("Clock & timer").click()
                 text("Backgrounds")
@@ -167,6 +192,12 @@ class ClockBackgroundJourneyTest {
                 SystemClock.sleep(750)
                 assertEquals("The authored fields stay visible while paused", pausedFrame, backdropSample())
                 assertTrue("The paused renderer still shows color", pausedFrame.any { it != 0xFF171519.toInt() })
+                applyBackground("Solid Color")
+                applyBackground("Lava Lamp")
+                val restored = checkNotNull(store.read())
+                assertFalse(restored.motion)
+                assertEquals("#FF9900", restored.firstColor)
+                assertEquals("#5599FF", restored.secondColor)
             } finally {
                 store.save(original)
             }
@@ -175,6 +206,13 @@ class ClockBackgroundJourneyTest {
 
     private fun text(value: String): UiObject2 =
         checkNotNull(device.wait(Until.findObject(By.text(value)), 10_000)) { "Missing text $value" }
+
+    private fun applyBackground(label: String) {
+        text("Backgrounds").click()
+        pickerControl(By.text(label), label).click()
+        text("Apply background").click()
+        check(device.wait(Until.gone(By.text("Apply background")), 10_000))
+    }
 
     private fun selectionRow(label: UiObject2): UiObject2 =
         generateSequence(label) { it.parent }.first { it.isCheckable }
@@ -192,26 +230,30 @@ class ClockBackgroundJourneyTest {
         val image = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
         return try {
             listOf(0.12f, 0.28f, 0.72f, 0.88f).map { across ->
-                image.getPixel((image.width * across).toInt(), image.height / 3)
+                image.getPixel((image.width * across).toInt(), (image.height * backdropRow).toInt())
             }
         } finally {
             image.recycle()
         }
     }
 
-    private fun awaitBackdrop(expected: Int, across: Float = 1f / 12, down: Float = 1f / 3) {
+    private fun awaitBackdrop(expected: Int, across: Float = 1f / 12) {
         val start = SystemClock.uptimeMillis()
         var pixel: Int
         do {
             val image = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
             pixel = try {
-                image.getPixel((image.width * across).toInt(), (image.height * down).toInt())
+                image.getPixel((image.width * across).toInt(), (image.height * backdropRow).toInt())
             } finally {
                 image.recycle()
             }
             if (pixel == expected) return
             SystemClock.sleep(50)
         } while (SystemClock.uptimeMillis() - start < 3_000)
-        assertEquals("The rendered Clock backdrop has the expected color", expected, pixel)
+        assertEquals(
+            "Clock backdrop ARGB at viewport fraction ($across, $backdropRow)",
+            "0x${expected.toUInt().toString(16)}",
+            "0x${pixel.toUInt().toString(16)}",
+        )
     }
 }

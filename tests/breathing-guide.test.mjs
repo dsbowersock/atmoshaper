@@ -1,10 +1,28 @@
 import assert from "node:assert/strict"
+import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 import { BREATHING_PRESETS, getBreathingState, isBreathingShortcut } from "../lib/breathing-guide.js"
 
 describe("breathing timeline", () => {
   it("preserves all three existing timing patterns", () => {
     assert.deepEqual(BREATHING_PRESETS.map((p) => p.phases.map((phase) => phase.seconds)), [[5, 5], [4, 4, 4, 4], [4, 7, 8]])
+  })
+  it("keeps the native preset phase declarations aligned with the web guide", async () => {
+    const source = await readFile(new URL(
+      "../native/android/app/src/main/java/com/atmoshaper/app/NativeBreathingSession.kt", import.meta.url,
+    ), "utf8")
+    const nativePresets = Array.from(source.matchAll(
+      /\b[A-Z][\w]*\(R\.string\.breathing_(\w+),\s*R\.string\.breathing_\w+,\s*listOf\(([\s\S]*?)\)\)/g,
+    ), ([, id, phases]) => ({
+      id,
+      phases: Array.from(phases.matchAll(
+        /\bBreathPhase\(R\.string\.breathing_(\w+),\s*(\d+),\s*([\d.]+)f\)/g,
+      ), ([, label, seconds, scale]) => ({ label, seconds: Number(seconds), scale: Number(scale) })),
+    }))
+    assert.deepEqual(nativePresets, BREATHING_PRESETS.map(({ id, phases }) => ({
+      id,
+      phases: phases.map(({ label, ...timing }) => ({ ...timing, label: label.toLowerCase() })),
+    })))
   })
   for (const [preset, elapsed, label, seconds, cycle] of [
     ["coherent", 0, "Inhale", 5, 1], ["coherent", 4999, "Inhale", 1, 1],

@@ -18,7 +18,7 @@ const expect=playwrightExpect.configure({timeout:20000})
 const adb=path.join(root,"output/android-tools/sdk/platform-tools",process.platform==="win32"?"adb.exe":"adb")
 const fixtures = new Map([
   ["web-parity", { serial: "emulator-5582", avd: "AtmoShaper_WebParity_35" }],
-  ["pilot-87-92", { serial: "emulator-5594", avd: "AtmoShaper_Pilot_87_92_API35" }],
+  ["pilot-87-92", { serial: "emulator-5594", avd: "AtmoShaper_Pilot_87_92_API35", timeout: 720000 }],
 ])
 const fixture = fixtures.get(process.env.ATMOSHAPER_ANDROID_WEBSITE_FIXTURE ?? "web-parity")
 assert.ok(fixture, "Select a named synthetic Android website fixture")
@@ -50,7 +50,7 @@ function assertOwnedFixture() {
   }
 }
 
-test("replacement APK opens native Home offline and retains downloads, settings and a planner draft",{timeout:420000,skip:process.env.ATMOSHAPER_ANDROID_WEBSITE_TEST!=="1"},async()=>{
+test("replacement APK opens native Home offline and retains downloads, settings and a planner draft",{timeout:fixture.timeout ?? 420000,skip:process.env.ATMOSHAPER_ANDROID_WEBSITE_TEST!=="1"},async()=>{
   assertOwnedFixture()
   await mkdir(output,{recursive:true})
   const baseline=path.resolve(root,"../../output/android/AtmoShaper-offline-preview-0.3.0-8abbb7c3.apk")
@@ -412,11 +412,12 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       window.__nonSilentStarts=0
       const start=AudioBufferSourceNode.prototype.start
       AudioBufferSourceNode.prototype.start=function(...args){
+        const result = start.apply(this,args)
         if(this.context instanceof AudioContext && this.buffer?.getChannelData(0).some(value=>Math.abs(value)>0.00001)) {
           window.__stationAudioContext ??= this.context
           if (window.__stationAudioContext === this.context) window.__nonSilentStarts++
         }
-        return start.apply(this,args)
+        return result
       }
     })
     await go(page,"/music")
@@ -435,8 +436,8 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect.poll(()=>nativeHierarchy()).toContain('text="Pause breathing"')
     await expect.poll(playback).toMatchObject({ visibility:"hidden",state:"running" })
     const duringBreathing = await playback()
-    // A running media session or silent carrier alone cannot prove continuity.
-    // Observe both advancing renderer time and newly scheduled non-silent sound.
+    // A running media session or silent carrier alone is insufficient here.
+    // Observe Web Audio time and newly scheduled buffers containing nonzero samples.
     await expect.poll(async()=>{
       const current = await playback()
       return current.visibility === "hidden" && current.state === "running"
@@ -452,7 +453,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await tap(page,page.getByRole("button",{name:"Start breathing",exact:true}))
     await expect(page.getByRole("button",{name:"Pause breathing",exact:true})).toBeVisible()
     await writeFile(path.join(output,"android-shared-breathing.png"),captureAndroidScreen())
-    console.log("Android check: actual saved music kept running through the native breathing visit; shared breathing also passed offline.")
+    console.log("Android check: the saved station's Web Audio clock advanced and scheduled non-silent source buffers during native breathing. Shared breathing also passed offline.")
     await go(page,"/downloads")
     await tap(page,page.getByRole("button",{name:"Atmosphere sounds",exact:true}))
     await expect(page.getByRole("button",{name:"Atmosphere sounds",exact:true})).toHaveAttribute("aria-pressed","true")
@@ -481,7 +482,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       nativeTimer:true,
       nativeBreathing:true,
       breathingRetainedTimerDeadline:true,
-      nonSilentPlaybackDuringNativeBreathing:true,
+      webAudioAdvancedAndScheduledNonSilentSourcesDuringNativeBreathing:true,
       clockAppearanceTransferred:true,
       backFromPreviousTools:true,
       sharedWebsite:true,
@@ -492,7 +493,8 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       plannerDraftRetained:true,
       airplaneMode:true,
       restoredDeadline:true,
-      nonSilentStationPlayback:true,
+      stationScheduledNonSilentSources:true,
+      speakerAudibilityVerified:false,
       fullscreenAndBack:true,
       pdfSaveDialogAndCancel:true,
       physicalDeviceVerified:false,

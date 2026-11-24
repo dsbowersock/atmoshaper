@@ -47,34 +47,47 @@ internal fun ClockBackgroundPicker(
     onOpenPreviousTools: () -> Unit,
     onSaved: (ClockAppearance) -> Unit,
 ) {
+    fun styleFor(choice: ClockBackgroundChoice): ClockBackgroundStyle? =
+        choice.defaults?.backgroundStyle?.let { defaults ->
+            if (choice.id == appearance.selectedBackgroundId && appearance.background == defaults.background) {
+                appearance.backgroundStyle
+            } else appearance.savedBackgroundStyles[choice.id] ?: defaults
+        }
+
     var selectedId by rememberSaveable { mutableStateOf(appearance.selectedBackgroundId) }
     var search by rememberSaveable { mutableStateOf("") }
-    var primary by rememberSaveable { mutableStateOf(appearance.firstColor) }
-    var secondary by rememberSaveable { mutableStateOf(appearance.secondColor) }
+    var primaryEdit by rememberSaveable { mutableStateOf<String?>(null) }
+    var secondaryEdit by rememberSaveable { mutableStateOf<String?>(null) }
     var customizing by rememberSaveable { mutableStateOf(false) }
     var motion by rememberSaveable { mutableStateOf(appearance.motion) }
     var saving by rememberSaveable { mutableStateOf(false) }
     var failed by rememberSaveable { mutableStateOf(false) }
     val selected = choices.firstOrNull { it.id == selectedId }
-    val source = selected?.defaults?.let {
-        if (selectedId == appearance.selectedBackgroundId && appearance.background == it.background) appearance else it
-    }
+    val source = selected?.let(::styleFor)
+    val authoredGradient = source?.takeIf { it.background == ClockBackground.StaticGradient }?.gradientColors
+    val primary = primaryEdit ?: authoredGradient?.getOrNull(0) ?: source?.firstColor.orEmpty()
+    val secondary = secondaryEdit ?: authoredGradient?.getOrNull(1) ?: source?.secondColor.orEmpty()
     val dualColor = source?.background == ClockBackground.LavaLamp || source?.background == ClockBackground.StaticGradient
     val valid = source != null && clockHexColor.matches(primary) && (!dualColor || clockHexColor.matches(secondary))
     LaunchedEffect(saving) {
         if (saving && source != null) {
-            val gradient = source.gradientColors.toMutableList()
-            if (source.background == ClockBackground.StaticGradient && gradient.size >= 2) {
-                gradient[0] = primary
-                gradient[1] = secondary
-            }
-            val candidate = appearance.withBackground(source.copy(
-                firstColor = primary,
-                secondColor = if (dualColor) secondary else primary,
+            val id = selectedId
+            // Imported gradient stops can differ from the cached two-color fields.
+            // Applying a style leaves both representations intact until a color is edited.
+            val gradient = authoredGradient?.mapIndexed { index, color ->
+                when (index) {
+                    0 -> primaryEdit ?: color
+                    1 -> secondaryEdit ?: color
+                    else -> color
+                }
+            } ?: source.gradientColors
+            val candidate = source.copy(
+                firstColor = primaryEdit ?: source.firstColor,
+                secondColor = secondaryEdit ?: source.secondColor,
                 gradientColors = gradient,
                 motion = motion,
-            ))
-            val saved = withContext(Dispatchers.IO) { runCatching { store.save(candidate) }.getOrNull() }
+            )
+            val saved = withContext(Dispatchers.IO) { runCatching { store.saveBackground(id, candidate) }.getOrNull() }
             if (saved != null) onSaved(saved) else {
                 failed = true
                 saving = false
@@ -94,9 +107,11 @@ internal fun ClockBackgroundPicker(
                 if (source == null && selectedId != ClockBackground.Neutral.key) {
                     item {
                         Text(stringResource(if (selected != null) R.string.clock_background_locked else R.string.clock_background_missing))
-                        TextButton(onClick = onOpenPreviousTools, enabled = !saving) {
-                            Text(stringResource(R.string.clock_background_open_previous))
-                        }
+                    }
+                }
+                item {
+                    TextButton(onClick = onOpenPreviousTools, enabled = !saving) {
+                        Text(stringResource(R.string.clock_background_open_previous))
                     }
                 }
                 item {
@@ -122,10 +137,10 @@ internal fun ClockBackgroundPicker(
                             if (dualColor) R.string.clock_background_first_color else R.string.clock_background_color,
                             primary,
                             !saving,
-                        ) { primary = it }
+                        ) { primaryEdit = it }
                     }
                     if (dualColor) {
-                        item { BackgroundColorField(R.string.clock_background_second_color, secondary, !saving) { secondary = it } }
+                        item { BackgroundColorField(R.string.clock_background_second_color, secondary, !saving) { secondaryEdit = it } }
                     }
                     if (source.background == ClockBackground.LavaLamp) {
                         item {
@@ -149,12 +164,12 @@ internal fun ClockBackgroundPicker(
                         Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .selectable(active, enabled = choice.canApply && !saving, role = Role.RadioButton) {
                                 if (!active) {
-                                    val replacement = if (choice.id == appearance.selectedBackgroundId) appearance else
-                                        checkNotNull(choice.defaults)
+                                    val replacement = checkNotNull(styleFor(choice))
                                     selectedId = choice.id
                                     customizing = false
-                                    primary = replacement.firstColor
-                                    secondary = replacement.secondColor
+                                    primaryEdit = null
+                                    secondaryEdit = null
+                                    motion = replacement.motion
                                 }
                             },
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
