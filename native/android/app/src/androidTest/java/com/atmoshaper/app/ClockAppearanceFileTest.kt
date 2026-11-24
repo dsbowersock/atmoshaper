@@ -1,6 +1,6 @@
 package com.atmoshaper.app
 
-import android.util.AtomicFile
+import androidx.core.util.AtomicFile
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals

@@ -3,18 +3,18 @@ package com.atmoshaper.app
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.util.AtomicFile
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import androidx.core.util.AtomicFile
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
-import org.json.JSONObject
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileNotFoundException
@@ -153,8 +153,8 @@ internal data class ClockAppearance(
     }
 }
 
-/** The atomic native copy is the import marker. Neither failed writes nor
- * unreadable files allow a second import to overwrite an existing copy. */
+/** The atomic native copy is the import marker. AndroidX stages even the
+ * first write on older Android releases. A damaged final copy blocks import. */
 internal class ClockAppearanceFile(path: File) {
     private val file = AtomicFile(path)
 
