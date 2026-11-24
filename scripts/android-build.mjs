@@ -34,7 +34,7 @@ else if(mode==="build"){
     const result=spawnSync(path.join(jdk,"bin",keytoolName),["-genkeypair","-keystore",key,"-storepass","android","-keypass","android","-alias","androiddebugkey","-dname","CN=Android Debug,O=AtmoShaper,C=US","-keyalg","RSA","-keysize","2048","-validity","10000"],{env,stdio:"inherit",windowsHide:true})
     if(result.status!==0)throw new Error("Debug signing setup failed.")
   }
-  const result=spawnSync(path.join(jdk,"bin",javaName),["-classpath",path.join(gradle,"lib/gradle-gradle-cli-main-8.13.jar"),"org.gradle.launcher.GradleMain","--no-daemon","--console=plain","lintDebug","assembleDebug"],{cwd:path.join(root,"native/android"),env,stdio:"inherit",windowsHide:true})
+  const result=spawnSync(path.join(jdk,"bin",javaName),["-classpath",path.join(gradle,"lib/gradle-gradle-cli-main-8.13.jar"),"org.gradle.launcher.GradleMain","--no-daemon","--console=plain",":app:verifyDebugPreview"],{cwd:path.join(root,"native/android"),env,stdio:"inherit",windowsHide:true})
   if(result.status!==0)throw new Error("Android verification/build failed; no artifact is certified.")
   const destination=path.join(root,"output/android/AtmoShaper-preview.apk")
   await mkdir(path.dirname(destination),{recursive:true})

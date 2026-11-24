@@ -12,15 +12,24 @@
         android:supportsRtl="true"
         android:theme="@style/AtmoShaperTheme">
         <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+        <!-- A cold legacy link can create a MainActivity-rooted task. Give
+             Compose Home its own affinity so Android neither reuses that task
+             on launcher entry nor clears Home when reopening the Java host. -->
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true"
+            android:taskAffinity="${applicationId}.nativeHome"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|density|uiMode"
             android:exported="true"
             android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

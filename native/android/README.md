@@ -1,4 +1,19 @@
-# AtmoShaper Android shared-website preview
+# AtmoShaper Android native Home preview
+
+The Android launcher opens Kotlin/Compose Home with Music, Clock & timer,
+Wellness, My Calendar, Study & play and Practice tools. These destinations show
+their native availability. **Open previous tools** opens the existing installed
+experience, including its saved work and connected links.
+
+Install the candidate as an update to the same package with the same signer.
+Native Home uses the existing APK wordmark and two static weights converted
+from the website's Inter Latin subset. The corresponding SIL Open Font License
+ships in the existing `fonts/inter/OFL.txt` assets. The six launcher icons
+adapt their matching Lucide vectors from the website Home. Home reads no app or browser
+records. The Java host keeps its app-content origin, browser-owned account
+session, tool links and offline-background authorization return.
+
+## Previous tools
 
 The debug app reuses the actual website Home, sidebar/main bar, Clock/timer,
 breathing, Music and all six business planner screens. All 84 enabled backgrounds
@@ -72,7 +87,8 @@ store association/policies and publication require their own reviewed scope.
 Use `npm run android:doctor`, then `npm run android:build`. Existing owner-approved
 JDK 17/SDK 36/build-tools 35.0.0/Gradle 8.13 tools and debug signing stay isolated
 under ignored `output/android-tools`. The build unconditionally creates normal
-assets, rejects server/auth/test imports, lints and assembles
+assets, rejects server/auth/test imports, lints and assembles the app and its
+separate instrumentation APK. The app artifact is
 `output/android/AtmoShaper-preview.apk`. Its manifest must report no synthetic
 receipt authority. The development package/version is separate from a release.
 
@@ -92,22 +108,30 @@ and downloaded playback after an offline restart.
 `npm run test:native-website-android` verifies the normal APK on only the fixed
 synthetic `AtmoShaper_WebParity_35` emulator at serial 5582. It requires its own
 fixture marker before resetting that synthetic installation, upgrades the prior
-accepted APK, compares actual packaged assets and tests airplane-mode playback,
-preserved downloads/settings/deadline, fullscreen Back and Android's PDF dialog.
+accepted APK, opens native Home in airplane mode and continues to the previous
+tools. It compares actual packaged assets, retained download byte digests,
+settings and a synthetic planner draft, and checks offline playback, the
+retained deadline, fullscreen Back and Android's PDF dialog. Android CI builds
+and lints the candidate and runs native Home instrumentation on a fresh
+emulator.
 The older Android test commands delegate to this guard. They never target the
 owner-receipt emulator 5580 or a physical phone. Evidence stays under ignored
 output. No real user/clinical/payment data belongs in those tests.
 
-The upgrade baseline is the retained, owner-accepted version 0.3.0 installer
+The first upgrade baseline is the retained, owner-accepted version 0.3.0 installer
 from the [completed offline release](../../docs/audits/2026-11-22-offline-android-publication.md),
 not a newly built copy. This linked-worktree test resolves it at
 `../../output/android/AtmoShaper-offline-preview-0.3.0-8abbb7c3.apk` relative to
 the repository root. Its required SHA-256 is
 `8abbb7c366aa75d03f207428e19bafa0f673fff104d7e34c92dc3500ff43af4a`.
-On a fresh checkout, obtain that retained artifact from the owner and place it
-at that exact path before running the opt-in Android check. Do not substitute
-the current build or remove the checksum requirement. All ordinary browser
-tests build their own fixtures and do not need this historical APK.
+The second baseline is the retained version 0.4.2 installer,
+`AtmoShaper-shared-website-preview-0.4.2-8f603319.apk`, in the same directory.
+Its required SHA-256 is
+`8f603319474beaf5650d278d1ce802e93eee37a8fd8d731536614607d0264da2`.
+On a fresh checkout, obtain both retained installers from the owner and put
+them at those exact paths before running the opt-in Android check. The fixture
+creates a draft using version 0.4.2 before applying the native Home update.
+Ordinary browser tests build their own fixtures and do not need these APKs.
 
 Actual S24 upgrade, speaker audibility, battery/OS behavior and browser origin
 validation remain separate acceptance. Connected pages still require networking;

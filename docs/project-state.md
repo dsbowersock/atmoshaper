@@ -1,5 +1,38 @@
 # AtmoShaper Project State
 
+## November 23 native Android Home preview
+
+[Issue #83](https://github.com/dsbowersock/atmoshaper/issues/83) adds the
+first Compose journey on `codex/native-home-83`, based on the shared Android
+preview in `origin/main`. The launcher opens native Home offline and shows
+availability for the six established tool categories. **Open previous tools**
+continues into the existing Java host, which retains ownership of the packaged
+tool stores, existing Android links and browser-owned connected session.
+
+The v7 development APK passed Android build and lint and matched the v6 preview
+signer. Installed-app instrumentation passed native launcher, category and Back
+checks on the dedicated synthetic emulator. The v3 → v6 → v7 upgrade passed in
+airplane mode after the legacy downloads were seeded. It retained the two
+download byte digests, settings, timer deadline and a planner draft written in
+v6. Back from the previous tools returned to Compose. Home remained scrollable
+at 160% text scale. The
+[implementation plan](superpowers/plans/2026-11-23-native-home-safe-update.md)
+records the upgrade and review scope. Physical phone and connected-origin
+acceptance and hosted Android CI remain separate gates.
+
+The native Home navigation follow-up reproduces the original launcher bypass
+and Back failure on the dedicated emulator. Compose Home now has its own task
+affinity so a legacy-link task cannot absorb the launcher entry or remove Home
+when previous tools reopen. The corrected v7 APK installed in place with the
+same signer. Installed-app tests now open all six categories and verify the
+legacy link, launcher and Back sequence.
+
+The standards follow-up sources the native wordmark label from the canonical
+product identity, shares the preview verification task between local build and
+CI, and documents the Android check and preservation fixture. The rebuilt
+preview matched the v3 and v6 signers and passed the complete synthetic
+upgrade. CodeRabbit completed the ten-path correction review with no findings.
+
 ## November 23 PR #81 held for the mobile drawer correction
 
 The owner approves corrected candidate `b2053cb`. Its additional push/protected

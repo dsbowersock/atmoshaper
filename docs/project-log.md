@@ -1,5 +1,60 @@
 # AtmoShaper Project Log
 
+## November 23 native Home launcher and Back correction
+
+On the guarded Android 35 emulator, a cold legacy tool link followed by the
+launcher brought the Java task forward on `57d4faf`. With Home opened above the
+Java task, **Open previous tools** removed Home and Back returned to Android's
+launcher. Give Compose Home its own task affinity while preserving the legacy
+host's intent filters and reuse behavior.
+
+The same installed-app test APK failed the deep-link regression on the original
+app APK and passed both journeys after the in-place update. The category
+journey visits all six destinations and uses both Back controls. Android lint,
+the app and instrumentation builds, preview signer comparison, and 40 focused
+native/offline checks passed.
+
+The standards follow-up packages the canonical public name with the wordmark,
+records the Android CI lane, shares the preview verification task with CI, and
+uses one documented read-only IndexedDB helper in the upgrade fixture. The
+corrected preview passed Android build and lint, TypeScript, changed-file lint,
+the 160-case native regression suite and the 40 focused contract/offline cases.
+The v3 → v6 → v7 run retained both downloads byte-for-byte, the saved settings,
+timer deadline and planner draft. It also passed offline playback and the PDF
+dialog. The preview signer matched across all three APKs. CodeRabbit completed
+review of all ten correction paths with zero findings.
+Both installed-app journeys passed at 100% and 160% text scale. The Home
+capture shows all launcher controls clear of the system bars.
+
+## November 23 native Home enters the Android preview
+
+Implement [#83](https://github.com/dsbowersock/atmoshaper/issues/83) in a
+separate issue worktree based on `origin/main`. Pin the Compose toolchain in the
+existing Android application module, add native launcher/build instrumentation
+and retain the Java host as the previous-tools entry. Use the packaged
+wordmark, Inter and the launcher icon and button treatments from the website.
+Advance the development APK to v7 with its existing package and signer.
+
+The guarded upgrade fixture installs v3 and v6, adds a representative planner
+draft through the v6 interface, and installs v7 in place. It checks the native
+launcher, Back from previous tools, the saved draft, settings, timer deadline
+and download bytes. A separate Android CI job builds, lints and runs the native
+Home instrumentation on a fresh emulator.
+
+Local verification passed Android build and lint, preview signer comparison,
+native Home instrumentation, the serial-guarded upgrade journey, TypeScript and
+the focused native regression, offline core and offline media suites. The upgrade
+restored both downloads byte-for-byte and reopened the saved draft, with offline
+playback, fullscreen Back and the PDF dialog covered in the previous tools.
+The full repository suite returned 5,942 passes, 15 failures, one cancellation
+and seven skips. The non-passing cases came from the browser and Calendar
+harnesses and donation checkout.
+
+Codex Standards and Spec reviews cleared the corrected candidate. CodeRabbit
+completed the application review and the final test-only follow-up with zero
+findings. The two Inter font binaries were inspected locally for their source,
+weights and license. The synthetic emulator was stopped after verification.
+
 ## November 23 corrected Preview passes; final mobile drawer issue held locally
 
 After the owner approves `b2053cb`, renew the separate Vercel CLI session and

@@ -116,6 +116,8 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     await copyFile(path.join(root, "public/fonts/dseg", name), path.join(coreRoot, "fonts/dseg", name))
   }
   await copyFile(path.join(root, "public", PUBLIC_PRODUCT_IDENTITY.assets.appBarWordmark), path.join(coreRoot, "wordmark.png"))
+  // Ship the canonical accessible label with the wordmark for native Home.
+  await writeFile(path.join(coreRoot, "wordmark-label.txt"), PUBLIC_PRODUCT_IDENTITY.name)
   // Preserve the website's public image URLs so shared markup needs no second
   // product-identity mapping. Only public brand images enter this directory.
   for (const asset of new Set(Object.values(PUBLIC_PRODUCT_IDENTITY.assets))) {
