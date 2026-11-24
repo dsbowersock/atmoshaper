@@ -59,6 +59,8 @@ class ClockJourneyTest {
                 val normal = awaitBarVisibility(scenario, true, status, navigation)
                 val top = normal.getInsets(status).top
                 val bottom = normal.getInsets(navigation).bottom
+                val systemGestures = normal.getInsets(WindowInsetsCompat.Type.systemGestures())
+                val gestureNavigation = systemGestures.left > 0 || systemGestures.right > 0
                 assertTrue("The portrait fixture has top and bottom bars", top > 0 && bottom > 0)
                 val width = device.displayWidth
                 val height = device.displayHeight
@@ -84,17 +86,25 @@ class ClockJourneyTest {
                     Color(it).luminance() < 0.1f
                 }
 
-                assertTrue(device.swipe(width / 2, 0, width / 2, height / 8, 30))
-                awaitBarVisibility(scenario, true, status)
+                device.waitForIdle()
+                assertTrue("Inject the top-edge swipe", device.swipe(width / 2, 1, width / 2, height / 4, 45))
+                awaitBarVisibility(scenario, true, status, navigation)
                 awaitScreenshotPixel(sampleX, topY, "The top swipe restores the status band") {
                     it == normalStatus
                 }
+                awaitScreenshotPixel(sampleX, bottomY, "The top swipe restores the navigation band") {
+                    it == normalNavigation
+                }
+
+                // Android can leave the app on a bottom-edge Home gesture. The top swipe
+                // verifies both bands in that mode while keeping Clock in the foreground.
+                if (gestureNavigation) return@use
 
                 // Re-enter fullscreen so the bottom swipe also starts hidden.
                 text("Exit fullscreen").click()
                 text("Fullscreen").click()
                 awaitBarVisibility(scenario, false, status, navigation)
-                assertTrue(device.swipe(width / 2, height - 1, width / 2, height * 7 / 8, 30))
+                assertTrue("Inject the bottom-edge swipe", device.swipe(width / 2, height - 1, width / 2, height * 7 / 8, 30))
                 awaitBarVisibility(scenario, true, navigation)
                 awaitScreenshotPixel(sampleX, bottomY, "The bottom swipe restores the navigation band") {
                     it == normalNavigation
