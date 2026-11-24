@@ -117,9 +117,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit) {
         if (fullscreen) fullscreen = false else onClose()
     }
     val window = activity.window
-    val darkIcons = appearance?.let {
-        it.background == ClockBackground.SolidColor && clockColor(it.firstColor).luminance() > 0.45f
-    } == true
+    val darkIcons = appearance?.backdropColors()?.all { it.luminance() > 0.45f } == true
     DisposableEffect(window, darkIcons) {
         val bars = WindowCompat.getInsetsController(window, window.decorView)
         val lightStatus = bars.isAppearanceLightStatusBars
@@ -246,6 +244,16 @@ private fun ClockBackdrop(appearance: ClockAppearance) {
 
 private fun clockColor(value: String) = Color(android.graphics.Color.parseColor(value))
 
+private fun ClockAppearance.backdropColors(): List<Color> = when (background) {
+    ClockBackground.Neutral -> listOf(Color(0xFF171519))
+    ClockBackground.SolidColor -> listOf(clockColor(firstColor))
+    ClockBackground.LavaLamp -> listOf(clockColor(firstColor), clockColor(secondColor))
+    ClockBackground.StaticGradient -> gradientColors.ifEmpty { listOf(firstColor, secondColor) }.map(::clockColor)
+}
+
+private fun reflectionScale(length: Float) = 0.2f + 0.12f * length
+private fun reflectionOffset(length: Float) = 0.45f + 0.11f * length
+
 /** Measure stable hour cells with each selected font. Fit to both axes so
  * digits, leading day period and controls remain visible in short windows. */
 @Composable
@@ -281,13 +289,27 @@ private fun ClockReadout(appearance: ClockAppearance) {
     val style = TextStyle(fontFamily = digits, fontWeight = FontWeight.Bold, fontSize = 100.sp,
         color = clockColor(appearance.color), platformStyle = PlatformTextStyle(includeFontPadding = false),
         fontFeatureSettings = "tnum")
+    val ink = style.color.luminance()
+    // Keep both saved colors. Add a glyph-local outline only when the fill can
+    // disappear against a backdrop, including solid white behind white digits.
+    val needsOutline = appearance.backdropColors().any {
+        val background = it.luminance()
+        (maxOf(ink, background) + 0.05f) / (minOf(ink, background) + 0.05f) < 3f
+    }
+    val outline = if (needsOutline) {
+        if (ink > 0.18f) Color.Black else Color.White
+    } else null
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp).clearAndSetSemantics { contentDescription = spoken },
         contentAlignment = Alignment.Center,
     ) {
         val sample = measurer.measure(text = text.replace(Regex("[0-9]"), "0"), style = style)
+        val reflection = if (appearance.forwardGlow && appearance.forwardGlowStrength > 0f) {
+            2f * reflectionOffset(appearance.forwardGlowLength) + reflectionScale(appearance.forwardGlowLength)
+        } else 1f
         val fit = with(density) {
-            (maxWidth.toPx() / sample.size.width.coerceAtLeast(1)).coerceAtMost(maxHeight.toPx() / sample.size.height.coerceAtLeast(1))
+            (maxWidth.toPx() / sample.size.width.coerceAtLeast(1))
+                .coerceAtMost(maxHeight.toPx() / (sample.size.height.coerceAtLeast(1) * reflection.coerceAtLeast(1f)))
         }
         if (fit <= 0f) return@BoxWithConstraints
         val fontSize = with(density) { (style.fontSize.toPx() * fit * 0.96f).toSp() }
@@ -308,28 +330,28 @@ private fun ClockReadout(appearance: ClockAppearance) {
                     if (firstDigit == "0") {
                         Text(firstDigit, style = fitted.copy(color = Color.Transparent), softWrap = false)
                     } else {
-                        ClockGlyphs(firstDigit, fitted, appearance)
+                        ClockGlyphs(firstDigit, fitted, appearance, outline)
                     }
                     val digitWidth = with(density) { measurer.measure("0", fitted).size.width.toDp() }
                     // The day period occupies the same bounded inset as the web
                     // Clock, centered vertically beside the visible tens glyph.
                     Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterStart) {
                         Box(Modifier.width(digitWidth * 0.64f), contentAlignment = Alignment.Center) {
-                            ClockGlyphs(period, fitted.copy(fontFamily = letters, fontSize = fontSize * 0.18f), appearance)
+                            ClockGlyphs(period, fitted.copy(fontFamily = letters, fontSize = fontSize * 0.18f), appearance, outline)
                         }
                     }
                 }
-                ClockGlyphs(time.drop(1), fitted, appearance)
+                ClockGlyphs(time.drop(1), fitted, appearance, outline)
             }
         } else {
-            Box(orientation) { ClockGlyphs(text, fitted, appearance) }
+            Box(orientation) { ClockGlyphs(text, fitted, appearance, outline) }
         }
     }
 }
 
 /** Paint independent layers so enabling glow never disables the drop shadow. */
 @Composable
-private fun ClockGlyphs(text: String, style: TextStyle, appearance: ClockAppearance) {
+private fun ClockGlyphs(text: String, style: TextStyle, appearance: ClockAppearance, outline: Color?) {
     val density = LocalDensity.current
     fun pixels(value: Float) = with(density) { value.dp.toPx() }
     Box {
@@ -341,8 +363,8 @@ private fun ClockGlyphs(text: String, style: TextStyle, appearance: ClockAppeara
                 modifier = Modifier.graphicsLayer {
                     // The native reflection keeps the saved stretch and blur, and
                     // stays out of the foreground glyphs' layout and semantics.
-                    scaleY = -0.4f
-                    translationY = size.height * (0.53f + 0.11f * appearance.forwardGlowLength)
+                    scaleY = -reflectionScale(appearance.forwardGlowLength)
+                    translationY = size.height * reflectionOffset(appearance.forwardGlowLength)
                     alpha = 0.22f * sqrt(appearance.forwardGlowStrength)
                 },
                 softWrap = false,
@@ -364,6 +386,10 @@ private fun ClockGlyphs(text: String, style: TextStyle, appearance: ClockAppeara
                 blurRadius = pixels(16f * appearance.glowStrength),
             )
             Text(text, style = style.copy(shadow = glow), softWrap = false)
+        }
+        if (outline != null) {
+            val width = with(density) { style.fontSize.toPx() * 0.04f }.coerceAtLeast(1f)
+            Text(text, style = style.copy(color = outline, drawStyle = Stroke(width = width)), softWrap = false)
         }
         if (appearance.stroke && appearance.strokeWidth > 0f) {
             val stroke = Stroke(width = pixels(appearance.strokeWidth * 2f))
