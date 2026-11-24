@@ -43,4 +43,32 @@ class ClockAppearanceFileTest {
             directory.delete()
         }
     }
+    @Test
+    fun olderNeutralCopyRecoversOnlyTheEarlierBackgroundAndNeverReplays() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = Files.createTempDirectory(context.cacheDir.toPath(), "clock-choice-test").toFile()
+        val path = File(directory, "appearance.json")
+        val store = ClockAppearanceFile(path)
+        val native = ClockAppearance.readOnly.copy(twentyFourHour = true, font = ClockTypeface.Serif)
+        val earlier = ClockAppearance.readOnly.copy(rememberedBackgroundId = "massage-lab-3d-globe")
+        try {
+            store.save(native)
+            val recovered = store.recoverBackgroundIfUnrecorded(earlier)
+            assertEquals("massage-lab-3d-globe", recovered.rememberedBackgroundId)
+            assertEquals(ClockBackground.Neutral, recovered.background)
+            assertEquals(ClockTypeface.Serif, recovered.font)
+            assertEquals(true, recovered.twentyFourHour)
+            assertEquals(recovered, store.recoverBackgroundIfUnrecorded(
+                earlier.copy(
+                    rememberedBackgroundId = "solid-color",
+                    background = ClockBackground.SolidColor,
+                    firstColor = "#AA5500",
+                ),
+            ))
+        } finally {
+            AtomicFile(path).delete()
+            directory.delete()
+        }
+    }
+
 }

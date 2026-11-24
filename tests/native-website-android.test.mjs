@@ -291,6 +291,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await tapNativeLabel("Clock & timer")
     await expect.poll(()=>nativeHierarchy()).toMatch(/content-desc="Current time [^"]+"/)
     const clockAppearance = JSON.parse(shell("shell","run-as",pkg,"cat","files/clock-appearance.json"))
+    assert.equal(clockAppearance.rememberedBackgroundId, "static-gradient", "Native Clock retains the earlier signed installation selection")
     assert.equal(clockAppearance.version,1)
     assert.equal(clockAppearance.format,old.timeFormat)
     assert.equal(clockAppearance.seconds,old.showSeconds)

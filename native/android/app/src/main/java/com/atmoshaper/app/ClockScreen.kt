@@ -1,5 +1,7 @@
 package com.atmoshaper.app
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.view.Window
 import android.view.WindowManager
@@ -52,7 +54,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
@@ -86,7 +87,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -96,6 +96,8 @@ import kotlin.math.sqrt
 internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTimer: () -> Unit) {
     var fullscreen by rememberSaveable { mutableStateOf(false) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
+    var backgroundsOpen by rememberSaveable { mutableStateOf(false) }
+    var catalog by remember { mutableStateOf<List<ClockBackgroundChoice>?>(null) }
     var attempt by remember { mutableIntStateOf(0) }
     var appearance by remember { mutableStateOf<ClockAppearance?>(null) }
     var loadFailed by remember { mutableStateOf(false) }
@@ -103,17 +105,24 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
 
     LaunchedEffect(store, attempt) {
         loadFailed = false
+        catalog = withContext(Dispatchers.IO) { runCatching { loadClockBackgrounds(activity) }.getOrNull() }
         try {
-            appearance = withContext(Dispatchers.IO) { store.read() }
-                ?: readPackagedClockAppearance(activity)?.let { incoming ->
-                    withContext(Dispatchers.IO) { store.importIfAbsent(incoming) }
+            val saved = withContext(Dispatchers.IO) { store.read() }
+            appearance = saved
+            if (saved == null || saved.needsBackgroundRecovery) {
+                val incoming = readPackagedClockAppearance(activity)
+                if (incoming != null) {
+                    appearance = withContext(Dispatchers.IO) {
+                        if (saved == null) store.importIfAbsent(incoming) else store.recoverBackgroundIfUnrecorded(incoming)
+                    }
                 }
-            loadFailed = appearance == null
+            }
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            loadFailed = true
+            // A failed earlier-format read leaves a valid native snapshot usable.
         }
+        loadFailed = appearance == null
     }
 
     BackHandler {
@@ -124,7 +133,12 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
     val title = stringResource(R.string.clock_title)
     Box(Modifier.fillMaxSize().background(clockChromeColor).semantics { paneTitle = title }) {
         val current = appearance
-        if (current != null) ClockBackdrop(current)
+        val choices = catalog
+        val selected = choices?.firstOrNull { it.id == current?.selectedBackgroundId }
+        val shown = current?.let {
+            if (selected?.defaults?.background == it.background) it else it.copy(background = ClockBackground.Neutral)
+        }
+        if (shown != null) ClockBackdrop(shown)
         ClockSystemBarProtection()
         Column(
             modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(12.dp),
@@ -138,12 +152,29 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                 ClockFullscreenButton(fullscreen) { fullscreen = !fullscreen }
                 if (current != null && !fullscreen) {
                     ClockButton(R.string.clock_settings) { settingsOpen = true }
+                    if (choices != null) ClockButton(R.string.clock_backgrounds) { backgroundsOpen = true }
                 }
                 if (!fullscreen) ClockButton(R.string.clock_open_timer, onOpenTimer)
             }
+            if (!fullscreen && current != null) {
+                val notice = when {
+                    choices == null -> R.string.clock_background_catalog_failed
+                    selected != null && !selected.canApply -> R.string.clock_background_locked
+                    selected == null && current.selectedBackgroundId != ClockBackground.Neutral.key -> R.string.clock_background_missing
+                    else -> null
+                }
+                if (notice != null) {
+                    Text(
+                        stringResource(notice),
+                        color = Color.White,
+                        modifier = Modifier.background(clockChromeColor).padding(6.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                if (current != null) {
-                    ClockReadout(current)
+                if (shown != null) {
+                    ClockReadout(shown)
                 } else if (loadFailed) {
                     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(Modifier.weight(1f)) { ClockReadout(ClockAppearance.readOnly) }
@@ -160,6 +191,25 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                 }
             }
         }
+        if (backgroundsOpen && current != null && choices != null) {
+            ClockBackgroundPicker(
+                appearance = current,
+                choices = choices,
+                store = store,
+                onDismiss = { backgroundsOpen = false },
+                onOpenPreviousTools = {
+                    // The existing packaged route retains its own verified
+                    // access and opens the Backgrounds panel directly.
+                    val route = Uri.Builder().scheme("atmoshaper").authority("tool")
+                        .appendQueryParameter("path", "/clock?panel=background").build()
+                    activity.startActivity(Intent(Intent.ACTION_VIEW, route, activity, MainActivity::class.java))
+                },
+                onSaved = {
+                    appearance = it
+                    backgroundsOpen = false
+                },
+            )
+        }
         if (settingsOpen && current != null) {
             ClockSettings(current, store, onDismiss = { settingsOpen = false }) {
                 appearance = it
@@ -169,7 +219,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
     }
 }
 
-private val clockChromeColor = Color(0xFF171519)
+internal val clockChromeColor = Color(0xFF171519)
 private val clockNavigationColor = Color(0xFFF9F7F5)
 
 /** Clock owns the temporary window flags only while its screen is composed. */
@@ -289,51 +339,12 @@ private fun ClockButton(label: Int, onClick: () -> Unit) {
     }
 }
 
-@Composable
-private fun ClockBackdrop(appearance: ClockAppearance) {
-    val first = clockColor(appearance.firstColor)
-    val second = clockColor(appearance.secondColor)
-    val position = if (appearance.background == ClockBackground.LavaLamp && appearance.motion) {
-        val animation = rememberInfiniteTransition(label = "Clock background")
-        animation.animateFloat(0.2f, 0.8f, infiniteRepeatable(tween(14000), RepeatMode.Reverse), label = "Light position")
-    } else {
-        null
-    }
-    Canvas(Modifier.fillMaxSize()) {
-        when (appearance.background) {
-            ClockBackground.Neutral -> Unit
-            ClockBackground.SolidColor -> drawRect(first)
-            ClockBackground.StaticGradient -> {
-                val colors = appearance.gradientColors.ifEmpty { listOf(appearance.firstColor, appearance.secondColor) }
-                val stops = appearance.gradientStops.ifEmpty { listOf(0f, 100f) }
-                val angle = appearance.gradientAngle * (PI / 180)
-                val dx = sin(angle).toFloat()
-                val dy = -cos(angle).toFloat()
-                // CSS angles use the projection of the viewport onto the gradient axis.
-                val reach = (abs(dx) * size.width + abs(dy) * size.height) / 2f
-                val offset = Offset(dx * reach, dy * reach)
-                val center = Offset(size.width / 2f, size.height / 2f)
-                val colorStops = stops.zip(colors) { stop, color -> (stop / 100f) to clockColor(color) }
-                drawRect(Brush.linearGradient(*colorStops.toTypedArray(), start = center - offset, end = center + offset))
-            }
-            ClockBackground.LavaLamp -> {
-                drawRect(second)
-                drawRect(Brush.radialGradient(
-                    listOf(first, first.copy(alpha = 0f)),
-                    center = Offset(size.width * (position?.value ?: 0.35f), size.height * 0.46f),
-                    radius = size.maxDimension * 0.67f,
-                ))
-            }
-        }
-    }
-}
-
-private fun clockColor(value: String) = Color(android.graphics.Color.parseColor(value))
+internal fun clockColor(value: String) = Color(android.graphics.Color.parseColor(value))
 
 private fun ClockAppearance.backdropColors(): List<Color> = when (background) {
     ClockBackground.Neutral -> listOf(clockChromeColor)
     ClockBackground.SolidColor -> listOf(clockColor(firstColor))
-    ClockBackground.LavaLamp -> listOf(clockColor(firstColor), clockColor(secondColor))
+    ClockBackground.LavaLamp -> listOf(clockColor(firstColor), clockChromeColor, clockColor(secondColor))
     ClockBackground.StaticGradient -> gradientColors.ifEmpty { listOf(firstColor, secondColor) }.map(::clockColor)
 }
 
