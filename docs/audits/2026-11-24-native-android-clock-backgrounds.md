@@ -8,6 +8,17 @@ The procedural effects use CSS/SVG, Canvas 2D or WebGL depending on the module. 
 
 Clock's read-only import keeps the original WebView record intact and copies only a bounded appearance projection. For the free radial gradient this includes its palette, stops, center, shape and extent. Premium-specific properties remain in the original store for the existing tools and the follow-on migration. Upgrading an earlier native Clock that projected an unsupported choice to neutral can recover the saved preference while preserving newer native time and text settings.
 
+## Native access handoff
+
+The packaged app already verifies device-bound receipts through `native/web/native-access.tsx` and the existing receipt store. The Clock export intentionally reads appearance alone. Follow-on #93 owns a native authority for verified `premium_backgrounds` and active owned IDs, including expiry and revocation, and should return one selected-background decision for rendering and customization. The packaged specialized effects still need installed verification for a future native renderer host before that host takes over their display.
+
+## Lane verification
+
+- The API 35 synthetic fixture ran in airplane mode. The test APK first failed on the pinned predecessor as expected because the Clock had no Backgrounds control.
+- Android build, lint, and the separate instrumentation build passed. The tested app APK SHA-256 was `4944443c97a8cf2987d5ca31df3f4aa22226a1fd4c6c70b052cca4ef260d681b`.
+- At 100% text scale, six tests passed, including selection, custom Solid Color pixels after navigation and recreation, Lava Lamp animation and pause, imported radial gradient pixels, premium access denial, and two atomic-file tests. At 160% text scale, all four app journeys passed.
+- The generated manifest matched all 84 enabled registry IDs, labels and guest decisions. Forty-six focused transfer, access and catalog checks passed. The signed earlier-version transfer is covered by an added assertion in the combined pilot upgrade journey. Specialized premium rendering within a native host and physical-phone acceptance remain open.
+
 ## Catalog map
 
 The renderer column names the source module under `components/backgrounds/effects` and, where the module has multiple exports, the registry's selected export. A row marked **Previous Tools** uses the packaged renderer and remains access-gated. Draft rows have no supported selection or asset availability claim.
