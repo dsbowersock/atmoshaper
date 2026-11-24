@@ -149,6 +149,8 @@ class ClockBackgroundJourneyTest {
     @Test
     fun lavaLampCanPauseItsColorFieldsWithoutHidingThem() {
         val store = ClockAppearanceFile(instrumentation.targetContext)
+        val resolver = instrumentation.targetContext.contentResolver
+        val originalAnimatorScale = Settings.Global.getString(resolver, Settings.Global.ANIMATOR_DURATION_SCALE)
         ActivityScenario.launch(HomeActivity::class.java).use {
             text("Clock & timer").click()
             text("Backgrounds")
@@ -163,25 +165,23 @@ class ClockBackgroundJourneyTest {
                     motion = true,
                     savedBackgroundStyles = emptyMap(),
                 ))
+                setAnimatorScale("0")
                 text("Clock & timer").click()
                 text("Backgrounds")
-                val animatorScale = Settings.Global.getFloat(
-                    instrumentation.targetContext.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f,
-                )
-                val initialFrame = backdropSample()
-                if (animatorScale > 0f) {
-                    val deadline = SystemClock.uptimeMillis() + 6_000L
-                    var moved = false
-                    while (!moved && SystemClock.uptimeMillis() < deadline) {
-                        SystemClock.sleep(250)
-                        moved = backdropSample() != initialFrame
-                    }
-                    assertTrue("Lava Lamp draws visibly changing frames", moved)
-                } else {
-                    SystemClock.sleep(750)
-                    assertEquals("Android's reduced motion keeps the fields still", initialFrame, backdropSample())
-                }
+                val reducedMotionFrame = backdropSample()
+                SystemClock.sleep(750)
+                assertEquals("Android's reduced motion keeps the fields still", reducedMotionFrame, backdropSample())
+                assertTrue("The reduced-motion renderer still shows color", reducedMotionFrame.any { it != 0xFF171519.toInt() })
 
+                setAnimatorScale("1")
+                val movingFrame = awaitBackdropFrame("Lava Lamp starts moving") { it != reducedMotionFrame }
+                awaitBackdropFrame("Lava Lamp keeps moving") { it != movingFrame && it != reducedMotionFrame }
+                setAnimatorScale("0")
+                awaitBackdropFrame("Lava Lamp returns to the still frame") { it == reducedMotionFrame }
+                SystemClock.sleep(750)
+                assertEquals("The mounted Clock honors changes to reduced motion", reducedMotionFrame, backdropSample())
+
+                setAnimatorScale("1")
                 text("Backgrounds").click()
                 pickerControl(By.text("Customize background"), "Customize background", Direction.UP).click()
                 pickerControl(By.text("Animate background"), "Animate background").click()
@@ -191,7 +191,7 @@ class ClockBackgroundJourneyTest {
                 val pausedFrame = backdropSample()
                 SystemClock.sleep(750)
                 assertEquals("The authored fields stay visible while paused", pausedFrame, backdropSample())
-                assertTrue("The paused renderer still shows color", pausedFrame.any { it != 0xFF171519.toInt() })
+                assertEquals("The local pause retains the same color fields", reducedMotionFrame, pausedFrame)
                 applyBackground("Solid Color")
                 applyBackground("Lava Lamp")
                 val restored = checkNotNull(store.read())
@@ -199,9 +199,35 @@ class ClockBackgroundJourneyTest {
                 assertEquals("#FF9900", restored.firstColor)
                 assertEquals("#5599FF", restored.secondColor)
             } finally {
-                store.save(original)
+                try {
+                    store.save(original)
+                } finally {
+                    setAnimatorScale(originalAnimatorScale)
+                }
             }
         }
+    }
+
+    /** Change only the fixture's animator scale and verify the setting before sampling pixels. */
+    private fun setAnimatorScale(value: String?) {
+        val setting = Settings.Global.ANIMATOR_DURATION_SCALE
+        if (value == null) {
+            device.executeShellCommand("settings delete global $setting")
+        } else {
+            require(value.isNotEmpty() && value.all { it in "0123456789.eE+-" })
+            device.executeShellCommand("settings put global $setting $value")
+        }
+        assertEquals(value, Settings.Global.getString(instrumentation.targetContext.contentResolver, setting))
+    }
+
+    private fun awaitBackdropFrame(description: String, matches: (List<Int>) -> Boolean): List<Int> {
+        val deadline = SystemClock.uptimeMillis() + 6_000L
+        do {
+            val frame = backdropSample()
+            if (matches(frame)) return frame
+            SystemClock.sleep(100)
+        } while (SystemClock.uptimeMillis() < deadline)
+        error("Expected $description")
     }
 
     private fun text(value: String): UiObject2 =

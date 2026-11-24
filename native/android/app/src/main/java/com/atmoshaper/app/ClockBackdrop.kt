@@ -26,7 +26,7 @@ import kotlin.math.sqrt
 internal fun ClockBackdrop(appearance: ClockAppearance) {
     val first = clockColor(appearance.firstColor)
     val second = clockColor(appearance.secondColor)
-    val position = if (appearance.background == ClockBackground.LavaLamp && appearance.motion) {
+    val position = if (appearance.background == ClockBackground.LavaLamp && appearance.motion && systemMotionEnabled()) {
         val animation = rememberInfiniteTransition(label = "Lava Lamp")
         animation.animateFloat(-1f, 1f, infiniteRepeatable(tween(28000), RepeatMode.Reverse), label = "Orb drift")
     } else {
@@ -43,7 +43,7 @@ internal fun ClockBackdrop(appearance: ClockAppearance) {
 }
 
 /** Retain the web fallback's four softly layered color fields on a dark base.
- * Drift runs only for a mounted Clock with background motion enabled. */
+ * A calm frame keeps the authored colors visible when motion is disabled. */
 private fun DrawScope.drawLavaLamp(primary: Color, secondary: Color, drift: Float) {
     drawRect(clockChromeColor)
     fun orb(color: Color, alpha: Float, x: Float, y: Float, radius: Float) {

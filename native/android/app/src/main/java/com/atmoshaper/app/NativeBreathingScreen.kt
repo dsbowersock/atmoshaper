@@ -1,11 +1,6 @@
 package com.atmoshaper.app
 
-import android.animation.ValueAnimator
-import android.database.ContentObserver
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
-import android.provider.Settings
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -37,15 +32,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.LongState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,7 +45,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -79,7 +70,7 @@ private val BreathPurple = Color(0xFF634383)
 internal fun NativeBreathingScreen(guide: BreathingGuideViewModel, onClose: () -> Unit) {
     val session = guide.session
     val title = stringResource(R.string.breathing_title)
-    val motion = breathingMotionEnabled()
+    val motion = systemMotionEnabled()
     val clock = breathingClock(session, motion)
     val activePhase by remember(session, clock) {
         derivedStateOf { if (session.status == BreathingStatus.Running) session.frame(clock.longValue).phaseIndex else -1 }
@@ -184,23 +175,6 @@ private fun breathingClock(session: BreathingSession, motion: Boolean): LongStat
         }
     }
     return clock
-}
-
-/** Android's Remove animations setting can change while this screen is visible. */
-@Composable
-private fun breathingMotionEnabled(): Boolean {
-    val resolver = LocalContext.current.contentResolver
-    var enabled by remember { mutableStateOf(ValueAnimator.areAnimatorsEnabled()) }
-    DisposableEffect(resolver) {
-        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) {
-                enabled = ValueAnimator.areAnimatorsEnabled()
-            }
-        }
-        resolver.registerContentObserver(Settings.Global.getUriFor(Settings.Global.ANIMATOR_DURATION_SCALE), false, observer)
-        onDispose { resolver.unregisterContentObserver(observer) }
-    }
-    return enabled
 }
 
 @Composable
