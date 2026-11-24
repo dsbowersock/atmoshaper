@@ -205,7 +205,9 @@ internal data class TimerSnapshot(
                 else -> error("Invalid timer number")
             }
             fun nullable(name: String) = if (record.get(name) == JSONObject.NULL) null else record.long(name)
-            val setups = record.getJSONArray("savedSetups")
+            // Initial v9 development builds wrote this version before saved
+            // templates were added. A missing list does not hide their timer.
+            val setups = if (record.has("savedSetups")) record.getJSONArray("savedSetups") else JSONArray()
             require(setups.length() <= 13)
             val saved = List(setups.length()) { index ->
                 val template = setups.getJSONObject(index)

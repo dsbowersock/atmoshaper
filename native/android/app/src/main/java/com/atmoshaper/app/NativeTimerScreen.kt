@@ -125,25 +125,48 @@ private fun TimerSetupForm(
     var keepAwake by rememberSaveable { mutableStateOf(setup.keepAwake) }
     var showSeconds by rememberSaveable { mutableStateOf(setup.showSeconds) }
 
+    fun validChoices(): TimerSetup? {
+        val validHours = hours.numberIn(0..23) ?: return null
+        val validMinutes = minutes.numberIn(0..59) ?: return null
+        val validInterval = intervalMinutes.numberIn(1..240)
+        val validAreas = areas.numberIn(1..24)
+        if (interval == TimerInterval.Custom && validInterval == null || interval == TimerInterval.Areas && validAreas == null) {
+            return null
+        }
+        return TimerSetup(validHours, validMinutes, interval, validInterval ?: setup.intervalMinutes, validAreas ?: setup.areas,
+            cue, volume, haptics.roundToInt(), keepAwake, showSeconds)
+    }
+    // Submit within the input event so a Back or Close immediately afterward
+    // can wait for this edit even if Compose has not drawn the next frame.
+    fun edit(change: () -> Unit) {
+        change()
+        validChoices()?.let(onSetupChange)
+    }
+    LaunchedEffect(Unit) { validChoices()?.let(onSetupChange) }
+
     if (snapshot.savedSetups.isNotEmpty()) {
         TimerDropdown(stringResource(R.string.timer_saved_setups), null, snapshot.savedSetups, enabled,
             { it.name ?: stringResource(R.string.timer_last_packaged_setup) }) { saved ->
-            val choices = saved.setup
-            hours = choices.hours.toString()
-            minutes = choices.minutes.toString()
-            interval = choices.interval
-            intervalMinutes = choices.intervalMinutes.toString()
-            areas = choices.areas.toString()
-            cue = choices.cue
-            volume = choices.volume
-            haptics = choices.vibrationMs.toFloat()
+            edit {
+                val choices = saved.setup
+                hours = choices.hours.toString()
+                minutes = choices.minutes.toString()
+                interval = choices.interval
+                intervalMinutes = choices.intervalMinutes.toString()
+                areas = choices.areas.toString()
+                cue = choices.cue
+                volume = choices.volume
+                haptics = choices.vibrationMs.toFloat()
+            }
         }
     }
-    NumberInput(R.string.timer_hours, hours, 0..23, enabled) { hours = it }
-    NumberInput(R.string.timer_minutes, minutes, 0..59, enabled) { minutes = it }
+    NumberInput(R.string.timer_hours, hours, 0..23, enabled) { edit { hours = it } }
+    NumberInput(R.string.timer_minutes, minutes, 0..59, enabled) { edit { minutes = it } }
     TimerMenu(R.string.timer_interval, interval, TimerInterval.entries, enabled, TimerInterval::label) { choice ->
-        if (choice == TimerInterval.Preset && (intervalMinutes.toIntOrNull() ?: 0) !in presets) intervalMinutes = "15"
-        interval = choice
+        edit {
+            if (choice == TimerInterval.Preset && (intervalMinutes.toIntOrNull() ?: 0) !in presets) intervalMinutes = "15"
+            interval = choice
+        }
     }
     when (interval) {
         TimerInterval.None -> Unit
@@ -152,42 +175,32 @@ private fun TimerSetupForm(
             TimerDropdown(
                 stringResource(R.string.timer_preset), pluralStringResource(R.plurals.timer_minute_choice, selected, selected),
                 (presets + selected).distinct().sorted(), enabled,
-                { pluralStringResource(R.plurals.timer_minute_choice, it, it) }, { intervalMinutes = it.toString() },
+                { pluralStringResource(R.plurals.timer_minute_choice, it, it) }, { edit { intervalMinutes = it.toString() } },
             )
         }
-        TimerInterval.Custom -> NumberInput(R.string.timer_custom_minutes, intervalMinutes, 1..240, enabled) { intervalMinutes = it }
-        TimerInterval.Areas -> NumberInput(R.string.timer_areas, areas, 1..24, enabled) { areas = it }
+        TimerInterval.Custom -> NumberInput(R.string.timer_custom_minutes, intervalMinutes, 1..240, enabled) { edit { intervalMinutes = it } }
+        TimerInterval.Areas -> NumberInput(R.string.timer_areas, areas, 1..24, enabled) { edit { areas = it } }
     }
-    TimerMenu(R.string.timer_cue, cue, TimerCue.entries, enabled, TimerCue::label) { cue = it }
+    TimerMenu(R.string.timer_cue, cue, TimerCue.entries, enabled, TimerCue::label) { edit { cue = it } }
     if (cue.sound) {
         val label = stringResource(R.string.timer_volume_label)
         Text(stringResource(R.string.timer_volume, (volume * 100).roundToInt()))
-        Slider(value = volume.toFloat(), onValueChange = { volume = (it * 100).roundToInt() / 100.0 }, enabled = enabled, steps = 19,
+        Slider(value = volume.toFloat(), onValueChange = { edit { volume = (it * 100).roundToInt() / 100.0 } }, enabled = enabled, steps = 19,
             modifier = Modifier.semantics { contentDescription = label })
     }
     if (cue.vibration) {
         val label = stringResource(R.string.timer_vibration_label)
         Text(stringResource(R.string.timer_vibration, haptics.roundToInt()))
-        Slider(value = haptics, onValueChange = { haptics = it }, enabled = enabled, valueRange = 10f..30f, steps = 19,
+        Slider(value = haptics, onValueChange = { edit { haptics = it } }, enabled = enabled, valueRange = 10f..30f, steps = 19,
             modifier = Modifier.semantics { contentDescription = label })
     }
-    TimerCheckbox(R.string.timer_keep_awake, keepAwake, enabled) { keepAwake = it }
-    TimerCheckbox(R.string.timer_show_seconds, showSeconds, enabled) { showSeconds = it }
+    TimerCheckbox(R.string.timer_keep_awake, keepAwake, enabled) { edit { keepAwake = it } }
+    TimerCheckbox(R.string.timer_show_seconds, showSeconds, enabled) { edit { showSeconds = it } }
 
-    val validHours = hours.numberIn(0..23)
-    val validMinutes = minutes.numberIn(0..59)
-    val validInterval = intervalMinutes.numberIn(1..240)
-    val validAreas = areas.numberIn(1..24)
-    val choices = if (validHours != null && validMinutes != null &&
-        (interval != TimerInterval.Custom || validInterval != null) && (interval != TimerInterval.Areas || validAreas != null)
-    ) {
-        TimerSetup(validHours, validMinutes, interval, validInterval ?: setup.intervalMinutes, validAreas ?: setup.areas,
-            cue, volume, haptics.roundToInt(), keepAwake, showSeconds)
-    } else null
-    LaunchedEffect(choices) { if (choices != null) onSetupChange(choices) }
+    val choices = validChoices()
     Button(
         enabled = enabled && choices != null && choices.durationMs > 0,
-        onClick = { if (choices != null) onStart(choices) },
+        onClick = { validChoices()?.let(onStart) },
     ) { Text(stringResource(R.string.timer_start)) }
 }
 

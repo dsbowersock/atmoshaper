@@ -330,6 +330,11 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await tapNativeLabel("Close Clock")
     await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
     shell("shell","am","force-stop",pkg)
+    shell("shell","am","start","-W","-a","android.intent.action.VIEW",
+      "-n",`${pkg}/com.atmoshaper.app.MainActivity`,"-d","atmoshaper://tool?path=%2Fchimer")
+    await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
+    assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt)
+    shell("shell","am","force-stop",pkg)
     await startNativeHome()
     await openPreviousTools()
     shell("shell","input","keyevent","KEYCODE_BACK")

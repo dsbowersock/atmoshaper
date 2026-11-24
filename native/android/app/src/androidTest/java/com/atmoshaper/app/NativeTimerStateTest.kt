@@ -2,6 +2,7 @@ package com.atmoshaper.app
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
@@ -56,6 +57,15 @@ class NativeTimerStateTest {
         assertNull(recovered.cue)
         assertEquals(start + 180_000, recovered.snapshot.cueAtMs)
         assertEquals(TimerSignal.Completion, running.advance(start + 240_100, true).cue)
+    }
+
+    @Test
+    fun earlierNativeSnapshotWithoutSavedSetupsKeepsItsDeadline() {
+        val running = TimerSnapshot().start(TimerSetup(minutes = 4), start)
+        val previousFormat = JSONObject(running.encode()).apply { remove("savedSetups") }
+        assertEquals(running, TimerSnapshot.decode(previousFormat.toString()))
+        previousFormat.put("savedSetups", true)
+        assertThrows(Exception::class.java) { TimerSnapshot.decode(previousFormat.toString()) }
     }
 
     @Test

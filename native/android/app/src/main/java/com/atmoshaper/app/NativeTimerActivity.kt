@@ -61,10 +61,13 @@ class NativeTimerActivity : ComponentActivity() {
 
     private fun close() {
         lifecycleScope.launch {
+            val existingError = error
             setupWriter?.join()
             // A user-initiated close waits for an in-flight control action
-            // but can leave a cold transfer that has not shown a timer yet.
-            if (snapshot != null) mutation.withLock { finish() } else finish()
+            // and surfaces a new save error before leaving. A cold transfer
+            // that has not shown a timer can always be cancelled.
+            if (snapshot == null) finish()
+            else mutation.withLock { if (error == null || existingError != null) finish() }
         }
     }
 
