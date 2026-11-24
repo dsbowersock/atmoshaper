@@ -78,8 +78,10 @@ class NativeTimerJourneyTest {
             text("Timer running")
             assertTrue(seconds() in (before - 10)..before)
             text("End timer").click()
+            text("Minutes")
             assertTrue(scrollTo("Start timer").isEnabled)
             scenario.recreate()
+            text("Minutes")
             assertTrue(scrollTo("Start timer").isEnabled)
         }
     }
@@ -94,6 +96,7 @@ class NativeTimerJourneyTest {
                 scenario.recreate()
                 text("Timer complete")
                 text("Set another timer").click()
+                text("Minutes")
                 assertTrue(scrollTo("Start timer").isEnabled)
             }
         }
