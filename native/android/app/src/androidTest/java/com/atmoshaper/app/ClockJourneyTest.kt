@@ -51,6 +51,7 @@ class ClockJourneyTest {
                 // make missing protective bands visible at either edge.
                 store.save(original.copy(
                     background = ClockBackground.StaticGradient,
+                    rememberedBackgroundId = "static-gradient",
                     gradientColors = listOf("#FFFFFF", "#000000"),
                     gradientStops = listOf(0f, 100f),
                     gradientAngle = 180f,

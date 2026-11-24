@@ -32,6 +32,15 @@ internal enum class ClockBackground(val key: String) {
     Neutral("neutral"),
 }
 
+internal enum class ClockGradientType(val key: String) { Linear("linear"), Radial("radial") }
+internal enum class ClockGradientShape(val key: String) { Circle("circle"), Ellipse("ellipse") }
+internal enum class ClockGradientExtent(val key: String) {
+    ClosestSide("closest-side"), FarthestSide("farthest-side"),
+    ClosestCorner("closest-corner"), FarthestCorner("farthest-corner"),
+}
+
+private val clockBackgroundIdPattern = Regex("[a-z0-9-]{1,128}")
+
 /** The native settings editor and both appearance read paths share these bounds. */
 internal object ClockEffectRange {
     val strength = 0f..1f
@@ -79,6 +88,12 @@ internal data class ClockAppearance(
     val gradientColors: List<String> = emptyList(),
     val gradientStops: List<Float> = emptyList(),
     val gradientAngle: Float = 145f,
+    val rememberedBackgroundId: String? = null,
+    val gradientType: ClockGradientType = ClockGradientType.Linear,
+    val gradientCenterX: Float = 50f,
+    val gradientCenterY: Float = 50f,
+    val gradientRadialShape: ClockGradientShape = ClockGradientShape.Ellipse,
+    val gradientRadialSize: ClockGradientExtent = ClockGradientExtent.FarthestCorner,
 ) {
     fun encode(): String = JSONObject()
         .put("version", 1)
@@ -109,6 +124,12 @@ internal data class ClockAppearance(
         .put("gradientColors", JSONArray(gradientColors))
         .put("gradientStops", JSONArray(gradientStops))
         .put("gradientAngle", gradientAngle.toDouble())
+        .put("rememberedBackgroundId", rememberedBackgroundId)
+        .put("gradientType", gradientType.key)
+        .put("gradientCenterX", gradientCenterX.toDouble())
+        .put("gradientCenterY", gradientCenterY.toDouble())
+        .put("gradientRadialShape", gradientRadialShape.key)
+        .put("gradientRadialSize", gradientRadialSize.key)
         .put("background", background.key)
         .put("firstColor", firstColor)
         .put("secondColor", secondColor)
@@ -130,6 +151,11 @@ internal data class ClockAppearance(
                 ((if (json.has(key)) json.get(key) else checkNotNull(default)) as String).also { require(clockHexColor.matches(it)) }
             fun number(key: String, default: Float, range: ClosedFloatingPointRange<Float>): Float =
                 (if (json.has(key)) (json.get(key) as Number).toFloat() else default).also { require(it in range) }
+            fun <T> option(key: String, values: List<T>, fallback: T, keyOf: (T) -> String): T {
+                if (!json.has(key)) return fallback
+                val value = json.get(key)
+                return values.first { keyOf(it) == value }
+            }
             val colors = if (json.has("gradientColors")) json.getJSONArray("gradientColors") else null
             val stops = if (json.has("gradientStops")) json.getJSONArray("gradientStops") else null
             val gradientColors = colors?.let { values ->
@@ -174,6 +200,14 @@ internal data class ClockAppearance(
                 gradientColors = gradientColors,
                 gradientStops = gradientStops,
                 gradientAngle = number("gradientAngle", 145f, 0f..360f),
+                rememberedBackgroundId = if (json.has("rememberedBackgroundId")) {
+                    (json.get("rememberedBackgroundId") as String).also { require(clockBackgroundIdPattern.matches(it)) }
+                } else null,
+                gradientType = option("gradientType", ClockGradientType.entries, ClockGradientType.Linear) { it.key },
+                gradientCenterX = number("gradientCenterX", 50f, 0f..100f),
+                gradientCenterY = number("gradientCenterY", 50f, 0f..100f),
+                gradientRadialShape = option("gradientRadialShape", ClockGradientShape.entries, ClockGradientShape.Ellipse) { it.key },
+                gradientRadialSize = option("gradientRadialSize", ClockGradientExtent.entries, ClockGradientExtent.FarthestCorner) { it.key },
             )
         }
     }
@@ -190,6 +224,15 @@ internal class ClockAppearanceFile(path: File) {
 
     fun importIfAbsent(appearance: ClockAppearance): ClockAppearance = synchronized(lock) {
         file.read() ?: file.write(appearance)
+    }
+
+    /** Previous Clock builds collapsed unsupported choices to neutral. Recover
+     * that background only, and keep newer native font/time/effect changes. */
+    fun recoverBackgroundIfUnrecorded(appearance: ClockAppearance): ClockAppearance = synchronized(lock) {
+        val current = checkNotNull(file.read())
+        if (current.needsBackgroundRecovery && appearance.rememberedBackgroundId != null) {
+            file.write(current.withBackground(appearance))
+        } else current
     }
 
     fun save(appearance: ClockAppearance): ClockAppearance = synchronized(lock) { file.write(appearance) }

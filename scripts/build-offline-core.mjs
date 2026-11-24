@@ -5,6 +5,7 @@ import { createHash } from "node:crypto"
 import { readFile, writeFile, copyFile, mkdir, readdir, lstat, realpath, rm } from "node:fs/promises"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { backgroundRegistry, userCanUseBackground } from "../components/backgrounds/backgroundRegistry.ts"
+import { projectClockAppearance } from "../lib/native-clock-appearance-transfer.js"
 
 const require = createRequire(import.meta.url)
 export const root = fileURLToPath(new URL("..", import.meta.url))
@@ -159,6 +160,17 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     // public decisions, so it never loads any renderer or account modules.
     const publicBackgrounds = backgroundRegistry.filter(entry => userCanUseBackground(entry)).map(entry => entry.id)
     if (publicBackgrounds.some(id => !/^[a-z0-9-]+$/.test(id))) throw new Error("Invalid public Clock background identifier.")
+    // The Compose picker and export use the same conservative registry decision.
+    // Renderer code remains in the existing Previous Tools asset closure.
+    const publicIds = new Set(publicBackgrounds)
+    const clockBackgrounds = backgroundRegistry.filter(entry => entry.enabled && entry.category.includes("clock"))
+      .map(entry => {
+        const guestAccess = publicIds.has(entry.id)
+        const defaults = guestAccess ? projectClockAppearance({ backgroundId: entry.id }, publicIds) : null
+        if (defaults && defaults.background !== entry.id) throw new Error(`Free Clock background needs a native renderer: ${entry.id}`)
+        return { id: entry.id, label: entry.label, guestAccess, defaults }
+      })
+    await writeFile(path.join(coreRoot, "clock-backgrounds.json"), JSON.stringify(clockBackgrounds))
     await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}"></script>`)
     await writeFile(path.join(coreRoot, "timer-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Timer transfer</title><script defer src="./timer-export.js"></script>`)
   }
