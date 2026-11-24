@@ -2,7 +2,6 @@ package com.atmoshaper.app
 
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -86,7 +85,7 @@ class HomeActivity : ComponentActivity() {
         )
         setContent {
             HomeTheme {
-                Home(this, onOpenPreviousTools = ::openPreviousTools, onOpenTimer = ::openPreviousTimer)
+                Home(this, onOpenPreviousTools = ::openPreviousTools, onOpenTimer = ::openTimer)
             }
         }
     }
@@ -96,11 +95,8 @@ class HomeActivity : ComponentActivity() {
         startActivity(Intent(Intent.ACTION_MAIN).setClass(this, MainActivity::class.java))
     }
 
-    /** The packaged host still owns the existing timer and its deadline. */
-    private fun openPreviousTimer() {
-        val timer = Uri.Builder().scheme("atmoshaper").authority("tool")
-            .appendQueryParameter("path", "/chimer").build()
-        startActivity(Intent(Intent.ACTION_VIEW, timer).setClass(this, MainActivity::class.java))
+    private fun openTimer() {
+        startActivity(Intent(this, NativeTimerActivity::class.java))
     }
 
 }
@@ -254,7 +250,7 @@ private fun Wordmark() {
 }
 
 @Composable
-private fun HomeTheme(content: @Composable () -> Unit) {
+internal fun HomeTheme(content: @Composable () -> Unit) {
     val type = FontFamily(Font(R.font.inter_regular), Font(R.font.inter_semibold, FontWeight.SemiBold))
     val typography = Typography(
         headlineSmall = TextStyle(fontFamily = type, fontWeight = FontWeight.SemiBold, fontSize = 24.sp, lineHeight = 30.sp),

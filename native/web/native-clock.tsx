@@ -5,13 +5,14 @@ import { createNativeClockStorage } from "@/lib/native-clock-storage"
 import { nativeClockCommitKey } from "@/lib/native-clock-state"
 import { Button } from "@/components/ui/button"
 import { useNativeAccess } from "./native-access"
-import { NativeRouteContext } from "./platform/navigation"
+import { NativeRouteContext, navigateNative } from "./platform/navigation"
 
-/** Retains the actual website timer component while navigating, and projects
- * into a new atomic snapshot. The earlier preview is a read-only seed; no vault is read. */
-export function NativeClock({ route, active }: { route: string; active: boolean }) {
+/** Reuses the packaged Clock and music visualizer. Browser previews retain
+ * their shared timer, while the Android host delegates countdowns to Compose
+ * and saves only visualizer settings. The device stores never read a vault. */
+export function NativeClock({ route, active, appearanceOnly }: { route: string; active: boolean; appearanceOnly: boolean }) {
   const account = useNativeAccess()
-  const [store] = useState(() => createNativeClockStorage())
+  const [store] = useState(() => createNativeClockStorage({ appearanceOnly }))
   const [initial, setInitial] = useState<Awaited<ReturnType<typeof store.load>> | null>(null)
   const [error, setError] = useState("")
   const lastAttempt = useRef("")
@@ -34,8 +35,10 @@ export function NativeClock({ route, active }: { route: string; active: boolean 
   const accessKey = JSON.stringify(account.access)
   const runtime = useMemo(() => {
     if (!initial?.ready || !initial.state) return undefined
-    return { backgroundAccess: JSON.parse(accessKey), initialSettings: initial.state.settings, initialTimer: initial.state.timer as TimerState, onChange: changed }
-  }, [initial, accessKey, changed])
+    return { backgroundAccess: JSON.parse(accessKey), initialSettings: initial.state.settings,
+      initialTimer: appearanceOnly ? undefined : initial.state.timer as TimerState, onChange: changed,
+      onOpenTimer: appearanceOnly ? () => navigateNative("/chimer") : undefined }
+  }, [initial, accessKey, appearanceOnly, changed])
   if (!initial || !account.loaded) return active ? <p className="p-6" role="status">Opening your saved Clock…</p> : null
   if (!initial.ready) return active ? <div className="space-y-4 p-6"><p role="alert">Saved Clock settings could not be opened. Your existing settings have not been replaced.</p><Button onClick={load}>Retry saved Clock</Button></div> : null
   return <NativeRouteContext.Provider value={lastRoute}>

@@ -26,6 +26,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
@@ -49,9 +50,12 @@ import org.json.JSONObject;
  * tools remain on the isolated local origin, with no account-cookie bridge. */
 public final class MainActivity extends ComponentActivity {
     private static final String ENTRY = "https://appassets.androidplatform.net/assets/core/index.html";
+    private static final String OPEN_TIMER = "https://appassets.androidplatform.net/assets/core/open-native-timer";
+    private static final String TIMER_HOST_MARKER = " AtmoShaperNativeTimer/1";
     private WebView webView;
     private String pendingReceipt;
     private String pendingRoute;
+    private boolean packagedPageLoaded;
     private TwaLauncher websiteLauncher;
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
@@ -205,6 +209,7 @@ public final class MainActivity extends ComponentActivity {
             || value.matches(".*[\\\\#\\p{Cntrl}].*")) return;
         Uri route = Uri.parse(value);
         String path = route.getPath();
+        if ("/chimer/".equals(path)) path = "/chimer";
         for (String allowed : new String[]{"/", "/clock", "/chimer", "/music", "/downloads", "/wellness/breathing", "/account/offline-access", "/tools/business-planner", "/tools/business-planner/income", "/tools/business-planner/break-even", "/tools/business-planner/launch-checklist", "/tools/business-planner/service-menu", "/tools/business-planner/plan-outline", "/tools/business-planner/add-on-profit"}) {
             if (allowed.equals(path)) {
                 Uri.Builder canonical = new Uri.Builder().path(path);
@@ -220,7 +225,10 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void deliverRoute() {
-        if (pendingRoute == null || !isEntry()) return;
+        if (pendingRoute == null || !isEntry() || !getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) return;
+        // The packaged script installs its navigation listener during load.
+        // A resume callback can run earlier than the first completed load.
+        if (!packagedPageLoaded) return;
         String path = JSONObject.quote(pendingRoute); pendingRoute = null;
         webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('atmoshaper:native-navigation',{detail:" + path + "}));", null);
     }
@@ -303,6 +311,11 @@ public final class MainActivity extends ComponentActivity {
         super.onSaveInstanceState(state);
     }
 
+    @Override protected void onPostResume() {
+        super.onPostResume();
+        webView.post(this::deliverRoute);
+    }
+
     @SuppressLint("SetJavaScriptEnabled") // Executes the bundled React tools only.
     @Override
     public void onCreate(Bundle state) {
@@ -332,6 +345,9 @@ public final class MainActivity extends ComponentActivity {
         controller.setAppearanceLightNavigationBars(false);
 
         WebSettings settings = webView.getSettings();
+        // Timer ownership follows the installed host, even when its WebView
+        // cannot run the message listener used for legacy storage transfer.
+        settings.setUserAgentString(settings.getUserAgentString() + TIMER_HOST_MARKER);
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false);
@@ -375,6 +391,15 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
+                // Accept only this local main-frame command from the packaged entry.
+                // It carries no arguments and leaves the current document intact.
+                if (OPEN_TIMER.equals(uri.toString())) {
+                    if (request.isForMainFrame() && "GET".equals(request.getMethod()) && isEntry()
+                        && getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                        startActivity(new Intent(MainActivity.this, NativeTimerActivity.class));
+                    }
+                    return true;
+                }
                 if (request.isForMainFrame() && isEntry() && isWebsitePage(uri)) {
                     openWebsite(uri);
                     return true;
@@ -390,7 +415,17 @@ public final class MainActivity extends ComponentActivity {
                 return !isLocal(request.getUrl());
             }
 
-            @Override public void onPageFinished(WebView view, String url) { deliverReceipt(); deliverRoute(); }
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                packagedPageLoaded = false;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                packagedPageLoaded = isEntry();
+                deliverReceipt();
+                deliverRoute();
+            }
         });
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override

@@ -1,0 +1,4 @@
+[
+  {"hours":0,"minutes":0,"interval":"custom","intervalMinutes":1,"areas":1,"cue":"silent","volume":0,"vibrationMs":10,"keepAwake":false,"showSeconds":false},
+  {"hours":23,"minutes":59,"interval":"areas","intervalMinutes":240,"areas":24,"cue":"all","volume":1,"vibrationMs":30,"keepAwake":true,"showSeconds":true}
+]

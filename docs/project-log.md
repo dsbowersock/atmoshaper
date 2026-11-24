@@ -1,5 +1,57 @@
 # AtmoShaper Project Log
 
+## November 24 native timer hosted review follow-up
+
+Address the four CodeRabbit findings on draft PR #134. Isolate malformed
+optional templates and export valid Unicode labels within the Android length
+limit. Retain a fresh completion cue when a duration or interval edit first
+observes expiry. Verify that the two legacy storage sources have distinct
+deadlines and their original records survive. Independent Standards and Spec
+re-reviews found zero actionable issues.
+
+The rebuilt APK passed Android lint and ten installed timer tests. Chromium
+passed the focused transfer regression and all 14 native website contracts
+passed. Investigate the three prior hosted failures separately in the
+[timer plan](superpowers/plans/2026-11-24-native-timer.md#hosted-review-follow-up).
+
+## November 24 independent native timer correction
+
+Keep timer routing independent of the WebView export capability. Preserve
+the visible packaged document when it opens Compose, and keep legacy setup
+read failures retryable. Deliver the configured foreground completion cue
+after a zero-duration adjustment commits. Share verified writes with Clock
+and distinguish running cue deadlines from paused offsets while preserving
+the stored representation. Check timer-control bounds in both runtimes.
+
+The correction passed Android build and lint, ten installed tests at both
+font scales, and the guarded v3 to v6 to v9 upgrade. Chromium passed all
+11 enabled browser journeys. Independent Standards and Spec follow-ups
+reported no remaining actionable findings.
+
+## November 24 native Android timer implementation
+
+Add Compose setup and running, paused and completed timer views for #85.
+Start, pause, resume, adjustment and end commit through an atomic file.
+Recover deadlines and skip missed cues on reopening. The isolated exporter
+reads only timer state and settings from the packaged WebView stores.
+Route packaged timer links to Compose while keeping the packaged music
+visualizer and retaining the timer records used by older previews.
+
+Independent standards and spec review identified missing setup durability,
+the one-minute preset, foreground cues during adjustment, and earlier
+interval progress after a backward clock change. The follow-up persists
+valid setup edits, restores the preset, keeps adjustment in the timer
+window, and imports consumed cue positions. Previously saved and last-used
+setup choices also remain available locally.
+
+CodeRabbit identified a due paused-cue transfer error and a cold packaged
+link readiness race. The correction skips the overdue cue without losing
+the paused timer and defers packaged navigation until the page has loaded.
+The Android 35 emulator confirmed the v8-to-v9 transfer, process-stop
+recovery, cold links, clean setup and all six timer tests at both scales.
+The guarded v3-to-v6-to-v9 journey retained both downloaded files, the
+deadline, settings and the planner draft. Offline music playback passed.
+
 ## November 24 native Clock swipe and acceptance follow-up
 
 Reproduce low-contrast system icons after an immersive swipe on the guarded

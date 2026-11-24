@@ -15,8 +15,28 @@ export function normalizeNativeRoute(value: string) {
   return url.origin === "https://www.atmoshaper.com" ? url.pathname + url.search : "/"
 }
 function readRoute() { return normalizeNativeRoute(location.hash.slice(1) || "/") }
+
+/** Only the installed shell delegates ownership, independent of transfer availability. */
+export function hasNativeTimer() { return navigator.userAgent.endsWith(" AtmoShaperNativeTimer/1") }
+export function isTimerPath(path: string) { return path === "/chimer" || path === "/chimer/" }
+
 export function navigateNative(value: string, replace = false) {
-  const route = normalizeNativeRoute(value)
+  let route = normalizeNativeRoute(value)
+  const destination = new URL(route, location.origin)
+  if (hasNativeTimer() && isTimerPath(destination.pathname)) {
+    // Legacy visualizer and Background picker links keep the packaged tool.
+    // Ordinary timer requests leave the packaged history and music running.
+    if (destination.searchParams.get("source") === "music" || destination.searchParams.get("panel") === "background") {
+      route = "/clock" + destination.search
+    } else {
+      if (route === readRoute()) {
+        history.replaceState({}, "", "#/")
+        window.dispatchEvent(new Event(changed))
+      }
+      location.assign("https://appassets.androidplatform.net/assets/core/open-native-timer")
+      return
+    }
+  }
   if (route === readRoute()) return
   history[replace ? "replaceState" : "pushState"]({}, "", "#" + route)
   window.dispatchEvent(new Event(changed))

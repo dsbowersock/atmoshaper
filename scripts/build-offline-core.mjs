@@ -44,6 +44,7 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     entry: legacyAcceptance ? { app: path.join(root, "scripts/fixtures/offline-legacy-entry.tsx") } : {
       app: path.join(root, "native/web/index.tsx"),
       "clock-appearance-export": path.join(root, "native/web/clock-appearance-export.js"),
+      "timer-export": path.join(root, "native/web/timer-export.js"),
     },
     output: { path: coreRoot, filename: "[name].js", chunkFilename: "chunks/[name].[contenthash:12].js", publicPath: "./" },
     resolve: { alias: {
@@ -159,6 +160,7 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     const publicBackgrounds = backgroundRegistry.filter(entry => userCanUseBackground(entry)).map(entry => entry.id)
     if (publicBackgrounds.some(id => !/^[a-z0-9-]+$/.test(id))) throw new Error("Invalid public Clock background identifier.")
     await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}"></script>`)
+    await writeFile(path.join(coreRoot, "timer-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Timer transfer</title><script defer src="./timer-export.js"></script>`)
   }
   const files = await fileInventory(coreRoot)
   const manifest = { version: 2, entry: "core/index.html", networkRequired: false, sharedWebsite: !legacyAcceptance, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["home", "navigation", "clock", "timer", "breathing", "backgrounds", "music", "downloads", "business-planners"], sourceModuleCount: modules.length, files }

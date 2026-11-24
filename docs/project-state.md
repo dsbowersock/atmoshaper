@@ -1,5 +1,37 @@
 # AtmoShaper Project State
 
+## November 24 native Android timer preview
+
+[Issue #85](https://github.com/dsbowersock/atmoshaper/issues/85) adds the
+Compose timer on `codex/native-timer-85`, stacked on the reviewed #84 head
+`95127de`. **Open timer** from Clock and packaged timer links open the
+native screen. The timer stores one verified local snapshot for setup,
+running deadlines, paused time and interval progress. A read-only transfer
+uses the existing packaged stores and retains their records. The packaged
+Clock and music visualizer keep their existing WebView origin.
+
+The independent timer correction keeps Compose as the timer owner when the
+WebView transfer listener is unavailable. Setup read errors stay retryable,
+and adjusting to zero commits completion before issuing the configured
+foreground cue.
+
+The corrected APK passed the guarded v3 to v6 to v9 in-place upgrade and
+ten Android instrumentation tests at both font scales. The upgrade retained
+the original deadline, settings, both downloaded files, and the planner draft.
+
+The [PR #134](https://github.com/dsbowersock/atmoshaper/pull/134) review
+follow-up isolates malformed timer templates, preserves whole setup names,
+and retains a fresh completion cue when an adjustment first observes expiry.
+The focused browser and ten installed timer tests passed. The three hosted
+failures on the previous head have separate diagnoses in the timer plan.
+
+The Android v9 development preview plays cues on the visible timer screen.
+The Android 35 emulator verified an offline v8-to-v9 update, fresh setup,
+cold links and all six timer tests at 100% and 160% font scale.
+Background alert delivery and physical-device acceptance are separate.
+See the [timer implementation and verification plan](superpowers/plans/2026-11-24-native-timer.md)
+for the local and review gates.
+
 ## November 24 native Android Clock preview
 
 [Issue #84](https://github.com/dsbowersock/atmoshaper/issues/84) adds the Compose

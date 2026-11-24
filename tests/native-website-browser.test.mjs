@@ -55,13 +55,28 @@ async function readDatabase(page, name, store, key) {
   }), {name,store,key})
 }
 
+async function writeDatabase(page, name, store, key, value) {
+  await page.goto(new URL("seed.html", entry).href)
+  await page.evaluate(({ name, store, key, value }) => new Promise((resolve, reject) => {
+    const open = indexedDB.open(name, 1)
+    open.onupgradeneeded = () => open.result.createObjectStore(store)
+    open.onerror = () => reject(open.error)
+    open.onsuccess = () => {
+      const db = open.result
+      const transaction = db.transaction(store, "readwrite")
+      transaction.objectStore(store).put(value, key)
+      transaction.oncomplete = () => { db.close(); resolve() }
+      transaction.onerror = () => reject(transaction.error)
+    }
+  }), { name, store, key, value })
+}
+
 test("the packaged Clock exporter reads only appearance and leaves both generations intact", {timeout:60000}, async () => {
   const f = await fixture()
   const { page } = f
   const shared = "atmoshaper.android.chimer-runtime.v1"
   const earlier = "atmoshaper.android.offline-core.v1"
   const exporter = new URL("clock-appearance-export.html", entry).href
-  const seed = new URL("seed.html", entry).href
   await page.addInitScript(() => {
     window.AtmoShaperClockAppearance = { postMessage: value => { window.clockAppearance = value } }
   })
@@ -71,21 +86,7 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     const payload = await page.evaluate(() => window.clockAppearance)
     return payload === "unavailable" ? payload : JSON.parse(payload)
   }
-  async function write(name, store, key, value) {
-    await page.goto(seed)
-    await page.evaluate(({ name, store, key, value }) => new Promise((resolve, reject) => {
-      const open = indexedDB.open(name, 1)
-      open.onupgradeneeded = () => open.result.createObjectStore(store)
-      open.onerror = () => reject(open.error)
-      open.onsuccess = () => {
-        const db = open.result
-        const transaction = db.transaction(store, "readwrite")
-        transaction.objectStore(store).put(value, key)
-        transaction.oncomplete = () => { db.close(); resolve() }
-        transaction.onerror = () => reject(transaction.error)
-      }
-    }), { name, store, key, value })
-  }
+  const write = (...args) => writeDatabase(page, ...args)
   try {
     assert.equal((await exported()).font, "digital")
     const { backgroundRegistry, userCanUseBackground } = await import("../components/backgrounds/backgroundRegistry.ts")
@@ -163,6 +164,162 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), damaged)
     await write(shared, "clock", "state", record)
     assert.equal((await exported()).color, "#AABBCC")
+    assert.deepEqual(f.foreign, [])
+  } finally {
+    await f.close()
+  }
+})
+
+test("the native timer receives an original deadline and packaged navigation leaves the seed intact", {timeout:60000}, async () => {
+  const f = await fixture()
+  const { page } = f
+  const shared = "atmoshaper.android.chimer-runtime.v1"
+  const earlier = "atmoshaper.android.offline-core.v1"
+  const exporter = new URL("timer-export.html", entry).href
+  const openNativeTimer = new URL("open-native-timer", entry).href
+  const deadline = Date.now() + 180_000
+  const old = { ...defaultOfflineCoreState(), intervalMinutes: 1,
+    timer: { ...startOfflineTimer(240_000, deadline - 240_000), lastAlertIndex: 2 } }
+  const indexedDeadline = deadline + 30_000
+  const indexedOld = { ...old, timer: { ...old.timer, endsAt: indexedDeadline } }
+  const templates = [{ id: "synthetic", name: "Example setup", createdAt: 1,
+    settings: { minutes: 5, alertType: "silent", skipIntervalCues: true, backgroundId: "solid-color" } }]
+  const record = { version: 1, settings: { hours: 0, minutes: 4, intervalType: "custom",
+    customInterval: 1, alertType: "chime-haptic", clockModeFontColor: "#CCAABB" },
+  timer: { status: "running", totalMs: 240_000, remainingMs: 180_000, endsAtMs: deadline,
+    intervalMs: 60_000, nextAlertAtMs: deadline - 120_000 } }
+  await page.addInitScript(() => {
+    if (location.pathname.endsWith("/timer-export.html")) {
+      window.AtmoShaperTimerTransfer = { postMessage: value => { window.timerSnapshot = value } }
+    }
+    Object.defineProperty(navigator, "userAgent", { value: navigator.userAgent + " AtmoShaperNativeTimer/1" })
+    if (location.search === "?deny-setup-read") {
+      const getItem = Storage.prototype.getItem
+      Storage.prototype.getItem = function (key) {
+        if (key === "chimer-last-setup-v1") throw new DOMException("Synthetic denied read", "SecurityError")
+        return getItem.call(this, key)
+      }
+    }
+  })
+  const nativeRequests = []
+  await page.route(openNativeTimer, route => {
+    nativeRequests.push(route.request().url())
+    return route.abort("aborted")
+  })
+  async function exported(query = "") {
+    await page.goto(exporter + query)
+    await page.waitForFunction(() => typeof window.timerSnapshot === "string")
+    const payload = await page.evaluate(() => window.timerSnapshot)
+    return payload === "unavailable" ? payload : JSON.parse(payload)
+  }
+  try {
+    assert.equal((await exported()).phase, "ready")
+    assert.deepEqual(await page.evaluate(() => indexedDB.databases()), [])
+    await page.evaluate(({ earlier, old, templates }) => {
+      localStorage.setItem(earlier, JSON.stringify(old))
+      localStorage.setItem("chimer-setup-presets-v1", JSON.stringify(templates))
+      localStorage.setItem("chimer-last-setup-v1", JSON.stringify({ minutes: 2, customInterval: 1 }))
+    }, { earlier, old, templates })
+    const prototype = await exported()
+    assert.equal(prototype.deadlineMs, deadline)
+    assert.equal(prototype.cueAtMs, deadline - 60_000)
+    assert.deepEqual(prototype.savedSetups.map(({ name, setup }) => [name, setup.minutes, setup.interval]),
+      [[null, 2, "preset"], ["Example setup", 5, "none"]])
+    assert.equal("backgroundId" in prototype.savedSetups[1].setup, false)
+
+    const splitName = "a".repeat(79) + "😀"
+    const fittingName = "b".repeat(78) + "😀"
+    const malformed = { minutes: 6, clockShadowStrength: { toString: null } }
+    const mixed = [
+      { id: "damaged", name: "Damaged setup", createdAt: 4, settings: malformed },
+      { id: "split", name: splitName, createdAt: 3, settings: { minutes: 7 } },
+      { id: "fits", name: fittingName, createdAt: 2, settings: { minutes: 8 } },
+      { id: "blank", name: "\ud800\u001c", createdAt: 2, settings: { minutes: 9 } },
+      ...templates,
+    ]
+    await page.evaluate(({ mixed, malformed }) => {
+      localStorage.setItem("chimer-setup-presets-v1", JSON.stringify(mixed))
+      localStorage.setItem("chimer-last-setup-v1", JSON.stringify(malformed))
+    }, { mixed, malformed })
+    const recovered = await exported()
+    assert.equal(recovered.deadlineMs, deadline)
+    assert.deepEqual(recovered.savedSetups.map(({ name, setup }) => [name, setup.minutes]),
+      [["a".repeat(79), 7], [fittingName, 8], ["Saved setup", 9], ["Example setup", 5]])
+    assert.deepEqual(await page.evaluate(() => [
+      localStorage.getItem("chimer-setup-presets-v1"), localStorage.getItem("chimer-last-setup-v1"),
+    ]), [JSON.stringify(mixed), JSON.stringify(malformed)])
+    await page.evaluate(templates => {
+      localStorage.setItem("chimer-setup-presets-v1", JSON.stringify(templates))
+      localStorage.setItem("chimer-last-setup-v1", JSON.stringify({ minutes: 2, customInterval: 1 }))
+    }, templates)
+
+    await writeDatabase(page, earlier, "state", "preferences", indexedOld)
+    assert.equal((await exported()).deadlineMs, indexedDeadline)
+    await writeDatabase(page, shared, "clock", "state", record)
+    const transferred = await exported()
+    assert.equal(transferred.deadlineMs, deadline)
+    assert.equal(transferred.cueAtMs, deadline - 120_000)
+    assert.equal(transferred.setup.cue, "chime-haptic")
+    assert.equal("clockModeFontColor" in transferred.setup, false)
+    assert.equal(await exported("?deny-setup-read"), "unavailable")
+    assert.deepEqual(await exported(), transferred)
+    assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), indexedOld)
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+    assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), old)
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("chimer-setup-presets-v1"))), templates)
+
+    const bounds = JSON.parse(await readFile(new URL("../native/android/app/src/androidTest/assets/timer-setup-bounds.json", import.meta.url), "utf8"))
+    const setupKeys = { hours: "hours", minutes: "minutes", interval: "intervalType", intervalMinutes: "customInterval",
+      areas: "areasToMassage", cue: "alertType", volume: "alertVolume", vibrationMs: "hapticIntensityMs",
+      keepAwake: "keepTimerScreenAwake", showSeconds: "showTimerSeconds" }
+    for (const [index, setup] of bounds.entries()) {
+      const settings = Object.fromEntries(Object.entries(setup).map(([key, value]) => [setupKeys[key], value]))
+      await writeDatabase(page, shared, "clock", "state", { ...record, settings })
+      assert.deepEqual((await exported()).setup, setup)
+      const direction = index === 0 ? -1 : 1
+      for (const [key, value] of Object.entries(settings)) {
+        if (typeof value !== "number") continue
+        const outside = value + direction * (key === "alertVolume" ? 0.01 : 1)
+        await writeDatabase(page, shared, "clock", "state", { ...record, settings: { ...settings, [key]: outside } })
+        assert.equal(await exported(), "unavailable", `Reject out-of-range ${key}`)
+      }
+    }
+
+    const paused = { ...record, timer: { status: "paused", totalMs: 240_000, remainingMs: 90_000,
+      intervalMs: 60_000, msUntilNextAlert: 20_000 } }
+    await writeDatabase(page, shared, "clock", "state", paused)
+    assert.deepEqual(await exported(), { ...transferred, phase: "paused", pausedMs: 90_000, deadlineMs: null, cueAtMs: 20_000 })
+    const overdue = { ...paused, timer: { ...paused.timer, msUntilNextAlert: 0 } }
+    await writeDatabase(page, shared, "clock", "state", overdue)
+    assert.deepEqual(await exported(), { ...transferred, phase: "paused", pausedMs: 90_000, deadlineMs: null, cueAtMs: 60_000 })
+    const expired = { ...record, timer: { ...record.timer, endsAtMs: deadline - 360_000 } }
+    await writeDatabase(page, shared, "clock", "state", expired)
+    assert.equal((await exported()).deadlineMs, deadline - 360_000)
+
+    const damaged = { ...record, timer: { ...record.timer, endsAtMs: "invalid" } }
+    await writeDatabase(page, shared, "clock", "state", damaged)
+    assert.equal(await exported(), "unavailable")
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), damaged)
+
+    await writeDatabase(page, shared, "clock", "state", record)
+    await page.goto(entry)
+    await expect(page.getByTestId("home-launcher")).toBeVisible()
+    assert.equal(await page.evaluate(() => typeof window.AtmoShaperTimerTransfer), "undefined")
+    for (const [index, path] of ["/chimer", "/chimer/"].entries()) {
+      const intercepted = page.waitForEvent("requestfailed", request => request.url() === openNativeTimer)
+      await go(page, path)
+      await intercepted
+      assert.equal(nativeRequests.length, index + 1)
+      assert.equal(page.url(), entry)
+    }
+    await go(page, "/chimer/?source=music&returnTo=%2Fmusic")
+    await page.getByRole("button", { name: "Close Background panel" }).click()
+    await expect(page.getByRole("region", { name: "Music visualizer" })).toBeVisible()
+    await expect(page.getByTestId("running-timer-clock")).toHaveCount(0)
+    assert.deepEqual(nativeRequests, [openNativeTimer, openNativeTimer])
+    await expect.poll(() => readDatabase(page, shared, "clock", "visualizer-settings")).toMatchObject({ version: 1 })
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+    assert.deepEqual(f.errors, [])
     assert.deepEqual(f.foreign, [])
   } finally {
     await f.close()
