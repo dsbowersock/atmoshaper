@@ -47,6 +47,28 @@ class NativeTimerStateTest {
     }
 
     @Test
+    fun foregroundAdjustmentCanConsumeFreshExpiryButCannotReplayIt() {
+        val running = TimerSnapshot().start(TimerSetup(minutes = 2, cue = TimerCue.Flash), start)
+        val deadline = checkNotNull(running.deadlineMs)
+        for (observedAt in listOf(deadline, deadline + 1_249)) {
+            val adjustments = listOf(running.adjust(-TIMER_MINUTE_MS, observedAt), running.setInterval(1, observedAt))
+            for (completed in adjustments) {
+                assertEquals(TimerPhase.Complete, completed.snapshot.phase)
+                assertEquals(TimerSignal.Completion, completed.cue)
+                assertNull(completed.snapshot.advance(observedAt, true).cue)
+                assertNull(completed.snapshot.setRemaining(0, observedAt).cue)
+                assertNull(completed.snapshot.setInterval(1, observedAt).cue)
+            }
+        }
+        assertNull(running.adjust(-TIMER_MINUTE_MS, deadline + 1_250).cue)
+        assertNull(running.setInterval(1, deadline + 1_250).cue)
+        assertNull(running.advance(deadline, false).cue)
+
+        val withInterval = TimerSnapshot().start(TimerSetup(minutes = 2, intervalMinutes = 1), start)
+        assertNull(withInterval.adjust(TIMER_MINUTE_MS, start + TIMER_MINUTE_MS).cue)
+    }
+
+    @Test
     fun aForegroundIntervalIsConsumedOnceAndRecoverySkipsMissedCues() {
         val running = TimerSnapshot().start(
             TimerSetup(minutes = 4, interval = TimerInterval.Custom, intervalMinutes = 1), start,

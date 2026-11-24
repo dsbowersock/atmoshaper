@@ -180,6 +180,8 @@ test("the native timer receives an original deadline and packaged navigation lea
   const deadline = Date.now() + 180_000
   const old = { ...defaultOfflineCoreState(), intervalMinutes: 1,
     timer: { ...startOfflineTimer(240_000, deadline - 240_000), lastAlertIndex: 2 } }
+  const indexedDeadline = deadline + 30_000
+  const indexedOld = { ...old, timer: { ...old.timer, endsAt: indexedDeadline } }
   const templates = [{ id: "synthetic", name: "Example setup", createdAt: 1,
     settings: { minutes: 5, alertType: "silent", skipIntervalCues: true, backgroundId: "solid-color" } }]
   const record = { version: 1, settings: { hours: 0, minutes: 4, intervalType: "custom",
@@ -224,8 +226,35 @@ test("the native timer receives an original deadline and packaged navigation lea
     assert.deepEqual(prototype.savedSetups.map(({ name, setup }) => [name, setup.minutes, setup.interval]),
       [[null, 2, "preset"], ["Example setup", 5, "none"]])
     assert.equal("backgroundId" in prototype.savedSetups[1].setup, false)
-    await writeDatabase(page, earlier, "state", "preferences", old)
-    assert.equal((await exported()).deadlineMs, deadline)
+
+    const splitName = "a".repeat(79) + "😀"
+    const fittingName = "b".repeat(78) + "😀"
+    const malformed = { minutes: 6, clockShadowStrength: { toString: null } }
+    const mixed = [
+      { id: "damaged", name: "Damaged setup", createdAt: 4, settings: malformed },
+      { id: "split", name: splitName, createdAt: 3, settings: { minutes: 7 } },
+      { id: "fits", name: fittingName, createdAt: 2, settings: { minutes: 8 } },
+      { id: "blank", name: "\ud800\u001c", createdAt: 2, settings: { minutes: 9 } },
+      ...templates,
+    ]
+    await page.evaluate(({ mixed, malformed }) => {
+      localStorage.setItem("chimer-setup-presets-v1", JSON.stringify(mixed))
+      localStorage.setItem("chimer-last-setup-v1", JSON.stringify(malformed))
+    }, { mixed, malformed })
+    const recovered = await exported()
+    assert.equal(recovered.deadlineMs, deadline)
+    assert.deepEqual(recovered.savedSetups.map(({ name, setup }) => [name, setup.minutes]),
+      [["a".repeat(79), 7], [fittingName, 8], ["Saved setup", 9], ["Example setup", 5]])
+    assert.deepEqual(await page.evaluate(() => [
+      localStorage.getItem("chimer-setup-presets-v1"), localStorage.getItem("chimer-last-setup-v1"),
+    ]), [JSON.stringify(mixed), JSON.stringify(malformed)])
+    await page.evaluate(templates => {
+      localStorage.setItem("chimer-setup-presets-v1", JSON.stringify(templates))
+      localStorage.setItem("chimer-last-setup-v1", JSON.stringify({ minutes: 2, customInterval: 1 }))
+    }, templates)
+
+    await writeDatabase(page, earlier, "state", "preferences", indexedOld)
+    assert.equal((await exported()).deadlineMs, indexedDeadline)
     await writeDatabase(page, shared, "clock", "state", record)
     const transferred = await exported()
     assert.equal(transferred.deadlineMs, deadline)
@@ -234,7 +263,7 @@ test("the native timer receives an original deadline and packaged navigation lea
     assert.equal("clockModeFontColor" in transferred.setup, false)
     assert.equal(await exported("?deny-setup-read"), "unavailable")
     assert.deepEqual(await exported(), transferred)
-    assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), old)
+    assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), indexedOld)
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
     assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), old)
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("chimer-setup-presets-v1"))), templates)

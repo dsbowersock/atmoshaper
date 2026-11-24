@@ -281,7 +281,9 @@ private fun TimerAdjustment(
             val intervalMinutes = validInterval?.takeIf { it > 0 }
             onApply { state, time ->
                 val change = if (duration != null) state.setRemaining(duration, time) else TimerAdvance(state)
-                if (intervalEdited) change.copy(snapshot = change.snapshot.setInterval(intervalMinutes, time)) else change
+                if (intervalEdited && change.snapshot.phase != TimerPhase.Complete) {
+                    change.snapshot.setInterval(intervalMinutes, time)
+                } else change
             }
         }) { Text(stringResource(R.string.timer_apply)) }
         TextButton(onClick = onClose) { Text(stringResource(R.string.timer_cancel)) }

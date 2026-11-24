@@ -1,5 +1,19 @@
 # AtmoShaper Project Log
 
+## November 24 native timer hosted review follow-up
+
+Address the four CodeRabbit findings on draft PR #134. Isolate malformed
+optional templates and export valid Unicode labels within the Android length
+limit. Retain a fresh completion cue when a duration or interval edit first
+observes expiry. Verify that the two legacy storage sources have distinct
+deadlines and their original records survive. Independent Standards and Spec
+re-reviews found zero actionable issues.
+
+The rebuilt APK passed Android lint and ten installed timer tests. Chromium
+passed the focused transfer regression and all 14 native website contracts
+passed. Investigate the three prior hosted failures separately in the
+[timer plan](superpowers/plans/2026-11-24-native-timer.md#hosted-review-follow-up).
+
 ## November 24 independent native timer correction
 
 Keep timer routing independent of the WebView export capability. Preserve

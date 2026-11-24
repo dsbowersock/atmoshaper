@@ -104,3 +104,40 @@ Independent Standards and Spec follow-ups found no remaining actionable
 findings in the correction. The browser fixture covered a packaged shell
 without the timer transfer channel. The Android 35 provider supports legacy
 export, so the unsupported-provider retry branch was traced in source.
+
+## Hosted review follow-up
+
+The full CodeRabbit review of [PR #134](https://github.com/dsbowersock/atmoshaper/pull/134)
+at `8611a7b` raised four findings. The correction isolates invalid optional
+templates while preserving retry for denied reads, bounds names without split
+surrogates or blank Android labels, shares fresh completion handling across
+duration and interval adjustments, and proves IndexedDB precedence with a
+different deadline from localStorage. Independent Standards and Spec
+follow-ups reported zero remaining actionable issues.
+
+The final Chromium transfer regression, all 14 native website contract
+checks, changed-file ESLint, and diff hygiene passed. The Android APK
+assembled and passed lint, and all ten timer instrumentation tests passed on
+the guarded Android 35 emulator. APK SHA-256
+`bd620e8af1860106f96e61d00de472986fab5626a7f0edf286e48464309f661a`.
+
+The three hosted failures at `8611a7b` have separate evidence.
+
+- **Android.** The first run hit HTTP 429 during dependency resolution. The
+  retry compiled and ran all 16 tests. Its only failure was the inherited
+  Clock fullscreen test waiting for visible status and navigation insets.
+  Locally the same test passed on the pinned Clock APK. On the corrected
+  APK it reached the post-swipe pixel check and saw black where it expected
+  the normal band color. Two further local runs timed out finding the Clock
+  launcher label. The hosted inset failure remains unisolated.
+  [Hosted Android retry](https://github.com/dsbowersock/atmoshaper/actions/runs/45479088061/job/138752834318)
+- **Code quality.** The legacy offline-background browser test reached the
+  click on Lateral Rays and timed out. Its isolated run passed all 84
+  renderers on the pinned Clock base and on the corrected branch. The hosted
+  click stall did not reproduce in those runs.
+  [Hosted code quality](https://github.com/dsbowersock/atmoshaper/actions/runs/45479088339/job/138747065548)
+- **Browser QA lane 2.** The mobile planner test fell back to a desktop
+  stepper button hidden at phone width. A Chromium fixture reproduced the
+  existing helper's one-time choice when the phone selector appeared late.
+  The same helper completed the step after that selector became visible.
+  [Hosted Browser QA lane 2](https://github.com/dsbowersock/atmoshaper/actions/runs/45479088339/job/138748513652)

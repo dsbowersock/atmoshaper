@@ -19,6 +19,12 @@ The corrected APK passed the guarded v3 to v6 to v9 in-place upgrade and
 ten Android instrumentation tests at both font scales. The upgrade retained
 the original deadline, settings, both downloaded files, and the planner draft.
 
+The [PR #134](https://github.com/dsbowersock/atmoshaper/pull/134) review
+follow-up isolates malformed timer templates, preserves whole setup names,
+and retains a fresh completion cue when an adjustment first observes expiry.
+The focused browser and ten installed timer tests passed. The three hosted
+failures on the previous head have separate diagnoses in the timer plan.
+
 The Android v9 development preview plays cues on the visible timer screen.
 The Android 35 emulator verified an offline v8-to-v9 update, fresh setup,
 cold links and all six timer tests at 100% and 160% font scale.

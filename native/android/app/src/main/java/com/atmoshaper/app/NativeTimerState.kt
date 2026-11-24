@@ -156,24 +156,29 @@ internal data class TimerSnapshot(
     fun adjust(deltaMs: Long, now: Long): TimerAdvance =
         setRemaining(remainingAt(now) + deltaMs, now)
 
-    /** Deliberate adjustment to zero can deliver completion. An elapsed
-     * deadline is reconciled silently here so an edit cannot replay it. */
     fun setRemaining(milliseconds: Long, now: Long): TimerAdvance {
-        val current = advance(now, false).snapshot
-        if (current.phase !in activePhases) return TimerAdvance(current)
+        val advanced = advanceForAdjustment(now)
+        val current = advanced.snapshot
+        if (current.phase !in activePhases) return advanced
         val remaining = milliseconds.coerceIn(0, maxDurationMs)
         if (remaining == 0L) return TimerAdvance(current.completed(), TimerSignal.Completion)
         return TimerAdvance(current.withRemaining(remaining, now))
     }
 
-    fun setInterval(minutes: Int?, now: Long): TimerSnapshot {
+    fun setInterval(minutes: Int?, now: Long): TimerAdvance {
         require(minutes == null || minutes in TimerSetupBounds.intervalMinutes)
-        val current = advance(now, false).snapshot
-        if (current.phase !in activePhases) return current
+        val advanced = advanceForAdjustment(now)
+        val current = advanced.snapshot
+        if (current.phase !in activePhases) return advanced
         val interval = minutes?.times(TIMER_MINUTE_MS)
         val offset = interval?.takeIf { it < current.remainingAt(now) }
-        return current.copy(intervalMs = interval, cuePosition = offset?.let { current.positionAfter(it, now) })
+        return TimerAdvance(current.copy(intervalMs = interval, cuePosition = offset?.let { current.positionAfter(it, now) }))
     }
+
+    /** An edit can be the first operation to observe expiry. Use the tick's
+     * freshness window for completion and consume overdue intervals silently. */
+    private fun advanceForAdjustment(now: Long): TimerAdvance =
+        advance(now, foreground = deadlineMs?.let { now >= it } == true)
 
     private fun withRemaining(remaining: Long, now: Long): TimerSnapshot {
         val running = phase == TimerPhase.Running
