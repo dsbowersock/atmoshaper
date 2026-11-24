@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_wordmark">AtmoShaper</string>
+    <string name="home_intro">Everyday tools for wellbeing, learning and massage practice.</string>
+    <string name="home_tools">Your tools</string>
+    <string name="home_music">Music</string>
+    <string name="home_clock">Clock &amp; timer</string>
+    <string name="home_wellness">Wellness</string>
+    <string name="home_calendar">My Calendar</string>
+    <string name="home_study">Study &amp; play</string>
+    <string name="home_practice">Practice tools</string>
+    <string name="home_back">Back to Home</string>
+    <string name="home_tool_unavailable">Coming to the native app</string>
+    <string name="home_preview_details">This preview includes native Home. Use the previous tools for features already available in the app and to open your existing saved work.</string>
+    <string name="home_open_previous_tools">Open previous tools</string>
+</resources>

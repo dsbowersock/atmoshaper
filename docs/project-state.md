@@ -1,5 +1,25 @@
 # AtmoShaper Project State
 
+## November 23 native Android Home preview
+
+[Issue #83](https://github.com/dsbowersock/atmoshaper/issues/83) adds the
+first Compose journey on `codex/native-home-83`, based on the shared Android
+preview in `origin/main`. The launcher opens native Home offline and shows
+availability for the six established tool categories. **Open previous tools**
+continues into the existing Java host, which retains ownership of the packaged
+tool stores, existing Android links and browser-owned connected session.
+
+The v7 development APK passed Android build and lint and matched the v6 preview
+signer. Installed-app instrumentation passed native launcher, category and Back
+checks on the dedicated synthetic emulator. The v3 → v6 → v7 upgrade passed in
+airplane mode after the legacy downloads were seeded. It retained the two
+download byte digests, settings, timer deadline and a planner draft written in
+v6. Back from the previous tools returned to Compose. Home remained scrollable
+at 160% text scale. The
+[implementation plan](superpowers/plans/2026-11-23-native-home-safe-update.md)
+records the upgrade and review scope. Physical phone and connected-origin
+acceptance and hosted Android CI remain separate gates.
+
 ## November 23 PR #81 held for the mobile drawer correction
 
 The owner approves corrected candidate `b2053cb`. Its additional push/protected

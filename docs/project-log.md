@@ -1,5 +1,34 @@
 # AtmoShaper Project Log
 
+## November 23 native Home enters the Android preview
+
+Implement [#83](https://github.com/dsbowersock/atmoshaper/issues/83) in a
+separate issue worktree based on `origin/main`. Pin the Compose toolchain in the
+existing Android application module, add native launcher/build instrumentation
+and retain the Java host as the previous-tools entry. Use the packaged
+wordmark, Inter and the launcher icon and button treatments from the website.
+Advance the development APK to v7 with its existing package and signer.
+
+The guarded upgrade fixture installs v3 and v6, adds a representative planner
+draft through the v6 interface, and installs v7 in place. It checks the native
+launcher, Back from previous tools, the saved draft, settings, timer deadline
+and download bytes. A separate Android CI job builds, lints and runs the native
+Home instrumentation on a fresh emulator.
+
+Local verification passed Android build and lint, preview signer comparison,
+native Home instrumentation, the serial-guarded upgrade journey, TypeScript and
+the focused native regression, offline core and offline media suites. The upgrade
+restored both downloads byte-for-byte and reopened the saved draft, with offline
+playback, fullscreen Back and the PDF dialog covered in the previous tools.
+The full repository suite returned 5,942 passes, 15 failures, one cancellation
+and seven skips. The non-passing cases came from the browser and Calendar
+harnesses and donation checkout.
+
+Codex Standards and Spec reviews cleared the corrected candidate. CodeRabbit
+completed the application review and the final test-only follow-up with zero
+findings. The two Inter font binaries were inspected locally for their source,
+weights and license. The synthetic emulator was stopped after verification.
+
 ## November 23 corrected Preview passes; final mobile drawer issue held locally
 
 After the owner approves `b2053cb`, renew the separate Vercel CLI session and
