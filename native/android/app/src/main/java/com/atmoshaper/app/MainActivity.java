@@ -26,6 +26,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
@@ -220,7 +221,16 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void deliverRoute() {
-        if (pendingRoute == null || !isEntry()) return;
+        if (pendingRoute == null || !isEntry() || !getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) return;
+        Uri route = Uri.parse(pendingRoute);
+        // A validated external timer link remains pending while the host is
+        // stopped. Open it directly once resumed, before clearing the request.
+        if ("/chimer".equals(route.getPath()) && !"music".equals(route.getQueryParameter("source"))
+            && !"background".equals(route.getQueryParameter("panel"))) {
+            startActivity(new Intent(this, NativeTimerActivity.class));
+            pendingRoute = null;
+            return;
+        }
         String path = JSONObject.quote(pendingRoute); pendingRoute = null;
         webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('atmoshaper:native-navigation',{detail:" + path + "}));", null);
     }
@@ -301,6 +311,11 @@ public final class MainActivity extends ComponentActivity {
         // including when an earlier recreation already discarded the PDF bytes.
         if (pendingDocumentId > 0) state.putInt("document.pendingId", pendingDocumentId);
         super.onSaveInstanceState(state);
+    }
+
+    @Override protected void onPostResume() {
+        super.onPostResume();
+        webView.post(this::deliverRoute);
     }
 
     @SuppressLint("SetJavaScriptEnabled") // Executes the bundled React tools only.
@@ -422,7 +437,7 @@ public final class MainActivity extends ComponentActivity {
         WebViewCompat.addWebMessageListener(webView, "AtmoShaperTimerNavigation",
             Collections.singleton("https://appassets.androidplatform.net"), (view, message, origin, mainFrame, reply) -> {
                 if (mainFrame && isEntry() && "open".equals(message.getData())
-                    && getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                    && getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                     startActivity(new Intent(this, NativeTimerActivity.class));
                 }
             });

@@ -3,6 +3,7 @@ package com.atmoshaper.app
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
@@ -13,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -30,13 +32,16 @@ class NativeTimerActivity : ComponentActivity() {
     private var busy by mutableStateOf(true)
     private var now by mutableStateOf(0L)
     private var flash by mutableStateOf(false)
+    private var pendingSetup: TimerSetup? = null
+    private var setupWriter: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        onBackPressedDispatcher.addCallback(this) { close() }
         setContent {
             HomeTheme {
-                NativeTimerScreen(snapshot, now, busy, error, flash, ::finish, ::retry, ::change)
+                NativeTimerScreen(snapshot, now, busy, error, flash, ::close, ::retry, ::saveSetup, ::change)
             }
         }
         lifecycleScope.launch {
@@ -54,6 +59,45 @@ class NativeTimerActivity : ComponentActivity() {
         lifecycleScope.launch { retryLoad() }
     }
 
+    private fun close() {
+        lifecycleScope.launch {
+            setupWriter?.join()
+            // A user-initiated close waits for an in-flight control action
+            // but can leave a cold transfer that has not shown a timer yet.
+            if (snapshot != null) mutation.withLock { finish() } else finish()
+        }
+    }
+
+    /** Conflate quick input changes. The latest valid setup survives Back
+     * and Close, and an already started session always wins over a draft. */
+    private fun saveSetup(choices: TimerSetup) {
+        val current = snapshot ?: return
+        if (current.phase != TimerPhase.Ready || error != null) return
+        if (setupWriter?.isActive != true && current.setup == choices) return
+        pendingSetup = choices
+        if (setupWriter?.isActive == true) return
+        setupWriter = lifecycleScope.launch {
+            while (true) {
+                val latest = pendingSetup ?: break
+                pendingSetup = null
+                try {
+                    mutation.withLock {
+                        showSnapshot(withContext(Dispatchers.IO) {
+                            store.update { if (it.phase == TimerPhase.Ready) it.copy(setup = latest) else it }
+                        })
+                    }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    error = R.string.timer_storage_write_error
+                    pendingSetup = null
+                }
+            }
+        }
+    }
+
+    /** Each resumed visit silently advances missed positions before it can
+     * observe live foreground ticks. */
     private suspend fun retryLoad() = mutation.withLock {
         busy = true
         try {
@@ -64,7 +108,7 @@ class NativeTimerActivity : ComponentActivity() {
             }
             val openedAt = System.currentTimeMillis()
             now = openedAt
-            show(withContext(Dispatchers.IO) { store.update { it.advance(openedAt, false).snapshot } })
+            showSnapshot(withContext(Dispatchers.IO) { store.update { it.advance(openedAt, false).snapshot } })
             error = null
         } catch (cancelled: CancellationException) {
             throw cancelled
@@ -83,7 +127,7 @@ class NativeTimerActivity : ComponentActivity() {
                 mutation.withLock {
                     val changedAt = System.currentTimeMillis()
                     now = changedAt
-                    show(withContext(Dispatchers.IO) { store.update { command(it, changedAt) } })
+                    showSnapshot(withContext(Dispatchers.IO) { store.update { command(it, changedAt) } })
                     sound.stop()
                     flash = false
                 }
@@ -114,7 +158,9 @@ class NativeTimerActivity : ComponentActivity() {
                     advanced.snapshot
                 }
             }
-            show(current)
+            // A failed save must never produce output. Commit the consumed
+            // position first so recreation cannot deliver it a second time.
+            showSnapshot(current)
             if (cue != null && hasWindowFocus()) {
                 sound.play(current.setup)
                 if (current.setup.cue.flash) {
@@ -132,7 +178,7 @@ class NativeTimerActivity : ComponentActivity() {
         }
     }
 
-    private fun show(current: TimerSnapshot) {
+    private fun showSnapshot(current: TimerSnapshot) {
         snapshot = current
         val flag = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         if ((current.phase == TimerPhase.Running || current.phase == TimerPhase.Paused) && current.setup.keepAwake) window.addFlags(flag)

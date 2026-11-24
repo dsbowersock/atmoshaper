@@ -11,6 +11,8 @@ the reviewed native Clock preview at `95127de`. Its parent is issue #82.
    newest record taking precedence. Check the exported fields and committed
    copy before enabling controls. Preserve the browser originals for rollback
    and keep errors retryable when the source cannot be read.
+   Carry over the timer choices in saved and last-used setups for reuse.
+   Keep their packaged records and visual settings in the original stores.
 3. Open the Compose timer from Clock and packaged timer links. Keep the
    packaged music visualizer and connected website available. Provide setup,
    active adjustments, completion and foreground cue controls. Keep Android

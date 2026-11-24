@@ -21,12 +21,13 @@ function timerNavigation() {
 }
 
 export function hasNativeTimer() { return Boolean(timerNavigation()) }
+export function isTimerPath(path: string) { return path === "/chimer" || path === "/chimer/" }
 
 export function navigateNative(value: string, replace = false) {
   let route = normalizeNativeRoute(value)
   const timer = timerNavigation()
   const destination = new URL(route, location.origin)
-  if (timer && (destination.pathname === "/chimer" || destination.pathname === "/chimer/")) {
+  if (timer && isTimerPath(destination.pathname)) {
     // Legacy visualizer and Background picker links keep the packaged tool.
     // Ordinary timer requests leave the packaged history and music running.
     if (destination.searchParams.get("source") === "music" || destination.searchParams.get("panel") === "background") {

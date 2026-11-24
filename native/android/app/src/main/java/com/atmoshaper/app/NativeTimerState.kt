@@ -2,6 +2,7 @@ package com.atmoshaper.app
 
 import android.content.Context
 import androidx.core.util.AtomicFile
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileNotFoundException
@@ -50,6 +51,28 @@ internal data class TimerSetup(
         TimerInterval.Preset, TimerInterval.Custom -> intervalMinutes * TIMER_MINUTE_MS
         TimerInterval.Areas -> (durationMs / areas).coerceAtLeast(1_000)
     }
+
+    fun encode(): JSONObject = JSONObject()
+        .put("hours", hours).put("minutes", minutes)
+        .put("interval", interval.key).put("intervalMinutes", intervalMinutes).put("areas", areas)
+        .put("cue", cue.key).put("volume", volume).put("vibrationMs", vibrationMs)
+        .put("keepAwake", keepAwake).put("showSeconds", showSeconds)
+
+    companion object {
+        fun decode(setup: JSONObject) = TimerSetup(
+            setup.get("hours") as Int, setup.get("minutes") as Int,
+            TimerInterval.entries.first { it.key == setup.get("interval") },
+            setup.get("intervalMinutes") as Int, setup.get("areas") as Int,
+            TimerCue.entries.first { it.key == setup.get("cue") },
+            (setup.get("volume") as Number).toDouble(), setup.get("vibrationMs") as Int,
+            setup.get("keepAwake") as Boolean, setup.get("showSeconds") as Boolean,
+        )
+    }
+}
+
+/** A null name identifies the last setup reused by earlier packaged builds. */
+internal data class SavedTimerSetup(val name: String?, val setup: TimerSetup) {
+    init { require(name == null || name.isNotBlank() && name.length <= 80) }
 }
 
 internal enum class TimerPhase(val key: String) {
@@ -69,6 +92,7 @@ internal data class TimerSnapshot(
     val deadlineMs: Long? = null,
     val intervalMs: Long? = null,
     val cueAtMs: Long? = null,
+    val savedSetups: List<SavedTimerSetup> = emptyList(),
 ) {
     init {
         require(totalMs in 0..maxDurationMs && pausedMs in 0..totalMs)
@@ -78,6 +102,7 @@ internal data class TimerSnapshot(
         require(if (phase == TimerPhase.Paused) pausedMs > 0 else pausedMs == 0L)
         require(intervalMs == null || (phase in activePhases && intervalMs in 1_000..maxDurationMs))
         require(cueAtMs == null || (intervalMs != null && cueAtMs in 1 until (deadlineMs ?: pausedMs)))
+        require(savedSetups.size <= 13)
     }
 
     fun remainingAt(now: Long): Long =
@@ -88,7 +113,8 @@ internal data class TimerSnapshot(
         val duration = choices.durationMs
         val interval = choices.intervalMs()
         return TimerSnapshot(choices, TimerPhase.Running, duration, deadlineMs = now + duration,
-            intervalMs = interval, cueAtMs = interval?.takeIf { it < duration }?.let { now + it })
+            intervalMs = interval, cueAtMs = interval?.takeIf { it < duration }?.let { now + it },
+            savedSetups = savedSetups)
     }
 
     fun pause(now: Long): TimerSnapshot {
@@ -133,9 +159,9 @@ internal data class TimerSnapshot(
             cueAtMs = next?.let { if (running) now + it else it })
     }
 
-    fun end() = TimerSnapshot(setup)
+    fun end() = TimerSnapshot(setup, savedSetups = savedSetups)
 
-    private fun completed() = TimerSnapshot(setup, TimerPhase.Complete, totalMs)
+    private fun completed() = TimerSnapshot(setup, TimerPhase.Complete, totalMs, savedSetups = savedSetups)
 
     /** Reconcile from the deadline when reopened. A live foreground tick may
      * emit one fresh cue, after the caller commits the advanced snapshot. */
@@ -154,14 +180,15 @@ internal data class TimerSnapshot(
 
     fun encode(): String = JSONObject()
         .put("version", 1)
-        .put("setup", JSONObject()
-            .put("hours", setup.hours).put("minutes", setup.minutes)
-            .put("interval", setup.interval.key).put("intervalMinutes", setup.intervalMinutes).put("areas", setup.areas)
-            .put("cue", setup.cue.key).put("volume", setup.volume).put("vibrationMs", setup.vibrationMs)
-            .put("keepAwake", setup.keepAwake).put("showSeconds", setup.showSeconds))
+        .put("setup", setup.encode())
         .put("phase", phase.key).put("totalMs", totalMs).put("pausedMs", pausedMs)
         .put("deadlineMs", deadlineMs ?: JSONObject.NULL).put("intervalMs", intervalMs ?: JSONObject.NULL)
-        .put("cueAtMs", cueAtMs ?: JSONObject.NULL).toString()
+        .put("cueAtMs", cueAtMs ?: JSONObject.NULL)
+        .put("savedSetups", JSONArray().apply {
+            savedSetups.forEach { saved ->
+                put(JSONObject().put("name", saved.name ?: JSONObject.NULL).put("setup", saved.setup.encode()))
+            }
+        }).toString()
 
     companion object {
         private val activePhases = setOf(TimerPhase.Running, TimerPhase.Paused)
@@ -169,29 +196,27 @@ internal data class TimerSnapshot(
         /** Reject partial or mistyped copies. Import and subsequent reads use
          * the same validation so an invalid copy never becomes a writable default. */
         fun decode(raw: String): TimerSnapshot {
-            require(raw.length <= 4_096)
+            require(raw.length <= 16_384)
             val record = JSONObject(raw)
             require(record.get("version") == 1)
-            val setup = record.getJSONObject("setup")
-            fun JSONObject.int(name: String) = get(name) as Int
             fun JSONObject.long(name: String) = when (val value = get(name)) {
                 is Int -> value.toLong()
                 is Long -> value
                 else -> error("Invalid timer number")
             }
             fun nullable(name: String) = if (record.get(name) == JSONObject.NULL) null else record.long(name)
+            val setups = record.getJSONArray("savedSetups")
+            require(setups.length() <= 13)
+            val saved = List(setups.length()) { index ->
+                val template = setups.getJSONObject(index)
+                val name = template.get("name").let { if (it == JSONObject.NULL) null else it as String }
+                SavedTimerSetup(name, TimerSetup.decode(template.getJSONObject("setup")))
+            }
             return TimerSnapshot(
-                TimerSetup(
-                    setup.int("hours"), setup.int("minutes"),
-                    TimerInterval.entries.first { it.key == setup.get("interval") },
-                    setup.int("intervalMinutes"), setup.int("areas"),
-                    TimerCue.entries.first { it.key == setup.get("cue") },
-                    (setup.get("volume") as Number).toDouble(), setup.int("vibrationMs"),
-                    setup.get("keepAwake") as Boolean, setup.get("showSeconds") as Boolean,
-                ),
+                TimerSetup.decode(record.getJSONObject("setup")),
                 TimerPhase.entries.first { it.key == record.get("phase") },
                 record.long("totalMs"), record.long("pausedMs"), nullable("deadlineMs"),
-                nullable("intervalMs"), nullable("cueAtMs"),
+                nullable("intervalMs"), nullable("cueAtMs"), saved,
             )
         }
     }

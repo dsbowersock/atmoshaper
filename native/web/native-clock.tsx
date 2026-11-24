@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button"
 import { useNativeAccess } from "./native-access"
 import { NativeRouteContext, navigateNative } from "./platform/navigation"
 
-/** Retains the actual website timer component while navigating, and projects
- * into a new atomic snapshot. The earlier preview is a read-only seed; no vault is read. */
+/** Reuses the packaged Clock and music visualizer. Browser previews retain
+ * their shared timer, while the Android host delegates countdowns to Compose
+ * and saves only visualizer settings. The device stores never read a vault. */
 export function NativeClock({ route, active, appearanceOnly }: { route: string; active: boolean; appearanceOnly: boolean }) {
   const account = useNativeAccess()
   const [store] = useState(() => createNativeClockStorage({ appearanceOnly }))

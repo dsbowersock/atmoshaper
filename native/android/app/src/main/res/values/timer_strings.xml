@@ -13,7 +13,12 @@
     <string name="timer_preset">Preset minutes</string>
     <string name="timer_custom_minutes">Custom minutes</string>
     <string name="timer_areas">Areas to massage</string>
-    <string name="timer_minute_choice">%1$s minutes</string>
+    <plurals name="timer_minute_choice">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <string name="timer_saved_setups">Choose a saved setup</string>
+    <string name="timer_last_packaged_setup">Last packaged setup</string>
     <string name="timer_choice">%1$s: %2$s</string>
     <string name="timer_cue">Cue</string>
     <string name="timer_chime">Chime</string>

@@ -58,6 +58,8 @@ internal class TimerCuePlayer(private val context: Context) {
 
     private companion object {
         const val sampleRate = 16_000
+        // Match the packaged chime's frequencies, overlap and 20 ms attack
+        // with a single local PCM buffer. The user volume applies at playback.
         val samples by lazy {
             ShortArray(sampleRate * 9 / 10) { index ->
                 val t = index.toDouble() / sampleRate

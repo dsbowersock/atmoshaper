@@ -177,7 +177,10 @@ test("the native timer receives an original deadline and packaged navigation lea
   const earlier = "atmoshaper.android.offline-core.v1"
   const exporter = new URL("timer-export.html", entry).href
   const deadline = Date.now() + 180_000
-  const old = { ...defaultOfflineCoreState(), timer: startOfflineTimer(240_000, deadline - 240_000) }
+  const old = { ...defaultOfflineCoreState(), intervalMinutes: 1,
+    timer: { ...startOfflineTimer(240_000, deadline - 240_000), lastAlertIndex: 2 } }
+  const templates = [{ id: "synthetic", name: "Example setup", createdAt: 1,
+    settings: { minutes: 5, alertType: "silent", skipIntervalCues: true, backgroundId: "solid-color" } }]
   const record = { version: 1, settings: { hours: 0, minutes: 4, intervalType: "custom",
     customInterval: 1, alertType: "chime-haptic", clockModeFontColor: "#CCAABB" },
   timer: { status: "running", totalMs: 240_000, remainingMs: 180_000, endsAtMs: deadline,
@@ -196,8 +199,17 @@ test("the native timer receives an original deadline and packaged navigation lea
   try {
     assert.equal((await exported()).phase, "ready")
     assert.deepEqual(await page.evaluate(() => indexedDB.databases()), [])
-    await page.evaluate(({ earlier, old }) => localStorage.setItem(earlier, JSON.stringify(old)), { earlier, old })
-    assert.equal((await exported()).deadlineMs, deadline)
+    await page.evaluate(({ earlier, old, templates }) => {
+      localStorage.setItem(earlier, JSON.stringify(old))
+      localStorage.setItem("chimer-setup-presets-v1", JSON.stringify(templates))
+      localStorage.setItem("chimer-last-setup-v1", JSON.stringify({ minutes: 2, customInterval: 1 }))
+    }, { earlier, old, templates })
+    const prototype = await exported()
+    assert.equal(prototype.deadlineMs, deadline)
+    assert.equal(prototype.cueAtMs, deadline - 60_000)
+    assert.deepEqual(prototype.savedSetups.map(({ name, setup }) => [name, setup.minutes, setup.interval]),
+      [[null, 2, "preset"], ["Example setup", 5, "none"]])
+    assert.equal("backgroundId" in prototype.savedSetups[1].setup, false)
     await writeDatabase(page, earlier, "state", "preferences", old)
     assert.equal((await exported()).deadlineMs, deadline)
     await writeDatabase(page, shared, "clock", "state", record)
@@ -209,6 +221,7 @@ test("the native timer receives an original deadline and packaged navigation lea
     assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), old)
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
     assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), old)
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("chimer-setup-presets-v1"))), templates)
 
     const paused = { ...record, timer: { status: "paused", totalMs: 240_000, remainingMs: 90_000,
       intervalMs: 60_000, msUntilNextAlert: 20_000 } }

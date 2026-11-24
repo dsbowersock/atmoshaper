@@ -1,5 +1,6 @@
 package com.atmoshaper.app
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -31,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -60,6 +62,7 @@ internal fun NativeTimerScreen(
     flash: Boolean,
     onClose: () -> Unit,
     onRetry: () -> Unit,
+    onSetupChange: (TimerSetup) -> Unit,
     onChange: ((TimerSnapshot, Long) -> TimerSnapshot) -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -89,7 +92,7 @@ internal fun NativeTimerScreen(
                 } else {
                     Text(stringResource(R.string.timer_foreground), style = MaterialTheme.typography.bodySmall)
                     when (snapshot.phase) {
-                        TimerPhase.Ready -> TimerSetupForm(snapshot.setup, !busy) { choices ->
+                        TimerPhase.Ready -> TimerSetupForm(snapshot, !busy, onSetupChange) { choices ->
                             onChange { state, time -> state.start(choices, time) }
                         }
                         TimerPhase.Running, TimerPhase.Paused -> ActiveTimer(snapshot, now, !busy, onChange)
@@ -107,18 +110,35 @@ internal fun NativeTimerScreen(
 }
 
 @Composable
-private fun TimerSetupForm(setup: TimerSetup, enabled: Boolean, onStart: (TimerSetup) -> Unit) {
+private fun TimerSetupForm(
+    snapshot: TimerSnapshot, enabled: Boolean, onSetupChange: (TimerSetup) -> Unit, onStart: (TimerSetup) -> Unit,
+) {
+    val setup = snapshot.setup
     var hours by rememberSaveable { mutableStateOf(setup.hours.toString()) }
     var minutes by rememberSaveable { mutableStateOf(setup.minutes.toString()) }
     var interval by rememberSaveable { mutableStateOf(setup.interval) }
     var intervalMinutes by rememberSaveable { mutableStateOf(setup.intervalMinutes.toString()) }
     var areas by rememberSaveable { mutableStateOf(setup.areas.toString()) }
     var cue by rememberSaveable { mutableStateOf(setup.cue) }
-    var volume by rememberSaveable { mutableStateOf(setup.volume.toFloat()) }
+    var volume by rememberSaveable { mutableStateOf(setup.volume) }
     var haptics by rememberSaveable { mutableStateOf(setup.vibrationMs.toFloat()) }
     var keepAwake by rememberSaveable { mutableStateOf(setup.keepAwake) }
     var showSeconds by rememberSaveable { mutableStateOf(setup.showSeconds) }
 
+    if (snapshot.savedSetups.isNotEmpty()) {
+        TimerDropdown(stringResource(R.string.timer_saved_setups), null, snapshot.savedSetups, enabled,
+            { it.name ?: stringResource(R.string.timer_last_packaged_setup) }) { saved ->
+            val choices = saved.setup
+            hours = choices.hours.toString()
+            minutes = choices.minutes.toString()
+            interval = choices.interval
+            intervalMinutes = choices.intervalMinutes.toString()
+            areas = choices.areas.toString()
+            cue = choices.cue
+            volume = choices.volume
+            haptics = choices.vibrationMs.toFloat()
+        }
+    }
     NumberInput(R.string.timer_hours, hours, 0..23, enabled) { hours = it }
     NumberInput(R.string.timer_minutes, minutes, 0..59, enabled) { minutes = it }
     TimerMenu(R.string.timer_interval, interval, TimerInterval.entries, enabled, TimerInterval::label) { choice ->
@@ -127,11 +147,14 @@ private fun TimerSetupForm(setup: TimerSetup, enabled: Boolean, onStart: (TimerS
     }
     when (interval) {
         TimerInterval.None -> Unit
-        TimerInterval.Preset -> TimerDropdown(
-            stringResource(R.string.timer_preset), stringResource(R.string.timer_minute_choice, intervalMinutes),
-            (presets + listOfNotNull(intervalMinutes.toIntOrNull())).distinct().sorted(), enabled,
-            { stringResource(R.string.timer_minute_choice, it.toString()) }, { intervalMinutes = it.toString() },
-        )
+        TimerInterval.Preset -> {
+            val selected = intervalMinutes.toIntOrNull() ?: 15
+            TimerDropdown(
+                stringResource(R.string.timer_preset), pluralStringResource(R.plurals.timer_minute_choice, selected, selected),
+                (presets + selected).distinct().sorted(), enabled,
+                { pluralStringResource(R.plurals.timer_minute_choice, it, it) }, { intervalMinutes = it.toString() },
+            )
+        }
         TimerInterval.Custom -> NumberInput(R.string.timer_custom_minutes, intervalMinutes, 1..240, enabled) { intervalMinutes = it }
         TimerInterval.Areas -> NumberInput(R.string.timer_areas, areas, 1..24, enabled) { areas = it }
     }
@@ -139,7 +162,7 @@ private fun TimerSetupForm(setup: TimerSetup, enabled: Boolean, onStart: (TimerS
     if (cue.sound) {
         val label = stringResource(R.string.timer_volume_label)
         Text(stringResource(R.string.timer_volume, (volume * 100).roundToInt()))
-        Slider(value = volume, onValueChange = { volume = it }, enabled = enabled, steps = 19,
+        Slider(value = volume.toFloat(), onValueChange = { volume = (it * 100).roundToInt() / 100.0 }, enabled = enabled, steps = 19,
             modifier = Modifier.semantics { contentDescription = label })
     }
     if (cue.vibration) {
@@ -155,14 +178,16 @@ private fun TimerSetupForm(setup: TimerSetup, enabled: Boolean, onStart: (TimerS
     val validMinutes = minutes.numberIn(0..59)
     val validInterval = intervalMinutes.numberIn(1..240)
     val validAreas = areas.numberIn(1..24)
+    val choices = if (validHours != null && validMinutes != null &&
+        (interval != TimerInterval.Custom || validInterval != null) && (interval != TimerInterval.Areas || validAreas != null)
+    ) {
+        TimerSetup(validHours, validMinutes, interval, validInterval ?: setup.intervalMinutes, validAreas ?: setup.areas,
+            cue, volume, haptics.roundToInt(), keepAwake, showSeconds)
+    } else null
+    LaunchedEffect(choices) { if (choices != null) onSetupChange(choices) }
     Button(
-        enabled = enabled && validHours != null && validMinutes != null && validHours + validMinutes > 0 &&
-            (interval != TimerInterval.Custom || validInterval != null) && (interval != TimerInterval.Areas || validAreas != null),
-        onClick = {
-            onStart(TimerSetup(checkNotNull(validHours), checkNotNull(validMinutes), interval,
-                validInterval ?: setup.intervalMinutes, validAreas ?: setup.areas, cue, volume.toDouble(),
-                haptics.roundToInt(), keepAwake, showSeconds))
-        },
+        enabled = enabled && choices != null && choices.durationMs > 0,
+        onClick = { if (choices != null) onStart(choices) },
     ) { Text(stringResource(R.string.timer_start)) }
 }
 
@@ -181,23 +206,25 @@ private fun ActiveTimer(
         formatTimer(remaining, snapshot.setup.showSeconds),
         style = MaterialTheme.typography.headlineMedium.copy(fontFamily = FontFamily(Font(R.font.dseg7_bold))),
     )
-    Button(onClick = { onChange { state, time -> if (running) state.pause(time) else state.resume(time) } }, enabled = enabled) {
-        Text(stringResource(if (running) R.string.timer_pause else R.string.timer_resume))
-    }
-    OutlinedButton(onClick = { adjust = true }, enabled = enabled) { Text(stringResource(R.string.timer_adjust)) }
-    TextButton(onClick = { onChange { state, _ -> state.end() } }, enabled = enabled) {
-        Text(stringResource(R.string.timer_end))
-    }
     if (adjust) {
-        TimerAdjustDialog(snapshot, remaining, enabled, { adjust = false }) { change ->
+        BackHandler { adjust = false }
+        TimerAdjustment(snapshot, remaining, enabled, { adjust = false }) { change ->
             adjust = false
             onChange(change)
+        }
+    } else {
+        Button(onClick = { onChange { state, time -> if (running) state.pause(time) else state.resume(time) } }, enabled = enabled) {
+            Text(stringResource(if (running) R.string.timer_pause else R.string.timer_resume))
+        }
+        OutlinedButton(onClick = { adjust = true }, enabled = enabled) { Text(stringResource(R.string.timer_adjust)) }
+        TextButton(onClick = { onChange { state, _ -> state.end() } }, enabled = enabled) {
+            Text(stringResource(R.string.timer_end))
         }
     }
 }
 
 @Composable
-private fun TimerAdjustDialog(
+private fun TimerAdjustment(
     snapshot: TimerSnapshot,
     remaining: Long,
     enabled: Boolean,
@@ -213,38 +240,34 @@ private fun TimerAdjustDialog(
     val validHours = hours.numberIn(0..23)
     val validMinutes = minutes.numberIn(0..59)
     val validInterval = interval.numberIn(0..240)
-    AlertDialog(
-        onDismissRequest = onClose,
-        title = { Text(stringResource(R.string.timer_adjust)) },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { onApply { state, time -> state.adjust(-TIMER_MINUTE_MS, time) } }, enabled = enabled) {
-                        Text(stringResource(R.string.timer_remove_minute))
-                    }
-                    OutlinedButton(onClick = { onApply { state, time -> state.adjust(TIMER_MINUTE_MS, time) } }, enabled = enabled) {
-                        Text(stringResource(R.string.timer_add_minute))
-                    }
-                }
-                NumberInput(R.string.timer_remaining_hours, hours, 0..23, enabled) { hours = it; durationEdited = true }
-                NumberInput(R.string.timer_remaining_minutes, minutes, 0..59, enabled) { minutes = it; durationEdited = true }
-                NumberInput(R.string.timer_active_interval, interval, 0..240, enabled) { interval = it; intervalEdited = true }
-                Text(stringResource(R.string.timer_zero_interval), style = MaterialTheme.typography.bodySmall)
+    // Keep adjustment inside the timer window so that it continues to own
+    // foreground cues while the user is reading or editing these controls.
+    Text(stringResource(R.string.timer_adjust), style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.semantics { heading() })
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = { onApply { state, time -> state.adjust(-TIMER_MINUTE_MS, time) } }, enabled = enabled) {
+            Text(stringResource(R.string.timer_remove_minute))
+        }
+        OutlinedButton(onClick = { onApply { state, time -> state.adjust(TIMER_MINUTE_MS, time) } }, enabled = enabled) {
+            Text(stringResource(R.string.timer_add_minute))
+        }
+    }
+    NumberInput(R.string.timer_remaining_hours, hours, 0..23, enabled) { hours = it; durationEdited = true }
+    NumberInput(R.string.timer_remaining_minutes, minutes, 0..59, enabled) { minutes = it; durationEdited = true }
+    NumberInput(R.string.timer_active_interval, interval, 0..240, enabled) { interval = it; intervalEdited = true }
+    Text(stringResource(R.string.timer_zero_interval), style = MaterialTheme.typography.bodySmall)
+    val valid = (!durationEdited || validHours != null && validMinutes != null) && (!intervalEdited || validInterval != null)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(enabled = enabled && valid && (durationEdited || intervalEdited), onClick = {
+            val duration = if (durationEdited) (checkNotNull(validHours) * 60 + checkNotNull(validMinutes)) * TIMER_MINUTE_MS else null
+            val intervalMinutes = validInterval?.takeIf { it > 0 }
+            onApply { state, time ->
+                val changed = if (duration != null) state.setRemaining(duration, time) else state
+                if (intervalEdited) changed.setInterval(intervalMinutes, time) else changed
             }
-        },
-        confirmButton = {
-            val valid = (!durationEdited || validHours != null && validMinutes != null) && (!intervalEdited || validInterval != null)
-            TextButton(enabled = enabled && valid && (durationEdited || intervalEdited), onClick = {
-                val duration = if (durationEdited) (checkNotNull(validHours) * 60 + checkNotNull(validMinutes)) * TIMER_MINUTE_MS else null
-                val intervalMinutes = validInterval?.takeIf { it > 0 }
-                onApply { state, time ->
-                    val changed = if (duration != null) state.setRemaining(duration, time) else state
-                    if (intervalEdited) changed.setInterval(intervalMinutes, time) else changed
-                }
-            }) { Text(stringResource(R.string.timer_apply)) }
-        },
-        dismissButton = { TextButton(onClick = onClose) { Text(stringResource(R.string.timer_cancel)) } },
-    )
+        }) { Text(stringResource(R.string.timer_apply)) }
+        TextButton(onClick = onClose) { Text(stringResource(R.string.timer_cancel)) }
+    }
 }
 
 @Composable
@@ -291,13 +314,13 @@ private fun <T> TimerMenu(
 
 @Composable
 private fun <T> TimerDropdown(
-    label: String, selected: String, choices: List<T>, enabled: Boolean,
+    label: String, selected: String?, choices: List<T>, enabled: Boolean,
     name: @Composable (T) -> String, onChange: (T) -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Box {
         OutlinedButton(onClick = { expanded = true }, enabled = enabled) {
-            Text(stringResource(R.string.timer_choice, label, selected))
+            Text(if (selected == null) label else stringResource(R.string.timer_choice, label, selected))
         }
         DropdownMenu(expanded = expanded && enabled, onDismissRequest = { expanded = false }) {
             choices.forEach { choice ->
@@ -317,7 +340,7 @@ private fun formatTimer(remainingMs: Long, showSeconds: Boolean): String {
     else String.format(Locale.ROOT, "%02d:%02d", hours, minutes)
 }
 
-private val presets = listOf(5, 10, 15, 30)
+private val presets = listOf(1, 5, 10, 15, 30)
 
 private val TimerInterval.label get() = when (this) {
     TimerInterval.None -> R.string.timer_no_interval

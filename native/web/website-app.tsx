@@ -12,7 +12,7 @@ import { LayoutWrapper } from "@/components/layout-wrapper"
 import { resolveNavigation } from "@/lib/navigation"
 import { resolveHomeDashboard } from "@/lib/home-dashboard"
 import { projectAccountShellAppSettings } from "@/lib/account-shell-bootstrap"
-import { hasNativeTimer, navigateNative, useNativeRoute } from "./platform/navigation"
+import { hasNativeTimer, isTimerPath, navigateNative, useNativeRoute } from "./platform/navigation"
 import { NativeClock } from "./native-clock"
 import { NativeAccessProvider } from "./native-access"
 import { ToolRoutes } from "./tool-routes"
@@ -29,7 +29,7 @@ export function WebsiteApp() {
   const route = useNativeRoute()
   const path = route.split("?")[0]
   const nativeTimer = hasNativeTimer()
-  const timerRoute = path === "/chimer" || path === "/chimer/"
+  const timerRoute = isTimerPath(path)
   const clockRoute = path === "/clock" || !nativeTimer && timerRoute
   useEffect(() => {
     if (nativeTimer && timerRoute) navigateNative(route, true)

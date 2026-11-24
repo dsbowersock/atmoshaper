@@ -27,16 +27,29 @@ class NativeTimerJourneyTest {
 
     @Test
     fun clockOpensNativeTimerAndPauseAdjustResumeAndEndSurviveReopening() = withFixture(
-        TimerSnapshot(TimerSetup(interval = TimerInterval.None, cue = TimerCue.Silent)),
+        TimerSnapshot(
+            TimerSetup(cue = TimerCue.Silent),
+            savedSetups = listOf(SavedTimerSetup("Example saved setup", TimerSetup(minutes = 3, cue = TimerCue.Silent))),
+        ),
     ) {
         ActivityScenario.launch(HomeActivity::class.java).use {
             text("Clock & timer").click()
             text("Open timer").click()
+            text("Choose a saved setup").click()
+            text("Example saved setup").click()
             text("Minutes")
             assertFalse(device.hasObject(By.clazz("android.webkit.WebView")))
             val fields = device.findObjects(By.clazz("android.widget.EditText"))
             assertEquals(2, fields.size)
+            assertEquals("3", fields[1].text)
             fields[1].text = "2"
+            scrollTo("Preset minutes: 15 minutes").click()
+            text("1 minute").click()
+            device.pressBack()
+            text("Open timer").click()
+            text("Minutes")
+            assertEquals("2", device.findObjects(By.clazz("android.widget.EditText"))[1].text)
+            scrollTo("Preset minutes: 1 minute")
             scrollTo("Start timer").click()
             text("Timer running")
             text("Pause timer").click()
@@ -48,7 +61,7 @@ class NativeTimerJourneyTest {
             text("Timer paused")
             assertEquals(paused, seconds())
             text("Adjust timer").click()
-            text("+1 min").click()
+            scrollTo("+1 min").click()
             text("Timer paused")
             assertEquals(paused + 60, seconds())
 

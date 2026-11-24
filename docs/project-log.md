@@ -9,6 +9,13 @@ reads only timer state and settings from the packaged WebView stores.
 Route packaged timer links to Compose while keeping the packaged music
 visualizer and retaining the timer records used by older previews.
 
+Independent standards and spec review identified missing setup durability,
+the one-minute preset, foreground cues during adjustment, and earlier
+interval progress after a backward clock change. The follow-up persists
+valid setup edits, restores the preset, keeps adjustment in the timer
+window, and imports consumed cue positions. Previously saved and last-used
+setup choices also remain available locally.
+
 ## November 24 native Clock swipe and acceptance follow-up
 
 Reproduce low-contrast system icons after an immersive swipe on the guarded
