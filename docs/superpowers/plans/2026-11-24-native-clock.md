@@ -76,3 +76,42 @@ read-only Clock, and retry never replaces either source.
   compatibility delta.
 - Physical Galaxy S24 Ultra acceptance remains pending. All installed-app
   results above are from the synthetic emulator.
+
+## Independent review corrections
+
+1. Resolve the public background access decisions when packaging the export
+   document. Project only compatible renderers with that access, and keep the
+   document on the same read-only transfer path.
+2. Use separate non-translucent system-bar bands and test the gradient
+   interpolation range for glyph contrast. Size the contrast outlines outside
+   the custom stroke, and limit stroke width on the small day-period glyphs.
+3. Keep the DSEG fragments ordered under RTL, restore the reduced trailing
+   label for proportional fonts, and distinguish the Close and fullscreen
+   controls. Group the font choices as a single selection and share effect
+   ranges between the editor and the appearance decoder.
+4. Measure the installed package versions and check that **Open timer**
+   displays the packaged countdown with the retained deadline. Verify the
+   corrected assets and journeys on the named synthetic emulator.
+
+The corrected Android build and lint passed. At 160% text scale on the
+synthetic emulator, an RTL capture kept the DSEG AM/PM on the left over a
+black-to-white gradient with matching gray digits and maximum custom stroke.
+A separate light-solid capture showed the smaller trailing AM/PM in Serif.
+Both captures measured approximately 8.8:1 for the sampled navigation icon
+and 18.1:1 for the sampled status icon against their respective surfaces.
+Focused Windows verification passed typecheck, changed JavaScript lint,
+111 Clock/timer cases, 14 native contract cases, and 10 packaged-browser
+cases with one optional media case skipped.
+
+The corrected APK passed the guarded upgrade on Android 35. Android
+reported versions 3, 6, and 8 in sequence. **Open timer** displayed the
+packaged countdown with the original deadline. The run also verified the
+original settings, both downloaded byte digests, offline playback, the
+planner draft, and the PDF save dialog. The acceptance and build receipts
+match the corrected APK digest.
+
+All six installed-app tests passed on that APK at both 100% and 160% text
+scale. They include the contrast regression, system-bar appearance, repeat
+visits, recreation, settings persistence, and native Home navigation.
+Full Windows-suite completion, physical Galaxy S24 Ultra acceptance, and
+CodeRabbit review of the correction remain open.

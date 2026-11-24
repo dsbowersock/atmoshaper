@@ -88,6 +88,9 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
   }
   try {
     assert.equal((await exported()).font, "digital")
+    const { backgroundRegistry, userCanUseBackground } = await import("../components/backgrounds/backgroundRegistry.ts")
+    const publicIds = backgroundRegistry.filter(entry => userCanUseBackground(entry)).map(entry => entry.id)
+    assert.equal(await page.locator("script[data-public-backgrounds]").getAttribute("data-public-backgrounds"), publicIds.join(","))
     assert.deepEqual(await page.evaluate(async () => await indexedDB.databases()), [])
 
     const simple = { version: 1, timeFormat: "24h", showSeconds: true, mainColor: "#112233", motion: false,
@@ -134,6 +137,12 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
 
     await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: "not-supported" } })
     assert.equal((await exported()).background, "neutral")
+    const premium = backgroundRegistry.find(entry => entry.enabled && entry.requiresSubscription)
+    assert.ok(premium)
+    await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: premium.id } })
+    const locked = await exported()
+    assert.equal(locked.background, "neutral")
+    assert.deepEqual(locked.gradientColors, [])
     const damaged = { ...record, settings: { ...record.settings, clockModeFontColor: "invalid" } }
     await write(shared, "clock", "state", damaged)
     assert.equal(await exported(), "unavailable")

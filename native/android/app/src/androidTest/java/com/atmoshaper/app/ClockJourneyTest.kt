@@ -1,7 +1,9 @@
 package com.atmoshaper.app
 
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -20,9 +22,27 @@ class ClockJourneyTest {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @Test
+    fun contrastProtectionCoversInterpolatedColorsAndSmallGlyphs() {
+        val grey = Color(0xFF808080)
+        assertTrue(clockNeedsContrastOutline(grey, listOf(Color.Black, Color.White)))
+        assertFalse(clockNeedsContrastOutline(Color.White, listOf(Color.Black)))
+        assertTrue(clockNeedsContrastOutline(Color.White, listOf(Color(0xFFAAAAAA))))
+        // Both stops clear 4.5:1 against black. Their RGB midpoint is darker
+        // than either stop, so an endpoint-only test would miss the risk.
+        assertTrue(clockNeedsContrastOutline(Color.Black, listOf(Color(0xFFFF0000), Color(0xFF008800))))
+        assertTrue(clockGlyphStrokeWidth(12f, 20f, smallGlyph = true) < 2f)
+        assertTrue(clockGlyphStrokeWidth(12f, 140f, smallGlyph = false) == 12f)
+    }
+
+    @Test
     fun clockCanBeEnlargedClosedAndReopenedAfterRecreation() {
         ActivityScenario.launch(HomeActivity::class.java).use { scenario ->
             openClock()
+            scenario.onActivity { activity ->
+                val bars = WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+                assertFalse(bars.isAppearanceLightStatusBars)
+                assertTrue(bars.isAppearanceLightNavigationBars)
+            }
             text("Fullscreen").click()
             acknowledgeImmersiveTutorial()
             text("Exit fullscreen").click()

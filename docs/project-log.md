@@ -1,5 +1,19 @@
 # AtmoShaper Project Log
 
+## November 24 native Clock independent review corrections
+
+Protect Clock digits and the system bars on mixed and light backgrounds.
+Keep the digital readout ordered under RTL and restore proportional AM/PM.
+Use canonical public background access during packaging and share native
+appearance ranges between the settings editor and decoder. The guarded
+upgrade now checks the timer and deadline from **Open timer** and reads each
+installed version from Android.
+
+The corrected Android build and lint, guarded v3 → v6 → v8 upgrade, and
+six installed-app tests at both text scales passed on the synthetic
+emulator. The implementation plan records the focused Windows and visual
+results and the remaining acceptance gates.
+
 ## November 24 native Clock and repeatable fullscreen
 
 Build issue #84 on the reviewed native Home head `ea3cbce`. Introduce a Compose

@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url"
 import { createHash } from "node:crypto"
 import { readFile, writeFile, copyFile, mkdir, readdir, lstat, realpath, rm } from "node:fs/promises"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
+import { backgroundRegistry, userCanUseBackground } from "../components/backgrounds/backgroundRegistry.ts"
 
 const require = createRequire(import.meta.url)
 export const root = fileURLToPath(new URL("..", import.meta.url))
@@ -153,7 +154,11 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
   await writeFile(path.join(coreRoot, "THIRD-PARTY-NOTICES.txt"), await offlineNotices(modules))
   await writeFile(path.join(coreRoot, "index.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: https://media.atmoshaper.com/atmosphere/; frame-src 'none'; worker-src blob:; base-uri 'none'; form-action 'none'"><title>${legacyAcceptance ? "AtmoShaper Offline Tools" : "AtmoShaper"}</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./app.css"></head><body><div id="root"></div><script defer src="./app.js"></script></body></html>`)
   if (!legacyAcceptance) {
-    await writeFile(path.join(coreRoot, "clock-appearance-export.html"), '<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\'; base-uri \'none\'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js"></script>')
+    // Resolve without account claims. The isolated exporter needs only these
+    // public decisions, so it never loads any renderer or account modules.
+    const publicBackgrounds = backgroundRegistry.filter(entry => userCanUseBackground(entry)).map(entry => entry.id)
+    if (publicBackgrounds.some(id => !/^[a-z0-9-]+$/.test(id))) throw new Error("Invalid public Clock background identifier.")
+    await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}"></script>`)
   }
   const files = await fileInventory(coreRoot)
   const manifest = { version: 2, entry: "core/index.html", networkRequired: false, sharedWebsite: !legacyAcceptance, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["home", "navigation", "clock", "timer", "breathing", "backgrounds", "music", "downloads", "business-planners"], sourceModuleCount: modules.length, files }

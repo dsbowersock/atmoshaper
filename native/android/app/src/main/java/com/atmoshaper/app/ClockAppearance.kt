@@ -34,6 +34,21 @@ internal enum class ClockBackground(val key: String) {
     Neutral("neutral"),
 }
 
+/** The native settings editor and both appearance read paths share these bounds. */
+internal object ClockEffectRange {
+    val strength = 0f..1f
+    val shadowDirection = 0f..360f
+    val shadowDistance = 0f..32f
+    val shadowFeather = 0f..32f
+    val strokeWidth = 0f..3f
+    val rotationRange = 2f..20f
+    val rotationDuration = 10f..120f
+    val forwardGlowLength = 0.5f..4f
+    val forwardGlowBlur = 0f..64f
+}
+
+internal val clockHexColor = Regex("#[a-fA-F0-9]{6}")
+
 internal data class ClockAppearance(
     val twentyFourHour: Boolean,
     val seconds: Boolean,
@@ -103,7 +118,6 @@ internal data class ClockAppearance(
         .toString()
 
     companion object {
-        private val hexColor = Regex("#[0-9a-fA-F]{6}")
         val readOnly = ClockAppearance(false, false, ClockTypeface.Digital, "#FFFFFF",
             false, false, "#FF7A1A", false, ClockBackground.Neutral, "#000000", "#000000", false)
 
@@ -115,14 +129,14 @@ internal data class ClockAppearance(
             val format = json.get("format")
             require(format == "12h" || format == "24h")
             fun color(key: String, default: String? = null) =
-                ((if (json.has(key)) json.get(key) else checkNotNull(default)) as String).also { require(hexColor.matches(it)) }
-            fun number(key: String, default: Float, min: Float, max: Float): Float =
-                (if (json.has(key)) (json.get(key) as Number).toFloat() else default).also { require(it in min..max) }
+                ((if (json.has(key)) json.get(key) else checkNotNull(default)) as String).also { require(clockHexColor.matches(it)) }
+            fun number(key: String, default: Float, range: ClosedFloatingPointRange<Float>): Float =
+                (if (json.has(key)) (json.get(key) as Number).toFloat() else default).also { require(it in range) }
             val colors = if (json.has("gradientColors")) json.getJSONArray("gradientColors") else null
             val stops = if (json.has("gradientStops")) json.getJSONArray("gradientStops") else null
             val gradientColors = colors?.let { values ->
                 require(values.length() in 0..7)
-                List(values.length()) { (values.get(it) as String).also { hex -> require(hexColor.matches(hex)) } }
+                List(values.length()) { (values.get(it) as String).also { hex -> require(clockHexColor.matches(hex)) } }
             }.orEmpty()
             val gradientStops = stops?.let { values ->
                 require(values.length() == gradientColors.size)
@@ -143,25 +157,25 @@ internal data class ClockAppearance(
                 firstColor = color("firstColor"),
                 secondColor = color("secondColor"),
                 motion = json.get("motion") as Boolean,
-                glowStrength = number("glowStrength", 0.72f, 0f, 1f),
+                glowStrength = number("glowStrength", 0.72f, ClockEffectRange.strength),
                 shadowColor = color("shadowColor", "#000000"),
-                shadowStrength = number("shadowStrength", 0.42f, 0f, 1f),
-                shadowDirection = number("shadowDirection", 45f, 0f, 360f),
-                shadowDistance = number("shadowDistance", 10f, 0f, 32f),
-                shadowFeather = number("shadowFeather", 8f, 0f, 32f),
+                shadowStrength = number("shadowStrength", 0.42f, ClockEffectRange.strength),
+                shadowDirection = number("shadowDirection", 45f, ClockEffectRange.shadowDirection),
+                shadowDistance = number("shadowDistance", 10f, ClockEffectRange.shadowDistance),
+                shadowFeather = number("shadowFeather", 8f, ClockEffectRange.shadowFeather),
                 stroke = if (json.has("stroke")) json.get("stroke") as Boolean else false,
                 strokeColor = color("strokeColor", "#050505"),
-                strokeWidth = number("strokeWidth", 1f, 0f, 3f),
+                strokeWidth = number("strokeWidth", 1f, ClockEffectRange.strokeWidth),
                 rotation = if (json.has("rotation")) json.get("rotation") as Boolean else false,
-                rotationRange = number("rotationRange", 10f, 2f, 20f),
-                rotationDuration = number("rotationDuration", 40f, 10f, 120f),
+                rotationRange = number("rotationRange", 10f, ClockEffectRange.rotationRange),
+                rotationDuration = number("rotationDuration", 40f, ClockEffectRange.rotationDuration),
                 forwardGlow = if (json.has("forwardGlow")) json.get("forwardGlow") as Boolean else false,
-                forwardGlowStrength = number("forwardGlowStrength", 1f, 0f, 1f),
-                forwardGlowLength = number("forwardGlowLength", 1f, 0.5f, 4f),
-                forwardGlowBlur = number("forwardGlowBlur", 28f, 0f, 64f),
+                forwardGlowStrength = number("forwardGlowStrength", 1f, ClockEffectRange.strength),
+                forwardGlowLength = number("forwardGlowLength", 1f, ClockEffectRange.forwardGlowLength),
+                forwardGlowBlur = number("forwardGlowBlur", 28f, ClockEffectRange.forwardGlowBlur),
                 gradientColors = gradientColors,
                 gradientStops = gradientStops,
-                gradientAngle = number("gradientAngle", 145f, 0f, 360f),
+                gradientAngle = number("gradientAngle", 145f, 0f..360f),
             )
         }
     }
