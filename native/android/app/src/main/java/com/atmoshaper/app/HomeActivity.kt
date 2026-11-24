@@ -213,7 +213,7 @@ private fun PreviousTools(onOpen: () -> Unit) {
 @Composable
 private fun Wordmark() {
     val assets = LocalContext.current.assets
-    // The offline build already copies the canonical website wordmark here.
+    // The offline build packages the canonical wordmark and its public label.
     val wordmark = remember(assets) {
         try {
             assets.open("core/wordmark.png").use { BitmapFactory.decodeStream(it)?.asImageBitmap() }
@@ -221,7 +221,14 @@ private fun Wordmark() {
             null
         }
     }
-    val label = stringResource(R.string.home_wordmark)
+    val wordmarkLabel = remember(assets) {
+        try {
+            assets.open("core/wordmark-label.txt").bufferedReader().use { it.readText() }
+        } catch (_: IOException) {
+            ""
+        }
+    }
+    val label = wordmarkLabel.ifBlank { stringResource(R.string.app_name) }
     if (wordmark == null) {
         Heading(label)
     } else {

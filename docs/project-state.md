@@ -20,6 +20,19 @@ at 160% text scale. The
 records the upgrade and review scope. Physical phone and connected-origin
 acceptance and hosted Android CI remain separate gates.
 
+The native Home navigation follow-up reproduces the original launcher bypass
+and Back failure on the dedicated emulator. Compose Home now has its own task
+affinity so a legacy-link task cannot absorb the launcher entry or remove Home
+when previous tools reopen. The corrected v7 APK installed in place with the
+same signer. Installed-app tests now open all six categories and verify the
+legacy link, launcher and Back sequence.
+
+The standards follow-up sources the native wordmark label from the canonical
+product identity, shares the preview verification task between local build and
+CI, and documents the Android check and preservation fixture. The rebuilt
+preview matched the v3 and v6 signers and passed the complete synthetic
+upgrade. CodeRabbit completed the ten-path correction review with no findings.
+
 ## November 23 PR #81 held for the mobile drawer correction
 
 The owner approves corrected candidate `b2053cb`. Its additional push/protected

@@ -49,6 +49,12 @@ android {
 
 kotlin { jvmToolchain(17) }
 
+tasks.register('verifyDebugPreview') {
+    group = 'verification'
+    description = 'Lint and assemble the debug preview and its installed-app test APK.'
+    dependsOn 'lintDebug', 'assembleDebug', 'assembleDebugAndroidTest'
+}
+
 dependencies {
     implementation 'androidx.activity:activity-compose:1.10.1'
     implementation platform('androidx.compose:compose-bom:2025.08.01')

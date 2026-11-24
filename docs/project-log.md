@@ -1,5 +1,31 @@
 # AtmoShaper Project Log
 
+## November 23 native Home launcher and Back correction
+
+On the guarded Android 35 emulator, a cold legacy tool link followed by the
+launcher brought the Java task forward on `57d4faf`. With Home opened above the
+Java task, **Open previous tools** removed Home and Back returned to Android's
+launcher. Give Compose Home its own task affinity while preserving the legacy
+host's intent filters and reuse behavior.
+
+The same installed-app test APK failed the deep-link regression on the original
+app APK and passed both journeys after the in-place update. The category
+journey visits all six destinations and uses both Back controls. Android lint,
+the app and instrumentation builds, preview signer comparison, and 40 focused
+native/offline checks passed.
+
+The standards follow-up packages the canonical public name with the wordmark,
+records the Android CI lane, shares the preview verification task with CI, and
+uses one documented read-only IndexedDB helper in the upgrade fixture. The
+corrected preview passed Android build and lint, TypeScript, changed-file lint,
+the 160-case native regression suite and the 40 focused contract/offline cases.
+The v3 → v6 → v7 run retained both downloads byte-for-byte, the saved settings,
+timer deadline and planner draft. It also passed offline playback and the PDF
+dialog. The preview signer matched across all three APKs. CodeRabbit completed
+review of all ten correction paths with zero findings.
+Both installed-app journeys passed at 100% and 160% text scale. The Home
+capture shows all launcher controls clear of the system bars.
+
 ## November 23 native Home enters the Android preview
 
 Implement [#83](https://github.com/dsbowersock/atmoshaper/issues/83) in a

@@ -62,30 +62,36 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     page.on("request",request=>{if(offline && request.url().startsWith("https://media."))network.push(request.url())})
     return page
   }
-  async function read(page,name,store,key) {
-    return page.evaluate(({name,store,key})=>new Promise((resolve,reject)=>{
-      const open=indexedDB.open(name);open.onerror=()=>reject(open.error)
-      open.onsuccess=()=>{const db=open.result,request=db.transaction(store).objectStore(store).get(key);request.onsuccess=()=>{db.close();resolve(request.result)};request.onerror=()=>reject(request.error)}
-    }),{name,store,key})
-  }
-  async function downloadDigests(page) {
-    return page.evaluate(async()=>{
-      const packs=await new Promise((resolve,reject)=>{
-        const open=indexedDB.open("atmoshaper.android.media.v1")
+  /** Read the existing stores without creating them if an upgrade lost them. */
+  async function read(page,name,store,key,{digestFiles=false}={}) {
+    return page.evaluate(async({name,store,key,digestFiles})=>{
+      const db=await new Promise((resolve,reject)=>{
+        const open=indexedDB.open(name)
+        open.onupgradeneeded=()=>open.transaction.abort()
         open.onerror=()=>reject(open.error)
-        open.onsuccess=()=>{
-          const db=open.result,request=db.transaction("packs").objectStore("packs").getAll()
-          request.onsuccess=()=>{db.close();resolve(request.result)}
-          request.onerror=()=>{db.close();reject(request.error)}
-        }
+        open.onsuccess=()=>resolve(open.result)
       })
-      return Promise.all(packs.map(async ({id,revision,files})=>({
+      let records
+      try {
+        records=await new Promise((resolve,reject)=>{
+          const objects=db.transaction(store).objectStore(store)
+          const request=key===undefined?objects.getAll():objects.get(key)
+          request.onsuccess=()=>resolve(request.result)
+          request.onerror=()=>reject(request.error)
+        })
+      } finally {
+        db.close()
+      }
+      if (!digestFiles) return records
+      // Hash stored bytes inside WebView. Metadata could survive even if files did not.
+      return Promise.all(records.map(async ({id,revision,files})=>({
         id,revision,files:await Promise.all(files.map(async ({data})=>
           Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",data)),byte=>byte.toString(16).padStart(2,"0")).join("")
         )),
       })))
-    })
+    },{name,store,key,digestFiles})
   }
+  const downloadDigests=page=>read(page,"atmoshaper.android.media.v1","packs",undefined,{digestFiles:true})
   function nativeHierarchy() {
     const hierarchyPath="/data/local/tmp/atmoshaper-parity-native-home.xml"
     // UiAutomator can report no root while the new Activity is taking focus.
@@ -94,6 +100,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     if (!dump.endsWith(hierarchyPath)) return ""
     return shell("shell","cat",hierarchyPath)
   }
+  /** Tap fresh accessibility bounds across APKs, including Home outside WebView. */
   async function tapNativeLabel(label) {
     const xmlLabel=label.replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")
     const bounds=new RegExp(`<node\\b[^>]*text="${RegExp.escape(xmlLabel)}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`)
