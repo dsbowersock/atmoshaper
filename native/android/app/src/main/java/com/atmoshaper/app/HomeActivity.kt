@@ -8,6 +8,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
@@ -74,9 +75,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.IOException
 
-/** Native launcher and Clock share a task. Previous tools retain their
+/** Native Home owns Clock and breathing navigation. Previous tools retain their
  * existing separate host and open through explicit actions. */
 class HomeActivity : ComponentActivity() {
+    private val breathingGuide by viewModels<BreathingGuideViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
@@ -85,7 +88,7 @@ class HomeActivity : ComponentActivity() {
         )
         setContent {
             HomeTheme {
-                Home(this, onOpenPreviousTools = ::openPreviousTools, onOpenTimer = ::openTimer)
+                Home(this, breathingGuide, onOpenPreviousTools = ::openPreviousTools, onOpenTimer = ::openTimer)
             }
         }
     }
@@ -118,10 +121,21 @@ private enum class HomeTool(
 }
 
 @Composable
-private fun Home(activity: HomeActivity, onOpenPreviousTools: () -> Unit, onOpenTimer: () -> Unit) {
+private fun Home(
+    activity: HomeActivity,
+    breathingGuide: BreathingGuideViewModel,
+    onOpenPreviousTools: () -> Unit,
+    onOpenTimer: () -> Unit,
+) {
     var tool by rememberSaveable { mutableStateOf<HomeTool?>(null) }
+    var showBreathing by rememberSaveable { mutableStateOf(false) }
     val selectedTool = tool
     val gridState = rememberLazyGridState()
+    if (showBreathing) {
+        BackHandler { showBreathing = false }
+        NativeBreathingScreen(breathingGuide, onClose = { showBreathing = false })
+        return
+    }
     if (selectedTool == HomeTool.Clock) {
         ClockScreen(activity, onClose = { tool = null }, onOpenTimer = onOpenTimer)
         return
@@ -148,6 +162,7 @@ private fun Home(activity: HomeActivity, onOpenPreviousTools: () -> Unit, onOpen
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Wordmark()
                             Text(stringResource(R.string.home_intro), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            OpenBreathing { showBreathing = true }
                             Heading(stringResource(R.string.home_tools))
                         }
                     }
@@ -168,11 +183,22 @@ private fun Home(activity: HomeActivity, onOpenPreviousTools: () -> Unit, onOpen
                         Text(stringResource(R.string.home_back))
                     }
                     Heading(title)
-                    Text(stringResource(R.string.home_tool_unavailable), style = MaterialTheme.typography.titleMedium)
+                    if (selectedTool == HomeTool.Wellness) {
+                        OpenBreathing { showBreathing = true }
+                    } else {
+                        Text(stringResource(R.string.home_tool_unavailable), style = MaterialTheme.typography.titleMedium)
+                    }
                     PreviousTools(onOpenPreviousTools)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun OpenBreathing(onOpen: () -> Unit) {
+    OutlinedButton(onClick = onOpen, modifier = Modifier.heightIn(min = 48.dp)) {
+        Text(stringResource(R.string.breathing_open))
     }
 }
 
